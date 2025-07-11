@@ -79,9 +79,9 @@ theorem card_singleton (a : α) : #{a} = 1 :=
   Multiset.card_singleton _
 
 theorem card_singleton_inter [DecidableEq α] : #({a} ∩ s) ≤ 1 := by
-  cases Finset.decidableMem a s with | isFalse h | isTrue h
-  · simp [Finset.singleton_inter_of_notMem h]
+  by_cases h : a ∈ s
   · simp [Finset.singleton_inter_of_mem h]
+  · simp [Finset.singleton_inter_of_notMem h]
 
 @[simp]
 theorem card_cons (h : a ∉ s) : #(s.cons a h) = #s + 1 :=
