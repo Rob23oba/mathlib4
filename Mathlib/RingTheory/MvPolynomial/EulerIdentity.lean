@@ -55,23 +55,27 @@ variable [Fintype σ] {n : ℕ}
 
 open Finset in
 /-- Euler's identity for weighted homogeneous polynomials. -/
-theorem IsWeightedHomogeneous.sum_weight_X_mul_pderiv {w : σ → ℕ}
-    (h : φ.IsWeightedHomogeneous w n) : ∑ i : σ, w i • (X i * pderiv i φ) = n • φ := by
-  rw [← mem_weightedHomogeneousSubmodule, weightedHomogeneousSubmodule_eq_finsupp_supported,
-    AddMonoidAlgebra.supported_eq_span_single] at h
+theorem IsWeightedHomogeneous.sum_weight_X_mul_pderiv {w : σ → ℕ} (h : φ.IsWeightedHomogeneous w n)
+    : ∑ i : σ, w i • (X i * pderiv i φ) = n • φ := by
+  rw [
+      ← mem_weightedHomogeneousSubmodule, weightedHomogeneousSubmodule_eq_finsupp_supported,
+      AddMonoidAlgebra.supported_eq_span_single
+    ]
+    at h
   refine Submodule.span_induction ?_ ?_ (fun p q _ _ hp hq ↦ ?_) (fun r p _ h ↦ ?_) h
   · rintro _ ⟨m, hm, rfl⟩
     simp_rw [single_eq_monomial, X_mul_pderiv_monomial, smul_smul, ← sum_smul, mul_comm (w _)]
     congr
     rwa [Set.mem_ofPred, weight_apply, sum_fintype] at hm
-    intro; apply zero_smul
+    intro
+    apply zero_smul
   · simp
   · simp_rw [map_add, left_distrib, smul_add, sum_add_distrib, hp, hq]
   · simp_rw [(pderiv _).map_smul, nsmul_eq_mul, mul_smul_comm, ← Finset.smul_sum, ← nsmul_eq_mul, h]
 
 /-- Euler's identity for homogeneous polynomials. -/
-theorem IsHomogeneous.sum_X_mul_pderiv (h : φ.IsHomogeneous n) :
-    ∑ i : σ, X i * pderiv i φ = n • φ := by
+theorem IsHomogeneous.sum_X_mul_pderiv (h : φ.IsHomogeneous n)
+    : ∑ i : σ, X i * pderiv i φ = n • φ := by
   simp_rw [← h.sum_weight_X_mul_pderiv, Pi.one_apply, one_smul]
 
 end MvPolynomial

@@ -48,7 +48,6 @@ This file defines notions of spheres being tangent to affine subspaces and other
 
 @[expose] public section
 
-
 namespace EuclideanGeometry
 
 namespace Sphere
@@ -149,8 +148,7 @@ lemma IsTangentAt.mem_polar_of_mem {s : Sphere P} {p₁ p₂ : P} {as : AffineSu
   mem_polar_of_mem_of_mem_orthRadius h.mem_sphere (mem_of_le_of_mem h.le_orthRadius hp₁)
 
 /-- The affine subspace `as` is tangent to the sphere `s` at some point. -/
-def IsTangent (s : Sphere P) (as : AffineSubspace ℝ P) : Prop :=
-  ∃ p, s.IsTangentAt p as
+def IsTangent (s : Sphere P) (as : AffineSubspace ℝ P) : Prop := ∃ p, s.IsTangentAt p as
 
 lemma IsTangentAt.isTangent {s : Sphere P} {p : P} {as : AffineSubspace ℝ P}
     (h : s.IsTangentAt p as) : s.IsTangent as :=
@@ -265,8 +263,7 @@ lemma IsTangentAt.eq_orthogonalProjection {s : Sphere P} {p : P} {as : AffineSub
 /-- The set of all maximal tangent spaces to the sphere `s`. -/
 -- Note: `Set` has no computational content, but Lean still attempts to compile it.
 -- See https://github.com/leanprover/lean4/issues/14084.
-noncomputable def tangentSet (s : Sphere P) : Set (AffineSubspace ℝ P) :=
-  s.orthRadius '' s
+noncomputable def tangentSet (s : Sphere P) : Set (AffineSubspace ℝ P) := s.orthRadius '' s
 
 lemma mem_tangentSet_iff {as : AffineSubspace ℝ P} {s : Sphere P} :
     as ∈ s.tangentSet ↔ ∃ p, p ∈ s ∧ s.orthRadius p = as :=
@@ -278,8 +275,7 @@ lemma isTangent_of_mem_tangentSet {as : AffineSubspace ℝ P} {s : Sphere P}
   exact isTangent_orthRadius_iff_mem.2 hps
 
 /-- The set of all maximal tangent spaces to the sphere `s` containing the point `p`. -/
-def tangentsFrom (s : Sphere P) (p : P) : Set (AffineSubspace ℝ P) :=
-  {as ∈ s.tangentSet | p ∈ as}
+def tangentsFrom (s : Sphere P) (p : P) : Set (AffineSubspace ℝ P) := {as ∈ s.tangentSet | p ∈ as}
 
 lemma mem_tangentsFrom_iff {as : AffineSubspace ℝ P} {s : Sphere P} {p : P} :
     as ∈ s.tangentsFrom p ↔ as ∈ s.tangentSet ∧ p ∈ as :=
@@ -359,15 +355,19 @@ lemma mem_commonTangents_iff {as : AffineSubspace ℝ P} {s₁ s₂ : Sphere P} 
 lemma commonTangents_comm (s₁ s₂ : Sphere P) : s₁.commonTangents s₂ = s₂.commonTangents s₁ :=
   Set.inter_comm _ _
 
-/-- The set of all maximal common internal tangent spaces to the spheres `s₁` and `s₂`: tangent
-spaces containing a point weakly between the centers of the spheres. -/
+/--
+The set of all maximal common internal tangent spaces to the spheres `s₁` and `s₂`: tangent
+spaces containing a point weakly between the centers of the spheres.
+-/
 def commonIntTangents (s₁ s₂ : Sphere P) : Set (AffineSubspace ℝ P) :=
   {as ∈ s₁.commonTangents s₂ | ∃ p ∈ as, Wbtw ℝ s₁.center p s₂.center}
 
-/-- The set of all maximal common external tangent spaces to the spheres `s₁` and `s₂`: tangent
+/--
+The set of all maximal common external tangent spaces to the spheres `s₁` and `s₂`: tangent
 spaces not containing a point strictly between the centers of the spheres. (In the degenerate case
 where the two spheres are the same sphere with radius 0, the space is considered both an internal
-and an external common tangent.) -/
+and an external common tangent.)
+-/
 def commonExtTangents (s₁ s₂ : Sphere P) : Set (AffineSubspace ℝ P) :=
   {as ∈ s₁.commonTangents s₂ | ∀ p ∈ as, ¬Sbtw ℝ s₁.center p s₂.center}
 
@@ -420,9 +420,11 @@ lemma isExtTangentAt_center_iff {s₁ s₂ : Sphere P} :
     · rw [center_mem_iff, hr]
     · simp
 
-/-- The sphere `s₁` is internally tangent to the sphere `s₂` at the point `p` (that is, `s₁` lies
+/--
+The sphere `s₁` is internally tangent to the sphere `s₂` at the point `p` (that is, `s₁` lies
 inside `s₂` and is tangent to it at that point). This includes the degenerate case where the
-spheres are the same. -/
+spheres are the same.
+-/
 structure IsIntTangentAt (s₁ s₂ : Sphere P) (p : P) : Prop where
   mem_left : p ∈ s₁
   mem_right : p ∈ s₂
@@ -444,8 +446,7 @@ lemma isIntTangentAt_center_iff {s₁ s₂ : Sphere P} :
   ⟨fun ⟨h, _, _⟩ ↦ h, fun h ↦ ⟨h, h, by simp⟩⟩
 
 /-- The spheres `s₁` and `s₂` are externally tangent at some point. -/
-def IsExtTangent (s₁ s₂ : Sphere P) : Prop :=
-  ∃ p, s₁.IsExtTangentAt s₂ p
+def IsExtTangent (s₁ s₂ : Sphere P) : Prop := ∃ p, s₁.IsExtTangentAt s₂ p
 
 lemma IsExtTangent.symm {s₁ s₂ : Sphere P} (h : s₁.IsExtTangent s₂) : s₂.IsExtTangent s₁ := by
   rcases h with ⟨p, hp⟩
@@ -455,8 +456,7 @@ lemma isExtTangent_comm {s₁ s₂ : Sphere P} : s₁.IsExtTangent s₂ ↔ s₂
   ⟨IsExtTangent.symm, IsExtTangent.symm⟩
 
 /-- The sphere `s₁` is internally tangent to the sphere `s₂` at some point. -/
-def IsIntTangent (s₁ s₂ : Sphere P) : Prop :=
-  ∃ p, s₁.IsIntTangentAt s₂ p
+def IsIntTangent (s₁ s₂ : Sphere P) : Prop := ∃ p, s₁.IsIntTangentAt s₂ p
 
 lemma IsExtTangentAt.isExtTangent {s₁ s₂ : Sphere P} {p : P} (h : s₁.IsExtTangentAt s₂ p) :
     s₁.IsExtTangent s₂ :=

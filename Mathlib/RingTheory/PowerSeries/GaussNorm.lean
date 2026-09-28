@@ -47,10 +47,11 @@ namespace PowerSeries
 
 variable {R : Type*} [Semiring R] (v : R → ℝ) (c : ℝ) (f : PowerSeries R)
 
-/-- Given a power series `f` in, a function `v : R → ℝ` and a real number `c`, the Gauss norm is
-  defined as the supremum of the set of all values of `v (coeff t f) * c ^ t` for all `t : ℕ`. -/
-noncomputable
-abbrev gaussNorm : ℝ := MvPowerSeries.gaussNorm v (fun _ => c) f
+/--
+Given a power series `f` in, a function `v : R → ℝ` and a real number `c`, the Gauss norm is
+defined as the supremum of the set of all values of `v (coeff t f) * c ^ t` for all `t : ℕ`.
+-/
+noncomputable abbrev gaussNorm : ℝ := MvPowerSeries.gaussNorm v (fun _ => c) f
 
 lemma gaussNorm_eq : gaussNorm v c f = ⨆ i : ℕ, v (f.coeff i) * c ^ i := by
   refine Equiv.iSup_congr (Finsupp.uniqueEquiv ()) ?_
@@ -58,8 +59,10 @@ lemma gaussNorm_eq : gaussNorm v c f = ⨆ i : ℕ, v (f.coeff i) * c ^ i := by
   simp only [coeff, Finsupp.uniqueEquiv_apply, PUnit.default_eq_unit, Finsupp.prod_pow,
     Finset.univ_unique, Finset.prod_singleton, show (Finsupp.single () (x PUnit.unit)) = x by grind]
 
-/-- We say `f` HasGaussNorm if the values `v (coeff t f) * c ^ t` is bounded above, that is
-  `gaussNormC f` is finite. -/
+/--
+We say `f` HasGaussNorm if the values `v (coeff t f) * c ^ t` is bounded above, that is
+`gaussNormC f` is finite.
+-/
 abbrev HasGaussNorm := BddAbove (Set.range (fun (t : ℕ) ↦ (v (coeff t f) * c ^ t)))
 
 lemma HasGaussNorm.hasMvGaussNorm (h : HasGaussNorm v c f) :

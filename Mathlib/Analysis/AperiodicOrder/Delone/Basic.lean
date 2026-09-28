@@ -60,8 +60,10 @@ variable {X Y : Type*} [MetricSpace X] [MetricSpace Y]
 
 namespace Delone
 
-/-- A **Delone set** consists of a set together with explicit radii
-witnessing uniform discreteness and relative denseness. -/
+/--
+A **Delone set** consists of a set together with explicit radii
+witnessing uniform discreteness and relative denseness.
+-/
 @[ext]
 structure DeloneSet (X : Type*) [MetricSpace X] where
   /-- The underlying set. -/
@@ -95,25 +97,26 @@ lemma mem_coe {D : DeloneSet X} {x : X} : x ∈ (D : Set X) ↔ x ∈ D := .rfl
 lemma nonempty [Nonempty X] (D : DeloneSet X) : (D : Set X).Nonempty :=
   D.isCover_coveringRadius.nonempty Set.univ_nonempty
 
-/-- Copy of a Delone set with new fields equal to the old ones.
-Useful to fix definitional equalities. -/
-protected def copy (D : DeloneSet X) (carrier : Set X) (packingRadius coveringRadius : ℝ≥0)
+/--
+Copy of a Delone set with new fields equal to the old ones.
+Useful to fix definitional equalities.
+-/
+protected def copy
+    (D : DeloneSet X) (carrier : Set X) (packingRadius coveringRadius : ℝ≥0)
     (h_carrier : carrier = D.carrier) (h_packing : packingRadius = D.packingRadius)
-    (h_covering : coveringRadius = D.coveringRadius) :
-    DeloneSet X where
+    (h_covering : coveringRadius = D.coveringRadius)
+    : DeloneSet X where
   carrier := carrier
   packingRadius := packingRadius
   packingRadius_pos := by simpa [h_packing] using D.packingRadius_pos
-  isSeparated_packingRadius := by
-    simpa [h_carrier, h_packing] using D.isSeparated_packingRadius
+  isSeparated_packingRadius := by simpa [h_carrier, h_packing] using D.isSeparated_packingRadius
   coveringRadius := coveringRadius
   coveringRadius_pos := by simpa [h_covering] using D.coveringRadius_pos
-  isCover_coveringRadius := by
-    simpa [h_carrier, h_covering] using D.isCover_coveringRadius
+  isCover_coveringRadius := by simpa [h_carrier, h_covering] using D.isCover_coveringRadius
 
-theorem copy_eq (D : DeloneSet X)
-    (carrier packingRadius coveringRadius h_carrier h_packing h_covering) :
-    D.copy carrier packingRadius coveringRadius h_carrier h_packing h_covering = D :=
+theorem copy_eq
+    (D : DeloneSet X) (carrier packingRadius coveringRadius h_carrier h_packing h_covering)
+    : D.copy carrier packingRadius coveringRadius h_carrier h_packing h_covering = D :=
   DeloneSet.ext h_carrier h_packing h_covering
 
 lemma packingRadius_lt_dist_of_mem_ne (D : DeloneSet X) {x y : X}
@@ -145,8 +148,11 @@ lemma subset_ball_singleton (D : DeloneSet X) :
 
 /-- Bilipschitz maps send Delone sets to Delone sets. -/
 @[simps]
-noncomputable def mapBilipschitz (f : X ≃ Y) (K₁ K₂ : ℝ≥0) (hK₁ : 0 < K₁) (hK₂ : 0 < K₂)
-    (hf₁ : AntilipschitzWith K₁ f) (hf₂ : LipschitzWith K₂ f) (D : DeloneSet X) : DeloneSet Y where
+noncomputable def mapBilipschitz
+    (f : X ≃ Y) (K₁ K₂ : ℝ≥0)
+    (hK₁ : 0 < K₁) (hK₂ : 0 < K₂) (hf₁ : AntilipschitzWith K₁ f) (hf₂ : LipschitzWith K₂ f)
+    (D : DeloneSet X)
+    : DeloneSet Y where
   carrier := f '' D.carrier
   packingRadius := D.packingRadius / K₁
   packingRadius_pos := div_pos D.packingRadius_pos hK₁
@@ -179,17 +185,23 @@ lemma mapBilipschitz_trans {Z : Type*} [MetricSpace Z] (D : DeloneSet X)
   · simp only [mapBilipschitz_coveringRadius, NNReal.coe_mul, mul_assoc]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The image of a Delone set under an isometry. This is a specialization of
+/--
+The image of a Delone set under an isometry. This is a specialization of
 `DeloneSet.mapBilipschitz` where the packing and covering radii are preserved because the
-Lipschitz constants are both 1. -/
+Lipschitz constants are both 1.
+-/
 @[simps!]
 noncomputable def mapIsometry (f : X ≃ᵢ Y) : DeloneSet X ≃ DeloneSet Y where
-  toFun D := (D.mapBilipschitz f.toEquiv 1 1 zero_lt_one zero_lt_one
-      f.isometry.antilipschitzWith f.isometry.lipschitzWith).copy (f '' D.carrier)
-      D.packingRadius D.coveringRadius rfl (by simp [mapBilipschitz]) (by simp [mapBilipschitz])
-  invFun D := (D.mapBilipschitz f.symm.toEquiv 1 1 zero_lt_one zero_lt_one
-      f.symm.isometry.antilipschitzWith f.symm.isometry.lipschitzWith).copy (f.symm '' D.carrier)
-      D.packingRadius D.coveringRadius rfl (by simp [mapBilipschitz]) (by simp [mapBilipschitz])
+  toFun D :=
+    (D.mapBilipschitz f.toEquiv 1 1 zero_lt_one zero_lt_one f.isometry.antilipschitzWith
+        f.isometry.lipschitzWith).copy
+      (f '' D.carrier) D.packingRadius D.coveringRadius rfl (by simp [mapBilipschitz])
+      (by simp [mapBilipschitz])
+  invFun D :=
+    (D.mapBilipschitz f.symm.toEquiv 1 1 zero_lt_one zero_lt_one f.symm.isometry.antilipschitzWith
+        f.symm.isometry.lipschitzWith).copy
+      (f.symm '' D.carrier) D.packingRadius D.coveringRadius rfl (by simp [mapBilipschitz])
+      (by simp [mapBilipschitz])
   left_inv D := by ext <;> simp [copy_eq]
   right_inv D := by ext <;> simp [copy_eq]
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Patrick Massot
 -/
 module
+
 public import Mathlib.Topology.VectorBundle.Basic
 public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 
@@ -15,11 +16,11 @@ namespace VectorBundle
 
 open Bundle FiberBundle
 
-variable (R : Type*) {B : Type*} (F : Type*) (E : B → Type*)
-  [NontriviallyNormedField R] [TopologicalSpace B]
-  [TopologicalSpace (TotalSpace F E)]
-  [NormedAddCommGroup F] [NormedSpace R F]
-  [(x : B) → TopologicalSpace (E x)] [FiberBundle F E]
+variable
+  (R : Type*)
+  {B : Type*} (F : Type*) (E : B → Type*)
+  [NontriviallyNormedField R] [TopologicalSpace B] [TopologicalSpace (TotalSpace F E)]
+  [NormedAddCommGroup F] [NormedSpace R F] [(x : B) → TopologicalSpace (E x)] [FiberBundle F E]
   [(x : B) → AddCommGroup (E x)] [(x : B) → Module R (E x)] [VectorBundle R F E]
 
 include E F

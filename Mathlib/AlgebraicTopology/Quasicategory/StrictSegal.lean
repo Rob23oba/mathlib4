@@ -50,32 +50,40 @@ theorem quasicategory {X : SSet.{u}} (sx : StrictSegal X) : Quasicategory X := b
     apply congr_arg
     apply Subtype.ext
     dsimp [horn.face, CosimplicialObject.δ]
-    rw [dsimp% Subcomplex.yonedaEquiv_coe, Subfunctor.lift_ι, stdSimplex.map_apply,
-      Quiver.Hom.unop_op, SSet.yonedaEquiv_map, Equiv.apply_symm_apply,
-      mkOfSucc_δ_lt hlt]
+    rw [
+      dsimp% Subcomplex.yonedaEquiv_coe, Subfunctor.lift_ι, stdSimplex.map_apply,
+      Quiver.Hom.unop_op, SSet.yonedaEquiv_map, Equiv.apply_symm_apply, mkOfSucc_δ_lt hlt
+    ]
     rfl
   · rw [← spine_arrow, spine_δ_arrow_gt sx _ hgt]
     dsimp
     apply congr_arg
     apply Subtype.ext
     dsimp [horn.face, CosimplicialObject.δ]
-    rw [dsimp% Subcomplex.yonedaEquiv_coe, Subfunctor.lift_ι, stdSimplex.map_apply,
-      Quiver.Hom.unop_op, SSet.yonedaEquiv_map, Equiv.apply_symm_apply,
-      mkOfSucc_δ_gt hgt]
+    rw [
+      dsimp% Subcomplex.yonedaEquiv_coe, Subfunctor.lift_ι, stdSimplex.map_apply,
+      Quiver.Hom.unop_op, SSet.yonedaEquiv_map, Equiv.apply_symm_apply, mkOfSucc_δ_gt hgt
+    ]
     rfl
   · obtain _ | n := n
-    · /- The only inner horn of `Δ[2]` does not contain the diagonal edge. -/
-      obtain rfl : k = 0 := by omega
-      fin_cases i <;> contradiction
-    · /- We construct the triangle in the standard simplex as a 2-simplex in
-      the horn. While the triangle is not contained in the inner horn `Λ[2, 1]`,
-      it suffices to inhabit `Λ[n + 3, i] _⦋2⦌`. -/
-      let triangle : (Λ[n + 3, i] : SSet.{u}) _⦋2⦌ :=
-        horn.primitiveTriangle i h₀ hₙ k (by grind)
-      /- The interval spanning from `k` to `k + 2` is equivalently the spine
-      of the triangle with vertices `k`, `k + 1`, and `k + 2`. -/
-      have hi : ((horn.spineId i h₀ hₙ).map σ₀).interval k 2 (by grind) =
-          X.spine 2 (σ₀.app _ triangle) := by
+    · /- The only inner horn of `Δ[2]` does not contain the diagonal edge. -/ obtain rfl
+                                                                                  : k = 0 := by
+                                                                                omega
+                                                                              fin_cases i
+                                                                                <;> contradiction
+    /-
+    We construct the triangle in the standard simplex as a 2-simplex in
+    the horn. While the triangle is not contained in the inner horn `Λ[2, 1]`,
+    it suffices to inhabit `Λ[n + 3, i] _⦋2⦌`.
+    -/
+    · let triangle : (Λ[n + 3, i] : SSet.{u}) _⦋2⦌ := horn.primitiveTriangle i h₀ hₙ k (by grind)
+      /-
+      The interval spanning from `k` to `k + 2` is equivalently the spine
+      of the triangle with vertices `k`, `k + 1`, and `k + 2`.
+      -/
+      have hi
+          : ((horn.spineId i h₀ hₙ).map σ₀).interval k 2 (by grind)
+            = X.spine 2 (σ₀.app _ triangle) := by
         ext m
         dsimp [spine_arrow, Path.map_interval, Path.map_arrow]
         rw [← dsimp% σ₀.naturality_apply]
@@ -91,8 +99,10 @@ theorem quasicategory {X : SSet.{u}} (sx : StrictSegal X) : Quasicategory X := b
       apply Subtype.ext
       ext z : 1
       dsimp [horn.face]
-      rw [dsimp% Subcomplex.yonedaEquiv_coe, Subfunctor.lift_ι, stdSimplex.map_apply,
-        Quiver.Hom.unop_op, stdSimplex.map_apply, Quiver.Hom.unop_op]
+      rw [
+        dsimp% Subcomplex.yonedaEquiv_coe, Subfunctor.lift_ι, stdSimplex.map_apply,
+        Quiver.Hom.unop_op, stdSimplex.map_apply, Quiver.Hom.unop_op
+      ]
       dsimp [CosimplicialObject.δ]
       rw [SSet.yonedaEquiv_map]
       simp only [Equiv.apply_symm_apply, triangle]

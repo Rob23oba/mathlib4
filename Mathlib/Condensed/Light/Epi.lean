@@ -29,7 +29,8 @@ open CategoryTheory Sheaf Limits GrothendieckTopology
 namespace LightCondensed
 
 variable (A : Type u') [Category.{v'} A] {FA : A → A → Type*} {CA : A → Type w}
-variable [∀ X Y, FunLike (FA X Y) (CA X) (CA Y)] [ConcreteCategory.{w} A FA]
+variable
+  [∀ X Y, FunLike (FA X Y) (CA X) (CA Y)] [ConcreteCategory.{w} A FA]
   [PreservesFiniteProducts (CategoryTheory.forget A)]
 
 variable {X Y : LightCondensed.{u} A} (f : X ⟶ Y)
@@ -102,8 +103,9 @@ end LightCondMod
 namespace LightCondensed
 
 variable (R : Type*) [Ring R]
-variable {F : ℕᵒᵖ ⥤ LightCondMod R} {c : Cone F} (hc : IsLimit c)
-  (hF : ∀ n, Epi (F.map (homOfLE (Nat.le_succ n)).op))
+variable
+  {F : ℕᵒᵖ ⥤ LightCondMod R} {c : Cone F}
+  (hc : IsLimit c) (hF : ∀ n, Epi (F.map (homOfLE (Nat.le_succ n)).op))
 
 include hc hF in
 lemma epi_π_app_zero_of_epi : Epi (c.π.app ⟨0⟩) := by
@@ -131,8 +133,10 @@ variable {R : Type u} [Ring R] {M N : ℕ → LightCondMod.{u} R} (f : ∀ n, M 
 set_option backward.defeqAttrib.useBackward true in
 instance : Epi (Limits.Pi.map f) :=
   epi_π_app_zero_of_epi R (isLimit f) (fun n ↦ by
-    simp only [Nat.succ_eq_add_one, Functor.ofOpSequence_obj, homOfLE_leOfHom,
-      Functor.ofOpSequence_map_homOfLE_succ]
+    simp only [
+      Nat.succ_eq_add_one, Functor.ofOpSequence_obj, homOfLE_leOfHom,
+      Functor.ofOpSequence_map_homOfLE_succ
+    ]
     infer_instance)
 
 set_option backward.defeqAttrib.useBackward true in

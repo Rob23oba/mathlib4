@@ -42,8 +42,8 @@ lemma ShortComplex.zero_apply
 
 section preadditive
 
-variable [Preadditive C] [(forget₂ C Ab).Additive] [(forget₂ C Ab).PreservesHomology]
-  (S : ShortComplex C)
+variable
+  [Preadditive C] [(forget₂ C Ab).Additive] [(forget₂ C Ab).PreservesHomology] (S : ShortComplex C)
 
 section
 variable [HasZeroObject C]
@@ -107,9 +107,9 @@ lemma ShortExact.surjective_g [HasZeroObject C] (hS : S.ShortExact) :
 variable (S)
 
 /-- Constructor for cycles of short complexes in a concrete category. -/
-noncomputable def cyclesMk [S.HasHomology] (x₂ : (forget₂ C Ab).obj S.X₂)
-    (hx₂ : ((forget₂ C Ab).map S.g) x₂ = 0) :
-    (forget₂ C Ab).obj S.cycles :=
+noncomputable def cyclesMk
+    [S.HasHomology] (x₂ : (forget₂ C Ab).obj S.X₂) (hx₂ : ((forget₂ C Ab).map S.g) x₂ = 0)
+    : (forget₂ C Ab).obj S.cycles :=
   (S.mapCyclesIso (forget₂ C Ab)).hom ((ShortComplex.abCyclesIso _).inv ⟨x₂, hx₂⟩)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -132,9 +132,11 @@ end
 
 section abelian
 
-variable {C : Type u} [Category.{v} C] {FC : C → C → Type*} {CC : C → Type v}
-  [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)] [ConcreteCategory.{v} C FC] [HasForget₂ C Ab]
-  [Abelian C] [(forget₂ C Ab).Additive] [(forget₂ C Ab).PreservesHomology]
+variable
+  {C : Type u} [Category.{v} C]
+  {FC : C → C → Type*} {CC : C → Type v}
+  [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)] [ConcreteCategory.{v} C FC] [HasForget₂ C Ab] [Abelian C]
+  [(forget₂ C Ab).Additive] [(forget₂ C Ab).PreservesHomology]
 
 namespace ShortComplex
 

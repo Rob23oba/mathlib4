@@ -43,43 +43,54 @@ open Function Set Topology Setoid
 
 namespace Topology
 
-variable {X Y Z : Type*} [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
+variable
+  {X Y Z : Type*} [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
   {f : X → Y} {g : Y → Z}
 
 variable (f) in
-/-- A map is a strict map in the sense of Bourbaki if the natural map to its image
-is a quotient map. -/
-def IsStrictMap : Prop :=
-  IsQuotientMap (Set.rangeFactorization f)
+/--
+A map is a strict map in the sense of Bourbaki if the natural map to its image
+is a quotient map.
+-/
+def IsStrictMap : Prop := IsQuotientMap (Set.rangeFactorization f)
 
 lemma isStrictMap_iff_isQuotientMap_rangeFactorization :
     IsStrictMap f ↔ IsQuotientMap (Set.rangeFactorization f) :=
   Iff.rfl
 
-/-- A map is a strict map if and only if the canonical bijection
-`Quotient (Setoid.ker f) ≃ Set.range f` is a homeomorphism. -/
-theorem isStrictMap_iff_isHomeomorph_quotientKerEquivRange :
-    IsStrictMap f ↔
-      IsHomeomorph (Setoid.quotientKerEquivRange f : Quotient (Setoid.ker f) → Set.range f) := by
+/--
+A map is a strict map if and only if the canonical bijection
+`Quotient (Setoid.ker f) ≃ Set.range f` is a homeomorphism.
+-/
+theorem isStrictMap_iff_isHomeomorph_quotientKerEquivRange
+    : IsStrictMap f
+      ↔ IsHomeomorph (Setoid.quotientKerEquivRange f : Quotient (Setoid.ker f) → Set.range f) := by
   simp only [IsStrictMap, isHomeomorph_iff_isQuotientMap_injective, Equiv.injective, and_true]
-  exact ⟨fun h => IsQuotientMap.of_comp_isQuotientMap isQuotientMap_quotient_mk' h,
-         fun h ↦ h.comp isQuotientMap_quotient_mk'⟩
+  exact ⟨
+    fun h => IsQuotientMap.of_comp_isQuotientMap isQuotientMap_quotient_mk' h,
+    fun h ↦ h.comp isQuotientMap_quotient_mk'
+  ⟩
 
-/-- The homeomorphism `Quotient (Setoid.ker f) ≃ₜ Set.range f` given by a strict map `f`.
-This is the homeomorphism obtained from the first isomorphism theorem. -/
-noncomputable def _root_.Homeomorph.quotientKerEquivRange (hf : IsStrictMap f) :
-    Quotient (Setoid.ker f) ≃ₜ Set.range f :=
+/--
+The homeomorphism `Quotient (Setoid.ker f) ≃ₜ Set.range f` given by a strict map `f`.
+This is the homeomorphism obtained from the first isomorphism theorem.
+-/
+noncomputable def _root_.Homeomorph.quotientKerEquivRange (hf : IsStrictMap f)
+    : Quotient (Setoid.ker f) ≃ₜ Set.range f :=
   (isStrictMap_iff_isHomeomorph_quotientKerEquivRange.mp hf).homeomorph
 
 @[deprecated (since := "2026-07-10")] protected alias Homeomorph.quotientKerEquivRange :=
   Homeomorph.quotientKerEquivRange
 
-/-- A map is a strict map if and only if the canonical injection `Quotient (Setoid.ker f) → Y`
-(`Setoid.kerLift f`) is an embedding. -/
-theorem isStrictMap_iff_isEmbedding_kerLift :
-    IsStrictMap f ↔ IsEmbedding (Setoid.kerLift f) := by
-  simp only [isStrictMap_iff_isHomeomorph_quotientKerEquivRange,
-    isHomeomorph_iff_isEmbedding_surjective, Equiv.surjective, and_true]
+/--
+A map is a strict map if and only if the canonical injection `Quotient (Setoid.ker f) → Y`
+(`Setoid.kerLift f`) is an embedding.
+-/
+theorem isStrictMap_iff_isEmbedding_kerLift : IsStrictMap f ↔ IsEmbedding (Setoid.kerLift f) := by
+  simp only [
+    isStrictMap_iff_isHomeomorph_quotientKerEquivRange, isHomeomorph_iff_isEmbedding_surjective,
+    Equiv.surjective, and_true
+  ]
   exact (IsEmbedding.of_comp_iff .subtypeVal).symm
 
 /-- A strict map is continuous, since the range factorization is continuous. -/

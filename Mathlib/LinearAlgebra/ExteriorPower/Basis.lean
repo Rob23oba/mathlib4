@@ -19,7 +19,8 @@ public import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 
 open Function
 
-variable {R K M E : Type*} {n : ℕ}
+variable
+  {R K M E : Type*} {n : ℕ}
   [CommRing R] [Field K] [AddCommGroup M] [Module R M] [AddCommGroup E] [Module K E]
 
 namespace exteriorPower
@@ -37,11 +38,13 @@ open Module Set Set.powersetCard
 
 variable (R n) {I : Type*} [LinearOrder I] (b : Basis I R M)
 
-/-- If `b` is a basis of `M` indexed by a linearly ordered type `I` and `s` is a finset of
+/--
+If `b` is a basis of `M` indexed by a linearly ordered type `I` and `s` is a finset of
 `I` of cardinality `n`, then we get a linear form on the `n`th exterior power of `M` by
 applying the `exteriorPower.linearForm` construction to the family of linear forms
 given by the coordinates of `b` indexed by elements of `s` (ordered using the given order on
-`I`). -/
+`I`).
+-/
 noncomputable def ιMultiDual (s : powersetCard I n) : Module.Dual R (⋀[R]^n M) :=
   pairingDual R M n (ιMulti_family R n b.coord s)
 
@@ -91,10 +94,11 @@ lemma ιMulti_family_linearIndependent_ofBasis :
     (fun _ => ιMultiDual_apply_diag _ _ _ _)
 
 variable {R} in
-/-- If `b` is a basis of `M` (indexed by a linearly ordered type), the basis of the `n`th
-exterior power of `M` formed by the `n`-fold exterior products of elements of `b`. -/
-noncomputable def _root_.Module.Basis.exteriorPower :
-    Basis (powersetCard I n) R (⋀[R]^n M) :=
+/--
+If `b` is a basis of `M` (indexed by a linearly ordered type), the basis of the `n`th
+exterior power of `M` formed by the `n`-fold exterior products of elements of `b`.
+-/
+noncomputable def _root_.Module.Basis.exteriorPower : Basis (powersetCard I n) R (⋀[R]^n M) :=
   Basis.mk (ιMulti_family_linearIndependent_ofBasis _ _ _)
     (eq_top_iff.mp <| ιMulti_family_span_of_span R b.span_eq)
 

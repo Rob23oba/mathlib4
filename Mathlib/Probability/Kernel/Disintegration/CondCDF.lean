@@ -50,13 +50,14 @@ namespace MeasureTheory.Measure
 variable {α : Type*} {mα : MeasurableSpace α} (ρ : Measure (α × ℝ))
 
 /-- Measure on `α` such that for a measurable set `s`, `ρ.IicSnd r s = ρ (s ×ˢ Iic r)`. -/
-noncomputable def IicSnd (r : ℝ) : Measure α :=
-  (ρ.restrict (univ ×ˢ Iic r)).fst
+noncomputable def IicSnd (r : ℝ) : Measure α := (ρ.restrict (univ ×ˢ Iic r)).fst
 
-theorem IicSnd_apply (r : ℝ) {s : Set α} (hs : MeasurableSet s) :
-    ρ.IicSnd r s = ρ (s ×ˢ Iic r) := by
-  rw [IicSnd, fst_apply hs, restrict_apply' (MeasurableSet.univ.prod measurableSet_Iic),
-    univ_prod, Set.prod_eq]
+theorem IicSnd_apply (r : ℝ) {s : Set α} (hs : MeasurableSet s)
+    : ρ.IicSnd r s = ρ (s ×ˢ Iic r) := by
+  rw [
+    IicSnd, fst_apply hs, restrict_apply' (MeasurableSet.univ.prod measurableSet_Iic), univ_prod,
+    Set.prod_eq
+  ]
 
 theorem IicSnd_univ (r : ℝ) : ρ.IicSnd r univ = ρ (univ ×ˢ Iic r) :=
   IicSnd_apply ρ r MeasurableSet.univ
@@ -65,34 +66,33 @@ theorem IicSnd_univ (r : ℝ) : ρ.IicSnd r univ = ρ (univ ×ˢ Iic r) :=
 theorem IicSnd_mono {r r' : ℝ} (h_le : r ≤ r') : ρ.IicSnd r ≤ ρ.IicSnd r' := by
   unfold IicSnd; gcongr
 
-theorem IicSnd_le_fst (r : ℝ) : ρ.IicSnd r ≤ ρ.fst :=
-  fst_mono restrict_le_self
+theorem IicSnd_le_fst (r : ℝ) : ρ.IicSnd r ≤ ρ.fst := fst_mono restrict_le_self
 
 theorem IicSnd_ac_fst (r : ℝ) : ρ.IicSnd r ≪ ρ.fst :=
   Measure.absolutelyContinuous_of_le (IicSnd_le_fst ρ r)
 
-theorem IsFiniteMeasure.IicSnd {ρ : Measure (α × ℝ)} [IsFiniteMeasure ρ] (r : ℝ) :
-    IsFiniteMeasure (ρ.IicSnd r) :=
+theorem IsFiniteMeasure.IicSnd {ρ : Measure (α × ℝ)} [IsFiniteMeasure ρ] (r : ℝ)
+    : IsFiniteMeasure (ρ.IicSnd r) :=
   isFiniteMeasure_of_le _ (IicSnd_le_fst ρ _)
 
-theorem iInf_IicSnd_gt (t : ℚ) {s : Set α} (hs : MeasurableSet s) [IsFiniteMeasure ρ] :
-    ⨅ r : { r' : ℚ // t < r' }, ρ.IicSnd r s = ρ.IicSnd t s := by
+theorem iInf_IicSnd_gt (t : ℚ) {s : Set α} (hs : MeasurableSet s) [IsFiniteMeasure ρ]
+    : ⨅ r : { r' : ℚ // t < r' }, ρ.IicSnd r s = ρ.IicSnd t s := by
   simp_rw [ρ.IicSnd_apply _ hs, Measure.iInf_rat_gt_prod_Iic hs]
 
-theorem tendsto_IicSnd_atTop {s : Set α} (hs : MeasurableSet s) :
-    Tendsto (fun r : ℚ ↦ ρ.IicSnd r s) atTop (𝓝 (ρ.fst s)) := by
+theorem tendsto_IicSnd_atTop {s : Set α} (hs : MeasurableSet s)
+    : Tendsto (fun r : ℚ ↦ ρ.IicSnd r s) atTop (𝓝 (ρ.fst s)) := by
   simp_rw [ρ.IicSnd_apply _ hs, fst_apply hs, ← prod_univ]
   rw [← Real.iUnion_Iic_rat, prod_iUnion]
   apply tendsto_measure_iUnion_atTop
   exact monotone_const.set_prod Rat.cast_mono.Iic
 
-theorem tendsto_IicSnd_atBot [IsFiniteMeasure ρ] {s : Set α} (hs : MeasurableSet s) :
-    Tendsto (fun r : ℚ ↦ ρ.IicSnd r s) atBot (𝓝 0) := by
+theorem tendsto_IicSnd_atBot [IsFiniteMeasure ρ] {s : Set α} (hs : MeasurableSet s)
+    : Tendsto (fun r : ℚ ↦ ρ.IicSnd r s) atBot (𝓝 0) := by
   simp_rw [ρ.IicSnd_apply _ hs]
   have h_empty : ρ (s ×ˢ ∅) = 0 := by simp only [prod_empty, measure_empty]
   rw [← h_empty, ← Real.iInter_Iic_rat, prod_iInter]
-  suffices h_neg :
-      Tendsto (fun r : ℚ ↦ ρ (s ×ˢ Iic ↑(-r))) atTop (𝓝 (ρ (⋂ r : ℚ, s ×ˢ Iic ↑(-r)))) by
+  suffices h_neg : Tendsto (fun r : ℚ ↦ ρ (s ×ˢ Iic ↑(-r))) atTop (𝓝 (ρ (⋂ r : ℚ, s ×ˢ Iic ↑(-r))))
+  by
     have h_inter_eq : ⋂ r : ℚ, s ×ˢ Iic ↑(-r) = ⋂ r : ℚ, s ×ˢ Iic (r : ℝ) := by
       ext1 x
       push _ ∈ _
@@ -101,7 +101,8 @@ theorem tendsto_IicSnd_atBot [IsFiniteMeasure ρ] {s : Set α} (hs : MeasurableS
       · exact h'.2
     rw [h_inter_eq] at h_neg
     exact tendsto_comp_neg_atTop_iff.mp h_neg
-  refine tendsto_measure_iInter_atTop (fun q ↦ (hs.prod measurableSet_Iic).nullMeasurableSet)
+  refine tendsto_measure_iInter_atTop
+    (fun q ↦ (hs.prod measurableSet_Iic).nullMeasurableSet)
     ?_ ⟨0, measure_ne_top ρ _⟩
   refine fun q r hqr ↦ Set.prod_mono subset_rfl fun x hx ↦ ?_
   simp only [Rat.cast_neg, mem_Iic] at hx ⊢
@@ -124,13 +125,15 @@ We build towards the definition of `ProbabilityTheory.condCDF`. We first define
 `ProbabilityTheory.preCDF`, a function defined on `α × ℚ` with the properties of a cdf almost
 everywhere. -/
 
-/-- `preCDF` is the Radon-Nikodym derivative of `ρ.IicSnd` with respect to `ρ.fst` at each
+/--
+`preCDF` is the Radon-Nikodym derivative of `ρ.IicSnd` with respect to `ρ.fst` at each
 `r : ℚ`. This function `ℚ → α → ℝ≥0∞` is such that for almost all `a : α`, the function `ℚ → ℝ≥0∞`
 satisfies the properties of a cdf (monotone with limit 0 at -∞ and 1 at +∞, right-continuous).
 
 We define this function on `ℚ` and not `ℝ` because `ℚ` is countable, which allows us to prove
 properties of the form `∀ᵐ a ∂ρ.fst, ∀ q, P (preCDF q a)`, instead of the weaker
-`∀ q, ∀ᵐ a ∂ρ.fst, P (preCDF q a)`. -/
+`∀ q, ∀ᵐ a ∂ρ.fst, P (preCDF q a)`.
+-/
 noncomputable def preCDF (ρ : Measure (α × ℝ)) (r : ℚ) : α → ℝ≥0∞ :=
   Measure.rnDeriv (ρ.IicSnd r) ρ.fst
 
@@ -142,17 +145,20 @@ lemma measurable_preCDF' {ρ : Measure (α × ℝ)} :
   rw [measurable_pi_iff]
   exact fun _ ↦ measurable_preCDF.ennreal_toReal
 
-theorem withDensity_preCDF (ρ : Measure (α × ℝ)) (r : ℚ) [IsFiniteMeasure ρ] :
-    ρ.fst.withDensity (preCDF ρ r) = ρ.IicSnd r :=
+theorem withDensity_preCDF (ρ : Measure (α × ℝ)) (r : ℚ) [IsFiniteMeasure ρ]
+    : ρ.fst.withDensity (preCDF ρ r) = ρ.IicSnd r :=
   Measure.absolutelyContinuous_iff_withDensity_rnDeriv_eq.mp (Measure.IicSnd_ac_fst ρ r)
 
-theorem setLIntegral_preCDF_fst (ρ : Measure (α × ℝ)) (r : ℚ) {s : Set α} (hs : MeasurableSet s)
-    [IsFiniteMeasure ρ] : ∫⁻ x in s, preCDF ρ r x ∂ρ.fst = ρ.IicSnd r s := by
+theorem setLIntegral_preCDF_fst
+    (ρ : Measure (α × ℝ)) (r : ℚ) {s : Set α} (hs : MeasurableSet s) [IsFiniteMeasure ρ]
+    : ∫⁻ x in s, preCDF ρ r x ∂ρ.fst = ρ.IicSnd r s := by
   have : ∀ r, ∫⁻ x in s, preCDF ρ r x ∂ρ.fst = ∫⁻ x in s, (preCDF ρ r * 1) x ∂ρ.fst := by
     simp only [mul_one, forall_const]
   rw [this, ← setLIntegral_withDensity_eq_setLIntegral_mul _ measurable_preCDF _ hs]
-  · simp only [withDensity_preCDF ρ r, Pi.one_apply, lintegral_one, Measure.restrict_apply,
-      MeasurableSet.univ, univ_inter]
+  · simp only [
+      withDensity_preCDF ρ r, Pi.one_apply, lintegral_one, Measure.restrict_apply,
+      MeasurableSet.univ, univ_inter
+    ]
   · rw [Pi.one_def]
     exact measurable_const
 
@@ -160,16 +166,16 @@ lemma lintegral_preCDF_fst (ρ : Measure (α × ℝ)) (r : ℚ) [IsFiniteMeasure
     ∫⁻ x, preCDF ρ r x ∂ρ.fst = ρ.IicSnd r univ := by
   rw [← setLIntegral_univ, setLIntegral_preCDF_fst ρ r MeasurableSet.univ]
 
-theorem monotone_preCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] :
-    ∀ᵐ a ∂ρ.fst, Monotone fun r ↦ preCDF ρ r a := by
+theorem monotone_preCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ]
+    : ∀ᵐ a ∂ρ.fst, Monotone fun r ↦ preCDF ρ r a := by
   simp_rw [Monotone, ae_all_iff]
-  refine fun r r' hrr' ↦ ae_le_of_forall_setLIntegral_le_of_sigmaFinite measurable_preCDF
-    fun s hs _ ↦ ?_
+  refine fun r r' hrr' ↦
+    ae_le_of_forall_setLIntegral_le_of_sigmaFinite measurable_preCDF fun s hs _ ↦ ?_
   rw [setLIntegral_preCDF_fst ρ r hs, setLIntegral_preCDF_fst ρ r' hs]
   exact Measure.IicSnd_mono ρ (mod_cast hrr') s
 
-theorem preCDF_le_one (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] :
-    ∀ᵐ a ∂ρ.fst, ∀ r, preCDF ρ r a ≤ 1 := by
+theorem preCDF_le_one (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ]
+    : ∀ᵐ a ∂ρ.fst, ∀ r, preCDF ρ r a ≤ 1 := by
   rw [ae_all_iff]
   refine fun r ↦ ae_le_of_forall_setLIntegral_le_of_sigmaFinite measurable_preCDF fun s hs _ ↦ ?_
   rw [setLIntegral_preCDF_fst ρ r hs]
@@ -261,20 +267,20 @@ theorem condCDF_le_one (ρ : Measure (α × ℝ)) (a : α) (x : ℝ) : condCDF �
   stieltjesOfMeasurableRat_le_one _ _ _
 
 /-- The conditional cdf tends to 0 at -∞ for all `a : α`. -/
-theorem tendsto_condCDF_atBot (ρ : Measure (α × ℝ)) (a : α) :
-    Tendsto (condCDF ρ a) atBot (𝓝 0) := tendsto_stieltjesOfMeasurableRat_atBot _ _
+theorem tendsto_condCDF_atBot (ρ : Measure (α × ℝ)) (a : α) : Tendsto (condCDF ρ a) atBot (𝓝 0) :=
+  tendsto_stieltjesOfMeasurableRat_atBot _ _
 
 /-- The conditional cdf tends to 1 at +∞ for all `a : α`. -/
-theorem tendsto_condCDF_atTop (ρ : Measure (α × ℝ)) (a : α) :
-    Tendsto (condCDF ρ a) atTop (𝓝 1) := tendsto_stieltjesOfMeasurableRat_atTop _ _
+theorem tendsto_condCDF_atTop (ρ : Measure (α × ℝ)) (a : α) : Tendsto (condCDF ρ a) atTop (𝓝 1) :=
+  tendsto_stieltjesOfMeasurableRat_atTop _ _
 
-theorem condCDF_ae_eq (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (r : ℚ) :
-    (fun a ↦ condCDF ρ a r) =ᵐ[ρ.fst] fun a ↦ (preCDF ρ r a).toReal := by
+theorem condCDF_ae_eq (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (r : ℚ)
+    : (fun a ↦ condCDF ρ a r) =ᵐ[ρ.fst] fun a ↦ (preCDF ρ r a).toReal := by
   simp_rw [condCDF_eq_stieltjesOfMeasurableRat_unit_prod ρ]
   exact stieltjesOfMeasurableRat_ae_eq (isRatCondKernelCDF_preCDF ρ) () r
 
-theorem ofReal_condCDF_ae_eq (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (r : ℚ) :
-    (fun a ↦ ENNReal.ofReal (condCDF ρ a r)) =ᵐ[ρ.fst] preCDF ρ r := by
+theorem ofReal_condCDF_ae_eq (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (r : ℚ)
+    : (fun a ↦ ENNReal.ofReal (condCDF ρ a r)) =ᵐ[ρ.fst] preCDF ρ r := by
   filter_upwards [condCDF_ae_eq ρ r, preCDF_le_one ρ] with a ha ha_le_one
   rw [ha, ENNReal.ofReal_toReal]
   exact ((ha_le_one r).trans_lt ENNReal.one_lt_top).ne
@@ -284,34 +290,36 @@ theorem measurable_condCDF (ρ : Measure (α × ℝ)) (x : ℝ) : Measurable fun
   measurable_stieltjesOfMeasurableRat _ _
 
 /-- The conditional cdf is a strongly measurable function of `a : α` for all `x : ℝ`. -/
-theorem stronglyMeasurable_condCDF (ρ : Measure (α × ℝ)) (x : ℝ) :
-    StronglyMeasurable fun a ↦ condCDF ρ a x := stronglyMeasurable_stieltjesOfMeasurableRat _ _
+theorem stronglyMeasurable_condCDF (ρ : Measure (α × ℝ)) (x : ℝ)
+    : StronglyMeasurable fun a ↦ condCDF ρ a x :=
+  stronglyMeasurable_stieltjesOfMeasurableRat _ _
 
-theorem setLIntegral_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) {s : Set α}
-    (hs : MeasurableSet s) :
-    ∫⁻ a in s, ENNReal.ofReal (condCDF ρ a x) ∂ρ.fst = ρ (s ×ˢ Iic x) :=
+theorem setLIntegral_condCDF
+    (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) {s : Set α} (hs : MeasurableSet s)
+    : ∫⁻ a in s, ENNReal.ofReal (condCDF ρ a x) ∂ρ.fst = ρ (s ×ˢ Iic x) :=
   (isCondKernelCDF_condCDF ρ).setLIntegral () hs x
 
-theorem lintegral_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) :
-    ∫⁻ a, ENNReal.ofReal (condCDF ρ a x) ∂ρ.fst = ρ (univ ×ˢ Iic x) :=
+theorem lintegral_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ)
+    : ∫⁻ a, ENNReal.ofReal (condCDF ρ a x) ∂ρ.fst = ρ (univ ×ˢ Iic x) :=
   (isCondKernelCDF_condCDF ρ).lintegral () x
 
-theorem integrable_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) :
-    Integrable (fun a ↦ condCDF ρ a x) ρ.fst :=
+theorem integrable_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ)
+    : Integrable (fun a ↦ condCDF ρ a x) ρ.fst :=
   (isCondKernelCDF_condCDF ρ).integrable () x
 
-theorem setIntegral_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) {s : Set α}
-    (hs : MeasurableSet s) : ∫ a in s, condCDF ρ a x ∂ρ.fst = ρ.real (s ×ˢ Iic x) :=
+theorem setIntegral_condCDF
+    (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) {s : Set α} (hs : MeasurableSet s)
+    : ∫ a in s, condCDF ρ a x ∂ρ.fst = ρ.real (s ×ˢ Iic x) :=
   (isCondKernelCDF_condCDF ρ).setIntegral () hs x
 
-theorem integral_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ) :
-    ∫ a, condCDF ρ a x ∂ρ.fst = ρ.real (univ ×ˢ Iic x) :=
+theorem integral_condCDF (ρ : Measure (α × ℝ)) [IsFiniteMeasure ρ] (x : ℝ)
+    : ∫ a, condCDF ρ a x ∂ρ.fst = ρ.real (univ ×ˢ Iic x) :=
   (isCondKernelCDF_condCDF ρ).integral () x
 
 section Measure
 
-theorem measure_condCDF_Iic (ρ : Measure (α × ℝ)) (a : α) (x : ℝ) :
-    (condCDF ρ a).measure (Iic x) = ENNReal.ofReal (condCDF ρ a x) := by
+theorem measure_condCDF_Iic (ρ : Measure (α × ℝ)) (a : α) (x : ℝ)
+    : (condCDF ρ a).measure (Iic x) = ENNReal.ofReal (condCDF ρ a x) := by
   rw [← sub_zero (condCDF ρ a x)]
   exact (condCDF ρ a).measure_Iic (tendsto_condCDF_atBot ρ a) _
 
@@ -319,13 +327,13 @@ theorem measure_condCDF_univ (ρ : Measure (α × ℝ)) (a : α) : (condCDF ρ a
   rw [← ENNReal.ofReal_one, ← sub_zero (1 : ℝ)]
   exact StieltjesFunction.measure_univ _ (tendsto_condCDF_atBot ρ a) (tendsto_condCDF_atTop ρ a)
 
-instance instIsProbabilityMeasureCondCDF (ρ : Measure (α × ℝ)) (a : α) :
-    IsProbabilityMeasure (condCDF ρ a).measure :=
+instance instIsProbabilityMeasureCondCDF (ρ : Measure (α × ℝ)) (a : α)
+    : IsProbabilityMeasure (condCDF ρ a).measure :=
   ⟨measure_condCDF_univ ρ a⟩
 
 /-- The function `a ↦ (condCDF ρ a).measure` is measurable. -/
-theorem measurable_measure_condCDF (ρ : Measure (α × ℝ)) :
-    Measurable fun a => (condCDF ρ a).measure :=
+theorem measurable_measure_condCDF (ρ : Measure (α × ℝ))
+    : Measurable fun a => (condCDF ρ a).measure :=
   .measure_of_isPiSystem_of_isProbabilityMeasure (borel_eq_generateFrom_Iic ℝ) isPiSystem_Iic <| by
     simp_rw [forall_mem_range, measure_condCDF_Iic]
     exact fun u ↦ (measurable_condCDF ρ u).ennreal_ofReal

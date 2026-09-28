@@ -9,7 +9,6 @@ public import Mathlib.Algebra.Algebra.Rat
 public import Mathlib.Algebra.Module.Submodule.Invariant
 public import Mathlib.LinearAlgebra.PerfectPairing.Restrict
 public import Mathlib.LinearAlgebra.RootSystem.Defs
-
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.LinearAlgebra.Span.TensorProduct
 import Mathlib.RingTheory.Flat.TorsionFree
@@ -42,21 +41,26 @@ noncomputable section
 
 namespace RootPairing
 
-variable {ι R S M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N]
-  [Module R N] (P : RootPairing ι R M N) (i j : ι)
+variable
+  {ι R S M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+  (P : RootPairing ι R M N) (i j : ι)
 
-/-- If `R` is an `S`-algebra, a root pairing over `R` is said to be valued in `S` if the pairing
+/--
+If `R` is an `S`-algebra, a root pairing over `R` is said to be valued in `S` if the pairing
 between a root and coroot always belongs to `S`.
 
-Of particular interest is the case `S = ℤ`. See `RootPairing.IsCrystallographic`. -/
+Of particular interest is the case `S = ℤ`. See `RootPairing.IsCrystallographic`.
+-/
 @[mk_iff]
 class IsValuedIn (S : Type*) [CommRing S] [Algebra S R] : Prop where
   exists_value : ∀ i j, ∃ s, algebraMap S R s = P.pairing i j
 
 protected alias exists_value := IsValuedIn.exists_value
 
-/-- A root pairing is said to be crystallographic if the pairing between a root and coroot is
-always an integer. -/
+/--
+A root pairing is said to be crystallographic if the pairing between a root and coroot is
+always an integer.
+-/
 abbrev IsCrystallographic := P.IsValuedIn ℤ
 
 instance : P.IsValuedIn R where
@@ -73,13 +77,14 @@ instance [P.IsValuedIn S] : P.flip.IsValuedIn S := by
   rw [isValuedIn_iff, forall_comm]
   exact P.exists_value
 
-/-- A variant of `RootPairing.pairing` for root pairings which are valued in a smaller set of
+/--
+A variant of `RootPairing.pairing` for root pairings which are valued in a smaller set of
 coefficients.
 
 Note that it is uniquely-defined only when the map `S → R` is injective, i.e., when we have
-`[FaithfulSMul S R]`. -/
-def pairingIn [P.IsValuedIn S] (i j : ι) : S :=
-  (P.exists_value i j).choose
+`[FaithfulSMul S R]`.
+-/
+def pairingIn [P.IsValuedIn S] (i j : ι) : S := (P.exists_value i j).choose
 
 @[simp]
 lemma algebraMap_pairingIn [P.IsValuedIn S] (i j : ι) :
@@ -168,12 +173,10 @@ abbrev rootSpan [Module S M] := span S (range P.root)
 /-- The `S`-span of coroots. -/
 abbrev corootSpan [Module S N] := span S (range P.coroot)
 
-instance [Module S M] [Finite ι] :
-    Module.Finite S <| P.rootSpan S :=
+instance [Module S M] [Finite ι] : Module.Finite S <| P.rootSpan S :=
   Finite.span_of_finite S <| finite_range _
 
-instance [Module S N] [Finite ι] :
-    Module.Finite S <| P.corootSpan S :=
+instance [Module S N] [Finite ι] : Module.Finite S <| P.corootSpan S :=
   Finite.span_of_finite S <| finite_range _
 
 /-- A root, seen as an element of the span of roots. -/
@@ -195,8 +198,8 @@ lemma corootSpanMem_reflectionPerm_self [Module S N] (i : ι) :
   ext; simp
 
 /-- The `S`-linear map on the span of coroots given by evaluating at a root. -/
-def root'In [Module S N] [IsScalarTower S R N] [FaithfulSMul S R] [P.IsValuedIn S] (i : ι) :
-    Dual S (P.corootSpan S) :=
+def root'In [Module S N] [IsScalarTower S R N] [FaithfulSMul S R] [P.IsValuedIn S] (i : ι)
+    : Dual S (P.corootSpan S) :=
   LinearMap.restrictScalarsRange (P.corootSpan S).subtype (Algebra.linearMap S R)
     (FaithfulSMul.algebraMap_injective S R) (P.root' i)
     (fun m ↦ P.root'_apply_apply_mem_of_mem_span S m.2 i)
@@ -216,8 +219,8 @@ lemma root'In_corootSpanMem_eq_pairingIn [Module S N] [IsScalarTower S R N] [Fai
   rfl
 
 /-- The `S`-linear map on the span of roots given by evaluating at a coroot. -/
-def coroot'In [Module S M] [IsScalarTower S R M] [FaithfulSMul S R] [P.IsValuedIn S] (i : ι) :
-    Dual S (P.rootSpan S) :=
+def coroot'In [Module S M] [IsScalarTower S R M] [FaithfulSMul S R] [P.IsValuedIn S] (i : ι)
+    : Dual S (P.rootSpan S) :=
   P.flip.root'In S i
 
 @[simp]
@@ -317,11 +320,13 @@ lemma reflection_apply_root' (S : Type*) [CommRing S] [Algebra S R]
     P.reflection i (P.root j) = P.root j - (P.pairingIn S j i) • P.root i := by
   rw [reflection_apply_root, ← P.algebraMap_pairingIn S, algebraMap_smul]
 
-/-- A variant of `RootPairing.coxeterWeight` for root pairings which are valued in a smaller set of
+/--
+A variant of `RootPairing.coxeterWeight` for root pairings which are valued in a smaller set of
 coefficients.
 
 Note that it is uniquely-defined only when the map `S → R` is injective, i.e., when we have
-`[FaithfulSMul S R]`. -/
+`[FaithfulSMul S R]`.
+-/
 def coxeterWeightIn (S : Type*) [CommRing S] [Algebra S R] [P.IsValuedIn S] (i j : ι) : S :=
   P.pairingIn S i j * P.pairingIn S j i
 
@@ -341,8 +346,10 @@ lemma toLinearMap_apply_apply_mem_range_algebraMap [P.IsValuedIn S]
 
 section Field
 
-variable (K : Type*) {L : Type*} [Field K] [Field L] [Algebra K L]
-  [Module L M] [Module L N] [Module K M] [Module K N] [IsScalarTower K L M] [IsScalarTower K L N]
+variable
+  (K : Type*)
+  {L : Type*} [Field K] [Field L] [Algebra K L] [Module L M] [Module L N] [Module K M] [Module K N]
+  [IsScalarTower K L M] [IsScalarTower K L N]
   (Q : RootPairing ι L M N) [Q.IsRootSystem]
 
 @[simp]

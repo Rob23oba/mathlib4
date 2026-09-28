@@ -14,7 +14,6 @@ public import Mathlib.Data.Multiset.Sections
 
 public section
 
-
 variable {ι M M₀ R : Type*}
 
 namespace Multiset

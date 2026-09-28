@@ -31,55 +31,44 @@ variable {n m : ℕ}
 
 theorem rev_involutive : Involutive (rev : Fin n → Fin n) := rev_rev
 
-/-- `Fin.rev` as an `Equiv.Perm`, the antitone involution `Fin n → Fin n` given by
-`i ↦ n-(i+1)`. -/
+/--
+`Fin.rev` as an `Equiv.Perm`, the antitone involution `Fin n → Fin n` given by
+`i ↦ n-(i+1)`.
+-/
 @[simps! apply]
-def revPerm : Equiv.Perm (Fin n) :=
-  Involutive.toPerm rev rev_involutive
+def revPerm : Equiv.Perm (Fin n) := Involutive.toPerm rev rev_involutive
 
-theorem rev_injective : Injective (@rev n) :=
-  rev_involutive.injective
+theorem rev_injective : Injective (@rev n) := rev_involutive.injective
 
-theorem rev_surjective : Surjective (@rev n) :=
-  rev_involutive.surjective
+theorem rev_surjective : Surjective (@rev n) := rev_involutive.surjective
 
-theorem rev_bijective : Bijective (@rev n) :=
-  rev_involutive.bijective
+theorem rev_bijective : Bijective (@rev n) := rev_involutive.bijective
 
-@[simp]
-theorem revPerm_symm : (@revPerm n).symm = revPerm :=
-  rfl
+@[simp] theorem revPerm_symm : (@revPerm n).symm = revPerm := rfl
 
-theorem cast_rev (i : Fin n) (h : n = m) :
-    i.rev.cast h = (i.cast h).rev := by
-  subst h; simp
+theorem cast_rev (i : Fin n) (h : n = m) : i.rev.cast h = (i.cast h).rev := by subst h; simp
 
-theorem rev_eq_iff {i j : Fin n} : rev i = j ↔ i = rev j := by
-  rw [← rev_inj, rev_rev]
+theorem rev_eq_iff {i j : Fin n} : rev i = j ↔ i = rev j := by rw [← rev_inj, rev_rev]
 
 theorem rev_ne_iff {i j : Fin n} : rev i ≠ j ↔ i ≠ rev j := rev_eq_iff.not
 
-theorem rev_lt_iff {i j : Fin n} : rev i < j ↔ rev j < i := by
-  rw [← rev_lt_rev, rev_rev]
+theorem rev_lt_iff {i j : Fin n} : rev i < j ↔ rev j < i := by rw [← rev_lt_rev, rev_rev]
 
-theorem rev_le_iff {i j : Fin n} : rev i ≤ j ↔ rev j ≤ i := by
-  rw [← rev_le_rev, rev_rev]
+theorem rev_le_iff {i j : Fin n} : rev i ≤ j ↔ rev j ≤ i := by rw [← rev_le_rev, rev_rev]
 
-theorem lt_rev_iff {i j : Fin n} : i < rev j ↔ j < rev i := by
-  rw [← rev_lt_rev, rev_rev]
+theorem lt_rev_iff {i j : Fin n} : i < rev j ↔ j < rev i := by rw [← rev_lt_rev, rev_rev]
 
-theorem le_rev_iff {i j : Fin n} : i ≤ rev j ↔ j ≤ rev i := by
-  rw [← rev_le_rev, rev_rev]
+theorem le_rev_iff {i j : Fin n} : i ≤ rev j ↔ j ≤ rev i := by rw [← rev_le_rev, rev_rev]
 
 theorem val_rev_zero [NeZero n] : ((rev 0 : Fin n) : ℕ) = n.pred := rfl
 
-theorem rev_pred {i : Fin (n + 1)} (h : i ≠ 0) (h' := rev_ne_iff.mpr ((rev_last _).symm ▸ h)) :
-    rev (pred i h) = castPred (rev i) h' := by
+theorem rev_pred {i : Fin (n + 1)} (h : i ≠ 0) (h' := rev_ne_iff.mpr ((rev_last _).symm ▸ h))
+    : rev (pred i h) = castPred (rev i) h' := by
   rw [← castSucc_inj, castSucc_castPred, ← rev_succ, succ_pred]
 
-theorem rev_castPred {i : Fin (n + 1)}
-    (h : i ≠ last n) (h' := rev_ne_iff.mpr ((rev_zero _).symm ▸ h)) :
-    rev (castPred i h) = pred (rev i) h' := by
+theorem rev_castPred
+    {i : Fin (n + 1)} (h : i ≠ last n) (h' := rev_ne_iff.mpr ((rev_zero _).symm ▸ h))
+    : rev (castPred i h) = pred (rev i) h' := by
   rw [← succ_inj, succ_pred, ← rev_castSucc, castSucc_castPred]
 
 lemma succAbove_rev_left (p : Fin (n + 1)) (i : Fin n) :

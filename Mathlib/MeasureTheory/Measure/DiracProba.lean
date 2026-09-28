@@ -109,10 +109,12 @@ lemma tendsto_diracProba_iff_tendsto [CompletelyRegularSpace X] {x : X} (L : Fil
     simp only [ContinuousAt] at aux
     exact aux.comp h
 
-/-- An inverse function to `diracProba` (only really an inverse under hypotheses that
-guarantee injectivity of `diracProba`). -/
-noncomputable def diracProbaInverse : range (diracProba (X := X)) → X :=
-  fun μ' ↦ (mem_range.mp μ'.prop).choose
+/--
+An inverse function to `diracProba` (only really an inverse under hypotheses that
+guarantee injectivity of `diracProba`).
+-/
+noncomputable def diracProbaInverse : range (diracProba (X := X)) → X := fun μ' ↦
+  (mem_range.mp μ'.prop).choose
 
 -- We redeclare `X` here to temporarily avoid the `[TopologicalSpace X]` instance.
 @[simp] lemma diracProba_diracProbaInverse {X : Type*} [MeasurableSpace X]
@@ -126,8 +128,10 @@ lemma diracProbaInverse_eq [T0Space X] {x : X} {μ : range (diracProba (X := X))
   simp only [← h]
   exact (mem_range.mp μ.prop).choose_spec
 
-/-- In a T0 topological space `X`, the assignment `x ↦ diracProba x` is a bijection to its
-range in `ProbabilityMeasure X`. -/
+/--
+In a T0 topological space `X`, the assignment `x ↦ diracProba x` is a bijection to its
+range in `ProbabilityMeasure X`.
+-/
 noncomputable def diracProbaEquiv [T0Space X] : X ≃ range (diracProba (X := X)) where
   toFun := fun x ↦ ⟨diracProba x, by exact mem_range_self x⟩
   invFun := diracProbaInverse
@@ -163,17 +167,21 @@ lemma continuous_diracProbaEquivSymm [T0Space X] [CompletelyRegularSpace X] :
   apply continuousAt_of_tendsto_nhds (y := diracProbaInverse μ)
   exact (tendsto_diracProbaEquivSymm_iff_tendsto _).mpr fun _ mem_nhds ↦ mem_nhds
 
-/-- In a completely regular T0 topological space `X`, `diracProbaEquiv` is a homeomorphism to
-its image in `ProbabilityMeasure X`. -/
-noncomputable def diracProbaHomeomorph [T0Space X] [CompletelyRegularSpace X] :
-    X ≃ₜ range (diracProba (X := X)) :=
+/--
+In a completely regular T0 topological space `X`, `diracProbaEquiv` is a homeomorphism to
+its image in `ProbabilityMeasure X`.
+-/
+noncomputable def diracProbaHomeomorph [T0Space X] [CompletelyRegularSpace X]
+    : X ≃ₜ range (diracProba (X := X)) :=
   @Homeomorph.mk X _ _ _ diracProbaEquiv continuous_diracProbaEquiv continuous_diracProbaEquivSymm
 
-/-- If `X` is a completely regular T0 space with its Borel sigma algebra, then the mapping
+/--
+If `X` is a completely regular T0 space with its Borel sigma algebra, then the mapping
 that takes a point `x : X` to the delta-measure `diracProba x` is an embedding
-`X → ProbabilityMeasure X`. -/
-theorem isEmbedding_diracProba [T0Space X] [CompletelyRegularSpace X] :
-    IsEmbedding (fun (x : X) ↦ diracProba x) :=
+`X → ProbabilityMeasure X`.
+-/
+theorem isEmbedding_diracProba [T0Space X] [CompletelyRegularSpace X]
+    : IsEmbedding (fun (x : X) ↦ diracProba x) :=
   IsEmbedding.subtypeVal.comp diracProbaHomeomorph.isEmbedding
 
 end embed_to_probabilityMeasure

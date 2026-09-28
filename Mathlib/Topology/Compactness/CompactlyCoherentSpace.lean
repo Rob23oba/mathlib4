@@ -123,15 +123,16 @@ def CompactCoherentification (X : Type*) := X
 -- TODO: Some of the following should be generalized to `IsCoherent` with any family of subsets.
 namespace CompactCoherentification
 
-@[inherit_doc]
-scoped notation "𝐤" X:max => CompactCoherentification X
+@[inherit_doc] scoped notation "𝐤" X:max => CompactCoherentification X
 
 /-- The map taking a space to its compact coherentification. -/
 protected def mk (X : Type*) : X ≃ CompactCoherentification X := Equiv.refl _
 
-/-- For a map `f : X → Y` of topological spaces, `CompactCoherentification.map f` is the
-corresponding map between the compact coherentifications of `X` and `Y`. -/
-protected def map {X Y : Type*} (f : X → Y) : 𝐤X  → 𝐤Y :=
+/--
+For a map `f : X → Y` of topological spaces, `CompactCoherentification.map f` is the
+corresponding map between the compact coherentifications of `X` and `Y`.
+-/
+protected def map {X Y : Type*} (f : X → Y) : 𝐤X → 𝐤Y :=
   CompactCoherentification.mk Y ∘ f ∘ (CompactCoherentification.mk X).symm
 
 protected lemma map_comp_mk {X Y : Type*} {f : X → Y} :
@@ -141,10 +142,11 @@ protected lemma map_comp_mk {X Y : Type*} {f : X → Y} :
 
 variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
 
-/-- For a topological space `X` the compact coherentification is defined as:
-`A` is open iff for all compact sets `B`, the intersection `A ∩ B` is open in `B`. -/
-instance instTopologicalSpace :
-    TopologicalSpace (𝐤X) :=
+/--
+For a topological space `X` the compact coherentification is defined as:
+`A` is open iff for all compact sets `B`, the intersection `A ∩ B` is open in `B`.
+-/
+instance instTopologicalSpace : TopologicalSpace (𝐤X) :=
   .coinduced (.mk X)
     (⨆ (K : Set X) (_ : IsCompact K), .coinduced (Subtype.val (p := (· ∈ K)))
       (inferInstanceAs <| TopologicalSpace K))
@@ -255,7 +257,7 @@ protected def homeo [CompactlyCoherentSpace X] : X ≃ₜ 𝐤X where
   continuous_invFun := continuous_mk_symm
 
 instance t2space [t : T2Space X] : T2Space (𝐤X) :=
-    T2Space.of_injective_continuous (f := (CompactCoherentification.mk X).symm)
-      (CompactCoherentification.mk X).symm.injective continuous_mk_symm
+  T2Space.of_injective_continuous (f := (CompactCoherentification.mk X).symm)
+    (CompactCoherentification.mk X).symm.injective continuous_mk_symm
 
 end CompactCoherentification

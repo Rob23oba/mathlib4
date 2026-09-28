@@ -35,15 +35,18 @@ public section
 variable {R A : Type*}
 
 /-- Given `R →+* A`, then `char A ∣ char R`. -/
-theorem CharP.dvd_of_ringHom [NonAssocSemiring R] [NonAssocSemiring A]
-    (f : R →+* A) (p q : ℕ) [CharP R p] [CharP A q] : q ∣ p := by
+theorem CharP.dvd_of_ringHom
+    [NonAssocSemiring R] [NonAssocSemiring A] (f : R →+* A) (p q : ℕ) [CharP R p] [CharP A q]
+    : q ∣ p := by
   refine (CharP.cast_eq_zero_iff A q p).mp ?_
   rw [← map_natCast f p, CharP.cast_eq_zero, map_zero]
 
 /-- Given `R →+* A`, where `R` is a domain with `char R > 0`, then `char A = char R`. -/
-theorem CharP.of_ringHom_of_ne_zero [NonAssocSemiring R] [NoZeroDivisors R]
-    [NonAssocSemiring A] [Nontrivial A]
-    (f : R →+* A) (p : ℕ) (hp : p ≠ 0) [CharP R p] : CharP A p := by
+theorem CharP.of_ringHom_of_ne_zero
+    [NonAssocSemiring R] [NoZeroDivisors R] [NonAssocSemiring A] [Nontrivial A]
+    (f : R →+* A)
+    (p : ℕ) (hp : p ≠ 0) [CharP R p]
+    : CharP A p := by
   have := f.domain_nontrivial
   have H := (CharP.char_is_prime_or_zero R p).resolve_right hp
   obtain ⟨q, hq⟩ := CharP.exists A
@@ -53,42 +56,63 @@ theorem CharP.of_ringHom_of_ne_zero [NonAssocSemiring R] [NoZeroDivisors R]
   exact e ▸ hq
 
 /-- If a ring homomorphism `R →+* A` is injective then `A` has the same characteristic as `R`. -/
-theorem charP_of_injective_ringHom [NonAssocSemiring R] [NonAssocSemiring A]
-    {f : R →+* A} (h : Function.Injective f) (p : ℕ) [CharP R p] : CharP A p where
+theorem charP_of_injective_ringHom
+    [NonAssocSemiring R] [NonAssocSemiring A]
+    {f : R →+* A} (h : Function.Injective f)
+    (p : ℕ) [CharP R p]
+    : CharP A p where
   cast_eq_zero_iff x := by
     rw [← CharP.cast_eq_zero_iff R p x, ← map_natCast f x, map_eq_zero_iff f h]
 
 /-- If the algebra map `R →+* A` is injective then `A` has the same characteristic as `R`. -/
-theorem charP_of_injective_algebraMap [CommSemiring R] [Semiring A] [Algebra R A]
-    (h : Function.Injective (algebraMap R A)) (p : ℕ) [CharP R p] : CharP A p :=
+theorem charP_of_injective_algebraMap
+    [CommSemiring R] [Semiring A] [Algebra R A]
+    (h : Function.Injective (algebraMap R A))
+    (p : ℕ) [CharP R p]
+    : CharP A p :=
   charP_of_injective_ringHom h p
 
-theorem charP_of_injective_algebraMap' (R : Type*) [CommRing R] [Semiring A]
-    [Algebra R A] [FaithfulSMul R A] (p : ℕ) [CharP R p] : CharP A p :=
+theorem charP_of_injective_algebraMap'
+    (R : Type*) [CommRing R] [Semiring A] [Algebra R A] [FaithfulSMul R A] (p : ℕ) [CharP R p]
+    : CharP A p :=
   charP_of_injective_ringHom (FaithfulSMul.algebraMap_injective R A) p
 
-/-- If a ring homomorphism `R →+* A` is injective and `R` has characteristic zero
-then so does `A`. -/
-theorem charZero_of_injective_ringHom [NonAssocSemiring R] [NonAssocSemiring A]
-    {f : R →+* A} (h : Function.Injective f) [CharZero R] : CharZero A where
+/--
+If a ring homomorphism `R →+* A` is injective and `R` has characteristic zero
+then so does `A`.
+-/
+theorem charZero_of_injective_ringHom
+    [NonAssocSemiring R] [NonAssocSemiring A] {f : R →+* A} (h : Function.Injective f) [CharZero R]
+    : CharZero A where
   cast_injective _ _ _ := CharZero.cast_injective <| h <| by simpa only [map_natCast f]
 
 /-- If the algebra map `R →+* A` is injective and `R` has characteristic zero then so does `A`. -/
-theorem charZero_of_injective_algebraMap [CommSemiring R] [Semiring A] [Algebra R A]
-    (h : Function.Injective (algebraMap R A)) [CharZero R] : CharZero A :=
+theorem charZero_of_injective_algebraMap
+    [CommSemiring R] [Semiring A] [Algebra R A]
+    (h : Function.Injective (algebraMap R A))
+    [CharZero R]
+    : CharZero A :=
   charZero_of_injective_ringHom h
 
-/-- If `R →+* A` is injective, and `A` is of characteristic `p`, then `R` is also of
-characteristic `p`. Similar to `RingHom.charZero`. -/
-theorem RingHom.charP [NonAssocSemiring R] [NonAssocSemiring A] (f : R →+* A)
-    (H : Function.Injective f) (p : ℕ) [CharP A p] : CharP R p := by
+/--
+If `R →+* A` is injective, and `A` is of characteristic `p`, then `R` is also of
+characteristic `p`. Similar to `RingHom.charZero`.
+-/
+theorem RingHom.charP
+    [NonAssocSemiring R] [NonAssocSemiring A]
+    (f : R →+* A) (H : Function.Injective f)
+    (p : ℕ) [CharP A p]
+    : CharP R p := by
   obtain ⟨q, h⟩ := CharP.exists R
   exact CharP.eq _ (charP_of_injective_ringHom H q) ‹CharP A p› ▸ h
 
-/-- If `R →+* A` is injective, then `R` is of characteristic `p` if and only if `A` is also of
-characteristic `p`. Similar to `RingHom.charZero_iff`. -/
-protected theorem RingHom.charP_iff [NonAssocSemiring R] [NonAssocSemiring A]
-    (f : R →+* A) (H : Function.Injective f) (p : ℕ) : CharP R p ↔ CharP A p :=
+/--
+If `R →+* A` is injective, then `R` is of characteristic `p` if and only if `A` is also of
+characteristic `p`. Similar to `RingHom.charZero_iff`.
+-/
+protected theorem RingHom.charP_iff
+    [NonAssocSemiring R] [NonAssocSemiring A] (f : R →+* A) (H : Function.Injective f) (p : ℕ)
+    : CharP R p ↔ CharP A p :=
   ⟨fun _ ↦ charP_of_injective_ringHom H p, fun _ ↦ f.charP H p⟩
 
 /-- If a ring homomorphism `R →+* A` is injective then `A` has the same exponential characteristic
@@ -121,8 +145,9 @@ lemma expChar_of_injective_algebraMap [CommSemiring R] [Semiring A] [Algebra R A
   expChar_of_injective_ringHom h q
 
 variable (R) in
-theorem ExpChar.of_injective_algebraMap' [CommRing R] [CommRing A]
-    [Algebra R A] [FaithfulSMul R A] (q : ℕ) [ExpChar R q] : ExpChar A q :=
+theorem ExpChar.of_injective_algebraMap'
+    [CommRing R] [CommRing A] [Algebra R A] [FaithfulSMul R A] (q : ℕ) [ExpChar R q]
+    : ExpChar A q :=
   expChar_of_injective_ringHom (FaithfulSMul.algebraMap_injective R A) q
 
 namespace Subfield
@@ -144,7 +169,8 @@ section QAlgebra
 
 variable (R : Type*) [Nontrivial R]
 
-/-- A nontrivial `ℚ`-algebra has `CharP` equal to zero.
+/--
+A nontrivial `ℚ`-algebra has `CharP` equal to zero.
 
 This cannot be a (local) instance because it would immediately form a loop with the
 instance `DivisionRing.toRatAlgebra`. It's probably easier to go the other way: prove `CharZero R`
@@ -153,7 +179,8 @@ and automatically receive an `Algebra ℚ R` instance.
 theorem algebraRat.charP_zero [Semiring R] [Algebra ℚ R] : CharP R 0 :=
   charP_of_injective_algebraMap (algebraMap ℚ R).injective 0
 
-/-- A nontrivial `ℚ`-algebra has characteristic zero.
+/--
+A nontrivial `ℚ`-algebra has characteristic zero.
 
 This cannot be a (local) instance because it would immediately form a loop with the
 instance `DivisionRing.toRatAlgebra`. It's probably easier to go the other way: prove `CharZero R`
@@ -215,11 +242,9 @@ theorem charZero_of_isFractionRing [CharZero R] : CharZero K :=
 variable [IsDomain R]
 
 /-- If `R` has characteristic `p`, then so does `FractionRing R`. -/
-instance charP [CharP R p] : CharP (FractionRing R) p :=
-  charP_of_isFractionRing R p
+instance charP [CharP R p] : CharP (FractionRing R) p := charP_of_isFractionRing R p
 
 /-- If `R` has characteristic `0`, then so does `FractionRing R`. -/
-instance charZero [CharZero R] : CharZero (FractionRing R) :=
-  charZero_of_isFractionRing R
+instance charZero [CharZero R] : CharZero (FractionRing R) := charZero_of_isFractionRing R
 
 end IsFractionRing

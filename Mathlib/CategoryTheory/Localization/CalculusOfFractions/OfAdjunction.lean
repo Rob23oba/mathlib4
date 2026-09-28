@@ -33,8 +33,7 @@ open MorphismProperty
 
 namespace Adjunction
 
-variable {C₁ C₂ : Type*} [Category* C₁] [Category* C₂]
-  {G : C₁ ⥤ C₂} {F : C₂ ⥤ C₁}
+variable {C₁ C₂ : Type*} [Category* C₁] [Category* C₂] {G : C₁ ⥤ C₂} {F : C₂ ⥤ C₁}
 
 lemma hasLeftCalculusOfFractions (adj : G ⊣ F) (W : MorphismProperty C₁)
     [W.IsMultiplicative] (hW : W.IsInvertedBy G) (hW' : (W.functorCategory C₁) adj.unit) :

@@ -37,8 +37,9 @@ We define the trace / Killing form in this file and prove some basic properties.
 
 @[expose] public section
 
-variable (R K L M : Type*) [CommRing R] [LieRing L] [LieAlgebra R L]
-  [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
+variable
+  (R K L M : Type*) [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
+  [LieRingModule L M] [LieModule R L M]
 
 local notation "φ" => LieModule.toEnd R L M
 
@@ -49,8 +50,10 @@ namespace LieModule
 
 attribute [local instance 100] LieRing.ofAssociativeRing
 
-/-- A finite, free representation of a Lie algebra `L` induces a bilinear form on `L` called
-the trace form. See also `killingForm`. -/
+/--
+A finite, free representation of a Lie algebra `L` induces a bilinear form on `L` called
+the trace form. See also `killingForm`.
+-/
 noncomputable def traceForm : LinearMap.BilinForm R L :=
   ((LinearMap.mul _ _).compl₁₂ (φ).toLinearMap (φ).toLinearMap).compr₂ (trace R M)
 
@@ -330,8 +333,11 @@ open LieModule (traceForm)
 
 variable {R L M}
 variable [Module.Free R M] [Module.Finite R M]
-variable [IsDomain R] [IsPrincipalIdealRing R]
-  (N : LieSubmodule R L M) (I : LieIdeal R L) (h : I ≤ N.idealizer) (x : L) {y : L} (hy : y ∈ I)
+variable
+  [IsDomain R] [IsPrincipalIdealRing R]
+  (N : LieSubmodule R L M) (I : LieIdeal R L) (h : I ≤ N.idealizer)
+  (x : L)
+  {y : L} (hy : y ∈ I)
 
 lemma trace_eq_trace_restrict_of_le_idealizer
     (hy' : ∀ m ∈ N, (φ x ∘ₗ φ y) m ∈ N := fun m _ ↦ N.lie_mem (N.mem_idealizer.mp (h hy) m)) :
@@ -367,9 +373,11 @@ end LieSubmodule
 
 section LieAlgebra
 
-/-- A finite, free (as an `R`-module) Lie algebra `L` carries a bilinear form on `L`.
+/--
+A finite, free (as an `R`-module) Lie algebra `L` carries a bilinear form on `L`.
 
-This is a specialisation of `LieModule.traceForm` to the adjoint representation of `L`. -/
+This is a specialisation of `LieModule.traceForm` to the adjoint representation of `L`.
+-/
 noncomputable abbrev killingForm : LinearMap.BilinForm R L := LieModule.traceForm R L L
 
 open LieAlgebra in

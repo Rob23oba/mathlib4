@@ -32,8 +32,8 @@ lemma even_iff : Even n ↔ n % 2 = 0 where
 instance : DecidablePred (Even : ℕ → Prop) := fun _ ↦ decidable_of_iff _ even_iff.symm
 
 /-- `IsSquare` can be decided on `ℕ` by checking against the square root. -/
-instance : DecidablePred (IsSquare : ℕ → Prop) :=
-  fun m ↦ decidable_of_iff' (Nat.sqrt m * Nat.sqrt m = m) <| by
+instance : DecidablePred (IsSquare : ℕ → Prop) := fun m ↦
+  decidable_of_iff' (Nat.sqrt m * Nat.sqrt m = m) <| by
     simp_rw [← Nat.exists_mul_self m, IsSquare, eq_comm]
 
 lemma not_even_iff : ¬ Even n ↔ n % 2 = 1 := by grind
@@ -79,12 +79,11 @@ lemma div_two_mul_two_of_even : Even n → n / 2 * 2 = n :=
 
 theorem one_lt_of_ne_zero_of_even (h0 : n ≠ 0) (hn : Even n) : 1 < n := by grind
 
-theorem add_one_lt_of_even (hn : Even n) (hm : Even m) (hnm : n < m) :
-    n + 1 < m := by grind
+theorem add_one_lt_of_even (hn : Even n) (hm : Even m) (hnm : n < m) : n + 1 < m := by grind
 
 -- Here are examples of how `parity_simps` can be used with `Nat`.
-example (m n : ℕ) (h : Even m) : ¬Even (n + 3) ↔ Even (m ^ 2 + m + n) := by simp [*, parity_simps]
+example (m n : ℕ) (h : Even m) : ¬ Even (n + 3) ↔ Even (m ^ 2 + m + n) := by simp [*, parity_simps]
 
-example : ¬Even 25394535 := by decide
+example : ¬ Even 25394535 := by decide
 
 end Nat

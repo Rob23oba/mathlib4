@@ -70,11 +70,13 @@ open Polynomial
 namespace Algebra
 
 variable (R) in
-/-- We say that an `R` algebra `S` satisfies the Zariski's main property at a prime `p` of `S`
-if there exists `r ∉ p` in the integral closure `S'` of `R` in `S`, such that `S'[1/r] = S[1/r]`. -/
+/--
+We say that an `R` algebra `S` satisfies the Zariski's main property at a prime `p` of `S`
+if there exists `r ∉ p` in the integral closure `S'` of `R` in `S`, such that `S'[1/r] = S[1/r]`.
+-/
 def ZariskisMainProperty (p : Ideal S) : Prop :=
-  ∃ r : integralClosure R S, r.1 ∉ p ∧ Function.Bijective
-    (Localization.awayMap (integralClosure R S).val.toRingHom r)
+  ∃ r : integralClosure R S,
+    r.1 ∉ p ∧ Function.Bijective (Localization.awayMap (integralClosure R S).val.toRingHom r)
 
 lemma zariskisMainProperty_iff {p : Ideal S} :
     ZariskisMainProperty R p ↔ ∃ r ∉ p, IsIntegral R r ∧ ∀ x, ∃ m, IsIntegral R (r ^ m * x) := by

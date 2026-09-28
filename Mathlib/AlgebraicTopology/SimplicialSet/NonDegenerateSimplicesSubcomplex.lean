@@ -29,9 +29,12 @@ namespace SSet.Subcomplex
 
 variable {X : SSet.{u}} (A : X.Subcomplex)
 
-/-- The type of nondegenerate simplices which do not belong to
-a given subcomplex of a simplicial set. -/
-structure N extends X.N where mk' ::
+/--
+The type of nondegenerate simplices which do not belong to
+a given subcomplex of a simplicial set.
+-/
+structure N extends X.N where
+  mk' ::
   notMem : simplex ∉ A.obj _
 
 namespace N
@@ -42,18 +45,20 @@ lemma mk'_surjective (s : A.N) :
     ∃ (t : X.N) (ht : t.simplex ∉ A.obj _), s = mk' t ht :=
   ⟨s.toN, s.notMem, rfl⟩
 
-/-- Constructor for the type of nondegenerate simplices which
-do not belong to a given subcomplex of a simplicial set. -/
+/--
+Constructor for the type of nondegenerate simplices which
+do not belong to a given subcomplex of a simplicial set.
+-/
 @[implicit_reducible, simps!]
-def mk {n : ℕ} (x : X _⦋n⦌) (hx : x ∈ X.nonDegenerate n)
-    (hx' : x ∉ A.obj _) : A.N where
+def mk {n : ℕ} (x : X _⦋n⦌) (hx : x ∈ X.nonDegenerate n) (hx' : x ∉ A.obj _) : A.N where
   simplex := x
   nonDegenerate := hx
   notMem := hx'
 
 /-- A unification hint for the dimension of `Subcomplex.N.mk`. -/
-unif_hint {X : SSet.{u}} {A : X.Subcomplex} (n : ℕ) (x : X _⦋n⦌)
-    (hx : x ∈ X.nonDegenerate n) (hx' : x ∉ A.obj _) where
+unif_hint
+    {X : SSet.{u}} {A : X.Subcomplex}
+    (n : ℕ) (x : X _⦋n⦌) (hx : x ∈ X.nonDegenerate n) (hx' : x ∉ A.obj _) where
   ⊢ (mk x hx hx').dim ≟ n
 
 lemma mk_surjective (s : A.N) :
@@ -80,8 +85,7 @@ lemma eq_iff_sMk_eq {X : SSet.{u}} {A : X.Subcomplex} (x y : A.N) :
     x = y ↔ S.mk x.simplex = S.mk y.simplex := by
   rw [N.ext_iff, SSet.N.ext_iff]
 
-instance : PartialOrder A.N :=
-  PartialOrder.lift toN (fun _ _ ↦ by simp [ext_iff])
+instance : PartialOrder A.N := PartialOrder.lift toN (fun _ _ ↦ by simp [ext_iff])
 
 lemma le_iff {x y : A.N} : x ≤ y ↔ x.toN ≤ y.toN :=
   Iff.rfl
@@ -93,9 +97,11 @@ section
 
 variable (s : A.N) {d : ℕ} (hd : s.dim = d)
 
-/-- When `A` is a subcomplex of a simplicial set `X`,
+/--
+When `A` is a subcomplex of a simplicial set `X`,
 and `s : A.N` is such that `s.dim = d`, this is a term
-that is equal to `s`, but whose dimension if definitionally equal to `d`. -/
+that is equal to `s`, but whose dimension if definitionally equal to `d`.
+-/
 abbrev cast : A.N where
   toN := s.toN.cast hd
   notMem := hd ▸ s.notMem
@@ -107,8 +113,7 @@ lemma cast_eq_self : s.cast hd = s := by
 end
 
 /-- A unification hint for the dimension of `Subcomplex.N.cast`. -/
-unif_hint {X : SSet.{u}} {A : X.Subcomplex} (s : A.N) (d : ℕ)
-    (hd : s.dim = d) where
+unif_hint {X : SSet.{u}} {A : X.Subcomplex} (s : A.N) (d : ℕ) (hd : s.dim = d) where
   ⊢ (s.cast hd).dim ≟ d
 
 /-- The bijection `A.op.N ≃ A.N` for a subcomplex `A` of a simplicial set.. -/
@@ -120,16 +125,19 @@ def opEquiv : A.op.N ≃o A.N where
   right_inv _ := rfl
   map_rel_iff' := SSet.N.opEquiv.map_rel_iff
 
-/-- The bijection `A.N ≃ B.N` on nondegenerate simplices not belonging
+/--
+The bijection `A.N ≃ B.N` on nondegenerate simplices not belonging
 to a certain subcomplex that is induced by an isomorphism `X ≅ Y` of
-simplicial sets which maps `A : X.Subcomplex` to `B : Y.Subcomplex`. -/
+simplicial sets which maps `A : X.Subcomplex` to `B : Y.Subcomplex`.
+-/
 @[implicit_reducible, simps -isSimp apply symm_apply]
-def orderIsoOfIso {Y : SSet.{u}} {B : Y.Subcomplex} (e : X ≅ Y)
-    (hA : B.preimage e.hom = A) : A.N ≃o B.N where
+def orderIsoOfIso {Y : SSet.{u}} {B : Y.Subcomplex} (e : X ≅ Y) (hA : B.preimage e.hom = A)
+    : A.N ≃o B.N where
   toFun x := N.mk' (SSet.N.orderIsoOfIso e x.toN) (by subst hA; exact x.notMem)
-  invFun y := N.mk' ((SSet.N.orderIsoOfIso e).symm y.toN) (by
-    obtain rfl : A.preimage e.inv = B := by aesop
-    exact y.notMem)
+  invFun y :=
+    N.mk' ((SSet.N.orderIsoOfIso e).symm y.toN) (by
+      obtain rfl : A.preimage e.inv = B := by aesop
+      exact y.notMem)
   left_inv _ := by aesop
   right_inv _ := by aesop
   map_rel_iff' {_ _} := (SSet.N.orderIsoOfIso e).map_rel_iff'

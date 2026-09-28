@@ -109,18 +109,22 @@ lemma IsFlat.iInter {ι : Type*} [Nonempty ι] {Fs : ι → Set α}
   convert! hIJ.isBasis_union (hIX.isBasis_union_of_subset hIJ.indep hJ) using 1
   rw [← union_assoc, union_eq_self_of_subset_right hIJ.subset]
 
-/-- The property of being a flat gives rise to a `ClosureOperator` on the subsets of `M.E`,
+/--
+The property of being a flat gives rise to a `ClosureOperator` on the subsets of `M.E`,
 in which the `IsClosed` sets correspond to flats.
 (We can't define such an operator on all of `Set α`,
-since this would incorrectly force `univ` to always be a flat.) -/
+since this would incorrectly force `univ` to always be a flat.)
+-/
 def subtypeClosure (M : Matroid α) : ClosureOperator (Iic M.E) :=
-  ClosureOperator.ofCompletePred (fun F ↦ M.IsFlat F.1) fun s hs ↦ by
-    obtain (rfl | hne) := s.eq_empty_or_nonempty
-    · simp
-    have _ := hne.coe_sort
-    convert! IsFlat.iInter (M := M) (Fs := fun (F : s) ↦ F.1.1) (fun F ↦ hs F.1 F.2)
-    ext
-    aesop
+  ClosureOperator.ofCompletePred
+    (fun F ↦ M.IsFlat F.1)
+    fun s hs ↦ by
+      obtain (rfl | hne) := s.eq_empty_or_nonempty
+      · simp
+      have _ := hne.coe_sort
+      convert! IsFlat.iInter (M := M) (Fs := fun (F : s) ↦ F.1.1) (fun F ↦ hs F.1 F.2)
+      ext
+      aesop
 
 lemma isFlat_iff_isClosed : M.IsFlat F ↔ ∃ h : F ⊆ M.E, M.subtypeClosure.IsClosed ⟨F, h⟩ := by
   simpa [subtypeClosure] using IsFlat.subset_ground
@@ -130,8 +134,10 @@ lemma isClosed_iff_isFlat {F : Iic M.E} : M.subtypeClosure.IsClosed F ↔ M.IsFl
 
 end IsFlat
 
-/-- The closure of `X ⊆ M.E` is the intersection of all the flats of `M` containing `X`.
-A set `X` that doesn't satisfy `X ⊆ M.E` has the junk value `M.closure X := M.closure (X ∩ M.E)`. -/
+/--
+The closure of `X ⊆ M.E` is the intersection of all the flats of `M` containing `X`.
+A set `X` that doesn't satisfy `X ⊆ M.E` has the junk value `M.closure X := M.closure (X ∩ M.E)`.
+-/
 def closure (M : Matroid α) (X : Set α) : Set α := ⋂₀ {F | M.IsFlat F ∧ X ∩ M.E ⊆ F}
 
 lemma closure_def (M : Matroid α) (X : Set α) : M.closure X = ⋂₀ {F | M.IsFlat F ∧ X ∩ M.E ⊆ F} :=
@@ -816,13 +822,14 @@ lemma ext_closure {M₁ M₂ : Matroid α} (h : ∀ X, M₁.closure X = M₂.clo
   ext_indep (by simpa using h univ)
     (fun _ _ ↦ by simp_rw [indep_iff_forall_closure_sdiff_ne, h])
 
-
 section Spanning
 
 variable {S T I B : Set α}
 
-/-- A set is `spanning` in `M` if its closure is equal to `M.E`, or equivalently if it contains
-a base of `M`. -/
+/--
+A set is `spanning` in `M` if its closure is equal to `M.E`, or equivalently if it contains
+a base of `M`.
+-/
 @[mk_iff]
 structure Spanning (M : Matroid α) (S : Set α) : Prop where
   closure_eq : M.closure S = M.E
@@ -964,8 +971,8 @@ theorem isBase_iff_minimal_spanning : M.IsBase B ↔ Minimal M.Spanning B := by
   obtain ⟨B', hB', hBB'⟩ := h.exists_isBase_subset
   rwa [h' hB'.spanning hBB']
 
-theorem Spanning.isBase_of_minimal (hX : M.Spanning X) (h : ∀ ⦃Y⦄, M.Spanning Y → Y ⊆ X → X = Y) :
-    M.IsBase X := by
+theorem Spanning.isBase_of_minimal (hX : M.Spanning X) (h : ∀ ⦃Y⦄, M.Spanning Y → Y ⊆ X → X = Y)
+    : M.IsBase X := by
   rwa [isBase_iff_minimal_spanning, minimal_subset_iff, and_iff_right hX]
 
 end Spanning

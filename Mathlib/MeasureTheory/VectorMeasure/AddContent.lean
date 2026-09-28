@@ -28,33 +28,41 @@ open scoped symmDiff
 
 namespace MeasureTheory.VectorMeasure
 
-variable {α : Type*} {hα : MeasurableSpace α} {E : Type*} [NormedAddCommGroup E]
-  [CompleteSpace E] {μ : Measure α}
+variable
+  {α : Type*} {hα : MeasurableSpace α} {E : Type*} [NormedAddCommGroup E] [CompleteSpace E]
+  {μ : Measure α}
 
-/-- A finitely additive vector measure which is dominated by a finite positive measure is in
-fact countably additive. -/
+/--
+A finitely additive vector measure which is dominated by a finite positive measure is in
+fact countably additive.
+-/
 def of_additive_of_le_measure
-    (m : Set α → E) (hm : ∀ s, ‖m s‖ₑ ≤ μ s) [IsFiniteMeasure μ]
+    (m : Set α → E) (hm : ∀ s, ‖m s‖ₑ ≤ μ s)
+    [IsFiniteMeasure μ]
     (h'm : ∀ s t, MeasurableSet s → MeasurableSet t → Disjoint s t → m (s ∪ t) = m s + m t)
-    (h''m : ∀ s, ¬ MeasurableSet s → m s = 0) : VectorMeasure α E where
+    (h''m : ∀ s, ¬ MeasurableSet s → m s = 0)
+    : VectorMeasure α E where
   measureOf' := m
   empty' := by simpa using h'm ∅ ∅ MeasurableSet.empty MeasurableSet.empty (by simp)
   not_measurable' := h''m
   m_iUnion' f f_meas f_disj := by
-    rw [hasSum_iff_tendsto_nat_of_summable_norm]; swap
+    rw [hasSum_iff_tendsto_nat_of_summable_norm]
+    swap
     · simp only [← toReal_enorm]
       apply ENNReal.summable_toReal
       apply ne_of_lt
-      calc ∑' i, ‖m (f i)‖ₑ
-      _ ≤ ∑' i, μ (f i) := by gcongr; apply hm
-      _ = μ (⋃ i, f i) := (measure_iUnion f_disj f_meas).symm
-      _ < ⊤ := measure_lt_top μ (⋃ i, f i)
+      calc
+        ∑' i, ‖m (f i)‖ₑ
+        _ ≤ ∑' i, μ (f i) := by gcongr; apply hm
+        _ = μ (⋃ i, f i) := (measure_iUnion f_disj f_meas).symm
+        _ < ⊤ := measure_lt_top μ (⋃ i, f i)
     apply tendsto_iff_norm_sub_tendsto_zero.2
     simp_rw [norm_sub_rev, ← toReal_enorm, ← ENNReal.toReal_zero]
     apply (ENNReal.tendsto_toReal ENNReal.zero_ne_top).comp
     have A n : m (⋃ i ∈ Finset.range n, f i) = ∑ i ∈ Finset.range n, m (f i) := by
       induction n with
-      | zero => simpa using h'm ∅ ∅ MeasurableSet.empty MeasurableSet.empty (by simp)
+      | zero =>
+        simpa using h'm ∅ ∅ MeasurableSet.empty MeasurableSet.empty (by simp)
       | succ n ih =>
         simp only [Finset.range_add_one]
         rw [Finset.sum_insert (by simp)]
@@ -65,23 +73,27 @@ def of_additive_of_le_measure
           intro i hi
           exact f_disj hi.ne'
     have B n : m (⋃ i, f i) = m (⋃ i ∈ Finset.range n, f i) + m (⋃ i ∈ Set.Ici n, f i) := by
-      have : ⋃ i, f i = (⋃ i ∈ Finset.range n, f i) ∪ (⋃ i ∈ Set.Ici n, f i) := by
-        ext; simp; grind
+      have : ⋃ i, f i = (⋃ i ∈ Finset.range n, f i) ∪ (⋃ i ∈ Set.Ici n, f i) := by ext; simp; grind
       rw [this]
       apply h'm
       · exact Finset.measurableSet_biUnion _ (fun i hi ↦ f_meas i)
       · exact MeasurableSet.biUnion (Set.to_countable _) (fun i hi ↦ f_meas i)
-      · simp only [Finset.mem_range, Set.mem_Ici, Set.disjoint_iUnion_right,
-          Set.disjoint_iUnion_left]
+      · simp only [
+          Finset.mem_range, Set.mem_Ici, Set.disjoint_iUnion_right, Set.disjoint_iUnion_left
+        ]
         intro i hi j hj
         exact f_disj (hj.trans_le hi).ne
     have C n : m (⋃ i, f i) - ∑ i ∈ Finset.range n, m (f i) = m (⋃ i ∈ Set.Ici n, f i) := by
       rw [B n, A]; simp
     simp only [C]
     apply tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds
-      (h := fun n ↦ μ (⋃ i ∈ Set.Ici n, f i)) ?_ (fun i ↦ bot_le) (fun i ↦ hm _)
+      (h := fun n ↦ μ (⋃ i ∈ Set.Ici n, f i))
+      ?_
+      (fun i ↦ bot_le)
+      (fun i ↦ hm _)
     exact tendsto_measure_biUnion_Ici_zero_of_pairwise_disjoint
-      (fun i ↦ (f_meas i).nullMeasurableSet) f_disj
+      (fun i ↦ (f_meas i).nullMeasurableSet)
+      f_disj
 
 open scoped ENNReal
 
@@ -291,55 +303,62 @@ private lemma exists_extension_of_isSetSemiring_of_le_measure_of_generateFrom_of
   · intro t ε ht εpos
     exact exists_measure_symmDiff_lt_of_generateFrom_isSetSemiring hC h''C h'C ht εpos
 
-/-- Consider an additive content `m ` on a semi-ring of sets `C`, which is dominated by a finite
+/--
+Consider an additive content `m ` on a semi-ring of sets `C`, which is dominated by a finite
 measure `μ`. Assume that `C` generates the sigma-algebra.
-Then `m` extends to a countably additive vector measure which is dominated by `μ`. -/
+Then `m` extends to a countably additive vector measure which is dominated by `μ`.
+-/
 theorem exists_extension_of_isSetSemiring_of_le_measure_of_generateFrom
-    [IsFiniteMeasure μ] {C : Set (Set α)} {m : AddContent E C} (hC : IsSetSemiring C)
-    (hm : ∀ s ∈ C, ‖m s‖ₑ ≤ μ s) (h'C : hα = generateFrom C) :
-    ∃ m' : VectorMeasure α E, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ s := by
-  have M (s) (hs : s ∈ C) : MeasurableSet s := by
-    rw [h'C]; exact measurableSet_generateFrom hs
+    [IsFiniteMeasure μ]
+    {C : Set (Set α)} {m : AddContent E C}
+    (hC : IsSetSemiring C) (hm : ∀ s ∈ C, ‖m s‖ₑ ≤ μ s) (h'C : hα = generateFrom C)
+    : ∃ m' : VectorMeasure α E, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ s := by
+  have M (s) (hs : s ∈ C) : MeasurableSet s := by rw [h'C]; exact measurableSet_generateFrom hs
   rcases Measure.exists_ae_subset_biUnion_countable μ M with ⟨D, DC, D_count, hD⟩
-  have MD : MeasurableSet (⋃₀ D) := MeasurableSet.sUnion D_count (fun t ht ↦ M _ (DC ht))
-  let μ' := μ.restrict (⋃₀ D)
+  have MD : MeasurableSet (⋃₀D) := MeasurableSet.sUnion D_count (fun t ht ↦ M _ (DC ht))
+  let μ' := μ.restrict (⋃₀D)
   obtain ⟨m', h, h'⟩ : ∃ m' : VectorMeasure α E, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ' s := by
     apply exists_extension_of_isSetSemiring_of_le_measure_of_generateFrom_of_cover hC
-      (fun s hs ↦ ?_) h'C ?_
+      (fun s hs ↦ ?_)
+      h'C ?_
     · exact ⟨D, D_count, DC, by simp [μ', Measure.restrict_apply' MD]⟩
     · apply (hm s hs).trans
       simp only [Measure.restrict_apply' MD, μ']
       apply measure_mono_ae
       nth_rewrite 1 [← Set.inter_self s]
       exact ae_le_set_inter Filter.EventuallyLE.rfl (hD s hs)
-  exact ⟨m', h, fun s ↦ (h' s).trans (Measure.restrict_apply_le (⋃₀ D) s)⟩
+  exact ⟨m', h, fun s ↦ (h' s).trans (Measure.restrict_apply_le (⋃₀D) s)⟩
 
-/-- Consider an additive content `m` on a semi-ring of measurable sets `C`, which is dominated
+/--
+Consider an additive content `m` on a semi-ring of measurable sets `C`, which is dominated
 by a finite measure `μ`.
-Then `m` extends to a countably additive vector measure which is dominated by `μ`. -/
-theorem exists_extension_of_isSetSemiring_of_le_measure [NormedSpace ℝ E]
-    [IsFiniteMeasure μ] {C : Set (Set α)} {m : AddContent E C} (hC : IsSetSemiring C)
-    (hm : ∀ s ∈ C, ‖m s‖ₑ ≤ μ s) (h'C : ∀ s ∈ C, MeasurableSet s) :
-    ∃ m' : VectorMeasure α E, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ s := by
-  /- On the sigma-algebra `M` generated by `C`, the desired vector measure is provided by
+Then `m` extends to a countably additive vector measure which is dominated by `μ`.
+-/
+theorem exists_extension_of_isSetSemiring_of_le_measure
+    [NormedSpace ℝ E] [IsFiniteMeasure μ]
+    {C : Set (Set α)} {m : AddContent E C}
+    (hC : IsSetSemiring C) (hm : ∀ s ∈ C, ‖m s‖ₑ ≤ μ s) (h'C : ∀ s ∈ C, MeasurableSet s)
+    : ∃ m' : VectorMeasure α E, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ s := by
+  /-
+  On the sigma-algebra `M` generated by `C`, the desired vector measure is provided by
   `exists_extension_of_isSetSemiring_of_le_measure_of_generateFrom`. We extend it to the whole
   sigma-algebra of measurable sets by integrating the conditional expectation with respect to `M`.
-  This extension satisfies all the desired properties. -/
+  This extension satisfies all the desired properties.
+  -/
   classical
   let M : MeasurableSpace α := generateFrom C
   have Mle : M ≤ hα := generateFrom_le h'C
   set μ' := μ.trim Mle with hμ'
-  obtain ⟨m', m'C, hm'⟩ :
-      ∃ m' : @VectorMeasure α M E _ _, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ' s := by
+  obtain ⟨m', m'C, hm'⟩
+      : ∃ m' : @VectorMeasure α M E _ _, (∀ s ∈ C, m' s = m s) ∧ ∀ s, ‖m' s‖ₑ ≤ μ' s := by
     apply exists_extension_of_isSetSemiring_of_le_measure_of_generateFrom hC (fun s hs ↦ ?_) rfl
     apply (hm s hs).trans_eq
     exact (MeasureTheory.trim_measurableSet_eq Mle (measurableSet_generateFrom hs)).symm
-  have m'_le : m'.variation ≤ μ' := by
-    exact variation_le_of_forall_enorm_le (fun s hs ↦ hm' _)
+  have m'_le : m'.variation ≤ μ' := by exact variation_le_of_forall_enorm_le (fun s hs ↦ hm' _)
   -- next line is to make sure that the default instance is picked below when defininig `m''`.
   let : MeasurableSpace α := hα
-  let m'' : VectorMeasure α E :=
-  { measureOf' s := if MeasurableSet s then ∫ᵛ x, μ[s.indicator 1 | M] x ∂• m' else 0
+  let m'' : VectorMeasure α E := {
+    measureOf' s := if MeasurableSet s then ∫ᵛ x, μ[s.indicator 1 | M] x ∂• m' else 0
     empty' := by simp
     not_measurable' s hs := by simp [hs]
     m_iUnion' f f_meas hf := by
@@ -349,19 +368,24 @@ theorem exists_extension_of_isSetSemiring_of_le_measure [NormedSpace ℝ E]
         apply ae_mono m'_le
         apply ae_eq_trim_of_measurable _ (by fun_prop) (by fun_prop)
         apply condExp_tsum (fun i ↦ ?_)
-        · simp only [enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one, f_meas,
+        · simp only [
+            enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one, f_meas,
             lintegral_indicator, lintegral_const, MeasurableSet.univ, Measure.restrict_apply,
             Set.univ_inter, one_mul, ne_eq, ← measure_iUnion hf f_meas, measure_ne_top,
-            not_false_eq_true]
+            not_false_eq_true
+          ]
         · exact AEStronglyMeasurable.indicator (by fun_prop) (f_meas i)
-      simp only [f_meas, ↓reduceIte, implies_true, MeasurableSet.iUnion,
-        indicator_iUnion_of_pairwise_disjoint _ hf, this]
+      simp only [
+        f_meas, ↓ reduceIte, implies_true, MeasurableSet.iUnion,
+        indicator_iUnion_of_pairwise_disjoint _ hf, this
+      ]
       have I : ∑' (i : ℕ), ∫⁻ (a : α), ‖μ[(f i).indicator (1 : α → ℝ) | M] a‖ₑ ∂μ < ∞ := by
         have A i : ∫⁻ a, ‖μ[(f i).indicator (1 : α → ℝ) | M] a‖ₑ ∂μ = μ (f i) :=
           lintegral_enorm_condExp_indicator Mle (f_meas i)
         simp_rw [A, ← measure_iUnion hf f_meas]
         exact measure_lt_top _ _
-      rw [integral_tsum (by fun_prop)]; swap
+      rw [integral_tsum (by fun_prop)]
+      swap
       · apply ne_of_lt
         grw [m'_le, hμ']
         have A i : Measurable[M] (fun x ↦ ‖μ[(f i).indicator (1 : α → ℝ) | M] x‖ₑ) := by fun_prop
@@ -371,24 +395,24 @@ theorem exists_extension_of_isSetSemiring_of_le_measure [NormedSpace ℝ E]
       apply ne_of_lt (lt_of_le_of_lt ?_ I)
       gcongr with i
       grw [enorm_integral_le_lintegral_enorm, ContinuousLinearMap.opENorm_lsmul_le, one_mul,
-        lintegral_mono' m'_le le_rfl, hμ', lintegral_trim _ (by fun_prop)] }
+        lintegral_mono' m'_le le_rfl, hμ', lintegral_trim _ (by fun_prop)]
+  }
   refine ⟨m'', fun s hs ↦ ?_, fun s ↦ ?_⟩
-  · simp only [coe_mk, h'C s hs, ↓reduceIte, m'']
+  · simp only [coe_mk, h'C s hs, ↓ reduceIte, m'']
     have : ∫ᵛ (x : α), μ[s.indicator 1 | M] x ∂•m' = ∫ᵛ (x : α), s.indicator 1 x ∂•m' := by
       apply integral_congr_ae
       filter_upwards with x
       rw [condExp_of_stronglyMeasurable Mle]
-      · exact StronglyMeasurable.indicator stronglyMeasurable_const
-          (measurableSet_generateFrom hs)
+      · exact StronglyMeasurable.indicator stronglyMeasurable_const (measurableSet_generateFrom hs)
       · exact (integrable_const 1).indicator (h'C s hs)
     rw [this, integral_indicator (measurableSet_generateFrom hs)]
-    have : IsFiniteMeasure m'.variation :=
-      isFiniteMeasure_of_le _ m'_le
+    have : IsFiniteMeasure m'.variation := isFiniteMeasure_of_le _ m'_le
     simp only [Pi.one_apply, setIntegral_const]
     simp [m'C s hs]
-  · by_cases hs : MeasurableSet s; swap
+  · by_cases hs : MeasurableSet s
+    swap
     · simp [not_measurable _ hs]
-    simp only [coe_mk, hs, ↓reduceIte, m'']
+    simp only [coe_mk, hs, ↓ reduceIte, m'']
     grw [enorm_integral_le_lintegral_enorm, ContinuousLinearMap.opENorm_lsmul_le, one_mul,
       lintegral_mono' m'_le le_rfl, hμ', lintegral_trim _ (by fun_prop),
       lintegral_enorm_condExp_indicator Mle hs]

@@ -39,8 +39,10 @@ noncomputable section
 
 /-- The monoidal category instance induced by the pushout-product. -/
 @[simps]
-scoped instance [HasPushouts C] [HasInitial C] [CartesianMonoidalCategory C] [MonoidalClosed C]
-    [BraidedCategory C] : MonoidalCategoryStruct (Arrow C) where
+scoped instance
+    [HasPushouts C] [HasInitial C] [CartesianMonoidalCategory C] [MonoidalClosed C]
+    [BraidedCategory C]
+    : MonoidalCategoryStruct (Arrow C) where
   tensorObj X Y := X □ Y
   whiskerLeft X _ _ f := (pushoutProduct.obj X).map f
   whiskerRight f X := (pushoutProduct.map f).app X
@@ -49,7 +51,8 @@ scoped instance [HasPushouts C] [HasInitial C] [CartesianMonoidalCategory C] [Mo
   leftUnitor := PushoutProduct.leftUnitor
   rightUnitor := PushoutProduct.rightUnitor
 
-variable [HasPushouts C] [HasInitial C] [CartesianMonoidalCategory C] [MonoidalClosed C]
+variable
+  [HasPushouts C] [HasInitial C] [CartesianMonoidalCategory C] [MonoidalClosed C]
   [BraidedCategory C]
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -160,7 +163,8 @@ scoped instance symmetricCategory : SymmetricCategory (Arrow C) where
 scoped instance [HasPullbacks C] : MonoidalClosed (Arrow C) where
   closed X := {
     rightAdj := pullbackHom.obj (Opposite.op X)
-    adj := LeibnizAdjunction.adj _ _ (MonoidalClosed.internalHomAdjunction₂) X }
+    adj := LeibnizAdjunction.adj _ _ (MonoidalClosed.internalHomAdjunction₂) X
+  }
 
 end
 

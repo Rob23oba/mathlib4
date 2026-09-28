@@ -14,7 +14,6 @@ public import Mathlib.Data.Fintype.EquivFin
 
 public section
 
-
 variable {α : Type*}
 
 open Finset
@@ -49,15 +48,17 @@ variable (α)
 end Finset
 
 @[simp]
-theorem Fintype.card_finset_len [Fintype α] (k : ℕ) :
-    Fintype.card { s : Finset α // #s = k } = Nat.choose (Fintype.card α) k := by
+theorem Fintype.card_finset_len [Fintype α] (k : ℕ)
+    : Fintype.card {s : Finset α // #s = k} = Nat.choose (Fintype.card α) k := by
   simp [Fintype.subtype_card, Finset.card_univ]
 
-instance Set.fintype [Fintype α] : Fintype (Set α) :=
-  ⟨(@Finset.univ (Finset α) _).map coeEmb.1, fun s => by
+instance Set.fintype [Fintype α] : Fintype (Set α) := ⟨
+  (@Finset.univ (Finset α) _).map coeEmb.1,
+  fun s => by
     classical
     refine mem_map.2 ⟨({a | a ∈ s} : Finset _), Finset.mem_univ _, (coe_filter _ _).trans ?_⟩
-    simp⟩
+    simp
+⟩
 
 -- Not to be confused with `Set.Finite`, the predicate
 instance Set.instFinite [Finite α] : Finite (Set α) := by

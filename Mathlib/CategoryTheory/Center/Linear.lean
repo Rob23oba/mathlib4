@@ -34,8 +34,7 @@ open scoped IsMulCommutative in
 /-- The canonical morphism `R →+* CatCenter C` when `C` is an `R`-linear category. -/
 @[simps]
 def toCatCenter [Linear R C] : R →+* CatCenter C where
-  toFun a :=
-    { app := fun X => a • 𝟙 X }
+  toFun a := { app := fun X => a • 𝟙 X }
   map_one' := by cat_disch
   map_mul' a b := by
     rw [mul_comm]
@@ -51,8 +50,10 @@ section
 variable {R C}
 variable (φ : R →+* CatCenter C) (X Y : C)
 
-/-- The scalar multiplication by `R` on the type `X ⟶ Y` of morphisms in
-a category `C` equipped with a ring morphism `R →+* CatCenter C`. -/
+/--
+The scalar multiplication by `R` on the type `X ⟶ Y` of morphisms in
+a category `C` equipped with a ring morphism `R →+* CatCenter C`.
+-/
 @[instance_reducible]
 def smulOfRingMorphism : SMul R (X ⟶ Y) where
   smul a f := (φ a).app X ≫ f
@@ -72,36 +73,39 @@ lemma smulOfRingMorphism_smul_eq' (a : R) (f : X ⟶ Y) :
 
 variable (X Y)
 
-/-- The `R`-module structure on the type `X ⟶ Y` of morphisms in
-a category `C` equipped with a ring morphism `R →+* CatCenter C`. -/
+/--
+The `R`-module structure on the type `X ⟶ Y` of morphisms in
+a category `C` equipped with a ring morphism `R →+* CatCenter C`.
+-/
 @[instance_reducible]
 def homModuleOfRingMorphism : Module R (X ⟶ Y) := by
   letI := smulOfRingMorphism φ X Y
-  exact
-  { one_smul := fun a => by
-      simp only [smulOfRingMorphism_smul_eq,
-        Functor.id_obj, map_one, End.one_def, NatTrans.id_app, id_comp]
+  exact {
+    one_smul := fun a => by
+      simp only [
+        smulOfRingMorphism_smul_eq, Functor.id_obj, map_one, End.one_def, NatTrans.id_app, id_comp
+      ]
     mul_smul := fun a b f => by
-      simp only [smulOfRingMorphism_smul_eq', Functor.id_obj, map_mul, End.mul_def,
-        NatTrans.comp_app, assoc]
-    smul_zero := fun a => by
-      simp only [smulOfRingMorphism_smul_eq, comp_zero]
-    zero_smul := fun a => by
-      simp only [smulOfRingMorphism_smul_eq, map_zero,
-        zero_app, zero_comp]
-    smul_add := fun a b => by
-      simp [smulOfRingMorphism_smul_eq]
-    add_smul := fun a b f => by
-      simp [smulOfRingMorphism_smul_eq] }
+      simp only [
+        smulOfRingMorphism_smul_eq', Functor.id_obj, map_mul, End.mul_def, NatTrans.comp_app, assoc
+      ]
+    smul_zero := fun a => by simp only [smulOfRingMorphism_smul_eq, comp_zero]
+    zero_smul := fun a => by simp only [smulOfRingMorphism_smul_eq, map_zero, zero_app, zero_comp]
+    smul_add := fun a b => by simp [smulOfRingMorphism_smul_eq]
+    add_smul := fun a b f => by simp [smulOfRingMorphism_smul_eq]
+  }
 
-/-- The `R`-linear structure on a preadditive category `C` equipped with
-a ring morphism `R →+* CatCenter C`. -/
+/--
+The `R`-linear structure on a preadditive category `C` equipped with
+a ring morphism `R →+* CatCenter C`.
+-/
 @[instance_reducible]
 def ofRingMorphism : Linear R C := by
   letI := homModuleOfRingMorphism φ
-  exact
-    { smul_comp := fun X Y Z r f g => by simp only [smulOfRingMorphism_smul_eq, assoc]
-      comp_smul := fun X Y Z f r g => by simp only [smulOfRingMorphism_smul_eq', assoc] }
+  exact {
+    smul_comp := fun X Y Z r f g => by simp only [smulOfRingMorphism_smul_eq, assoc]
+    comp_smul := fun X Y Z f r g => by simp only [smulOfRingMorphism_smul_eq', assoc]
+  }
 
 end
 

@@ -132,12 +132,13 @@ lemma coverEntropyInf_closure (h : Continuous T) :
   exact le_iSup₂_of_le V V_uni ((coverEntropyInfEntourage_antitone T (closure F) V_U).trans
     (coverEntropyInfEntourage_closure h F V V_uni))
 
-theorem coverEntropy_closure (h : Continuous T) :
-    coverEntropy T (closure F) = coverEntropy T F := by
+theorem coverEntropy_closure (h : Continuous T)
+    : coverEntropy T (closure F) = coverEntropy T F := by
   refine (iSup₂_le fun U U_uni ↦ ?_).antisymm (coverEntropy_monotone T subset_closure)
   obtain ⟨V, V_uni, V_U⟩ := comp_mem_uniformity_sets U_uni
-  exact le_iSup₂_of_le V V_uni ((coverEntropyEntourage_antitone T (closure F) V_U).trans
-    (coverEntropyEntourage_closure h F V V_uni))
+  exact le_iSup₂_of_le V V_uni
+    ((coverEntropyEntourage_antitone T (closure F) V_U).trans
+      (coverEntropyEntourage_closure h F V V_uni))
 
 end Closure
 
@@ -196,8 +197,7 @@ lemma coverEntropy_biUnion_le (s : Set ι) (T : X → X) (F : ι → Set X) :
   iSup₂_le fun _ i_s ↦ coverEntropy_monotone T (subset_biUnion_of_mem i_s)
 
 /-- Topological entropy `CoverEntropy T` as a `SupBotHom` function of the subset. -/
-noncomputable def coverEntropySupBotHom (T : X → X) :
-    SupBotHom (Set X) EReal where
+noncomputable def coverEntropySupBotHom (T : X → X) : SupBotHom (Set X) EReal where
   toFun := coverEntropy T
   map_sup' := fun _ _ ↦ coverEntropy_union
   map_bot' := coverEntropy_empty

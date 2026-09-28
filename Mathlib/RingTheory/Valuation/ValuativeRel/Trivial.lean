@@ -25,10 +25,10 @@ A trivial valuative relation is equivalent to the value group being isomorphic t
 
 namespace ValuativeRel
 
-variable {R Γ : Type} [Ring R] [DecidableEq R] [IsDomain R]
-  [LinearOrderedCommGroupWithZero Γ]
+variable {R Γ : Type} [Ring R] [DecidableEq R] [IsDomain R] [LinearOrderedCommGroupWithZero Γ]
 
-/-- The trivial valuative relation on a domain `R`, such that all non-zero elements are related.
+/--
+The trivial valuative relation on a domain `R`, such that all non-zero elements are related.
 The domain condition is necessary so that the relation is closed when multiplying.
 -/
 @[instance_reducible]

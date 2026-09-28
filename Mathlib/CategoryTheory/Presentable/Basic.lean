@@ -41,15 +41,18 @@ section
 
 variable (F G : C ⥤ D) (e : F ≅ G) (κ : Cardinal.{w}) [Fact κ.IsRegular]
 
-/-- A functor `F : C ⥤ D` is `κ`-accessible (with `κ` a regular cardinal)
+/--
+A functor `F : C ⥤ D` is `κ`-accessible (with `κ` a regular cardinal)
 if it preserves colimits of shape `J` where `J` is any `κ`-filtered category.
 In the mathematical literature, some assumptions are often made on the
 categories `C` or `D` (e.g. the existence of `κ`-filtered colimits,
 see `HasCardinalFilteredColimits` below), but here we do not
-make such assumptions. -/
+make such assumptions.
+-/
 class IsCardinalAccessible : Prop where
-  preservesColimitOfShape (J : Type w) [SmallCategory J] [IsCardinalFiltered J κ] :
-    PreservesColimitsOfShape J F := by intros; infer_instance
+  preservesColimitOfShape (J : Type w) [SmallCategory J] [IsCardinalFiltered J κ]
+      : PreservesColimitsOfShape J F := by
+    intros; infer_instance
 
 lemma preservesColimitsOfShape_of_isCardinalAccessible [F.IsCardinalAccessible κ]
     (J : Type w) [SmallCategory J] [IsCardinalFiltered J κ] :
@@ -81,33 +84,39 @@ lemma isCardinalAccessible_of_natIso [F.IsCardinalAccessible κ] : G.IsCardinalA
 
 instance : IsCardinalAccessible (𝟭 C) κ where
 
-instance {E : Type u₃} [Category.{v₃} E] (F : C ⥤ D) (G : D ⥤ E)
-    [F.IsCardinalAccessible κ] [G.IsCardinalAccessible κ] :
-    (F ⋙ G).IsCardinalAccessible κ := by
+instance
+    {E : Type u₃} [Category.{v₃} E]
+    (F : C ⥤ D) (G : D ⥤ E) [F.IsCardinalAccessible κ] [G.IsCardinalAccessible κ]
+    : (F ⋙ G).IsCardinalAccessible κ := by
   have := F.preservesColimitsOfShape_of_isCardinalAccessible κ
   have := G.preservesColimitsOfShape_of_isCardinalAccessible κ
-  exact { }
+  exact {}
 
 instance [PreservesColimitsOfSize.{w, w} F] : F.IsCardinalAccessible κ where
 
 set_option backward.defeqAttrib.useBackward true in
 instance (A : C) : IsCardinalAccessible ((Functor.const C).obj A) κ where
-  preservesColimitOfShape J _ _ :=
-    { preservesColimit {F} :=
-        { preserves {c} hc := ⟨by
-            have h := isFiltered_of_isCardinalFiltered J κ
-            have (j : J) : IsIso ((((const C).obj A).mapCocone c).ι.app j) := by
-              dsimp
-              infer_instance
-            exact Functor.IsEventuallyConstantFrom.isColimitOfIsIso
-              (i₀ := h.nonempty.some) (fun _ _ ↦ by dsimp; infer_instance) _⟩ } }
+  preservesColimitOfShape J _ _ := {
+    preservesColimit {F} := {
+      preserves {c} hc := ⟨by
+        have h := isFiltered_of_isCardinalFiltered J κ
+        have (j : J) : IsIso ((((const C).obj A).mapCocone c).ι.app j) := by
+          dsimp
+          infer_instance
+        exact Functor.IsEventuallyConstantFrom.isColimitOfIsIso (i₀ := h.nonempty.some)
+          (fun _ _ ↦ by dsimp; infer_instance)
+          _⟩
+    }
+  }
 
 end
 
 section
 
-/-- A functor is accessible relative to a universe `w` if
-it is `κ`-accessible for some regular `κ : Cardinal.{w}`. -/
+/--
+A functor is accessible relative to a universe `w` if
+it is `κ`-accessible for some regular `κ : Cardinal.{w}`.
+-/
 @[pp_with_univ]
 class IsAccessible (F : C ⥤ D) : Prop where
   exists_cardinal (F) : ∃ (κ : Cardinal.{w}) (_ : Fact κ.IsRegular), IsCardinalAccessible F κ
@@ -118,11 +127,12 @@ lemma isAccessible_of_isCardinalAccessible (κ : Cardinal.{w}) [Fact κ.IsRegula
     [IsCardinalAccessible F κ] : IsAccessible.{w} F where
   exists_cardinal := ⟨κ, inferInstance, inferInstance⟩
 
-instance : IsAccessible.{w} (𝟭 C) :=
-  ⟨.aleph0, Cardinal.fact_isRegular_aleph0, inferInstance⟩
+instance : IsAccessible.{w} (𝟭 C) := ⟨.aleph0, Cardinal.fact_isRegular_aleph0, inferInstance⟩
 
-instance {E : Type u₃} [Category.{v₃} E] (F : C ⥤ D) (G : D ⥤ E) [IsAccessible.{w} F]
-    [IsAccessible.{w} G] : IsAccessible.{w} (F ⋙ G) := by
+instance
+    {E : Type u₃} [Category.{v₃} E]
+    (F : C ⥤ D) (G : D ⥤ E) [IsAccessible.{w} F] [IsAccessible.{w} G]
+    : IsAccessible.{w} (F ⋙ G) := by
   obtain ⟨κF, _, _⟩ := IsAccessible.exists_cardinal (F := F)
   obtain ⟨κG, _, _⟩ := IsAccessible.exists_cardinal (F := G)
   have : Fact (κF ⊔ κG).IsRegular := ⟨iteInduction (fun _ ↦ Fact.out) (fun _ ↦ Fact.out)⟩
@@ -142,21 +152,22 @@ section
 
 variable (X : C) (Y : C) (e : X ≅ Y) (κ : Cardinal.{w}) [Fact κ.IsRegular]
 
-/-- An object `X` in a category is `κ`-presentable (for `κ` a regular cardinal)
+/--
+An object `X` in a category is `κ`-presentable (for `κ` a regular cardinal)
 when the functor `Hom(X, _)` preserves colimits indexed by
-`κ`-filtered categories. -/
+`κ`-filtered categories.
+-/
 abbrev IsCardinalPresentable : Prop := (coyoneda.obj (op X)).IsCardinalAccessible κ
 
 variable (C) in
 /-- The property of objects that are `κ`-presentable. -/
 abbrev isCardinalPresentable : ObjectProperty C := fun X ↦ IsCardinalPresentable X κ
 
-instance (X : (isCardinalPresentable C κ).FullSubcategory) :
-    IsCardinalPresentable X.obj κ :=
+instance (X : (isCardinalPresentable C κ).FullSubcategory) : IsCardinalPresentable X.obj κ :=
   X.property
 
-instance (X : (isCardinalPresentable C κ).FullSubcategory) :
-    IsCardinalPresentable ((isCardinalPresentable C κ).ι.obj X) κ := by
+instance (X : (isCardinalPresentable C κ).FullSubcategory)
+    : IsCardinalPresentable ((isCardinalPresentable C κ).ι.obj X) κ := by
   dsimp
   infer_instance
 
@@ -219,9 +230,8 @@ lemma isCardinalPresentable_of_equivalence
   exact preservesColimit_of_natIso Y iso.symm
 
 instance isCardinalPresentable_of_isEquivalence
-    {C' : Type u₃} [Category.{v₃} C'] [IsCardinalPresentable X κ] (F : C ⥤ C')
-    [F.IsEquivalence] :
-    IsCardinalPresentable (F.obj X) κ :=
+    {C' : Type u₃} [Category.{v₃} C'] [IsCardinalPresentable X κ] (F : C ⥤ C') [F.IsEquivalence]
+    : IsCardinalPresentable (F.obj X) κ :=
   isCardinalPresentable_of_equivalence X κ F.asEquivalence
 
 @[simp]
@@ -385,8 +395,7 @@ lemma isCardinalPresentable_iff_isCardinalAccessible_uliftCoyoneda_obj :
     (coyoneda.obj (op X) ⋙ uliftFunctor.{t}) κ J
   exact preservesColimitsOfShape_of_reflects_of_preserves _ uliftFunctor.{t, v₁}
 
-instance [IsCardinalPresentable X κ] :
-    (uliftCoyoneda.{t}.obj (op X)).IsCardinalAccessible κ :=
+instance [IsCardinalPresentable X κ] : (uliftCoyoneda.{t}.obj (op X)).IsCardinalAccessible κ :=
   (isCardinalPresentable_iff_isCardinalAccessible_uliftCoyoneda_obj.{t} X κ).1 inferInstance
 
 end
@@ -395,11 +404,12 @@ section
 
 variable (X : C)
 
-/-- An object of a category is presentable relative to a universe `w`
-if it is `κ`-presentable for some regular `κ : Cardinal.{w}`. -/
+/--
+An object of a category is presentable relative to a universe `w`
+if it is `κ`-presentable for some regular `κ : Cardinal.{w}`.
+-/
 @[pp_with_univ]
-abbrev IsPresentable (X : C) : Prop :=
-  Functor.IsAccessible.{w} (coyoneda.obj (op X))
+abbrev IsPresentable (X : C) : Prop := Functor.IsAccessible.{w} (coyoneda.obj (op X))
 
 lemma isPresentable_of_isCardinalPresentable (κ : Cardinal.{w}) [Fact κ.IsRegular]
     [IsCardinalPresentable X κ] : IsPresentable.{w} X where
@@ -409,15 +419,19 @@ end
 
 section
 
-/-- A category has `κ`-filtered colimits if it has colimits of shape `J`
-for any `κ`-filtered category `J`. -/
-class HasCardinalFilteredColimits (C : Type u₁) [Category.{v₁} C]
-    (κ : Cardinal.{w}) [Fact κ.IsRegular] : Prop where
-  hasColimitsOfShape (C) (J : Type w) [SmallCategory J] [IsCardinalFiltered J κ] :
-    HasColimitsOfShape J C := by intros; infer_instance
+/--
+A category has `κ`-filtered colimits if it has colimits of shape `J`
+for any `κ`-filtered category `J`.
+-/
+class HasCardinalFilteredColimits
+    (C : Type u₁) [Category.{v₁} C] (κ : Cardinal.{w}) [Fact κ.IsRegular]
+    : Prop where
+  hasColimitsOfShape (C) (J : Type w) [SmallCategory J] [IsCardinalFiltered J κ]
+      : HasColimitsOfShape J C := by
+    intros; infer_instance
 
-instance (κ : Cardinal.{w}) [Fact κ.IsRegular] [HasColimitsOfSize.{w, w} C] :
-    HasCardinalFilteredColimits.{w} C κ where
+instance (κ : Cardinal.{w}) [Fact κ.IsRegular] [HasColimitsOfSize.{w, w} C]
+  : HasCardinalFilteredColimits.{w} C κ where
 
 variable {κ} in
 lemma HasCardinalFilteredColimits.of_le {κ : Cardinal.{w}} [Fact κ.IsRegular]

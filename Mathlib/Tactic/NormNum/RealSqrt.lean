@@ -57,71 +57,83 @@ lemma isNNRat_realSqrt_of_isNNRat {x : ℝ} {n sn : ℕ} {d sd : ℕ} (hn : sn *
 
 /-- `norm_num` extension that evaluates the function `Real.sqrt`. -/
 @[norm_num √_]
-def evalRealSqrt : NormNumExt where eval {u α} e := do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(√$x) =>
-    match ← derive x with
-    | .isBool _ _ => failure
-    | .isNat sℝ ex pf =>
+def evalRealSqrt : NormNumExt where
+  eval {u α} e := do
+    match u, α, e with
+    | 0, ~q(ℝ), ~q(√$x) =>
+      match ← derive x with
+      | .isBool _ _ =>
+        failure
+      | .isNat sℝ ex pf =>
         let x := ex.natLit!
         let y := Nat.sqrt x
-        unless y * y = x do failure
+        unless y * y = x do
+          failure
         have ey : Q(ℕ) := mkRawNatLit y
         have pf₁ : Q($ey * $ey = $ex) := (q(Eq.refl $ex) : Expr)
         assumeInstancesCommute
-        return .isNat q($sℝ) q($ey) q(isNat_realSqrt $pf $pf₁)
-    | .isNegNat _ ex pf =>
+        return .isNat (q($sℝ)) (q($ey)) q(isNat_realSqrt $pf $pf₁)
+      | .isNegNat _ ex pf =>
         -- Recall that `Real.sqrt` returns 0 for negative inputs
         assumeInstancesCommute
-        return .isNat q(inferInstance) q(nat_lit 0) q(isNat_realSqrt_neg $pf)
-    | .isNegNNRat sℝ eq n ed pf =>
+        return .isNat (q(inferInstance)) (q(nat_lit 0)) q(isNat_realSqrt_neg $pf)
+      | .isNegNNRat sℝ eq n ed pf =>
         assumeInstancesCommute
-        return .isNat q(inferInstance) q(nat_lit 0) q(isNat_realSqrt_of_isRat_negOfNat $pf)
-    | .isNNRat sℝ eq n' ed pf =>
-          let n : ℕ := n'.natLit!
-          let d : ℕ := ed.natLit!
-          let sn := Nat.sqrt n
-          let sd := Nat.sqrt d
-          unless sn * sn = n ∧ sd * sd = d do failure
-          have esn : Q(ℕ) := mkRawNatLit sn
-          have esd : Q(ℕ) := mkRawNatLit sd
-          have hn : Q($esn * $esn = $n') := (q(Eq.refl $n') : Expr)
-          have hd : Q($esd * $esd = $ed) := (q(Eq.refl $ed) : Expr)
-          assumeInstancesCommute
-          -- will never be an integer
-          return .isNNRat q($sℝ) (sn / sd) _ q($esd) q(isNNRat_realSqrt_of_isNNRat $hn $hd $pf)
-  | _ => failure
-
-/-- `norm_num` extension that evaluates the function `NNReal.sqrt`. -/
-@[norm_num NNReal.sqrt _]
-def evalNNRealSqrt : NormNumExt where eval {u α} e := do
-  match u, α, e with
-  | 0, ~q(NNReal), ~q(NNReal.sqrt $x) =>
-    match ← derive x with
-    | .isBool _ _ => failure
-    | .isNat sℝ ex pf =>
-        let x := ex.natLit!
-        let y := Nat.sqrt x
-        unless y * y = x do failure
-        have ey : Q(ℕ) := mkRawNatLit y
-        have pf₁ : Q($ey * $ey = $ex) := (q(Eq.refl $ex) : Expr)
-        assumeInstancesCommute
-        return .isNat sℝ ey q(isNat_nnrealSqrt $pf $pf₁)
-    | .isNegNat _ ex pf => failure
-    | .isNNRat sℝ eq n' ed pf =>
+        return .isNat (q(inferInstance)) (q(nat_lit 0)) q(isNat_realSqrt_of_isRat_negOfNat $pf)
+      | .isNNRat sℝ eq n' ed pf =>
         let n : ℕ := n'.natLit!
         let d : ℕ := ed.natLit!
         let sn := Nat.sqrt n
         let sd := Nat.sqrt d
-        unless sn * sn = n ∧ sd * sd = d do failure
+        unless sn * sn = n ∧ sd * sd = d do
+          failure
         have esn : Q(ℕ) := mkRawNatLit sn
         have esd : Q(ℕ) := mkRawNatLit sd
         have hn : Q($esn * $esn = $n') := (q(Eq.refl $n') : Expr)
         have hd : Q($esd * $esd = $ed) := (q(Eq.refl $ed) : Expr)
         assumeInstancesCommute
         -- will never be an integer
-        return .isNNRat q($sℝ) (sn / sd) _ q($esd) q(isNNRat_nnrealSqrt_of_isNNRat $hn $hd $pf)
-    | .isNegNNRat sℝ eq en ed pf => failure
-  | _ => failure
+        return .isNNRat (q($sℝ)) (sn / sd) _ (q($esd)) q(isNNRat_realSqrt_of_isNNRat $hn $hd $pf)
+    | _ =>
+      failure
+
+/-- `norm_num` extension that evaluates the function `NNReal.sqrt`. -/
+@[norm_num NNReal.sqrt _]
+def evalNNRealSqrt : NormNumExt where
+  eval {u α} e := do
+    match u, α, e with
+    | 0, ~q(NNReal), ~q(NNReal.sqrt $x) =>
+      match ← derive x with
+      | .isBool _ _ =>
+        failure
+      | .isNat sℝ ex pf =>
+        let x := ex.natLit!
+        let y := Nat.sqrt x
+        unless y * y = x do
+          failure
+        have ey : Q(ℕ) := mkRawNatLit y
+        have pf₁ : Q($ey * $ey = $ex) := (q(Eq.refl $ex) : Expr)
+        assumeInstancesCommute
+        return .isNat sℝ ey q(isNat_nnrealSqrt $pf $pf₁)
+      | .isNegNat _ ex pf =>
+        failure
+      | .isNNRat sℝ eq n' ed pf =>
+        let n : ℕ := n'.natLit!
+        let d : ℕ := ed.natLit!
+        let sn := Nat.sqrt n
+        let sd := Nat.sqrt d
+        unless sn * sn = n ∧ sd * sd = d do
+          failure
+        have esn : Q(ℕ) := mkRawNatLit sn
+        have esd : Q(ℕ) := mkRawNatLit sd
+        have hn : Q($esn * $esn = $n') := (q(Eq.refl $n') : Expr)
+        have hd : Q($esd * $esd = $ed) := (q(Eq.refl $ed) : Expr)
+        assumeInstancesCommute
+        -- will never be an integer
+        return .isNNRat (q($sℝ)) (sn / sd) _ (q($esd)) q(isNNRat_nnrealSqrt_of_isNNRat $hn $hd $pf)
+      | .isNegNNRat sℝ eq en ed pf =>
+        failure
+    | _ =>
+      failure
 
 end Mathlib.Meta.NormNum

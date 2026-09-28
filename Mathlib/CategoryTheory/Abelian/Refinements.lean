@@ -76,8 +76,8 @@ namespace CategoryTheory
 
 open Category Limits Preadditive
 
-variable {C : Type*} [Category* C] [Abelian C] {X Y : C} (S : ShortComplex C)
-  {S₁ S₂ : ShortComplex C}
+variable
+  {C : Type*} [Category* C] [Abelian C] {X Y : C} (S : ShortComplex C) {S₁ S₂ : ShortComplex C}
 
 lemma epi_iff_surjective_up_to_refinements (f : X ⟶ Y) :
     Epi f ↔ ∀ ⦃A : C⦄ (y : A ⟶ Y),

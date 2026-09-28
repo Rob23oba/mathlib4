@@ -39,13 +39,13 @@ namespace Limits
 
 section
 
-variable {K : Type u'} [Category.{v'} K] {F : K ⥤ C ⥤ Type w'}
-  (c : Cone F) (hc : ∀ (Y : C), IsLimit (((evaluation _ _).obj Y).mapCone c))
+variable
+  {K : Type u'} [Category.{v'} K]
+  {F : K ⥤ C ⥤ Type w'} (c : Cone F) (hc : ∀ (Y : C), IsLimit (((evaluation _ _).obj Y).mapCone c))
   (κ : Cardinal.{w}) [Fact κ.IsRegular]
   (hK : HasCardinalLT (Arrow K) κ)
   {J : Type w} [SmallCategory J] [IsCardinalFiltered J κ]
-  {X : J ⥤ C} (cX : Cocone X)
-  (hF : ∀ (k : K), IsColimit ((F.obj k).mapCocone cX))
+  {X : J ⥤ C} (cX : Cocone X) (hF : ∀ (k : K), IsColimit ((F.obj k).mapCocone cX))
 
 namespace isColimitMapCocone
 

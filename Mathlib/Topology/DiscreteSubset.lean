@@ -44,15 +44,14 @@ This is the filter of all open codiscrete sets within S. We also define `Filter.
 
 open Set Filter Function Topology
 
-variable {X Y Z : Type*} [TopologicalSpace X] {s : Set X} [TopologicalSpace Y] {f : X → Y}
-  {g₁ g₂ : X → Z}
+variable
+  {X Y Z : Type*} [TopologicalSpace X] {s : Set X} [TopologicalSpace Y] {f : X → Y} {g₁ g₂ : X → Z}
 
-theorem discreteTopology_subtype_iff {S : Set Y} :
-    DiscreteTopology S ↔ ∀ x ∈ S, 𝓝[≠] x ⊓ 𝓟 S = ⊥ := by
+theorem discreteTopology_subtype_iff {S : Set Y}
+    : DiscreteTopology S ↔ ∀ x ∈ S, 𝓝[≠] x ⊓ 𝓟 S = ⊥ := by
   simp_rw [discreteTopology_iff_nhds_ne, SetCoe.forall', nhds_ne_subtype_eq_bot_iff]
 
-theorem isDiscrete_iff_nhdsNE {S : Set Y} :
-    IsDiscrete S ↔ ∀ x ∈ S, 𝓝[≠] x ⊓ 𝓟 S = ⊥ := by
+theorem isDiscrete_iff_nhdsNE {S : Set Y} : IsDiscrete S ↔ ∀ x ∈ S, 𝓝[≠] x ⊓ 𝓟 S = ⊥ := by
   rw [isDiscrete_iff_discreteTopology, discreteTopology_subtype_iff]
 
 /-- If a subset of a topological space has no accumulation points,
@@ -66,26 +65,30 @@ lemma discreteTopology_subtype_iff' {S : Set Y} :
   simp [discreteTopology_iff_isOpen_singleton, isOpen_induced_iff, Set.ext_iff]
   grind
 
-/-- A set `s` is discrete iff for every `y ∈ s` there is an open `u` with `u ∩ s = {y}`.
-See `isDiscrete_iff_forall_subset_exists_isOpen'` for a related version of this with subsets. -/
-theorem isDiscrete_iff_forall_mem_exists_isOpen {s : Set Y} :
-    IsDiscrete s ↔ ∀ y ∈ s, ∃ u, IsOpen u ∧ u ∩ s = {y} := by
+/--
+A set `s` is discrete iff for every `y ∈ s` there is an open `u` with `u ∩ s = {y}`.
+See `isDiscrete_iff_forall_subset_exists_isOpen'` for a related version of this with subsets.
+-/
+theorem isDiscrete_iff_forall_mem_exists_isOpen {s : Set Y}
+    : IsDiscrete s ↔ ∀ y ∈ s, ∃ u, IsOpen u ∧ u ∩ s = {y} := by
   rw [isDiscrete_iff_discreteTopology, discreteTopology_subtype_iff']
 
 @[deprecated (since := "2026-06-24")]
 alias isDiscrete_iff_forall_exists_isOpen := isDiscrete_iff_forall_mem_exists_isOpen
 
-/-- A set `s` is discrete iff for every `t ⊆ s` there is an open `u` with `u ∩ s = t`.
-See `isDiscrete_iff_forall_mem_exists_isOpen` for a similar version of this with singletons. -/
-theorem isDiscrete_iff_forall_subset_exists_isOpen {s : Set X} :
-    IsDiscrete s ↔ ∀ t ⊆ s, ∃ u, IsOpen u ∧ u ∩ s = t := by
+/--
+A set `s` is discrete iff for every `t ⊆ s` there is an open `u` with `u ∩ s = t`.
+See `isDiscrete_iff_forall_mem_exists_isOpen` for a similar version of this with singletons.
+-/
+theorem isDiscrete_iff_forall_subset_exists_isOpen {s : Set X}
+    : IsDiscrete s ↔ ∀ t ⊆ s, ∃ u, IsOpen u ∧ u ∩ s = t := by
   simp_rw [isDiscrete_iff_discreteTopology, discreteTopology_iff_forall_isOpen,
     isOpen_induced_iff, ← image_eq_image (Subtype.val_injective), Subtype.image_preimage_coe,
     Subtype.forall_set_subtype (p := fun t ↦ ∃ u, IsOpen u ∧ s ∩ u = t), inter_comm]
 
 /-- A set `s` is discrete iff for every `t ⊆ s` there is a closed `u` with `u ∩ s = t`. -/
-theorem isDiscrete_iff_forall_mem_exists_isClosed {S : Set X} :
-    IsDiscrete S ↔ ∀ s ⊆ S, ∃ U, IsClosed U ∧ U ∩ S = s := by
+theorem isDiscrete_iff_forall_mem_exists_isClosed {S : Set X}
+    : IsDiscrete S ↔ ∀ s ⊆ S, ∃ U, IsClosed U ∧ U ∩ S = s := by
   rw [isDiscrete_iff_forall_subset_exists_isOpen]
   constructor <;> intro h s sS
   · obtain ⟨U, Uo, Us⟩ := h (sᶜ ∩ S) inter_subset_right
@@ -93,8 +96,9 @@ theorem isDiscrete_iff_forall_mem_exists_isClosed {S : Set X} :
   · obtain ⟨U, Uo, Us⟩ := h (sᶜ ∩ S) inter_subset_right
     exact ⟨Uᶜ, isOpen_compl_iff.mpr Uo, by rw [left_eq_inter.mpr sS]; simp_all [Set.ext_iff]⟩
 
-theorem isClosed_of_subset_discrete_closed {s t : Set X} (sd : s ⊆ t)
-    (ht : IsDiscrete t) (tc : IsClosed t) : IsClosed s := by
+theorem isClosed_of_subset_discrete_closed
+    {s t : Set X} (sd : s ⊆ t) (ht : IsDiscrete t) (tc : IsClosed t)
+    : IsClosed s := by
   obtain ⟨_, rp, rt⟩ := isDiscrete_iff_forall_mem_exists_isClosed.mp ht s sd
   rw [← rt]
   exact rp.inter tc
@@ -220,10 +224,12 @@ end cofinite_cocompact
 
 section codiscrete_filter
 
-/-- Criterion for a subset `S ⊆ X` to be closed and discrete in terms of the punctured
-neighbourhood filter at an arbitrary point of `X`. (Compare `isDiscrete_iff_nhds_ne`.) -/
-theorem isClosed_and_discrete_iff {S : Set X} :
-    IsClosed S ∧ IsDiscrete S ↔ ∀ x, Disjoint (𝓝[≠] x) (𝓟 S) := by
+/--
+Criterion for a subset `S ⊆ X` to be closed and discrete in terms of the punctured
+neighbourhood filter at an arbitrary point of `X`. (Compare `isDiscrete_iff_nhds_ne`.)
+-/
+theorem isClosed_and_discrete_iff {S : Set X}
+    : IsClosed S ∧ IsDiscrete S ↔ ∀ x, Disjoint (𝓝[≠] x) (𝓟 S) := by
   rw [isDiscrete_iff_nhdsNE, isClosed_iff_clusterPt, ← forall_and]
   congrm (∀ x, ?_)
   rw [← not_imp_not, clusterPt_iff_not_disjoint, not_not, ← disjoint_iff]
@@ -233,8 +239,10 @@ theorem isClosed_and_discrete_iff {S : Set X} :
   · refine ⟨fun hx ↦ ?_, fun _ ↦ H⟩
     simpa [disjoint_iff, nhdsWithin, inf_assoc, hx] using H
 
-/-- The filter of sets with no accumulation points inside a set `S : Set X`, implemented
-as the supremum over all punctured neighborhoods within `S`. -/
+/--
+The filter of sets with no accumulation points inside a set `S : Set X`, implemented
+as the supremum over all punctured neighborhoods within `S`.
+-/
 def Filter.codiscreteWithin (S : Set X) : Filter X := ⨆ x ∈ S, 𝓝[S \ {x}] x
 
 lemma mem_codiscreteWithin {S T : Set X} :
@@ -247,45 +255,59 @@ lemma mem_codiscreteWithin {S T : Set X} :
 /--
 A set `s` is codiscrete within `U` iff `s ∪ Uᶜ` is a punctured neighborhood of every point in `U`.
 -/
-theorem mem_codiscreteWithin_iff_forall_mem_nhdsNE {S T : Set X} :
-    S ∈ codiscreteWithin T ↔ ∀ x ∈ T, S ∪ Tᶜ ∈ 𝓝[≠] x := by
+theorem mem_codiscreteWithin_iff_forall_mem_nhdsNE {S T : Set X}
+    : S ∈ codiscreteWithin T ↔ ∀ x ∈ T, S ∪ Tᶜ ∈ 𝓝[≠] x := by
   simp_rw [mem_codiscreteWithin, disjoint_principal_right, Set.compl_sdiff]
 
-/-- A set `S` is codiscrete within `T` iff it is a punctured neighborhood within `T` of every
-point of `T`. -/
-theorem mem_codiscreteWithin_iff_forall_mem_nhdsWithin {S T : Set X} :
-    S ∈ codiscreteWithin T ↔ ∀ x ∈ T, S ∈ 𝓝[T \ {x}] x := by
+/--
+A set `S` is codiscrete within `T` iff it is a punctured neighborhood within `T` of every
+point of `T`.
+-/
+theorem mem_codiscreteWithin_iff_forall_mem_nhdsWithin {S T : Set X}
+    : S ∈ codiscreteWithin T ↔ ∀ x ∈ T, S ∈ 𝓝[T \ {x}] x := by
   simp [codiscreteWithin]
 
-/-- At every point `x` of `T`, the punctured neighborhood filter within `T` is finer than
-`codiscreteWithin T`. -/
-theorem nhdsWithin_le_codiscreteWithin {T : Set X} {x : X} (hx : x ∈ T) :
-    𝓝[T \ {x}] x ≤ codiscreteWithin T :=
+/--
+At every point `x` of `T`, the punctured neighborhood filter within `T` is finer than
+`codiscreteWithin T`.
+-/
+theorem nhdsWithin_le_codiscreteWithin {T : Set X} {x : X} (hx : x ∈ T)
+    : 𝓝[T \ {x}] x ≤ codiscreteWithin T :=
   le_iSup₂ (f := fun y (_ : y ∈ T) ↦ 𝓝[T \ {y}] y) x hx
 
-/-- A property holds along `codiscreteWithin U` iff, for every point `x` of `U`, it holds along
-the punctured neighborhood of `x`, at every point of `U`. -/
-theorem eventually_codiscreteWithin_iff_forall_eventually_nhdsNE {p : X → Prop} :
-    (∀ᶠ x in codiscreteWithin s, p x) ↔ ∀ x ∈ s, ∀ᶠ y in 𝓝[≠] x, y ∈ s → p y := by
-  simp [mem_codiscreteWithin_iff_forall_mem_nhdsNE, Filter.eventually_iff, Set.union_def,
-    imp_iff_not_or, or_comm]
+/--
+A property holds along `codiscreteWithin U` iff, for every point `x` of `U`, it holds along
+the punctured neighborhood of `x`, at every point of `U`.
+-/
+theorem eventually_codiscreteWithin_iff_forall_eventually_nhdsNE {p : X → Prop}
+    : (∀ᶠ x in codiscreteWithin s, p x) ↔ ∀ x ∈ s, ∀ᶠ y in 𝓝[≠] x, y ∈ s → p y := by
+  simp [
+    mem_codiscreteWithin_iff_forall_mem_nhdsNE, Filter.eventually_iff, Set.union_def,
+    imp_iff_not_or, or_comm
+  ]
 
-/-- Two functions agree along `codiscreteWithin U` iff, for every point `x` of `U`, they agree
-along the punctured neighborhood of `x`, at every point of `U`. -/
-theorem eventuallyEq_codiscreteWithin_iff_forall_eventually_nhdsNE :
-    g₁ =ᶠ[codiscreteWithin s] g₂ ↔ ∀ x ∈ s, ∀ᶠ y in 𝓝[≠] x, y ∈ s → g₁ y = g₂ y :=
+/--
+Two functions agree along `codiscreteWithin U` iff, for every point `x` of `U`, they agree
+along the punctured neighborhood of `x`, at every point of `U`.
+-/
+theorem eventuallyEq_codiscreteWithin_iff_forall_eventually_nhdsNE
+    : g₁ =ᶠ[codiscreteWithin s] g₂ ↔ ∀ x ∈ s, ∀ᶠ y in 𝓝[≠] x, y ∈ s → g₁ y = g₂ y :=
   eventually_codiscreteWithin_iff_forall_eventually_nhdsNE
 
-/-- A property holds along `codiscreteWithin U` iff, for every point `x` of `U`, it holds along
-the punctured neighborhood within `U` of `x`. -/
-theorem eventually_codiscreteWithin_iff_forall_eventually_nhdsWithin {p : X → Prop} :
-    (∀ᶠ x in codiscreteWithin s, p x) ↔ ∀ x ∈ s, ∀ᶠ y in 𝓝[s \ {x}] x, p y :=
+/--
+A property holds along `codiscreteWithin U` iff, for every point `x` of `U`, it holds along
+the punctured neighborhood within `U` of `x`.
+-/
+theorem eventually_codiscreteWithin_iff_forall_eventually_nhdsWithin {p : X → Prop}
+    : (∀ᶠ x in codiscreteWithin s, p x) ↔ ∀ x ∈ s, ∀ᶠ y in 𝓝[s \ {x}] x, p y :=
   mem_codiscreteWithin_iff_forall_mem_nhdsWithin
 
-/-- Two functions agree along `codiscreteWithin U` iff, for every point `x` of `U`, they agree
-along the punctured neighborhood within `U` of `x`. -/
-theorem eventuallyEq_codiscreteWithin_iff_forall_eventuallyEq_nhdsWithin :
-    g₁ =ᶠ[codiscreteWithin s] g₂ ↔ ∀ x ∈ s, g₁ =ᶠ[𝓝[s \ {x}] x] g₂ :=
+/--
+Two functions agree along `codiscreteWithin U` iff, for every point `x` of `U`, they agree
+along the punctured neighborhood within `U` of `x`.
+-/
+theorem eventuallyEq_codiscreteWithin_iff_forall_eventuallyEq_nhdsWithin
+    : g₁ =ᶠ[codiscreteWithin s] g₂ ↔ ∀ x ∈ s, g₁ =ᶠ[𝓝[s \ {x}] x] g₂ :=
   eventually_codiscreteWithin_iff_forall_eventually_nhdsWithin
 
 lemma mem_codiscreteWithin_accPt {S T : Set X} :
@@ -293,8 +315,9 @@ lemma mem_codiscreteWithin_accPt {S T : Set X} :
   simp only [mem_codiscreteWithin, disjoint_iff, AccPt, not_neBot]
 
 /-- Any set is codiscrete within itself. -/
-@[simp] theorem Filter.self_mem_codiscreteWithin (s : Set X) :
-    s ∈ Filter.codiscreteWithin s := by simp [mem_codiscreteWithin]
+@[simp]
+theorem Filter.self_mem_codiscreteWithin (s : Set X) : s ∈ Filter.codiscreteWithin s := by
+  simp [mem_codiscreteWithin]
 
 /-- If a set is codiscrete within `U`, then it is codiscrete within any subset of `U`. -/
 @[gcongr]
@@ -307,8 +330,8 @@ lemma Filter.codiscreteWithin_mono {s₁ : Set X} (hs : s₁ ⊆ s) :
 alias Filter.codiscreteWithin.mono := Filter.codiscreteWithin_mono
 
 /-- If `s` is codiscrete within `U`, then `sᶜ ∩ U` has discrete topology. -/
-theorem isDiscrete_of_codiscreteWithin {U s : Set X} (h : sᶜ ∈ Filter.codiscreteWithin U) :
-    IsDiscrete (s ∩ U) := by
+theorem isDiscrete_of_codiscreteWithin {U s : Set X} (h : sᶜ ∈ Filter.codiscreteWithin U)
+    : IsDiscrete (s ∩ U) := by
   rw [(by simp : ((s ∩ U) : Set X) = ((sᶜ ∪ Uᶜ)ᶜ : Set X)), isDiscrete_iff_nhdsNE]
   simp_rw [← Filter.mem_iff_inf_principal_compl]
   simp_all [← Set.compl_sdiff, mem_codiscreteWithin]
@@ -325,9 +348,9 @@ lemma codiscreteWithin_iff_locallyEmptyComplementWithin {t : Set X} :
   use τ, h₁τ, (disjoint_iff_inter_eq_empty.mpr h₂τ).subset_compl_right
 
 /-- If `U` is closed and `s` is codiscrete within `U`, then `U \ s` is closed. -/
-theorem isClosed_sdiff_of_codiscreteWithin {t : Set X} (hs : t ∈ codiscreteWithin s)
-    (hU : IsClosed s) :
-    IsClosed (s \ t) := by
+theorem isClosed_sdiff_of_codiscreteWithin
+    {t : Set X} (hs : t ∈ codiscreteWithin s) (hU : IsClosed s)
+    : IsClosed (s \ t) := by
   rw [← isOpen_compl_iff, isOpen_iff_eventually]
   intro x hx
   by_cases h₁x : x ∈ s
@@ -344,9 +367,10 @@ theorem isClosed_sdiff_of_codiscreteWithin {t : Set X} (hs : t ∈ codiscreteWit
     tauto_set
 
 /-- In a T1Space, punctured neighborhoods are stable under removing finite sets of points. -/
-theorem nhdsNE_of_nhdsNE_sdiff_finite {X : Type*} [TopologicalSpace X] [T1Space X] {x : X}
-    {U s : Set X} (hU : U ∈ 𝓝[≠] x) (hs : Finite s) :
-    U \ s ∈ 𝓝[≠] x := by
+theorem nhdsNE_of_nhdsNE_sdiff_finite
+    {X : Type*} [TopologicalSpace X] [T1Space X]
+    {x : X} {U s : Set X} (hU : U ∈ 𝓝[≠] x) (hs : Finite s)
+    : U \ s ∈ 𝓝[≠] x := by
   rw [mem_nhdsWithin] at hU ⊢
   obtain ⟨t, ht, h₁ts, h₂ts⟩ := hU
   use t \ (s \ {x})
@@ -355,11 +379,13 @@ theorem nhdsNE_of_nhdsNE_sdiff_finite {X : Type*} [TopologicalSpace X] [T1Space 
     exact s.toFinite.sdiff.isClosed.union (isClosed_compl_iff.2 ht)
   · tauto_set
 
-/-- In a T1Space, a set `s` is codiscreteWithin `U` iff it has locally finite complement within `U`.
+/--
+In a T1Space, a set `s` is codiscreteWithin `U` iff it has locally finite complement within `U`.
 More precisely: `s` is codiscreteWithin `U` iff every point `z ∈ U` has a punctured neighborhood
-intersect `U \ s` in only finitely many points. -/
-theorem codiscreteWithin_iff_locallyFiniteComplementWithin [T1Space X] {t : Set X} :
-    t ∈ codiscreteWithin s ↔ ∀ z ∈ s, ∃ τ ∈ 𝓝 z, Set.Finite (τ ∩ (s \ t)) := by
+intersect `U \ s` in only finitely many points.
+-/
+theorem codiscreteWithin_iff_locallyFiniteComplementWithin [T1Space X] {t : Set X}
+    : t ∈ codiscreteWithin s ↔ ∀ z ∈ s, ∃ τ ∈ 𝓝 z, Set.Finite (τ ∩ (s \ t)) := by
   rw [codiscreteWithin_iff_locallyEmptyComplementWithin]
   constructor
   · intro h z h₁z
@@ -375,44 +401,40 @@ theorem codiscreteWithin_iff_locallyFiniteComplementWithin [T1Space X] {t : Set 
     use τ \ (τ ∩ (s \ t)), nhdsNE_of_nhdsNE_sdiff_finite (mem_nhdsWithin_of_mem_nhds h₁τ) h₂τ
     simp
 
-/--
-In a `T1Space`, every set is codiscrete within a subsingleton set.
--/
-@[simp] theorem Set.Subsingleton.mem_codiscreteWithin [T1Space X] {s t : Set X}
-    (h : Set.Subsingleton t) :
-    s ∈ codiscreteWithin t := by
+/-- In a `T1Space`, every set is codiscrete within a subsingleton set. -/
+@[simp]
+theorem Set.Subsingleton.mem_codiscreteWithin [T1Space X] {s t : Set X} (h : Set.Subsingleton t)
+    : s ∈ codiscreteWithin t := by
   rw [codiscreteWithin_iff_locallyEmptyComplementWithin]
   intro z hz
   use univ \ t, nhdsNE_of_nhdsNE_sdiff_finite univ_mem h.finite, by aesop
 
-/--
-In a `T1Space`, complements of singleton sets are codiscrete within any set.
--/
+/-- In a `T1Space`, complements of singleton sets are codiscrete within any set. -/
 @[simp]
-theorem compl_singleton_mem_codiscreteWithin {X : Type*} [TopologicalSpace X] [T1Space X]
-    {s : Set X} (x : X) :
-    {x}ᶜ ∈ codiscreteWithin s := by
+theorem compl_singleton_mem_codiscreteWithin
+    {X : Type*} [TopologicalSpace X] [T1Space X] {s : Set X} (x : X)
+    : {x}ᶜ ∈ codiscreteWithin s := by
   rw [codiscreteWithin_iff_locallyEmptyComplementWithin]
   intro z hz
   use univ \ {x}
   exact ⟨nhdsNE_of_nhdsNE_sdiff_finite univ_mem Finite.of_subsingleton, by aesop⟩
 
-/--
-In a `T1Space`, complements of finite sets are codiscrete within any set.
--/
-theorem compl_finite_mem_codiscreteWithin {X : Type*} [TopologicalSpace X] [T1Space X]
-    {s t : Set X} (h : t.Finite) :
-    tᶜ ∈ codiscreteWithin s := by
+/-- In a `T1Space`, complements of finite sets are codiscrete within any set. -/
+theorem compl_finite_mem_codiscreteWithin
+    {X : Type*} [TopologicalSpace X] [T1Space X] {s t : Set X} (h : t.Finite)
+    : tᶜ ∈ codiscreteWithin s := by
   apply h.induction_on (motive := fun t _ ↦ tᶜ ∈ codiscreteWithin s)
   · simp
   · intro τ t hτ h₁t h₂t
     have : (insert τ t)ᶜ = {τ}ᶜ ∩ tᶜ := by aesop
     simp_all
 
-/-- In any topological space, the open sets with discrete complement form a filter,
+/--
+In any topological space, the open sets with discrete complement form a filter,
 defined as the supremum of all punctured neighborhoods.
 
-See `Filter.mem_codiscrete'` for the equivalence. -/
+See `Filter.mem_codiscrete'` for the equivalence.
+-/
 def Filter.codiscrete (X : Type*) [TopologicalSpace X] : Filter X := codiscreteWithin Set.univ
 
 lemma mem_codiscrete {S : Set X} :
@@ -483,13 +505,17 @@ lemma codiscreteWithin_le_codiscrete_inf_principal (s : Set X) :
     codiscreteWithin s ≤ codiscrete X ⊓ 𝓟 s := by
   simp [codiscrete, codiscreteWithin_mono]
 
-theorem Topology.IsEmbedding.image_mem_codiscreteWithin {f : X → Y} (hf : IsEmbedding f)
-    {s t : Set X} : f '' s ∈ codiscreteWithin (f '' t) ↔ s ∈ codiscreteWithin t := by
-  simp only [mem_codiscreteWithin_accPt, forall_mem_image, accPt_principal_iff_clusterPt,
-    ← hf.mapClusterPt_iff, MapClusterPt, map_principal, image_sdiff hf.injective, image_singleton]
+theorem Topology.IsEmbedding.image_mem_codiscreteWithin
+    {f : X → Y} (hf : IsEmbedding f) {s t : Set X}
+    : f '' s ∈ codiscreteWithin (f '' t) ↔ s ∈ codiscreteWithin t := by
+  simp only [
+    mem_codiscreteWithin_accPt, forall_mem_image, accPt_principal_iff_clusterPt,
+    ← hf.mapClusterPt_iff, MapClusterPt, map_principal, image_sdiff hf.injective, image_singleton
+  ]
 
-theorem Topology.IsEmbedding.image_mem_codiscreteWithin_range {f : X → Y} (hf : IsEmbedding f)
-    {s : Set X} : f '' s ∈ codiscreteWithin (range f) ↔ s ∈ codiscrete X := by
+theorem Topology.IsEmbedding.image_mem_codiscreteWithin_range
+    {f : X → Y} (hf : IsEmbedding f) {s : Set X}
+    : f '' s ∈ codiscreteWithin (range f) ↔ s ∈ codiscrete X := by
   rw [← image_univ, hf.image_mem_codiscreteWithin, codiscrete]
 
 lemma mem_codiscrete_subtype_iff_mem_codiscreteWithin {S : Set X} {U : Set S} :
@@ -524,8 +550,8 @@ namespace IsCompact
 
 variable {K : Set X}
 
-theorem finite_sdiff_of_mem_codiscreteWithin (hK : IsCompact K) (hs : s ∈ codiscreteWithin K) :
-    (K \ s).Finite := by
+theorem finite_sdiff_of_mem_codiscreteWithin (hK : IsCompact K) (hs : s ∈ codiscreteWithin K)
+    : (K \ s).Finite := by
   rw [mem_codiscreteWithin_accPt] at hs
   contrapose! hs
   exact Set.Infinite.exists_accPt_of_subset_isCompact hs hK (sep_subset _ _)
@@ -533,13 +559,13 @@ theorem finite_sdiff_of_mem_codiscreteWithin (hK : IsCompact K) (hs : s ∈ codi
 @[deprecated (since := "2026-06-03")]
 alias finite_diff_of_mem_codiscreteWithin := finite_sdiff_of_mem_codiscreteWithin
 
-theorem cofinite_inf_le_codiscreteWithin (hK : IsCompact K) :
-    cofinite ⊓ 𝓟 K ≤ codiscreteWithin K := by
+theorem cofinite_inf_le_codiscreteWithin (hK : IsCompact K)
+    : cofinite ⊓ 𝓟 K ≤ codiscreteWithin K := by
   intro s hs
   simpa [mem_inf_principal, compl_ofPred] using! hK.finite_sdiff_of_mem_codiscreteWithin hs
 
-theorem codiscreteWithin_eq [T1Space X] (hK : IsCompact K) :
-    codiscreteWithin K = cofinite ⊓ 𝓟 K := by
+theorem codiscreteWithin_eq [T1Space X] (hK : IsCompact K)
+    : codiscreteWithin K = cofinite ⊓ 𝓟 K := by
   refine le_antisymm ?_ hK.cofinite_inf_le_codiscreteWithin
   grw [← codiscrete_le_cofinite]
   exact codiscreteWithin_le_codiscrete_inf_principal K
@@ -559,51 +585,59 @@ end codiscrete_filter
 section discrete_union
 
 /-- The union of finitely many discrete closed subsets is discrete. -/
-theorem IsDiscrete.iUnion {ι : Sort*} [Finite ι] {s : ι → Set X} (hs : ∀ i, IsDiscrete (s i))
-    (hsc : ∀ i, IsClosed (s i)) : IsDiscrete (⋃ i, s i) := by
+theorem IsDiscrete.iUnion
+    {ι : Sort*} [Finite ι] {s : ι → Set X} (hs : ∀ i, IsDiscrete (s i)) (hsc : ∀ i, IsClosed (s i))
+    : IsDiscrete (⋃ i, s i) := by
   suffices (⋃ i, s i)ᶜ ∈ codiscrete X from (compl_mem_codiscrete_iff.mp this).2
   simp only [compl_iUnion, iInter_mem, compl_mem_codiscrete_iff, and_self, implies_true, hsc, hs]
 
 /-- The union of two discrete closed subsets is discrete. -/
-theorem IsDiscrete.union {s t : Set X} (hs : IsDiscrete s) (ht : IsDiscrete t)
-    (hsc : IsClosed s) (ht : IsClosed t) : IsDiscrete (s ∪ t) := by
+theorem IsDiscrete.union
+    {s t : Set X} (hs : IsDiscrete s) (ht : IsDiscrete t) (hsc : IsClosed s) (ht : IsClosed t)
+    : IsDiscrete (s ∪ t) := by
   rw [union_eq_iUnion]
   exact .iUnion (by simp [*]) (by simp [*])
 
 /-- The union of finitely many discrete closed subsets is discrete. -/
-theorem IsDiscrete.biUnion {ι : Type*} {I : Set ι} {s : ι → Set X} (hI : I.Finite)
-    (hs : ∀ i ∈ I, IsDiscrete (s i)) (hsc : ∀ i ∈ I, IsClosed (s i)) :
-    IsDiscrete (⋃ i ∈ I, s i) := by
+theorem IsDiscrete.biUnion
+    {ι : Type*} {I : Set ι} {s : ι → Set X}
+    (hI : I.Finite) (hs : ∀ i ∈ I, IsDiscrete (s i)) (hsc : ∀ i ∈ I, IsClosed (s i))
+    : IsDiscrete (⋃ i ∈ I, s i) := by
   have := hI.to_subtype
   simp only [biUnion_eq_iUnion, Subtype.forall'] at *
   exact .iUnion hs hsc
 
 /-- The union of finitely many discrete closed subsets is discrete. -/
-theorem IsDiscrete.biUnion_finset {ι : Type*} {I : Finset ι} {s : ι → Set X}
-    (hs : ∀ i ∈ I, IsDiscrete (s i)) (hsc : ∀ i ∈ I, IsClosed (s i)) :
-    IsDiscrete (⋃ i ∈ I, s i) :=
+theorem IsDiscrete.biUnion_finset
+    {ι : Type*} {I : Finset ι} {s : ι → Set X}
+    (hs : ∀ i ∈ I, IsDiscrete (s i)) (hsc : ∀ i ∈ I, IsClosed (s i))
+    : IsDiscrete (⋃ i ∈ I, s i) :=
   .biUnion I.finite_toSet hs hsc
 
 /-- The union of finitely many discrete closed subsets is discrete. -/
 @[deprecated IsDiscrete.union +typeChanged (since := "2026-05-13")]
-theorem discreteTopology_union {S T : Set X} (hs : DiscreteTopology S) (ht : DiscreteTopology T)
-    (hs' : IsClosed S) (ht' : IsClosed T) : DiscreteTopology ↑(S ∪ T) := by
+theorem discreteTopology_union
+    {S T : Set X}
+    (hs : DiscreteTopology S) (ht : DiscreteTopology T) (hs' : IsClosed S) (ht' : IsClosed T)
+    : DiscreteTopology ↑(S ∪ T) := by
   rw [← isDiscrete_iff_discreteTopology] at *
   exact hs.union ht hs' ht'
 
 /-- The union of finitely many discrete closed subsets is discrete. -/
 @[deprecated IsDiscrete.biUnion_finset +typeChanged (since := "2026-05-13")]
-theorem discreteTopology_biUnion_finset {ι : Type*} {I : Finset ι} {s : ι → Set X}
-    (hs : ∀ i ∈ I, DiscreteTopology (s i)) (hs' : ∀ i ∈ I, IsClosed (s i)) :
-    DiscreteTopology (⋃ i ∈ I, s i) := by
+theorem discreteTopology_biUnion_finset
+    {ι : Type*} {I : Finset ι} {s : ι → Set X}
+    (hs : ∀ i ∈ I, DiscreteTopology (s i)) (hs' : ∀ i ∈ I, IsClosed (s i))
+    : DiscreteTopology (⋃ i ∈ I, s i) := by
   simp only [← isDiscrete_iff_discreteTopology] at *
   exact .biUnion_finset hs hs'
 
 /-- The union of finitely many discrete closed subsets is discrete. -/
 @[deprecated IsDiscrete.iUnion +typeChanged (since := "2026-05-13")]
-theorem discreteTopology_iUnion_finite {ι : Type*} [Finite ι] {s : ι → Set X}
-    (hs : ∀ i, DiscreteTopology (s i)) (hs' : ∀ i, IsClosed (s i)) :
-    DiscreteTopology (⋃ i, s i) := by
+theorem discreteTopology_iUnion_finite
+    {ι : Type*} [Finite ι]
+    {s : ι → Set X} (hs : ∀ i, DiscreteTopology (s i)) (hs' : ∀ i, IsClosed (s i))
+    : DiscreteTopology (⋃ i, s i) := by
   simp only [← isDiscrete_iff_discreteTopology] at *
   exact .iUnion hs hs'
 

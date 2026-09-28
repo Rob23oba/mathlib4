@@ -83,8 +83,8 @@ variable [Module.Free R L] [Module.Finite R L]
 
 instance instIsLieAbelianOfIsCartanSubalgebra
     [IsDomain R] [IsPrincipalIdealRing R] [IsArtinian R L]
-    (H : LieSubalgebra R L) [H.IsCartanSubalgebra] :
-    IsLieAbelian H :=
+    (H : LieSubalgebra R L) [H.IsCartanSubalgebra]
+    : IsLieAbelian H :=
   LieModule.isLieAbelian_of_ker_traceForm_eq_bot R H L <|
     ker_restrict_eq_bot_of_isCartanSubalgebra R L H
 
@@ -154,19 +154,25 @@ open LieAlgebra IsKilling
 
 variable {K L}
 
-variable [FiniteDimensional K L] [IsKilling K L]
-  {H : LieSubalgebra K L} [H.IsCartanSubalgebra] [IsTriangularizable K H L] {α : Weight K H L}
+variable
+  [FiniteDimensional K L] [IsKilling K L]
+  {H : LieSubalgebra K L} [H.IsCartanSubalgebra] [IsTriangularizable K H L]
+  {α : Weight K H L}
 
 instance : InvolutiveNeg (Weight K H L) where
-  neg α := ⟨-α, by
-    by_cases hα : α.IsZero
-    · convert! α.genWeightSpace_ne_bot; rw [hα, neg_zero]
-    · intro e
-      obtain ⟨x, hx, x_ne0⟩ := α.exists_ne_zero
-      have := mem_ker_killingForm_of_mem_rootSpace_of_forall_rootSpace_neg K L H hx
-        (fun y hy ↦ by rw [rootSpace, e] at hy; rw [hy, map_zero])
-      rw [ker_killingForm_eq_bot] at this
-      exact x_ne0 this⟩
+  neg α := ⟨
+    -α,
+    by
+      by_cases hα : α.IsZero
+      · convert! α.genWeightSpace_ne_bot; rw [hα, neg_zero]
+      · intro e
+        obtain ⟨x, hx, x_ne0⟩ := α.exists_ne_zero
+        have :=
+          mem_ker_killingForm_of_mem_rootSpace_of_forall_rootSpace_neg K L H hx
+            (fun y hy ↦ by rw [rootSpace, e] at hy; rw [hy, map_zero])
+        rw [ker_killingForm_eq_bot] at this
+        exact x_ne0 this
+  ⟩
   neg_neg α := by ext; simp
 
 @[simp] lemma coe_neg : ((-α : Weight K H L) : H → K) = -α := rfl
@@ -226,11 +232,12 @@ lemma corootSpace_zero_eq_bot :
   simp [trivial_lie_zero]
 
 variable {K L} in
-/-- The restriction of the Killing form to a Cartan subalgebra, as a linear equivalence to the
-dual. -/
+/--
+The restriction of the Killing form to a Cartan subalgebra, as a linear equivalence to the
+dual.
+-/
 @[simps! apply_apply]
-noncomputable def cartanEquivDual :
-    H ≃ₗ[K] Module.Dual K H :=
+noncomputable def cartanEquivDual : H ≃ₗ[K] Module.Dual K H :=
   (traceForm K H L).toDual <| traceForm_cartan_nondegenerate K L H
 
 variable {K L H}
@@ -643,8 +650,8 @@ lemma toSubmodule_rootSpace_eq_span (α : Weight K H L) (hα : α.IsNonZero) (x 
     exact SMulMemClass.smul_mem t hx
 
 /-- The embedded `sl₂` associated to a root. -/
-noncomputable def sl2SubalgebraOfRoot {α : Weight K H L} (hα : α.IsNonZero) :
-    LieSubalgebra K L := by
+noncomputable def sl2SubalgebraOfRoot {α : Weight K H L} (hα : α.IsNonZero)
+    : LieSubalgebra K L := by
   choose h e f t ht using exists_isSl2Triple_of_weight_isNonZero hα
   exact t.toLieSubalgebra K
 
@@ -675,10 +682,12 @@ lemma mem_sl2SubalgebraOfRoot_iff {α : Weight K H L} (hα : α.IsNonZero) {h e 
   · simp [hx, mul_smul]
   · simp [hx, mul_smul, hce₀, hcf₀]
 
-/-- The `sl₂` subalgebra associated to a root, regarded as a Lie submodule over the Cartan
-subalgebra. -/
-noncomputable def sl2SubmoduleOfRoot {α : Weight K H L} (hα : α.IsNonZero) :
-    LieSubmodule K H L where
+/--
+The `sl₂` subalgebra associated to a root, regarded as a Lie submodule over the Cartan
+subalgebra.
+-/
+noncomputable def sl2SubmoduleOfRoot {α : Weight K H L} (hα : α.IsNonZero)
+    : LieSubmodule K H L where
   __ := sl2SubalgebraOfRoot hα
   lie_mem {h} x hx := by
     suffices ⁅(h : L), x⁆ ∈ sl2SubalgebraOfRoot hα by simpa
@@ -693,10 +702,12 @@ noncomputable def sl2SubmoduleOfRoot {α : Weight K H L} (hα : α.IsNonZero) :
         lie_eq_smul_of_mem_rootSpace h_coroot_in_zero h ▸ (zero_smul K ⁅e, f⁆)
       rw [ht.lie_e_f, IsSl2Triple.h_eq_coroot hα ht heα hfα, rootSpace_zero_eq K L H]
       exact (coroot α).property
-    exact ⟨c₁ * α h, c₂ * (-α h), 0, by simp [he_wt, hf_wt, hef_zero, smul_smul]⟩
+    exact ⟨c₁ * α h, c₂ * (- α h), 0, by simp [he_wt, hf_wt, hef_zero, smul_smul]⟩
 
-/-- The coroot space of `α` viewed as a submodule of the ambient Lie algebra `L`.
-This represents the image of the coroot space under the inclusion `H ↪ L`. -/
+/--
+The coroot space of `α` viewed as a submodule of the ambient Lie algebra `L`.
+This represents the image of the coroot space under the inclusion `H ↪ L`.
+-/
 noncomputable abbrev corootSubmodule (α : Weight K H L) : LieSubmodule K H L :=
   LieSubmodule.map H.toLieSubmodule.incl (corootSpace α)
 

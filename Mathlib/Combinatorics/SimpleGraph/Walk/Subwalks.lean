@@ -113,27 +113,30 @@ theorem isSubwalk_take {u v : V} (p : G.Walk u v) (n : ℕ) : (p.take n).IsSubwa
 theorem isSubwalk_drop {u v : V} (p : G.Walk u v) (n : ℕ) : (p.drop n).IsSubwalk p :=
   ⟨p.take n, nil, by simp⟩
 
-theorem isSubwalk_iff_support_isInfix {v w v' w' : V} {p₁ : G.Walk v w} {p₂ : G.Walk v' w'} :
-    p₁.IsSubwalk p₂ ↔ p₁.support <:+: p₂.support := by
+theorem isSubwalk_iff_support_isInfix {v w v' w' : V} {p₁ : G.Walk v w} {p₂ : G.Walk v' w'}
+    : p₁.IsSubwalk p₂ ↔ p₁.support <:+: p₂.support := by
   refine ⟨fun ⟨ru, rv, h⟩ ↦ ?_, fun ⟨s, t, h⟩ ↦ ?_⟩
   · grind [support_append, support_append_eq_support_dropLast_append]
   · have : (s.length + p₁.length) ≤ p₂.length := by grind [_=_ length_support]
     refine ⟨p₂.take s.length |>.copy rfl ?_, p₂.drop (s.length + p₁.length) |>.copy ?_ rfl, ?_⟩
-    · simp [p₂.getVert_eq_support_getElem (by lia : s.length ≤ p₂.length), ← h,
-        List.getElem_zero]
+    · simp [p₂.getVert_eq_support_getElem (by lia : s.length ≤ p₂.length), ← h, List.getElem_zero]
     · simp [p₂.getVert_eq_support_getElem this, ← h, ← p₁.getVert_eq_support_getElem le_rfl]
     apply ext_support
-    simp only [← h, support_append, support_copy, support_take,
-      List.take_append, drop_support_eq_support_drop_min, List.tail_drop]
-    rw [Nat.min_eq_left (by grind), List.drop_append, List.drop_append,
-      List.drop_eq_nil_of_le (by lia), List.drop_eq_nil_of_le (by grind), ← p₁.cons_tail_support]
+    simp only [
+      ← h, support_append, support_copy, support_take, List.take_append,
+      drop_support_eq_support_drop_min, List.tail_drop
+    ]
+    rw [
+      Nat.min_eq_left (by grind), List.drop_append, List.drop_append,
+      List.drop_eq_nil_of_le (by lia), List.drop_eq_nil_of_le (by grind), ← p₁.cons_tail_support
+    ]
     simp +arith [-cons_tail_support]
 
-theorem isSubwalk_iff_darts_isInfix {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (hnil : ¬p₁.Nil) :
-    p₁.IsSubwalk p₂ ↔ p₁.darts <:+: p₂.darts := by
+theorem isSubwalk_iff_darts_isInfix {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (hnil : ¬p₁.Nil)
+    : p₁.IsSubwalk p₂ ↔ p₁.darts <:+: p₂.darts := by
   rw [isSubwalk_iff_support_isInfix, List.infix_iff_getElem?, List.infix_iff_getElem?]
-  refine ⟨fun ⟨k, hk, h⟩ ↦ ⟨k, by grind, fun i hi ↦ ?_⟩,
-    fun ⟨k, hk, h⟩ ↦ ⟨k, by grind, fun i hi ↦ ?_⟩⟩
+  refine
+    ⟨fun ⟨k, hk, h⟩ ↦ ⟨k, by grind, fun i hi ↦ ?_⟩, fun ⟨k, hk, h⟩ ↦ ⟨k, by grind, fun i hi ↦ ?_⟩⟩
   · rw [getElem?_pos _ _ <| by grind, Option.some_inj]
     ext <;> grind [fst_darts_getElem, snd_darts_getElem]
   · rw [getElem?_pos _ _ <| by grind, Option.some_inj]
@@ -144,30 +147,28 @@ theorem isSubwalk_iff_darts_isInfix {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (h
     grind [fst_darts_getElem]
 
 @[simp]
-theorem isSubwalk_nil_iff_mem_support (p : G.Walk u v) :
-    (nil : G.Walk v' v').IsSubwalk p ↔ v' ∈ p.support :=
+theorem isSubwalk_nil_iff_mem_support (p : G.Walk u v)
+    : (nil : G.Walk v' v').IsSubwalk p ↔ v' ∈ p.support :=
   isSubwalk_iff_support_isInfix.trans <| p.support.singleton_infix_iff _
 
-theorem isSubwalk_toWalk_iff_mem_darts (p : G.Walk u v) (h : G.Adj u' v') :
-    h.toWalk.IsSubwalk p ↔ ⟨⟨u', v'⟩, h⟩ ∈ p.darts := by
+theorem isSubwalk_toWalk_iff_mem_darts (p : G.Walk u v) (h : G.Adj u' v')
+    : h.toWalk.IsSubwalk p ↔ ⟨⟨u', v'⟩, h⟩ ∈ p.darts := by
   simp [isSubwalk_iff_darts_isInfix, List.singleton_infix_iff]
 
-theorem isSubwalk_toWalk_adj_iff_mem_darts {d : G.Dart} (p : G.Walk u v) :
-    d.adj.toWalk.IsSubwalk p ↔ d ∈ p.darts :=
+theorem isSubwalk_toWalk_adj_iff_mem_darts {d : G.Dart} (p : G.Walk u v)
+    : d.adj.toWalk.IsSubwalk p ↔ d ∈ p.darts :=
   isSubwalk_toWalk_iff_mem_darts ..
 
-theorem isSubwalk_toWalk_iff_mem_edges {p : G.Walk u v} (h : G.Adj u' v') :
-    h.toWalk.IsSubwalk p ∨ h.symm.toWalk.IsSubwalk p ↔ s(u', v') ∈ p.edges := by
+theorem isSubwalk_toWalk_iff_mem_edges {p : G.Walk u v} (h : G.Adj u' v')
+    : h.toWalk.IsSubwalk p ∨ h.symm.toWalk.IsSubwalk p ↔ s(u', v') ∈ p.edges := by
   rw [isSubwalk_toWalk_iff_mem_darts, isSubwalk_toWalk_iff_mem_darts, edges, List.mem_map]
   refine ⟨fun h ↦ by grind [Dart.edge], fun h ↦ ?_⟩
   have ⟨d, hd, h⟩ := h
   rw [Dart.edge, Sym2.eq, Sym2.rel_iff'] at h
-  refine h.imp (fun h ↦ ?_) (fun h ↦ ?_)
-    <;> convert! hd using 2
-    <;> exact h.symm
+  refine h.imp (fun h ↦ ?_) (fun h ↦ ?_) <;> convert! hd using 2 <;> exact h.symm
 
-theorem infix_support_iff_mem_edges {p : G.Walk u v} :
-    [u', v'] <:+: p.support ∨ [v', u'] <:+: p.support ↔ s(u', v') ∈ p.edges := by
+theorem infix_support_iff_mem_edges {p : G.Walk u v}
+    : [u', v'] <:+: p.support ∨ [v', u'] <:+: p.support ↔ s(u', v') ∈ p.edges := by
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
   · have := h.elim adj_of_infix_support (adj_of_infix_support · |>.symm)
     simpa [← isSubwalk_toWalk_iff_mem_edges this, isSubwalk_iff_support_isInfix]
@@ -180,26 +181,31 @@ lemma isSubwalk_antisymm {u v} {p₁ p₂ : G.Walk u v} (h₁ : p₁.IsSubwalk p
   exact ext_support <| List.infix_antisymm h₁ h₂
 
 @[simp]
-theorem IsSubwalk.support_subset {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'}
-    (h : p₂.IsSubwalk p₁) : p₂.support ⊆ p₁.support :=
+theorem IsSubwalk.support_subset
+    {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (h : p₂.IsSubwalk p₁)
+    : p₂.support ⊆ p₁.support :=
   (isSubwalk_iff_support_isInfix.mp h).subset
 
-theorem IsSubwalk.edges_isInfix {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'}
-    (h : p₁.IsSubwalk p₂) : p₁.edges <:+: p₂.edges := by
+theorem IsSubwalk.edges_isInfix
+    {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (h : p₁.IsSubwalk p₂)
+    : p₁.edges <:+: p₂.edges := by
   grind [edges_append, IsSubwalk]
 
 @[simp]
-theorem IsSubwalk.edges_subset {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'}
-    (h : p₂.IsSubwalk p₁) : p₂.edges ⊆ p₁.edges :=
+theorem IsSubwalk.edges_subset
+    {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (h : p₂.IsSubwalk p₁)
+    : p₂.edges ⊆ p₁.edges :=
   h.edges_isInfix.subset
 
-theorem IsSubwalk.darts_isInfix {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'}
-    (h : p₁.IsSubwalk p₂) : p₁.darts <:+: p₂.darts := by
+theorem IsSubwalk.darts_isInfix
+    {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (h : p₁.IsSubwalk p₂)
+    : p₁.darts <:+: p₂.darts := by
   grind [darts_append, IsSubwalk]
 
 @[simp]
-theorem IsSubwalk.darts_subset {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'}
-    (h : p₂.IsSubwalk p₁) : p₂.darts ⊆ p₁.darts :=
+theorem IsSubwalk.darts_subset
+    {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'} (h : p₂.IsSubwalk p₁)
+    : p₂.darts ⊆ p₁.darts :=
   h.darts_isInfix.subset
 
 protected lemma IsSubwalk.map {u v u' v' : V} {p₁ : G.Walk u v} {p₂ : G.Walk u' v'}
@@ -220,10 +226,11 @@ protected lemma IsSubwalk.tail {u v u' v'} {p : G.Walk u v} {q : G.Walk u' v'}
   (isSubwalk_drop _ _).trans hpq
 
 set_option backward.isDefEq.respectTransparency false in
-theorem take_isSubwalk_take {u v n k} (p : G.Walk u v) (h : n ≤ k) :
-    (p.take n).IsSubwalk (p.take k) := by
+theorem take_isSubwalk_take {u v n k} (p : G.Walk u v) (h : n ≤ k)
+    : (p.take n).IsSubwalk (p.take k) := by
   induction k, h using Nat.le_induction with
-  | base => rfl
+  | base =>
+    rfl
   | succ k h ih =>
     apply ih.trans
     cases p
@@ -232,10 +239,11 @@ theorem take_isSubwalk_take {u v n k} (p : G.Walk u v) (h : n ≤ k) :
       · exact isSubwalk_of_append_left rfl
       simp [isSubwalk_iff_support_isInfix, support_take, List.IsPrefix.isInfix]
 
-theorem drop_isSubwalk_drop {u v n k} (p : G.Walk u v) (h : n ≤ k) :
-    (p.drop k).IsSubwalk (p.drop n) := by
+theorem drop_isSubwalk_drop {u v n k} (p : G.Walk u v) (h : n ≤ k)
+    : (p.drop k).IsSubwalk (p.drop n) := by
   induction k, h using Nat.le_induction with
-  | base => rfl
+  | base =>
+    rfl
   | succ k h ih =>
     apply IsSubwalk.trans ?_ ih
     clear h ih

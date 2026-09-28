@@ -48,11 +48,10 @@ section unital
 
 open ContinuousMap
 
-variable {X : Type*} {𝕜 : Type*} {A : Type*} {p : A → Prop} [RCLike 𝕜]
-  [MeasurableSpace X] {μ : Measure X}
-  [NormedRing A] [StarRing A] [NormedAlgebra 𝕜 A]
-  [ContinuousFunctionalCalculus 𝕜 A p]
-  [CompleteSpace A]
+variable
+  {X : Type*} {𝕜 : Type*} {A : Type*} {p : A → Prop} [RCLike 𝕜] [MeasurableSpace X]
+  {μ : Measure X} [NormedRing A] [StarRing A] [NormedAlgebra 𝕜 A]
+  [ContinuousFunctionalCalculus 𝕜 A p] [CompleteSpace A]
 
 lemma cfcL_integral [NormedSpace ℝ A] (a : A) (f : X → C(spectrum 𝕜 a, 𝕜)) (hf₁ : Integrable f μ)
     (ha : p a := by cfc_tac) :
@@ -202,11 +201,10 @@ section nonunital
 
 open ContinuousMapZero
 
-variable {X : Type*} {𝕜 : Type*} {A : Type*} {p : A → Prop} [RCLike 𝕜]
-  [MeasurableSpace X] {μ : Measure X} [NonUnitalNormedRing A] [StarRing A]
-  [NormedSpace 𝕜 A] [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
-  [NonUnitalContinuousFunctionalCalculus 𝕜 A p]
-  [CompleteSpace A]
+variable
+  {X : Type*} {𝕜 : Type*} {A : Type*} {p : A → Prop} [RCLike 𝕜] [MeasurableSpace X]
+  {μ : Measure X} [NonUnitalNormedRing A] [StarRing A] [NormedSpace 𝕜 A] [IsScalarTower 𝕜 A A]
+  [SMulCommClass 𝕜 A A] [NonUnitalContinuousFunctionalCalculus 𝕜 A p] [CompleteSpace A]
 
 lemma cfcₙL_integral [NormedSpace ℝ A] (a : A) (f : X → C(quasispectrum 𝕜 a, 𝕜)₀)
     (hf₁ : Integrable f μ) (ha : p a := by cfc_tac) :

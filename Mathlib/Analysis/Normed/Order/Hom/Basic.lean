@@ -26,8 +26,8 @@ variable {F α : Type*} [FunLike F α ℝ]
 -- See note [reducible non-instances]
 @[to_additive /-- Constructs a `SeminormedAddGroup` structure from an `AddGroupSeminormClass` on an
 `AddGroup`. -/]
-abbrev GroupSeminormClass.toSeminormedGroup [Group α] [GroupSeminormClass F α ℝ]
-    (f : F) : SeminormedGroup α where
+abbrev GroupSeminormClass.toSeminormedGroup [Group α] [GroupSeminormClass F α ℝ] (f : F)
+    : SeminormedGroup α where
   norm := f
   dist x y := f (x⁻¹ * y)
   dist_eq _ _ := rfl
@@ -43,8 +43,8 @@ lemma GroupSeminormClass.toSeminormedGroup_norm_eq [Group α] [GroupSeminormClas
 -- See note [reducible non-instances]
 @[to_additive /-- Constructs a `SeminormedAddCommGroup` structure from an `AddGroupSeminormClass`
 on an `AddCommGroup`. -/]
-abbrev GroupSeminormClass.toSeminormedCommGroup [CommGroup α] [GroupSeminormClass F α ℝ]
-    (f : F) : SeminormedCommGroup α where
+abbrev GroupSeminormClass.toSeminormedCommGroup [CommGroup α] [GroupSeminormClass F α ℝ] (f : F)
+    : SeminormedCommGroup α where
   __ := GroupSeminormClass.toSeminormedGroup f
   __ : CommGroup α := inferInstance
 
@@ -56,8 +56,7 @@ lemma GroupSeminormClass.toSeminormedCommGroup_norm_eq [CommGroup α] [GroupSemi
 -- See note [reducible non-instances]
 @[to_additive /-- Constructs a `NormedAddGroup` structure from an `AddGroupNormClass` on an
 `AddGroup`. -/]
-abbrev GroupNormClass.toNormedGroup [Group α] [GroupNormClass F α ℝ]
-    (f : F) : NormedGroup α where
+abbrev GroupNormClass.toNormedGroup [Group α] [GroupNormClass F α ℝ] (f : F) : NormedGroup α where
   __ := GroupSeminormClass.toSeminormedGroup f
   eq_of_dist_eq_zero h := inv_mul_eq_one.mp (eq_one_of_map_eq_zero f h)
 
@@ -69,8 +68,8 @@ lemma GroupNormClass.toNormedGroup_norm_eq [Group α] [GroupNormClass F α ℝ]
 -- See note [reducible non-instances]
 @[to_additive /-- Constructs a `NormedAddCommGroup` structure from an `AddGroupNormClass` on an
 `AddCommGroup`. -/]
-abbrev GroupNormClass.toNormedCommGroup [CommGroup α] [GroupNormClass F α ℝ]
-    (f : F) : NormedCommGroup α where
+abbrev GroupNormClass.toNormedCommGroup [CommGroup α] [GroupNormClass F α ℝ] (f : F)
+    : NormedCommGroup α where
   __ := GroupNormClass.toNormedGroup f
   __ : CommGroup α := inferInstance
 

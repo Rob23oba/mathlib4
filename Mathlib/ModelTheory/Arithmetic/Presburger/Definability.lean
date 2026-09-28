@@ -8,7 +8,6 @@ module
 public import Mathlib.ModelTheory.Arithmetic.Presburger.Basic
 public import Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Basic
 public import Mathlib.ModelTheory.Definability
-
 import Mathlib.Algebra.Group.Submonoid.Finsupp
 import Mathlib.LinearAlgebra.Matrix.Notation
 
@@ -45,24 +44,30 @@ open Set FirstOrder Language
 theorem IsLinearSet.definable [Finite α] (hs : IsLinearSet s) : A.Definable presburger s := by
   rw [isLinearSet_iff] at hs
   rcases hs with ⟨v, t, rfl⟩
-  refine ⟨Formula.iExs t (Formula.iInf fun i : α =>
-    (Term.var (Sum.inl i)).equal
-      (Term.varsToConstants
-        ((v i : presburger.Term _) + presburger.sum Finset.univ fun x : t =>
-          x.1 i • Term.var (Sum.inr (Sum.inr x))))), ?_⟩
+  refine ⟨
+    Formula.iExs t
+      (Formula.iInf fun i : α =>
+        (Term.var (Sum.inl i)).equal
+          (Term.varsToConstants
+            ((v i : presburger.Term _)
+              + presburger.sum Finset.univ fun x : t => x.1 i • Term.var (Sum.inr (Sum.inr x))))),
+    ?_
+  ⟩
   ext x
-  simp only [mem_vadd_set, SetLike.mem_coe, AddSubmonoid.mem_closure_finset', Finset.univ_eq_attach,
-    nsmul_eq_mul, vadd_eq_add, ↓existsAndEq, true_and, mem_ofPred_eq, Formula.realize_iExs,
+  simp only [
+    mem_vadd_set, SetLike.mem_coe, AddSubmonoid.mem_closure_finset', Finset.univ_eq_attach,
+    nsmul_eq_mul, vadd_eq_add, ↓ existsAndEq, true_and, mem_ofPred_eq, Formula.realize_iExs,
     Formula.realize_iInf, Formula.realize_equal, Term.realize_var, Sum.elim_inl,
     Term.realize_varsToConstants, coe_con, presburger.realize_add, presburger.realize_natCast,
-    Nat.cast_id, presburger.realize_sum, presburger.realize_nsmul, Sum.elim_inr, smul_eq_mul]
+    Nat.cast_id, presburger.realize_sum, presburger.realize_nsmul, Sum.elim_inr, smul_eq_mul
+  ]
   congr! with a
   simp_rw [Eq.comm (b := x), fun x : t => mul_comm (a x : α → ℕ) x, funext_iff]
   congr! 1 with i
   simp
 
-theorem IsSemilinearSet.definable [Finite α] (hs : IsSemilinearSet s) :
-    A.Definable presburger s := by
+theorem IsSemilinearSet.definable [Finite α] (hs : IsSemilinearSet s)
+    : A.Definable presburger s := by
   rw [isSemilinearSet_iff] at hs
   rcases hs with ⟨S, hS, rfl⟩
   choose φ hφ using fun s : S => (hS s.1 s.2).definable
@@ -145,16 +150,20 @@ lemma isSemilinearSet_formula_realize_semilinear (φ : presburger[[A]].Formula �
   simp [Formula.Realize, Unique.eq_default, Function.comp_def, LinearMap.funLeft, e]
 
 /-- A set is Presburger definable in `ℕ` if and only if it is semilinear. -/
-theorem definable_iff_isSemilinearSet {s : Set (α → ℕ)} :
-    A.Definable presburger s ↔ IsSemilinearSet s :=
+theorem definable_iff_isSemilinearSet {s : Set (α → ℕ)}
+    : A.Definable presburger s ↔ IsSemilinearSet s :=
   ⟨fun ⟨φ, hφ⟩ => hφ ▸ isSemilinearSet_formula_realize_semilinear φ, IsSemilinearSet.definable⟩
 
-/-- In the 1-dimensional case, a set is Presburger arithmetic definable in `ℕ` if and only if it
-  is ultimately periodic, i.e. periodic after some number `k`. -/
-theorem definable₁_iff_ultimately_periodic {s : Set ℕ} :
-    A.Definable₁ presburger s ↔ ∃ k, ∃ p > 0, ∀ x ≥ k, x ∈ s ↔ x + p ∈ s := by
-  rw [Definable₁, definable_iff_isSemilinearSet,
-    ← isSemilinearSet_image_iff (LinearEquiv.funUnique (Fin 1) ℕ ℕ), ← preimage_ofPred_eq]
+/--
+In the 1-dimensional case, a set is Presburger arithmetic definable in `ℕ` if and only if it
+is ultimately periodic, i.e. periodic after some number `k`.
+-/
+theorem definable₁_iff_ultimately_periodic {s : Set ℕ}
+    : A.Definable₁ presburger s ↔ ∃ k, ∃ p > 0, ∀ x ≥ k, x ∈ s ↔ x + p ∈ s := by
+  rw [
+    Definable₁, definable_iff_isSemilinearSet,
+    ← isSemilinearSet_image_iff (LinearEquiv.funUnique (Fin 1) ℕ ℕ), ← preimage_ofPred_eq
+  ]
   simp only [LinearEquiv.funUnique_apply, Function.eval, Fin.default_eq_zero, ofPred_mem_eq]
   rw [image_preimage_eq s fun x => ⟨![x], rfl⟩, Nat.isSemilinearSet_iff_ultimately_periodic]
 

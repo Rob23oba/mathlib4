@@ -23,8 +23,7 @@ variable (p : ℝ≥0∞) (X : Type*) [MeasurableSpace X]
 
 namespace WithLp
 
-instance measurableSpace : MeasurableSpace (WithLp p X) :=
-  MeasurableSpace.comap ofLp inferInstance
+instance measurableSpace : MeasurableSpace (WithLp p X) := MeasurableSpace.comap ofLp inferInstance
 
 @[fun_prop]
 lemma measurable_ofLp : Measurable (@ofLp p X) := comap_measurable _
@@ -34,25 +33,30 @@ lemma measurable_toLp : Measurable (@toLp p X) := fun s hs ↦ by
   obtain ⟨t, ht, rfl⟩ := hs
   simpa [Set.preimage_preimage]
 
-variable (Y : Type*) [MeasurableSpace Y] [TopologicalSpace X] [TopologicalSpace Y]
-  [BorelSpace X] [BorelSpace Y] [SecondCountableTopologyEither X Y]
+variable
+  (Y : Type*) [MeasurableSpace Y] [TopologicalSpace X] [TopologicalSpace Y] [BorelSpace X]
+  [BorelSpace Y] [SecondCountableTopologyEither X Y]
 
 instance borelSpace : BorelSpace (WithLp p (X × Y)) where
   measurable_eq := by
-    rw [instProdTopologicalSpace, borel_comap, measurableSpace,
-      BorelSpace.measurable_eq (α := X × Y)]
+    rw [
+      instProdTopologicalSpace, borel_comap, measurableSpace, BorelSpace.measurable_eq (α := X × Y)
+    ]
 
 end WithLp
 
 namespace PiLp
 
-variable {ι : Type*} {X : ι → Type*} [Countable ι] [∀ i, MeasurableSpace (X i)]
-    [∀ i, TopologicalSpace (X i)] [∀ i, BorelSpace (X i)] [∀ i, SecondCountableTopology (X i)]
+variable
+  {ι : Type*} {X : ι → Type*} [Countable ι] [∀ i, MeasurableSpace (X i)]
+  [∀ i, TopologicalSpace (X i)] [∀ i, BorelSpace (X i)] [∀ i, SecondCountableTopology (X i)]
 
 instance borelSpace : BorelSpace (PiLp p X) where
   measurable_eq := by
-    rw [topologicalSpace, borel_comap, WithLp.measurableSpace,
-      BorelSpace.measurable_eq (α := Π i, X i)]
+    rw [
+      topologicalSpace, borel_comap, WithLp.measurableSpace,
+      BorelSpace.measurable_eq (α := Π i, X i)
+    ]
 
 end PiLp
 

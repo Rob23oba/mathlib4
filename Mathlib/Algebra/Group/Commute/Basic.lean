@@ -48,27 +48,24 @@ section DivisionMonoid
 
 variable [DivisionMonoid G] {a b c d : G}
 
-@[to_additive]
-protected theorem inv_inv : Commute a b → Commute a⁻¹ b⁻¹ :=
-  SemiconjBy.inv_inv_symm
+@[to_additive] protected theorem inv_inv : Commute a b → Commute a⁻¹ b⁻¹ := SemiconjBy.inv_inv_symm
 
 @[to_additive (attr := simp)]
-theorem inv_inv_iff : Commute a⁻¹ b⁻¹ ↔ Commute a b :=
-  SemiconjBy.inv_inv_symm_iff
+theorem inv_inv_iff : Commute a⁻¹ b⁻¹ ↔ Commute a b := SemiconjBy.inv_inv_symm_iff
 
 @[to_additive]
-protected theorem div_mul_div_comm (hbd : Commute b d) (hbc : Commute b⁻¹ c) :
-    a / b * (c / d) = a * c / (b * d) := by
+protected theorem div_mul_div_comm (hbd : Commute b d) (hbc : Commute b⁻¹ c)
+    : a / b * (c / d) = a * c / (b * d) := by
   simp_rw [div_eq_mul_inv, mul_inv_rev, hbd.inv_inv.symm.eq, hbc.mul_mul_mul_comm]
 
 @[to_additive]
-protected theorem mul_div_mul_comm (hcd : Commute c d) (hbc : Commute b c⁻¹) :
-    a * b / (c * d) = a / c * (b / d) :=
+protected theorem mul_div_mul_comm (hcd : Commute c d) (hbc : Commute b c⁻¹)
+    : a * b / (c * d) = a / c * (b / d) :=
   (hcd.div_mul_div_comm hbc.symm).symm
 
 @[to_additive]
-protected theorem div_div_div_comm (hbc : Commute b c) (hbd : Commute b⁻¹ d) (hcd : Commute c⁻¹ d) :
-    a / b / (c / d) = a / c / (b / d) := by
+protected theorem div_div_div_comm (hbc : Commute b c) (hbd : Commute b⁻¹ d) (hcd : Commute c⁻¹ d)
+    : a / b / (c / d) = a / c / (b / d) := by
   simp_rw [div_eq_mul_inv, mul_inv_rev, inv_inv, hbd.symm.eq, hcd.symm.eq,
     hbc.inv_inv.mul_mul_mul_comm]
 
@@ -83,8 +80,7 @@ lemma inv_left_iff : Commute a⁻¹ b ↔ Commute a b := SemiconjBy.inv_symm_lef
 @[to_additive] alias ⟨_, inv_left⟩ := inv_left_iff
 
 variable (a) in
-theorem inv_left_self : Commute a⁻¹ a :=
-  (Commute.refl a).inv_left
+theorem inv_left_self : Commute a⁻¹ a := (Commute.refl a).inv_left
 
 @[to_additive (attr := simp)]
 lemma inv_right_iff : Commute a b⁻¹ ↔ Commute a b := SemiconjBy.inv_right_iff
@@ -92,8 +88,7 @@ lemma inv_right_iff : Commute a b⁻¹ ↔ Commute a b := SemiconjBy.inv_right_i
 @[to_additive] alias ⟨_, inv_right⟩ := inv_right_iff
 
 variable (a) in
-theorem inv_right_self : Commute a a⁻¹ :=
-  (Commute.refl a).inv_right
+theorem inv_right_self : Commute a a⁻¹ := (Commute.refl a).inv_right
 
 @[to_additive]
 protected lemma inv_mul_cancel (h : Commute a b) : a⁻¹ * b * a = b := by

@@ -17,7 +17,6 @@ We define the category structure on a sigma-type (disjoint union) of categories.
 
 @[expose] public section
 
-
 namespace CategoryTheory
 
 namespace Sigma
@@ -26,7 +25,8 @@ universe w₁ w₂ w₃ v₁ v₂ u₁ u₂
 
 variable {I : Type w₁} {C : I → Type u₁} [∀ i, Category.{v₁} (C i)]
 
-/-- The type of morphisms of a disjoint union of categories: for `X : C i` and `Y : C j`, a morphism
+/--
+The type of morphisms of a disjoint union of categories: for `X : C i` and `Y : C j`, a morphism
 `(i, X) ⟶ (j, Y)` when `i = j` is just a morphism `X ⟶ Y`, and if `i ≠ j` then there are no such
 morphisms.
 -/
@@ -39,8 +39,7 @@ namespace SigmaHom
 def id : ∀ X : Σ i, C i, SigmaHom X X
   | ⟨_, _⟩ => mk (𝟙 _)
 
-instance (X : Σ i, C i) : Inhabited (SigmaHom X X) :=
-  ⟨id X⟩
+instance (X : Σ i, C i) : Inhabited (SigmaHom X X) := ⟨id X⟩
 
 /-- Composition of sigma homomorphisms. -/
 def comp : ∀ {X Y Z : Σ i, C i}, SigmaHom X Y → SigmaHom Y Z → SigmaHom X Z
@@ -110,7 +109,8 @@ lemma natTrans_app {F G : (Σ i, C i) ⥤ D} (h : ∀ i : I, incl i ⋙ F ⟶ in
 def descMap : ∀ X Y : Σ i, C i, (X ⟶ Y) → ((F X.1).obj X.2 ⟶ (F Y.1).obj Y.2)
   | _, _, SigmaHom.mk g => (F _).map g
 
-/-- Given a collection of functors `F i : C i ⥤ D`, we can produce a functor `(Σ i, C i) ⥤ D`.
+/--
+Given a collection of functors `F i : C i ⥤ D`, we can produce a functor `(Σ i, C i) ⥤ D`.
 
 The produced functor `desc F` satisfies: `incl i ⋙ desc F ≅ F i`, i.e. restricted to just the
 subcategory `C i`, `desc F` agrees with `F i`, and it is unique (up to natural isomorphism) with
@@ -135,11 +135,11 @@ lemma desc_map_mk {i : I} (X Y : C i) (f : X ⟶ Y) : (desc F).map (SigmaHom.mk 
 
 set_option backward.defeqAttrib.useBackward true in
 -- We hand-generate the simp lemmas about this since they come out cleaner.
-/-- This shows that when `desc F` is restricted to just the subcategory `C i`, `desc F` agrees with
+/--
+This shows that when `desc F` is restricted to just the subcategory `C i`, `desc F` agrees with
 `F i`.
 -/
-def inclDesc (i : I) : incl i ⋙ desc F ≅ F i :=
-  NatIso.ofComponents fun _ => Iso.refl _
+def inclDesc (i : I) : incl i ⋙ desc F ≅ F i := NatIso.ofComponents fun _ => Iso.refl _
 
 @[simp]
 lemma inclDesc_hom_app (i : I) (X : C i) : (inclDesc F i).hom.app X = 𝟙 ((F i).obj X) :=
@@ -149,7 +149,8 @@ lemma inclDesc_hom_app (i : I) (X : C i) : (inclDesc F i).hom.app X = 𝟙 ((F i
 lemma inclDesc_inv_app (i : I) (X : C i) : (inclDesc F i).inv.app X = 𝟙 ((F i).obj X) :=
   rfl
 
-/-- If `q` when restricted to each subcategory `C i` agrees with `F i`, then `q` is isomorphic to
+/--
+If `q` when restricted to each subcategory `C i` agrees with `F i`, then `q` is isomorphic to
 `desc F`.
 -/
 def descUniq (q : (Σ i, C i) ⥤ D) (h : ∀ i, incl i ⋙ q ≅ F i) : q ≅ desc F :=
@@ -183,8 +184,7 @@ section
 variable (C) {J : Type w₂} (g : J → I)
 
 /-- A function `J → I` induces a functor `Σ j, C (g j) ⥤ Σ i, C i`. -/
-def map : (Σ j : J, C (g j)) ⥤ Σ i : I, C i :=
-  desc fun j => incl (g j)
+def map : (Σ j : J, C (g j)) ⥤ Σ i : I, C i := desc fun j => incl (g j)
 
 @[simp]
 lemma map_obj (j : J) (X : C (g j)) : (Sigma.map C g).obj ⟨j, X⟩ = ⟨g j, X⟩ :=
@@ -195,11 +195,10 @@ lemma map_map {j : J} {X Y : C (g j)} (f : X ⟶ Y) :
     (Sigma.map C g).map (SigmaHom.mk f) = SigmaHom.mk f :=
   rfl
 
-/-- The functor `Sigma.map C g` restricted to the subcategory `C j` acts as the inclusion of `g j`.
+/--
+The functor `Sigma.map C g` restricted to the subcategory `C j` acts as the inclusion of `g j`.
 -/
-@[simps!]
-def inclCompMap (j : J) : incl j ⋙ map C g ≅ incl (g j) :=
-  Iso.refl _
+@[simps!] def inclCompMap (j : J) : incl j ⋙ map C g ≅ incl (g j) := Iso.refl _
 
 variable (I)
 
@@ -226,10 +225,8 @@ namespace Functor
 -- variable {C}
 variable {D : I → Type u₁} [∀ i, Category.{v₁} (D i)]
 
-/-- Assemble an `I`-indexed family of functors into a functor between the sigma types.
--/
-def sigma (F : ∀ i, C i ⥤ D i) : (Σ i, C i) ⥤ Σ i, D i :=
-  desc fun i => F i ⋙ incl i
+/-- Assemble an `I`-indexed family of functors into a functor between the sigma types. -/
+def sigma (F : ∀ i, C i ⥤ D i) : (Σ i, C i) ⥤ Σ i, D i := desc fun i => F i ⋙ incl i
 
 end Functor
 
@@ -238,7 +235,8 @@ namespace natTrans
 variable {D : I → Type u₁} [∀ i, Category.{v₁} (D i)]
 variable {F G : ∀ i, C i ⥤ D i}
 
-/-- Assemble an `I`-indexed family of natural transformations into a single natural transformation.
+/--
+Assemble an `I`-indexed family of natural transformations into a single natural transformation.
 -/
 def sigma (α : ∀ i, F i ⟶ G i) : Functor.sigma F ⟶ Functor.sigma G where
   app f := SigmaHom.mk ((α f.1).app _)

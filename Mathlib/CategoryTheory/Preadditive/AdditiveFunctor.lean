@@ -32,15 +32,15 @@ We also define the category of bundled additive functors.
 
 @[expose] public section
 
-
 universe v₁ v₂ u₁ u₂
 
 namespace CategoryTheory
 
 /-- A functor `F` is additive provided `F.map` is an additive homomorphism. -/
 @[stacks 00ZY]
-class Functor.Additive {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D]
-  (F : C ⥤ D) : Prop where
+class Functor.Additive
+    {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D] (F : C ⥤ D)
+    : Prop where
   /-- the addition of two morphisms is mapped to the sum of their images -/
   map_add : ∀ {X Y : C} {f g : X ⟶ Y}, F.map (f + g) = F.map f + F.map g := by cat_disch
 
@@ -50,8 +50,10 @@ namespace Functor
 
 section
 
-variable {C D E : Type*} [Category* C] [Category* D] [Category* E]
-  [Preadditive C] [Preadditive D] [Preadditive E] (F : C ⥤ D) [Functor.Additive F]
+variable
+  {C D E : Type*}
+  [Category* C] [Category* D] [Category* E] [Preadditive C] [Preadditive D] [Preadditive E]
+  (F : C ⥤ D) [Functor.Additive F]
 
 @[simp]
 theorem map_add {X Y : C} {f g : X ⟶ Y} : F.map (f + g) = F.map f + F.map g :=
@@ -62,21 +64,20 @@ theorem map_add {X Y : C} {f g : X ⟶ Y} : F.map (f + g) = F.map f + F.map g :=
 def mapAddHom {X Y : C} : (X ⟶ Y) →+ (F.obj X ⟶ F.obj Y) :=
   AddMonoidHom.mk' (fun f => F.map f) fun _ _ => F.map_add
 
-theorem coe_mapAddHom {X Y : C} : ⇑(F.mapAddHom : (X ⟶ Y) →+ _) = F.map :=
-  rfl
+theorem coe_mapAddHom {X Y : C} : ⇑(F.mapAddHom : (X ⟶ Y) →+ _) = F.map := rfl
 
 instance (priority := 100) preservesZeroMorphisms_of_additive : PreservesZeroMorphisms F where
   map_zero _ _ := F.mapAddHom.map_zero
 
 instance : Additive (𝟭 C) where
 
-instance {E : Type*} [Category* E] [Preadditive E] (G : D ⥤ E) [Functor.Additive G] :
-    Additive (F ⋙ G) where
+instance {E : Type*} [Category* E] [Preadditive E] (G : D ⥤ E) [Functor.Additive G]
+  : Additive (F ⋙ G) where
 
 instance {J : Type*} [Category* J] (j : J) : ((evaluation J C).obj j).Additive where
 
 @[simp]
-theorem map_neg {X Y : C} {f : X ⟶ Y} : F.map (-f) = -F.map f :=
+theorem map_neg {X Y : C} {f : X ⟶ Y} : F.map (-f) = - F.map f :=
   (F.mapAddHom : (X ⟶ Y) →+ (F.obj X ⟶ F.obj Y)).map_neg _
 
 @[simp]
@@ -91,8 +92,8 @@ theorem map_zsmul {X Y : C} {f : X ⟶ Y} {r : ℤ} : F.map (r • f) = r • F.
   (F.mapAddHom : (X ⟶ Y) →+ (F.obj X ⟶ F.obj Y)).map_zsmul _ _
 
 @[simp]
-nonrec theorem map_sum {X Y : C} {α : Type*} (f : α → (X ⟶ Y)) (s : Finset α) :
-    F.map (∑ a ∈ s, f a) = ∑ a ∈ s, F.map (f a) :=
+nonrec theorem map_sum {X Y : C} {α : Type*} (f : α → (X ⟶ Y)) (s : Finset α)
+    : F.map (∑ a ∈ s, f a) = ∑ a ∈ s, F.map (f a) :=
   map_sum F.mapAddHom f s
 
 variable {F}
@@ -144,8 +145,7 @@ lemma Additive.of_isZero {F : C ⥤ D} (hF : IsZero F) :
       rw [IsZero.iff_id_eq_zero]
       congrm $((IsZero.iff_id_eq_zero _).1 hF).app _) _ _
 
-instance [HasZeroObject D] : Functor.Additive (0 : C ⥤ D) :=
-  .of_isZero (isZero_zero _)
+instance [HasZeroObject D] : Functor.Additive (0 : C ⥤ D) := .of_isZero (isZero_zero _)
 
 omit [Preadditive C] in
 instance (F : D ⥤ E) [F.Additive] : ((Functor.whiskeringRight C D E).obj F).Additive where
@@ -158,8 +158,10 @@ instance (F : C ⥤ D) : ((Functor.whiskeringLeft C D E).obj F).Additive where
 
 set_option backward.defeqAttrib.useBackward true in
 omit [Preadditive D] in
-instance {E' : Type*} [Category* E'] [Preadditive E'] (G : C ⥤ D ⥤ E) (F : E ⥤ E')
-    [F.Additive] [G.Additive] : ((Functor.postcompose₂.obj F).obj G).Additive := by
+instance
+    {E' : Type*} [Category* E'] [Preadditive E']
+    (G : C ⥤ D ⥤ E) (F : E ⥤ E') [F.Additive] [G.Additive]
+    : ((Functor.postcompose₂.obj F).obj G).Additive := by
   dsimp [Functor.postcompose₂]
   infer_instance
 
@@ -177,43 +179,49 @@ instance inducedFunctor_additive : Functor.Additive (inducedFunctor F) where
 
 end InducedCategory
 
-instance fullSubcategoryInclusion_additive {C : Type*} [Category* C] [Preadditive C]
-    (Z : ObjectProperty C) : Z.ι.Additive where
+instance fullSubcategoryInclusion_additive
+  {C : Type*} [Category* C] [Preadditive C] (Z : ObjectProperty C)
+  : Z.ι.Additive where
 
-instance {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D]
-    (F : D ⥤ C) [F.Additive] (P : ObjectProperty C)
-    (hF : ∀ (X : D), P (F.obj X)) :
-    (P.lift F hF).Additive where
+instance
+  {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D]
+  (F : D ⥤ C) [F.Additive]
+  (P : ObjectProperty C) (hF : ∀ (X : D), P (F.obj X))
+  : (P.lift F hF).Additive where
 
 section
 
 -- To talk about preservation of biproducts we need to specify universes explicitly.
 noncomputable section
 
-variable {C : Type u₁} {D : Type u₂} [Category.{v₁} C] [Category.{v₂} D] [Preadditive C]
-  [Preadditive D] (F : C ⥤ D)
+variable
+  {C : Type u₁} {D : Type u₂} [Category.{v₁} C] [Category.{v₂} D] [Preadditive C] [Preadditive D]
+  (F : C ⥤ D)
 
 open CategoryTheory.Limits
 
 open CategoryTheory.Preadditive
 
 set_option backward.isDefEq.respectTransparency false in
-instance (priority := 100) preservesFiniteBiproductsOfAdditive [Additive F] :
-    PreservesFiniteBiproducts F where
+instance (priority := 100) preservesFiniteBiproductsOfAdditive [Additive F]
+    : PreservesFiniteBiproducts F where
   preserves := fun {J} _ =>
     let ⟨_⟩ := nonempty_fintype J
-    { preserves :=
-      { preserves := fun hb =>
+    {
+      preserves := {
+        preserves := fun hb =>
           ⟨isBilimitOfTotal _ (by
             simp_rw [F.mapBicone_π, F.mapBicone_ι, ← F.map_comp]
-            erw [← F.map_sum, ← F.map_id, IsBilimit.total hb])⟩ } }
+            erw [← F.map_sum, ← F.map_id, IsBilimit.total hb])⟩
+      }
+    }
 
-instance (priority := 100) preservesFiniteCoproductsOfAdditive [Additive F] :
-    PreservesFiniteCoproducts F where
+instance (priority := 100) preservesFiniteCoproductsOfAdditive [Additive F]
+    : PreservesFiniteCoproducts F where
   preserves _ := preservesCoproductsOfShape_of_preservesBiproductsOfShape F
 
-instance (priority := 100) preservesFiniteProductsOfAdditive [Additive F] :
-    PreservesFiniteProducts F where
+instance (priority := 100) preservesFiniteProductsOfAdditive [Additive F]
+    : PreservesFiniteProducts F where
   preserves _ := preservesProductsOfShape_of_preservesBiproductsOfShape F
 
 lemma hasFiniteProducts_of_additive_of_essSurj [HasFiniteProducts C] [Additive F]
@@ -222,12 +230,14 @@ lemma hasFiniteProducts_of_additive_of_essSurj [HasFiniteProducts C] [Additive F
     (F := Discrete.functor (fun i ↦ F.objPreimage (K.obj ⟨i⟩)) ⋙ F)
       (Discrete.natIso (fun _ ↦ F.objObjPreimageIso _))⟩⟩
 
-theorem additive_of_preservesBinaryBiproducts [HasBinaryBiproducts C] [PreservesZeroMorphisms F]
-    [PreservesBinaryBiproducts F] : Additive F where
+theorem additive_of_preservesBinaryBiproducts
+    [HasBinaryBiproducts C] [PreservesZeroMorphisms F] [PreservesBinaryBiproducts F]
+    : Additive F where
   map_add {X Y f g} := by
-    rw [biprod.add_eq_lift_id_desc, F.map_comp, ← biprod.lift_mapBiprod,
-      ← biprod.mapBiprod_hom_desc, Category.assoc, Iso.inv_hom_id_assoc, F.map_id,
-      biprod.add_eq_lift_id_desc]
+    rw [
+      biprod.add_eq_lift_id_desc, F.map_comp, ← biprod.lift_mapBiprod, ← biprod.mapBiprod_hom_desc,
+      Category.assoc, Iso.inv_hom_id_assoc, F.map_id, biprod.add_eq_lift_id_desc
+    ]
 
 lemma additive_of_preserves_binary_products
     [HasBinaryProducts C] [PreservesLimitsOfShape (Discrete WalkingPair) F]
@@ -272,37 +282,32 @@ instance (F : AdditiveFunctor C D) : F.obj.Additive := F.property
 infixr:26 " ⥤+ " => AdditiveFunctor
 
 /-- An additive functor is in particular a functor. -/
-abbrev AdditiveFunctor.forget : (C ⥤+ D) ⥤ C ⥤ D :=
-  ObjectProperty.ι _
+abbrev AdditiveFunctor.forget : (C ⥤+ D) ⥤ C ⥤ D := ObjectProperty.ι _
 
 variable {C D}
 
 /-- Turn an additive functor into an object of the category `AdditiveFunctor C D`. -/
-@[simps]
-def AdditiveFunctor.of (F : C ⥤ D) [F.Additive] : C ⥤+ D :=
-  ⟨F, by simpa⟩
+@[simps] def AdditiveFunctor.of (F : C ⥤ D) [F.Additive] : C ⥤+ D := ⟨F, by simpa⟩
 
 @[simp]
-theorem AdditiveFunctor.of_fst (F : C ⥤ D) [F.Additive] : (AdditiveFunctor.of F).1 = F :=
-  rfl
+theorem AdditiveFunctor.of_fst (F : C ⥤ D) [F.Additive] : (AdditiveFunctor.of F).1 = F := rfl
 
 @[simp]
-theorem AdditiveFunctor.forget_obj (F : C ⥤+ D) : (AdditiveFunctor.forget C D).obj F = F.1 :=
-  rfl
+theorem AdditiveFunctor.forget_obj (F : C ⥤+ D) : (AdditiveFunctor.forget C D).obj F = F.1 := rfl
 
-theorem AdditiveFunctor.forget_obj_of (F : C ⥤ D) [F.Additive] :
-    (AdditiveFunctor.forget C D).obj (AdditiveFunctor.of F) = F :=
+theorem AdditiveFunctor.forget_obj_of (F : C ⥤ D) [F.Additive]
+    : (AdditiveFunctor.forget C D).obj (AdditiveFunctor.of F) = F :=
   rfl
 
 @[simp]
-theorem AdditiveFunctor.forget_map (F G : C ⥤+ D) (α : F ⟶ G) :
-    (AdditiveFunctor.forget C D).map α = α.hom :=
+theorem AdditiveFunctor.forget_map (F G : C ⥤+ D) (α : F ⟶ G)
+    : (AdditiveFunctor.forget C D).map α = α.hom :=
   rfl
 
-instance : Functor.Additive (AdditiveFunctor.forget C D) where map_add := rfl
+instance : Functor.Additive (AdditiveFunctor.forget C D) where
+  map_add := rfl
 
-instance (F : C ⥤+ D) : Functor.Additive F.1 :=
-  F.2
+instance (F : C ⥤+ D) : Functor.Additive F.1 := F.2
 
 end
 
@@ -353,33 +358,33 @@ end
 variable {C D}
 
 @[simp]
-theorem AdditiveFunctor.ofLeftExact_obj_fst (F : C ⥤ₗ D) :
-    ((AdditiveFunctor.ofLeftExact C D).obj F).obj = F.obj :=
+theorem AdditiveFunctor.ofLeftExact_obj_fst (F : C ⥤ₗ D)
+    : ((AdditiveFunctor.ofLeftExact C D).obj F).obj = F.obj :=
   rfl
 
 @[simp]
-theorem AdditiveFunctor.ofRightExact_obj_fst (F : C ⥤ᵣ D) :
-    ((AdditiveFunctor.ofRightExact C D).obj F).obj = F.obj :=
+theorem AdditiveFunctor.ofRightExact_obj_fst (F : C ⥤ᵣ D)
+    : ((AdditiveFunctor.ofRightExact C D).obj F).obj = F.obj :=
   rfl
 
 @[simp]
-theorem AdditiveFunctor.ofExact_obj_fst (F : C ⥤ₑ D) :
-    ((AdditiveFunctor.ofExact C D).obj F).obj = F.obj :=
+theorem AdditiveFunctor.ofExact_obj_fst (F : C ⥤ₑ D)
+    : ((AdditiveFunctor.ofExact C D).obj F).obj = F.obj :=
   rfl
 
 @[simp]
-theorem AdditiveFunctor.ofLeftExact_map_hom {F G : C ⥤ₗ D} (α : F ⟶ G) :
-    ((AdditiveFunctor.ofLeftExact C D).map α).hom = α.hom :=
+theorem AdditiveFunctor.ofLeftExact_map_hom {F G : C ⥤ₗ D} (α : F ⟶ G)
+    : ((AdditiveFunctor.ofLeftExact C D).map α).hom = α.hom :=
   rfl
 
 @[simp]
-theorem AdditiveFunctor.ofRightExact_map_hom {F G : C ⥤ᵣ D} (α : F ⟶ G) :
-    ((AdditiveFunctor.ofRightExact C D).map α).hom = α.hom :=
+theorem AdditiveFunctor.ofRightExact_map_hom {F G : C ⥤ᵣ D} (α : F ⟶ G)
+    : ((AdditiveFunctor.ofRightExact C D).map α).hom = α.hom :=
   rfl
 
 @[simp]
-theorem AdditiveFunctor.ofExact_map_hom {F G : C ⥤ₑ D} (α : F ⟶ G) :
-    ((AdditiveFunctor.ofExact C D).map α).hom = α.hom :=
+theorem AdditiveFunctor.ofExact_map_hom {F G : C ⥤ₑ D} (α : F ⟶ G)
+    : ((AdditiveFunctor.ofExact C D).map α).hom = α.hom :=
   rfl
 
 end Exact

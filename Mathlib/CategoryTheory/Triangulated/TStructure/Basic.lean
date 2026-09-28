@@ -44,7 +44,8 @@ namespace CategoryTheory
 
 open Limits
 
-variable (C : Type*) [Category* C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
+variable
+  (C : Type*) [Category* C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
   [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
 namespace Triangulated
@@ -64,8 +65,9 @@ structure TStructure where
   zero' ⦃X Y : C⦄ (f : X ⟶ Y) (hX : le 0 X) (hY : ge 1 Y) : f = 0
   le_zero_le : le 0 ≤ le 1
   ge_one_le : ge 1 ≤ ge 0
-  exists_triangle_zero_one (A : C) : ∃ (X Y : C) (_ : le 0 X) (_ : ge 1 Y)
-    (f : X ⟶ A) (g : A ⟶ Y) (h : Y ⟶ X⟦(1 : ℤ)⟧), Triangle.mk f g h ∈ distTriang C
+  exists_triangle_zero_one (A : C)
+    : ∃ (X Y : C) (_ : le 0 X) (_ : ge 1 Y) (f : X ⟶ A) (g : A ⟶ Y) (h : Y ⟶ X⟦(1 : ℤ)⟧),
+      Triangle.mk f g h ∈ distTriang C
 
 namespace TStructure
 
@@ -155,13 +157,17 @@ lemma ge_antitone : Antitone t.ge := by
   | zero => exact H_zero
   | succ a ha => exact H_add a 1 _ rfl ha H_one
 
-/-- Given a t-structure `t` on a pretriangulated category `C`, the property `t.IsLE X n`
-holds if `X : C` is `≤ n` for the t-structure. -/
+/--
+Given a t-structure `t` on a pretriangulated category `C`, the property `t.IsLE X n`
+holds if `X : C` is `≤ n` for the t-structure.
+-/
 class IsLE (X : C) (n : ℤ) : Prop where
   le : t.le n X
 
-/-- Given a t-structure `t` on a pretriangulated category `C`, the property `t.IsGE X n`
-holds if `X : C` is `≥ n` for the t-structure. -/
+/--
+Given a t-structure `t` on a pretriangulated category `C`, the property `t.IsGE X n`
+holds if `X : C` is `≥ n` for the t-structure.
+-/
 class IsGE (X : C) (n : ℤ) : Prop where
   ge : t.ge n X
 
@@ -266,19 +272,21 @@ instance : t.minus.IsClosedUnderIsomorphisms where
   of_iso e := by rintro ⟨n, _⟩; exact ⟨_, t.isLE_of_iso e n⟩
 
 instance : t.minus.IsStableUnderShift ℤ where
-  isStableUnderShiftBy n :=
-    { le_shift := by
-        rintro X ⟨i, _⟩
-        exact ⟨i - n, t.isLE_shift _ i _ _ (by omega)⟩ }
+  isStableUnderShiftBy n := {
+    le_shift := by
+      rintro X ⟨i, _⟩
+      exact ⟨i - n, t.isLE_shift _ i _ _ (by omega)⟩
+  }
 
 instance : t.plus.IsClosedUnderIsomorphisms where
   of_iso e := by rintro ⟨n, _⟩; exact ⟨_, t.isGE_of_iso e n⟩
 
 instance : t.plus.IsStableUnderShift ℤ where
-  isStableUnderShiftBy n :=
-    { le_shift := by
-        rintro X ⟨i, _⟩
-        exact ⟨i - n, t.isGE_shift _ i _ _ (by omega)⟩ }
+  isStableUnderShiftBy n := {
+    le_shift := by
+      rintro X ⟨i, _⟩
+      exact ⟨i - n, t.isGE_shift _ i _ _ (by omega)⟩
+  }
 
 instance : t.bounded.IsClosedUnderIsomorphisms := by
   dsimp [bounded]

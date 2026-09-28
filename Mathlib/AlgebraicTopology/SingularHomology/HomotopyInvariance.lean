@@ -40,14 +40,17 @@ open AlgebraicTopology CategoryTheory Limits
 
 namespace TopCat.Homotopy
 
-variable {C : Type u} [Category.{v} C] [Preadditive C] [HasCoproducts.{w} C]
+variable
+  {C : Type u} [Category.{v} C] [Preadditive C] [HasCoproducts.{w} C]
   {X Y : TopCat.{w}} {f g : X ⟶ Y}
 
-/-- Two homotopic morphisms in `TopCat` induce homotopic morphisms on the
+/--
+Two homotopic morphisms in `TopCat` induce homotopic morphisms on the
 singular chain complexes with coefficients in `R` (e.g. `R := ℤ` considered as
-an object of the category of abelian groups). -/
-noncomputable def singularChainComplexFunctorObjMap (H : TopCat.Homotopy f g) (R : C) :
-    _root_.Homotopy (((singularChainComplexFunctor C).obj R).map f)
+an object of the category of abelian groups).
+-/
+noncomputable def singularChainComplexFunctorObjMap (H : TopCat.Homotopy f g) (R : C)
+    : _root_.Homotopy (((singularChainComplexFunctor C).obj R).map f)
       (((singularChainComplexFunctor C).obj R).map g) :=
   H.toSSet.chainComplexMap R
 

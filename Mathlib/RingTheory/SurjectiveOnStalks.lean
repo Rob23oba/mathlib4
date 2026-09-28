@@ -189,8 +189,7 @@ lemma SurjectiveOnStalks.baseChange' [Algebra R T] [Algebra R S]
   convert!
     (surjectiveOnStalks_of_surjective (Algebra.TensorProduct.comm R T S).surjective).comp
       (hf.baseChange (S := T))
-        -- Subsumed by `RingHom.SurjectiveOnStalks.tensorProductMap`.
-
+-- Subsumed by `RingHom.SurjectiveOnStalks.tensorProductMap`.
 
 -- Subsumed by `RingHom.SurjectiveOnStalks.tensorProductMap`.
 private lemma SurjectiveOnStalks.tensorProductMap_id

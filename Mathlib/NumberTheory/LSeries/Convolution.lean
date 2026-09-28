@@ -35,8 +35,10 @@ open Complex LSeries
 
 open Nat
 
-/-- We turn any function `ℕ → R` into an `ArithmeticFunction R` by setting its value at `0`
-to be zero. -/
+/--
+We turn any function `ℕ → R` into an `ArithmeticFunction R` by setting its value at `0`
+to be zero.
+-/
 def toArithmeticFunction {R : Type*} [Zero R] (f : ℕ → R) : ArithmeticFunction R where
   toFun n := if n = 0 then 0 else f n
   map_zero' := rfl
@@ -56,9 +58,11 @@ lemma ArithmeticFunction.toArithmeticFunction_eq_self {R : Type*} [Zero R]
   ext n
   simp +contextual [toArithmeticFunction]
 
-/-- Dirichlet convolution of two sequences.
+/--
+Dirichlet convolution of two sequences.
 
-We define this in terms of the already existing definition for arithmetic functions. -/
+We define this in terms of the already existing definition for arithmetic functions.
+-/
 noncomputable def LSeries.convolution {R : Type*} [Semiring R] (f g : ℕ → R) : ℕ → R :=
   ⇑(toArithmeticFunction f * toArithmeticFunction g)
 
@@ -88,7 +92,6 @@ lemma convolution_def {R : Type*} [Semiring R] (f g : ℕ → R) :
 @[simp]
 lemma convolution_map_zero {R : Type*} [Semiring R] (f g : ℕ → R) : (f ⍟ g) 0 = 0 := by
   simp [convolution_def]
-
 
 /-!
 ### Multiplication of L-series

@@ -27,8 +27,8 @@ namespace LinearMap.BilinForm
 
 open Function exteriorPower
 
-variable {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
-  (B : LinearMap.BilinForm R M) (n : ℕ)
+variable
+  {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] (B : LinearMap.BilinForm R M) (n : ℕ)
 
 /-- A bilinear form on `M` induces a bilinear form on each exterior power. -/
 public protected def exteriorPower : LinearMap.BilinForm R (⋀[R]^n M) :=

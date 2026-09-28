@@ -9,7 +9,6 @@ public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 public import Mathlib.Order.Interval.Finset.Nat
 public import Mathlib.Order.SuccPred.Basic
 import Mathlib.Data.Finset.Max
-
 import Mathlib.Data.Fintype.Order
 
 /-!
@@ -76,16 +75,12 @@ lemma partialSups_le_iff {f : ι → α} {i : ι} {a : α} :
     partialSups f i ≤ a ↔ ∀ j ≤ i, f j ≤ a :=
   partialSups_iff_forall (· ≤ a) sup_le_iff
 
-theorem le_partialSups_of_le (f : ι → α) {i j : ι} (h : i ≤ j) :
-    f i ≤ partialSups f j :=
+theorem le_partialSups_of_le (f : ι → α) {i j : ι} (h : i ≤ j) : f i ≤ partialSups f j :=
   partialSups_le_iff.1 le_rfl i h
 
-theorem le_partialSups (f : ι → α) :
-    f ≤ partialSups f :=
-  fun _ => le_partialSups_of_le f le_rfl
+theorem le_partialSups (f : ι → α) : f ≤ partialSups f := fun _ => le_partialSups_of_le f le_rfl
 
-theorem partialSups_le (f : ι → α) (i : ι) (a : α) (w : ∀ j ≤ i, f j ≤ a) :
-    partialSups f i ≤ a :=
+theorem partialSups_le (f : ι → α) (i : ι) (a : α) (w : ∀ j ≤ i, f j ≤ a) : partialSups f i ≤ a :=
   partialSups_le_iff.2 w
 
 @[simp]
@@ -96,26 +91,24 @@ lemma upperBounds_range_partialSups (f : ι → α) :
   exact ⟨fun h _ ↦ h _ _ le_rfl, fun h _ _ _ ↦ h _⟩
 
 @[simp]
-theorem bddAbove_range_partialSups {f : ι → α} :
-    BddAbove (Set.range (partialSups f)) ↔ BddAbove (Set.range f) :=
+theorem bddAbove_range_partialSups {f : ι → α}
+    : BddAbove (Set.range (partialSups f)) ↔ BddAbove (Set.range f) :=
   .of_eq congr($(upperBounds_range_partialSups f).Nonempty)
 
-theorem Monotone.partialSups_eq {f : ι → α} (hf : Monotone f) :
-    partialSups f = f :=
+theorem Monotone.partialSups_eq {f : ι → α} (hf : Monotone f) : partialSups f = f :=
   funext fun i ↦ le_antisymm (partialSups_le _ _ _ (@hf · i)) (le_partialSups _ _)
 
-theorem partialSups_mono :
-    Monotone (partialSups : (ι → α) → ι →o α) :=
-  fun _ _ h _ ↦ partialSups_le_iff.2 fun j hj ↦ (h j).trans (le_partialSups_of_le _ hj)
+theorem partialSups_mono : Monotone (partialSups : (ι → α) → ι →o α) := fun _ _ h _ ↦
+  partialSups_le_iff.2 fun j hj ↦ (h j).trans (le_partialSups_of_le _ hj)
 
 lemma partialSups_monotone (f : ι → α) :
     Monotone (partialSups f) :=
   fun i _ hnm ↦ partialSups_le f i _ (fun _ hm'n ↦ le_partialSups_of_le _ (hm'n.trans hnm))
 
-/-- `partialSups` forms a Galois insertion with the coercion from monotone functions to functions.
+/--
+`partialSups` forms a Galois insertion with the coercion from monotone functions to functions.
 -/
-def partialSups.gi :
-    GaloisInsertion (partialSups : (ι → α) → ι →o α) (↑) where
+def partialSups.gi : GaloisInsertion (partialSups : (ι → α) → ι →o α) (↑) where
   choice f h :=
     ⟨f, by convert! (partialSups f).monotone using 1; exact (le_partialSups f).antisymm h⟩
   gc f g := by
@@ -141,11 +134,12 @@ lemma map_partialSups {F : Type*} [FunLike F α β] [SupHomClass F α β] (f : F
 end Preorder
 
 @[simp]
-theorem partialSups_succ [LinearOrder ι] [LocallyFiniteOrderBot ι] [SuccOrder ι]
-    (f : ι → α) (i : ι) :
-    partialSups f (Order.succ i) = partialSups f i ⊔ f (Order.succ i) := by
-  suffices Iic (Order.succ i) = Iic i ∪ {Order.succ i} by simp only [partialSups_apply, this,
-    sup'_union nonempty_Iic ⟨_, mem_singleton_self _⟩ f, sup'_singleton]
+theorem partialSups_succ [LinearOrder ι] [LocallyFiniteOrderBot ι] [SuccOrder ι] (f : ι → α) (i : ι)
+    : partialSups f (Order.succ i) = partialSups f i ⊔ f (Order.succ i) := by
+  suffices Iic (Order.succ i) = Iic i ∪ {Order.succ i} by
+    simp only [
+      partialSups_apply, this, sup'_union nonempty_Iic ⟨_, mem_singleton_self _⟩ f, sup'_singleton
+    ]
   ext
   simp only [mem_Iic, mem_union, mem_singleton]
   constructor
@@ -153,8 +147,8 @@ theorem partialSups_succ [LinearOrder ι] [LocallyFiniteOrderBot ι] [SuccOrder 
   · exact fun h ↦ h.elim (le_trans · <| Order.le_succ _) le_of_eq
 
 @[simp]
-theorem partialSups_bot [PartialOrder ι] [LocallyFiniteOrder ι] [OrderBot ι]
-    (f : ι → α) : partialSups f ⊥ = f ⊥ := by
+theorem partialSups_bot [PartialOrder ι] [LocallyFiniteOrder ι] [OrderBot ι] (f : ι → α)
+    : partialSups f ⊥ = f ⊥ := by
   simp only [partialSups_apply]
   -- should we add a lemma `Finset.Iic_bot`?
   suffices Iic (⊥ : ι) = {⊥} by simp only [this, sup'_singleton]
@@ -164,16 +158,14 @@ theorem partialSups_bot [PartialOrder ι] [LocallyFiniteOrder ι] [OrderBot ι]
 ### Functions out of `ℕ`
 -/
 
-@[simp]
-theorem partialSups_zero (f : ℕ → α) : partialSups f 0 = f 0 :=
-  partialSups_bot f
+@[simp] theorem partialSups_zero (f : ℕ → α) : partialSups f 0 = f 0 := partialSups_bot f
 
-theorem partialSups_eq_sup'_range (f : ℕ → α) (n : ℕ) :
-    partialSups f n = (Finset.range (n + 1)).sup' nonempty_range_add_one f :=
+theorem partialSups_eq_sup'_range (f : ℕ → α) (n : ℕ)
+    : partialSups f n = (Finset.range (n + 1)).sup' nonempty_range_add_one f :=
   eq_of_forall_ge_iff fun _ ↦ by simp [Nat.lt_succ_iff]
 
-theorem partialSups_eq_sup_range [OrderBot α] (f : ℕ → α) (n : ℕ) :
-    partialSups f n = (Finset.range (n + 1)).sup f :=
+theorem partialSups_eq_sup_range [OrderBot α] (f : ℕ → α) (n : ℕ)
+    : partialSups f n = (Finset.range (n + 1)).sup f :=
   eq_of_forall_ge_iff fun _ ↦ by simp [Nat.lt_succ_iff]
 
 end SemilatticeSup
@@ -200,11 +192,13 @@ lemma disjoint_partialSups_right {f : ι → α} {i : ι} {x : α} :
   partialSups_iff_forall (Disjoint x) disjoint_sup_right
 
 open scoped Function in -- required for scoped `on` notation
-/- Note this lemma requires a distributive lattice, so is not useful (or true) in situations such as
-submodules. -/
-theorem partialSups_disjoint_of_disjoint (f : ι → α) (h : Pairwise (Disjoint on f))
-    {i j : ι} (hij : i < j) :
-    Disjoint (partialSups f i) (f j) :=
+/-
+Note this lemma requires a distributive lattice, so is not useful (or true) in situations such as
+submodules.
+-/
+theorem partialSups_disjoint_of_disjoint
+    (f : ι → α) (h : Pairwise (Disjoint on f)) {i j : ι} (hij : i < j)
+    : Disjoint (partialSups f i) (f j) :=
   disjoint_partialSups_left.2 fun _ hk ↦ h (hk.trans_lt hij).ne
 
 end DistribLattice
@@ -218,34 +212,38 @@ These lemmas require some completeness assumptions on the target space.
 -/
 variable [Preorder ι] [LocallyFiniteOrderBot ι]
 
-theorem partialSups_eq_ciSup_Iic [ConditionallyCompleteLattice α] (f : ι → α) (i : ι) :
-    partialSups f i = ⨆ i : Set.Iic i, f i := by
+theorem partialSups_eq_ciSup_Iic [ConditionallyCompleteLattice α] (f : ι → α) (i : ι)
+    : partialSups f i = ⨆ i : Set.Iic i, f i := by
   simp only [partialSups_apply]
   apply le_antisymm
-  · exact sup'_le _ _ fun j hj ↦ Finite.le_ciSup_of_le
-      ⟨j, by simpa only [Set.mem_Iic, mem_Iic] using hj⟩ le_rfl
+  · exact sup'_le _ _ fun j hj ↦
+      Finite.le_ciSup_of_le ⟨j, by simpa only [Set.mem_Iic, mem_Iic] using hj⟩ le_rfl
   · exact ciSup_le fun ⟨j, hj⟩ ↦ le_sup' f (by simpa only [mem_Iic, Set.mem_Iic] using hj)
 
 @[simp]
-theorem ciSup_partialSups_eq [ConditionallyCompleteLattice α]
-    {f : ι → α} (h : BddAbove (Set.range f)) :
-    ⨆ i, partialSups f i = ⨆ i, f i := by
+theorem ciSup_partialSups_eq
+    [ConditionallyCompleteLattice α] {f : ι → α} (h : BddAbove (Set.range f))
+    : ⨆ i, partialSups f i = ⨆ i, f i := by
   by_cases hι : Nonempty ι
   · refine (ciSup_le fun i ↦ ?_).antisymm (ciSup_mono ?_ <| le_partialSups f)
     · simpa only [partialSups_eq_ciSup_Iic] using ciSup_le fun i ↦ le_ciSup h _
     · rwa [bddAbove_range_partialSups]
   · exact congr_arg _ (funext (not_nonempty_iff.mp hι).elim)
 
-/-- Version of `ciSup_partialSups_eq` without boundedness assumptions, but requiring a
-`ConditionallyCompleteLinearOrder` rather than just a `ConditionallyCompleteLattice`. -/
+/--
+Version of `ciSup_partialSups_eq` without boundedness assumptions, but requiring a
+`ConditionallyCompleteLinearOrder` rather than just a `ConditionallyCompleteLattice`.
+-/
 @[simp]
-theorem ciSup_partialSups_eq' [ConditionallyCompleteLinearOrder α] (f : ι → α) :
-    ⨆ i, partialSups f i = ⨆ i, f i := by
+theorem ciSup_partialSups_eq' [ConditionallyCompleteLinearOrder α] (f : ι → α)
+    : ⨆ i, partialSups f i = ⨆ i, f i := by
   by_cases h : BddAbove (Set.range f)
   · exact ciSup_partialSups_eq h
-  · rw [iSup, iSup, ConditionallyCompleteLinearOrder.csSup_of_not_bddAbove _ h,
+  · rw [
+      iSup, iSup, ConditionallyCompleteLinearOrder.csSup_of_not_bddAbove _ h,
       ConditionallyCompleteLinearOrder.csSup_of_not_bddAbove _
-        (bddAbove_range_partialSups.not.mpr h)]
+        (bddAbove_range_partialSups.not.mpr h)
+    ]
 
 end ConditionallyCompleteLattice
 
@@ -253,23 +251,23 @@ section CompleteLattice
 
 variable [Preorder ι] [LocallyFiniteOrderBot ι] [CompleteLattice α]
 
-/-- Version of `ciSup_partialSups_eq` without boundedness assumptions, but requiring a
-`CompleteLattice` rather than just a `ConditionallyCompleteLattice`. -/
-theorem iSup_partialSups_eq (f : ι → α) :
-    ⨆ i, partialSups f i = ⨆ i, f i :=
+/--
+Version of `ciSup_partialSups_eq` without boundedness assumptions, but requiring a
+`CompleteLattice` rather than just a `ConditionallyCompleteLattice`.
+-/
+theorem iSup_partialSups_eq (f : ι → α) : ⨆ i, partialSups f i = ⨆ i, f i :=
   ciSup_partialSups_eq <| OrderTop.bddAbove _
 
-theorem partialSups_eq_biSup (f : ι → α) (i : ι) :
-    partialSups f i = ⨆ j ≤ i, f j := by
+theorem partialSups_eq_biSup (f : ι → α) (i : ι) : partialSups f i = ⨆ j ≤ i, f j := by
   simpa only [iSup_subtype] using! partialSups_eq_ciSup_Iic f i
 
-theorem iSup_le_iSup_of_partialSups_le_partialSups {f g : ι → α}
-    (h : partialSups f ≤ partialSups g) : ⨆ i, f i ≤ ⨆ i, g i := by
+theorem iSup_le_iSup_of_partialSups_le_partialSups {f g : ι → α} (h : partialSups f ≤ partialSups g)
+    : ⨆ i, f i ≤ ⨆ i, g i := by
   rw [← iSup_partialSups_eq f, ← iSup_partialSups_eq g]
   exact iSup_mono h
 
-theorem iSup_eq_iSup_of_partialSups_eq_partialSups {f g : ι → α}
-    (h : partialSups f = partialSups g) : ⨆ i, f i = ⨆ i, g i := by
+theorem iSup_eq_iSup_of_partialSups_eq_partialSups {f g : ι → α} (h : partialSups f = partialSups g)
+    : ⨆ i, f i = ⨆ i, g i := by
   simp_rw [← iSup_partialSups_eq f, ← iSup_partialSups_eq g, h]
 
 end CompleteLattice
@@ -296,8 +294,7 @@ section LinearOrder
 
 variable [Preorder ι] [LocallyFiniteOrderBot ι] [LinearOrder α]
 
-theorem exists_partialSups_eq (f : ι → α) (i : ι) :
-    ∃ j ≤ i, partialSups f i = f j := by
+theorem exists_partialSups_eq (f : ι → α) (i : ι) : ∃ j ≤ i, partialSups f i = f j := by
   obtain ⟨j, hj_mem, hj_le⟩ : ∃ j ∈ Finset.Iic i, ∀ k ∈ Finset.Iic i, f k ≤ f j :=
     Finset.exists_max_image _ _ ⟨i, Finset.mem_Iic.mpr le_rfl⟩
   simp only [Finset.mem_Iic] at hj_mem hj_le

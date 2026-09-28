@@ -46,13 +46,14 @@ set_option backward.isDefEq.respectTransparency false in
 open TensorProduct in
 -- Note: This is weaker than stacks#02LN but is enough to proof Zariski's main.
 -- TODO: generalize this.
-theorem exists_etale_isCompl_of_quasiFiniteAt [IsSeparated f]
-    {x : X} {s : S} (h : f x = s) (hx : f.QuasiFiniteAt x) :
-    ∃ (U : Scheme) (g : U ⟶ S), Etale g ∧ s ∈ Set.range g ∧
-    ∃ (V W : (pullback f g).Opens) (v : V), IsCompl V W ∧ IsFinite (V.ι ≫ pullback.snd f g) ∧
-      pullback.fst f g v.1 = x := by
-  obtain ⟨_, ⟨U, hU, rfl⟩, hxU, -⟩ := S.isBasis_affineOpens.exists_subset_of_mem_open
-    (Set.mem_univ (f x)) isOpen_univ
+theorem exists_etale_isCompl_of_quasiFiniteAt
+    [IsSeparated f] {x : X} {s : S} (h : f x = s) (hx : f.QuasiFiniteAt x)
+    : ∃ (U : Scheme) (g : U ⟶ S),
+      Etale g ∧ s ∈ Set.range g
+        ∧ ∃ (V W : (pullback f g).Opens) (v : V),
+          IsCompl V W ∧ IsFinite (V.ι ≫ pullback.snd f g) ∧ pullback.fst f g v.1 = x := by
+  obtain ⟨_, ⟨U, hU, rfl⟩, hxU, -⟩ :=
+    S.isBasis_affineOpens.exists_subset_of_mem_open (Set.mem_univ (f x)) isOpen_univ
   obtain ⟨_, ⟨V, hV, rfl⟩, hxV, hUV : V ≤ f ⁻¹ᵁ U⟩ :=
     X.isBasis_affineOpens.exists_subset_of_mem_open hxU (f ⁻¹ᵁ U).2
   have : (f.appLE U V hUV).hom.FiniteType := f.finiteType_appLE hU hV hUV
@@ -62,22 +63,25 @@ theorem exists_etale_isCompl_of_quasiFiniteAt [IsSeparated f]
       ⟨congr(($this).1)⟩
     apply hU.isoSpec.inv.homeomorph.injective
     apply Subtype.ext
-    simp only [IsAffineOpen.primeIdealOf, Scheme.Hom.homeomorph_apply,
-      ← Scheme.Hom.comp_apply, ← Scheme.Opens.ι_apply, IsAffineOpen.isoSpec_hom]
+    simp only [
+      IsAffineOpen.primeIdealOf, Scheme.Hom.homeomorph_apply, ← Scheme.Hom.comp_apply,
+      ← Scheme.Opens.ι_apply, IsAffineOpen.isoSpec_hom
+    ]
     simp
-  have : Algebra.QuasiFiniteAt Γ(S, U) (hV.primeIdealOf ⟨x, hxV⟩).asIdeal :=
+  have : Algebra.QuasiFiniteAt (Γ(S, U)) (hV.primeIdealOf ⟨x, hxV⟩).asIdeal :=
     hx.quasiFiniteAt hV hU hUV hxV
   obtain ⟨R, _, _, _, P, _, _, e, _, P', _, _, hP', heP', -, _, -⟩ :=
-    Algebra.exists_etale_isIdempotentElem_forall_liesOver_eq
-    (hU.primeIdealOf ⟨f x, hxU⟩).asIdeal (hV.primeIdealOf ⟨x, hxV⟩).asIdeal
+    Algebra.exists_etale_isIdempotentElem_forall_liesOver_eq (hU.primeIdealOf ⟨f x, hxU⟩).asIdeal
+      (hV.primeIdealOf ⟨x, hxV⟩).asIdeal
   have : (algebraMap R (Localization.Away e)).Finite := RingHom.finite_algebraMap.mpr ‹_›
-  let φ : Γ(S, U) ⟶ ↧R := CommRingCat.ofHom <| algebraMap Γ(S, U) R
+  let φ : Γ(S, U) ⟶ ↧R := CommRingCat.ofHom <| algebraMap (Γ(S, U)) R
   have hφ : φ.hom.Etale := RingHom.etale_algebraMap.mpr ‹_›
   have : Etale (Spec.map φ) := HasRingHomProperty.Spec_iff.mpr hφ
   let e₁ : Spec ↧(R ⊗ Γ(X, V)) ≅ pullback (Spec.map (f.appLE U V hUV)) (Spec.map φ) :=
     (pullbackSpecIso _ _ _).symm ≪≫ pullbackSymmetry _ _
-  have he₁ : e₁.hom ≫ pullback.fst _ _ =
-      Spec.map (CommRingCat.ofHom Algebra.TensorProduct.includeRight.toRingHom) := by
+  have he₁
+      : e₁.hom ≫ pullback.fst _ _
+        = Spec.map (CommRingCat.ofHom Algebra.TensorProduct.includeRight.toRingHom) := by
     dsimp [e₁, RingHom.algebraMap_toAlgebra]
     rw [Category.assoc, pullbackSymmetry_hom_comp_fst]
     exact pullbackSpecIso_inv_snd ..
@@ -92,17 +96,31 @@ theorem exists_etale_isCompl_of_quasiFiniteAt [IsSeparated f]
       simp only [Scheme.Hom.opensRange_comp, ι, W₁]
       congr 1
       exact TopologicalSpace.Opens.ext <| PrimeSpectrum.localization_away_comap_range _ _
-    rw [← this, ← MorphismProperty.cancel_left_of_respectsIso @IsFinite
-      (Scheme.Hom.isoOpensRange _).hom]
+    rw [
+      ← this,
+      ← MorphismProperty.cancel_left_of_respectsIso @IsFinite (Scheme.Hom.isoOpensRange _).hom
+    ]
     have H : (pullbackSpecIso _ R _).inv ≫ pullback.fst _ (Spec.map (f.appLE U V hUV)) = _ :=
       pullbackSpecIso_inv_fst ..
-    simpa [Scheme.Hom.isoOpensRange, ι, g, e₁, RingHom.algebraMap_toAlgebra, φ, H,
-      ← Spec.map_comp, IsFinite.SpecMap_iff]
+    simpa [
+      Scheme.Hom.isoOpensRange, ι, g, e₁, RingHom.algebraMap_toAlgebra, φ, H, ← Spec.map_comp,
+      IsFinite.SpecMap_iff
+    ]
   have : IsFinite W₁.ι := .of_comp _ (pullback.snd f _)
   let W₂ : (pullback f (Spec.map φ ≫ hU.fromSpec)).Opens :=
     ⟨W₁ᶜ, by simpa using W₁.ι.isClosedMap.isClosed_range⟩
-  refine ⟨Spec ↧R, Spec.map φ ≫ hU.fromSpec, inferInstance,
-    ⟨⟨P, ‹_›⟩, ?_⟩, W₁, W₂, ⟨g ⟨P', ‹_›⟩, ?_⟩, ?_, ‹_›, ?_⟩
+  refine ⟨
+    Spec ↧R,
+    Spec.map φ ≫ hU.fromSpec,
+    inferInstance,
+    ⟨⟨P, ‹_›⟩, ?_⟩,
+    W₁,
+    W₂,
+    ⟨g ⟨P', ‹_›⟩, ?_⟩,
+    ?_,
+    ‹_›,
+    ?_
+  ⟩
   · dsimp [Spec.map_apply]
     convert! hU.fromSpec_primeIdealOf ⟨f x, hxU⟩
     · exact PrimeSpectrum.ext (Ideal.over_def _ _).symm
@@ -321,8 +339,8 @@ variable {f} in
 lemma Scheme.Hom.mem_quasiFiniteLocus [LocallyOfFiniteType f]
     {x : X} : x ∈ f.quasiFiniteLocus ↔ f.QuasiFiniteAt x := .rfl
 
-instance [LocallyOfFiniteType f] [IsSeparated f] [QuasiCompact f] :
-    IsOpenImmersion (f.quasiFiniteLocus.ι ≫ f.toNormalization) := by
+instance [LocallyOfFiniteType f] [IsSeparated f] [QuasiCompact f]
+    : IsOpenImmersion (f.quasiFiniteLocus.ι ≫ f.toNormalization) := by
   obtain ⟨U, hU, e⟩ := Scheme.Hom.exists_isIso_morphismRestrict_toNormalization f
   convert!
     (inferInstance :
@@ -350,13 +368,14 @@ lemma Scheme.Hom.quasiFiniteLocus_eq_top_iff [LocallyOfFiniteType f] :
   rw [← (f.fiberHomeo _).symm.isOpen_image, Set.image_singleton]
   exact (H.ge (Set.mem_univ a)).isClopen_singleton_asFiber.isOpen
 
-instance [LocallyOfFiniteType f] :
-    LocallyQuasiFinite (f.quasiFiniteLocus.ι ≫ f) := by
-  rw [← Scheme.Hom.quasiFiniteLocus_eq_top_iff, Scheme.Hom.quasiFiniteLocus_comp,
-    Scheme.Opens.ι_preimage_self]
+instance [LocallyOfFiniteType f] : LocallyQuasiFinite (f.quasiFiniteLocus.ι ≫ f) := by
+  rw [
+    ← Scheme.Hom.quasiFiniteLocus_eq_top_iff, Scheme.Hom.quasiFiniteLocus_comp,
+    Scheme.Opens.ι_preimage_self
+  ]
 
-instance [LocallyQuasiFinite f] [LocallyOfFiniteType f] [IsSeparated f] [QuasiCompact f] :
-    IsOpenImmersion f.toNormalization := by
+instance [LocallyQuasiFinite f] [LocallyOfFiniteType f] [IsSeparated f] [QuasiCompact f]
+    : IsOpenImmersion f.toNormalization := by
   convert!
     (inferInstance :
       IsOpenImmersion

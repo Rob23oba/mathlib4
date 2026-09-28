@@ -64,8 +64,10 @@ variable {X : Type*} {T : X → X} {U V : SetRel X X} {m n : ℕ} {F s : Set X} 
 
 /-! ### Dynamical nets -/
 
-/-- Given a subset `F`, an entourage `U` and an integer `n`, a subset `s` of `F` is a
-`(U, n)`-dynamical net of `F` if no two orbits of length `n` of points in `s` shadow each other. -/
+/--
+Given a subset `F`, an entourage `U` and an integer `n`, a subset `s` of `F` is a
+`(U, n)`-dynamical net of `F` if no two orbits of length `n` of points in `s` shadow each other.
+-/
 def IsDynNetIn (T : X → X) (F : Set X) (U : SetRel X X) (n : ℕ) (s : Set X) : Prop :=
   s ⊆ F ∧ s.PairwiseDisjoint fun x : X ↦ ball x (dynEntourage T U n)
 
@@ -97,8 +99,10 @@ lemma IsDynNetIn.card_le_card_of_isDynCoverOf {s t : Finset X}
 
 /-! ### Maximal cardinality of dynamical nets -/
 
-/-- The largest cardinality of a `(U, n)`-dynamical net of `F`. Takes values in `ℕ∞`, and is
-infinite if and only if `F` admits nets of arbitrarily large size. -/
+/--
+The largest cardinality of a `(U, n)`-dynamical net of `F`. Takes values in `ℕ∞`, and is
+infinite if and only if `F` admits nets of arbitrarily large size.
+-/
 noncomputable def netMaxcard (T : X → X) (F : Set X) (U : SetRel X X) (n : ℕ) : ℕ∞ :=
   ⨆ (s : Finset X) (_ : IsDynNetIn T F U n s), (s.card : ℕ∞)
 
@@ -247,15 +251,19 @@ lemma coverMincard_le_netMaxcard (T : X → X) (F : Set X) [U.IsRefl] [U.IsSymm]
 
 open ENNReal EReal ExpGrowth Filter
 
-/-- The entropy of an entourage `U`, defined as the exponential rate of growth of the size of the
+/--
+The entropy of an entourage `U`, defined as the exponential rate of growth of the size of the
 largest `(U, n)`-dynamical net of `F`. Takes values in the space of extended real numbers
-`[-∞,+∞]`. This version uses a `limsup`, and is chosen as the default definition. -/
+`[-∞,+∞]`. This version uses a `limsup`, and is chosen as the default definition.
+-/
 noncomputable def netEntropyEntourage (T : X → X) (F : Set X) (U : SetRel X X) :=
   expGrowthSup fun n : ℕ ↦ netMaxcard T F U n
 
-/-- The entropy of an entourage `U`, defined as the exponential rate of growth of the size of the
+/--
+The entropy of an entourage `U`, defined as the exponential rate of growth of the size of the
 largest `(U, n)`-dynamical net of `F`. Takes values in the space of extended real numbers
-`[-∞,+∞]`. This version uses a `liminf`, and is an alternative definition. -/
+`[-∞,+∞]`. This version uses a `liminf`, and is an alternative definition.
+-/
 noncomputable def netEntropyInfEntourage (T : X → X) (F : Set X) (U : SetRel X X) :=
   expGrowthInf fun n : ℕ ↦ netMaxcard T F U n
 
@@ -325,12 +333,14 @@ lemma coverEntropyEntourage_le_netEntropyEntourage (T : X → X) (F : Set X) [U.
 
 variable [UniformSpace X] (T : X → X) (F : Set X)
 
-/-- Bowen-Dinaburg's definition of topological entropy using nets is
-  `⨆ U ∈ 𝓤 X, netEntropyEntourage T F U`. This quantity is the same as the topological entropy using
-  covers, so there is no need to define a new notion of topological entropy. This version of the
-  theorem relates the `liminf` versions of topological entropy. -/
-theorem coverEntropyInf_eq_iSup_netEntropyInfEntourage :
-    coverEntropyInf T F = ⨆ U ∈ 𝓤 X, netEntropyInfEntourage T F U := by
+/--
+Bowen-Dinaburg's definition of topological entropy using nets is
+`⨆ U ∈ 𝓤 X, netEntropyEntourage T F U`. This quantity is the same as the topological entropy using
+covers, so there is no need to define a new notion of topological entropy. This version of the
+theorem relates the `liminf` versions of topological entropy.
+-/
+theorem coverEntropyInf_eq_iSup_netEntropyInfEntourage
+    : coverEntropyInf T F = ⨆ U ∈ 𝓤 X, netEntropyInfEntourage T F U := by
   apply le_antisymm <;> refine iSup₂_le fun U U_uni ↦ ?_
   · obtain ⟨V, V_uni, V_symm, V_U⟩ := comp_symm_mem_uniformity_sets U_uni
     have := isRefl_of_mem_uniformity V_uni
@@ -340,12 +350,14 @@ theorem coverEntropyInf_eq_iSup_netEntropyInfEntourage :
     apply (le_iSup₂ (SetRel.symmetrize U) (symmetrize_mem_uniformity U_uni)).trans'
     exact netEntropyInfEntourage_le_coverEntropyInfEntourage T F
 
-/-- Bowen-Dinaburg's definition of topological entropy using nets is
-  `⨆ U ∈ 𝓤 X, netEntropyEntourage T F U`. This quantity is the same as the topological entropy using
-  covers, so there is no need to define a new notion of topological entropy. This version of the
-  theorem relates the `limsup` versions of topological entropy. -/
-theorem coverEntropy_eq_iSup_netEntropyEntourage :
-    coverEntropy T F = ⨆ U ∈ 𝓤 X, netEntropyEntourage T F U := by
+/--
+Bowen-Dinaburg's definition of topological entropy using nets is
+`⨆ U ∈ 𝓤 X, netEntropyEntourage T F U`. This quantity is the same as the topological entropy using
+covers, so there is no need to define a new notion of topological entropy. This version of the
+theorem relates the `limsup` versions of topological entropy.
+-/
+theorem coverEntropy_eq_iSup_netEntropyEntourage
+    : coverEntropy T F = ⨆ U ∈ 𝓤 X, netEntropyEntourage T F U := by
   apply le_antisymm <;> refine iSup₂_le fun U U_uni ↦ ?_
   · obtain ⟨V, V_uni, V_symm, V_comp_U⟩ := comp_symm_mem_uniformity_sets U_uni
     apply (coverEntropyEntourage_antitone T F V_comp_U).trans (le_iSup₂_of_le V V_uni _)

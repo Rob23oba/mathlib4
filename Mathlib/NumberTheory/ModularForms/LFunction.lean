@@ -20,14 +20,18 @@ open UpperHalfPlane hiding I
 open scoped Real
 open Filter Complex Asymptotics
 
-variable {Γ : Subgroup (GL (Fin 2) ℝ)} [Γ.IsArithmetic]
-  {k : ℤ} (hk : 0 < k) {F : Type*} [FunLike F ℍ ℂ] (f : F) {s : ℂ}
+variable
+  {Γ : Subgroup (GL (Fin 2) ℝ)} [Γ.IsArithmetic]
+  {k : ℤ} (hk : 0 < k)
+  {F : Type*} [FunLike F ℍ ℂ]
+  (f : F)
+  {s : ℂ}
 
 local notation "h" => Subgroup.strictWidthInfty
 
 open ConjAct Pointwise in
-private local instance :
-    Subgroup.IsArithmetic (toConjAct (ModularGroup.S : GL (Fin 2) ℝ)⁻¹ • Γ) := by
+private local instance
+    : Subgroup.IsArithmetic (toConjAct (ModularGroup.S : GL (Fin 2) ℝ)⁻¹ • Γ) := by
   convert Subgroup.IsArithmetic.conj Γ ↑(ModularGroup.S⁻¹)
   simp only [ModularGroup.S_inv, ← map_inv]
   ext i j
@@ -58,7 +62,8 @@ private lemma isBigO_comp_ofComplex_I_mul_sub_valueAtInfty (r : ℝ) :
 end asymptotics
 
 /-- A `WeakFEPair` structure associated to a modular form. -/
-@[simps] noncomputable def weakFEPair : WeakFEPair ℂ where
+@[simps]
+noncomputable def weakFEPair : WeakFEPair ℂ where
   f t := f (ofComplex (I * t))
   g t := translate f ModularGroup.S (ofComplex (I * t))
   k := k
@@ -71,12 +76,14 @@ end asymptotics
   hg_int := ContinuousOn.locallyIntegrableOn (by fun_prop) measurableSet_Ioi
   h_feq t (ht : 0 < t) := by
     rw [coe_translate, slash_def]
-    suffices f (ofComplex (I * t⁻¹)) = I ^ k * t ^ k *
-        (f ((ModularGroup.S : GL (Fin 2) ℝ) • ofComplex (I * t)) * ofComplex (I * t) ^ (-k)) by
-      simpa [σ, denom]
-    rw [ofComplex_apply_of_im_pos (by simpa), ofComplex_apply_of_im_pos (by simpa),
-      mul_comm (f _), ← mul_assoc, ← mul_zpow, zpow_neg,
-      mul_inv_cancel₀ (zpow_ne_zero _ (by aesop))]
+    suffices f (ofComplex (I * t⁻¹))
+      = I ^ k * t ^ k
+        * (f ((ModularGroup.S : GL (Fin 2) ℝ) • ofComplex (I * t)) * ofComplex (I * t) ^ (-k))
+    by simpa [σ, denom]
+    rw [
+      ofComplex_apply_of_im_pos (by simpa), ofComplex_apply_of_im_pos (by simpa), mul_comm (f _),
+      ← mul_assoc, ← mul_zpow, zpow_neg, mul_inv_cancel₀ (zpow_ne_zero _ (by aesop))
+    ]
     simp only [one_mul]
     congr 1
     ext
@@ -131,7 +138,7 @@ lemma hasSum_Λ (hs : k + 1 < s.re) :
   · simpa using ModularFormClass.qExpansion_isBigO hk.le f
 
 /-- The `L`-series of a modular form (without its Archimedean `Γ`-factor). -/
-noncomputable def L (s : ℂ) : ℂ :=  Λ hk f s * (2 / Gammaℂ s)
+noncomputable def L (s : ℂ) : ℂ := Λ hk f s * (2 / Gammaℂ s)
 
 /-- Shared conversion from the completed `Λ`-series to the ordinary `L`-series. -/
 private lemma hasSum_L_of_hasSum_Λ (hs : 0 < s.re)
@@ -154,8 +161,8 @@ private lemma hasSum_L_of_hasSum_Λ (hs : 0 < s.re)
     field_simp
   · grind [L]
 
-theorem hasSum_L (hs : k + 1 < s.re) :
-    HasSum (fun n ↦ (qExpansion (h Γ) f).coeff n / n ^ s) (h Γ ^ (-s) * L hk f s) :=
+theorem hasSum_L (hs : k + 1 < s.re)
+    : HasSum (fun n ↦ (qExpansion (h Γ) f).coeff n / n ^ s) (h Γ ^ (-s) * L hk f s) :=
   hasSum_L_of_hasSum_Λ hk f (by linarith [show (0 : ℝ) < k from mod_cast hk]) (hasSum_Λ hk f hs)
 
 end ModularForm
@@ -192,8 +199,8 @@ lemma differentiable_L : Differentiable ℂ (L hk f) := by
   simp only [div_eq_mul_inv]
   fun_prop
 
-theorem hasSum_L (hs : k / 2 + 1 < s.re) :
-    HasSum (fun n ↦ (qExpansion (h Γ) f).coeff n / n ^ s) (h Γ ^ (-s) * L hk f s) :=
+theorem hasSum_L (hs : k / 2 + 1 < s.re)
+    : HasSum (fun n ↦ (qExpansion (h Γ) f).coeff n / n ^ s) (h Γ ^ (-s) * L hk f s) :=
   hasSum_L_of_hasSum_Λ hk f (by linarith [show (0 : ℝ) < k from mod_cast hk]) (hasSum_Λ f hk hs)
 
 end CuspForm

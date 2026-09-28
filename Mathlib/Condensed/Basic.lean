@@ -41,8 +41,7 @@ universe u v w
 `Condensed.{u} C` is the category of condensed objects in a category `C`, which are
 defined as sheaves on `CompHaus.{u}` with respect to the coherent Grothendieck topology.
 -/
-abbrev Condensed (C : Type w) [Category.{v} C] :=
-  Sheaf (coherentTopology CompHaus.{u}) C
+abbrev Condensed (C : Type w) [Category.{v} C] := Sheaf (coherentTopology CompHaus.{u}) C
 
 /--
 Condensed sets (types) with the appropriate universe levels, i.e. `Type (u + 1)`-valued

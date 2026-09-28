@@ -48,7 +48,7 @@ sets of `X`, and whose arrows are basic open sets `D(f) ⟶ U` for any `f : Γ(X
 Note that this differs from the definition on stacks project where the arrows in the small affine
 Zariski site are arbitrary inclusions.
 -/
-def Scheme.AffineZariskiSite (X : Scheme.{u}) : Type u := { U : X.Opens // IsAffineOpen U }
+def Scheme.AffineZariskiSite (X : Scheme.{u}) : Type u := {U : X.Opens // IsAffineOpen U}
 
 namespace Scheme.AffineZariskiSite
 
@@ -73,7 +73,8 @@ instance : PartialOrder X.AffineZariskiSite where
   le_antisymm _ _ hUV hVU := Subtype.ext ((toOpens_mono hUV).antisymm (toOpens_mono hVU))
 
 /-- The basic open set of a section, as an element of `AffineZariskiSite`. -/
-@[simps] def basicOpen (U : X.AffineZariskiSite) (f : Γ(X, U.toOpens)) : X.AffineZariskiSite :=
+@[simps]
+def basicOpen (U : X.AffineZariskiSite) (f : Γ(X, U.toOpens)) : X.AffineZariskiSite :=
   ⟨X.basicOpen f, U.2.basicOpen f⟩
 
 lemma basicOpen_le (U : X.AffineZariskiSite) (f : Γ(X, U.toOpens)) : U.basicOpen f ≤ U :=
@@ -89,9 +90,11 @@ instance : (toOpensFunctor X).Faithful where
 variable (X) in
 /-- The forgetful functor from `X.AffineZariskiSite` to `Scheme` is isomorphic to `Spec Γ(X, -)`. -/
 @[simps! hom_app inv_app]
-def restrictIsoSpec : toOpensFunctor X ⋙ X.restrictFunctor ⋙ Over.forget _ ≅
-    toOpensFunctor X ⋙ X.presheaf.rightOp ⋙ Scheme.Spec :=
-  NatIso.ofComponents (fun U ↦ U.2.isoSpec)
+def restrictIsoSpec
+    : toOpensFunctor X ⋙ X.restrictFunctor ⋙ Over.forget _
+      ≅ toOpensFunctor X ⋙ X.presheaf.rightOp ⋙ Scheme.Spec :=
+  NatIso.ofComponents
+    (fun U ↦ U.2.isoSpec)
     fun _ ↦ (Scheme.Opens.toSpecΓ_SpecMap_presheaf_map ..).symm
 
 section GrothendieckTopology
@@ -100,9 +103,18 @@ instance : (toOpensFunctor X).IsLocallyFull (Opens.grothendieckTopology X) where
   functorPushforward_imageSieve_mem := by
     intro U V h x hx
     obtain ⟨f, hfU, hxf⟩ := V.2.exists_basicOpen_le ⟨x, hx⟩ (h.le hx)
-    exact ⟨X.basicOpen f, homOfLE hfU, ⟨V.basicOpen f,
-      ⟨_, (X.basicOpen_res f h.op).trans (inf_eq_right.mpr hfU)⟩, 𝟙 _,
-      ⟨⟨f, rfl⟩, rfl⟩, rfl⟩, hxf⟩
+    exact ⟨
+      X.basicOpen f,
+      homOfLE hfU,
+      ⟨
+        V.basicOpen f,
+        ⟨_, (X.basicOpen_res f h.op).trans (inf_eq_right.mpr hfU)⟩,
+        𝟙 _,
+        ⟨⟨f, rfl⟩, rfl⟩,
+        rfl
+      ⟩,
+      hxf
+    ⟩
 
 instance : (toOpensFunctor X).IsCoverDense (Opens.grothendieckTopology X) where
   is_cover := by
@@ -111,8 +123,10 @@ instance : (toOpensFunctor X).IsCoverDense (Opens.grothendieckTopology X) where
     exact ⟨V, homOfLE hVU, ⟨⟨V, hV⟩, 𝟙 _, homOfLE hVU, rfl⟩, hxV⟩
 
 variable (X) in
-/-- The Grothendieck topology on `X.AffineZariskiSite` induced from the topology on `X.Opens`.
-Also see `mem_grothendieckTopology_iff_sectionsOfPresieve`. -/
+/--
+The Grothendieck topology on `X.AffineZariskiSite` induced from the topology on `X.Opens`.
+Also see `mem_grothendieckTopology_iff_sectionsOfPresieve`.
+-/
 def grothendieckTopology : GrothendieckTopology X.AffineZariskiSite :=
   (toOpensFunctor X).inducedTopology (Opens.grothendieckTopology X)
 
@@ -126,14 +140,17 @@ lemma mem_grothendieckTopology {U : X.AffineZariskiSite} {S : Sieve U} :
   · rintro ⟨W, g, hg, hxW⟩
     exact ⟨W.toOpens, homOfLE (toOpens_mono g.le), ⟨W, g, 𝟙 _, hg, rfl⟩, hxW⟩
 
-instance : (toOpensFunctor X).IsDenseSubsite
-    (grothendieckTopology X) (Opens.grothendieckTopology X) where
+instance
+    : (toOpensFunctor X).IsDenseSubsite (grothendieckTopology X)
+      (Opens.grothendieckTopology X) where
   functorPushforward_mem_iff := by simp [grothendieckTopology]
 
-/-- The presieve associated to a set of sections.
-This is a surjection, see `presieveOfSections_surjective`. -/
-def presieveOfSections (U : X.AffineZariskiSite) (s : Set Γ(X, U.toOpens)) : Presieve U :=
-  fun V _ ↦ ∃ f ∈ s, X.basicOpen f = V.toOpens
+/--
+The presieve associated to a set of sections.
+This is a surjection, see `presieveOfSections_surjective`.
+-/
+def presieveOfSections (U : X.AffineZariskiSite) (s : Set Γ(X, U.toOpens)) : Presieve U := fun V _ ↦
+  ∃ f ∈ s, X.basicOpen f = V.toOpens
 
 /-- The set of sections associated to a presieve. -/
 def sectionsOfPresieve {U : X.AffineZariskiSite} (P : Presieve U) : Set Γ(X, U.toOpens) :=
@@ -199,26 +216,31 @@ lemma mem_grothendieckTopology_iff_sectionsOfPresieve
 variable {A} [Category* A]
 variable [∀ (U : X.Opensᵒᵖ), Limits.HasLimitsOfShape (StructuredArrow U (toOpensFunctor X).op) A]
 
-/-- The category of sheaves on `X.AffineZariskiSite` is equivalent to the categories of sheaves
-over `X`. -/
+/--
+The category of sheaves on `X.AffineZariskiSite` is equivalent to the categories of sheaves
+over `X`.
+-/
 abbrev sheafEquiv : Sheaf (grothendieckTopology X) A ≌ TopCat.Sheaf A X :=
-    (toOpensFunctor X).sheafInducedTopologyEquivOfIsCoverDense _ _
+  (toOpensFunctor X).sheafInducedTopologyEquivOfIsCoverDense _ _
 
 end GrothendieckTopology
 
 variable (X) in
-/-- The directed cover of a scheme indexed by `X.AffineZariskiSite`.
+/--
+The directed cover of a scheme indexed by `X.AffineZariskiSite`.
 Note the related `Scheme.directedAffineCover`, which has the same (defeq) cover but a different
-category instance on the indices. -/
-@[simps] abbrev directedCover : X.OpenCover where
+category instance on the indices.
+-/
+@[simps]
+abbrev directedCover : X.OpenCover where
   I₀ := X.AffineZariskiSite
   X U := U.1
   f U := U.1.ι
   mem₀ := by
     rw [presieve₀_mem_precoverage_iff]
     refine ⟨fun x ↦ ?_, inferInstance⟩
-    obtain ⟨U, hxU⟩ := TopologicalSpace.Opens.mem_iSup.mp
-      ((iSup_affineOpens_eq_top X).ge (Set.mem_univ x))
+    obtain ⟨U, hxU⟩ :=
+      TopologicalSpace.Opens.mem_iSup.mp ((iSup_affineOpens_eq_top X).ge (Set.mem_univ x))
     exact ⟨U, ⟨x, hxU⟩, rfl⟩
 
 set_option backward.isDefEq.respectTransparency false in
@@ -229,8 +251,13 @@ noncomputable instance : (Scheme.AffineZariskiSite.directedCover X).LocallyDirec
     have haU : a ∈ U.1 := (pullback.fst U.1.ι V.1.ι x).2
     have haV : a ∈ V.1 := by unfold a; rw [pullback.condition]; exact (pullback.snd U.1.ι V.1.ι x).2
     obtain ⟨f, g, e, hxf⟩ := exists_basicOpen_le_affine_inter U.2 V.2 _ ⟨haU, haV⟩
-    refine ⟨U.basicOpen f, homOfLE (U.basicOpen_le f), eqToHom (Subtype.ext (by exact e)) ≫
-      homOfLE (V.basicOpen_le g), ⟨a, hxf⟩, ?_⟩
+    refine ⟨
+      U.basicOpen f,
+      homOfLE (U.basicOpen_le f),
+      eqToHom (Subtype.ext (by exact e)) ≫ homOfLE (V.basicOpen_le g),
+      ⟨a, hxf⟩,
+      ?_
+    ⟩
     apply (pullback.fst _ _ ≫ U.1.ι).isOpenEmbedding.injective
     dsimp
     change (pullback.lift _ _ _ ≫ pullback.fst _ _ ≫ U.1.ι) _ = _
@@ -259,8 +286,8 @@ set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 variable (X) in
 /-- `X` is the colimit of its affine opens. See `isColimit_cocone` below. -/
-@[simps] noncomputable def cocone :
-    Limits.Cocone (toOpensFunctor X ⋙ X.presheaf.rightOp ⋙ Scheme.Spec) where
+@[simps]
+noncomputable def cocone : Limits.Cocone (toOpensFunctor X ⋙ X.presheaf.rightOp ⋙ Scheme.Spec) where
   pt := X
   ι.app U := U.2.fromSpec
   ι.naturality {U V} f := by dsimp; rw [V.2.map_fromSpec U.2]; simp
@@ -293,10 +320,10 @@ lemma coequifibered_iff_forall_isLocalizationAway {F : X.AffineZariskiSiteᵒᵖ
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The relative gluing data associated to a quasi-coherent `𝒪ₓ` algebra. -/
-def relativeGluingData {F : X.AffineZariskiSiteᵒᵖ ⥤ CommRingCat}
-    {α : (AffineZariskiSite.toOpensFunctor X).op ⋙ X.presheaf ⟶ F}
-    (H : α.Coequifibered) :
-    (AffineZariskiSite.directedCover X).RelativeGluingData where
+def relativeGluingData
+    {F : X.AffineZariskiSiteᵒᵖ ⥤ CommRingCat}
+    {α : (AffineZariskiSite.toOpensFunctor X).op ⋙ X.presheaf ⟶ F} (H : α.Coequifibered)
+    : (AffineZariskiSite.directedCover X).RelativeGluingData where
   functor := F.rightOp ⋙ Scheme.Spec
   natTrans := Functor.whiskerRight α.rightOp Scheme.Spec ≫ (restrictIsoSpec X).inv
   equifibered := (H.rightOp.whiskerRight _).comp (.of_isIso _)
@@ -322,19 +349,24 @@ noncomputable def isColimitCocone : IsColimit (cocone X) :=
   -- It does fire if one adds `(C := no_index(_))` to the composition in the instance.
   haveI : (D.functor ⋙ forget).IsLocallyDirected :=
     Cover.RelativeGluingData.instIsLocallyDirectedI₀CompFunctorForgetOfIsThin ..
-  haveI : IsIso ((colimit.isColimit F).desc (cocone X:)) := by
+  haveI : IsIso ((colimit.isColimit F).desc (cocone X :)) := by
     refine (IsZariskiLocalAtTarget.iff_of_openCover (P := .isomorphisms _)
-      (X.openCoverOfIsOpenCover _ (iSup_affineOpens_eq_top X))).mpr fun U ↦ ?_
+        (X.openCoverOfIsOpenCover _ (iSup_affineOpens_eq_top X))).mpr
+      fun U ↦ ?_
     change IsIso (pullback.snd (colimit.desc F (cocone X)) U.1.ι)
-    let e := IsOpenImmersion.isoOfRangeEq (pullback.fst (colimit.desc F (cocone X)) U.1.ι)
-      (U.2.isoSpec.hom ≫ colimit.ι F U) <| by
-      rw [Pullback.range_fst, Opens.range_ι, ← Hom.coe_opensRange, Hom.opensRange_comp_of_isIso,
-        ← Scheme.Hom.coe_preimage]
-      convert! congr($(D.toBase_preimage_eq_opensRange_ι U).1)
-      · delta cocone
-        congr with U
-        simp [D, relativeGluingData, restrictIsoSpec]
-      · simp
+    let e :=
+      IsOpenImmersion.isoOfRangeEq (pullback.fst (colimit.desc F (cocone X)) U.1.ι)
+          (U.2.isoSpec.hom ≫ colimit.ι F U) <|
+        by
+          rw [
+            Pullback.range_fst, Opens.range_ι, ← Hom.coe_opensRange, Hom.opensRange_comp_of_isIso,
+            ← Scheme.Hom.coe_preimage
+          ]
+          convert! congr($(D.toBase_preimage_eq_opensRange_ι U).1)
+          · delta cocone
+            congr with U
+            simp [D, relativeGluingData, restrictIsoSpec]
+          · simp
     convert! (inferInstance : IsIso e.hom)
     rw [← cancel_mono U.1.ι, ← Iso.inv_comp_eq]
     simp [e, ← pullback.condition, IsAffineOpen.isoSpec_hom]

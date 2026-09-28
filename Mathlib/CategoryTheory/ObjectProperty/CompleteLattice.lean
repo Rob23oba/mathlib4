@@ -54,12 +54,12 @@ lemma isoClosure_sup : (P ⊔ Q).isoClosure = P.isoClosure ⊔ Q.isoClosure := b
     · exact monotone_isoClosure le_sup_left _ hY
     · exact monotone_isoClosure le_sup_right _ hY
 
-instance [P.IsClosedUnderIsomorphisms] [Q.IsClosedUnderIsomorphisms] :
-    (P ⊔ Q).IsClosedUnderIsomorphisms := by
+instance [P.IsClosedUnderIsomorphisms] [Q.IsClosedUnderIsomorphisms]
+    : (P ⊔ Q).IsClosedUnderIsomorphisms := by
   simp only [isClosedUnderIsomorphisms_iff_isoClosure_eq_self, isoClosure_sup, isoClosure_eq_self]
 
-instance [P.IsClosedUnderIsomorphisms] [Q.IsClosedUnderIsomorphisms] :
-    IsClosedUnderIsomorphisms (P ⊓ Q) where
+instance [P.IsClosedUnderIsomorphisms] [Q.IsClosedUnderIsomorphisms]
+    : IsClosedUnderIsomorphisms (P ⊓ Q) where
   of_iso e h := ⟨IsClosedUnderIsomorphisms.of_iso e h.1, IsClosedUnderIsomorphisms.of_iso e h.2⟩
 
 instance : IsClosedUnderIsomorphisms (⊥ : ObjectProperty C) where
@@ -92,13 +92,10 @@ lemma isoClosure_iSup :
     rw [isoClosure_le_iff]
     exact (le_iSup P a).trans (le_isoClosure _)
 
-instance [∀ a, (P a).IsClosedUnderIsomorphisms] :
-    ((⨆ (a : α), P a)).IsClosedUnderIsomorphisms := by
-  simp only [isClosedUnderIsomorphisms_iff_isoClosure_eq_self,
-    isoClosure_iSup, isoClosure_eq_self]
+instance [∀ a, (P a).IsClosedUnderIsomorphisms] : ((⨆ (a : α), P a)).IsClosedUnderIsomorphisms := by
+  simp only [isClosedUnderIsomorphisms_iff_isoClosure_eq_self, isoClosure_iSup, isoClosure_eq_self]
 
-instance [∀ a, (P a).IsClosedUnderIsomorphisms] :
-    ((⨅ (a : α), P a)).IsClosedUnderIsomorphisms where
+instance [∀ a, (P a).IsClosedUnderIsomorphisms] : ((⨅ (a : α), P a)).IsClosedUnderIsomorphisms where
   of_iso e h := by
     simp only [iInf_apply, iInf_Prop_eq] at h ⊢
     intro a

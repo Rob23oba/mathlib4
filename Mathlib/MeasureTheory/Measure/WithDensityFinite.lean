@@ -51,13 +51,14 @@ noncomputable def Measure.toFiniteAux (μ : Measure α) [SFinite μ] : Measure �
   letI := Classical.dec
   if IsFiniteMeasure μ then μ else (exists_isFiniteMeasure_absolutelyContinuous μ).choose
 
-/-- A finite measure obtained from an s-finite measure `μ`, such that
+/--
+A finite measure obtained from an s-finite measure `μ`, such that
 `μ = μ.toFinite.withDensity (μ.rnDeriv μ.toFinite)`
 (see `MeasureTheory.Measure.withDensity_rnDeriv_eq` along with
 `MeasureTheory.absolutelyContinuous_toFinite`). If `μ` is non-zero, then `μ.toFinite` is a
-probability measure. -/
-noncomputable def Measure.toFinite (μ : Measure α) [SFinite μ] : Measure α :=
-  μ.toFiniteAux[|univ]
+probability measure.
+-/
+noncomputable def Measure.toFinite (μ : Measure α) [SFinite μ] : Measure α := μ.toFiniteAux[|univ]
 
 @[local simp]
 lemma ae_toFiniteAux [SFinite μ] : ae μ.toFiniteAux = ae μ := by

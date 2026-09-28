@@ -117,11 +117,14 @@ theorem biUnion_lt_closedBall (x : α) (r : ℝ) : ⋃ r' < r, closedBall x r' =
 
 end Metric
 
-theorem lebesgue_number_lemma_of_metric {s : Set α} {ι : Sort*} {c : ι → Set α} (hs : IsCompact s)
-    (hc₁ : ∀ i, IsOpen (c i)) (hc₂ : s ⊆ ⋃ i, c i) : ∃ δ > 0, ∀ x ∈ s, ∃ i, ball x δ ⊆ c i := by
-  simpa only [ball, UniformSpace.ball, preimage_ofPred_eq, dist_comm]
-    using uniformity_basis_dist.lebesgue_number_lemma hs hc₁ hc₂
+theorem lebesgue_number_lemma_of_metric
+    {s : Set α} {ι : Sort*} {c : ι → Set α}
+    (hs : IsCompact s) (hc₁ : ∀ i, IsOpen (c i)) (hc₂ : s ⊆ ⋃ i, c i)
+    : ∃ δ > 0, ∀ x ∈ s, ∃ i, ball x δ ⊆ c i := by
+  simpa only [ball, UniformSpace.ball, preimage_ofPred_eq, dist_comm] using
+    uniformity_basis_dist.lebesgue_number_lemma hs hc₁ hc₂
 
-theorem lebesgue_number_lemma_of_metric_sUnion {s : Set α} {c : Set (Set α)} (hs : IsCompact s)
-    (hc₁ : ∀ t ∈ c, IsOpen t) (hc₂ : s ⊆ ⋃₀ c) : ∃ δ > 0, ∀ x ∈ s, ∃ t ∈ c, ball x δ ⊆ t := by
+theorem lebesgue_number_lemma_of_metric_sUnion
+    {s : Set α} {c : Set (Set α)} (hs : IsCompact s) (hc₁ : ∀ t ∈ c, IsOpen t) (hc₂ : s ⊆ ⋃₀c)
+    : ∃ δ > 0, ∀ x ∈ s, ∃ t ∈ c, ball x δ ⊆ t := by
   rw [sUnion_eq_iUnion] at hc₂; simpa using lebesgue_number_lemma_of_metric hs (by simpa) hc₂

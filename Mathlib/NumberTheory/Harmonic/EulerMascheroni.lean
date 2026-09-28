@@ -77,10 +77,11 @@ end LowerSequence
 
 section UpperSequence
 
-/-- The sequence with `n`-th term `harmonic n - log n`. We use a junk value for `n = 0`, in order
-to have the sequence be strictly decreasing. -/
-noncomputable def eulerMascheroniSeq' (n : ℕ) : ℝ :=
-  if n = 0 then 2 else ↑(harmonic n) - log n
+/--
+The sequence with `n`-th term `harmonic n - log n`. We use a junk value for `n = 0`, in order
+to have the sequence be strictly decreasing.
+-/
+noncomputable def eulerMascheroniSeq' (n : ℕ) : ℝ := if n = 0 then 2 else ↑(harmonic n) - log n
 
 lemma eulerMascheroniSeq'_one : eulerMascheroniSeq' 1 = 1 := by
   simp [eulerMascheroniSeq']

@@ -33,8 +33,9 @@ open Topology QuotientGroup
 
 namespace MonoidHom
 
-variable {G H G' H' : Type*} [Group G'] [Group H'] [Group G] [Group H] {f : G →* H} {g : G' →* H'}
-  [TopologicalSpace G] [TopologicalSpace H]
+variable
+  {G H G' H' : Type*} [Group G'] [Group H'] [Group G] [Group H]
+  {f : G →* H} {g : G' →* H'} [TopologicalSpace G] [TopologicalSpace H]
 
 /-- A group homomorphism is strict if and only if its `QuotientGroup.kerLift` is an embedding. -/
 @[to_additive /-- An additive group homomorphism is strict if and only if its
@@ -59,12 +60,14 @@ protected lemma isStrictMap_iff_isHomeomorph_quotientKerEquivRange :
     (isQuotientMap_mk _).isStrictMap_iff, IsEmbedding.subtypeVal.isStrictMap_iff]
   rfl
 
-/-- The isomorphism of topological groups `G ⧸ f.ker ≃ f.range` given by a strict group
-homomorphism `f`. This is an avatar of the first isomorphism theorem. -/
+/--
+The isomorphism of topological groups `G ⧸ f.ker ≃ f.range` given by a strict group
+homomorphism `f`. This is an avatar of the first isomorphism theorem.
+-/
 @[to_additive /-- The isomorphism of topological additive groups `G ⧸ f.ker ≃ f.range` given by a
 strict additive group homomorphism `f`. This is an avatar of the first isomorphism theorem. -/]
-noncomputable def _root_.ContinuousMulEquiv.quotientKerEquivRange
-    (hf : IsStrictMap f) : G ⧸ f.ker ≃ₜ* f.range where
+noncomputable def _root_.ContinuousMulEquiv.quotientKerEquivRange (hf : IsStrictMap f)
+    : G ⧸ f.ker ≃ₜ* f.range where
   toMulEquiv := QuotientGroup.quotientKerEquivRange f
   __ := (f.isStrictMap_iff_isHomeomorph_quotientKerEquivRange.mp hf).homeomorph
 

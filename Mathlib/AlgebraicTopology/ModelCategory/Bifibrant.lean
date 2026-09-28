@@ -32,10 +32,12 @@ section Cofibrant
 variable [CategoryWithCofibrations C] [HasInitial C]
 
 variable (C) in
-/-- The property that is satisfied by cofibrant objects.
+/--
+The property that is satisfied by cofibrant objects.
 (This is only introduced in order to consider the full subcategory
 `CofibrantObject`. Otherwise, the typeclass `IsCofibrant`
-is preferred.) -/
+is preferred.)
+-/
 def cofibrantObjects : ObjectProperty C := IsCofibrant
 
 variable (C) in
@@ -45,15 +47,14 @@ abbrev CofibrantObject : Type u := (cofibrantObjects C).FullSubcategory
 namespace CofibrantObject
 
 /-- Constructor for `CofibrantObject C`. -/
-abbrev mk (X : C) [IsCofibrant X] : CofibrantObject C :=
-  ⟨X, by assumption⟩
+abbrev mk (X : C) [IsCofibrant X] : CofibrantObject C := ⟨X, by assumption⟩
 
 lemma mk_surjective (X : CofibrantObject C) :
     ∃ (Y : C) (_ : IsCofibrant Y), X = mk Y := ⟨X.obj, X.property, rfl⟩
 
 /-- Constructor for morphisms in `CofibrantObject C`. -/
-abbrev homMk {X Y : C} [IsCofibrant X] [IsCofibrant Y] (f : X ⟶ Y) :
-    mk X ⟶ mk Y := ObjectProperty.homMk f
+abbrev homMk {X Y : C} [IsCofibrant X] [IsCofibrant Y] (f : X ⟶ Y) : mk X ⟶ mk Y :=
+  ObjectProperty.homMk f
 
 lemma homMk_surjective {X Y : C} [IsCofibrant X] [IsCofibrant Y]
     (f : mk X ⟶ mk Y) :
@@ -89,10 +90,12 @@ section Fibrant
 variable [CategoryWithFibrations C] [HasTerminal C]
 
 variable (C) in
-/-- The property that is satisfied by fibrant objects.
+/--
+The property that is satisfied by fibrant objects.
 (This is only introduced in order to consider the full subcategory
 `FibrantObject`. Otherwise, the typeclass `IsFibrant`
-is preferred.) -/
+is preferred.)
+-/
 def fibrantObjects : ObjectProperty C := fun X ↦ IsFibrant X
 
 variable (C) in
@@ -102,15 +105,14 @@ abbrev FibrantObject : Type u := (fibrantObjects C).FullSubcategory
 namespace FibrantObject
 
 /-- Constructor for `FibrantObject C`. -/
-abbrev mk (X : C) [IsFibrant X] : FibrantObject C :=
-  ⟨X, by assumption⟩
+abbrev mk (X : C) [IsFibrant X] : FibrantObject C := ⟨X, by assumption⟩
 
 lemma mk_surjective (X : FibrantObject C) :
     ∃ (Y : C) (_ : IsFibrant Y), X = mk Y := ⟨X.obj, X.property, rfl⟩
 
 /-- Constructor for morphisms in `FibrantObject C`. -/
-abbrev homMk {X Y : C} [IsFibrant X] [IsFibrant Y] (f : X ⟶ Y) :
-    mk X ⟶ mk Y := ObjectProperty.homMk f
+abbrev homMk {X Y : C} [IsFibrant X] [IsFibrant Y] (f : X ⟶ Y) : mk X ⟶ mk Y :=
+  ObjectProperty.homMk f
 
 lemma homMk_surjective {X Y : C} [IsFibrant X] [IsFibrant Y]
     (f : mk X ⟶ mk Y) :
@@ -143,17 +145,17 @@ end Fibrant
 
 section Bifibrant
 
-variable [CategoryWithCofibrations C] [HasInitial C]
-  [CategoryWithFibrations C] [HasTerminal C]
+variable [CategoryWithCofibrations C] [HasInitial C] [CategoryWithFibrations C] [HasTerminal C]
 
 variable (C) in
-/-- The property that is satisfied by bifibrant objects, i.e. objects
+/--
+The property that is satisfied by bifibrant objects, i.e. objects
 that are both cofibrant and fibrant.
 (This is only introduced in order to consider the full subcategory
 `BifibrantObject`. Otherwise, the typeclasses `IsCofibrant` and
-`IsFibrant` are preferred.) -/
-def bifibrantObjects : ObjectProperty C :=
-  cofibrantObjects C ⊓ fibrantObjects C
+`IsFibrant` are preferred.)
+-/
+def bifibrantObjects : ObjectProperty C := cofibrantObjects C ⊓ fibrantObjects C
 
 variable (C) in
 lemma bifibrantObjects_le_cofibrantObject :
@@ -172,8 +174,7 @@ abbrev BifibrantObject : Type u := (bifibrantObjects C).FullSubcategory
 namespace BifibrantObject
 
 /-- Constructor for `BifibrantObject C`. -/
-abbrev mk (X : C) [IsCofibrant X] [IsFibrant X] :
-    BifibrantObject C :=
+abbrev mk (X : C) [IsCofibrant X] [IsFibrant X] : BifibrantObject C :=
   ⟨X, by assumption, by assumption⟩
 
 lemma mk_surjective (X : BifibrantObject C) :
@@ -181,9 +182,9 @@ lemma mk_surjective (X : BifibrantObject C) :
   ⟨X.obj, X.property.1, X.property.2, rfl⟩
 
 /-- Constructor for morphisms in `BifibrantObject C`. -/
-abbrev homMk {X Y : C} [IsCofibrant X] [IsCofibrant Y]
-    [IsFibrant X] [IsFibrant Y] (f : X ⟶ Y) :
-    mk X ⟶ mk Y := ObjectProperty.homMk f
+abbrev homMk {X Y : C} [IsCofibrant X] [IsCofibrant Y] [IsFibrant X] [IsFibrant Y] (f : X ⟶ Y)
+    : mk X ⟶ mk Y :=
+  ObjectProperty.homMk f
 
 lemma homMk_surjective {X Y : C} [IsCofibrant X] [IsCofibrant Y]
     [IsFibrant X] [IsFibrant Y]

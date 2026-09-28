@@ -25,16 +25,19 @@ sections are `C^n`.
 
 @[expose] public section
 
-
 open Bundle Filter Function
 
 open scoped Bundle Manifold ContDiff
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {E : Type*} [NormedAddCommGroup E]
-  [NormedSpace 𝕜 E] {H : Type*} [TopologicalSpace H] (I : ModelWithCorners 𝕜 E H)
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  {H : Type*} [TopologicalSpace H]
+  (I : ModelWithCorners 𝕜 E H)
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
-variable (F : Type*) [NormedAddCommGroup F] [NormedSpace 𝕜 F]
+variable
+  (F : Type*) [NormedAddCommGroup F] [NormedSpace 𝕜 F]
   -- `F` model fiber
   (n : ℕ∞ω)
   (V : M → Type*) [TopologicalSpace (TotalSpace F V)]
@@ -285,8 +288,10 @@ lemma ContMDiff.finsum_section_of_locallyFinite (ht : LocallyFinite fun i ↦ {x
 
 end operations
 
-/-- Bundled `n` times continuously differentiable sections of a vector bundle.
-Denoted as `Cₛ^n⟮I; F, V⟯` within the `Manifold` namespace. -/
+/--
+Bundled `n` times continuously differentiable sections of a vector bundle.
+Denoted as `Cₛ^n⟮I; F, V⟯` within the `Manifold` namespace.
+-/
 structure ContMDiffSection where
   /-- the underlying function of this section -/
   protected toFun : ∀ x, V x
@@ -300,63 +305,44 @@ namespace ContMDiffSection
 variable {I} {n} {F} {V}
 
 @[macro_inline]
-instance : DFunLike Cₛ^n⟮I; F, V⟯ M V where
+instance : DFunLike (Cₛ^n⟮I; F, V⟯) M V where
   coe := ContMDiffSection.toFun
   coe_injective := by rintro ⟨⟩ ⟨⟩ h; congr
 
 variable {s t : Cₛ^n⟮I; F, V⟯}
 
-@[simp]
-theorem coeFn_mk (s : ∀ x, V x) (hs : CMDiff n (T% s)) : (mk s hs : ∀ x, V x) = s := rfl
+@[simp] theorem coeFn_mk (s : ∀ x, V x) (hs : CMDiff n (T% s)) : (mk s hs : ∀ x, V x) = s := rfl
 
-protected theorem contMDiff (s : Cₛ^n⟮I; F, V⟯) : CMDiff n (T% fun x ↦ s x) :=
-  s.contMDiff_toFun
+protected theorem contMDiff (s : Cₛ^n⟮I; F, V⟯) : CMDiff n (T% fun x ↦ s x) := s.contMDiff_toFun
 
-theorem coe_inj ⦃s t : Cₛ^n⟮I; F, V⟯⦄ (h : (s : ∀ x, V x) = t) : s = t :=
-  DFunLike.ext' h
+theorem coe_inj ⦃s t : Cₛ^n⟮I; F, V⟯⦄ (h : (s : ∀ x, V x) = t) : s = t := DFunLike.ext' h
 
-theorem coe_injective : Injective ((↑) : Cₛ^n⟮I; F, V⟯ → ∀ x, V x) :=
-  coe_inj
+theorem coe_injective : Injective ((↑) : Cₛ^n⟮I; F, V⟯ → ∀ x, V x) := coe_inj
 
-@[ext]
-theorem ext (h : ∀ x, s x = t x) : s = t := DFunLike.ext _ _ h
+@[ext] theorem ext (h : ∀ x, s x = t x) : s = t := DFunLike.ext _ _ h
 
 section
 variable [∀ x, AddCommGroup (V x)] [∀ x, Module 𝕜 (V x)] [VectorBundle 𝕜 F V]
 
-instance instAdd : Add Cₛ^n⟮I; F, V⟯ :=
-  ⟨fun s t ↦ ⟨s + t, s.contMDiff.add_section t.contMDiff⟩⟩
+instance instAdd : Add Cₛ^n⟮I; F, V⟯ := ⟨fun s t ↦ ⟨s + t, s.contMDiff.add_section t.contMDiff⟩⟩
 
-@[simp]
-theorem coe_add (s t : Cₛ^n⟮I; F, V⟯) : ⇑(s + t) = ⇑s + t :=
-  rfl
+@[simp] theorem coe_add (s t : Cₛ^n⟮I; F, V⟯) : ⇑(s + t) = ⇑s + t := rfl
 
-instance instSub : Sub Cₛ^n⟮I; F, V⟯ :=
-  ⟨fun s t ↦ ⟨s - t, s.contMDiff.sub_section t.contMDiff⟩⟩
+instance instSub : Sub Cₛ^n⟮I; F, V⟯ := ⟨fun s t ↦ ⟨s - t, s.contMDiff.sub_section t.contMDiff⟩⟩
 
-@[simp]
-theorem coe_sub (s t : Cₛ^n⟮I; F, V⟯) : ⇑(s - t) = s - t :=
-  rfl
+@[simp] theorem coe_sub (s t : Cₛ^n⟮I; F, V⟯) : ⇑(s - t) = s - t := rfl
 
-instance instZero : Zero Cₛ^n⟮I; F, V⟯ :=
-  ⟨⟨fun _ => 0, (contMDiff_zeroSection 𝕜 V).of_le le_top⟩⟩
+instance instZero : Zero Cₛ^n⟮I; F, V⟯ := ⟨⟨fun _ => 0, (contMDiff_zeroSection 𝕜 V).of_le le_top⟩⟩
 
-instance inhabited : Inhabited Cₛ^n⟮I; F, V⟯ :=
-  ⟨0⟩
+instance inhabited : Inhabited Cₛ^n⟮I; F, V⟯ := ⟨0⟩
 
-@[simp]
-theorem coe_zero : ⇑(0 : Cₛ^n⟮I; F, V⟯) = 0 :=
-  rfl
+@[simp] theorem coe_zero : ⇑(0 : Cₛ^n⟮I; F, V⟯) = 0 := rfl
 
-instance instNeg : Neg Cₛ^n⟮I; F, V⟯ :=
-  ⟨fun s ↦ ⟨-s, s.contMDiff.neg_section⟩⟩
+instance instNeg : Neg Cₛ^n⟮I; F, V⟯ := ⟨fun s ↦ ⟨-s, s.contMDiff.neg_section⟩⟩
 
-@[simp]
-theorem coe_neg (s : Cₛ^n⟮I; F, V⟯) : ⇑(-s : Cₛ^n⟮I; F, V⟯) = -s :=
-  rfl
+@[simp] theorem coe_neg (s : Cₛ^n⟮I; F, V⟯) : ⇑(-s : Cₛ^n⟮I; F, V⟯) = -s := rfl
 
-instance instNSMul : SMul ℕ Cₛ^n⟮I; F, V⟯ :=
-  ⟨nsmulRec⟩
+instance instNSMul : SMul ℕ Cₛ^n⟮I; F, V⟯ := ⟨nsmulRec⟩
 
 @[simp]
 theorem coe_nsmul (s : Cₛ^n⟮I; F, V⟯) (k : ℕ) : ⇑(k • s : Cₛ^n⟮I; F, V⟯) = k • ⇑s := by
@@ -364,8 +350,7 @@ theorem coe_nsmul (s : Cₛ^n⟮I; F, V⟯) (k : ℕ) : ⇑(k • s : Cₛ^n⟮I
   | zero => simp_rw [zero_smul]; rfl
   | succ k ih => simp_rw [succ_nsmul, ← ih]; rfl
 
-instance instZSMul : SMul ℤ Cₛ^n⟮I; F, V⟯ :=
-  ⟨zsmulRec⟩
+instance instZSMul : SMul ℤ Cₛ^n⟮I; F, V⟯ := ⟨zsmulRec⟩
 
 @[simp]
 theorem coe_zsmul (s : Cₛ^n⟮I; F, V⟯) (z : ℤ) : ⇑(z • s : Cₛ^n⟮I; F, V⟯) = z • ⇑s := by
@@ -378,12 +363,9 @@ theorem coe_zsmul (s : Cₛ^n⟮I; F, V⟯) (z : ℤ) : ⇑(z • s : Cₛ^n⟮I
 instance instAddCommGroup : AddCommGroup Cₛ^n⟮I; F, V⟯ :=
   coe_injective.addCommGroup _ coe_zero coe_add coe_neg coe_sub coe_nsmul coe_zsmul
 
-instance instSMul : SMul 𝕜 Cₛ^n⟮I; F, V⟯ :=
-  ⟨fun c s ↦ ⟨c • ⇑s, s.contMDiff.const_smul_section⟩⟩
+instance instSMul : SMul 𝕜 Cₛ^n⟮I; F, V⟯ := ⟨fun c s ↦ ⟨c • ⇑s, s.contMDiff.const_smul_section⟩⟩
 
-@[simp]
-theorem coe_smul (r : 𝕜) (s : Cₛ^n⟮I; F, V⟯) : ⇑(r • s : Cₛ^n⟮I; F, V⟯) = r • ⇑s :=
-  rfl
+@[simp] theorem coe_smul (r : 𝕜) (s : Cₛ^n⟮I; F, V⟯) : ⇑(r • s : Cₛ^n⟮I; F, V⟯) = r • ⇑s := rfl
 
 variable (I F V n) in
 /-- The additive morphism from `C^n` sections to dependent maps. -/
@@ -392,11 +374,9 @@ def coeAddHom : Cₛ^n⟮I; F, V⟯ →+ ∀ x, V x where
   map_zero' := coe_zero
   map_add' := coe_add
 
-@[simp]
-theorem coeAddHom_apply (s : Cₛ^n⟮I; F, V⟯) : coeAddHom I F n V s = s := rfl
+@[simp] theorem coeAddHom_apply (s : Cₛ^n⟮I; F, V⟯) : coeAddHom I F n V s = s := rfl
 
-instance instModule : Module 𝕜 Cₛ^n⟮I; F, V⟯ :=
-  coe_injective.module 𝕜 (coeAddHom I F n V) coe_smul
+instance instModule : Module 𝕜 Cₛ^n⟮I; F, V⟯ := coe_injective.module 𝕜 (coeAddHom I F n V) coe_smul
 
 end
 

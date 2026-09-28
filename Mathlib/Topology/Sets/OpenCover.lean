@@ -24,11 +24,10 @@ open scoped Topology
 namespace TopologicalSpace
 
 /-- An indexed family of open sets whose union is `X`. -/
-def IsOpenCover {ι X : Type*} [TopologicalSpace X] (u : ι → Opens X) : Prop :=
-  iSup u = ⊤
+def IsOpenCover {ι X : Type*} [TopologicalSpace X] (u : ι → Opens X) : Prop := iSup u = ⊤
 
-variable {ι κ X Y : Type*} [TopologicalSpace X] {u : ι → Opens X}
-  [TopologicalSpace Y] {v : κ → Opens Y}
+variable
+  {ι κ X Y : Type*} [TopologicalSpace X] {u : ι → Opens X} [TopologicalSpace Y] {v : κ → Opens Y}
 
 namespace IsOpenCover
 
@@ -95,13 +94,16 @@ section Irreducible
 
 open TopologicalSpace Function
 
-/-- (Pre)Irreducibility of an open set can be checked on a cover by opens
-with pairwise non-empty intersections. -/
-theorem IsPreirreducible.of_subset_iUnion {X ι : Type*} [TopologicalSpace X]
-    {U : ι → Opens X} (hn : Pairwise ((¬ Disjoint · ·) on U))
-    (h : ∀ i, IsPreirreducible ((U i) : Set X))
-    {s : Set X} (hs : IsOpen s) (hsU : s ⊆ ⋃ i, U i) :
-    IsPreirreducible s := by
+/--
+(Pre)Irreducibility of an open set can be checked on a cover by opens
+with pairwise non-empty intersections.
+-/
+theorem IsPreirreducible.of_subset_iUnion
+    {X ι : Type*} [TopologicalSpace X]
+    {U : ι → Opens X}
+    (hn : Pairwise ((¬ Disjoint · ·) on U)) (h : ∀ i, IsPreirreducible ((U i) : Set X))
+    {s : Set X} (hs : IsOpen s) (hsU : s ⊆ ⋃ i, U i)
+    : IsPreirreducible s := by
   rcases s.eq_empty_or_nonempty with he | hne
   · rw [he]; exact isPreirreducible_empty
   · choose x hx using hne
@@ -115,17 +117,18 @@ theorem IsPreirreducible.of_subset_iUnion {X ι : Type*} [TopologicalSpace X]
       rcases not_subset.mp huniv with ⟨a, ⟨ha₁, ha₂⟩⟩
       choose j haj using mem_iUnion.mp <| hsU ha₁
       have hji : j ≠ i := fun hji' ↦ ha₂ <| hUu <| hji' ▸ haj
-      rcases inter_nonempty_iff_exists_left.mp
-        ((h j) (U i) uᶜ (U i).isOpen huo
-        (not_disjoint_iff_nonempty_inter.mp (by simpa using hn hji)) ⟨a, ⟨haj, ha₂⟩⟩).right
+      rcases inter_nonempty_iff_exists_left.mp ((h j) (U i) uᶜ (U i).isOpen huo
+          (not_disjoint_iff_nonempty_inter.mp (by simpa using hn hji)) ⟨a, ⟨haj, ha₂⟩⟩).right
         with ⟨x, hx₁, hx₂⟩
-      exfalso; exact hx₂ <| hUu hx₁
+      exfalso
+      exact hx₂ <| hUu hx₁
 
 /-- (Pre)Irreducibility can be checked on an open cover with pairwise non-empty intersections. -/
-theorem PreirreducibleSpace.of_isOpenCover {X ι : Type*} [TopologicalSpace X]
+theorem PreirreducibleSpace.of_isOpenCover
+    {X ι : Type*} [TopologicalSpace X]
     {U : ι → Opens X} (hn : Pairwise ((¬ Disjoint · ·) on U)) (hU : IsOpenCover U)
-    (h : ∀ i, PreirreducibleSpace (U i)) :
-    PreirreducibleSpace X :=
+    (h : ∀ i, PreirreducibleSpace (U i))
+    : PreirreducibleSpace X :=
   have h' (i : _) : IsPreirreducible (U i).carrier := IsPreirreducible.of_subtype
   ⟨IsPreirreducible.of_subset_iUnion hn h' isOpen_univ (by simpa using hU.iSup_set_eq_univ)⟩
 

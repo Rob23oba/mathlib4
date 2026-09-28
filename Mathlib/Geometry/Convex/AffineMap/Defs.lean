@@ -17,7 +17,8 @@ space under pointwise convex combinations.
 @[expose] public section
 
 namespace Convexity
-variable {R S X Y Z I : Type*} [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [Semiring S]
+variable
+  {R S X Y Z I : Type*} [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [Semiring S]
   [PartialOrder S] [IsStrictOrderedRing S] [ConvexSpace R X] [ConvexSpace R Y] [ConvexSpace S Y]
   [ConvexSpace R Z] [ConvexSpace S Z] [IsConvexCombComm S R Y]
 
@@ -35,10 +36,11 @@ protected lemma IsAffineMap.iConvexComb {f : I → X → Y} (hf : ∀ i, IsAffin
 
 namespace ConvexSpace.AffineMap
 
-noncomputable instance instConvexSpace : ConvexSpace S (ConvexSpace.AffineMap R X Y) := .mk
-  (sConvexComb := fun w ↦ ⟨fun x ↦ w.iConvexComb (· x), by fun_prop⟩)
-  (single := fun f ↦ by ext; simp)
-  (assoc := fun W ↦ by ext; simp [iConvexComb_assoc])
+noncomputable instance instConvexSpace : ConvexSpace S (ConvexSpace.AffineMap R X Y) :=
+  .mk
+    (sConvexComb := fun w ↦ ⟨fun x ↦ w.iConvexComb (· x), by fun_prop⟩)
+    (single := fun f ↦ by ext; simp)
+    (assoc := fun W ↦ by ext; simp [iConvexComb_assoc])
 
 @[simp]
 lemma sConvexComb_apply (w : StdSimplex S (ConvexSpace.AffineMap R X Y)) (x : X) :

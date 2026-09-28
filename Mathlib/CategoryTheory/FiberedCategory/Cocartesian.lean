@@ -49,16 +49,19 @@ section
 
 variable {R S : 𝒮} {a b : 𝒳} (f : R ⟶ S) (φ : a ⟶ b)
 
-/-- A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is co-Cartesian if for all
+/--
+A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is co-Cartesian if for all
 morphisms `φ' : a ⟶ b'`, also lying over `f`, there exists a unique morphism `χ : b ⟶ b'` lifting
-`𝟙 S` such that `φ' = φ ≫ χ`. -/
+`𝟙 S` such that `φ' = φ ≫ χ`.
+-/
 class IsCocartesian : Prop where
   [toIsHomLift : IsHomLift p f φ]
-  universal_property {b' : 𝒳} (φ' : a ⟶ b') [IsHomLift p f φ'] :
-      ∃! χ : b ⟶ b', IsHomLift p (𝟙 S) χ ∧ φ ≫ χ = φ'
+  universal_property {b' : 𝒳} (φ' : a ⟶ b') [IsHomLift p f φ']
+    : ∃! χ : b ⟶ b', IsHomLift p (𝟙 S) χ ∧ φ ≫ χ = φ'
 
 attribute [instance] IsCocartesian.toIsHomLift
-/-- A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is strongly co-Cartesian if for
+/--
+A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is strongly co-Cartesian if for
 all morphisms `φ' : a ⟶ b'` and all diagrams of the form
 ```
 a --φ--> b        b'
@@ -66,12 +69,13 @@ a --φ--> b        b'
 v        v        v
 R --f--> S --g--> S'
 ```
-such that `φ'` lifts `f ≫ g`, there exists a lift `χ` of `g` such that `φ' = χ ≫ φ`. -/
+such that `φ'` lifts `f ≫ g`, there exists a lift `χ` of `g` such that `φ' = χ ≫ φ`.
+-/
 @[stacks 02XK]
 class IsStronglyCocartesian : Prop where
   [toIsHomLift : IsHomLift p f φ]
-  universal_property' {b' : 𝒳} (g : S ⟶ p.obj b') (φ' : a ⟶ b') [IsHomLift p (f ≫ g) φ'] :
-      ∃! χ : b ⟶ b', IsHomLift p g χ ∧ φ ≫ χ = φ'
+  universal_property' {b' : 𝒳} (g : S ⟶ p.obj b') (φ' : a ⟶ b') [IsHomLift p (f ≫ g) φ']
+    : ∃! χ : b ⟶ b', IsHomLift p g χ ∧ φ ≫ χ = φ'
 attribute [instance] IsStronglyCocartesian.toIsHomLift
 
 end
@@ -84,9 +88,11 @@ section
 
 variable {b' : 𝒳} (φ' : a ⟶ b') [IsHomLift p f φ']
 
-/-- Given a co-Cartesian morphism `φ : a ⟶ b` lying over `f : R ⟶ S` in `𝒳`, and another morphism
+/--
+Given a co-Cartesian morphism `φ : a ⟶ b` lying over `f : R ⟶ S` in `𝒳`, and another morphism
 `φ' : a ⟶ b'` which also lifts `f`, then `IsCocartesian.map f φ φ'` is the morphism `b ⟶ b'` lying
-over `𝟙 S` obtained from the universal property of `φ`. -/
+over `𝟙 S` obtained from the universal property of `φ`.
+-/
 protected noncomputable def map : b ⟶ b' :=
   Classical.choose <| IsCocartesian.universal_property (p := p) (f := f) (φ := φ) φ'
 
@@ -119,10 +125,11 @@ lemma map_self : IsCocartesian.map p f φ φ = 𝟙 b := by
   apply map_uniq
   simp only [comp_id]
 
-/-- The canonical isomorphism between the codomains of two co-Cartesian morphisms
-lying over the same object. -/
-noncomputable def codomainUniqueUpToIso {b' : 𝒳} (φ' : a ⟶ b') [IsCocartesian p f φ'] :
-    b ≅ b' where
+/--
+The canonical isomorphism between the codomains of two co-Cartesian morphisms
+lying over the same object.
+-/
+noncomputable def codomainUniqueUpToIso {b' : 𝒳} (φ' : a ⟶ b') [IsCocartesian p f φ'] : b ≅ b' where
   hom := IsCocartesian.map p f φ φ'
   inv := IsCocartesian.map p f φ' φ
   hom_inv_id := by
@@ -134,10 +141,12 @@ noncomputable def codomainUniqueUpToIso {b' : 𝒳} (φ' : a ⟶ b') [IsCocartes
     apply IsCocartesian.ext p (p.map φ') φ'
     simp only [fac_assoc, fac, comp_id]
 
-/-- Postcomposing a co-Cartesian morphism with an isomorphism lifting the identity is
-co-Cartesian. -/
-instance of_comp_iso {b' : 𝒳} (φ' : b ≅ b') [IsHomLift p (𝟙 S) φ'.hom] :
-    IsCocartesian p f (φ ≫ φ'.hom) where
+/--
+Postcomposing a co-Cartesian morphism with an isomorphism lifting the identity is
+co-Cartesian.
+-/
+instance of_comp_iso {b' : 𝒳} (φ' : b ≅ b') [IsHomLift p (𝟙 S) φ'.hom]
+    : IsCocartesian p f (φ ≫ φ'.hom) where
   universal_property := by
     intro c ψ hψ
     use φ'.inv ≫ IsCocartesian.map p f φ ψ
@@ -147,10 +156,12 @@ instance of_comp_iso {b' : 𝒳} (φ' : b ≅ b') [IsHomLift p (𝟙 S) φ'.hom]
     apply map_uniq
     exact ((assoc φ _ _) ▸ hτ₂)
 
-/-- Precomposing a co-Cartesian morphism with an isomorphism lifting the identity is
-co-Cartesian. -/
-instance of_iso_comp {a' : 𝒳} (φ' : a' ≅ a) [IsHomLift p (𝟙 R) φ'.hom] :
-    IsCocartesian p f (φ'.hom ≫ φ) where
+/--
+Precomposing a co-Cartesian morphism with an isomorphism lifting the identity is
+co-Cartesian.
+-/
+instance of_iso_comp {a' : 𝒳} (φ' : a' ≅ a) [IsHomLift p (𝟙 R) φ'.hom]
+    : IsCocartesian p f (φ'.hom ≫ φ) where
   universal_property := by
     intro c ψ hψ
     use IsCocartesian.map p f φ (φ'.inv ≫ ψ)
@@ -182,10 +193,11 @@ instance isCocartesian_of_isStronglyCocartesian : p.IsCocartesian f φ where
 
 section
 
-variable {S' : 𝒮} {b' : 𝒳} {g : S ⟶ S'} {f' : R ⟶ S'} (hf' : f' = f ≫ g) (φ' : a ⟶ b')
-  [IsHomLift p f' φ']
+variable
+  {S' : 𝒮} {b' : 𝒳} {g : S ⟶ S'} {f' : R ⟶ S'} (hf' : f' = f ≫ g) (φ' : a ⟶ b') [IsHomLift p f' φ']
 
-/-- Given a diagram
+/--
+Given a diagram
 ```
 a --φ--> b        b'
 |        |        |
@@ -193,9 +205,9 @@ v        v        v
 R --f--> S --g--> S'
 ```
 such that `φ` is strongly co-Cartesian, and a morphism `φ' : a ⟶ b'`. Then `map` is the map
-`b ⟶ b'` lying over `g` obtained from the universal property of `φ`. -/
-noncomputable def map : b ⟶ b' :=
-  Classical.choose <| universal_property p f φ _ _ hf' φ'
+`b ⟶ b'` lying over `g` obtained from the universal property of `φ`.
+-/
+noncomputable def map : b ⟶ b' := Classical.choose <| universal_property p f φ _ _ hf' φ'
 
 instance map_isHomLift : IsHomLift p g (map p f φ hf' φ') :=
   (Classical.choose_spec <| universal_property p f φ _ _ hf' φ').1.1
@@ -203,7 +215,6 @@ instance map_isHomLift : IsHomLift p g (map p f φ hf' φ') :=
 @[reassoc (attr := simp)]
 lemma fac : φ ≫ (map p f φ hf' φ') = φ' :=
   (Classical.choose_spec <| universal_property p f φ _ _ hf' φ').1.2
-
 
 /-- Given a diagram
 ```
@@ -279,16 +290,18 @@ section
 
 variable {R S T : 𝒮} {a b c : 𝒳} {f : R ⟶ S} {g : S ⟶ T} {φ : a ⟶ b} {ψ : b ⟶ c}
 
-/-- Given two strongly co-Cartesian morphisms `φ`, `ψ` as follows
+/--
+Given two strongly co-Cartesian morphisms `φ`, `ψ` as follows
 ```
 a --φ--> b --ψ--> c
 |        |        |
 v        v        v
 R --f--> S --g--> T
 ```
-Then the composite `φ ≫ ψ` is also strongly co-Cartesian. -/
-instance comp [IsStronglyCocartesian p f φ] [IsStronglyCocartesian p g ψ] :
-    IsStronglyCocartesian p (f ≫ g) (φ ≫ ψ) where
+Then the composite `φ ≫ ψ` is also strongly co-Cartesian.
+-/
+instance comp [IsStronglyCocartesian p f φ] [IsStronglyCocartesian p g ψ]
+    : IsStronglyCocartesian p (f ≫ g) (φ ≫ ψ) where
   universal_property' := by
     intro c' h τ hτ
     use map p g ψ (f' := g ≫ h) rfl <| map p f φ (assoc f g h) τ
@@ -357,14 +370,18 @@ lemma isIso_of_base_isIso (φ : a ⟶ b) [IsStronglyCocartesian p f φ] [IsIso f
 
 end
 
-/-- The canonical isomorphism between the codomains of two strongly co-Cartesian arrows lying over
-isomorphic objects. -/
-noncomputable def codomainIsoOfBaseIso {R S S' : 𝒮} {a b b' : 𝒳} {f : R ⟶ S} {f' : R ⟶ S'}
-    {g : S ≅ S'} (h : f' = f ≫ g.hom) (φ : a ⟶ b) (φ' : a ⟶ b') [IsStronglyCocartesian p f φ]
-    [IsStronglyCocartesian p f' φ'] : b ≅ b' where
+/--
+The canonical isomorphism between the codomains of two strongly co-Cartesian arrows lying over
+isomorphic objects.
+-/
+noncomputable def codomainIsoOfBaseIso
+    {R S S' : 𝒮} {a b b' : 𝒳} {f : R ⟶ S} {f' : R ⟶ S'} {g : S ≅ S'} (h : f' = f ≫ g.hom)
+    (φ : a ⟶ b) (φ' : a ⟶ b') [IsStronglyCocartesian p f φ] [IsStronglyCocartesian p f' φ']
+    : b ≅ b' where
   hom := map p f φ h φ'
-  inv := @map _ _ _ _ p _ _ _ _ f' φ' _ _ _ _ _ (congrArg (· ≫ g.inv) h.symm) φ
-    (by simp only [assoc, Iso.hom_inv_id, comp_id]; infer_instance)
+  inv :=
+    @map _ _ _ _ p _ _ _ _ f' φ' _ _ _ _ _ (congrArg (· ≫ g.inv) h.symm) φ
+      (by simp only [assoc, Iso.hom_inv_id, comp_id]; infer_instance)
 
 end IsStronglyCocartesian
 

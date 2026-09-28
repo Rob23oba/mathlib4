@@ -27,8 +27,7 @@ section AddMonoidWithOne
 variable [AddMonoidWithOne R] [CharZero R]
 
 /-- `Nat.cast` as an embedding into monoids of characteristic `0`. -/
-@[simps]
-def Nat.castEmbedding : ℕ ↪ R := ⟨Nat.cast, cast_injective⟩
+@[simps] def Nat.castEmbedding : ℕ ↪ R := ⟨Nat.cast, cast_injective⟩
 
 instance CharZero.NeZero.two : NeZero (2 : R) where
   out := by rw [← Nat.cast_two, Nat.cast_ne_zero]; decide
@@ -115,7 +114,6 @@ theorem units_ne_neg_self (u : Rˣ) : u ≠ -u := by
   simp_rw [ne_eq, Units.ext_iff, Units.val_neg, eq_neg_iff_add_eq_zero, ← two_mul,
     Units.mul_left_eq_zero, two_ne_zero, not_false_iff]
 
-@[simp]
-theorem neg_units_ne_self (u : Rˣ) : -u ≠ u := (units_ne_neg_self u).symm
+@[simp] theorem neg_units_ne_self (u : Rˣ) : -u ≠ u := (units_ne_neg_self u).symm
 
 end Ring

@@ -60,8 +60,8 @@ If `f : ℂ → ℂ` is measurable, then the Cartan kernel of integration is mea
 the two variables `α` and `β`.
 -/
 @[fun_prop]
-theorem measurable_cartanKernel (hf : Measurable f) :
-    Measurable (fun p : ℝ × ℝ ↦ cartanKernel f R p.1 p.2) := by
+theorem measurable_cartanKernel (hf : Measurable f)
+    : Measurable (fun p : ℝ × ℝ ↦ cartanKernel f R p.1 p.2) := by
   unfold cartanKernel; fun_prop
 
 /- Formula for the `L¹` norm of an angular slice of the Cartan kernel. -/
@@ -124,13 +124,15 @@ lemma integrable_integral_norm_cartanKernel (h : Meromorphic f) :
 If `f : ℂ → ℂ` is meromorphic, then the Cartan kernel of integration is integrable as a function in
 the two variables `α` and `β`.
 -/
-theorem integrableOn_cartanKernel (h : Meromorphic f) :
-    IntegrableOn (fun p ↦ cartanKernel f R p.1 p.2) (uIoc 0 (2 * π) ×ˢ uIoc 0 (2 * π)) := by
+theorem integrableOn_cartanKernel (h : Meromorphic f)
+    : IntegrableOn (fun p ↦ cartanKernel f R p.1 p.2) (uIoc 0 (2 * π) ×ˢ uIoc 0 (2 * π)) := by
   rw [IntegrableOn, Measure.volume_eq_prod, ← Measure.prod_restrict]
   have := h.measurable
-  simpa [uIoc_of_le two_pi_pos.le] using (integrable_prod_iff' (by fun_prop)).2
-    ⟨Eventually.of_forall (integrableOn_cartanKernel_left f R),
-      integrable_integral_norm_cartanKernel h⟩
+  simpa [uIoc_of_le two_pi_pos.le] using
+    (integrable_prod_iff' (by fun_prop)).2 ⟨
+      Eventually.of_forall (integrableOn_cartanKernel_left f R),
+      integrable_integral_norm_cartanKernel h
+    ⟩
 
 /--
 Corollary of `integrableOn_cartanKernel`: If `f : ℂ → ℂ` is meromorphic, then the function
@@ -158,14 +160,13 @@ lemma integrableOn_intervalIntegral_cartanKernel_right (h : Meromorphic f) :
 
 end Cartan
 
-/--
-Presentation of the proximity function as iterated circle averages.
--/
-theorem circleAverage_circleAverage_eq_proximity_top (h : Meromorphic f) :
-    (fun R ↦ circleAverage (fun a ↦ circleAverage (log ‖f · - a‖) 0 R) 0 1) = proximity f ⊤ := by
+/-- Presentation of the proximity function as iterated circle averages. -/
+theorem circleAverage_circleAverage_eq_proximity_top (h : Meromorphic f)
+    : (fun R ↦ circleAverage (fun a ↦ circleAverage (log ‖f · - a‖) 0 R) 0 1) = proximity f ⊤ := by
   ext R
   let F : ℝ → ℝ → ℝ := Cartan.cartanKernel f R
-  calc circleAverage (fun a ↦ circleAverage (log ‖f · - a‖) 0 R) 0 1
+  calc
+    circleAverage (fun a ↦ circleAverage (log ‖f · - a‖) 0 R) 0 1
     _ = (2 * π)⁻¹ * (2 * π)⁻¹ * ∫ α in 0..2 * π, ∫ β in 0..2 * π, F α β := by
       simp [circleAverage, F, Cartan.cartanKernel, mul_assoc]
     _ = (2 * π)⁻¹ * (2 * π)⁻¹ * ∫ β in 0..2 * π, ∫ α in 0..2 * π, F α β := by
@@ -177,11 +178,11 @@ theorem circleAverage_circleAverage_eq_proximity_top (h : Meromorphic f) :
       congr 1
       apply intervalIntegral.integral_congr
       intro β hβ
-      calc (2 * π)⁻¹ * ∫ α in 0..2 * π, F α β
+      calc
+        (2 * π)⁻¹ * ∫ α in 0..2 * π, F α β
         _ = circleAverage (log ‖f (circleMap 0 R β) - ·‖) 0 1 := by
           simp [F, circleAverage, Cartan.cartanKernel]
-        _ = log⁺ ‖f (circleMap 0 R β)‖ := by
-          simp [norm_sub_rev]
+        _ = log⁺ ‖f (circleMap 0 R β)‖ := by simp [norm_sub_rev]
     _ = circleAverage (log⁺ ‖f ·‖) 0 R := by
       simp [circleAverage, intervalIntegral.integral_of_le two_pi_pos.le]
 
@@ -189,13 +190,14 @@ theorem circleAverage_circleAverage_eq_proximity_top (h : Meromorphic f) :
 Complementary statement to `proximity_top_eq_circleAverage_circleAverage`, providing circle
 integrability of the integrand.
 -/
-theorem circleIntegrable_circleAverage_log_norm_sub (h : Meromorphic f) :
-    CircleIntegrable (fun a ↦ circleAverage (log ‖f · - a‖) 0 R) 0 1 := by
+theorem circleIntegrable_circleAverage_log_norm_sub (h : Meromorphic f)
+    : CircleIntegrable (fun a ↦ circleAverage (log ‖f · - a‖) 0 R) 0 1 := by
   by_cases hR : R = 0
   · simp [hR, circleAverage_zero, norm_sub_rev, circleIntegrable_log_norm_sub_const]
   rw [CircleIntegrable, intervalIntegrable_iff_integrableOn_Ioc_of_le two_pi_pos.le]
   apply IntegrableOn.congr_fun
     ((Cartan.integrableOn_intervalIntegral_cartanKernel_right (R := R) h).const_mul (2 * π)⁻¹)
-    (fun _ _ ↦ by simp [circleAverage, Cartan.cartanKernel]) measurableSet_Ioc
+    (fun _ _ ↦ by simp [circleAverage, Cartan.cartanKernel])
+    measurableSet_Ioc
 
 end ValueDistribution

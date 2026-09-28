@@ -30,7 +30,6 @@ reference point.
 
 @[expose] public section
 
-
 open EuclideanGeometry NormedSpace
 open scoped RealInnerProductSpace
 
@@ -47,12 +46,14 @@ In the degenerate case `v = 0`, it returns `0`.
 TODO: once we have a topology on `P →ᴬ[ℝ] ℝ`, the type should be `P →ᴬ[ℝ] P →ᴬ[ℝ] ℝ`.
 -/
 noncomputable def signedDist (v : V) : P →ᵃ[ℝ] P →ᴬ[ℝ] ℝ where
-  toFun p := (innerSL ℝ (normalize v)).toContinuousAffineMap.comp
-    (ContinuousAffineMap.id ℝ P -ᵥ .const ℝ P p)
+  toFun p :=
+    (innerSL ℝ (normalize v)).toContinuousAffineMap.comp
+      (ContinuousAffineMap.id ℝ P -ᵥ .const ℝ P p)
   linear := {
     toFun w := .const ℝ P ⟪-normalize v, w⟫
     map_add' x y := by ext; simp [inner_add_right]
-    map_smul' r x := by ext; simp [inner_smul_right] }
+    map_smul' r x := by ext; simp [inner_smul_right]
+  }
   map_vadd' p v' := by
     ext q
     simp [vsub_vadd_eq_vsub_sub, inner_sub_right, ← sub_eq_neg_add]
@@ -234,10 +235,12 @@ namespace AffineSubspace
 
 variable (s : AffineSubspace ℝ P) [Nonempty s] [s.direction.HasOrthogonalProjection] (p q : P)
 
-/-- The signed distance between `s` and a point, in the direction of the reference point `p`.
+/--
+The signed distance between `s` and a point, in the direction of the reference point `p`.
 This is expected to be used when `p` does not lie in `s` (in the degenerate case where `p` lies
 in `s`, this yields 0) and when the point at which the distance is evaluated lies in the affine
-span of `s` and `p` (any component of the distance orthogonal to that span is disregarded). -/
+span of `s` and `p` (any component of the distance orthogonal to that span is disregarded).
+-/
 noncomputable def signedInfDist : P →ᴬ[ℝ] ℝ :=
   signedDist (p -ᵥ orthogonalProjection s p) (Classical.ofNonempty : s)
 
@@ -291,11 +294,13 @@ namespace Simplex
 
 variable {n : ℕ} [NeZero n] (s : Simplex ℝ P n) (i : Fin (n + 1))
 
-/-- The signed distance between the face of `s` excluding point `i` of that simplex and a point,
+/--
+The signed distance between the face of `s` excluding point `i` of that simplex and a point,
 in the direction of the reference point `i`. This is expected to be used when the point at which
 the distance is evaluated lies in the affine span of the simplex (any component of the distance
 orthogonal to that span is disregarded). In the case of a triangle, these distances are
-trilinear coordinates; in a tetrahedron, they are quadriplanar coordinates. -/
+trilinear coordinates; in a tetrahedron, they are quadriplanar coordinates.
+-/
 noncomputable def signedInfDist : P →ᴬ[ℝ] ℝ :=
   AffineSubspace.signedInfDist (affineSpan ℝ (s.points '' {i}ᶜ)) (s.points i)
 

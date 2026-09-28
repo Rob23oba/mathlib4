@@ -27,8 +27,9 @@ namespace End
 
 open LinearMap
 
-variable {R M : Type*} [CommRing R] [IsDomain R] [AddCommGroup M] [Module R M]
-  [Module.Free R M] [Module.Finite R M]
+variable
+  {R M : Type*}
+  [CommRing R] [IsDomain R] [AddCommGroup M] [Module R M] [Module.Free R M] [Module.Finite R M]
 variable {K V : Type*} [Field K] [AddCommGroup V] [Module K V] [Module.Finite K V]
 
 /--

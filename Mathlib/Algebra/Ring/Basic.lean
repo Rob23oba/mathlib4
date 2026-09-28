@@ -67,7 +67,8 @@ def mulRight (r : R) : R →+ R where
 
 lemma mulRight_apply (a r : R) : mulRight r a = a * r := rfl
 
-/-- Multiplication of an element of a (semi)ring is an `AddMonoidHom` in both arguments.
+/--
+Multiplication of an element of a (semi)ring is an `AddMonoidHom` in both arguments.
 
 This is a more-strongly bundled version of `AddMonoidHom.mulLeft` and `AddMonoidHom.mulRight`.
 
@@ -105,12 +106,10 @@ section NonUnitalNonAssocSemiring
 variable [NonUnitalNonAssocSemiring R]
 
 /-- The left multiplication map: `(a, b) ↦ a * b`. See also `AddMonoidHom.mulLeft`. -/
-@[simps!]
-def mulLeft : R →+ AddMonoid.End R := .mul
+@[simps!] def mulLeft : R →+ AddMonoid.End R := .mul
 
 /-- The right multiplication map: `(a, b) ↦ b * a`. See also `AddMonoidHom.mulRight`. -/
-@[simps!]
-def mulRight : R →+ AddMonoid.End R := (.mul : R →+ AddMonoid.End R).flip
+@[simps!] def mulRight : R →+ AddMonoid.End R := (.mul : R →+ AddMonoid.End R).flip
 
 end NonUnitalNonAssocSemiring
 
@@ -146,12 +145,14 @@ variable {α : Type*} [NonUnitalCommRing α]
 
 attribute [local simp] add_assoc add_comm add_left_comm mul_comm
 
-/-- Vieta's formula for a quadratic equation, relating the coefficients of the polynomial with
-  its roots. This particular version states that if we have a root `x` of a monic quadratic
-  polynomial, then there is another root `y` such that `x + y` is negative the `a_1` coefficient
-  and `x * y` is the `a_0` coefficient. -/
-theorem vieta_formula_quadratic {b c x : α} (h : x * x - b * x + c = 0) :
-    ∃ y : α, y * y - b * y + c = 0 ∧ x + y = b ∧ x * y = c := by
+/--
+Vieta's formula for a quadratic equation, relating the coefficients of the polynomial with
+its roots. This particular version states that if we have a root `x` of a monic quadratic
+polynomial, then there is another root `y` such that `x + y` is negative the `a_1` coefficient
+and `x * y` is the `a_0` coefficient.
+-/
+theorem vieta_formula_quadratic {b c x : α} (h : x * x - b * x + c = 0)
+    : ∃ y : α, y * y - b * y + c = 0 ∧ x + y = b ∧ x * y = c := by
   have : c = x * (b - x) := (eq_neg_of_add_eq_zero_right h).trans (by simp [mul_sub, mul_comm])
   refine ⟨b - x, ?_, by simp, by rw [this]⟩
   rw [this, sub_add, ← sub_mul, sub_self]
@@ -202,8 +203,8 @@ lemma isCancelMulZero_iff_noZeroDivisors : IsCancelMulZero R ↔ NoZeroDivisors 
   noZeroDivisors_tfae.out 4 1
 
 variable (R) in
-instance (priority := 100) NoZeroDivisors.to_isCancelMulZero
-    [NoZeroDivisors R] : IsCancelMulZero R :=
+instance (priority := 100) NoZeroDivisors.to_isCancelMulZero [NoZeroDivisors R]
+    : IsCancelMulZero R :=
   isCancelMulZero_iff_noZeroDivisors.mpr ‹_›
 
 end NonUnitalNonAssocRing
@@ -212,8 +213,8 @@ lemma NoZeroDivisors.to_isDomain [Ring α] [h : Nontrivial α] [NoZeroDivisors �
     IsDomain α :=
   { NoZeroDivisors.to_isCancelMulZero α, h with .. }
 
-instance (priority := 100) IsDomain.to_noZeroDivisors [Semiring α] [IsDomain α] :
-    NoZeroDivisors α :=
+instance (priority := 100) IsDomain.to_noZeroDivisors [Semiring α] [IsDomain α]
+    : NoZeroDivisors α :=
   IsRightCancelMulZero.to_noZeroDivisors α
 
 instance Subsingleton.to_isCancelMulZero [Mul α] [Zero α] [Subsingleton α] : IsCancelMulZero α where

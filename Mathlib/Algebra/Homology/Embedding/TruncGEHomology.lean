@@ -28,10 +28,11 @@ open CategoryTheory Category Limits
 
 namespace HomologicalComplex
 
-variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'}
-  {C : Type*} [Category* C] [HasZeroMorphisms C]
-  (K L : HomologicalComplex C c') (φ : K ⟶ L) (e : c.Embedding c') [e.IsTruncGE]
-  [∀ i', K.HasHomology i'] [∀ i', L.HasHomology i']
+variable
+  {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'} {C : Type*}
+  [Category* C] [HasZeroMorphisms C]
+  (K L : HomologicalComplex C c') (φ : K ⟶ L)
+  (e : c.Embedding c') [e.IsTruncGE] [∀ i', K.HasHomology i'] [∀ i', L.HasHomology i']
 
 namespace truncGE'
 
@@ -82,28 +83,27 @@ lemma homologyι_truncGE'XIsoOpcycles_inv_d :
 
 set_option backward.defeqAttrib.useBackward true in
 /-- Auxiliary definition for `truncGE'.homologyData`. -/
-noncomputable def isLimitKernelFork :
-    IsLimit (KernelFork.ofι _ (homologyι_truncGE'XIsoOpcycles_inv_d K e j k hj' hj)) := by
+noncomputable def isLimitKernelFork
+    : IsLimit (KernelFork.ofι _ (homologyι_truncGE'XIsoOpcycles_inv_d K e j k hj' hj)) := by
   have hk' : c'.next j' = e.f k := by simpa only [hj'] using e.next_f hk
   by_cases hjk : c.Rel j k
-  · let e : parallelPair ((K.truncGE' e).d j k) 0 ≅
-        parallelPair (K.fromOpcycles j' (e.f k)) 0 :=
+  · let e : parallelPair ((K.truncGE' e).d j k) 0 ≅ parallelPair (K.fromOpcycles j' (e.f k)) 0 :=
       parallelPair.ext (K.truncGE'XIsoOpcycles e hj' hj)
         (K.truncGE'XIso e rfl (e.not_boundaryGE_next hjk))
         (by simp [K.truncGE'_d_eq_fromOpcycles e hjk hj' rfl hj]) (by simp)
     exact (IsLimit.postcomposeHomEquiv e _).1
       (IsLimit.ofIsoLimit (K.homologyIsKernel _ _ hk')
-      (Fork.ext (Iso.refl _) (by simp [e, Fork.ι])))
-  · have := K.isIso_homologyι _ _ hk'
-      (shape _ _ _ (by simpa only [← hj', e.rel_iff] using hjk))
+        (Fork.ext (Iso.refl _) (by simp [e, Fork.ι])))
+  · have := K.isIso_homologyι _ _ hk' (shape _ _ _ (by simpa only [← hj', e.rel_iff] using hjk))
     exact IsLimit.ofIsoLimit (KernelFork.IsLimit.ofId _ (shape _ _ _ hjk))
       (Fork.ext ((truncGE'XIsoOpcycles K e hj' hj) ≪≫ (asIso (K.homologyι j')).symm))
 
-/-- When `j` is at the boundary of the embedding `e` of complex shapes,
+/--
+When `j` is at the boundary of the embedding `e` of complex shapes,
 this is a homology data for `K.truncGE' e` in degree `j`: the homology is
-given by `K.homology j'` where `e.f j = j'`. -/
-noncomputable def homologyData :
-    ((K.truncGE' e).sc' i j k).HomologyData :=
+given by `K.homology j'` where `e.f j = j'`.
+-/
+noncomputable def homologyData : ((K.truncGE' e).sc' i j k).HomologyData :=
   ShortComplex.HomologyData.ofIsLimitKernelFork _
     ((K.truncGE' e).shape _ _ (fun hij => e.not_boundaryGE_next hij hj)) _
     (isLimitKernelFork K e j k hk hj' hj)
@@ -132,38 +132,52 @@ instance (i' : ι') : (K.truncGE e).HasHomology i' := by
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The right homology data which allows to show that `K.πTruncGE e`
-induces an isomorphism in homology in degrees `j'` such that `e.f j = j'` for some `j`. -/
+/--
+The right homology data which allows to show that `K.πTruncGE e`
+induces an isomorphism in homology in degrees `j'` such that `e.f j = j'` for some `j`.
+-/
 @[simps]
-noncomputable def rightHomologyMapData {i j k : ι} {j' : ι'} (hj' : e.f j = j')
-    (hi : c.prev j = i) (hk : c.next j = k) (hj : e.BoundaryGE j) :
-    ShortComplex.RightHomologyMapData ((shortComplexFunctor C c' j').map (K.πTruncGE e))
-    (ShortComplex.RightHomologyData.canonical (K.sc j'))
-    (extend.rightHomologyData (K.truncGE' e) e hj' hi rfl hk rfl
-      (truncGE'.homologyData K e i j k hk hj' hj).right) where
+noncomputable def rightHomologyMapData
+    {i j k : ι} {j' : ι'}
+    (hj' : e.f j = j') (hi : c.prev j = i) (hk : c.next j = k) (hj : e.BoundaryGE j)
+    : ShortComplex.RightHomologyMapData ((shortComplexFunctor C c' j').map (K.πTruncGE e))
+      (ShortComplex.RightHomologyData.canonical (K.sc j'))
+      (extend.rightHomologyData (K.truncGE' e) e hj' hi rfl hk rfl
+        (truncGE'.homologyData K e i j k hk hj' hj).right) where
   φQ := (K.truncGE'XIsoOpcycles e hj' hj).inv
   φH := 𝟙 _
   commp := by
     change K.pOpcycles j' ≫ _ = _
-    simp [truncGE'.homologyData, πTruncGE, e.liftExtend_f _ _ hj',
-      K.restrictionToTruncGE'_f_eq_iso_hom_pOpcycles_iso_inv e hj' hj]
+    simp [
+      truncGE'.homologyData, πTruncGE, e.liftExtend_f _ _ hj',
+      K.restrictionToTruncGE'_f_eq_iso_hom_pOpcycles_iso_inv e hj' hj
+    ]
   commg' := by
     have hk' : e.f k = c'.next j' := by rw [← hj', e.next_f hk]
     dsimp
-    rw [extend.rightHomologyData_g' _ _ _ _ _ _ _ _ hk', πTruncGE,
-        e.liftExtend_f _ _ hk', truncGE'.homologyData_right_g']
+    rw [
+      extend.rightHomologyData_g' _ _ _ _ _ _ _ _ hk', πTruncGE, e.liftExtend_f _ _ hk',
+      truncGE'.homologyData_right_g'
+    ]
     by_cases hjk : c.Rel j k
-    · simp [K.truncGE'_d_eq_fromOpcycles e hjk hj' hk' hj,
-        K.restrictionToTruncGE'_f_eq_iso_hom_iso_inv e hk' (e.not_boundaryGE_next hjk)]
+    · simp [
+        K.truncGE'_d_eq_fromOpcycles e hjk hj' hk' hj,
+        K.restrictionToTruncGE'_f_eq_iso_hom_iso_inv e hk' (e.not_boundaryGE_next hjk)
+      ]
       rfl
     · obtain rfl : k = j := by rw [← c.next_eq_self j (by simpa only [hk] using hjk), hk]
-      rw [shape _ _ _ hjk, zero_comp, comp_zero,
-        K.restrictionToTruncGE'_f_eq_iso_hom_pOpcycles_iso_inv e hk' hj]
-      simp only [restriction_X, restrictionXIso, eqToIso.inv, eqToIso.hom, assoc,
-        eqToHom_trans_assoc, eqToHom_refl, id_comp]
+      rw [
+        shape _ _ _ hjk, zero_comp, comp_zero,
+        K.restrictionToTruncGE'_f_eq_iso_hom_pOpcycles_iso_inv e hk' hj
+      ]
+      simp only [
+        restriction_X, restrictionXIso, eqToIso.inv, eqToIso.hom, assoc, eqToHom_trans_assoc,
+        eqToHom_refl, id_comp
+      ]
       change 0 = K.fromOpcycles _ _ ≫ _
-      rw [← cancel_epi (K.pOpcycles _), comp_zero, p_fromOpcycles_assoc,
-        d_pOpcycles_assoc, zero_comp]
+      rw [
+        ← cancel_epi (K.pOpcycles _), comp_zero, p_fromOpcycles_assoc, d_pOpcycles_assoc, zero_comp
+      ]
 
 end truncGE
 

@@ -11,7 +11,6 @@ public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Isometr
 import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Commute
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Isometric
 
-
 /-!
 # Absolute value defined via the continuous functional calculus
 
@@ -37,10 +36,10 @@ section NonUnital
 
 section Real
 
-variable [NonUnitalRing A] [StarRing A] [TopologicalSpace A]
-  [Module ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A]
-  [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-  [PartialOrder A] [StarOrderedRing A] [NonnegSpectrumClass ℝ A]
+variable
+  [NonUnitalRing A] [StarRing A] [TopologicalSpace A] [Module ℝ A] [SMulCommClass ℝ A A]
+  [IsScalarTower ℝ A A] [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint] [PartialOrder A]
+  [StarOrderedRing A] [NonnegSpectrumClass ℝ A]
 
 /-- The absolute value defined via the non-unital continuous functional calculus. -/
 noncomputable def abs (a : A) := sqrt (star a * a)
@@ -64,26 +63,32 @@ variable [IsTopologicalRing A] [T2Space A]
 lemma abs_mul_abs (a : A) : abs a * abs a = star a * a :=
   sqrt_mul_sqrt_self _ <| star_mul_self_nonneg _
 
-/- The hypotheses could be weakened to `Commute (star a * a) b`, but
+/-
+The hypotheses could be weakened to `Commute (star a * a) b`, but
 in that case one should simply use `Commute.cfcₙ_nnreal` directly.
 
-The point of this theorem is to have simpler hypotheses. -/
+The point of this theorem is to have simpler hypotheses.
+-/
 lemma _root_.Commute.cfcAbs_left {a b : A} (h₁ : Commute a b) (h₂ : Commute a (star b)) :
     Commute (abs a) b :=
   .cfcₙ_nnreal (by simp_all [h₂.star_left]) _
 
-/- The hypotheses could be weakened to `Commute (star a * a) b`, but
+/-
+The hypotheses could be weakened to `Commute (star a * a) b`, but
 in that case one should simply use `Commute.cfcₙ_nnreal` directly.
 
-The point of this theorem is to have simpler hypotheses. -/
+The point of this theorem is to have simpler hypotheses.
+-/
 lemma _root_.Commute.cfcAbs_right {a b : A} (h₁ : Commute a b) (h₂ : Commute a (star b)) :
     Commute b (abs a) :=
   h₁.cfcAbs_left h₂ |>.symm
 
-/- The hypotheses could be weakened to `Commute (star a * a) (star b * b)`, but
+/-
+The hypotheses could be weakened to `Commute (star a * a) (star b * b)`, but
 in that case one should simply use `Commute.cfcₙ_nnreal` (twice) directly.
 
-The point of this theorem is to have simpler hypotheses. -/
+The point of this theorem is to have simpler hypotheses.
+-/
 lemma _root_.Commute.cfcAbs_cfcAbs {a b : A} (h₁ : Commute a b) (h₂ : Commute a (star b)) :
     Commute (abs a) (abs b) :=
   Commute.cfcₙ_nnreal (by simp_all [h₂.star_left]) _ |>.symm.cfcₙ_nnreal _ |>.symm
@@ -160,10 +165,9 @@ end Real
 
 section RCLike
 
-variable {p : A → Prop} [RCLike 𝕜]
-  [NonUnitalRing A] [TopologicalSpace A] [Module 𝕜 A]
-  [StarRing A] [PartialOrder A] [StarOrderedRing A]
-  [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
+variable
+  {p : A → Prop} [RCLike 𝕜] [NonUnitalRing A] [TopologicalSpace A] [Module 𝕜 A] [StarRing A]
+  [PartialOrder A] [StarOrderedRing A] [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
   [NonUnitalContinuousFunctionalCalculus 𝕜 A p]
 
 open ComplexOrder
@@ -174,9 +178,9 @@ lemma _root_.cfcₙ_norm_sq_nonneg (f : 𝕜 → 𝕜) (a : A) : 0 ≤ cfcₙ (f
 lemma _root_.cfcₙ_norm_nonneg (f : 𝕜 → 𝕜) (a : A) : 0 ≤ cfcₙ (‖f ·‖ : 𝕜 → 𝕜) a :=
   cfcₙ_nonneg fun _ _ ↦ by simp
 
-variable [Module ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A]
-  [NonnegSpectrumClass ℝ A] [IsTopologicalRing A] [T2Space A]
-  [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+variable
+  [Module ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A] [NonnegSpectrumClass ℝ A]
+  [IsTopologicalRing A] [T2Space A] [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 
 variable [StarModule 𝕜 A] [StarModule ℝ A] [IsScalarTower ℝ 𝕜 A] in
 @[simp]
@@ -215,10 +219,10 @@ section Unital
 
 section Real
 
-variable [Ring A] [StarRing A] [TopologicalSpace A] [Algebra ℝ A]
-  [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-  [PartialOrder A] [StarOrderedRing A] [NonnegSpectrumClass ℝ A]
-  [IsTopologicalRing A] [T2Space A]
+variable
+  [Ring A] [StarRing A] [TopologicalSpace A] [Algebra ℝ A]
+  [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint] [PartialOrder A] [StarOrderedRing A]
+  [NonnegSpectrumClass ℝ A] [IsTopologicalRing A] [T2Space A]
 
 lemma abs_eq_cfc_norm (a : A) (ha : IsSelfAdjoint a := by cfc_tac) :
     abs a = cfc (‖·‖) a := by
@@ -226,8 +230,8 @@ lemma abs_eq_cfc_norm (a : A) (ha : IsSelfAdjoint a := by cfc_tac) :
 
 theorem abs_coe_unitary (U : unitary A) : abs (U : A) = 1 := by simp [abs]
 
-@[simp] theorem abs_of_mem_unitary {U : A} (hU : U ∈ unitary A) : abs U = 1 :=
-  abs_coe_unitary ⟨U, hU⟩
+@[simp]
+theorem abs_of_mem_unitary {U : A} (hU : U ∈ unitary A) : abs U = 1 := abs_coe_unitary ⟨U, hU⟩
 
 lemma abs_one : abs (1 : A) = 1 := by simp
 
@@ -257,12 +261,11 @@ end Real
 
 section RCLike
 
-variable {p : A → Prop} [RCLike 𝕜]
-  [Ring A] [TopologicalSpace A] [StarRing A] [PartialOrder A]
-  [StarOrderedRing A] [Algebra 𝕜 A]
-  [ContinuousFunctionalCalculus 𝕜 A p]
-  [Algebra ℝ A] [NonnegSpectrumClass ℝ A] [IsTopologicalRing A] [T2Space A]
-  [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+variable
+  {p : A → Prop}
+  [RCLike 𝕜] [Ring A] [TopologicalSpace A] [StarRing A] [PartialOrder A] [StarOrderedRing A]
+  [Algebra 𝕜 A] [ContinuousFunctionalCalculus 𝕜 A p] [Algebra ℝ A] [NonnegSpectrumClass ℝ A]
+  [IsTopologicalRing A] [T2Space A] [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 
 variable [StarModule 𝕜 A] [StarModule ℝ A] [IsScalarTower ℝ 𝕜 A] in
 @[simp]
@@ -287,9 +290,9 @@ end Unital
 
 section Isometric
 
-variable [NonUnitalNormedRing A] [StarRing A] [ContinuousStar A]
-  [NormedSpace ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A]
-  [NonUnitalIsometricContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+variable
+  [NonUnitalNormedRing A] [StarRing A] [ContinuousStar A] [NormedSpace ℝ A] [SMulCommClass ℝ A A]
+  [IsScalarTower ℝ A A] [NonUnitalIsometricContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
   [PartialOrder A] [StarOrderedRing A] [NonnegSpectrumClass ℝ A] [CompleteSpace A]
 
 protected lemma continuous_abs : Continuous (CFC.abs : A → A) :=
@@ -301,10 +304,10 @@ section CStar
 
 /- This section requires `A` to be a `CStarRing` -/
 
-variable [NonUnitalNormedRing A] [StarRing A] [CStarRing A]
-  [NormedSpace ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A]
-  [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-  [PartialOrder A] [StarOrderedRing A] [NonnegSpectrumClass ℝ A]
+variable
+  [NonUnitalNormedRing A] [StarRing A] [CStarRing A] [NormedSpace ℝ A] [SMulCommClass ℝ A A]
+  [IsScalarTower ℝ A A] [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint] [PartialOrder A]
+  [StarOrderedRing A] [NonnegSpectrumClass ℝ A]
 
 open CFC
 

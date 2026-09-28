@@ -36,13 +36,16 @@ Many definitions have been made reducible so as to ease rewrites when this API i
 
 namespace CategoryTheory
 
-variable {C D : Type*} [Category* C] [Category* D] (L : C ⥤ D) (W : MorphismProperty C)
-  [L.IsLocalization W]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W]
 
 namespace MorphismProperty
 
-/-- This structure contains the data of two left fractions for
-`W : MorphismProperty C` that have the same "denominator". -/
+/--
+This structure contains the data of two left fractions for
+`W : MorphismProperty C` that have the same "denominator".
+-/
 structure LeftFraction₂ (X Y : C) where
   /-- the auxiliary object of left fractions -/
   {Y' : C}
@@ -55,11 +58,12 @@ structure LeftFraction₂ (X Y : C) where
   /-- the condition that the denominator belongs to the given morphism property -/
   hs : W s
 
-instance {X Y : C} (z : W.LeftFraction₂ X Y) : IsIso (L.map z.s) :=
-  Localization.inverts L W _ z.hs
+instance {X Y : C} (z : W.LeftFraction₂ X Y) : IsIso (L.map z.s) := Localization.inverts L W _ z.hs
 
-/-- This structure contains the data of three left fractions for
-`W : MorphismProperty C` that have the same "denominator". -/
+/--
+This structure contains the data of three left fractions for
+`W : MorphismProperty C` that have the same "denominator".
+-/
 structure LeftFraction₃ (X Y : C) where
   /-- the auxiliary object of left fractions -/
   {Y' : C}
@@ -74,11 +78,12 @@ structure LeftFraction₃ (X Y : C) where
   /-- the condition that the denominator belongs to the given morphism property -/
   hs : W s
 
-instance {X Y : C} (z : W.LeftFraction₃ X Y) : IsIso (L.map z.s) :=
-  Localization.inverts L W _ z.hs
+instance {X Y : C} (z : W.LeftFraction₃ X Y) : IsIso (L.map z.s) := Localization.inverts L W _ z.hs
 
-/-- This structure contains the data of two right fractions for
-`W : MorphismProperty C` that have the same "denominator". -/
+/--
+This structure contains the data of two right fractions for
+`W : MorphismProperty C` that have the same "denominator".
+-/
 structure RightFraction₂ (X Y : C) where
   /-- the auxiliary object of right fractions -/
   {X' : C}
@@ -91,17 +96,19 @@ structure RightFraction₂ (X Y : C) where
   /-- the numerator of the second right fraction -/
   f' : X' ⟶ Y
 
-instance {X Y : C} (z : W.RightFraction₂ X Y) : IsIso (L.map z.s) :=
-  Localization.inverts L W _ z.hs
+instance {X Y : C} (z : W.RightFraction₂ X Y) : IsIso (L.map z.s) := Localization.inverts L W _ z.hs
 
 variable {W}
 
-/-- The equivalence relation on tuples of left fractions with the same denominator
+/--
+The equivalence relation on tuples of left fractions with the same denominator
 for a morphism property `W`. The fact it is an equivalence relation is not
-formalized, but it would follow easily from `LeftFraction₂.map_eq_iff`. -/
+formalized, but it would follow easily from `LeftFraction₂.map_eq_iff`.
+-/
 def LeftFraction₂Rel {X Y : C} (z₁ z₂ : W.LeftFraction₂ X Y) : Prop :=
   ∃ (Z : C) (t₁ : z₁.Y' ⟶ Z) (t₂ : z₂.Y' ⟶ Z) (_ : z₁.s ≫ t₁ = z₂.s ≫ t₂)
-    (_ : z₁.f ≫ t₁ = z₂.f ≫ t₂) (_ : z₁.f' ≫ t₁ = z₂.f' ≫ t₂), W (z₁.s ≫ t₁)
+      (_ : z₁.f ≫ t₁ = z₂.f ≫ t₂) (_ : z₁.f' ≫ t₁ = z₂.f' ≫ t₂),
+    W (z₁.s ≫ t₁)
 
 namespace LeftFraction₂
 

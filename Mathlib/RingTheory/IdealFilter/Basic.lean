@@ -80,22 +80,23 @@ class IsUniform (F : IdealFilter A) : Prop where
   /-- **Axiom T3.**  See [stenstrom1975]. -/
   colon_mem {I : Ideal A} (hI : I ∈ F) (a : A) : I.colon {a} ∈ F
 
-/-- We say that an element `m : M` is `F`-torsion if it is annihilated by some ideal belonging to
-the filter `F`. -/
-def IsTorsionElem (F : IdealFilter A)
-    {M : Type*} [AddCommMonoid M] [Module A M] (m : M) : Prop :=
+/--
+We say that an element `m : M` is `F`-torsion if it is annihilated by some ideal belonging to
+the filter `F`.
+-/
+def IsTorsionElem (F : IdealFilter A) {M : Type*} [AddCommMonoid M] [Module A M] (m : M) : Prop :=
   ∃ L ∈ F, ∀ a ∈ L, a • m = 0
 
 /-- Module-level `F`-torsion: every element is `F`-torsion. -/
-def IsTorsion (F : IdealFilter A)
-    (M : Type*) [AddCommMonoid M] [Module A M] : Prop :=
+def IsTorsion (F : IdealFilter A) (M : Type*) [AddCommMonoid M] [Module A M] : Prop :=
   ∀ m : M, IsTorsionElem F m
 
-/-- We say that the quotient `K/L` is `F`-torsion if every element `k ∈ K` is annihilated
+/--
+We say that the quotient `K/L` is `F`-torsion if every element `k ∈ K` is annihilated
 (modulo `L`) by some ideal in `F`. Equivalently, for each `k ∈ K` there exists `I ∈ F`
-such that `I ≤ L.colon {k}`. This formulation avoids forming the quotient module explicitly. -/
-def IsTorsionQuot (F : IdealFilter A) (L K : Ideal A) : Prop :=
-  ∀ k ∈ K, ∃ I ∈ F, I ≤ L.colon {k}
+such that `I ≤ L.colon {k}`. This formulation avoids forming the quotient module explicitly.
+-/
+def IsTorsionQuot (F : IdealFilter A) (L K : Ideal A) : Prop := ∀ k ∈ K, ∃ I ∈ F, I ≤ L.colon {k}
 
 /-- Intersecting the left ideal with `K` does not change `IsTorsionQuot` on the right.
 In particular, `IsTorsionQuot F L K` need not require `L ≤ K` for it is equivalent to asserting
@@ -108,7 +109,6 @@ lemma isTorsionQuot_inter_left_iff {F : IdealFilter A} {L K : Ideal A} :
     have hcol : (L ⊓ K).colon {k} = Submodule.colon L {k} :=
       Submodule.colon_inf_eq_left_of_subset (Set.singleton_subset_iff.mpr hk)
     exact ⟨I, hI, (by simpa [hcol] using hI_le)⟩
-
 
 @[simp] lemma isTorsion_def (F : IdealFilter A) (M : Type*) [AddCommMonoid M] [Module A M] :
     IsTorsion F M ↔ ∀ m : M, IsTorsionElem F m :=
@@ -156,22 +156,28 @@ lemma isPFilter_gabrielComposition (F G : IdealFilter A) :
   · intro I J hIJ ⟨K, hK, hIK⟩
     exact ⟨K, hK, hIK.mono_left hIJ⟩
 
-/-- The Gabriel composition of ideal filters `F` and `G`.
-See [nLab: Gabriel composition](https://ncatlab.org/nlab/show/Gabriel+composition+of+filters). -/
+/--
+The Gabriel composition of ideal filters `F` and `G`.
+See [nLab: Gabriel composition](https://ncatlab.org/nlab/show/Gabriel+composition+of+filters).
+-/
 def gabrielComposition (F G : IdealFilter A) : IdealFilter A :=
   (isPFilter_gabrielComposition F G).toPFilter
 
 /-- `F • G` is the Gabriel composition of ideal filters `F` and `G`. -/
 scoped infixl:70 " • " => gabrielComposition
 
-/-- An ideal filter is Gabriel if it satisfies `IsUniform` and axiom T4.
-See [nLab: Gabriel filter](https://ncatlab.org/nlab/show/Gabriel+filter). -/
+/--
+An ideal filter is Gabriel if it satisfies `IsUniform` and axiom T4.
+See [nLab: Gabriel filter](https://ncatlab.org/nlab/show/Gabriel+filter).
+-/
 class IsGabriel (F : IdealFilter A) extends F.IsUniform where
   /-- **Axiom T4.** See [stenstrom1975]. -/
   gabriel_closed (I : Ideal A) (h : ∃ J ∈ F, ∀ x ∈ J, I.colon {x} ∈ F) : I ∈ F
 
-/-- Characterization of Gabriel filters via `IsUniform` and idempotence of
-`gabrielComposition`. -/
+/--
+Characterization of Gabriel filters via `IsUniform` and idempotence of
+`gabrielComposition`.
+-/
 theorem isGabriel_iff (F : IdealFilter A) : F.IsGabriel ↔ F.IsUniform ∧ F • F = F := by
   constructor
   · intro hF

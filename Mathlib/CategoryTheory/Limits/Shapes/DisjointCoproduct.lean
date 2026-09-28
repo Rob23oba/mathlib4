@@ -46,9 +46,9 @@ X₂ ⟶ ∐ X
 `Z` is initial.
 -/
 class CoproductDisjoint {ι : Type*} (X : ι → C) : Prop where
-  nonempty_isInitial_of_ne {c : Cofan X} (hc : IsColimit c) {i j : ι} (_ : i ≠ j)
-    (s : PullbackCone (c.inj i) (c.inj j)) :
-    IsLimit s → Nonempty (IsInitial s.pt)
+  nonempty_isInitial_of_ne
+    {c : Cofan X} (hc : IsColimit c) {i j : ι} (_ : i ≠ j) (s : PullbackCone (c.inj i) (c.inj j))
+    : IsLimit s → Nonempty (IsInitial s.pt)
   mono_inj {c : Cofan X} (hc : IsColimit c) (i : ι) : Mono (c.inj i)
 
 section
@@ -89,44 +89,50 @@ lemma _root_.CategoryTheory.Mono.of_coproductDisjoint {c : Cofan X} (hc : IsColi
     Mono (c.inj i) :=
   CoproductDisjoint.mono_inj hc i
 
-instance _root_.CategoryTheory.Mono.ι_of_coproductDisjoint [HasCoproduct X] (i : ι) :
-    Mono (Sigma.ι X i) :=
+instance _root_.CategoryTheory.Mono.ι_of_coproductDisjoint [HasCoproduct X] (i : ι)
+    : Mono (Sigma.ι X i) :=
   CoproductDisjoint.mono_inj (colimit.isColimit _) i
 
 namespace IsInitial
 variable {i j : ι} (hij : i ≠ j)
 
-/-- If `i ≠ j` and `Xᵢ ← Y → Xⱼ` is a pullback diagram over `Z`, where `Z` is the
-coproduct of the `Xᵢ`, then `Y` is initial. -/
-noncomputable def ofCoproductDisjointOfIsColimitOfIsLimit {c : Cofan X} (hc : IsColimit c)
-    {s : PullbackCone (c.inj i) (c.inj j)} (hs : IsLimit s) :
-    IsInitial s.pt :=
+/--
+If `i ≠ j` and `Xᵢ ← Y → Xⱼ` is a pullback diagram over `Z`, where `Z` is the
+coproduct of the `Xᵢ`, then `Y` is initial.
+-/
+noncomputable def ofCoproductDisjointOfIsColimitOfIsLimit
+    {c : Cofan X} (hc : IsColimit c) {s : PullbackCone (c.inj i) (c.inj j)} (hs : IsLimit s)
+    : IsInitial s.pt :=
   (CoproductDisjoint.nonempty_isInitial_of_ne hc hij _ hs).some
 
 /-- If `i ≠ j`, the pullback `Xᵢ ×[∐ X] Xⱼ` is initial. -/
-noncomputable def ofCoproductDisjoint [HasCoproduct X] [HasPullback (Sigma.ι X i) (Sigma.ι X j)] :
-    IsInitial (pullback (Sigma.ι X i) (Sigma.ι X j)) :=
+noncomputable def ofCoproductDisjoint [HasCoproduct X] [HasPullback (Sigma.ι X i) (Sigma.ι X j)]
+    : IsInitial (pullback (Sigma.ι X i) (Sigma.ι X j)) :=
   ofCoproductDisjointOfIsColimitOfIsLimit hij (colimit.isColimit _)
     (pullback.isLimit (Sigma.ι X i) (Sigma.ι X j))
 
 /-- If `i ≠ j`, the pullback `Xᵢ ×[Z] Xⱼ` is initial, if `Z` is the coproduct of the `Xᵢ`. -/
 noncomputable def ofCoproductDisjointOfIsColimit
-    {Z : C} {f : ∀ i, X i ⟶ Z} [HasPullback (f i) (f j)] (hc : IsColimit (Cofan.mk _ f)) :
-    IsInitial (pullback (f i) (f j)) :=
+    {Z : C} {f : ∀ i, X i ⟶ Z} [HasPullback (f i) (f j)] (hc : IsColimit (Cofan.mk _ f))
+    : IsInitial (pullback (f i) (f j)) :=
   ofCoproductDisjointOfIsColimitOfIsLimit hij hc (pullback.isLimit (f i) (f j))
 
 /-- If `i ≠ j` and `Xᵢ ← Y → Xⱼ` is a pullback diagram over `∐ X`, `Y` is initial. -/
 noncomputable def ofCoproductDisjointOfIsLimit
-    [HasCoproduct X] {s : PullbackCone (Sigma.ι X i) (Sigma.ι X j)} (hs : IsLimit s) :
-    IsInitial s.pt :=
+    [HasCoproduct X] {s : PullbackCone (Sigma.ι X i) (Sigma.ι X j)} (hs : IsLimit s)
+    : IsInitial s.pt :=
   ofCoproductDisjointOfIsColimitOfIsLimit hij (colimit.isColimit _) hs
 
-/-- If `C` has strict initial objects and there is a commutative square `Xᵢ ← Z → Xⱼ`
-over `∐ X`, then `Z` is initial. -/
-noncomputable def ofCoproductDisjointOfCommSq [HasStrictInitialObjects C]
-    {c : Cofan X} (hc : IsColimit c) {Z : C} (fst : Z ⟶ X i) (snd : Z ⟶ X j)
-    (h : fst ≫ c.inj i = snd ≫ c.inj j) [HasPullback (c.inj i) (c.inj j)] :
-    Limits.IsInitial Z :=
+/--
+If `C` has strict initial objects and there is a commutative square `Xᵢ ← Z → Xⱼ`
+over `∐ X`, then `Z` is initial.
+-/
+noncomputable def ofCoproductDisjointOfCommSq
+    [HasStrictInitialObjects C]
+    {c : Cofan X} (hc : IsColimit c)
+    {Z : C} (fst : Z ⟶ X i) (snd : Z ⟶ X j) (h : fst ≫ c.inj i = snd ≫ c.inj j)
+    [HasPullback (c.inj i) (c.inj j)]
+    : Limits.IsInitial Z :=
   .ofStrict (pullback.lift fst snd h) <|
     .ofCoproductDisjointOfIsColimitOfIsLimit hij hc (limit.isLimit _)
 
@@ -143,8 +149,10 @@ lemma CoproductDisjoint.isPullback_of_isInitial {c : Cofan X} (hc : IsColimit c)
 
 end
 
-/-- The binary coproduct of `X` and `Y` is disjoint if the coproduct of the family `{X, Y}` is
-disjoint. -/
+/--
+The binary coproduct of `X` and `Y` is disjoint if the coproduct of the family `{X, Y}` is
+disjoint.
+-/
 abbrev BinaryCoproductDisjoint (X Y : C) :=
   CoproductDisjoint (fun j : WalkingPair ↦ (j.casesOn X Y : C))
 
@@ -188,39 +196,41 @@ lemma _root_.CategoryTheory.Mono.of_binaryCoproductDisjoint_right {Z : C}
     (f : X ⟶ Z) {g : Y ⟶ Z} (hc : IsColimit <| BinaryCofan.mk f g) : Mono g :=
   .of_coproductDisjoint hc .right
 
-instance _root_.CategoryTheory.Mono.inl_of_binaryCoproductDisjoint [HasBinaryCoproduct X Y] :
-    Mono (coprod.inl : X ⟶ X ⨿ Y) :=
+instance _root_.CategoryTheory.Mono.inl_of_binaryCoproductDisjoint [HasBinaryCoproduct X Y]
+    : Mono (coprod.inl : X ⟶ X ⨿ Y) :=
   @Mono.ι_of_coproductDisjoint _ _ _ _ _ ‹_› WalkingPair.left
 
-instance _root_.CategoryTheory.Mono.inr_of_binaryCoproductDisjoint [HasBinaryCoproduct X Y] :
-    Mono (coprod.inr : Y ⟶ X ⨿ Y) :=
+instance _root_.CategoryTheory.Mono.inr_of_binaryCoproductDisjoint [HasBinaryCoproduct X Y]
+    : Mono (coprod.inr : Y ⟶ X ⨿ Y) :=
   @Mono.ι_of_coproductDisjoint _ _ _ _ _ ‹_› WalkingPair.right
 
 namespace IsInitial
 
-/-- If `X ← Z → Y` is a pullback diagram over `W`, where `W` is the
-coproduct of `X` and `Y`, then `Z` is initial. -/
+/--
+If `X ← Z → Y` is a pullback diagram over `W`, where `W` is the
+coproduct of `X` and `Y`, then `Z` is initial.
+-/
 noncomputable def ofBinaryCoproductDisjointOfIsColimitOfIsLimit
-    {c : BinaryCofan X Y} (hc : IsColimit c) {s : PullbackCone c.inl c.inr} (hs : IsLimit s) :
-    IsInitial s.pt :=
+    {c : BinaryCofan X Y} (hc : IsColimit c) {s : PullbackCone c.inl c.inr} (hs : IsLimit s)
+    : IsInitial s.pt :=
   (CoproductDisjoint.nonempty_isInitial_of_ne hc (by simp) _ hs).some
 
 /-- `X ×[X ⨿ Y] Y` is initial. -/
-noncomputable def ofBinaryCoproductDisjoint [HasBinaryCoproduct X Y]
-    [HasPullback (coprod.inl : X ⟶ X ⨿ Y) coprod.inr] :
-    IsInitial (pullback (coprod.inl : X ⟶ X ⨿ Y) coprod.inr) :=
+noncomputable def ofBinaryCoproductDisjoint
+    [HasBinaryCoproduct X Y] [HasPullback (coprod.inl : X ⟶ X ⨿ Y) coprod.inr]
+    : IsInitial (pullback (coprod.inl : X ⟶ X ⨿ Y) coprod.inr) :=
   ofBinaryCoproductDisjointOfIsColimitOfIsLimit (colimit.isColimit _) (pullback.isLimit _ _)
 
 /-- The pullback `X ×[W] Y` is initial, if `W` is the coproduct of `X` and `Y`. -/
-noncomputable def ofBinaryCoproductDisjointOfIsColimit {Z : C}
-    {f : X ⟶ Z} {g : Y ⟶ Z} [HasPullback f g] (hc : IsColimit (BinaryCofan.mk f g)) :
-    IsInitial (pullback f g) :=
+noncomputable def ofBinaryCoproductDisjointOfIsColimit
+    {Z : C} {f : X ⟶ Z} {g : Y ⟶ Z} [HasPullback f g] (hc : IsColimit (BinaryCofan.mk f g))
+    : IsInitial (pullback f g) :=
   ofBinaryCoproductDisjointOfIsColimitOfIsLimit hc (pullback.isLimit f g)
 
 /-- If `X ← Z → Y` is a pullback diagram over `X ⨿ Y`, `Z` is initial. -/
 noncomputable def ofBinaryCoproductDisjointOfIsLimit
-    [HasBinaryCoproduct X Y] (s : PullbackCone (coprod.inl : X ⟶ X ⨿ Y) coprod.inr)
-    (hs : IsLimit s) : IsInitial s.pt :=
+    [HasBinaryCoproduct X Y] (s : PullbackCone (coprod.inl : X ⟶ X ⨿ Y) coprod.inr) (hs : IsLimit s)
+    : IsInitial s.pt :=
   ofBinaryCoproductDisjointOfIsColimitOfIsLimit (colimit.isColimit _) hs
 
 end IsInitial
@@ -243,17 +253,19 @@ lemma BinaryCoproductsDisjoint.mk (H : ∀ (X Y : C), BinaryCoproductDisjoint X 
     convert! H (X .left) (X .right) using 2
     casesm WalkingPair <;> simp
 
-/-- If `C` has disjoint coproducts, any morphism out of initial is mono. Note it isn't true in
+/--
+If `C` has disjoint coproducts, any morphism out of initial is mono. Note it isn't true in
 general that `C` has strict initial objects, for instance consider the category of types and
-partial functions. -/
-theorem initialMonoClass_of_coproductsDisjoint [BinaryCoproductsDisjoint C] :
-    InitialMonoClass C where
+partial functions.
+-/
+theorem initialMonoClass_of_coproductsDisjoint [BinaryCoproductsDisjoint C]
+    : InitialMonoClass C where
   isInitial_mono_from X hI :=
-    .of_binaryCoproductDisjoint_left (CategoryTheory.CategoryStruct.id X)
-      { desc := fun s : BinaryCofan _ _ => s.inr
-        fac := fun _s j =>
-          Discrete.casesOn j fun j => WalkingPair.casesOn j (hI.hom_ext _ _) (id_comp _)
-        uniq := fun (_s : BinaryCofan _ _) _m w =>
-          (id_comp _).symm.trans (w ⟨WalkingPair.right⟩) }
+    .of_binaryCoproductDisjoint_left (CategoryTheory.CategoryStruct.id X) {
+      desc := fun s : BinaryCofan _ _ => s.inr
+      fac := fun _s j =>
+        Discrete.casesOn j fun j => WalkingPair.casesOn j (hI.hom_ext _ _) (id_comp _)
+      uniq := fun (_s : BinaryCofan _ _) _m w => (id_comp _).symm.trans (w ⟨WalkingPair.right⟩)
+    }
 
 end CategoryTheory.Limits

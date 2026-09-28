@@ -41,15 +41,17 @@ namespace Pseudofunctor
 
 variable {C : Type u} [Category.{v} C]
 
-/-- The property that a pseudofunctor `F : LocallyDiscrete Cᵒᵖ ⥤ᵖ Cat`
+/--
+The property that a pseudofunctor `F : LocallyDiscrete Cᵒᵖ ⥤ᵖ Cat`
 has effective descent for a Grothendieck topology, i.e. is a stack.
 (See the terminological note in the introduction of the file
-`Mathlib/CategoryTheory/Sites/Descent/IsPrestack.lean`.) -/
+`Mathlib/CategoryTheory/Sites/Descent/IsPrestack.lean`.)
+-/
 @[stacks 026F]
 class IsStack (F : LocallyDiscrete Cᵒᵖ ⥤ᵖ Cat.{v', u'}) (J : GrothendieckTopology C) : Prop
     extends F.IsPrestack J where
-  essSurj_of_sieve (F) {S : C} (R : Sieve S) (hR : R ∈ J S) :
-    (F.toDescentData (fun (f : R.arrows.category) ↦ f.obj.hom)).EssSurj
+  essSurj_of_sieve (F) {S : C} (R : Sieve S) (hR : R ∈ J S)
+    : (F.toDescentData (fun (f : R.arrows.category) ↦ f.obj.hom)).EssSurj
 
 variable (F : LocallyDiscrete Cᵒᵖ ⥤ᵖ Cat.{v', u'}) {J : GrothendieckTopology C}
 

@@ -22,8 +22,8 @@ public section
 variable {ι κ M N : Type*}
 
 @[to_additive]
-theorem MonoidHom.coe_finsetProd [MulOneClass M] [CommMonoid N] (f : ι → M →* N) (s : Finset ι) :
-    ⇑(∏ x ∈ s, f x) = ∏ x ∈ s, ⇑(f x) :=
+theorem MonoidHom.coe_finsetProd [MulOneClass M] [CommMonoid N] (f : ι → M →* N) (s : Finset ι)
+    : ⇑(∏ x ∈ s, f x) = ∏ x ∈ s, ⇑(f x) :=
   map_prod (MonoidHom.coeFn M N) _ _
 
 @[deprecated (since := "2026-04-08")]
@@ -32,13 +32,16 @@ alias AddMonoidHom.coe_finset_sum := AddMonoidHom.coe_finsetSum
 @[to_additive existing, deprecated (since := "2026-04-08")]
 alias MonoidHom.coe_finset_prod := MonoidHom.coe_finsetProd
 
-/-- See also `Finset.prod_apply`, with the same conclusion but with the weaker hypothesis
-`f : α → M → N` -/
+/--
+See also `Finset.prod_apply`, with the same conclusion but with the weaker hypothesis
+`f : α → M → N`
+-/
 @[to_additive (attr := simp)
   /-- See also `Finset.sum_apply`, with the same conclusion but with the weaker hypothesis
   `f : α → M → N` -/]
-theorem MonoidHom.finsetProd_apply [MulOneClass M] [CommMonoid N] (f : ι → M →* N) (s : Finset ι)
-    (b : M) : (∏ x ∈ s, f x) b = ∏ x ∈ s, f x b :=
+theorem MonoidHom.finsetProd_apply
+    [MulOneClass M] [CommMonoid N] (f : ι → M →* N) (s : Finset ι) (b : M)
+    : (∏ x ∈ s, f x) b = ∏ x ∈ s, f x b :=
   map_prod (MonoidHom.eval b) _ _
 
 @[deprecated (since := "2026-04-08")]

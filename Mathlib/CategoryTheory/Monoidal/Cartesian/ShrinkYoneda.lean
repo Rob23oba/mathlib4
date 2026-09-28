@@ -41,16 +41,15 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The Yoneda embedding `Mon C ⥤ Cᵒᵖ ⥤ MonCat.{w}` for a locally `w`-small category `C`. -/
 @[simps -isSimp obj map, pp_with_univ]
-noncomputable def shrinkYonedaMon :
-    Mon C ⥤ Cᵒᵖ ⥤ MonCat.{w} where
+noncomputable def shrinkYonedaMon : Mon C ⥤ Cᵒᵖ ⥤ MonCat.{w} where
   obj X := MonCat.shrinkFunctor (yonedaMon.obj X)
   map f := MonCat.shrinkFunctorMap (yonedaMon.map f)
 
 open MonObj
 
 /-- The type `(shrinkYonedaMon.obj M).obj Y` is equivalent to `Y.unop ⟶ M.X`. -/
-noncomputable def shrinkYonedaMonObjObjEquiv {M : Mon C} {Y : Cᵒᵖ} :
-    (shrinkYonedaMon.{w}.obj M).obj Y ≃* (Y.unop ⟶ M.X) :=
+noncomputable def shrinkYonedaMonObjObjEquiv {M : Mon C} {Y : Cᵒᵖ}
+    : (shrinkYonedaMon.{w}.obj M).obj Y ≃* (Y.unop ⟶ M.X) :=
   Shrink.mulEquiv
 
 set_option backward.defeqAttrib.useBackward true in
@@ -78,14 +77,13 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The Yoneda embedding `Grp C ⥤ Cᵒᵖ ⥤ GrpCat.{w}` for a locally `w`-small category `C`. -/
 @[simps -isSimp obj map, pp_with_univ]
-noncomputable def shrinkYonedaGrp :
-    Grp C ⥤ Cᵒᵖ ⥤ GrpCat.{w} where
+noncomputable def shrinkYonedaGrp : Grp C ⥤ Cᵒᵖ ⥤ GrpCat.{w} where
   obj X := GrpCat.shrinkFunctor (yonedaGrp.obj X)
   map f := GrpCat.shrinkFunctorMap (yonedaGrp.map f)
 
 /-- The type `(shrinkYonedaGrp.obj M).obj Y` is equivalent to `Y.unop ⟶ M.X`. -/
-noncomputable def shrinkYonedaGrpObjObjEquiv {M : Grp C} {Y : Cᵒᵖ} :
-    (shrinkYonedaGrp.{w}.obj M).obj Y ≃* (Y.unop ⟶ M.X) :=
+noncomputable def shrinkYonedaGrpObjObjEquiv {M : Grp C} {Y : Cᵒᵖ}
+    : (shrinkYonedaGrp.{w}.obj M).obj Y ≃* (Y.unop ⟶ M.X) :=
   Shrink.mulEquiv
 
 set_option backward.defeqAttrib.useBackward true in

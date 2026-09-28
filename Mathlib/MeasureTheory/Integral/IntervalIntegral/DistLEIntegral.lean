@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Calculus.DiffContOnCl
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.Analysis.Calculus.LineDeriv.Basic
-
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 
@@ -19,14 +18,13 @@ In this file we prove several version of the following fact:
 the displacement (`dist (f a) (f b)`) is at most the integral of `‖deriv f‖` over `[a, b]`.
 -/
 
-
 public section
 
 open Filter Set MeasureTheory Metric
 open scoped Topology
 
-variable {E F : Type*}
-  [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F] [NormedSpace ℝ F]
+variable
+  {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F] [NormedSpace ℝ F]
 
 section Line
 
@@ -170,22 +168,26 @@ lemma norm_sub_le_mul_volume_of_norm_fderiv_le (hs : IsOpen s) (hf : DiffContOnC
     simp
   · simp +contextual [(hf.differentiableAt hs <| hmem_s _ ‹_›).lineDeriv_eq_fderiv]
 
-/-- Let `f : E → F` be a function differentiable in a neighborhood of `a`.
+/--
+Let `f : E → F` be a function differentiable in a neighborhood of `a`.
 If $Df(x) = O(‖x - a‖ ^ r)$ as `x → a`, where `r ≥ 0`,
-then $f(x) - f(a) = O(‖x - a‖ ^ {r + 1})$ as `x → a`. -/
-theorem sub_isBigO_norm_rpow_add_one_of_fderiv (hr : 0 ≤ r)
-    (hdf : ∀ᶠ x in 𝓝 a, DifferentiableAt ℝ f x) (hderiv : fderiv ℝ f =O[𝓝 a] (‖· - a‖ ^ r)) :
-    (f · - f a) =O[𝓝 a] (‖· - a‖ ^ (r + 1)) := by
+then $f(x) - f(a) = O(‖x - a‖ ^ {r + 1})$ as `x → a`.
+-/
+theorem sub_isBigO_norm_rpow_add_one_of_fderiv
+    (hr : 0 ≤ r) (hdf : ∀ᶠ x in 𝓝 a, DifferentiableAt ℝ f x)
+    (hderiv : fderiv ℝ f =O[𝓝 a] (‖· - a‖ ^ r))
+    : (f · - f a) =O[𝓝 a] (‖· - a‖ ^ (r + 1)) := by
   rcases hderiv.exists_pos with ⟨C, hC₀, hC⟩
   rw [Asymptotics.IsBigOWith_def] at hC
   rcases eventually_nhds_iff_ball.mp (hdf.and hC) with ⟨ε, hε₀, hε⟩
   refine .of_bound C ?_
   rw [eventually_nhds_iff_ball]
   refine ⟨ε, hε₀, fun y hy ↦ ?_⟩
-  rw [Real.norm_of_nonneg (by positivity), Real.rpow_add_one' (by positivity) (by positivity),
-    ← mul_assoc]
-  have hsub : closedBall a ‖y - a‖ ⊆ ball a ε :=
-    closedBall_subset_ball (mem_ball_iff_norm.mp hy)
+  rw [
+    Real.norm_of_nonneg (by positivity), Real.rpow_add_one' (by positivity) (by positivity),
+    ← mul_assoc
+  ]
+  have hsub : closedBall a ‖y - a‖ ⊆ ball a ε := closedBall_subset_ball (mem_ball_iff_norm.mp hy)
   apply (convex_closedBall a ‖y - a‖).norm_image_sub_le_of_norm_fderiv_le (𝕜 := ℝ)
   · exact fun z hz ↦ (hε z <| hsub hz).1
   · intro z hz
@@ -193,13 +195,15 @@ theorem sub_isBigO_norm_rpow_add_one_of_fderiv (hr : 0 ≤ r)
   · simp
   · simp [dist_eq_norm_sub]
 
-/-- Let `f : E → F` be a function differentiable in a neighborhood of `a`.
+/--
+Let `f : E → F` be a function differentiable in a neighborhood of `a`.
 If $Df(x) = O(‖x - a‖ ^ r)$ as `x → a`, where `r ≥ 0`, and `f a = 0`,
-then $f(x) = O(‖x - a‖ ^ {r + 1})$ as `x → a`. -/
-theorem isBigO_norm_rpow_add_one_of_fderiv_of_apply_eq_zero (hr : 0 ≤ r)
-    (hdf : ∀ᶠ x in 𝓝 a, DifferentiableAt ℝ f x) (hderiv : fderiv ℝ f =O[𝓝 a] (‖· - a‖ ^ r))
-    (hf₀ : f a = 0) :
-    f =O[𝓝 a] (‖· - a‖ ^ (r + 1)) := by
+then $f(x) = O(‖x - a‖ ^ {r + 1})$ as `x → a`.
+-/
+theorem isBigO_norm_rpow_add_one_of_fderiv_of_apply_eq_zero
+    (hr : 0 ≤ r) (hdf : ∀ᶠ x in 𝓝 a, DifferentiableAt ℝ f x)
+    (hderiv : fderiv ℝ f =O[𝓝 a] (‖· - a‖ ^ r)) (hf₀ : f a = 0)
+    : f =O[𝓝 a] (‖· - a‖ ^ (r + 1)) := by
   simpa [hf₀] using sub_isBigO_norm_rpow_add_one_of_fderiv hr hdf hderiv
 
 end NormedSpace

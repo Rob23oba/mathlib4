@@ -26,11 +26,9 @@ namespace AlexDisc
 
 attribute [instance] is_alexandrovDiscrete
 
-instance : CoeSort AlexDisc (Type _) :=
-  ⟨fun X => X.toTopCat⟩
+instance : CoeSort AlexDisc (Type _) := ⟨fun X => X.toTopCat⟩
 
-instance category : Category AlexDisc :=
-  inferInstanceAs <| Category (InducedCategory _ toTopCat)
+instance category : Category AlexDisc := inferInstanceAs <| Category (InducedCategory _ toTopCat)
 
 instance concreteCategory : ConcreteCategory AlexDisc (C(·, ·)) :=
   inferInstanceAs <| ConcreteCategory (InducedCategory _ toTopCat) _
@@ -46,7 +44,6 @@ instance forgetToTop_faithful : (forget₂ AlexDisc TopCat).Faithful where
   map_injective {X Y f g} h := by
     ext x
     congrm $h x
-
 
 /-- Construct a bundled `AlexDisc` from the underlying topological space. -/
 abbrev of (X : Type*) [TopologicalSpace X] [AlexandrovDiscrete X] : AlexDisc where
@@ -80,7 +77,9 @@ def alexDiscEquivPreord : AlexDisc ≌ Preord where
   functor := forget₂ _ _ ⋙ topToPreord
   inverse.obj X := ↧(WithUpperSet X)
   inverse.map f := ConcreteCategory.ofHom (WithUpperSet.map f.hom)
-  unitIso := NatIso.ofComponents fun X ↦ AlexDisc.Iso.mk <| by
-    dsimp; exact homeoWithUpperSetTopologyorderIso X
-  counitIso := NatIso.ofComponents fun X ↦ Preord.Iso.mk <| by
-    dsimp; exact (orderIsoSpecializationWithUpperSetTopology X).symm
+  unitIso :=
+    NatIso.ofComponents fun X ↦
+      AlexDisc.Iso.mk <| by dsimp; exact homeoWithUpperSetTopologyorderIso X
+  counitIso :=
+    NatIso.ofComponents fun X ↦
+      Preord.Iso.mk <| by dsimp; exact (orderIsoSpecializationWithUpperSetTopology X).symm

@@ -54,8 +54,8 @@ lemma cofibrations_over_iff {X Y : Over S} (f : X ⟶ Y) :
 instance {X Y : Over S} (f : X ⟶ Y) [Cofibration f] : Cofibration f.left := by
   rwa [← cofibrations_over_iff]
 
-instance [(cofibrations C).IsStableUnderRetracts] :
-    (cofibrations (Over S)).IsStableUnderRetracts := by
+instance [(cofibrations C).IsStableUnderRetracts]
+    : (cofibrations (Over S)).IsStableUnderRetracts := by
   rw [cofibrations_over_def, MorphismProperty.over_eq_inverseImage]
   infer_instance
 
@@ -78,8 +78,7 @@ lemma fibrations_over_iff {X Y : Over S} (f : X ⟶ Y) :
 instance {X Y : Over S} (f : X ⟶ Y) [Fibration f] : Fibration f.left := by
   rwa [← fibrations_over_iff]
 
-instance [(fibrations C).IsStableUnderRetracts] :
-    (fibrations (Over S)).IsStableUnderRetracts := by
+instance [(fibrations C).IsStableUnderRetracts] : (fibrations (Over S)).IsStableUnderRetracts := by
   rw [fibrations_over_def, MorphismProperty.over_eq_inverseImage]
   infer_instance
 
@@ -102,8 +101,8 @@ lemma weakEquivalences_over_iff {X Y : Over S} (f : X ⟶ Y) :
 instance {X Y : Over S} (f : X ⟶ Y) [WeakEquivalence f] : WeakEquivalence f.left := by
   rwa [← weakEquivalences_over_iff]
 
-instance [(weakEquivalences C).IsStableUnderRetracts] :
-    (weakEquivalences (Over S)).IsStableUnderRetracts := by
+instance [(weakEquivalences C).IsStableUnderRetracts]
+    : (weakEquivalences (Over S)).IsStableUnderRetracts := by
   rw [weakEquivalences_over_def, MorphismProperty.over_eq_inverseImage]
   infer_instance
 
@@ -117,24 +116,22 @@ lemma trivialFibrations_over_eq
     [CategoryWithWeakEquivalences C] [CategoryWithFibrations C] :
     trivialFibrations (Over S) = (trivialFibrations C).over := rfl
 
-instance [CategoryWithWeakEquivalences C]
-    [(weakEquivalences C).HasTwoOutOfThreeProperty] :
-    (weakEquivalences (Over S)).HasTwoOutOfThreeProperty := by
+instance [CategoryWithWeakEquivalences C] [(weakEquivalences C).HasTwoOutOfThreeProperty]
+    : (weakEquivalences (Over S)).HasTwoOutOfThreeProperty := by
   rw [weakEquivalences_over_def, MorphismProperty.over_eq_inverseImage]
   infer_instance
 
 section
 
-variable [CategoryWithWeakEquivalences C] [CategoryWithCofibrations C]
-  [CategoryWithFibrations C]
+variable [CategoryWithWeakEquivalences C] [CategoryWithCofibrations C] [CategoryWithFibrations C]
 
-instance [(trivialCofibrations C).HasFactorization (fibrations C)] :
-    (trivialCofibrations (Over S)).HasFactorization (fibrations (Over S)) := by
+instance [(trivialCofibrations C).HasFactorization (fibrations C)]
+    : (trivialCofibrations (Over S)).HasFactorization (fibrations (Over S)) := by
   rw [fibrations_over_def, trivialCofibrations_over_eq]
   infer_instance
 
-instance [(cofibrations C).HasFactorization (trivialFibrations C)] :
-    (cofibrations (Over S)).HasFactorization (trivialFibrations (Over S)) := by
+instance [(cofibrations C).HasFactorization (trivialFibrations C)]
+    : (cofibrations (Over S)).HasFactorization (trivialFibrations (Over S)) := by
   rw [cofibrations_over_def, trivialFibrations_over_eq]
   infer_instance
 

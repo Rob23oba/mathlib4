@@ -196,8 +196,9 @@ lemma monoidHom_comp_eq_zero (h : MulExact f g) : g.comp f = 1 :=
 
 section
 
-variable {X₁ X₂ X₃ Y₁ Y₂ Y₃ : Type*} [CommMonoid X₁] [CommMonoid X₂] [CommMonoid X₃]
-  [CommMonoid Y₁] [CommMonoid Y₂] [CommMonoid Y₃]
+variable
+  {X₁ X₂ X₃ Y₁ Y₂ Y₃ : Type*}
+  [CommMonoid X₁] [CommMonoid X₂] [CommMonoid X₃] [CommMonoid Y₁] [CommMonoid Y₂] [CommMonoid Y₃]
   (e₁ : X₁ ≃* Y₁) (e₂ : X₂ ≃* Y₂) (e₃ : X₃ ≃* Y₃)
   {f₁₂ : X₁ →* X₂} {f₂₃ : X₂ →* X₃} {g₁₂ : Y₁ →* Y₂} {g₂₃ : Y₂ →* Y₃}
 
@@ -238,9 +239,10 @@ section LinearMap
 
 open Function
 
-variable [Semiring R] [AddCommMonoid M] [AddCommMonoid M'] [AddCommMonoid N]
-  [AddCommMonoid N'] [AddCommMonoid P] [AddCommMonoid P'] [Module R M]
-  [Module R M'] [Module R N] [Module R N'] [Module R P] [Module R P']
+variable
+  [Semiring R] [AddCommMonoid M] [AddCommMonoid M'] [AddCommMonoid N] [AddCommMonoid N']
+  [AddCommMonoid P] [AddCommMonoid P'] [Module R M] [Module R M'] [Module R N] [Module R N']
+  [Module R P] [Module R P']
 
 variable {f : M →ₗ[R] N} {g : N →ₗ[R] P}
 
@@ -260,8 +262,9 @@ lemma exact_of_comp_of_mem_range
 
 section Ring
 
-variable {R M N P : Type*} [Ring R]
-  [AddCommGroup M] [AddCommGroup N] [AddCommGroup P] [Module R M] [Module R N] [Module R P]
+variable
+  {R M N P : Type*}
+  [Ring R] [AddCommGroup M] [AddCommGroup N] [AddCommGroup P] [Module R M] [Module R N] [Module R P]
 
 lemma exact_subtype_mkQ (Q : Submodule R N) :
     Exact (Submodule.subtype Q) (Submodule.mkQ Q) := by
@@ -335,8 +338,8 @@ lemma _root_.LinearEquiv.postcomp_exact_iff_exact {e : P ≃ₗ[R] P'} :
 namespace Exact
 
 variable
-    {f₁₂ : M →ₗ[R] N} {f₂₃ : N →ₗ[R] P} {g₁₂ : M' →ₗ[R] N'}
-    {g₂₃ : N' →ₗ[R] P'} {e₁ : M ≃ₗ[R] M'} {e₂ : N ≃ₗ[R] N'} {e₃ : P ≃ₗ[R] P'}
+  {f₁₂ : M →ₗ[R] N} {f₂₃ : N →ₗ[R] P} {g₁₂ : M' →ₗ[R] N'} {g₂₃ : N' →ₗ[R] P'} {e₁ : M ≃ₗ[R] M'}
+  {e₂ : N ≃ₗ[R] N'} {e₃ : P ≃ₗ[R] P'}
 
 lemma iff_of_ladder_linearEquiv
     (h₁₂ : g₁₂ ∘ₗ e₁ = e₂ ∘ₗ f₁₂) (h₂₃ : g₂₃ ∘ₗ e₂ = e₃ ∘ₗ f₂₃) :
@@ -375,17 +378,19 @@ variable {f : M →ₗ[R] N} {g : N →ₗ[R] P}
 open LinearMap
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given an exact sequence `0 → M → N → P`, giving a section `P → N` is equivalent to giving a
-splitting `N ≃ M × P`. -/
-noncomputable
-def Exact.splitSurjectiveEquiv (h : Function.Exact f g) (hf : Function.Injective f) :
-    { l // g ∘ₗ l = .id } ≃
-      { e : N ≃ₗ[R] M × P // f = e.symm ∘ₗ inl R M P ∧ g = snd R M P ∘ₗ e } := by
-  refine
-  { toFun := fun l ↦ ⟨(LinearEquiv.ofBijective (f ∘ₗ fst R M P + l.1 ∘ₗ snd R M P) ?_).symm, ?_⟩
+/--
+Given an exact sequence `0 → M → N → P`, giving a section `P → N` is equivalent to giving a
+splitting `N ≃ M × P`.
+-/
+noncomputable def Exact.splitSurjectiveEquiv (h : Function.Exact f g) (hf : Function.Injective f)
+    : {l // g ∘ₗ l = .id}
+      ≃ {e : N ≃ₗ[R] M × P // f = e.symm ∘ₗ inl R M P ∧ g = snd R M P ∘ₗ e} := by
+  refine {
+    toFun := fun l ↦ ⟨(LinearEquiv.ofBijective (f ∘ₗ fst R M P + l.1 ∘ₗ snd R M P) ?_).symm, ?_⟩
     invFun := fun e ↦ ⟨e.1.symm ∘ₗ inr R M P, ?_⟩
     left_inv := ?_
-    right_inv := ?_ }
+    right_inv := ?_
+  }
   · have h₁ : ∀ x, g (l.1 x) = x := LinearMap.congr_fun l.2
     have h₂ : ∀ x, g (f x) = 0 := congr_fun h.comp_eq_zero
     constructor
@@ -412,20 +417,22 @@ def Exact.splitSurjectiveEquiv (h : Function.Exact f g) (hf : Function.Injective
     ext <;> simp
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given an exact sequence `M → N → P → 0`, giving a retraction `N → M` is equivalent to giving a
-splitting `N ≃ M × P`. -/
-noncomputable
-def Exact.splitInjectiveEquiv
-    {R M N P} [Semiring R] [AddCommGroup M] [AddCommGroup N]
-    [AddCommGroup P] [Module R M] [Module R N] [Module R P] {f : M →ₗ[R] N} {g : N →ₗ[R] P}
-    (h : Function.Exact f g) (hg : Function.Surjective g) :
-    { l // l ∘ₗ f = .id } ≃
-      { e : N ≃ₗ[R] M × P // f = e.symm ∘ₗ inl R M P ∧ g = snd R M P ∘ₗ e } := by
-  refine
-  { toFun := fun l ↦ ⟨(LinearEquiv.ofBijective (l.1.prod g) ?_), ?_⟩
+/--
+Given an exact sequence `M → N → P → 0`, giving a retraction `N → M` is equivalent to giving a
+splitting `N ≃ M × P`.
+-/
+noncomputable def Exact.splitInjectiveEquiv
+    {R M N P} [Semiring R] [AddCommGroup M] [AddCommGroup N] [AddCommGroup P] [Module R M]
+    [Module R N] [Module R P]
+    {f : M →ₗ[R] N} {g : N →ₗ[R] P} (h : Function.Exact f g) (hg : Function.Surjective g)
+    : {l // l ∘ₗ f = .id}
+      ≃ {e : N ≃ₗ[R] M × P // f = e.symm ∘ₗ inl R M P ∧ g = snd R M P ∘ₗ e} := by
+  refine {
+    toFun := fun l ↦ ⟨(LinearEquiv.ofBijective (l.1.prod g) ?_), ?_⟩
     invFun := fun e ↦ ⟨fst R M P ∘ₗ e.1, ?_⟩
     left_inv := ?_
-    right_inv := ?_ }
+    right_inv := ?_
+  }
   · have h₁ : ∀ x, l.1 (f x) = x := LinearMap.congr_fun l.2
     have h₂ : ∀ x, g (f x) = 0 := congr_fun h.comp_eq_zero
     constructor
@@ -447,11 +454,12 @@ def Exact.splitInjectiveEquiv
   · rintro ⟨e, rfl, rfl⟩
     ext x <;> simp
 
-theorem Exact.split_tfae' (h : Function.Exact f g) :
-    List.TFAE [
+theorem Exact.split_tfae' (h : Function.Exact f g)
+    : List.TFAE [
       Function.Injective f ∧ ∃ l, g ∘ₗ l = LinearMap.id,
       Function.Surjective g ∧ ∃ l, l ∘ₗ f = LinearMap.id,
-      ∃ e : N ≃ₗ[R] M × P, f = e.symm ∘ₗ LinearMap.inl R M P ∧ g = LinearMap.snd R M P ∘ₗ e] := by
+      ∃ e : N ≃ₗ[R] M × P, f = e.symm ∘ₗ LinearMap.inl R M P ∧ g = LinearMap.snd R M P ∘ₗ e
+    ] := by
   tfae_have 1 → 3
   | ⟨hf, l, hl⟩ => ⟨_, (h.splitSurjectiveEquiv hf ⟨l, hl⟩).2⟩
   tfae_have 2 → 3
@@ -468,13 +476,15 @@ theorem Exact.split_tfae' (h : Function.Exact f g) :
 
 /-- Equivalent characterizations of split exact sequences. Also known as the **Splitting lemma**. -/
 theorem Exact.split_tfae
-    {R M N P} [Semiring R] [AddCommGroup M] [AddCommGroup N]
-    [AddCommGroup P] [Module R M] [Module R N] [Module R P] {f : M →ₗ[R] N} {g : N →ₗ[R] P}
-    (h : Function.Exact f g) (hf : Function.Injective f) (hg : Function.Surjective g) :
-    List.TFAE [
+    {R M N P} [Semiring R] [AddCommGroup M] [AddCommGroup N] [AddCommGroup P] [Module R M]
+    [Module R N] [Module R P]
+    {f : M →ₗ[R] N} {g : N →ₗ[R] P}
+    (h : Function.Exact f g) (hf : Function.Injective f) (hg : Function.Surjective g)
+    : List.TFAE [
       ∃ l, g ∘ₗ l = LinearMap.id,
       ∃ l, l ∘ₗ f = LinearMap.id,
-      ∃ e : N ≃ₗ[R] M × P, f = e.symm ∘ₗ LinearMap.inl R M P ∧ g = LinearMap.snd R M P ∘ₗ e] := by
+      ∃ e : N ≃ₗ[R] M × P, f = e.symm ∘ₗ LinearMap.inl R M P ∧ g = LinearMap.snd R M P ∘ₗ e
+    ] := by
   tfae_have 1 ↔ 3 := by
     simpa using (h.splitSurjectiveEquiv hf).nonempty_congr
   tfae_have 2 ↔ 3 := by
@@ -505,9 +515,9 @@ section Ring
 
 open LinearMap Submodule
 
-variable [Ring R] [AddCommGroup M] [AddCommGroup N] [AddCommGroup P]
-    [Module R M] [Module R N] [Module R P]
-    {f : M →ₗ[R] N} {g : N →ₗ[R] P}
+variable
+  [Ring R] [AddCommGroup M] [AddCommGroup N] [AddCommGroup P] [Module R M] [Module R N] [Module R P]
+  {f : M →ₗ[R] N} {g : N →ₗ[R] P}
 
 namespace Function
 
@@ -577,11 +587,14 @@ lemma injective_iff_eq_zero_of_exact (h : Function.Exact f g) :
 
 end LinearMap
 
-/-- The linear equivalence `(N ⧸ LinearMap.range f) ≃ₗ[A] P` associated to
-an exact sequence `M → N → P → 0` of `R`-modules. -/
+/--
+The linear equivalence `(N ⧸ LinearMap.range f) ≃ₗ[A] P` associated to
+an exact sequence `M → N → P → 0` of `R`-modules.
+-/
 @[simps! apply]
-noncomputable def Function.Exact.linearEquivOfSurjective (h : Function.Exact f g)
-    (hg : Function.Surjective g) : (N ⧸ LinearMap.range f) ≃ₗ[R] P :=
+noncomputable def Function.Exact.linearEquivOfSurjective
+    (h : Function.Exact f g) (hg : Function.Surjective g)
+    : (N ⧸ LinearMap.range f) ≃ₗ[R] P :=
   LinearEquiv.ofBijective ((LinearMap.range f).liftQ g (h · |>.mpr))
     ⟨LinearMap.injective_range_liftQ_of_exact h, LinearMap.surjective_range_liftQ _ hg⟩
 

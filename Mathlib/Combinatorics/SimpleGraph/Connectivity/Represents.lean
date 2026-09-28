@@ -26,8 +26,10 @@ variable {G : SimpleGraph V}
 
 namespace SimpleGraph.ConnectedComponent
 
-/-- A set of vertices represents a set of components if it contains exactly one vertex from
-each component. -/
+/--
+A set of vertices represents a set of components if it contains exactly one vertex from
+each component.
+-/
 def Represents (s : Set V) (C : Set G.ConnectedComponent) : Prop :=
   Set.BijOn G.connectedComponentMk s C
 

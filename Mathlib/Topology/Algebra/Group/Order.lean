@@ -105,8 +105,8 @@ end OrderedCommGroup
 
 section OrderedDiv
 
-variable [TopologicalSpace H] [CommGroup H] [IsTopologicalGroup H]
-  [PartialOrder H] [IsOrderedMonoid H]
+variable
+  [TopologicalSpace H] [CommGroup H] [IsTopologicalGroup H] [PartialOrder H] [IsOrderedMonoid H]
 
 @[to_additive (attr := simp)]
 theorem Filter.map_divRight_nhdsGT {c a : H} : map (· / c) (𝓝[>] a) = 𝓝[>] (a / c) := by

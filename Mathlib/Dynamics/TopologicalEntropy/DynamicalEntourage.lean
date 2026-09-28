@@ -45,11 +45,12 @@ open scoped SetRel Topology Uniformity
 
 variable {X : Type*} {T : X → X} {U V : SetRel X X} {m n : ℕ} {x y : X}
 
-/-- The dynamical entourage associated to a transformation `T`, entourage `U` and time `n`
+/--
+The dynamical entourage associated to a transformation `T`, entourage `U` and time `n`
 is the entourage where `x` and `y` are close iff `T^[k] x` and `T^[k] y` are `U`-close
-for all `k < n`, i.e. iff they are `U`-close up to time `n`. -/
-def dynEntourage (T : X → X) (U : SetRel X X) (n : ℕ) : SetRel X X :=
-  ⋂ k < n, (map T T)^[k] ⁻¹' U
+for all `k < n`, i.e. iff they are `U`-close up to time `n`.
+-/
+def dynEntourage (T : X → X) (U : SetRel X X) (n : ℕ) : SetRel X X := ⋂ k < n, (map T T)^[k] ⁻¹' U
 
 lemma dynEntourage_eq_inter_Ico (T : X → X) (U : SetRel X X) (n : ℕ) :
     dynEntourage T U n = ⋂ k : Ico 0 n, (map T T)^[k] ⁻¹' U := by

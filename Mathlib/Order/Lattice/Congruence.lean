@@ -36,8 +36,10 @@ Lattice, Congruence
 variable {F α β : Type*} [Lattice α] [Lattice β]
 
 variable (α) in
-/-- An equivalence relation is a congruence relation for the lattice structure if it is compatible
-with the `inf` and `sup` operations. -/
+/--
+An equivalence relation is a congruence relation for the lattice structure if it is compatible
+with the `inf` and `sup` operations.
+-/
 structure LatticeCon extends Setoid α where
   inf : ∀ {w x y z}, r w x → r y z → r (w ⊓ y) (x ⊓ z)
   sup : ∀ {w x y z}, r w x → r y z → r (w ⊔ y) (x ⊔ z)
@@ -79,10 +81,13 @@ private lemma transitive {r : α → α → Prop}
           ((h₄ inf_le_sup (h₂.mp hxy)).2 : r (x ⊓ y ⊔ (y ⊔ z)) (x ⊔ y ⊔ (y ⊔ z)))))
 
 /-- Alternative conditions for a lattice congruence. -/
-@[no_expose] def mk' (r : α → α → Prop) [h₁ : Std.Refl r]
+@[no_expose]
+def mk'
+    (r : α → α → Prop) [h₁ : Std.Refl r]
     (h₂ : ∀ ⦃x y : α⦄, r x y ↔ r (x ⊓ y) (x ⊔ y))
     (h₃ : ∀ ⦃x y z : α⦄, x ≤ y → y ≤ z → r x y → r y z → r x z)
-    (h₄ : ∀ ⦃x y t : α⦄, x ≤ y → r x y → r (x ⊓ t) (y ⊓ t) ∧ r (x ⊔ t) (y ⊔ t)) : LatticeCon α where
+    (h₄ : ∀ ⦃x y t : α⦄, x ≤ y → r x y → r (x ⊓ t) (y ⊓ t) ∧ r (x ⊔ t) (y ⊔ t))
+    : LatticeCon α where
   r := r
   iseqv.refl := h₁.refl
   iseqv.symm h := by simpa [h₂, inf_comm, sup_comm, ← h₂] using h
@@ -90,21 +95,18 @@ private lemma transitive {r : α → α → Prop}
   inf := by
     intro w _ _ _ h1 h2
     have compatible_left_inf {x y t : α} (hh : r x y) : r (x ⊓ t) (y ⊓ t) :=
-      closed_interval h₂ h₄ ((x ⊓ y) ⊓ t) _ _ ((x ⊔ y) ⊓ t)
-            (inf_le_inf_right _ inf_le_left) (inf_le_inf_right _ le_sup_left)
-            (inf_le_inf_right _ inf_le_right) (inf_le_inf_right _ le_sup_right)
-            (h₄ inf_le_sup (h₂.mp hh)).1
-    exact transitive h₂ h₃ h₄ (by
-          simpa [inf_comm w] using compatible_left_inf h2) (compatible_left_inf h1)
+      closed_interval h₂ h₄ ((x ⊓ y) ⊓ t) _ _ ((x ⊔ y) ⊓ t) (inf_le_inf_right _ inf_le_left)
+        (inf_le_inf_right _ le_sup_left) (inf_le_inf_right _ inf_le_right)
+        (inf_le_inf_right _ le_sup_right) (h₄ inf_le_sup (h₂.mp hh)).1
+    exact transitive h₂ h₃ h₄ (by simpa [inf_comm w] using compatible_left_inf h2)
+      (compatible_left_inf h1)
   sup := by
     intro w _ _ _ h1 h2
     have compatible_left_sup {x y t : α} (hh : r x y) : r (x ⊔ t) (y ⊔ t) :=
-      closed_interval h₂ h₄ ((x ⊓ y) ⊔ t) _ _ ((x ⊔ y) ⊔ t)
-        (sup_le_sup_right inf_le_left _) (sup_le_sup_right le_sup_left _)
-        (sup_le_sup_right inf_le_right _) (sup_le_sup_right le_sup_right _)
-        (h₄ inf_le_sup (h₂.mp hh)).2
-    exact transitive h₂ h₃ h₄ (by
-      simpa [sup_comm w] using compatible_left_sup h2)
+      closed_interval h₂ h₄ ((x ⊓ y) ⊔ t) _ _ ((x ⊔ y) ⊔ t) (sup_le_sup_right inf_le_left _)
+        (sup_le_sup_right le_sup_left _) (sup_le_sup_right inf_le_right _)
+        (sup_le_sup_right le_sup_right _) (h₄ inf_le_sup (h₂.mp hh)).2
+    exact transitive h₂ h₃ h₄ (by simpa [sup_comm w] using compatible_left_sup h2)
       (compatible_left_sup h1)
 
 variable [FunLike F α β]

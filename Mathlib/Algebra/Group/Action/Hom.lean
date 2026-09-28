@@ -24,15 +24,17 @@ variable {M N α : Type*}
 section
 variable [Monoid M] [MulAction M α]
 
-/-- Push forward the action of `R` on `M` along a compatible surjective map `f : R →* S`.
+/--
+Push forward the action of `R` on `M` along a compatible surjective map `f : R →* S`.
 
 See also `Function.Surjective.distribMulActionLeft` and `Function.Surjective.moduleLeft`.
 -/
 @[to_additive
-/-- Push forward the action of `R` on `M` along a compatible surjective map `f : R →+ S`. -/]
-abbrev Function.Surjective.mulActionLeft {R S M : Type*} [Monoid R] [MulAction R M] [Monoid S]
-    [SMul S M] (f : R →* S) (hf : Surjective f) (hsmul : ∀ (c) (x : M), f c • x = c • x) :
-    MulAction S M where
+  /-- Push forward the action of `R` on `M` along a compatible surjective map `f : R →+ S`. -/]
+abbrev Function.Surjective.mulActionLeft
+    {R S M : Type*} [Monoid R] [MulAction R M] [Monoid S] [SMul S M]
+    (f : R →* S) (hf : Surjective f) (hsmul : ∀ (c) (x : M), f c • x = c • x)
+    : MulAction S M where
   one_smul b := by rw [← f.map_one, hsmul, one_smul]
   mul_smul := hf.forall₂.mpr fun a b x ↦ by simp only [← f.map_mul, hsmul, mul_smul]
 
@@ -40,20 +42,24 @@ namespace MulAction
 
 variable (α)
 
-/-- A multiplicative action of `M` on `α` and a monoid homomorphism `N → M` induce
+/--
+A multiplicative action of `M` on `α` and a monoid homomorphism `N → M` induce
 a multiplicative action of `N` on `α`.
 
-See note [reducible non-instances]. -/
+See note [reducible non-instances].
+-/
 @[to_additive]
 abbrev compHom [Monoid N] (g : N →* M) : MulAction N α where
   smul := SMul.comp.smul g
   one_smul _ := by simpa [(· • ·)] using one_smul ..
   mul_smul _ _ _ := by simpa [(· • ·)] using mul_smul ..
 
-/-- An additive action of `M` on `α` and an additive monoid homomorphism `N → M` induce
+/--
+An additive action of `M` on `α` and an additive monoid homomorphism `N → M` induce
 an additive action of `N` on `α`.
 
-See note [reducible non-instances]. -/
+See note [reducible non-instances].
+-/
 add_decl_doc AddAction.compHom
 
 @[to_additive]
@@ -85,24 +91,28 @@ end
 
 section CompatibleScalar
 
-/-- If the multiplicative action of `M` on `N` is compatible with multiplication on `N`, then
-`fun x ↦ x • 1` is a monoid homomorphism from `M` to `N`. -/
+/--
+If the multiplicative action of `M` on `N` is compatible with multiplication on `N`, then
+`fun x ↦ x • 1` is a monoid homomorphism from `M` to `N`.
+-/
 @[to_additive (attr := simps)
-/-- If the additive action of `M` on `N` is compatible with addition on `N`, then
+  /-- If the additive action of `M` on `N` is compatible with addition on `N`, then
 `fun x ↦ x +ᵥ 0` is an additive monoid homomorphism from `M` to `N`. -/]
-def MonoidHom.smulOneHom {M N} [Monoid M] [MulOneClass N] [MulAction M N] [IsScalarTower M N N] :
-    M →* N where
+def MonoidHom.smulOneHom {M N} [Monoid M] [MulOneClass N] [MulAction M N] [IsScalarTower M N N]
+    : M →* N where
   toFun x := x • (1 : N)
   map_one' := one_smul _ _
   map_mul' x y := by rw [smul_one_mul, smul_smul]
 
-/-- A monoid homomorphism between two monoids M and N can be equivalently specified by a
-multiplicative action of M on N that is compatible with the multiplication on N. -/
+/--
+A monoid homomorphism between two monoids M and N can be equivalently specified by a
+multiplicative action of M on N that is compatible with the multiplication on N.
+-/
 @[to_additive
-/-- A monoid homomorphism between two additive monoids M and N can be equivalently
+  /-- A monoid homomorphism between two additive monoids M and N can be equivalently
 specified by an additive action of M on N that is compatible with the addition on N. -/]
-def monoidHomEquivMulActionIsScalarTower (M N) [Monoid M] [Monoid N] :
-    (M →* N) ≃ {_inst : MulAction M N // IsScalarTower M N N} where
+def monoidHomEquivMulActionIsScalarTower (M N) [Monoid M] [Monoid N]
+    : (M →* N) ≃ {_inst : MulAction M N // IsScalarTower M N N} where
   toFun f := ⟨MulAction.compHom N f, SMul.comp.isScalarTower _⟩
   invFun := fun ⟨_, _⟩ ↦ MonoidHom.smulOneHom
   left_inv f := MonoidHom.ext fun m ↦ mul_one (f m)

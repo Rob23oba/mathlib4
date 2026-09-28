@@ -14,18 +14,20 @@ public import Mathlib.Data.Nat.Prime.Factorial
 
 public section
 
-
 namespace Nat
 
 namespace Prime
 
 variable {p a b k : ℕ}
 
-theorem dvd_choose_add (hp : Prime p) (hap : a < p) (hbp : b < p) (h : p ≤ a + b) :
-    p ∣ choose (a + b) a := by
+theorem dvd_choose_add (hp : Prime p) (hap : a < p) (hbp : b < p) (h : p ≤ a + b)
+    : p ∣ choose (a + b) a := by
   have h₁ : p ∣ (a + b)! := hp.dvd_factorial.2 h
-  rw [← add_choose_mul_factorial_mul_factorial, ← choose_symm_add, hp.dvd_mul, hp.dvd_mul,
-    hp.dvd_factorial, hp.dvd_factorial] at h₁
+  rw [
+      ← add_choose_mul_factorial_mul_factorial, ← choose_symm_add, hp.dvd_mul, hp.dvd_mul,
+      hp.dvd_factorial, hp.dvd_factorial
+    ]
+    at h₁
   exact (h₁.resolve_right hbp.not_ge).resolve_right hap.not_ge
 
 lemma dvd_choose (hp : Prime p) (ha : a < p) (hab : b - a < p) (h : p ≤ b) : p ∣ choose b a :=

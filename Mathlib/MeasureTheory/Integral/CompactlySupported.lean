@@ -36,20 +36,21 @@ variable [T2Space X] [LocallyCompactSpace X] (Λ : C_c(X, ℝ) →ₚ[ℝ] ℝ)
 
 /-- Integral as a positive linear functional on `C_c(X, ℝ)`. -/
 @[simps!]
-noncomputable def integralPositiveLinearMap (μ : Measure X)
-    [IsFiniteMeasureOnCompacts μ] : C_c(X, ℝ) →ₚ[ℝ] ℝ :=
+noncomputable def integralPositiveLinearMap (μ : Measure X) [IsFiniteMeasureOnCompacts μ]
+    : C_c(X, ℝ) →ₚ[ℝ] ℝ :=
   PositiveLinearMap.mk₀
-    { toFun f := ∫ x, f x ∂μ,
+    {
+      toFun f := ∫ x, f x ∂μ
       map_add' f g := integral_add' f.integrable g.integrable
-      map_smul' c f := integral_smul c f }
+      map_smul' c f := integral_smul c f
+    }
     fun _ ↦ integral_nonneg
 
 /-- Integration as a positive linear functional on `C_c(X, ℝ≥0)`. -/
 -- Note: the default generated `simps` lemma uses `Subtype.val` instead of `NNReal.toReal`.
 @[simps! apply]
-noncomputable def integralLinearMap (μ : Measure X)
-    [IsFiniteMeasureOnCompacts μ] :
-    C_c(X, ℝ≥0) →ₗ[ℝ≥0] ℝ≥0 :=
+noncomputable def integralLinearMap (μ : Measure X) [IsFiniteMeasureOnCompacts μ]
+    : C_c(X, ℝ≥0) →ₗ[ℝ≥0] ℝ≥0 :=
   CompactlySupportedContinuousMap.toNNRealLinear (integralPositiveLinearMap μ)
 
 end CompactlySupportedContinuousMap

@@ -37,10 +37,12 @@ namespace SimplexCategory
 
 open SSet
 
-/-- The homeomorphism between the topological realization of a standard simplex
-in `SSet` and the corresponding topological standard simplex. -/
-noncomputable def toTopHomeo (n : SimplexCategory) :
-    |stdSimplex.{u}.obj n| ≃ₜ StdSimplex ℝ (Fin (n.len + 1)) :=
+/--
+The homeomorphism between the topological realization of a standard simplex
+in `SSet` and the corresponding topological standard simplex.
+-/
+noncomputable def toTopHomeo (n : SimplexCategory)
+    : |stdSimplex.{u}.obj n| ≃ₜ StdSimplex ℝ (Fin (n.len + 1)) :=
   (TopCat.homeoOfIso (toTopSimplex.{u}.app n)).trans Homeomorph.ulift
 
 lemma toTopHomeo_naturality {n m : SimplexCategory} (f : n ⟶ m) :
@@ -76,19 +78,21 @@ noncomputable instance : Unique |(Δ[0] : SSet.{u})| := ⦋0⦌.toTopHomeo.uniqu
 
 namespace TopCat
 
-/-- Given `X : TopCat`, this is the bijection between `0`-simplices
-of the singular simplicial set of `X` and `X`. -/
+/--
+Given `X : TopCat`, this is the bijection between `0`-simplices
+of the singular simplicial set of `X` and `X`.
+-/
 @[simps! -isSimp apply symm_apply]
-noncomputable def toSSetObj₀Equiv {X : TopCat.{u}} :
-    toSSet.obj X _⦋0⦌ ≃ X :=
-  (toSSetObjEquiv X _).trans
-    { toFun f := f.1 (default : _)
-      invFun x := ⟨fun _ ↦ x, by fun_prop⟩
-      left_inv _ := by
-        ext x
-        obtain rfl := Subsingleton.elim x default
-        rfl
-      right_inv _ := rfl }
+noncomputable def toSSetObj₀Equiv {X : TopCat.{u}} : toSSet.obj X _⦋0⦌ ≃ X :=
+  (toSSetObjEquiv X _).trans {
+    toFun f := f.1 (default : _)
+    invFun x := ⟨fun _ ↦ x, by fun_prop⟩
+    left_inv _ := by
+      ext x
+      obtain rfl := Subsingleton.elim x default
+      rfl
+    right_inv _ := rfl
+  }
 
 @[simp]
 lemma toSSet_map_const (X : TopCat.{u}) {Y : TopCat.{u}} (y : Y) :
@@ -136,8 +140,7 @@ lemma sSetTopAdj_homEquiv_stdSimplex_zero {X : TopCat.{u}}
   rfl
 
 /-- The standard topological simplex of dimension `1` is homeomorphic to `TopCat.I`. -/
-noncomputable def TopCat.stdSimplexHomeomorphI :
-    StdSimplex ℝ (Fin 2) ≃ₜ TopCat.I.{u} :=
+noncomputable def TopCat.stdSimplexHomeomorphI : StdSimplex ℝ (Fin 2) ≃ₜ TopCat.I.{u} :=
   StdSimplex.homeomorphI.trans Homeomorph.ulift.symm
 
 @[simp]
@@ -165,12 +168,13 @@ lemma TopCat.stdSimplexHomeomorphI_symm_one :
 namespace SSet.stdSimplex
 
 /-- The geometric realization of `Δ[1]` is isomorphic to `TopCat.I`. -/
-noncomputable def toTopObjIsoI :
-    |(Δ[1] : SSet.{u})| ≅ TopCat.I.{u} :=
+noncomputable def toTopObjIsoI : |(Δ[1] : SSet.{u})| ≅ TopCat.I.{u} :=
   TopCat.isoOfHomeo ((SimplexCategory.toTopHomeo _).trans TopCat.stdSimplexHomeomorphI)
 
-/-- The canonical morphism `Δ[1] ⟶ TopCat.toSSet.obj TopCat.I`: by adjunction,
-it corresponds to the isomorphism `toTopObjIsoI : |Δ[1]| ≅ TopCat.I`. -/
+/--
+The canonical morphism `Δ[1] ⟶ TopCat.toSSet.obj TopCat.I`: by adjunction,
+it corresponds to the isomorphism `toTopObjIsoI : |Δ[1]| ≅ TopCat.I`.
+-/
 noncomputable def toSSetObjI : Δ[1] ⟶ TopCat.toSSet.obj TopCat.I.{u} :=
   sSetTopAdj.homEquiv _ _ toTopObjIsoI.hom
 

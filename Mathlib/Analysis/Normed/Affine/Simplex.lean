@@ -23,7 +23,6 @@ This file defines properties of simplices in a `NormedAddTorsor`.
 
 @[expose] public section
 
-
 namespace Affine
 
 open Function

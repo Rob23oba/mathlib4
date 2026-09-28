@@ -34,8 +34,7 @@ open scoped Pointwise
 namespace DoubleCoset
 
 /-- The double coset as an element of `Set α` corresponding to `s a t` -/
-def doubleCoset (a : α) (s t : Set α) : Set α :=
-  s * {a} * t
+def doubleCoset (a : α) (s t : Set α) : Set α := s * {a} * t
 
 lemma doubleCoset_eq_image2 (a : α) (s t : Set α) :
     doubleCoset a s t = Set.image2 (· * a * ·) s t := by
@@ -71,13 +70,10 @@ lemma eq_of_not_disjoint {H K : Subgroup G} {a b : G}
   apply doubleCoset_eq_of_mem ha
 
 /-- The setoid defined by the `doubleCoset` relation -/
-@[instance_reducible]
-def setoid (H K : Set G) : Setoid G :=
-  Setoid.ker fun x => doubleCoset x H K
+@[instance_reducible] def setoid (H K : Set G) : Setoid G := Setoid.ker fun x => doubleCoset x H K
 
 /-- Quotient of `G` by the double coset relation, i.e. `H \ G / K` -/
-def Quotient (H K : Set G) : Type _ :=
-  _root_.Quotient (setoid H K)
+def Quotient (H K : Set G) : Type _ := _root_.Quotient (setoid H K)
 
 lemma rel_iff {H K : Subgroup G} {x y : G} :
     setoid ↑H ↑K x y ↔ ∃ a ∈ H, ∃ b ∈ K, y = a * x * b :=
@@ -112,11 +108,9 @@ noncomputable def quotToDoubleCoset (H K : Subgroup G) (q : Quotient (H : Set G)
   doubleCoset q.out H K
 
 /-- Map from `G` to `H \ G / K` -/
-abbrev mk (H K : Subgroup G) (a : G) : Quotient (H : Set G) K :=
-  Quotient.mk'' a
+abbrev mk (H K : Subgroup G) (a : G) : Quotient (H : Set G) K := Quotient.mk'' a
 
-instance (H K : Subgroup G) : Inhabited (Quotient (H : Set G) K) :=
-  ⟨mk H K (1 : G)⟩
+instance (H K : Subgroup G) : Inhabited (Quotient (H : Set G) K) := ⟨mk H K (1 : G)⟩
 
 lemma eq'' {a b : G} {H K : Subgroup G} : mk H K a = mk H K b ↔ setoid H K a b :=
   Quotient.eq

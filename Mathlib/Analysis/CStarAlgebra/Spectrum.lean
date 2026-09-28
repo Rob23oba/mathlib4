@@ -59,7 +59,6 @@ we can still establish a form of spectral permanence.
 
 public section
 
-
 local notation "σ" => spectrum
 local postfix:max "⋆" => star
 
@@ -71,11 +70,12 @@ open Filter ENNReal spectrum CStarRing NormedSpace
 
 section UnitarySpectrum
 
-variable {𝕜 : Type*} [NormedField 𝕜] {E : Type*} [NormedRing E] [StarRing E] [CStarRing E]
-  [NormedAlgebra 𝕜 E] [CompleteSpace E]
+variable
+  {𝕜 : Type*} [NormedField 𝕜]
+  {E : Type*} [NormedRing E] [StarRing E] [CStarRing E] [NormedAlgebra 𝕜 E] [CompleteSpace E]
 
-theorem Unitary.spectrum_subset_circle (u : unitary E) :
-    spectrum 𝕜 (u : E) ⊆ Metric.sphere 0 1 := by
+theorem Unitary.spectrum_subset_circle (u : unitary E)
+    : spectrum 𝕜 (u : E) ⊆ Metric.sphere 0 1 := by
   nontriviality E
   refine fun k hk => mem_sphere_zero_iff_norm.mpr (le_antisymm ?_ ?_)
   · simpa only [CStarRing.norm_coe_unitary u] using norm_le_norm_of_mem hk
@@ -86,12 +86,12 @@ theorem Unitary.spectrum_subset_circle (u : unitary E) :
       simpa only [norm_inv] using norm_le_norm_of_mem hk
     simpa using inv_le_of_inv_le₀ (norm_pos_iff.mpr hnk) this
 
-theorem spectrum.subset_circle_of_unitary {u : E} (h : u ∈ unitary E) :
-    spectrum 𝕜 u ⊆ Metric.sphere 0 1 :=
+theorem spectrum.subset_circle_of_unitary {u : E} (h : u ∈ unitary E)
+    : spectrum 𝕜 u ⊆ Metric.sphere 0 1 :=
   Unitary.spectrum_subset_circle ⟨u, h⟩
 
-theorem spectrum.norm_eq_one_of_unitary {u : E} (hu : u ∈ unitary E)
-    ⦃z : 𝕜⦄ (hz : z ∈ spectrum 𝕜 u) : ‖z‖ = 1 := by
+theorem spectrum.norm_eq_one_of_unitary {u : E} (hu : u ∈ unitary E) ⦃z : 𝕜⦄ (hz : z ∈ spectrum 𝕜 u)
+    : ‖z‖ = 1 := by
   simpa using spectrum.subset_circle_of_unitary hu hz
 
 end UnitarySpectrum
@@ -114,11 +114,13 @@ variable {A : Type*} [CStarAlgebra A]
 
 local notation "↑ₐ" => algebraMap ℂ A
 
-theorem IsSelfAdjoint.spectralRadius_eq_nnnorm {a : A} (ha : IsSelfAdjoint a) :
-    spectralRadius ℂ a = ‖a‖₊ := by
+theorem IsSelfAdjoint.spectralRadius_eq_nnnorm {a : A} (ha : IsSelfAdjoint a)
+    : spectralRadius ℂ a = ‖a‖₊ := by
   have hconst : Tendsto (fun _n : ℕ => (‖a‖₊ : ℝ≥0∞)) atTop _ := tendsto_const_nhds
-  refine tendsto_nhds_unique_of_forall ((pow_nnnorm_pow_one_div_tendsto_nhds_spectralRadius a).comp
-      (tendsto_pow_atTop_atTop_of_one_lt one_lt_two)) hconst fun n ↦ ?_
+  refine tendsto_nhds_unique_of_forall
+    ((pow_nnnorm_pow_one_div_tendsto_nhds_spectralRadius a).comp
+      (tendsto_pow_atTop_atTop_of_one_lt one_lt_two))
+    hconst fun n ↦ ?_
   rw [Function.comp_apply, ha.nnnorm_pow_two_pow, ENNReal.coe_pow, ← rpow_natCast, ← rpow_mul]
   simp
 
@@ -129,15 +131,17 @@ lemma IsSelfAdjoint.toReal_spectralRadius_complex_eq_norm {a : A} (ha : IsSelfAd
     (spectralRadius ℂ a).toReal = ‖a‖ := by
   simp [ha.spectralRadius_eq_nnnorm]
 
-theorem IsStarNormal.spectralRadius_eq_nnnorm (a : A) [IsStarNormal a] :
-    spectralRadius ℂ a = ‖a‖₊ := by
+theorem IsStarNormal.spectralRadius_eq_nnnorm (a : A) [IsStarNormal a]
+    : spectralRadius ℂ a = ‖a‖₊ := by
   refine (ENNReal.pow_right_strictMono two_ne_zero).injective ?_
-  have heq :
-    (fun n : ℕ => (‖(a⋆ * a) ^ n‖₊ : ℝ≥0∞) ^ (1 / n : ℝ)) =
-      (fun x => x ^ 2) ∘ fun n : ℕ => (‖a ^ n‖₊ : ℝ≥0∞) ^ (1 / n : ℝ) := by
+  have heq
+      : (fun n : ℕ => (‖(a⋆ * a) ^ n‖₊ : ℝ≥0∞) ^ (1 / n : ℝ))
+        = (fun x => x ^ 2) ∘ fun n : ℕ => (‖a ^ n‖₊ : ℝ≥0∞) ^ (1 / n : ℝ) := by
     funext n
-    rw [Function.comp_apply, ← rpow_natCast, ← rpow_mul, mul_comm, rpow_mul, rpow_natCast, ←
-      coe_pow, sq, ← nnnorm_star_mul_self, Commute.mul_pow (star_comm_self' a), star_pow]
+    rw [
+      Function.comp_apply, ← rpow_natCast, ← rpow_mul, mul_comm, rpow_mul, rpow_natCast, ← coe_pow,
+      sq, ← nnnorm_star_mul_self, Commute.mul_pow (star_comm_self' a), star_pow
+    ]
   have h₂ :=
     ((ENNReal.continuous_pow 2).tendsto (spectralRadius ℂ a)).comp
       (spectrum.pow_nnnorm_pow_one_div_tendsto_nhds_spectralRadius a)
@@ -147,28 +151,31 @@ theorem IsStarNormal.spectralRadius_eq_nnnorm (a : A) [IsStarNormal a] :
 
 namespace CStarAlgebra
 
-theorem toReal_spectralRadius_star_mul_self_eq_norm_sq (a : A) :
-    (spectralRadius ℂ (a⋆ * a)).toReal = ‖a‖ ^ 2 := by
-  rw [(IsSelfAdjoint.star_mul_self a).toReal_spectralRadius_complex_eq_norm,
-    CStarRing.norm_star_mul_self, ← pow_two]
+theorem toReal_spectralRadius_star_mul_self_eq_norm_sq (a : A)
+    : (spectralRadius ℂ (a⋆ * a)).toReal = ‖a‖ ^ 2 := by
+  rw [
+    (IsSelfAdjoint.star_mul_self a).toReal_spectralRadius_complex_eq_norm,
+    CStarRing.norm_star_mul_self, ← pow_two
+  ]
 
-theorem toReal_spectralRadius_self_mul_star_eq_norm_sq (a : A) :
-    (spectralRadius ℂ (a * a⋆)).toReal = ‖a‖ ^ 2 := by
+theorem toReal_spectralRadius_self_mul_star_eq_norm_sq (a : A)
+    : (spectralRadius ℂ (a * a⋆)).toReal = ‖a‖ ^ 2 := by
   rw [← norm_star a, ← toReal_spectralRadius_star_mul_self_eq_norm_sq, star_star]
 
-theorem sqrt_toReal_spectralRadius_star_mul_self_eq_norm (a : A) :
-    (spectralRadius ℂ (a⋆ * a)).toReal.sqrt = ‖a‖ := by
+theorem sqrt_toReal_spectralRadius_star_mul_self_eq_norm (a : A)
+    : (spectralRadius ℂ (a⋆ * a)).toReal.sqrt = ‖a‖ := by
   simp [toReal_spectralRadius_star_mul_self_eq_norm_sq]
 
-theorem sqrt_toReal_spectralRadius_self_mul_star_eq_norm (a : A) :
-    (spectralRadius ℂ (a * a⋆)).toReal.sqrt = ‖a‖ := by
+theorem sqrt_toReal_spectralRadius_self_mul_star_eq_norm (a : A)
+    : (spectralRadius ℂ (a * a⋆)).toReal.sqrt = ‖a‖ := by
   simp [toReal_spectralRadius_self_mul_star_eq_norm_sq]
 
 end CStarAlgebra
 
 /-- Any element of the spectrum of a selfadjoint is real. -/
-theorem IsSelfAdjoint.mem_spectrum_eq_re {a : A} (ha : IsSelfAdjoint a) {z : ℂ}
-    (hz : z ∈ spectrum ℂ a) : z = z.re := by
+theorem IsSelfAdjoint.mem_spectrum_eq_re
+    {a : A} (ha : IsSelfAdjoint a) {z : ℂ} (hz : z ∈ spectrum ℂ a)
+    : z = z.re := by
   let +nondep : NormedAlgebra ℚ A := .restrictScalars ℚ ℂ A
   have hu := exp_mem_unitary_of_mem_skewAdjoint (ha.smul_mem_skewAdjoint conj_I)
   let Iu := Units.mk0 I I_ne_zero
@@ -176,30 +183,35 @@ theorem IsSelfAdjoint.mem_spectrum_eq_re {a : A} (ha : IsSelfAdjoint a) {z : ℂ
     simpa only [Units.smul_def, Units.val_mk0] using!
       spectrum.exp_mem_exp (Iu • a) (smul_mem_smul_iff.mpr hz)
   exact Complex.ext (ofReal_re _) <| by
-    simpa only [← Complex.exp_eq_exp_ℂ, mem_sphere_zero_iff_norm, norm_exp, Real.exp_eq_one_iff,
-      smul_eq_mul, I_mul, neg_eq_zero] using!
-      spectrum.subset_circle_of_unitary hu this
+    simpa only [
+        ← Complex.exp_eq_exp_ℂ, mem_sphere_zero_iff_norm, norm_exp, Real.exp_eq_one_iff,
+        smul_eq_mul, I_mul, neg_eq_zero
+      ]
+      using! spectrum.subset_circle_of_unitary hu this
 
 /-- Any element of the spectrum of a selfadjoint is real. -/
-theorem selfAdjoint.mem_spectrum_eq_re (a : selfAdjoint A) {z : ℂ}
-    (hz : z ∈ spectrum ℂ (a : A)) : z = z.re :=
+theorem selfAdjoint.mem_spectrum_eq_re (a : selfAdjoint A) {z : ℂ} (hz : z ∈ spectrum ℂ (a : A))
+    : z = z.re :=
   a.prop.mem_spectrum_eq_re hz
 
 /-- Any element of the spectrum of a selfadjoint is real. -/
-theorem IsSelfAdjoint.im_eq_zero_of_mem_spectrum {a : A} (ha : IsSelfAdjoint a)
-    {z : ℂ} (hz : z ∈ spectrum ℂ a) : z.im = 0 := by
+theorem IsSelfAdjoint.im_eq_zero_of_mem_spectrum
+    {a : A} (ha : IsSelfAdjoint a) {z : ℂ} (hz : z ∈ spectrum ℂ a)
+    : z.im = 0 := by
   rw [ha.mem_spectrum_eq_re hz, ofReal_im]
 
 /-- The spectrum of a selfadjoint is real -/
-theorem IsSelfAdjoint.val_re_map_spectrum {a : A} (ha : IsSelfAdjoint a) :
-    spectrum ℂ a = ((↑) ∘ re '' spectrum ℂ a : Set ℂ) :=
-  le_antisymm (fun z hz => ⟨z, hz, (ha.mem_spectrum_eq_re hz).symm⟩) fun z => by
-    rintro ⟨z, hz, rfl⟩
-    simpa only [(ha.mem_spectrum_eq_re hz).symm, Function.comp_apply] using hz
+theorem IsSelfAdjoint.val_re_map_spectrum {a : A} (ha : IsSelfAdjoint a)
+    : spectrum ℂ a = ((↑) ∘ re '' spectrum ℂ a : Set ℂ) :=
+  le_antisymm
+    (fun z hz => ⟨z, hz, (ha.mem_spectrum_eq_re hz).symm⟩)
+    fun z => by
+      rintro ⟨z, hz, rfl⟩
+      simpa only [(ha.mem_spectrum_eq_re hz).symm, Function.comp_apply] using hz
 
 /-- The spectrum of a selfadjoint is real -/
-theorem selfAdjoint.val_re_map_spectrum (a : selfAdjoint A) :
-    spectrum ℂ (a : A) = ((↑) ∘ re '' spectrum ℂ (a : A) : Set ℂ) :=
+theorem selfAdjoint.val_re_map_spectrum (a : selfAdjoint A)
+    : spectrum ℂ (a : A) = ((↑) ∘ re '' spectrum ℂ (a : A) : Set ℂ) :=
   a.property.val_re_map_spectrum
 
 /-- The complement of the spectrum of a selfadjoint element in a C⋆-algebra is connected. -/
@@ -322,8 +334,10 @@ open scoped ComplexStarModule
 
 variable {F A : Type*} [CStarAlgebra A] [FunLike F A ℂ] [hF : AlgHomClass F ℂ A ℂ]
 
-/-- This instance is provided instead of `StarHomClass` to avoid type class inference loops.
-See note [lower instance priority] -/
+/--
+This instance is provided instead of `StarHomClass` to avoid type class inference loops.
+See note [lower instance priority]
+-/
 noncomputable instance (priority := 100) Complex.instStarHomClass : StarHomClass F A ℂ where
   map_star φ a := by
     suffices hsa : ∀ s : selfAdjoint A, (φ s)⋆ = φ s by
@@ -340,8 +354,9 @@ lemma _root_.AlgHomClass.instStarHomClass : StarHomClass F A ℂ :=
 
 namespace CharacterSpace
 
-noncomputable instance instStarHomClass : StarHomClass (characterSpace ℂ A) A ℂ :=
-  { AlgHomClass.instStarHomClass with }
+noncomputable instance instStarHomClass : StarHomClass (characterSpace ℂ A) A ℂ := {
+  AlgHomClass.instStarHomClass with
+}
 
 end CharacterSpace
 

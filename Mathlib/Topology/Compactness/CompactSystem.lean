@@ -34,8 +34,10 @@ variable {α : Type*} {S : Set (Set α)} {C : ℕ → Set α}
 
 section definition
 
-/-- A set of sets is a compact system if, whenever a countable subfamily has empty intersection,
-then finitely many of them already have empty intersection. -/
+/--
+A set of sets is a compact system if, whenever a countable subfamily has empty intersection,
+then finitely many of them already have empty intersection.
+-/
 def IsCompactSystem (S : Set (Set α)) : Prop :=
   ∀ C : ℕ → Set α, (∀ i, C i ∈ S) → ⋂ i, C i = ∅ → ∃ (n : ℕ), dissipate C n = ∅
 
@@ -57,9 +59,9 @@ lemma nonempty_iInter (hp : IsCompactSystem S) {C : ℕ → Set α} (hC : ∀ i,
   contrapose!
   exact hp C hC
 
-theorem iff_nonempty_iInter (S : Set (Set α)) :
-    IsCompactSystem S ↔
-      ∀ C : ℕ → Set α, (∀ i, C i ∈ S) → (∀ n, (dissipate C n).Nonempty) → (⋂ i, C i).Nonempty :=
+theorem iff_nonempty_iInter (S : Set (Set α))
+    : IsCompactSystem S
+      ↔ ∀ C : ℕ → Set α, (∀ i, C i ∈ S) → (∀ n, (dissipate C n).Nonempty) → (⋂ i, C i).Nonempty :=
   ⟨nonempty_iInter, of_nonempty_iInter⟩
 
 @[simp]
@@ -67,8 +69,8 @@ lemma of_IsEmpty [IsEmpty α] (S : Set (Set α)) : IsCompactSystem S :=
   fun s _ _ ↦ ⟨0, Set.eq_empty_of_isEmpty (dissipate s 0)⟩
 
 /-- Any subset of a compact system is a compact system. -/
-theorem mono {T : Set (Set α)} (hT : IsCompactSystem T) (hST : S ⊆ T) :
-    IsCompactSystem S := fun C hC1 hC2 ↦ hT C (fun i ↦ hST (hC1 i)) hC2
+theorem mono {T : Set (Set α)} (hT : IsCompactSystem T) (hST : S ⊆ T) : IsCompactSystem S :=
+  fun C hC1 hC2 ↦ hT C (fun i ↦ hST (hC1 i)) hC2
 
 /-- Inserting `∅` into a compact system gives a compact system. -/
 lemma insert_empty (h : IsCompactSystem S) : IsCompactSystem (insert ∅ S) := by
@@ -126,11 +128,13 @@ lemma isCompactSystem_insert_empty_iff :
 lemma isCompactSystem_insert_univ_iff : IsCompactSystem (insert univ S) ↔ IsCompactSystem S :=
   ⟨fun h ↦ h.mono (subset_insert _ _), .insert_univ⟩
 
-/-- To prove that a set of sets is a compact system, it suffices to consider directed families of
-sets. -/
-theorem isCompactSystem_iff_of_directed (hpi : IsPiSystem S) :
-    IsCompactSystem S ↔
-      ∀ (C : ℕ → Set α), Directed (· ⊇ ·) C → (∀ i, C i ∈ S) → ⋂ i, C i = ∅ → ∃ n, C n = ∅ := by
+/--
+To prove that a set of sets is a compact system, it suffices to consider directed families of
+sets.
+-/
+theorem isCompactSystem_iff_of_directed (hpi : IsPiSystem S)
+    : IsCompactSystem S
+      ↔ ∀ (C : ℕ → Set α), Directed (· ⊇ ·) C → (∀ i, C i ∈ S) → ⋂ i, C i = ∅ → ∃ n, C n = ∅ := by
   rw [← isCompactSystem_insert_empty_iff]
   refine ⟨fun h ↦ fun C hdi hi ↦ ?_, fun h C h1 h2 ↦ ?_⟩
   · rw [← exists_dissipate_eq_empty_iff_of_directed hdi]
@@ -146,12 +150,14 @@ theorem isCompactSystem_iff_of_directed (hpi : IsPiSystem S) :
   · simpa [or_comm] using hpi.insert_empty.dissipate_mem h1 n g
   · exact .inr (Set.not_nonempty_iff_eq_empty.mp g)
 
-/-- To prove that a set of sets is a compact system, it suffices to consider directed families of
-sets. -/
-theorem isCompactSystem_iff_nonempty_iInter_of_directed (hpi : IsPiSystem S) :
-    IsCompactSystem S ↔
-    ∀ (C : ℕ → Set α), (Directed (· ⊇ ·) C) → (∀ i, C i ∈ S) → (∀ n, (C n).Nonempty) →
-      (⋂ i, C i).Nonempty := by
+/--
+To prove that a set of sets is a compact system, it suffices to consider directed families of
+sets.
+-/
+theorem isCompactSystem_iff_nonempty_iInter_of_directed (hpi : IsPiSystem S)
+    : IsCompactSystem S
+      ↔ ∀ (C : ℕ → Set α),
+        (Directed (· ⊇ ·) C) → (∀ i, C i ∈ S) → (∀ n, (C n).Nonempty) → (⋂ i, C i).Nonempty := by
   rw [isCompactSystem_iff_of_directed hpi]
   refine ⟨fun h1 C h3 h4 ↦ ?_, fun h1 C h3 s ↦ ?_⟩ <;> contrapose!
   · exact h1 C h3 h4
@@ -160,24 +166,26 @@ theorem isCompactSystem_iff_nonempty_iInter_of_directed (hpi : IsPiSystem S) :
 section IsCompactIsClosed
 
 /-- The set of compact and closed sets is a compact system. -/
-theorem isCompactSystem_isCompact_isClosed (α : Type*) [TopologicalSpace α] :
-    IsCompactSystem {s : Set α | IsCompact s ∧ IsClosed s} := by
+theorem isCompactSystem_isCompact_isClosed (α : Type*) [TopologicalSpace α]
+    : IsCompactSystem {s : Set α | IsCompact s ∧ IsClosed s} := by
   refine IsCompactSystem.of_nonempty_iInter fun C hC_cc h_nonempty ↦ ?_
   rw [← iInter_dissipate]
   refine IsCompact.nonempty_iInter_of_sequence_nonempty_isCompact_isClosed (Set.dissipate C)
-    (fun n ↦ ?_) h_nonempty ?_ (fun n ↦ isClosed_biInter (fun i _ ↦ (hC_cc i).2))
+    (fun n ↦ ?_)
+    h_nonempty ?_
+    (fun n ↦ isClosed_biInter (fun i _ ↦ (hC_cc i).2))
   · exact Set.antitone_dissipate (by lia)
   · simpa using (hC_cc 0).1
 
 /-- In a `T2Space` the set of compact sets is a compact system. -/
-theorem isCompactSystem_isCompact (α : Type*) [TopologicalSpace α] [T2Space α] :
-    IsCompactSystem {s : Set α | IsCompact s} := by
+theorem isCompactSystem_isCompact (α : Type*) [TopologicalSpace α] [T2Space α]
+    : IsCompactSystem {s : Set α | IsCompact s} := by
   convert! isCompactSystem_isCompact_isClosed α with s
   simpa using IsCompact.isClosed
 
 /-- The set of sets which are either compact and closed, or `univ`, is a compact system. -/
-theorem isCompactSystem_insert_univ_isCompact_isClosed (α : Type*) [TopologicalSpace α] :
-    IsCompactSystem (insert univ {s : Set α | IsCompact s ∧ IsClosed s}) :=
+theorem isCompactSystem_insert_univ_isCompact_isClosed (α : Type*) [TopologicalSpace α]
+    : IsCompactSystem (insert univ {s : Set α | IsCompact s ∧ IsClosed s}) :=
   (isCompactSystem_isCompact_isClosed α).insert_univ
 
 end IsCompactIsClosed

@@ -10,14 +10,14 @@ public import Mathlib.LinearAlgebra.Determinant
 public import Mathlib.RingTheory.TensorProduct.Finite
 public import Mathlib.LinearAlgebra.TensorProduct.Tower
 
-
 /-! # The characteristic polynomial of base change -/
 
 public section
 
-variable {R M} [CommRing R] [AddCommGroup M] [Module R M]
-    [Module.Free R M] [Module.Finite R M] (f : M →ₗ[R] M)
-    (A) [CommRing A] [Algebra R A]
+variable
+  {R M} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M] [Module.Finite R M]
+  (f : M →ₗ[R] M)
+  (A) [CommRing A] [Algebra R A]
 
 @[simp]
 lemma LinearMap.charpoly_baseChange :

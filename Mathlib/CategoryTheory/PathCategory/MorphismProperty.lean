@@ -20,7 +20,6 @@ We also define a morpism property `W.paths : MorphismProperty (Paths C)` for any
 
 @[expose] public section
 
-
 universe v₁ u₁
 
 namespace CategoryTheory.Paths
@@ -60,25 +59,32 @@ section
 variable {C : Type*} [Category* C] {V : Type u₁} [Quiver.{v₁} V]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- A natural transformation between `F G : Paths V ⥤ C` is defined by its components and
-its unary naturality squares. -/
+/--
+A natural transformation between `F G : Paths V ⥤ C` is defined by its components and
+its unary naturality squares.
+-/
 @[simps]
-def liftNatTrans {F G : Paths V ⥤ C} (α_app : (v : V) → (F.obj v ⟶ G.obj v))
-    (α_nat : {X Y : V} → (f : X ⟶ Y) →
-      F.map (Quiver.Hom.toPath f) ≫ α_app Y = α_app X ≫ G.map (Quiver.Hom.toPath f)) : F ⟶ G where
+def liftNatTrans
+    {F G : Paths V ⥤ C} (α_app : (v : V) → (F.obj v ⟶ G.obj v))
+    (α_nat : {X Y : V} → (f : X ⟶ Y)
+      → F.map (Quiver.Hom.toPath f) ≫ α_app Y = α_app X ≫ G.map (Quiver.Hom.toPath f))
+    : F ⟶ G where
   app := α_app
   naturality := by
-    apply MorphismProperty.of_eq_top
-      (P := MorphismProperty.naturalityProperty (F₁ := F) α_app)
+    apply MorphismProperty.of_eq_top (P := MorphismProperty.naturalityProperty (F₁ := F) α_app)
     exact morphismProperty_eq_top_of_isMultiplicative _ _ α_nat
 
-/-- A natural isomorphism between `F G : Paths V ⥤ C` is defined by its components and
-its unary naturality squares. -/
+/--
+A natural isomorphism between `F G : Paths V ⥤ C` is defined by its components and
+its unary naturality squares.
+-/
 @[simps!]
-def liftNatIso {C} [Category* C] {F G : Paths V ⥤ C} (α_app : (v : V) → (F.obj v ≅ G.obj v))
-    (α_nat : {X Y : V} → (f : X ⟶ Y) →
-      F.map (Quiver.Hom.toPath f) ≫ (α_app Y).hom = (α_app X).hom ≫ G.map (Quiver.Hom.toPath f)) :
-    F ≅ G :=
+def liftNatIso
+    {C} [Category* C]
+    {F G : Paths V ⥤ C} (α_app : (v : V) → (F.obj v ≅ G.obj v))
+    (α_nat : {X Y : V} → (f : X ⟶ Y)
+      → F.map (Quiver.Hom.toPath f) ≫ (α_app Y).hom = (α_app X).hom ≫ G.map (Quiver.Hom.toPath f))
+    : F ≅ G :=
   NatIso.ofComponents α_app (fun f ↦ (liftNatTrans (fun v ↦ (α_app v).hom) α_nat).naturality f)
 
 end
@@ -91,10 +97,12 @@ variable {C : Type*} [Category* C]
 
 open Quiver
 
-/-- For any morphism property `W` on `C`, `W.paths` is the morphism property on `Paths C`
-containing all paths of morphisms in `W`. -/
-def paths (W : MorphismProperty C) : MorphismProperty (Paths C) :=
-  fun _ _ p ↦ p.rec True fun _ f P ↦ P ∧ W f
+/--
+For any morphism property `W` on `C`, `W.paths` is the morphism property on `Paths C`
+containing all paths of morphisms in `W`.
+-/
+def paths (W : MorphismProperty C) : MorphismProperty (Paths C) := fun _ _ p ↦
+  p.rec True fun _ f P ↦ P ∧ W f
 
 @[simp]
 lemma nil_mem_paths {W : MorphismProperty C} {X : C} : W.paths (.nil (a := X)) := trivial

@@ -56,8 +56,9 @@ class IsKleinFour (G : Type*) [Group G] : Prop where
   card_four : Nat.card G = 4
   exponent_two : Monoid.exponent G = 2
 
-attribute [simp] IsKleinFour.card_four IsKleinFour.exponent_two
-  IsAddKleinFour.card_four IsAddKleinFour.exponent_two
+attribute [simp]
+  IsKleinFour.card_four IsKleinFour.exponent_two IsAddKleinFour.card_four
+  IsAddKleinFour.exponent_two
 
 instance : IsAddKleinFour (ZMod 2 × ZMod 2) where
   card_four := by simp
@@ -74,12 +75,13 @@ instance {G : Type*} [AddGroup G] [IsAddKleinFour G] : IsKleinFour (Multiplicati
 namespace IsKleinFour
 
 @[to_additive]
-theorem isMulCommutative {G : Type*} [Group G] [IsKleinFour G] :
-    IsMulCommutative G where
+theorem isMulCommutative {G : Type*} [Group G] [IsKleinFour G] : IsMulCommutative G where
   is_comm.comm := mul_comm_of_exponent_two exponent_two
 
-/-- This instance is scoped, because it always applies (which makes linting and typeclass inference
-potentially *a lot* slower). -/
+/--
+This instance is scoped, because it always applies (which makes linting and typeclass inference
+potentially *a lot* slower).
+-/
 @[to_additive /-- This instance is scoped, because it always applies (which makes linting and
 typeclass inference potentially *a lot* slower). -/]
 scoped instance instFinite {G : Type*} [Group G] [IsKleinFour G] : Finite G :=
@@ -101,9 +103,11 @@ lemma not_isCyclic : ¬IsCyclic G :=
 @[to_additive]
 lemma inv_eq_self (x : G) : x⁻¹ = x := inv_eq_self_of_exponent_two (by simp) x
 
-/- this is not an appropriate global `simp` lemma for a `Prop`-mixin class. Indeed, if it were
+/-
+this is not an appropriate global `simp` lemma for a `Prop`-mixin class. Indeed, if it were
 then every time Lean sees `·⁻¹` it would try to apply `inv_eq_self` which would trigger
-type class inference to try and synthesize an `IsKleinFour` instance. -/
+type class inference to try and synthesize an `IsKleinFour` instance.
+-/
 scoped[IsKleinFour] attribute [simp] inv_eq_self
 scoped[IsAddKleinFour] attribute [simp] neg_eq_self
 
@@ -130,8 +134,10 @@ lemma eq_mul_of_ne_all {x y z : G} (hx : x ≠ 1)
 
 variable {G₁ G₂ : Type*} [Group G₁] [Group G₂] [IsKleinFour G₁]
 
-/-- An equivalence between an `IsKleinFour` group `G₁` and a group `G₂` of exponent two which sends
-`1 : G₁` to `1 : G₂` is in fact an isomorphism. -/
+/--
+An equivalence between an `IsKleinFour` group `G₁` and a group `G₂` of exponent two which sends
+`1 : G₁` to `1 : G₂` is in fact an isomorphism.
+-/
 @[to_additive /-- An equivalence between an `IsAddKleinFour` group `G₁` and a group `G₂` of exponent
 two which sends `0 : G₁` to `0 : G₂` is in fact an isomorphism. -/]
 def mulEquiv' (e : G₁ ≃ G₂) (he : e 1 = 1) (h : Monoid.exponent G₂ = 2) : G₁ ≃* G₂ where
@@ -146,16 +152,18 @@ def mulEquiv' (e : G₁ ≃ G₂) (he : e 1 = 1) (h : Monoid.exponent G₂ = 2) 
     · simp [hxy, mul_self, ← pow_two (e y), h ▸ Monoid.pow_exponent_eq_one (e y), he]
     · classical
       have univ₂ : {e (x * y), e x, e y, (1 : G₂)} = Finset.univ := by
-        simpa [map_univ_equiv e, map_insert, he]
-          using congr(Finset.map e.toEmbedding $(eq_finset_univ hx hy hxy))
+        simpa [map_univ_equiv e, map_insert, he] using
+          congr(Finset.map e.toEmbedding $(eq_finset_univ hx hy hxy))
       rw [← Ne, ← e.injective.ne_iff] at hx hy hxy
       rw [he] at hx hy
       symm
       apply eq_of_mem_insert_of_notMem <| univ₂.symm ▸ mem_univ _
       simpa using mul_notMem_of_exponent_two h hx hy hxy
 
-/-- Any two `IsKleinFour` groups are isomorphic via any equivalence which sends the identity of one
-group to the identity of the other. -/
+/--
+Any two `IsKleinFour` groups are isomorphic via any equivalence which sends the identity of one
+group to the identity of the other.
+-/
 @[to_additive /-- Any two `IsAddKleinFour` groups are isomorphic via any
 equivalence which sends the identity of one group to the identity of the other. -/]
 abbrev mulEquiv [IsKleinFour G₂] (e : G₁ ≃ G₂) (he : e 1 = 1) : G₁ ≃* G₂ :=

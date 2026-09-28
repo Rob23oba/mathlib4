@@ -27,39 +27,42 @@ namespace CategoryTheory
 
 namespace Functor
 
-variable {C D H : Type*} [Category* C] [Category* D] [Category* H]
-  (RF : H ⥤ D) {F : C ⥤ D} {L : C ⥤ H}
-  (α : F ⟶ L ⋙ RF) (W : MorphismProperty C) [L.IsLocalization W]
-  [RF.IsRightDerivedFunctor α W]
-  (A : Type*) [AddGroup A] [HasShift C A] [HasShift D A] [HasShift H A]
-  [W.IsCompatibleWithShift A] [F.CommShift A] [L.CommShift A]
+variable
+  {C D H : Type*} [Category* C] [Category* D] [Category* H]
+  (RF : H ⥤ D)
+  {F : C ⥤ D} {L : C ⥤ H} (α : F ⟶ L ⋙ RF)
+  (W : MorphismProperty C) [L.IsLocalization W] [RF.IsRightDerivedFunctor α W]
+  (A : Type*) [AddGroup A] [HasShift C A] [HasShift D A] [HasShift H A] [W.IsCompatibleWithShift A]
+  [F.CommShift A] [L.CommShift A]
 
 namespace IsRightDerivedFunctor
 
 variable {A} (a : A)
 
-/-- The natural transformation `shiftFunctor C a ⋙ F ⟶ L ⋙ shiftFunctor H a ⋙ RF`
-deduced from `α : F ⟶ L ⋙ RF` when `L` commutes with the shift. -/
+/--
+The natural transformation `shiftFunctor C a ⋙ F ⟶ L ⋙ shiftFunctor H a ⋙ RF`
+deduced from `α : F ⟶ L ⋙ RF` when `L` commutes with the shift.
+-/
 @[simps!]
-def precomposeShiftNatTrans :
-    shiftFunctor C a ⋙ F ⟶ L ⋙ shiftFunctor H a ⋙ RF :=
-  whiskerLeft (shiftFunctor C a) α ≫ (associator _ _ _).inv ≫
-    whiskerRight (L.commShiftIso a).hom _ ≫ (associator _ _ _).hom
+def precomposeShiftNatTrans : shiftFunctor C a ⋙ F ⟶ L ⋙ shiftFunctor H a ⋙ RF :=
+  whiskerLeft (shiftFunctor C a) α ≫ (associator _ _ _).inv ≫ whiskerRight (L.commShiftIso a).hom _
+    ≫ (associator _ _ _).hom
 
-/-- The natural transformation `F ⋙ shiftFunctor D a ⟶ L ⋙ RF ⋙ shiftFunctor D a`
-deduced from `α : F ⟶ L ⋙ RF` when `L` commutes with the shift. -/
+/--
+The natural transformation `F ⋙ shiftFunctor D a ⟶ L ⋙ RF ⋙ shiftFunctor D a`
+deduced from `α : F ⟶ L ⋙ RF` when `L` commutes with the shift.
+-/
 @[simps!]
-def postcomposeShiftNatTrans :
-    F ⋙ shiftFunctor D a ⟶ L ⋙ RF ⋙ shiftFunctor D a :=
+def postcomposeShiftNatTrans : F ⋙ shiftFunctor D a ⟶ L ⋙ RF ⋙ shiftFunctor D a :=
   whiskerRight α (shiftFunctor D a) ≫ (associator _ _ _).hom
 
-instance :
-    (shiftFunctor H a ⋙ RF).IsRightDerivedFunctor (precomposeShiftNatTrans RF α a) W := by
-  rwa [← (W.shiftLocalizerMorphism a).isRightDerivedFunctor_iff_precomp
-    L L _ (L.commShiftIso a) (precomposeShiftNatTrans RF α a) α (Iso.refl _) (Iso.refl _)]
+instance : (shiftFunctor H a ⋙ RF).IsRightDerivedFunctor (precomposeShiftNatTrans RF α a) W := by
+  rwa [
+    ← (W.shiftLocalizerMorphism a).isRightDerivedFunctor_iff_precomp L L _ (L.commShiftIso a)
+      (precomposeShiftNatTrans RF α a) α (Iso.refl _) (Iso.refl _)
+  ]
 
-instance :
-    (RF ⋙ shiftFunctor D a).IsRightDerivedFunctor (postcomposeShiftNatTrans RF α a) W := by
+instance : (RF ⋙ shiftFunctor D a).IsRightDerivedFunctor (postcomposeShiftNatTrans RF α a) W := by
   dsimp only [postcomposeShiftNatTrans]
   infer_instance
 
@@ -69,49 +72,65 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The right derived functor commutes with the shift. -/
 @[implicit_reducible]
 noncomputable def commShift : RF.CommShift A where
-  commShiftIso a := rightDerivedNatIso _ _ (precomposeShiftNatTrans RF α a)
-    (postcomposeShiftNatTrans RF α a) W (F.commShiftIso a)
+  commShiftIso a :=
+    rightDerivedNatIso _ _ (precomposeShiftNatTrans RF α a) (postcomposeShiftNatTrans RF α a) W
+      (F.commShiftIso a)
   commShiftIso_zero := by
     ext : 1
     apply rightDerived_ext _ (precomposeShiftNatTrans RF α 0) W
     ext X
-    simp only [comp_obj, rightDerivedNatIso_hom, rightDerivedNatTrans_fac, NatTrans.comp_app,
-      postcomposeShiftNatTrans_app, whiskerLeft_app, CommShift.isoZero_hom_app]
-    simp [commShiftIso_zero, ← map_comp_assoc, -map_comp,
-      ← dsimp% (shiftFunctorZero D A).inv.naturality (α.app X)]
+    simp only [
+      comp_obj, rightDerivedNatIso_hom, rightDerivedNatTrans_fac, NatTrans.comp_app,
+      postcomposeShiftNatTrans_app, whiskerLeft_app, CommShift.isoZero_hom_app
+    ]
+    simp [
+      commShiftIso_zero, ← map_comp_assoc, -map_comp,
+      ← dsimp% (shiftFunctorZero D A).inv.naturality (α.app X)
+    ]
   commShiftIso_add a b := by
     ext : 1
     apply rightDerived_ext _ (precomposeShiftNatTrans RF α (a + b)) W
     ext X
-    have ha :
-        (α.app (X⟦a⟧))⟦b⟧' ≫ (RF.map ((L.commShiftIso a).hom.app X))⟦b⟧' ≫
-        (((shiftFunctor H a ⋙ RF).rightDerivedNatTrans
-            (RF ⋙ shiftFunctor D a) (precomposeShiftNatTrans RF α a)
-              (postcomposeShiftNatTrans RF α a) W (commShiftIso F a).hom).app (L.obj X))⟦b⟧' =
-        ((F.commShiftIso a).hom.app X)⟦b⟧' ≫ (α.app X)⟦a⟧'⟦b⟧' := by
+    have ha
+        : (α.app (X⟦a⟧))⟦b⟧' ≫ (RF.map ((L.commShiftIso a).hom.app X))⟦b⟧'
+            ≫ (((shiftFunctor H a ⋙ RF).rightDerivedNatTrans
+                  (RF ⋙ shiftFunctor D a) (precomposeShiftNatTrans RF α a)
+                    (postcomposeShiftNatTrans RF α a) W (commShiftIso F a).hom).app (L.obj X))⟦b⟧'
+          = ((F.commShiftIso a).hom.app X)⟦b⟧' ≫ (α.app X)⟦a⟧'⟦b⟧' := by
       simp only [← (shiftFunctor D b).map_comp]
       congr 1
-      simpa using rightDerivedNatTrans_app _ _ (precomposeShiftNatTrans RF α a)
-        (postcomposeShiftNatTrans RF α _) W (F.commShiftIso _).hom X
-    have hb := rightDerivedNatTrans_app _ _ (precomposeShiftNatTrans RF α b)
-      (postcomposeShiftNatTrans RF α _) W (F.commShiftIso _).hom (X⟦a⟧) =≫
-        (RF.map ((L.commShiftIso a).hom.app X))⟦b⟧'
-    rw [Category.assoc, Category.assoc,
-      ← dsimp% (rightDerivedNatTrans _ _ (precomposeShiftNatTrans RF α b)
-        (postcomposeShiftNatTrans RF α b) W (commShiftIso F b).hom).naturality
-        ((L.commShiftIso a).hom.app X), precomposeShiftNatTrans_app] at hb
+      simpa using
+        rightDerivedNatTrans_app _ _ (precomposeShiftNatTrans RF α a)
+          (postcomposeShiftNatTrans RF α _) W (F.commShiftIso _).hom X
+    have hb :=
+      rightDerivedNatTrans_app _ _ (precomposeShiftNatTrans RF α b)
+          (postcomposeShiftNatTrans RF α _) W (F.commShiftIso _).hom (X⟦a⟧)
+        =≫ (RF.map ((L.commShiftIso a).hom.app X))⟦b⟧'
+    rw [
+        Category.assoc, Category.assoc,
+        ← dsimp% (rightDerivedNatTrans _ _ (precomposeShiftNatTrans RF α b)
+          (postcomposeShiftNatTrans RF α b) W (commShiftIso F b).hom).naturality
+          ((L.commShiftIso a).hom.app X),
+        precomposeShiftNatTrans_app
+      ]
+      at hb
     dsimp at hb ⊢
-    rw [dsimp% rightDerivedNatTrans_app _ _ (precomposeShiftNatTrans RF α (a + b))
-      (postcomposeShiftNatTrans RF α _) W (F.commShiftIso _).hom X]
+    rw [
+      dsimp% rightDerivedNatTrans_app _ _ (precomposeShiftNatTrans RF α (a + b))
+        (postcomposeShiftNatTrans RF α _) W (F.commShiftIso _).hom X
+    ]
     -- `simp? [L.commShiftIso_add a b, ← RF.map_comp_assoc, -map_comp]` says
-    simp only [postcomposeShiftNatTrans_app, precomposeShiftNatTrans_app, L.commShiftIso_add a b,
+    simp only [
+      postcomposeShiftNatTrans_app, precomposeShiftNatTrans_app, L.commShiftIso_add a b,
       CommShift.isoAdd_hom_app, comp_obj, rightDerivedNatIso_hom, Category.assoc,
-      ← RF.map_comp_assoc, Iso.inv_hom_id_app, Category.comp_id]
-    rw [RF.map_comp_assoc, RF.map_comp, Category.assoc,
-      ← dsimp% α.naturality_assoc ((shiftFunctorAdd C a b).hom.app X),
-      reassoc_of% hb, postcomposeShiftNatTrans_app _ _ b, reassoc_of% ha,
-      F.commShiftIso_add, CommShift.isoAdd_hom_app_assoc,
-      ← NatTrans.naturality]
+      ← RF.map_comp_assoc, Iso.inv_hom_id_app, Category.comp_id
+    ]
+    rw [
+      RF.map_comp_assoc, RF.map_comp, Category.assoc,
+      ← dsimp% α.naturality_assoc ((shiftFunctorAdd C a b).hom.app X), reassoc_of% hb,
+      postcomposeShiftNatTrans_app _ _ b, reassoc_of% ha, F.commShiftIso_add,
+      CommShift.isoAdd_hom_app_assoc, ← NatTrans.naturality
+    ]
     dsimp
 
 set_option backward.defeqAttrib.useBackward true in
@@ -126,18 +145,17 @@ lemma comp_map_commShiftIso_hom_app (a : A) (X : C) :
 
 set_option backward.defeqAttrib.useBackward true in
 attribute [local simp] commShiftIso_comp_hom_app in
-instance natTrans_commShift :
-    letI := commShift RF α W A
-    NatTrans.CommShift α A :=
+instance natTrans_commShift
+    : letI := commShift RF α W A
+      NatTrans.CommShift α A :=
   letI := commShift RF α W A
-  { }
+  {}
 
-noncomputable instance [HasRightDerivedFunctor F W] :
-    (F.totalRightDerived L W).CommShift A :=
+noncomputable instance [HasRightDerivedFunctor F W] : (F.totalRightDerived L W).CommShift A :=
   commShift _ (F.totalRightDerivedUnit L W) W A
 
-example [HasRightDerivedFunctor F W] :
-    NatTrans.CommShift (F.totalRightDerivedUnit L W) A := inferInstance
+example [HasRightDerivedFunctor F W] : NatTrans.CommShift (F.totalRightDerivedUnit L W) A :=
+  inferInstance
 
 end IsRightDerivedFunctor
 
@@ -145,15 +163,13 @@ end Functor
 
 namespace NatTrans
 
-variable {C D H : Type*} [Category* C] [Category* D] [Category* H]
+variable
+  {C D H : Type*} [Category* C] [Category* D] [Category* H]
   {RF₁ RF₂ : H ⥤ D} {F₁ F₂ : C ⥤ D} {L : C ⥤ H}
-  (α₁ : F₁ ⟶ L ⋙ RF₁) (α₂ : F₂ ⟶ L ⋙ RF₂)
-  (τ : F₁ ⟶ F₂)
-  (W : MorphismProperty C) [L.IsLocalization W]
-  [RF₁.IsRightDerivedFunctor α₁ W]
-  {A : Type*} [AddGroup A] [HasShift C A] [HasShift D A] [HasShift H A]
-  [W.IsCompatibleWithShift A] [L.CommShift A] [F₁.CommShift A] [F₂.CommShift A]
-  [RF₁.CommShift A] [RF₂.CommShift A]
+  (α₁ : F₁ ⟶ L ⋙ RF₁) (α₂ : F₂ ⟶ L ⋙ RF₂) (τ : F₁ ⟶ F₂)
+  (W : MorphismProperty C) [L.IsLocalization W] [RF₁.IsRightDerivedFunctor α₁ W]
+  {A : Type*} [AddGroup A] [HasShift C A] [HasShift D A] [HasShift H A] [W.IsCompatibleWithShift A]
+  [L.CommShift A] [F₁.CommShift A] [F₂.CommShift A] [RF₁.CommShift A] [RF₂.CommShift A]
   [NatTrans.CommShift α₁ A] [NatTrans.CommShift α₂ A]
 
 include W in
@@ -177,8 +193,8 @@ lemma CommShift.of_isRightDerivedFunctor [τ.CommShift A] {τ' : RF₁ ⟶ RF₂
           simp [reassoc_of% h, NatTrans.app_shift_assoc α₂, Functor.commShiftIso_comp_inv_app,
             ← Functor.map_comp_assoc])
 
-instance CommShift.rightDerivedNatTrans [τ.CommShift A] :
-    (Functor.rightDerivedNatTrans RF₁ RF₂ α₁ α₂ W τ).CommShift A :=
+instance CommShift.rightDerivedNatTrans [τ.CommShift A]
+    : (Functor.rightDerivedNatTrans RF₁ RF₂ α₁ α₂ W τ).CommShift A :=
   CommShift.of_isRightDerivedFunctor α₁ α₂ τ W (by simp)
 
 end NatTrans

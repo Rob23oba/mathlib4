@@ -57,16 +57,16 @@ private lemma serreDerivative_eq_smul {k' : ℤ} {k l L : ℂ} {g F : ModularFor
 
 /-- **Ramanujan's formula for `E₄`**: `∂₄ E₄ = -E₆ / 3`. -/
 theorem serreDerivative_E₄ : serreDerivative 4 E₄ = (-3⁻¹ : ℂ) • E₆ :=
-  serreDerivative_eq_smul (F := serreDerivativeMF 4 E₄) rfl levelOne_weight_six_rank_one
-    E₄.holo' tendsto_E_atImInfty tendsto_E_atImInfty (by norm_num)
+  serreDerivative_eq_smul (F := serreDerivativeMF 4 E₄) rfl levelOne_weight_six_rank_one E₄.holo'
+    tendsto_E_atImInfty tendsto_E_atImInfty (by norm_num)
 
 /-- **Ramanujan's formula for `E₆`**: `∂₆ E₆ = -E₄² / 2`. -/
 theorem serreDerivative_E₆ : serreDerivative 6 E₆ = (-2⁻¹ : ℂ) • E₄ ^ 2 :=
   have hlim : Tendsto (fun z ↦ E₄ z ^ 2) atImInfty (𝓝 1) := by
     simpa using (tendsto_E_atImInfty).pow 2
   coe_pow E₄ 2 ▸ serreDerivative_eq_smul (F := serreDerivativeMF 6 E₆) (g := E₄.pow 2) rfl
-    (by simpa [Nat.ModEq] using dimension_level_one 8 ⟨4, rfl⟩) E₆.holo'
-    tendsto_E_atImInfty hlim (by norm_num)
+    (by simpa [Nat.ModEq] using dimension_level_one 8 ⟨4, rfl⟩) E₆.holo' tendsto_E_atImInfty hlim
+    (by norm_num)
 
 /-- The normalized derivative of the modular defect `D2 γ` is `-(γ₁₀)² / denom γ ²`. -/
 lemma normalizedDerivOfComplex_D2 (γ : SL(2, ℤ)) :
@@ -116,9 +116,10 @@ private def serreDerivativeOneE2 : ModularForm 𝒮ℒ 4 where
   toFun := serreDerivative 1 E2
   slash_action_eq' := fun _ ⟨γ, hγ⟩ ↦ hγ ▸ serreDerivativeOne_E2_slash γ
   holo' := serreDerivative_mdifferentiable 1 E2_mdifferentiable
-  bdd_at_cusps' hc := (OnePoint.isBoundedAt_iff_forall_SL2Z hc).mpr fun γ _ ↦
-    (serreDerivativeOne_E2_slash γ).symm ▸
-      isBoundedAtImInfty_serreDerivative 1 E2_mdifferentiable isBoundedAtImInfty_E2
+  bdd_at_cusps' hc :=
+    (OnePoint.isBoundedAt_iff_forall_SL2Z hc).mpr fun γ _ ↦
+      (serreDerivativeOne_E2_slash γ).symm
+        ▸ isBoundedAtImInfty_serreDerivative 1 E2_mdifferentiable isBoundedAtImInfty_E2
 
 /-- **Ramanujan's formula for `E₂`**: `∂₁ E₂ = -E₄ / 12`. -/
 theorem serreDerivative_E₂ : serreDerivative 1 E2 = (-12⁻¹ : ℂ) • E₄ :=

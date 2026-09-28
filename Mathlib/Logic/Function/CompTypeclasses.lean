@@ -42,18 +42,14 @@ class IsId {M : Type*} (σ : M → M) : Prop where
 instance {M : Type*} : IsId (@id M) where
   eq_id := rfl
 
-instance instComp_id {N P : Type*} {φ : N → N} [IsId φ] {ψ : N → P} :
-    CompTriple φ ψ ψ where
+instance instComp_id {N P : Type*} {φ : N → N} [IsId φ] {ψ : N → P} : CompTriple φ ψ ψ where
   comp_eq := by simp only [IsId.eq_id, Function.comp_id]
 
-instance instId_comp {M N : Type*} {φ : M → N} {ψ : N → N} [IsId ψ] :
-    CompTriple φ ψ φ where
+instance instId_comp {M N : Type*} {φ : M → N} {ψ : N → N} [IsId ψ] : CompTriple φ ψ φ where
   comp_eq := by simp only [IsId.eq_id, Function.id_comp]
 
 /-- `φ`, `ψ` and `ψ ∘ φ` for a `CompTriple`. -/
-theorem comp {M N P : Type*}
-    {φ : M → N} {ψ : N → P} :
-    CompTriple φ ψ (ψ.comp φ) where
+theorem comp {M N P : Type*} {φ : M → N} {ψ : N → P} : CompTriple φ ψ (ψ.comp φ) where
   comp_eq := rfl
 
 lemma comp_inv {M N : Type*} {φ : M → N} {ψ : N → M}

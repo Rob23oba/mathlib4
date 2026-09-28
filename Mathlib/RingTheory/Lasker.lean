@@ -34,8 +34,10 @@ open Ideal
 
 variable (R M : Type*) [CommSemiring R] [AddCommMonoid M] [Module R M]
 
-/-- An `R`-module `M` satisfies `IsLasker R M` when any `N : Submodule R M` can be
-  decomposed into finitely many primary submodules. -/
+/--
+An `R`-module `M` satisfies `IsLasker R M` when any `N : Submodule R M` can be
+decomposed into finitely many primary submodules.
+-/
 def IsLasker : Prop :=
   ∀ N : Submodule R M, ∃ s : Finset (Submodule R M), s.inf id = N ∧ ∀ ⦃J⦄, J ∈ s → J.IsPrimary
 
@@ -98,10 +100,11 @@ lemma exists_minimal_isPrimary_decomposition_of_isPrimary_decomposition
   obtain ⟨u, hut, hu, hu'⟩ := decomposition_erase_inf ht
   exact ⟨u, hu, fun _ hi ↦ ht' (hut hi), ht''.mono hut, hu'⟩
 
-/-- A `Finset` of submodules is a minimal primary decomposition of `N` if the submodules `Nᵢ`
-intersect to `N`, are primary, the `√Ann(M/Nᵢ)` are distinct, and each `Nᵢ` is necessary. -/
-structure IsMinimalPrimaryDecomposition
-    (N : Submodule R M) (t : Finset (Submodule R M)) where
+/--
+A `Finset` of submodules is a minimal primary decomposition of `N` if the submodules `Nᵢ`
+intersect to `N`, are primary, the `√Ann(M/Nᵢ)` are distinct, and each `Nᵢ` is necessary.
+-/
+structure IsMinimalPrimaryDecomposition (N : Submodule R M) (t : Finset (Submodule R M)) where
   inf_eq : t.inf id = N
   primary : ∀ ⦃J⦄, J ∈ t → J.IsPrimary
   distinct : (t : Set (Submodule R M)).Pairwise ((· ≠ ·) on fun J ↦ (J.colon Set.univ).radical)

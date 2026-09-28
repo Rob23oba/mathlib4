@@ -23,8 +23,9 @@ variable {ι M N : Type*}
 namespace List
 section Defs
 
-attribute [to_additive existing] prod prod_nil prod_cons prod_one_cons prod_append prod_concat
-  prod_flatten prod_eq_foldl prod_reverse
+attribute [to_additive existing]
+  prod prod_nil prod_cons prod_one_cons prod_append prod_concat prod_flatten prod_eq_foldl
+  prod_reverse
 
 /-- The alternating sum of a list. -/
 def alternatingSum {G : Type*} [Zero G] [Add G] [Neg G] : List G → G
@@ -63,8 +64,7 @@ section MulOneClass
 variable [MulOneClass M] {l : List M} {a : M}
 
 @[to_additive]
-theorem prod_map_one {l : List ι} :
-    (l.map fun _ => (1 : M)).prod = 1 := by
+theorem prod_map_one {l : List ι} : (l.map fun _ => (1 : M)).prod = 1 := by
   induction l with simp [*]
 
 @[to_additive]
@@ -100,8 +100,11 @@ theorem prod_eq_pow_length (l : List M) (m : M) (h : ∀ x ∈ l, x = m) : l.pro
 alias prod_eq_pow_card := prod_eq_pow_length
 
 @[to_additive]
-theorem prod_hom_rel (l : List ι) {r : M → N → Prop} {f : ι → M} {g : ι → N} (h₁ : r 1 1)
-    (h₂ : ∀ ⦃i a b⦄, r a b → r (f i * a) (g i * b)) : r (l.map f).prod (l.map g).prod :=
+theorem prod_hom_rel
+    (l : List ι)
+    {r : M → N → Prop} {f : ι → M} {g : ι → N}
+    (h₁ : r 1 1) (h₂ : ∀ ⦃i a b⦄, r a b → r (f i * a) (g i * b))
+    : r (l.map f).prod (l.map g).prod :=
   List.recOn l h₁ fun a l hl => by simp only [map_cons, prod_cons, h₂ hl]
 
 end Monoid

@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Basic
 public import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Basic
-
 import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Isometric
 import Mathlib.Analysis.CStarAlgebra.Unitization
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.PosPart.Isometric
@@ -46,36 +45,40 @@ open scoped NNReal CStarAlgebra
 
 local notation "σₙ" => quasispectrum
 
-theorem cfc_tsub {A : Type*} [TopologicalSpace A] [Ring A] [PartialOrder A] [StarRing A]
-    [StarOrderedRing A] [Algebra ℝ A] [IsTopologicalRing A] [T2Space A]
-    [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-    [NonnegSpectrumClass ℝ A] (f g : ℝ≥0 → ℝ≥0)
-    (a : A) (hfg : ∀ x ∈ spectrum ℝ≥0 a, g x ≤ f x) (ha : 0 ≤ a := by cfc_tac)
-    (hf : ContinuousOn f (spectrum ℝ≥0 a) := by cfc_cont_tac)
-    (hg : ContinuousOn g (spectrum ℝ≥0 a) := by cfc_cont_tac) :
-    cfc (fun x ↦ f x - g x) a = cfc f a - cfc g a := by
+theorem cfc_tsub
+    {A : Type*} [TopologicalSpace A] [Ring A] [PartialOrder A] [StarRing A] [StarOrderedRing A]
+    [Algebra ℝ A] [IsTopologicalRing A] [T2Space A] [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+    [NonnegSpectrumClass ℝ A]
+    (f g : ℝ≥0 → ℝ≥0) (a : A) (hfg : ∀ x ∈ spectrum ℝ≥0 a, g x ≤ f x)
+    (ha : 0 ≤ a := by cfc_tac) (hf : ContinuousOn f (spectrum ℝ≥0 a) := by cfc_cont_tac)
+    (hg : ContinuousOn g (spectrum ℝ≥0 a) := by cfc_cont_tac)
+    : cfc (fun x ↦ f x - g x) a = cfc f a - cfc g a := by
   have ha' := SpectrumRestricts.nnreal_of_nonneg ha
-  have : (spectrum ℝ a).EqOn (fun x ↦ ((f x.toNNReal - g x.toNNReal : ℝ≥0) : ℝ))
-      (fun x ↦ f x.toNNReal - g x.toNNReal) :=
-    fun x hx ↦ NNReal.coe_sub <| hfg _ <| ha'.apply_mem hx
+  have : (spectrum ℝ a).EqOn
+      (fun x ↦ ((f x.toNNReal - g x.toNNReal : ℝ≥0) : ℝ))
+      (fun x ↦ f x.toNNReal - g x.toNNReal) := fun x hx ↦
+    NNReal.coe_sub <| hfg _ <| ha'.apply_mem hx
   rw [cfc_nnreal_eq_real .., cfc_nnreal_eq_real .., cfc_nnreal_eq_real .., cfc_congr this]
   refine cfc_sub _ _ a ?_ ?_
   all_goals
     exact continuous_subtype_val.comp_continuousOn <|
       ContinuousOn.comp ‹_› continuous_real_toNNReal.continuousOn <| ha'.image ▸ Set.mapsTo_image ..
 
-theorem cfcₙ_tsub {A : Type*} [TopologicalSpace A] [NonUnitalRing A] [PartialOrder A] [StarRing A]
-    [StarOrderedRing A] [Module ℝ A] [IsScalarTower ℝ A A] [SMulCommClass ℝ A A]
-    [IsTopologicalRing A] [T2Space A] [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-    [NonnegSpectrumClass ℝ A] (f g : ℝ≥0 → ℝ≥0)
-    (a : A) (hfg : ∀ x ∈ σₙ ℝ≥0 a, g x ≤ f x) (ha : 0 ≤ a := by cfc_tac)
-    (hf : ContinuousOn f (σₙ ℝ≥0 a) := by cfc_cont_tac) (hf0 : f 0 = 0 := by cfc_zero_tac)
-    (hg : ContinuousOn g (σₙ ℝ≥0 a) := by cfc_cont_tac) (hg0 : g 0 = 0 := by cfc_zero_tac) :
-    cfcₙ (fun x ↦ f x - g x) a = cfcₙ f a - cfcₙ g a := by
+theorem cfcₙ_tsub
+    {A : Type*}
+    [TopologicalSpace A] [NonUnitalRing A] [PartialOrder A] [StarRing A] [StarOrderedRing A]
+    [Module ℝ A] [IsScalarTower ℝ A A] [SMulCommClass ℝ A A] [IsTopologicalRing A] [T2Space A]
+    [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint] [NonnegSpectrumClass ℝ A]
+    (f g : ℝ≥0 → ℝ≥0) (a : A) (hfg : ∀ x ∈ σₙ ℝ≥0 a, g x ≤ f x)
+    (ha : 0 ≤ a := by cfc_tac) (hf : ContinuousOn f (σₙ ℝ≥0 a) := by cfc_cont_tac)
+    (hf0 : f 0 = 0 := by cfc_zero_tac) (hg : ContinuousOn g (σₙ ℝ≥0 a) := by cfc_cont_tac)
+    (hg0 : g 0 = 0 := by cfc_zero_tac)
+    : cfcₙ (fun x ↦ f x - g x) a = cfcₙ f a - cfcₙ g a := by
   have ha' := QuasispectrumRestricts.nnreal_of_nonneg ha
-  have : (σₙ ℝ a).EqOn (fun x ↦ ((f x.toNNReal - g x.toNNReal : ℝ≥0) : ℝ))
-      (fun x ↦ f x.toNNReal - g x.toNNReal) :=
-    fun x hx ↦ NNReal.coe_sub <| hfg _ <| ha'.apply_mem hx
+  have : (σₙ ℝ a).EqOn
+      (fun x ↦ ((f x.toNNReal - g x.toNNReal : ℝ≥0) : ℝ))
+      (fun x ↦ f x.toNNReal - g x.toNNReal) := fun x hx ↦
+    NNReal.coe_sub <| hfg _ <| ha'.apply_mem hx
   rw [cfcₙ_nnreal_eq_real .., cfcₙ_nnreal_eq_real .., cfcₙ_nnreal_eq_real .., cfcₙ_congr this]
   refine cfcₙ_sub _ _ a ?_ (by simpa) ?_
   all_goals
@@ -87,11 +90,9 @@ open Unitization
 
 variable {A : Type*} [NonUnitalCStarAlgebra A] [PartialOrder A] [StarOrderedRing A]
 
-noncomputable instance instPartialOrder : PartialOrder A⁺¹ :=
-    CStarAlgebra.spectralOrder _
+noncomputable instance instPartialOrder : PartialOrder A⁺¹ := CStarAlgebra.spectralOrder _
 
-instance instStarOrderedRing : StarOrderedRing A⁺¹ :=
-    CStarAlgebra.spectralOrderedRing _
+instance instStarOrderedRing : StarOrderedRing A⁺¹ := CStarAlgebra.spectralOrderedRing _
 
 @[simp, norm_cast]
 lemma inr_nonneg_iff {a : A} : 0 ≤ (a : A⁺¹) ↔ 0 ≤ a := by
@@ -112,7 +113,6 @@ lemma inr_le_inr_iff {a b : A} : (a : A⁺¹) ≤ (b : A⁺¹) ↔ a ≤ b := by
 @[deprecated (since := "2026-08-06")] alias inr_le_iff := inr_le_inr_iff
 
 alias ⟨le_of_inr, inr_mono⟩ := inr_le_inr_iff
-
 
 lemma convexOn_of_convexOn_inr_comp {f : A → A} {s : Set A}
     (hf : ConvexOn ℝ s (inr (R := ℂ) ∘ f)) : ConvexOn ℝ s f := by
@@ -261,7 +261,6 @@ lemma nnnorm_le_natCast_iff_of_nonneg (a : A) (n : ℕ) (ha : 0 ≤ a := by cfc_
     ‖a‖₊ ≤ n ↔ a ≤ n := by
   simpa using nnnorm_le_iff_of_nonneg a n
 
-
 section Icc
 
 open Set
@@ -407,12 +406,12 @@ protected lemma _root_.IsStrictlyPositive.of_le {a b : A} (ha : IsStrictlyPositi
     (hab : a ≤ b) : IsStrictlyPositive b :=
   ⟨ha.nonneg.trans hab, CStarAlgebra.isUnit_of_le a hab⟩
 
-theorem _root_.IsStrictlyPositive.add_nonneg {a b : A}
-    (ha : IsStrictlyPositive a) (hb : 0 ≤ b) : IsStrictlyPositive (a + b) :=
+theorem _root_.IsStrictlyPositive.add_nonneg {a b : A} (ha : IsStrictlyPositive a) (hb : 0 ≤ b)
+    : IsStrictlyPositive (a + b) :=
   IsStrictlyPositive.of_le ha ((le_add_iff_nonneg_right a).mpr hb)
 
-theorem _root_.IsStrictlyPositive.nonneg_add {a b : A}
-    (ha : 0 ≤ a) (hb : IsStrictlyPositive b) : IsStrictlyPositive (a + b) :=
+theorem _root_.IsStrictlyPositive.nonneg_add {a b : A} (ha : 0 ≤ a) (hb : IsStrictlyPositive b)
+    : IsStrictlyPositive (a + b) :=
   add_comm a b ▸ hb.add_nonneg ha
 
 @[grind ←, aesop 90% apply]
@@ -464,8 +463,8 @@ lemma norm_le_norm_of_le_of_nonneg {a b : A} (hab : a ≤ b) (ha : 0 ≤ a := by
 @[deprecated (since := "2026-08-10")]
 alias norm_le_norm_of_nonneg_of_le := norm_le_norm_of_le_of_nonneg
 
-theorem nnnorm_le_nnnorm_of_le_of_nonneg {a b : A} (hab : a ≤ b) (ha : 0 ≤ a := by cfc_tac) :
-    ‖a‖₊ ≤ ‖b‖₊ :=
+theorem nnnorm_le_nnnorm_of_le_of_nonneg {a b : A} (hab : a ≤ b) (ha : 0 ≤ a := by cfc_tac)
+    : ‖a‖₊ ≤ ‖b‖₊ :=
   norm_le_norm_of_le_of_nonneg hab
 
 @[deprecated (since := "2026-08-10")]
@@ -508,12 +507,14 @@ theorem norm_negPart_anti {a b : A} (hab : a ≤ b) : ‖b⁻‖ ≤ ‖a⁻‖ 
   rw [← neg_neg a, ← neg_le] at hab
   simpa using norm_posPart_mono hab
 
-theorem _root_.IsSelfAdjoint.norm_le_max_of_le_of_le {a b c : A}
-    (hab : a ≤ b) (hbc : b ≤ c) (hb : IsSelfAdjoint b := by cfc_tac) :
-    ‖b‖ ≤ max ‖a‖ ‖c‖ := calc
-  ‖b‖ = max ‖b⁻‖ ‖b⁺‖ := by rw [hb.norm_eq_max_norm_posPart_negPart b, max_comm]
-  _ ≤ max ‖a⁻‖ ‖c⁺‖ := by grw [norm_negPart_anti hab, norm_posPart_mono hbc]
-  _ ≤ max ‖a‖ ‖c‖ := by gcongr <;> simp
+theorem _root_.IsSelfAdjoint.norm_le_max_of_le_of_le
+    {a b c : A} (hab : a ≤ b) (hbc : b ≤ c) (hb : IsSelfAdjoint b := by cfc_tac)
+    : ‖b‖ ≤ max (‖a‖) ‖c‖ :=
+  calc
+    ‖b‖
+      = max (‖b⁻‖) ‖b⁺‖ := by rw [hb.norm_eq_max_norm_posPart_negPart b, max_comm]
+    _ ≤ max (‖a⁻‖) ‖c⁺‖ := by grw [norm_negPart_anti hab, norm_posPart_mono hbc]
+    _ ≤ max (‖a‖) ‖c‖ := by gcongr <;> simp
 
 lemma norm_sub_le_max_of_nonneg {a b : A} (ha : 0 ≤ a) (hb : 0 ≤ b) : ‖a - b‖ ≤ max ‖a‖ ‖b‖ := by
   grw [IsSelfAdjoint.norm_le_max_of_le_of_le (a := -b) (c := a) (by simpa) (by simpa),

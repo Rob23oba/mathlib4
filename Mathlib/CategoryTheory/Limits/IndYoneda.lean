@@ -42,10 +42,12 @@ section HomCocontinuousCovariant
 
 variable (F : I ⥤ C) [HasColimit F]
 
-/-- Hom is functorially cocontinuous: coyoneda of a colimit is the limit
-over coyoneda of the diagram. -/
-noncomputable def coyonedaOpColimitIsoLimitCoyoneda :
-    coyoneda.obj (op <| colimit F) ≅ limit (F.op ⋙ coyoneda) :=
+/--
+Hom is functorially cocontinuous: coyoneda of a colimit is the limit
+over coyoneda of the diagram.
+-/
+noncomputable def coyonedaOpColimitIsoLimitCoyoneda
+    : coyoneda.obj (op <| colimit F) ≅ limit (F.op ⋙ coyoneda) :=
   coyoneda.mapIso (limitOpIsoOpColimit F).symm ≪≫ (preservesLimitIso coyoneda F.op)
 
 @[reassoc (attr := simp)]
@@ -64,9 +66,8 @@ lemma coyonedaOpColimitIsoLimitCoyoneda_inv_comp_π (i : I) :
     Iso.inv_hom_id, Category.id_comp]
 
 /-- Hom is cocontinuous: homomorphisms from a colimit is the limit over yoneda of the diagram. -/
-noncomputable def colimitHomIsoLimitYoneda
-    [HasLimitsOfShape Iᵒᵖ (Type u₂)] (A : C) :
-    (colimit F ⟶ A) ≅ limit (F.op ⋙ yoneda.obj A) :=
+noncomputable def colimitHomIsoLimitYoneda [HasLimitsOfShape (Iᵒᵖ) (Type u₂)] (A : C)
+    : (colimit F ⟶ A) ≅ limit (F.op ⋙ yoneda.obj A) :=
   (coyonedaOpColimitIsoLimitCoyoneda F).app A ≪≫ limitObjIsoLimitCompEvaluation _ _
 
 @[reassoc (attr := simp)]
@@ -93,8 +94,8 @@ section HomCocontinuousContravariant
 variable (F : Iᵒᵖ ⥤ C) [HasColimit F]
 
 /-- Variant of `coyonedaOoColimitIsoLimitCoyoneda` for contravariant `F`. -/
-noncomputable def coyonedaOpColimitIsoLimitCoyoneda' :
-    coyoneda.obj (op <| colimit F) ≅ limit (F.rightOp ⋙ coyoneda) :=
+noncomputable def coyonedaOpColimitIsoLimitCoyoneda'
+    : coyoneda.obj (op <| colimit F) ≅ limit (F.rightOp ⋙ coyoneda) :=
   coyoneda.mapIso (limitRightOpIsoOpColimit F).symm ≪≫ preservesLimitIso coyoneda F.rightOp
 
 @[reassoc (attr := simp)]
@@ -113,8 +114,8 @@ lemma coyonedaOpColimitIsoLimitCoyoneda'_inv_comp_π (i : I) :
     Iso.inv_hom_id, Category.id_comp]
 
 /-- Variant of `colimitHomIsoLimitYoneda` for contravariant `F`. -/
-noncomputable def colimitHomIsoLimitYoneda' [HasLimitsOfShape I (Type u₂)] (A : C) :
-    (colimit F ⟶ A) ≅ limit (F.rightOp ⋙ yoneda.obj A) :=
+noncomputable def colimitHomIsoLimitYoneda' [HasLimitsOfShape I (Type u₂)] (A : C)
+    : (colimit F ⟶ A) ≅ limit (F.rightOp ⋙ yoneda.obj A) :=
   (coyonedaOpColimitIsoLimitCoyoneda' F).app A ≪≫ limitObjIsoLimitCompEvaluation _ _
 
 @[reassoc (attr := simp)]
@@ -140,15 +141,17 @@ end HomCocontinuousContravariant
 section ProCoyonedaContravariant
 
 variable (D : Iᵒᵖ ⥤ C) (F : C ⥤ Type u₂)
-variable [HasColimit (D.rightOp ⋙ coyoneda)] [HasLimitsOfShape Iᵒᵖ (Type (max u₁ u₂))]
+variable [HasColimit (D.rightOp ⋙ coyoneda)] [HasLimitsOfShape (Iᵒᵖ) (Type (max u₁ u₂))]
 
-/-- Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
+/--
+Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
 of `F` evaluated at `D`. This variant is for contravariant diagrams, see
-`colimitCoyonedaHomIsoLimit'` for a covariant version. -/
-noncomputable def colimitCoyonedaHomIsoLimit :
-    (colimit (D.rightOp ⋙ coyoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  colimitHomIsoLimitYoneda _ F ≪≫
-    HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL C F) (coyonedaLemma C))
+`colimitCoyonedaHomIsoLimit'` for a covariant version.
+-/
+noncomputable def colimitCoyonedaHomIsoLimit
+    : (colimit (D.rightOp ⋙ coyoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  colimitHomIsoLimitYoneda _ F
+    ≪≫ HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL C F) (coyonedaLemma C))
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -168,15 +171,16 @@ end ProCoyonedaContravariant
 section ProCoyonedaContravariantLeftOp
 
 variable (D : I ⥤ Cᵒᵖ) (F : C ⥤ Type u₂)
-variable [HasColimit (D ⋙ coyoneda)] [HasLimitsOfShape Iᵒᵖ (Type (max u₁ u₂))]
+variable [HasColimit (D ⋙ coyoneda)] [HasLimitsOfShape (Iᵒᵖ) (Type (max u₁ u₂))]
 
-/-- Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
+/--
+Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
 of `F` evaluated at `D`. This variant is for contravariant diagrams, see
-`colimitCoyonedaHomIsoLimit'` for a covariant version. -/
-noncomputable def colimitCoyonedaHomIsoLimitLeftOp :
-    (colimit (D ⋙ coyoneda) ⟶ F) ≅ limit (D.leftOp ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  haveI : HasColimit (D.leftOp.rightOp ⋙ coyoneda) :=
-    inferInstanceAs <| HasColimit (D ⋙ coyoneda)
+`colimitCoyonedaHomIsoLimit'` for a covariant version.
+-/
+noncomputable def colimitCoyonedaHomIsoLimitLeftOp
+    : (colimit (D ⋙ coyoneda) ⟶ F) ≅ limit (D.leftOp ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  haveI : HasColimit (D.leftOp.rightOp ⋙ coyoneda) := inferInstanceAs <| HasColimit (D ⋙ coyoneda)
   colimitCoyonedaHomIsoLimit D.leftOp F
 
 @[simp]
@@ -194,15 +198,17 @@ end ProCoyonedaContravariantLeftOp
 section IndYonedaCovariant
 
 variable (D : Iᵒᵖ ⥤ Cᵒᵖ) (F : Cᵒᵖ ⥤ Type u₂)
-variable [HasColimit (D.unop ⋙ yoneda)] [HasLimitsOfShape Iᵒᵖ (Type (max u₁ u₂))]
+variable [HasColimit (D.unop ⋙ yoneda)] [HasLimitsOfShape (Iᵒᵖ) (Type (max u₁ u₂))]
 
-/-- Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
+/--
+Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
 evaluated at `D`. This version is for covariant diagrams, see `colimitYonedaHomIsoLimit'` for a
-contravariant version. -/
-noncomputable def colimitYonedaHomIsoLimit :
-      (colimit (D.unop ⋙ yoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  colimitHomIsoLimitYoneda _ _ ≪≫
-    HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL _ _) (yonedaLemma C))
+contravariant version.
+-/
+noncomputable def colimitYonedaHomIsoLimit
+    : (colimit (D.unop ⋙ yoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  colimitHomIsoLimitYoneda _ _
+    ≪≫ HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL _ _) (yonedaLemma C))
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -221,15 +227,16 @@ end IndYonedaCovariant
 section IndYonedaCovariantOp
 
 variable (D : I ⥤ C) (F : Cᵒᵖ ⥤ Type u₂)
-variable [HasColimit (D ⋙ yoneda)] [HasLimitsOfShape Iᵒᵖ (Type (max u₁ u₂))]
+variable [HasColimit (D ⋙ yoneda)] [HasLimitsOfShape (Iᵒᵖ) (Type (max u₁ u₂))]
 
-/-- Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
+/--
+Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
 evaluated at `D`. This version is for covariant diagrams, see `colimitYonedaHomIsoLimit'` for a
-contravariant version. -/
-noncomputable def colimitYonedaHomIsoLimitOp :
-    (colimit (D ⋙ yoneda) ⟶ F) ≅ limit (D.op ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  haveI : HasColimit (D.op.unop ⋙ yoneda) :=
-    inferInstanceAs <| HasColimit (D ⋙ yoneda)
+contravariant version.
+-/
+noncomputable def colimitYonedaHomIsoLimitOp
+    : (colimit (D ⋙ yoneda) ⟶ F) ≅ limit (D.op ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  haveI : HasColimit (D.op.unop ⋙ yoneda) := inferInstanceAs <| HasColimit (D ⋙ yoneda)
   colimitYonedaHomIsoLimit D.op F
 
 @[simp]
@@ -248,13 +255,15 @@ section ProCoyonedaCovariant
 variable (D : I ⥤ C) (F : C ⥤ Type u₂)
 variable [HasColimit (D.op ⋙ coyoneda)] [HasLimitsOfShape I (Type (max u₁ u₂))]
 
-/-- Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
+/--
+Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
 of `F` evaluated at `D`. This variant is for covariant diagrams, see
-`colimitCoyonedaHomIsoLimit` for a covariant version. -/
-noncomputable def colimitCoyonedaHomIsoLimit' :
-    (colimit (D.op ⋙ coyoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  colimitHomIsoLimitYoneda' _ F ≪≫
-    HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL C F) (coyonedaLemma C))
+`colimitCoyonedaHomIsoLimit` for a covariant version.
+-/
+noncomputable def colimitCoyonedaHomIsoLimit'
+    : (colimit (D.op ⋙ coyoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  colimitHomIsoLimitYoneda' _ F
+    ≪≫ HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL C F) (coyonedaLemma C))
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -274,13 +283,14 @@ section ProCoyonedaCovariantUnop
 variable (D : Iᵒᵖ ⥤ Cᵒᵖ) (F : C ⥤ Type u₂)
 variable [HasColimit (D ⋙ coyoneda)] [HasLimitsOfShape I (Type (max u₁ u₂))]
 
-/-- Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
+/--
+Pro-Coyoneda lemma: morphisms from colimit of coyoneda of diagram `D` to `F` is limit
 of `F` evaluated at `D`. This variant is for covariant diagrams, see
-`colimitCoyonedaHomIsoLimit` for a covariant version. -/
-noncomputable def colimitCoyonedaHomIsoLimitUnop :
-    (colimit (D ⋙ coyoneda) ⟶ F) ≅ limit (D.unop ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  haveI : HasColimit (D.unop.op ⋙ coyoneda) :=
-    inferInstanceAs <| HasColimit (D ⋙ coyoneda)
+`colimitCoyonedaHomIsoLimit` for a covariant version.
+-/
+noncomputable def colimitCoyonedaHomIsoLimitUnop
+    : (colimit (D ⋙ coyoneda) ⟶ F) ≅ limit (D.unop ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  haveI : HasColimit (D.unop.op ⋙ coyoneda) := inferInstanceAs <| HasColimit (D ⋙ coyoneda)
   colimitCoyonedaHomIsoLimit' D.unop F
 
 @[simp]
@@ -299,13 +309,15 @@ section IndYonedaContravariant
 variable (D : I ⥤ Cᵒᵖ) (F : Cᵒᵖ ⥤ Type u₂)
 variable [HasColimit (D.leftOp ⋙ yoneda)] [HasLimitsOfShape I (Type (max u₁ u₂))]
 
-/-- Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
+/--
+Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
 evaluated at `D`. This version is for contravariant diagrams, see `colimitYonedaHomIsoLimit` for a
-covariant version. -/
-noncomputable def colimitYonedaHomIsoLimit' :
-    (colimit (D.leftOp ⋙ yoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  colimitHomIsoLimitYoneda' _ F ≪≫
-    HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL _ _) (yonedaLemma C))
+covariant version.
+-/
+noncomputable def colimitYonedaHomIsoLimit'
+    : (colimit (D.leftOp ⋙ yoneda) ⟶ F) ≅ limit (D ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  colimitHomIsoLimitYoneda' _ F
+    ≪≫ HasLimit.isoOfNatIso (Functor.isoWhiskerLeft (D ⋙ Prod.sectL _ _) (yonedaLemma C))
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -326,13 +338,14 @@ section IndYonedaContravariantRightOp
 variable (D : Iᵒᵖ ⥤ C) (F : Cᵒᵖ ⥤ Type u₂)
 variable [HasColimit (D ⋙ yoneda)] [HasLimitsOfShape I (Type (max u₁ u₂))]
 
-/-- Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
+/--
+Ind-Yoneda lemma: morphisms from colimit of yoneda of diagram `D` to `F` is limit of `F`
 evaluated at `D`. This version is for contravariant diagrams, see `colimitYonedaHomIsoLimit` for a
-covariant version. -/
-noncomputable def colimitYonedaHomIsoLimitRightOp :
-    (colimit (D ⋙ yoneda) ⟶ F) ≅ limit (D.rightOp ⋙ F ⋙ uliftFunctor.{u₁}) :=
-  haveI : HasColimit (D.rightOp.leftOp ⋙ yoneda) :=
-    inferInstanceAs <| HasColimit (D ⋙ yoneda)
+covariant version.
+-/
+noncomputable def colimitYonedaHomIsoLimitRightOp
+    : (colimit (D ⋙ yoneda) ⟶ F) ≅ limit (D.rightOp ⋙ F ⋙ uliftFunctor.{u₁}) :=
+  haveI : HasColimit (D.rightOp.leftOp ⋙ yoneda) := inferInstanceAs <| HasColimit (D ⋙ yoneda)
   colimitYonedaHomIsoLimit' D.rightOp F
 
 @[simp]

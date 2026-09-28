@@ -53,17 +53,21 @@ protected abbrev module : Module R α where
   add_smul := by simp [e.smul_def, add_smul]
 
 variable (R) in
-/-- When `α` is equipped with the `A`-module structure transferred via `e : α ≃+ β`,
-this isomorphism is `A`-linear. -/
-def linearEquiv :
-    letI := e.module R
-    α ≃ₗ[R] β :=
+/--
+When `α` is equipped with the `A`-module structure transferred via `e : α ≃+ β`,
+this isomorphism is `A`-linear.
+-/
+def linearEquiv
+    : letI := e.module R
+      α ≃ₗ[R] β :=
   letI := e.module R
-  { e with
+  {
+    e with
     map_smul' := fun r x => by
       apply e.symm.injective
       simp only [RingHom.id_apply, EmbeddingLike.apply_eq_iff_eq]
-      exact Iff.mp (eq_symm_apply _) rfl }
+      exact Iff.mp (eq_symm_apply _) rfl
+  }
 
 @[simp]
 lemma linearEquiv_apply (a : α) : e.linearEquiv R a = e a := rfl

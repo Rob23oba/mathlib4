@@ -23,11 +23,14 @@ since `IsPurelyInseparable.trans` requires the involved rings to be fields.
 
 universe u v
 
-/-- A ring homomorphism `f : F →+* E` is purely inseparable if `E` is purely inseparable as an
-`F`-algebra. -/
+/--
+A ring homomorphism `f : F →+* E` is purely inseparable if `E` is purely inseparable as an
+`F`-algebra.
+-/
 @[algebraize IsPurelyInseparable]
 protected def RingHom.IsPurelyInseparable
-    {F : Type u} {E : Type v} [CommRing F] [CommRing E] (f : F →+* E) : Prop :=
+    {F : Type u} {E : Type v} [CommRing F] [CommRing E] (f : F →+* E)
+    : Prop :=
   letI : Algebra F E := f.toAlgebra
   IsPurelyInseparable F E
 

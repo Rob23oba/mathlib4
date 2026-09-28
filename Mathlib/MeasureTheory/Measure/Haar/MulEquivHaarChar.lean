@@ -30,15 +30,17 @@ open scoped NNReal Pointwise ENNReal
 
 namespace MeasureTheory
 
-variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
-    [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
+variable
+  {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
+  [IsTopologicalGroup G] [LocallyCompactSpace G]
 
-/-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
-`φ` scales Haar measures on `G`. -/
+/--
+If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
+`φ` scales Haar measures on `G`.
+-/
 @[to_additive /-- If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive
 real factor by which `φ` scales Haar measures on `A`. -/]
-noncomputable def mulEquivHaarChar (φ : G ≃ₜ* G) : ℝ≥0 :=
-  haarScalarFactor haar (haar.map φ)
+noncomputable def mulEquivHaarChar (φ : G ≃ₜ* G) : ℝ≥0 := haarScalarFactor haar (haar.map φ)
 
 @[to_additive]
 lemma mulEquivHaarChar_pos (φ : G ≃ₜ* G) : 0 < mulEquivHaarChar φ :=

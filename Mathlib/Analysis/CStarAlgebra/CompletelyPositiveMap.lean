@@ -47,11 +47,12 @@ Note that `Fin k` here is hardcoded to avoid having to quantify over types and i
 universe parameter. See `CompletelyPositiveMap.map_cstarMatrix_nonneg` for a version of the
 property that holds for matrices indexed by any finite type.
 -/
-structure CompletelyPositiveMap (A₁ : Type*) (A₂ : Type*) [NonUnitalCStarAlgebra A₁]
-    [NonUnitalCStarAlgebra A₂] [PartialOrder A₁] [PartialOrder A₂] [StarOrderedRing A₁]
-    [StarOrderedRing A₂] extends A₁ →ₗ[ℂ] A₂ where
-  map_cstarMatrix_nonneg' (k : ℕ) (M : CStarMatrix (Fin k) (Fin k) A₁) (hM : 0 ≤ M) :
-      0 ≤ M.map toLinearMap
+structure CompletelyPositiveMap
+    (A₁ : Type*) (A₂ : Type*) [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂]
+    [PartialOrder A₁] [PartialOrder A₂] [StarOrderedRing A₁] [StarOrderedRing A₂]
+    extends A₁ →ₗ[ℂ] A₂ where
+  map_cstarMatrix_nonneg' (k : ℕ) (M : CStarMatrix (Fin k) (Fin k) A₁) (hM : 0 ≤ M)
+    : 0 ≤ M.map toLinearMap
 
 /--
 A linear map `φ : A₁ →ₗ[ℂ] A₂`  is called *completely positive (CP)* if
@@ -62,32 +63,39 @@ Note that `Fin k` here is hardcoded to avoid having to quantify over types and i
 universe parameter. See `CompletelyPositiveMap.map_cstarMatrix_nonneg` for a version of the
 property that holds for matrices indexed by any finite type.
 -/
-class CompletelyPositiveMapClass (F : Type*) (A₁ : Type*) (A₂ : Type*)
-    [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂] [PartialOrder A₁]
-    [PartialOrder A₂] [StarOrderedRing A₁] [StarOrderedRing A₂] [FunLike F A₁ A₂] where
-  map_cstarMatrix_nonneg' (φ : F) (k : ℕ) (M : CStarMatrix (Fin k) (Fin k) A₁) (hM : 0 ≤ M) :
-    0 ≤ M.map φ
+class CompletelyPositiveMapClass
+    (F : Type*) (A₁ : Type*) (A₂ : Type*)
+    [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂] [PartialOrder A₁] [PartialOrder A₂]
+    [StarOrderedRing A₁] [StarOrderedRing A₂] [FunLike F A₁ A₂] where
+  map_cstarMatrix_nonneg' (φ : F) (k : ℕ) (M : CStarMatrix (Fin k) (Fin k) A₁) (hM : 0 ≤ M)
+    : 0 ≤ M.map φ
 
 /-- Notation for a `CompletelyPositiveMap`. -/
 scoped[CStarAlgebra] notation:25 A₁ " →CP " A₂:0 => CompletelyPositiveMap A₁ A₂
 
 namespace CompletelyPositiveMapClass
 
-variable {F A₁ A₂ : Type*} [NonUnitalCStarAlgebra A₁]
-  [NonUnitalCStarAlgebra A₂] [PartialOrder A₁] [PartialOrder A₂] [StarOrderedRing A₁]
-  [StarOrderedRing A₂] [FunLike F A₁ A₂] [LinearMapClass F ℂ A₁ A₂]
+variable
+  {F A₁ A₂ : Type*}
+  [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂] [PartialOrder A₁] [PartialOrder A₂]
+  [StarOrderedRing A₁] [StarOrderedRing A₂] [FunLike F A₁ A₂] [LinearMapClass F ℂ A₁ A₂]
 
-/-- Reinterpret an element of a type of completely positive maps as a completely positive linear
-  map. -/
+/--
+Reinterpret an element of a type of completely positive maps as a completely positive linear
+map.
+-/
 @[coe]
-def toCompletelyPositiveLinearMap [CompletelyPositiveMapClass F A₁ A₂] (f : F) : A₁ →CP A₂ :=
-  { (f : A₁ →ₗ[ℂ] A₂) with
-    map_cstarMatrix_nonneg' := CompletelyPositiveMapClass.map_cstarMatrix_nonneg' f }
+def toCompletelyPositiveLinearMap [CompletelyPositiveMapClass F A₁ A₂] (f : F) : A₁ →CP A₂ := {
+  (f : A₁ →ₗ[ℂ] A₂) with
+  map_cstarMatrix_nonneg' := CompletelyPositiveMapClass.map_cstarMatrix_nonneg' f
+}
 
-/-- Reinterpret an element of a type of completely positive maps as a completely positive linear
-map. -/
-instance instCoeToCompletelyPositiveMap [CompletelyPositiveMapClass F A₁ A₂] :
-    CoeHead F (A₁ →CP A₂) where
+/--
+Reinterpret an element of a type of completely positive maps as a completely positive linear
+map.
+-/
+instance instCoeToCompletelyPositiveMap [CompletelyPositiveMapClass F A₁ A₂]
+    : CoeHead F (A₁ →CP A₂) where
   coe f := toCompletelyPositiveLinearMap f
 
 set_option backward.isDefEq.respectTransparency false in
@@ -107,9 +115,9 @@ end CompletelyPositiveMapClass
 
 namespace CompletelyPositiveMap
 
-variable {A₁ A₂ : Type*} [NonUnitalCStarAlgebra A₁]
-  [NonUnitalCStarAlgebra A₂] [PartialOrder A₁] [PartialOrder A₂] [StarOrderedRing A₁]
-  [StarOrderedRing A₂]
+variable
+  {A₁ A₂ : Type*} [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂] [PartialOrder A₁]
+  [PartialOrder A₂] [StarOrderedRing A₁] [StarOrderedRing A₂]
 
 @[macro_inline]
 instance : FunLike (A₁ →CP A₂) A₁ A₂ where
@@ -143,7 +151,8 @@ end CompletelyPositiveMap
 
 namespace NonUnitalStarAlgHomClass
 
-variable {F A₁ A₂ : Type*} [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂] [PartialOrder A₁]
+variable
+  {F A₁ A₂ : Type*} [NonUnitalCStarAlgebra A₁] [NonUnitalCStarAlgebra A₂] [PartialOrder A₁]
   [PartialOrder A₂] [StarOrderedRing A₁] [StarOrderedRing A₂] [FunLike F A₁ A₂]
   [NonUnitalAlgHomClass F ℂ A₁ A₂] [StarHomClass F A₁ A₂]
 

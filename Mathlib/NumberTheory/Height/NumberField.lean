@@ -9,7 +9,6 @@ public import Mathlib.NumberTheory.Height.Basic
 public import Mathlib.NumberTheory.Height.Northcott
 public import Mathlib.NumberTheory.NumberField.ProductFormula
 public import Mathlib.RingTheory.Algebraic.Denominator
-
 import Mathlib.Algebra.FiniteSupport.Basic
 import Mathlib.Algebra.Order.Hom.Lattice
 import Mathlib.NumberTheory.Height.MvPolynomial
@@ -47,8 +46,10 @@ open Height
 variable {K : Type*} [Field K] [NumberField K]
 
 variable (K) in
-/-- The infinite places of a number field `K` as a `Multiset` of absolute values on `K`,
-with multiplicity given by `InfinitePlace.mult`. -/
+/--
+The infinite places of a number field `K` as a `Multiset` of absolute values on `K`,
+with multiplicity given by `InfinitePlace.mult`.
+-/
 noncomputable def multisetInfinitePlace : Multiset (AbsoluteValue K ℝ) :=
   .bind (.univ : Finset (InfinitePlace K)).val fun v ↦ .replicate v.mult v.val
 
@@ -74,8 +75,7 @@ private lemma prod_multisetInfinitePlace_eq {M : Type*} [CommMonoid M] (f : Abso
     (fun v _ ↦ v.val) (fun _ _ ↦ Finset.mem_univ _) (fun v _ ↦ by simp [v.isInfinitePlace])
     (fun _ _ ↦ rfl) (fun _ _ ↦ rfl) fun w hw ↦ by rw [count_multisetInfinitePlace_eq_mult ⟨w, _⟩]
 
-noncomputable
-instance instAdmissibleAbsValues : AdmissibleAbsValues K where
+noncomputable instance instAdmissibleAbsValues : AdmissibleAbsValues K where
   archAbsVal := multisetInfinitePlace K
   nonarchAbsVal := {v | IsFinitePlace v}
   isNonarchimedean v hv := FinitePlace.add_le ⟨v, by simpa using! hv⟩
@@ -132,17 +132,22 @@ lemma mulHeight_eq {ι : Type*} {x : ι → K} (hx : x ≠ 0) :
     prod_archAbsVal_eq, prod_nonarchAbsVal_eq fun v ↦ ⨆ i, v (x i)]
 
 open Classical IntermediateField in
-/-- The absolute multiplicative height of an algebraic number. This is defined for elements of any
-field of characteristic zero, with a junk value of `0` if the element is not algebraic. -/
+/--
+The absolute multiplicative height of an algebraic number. This is defined for elements of any
+field of characteristic zero, with a junk value of `0` if the element is not algebraic.
+-/
 noncomputable def absMulHeight₁ {K : Type*} [Field K] [CharZero K] (x : K) : ℝ :=
   if hx : IsIntegral ℚ x then
     haveI : FiniteDimensional ℚ ℚ⟮x⟯ := adjoin.finiteDimensional hx
     haveI : NumberField ℚ⟮x⟯ := {}
     (Height.mulHeight₁ (AdjoinSimple.gen ℚ x)) ^ (Module.finrank ℚ ℚ⟮x⟯ : ℝ)⁻¹
-  else 1
+  else
+    1
 
-/-- The absolute logarithmic height of an algebraic number. This is defined for elements of any
-field of characteristic zero, with a junk value of `0` if the element is not algebraic. -/
+/--
+The absolute logarithmic height of an algebraic number. This is defined for elements of any
+field of characteristic zero, with a junk value of `0` if the element is not algebraic.
+-/
 noncomputable def absLogHeight₁ {K : Type*} [Field K] [CharZero K] (x : K) : ℝ :=
   (absMulHeight₁ x).log
 
@@ -386,9 +391,11 @@ lemma finite_setOfPred_mulHeight_nat_le {n : ℕ} (hn : n ≠ 0) (B : ℝ) :
 alias finite_setOf_mulHeight_nat_le := finite_setOfPred_mulHeight_nat_le
 
 variable (K) in
-/- The set of `x : K` such that `mulHeight₁ x` is bounded and `n * x` is integral
+/-
+The set of `x : K` such that `mulHeight₁ x` is bounded and `n * x` is integral
 (for some given nonzero `n : ℕ`) is finite.
-This is a stepping stone for the proof of the next result, which is strictly stronger. -/
+This is a stepping stone for the proof of the next result, which is strictly stronger.
+-/
 private lemma finite_setOfPred_isIntegral_nat_mul_and_mulHeight₁_le {n : ℕ} (hn : n ≠ 0) (B : ℝ) :
     {x : K | IsIntegral ℤ (n * x) ∧ mulHeight₁ x ≤ B}.Finite := by
   have hn' : (n : K) ≠ 0 := mod_cast hn
@@ -406,11 +413,14 @@ private lemma finite_setOfPred_isIntegral_nat_mul_and_mulHeight₁_le {n : ℕ} 
     rwa [← ha, ← mulHeight₁_div_eq_mulHeight, mul_div_cancel_left₀ x hn']
 
 variable (K) in
-/-- A number field `K` satisfies the **Northcott property**:
-The set of elements of bounded multiplicative height is finite. -/
+/--
+A number field `K` satisfies the **Northcott property**:
+The set of elements of bounded multiplicative height is finite.
+-/
 theorem finite_setOfPred_mulHeight₁_le (B : ℝ) : {x : K | mulHeight₁ x ≤ B}.Finite := by
-  have H : {x : K | mulHeight₁ x ≤ B} =
-      ⋃ n : Fin ⌊B⌋₊, {x : K | IsIntegral ℤ ((n + 1) * x) ∧ mulHeight₁ x ≤ B} := by
+  have H
+      : {x : K | mulHeight₁ x ≤ B}
+        = ⋃ n : Fin ⌊B⌋₊, {x : K | IsIntegral ℤ ((n + 1) * x) ∧ mulHeight₁ x ≤ B} := by
     ext x : 1
     obtain ⟨n, hn₀, hn₁, hn⟩ := exists_nat_le_mulHeight₁ x
     simp only [Set.mem_ofPred_eq, Set.mem_iUnion, exists_and_right, iff_and_self]
@@ -427,10 +437,11 @@ instance : Northcott (mulHeight₁ (K := K)) where
   finite_le := finite_setOfPred_mulHeight₁_le K
 
 variable (K) in
-/-- A number field `K` satisfies the **Northcott property**:
-The set of elements of bounded logarithmic height is finite. -/
-theorem finite_setOfPred_logHeight₁_le (B : ℝ) :
-    {x : K | logHeight₁ x ≤ B}.Finite :=
+/--
+A number field `K` satisfies the **Northcott property**:
+The set of elements of bounded logarithmic height is finite.
+-/
+theorem finite_setOfPred_logHeight₁_le (B : ℝ) : {x : K | logHeight₁ x ≤ B}.Finite :=
   Northcott.finite_le B
 
 @[deprecated (since := "2026-07-09")]
@@ -450,17 +461,23 @@ open Lean.Meta Qq
 
 /-- Extension for the `positivity` tactic: `Height.totalWeight` is positive for number fields. -/
 @[positivity Height.totalWeight _]
-meta def evalHeightTotalWeight : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℕ), ~q(@Height.totalWeight $K $KF $KA) =>
-    -- Check whether there is a `NumberField` instance for `$K` around.
-    match ← trySynthInstanceQ q(NumberField $K) with
-    | .some _inst =>
-      assertInstancesCommute
-      return .positive q(NumberField.totalWeight_pos $K)
-    | _ => throwError "field in Height.totalWeight not known to be a number field"
-  | _, _, _ => throwError "not Height.totalWeight"
+meta def evalHeightTotalWeight : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℕ), ~q(@Height.totalWeight $K $KF $KA) =>
+        -- Check whether there is a `NumberField` instance for `$K` around.
+        match ← trySynthInstanceQ q(NumberField $K) with
+        | .some _inst =>
+          assertInstancesCommute
+          return .positive q(NumberField.totalWeight_pos $K)
+        | _ =>
+          throwError "field in Height.totalWeight not known to be a number field"
+      | _, _, _ =>
+        throwError "not Height.totalWeight"
 
 end Mathlib.Meta.Positivity
 
@@ -551,13 +568,11 @@ lemma logHeight₁_eq_log_max (q : ℚ) : logHeight₁ q = log ↑(max q.num.nat
   rw [logHeight₁_eq_log_mulHeight₁, mulHeight₁_eq_max]
 
 /-- The multiplicative height of a positive natural number `n` cast to `ℚ` equals `n`. -/
-theorem mulHeight₁_natCast (n : ℕ) [NeZero n] :
-    mulHeight₁ (n : ℚ) = n := by
+theorem mulHeight₁_natCast (n : ℕ) [NeZero n] : mulHeight₁ (n : ℚ) = n := by
   simp [mulHeight₁_eq_max, show 1 ≤ n by grind [NeZero.ne n]]
 
 /-- The logarithmic height of a positive natural number `n` cast to `ℚ` equals `log n`. -/
-theorem logHeight₁_natCast (n : ℕ) [NeZero n] :
-    logHeight₁ (n : ℚ) = Real.log n := by
+theorem logHeight₁_natCast (n : ℕ) [NeZero n] : logHeight₁ (n : ℚ) = Real.log n := by
   simp [logHeight₁_eq_log_mulHeight₁, mulHeight₁_natCast n]
 
 end mulHeight₁

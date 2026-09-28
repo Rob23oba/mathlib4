@@ -104,13 +104,17 @@ protected lemma isNilpotent_iff :
     IsNilpotent P.reverse ↔ IsNilpotent P :=
   isNilpotent_reflect_iff (le_refl _)
 
-/-- Let `P` be a polynomial over `R`. If its constant term is a unit and its other coefficients are
+/--
+Let `P` be a polynomial over `R`. If its constant term is a unit and its other coefficients are
 nilpotent, then `P` is a unit.
 
-See also `Polynomial.isUnit_iff_coeff_isUnit_isNilpotent`. -/
-theorem isUnit_of_coeff_isUnit_isNilpotent (hunit : IsUnit (P.coeff 0))
-    (hnil : ∀ i, i ≠ 0 → IsNilpotent (P.coeff i)) : IsUnit P := by
-  induction h : P.natDegree using Nat.strong_induction_on generalizing P with | _ k hind
+See also `Polynomial.isUnit_iff_coeff_isUnit_isNilpotent`.
+-/
+theorem isUnit_of_coeff_isUnit_isNilpotent
+    (hunit : IsUnit (P.coeff 0)) (hnil : ∀ i, i ≠ 0 → IsNilpotent (P.coeff i))
+    : IsUnit P := by
+  induction h : P.natDegree using Nat.strong_induction_on generalizing P with
+  | _ k hind
   by_cases hdeg : P.natDegree = 0
   · rw [eq_C_of_natDegree_eq_zero hdeg]
     exact hunit.map C
@@ -119,8 +123,8 @@ theorem isUnit_of_coeff_isUnit_isNilpotent (hunit : IsUnit (P.coeff 0))
     rw [← eraseLead_add_monomial_natDegree_leadingCoeff P, ← C_mul_X_pow_eq_monomial, ← hP₁]
     refine IsNilpotent.isUnit_add_left_of_commute ?_ this (Commute.all _ _)
     exact isNilpotent_C_mul_pow_X_of_isNilpotent _ (hnil _ hdeg)
-  have hdeg₂ := lt_of_le_of_lt P.eraseLead_natDegree_le (Nat.sub_lt
-    (Nat.pos_of_ne_zero hdeg) zero_lt_one)
+  have hdeg₂ :=
+    lt_of_le_of_lt P.eraseLead_natDegree_le (Nat.sub_lt (Nat.pos_of_ne_zero hdeg) zero_lt_one)
   refine hind P₁.natDegree ?_ ?_ (fun i hi => ?_) rfl
   · simp_rw [P₁, ← h, hdeg₂]
   · simp_rw [P₁, eraseLead_coeff_of_ne _ (Ne.symm hdeg), hunit]
@@ -128,12 +132,14 @@ theorem isUnit_of_coeff_isUnit_isNilpotent (hunit : IsUnit (P.coeff 0))
     · simp_rw [P₁, eraseLead_coeff_of_ne _ (ne_of_lt (lt_of_le_of_lt H hdeg₂)), hnil i hi]
     · simp_rw [coeff_eq_zero_of_natDegree_lt H, IsNilpotent.zero]
 
-/-- Let `P` be a polynomial over `R`. If `P` is a unit, then all its coefficients are nilpotent,
+/--
+Let `P` be a polynomial over `R`. If `P` is a unit, then all its coefficients are nilpotent,
 except its constant term which is a unit.
 
-See also `Polynomial.isUnit_iff_coeff_isUnit_isNilpotent`. -/
-theorem coeff_isUnit_isNilpotent_of_isUnit (hunit : IsUnit P) :
-    IsUnit (P.coeff 0) ∧ (∀ i, i ≠ 0 → IsNilpotent (P.coeff i)) := by
+See also `Polynomial.isUnit_iff_coeff_isUnit_isNilpotent`.
+-/
+theorem coeff_isUnit_isNilpotent_of_isUnit (hunit : IsUnit P)
+    : IsUnit (P.coeff 0) ∧ (∀ i, i ≠ 0 → IsNilpotent (P.coeff i)) := by
   obtain ⟨Q, hQ⟩ := IsUnit.exists_right_inv hunit
   constructor
   · refine .of_mul_eq_one (Q.coeff 0) ?_
@@ -152,12 +158,14 @@ theorem coeff_isUnit_isNilpotent_of_isUnit (hunit : IsUnit P) :
     rw [coe_mapRingHom, coeff_map, ← RingHom.mem_ker, Ideal.mk_ker] at hcoeff
     exact hcoeff
 
-/-- Let `P` be a polynomial over `R`. `P` is a unit if and only if all its coefficients are
+/--
+Let `P` be a polynomial over `R`. `P` is a unit if and only if all its coefficients are
 nilpotent, except its constant term which is a unit.
 
-See also `Polynomial.isUnit_iff'`. -/
-theorem isUnit_iff_coeff_isUnit_isNilpotent :
-    IsUnit P ↔ IsUnit (P.coeff 0) ∧ (∀ i, i ≠ 0 → IsNilpotent (P.coeff i)) :=
+See also `Polynomial.isUnit_iff'`.
+-/
+theorem isUnit_iff_coeff_isUnit_isNilpotent
+    : IsUnit P ↔ IsUnit (P.coeff 0) ∧ (∀ i, i ≠ 0 → IsNilpotent (P.coeff i)) :=
   ⟨coeff_isUnit_isNilpotent_of_isUnit, fun H => isUnit_of_coeff_isUnit_isNilpotent H.1 H.2⟩
 
 @[simp] lemma isUnit_C_add_X_mul_iff :
@@ -174,25 +182,26 @@ lemma isUnit_iff' :
   conv_lhs => rw [← modByMonic_add_div P X]
   simp [modByMonic_X]
 
-theorem not_isUnit_of_natDegree_pos_of_isReduced [IsReduced R] (p : R[X])
-    (hpl : 0 < p.natDegree) : ¬ IsUnit p := by
-  simp only [ne_eq, isNilpotent_iff_eq_zero, not_and, not_forall, exists_prop,
-    Polynomial.isUnit_iff_coeff_isUnit_isNilpotent]
+theorem not_isUnit_of_natDegree_pos_of_isReduced [IsReduced R] (p : R[X]) (hpl : 0 < p.natDegree)
+    : ¬ IsUnit p := by
+  simp only [
+    ne_eq, isNilpotent_iff_eq_zero, not_and, not_forall, exists_prop,
+    Polynomial.isUnit_iff_coeff_isUnit_isNilpotent
+  ]
   intro _
   refine ⟨p.natDegree, hpl.ne', ?_⟩
   contrapose! hpl
   simp only [coeff_natDegree, leadingCoeff_eq_zero] at hpl
   simp [hpl]
 
-theorem not_isUnit_of_degree_pos_of_isReduced [IsReduced R] (p : R[X])
-    (hpl : 0 < p.degree) : ¬ IsUnit p :=
+theorem not_isUnit_of_degree_pos_of_isReduced [IsReduced R] (p : R[X]) (hpl : 0 < p.degree)
+    : ¬ IsUnit p :=
   not_isUnit_of_natDegree_pos_of_isReduced _ (natDegree_pos_iff_degree_pos.mpr hpl)
 
 instance : IsLocalHom (C : _ →+* Polynomial R) where
   map_nonunit := by simp +contextual [isUnit_iff_coeff_isUnit_isNilpotent, coeff_C]
 
-instance : IsLocalHom (algebraMap R (Polynomial R)) :=
-  inferInstanceAs (IsLocalHom C)
+instance : IsLocalHom (algebraMap R (Polynomial R)) := inferInstanceAs (IsLocalHom C)
 
 end CommRing
 

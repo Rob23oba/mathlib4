@@ -64,11 +64,9 @@ lemma quasiIsoAt_πTruncGE (n q : ℤ) (hq : n ≤ q) :
   obtain ⟨k, rfl⟩ := Int.le.dest hq
   exact HomologicalComplex.quasiIsoAt_πTruncGE (j := k) _ _ (by simp)
 
-instance (n : ℤ) : QuasiIsoAt (K.πTruncGE n) n :=
-  quasiIsoAt_πTruncGE _ _ _ (by lia)
+instance (n : ℤ) : QuasiIsoAt (K.πTruncGE n) n := quasiIsoAt_πTruncGE _ _ _ (by lia)
 
-instance (n : ℤ) : QuasiIsoAt (K.ιTruncLE n) n :=
-  quasiIsoAt_ιTruncLE _ _ _ (by lia)
+instance (n : ℤ) : QuasiIsoAt (K.ιTruncLE n) n := quasiIsoAt_ιTruncLE _ _ _ (by lia)
 
 section
 
@@ -224,12 +222,10 @@ section
 
 variable [HasZeroObject C]
 
-instance (X : CochainComplex C ℕ) :
-    CochainComplex.IsStrictlyGE (X.extend embeddingUpNat) 0 where
+instance (X : CochainComplex C ℕ) : CochainComplex.IsStrictlyGE (X.extend embeddingUpNat) 0 where
   isZero _ _ := isZero_extend_X _ _ _ (by aesop)
 
-instance (X : ChainComplex C ℕ) :
-    CochainComplex.IsStrictlyLE (X.extend embeddingDownNat) 0 where
+instance (X : ChainComplex C ℕ) : CochainComplex.IsStrictlyLE (X.extend embeddingDownNat) 0 where
   isZero _ _ := isZero_extend_X _ _ _ (by aesop)
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -250,14 +246,12 @@ lemma exists_iso_single (n : ℤ) [K.IsStrictlyGE n] [K.IsStrictlyLE n] :
         · apply (K.isZero_of_isStrictlyLE n i (by lia)).eq_of_tgt
       inv_hom_id := by aesop }⟩⟩
 
-instance (A : C) (n : ℤ) :
-    IsStrictlyGE ((single C (ComplexShape.up ℤ) n).obj A) n := by
+instance (A : C) (n : ℤ) : IsStrictlyGE ((single C (ComplexShape.up ℤ) n).obj A) n := by
   rw [isStrictlyGE_iff]
   intro i hi
   exact isZero_single_obj_X _ _ _ _ (by lia)
 
-instance (A : C) (n : ℤ) :
-    IsStrictlyLE ((single C (ComplexShape.up ℤ) n).obj A) n := by
+instance (A : C) (n : ℤ) : IsStrictlyLE ((single C (ComplexShape.up ℤ) n).obj A) n := by
   rw [isStrictlyLE_iff]
   intro i hi
   exact isZero_single_obj_X _ _ _ _ (by lia)
@@ -382,16 +376,20 @@ end Preadditive
 
 section HasZeroMorphisms
 
-variable {C : Type*} [Category C] [HasZeroMorphisms C] [HasZeroObject C]
+variable
+  {C : Type*} [Category C] [HasZeroMorphisms C] [HasZeroObject C]
   (K L : CochainComplex C ℤ) (φ : K ⟶ L) (e : K ≅ L)
-  [∀ (i : ℤ), K.HasHomology i] [∀ (i : ℤ), L.HasHomology i] (n : ℤ)
+  [∀ (i : ℤ), K.HasHomology i] [∀ (i : ℤ), L.HasHomology i]
+  (n : ℤ)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- When `K` is a cochain complex indexed by `ℤ` and `n < i`, this is
-the isomorphism `(K.truncGE n).X i ≅ K.X i`. -/
-noncomputable def truncGEXIso (n i : ℤ) (hi : n < i := by lia) :
-    (K.truncGE n).X i ≅ K.X i :=
-  HomologicalComplex.truncGEXIso K (embeddingUpIntGE n) (i := (i - n).natAbs) (by
+/--
+When `K` is a cochain complex indexed by `ℤ` and `n < i`, this is
+the isomorphism `(K.truncGE n).X i ≅ K.X i`.
+-/
+noncomputable def truncGEXIso (n i : ℤ) (hi : n < i := by lia) : (K.truncGE n).X i ≅ K.X i :=
+  HomologicalComplex.truncGEXIso K (embeddingUpIntGE n) (i := (i - n).natAbs)
+    (by
       dsimp
       rw [Int.natAbs_of_nonneg (by lia), add_sub_cancel])
     (fun h ↦ by
@@ -399,28 +397,32 @@ noncomputable def truncGEXIso (n i : ℤ) (hi : n < i := by lia) :
       lia)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- When `K` is a cochain complex indexed by `ℤ` and `i < n`, this is
-the isomorphism `(K.truncLE n).X i ≅ K.X i`. -/
-noncomputable def truncLEXIso (n i : ℤ) (hi : i < n := by lia) :
-    (K.truncLE n).X i ≅ K.X i :=
-  HomologicalComplex.truncLEXIso K (embeddingUpIntLE n) (i := (n - i).natAbs) (by
+/--
+When `K` is a cochain complex indexed by `ℤ` and `i < n`, this is
+the isomorphism `(K.truncLE n).X i ≅ K.X i`.
+-/
+noncomputable def truncLEXIso (n i : ℤ) (hi : i < n := by lia) : (K.truncLE n).X i ≅ K.X i :=
+  HomologicalComplex.truncLEXIso K (embeddingUpIntLE n) (i := (n - i).natAbs)
+    (by
       dsimp
       rw [Int.natAbs_of_nonneg (by lia), sub_sub_cancel])
     (fun h ↦ by
       rw [boundaryLE_embeddingUpIntLE_iff, Int.natAbs_eq_zero] at h
       lia)
 
-/-- When `K` is a cochain complex indexed by `ℤ`, this is the isomorphism
-`(K.truncGE n).X n ≅ K.opcycles n`. -/
-noncomputable def truncGEXIsoOpcycles (n : ℤ) :
-    (K.truncGE n).X n ≅ K.opcycles n :=
+/--
+When `K` is a cochain complex indexed by `ℤ`, this is the isomorphism
+`(K.truncGE n).X n ≅ K.opcycles n`.
+-/
+noncomputable def truncGEXIsoOpcycles (n : ℤ) : (K.truncGE n).X n ≅ K.opcycles n :=
   HomologicalComplex.truncGEXIsoOpcycles K (embeddingUpIntGE n) (i := 0) (by simp)
     (by rw [boundaryGE_embeddingUpIntGE_iff])
 
-/-- When `K` is a cochain complex indexed by `ℤ`, this is the isomorphism
-`(K.truncLE n).X n ≅ K.cycles n`. -/
-noncomputable def truncLEXIsoCycles (n : ℤ) :
-    (K.truncLE n).X n ≅ K.cycles n :=
+/--
+When `K` is a cochain complex indexed by `ℤ`, this is the isomorphism
+`(K.truncLE n).X n ≅ K.cycles n`.
+-/
+noncomputable def truncLEXIsoCycles (n : ℤ) : (K.truncLE n).X n ≅ K.cycles n :=
   HomologicalComplex.truncLEXIsoCycles K (embeddingUpIntLE n) (i := 0) (by simp)
     (by rw [boundaryLE_embeddingUpIntLE_iff])
 
@@ -453,8 +455,8 @@ lemma shortComplexTruncLE_shortExact (n : ℤ) :
 variable (n₀ n₁ : ℤ)
 
 /-- The canonical morphism `(K.shortComplexTruncLE n₀).X₃ ⟶ K.truncGE n₁`. -/
-noncomputable abbrev shortComplexTruncLEX₃ToTruncGE (h : n₀ + 1 = n₁ := by lia) :
-    (K.shortComplexTruncLE n₀).X₃ ⟶ K.truncGE n₁ :=
+noncomputable abbrev shortComplexTruncLEX₃ToTruncGE (h : n₀ + 1 = n₁ := by lia)
+    : (K.shortComplexTruncLE n₀).X₃ ⟶ K.truncGE n₁ :=
   HomologicalComplex.shortComplexTruncLEX₃ToTruncGE K
     (Embedding.embeddingUpInt_areComplementary n₀ n₁ h)
 

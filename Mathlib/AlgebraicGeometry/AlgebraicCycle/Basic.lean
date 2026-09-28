@@ -41,8 +41,7 @@ Note: currently this is an abbrev to save some effort in duplicating API. This s
 but be aware of this if there is ever an instance clash involving algebraic cycles.
 -/
 @[stacks 02QR]
-abbrev AlgebraicCycle (X : Scheme.{u}) (R : Type*) [Zero R] :=
-  Function.locallyFinsupp X R
+abbrev AlgebraicCycle (X : Scheme.{u}) (R : Type*) [Zero R] := Function.locallyFinsupp X R
 namespace AlgebraicCycle
 section map
 
@@ -52,8 +51,10 @@ Implementation detail for `AlgebraicCycle.map`: function used to define the coef
 pushforward of a cycle `c` at a point `z = f x`.
 -/
 @[stacks 02R3]
-noncomputable def mapCoeff {N : Type*} [DecidableEq N] {Y : Scheme} (f : X ⟶ Y) (wx : X → N)
-    (wy : Y → N) (x : X) : ℕ := if wx x = wy (f.base x) then f.residueDegree x else 0
+noncomputable def mapCoeff
+    {N : Type*} [DecidableEq N] {Y : Scheme} (f : X ⟶ Y) (wx : X → N) (wy : Y → N) (x : X)
+    : ℕ :=
+  if wx x = wy (f.base x) then f.residueDegree x else 0
 
 /--
 The pushforward of algebraic cycles with respect to a quasicompact morphism of schemes. The
@@ -65,9 +66,9 @@ more sophisticated notions exist in the literature which are useful when suffici
 equidimensionality hypotheses cannot be assumed.
 -/
 @[stacks 02R3]
-noncomputable
-def map [QuasiCompact f] {N : Type*} [DecidableEq N] (wx : X → N) (wy : Y → N)
-    (c : AlgebraicCycle X R) : AlgebraicCycle Y R :=
+noncomputable def map
+    [QuasiCompact f] {N : Type*} [DecidableEq N] (wx : X → N) (wy : Y → N) (c : AlgebraicCycle X R)
+    : AlgebraicCycle Y R :=
   Function.locallyFinsupp.map f (Nat.cast (R := R) <| mapCoeff f wx wy ·) f.isSpectralMap c
 
 @[simp]
@@ -136,12 +137,9 @@ section WeilDivisor
 
 variable {R : Type*}
 
-/--
-A Weil divisor is an algebraic cycle supported purely in codimension one
--/
+/-- A Weil divisor is an algebraic cycle supported purely in codimension one -/
 @[stacks 0BE2]
-def IsWeilDivisor [Zero R] (D : AlgebraicCycle X R) : Prop :=
-  D.support ⊆ {x | Order.coheight x = 1}
+def IsWeilDivisor [Zero R] (D : AlgebraicCycle X R) : Prop := D.support ⊆ {x | Order.coheight x = 1}
 
 lemma isWeilDivisor_iff [Zero R] {D : AlgebraicCycle X R} :
     IsWeilDivisor D ↔ D.support ⊆ {x | Order.coheight x = 1} := Iff.rfl
@@ -157,9 +155,7 @@ lemma IsWeilDivisor.add [AddMonoid R] {D E : AlgebraicCycle X R} (hD : IsWeilDiv
   (Function.support_add _ _).trans (Set.union_subset hD hE)
 
 variable (X R) in
-/--
-The Weil divisors on `X`, as a subgroup of the algebraic cycles
--/
+/-- The Weil divisors on `X`, as a subgroup of the algebraic cycles -/
 @[stacks 0BE2]
 def weilDivisors [AddGroup R] : AddSubgroup (AlgebraicCycle X R) :=
   Function.locallyFinsuppWithin.supported R Set.univ {x : X | Order.coheight x = 1}

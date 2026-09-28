@@ -66,16 +66,14 @@ variable {α : Type u} {G : SimpleGraph α} {s : Set α}
 /-- `G` is `IsCompleteMultipartite` iff non-adjacency is transitive -/
 def IsCompleteMultipartite (G : SimpleGraph α) : Prop := IsTrans α (¬ G.Adj · ·)
 
-theorem IsCompleteMultipartite.top : (⊤ : SimpleGraph α).IsCompleteMultipartite :=
-  ⟨by simp⟩
+theorem IsCompleteMultipartite.top : (⊤ : SimpleGraph α).IsCompleteMultipartite := ⟨by simp⟩
 
-theorem IsCompleteMultipartite.bot : (⊥ : SimpleGraph α).IsCompleteMultipartite :=
-  ⟨by simp⟩
+theorem IsCompleteMultipartite.bot : (⊥ : SimpleGraph α).IsCompleteMultipartite := ⟨by simp⟩
 
 @[deprecated (since := "2026-09-07")] alias bot_isCompleteMultipartite := IsCompleteMultipartite.bot
 
-theorem IsCompleteMultipartite.completeBipartiteGraph (V W : Type*) :
-    (completeBipartiteGraph V W).IsCompleteMultipartite := by
+theorem IsCompleteMultipartite.completeBipartiteGraph (V W : Type*)
+    : (completeBipartiteGraph V W).IsCompleteMultipartite := by
   grind [IsCompleteMultipartite, isTrans_def]
 
 protected lemma IsCompleteMultipartite.induce (hG : G.IsCompleteMultipartite) :
@@ -84,23 +82,25 @@ protected lemma IsCompleteMultipartite.induce (hG : G.IsCompleteMultipartite) :
 /-- The setoid given by non-adjacency -/
 @[instance_reducible]
 def IsCompleteMultipartite.setoid (h : G.IsCompleteMultipartite) : Setoid α :=
-    ⟨(¬ G.Adj · ·), ⟨G.loopless.irrefl, fun h' ↦ by rwa [adj_comm] at h', h.trans _ _ _⟩⟩
+  ⟨(¬ G.Adj · ·), ⟨G.loopless.irrefl, fun h' ↦ by rwa [adj_comm] at h', h.trans _ _ _⟩⟩
 
 lemma completeMultipartiteGraph.isCompleteMultipartite {ι : Type*} (V : ι → Type*) :
     (completeMultipartiteGraph V).IsCompleteMultipartite :=
   ⟨by simp_all⟩
 
-/-- The graph isomorphism from a graph `G` that `IsCompleteMultipartite` to the corresponding
-`completeMultipartiteGraph` (see also `isCompleteMultipartite_iff`) -/
-def IsCompleteMultipartite.iso (h : G.IsCompleteMultipartite) :
-    G ≃g completeMultipartiteGraph (fun (c : Quotient h.setoid) ↦ {x // h.setoid.r c.out x}) where
+/--
+The graph isomorphism from a graph `G` that `IsCompleteMultipartite` to the corresponding
+`completeMultipartiteGraph` (see also `isCompleteMultipartite_iff`)
+-/
+def IsCompleteMultipartite.iso (h : G.IsCompleteMultipartite)
+    : G ≃g completeMultipartiteGraph (fun (c : Quotient h.setoid) ↦ {x // h.setoid.r c.out x}) where
   toFun := fun x ↦ ⟨_, ⟨_, Quotient.mk_out x⟩⟩
   invFun := fun ⟨_, x⟩ ↦ x.1
   right_inv := fun ⟨_, x⟩ ↦ Sigma.subtype_ext (Quotient.mk_eq_iff_out.2 <| h.setoid.symm x.2) rfl
   map_rel_iff' := by
     simp_rw [Equiv.coe_fn_mk, comap_adj, top_adj, ne_eq, Quotient.eq]
     intros
-    change ¬¬ G.Adj _ _ ↔ _
+    change ¬ ¬ G.Adj _ _ ↔ _
     rw [not_not]
 
 lemma isCompleteMultipartite_iff : G.IsCompleteMultipartite ↔ ∃ (ι : Type u) (V : ι → Type u)
@@ -166,8 +166,8 @@ lemma not_isCompleteMultipartite_iff_exists_isPathGraph3Compl :
 /--
 Any `IsPathGraph3Compl` in `G` gives rise to a graph embedding of the complement of the path graph
 -/
-def IsPathGraph3Compl.pathGraph3ComplEmbedding {v w₁ w₂ : α} (h : G.IsPathGraph3Compl v w₁ w₂) :
-    (pathGraph 3)ᶜ ↪g G where
+def IsPathGraph3Compl.pathGraph3ComplEmbedding {v w₁ w₂ : α} (h : G.IsPathGraph3Compl v w₁ w₂)
+    : (pathGraph 3)ᶜ ↪g G where
   toFun := fun x ↦
     match x with
     | 0 => w₁
@@ -190,10 +190,10 @@ def IsPathGraph3Compl.pathGraph3ComplEmbedding {v w₁ w₂ : α} (h : G.IsPathG
     aesop
 
 /-- Embedding of `(pathGraph 3)ᶜ` into `G` that is not complete-multipartite. -/
-noncomputable def pathGraph3ComplEmbeddingOf (h : ¬ G.IsCompleteMultipartite) :
-    (pathGraph 3)ᶜ ↪g G :=
-  IsPathGraph3Compl.pathGraph3ComplEmbedding
-    (exists_isPathGraph3Compl_of_not_isCompleteMultipartite h).choose_spec.choose_spec.choose_spec
+noncomputable def pathGraph3ComplEmbeddingOf (h : ¬G.IsCompleteMultipartite)
+    : (pathGraph 3)ᶜ ↪g G :=
+  IsPathGraph3Compl.pathGraph3ComplEmbedding (exists_isPathGraph3Compl_of_not_isCompleteMultipartite
+    h).choose_spec.choose_spec.choose_spec
 
 lemma not_isCompleteMultipartite_of_pathGraph3ComplEmbedding (e : (pathGraph 3)ᶜ ↪g G) :
     ¬ IsCompleteMultipartite G := by
@@ -203,23 +203,26 @@ lemma not_isCompleteMultipartite_of_pathGraph3ComplEmbedding (e : (pathGraph 3)�
   have h2 : G.Adj (e 0) (e 2) := by simp [pathGraph_adj]
   exact h.trans _ _ _ h0 h1 h2
 
-theorem IsCompleteMultipartite.comap {β : Type*} {H : SimpleGraph β} (f : H ↪g G) :
-    G.IsCompleteMultipartite → H.IsCompleteMultipartite := by
-  intro h; contrapose h
-  exact not_isCompleteMultipartite_of_pathGraph3ComplEmbedding
-          <| f.comp (pathGraph3ComplEmbeddingOf h)
+theorem IsCompleteMultipartite.comap {β : Type*} {H : SimpleGraph β} (f : H ↪g G)
+    : G.IsCompleteMultipartite → H.IsCompleteMultipartite := by
+  intro h
+  contrapose h
+  exact not_isCompleteMultipartite_of_pathGraph3ComplEmbedding <|
+    f.comp (pathGraph3ComplEmbeddingOf h)
 
 section CompleteEquipartiteGraph
 
 variable {r t : ℕ}
 
-/-- The **complete equipartite graph** in `r` parts each of *equal* size `t` such that two
+/--
+The **complete equipartite graph** in `r` parts each of *equal* size `t` such that two
 vertices are adjacent if and only if they are in different parts, often denoted $K_r(t)$.
 
 This is isomorphic to a corresponding `completeMultipartiteGraph` and `turanGraph`. The difference
 is that the former vertices are a product type.
 
-See `completeEquipartiteGraph.completeMultipartiteGraph`, `completeEquipartiteGraph.turanGraph`. -/
+See `completeEquipartiteGraph.completeMultipartiteGraph`, `completeEquipartiteGraph.turanGraph`.
+-/
 abbrev completeEquipartiteGraph (r t : ℕ) : SimpleGraph (Fin r × Fin t) :=
   SimpleGraph.comap Prod.fst ⊤
 
@@ -227,20 +230,25 @@ lemma completeEquipartiteGraph_adj {v w} :
   (completeEquipartiteGraph r t).Adj v w ↔ v.1 ≠ w.1 := by rfl
 
 set_option backward.isDefEq.respectTransparency false in
-/-- A `completeEquipartiteGraph` is isomorphic to a corresponding `completeMultipartiteGraph`.
+/--
+A `completeEquipartiteGraph` is isomorphic to a corresponding `completeMultipartiteGraph`.
 
 The difference is that the former vertices are a product type whereas the latter vertices are a
-*dependent* product type. -/
-def completeEquipartiteGraph.completeMultipartiteGraph :
-    completeEquipartiteGraph r t ≃g completeMultipartiteGraph (const (Fin r) (Fin t)) :=
-  { (Equiv.sigmaEquivProd (Fin r) (Fin t)).symm with map_rel_iff' := by simp }
+*dependent* product type.
+-/
+def completeEquipartiteGraph.completeMultipartiteGraph
+    : completeEquipartiteGraph r t ≃g completeMultipartiteGraph (const (Fin r) (Fin t)) := {
+  (Equiv.sigmaEquivProd (Fin r) (Fin t)).symm with
+  map_rel_iff' := by simp
+}
 
-/-- A `completeEquipartiteGraph` is isomorphic to a corresponding `turanGraph`.
+/--
+A `completeEquipartiteGraph` is isomorphic to a corresponding `turanGraph`.
 
 The difference is that the former vertices are a product type whereas the latter vertices are
-not. -/
-def completeEquipartiteGraph.turanGraph :
-    completeEquipartiteGraph r t ≃g turanGraph (r * t) r where
+not.
+-/
+def completeEquipartiteGraph.turanGraph : completeEquipartiteGraph r t ≃g turanGraph (r * t) r where
   toFun := by
     refine fun v ↦ ⟨v.2 * r + v.1, ?_⟩
     conv_rhs =>
@@ -264,9 +272,11 @@ def completeEquipartiteGraph.turanGraph :
         exact Nat.le_add_right (↑v.2 * r) ↑v.1
   right_inv v := Fin.ext (Nat.div_add_mod' v r)
   map_rel_iff' {v w} := by
-    rw [turanGraph_adj, Equiv.coe_fn_mk, Nat.mul_add_mod_self_right, Nat.mod_eq_of_lt v.1.prop,
+    rw [
+      turanGraph_adj, Equiv.coe_fn_mk, Nat.mul_add_mod_self_right, Nat.mod_eq_of_lt v.1.prop,
       Nat.mul_add_mod_self_right, Nat.mod_eq_of_lt w.1.prop, ← Fin.ext_iff.ne,
-      ← completeEquipartiteGraph_adj]
+      ← completeEquipartiteGraph_adj
+    ]
 
 /-- `completeEquipartiteGraph r t` contains no edges when `r ≤ 1` or `t = 0`. -/
 lemma completeEquipartiteGraph_eq_bot_iff :
@@ -282,32 +292,36 @@ lemma completeEquipartiteGraph_eq_bot_iff :
     rw [mem_edgeSet, completeEquipartiteGraph_adj]
     exact hv
 
-theorem completeEquipartiteGraph.isCompleteMultipartite :
-    (completeEquipartiteGraph r t).IsCompleteMultipartite := by
+theorem completeEquipartiteGraph.isCompleteMultipartite
+    : (completeEquipartiteGraph r t).IsCompleteMultipartite := by
   rcases t.eq_zero_or_pos with ht_eq0 | ht_pos
   · rw [completeEquipartiteGraph_eq_bot_iff.mpr (Or.inr ht_eq0)]
     exact .bot
   · rw [isCompleteMultipartite_iff]
     use (Fin r), const (Fin r) (Fin t)
     simp_rw [const_apply, exists_prop]
-    exact ⟨const (Fin r) (Fin.pos_iff_nonempty.mp ht_pos),
-      ⟨completeEquipartiteGraph.completeMultipartiteGraph⟩⟩
+    exact ⟨
+      const (Fin r) (Fin.pos_iff_nonempty.mp ht_pos),
+      ⟨completeEquipartiteGraph.completeMultipartiteGraph⟩
+    ⟩
 
-theorem neighborSet_completeEquipartiteGraph (v) :
-    (completeEquipartiteGraph r t).neighborSet v = {v.1}ᶜ ×ˢ Set.univ := by
+theorem neighborSet_completeEquipartiteGraph (v)
+    : (completeEquipartiteGraph r t).neighborSet v = {v.1}ᶜ ×ˢ Set.univ := by
   ext; simp [ne_comm]
 
-theorem neighborFinset_completeEquipartiteGraph (v) :
-    (completeEquipartiteGraph r t).neighborFinset v = {v.1}ᶜ ×ˢ univ := by
+theorem neighborFinset_completeEquipartiteGraph (v)
+    : (completeEquipartiteGraph r t).neighborFinset v = {v.1}ᶜ ×ˢ univ := by
   ext; simp [ne_comm]
 
-theorem degree_completeEquipartiteGraph (v) :
-    (completeEquipartiteGraph r t).degree v = (r - 1) * t := by
-  rw [← card_neighborFinset_eq_degree, neighborFinset_completeEquipartiteGraph v,
-    card_product, card_compl, card_singleton, Fintype.card_fin, card_univ, Fintype.card_fin]
+theorem degree_completeEquipartiteGraph (v)
+    : (completeEquipartiteGraph r t).degree v = (r - 1) * t := by
+  rw [
+    ← card_neighborFinset_eq_degree, neighborFinset_completeEquipartiteGraph v, card_product,
+    card_compl, card_singleton, Fintype.card_fin, card_univ, Fintype.card_fin
+  ]
 
-theorem card_edgeFinset_completeEquipartiteGraph :
-    #(completeEquipartiteGraph r t).edgeFinset = r.choose 2 * t ^ 2 := by
+theorem card_edgeFinset_completeEquipartiteGraph
+    : #(completeEquipartiteGraph r t).edgeFinset = r.choose 2 * t ^ 2 := by
   rw [← mul_right_inj' two_ne_zero, ← sum_degrees_eq_twice_card_edges]
   conv_lhs =>
     rhs; intro v
@@ -319,10 +333,13 @@ theorem card_edgeFinset_completeEquipartiteGraph :
 
 variable [Fintype α]
 
-/-- Every `n`-colorable graph is contained in a `completeEquipartiteGraph` in `n` parts (as long
-  as the parts are at least as large as the largest color class). -/
-theorem isContained_completeEquipartiteGraph_of_colorable {n : ℕ} (C : G.Coloring (Fin n))
-    (t : ℕ) (h : ∀ c, card (C.colorClass c) ≤ t) : G ⊑ completeEquipartiteGraph n t := by
+/--
+Every `n`-colorable graph is contained in a `completeEquipartiteGraph` in `n` parts (as long
+as the parts are at least as large as the largest color class).
+-/
+theorem isContained_completeEquipartiteGraph_of_colorable
+    {n : ℕ} (C : G.Coloring (Fin n)) (t : ℕ) (h : ∀ c, card (C.colorClass c) ≤ t)
+    : G ⊑ completeEquipartiteGraph n t := by
   have (c : Fin n) : Nonempty (C.colorClass c ↪ Fin t) := by
     rw [Embedding.nonempty_iff_card_le, Fintype.card_fin]
     exact h c
@@ -347,12 +364,14 @@ section CompleteEquipartiteSubgraph
 
 variable {V : Type*} {G : SimpleGraph V}
 
-/-- A complete equipartite subgraph in `r > 0` parts each of size `t ≠ 0` in `G` is `r` subsets
+/--
+A complete equipartite subgraph in `r > 0` parts each of size `t ≠ 0` in `G` is `r` subsets
 of vertices each of size `t` such that vertices in distinct subsets are adjacent.
 
 If `r > 0` but `t = 0`, then `parts = {{}}`. If `r = 0`, then `parts = {}`. These are the two
 *distinct* "empty" complete equipartite subgraphs, that is, the complete equipartite subgraphs
-having no vertices. -/
+having no vertices.
+-/
 @[ext]
 structure CompleteEquipartiteSubgraph (G : SimpleGraph V) (r t : ℕ) where
   /-- The parts in a complete equipartite subgraph. -/
@@ -369,14 +388,13 @@ variable {r t : ℕ} (K : G.CompleteEquipartiteSubgraph r t)
 namespace CompleteEquipartiteSubgraph
 
 /-- At least one of the "empty" complete equipartite subgraphs is contained in a simple graph. -/
-theorem nonempty_of_eq_zero_or_eq_zero (h : r = 0 ∨ t = 0) :
-    Nonempty (G.CompleteEquipartiteSubgraph r t) :=
+theorem nonempty_of_eq_zero_or_eq_zero (h : r = 0 ∨ t = 0)
+    : Nonempty (G.CompleteEquipartiteSubgraph r t) :=
   ⟨{}, h.elim (fun hr ↦ by simp [hr]) (fun ht ↦ by simp [ht]), by simp, by simp⟩
 
 /-- The parts in a complete equipartite subgraph are pairwise disjoint. -/
-theorem disjoint : (K.parts : Set (Finset V)).Pairwise Disjoint :=
-  fun _ h₁ _ h₂ hne ↦ Finset.disjoint_left.mpr fun _ h₁' h₂' ↦
-    G.irrefl <| K.isCompleteBetween h₁ h₂ hne h₁' h₂'
+theorem disjoint : (K.parts : Set (Finset V)).Pairwise Disjoint := fun _ h₁ _ h₂ hne ↦
+  Finset.disjoint_left.mpr fun _ h₁' h₂' ↦ G.irrefl <| K.isCompleteBetween h₁ h₂ hne h₁' h₂'
 
 /-- The finset of vertices in a complete equipartite subgraph. -/
 def verts : Finset V := K.parts.disjiUnion id K.disjoint
@@ -400,13 +418,11 @@ noncomputable def toCopy : Copy (completeEquipartiteGraph r t) G := by
     have : IsEmpty (Fin r × Fin t) := by simp [ht]
     exact Copy.bot .ofIsEmpty
   · have : Nonempty (Fin r ↪ K.parts) := by
-      rw [Embedding.nonempty_iff_card_le,
-        Fintype.card_fin, card_coe, K.card_parts.resolve_right ht]
+      rw [Embedding.nonempty_iff_card_le, Fintype.card_fin, card_coe, K.card_parts.resolve_right ht]
     let fᵣ : Fin r ↪ K.parts := Classical.arbitrary (Fin r ↪ K.parts)
     have (p : K.parts) : Nonempty (Fin t ↪ p) := by
       rw [Embedding.nonempty_iff_card_le, Fintype.card_fin, card_coe, K.card_mem_parts p.prop]
-    let fₜ (p : K.parts) : Fin t ↪ p :=
-      Classical.arbitrary (Fin t ↪ p)
+    let fₜ (p : K.parts) : Fin t ↪ p := Classical.arbitrary (Fin t ↪ p)
     let f : (Fin r) × (Fin t) ↪ V := by
       use fun (i, j) ↦ fₜ (fᵣ i) j
       intro (i₁, j₁) (i₂, j₂) heq
@@ -426,8 +442,12 @@ set_option backward.isDefEq.respectTransparency.types false in
 def ofCopy (f : Copy (completeEquipartiteGraph r t) G) : G.CompleteEquipartiteSubgraph r t := by
   by_cases ht : t = 0
   · exact ⟨∅, .inr ht, by simp, by simp⟩
-  · refine ⟨univ.map ⟨fun i ↦ univ.map ⟨fun j ↦ f (i, j), fun _ _ h ↦ ?_⟩, fun i₁ i₂ h ↦ ?_⟩,
-      ?_, fun h ↦ ?_, fun _ h₁ _ h₂ hne _ h₁' _ h₂' ↦ ?_⟩
+  · refine ⟨
+      univ.map ⟨fun i ↦ univ.map ⟨fun j ↦ f (i, j), fun _ _ h ↦ ?_⟩, fun i₁ i₂ h ↦ ?_⟩,
+      ?_,
+      fun h ↦ ?_,
+      fun _ h₁ _ h₂ hne _ h₁' _ h₂' ↦ ?_
+    ⟩
     · simpa using f.injective h
     · simp_rw [Finset.ext_iff] at h
       have : NeZero t := ⟨ht⟩
@@ -455,19 +475,23 @@ def ofCopy (f : Copy (completeEquipartiteGraph r t) G) : G.CompleteEquipartiteSu
 
 end CompleteEquipartiteSubgraph
 
-/-- Simple graphs contain a copy of a `completeEquipartiteGraph r t` iff the type
-`G.CompleteEquipartiteSubgraph r t` is nonempty. -/
-theorem completeEquipartiteGraph_isContained_iff :
-    completeEquipartiteGraph r t ⊑ G ↔ Nonempty (G.CompleteEquipartiteSubgraph r t) :=
+/--
+Simple graphs contain a copy of a `completeEquipartiteGraph r t` iff the type
+`G.CompleteEquipartiteSubgraph r t` is nonempty.
+-/
+theorem completeEquipartiteGraph_isContained_iff
+    : completeEquipartiteGraph r t ⊑ G ↔ Nonempty (G.CompleteEquipartiteSubgraph r t) :=
   ⟨fun ⟨f⟩ ↦ ⟨CompleteEquipartiteSubgraph.ofCopy f⟩, fun ⟨K⟩ ↦ ⟨K.toCopy⟩⟩
 
-/-- Simple graphs contain a copy of a `completeEquipartiteGraph (r + 1) t` iff there exists
+/--
+Simple graphs contain a copy of a `completeEquipartiteGraph (r + 1) t` iff there exists
 `s : Finset V` of size `#s = t` and `K : G.CompleteEquipartiteSubgraph r t` such that the
-vertices in `s` are adjacent to the vertices in `K`. -/
-theorem completeEquipartiteGraph_succ_isContained_iff :
-  completeEquipartiteGraph (r + 1) t ⊑ G
-    ↔ ∃ᵉ (K : G.CompleteEquipartiteSubgraph r t) (s : Finset V),
-        #s = t ∧ ∀ p ∈ K.parts, G.IsCompleteBetween p s := by
+vertices in `s` are adjacent to the vertices in `K`.
+-/
+theorem completeEquipartiteGraph_succ_isContained_iff
+    : completeEquipartiteGraph (r + 1) t ⊑ G
+      ↔ ∃ᵉ (K : G.CompleteEquipartiteSubgraph r t) (s : Finset V),
+          #s = t ∧ ∀ p ∈ K.parts, G.IsCompleteBetween p s := by
   classical
   by_cases ht : t = 0
   · have (r' : ℕ) : IsEmpty (Fin r' × Fin t) := by simp [ht]
@@ -475,22 +499,32 @@ theorem completeEquipartiteGraph_succ_isContained_iff :
       completeEquipartiteGraph_eq_bot_iff.mpr <| .inr ht
     simp_rw [h_bot (r + 1), ht, Finset.card_eq_zero, exists_eq_left, IsCompleteBetween, mem_coe,
       notMem_empty, IsEmpty.forall_iff, implies_true, exists_true_iff_nonempty]
-    exact ⟨fun _ ↦ CompleteEquipartiteSubgraph.nonempty_of_eq_zero_or_eq_zero (.inr ht),
-      fun _ ↦ ⟨Copy.bot .ofIsEmpty⟩⟩
+    exact ⟨
+      fun _ ↦ CompleteEquipartiteSubgraph.nonempty_of_eq_zero_or_eq_zero (.inr ht),
+      fun _ ↦ ⟨Copy.bot .ofIsEmpty⟩
+    ⟩
   · rw [completeEquipartiteGraph_isContained_iff]
     refine ⟨fun ⟨K'⟩ ↦ ?_, fun ⟨K, s, hs, hadj⟩ ↦ ?_⟩
     · obtain ⟨parts, hparts_sub, hparts_card⟩ := K'.parts.exists_subset_card_eq (Nat.pred_le _)
       let K : G.CompleteEquipartiteSubgraph r t := by
-        refine ⟨parts, ?_, fun h ↦ K'.card_mem_parts (hparts_sub h),
-          fun _ h₁ _ h₂ hne ↦ K'.isCompleteBetween (hparts_sub h₁) (hparts_sub h₂) hne⟩
+        refine ⟨
+          parts,
+          ?_,
+          fun h ↦ K'.card_mem_parts (hparts_sub h),
+          fun _ h₁ _ h₂ hne ↦ K'.isCompleteBetween (hparts_sub h₁) (hparts_sub h₂) hne
+        ⟩
         rw [hparts_card, K'.card_parts.resolve_right ht]
         exact .inl (Nat.pred_succ r)
       obtain ⟨s, nhs_mem, hs⟩ : ∃ s ∉ K.parts, insert s K.parts = K'.parts := by
         refine exists_eq_insert_iff.mpr ⟨hparts_sub, ?_⟩
         rw [K.card_parts.resolve_right ht, K'.card_parts.resolve_right ht]
       have hs_mem : s ∈ K'.parts := by simp [← hs]
-      exact ⟨K, s, K'.card_mem_parts hs_mem,
-        fun _ h ↦ K'.isCompleteBetween (hparts_sub h) hs_mem (ne_of_mem_of_not_mem h nhs_mem)⟩
+      exact ⟨
+        K,
+        s,
+        K'.card_mem_parts hs_mem,
+        fun _ h ↦ K'.isCompleteBetween (hparts_sub h) hs_mem (ne_of_mem_of_not_mem h nhs_mem)
+      ⟩
     · refine ⟨K.parts.cons s ?_, ?_, ?_, ?_⟩
       · intro hs_mem
         obtain ⟨v, hv⟩ : s.Nonempty := by

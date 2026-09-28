@@ -39,7 +39,6 @@ Finally, we prove the following corollaries of the special adjoint functor theor
 
 @[expose] public section
 
-
 universe w v v₁ u u₁ u'
 
 namespace CategoryTheory
@@ -48,7 +47,8 @@ open Limits
 
 variable {C : Type u} [Category.{v} C]
 
-/-- The functor `G : D ⥤ C` satisfies the *solution set condition* if for every `A : C`, there is a
+/--
+The functor `G : D ⥤ C` satisfies the *solution set condition* if for every `A : C`, there is a
 family of morphisms `{f_i : A ⟶ G (B_i) // i ∈ ι}` such that given any morphism `h : A ⟶ G X`,
 there is some `i ∈ ι` such that `h` factors through `f_i`.
 
@@ -57,9 +57,9 @@ universe of morphisms of the category: this is the "smallness" condition which a
 adjoint functor theorem to go through.
 -/
 def SolutionSetCondition {D : Type u₁} [Category.{v₁} D] (G : D ⥤ C) : Prop :=
-  ∀ A : C,
-    ∃ (ι : Type w) (B : ι → D) (f : ∀ i : ι, A ⟶ G.obj (B i)),
-      ∀ (X) (h : A ⟶ G.obj X), ∃ (i : ι) (g : B i ⟶ X), f i ≫ G.map g = h
+  ∀ A : C, ∃ (ι : Type w) (B : ι → D) (f : ∀ i : ι, A ⟶ G.obj (B i)), ∀ (X) (h : A ⟶ G.obj X),
+    ∃ (i : ι) (g : B i ⟶ X),
+      f i ≫ G.map g = h
 
 section GeneralAdjointFunctorTheorem
 
@@ -130,38 +130,50 @@ end SpecialAdjointFunctorTheorem
 
 namespace Limits
 
-/-- A consequence of the special adjoint functor theorem: if `C` is complete, well-powered and
-    has a small coseparating set, then it is cocomplete. -/
+/--
+A consequence of the special adjoint functor theorem: if `C` is complete, well-powered and
+has a small coseparating set, then it is cocomplete.
+-/
 theorem hasColimits_of_hasLimits_of_isCoseparating
     [HasLimitsOfSize.{w, w} C] [LocallySmall.{w} C] [WellPowered.{w} C]
-    {P : ObjectProperty C} [ObjectProperty.Small.{w} P] (hP : P.IsCoseparating) :
-    HasColimitsOfSize.{w, w} C :=
-  { has_colimits_of_shape := fun _ _ =>
-      hasColimitsOfShape_iff_isRightAdjoint_const.2
-        (isRightAdjoint_of_preservesLimits_of_isCoseparating hP _) }
+    {P : ObjectProperty C} [ObjectProperty.Small.{w} P]
+    (hP : P.IsCoseparating)
+    : HasColimitsOfSize.{w, w} C := {
+  has_colimits_of_shape := fun _ _ =>
+    hasColimitsOfShape_iff_isRightAdjoint_const.2
+      (isRightAdjoint_of_preservesLimits_of_isCoseparating hP _)
+}
 
-/-- A consequence of the special adjoint functor theorem: if `C` is cocomplete, well-copowered and
-    has a small separating set, then it is complete. -/
+/--
+A consequence of the special adjoint functor theorem: if `C` is cocomplete, well-copowered and
+has a small separating set, then it is complete.
+-/
 theorem hasLimits_of_hasColimits_of_isSeparating
     [HasColimitsOfSize.{w, w} C] [LocallySmall.{w} C] [WellPowered.{w} Cᵒᵖ]
-    {P : ObjectProperty C} [ObjectProperty.Small.{w} P] (hP : P.IsSeparating) :
-    HasLimitsOfSize.{w, w} C :=
-  { has_limits_of_shape := fun _ _ =>
-      hasLimitsOfShape_iff_isLeftAdjoint_const.2
-        (isLeftAdjoint_of_preservesColimits_of_isSeparating hP _) }
+    {P : ObjectProperty C} [ObjectProperty.Small.{w} P]
+    (hP : P.IsSeparating)
+    : HasLimitsOfSize.{w, w} C := {
+  has_limits_of_shape := fun _ _ =>
+    hasLimitsOfShape_iff_isLeftAdjoint_const.2 (isLeftAdjoint_of_preservesColimits_of_isSeparating
+      hP _)
+}
 
-/-- A consequence of the special adjoint functor theorem: if `C` is complete, well-powered and
-    has a separator, then it is complete. -/
+/--
+A consequence of the special adjoint functor theorem: if `C` is complete, well-powered and
+has a separator, then it is complete.
+-/
 theorem hasLimits_of_hasColimits_of_hasSeparator
-    [HasColimitsOfSize.{w, w} C] [HasSeparator C] [LocallySmall.{w} C]
-    [WellPowered.{w} Cᵒᵖ] : HasLimitsOfSize.{w, w} C :=
+    [HasColimitsOfSize.{w, w} C] [HasSeparator C] [LocallySmall.{w} C] [WellPowered.{w} Cᵒᵖ]
+    : HasLimitsOfSize.{w, w} C :=
   hasLimits_of_hasColimits_of_isSeparating <| isSeparator_separator C
 
-/-- A consequence of the special adjoint functor theorem: if `C` is complete, well-powered and
-    has a coseparator, then it is cocomplete. -/
+/--
+A consequence of the special adjoint functor theorem: if `C` is complete, well-powered and
+has a coseparator, then it is cocomplete.
+-/
 theorem hasColimits_of_hasLimits_of_hasCoseparator
-    [HasLimitsOfSize.{w, w} C] [HasCoseparator C] [LocallySmall.{w} C]
-    [WellPowered.{w} C] : HasColimitsOfSize.{w, w} C :=
+    [HasLimitsOfSize.{w, w} C] [HasCoseparator C] [LocallySmall.{w} C] [WellPowered.{w} C]
+    : HasColimitsOfSize.{w, w} C :=
   hasColimits_of_hasLimits_of_isCoseparating <| isCoseparator_coseparator C
 
 end Limits

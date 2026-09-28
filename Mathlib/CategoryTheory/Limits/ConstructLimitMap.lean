@@ -25,8 +25,11 @@ open Limits
 
 @[expose] public section
 
-variable {C : Type u₁} [Category.{v₁} C] {I : Type u₂} [Category.{v₂} I]
-  {I' : Type u₃} [Category.{v₃} I'] {D : I ⥤ C} {D' : I' ⥤ C}
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  {I : Type u₂} [Category.{v₂} I]
+  {I' : Type u₃} [Category.{v₃} I']
+  {D : I ⥤ C} {D' : I' ⥤ C}
 
 namespace ConstructLimitMap
 
@@ -39,8 +42,10 @@ private abbrev right (c' : Cone D') (f : c.pt ⟶ c'.pt) : I' ⥤ Under c.pt :=
   (c'.toStructuredArrow ⋙ StructuredArrow.toUnder c'.pt D') ⋙ Under.map f
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The tautological natural transformation on the comma category of `f`-compatible squares,
-inducing `f` on limits (see `ConstructLimitMap.eq_isLimitMap`). -/
+/--
+The tautological natural transformation on the comma category of `f`-compatible squares,
+inducing `f` on limits (see `ConstructLimitMap.eq_isLimitMap`).
+-/
 @[simps]
 private def map : Comma.fst (left c) (right c' f) ⋙ D ⟶ Comma.snd (left c) (right c' f) ⋙ D' where
   app A := A.hom.right

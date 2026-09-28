@@ -41,52 +41,49 @@ variable {α β γ δ : Type*} {ι : Sort y} {s u : Set α}
 
 namespace Real
 
-theorem borel_eq_generateFrom_Ioo_rat :
-    borel ℝ = .generateFrom (⋃ (a : ℚ) (b : ℚ) (_ : a < b), {Ioo (a : ℝ) (b : ℝ)}) :=
+theorem borel_eq_generateFrom_Ioo_rat
+    : borel ℝ = .generateFrom (⋃ (a : ℚ) (b : ℚ) (_ : a < b), {Ioo (a : ℝ) (b : ℝ)}) :=
   isTopologicalBasis_Ioo_rat.borel_eq_generateFrom
 
 theorem borel_eq_generateFrom_Iio_rat : borel ℝ = .generateFrom (⋃ a : ℚ, {Iio (a : ℝ)}) := by
   rw [borel_eq_generateFrom_Iio]
-  refine le_antisymm
-    (generateFrom_le ?_)
+  refine le_antisymm (generateFrom_le ?_)
     (generateFrom_mono <| iUnion_subset fun q ↦ singleton_subset_iff.mpr <| mem_range_self _)
   rintro _ ⟨a, rfl⟩
   have : IsLUB (range ((↑) : ℚ → ℝ) ∩ Iio a) a := by
     simp [isLUB_iff_le_iff, mem_upperBounds, ← le_iff_forall_rat_lt_imp_le]
   rw [← this.biUnion_Iio_eq, ← image_univ, ← image_inter_preimage, univ_inter, biUnion_image]
-  exact MeasurableSet.biUnion (to_countable _)
-    fun b _ => GenerateMeasurable.basic (Iio (b : ℝ)) (by simp)
+  exact MeasurableSet.biUnion (to_countable _) fun b _ =>
+    GenerateMeasurable.basic (Iio (b : ℝ)) (by simp)
 
 theorem borel_eq_generateFrom_Ioi_rat : borel ℝ = .generateFrom (⋃ a : ℚ, {Ioi (a : ℝ)}) := by
   rw [borel_eq_generateFrom_Ioi]
-  refine le_antisymm
-    (generateFrom_le ?_)
+  refine le_antisymm (generateFrom_le ?_)
     (generateFrom_mono <| iUnion_subset fun q ↦ singleton_subset_iff.mpr <| mem_range_self _)
   rintro _ ⟨a, rfl⟩
   have : IsGLB (range ((↑) : ℚ → ℝ) ∩ Ioi a) a := by
     simp [isGLB_iff_le_iff, mem_lowerBounds, ← le_iff_forall_lt_rat_imp_le]
   rw [← this.biUnion_Ioi_eq, ← image_univ, ← image_inter_preimage, univ_inter, biUnion_image]
-  exact MeasurableSet.biUnion (to_countable _)
-    fun b _ => GenerateMeasurable.basic (Ioi (b : ℝ)) (by simp)
+  exact MeasurableSet.biUnion (to_countable _) fun b _ =>
+    GenerateMeasurable.basic (Ioi (b : ℝ)) (by simp)
 
 theorem borel_eq_generateFrom_Iic_rat : borel ℝ = .generateFrom (⋃ a : ℚ, {Iic (a : ℝ)}) := by
   rw [borel_eq_generateFrom_Ioi_rat, iUnion_singleton_eq_range, iUnion_singleton_eq_range]
   refine le_antisymm (generateFrom_le ?_) (generateFrom_le ?_) <;>
   rintro _ ⟨q, rfl⟩ <;>
   dsimp only <;>
-  [rw [← compl_Iic]; rw [← compl_Ioi]] <;>
-  exact MeasurableSet.compl (GenerateMeasurable.basic _ (mem_range_self q))
+  [rw [← compl_Iic]; rw [← compl_Ioi]]
+    <;> exact MeasurableSet.compl (GenerateMeasurable.basic _ (mem_range_self q))
 
 theorem borel_eq_generateFrom_Ici_rat : borel ℝ = .generateFrom (⋃ a : ℚ, {Ici (a : ℝ)}) := by
   rw [borel_eq_generateFrom_Iio_rat, iUnion_singleton_eq_range, iUnion_singleton_eq_range]
   refine le_antisymm (generateFrom_le ?_) (generateFrom_le ?_) <;>
   rintro _ ⟨q, rfl⟩ <;>
   dsimp only <;>
-  [rw [← compl_Ici]; rw [← compl_Iio]] <;>
-  exact MeasurableSet.compl (GenerateMeasurable.basic _ (mem_range_self q))
+  [rw [← compl_Ici]; rw [← compl_Iio]]
+    <;> exact MeasurableSet.compl (GenerateMeasurable.basic _ (mem_range_self q))
 
-theorem isPiSystem_Ioo_rat :
-    IsPiSystem (⋃ (a : ℚ) (b : ℚ) (_ : a < b), {Ioo (a : ℝ) (b : ℝ)}) := by
+theorem isPiSystem_Ioo_rat : IsPiSystem (⋃ (a : ℚ) (b : ℚ) (_ : a < b), {Ioo (a : ℝ) (b : ℝ)}) := by
   convert! isPiSystem_Ioo ((↑) : ℚ → ℝ) ((↑) : ℚ → ℝ)
   ext x
   simp [eq_comm]
@@ -111,10 +108,12 @@ theorem isPiSystem_Ici_rat : IsPiSystem (⋃ a : ℚ, {Ici (a : ℝ)}) := by
   ext x
   simp only [iUnion_singleton_eq_range, mem_range, image_univ, mem_image, exists_exists_eq_and]
 
-/-- The intervals `(-(n + 1), (n + 1))` form a finite spanning set in the set of open intervals
-with rational endpoints for a locally finite measure `μ` on `ℝ`. -/
-def finiteSpanningSetsInIooRat (μ : Measure ℝ) [IsLocallyFiniteMeasure μ] :
-    μ.FiniteSpanningSetsIn (⋃ (a : ℚ) (b : ℚ) (_ : a < b), {Ioo (a : ℝ) (b : ℝ)}) where
+/--
+The intervals `(-(n + 1), (n + 1))` form a finite spanning set in the set of open intervals
+with rational endpoints for a locally finite measure `μ` on `ℝ`.
+-/
+def finiteSpanningSetsInIooRat (μ : Measure ℝ) [IsLocallyFiniteMeasure μ]
+    : μ.FiniteSpanningSetsIn (⋃ (a : ℚ) (b : ℚ) (_ : a < b), {Ioo (a : ℝ) (b : ℝ)}) where
   set n := Ioo (-(n + 1)) (n + 1)
   set_mem n := by
     simp only [mem_iUnion, mem_singleton_iff]
@@ -124,12 +123,15 @@ def finiteSpanningSetsInIooRat (μ : Measure ℝ) [IsLocallyFiniteMeasure μ] :
     exact neg_lt_self n.cast_add_one_pos
   finite _ := measure_Ioo_lt_top
   spanning :=
-    iUnion_eq_univ_iff.2 fun x =>
-      ⟨⌊|x|⌋₊, neg_lt.1 ((neg_le_abs x).trans_lt (Nat.lt_floor_add_one _)),
-        (le_abs_self x).trans_lt (Nat.lt_floor_add_one _)⟩
+    iUnion_eq_univ_iff.2 fun x => ⟨
+      ⌊|x|⌋₊,
+      neg_lt.1 ((neg_le_abs x).trans_lt (Nat.lt_floor_add_one _)),
+      (le_abs_self x).trans_lt (Nat.lt_floor_add_one _)
+    ⟩
 
-theorem measure_ext_Ioo_rat {μ ν : Measure ℝ} [IsLocallyFiniteMeasure μ]
-    (h : ∀ a b : ℚ, μ (Ioo a b) = ν (Ioo a b)) : μ = ν :=
+theorem measure_ext_Ioo_rat
+    {μ ν : Measure ℝ} [IsLocallyFiniteMeasure μ] (h : ∀ a b : ℚ, μ (Ioo a b) = ν (Ioo a b))
+    : μ = ν :=
   (finiteSpanningSetsInIooRat μ).ext borel_eq_generateFrom_Ioo_rat isPiSystem_Ioo_rat <| by
     simp only [mem_iUnion, mem_singleton_iff]
     rintro _ ⟨a, b, -, rfl⟩
@@ -140,48 +142,46 @@ end Real
 variable {mα : MeasurableSpace α}
 
 @[fun_prop]
-theorem measurable_real_toNNReal : Measurable Real.toNNReal :=
-  continuous_real_toNNReal.measurable
+theorem measurable_real_toNNReal : Measurable Real.toNNReal := continuous_real_toNNReal.measurable
 
 @[fun_prop]
-theorem Measurable.real_toNNReal {f : α → ℝ} (hf : Measurable f) :
-    Measurable fun x => Real.toNNReal (f x) :=
+theorem Measurable.real_toNNReal {f : α → ℝ} (hf : Measurable f)
+    : Measurable fun x => Real.toNNReal (f x) :=
   measurable_real_toNNReal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.real_toNNReal {f : α → ℝ} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => Real.toNNReal (f x)) μ :=
+theorem AEMeasurable.real_toNNReal {f : α → ℝ} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => Real.toNNReal (f x)) μ :=
   measurable_real_toNNReal.comp_aemeasurable hf
 
-theorem measurable_coe_nnreal_real : Measurable ((↑) : ℝ≥0 → ℝ) :=
-  NNReal.continuous_coe.measurable
+theorem measurable_coe_nnreal_real : Measurable ((↑) : ℝ≥0 → ℝ) := NNReal.continuous_coe.measurable
 
 @[fun_prop]
-theorem Measurable.coe_nnreal_real {f : α → ℝ≥0} (hf : Measurable f) :
-    Measurable fun x => (f x : ℝ) :=
+theorem Measurable.coe_nnreal_real {f : α → ℝ≥0} (hf : Measurable f)
+    : Measurable fun x => (f x : ℝ) :=
   measurable_coe_nnreal_real.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.coe_nnreal_real {f : α → ℝ≥0} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x : ℝ)) μ :=
+theorem AEMeasurable.coe_nnreal_real {f : α → ℝ≥0} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x : ℝ)) μ :=
   measurable_coe_nnreal_real.comp_aemeasurable hf
 
 theorem measurable_coe_nnreal_ennreal : Measurable ((↑) : ℝ≥0 → ℝ≥0∞) :=
   ENNReal.continuous_coe.measurable
 
 @[fun_prop]
-theorem Measurable.coe_nnreal_ennreal {f : α → ℝ≥0} (hf : Measurable f) :
-    Measurable fun x => (f x : ℝ≥0∞) :=
+theorem Measurable.coe_nnreal_ennreal {f : α → ℝ≥0} (hf : Measurable f)
+    : Measurable fun x => (f x : ℝ≥0∞) :=
   ENNReal.continuous_coe.measurable.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.coe_nnreal_ennreal {f : α → ℝ≥0} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x : ℝ≥0∞)) μ :=
+theorem AEMeasurable.coe_nnreal_ennreal {f : α → ℝ≥0} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x : ℝ≥0∞)) μ :=
   ENNReal.continuous_coe.measurable.comp_aemeasurable hf
 
 @[fun_prop]
-theorem Measurable.ennreal_ofReal {f : α → ℝ} (hf : Measurable f) :
-    Measurable fun x => ENNReal.ofReal (f x) :=
+theorem Measurable.ennreal_ofReal {f : α → ℝ} (hf : Measurable f)
+    : Measurable fun x => ENNReal.ofReal (f x) :=
   ENNReal.continuous_ofReal.measurable.comp hf
 
 @[fun_prop]
@@ -190,18 +190,18 @@ lemma AEMeasurable.ennreal_ofReal {f : α → ℝ} {μ : Measure α} (hf : AEMea
   ENNReal.continuous_ofReal.measurable.comp_aemeasurable hf
 
 @[simp, norm_cast]
-theorem measurable_coe_nnreal_real_iff {f : α → ℝ≥0} :
-    Measurable (fun x => f x : α → ℝ) ↔ Measurable f :=
+theorem measurable_coe_nnreal_real_iff {f : α → ℝ≥0}
+    : Measurable (fun x => f x : α → ℝ) ↔ Measurable f :=
   ⟨fun h => by simpa only [Real.toNNReal_coe] using h.real_toNNReal, Measurable.coe_nnreal_real⟩
 
 @[fun_prop]
-theorem Measurable.nnreal_mk {f : α → ℝ} (hf : Measurable f) {h'f : ∀ x, 0 ≤ f x} :
-    Measurable (fun x ↦ NNReal.mk (f x) (h'f x)) :=
+theorem Measurable.nnreal_mk {f : α → ℝ} (hf : Measurable f) {h'f : ∀ x, 0 ≤ f x}
+    : Measurable (fun x ↦ NNReal.mk (f x) (h'f x)) :=
   measurable_coe_nnreal_real_iff.mp hf
 
 @[simp, norm_cast]
-theorem aemeasurable_coe_nnreal_real_iff {f : α → ℝ≥0} {μ : Measure α} :
-    AEMeasurable (fun x => f x : α → ℝ) μ ↔ AEMeasurable f μ :=
+theorem aemeasurable_coe_nnreal_real_iff {f : α → ℝ≥0} {μ : Measure α}
+    : AEMeasurable (fun x => f x : α → ℝ) μ ↔ AEMeasurable f μ :=
   ⟨fun h ↦ by simpa only [Real.toNNReal_coe] using h.real_toNNReal, AEMeasurable.coe_nnreal_real⟩
 
 /-- The set of finite `ℝ≥0∞` numbers is `MeasurableEquiv` to `ℝ≥0`. -/
@@ -210,37 +210,41 @@ def MeasurableEquiv.ennrealEquivNNReal : { r : ℝ≥0∞ | r ≠ ∞ } ≃ᵐ �
 
 namespace ENNReal
 
-theorem measurable_of_measurable_nnreal {f : ℝ≥0∞ → α} (h : Measurable fun p : ℝ≥0 => f p) :
-    Measurable f :=
+theorem measurable_of_measurable_nnreal {f : ℝ≥0∞ → α} (h : Measurable fun p : ℝ≥0 => f p)
+    : Measurable f :=
   measurable_of_measurable_on_compl_singleton ∞
     (MeasurableEquiv.ennrealEquivNNReal.symm.measurable_comp_iff.1 h)
 
 /-- `ℝ≥0∞` is `MeasurableEquiv` to `ℝ≥0 ⊕ Unit`. -/
-def ennrealEquivSum : ℝ≥0∞ ≃ᵐ ℝ≥0 ⊕ Unit :=
-  { Equiv.optionEquivSumPUnit ℝ≥0 with
-    measurable_toFun := measurable_of_measurable_nnreal measurable_inl
-    measurable_invFun :=
-      measurable_fun_sum measurable_coe_nnreal_ennreal (@measurable_const ℝ≥0∞ Unit _ _ ∞) }
+def ennrealEquivSum : ℝ≥0∞ ≃ᵐ ℝ≥0 ⊕ Unit := {
+  Equiv.optionEquivSumPUnit ℝ≥0 with
+  measurable_toFun := measurable_of_measurable_nnreal measurable_inl
+  measurable_invFun :=
+    measurable_fun_sum measurable_coe_nnreal_ennreal (@measurable_const ℝ≥0∞ Unit _ _ ∞)
+}
 
 open Function (uncurry)
 
-theorem measurable_of_measurable_nnreal_prod {_ : MeasurableSpace β} {_ : MeasurableSpace γ}
-    {f : ℝ≥0∞ × β → γ} (H₁ : Measurable fun p : ℝ≥0 × β => f (p.1, p.2))
-    (H₂ : Measurable fun x => f (∞, x)) : Measurable f :=
+theorem measurable_of_measurable_nnreal_prod
+    {_ : MeasurableSpace β} {_ : MeasurableSpace γ}
+    {f : ℝ≥0∞ × β → γ}
+    (H₁ : Measurable fun p : ℝ≥0 × β => f (p.1, p.2)) (H₂ : Measurable fun x => f (∞, x))
+    : Measurable f :=
   let e : ℝ≥0∞ × β ≃ᵐ (ℝ≥0 × β) ⊕ (Unit × β) :=
     (ennrealEquivSum.prodCongr (MeasurableEquiv.refl β)).trans
       (MeasurableEquiv.sumProdDistrib _ _ _)
   e.symm.measurable_comp_iff.1 <| measurable_fun_sum H₁ (H₂.comp measurable_id.snd)
 
-theorem measurable_of_measurable_nnreal_nnreal {_ : MeasurableSpace β} {f : ℝ≥0∞ × ℝ≥0∞ → β}
-    (h₁ : Measurable fun p : ℝ≥0 × ℝ≥0 => f (p.1, p.2)) (h₂ : Measurable fun r : ℝ≥0 => f (∞, r))
-    (h₃ : Measurable fun r : ℝ≥0 => f (r, ∞)) : Measurable f :=
+theorem measurable_of_measurable_nnreal_nnreal
+    {_ : MeasurableSpace β}
+    {f : ℝ≥0∞ × ℝ≥0∞ → β} (h₁ : Measurable fun p : ℝ≥0 × ℝ≥0 => f (p.1, p.2))
+    (h₂ : Measurable fun r : ℝ≥0 => f (∞, r)) (h₃ : Measurable fun r : ℝ≥0 => f (r, ∞))
+    : Measurable f :=
   measurable_of_measurable_nnreal_prod
     (measurable_swap_iff.1 <| measurable_of_measurable_nnreal_prod (h₁.comp measurable_swap) h₃)
     (measurable_of_measurable_nnreal h₂)
 
-theorem measurable_ofReal : Measurable ENNReal.ofReal :=
-  ENNReal.continuous_ofReal.measurable
+theorem measurable_ofReal : Measurable ENNReal.ofReal := ENNReal.continuous_ofReal.measurable
 
 theorem measurable_toReal : Measurable ENNReal.toReal :=
   ENNReal.measurable_of_measurable_nnreal measurable_coe_nnreal_real
@@ -259,8 +263,7 @@ instance instMeasurableMul₂ : MeasurableMul₂ ℝ≥0∞ := by
 instance instMeasurableSub₂ : MeasurableSub₂ ℝ≥0∞ :=
   ⟨measurable_of_measurable_nnreal_nnreal measurable_sub.coe_nnreal_ennreal (by simp) (by simp)⟩
 
-instance instMeasurableInv : MeasurableInv ℝ≥0∞ :=
-  ⟨continuous_inv.measurable⟩
+instance instMeasurableInv : MeasurableInv ℝ≥0∞ := ⟨continuous_inv.measurable⟩
 
 instance : MeasurableSMul ℝ≥0 ℝ≥0∞ where
   measurable_const_smul _ := by simp_rw [ENNReal.smul_def]; exact measurable_const_smul _
@@ -269,9 +272,10 @@ instance : MeasurableSMul ℝ≥0 ℝ≥0∞ where
     exact measurable_coe_nnreal_ennreal.mul_const _
 
 /-- A limit (over a general filter) of measurable `ℝ≥0∞`-valued functions is measurable. -/
-theorem measurable_of_tendsto' {ι : Type*} {f : ι → α → ℝ≥0∞} {g : α → ℝ≥0∞} (u : Filter ι)
-    [NeBot u] [IsCountablyGenerated u] (hf : ∀ i, Measurable (f i)) (lim : Tendsto f u (𝓝 g)) :
-    Measurable g := by
+theorem measurable_of_tendsto'
+    {ι : Type*} {f : ι → α → ℝ≥0∞} {g : α → ℝ≥0∞} (u : Filter ι) [NeBot u] [IsCountablyGenerated u]
+    (hf : ∀ i, Measurable (f i)) (lim : Tendsto f u (𝓝 g))
+    : Measurable g := by
   rcases u.exists_seq_tendsto with ⟨x, hx⟩
   rw [tendsto_pi_nhds] at lim
   have : (fun y => liminf (fun n => (f (x n) y : ℝ≥0∞)) atTop) = g := by
@@ -282,8 +286,9 @@ theorem measurable_of_tendsto' {ι : Type*} {f : ι → α → ℝ≥0∞} {g : 
   exact .liminf fun n => hf (x n)
 
 /-- A sequential limit of measurable `ℝ≥0∞`-valued functions is measurable. -/
-theorem measurable_of_tendsto {f : ℕ → α → ℝ≥0∞} {g : α → ℝ≥0∞} (hf : ∀ i, Measurable (f i))
-    (lim : Tendsto f atTop (𝓝 g)) : Measurable g :=
+theorem measurable_of_tendsto
+    {f : ℕ → α → ℝ≥0∞} {g : α → ℝ≥0∞} (hf : ∀ i, Measurable (f i)) (lim : Tendsto f atTop (𝓝 g))
+    : Measurable g :=
   measurable_of_tendsto' atTop hf lim
 
 /-- A limit (over a general filter) of a.e.-measurable `ℝ≥0∞`-valued functions is
@@ -319,73 +324,79 @@ lemma aemeasurable_of_tendsto {f : ℕ → α → ℝ≥0∞} {g : α → ℝ≥
 end ENNReal
 
 @[fun_prop]
-theorem Measurable.ennreal_toNNReal {f : α → ℝ≥0∞} (hf : Measurable f) :
-    Measurable fun x => (f x).toNNReal :=
+theorem Measurable.ennreal_toNNReal {f : α → ℝ≥0∞} (hf : Measurable f)
+    : Measurable fun x => (f x).toNNReal :=
   ENNReal.measurable_toNNReal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.ennreal_toNNReal {f : α → ℝ≥0∞} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x).toNNReal) μ :=
+theorem AEMeasurable.ennreal_toNNReal {f : α → ℝ≥0∞} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x).toNNReal) μ :=
   ENNReal.measurable_toNNReal.comp_aemeasurable hf
 
 @[simp, norm_cast]
-theorem measurable_coe_nnreal_ennreal_iff {f : α → ℝ≥0} :
-    (Measurable fun x => (f x : ℝ≥0∞)) ↔ Measurable f :=
+theorem measurable_coe_nnreal_ennreal_iff {f : α → ℝ≥0}
+    : (Measurable fun x => (f x : ℝ≥0∞)) ↔ Measurable f :=
   ⟨fun h => h.ennreal_toNNReal, fun h => h.coe_nnreal_ennreal⟩
 
 @[simp, norm_cast]
-theorem aemeasurable_coe_nnreal_ennreal_iff {f : α → ℝ≥0} {μ : Measure α} :
-    AEMeasurable (fun x => (f x : ℝ≥0∞)) μ ↔ AEMeasurable f μ :=
+theorem aemeasurable_coe_nnreal_ennreal_iff {f : α → ℝ≥0} {μ : Measure α}
+    : AEMeasurable (fun x => (f x : ℝ≥0∞)) μ ↔ AEMeasurable f μ :=
   ⟨fun h => h.ennreal_toNNReal, fun h => h.coe_nnreal_ennreal⟩
 
 @[fun_prop]
-theorem Measurable.ennreal_toReal {f : α → ℝ≥0∞} (hf : Measurable f) :
-    Measurable fun x => ENNReal.toReal (f x) :=
+theorem Measurable.ennreal_toReal {f : α → ℝ≥0∞} (hf : Measurable f)
+    : Measurable fun x => ENNReal.toReal (f x) :=
   ENNReal.measurable_toReal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.ennreal_toReal {f : α → ℝ≥0∞} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => ENNReal.toReal (f x)) μ :=
+theorem AEMeasurable.ennreal_toReal {f : α → ℝ≥0∞} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => ENNReal.toReal (f x)) μ :=
   ENNReal.measurable_toReal.comp_aemeasurable hf
 
-@[fun_prop, deprecated
-  "Use `Measurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
-  (since := "2026-04-30")]
-theorem Measurable.ennreal_tsum {ι} [Countable ι] {f : ι → α → ℝ≥0∞} (h : ∀ i, Measurable (f i)) :
-    Measurable fun x => ∑' i, f i x := by
+@[fun_prop,
+  deprecated "Use `Measurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
+    (since := "2026-04-30")]
+theorem Measurable.ennreal_tsum {ι} [Countable ι] {f : ι → α → ℝ≥0∞} (h : ∀ i, Measurable (f i))
+    : Measurable fun x => ∑' i, f i x := by
   simp_rw [ENNReal.tsum_eq_iSup_sum]
   exact .iSup fun s ↦ s.measurable_fun_sum fun i _ => h i
 
-@[fun_prop, deprecated
-  "Use `Measurable.tsum'` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
-  (since := "2026-04-30")]
-theorem Measurable.ennreal_tsum' {ι} [Countable ι] {f : ι → α → ℝ≥0∞} (h : ∀ i, Measurable (f i)) :
-    Measurable (∑' i, f i) := by
+@[fun_prop,
+  deprecated
+    "Use `Measurable.tsum'` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
+    (since := "2026-04-30")]
+theorem Measurable.ennreal_tsum' {ι} [Countable ι] {f : ι → α → ℝ≥0∞} (h : ∀ i, Measurable (f i))
+    : Measurable (∑' i, f i) := by
   convert! Measurable.ennreal_tsum h with x
   exact Pi.tsum_apply (Pi.summable.2 fun _ => ENNReal.summable)
 
-@[fun_prop, deprecated
-  "Use `Measurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
-  (since := "2026-04-30")]
-theorem Measurable.nnreal_tsum {ι} [Countable ι] {f : ι → α → ℝ≥0} (h : ∀ i, Measurable (f i)) :
-    Measurable fun x => ∑' i, f i x := by
+@[fun_prop,
+  deprecated "Use `Measurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
+    (since := "2026-04-30")]
+theorem Measurable.nnreal_tsum {ι} [Countable ι] {f : ι → α → ℝ≥0} (h : ∀ i, Measurable (f i))
+    : Measurable fun x => ∑' i, f i x := by
   simp_rw [NNReal.tsum_eq_toNNReal_tsum]
   exact (Measurable.ennreal_tsum fun i => (h i).coe_nnreal_ennreal).ennreal_toNNReal
 
-@[fun_prop, deprecated
-  "Use `AEMeasurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
-  (since := "2026-04-30")]
-theorem AEMeasurable.ennreal_tsum {ι} [Countable ι] {f : ι → α → ℝ≥0∞} {μ : Measure α}
-    (h : ∀ i, AEMeasurable (f i) μ) : AEMeasurable (fun x => ∑' i, f i x) μ := by
+@[fun_prop,
+  deprecated
+    "Use `AEMeasurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
+    (since := "2026-04-30")]
+theorem AEMeasurable.ennreal_tsum
+    {ι} [Countable ι] {f : ι → α → ℝ≥0∞} {μ : Measure α} (h : ∀ i, AEMeasurable (f i) μ)
+    : AEMeasurable (fun x => ∑' i, f i x) μ := by
   simp_rw [ENNReal.tsum_eq_iSup_sum]
   exact .iSup fun s ↦ Finset.aemeasurable_fun_sum s fun i _ => h i
 
-@[fun_prop, deprecated
-  "Use `AEMeasurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
-  (since := "2026-04-30")]
-theorem AEMeasurable.nnreal_tsum {α : Type*} {_ : MeasurableSpace α} {ι : Type*} [Countable ι]
-    {f : ι → α → NNReal} {μ : Measure α} (h : ∀ i : ι, AEMeasurable (f i) μ) :
-    AEMeasurable (fun x : α => ∑' i : ι, f i x) μ := by
+@[fun_prop,
+  deprecated
+    "Use `AEMeasurable.tsum` from `Mathlib.MeasureTheory.Constructions.Polish.Basic` instead"
+    (since := "2026-04-30")]
+theorem AEMeasurable.nnreal_tsum
+    {α : Type*} {_ : MeasurableSpace α}
+    {ι : Type*} [Countable ι]
+    {f : ι → α → NNReal} {μ : Measure α} (h : ∀ i : ι, AEMeasurable (f i) μ)
+    : AEMeasurable (fun x : α => ∑' i : ι, f i x) μ := by
   simp_rw [NNReal.tsum_eq_toNNReal_tsum]
   exact (AEMeasurable.ennreal_tsum fun i => (h i).coe_nnreal_ennreal).ennreal_toNNReal
 
@@ -393,21 +404,21 @@ theorem AEMeasurable.nnreal_tsum {α : Type*} {_ : MeasurableSpace α} {ι : Typ
 theorem measurable_coe_real_ereal : Measurable ((↑) : ℝ → EReal) :=
   continuous_coe_real_ereal.measurable
 
-theorem Measurable.coe_real_ereal {f : α → ℝ} (hf : Measurable f) :
-    Measurable fun x => (f x : EReal) :=
+theorem Measurable.coe_real_ereal {f : α → ℝ} (hf : Measurable f)
+    : Measurable fun x => (f x : EReal) :=
   measurable_coe_real_ereal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.coe_real_ereal {f : α → ℝ} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x : EReal)) μ :=
+theorem AEMeasurable.coe_real_ereal {f : α → ℝ} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x : EReal)) μ :=
   measurable_coe_real_ereal.comp_aemeasurable hf
 
 /-- The set of finite `EReal` numbers is `MeasurableEquiv` to `ℝ`. -/
 noncomputable def MeasurableEquiv.erealEquivReal : ({⊥, ⊤}ᶜ : Set EReal) ≃ᵐ ℝ :=
   EReal.neBotTopHomeomorphReal.toMeasurableEquiv
 
-theorem EReal.measurable_of_measurable_real {f : EReal → α} (h : Measurable fun p : ℝ => f p) :
-    Measurable f :=
+theorem EReal.measurable_of_measurable_real {f : EReal → α} (h : Measurable fun p : ℝ => f p)
+    : Measurable f :=
   measurable_of_measurable_on_compl_finite {⊥, ⊤} (by simp)
     (MeasurableEquiv.erealEquivReal.symm.measurable_comp_iff.1 h)
 
@@ -415,39 +426,39 @@ theorem measurable_ereal_toReal : Measurable EReal.toReal :=
   EReal.measurable_of_measurable_real (by simpa using! measurable_id)
 
 @[fun_prop]
-theorem Measurable.ereal_toReal {f : α → EReal} (hf : Measurable f) :
-    Measurable fun x => (f x).toReal :=
+theorem Measurable.ereal_toReal {f : α → EReal} (hf : Measurable f)
+    : Measurable fun x => (f x).toReal :=
   measurable_ereal_toReal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.ereal_toReal {f : α → EReal} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x).toReal) μ :=
+theorem AEMeasurable.ereal_toReal {f : α → EReal} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x).toReal) μ :=
   measurable_ereal_toReal.comp_aemeasurable hf
 
 theorem measurable_coe_ennreal_ereal : Measurable ((↑) : ℝ≥0∞ → EReal) :=
   continuous_coe_ennreal_ereal.measurable
 
 @[fun_prop]
-theorem Measurable.coe_ereal_ennreal {f : α → ℝ≥0∞} (hf : Measurable f) :
-    Measurable fun x => (f x : EReal) :=
+theorem Measurable.coe_ereal_ennreal {f : α → ℝ≥0∞} (hf : Measurable f)
+    : Measurable fun x => (f x : EReal) :=
   measurable_coe_ennreal_ereal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.coe_ereal_ennreal {f : α → ℝ≥0∞} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x : EReal)) μ :=
+theorem AEMeasurable.coe_ereal_ennreal {f : α → ℝ≥0∞} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x : EReal)) μ :=
   measurable_coe_ennreal_ereal.comp_aemeasurable hf
 
 theorem measurable_ereal_toENNReal : Measurable EReal.toENNReal :=
   EReal.measurable_of_measurable_real (by simpa using ENNReal.measurable_ofReal)
 
 @[fun_prop]
-theorem Measurable.ereal_toENNReal {f : α → EReal} (hf : Measurable f) :
-    Measurable fun x => (f x).toENNReal :=
+theorem Measurable.ereal_toENNReal {f : α → EReal} (hf : Measurable f)
+    : Measurable fun x => (f x).toENNReal :=
   measurable_ereal_toENNReal.comp hf
 
 @[fun_prop]
-theorem AEMeasurable.ereal_toENNReal {f : α → EReal} {μ : Measure α} (hf : AEMeasurable f μ) :
-    AEMeasurable (fun x => (f x).toENNReal) μ :=
+theorem AEMeasurable.ereal_toENNReal {f : α → EReal} {μ : Measure α} (hf : AEMeasurable f μ)
+    : AEMeasurable (fun x => (f x).toENNReal) μ :=
   measurable_ereal_toENNReal.comp_aemeasurable hf
 
 namespace NNReal
@@ -456,17 +467,19 @@ instance : MeasurableSMul₂ ℝ≥0 ℝ≥0∞ where
   measurable_smul := show Measurable fun r : ℝ≥0 × ℝ≥0∞ ↦ (r.1 : ℝ≥0) * r.2 by fun_prop
 
 /-- A limit (over a general filter) of measurable `ℝ≥0`-valued functions is measurable. -/
-theorem measurable_of_tendsto' {ι} {f : ι → α → ℝ≥0} {g : α → ℝ≥0} (u : Filter ι) [NeBot u]
-    [IsCountablyGenerated u] (hf : ∀ i, Measurable (f i)) (lim : Tendsto f u (𝓝 g)) :
-    Measurable g := by
+theorem measurable_of_tendsto'
+    {ι} {f : ι → α → ℝ≥0} {g : α → ℝ≥0} (u : Filter ι) [NeBot u] [IsCountablyGenerated u]
+    (hf : ∀ i, Measurable (f i)) (lim : Tendsto f u (𝓝 g))
+    : Measurable g := by
   simp_rw [← measurable_coe_nnreal_ennreal_iff] at hf ⊢
   refine ENNReal.measurable_of_tendsto' u hf ?_
   rw [tendsto_pi_nhds] at lim ⊢
   exact fun x => (ENNReal.continuous_coe.tendsto (g x)).comp (lim x)
 
 /-- A sequential limit of measurable `ℝ≥0`-valued functions is measurable. -/
-theorem measurable_of_tendsto {f : ℕ → α → ℝ≥0} {g : α → ℝ≥0} (hf : ∀ i, Measurable (f i))
-    (lim : Tendsto f atTop (𝓝 g)) : Measurable g :=
+theorem measurable_of_tendsto
+    {f : ℕ → α → ℝ≥0} {g : α → ℝ≥0} (hf : ∀ i, Measurable (f i)) (lim : Tendsto f atTop (𝓝 g))
+    : Measurable g :=
   measurable_of_tendsto' atTop hf lim
 
 end NNReal
@@ -523,15 +536,16 @@ end MeasurableMul
 
 end EReal
 
-/-- If a function `f : α → ℝ≥0` is measurable and the measure is σ-finite, then there exists
+/--
+If a function `f : α → ℝ≥0` is measurable and the measure is σ-finite, then there exists
 spanning measurable sets with finite measure on which `f` is bounded.
 See also `StronglyMeasurable.exists_spanning_measurableSet_norm_le` for functions into normed
-groups. -/
-theorem exists_spanning_measurableSet_le {f : α → ℝ≥0} (hf : Measurable f) (μ : Measure α)
-    [SigmaFinite μ] :
-    ∃ s : ℕ → Set α,
-      (∀ n, MeasurableSet (s n) ∧ μ (s n) < ∞ ∧ ∀ x ∈ s n, f x ≤ n) ∧
-      ⋃ i, s i = Set.univ := by
+groups.
+-/
+theorem exists_spanning_measurableSet_le
+    {f : α → ℝ≥0} (hf : Measurable f) (μ : Measure α) [SigmaFinite μ]
+    : ∃ s : ℕ → Set α,
+      (∀ n, MeasurableSet (s n) ∧ μ (s n) < ∞ ∧ ∀ x ∈ s n, f x ≤ n) ∧ ⋃ i, s i = Set.univ := by
   let sigma_finite_sets := spanningSets μ
   let norm_sets := fun n : ℕ => { x | f x ≤ n }
   have norm_sets_spanning : ⋃ n, norm_sets n = Set.univ := by
@@ -548,8 +562,8 @@ theorem exists_spanning_measurableSet_le {f : α → ℝ≥0} (hf : Measurable f
     exact measure_spanningSets_lt_top μ n
   refine ⟨sets, fun n => ⟨h_meas n, h_finite n, ?_⟩, ?_⟩
   · exact fun x hx => hx.2
-  · have :
-      ⋃ i, sigma_finite_sets i ∩ norm_sets i = (⋃ i, sigma_finite_sets i) ∩ ⋃ i, norm_sets i := by
+  · have : ⋃ i, sigma_finite_sets i ∩ norm_sets i
+        = (⋃ i, sigma_finite_sets i) ∩ ⋃ i, norm_sets i := by
       refine Set.iUnion_inter_of_monotone (monotone_spanningSets μ) fun i j hij x => ?_
       simp only [norm_sets, Set.mem_ofPred_eq]
       refine fun hif => hif.trans ?_

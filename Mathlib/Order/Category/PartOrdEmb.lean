@@ -43,8 +43,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab PartOrdEmb.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-instance : CoeSort PartOrdEmb (Type _) :=
-  ⟨PartOrdEmb.carrier⟩
+instance : CoeSort PartOrdEmb (Type _) := ⟨PartOrdEmb.carrier⟩
 
 attribute [coe] PartOrdEmb.carrier
 
@@ -65,8 +64,7 @@ instance : ConcreteCategory PartOrdEmb (· ↪o ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `PartOrdEmb` back into a `OrderEmbedding`. -/
-abbrev Hom.hom {X Y : PartOrdEmb.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := PartOrdEmb) f
+abbrev Hom.hom {X Y : PartOrdEmb.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := PartOrdEmb) f
 
 /-- Typecheck a `OrderEmbedding` as a morphism in `PartOrdEmb`. -/
 abbrev ofHom {X Y : Type u} [PartialOrder X] [PartialOrder Y] (f : X ↪o Y) : of X ⟶ of Y :=
@@ -74,8 +72,7 @@ abbrev ofHom {X Y : Type u} [PartialOrder X] [PartialOrder Y] (f : X ↪o Y) : o
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : PartOrdEmb.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : PartOrdEmb.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -163,8 +160,7 @@ def Iso.mk {α β : PartOrdEmb.{u}} (e : α ≃o β) : α ≅ β where
 
 /-- The order isomorphism corresponding to an isomorphism in `PartOrdEmb`. -/
 @[simps]
-def orderIsoOfIso {α β : PartOrdEmb.{u}} (e : α ≅ β) :
-    α ≃o β where
+def orderIsoOfIso {α β : PartOrdEmb.{u}} (e : α ≅ β) : α ≃o β where
   toFun := e.hom
   invFun := e.inv
   left_inv := ConcreteCategory.congr_hom e.hom_inv_id
@@ -173,17 +169,14 @@ def orderIsoOfIso {α β : PartOrdEmb.{u}} (e : α ≅ β) :
 
 /-- Isomorphisms in `PartOrdEmb` correspond to order isomorphisms. -/
 @[simps]
-def orderIsoEquivIso {α β : PartOrdEmb.{u}} :
-    (α ≅ β) ≃ (α ≃o β) where
+def orderIsoEquivIso {α β : PartOrdEmb.{u}} : (α ≅ β) ≃ (α ≃o β) where
   toFun := orderIsoOfIso
   invFun := Iso.mk
 
 instance : (forget PartOrdEmb.{u}).ReflectsIsomorphisms where
   reflects {α β} f hf := by
     rw [CategoryTheory.isIso_iff_bijective] at hf
-    let e : α ≃o β :=
-      { toEquiv := Equiv.ofBijective _ hf
-        map_rel_iff' := by simp }
+    let e : α ≃o β := { toEquiv := Equiv.ofBijective _ hf, map_rel_iff' := by simp }
     exact (Iso.mk e).isIso_hom
 
 /-- `OrderDual` as a functor. -/
@@ -202,9 +195,8 @@ def dualEquiv : PartOrdEmb ≌ PartOrdEmb where
 
 end PartOrdEmb
 
-theorem partOrdEmb_dual_comp_forget_to_partOrd :
-    PartOrdEmb.dual ⋙ forget₂ PartOrdEmb PartOrd =
-      forget₂ PartOrdEmb PartOrd ⋙ PartOrd.dual :=
+theorem partOrdEmb_dual_comp_forget_to_partOrd
+    : PartOrdEmb.dual ⋙ forget₂ PartOrdEmb PartOrd = forget₂ PartOrdEmb PartOrd ⋙ PartOrd.dual :=
   rfl
 
 @[deprecated (since := "2026-09-17")]
@@ -214,59 +206,74 @@ namespace PartOrdEmb
 
 namespace Limits
 
-variable {J : Type u} [SmallCategory J] [IsFiltered J] {F : J ⥤ PartOrdEmb.{u}}
-  {c : Cocone (F ⋙ forget _)} (hc : IsColimit c)
+variable
+  {J : Type u} [SmallCategory J] [IsFiltered J]
+  {F : J ⥤ PartOrdEmb.{u}} {c : Cocone (F ⋙ forget _)} (hc : IsColimit c)
 
-/-- Given a functor `F : J ⥤ PartOrdEmb` and a colimit cocone `c` for
+/--
+Given a functor `F : J ⥤ PartOrdEmb` and a colimit cocone `c` for
 `F ⋙ forget _`, this is the type `c.pt` on which we define a partial order
-which makes it the colimit of `F`. -/
+which makes it the colimit of `F`.
+-/
 @[nolint unusedArguments]
 def CoconePt (_ : IsColimit c) : Type u := c.pt
 
 open IsFiltered
 
 instance : PartialOrder (CoconePt hc) where
-  le x y := ∃ (j : J) (x' y' : F.obj j) (hx : c.ι.app j x' = x)
-      (hy : c.ι.app j y' = y), x' ≤ y'
+  le x y := ∃ (j : J) (x' y' : F.obj j) (hx : c.ι.app j x' = x) (hy : c.ι.app j y' = y), x' ≤ y'
   le_refl x := by
     obtain ⟨j, x', hx⟩ := Types.jointly_surjective_of_isColimit hc x
     exact ⟨j, x', x', hx, hx, le_rfl⟩
   le_trans := by
     rintro x y z ⟨j, x₁, y₁, hx₁, hy₁, hxy⟩ ⟨k, y₂, z₁, hy₂, hz₁, hyz⟩
     obtain ⟨l, a, b, h⟩ :=
-      (Types.FilteredColimit.isColimit_eq_iff _ hc (xi := y₁) (xj := y₂)).1
-        (hy₁.trans hy₂.symm)
-    exact ⟨l, F.map a x₁, F.map b z₁, congr($(c.w a) x₁).trans hx₁, congr($(c.w b) z₁).trans hz₁,
-      ((F.map a).hom.monotone hxy).trans
-        (le_of_eq_of_le h ((F.map b).hom.monotone hyz))⟩
+      (Types.FilteredColimit.isColimit_eq_iff _ hc (xi := y₁) (xj := y₂)).1 (hy₁.trans hy₂.symm)
+    exact ⟨
+      l,
+      F.map a x₁,
+      F.map b z₁,
+      congr($(c.w a) x₁).trans hx₁,
+      congr($(c.w b) z₁).trans hz₁,
+      ((F.map a).hom.monotone hxy).trans (le_of_eq_of_le h ((F.map b).hom.monotone hyz))
+    ⟩
   le_antisymm := by
     rintro x y ⟨j, x₁, y₁, hx₁, hy₁, h₁⟩ ⟨k, y₂, x₂, hy₂, hx₂, h₂⟩
-    obtain ⟨l, a, b, x₃, y₃, h₃, h₄, h₅, h₆⟩ :
-        ∃ (l : J) (a : j ⟶ l) (b : k ⟶ l) (x₃ y₃ : _),
-        x₃ = F.map a x₁ ∧ x₃ = F.map b x₂ ∧ y₃ = F.map a y₁ ∧ y₃ = F.map b y₂ := by
+    obtain ⟨l, a, b, x₃, y₃, h₃, h₄, h₅, h₆⟩
+        : ∃ (l : J) (a : j ⟶ l) (b : k ⟶ l) (x₃ y₃ : _),
+          x₃ = F.map a x₁ ∧ x₃ = F.map b x₂ ∧ y₃ = F.map a y₁ ∧ y₃ = F.map b y₂ := by
       obtain ⟨l₁, a, b, h₃⟩ :=
-        (Types.FilteredColimit.isColimit_eq_iff _ hc (xi := x₁) (xj := x₂)).1
-          (hx₁.trans hx₂.symm)
+        (Types.FilteredColimit.isColimit_eq_iff _ hc (xi := x₁) (xj := x₂)).1 (hx₁.trans hx₂.symm)
       obtain ⟨l₂, a', b', h₄⟩ :=
-        (Types.FilteredColimit.isColimit_eq_iff _ hc (xi := y₁) (xj := y₂)).1
-          (hy₁.trans hy₂.symm)
+        (Types.FilteredColimit.isColimit_eq_iff _ hc (xi := y₁) (xj := y₂)).1 (hy₁.trans hy₂.symm)
       obtain ⟨l, d, d', h₅, h₆⟩ := IsFiltered.bowtie a a' b b'
-      exact ⟨l, a ≫ d, b ≫ d, F.map (a ≫ d) x₁, F.map (a' ≫ d') y₁, rfl,
-        by simpa, by rw [h₅], by simpa [h₆]⟩
+      exact ⟨
+        l,
+        a ≫ d,
+        b ≫ d,
+        F.map (a ≫ d) x₁,
+        F.map (a' ≫ d') y₁,
+        rfl,
+        by simpa,
+        by rw [h₅],
+        by simpa [h₆]
+      ⟩
     have h₇ : x₃ = y₃ :=
-      le_antisymm
-        (by simpa only [h₃, h₅] using (F.map a).hom.monotone h₁)
+      le_antisymm (by simpa only [h₃, h₅] using (F.map a).hom.monotone h₁)
         (by simpa only [h₄, h₆] using (F.map b).hom.monotone h₂)
     exact hx₁.symm.trans (congr($(c.w a) x₁).symm.trans
       (congr(c.ι.app l $(h₃.symm.trans (h₇.trans h₅))).trans (congr($(c.w a) y₁).trans hy₁)))
 
-/-- The colimit cocone for a functor `F : J ⥤ PartOrdEmb` from a filtered
-category that is constructed from a colimit cocone for `F ⋙ forget _`. -/
+/--
+The colimit cocone for a functor `F : J ⥤ PartOrdEmb` from a filtered
+category that is constructed from a colimit cocone for `F ⋙ forget _`.
+-/
 @[simps]
 def cocone : Cocone F where
   pt := ↧(CoconePt hc)
-  ι.app j := ofHom
-    { toFun := c.ι.app j
+  ι.app j :=
+    ofHom {
+      toFun := c.ι.app j
       inj' x y h := by
         obtain ⟨k, a, ha⟩ := (Types.FilteredColimit.isColimit_eq_iff' hc x y).1 h
         exact (F.map a).injective ha
@@ -281,7 +288,8 @@ def cocone : Cocone F where
         rw [← (F.map (b₁ ≫ d)).le_iff_le]
         conv_rhs => rw [h₂]
         conv_rhs at h => rw [h₁]
-        simpa [← hl₁, ← hl₂] using h }
+        simpa [← hl₁, ← hl₂] using h
+    }
   ι.naturality _ _ f := by ext x; congrm $(c.w f) x
 
 set_option backward.defeqAttrib.useBackward true in
@@ -290,20 +298,22 @@ set_option backward.isDefEq.respectTransparency false in
 def CoconePt.desc (s : Cocone F) : CoconePt hc ↪o s.pt where
   toFun := hc.desc ((forget _).mapCocone s)
   inj' x y h := by
-    obtain ⟨j, x', y', rfl, rfl⟩ :=
-      Types.FilteredColimit.jointly_surjective_of_isColimit₂ hc x y
-    obtain rfl := (s.ι.app j).injective
-      ((congr($(hc.fac ((forget _).mapCocone s) j) x').symm.trans h).trans
-        congr($(hc.fac ((forget _).mapCocone s) j) y'))
+    obtain ⟨j, x', y', rfl, rfl⟩ := Types.FilteredColimit.jointly_surjective_of_isColimit₂ hc x y
+    obtain rfl :=
+      (s.ι.app j).injective
+        ((congr($(hc.fac ((forget _).mapCocone s) j) x').symm.trans h).trans
+          congr($(hc.fac ((forget _).mapCocone s) j) y'))
     rfl
   map_rel_iff' {x y} := by
-    obtain ⟨j, x', y', rfl, rfl⟩ :=
-      Types.FilteredColimit.jointly_surjective_of_isColimit₂ hc x y
+    obtain ⟨j, x', y', rfl, rfl⟩ := Types.FilteredColimit.jointly_surjective_of_isColimit₂ hc x y
     have hx := congr($(hc.fac ((forget _).mapCocone s) j) x')
     have hy := congr($(hc.fac ((forget _).mapCocone s) j) y')
-    simp only [Functor.mapCocone_pt, Functor.comp_obj, Functor.const_obj_obj,
-      CategoryTheory.comp_apply, Functor.mapCocone_ι_app, ConcreteCategory.hom_ofHom,
-      TypeCat.Fun.coe_mk, Function.Embedding.coeFn_mk] at hx hy ⊢
+    simp only [
+        Functor.mapCocone_pt, Functor.comp_obj, Functor.const_obj_obj, CategoryTheory.comp_apply,
+        Functor.mapCocone_ι_app, ConcreteCategory.hom_ofHom, TypeCat.Fun.coe_mk,
+        Function.Embedding.coeFn_mk
+      ]
+      at hx hy ⊢
     rw [hx, hy, OrderEmbedding.le_iff_le]
     refine ⟨fun h ↦ ⟨j, _, _, rfl, rfl, h⟩, fun ⟨k, x, y, hx', hy', h⟩ ↦ ?_⟩
     obtain ⟨l, f, g, hl⟩ := (Types.FilteredColimit.isColimit_eq_iff _ hc).1 hx'
@@ -319,8 +329,10 @@ lemma CoconePt.fac_apply (s : Cocone F) (j : J) (x : F.obj j) :
     dsimp% CoconePt.desc hc s (c.ι.app j x) = s.ι.app j x :=
   congr($(hc.fac ((forget _).mapCocone s) j) x)
 
-/-- A colimit cocone for `F : J ⥤ PartOrdEmb` (with `J` filtered) can be
-obtained from a colimit cocone for `F ⋙ forget _`. -/
+/--
+A colimit cocone for `F : J ⥤ PartOrdEmb` (with `J` filtered) can be
+obtained from a colimit cocone for `F ⋙ forget _`.
+-/
 def isColimitCocone : IsColimit (cocone hc) where
   desc s := ofHom (CoconePt.desc hc s)
   fac s j := by
@@ -335,8 +347,7 @@ instance : HasColimit F where
   exists_colimit := ⟨_, isColimitCocone (colimit.isColimit (F ⋙ forget _))⟩
 
 instance : PreservesColimit F (forget _) :=
-  preservesColimit_of_preserves_colimit_cocone
-    (isColimitCocone (colimit.isColimit (F ⋙ forget _)))
+  preservesColimit_of_preserves_colimit_cocone (isColimitCocone (colimit.isColimit (F ⋙ forget _)))
     (colimit.isColimit (F ⋙ forget _))
 
 instance : HasColimitsOfShape J PartOrdEmb.{u} where
@@ -356,37 +367,40 @@ end Limits
 
 variable {α : PartOrdEmb.{u}} (P : Set α → Prop)
 
-/-- Given a predicate `P : Set α → Prop` on the underlying type of `α : PartOrdEmb.{u}`,
+/--
+Given a predicate `P : Set α → Prop` on the underlying type of `α : PartOrdEmb.{u}`,
 this is the functor `Subtype P ⥤ PartOrdEmb.{u}` which sends a subset `J` of `α`
-satisfying `P` to the induced partially ordered type `J`. -/
+satisfying `P` to the induced partially ordered type `J`.
+-/
 @[simps obj map]
 def functorOfPredicateSet : Subtype P ⥤ PartOrdEmb.{u} where
   obj J := ↧J.val
   map f :=
-    ofHom {
-      toFun x := ⟨x, leOfHom f x.prop⟩
-      inj' _ _ _ := by aesop
-      map_rel_iff' := by rfl }
+    ofHom { toFun x := ⟨x, leOfHom f x.prop⟩, inj' _ _ _ := by aesop, map_rel_iff' := by rfl }
 
-/-- Given a predicate `P : Set α → Prop` on the underlying type of `α : PartOrdEmb.{u}`,
+/--
+Given a predicate `P : Set α → Prop` on the underlying type of `α : PartOrdEmb.{u}`,
 this is the cocone with point `α` given by all the inclusions of the subsets
-satisfying `P`. -/
+satisfying `P`.
+-/
 @[simps]
 def coconeOfPredicateSet : Cocone (functorOfPredicateSet P) where
   pt := α
   ι.app J := ofHom (OrderEmbedding.subtype _)
 
-/-- Let `P` be a predicate on `Set α` where `α : PartOrdEmb`. We assume
+/--
+Let `P` be a predicate on `Set α` where `α : PartOrdEmb`. We assume
 that `Subtype P` is directed and nonempty, and that any `a : α` belongs
 to some `J : Set α` satisfying `P`. Then, `α` is the colimit in the
-category `PartOrdEmb` of these subsets. -/
+category `PartOrdEmb` of these subsets.
+-/
 noncomputable def isColimitOfPredicateSet
     [IsDirectedOrder (Subtype P)] [Nonempty (Subtype P)]
-    (hP : ∀ (a : α), ∃ (J : Set α), P J ∧ a ∈ J) :
-    IsColimit (coconeOfPredicateSet P) :=
+    (hP : ∀ (a : α), ∃ (J : Set α), P J ∧ a ∈ J)
+    : IsColimit (coconeOfPredicateSet P) :=
   isColimitOfReflects (forget PartOrdEmb.{u}) (by
-    refine Types.FilteredColimit.isColimitOf' _ _ (fun a ↦ ?_)
-      (fun J x y h ↦ ⟨J, 𝟙 _, Subtype.ext h⟩)
+    refine
+      Types.FilteredColimit.isColimitOf' _ _ (fun a ↦ ?_) (fun J x y h ↦ ⟨J, 𝟙 _, Subtype.ext h⟩)
     obtain ⟨J, hJ, ha⟩ := hP a
     exact ⟨⟨J, hJ⟩, ⟨a, ha⟩, rfl⟩)
 

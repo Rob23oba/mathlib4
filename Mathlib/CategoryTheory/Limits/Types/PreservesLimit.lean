@@ -30,41 +30,48 @@ namespace Presheaf
 
 section
 
-variable {C : Type u} [Category.{v} C]
+variable
+  {C : Type u} [Category.{v} C]
   {J : Type u'} [Category.{v'} J] [LocallySmall.{w} C]
-  {F : J ⥤ Cᵒᵖ} (c : Cone F) {c' : Cocone (F.leftOp ⋙ shrinkYoneda.{w})}
+  {F : J ⥤ Cᵒᵖ} (c : Cone F)
+  {c' : Cocone (F.leftOp ⋙ shrinkYoneda.{w})}
   (hc : IsLimit c) (hc' : IsColimit c') (P : Cᵒᵖ ⥤ Type w)
 
 set_option backward.defeqAttrib.useBackward true in
 variable {P} in
-/-- Let `F : J ⥤ Cᵒᵖ` be a functor, `c'` a colimit cocone for `F.leftOp ⋙ shrinkYoneda.{w}`.
+/--
+Let `F : J ⥤ Cᵒᵖ` be a functor, `c'` a colimit cocone for `F.leftOp ⋙ shrinkYoneda.{w}`.
 For any `P : Cᵒᵖ ⥤ Type w`, this is the bijection between `c'.pt ⟶ P` and the type
-of sections of `F ⋙ P`. -/
+of sections of `F ⋙ P`.
+-/
 @[simps -isSimp symm_apply apply_coe]
-noncomputable def coconeCompShrinkYonedaHomEquiv :
-    (c'.pt ⟶ P) ≃ (F ⋙ P).sections where
-  toFun f :=
-    { val j := shrinkYonedaEquiv (c'.ι.app (op j) ≫ f)
-      property {X X'} g := by
-        dsimp
-        rw [← dsimp% c'.w g.op, Category.assoc]
-        conv_rhs => rw [shrinkYonedaEquiv_comp]
-        rw [shrinkYonedaEquiv_shrinkYoneda_map]
-        apply map_shrinkYonedaEquiv }
-  invFun s := hc'.desc (Cocone.mk _
-    { app j := shrinkYonedaEquiv.symm (s.val j.unop)
+noncomputable def coconeCompShrinkYonedaHomEquiv : (c'.pt ⟶ P) ≃ (F ⋙ P).sections where
+  toFun f := {
+    val j := shrinkYonedaEquiv (c'.ι.app (op j) ≫ f)
+    property {X X'} g := by
+      dsimp
+      rw [← dsimp% c'.w g.op, Category.assoc]
+      conv_rhs => rw [shrinkYonedaEquiv_comp]
+      rw [shrinkYonedaEquiv_shrinkYoneda_map]
+      apply map_shrinkYonedaEquiv
+  }
+  invFun s :=
+    hc'.desc (Cocone.mk _ {
+      app j := shrinkYonedaEquiv.symm (s.val j.unop)
       naturality j₁ j₂ f := by
         rw [← s.property f.unop]
         dsimp
-        rw [shrinkYonedaEquiv_symm_map, Category.comp_id] })
+        rw [shrinkYonedaEquiv_symm_map, Category.comp_id]
+    })
   left_inv f := hc'.hom_ext (by simp)
   right_inv u := by cat_disch
 
-/-- Let `F : J ⥤ Cᵒᵖ` be a functor, `c'` a colimit cocone for `F.leftOp ⋙ shrinkYoneda.{w}`.
+/--
+Let `F : J ⥤ Cᵒᵖ` be a functor, `c'` a colimit cocone for `F.leftOp ⋙ shrinkYoneda.{w}`.
 For any cone `c` for `F`, this is the canonical natural transformation
-`c'.pt ⟶ shrinkYoneda.{w}.obj c.pt.unop`. -/
-noncomputable def coconePtToShrinkYoneda :
-    c'.pt ⟶ shrinkYoneda.{w}.obj c.pt.unop :=
+`c'.pt ⟶ shrinkYoneda.{w}.obj c.pt.unop`.
+-/
+noncomputable def coconePtToShrinkYoneda : c'.pt ⟶ shrinkYoneda.{w}.obj c.pt.unop :=
   hc'.desc (shrinkYoneda.{w}.mapCocone (coconeLeftOpOfCone c))
 
 set_option backward.defeqAttrib.useBackward true in
@@ -104,20 +111,21 @@ lemma preservesLimit_eq_isLocal_single :
 variable (F) [Small.{w} J]
 
 /-- Auxiliary definition for `Presheaf.preservesLimitHomFamily`. -/
-noncomputable abbrev preservesLimitHomFamilySrc :=
-  colimit (F.leftOp ⋙ shrinkYoneda)
+noncomputable abbrev preservesLimitHomFamilySrc := colimit (F.leftOp ⋙ shrinkYoneda)
 
 /-- Auxiliary definition for `Presheaf.preservesLimitHomFamily`. -/
 noncomputable abbrev preservesLimitHomFamilyTgt (h : PLift (HasLimit F)) :=
   letI := h.down
   shrinkYoneda.obj (limit F).unop
 
-/-- Let `F : J ⥤ Cᵒᵖ` be a functor. This is the family of morphisms
+/--
+Let `F : J ⥤ Cᵒᵖ` be a functor. This is the family of morphisms
 which consists of the single morphism
 `colimit (F.leftOp ⋙ shrinkYoneda) ⟶ shrinkYoneda.obj (limit F).unop`
-if `F` has a limit, or is the empty family otherwise. -/
-noncomputable abbrev preservesLimitHomFamily (h : PLift (HasLimit F)) :
-    preservesLimitHomFamilySrc F ⟶ preservesLimitHomFamilyTgt F h :=
+if `F` has a limit, or is the empty family otherwise.
+-/
+noncomputable abbrev preservesLimitHomFamily (h : PLift (HasLimit F))
+    : preservesLimitHomFamilySrc F ⟶ preservesLimitHomFamilyTgt F h :=
   letI := h.down
   coconePtToShrinkYoneda (limit.cone F) (colimit.isColimit _)
 

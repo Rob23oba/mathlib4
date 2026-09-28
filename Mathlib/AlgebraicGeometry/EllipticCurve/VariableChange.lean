@@ -48,11 +48,13 @@ section VariableChange
 
 /-! ## Variable changes -/
 
-/-- An admissible linear change of variables of Weierstrass curves defined over a ring `R` given by
+/--
+An admissible linear change of variables of Weierstrass curves defined over a ring `R` given by
 a tuple `(u, r, s, t)` for some `u` in `Rˣ` and some `r, s, t` in `R`. As a matrix, it is
 $$\begin{pmatrix} u^2 & 0 & r \cr u^2s & u^3 & t \cr 0 & 0 & 1 \end{pmatrix}.$$
 In other words, this is the change of variables `(X, Y) ↦ (u²X + r, u³Y + u²sX + t)`.
-When `R` is a field, any two isomorphic Weierstrass equations are related by this. -/
+When `R` is a field, any two isomorphic Weierstrass equations are related by this.
+-/
 @[ext]
 structure VariableChange (R : Type u) [CommRing R] where
   /-- The `u` coefficient of an admissible linear change of variables, which must be a unit. -/
@@ -79,7 +81,8 @@ instance : Mul (VariableChange R) where
     u := C.u * C'.u
     r := C.r * C'.u ^ 2 + C'.r
     s := C'.u * C.s + C'.s
-    t := C.t * C'.u ^ 3 + C.r * C'.s * C'.u ^ 2 + C'.t }
+    t := C.t * C'.u ^ 3 + C.r * C'.s * C'.u ^ 2 + C'.t
+  }
 
 /-- The composition of two linear changes of variables given by matrix multiplication. -/
 lemma mul_def : C * C' = {
@@ -93,7 +96,8 @@ instance : Inv (VariableChange R) where
     u := C.u⁻¹
     r := -C.r * C.u⁻¹ ^ 2
     s := -C.s * C.u⁻¹
-    t := (C.r * C.s - C.t) * C.u⁻¹ ^ 3 }
+    t := (C.r * C.s - C.t) * C.u⁻¹ ^ 3
+  }
 
 /-- The inverse of a linear change of variables given by matrix inversion. -/
 lemma inv_def : C⁻¹ = {
@@ -103,8 +107,7 @@ lemma inv_def : C⁻¹ = {
     t := (C.r * C.s - C.t) * C.u⁻¹ ^ 3 } := rfl
 
 instance : Group (VariableChange R) where
-  one_mul C := by
-    simp only [mul_def, one_def, zero_add, zero_mul, mul_zero, one_mul]
+  one_mul C := by simp only [mul_def, one_def, zero_add, zero_mul, mul_zero, one_mul]
   mul_one C := by
     simp only [mul_def, one_def, add_zero, mul_zero, one_mul, mul_one, one_pow, Units.val_one]
   inv_mul_cancel C := by
@@ -115,8 +118,7 @@ instance : Group (VariableChange R) where
     · linear_combination -C.s * C.u.inv_mul
     · linear_combination (C.r * C.s - C.t) * pow_mul_pow_eq_one 3 C.u.inv_mul
         + -C.r * C.s * pow_mul_pow_eq_one 2 C.u.inv_mul
-  mul_assoc _ _ _ := by
-    ext <;> simp only [mul_def, Units.val_mul] <;> ring1
+  mul_assoc _ _ _ := by ext <;> simp only [mul_def, Units.val_mul] <;> ring1
 
 end VariableChange
 
@@ -127,10 +129,14 @@ instance : SMul (VariableChange R) (WeierstrassCurve R) where
     a₁ := C.u⁻¹ * (W.a₁ + 2 * C.s)
     a₂ := C.u⁻¹ ^ 2 * (W.a₂ - C.s * W.a₁ + 3 * C.r - C.s ^ 2)
     a₃ := C.u⁻¹ ^ 3 * (W.a₃ + C.r * W.a₁ + 2 * C.t)
-    a₄ := C.u⁻¹ ^ 4 * (W.a₄ - C.s * W.a₃ + 2 * C.r * W.a₂ - (C.t + C.r * C.s) * W.a₁ + 3 * C.r ^ 2
-      - 2 * C.s * C.t)
-    a₆ := C.u⁻¹ ^ 6 * (W.a₆ + C.r * W.a₄ + C.r ^ 2 * W.a₂ + C.r ^ 3 - C.t * W.a₃ - C.t ^ 2
-      - C.r * C.t * W.a₁) }
+    a₄ :=
+      C.u⁻¹ ^ 4
+        * (W.a₄ - C.s * W.a₃ + 2 * C.r * W.a₂ - (C.t + C.r * C.s) * W.a₁ + 3 * C.r ^ 2
+          - 2 * C.s * C.t)
+    a₆ :=
+      C.u⁻¹ ^ 6
+        * (W.a₆ + C.r * W.a₄ + C.r ^ 2 * W.a₂ + C.r ^ 3 - C.t * W.a₃ - C.t ^ 2 - C.r * C.t * W.a₁)
+  }
 
 /-- The Weierstrass curve over `R` induced by an admissible linear change of variables
 `(X, Y) ↦ (u²X + r, u³Y + u²sX + t)` for some `u` in `Rˣ` and some `r, s, t` in `R`. -/
@@ -258,14 +264,11 @@ variable (C : VariableChange R) {A : Type v} [CommRing A] (φ : R →+* A)
 namespace VariableChange
 
 /-- The change of variables mapped over a ring homomorphism `φ : R →+* A`. -/
-@[simps]
-def map : VariableChange A :=
-  ⟨Units.map φ C.u, φ C.r, φ C.s, φ C.t⟩
+@[simps] def map : VariableChange A := ⟨Units.map φ C.u, φ C.r, φ C.s, φ C.t⟩
 
 variable (A) in
 /-- The change of variables base changed to an algebra `A` over `R`. -/
-def baseChange [Algebra R A] : VariableChange A :=
-  C.map <| algebraMap R A
+def baseChange [Algebra R A] : VariableChange A := C.map <| algebraMap R A
 
 /-- The notation `\textf` for `WeierstrassCurve.VariableChange.baseChange C A`. -/
 scoped notation:max (priority := low) C:max "⁄" A:max => baseChange C A

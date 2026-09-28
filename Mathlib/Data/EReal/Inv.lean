@@ -30,8 +30,10 @@ namespace EReal
 /-! ### Absolute value -/
 
 -- TODO: use `Real.nnabs` for the case `(x : ℝ)`
-/-- The absolute value from `EReal` to `ℝ≥0∞`, mapping `⊥` and `⊤` to `⊤` and
-a real `x` to `|x|`. -/
+/--
+The absolute value from `EReal` to `ℝ≥0∞`, mapping `⊥` and `⊤` to `⊤` and
+a real `x` to `|x|`.
+-/
 protected def abs : EReal → ℝ≥0∞
   | ⊥ => ⊤
   | ⊤ => ⊤
@@ -43,8 +45,7 @@ protected def abs : EReal → ℝ≥0∞
 
 theorem abs_def (x : ℝ) : (x : EReal).abs = ENNReal.ofReal |x| := rfl
 
-theorem abs_coe_lt_top (x : ℝ) : (x : EReal).abs < ⊤ :=
-  ENNReal.ofReal_lt_top
+theorem abs_coe_lt_top (x : ℝ) : (x : EReal).abs < ⊤ := ENNReal.ofReal_lt_top
 
 @[simp]
 theorem abs_eq_zero_iff {x : EReal} : x.abs = 0 ↔ x = 0 := by
@@ -53,8 +54,7 @@ theorem abs_eq_zero_iff {x : EReal} : x.abs = 0 ↔ x = 0 := by
   · simp only [abs_def, coe_eq_zero, ENNReal.ofReal_eq_zero, abs_nonpos_iff]
   · simp only [abs_top, ENNReal.top_ne_zero, top_ne_zero]
 
-@[simp]
-theorem abs_zero : (0 : EReal).abs = 0 := by rw [abs_eq_zero_iff]
+@[simp] theorem abs_zero : (0 : EReal).abs = 0 := by rw [abs_eq_zero_iff]
 
 @[simp]
 theorem coe_abs (x : ℝ) : ((x : EReal).abs : EReal) = (|x| : ℝ) := by
@@ -69,15 +69,20 @@ protected theorem abs_neg : ∀ x : EReal, (-x).abs = x.abs
 @[simp]
 theorem abs_mul (x y : EReal) : (x * y).abs = x.abs * y.abs := by
   induction x, y using induction₂_symm_neg with
-  | top_zero => simp only [mul_zero, abs_zero]
-  | top_top => rfl
-  | symm h => rwa [mul_comm, EReal.mul_comm]
-  | coe_coe => simp only [← coe_mul, abs_def, _root_.abs_mul, ENNReal.ofReal_mul (abs_nonneg _)]
+  | top_zero =>
+    simp only [mul_zero, abs_zero]
+  | top_top =>
+    rfl
+  | symm h =>
+    rwa [mul_comm, EReal.mul_comm]
+  | coe_coe =>
+    simp only [← coe_mul, abs_def, _root_.abs_mul, ENNReal.ofReal_mul (abs_nonneg _)]
   | top_pos _ h =>
     rw [top_mul_coe_of_pos h, abs_top, ENNReal.top_mul]
     rw [Ne, abs_eq_zero_iff, coe_eq_zero]
     exact h.ne'
-  | neg_left h => rwa [neg_mul, EReal.abs_neg, EReal.abs_neg]
+  | neg_left h =>
+    rwa [neg_mul, EReal.abs_neg, EReal.abs_neg]
 
 /-! ### Sign -/
 
@@ -92,10 +97,10 @@ set_option backward.isDefEq.respectTransparency false in
 theorem sign_coe (x : ℝ) : sign (x : EReal) = sign x := by
   simp only [sign, OrderHom.coe_mk, EReal.coe_pos, EReal.coe_neg']
 
-@[simp, norm_cast]
-theorem coe_coe_sign (x : SignType) : ((x : ℝ) : EReal) = x := by cases x <;> rfl
+@[simp, norm_cast] theorem coe_coe_sign (x : SignType) : ((x : ℝ) : EReal) = x := by cases x <;> rfl
 
-@[simp] theorem sign_neg : ∀ x : EReal, sign (-x) = -sign x
+@[simp]
+theorem sign_neg : ∀ x : EReal, sign (-x) = - sign x
   | ⊤ => rfl
   | ⊥ => rfl
   | (x : ℝ) => by rw [← coe_neg, sign_coe, sign_coe, Left.sign_neg]
@@ -107,31 +112,31 @@ theorem sign_mul (x y : EReal) : sign (x * y) = sign x * sign y := by
   | top_top => rfl
   | symm h => rwa [mul_comm, EReal.mul_comm]
   | coe_coe => simp only [← coe_mul, sign_coe, _root_.sign_mul]
-  | top_pos _ h =>
-    rw [top_mul_coe_of_pos h, sign_top, one_mul, sign_pos (EReal.coe_pos.2 h)]
+  | top_pos _ h => rw [top_mul_coe_of_pos h, sign_top, one_mul, sign_pos (EReal.coe_pos.2 h)]
   | neg_left h => rw [neg_mul, sign_neg, sign_neg, h, neg_mul]
 
-@[simp] protected theorem sign_mul_abs : ∀ x : EReal, (sign x * x.abs : EReal) = x
+@[simp]
+protected theorem sign_mul_abs : ∀ x : EReal, (sign x * x.abs : EReal) = x
   | ⊥ => by simp
   | ⊤ => by simp
   | (x : ℝ) => by rw [sign_coe, coe_abs, ← coe_coe_sign, ← coe_mul, sign_mul_abs]
 
-@[simp] protected theorem abs_mul_sign (x : EReal) : (x.abs * sign x : EReal) = x := by
+@[simp]
+protected theorem abs_mul_sign (x : EReal) : (x.abs * sign x : EReal) = x := by
   rw [EReal.mul_comm, EReal.sign_mul_abs]
 
-theorem sign_eq_and_abs_eq_iff_eq {x y : EReal} :
-    x.abs = y.abs ∧ sign x = sign y ↔ x = y := by
+theorem sign_eq_and_abs_eq_iff_eq {x y : EReal} : x.abs = y.abs ∧ sign x = sign y ↔ x = y := by
   constructor
   · rintro ⟨habs, hsign⟩
     rw [← x.sign_mul_abs, ← y.sign_mul_abs, habs, hsign]
   · rintro rfl
     exact ⟨rfl, rfl⟩
 
-theorem le_iff_sign {x y : EReal} :
-    x ≤ y ↔ sign x < sign y ∨
-      sign x = SignType.neg ∧ sign y = SignType.neg ∧ y.abs ≤ x.abs ∨
-        sign x = SignType.zero ∧ sign y = SignType.zero ∨
-          sign x = SignType.pos ∧ sign y = SignType.pos ∧ x.abs ≤ y.abs := by
+theorem le_iff_sign {x y : EReal}
+    : x ≤ y
+      ↔ sign x < sign y ∨ sign x = SignType.neg ∧ sign y = SignType.neg ∧ y.abs ≤ x.abs
+        ∨ sign x = SignType.zero ∧ sign y = SignType.zero
+        ∨ sign x = SignType.pos ∧ sign y = SignType.pos ∧ x.abs ≤ y.abs := by
   constructor
   · intro h
     refine (sign.monotone h).lt_or_eq.imp_right (fun hs => ?_)
@@ -144,18 +149,20 @@ theorem le_iff_sign {x y : EReal} :
     · exact (sign.monotone.reflect_lt h).le
     all_goals rw [← x.sign_mul_abs, ← y.sign_mul_abs]; simp [h]
 
-instance : CommMonoidWithZero EReal :=
-  { (inferInstance : MulZeroOneClass EReal) with
-    mul_assoc := fun x y z => by
-      rw [← sign_eq_and_abs_eq_iff_eq]
-      simp only [mul_assoc, abs_mul, sign_mul, and_self_iff]
-    mul_comm := EReal.mul_comm }
+instance : CommMonoidWithZero EReal := {
+  (inferInstance : MulZeroOneClass EReal) with
+  mul_assoc := fun x y z => by
+    rw [← sign_eq_and_abs_eq_iff_eq]
+    simp only [mul_assoc, abs_mul, sign_mul, and_self_iff]
+  mul_comm := EReal.mul_comm
+}
 
-instance : PosMulMono EReal := posMulMono_iff_covariant_pos.2 <| .mk <| by
-  rintro ⟨x, x0⟩ a b h
-  simp only [le_iff_sign, EReal.sign_mul, sign_pos x0, one_mul, EReal.abs_mul] at h ⊢
-  exact h.imp_right <| Or.imp (And.imp_right <| And.imp_right (mul_le_mul_right · _)) <|
-    Or.imp_right <| And.imp_right <| And.imp_right (mul_le_mul_right · _)
+instance : PosMulMono EReal :=
+  posMulMono_iff_covariant_pos.2 <| .mk <| by
+    rintro ⟨x, x0⟩ a b h
+    simp only [le_iff_sign, EReal.sign_mul, sign_pos x0, one_mul, EReal.abs_mul] at h ⊢
+    exact h.imp_right <| Or.imp (And.imp_right <| And.imp_right (mul_le_mul_right · _)) <|
+      Or.imp_right <| And.imp_right <| And.imp_right (mul_le_mul_right · _)
 
 instance : MulPosMono EReal := posMulMono_iff_mulPosMono.1 inferInstance
 
@@ -196,8 +203,10 @@ lemma max_neg_neg (x y : EReal) : max (-x) (-y) = -min x y := by
 
 /-! ### Inverse -/
 
-/-- Multiplicative inverse of an `EReal`. We choose `0⁻¹ = 0` to guarantee several good properties,
-for instance `(a * b)⁻¹ = a⁻¹ * b⁻¹`. -/
+/--
+Multiplicative inverse of an `EReal`. We choose `0⁻¹ = 0` to guarantee several good properties,
+for instance `(a * b)⁻¹ = a⁻¹ * b⁻¹`.
+-/
 protected def inv : EReal → EReal
   | ⊥ => 0
   | ⊤ => 0
@@ -205,7 +214,8 @@ protected def inv : EReal → EReal
 
 instance : Inv (EReal) := ⟨EReal.inv⟩
 
-noncomputable instance : DivInvMonoid EReal where inv := EReal.inv
+noncomputable instance : DivInvMonoid EReal where
+  inv := EReal.inv
 
 @[simp]
 lemma inv_bot : (⊥ : EReal)⁻¹ = 0 := rfl
@@ -324,10 +334,11 @@ protected lemma div_eq_inv_mul (a b : EReal) : a / b = b⁻¹ * a := EReal.mul_c
 
 lemma coe_div (a b : ℝ) : (a / b : ℝ) = (a : EReal) / (b : EReal) := rfl
 
-theorem natCast_div_le (m n : ℕ) :
-    (m / n : ℕ) ≤ (m : EReal) / (n : EReal) := by
-  rw [← coe_coe_eq_natCast, ← coe_coe_eq_natCast, ← coe_coe_eq_natCast, ← coe_div,
-    EReal.coe_le_coe_iff]
+theorem natCast_div_le (m n : ℕ) : (m / n : ℕ) ≤ (m : EReal) / (n : EReal) := by
+  rw [
+    ← coe_coe_eq_natCast, ← coe_coe_eq_natCast, ← coe_coe_eq_natCast, ← coe_div,
+    EReal.coe_le_coe_iff
+  ]
   exact Nat.cast_div_le
 
 @[simp]
@@ -564,29 +575,40 @@ open Lean Qq
 
 /-- Extension for the `positivity` tactic: inverse of an `EReal`. -/
 @[positivity (_⁻¹ : EReal)]
-meta def evalERealInv : PositivityExt where eval {u α} zα pα? e :=
-  match pα? with | none => pure .none | some pα => do
-  match u, α, e with
-  | 0, ~q(EReal), ~q($a⁻¹) =>
-    assertInstancesCommute
-    match (← core zα pα a).toNonneg with
-    | some pa => pure (.nonnegative q(EReal.inv_nonneg_of_nonneg <| $pa))
-    | none => pure .none
-  | _, _, _ => throwError "not an inverse of an `EReal`"
+meta def evalERealInv : PositivityExt where
+  eval {u α} zα pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some pα => do
+      match u, α, e with
+      | 0, ~q(EReal), ~q($a⁻¹) =>
+        assertInstancesCommute
+        match (← core zα pα a).toNonneg with
+        | some pa => pure (.nonnegative q(EReal.inv_nonneg_of_nonneg <| $pa))
+        | none => pure .none
+      | _, _, _ =>
+        throwError "not an inverse of an `EReal`"
 
 /-- Extension for the `positivity` tactic: ratio of two `EReal`s. -/
 @[positivity (_ / _ : EReal)]
-meta def evalERealDiv : PositivityExt where eval {u α} zα pα? e :=
-  match pα? with | none => pure .none | some pα => do
-  match u, α, e with
-  | 0, ~q(EReal), ~q($a / $b) =>
-    assertInstancesCommute
-    match (← core zα pα a).toNonneg with
-    | some pa =>
-      match (← core zα pα b).toNonneg with
-      | some pb => pure (.nonnegative q(EReal.div_nonneg $pa $pb))
-      | none => pure .none
-    | _ => pure .none
-  | _, _, _ => throwError "not a ratio of 2 `EReal`s"
+meta def evalERealDiv : PositivityExt where
+  eval {u α} zα pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some pα => do
+      match u, α, e with
+      | 0, ~q(EReal), ~q($a / $b) =>
+        assertInstancesCommute
+        match (← core zα pα a).toNonneg with
+        | some pa =>
+          match (← core zα pα b).toNonneg with
+          | some pb => pure (.nonnegative q(EReal.div_nonneg $pa $pb))
+          | none => pure .none
+        | _ =>
+          pure .none
+      | _, _, _ =>
+        throwError "not a ratio of 2 `EReal`s"
 
 end Mathlib.Meta.Positivity

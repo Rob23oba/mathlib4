@@ -38,11 +38,13 @@ section
 
 variable {F : C₀ ⥤ C₀} {G : C₀ ⥤ C₀} (adj : F ⊣ G) (e : G ≅ 𝟭 C₀)
 
-/-- If a right adjoint functor is isomorphic to the identity functor,
-so is the left adjoint. -/
+/--
+If a right adjoint functor is isomorphic to the identity functor,
+so is the left adjoint.
+-/
 @[simps! -isSimp]
-def leftAdjointIdIso {F : C₀ ⥤ C₀} {G : C₀ ⥤ C₀} (adj : F ⊣ G) (e : G ≅ 𝟭 C₀) :
-    F ≅ 𝟭 C₀ := (conjugateIsoEquiv .id adj).symm e.symm
+def leftAdjointIdIso {F : C₀ ⥤ C₀} {G : C₀ ⥤ C₀} (adj : F ⊣ G) (e : G ≅ 𝟭 C₀) : F ≅ 𝟭 C₀ :=
+  (conjugateIsoEquiv .id adj).symm e.symm
 
 @[simp]
 lemma conjugateEquiv_leftAdjointIdIso_hom :
@@ -53,24 +55,26 @@ end
 
 section
 
-variable {F₀₁ : C₀ ⥤ C₁} {F₁₂ : C₁ ⥤ C₂} {F₀₂ : C₀ ⥤ C₂}
-  {G₁₀ : C₁ ⥤ C₀} {G₂₁ : C₂ ⥤ C₁} {G₂₀ : C₂ ⥤ C₀}
+variable
+  {F₀₁ : C₀ ⥤ C₁} {F₁₂ : C₁ ⥤ C₂} {F₀₂ : C₀ ⥤ C₂} {G₁₀ : C₁ ⥤ C₀} {G₂₁ : C₂ ⥤ C₁} {G₂₀ : C₂ ⥤ C₀}
   (adj₀₁ : F₀₁ ⊣ G₁₀) (adj₁₂ : F₁₂ ⊣ G₂₁) (adj₀₂ : F₀₂ ⊣ G₂₀)
 
-/-- A natural transformation `G₂₀ ⟶ G₂₁ ⋙ G₁₀` involving right adjoint functors
+/--
+A natural transformation `G₂₀ ⟶ G₂₁ ⋙ G₁₀` involving right adjoint functors
 induces a natural transformation `F₀₁ ⋙ F₁₂ ⟶ F₀₂` between the corresponding
-left adjoint functors. -/
+left adjoint functors.
+-/
 @[simps! -isSimp]
-def leftAdjointCompNatTrans (τ₀₁₂ : G₂₀ ⟶ G₂₁ ⋙ G₁₀) :
-    F₀₁ ⋙ F₁₂ ⟶ F₀₂ :=
+def leftAdjointCompNatTrans (τ₀₁₂ : G₂₀ ⟶ G₂₁ ⋙ G₁₀) : F₀₁ ⋙ F₁₂ ⟶ F₀₂ :=
   (conjugateEquiv adj₀₂ (adj₀₁.comp adj₁₂)).symm τ₀₁₂
 
-/-- A natural isomorphism `G₂₁ ⋙ G₁₀ ≅ G₂₀` involving right adjoint functors
+/--
+A natural isomorphism `G₂₁ ⋙ G₁₀ ≅ G₂₀` involving right adjoint functors
 induces a natural isomorphism `F₀₁ ⋙ F₁₂ ≅ F₀₂` between the corresponding
-left adjoint functors. -/
+left adjoint functors.
+-/
 @[simps! -isSimp]
-def leftAdjointCompIso (e₀₁₂ : G₂₁ ⋙ G₁₀ ≅ G₂₀) :
-    F₀₁ ⋙ F₁₂ ≅ F₀₂ :=
+def leftAdjointCompIso (e₀₁₂ : G₂₁ ⋙ G₁₀ ≅ G₂₀) : F₀₁ ⋙ F₁₂ ≅ F₀₂ :=
   (conjugateIsoEquiv adj₀₂ (adj₀₁.comp adj₁₂)).symm e₀₁₂.symm
 
 lemma leftAdjointCompIso_hom (e₀₁₂ : G₂₁ ⋙ G₁₀ ≅ G₂₀) :
@@ -126,8 +130,9 @@ variable
 
 section
 
-variable (τ₀₁₂ : G₂₀ ⟶ G₂₁ ⋙ G₁₀) (τ₁₂₃ : G₃₁ ⟶ G₃₂ ⋙ G₂₁)
-  (τ₀₁₃ : G₃₀ ⟶ G₃₁ ⋙ G₁₀) (τ₀₂₃ : G₃₀ ⟶ G₃₂ ⋙ G₂₀)
+variable
+  (τ₀₁₂ : G₂₀ ⟶ G₂₁ ⋙ G₁₀) (τ₁₂₃ : G₃₁ ⟶ G₃₂ ⋙ G₂₁) (τ₀₁₃ : G₃₀ ⟶ G₃₁ ⋙ G₁₀)
+  (τ₀₂₃ : G₃₀ ⟶ G₃₂ ⋙ G₂₀)
 
 lemma leftAdjointCompNatTrans₀₁₃_eq_conjugateEquiv_symm :
     whiskerLeft _ (leftAdjointCompNatTrans adj₁₂ adj₂₃ adj₁₃ τ₁₂₃) ≫

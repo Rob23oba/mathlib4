@@ -70,11 +70,11 @@ section range
 
 variable (p : F' ⟶ F)
 
-/-- Given a morphism `p : F' ⟶ F` of type-valued functors, this is the morphism
-from `F'` to its range. -/
-def toRange :
-    F' ⟶ (range p).toFunctor :=
-  lift p (by rfl)
+/--
+Given a morphism `p : F' ⟶ F` of type-valued functors, this is the morphism
+from `F'` to its range.
+-/
+def toRange : F' ⟶ (range p).toFunctor := lift p (by rfl)
 
 @[reassoc (attr := simp)]
 lemma toRange_ι : toRange p ≫ (range p).ι = p := rfl
@@ -151,9 +151,10 @@ section preimage
 @[simps]
 def preimage (G : Subfunctor F) (p : F' ⟶ F) : Subfunctor F' where
   obj n := p.app n ⁻¹' (G.obj n)
-  map f := (Set.preimage_mono (G.map f)).trans (by
-    simp only [Set.preimage_preimage, NatTrans.naturality_apply]
-    rfl)
+  map f :=
+    (Set.preimage_mono (G.map f)).trans (by
+      simp only [Set.preimage_preimage, NatTrans.naturality_apply]
+      rfl)
 
 @[simp]
 lemma preimage_id (G : Subfunctor F) :
@@ -166,12 +167,12 @@ lemma image_le_iff (G : Subfunctor F) (f : F ⟶ F') (G' : Subfunctor F') :
     G.image f ≤ G' ↔ G ≤ G'.preimage f := by
   simp [Subfunctor.le_def]
 
-/-- Given a morphism `p : F' ⟶ F` of type-valued functors and `G : Subfunctor F`,
-this is the morphism from the preimage of `G` by `p` to `G`. -/
-def fromPreimage (G : Subfunctor F) (p : F' ⟶ F) :
-    (G.preimage p).toFunctor ⟶ G.toFunctor :=
-  lift ((G.preimage p).ι ≫ p) (by
-    rw [range_comp, range_ι, image_le_iff])
+/--
+Given a morphism `p : F' ⟶ F` of type-valued functors and `G : Subfunctor F`,
+this is the morphism from the preimage of `G` by `p` to `G`.
+-/
+def fromPreimage (G : Subfunctor F) (p : F' ⟶ F) : (G.preimage p).toFunctor ⟶ G.toFunctor :=
+  lift ((G.preimage p).ι ≫ p) (by rw [range_comp, range_ι, image_le_iff])
 
 @[reassoc]
 lemma fromPreimage_ι (G : Subfunctor F) (p : F' ⟶ F) :

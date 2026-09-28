@@ -46,9 +46,9 @@ derivative within `s` with respect to `𝕜` equals scalar restriction of the `n
 derivative within `s` with respect to `𝕜'`.
 -/
 theorem ContDiffWithinAt.restrictScalars_iteratedFDerivWithin_eventuallyEq
-    (h : ContDiffWithinAt 𝕜' n f s x) (hs : UniqueDiffOn 𝕜 s) (hx : x ∈ s) :
-    (restrictScalars 𝕜) ∘ (iteratedFDerivWithin 𝕜' n f s)
-      =ᶠ[𝓝[s] x] iteratedFDerivWithin 𝕜 n f s := by
+    (h : ContDiffWithinAt 𝕜' n f s x) (hs : UniqueDiffOn 𝕜 s) (hx : x ∈ s)
+    : (restrictScalars 𝕜) ∘ (iteratedFDerivWithin 𝕜' n f s)
+        =ᶠ[𝓝[s] x] iteratedFDerivWithin 𝕜 n f s := by
   induction n with
   | zero =>
     filter_upwards with a
@@ -64,8 +64,7 @@ theorem ContDiffWithinAt.restrictScalars_iteratedFDerivWithin_eventuallyEq
     rw [← Filter.EventuallyEq] at h₁a
     ext m
     simp only [Function.comp_apply, coe_restrictScalars, iteratedFDerivWithin_succ_apply_left]
-    rw [← (h₁a.fderivWithin' (by tauto)).eq_of_nhdsWithin h₄a,
-      fderivWithin_restrictScalars_comp]
+    rw [← (h₁a.fderivWithin' (by tauto)).eq_of_nhdsWithin h₄a, fderivWithin_restrictScalars_comp]
     · simp
     · apply h₃a.differentiableWithinAt_iteratedFDerivWithin
       · rw [Nat.cast_lt]
@@ -79,17 +78,17 @@ If `f` is `n` times continuously differentiable at `x`, then the `n`th iterated 
 with respect to `𝕜` equals scalar restriction of the `n`th iterated Fréchet derivative with respect
 to `𝕜'`.
 -/
-theorem ContDiffAt.restrictScalars_iteratedFDeriv_eventuallyEq (h : ContDiffAt 𝕜' n f x) :
-    (restrictScalars 𝕜) ∘ (iteratedFDeriv 𝕜' n f) =ᶠ[𝓝 x] iteratedFDeriv 𝕜 n f := by
+theorem ContDiffAt.restrictScalars_iteratedFDeriv_eventuallyEq (h : ContDiffAt 𝕜' n f x)
+    : (restrictScalars 𝕜) ∘ (iteratedFDeriv 𝕜' n f) =ᶠ[𝓝 x] iteratedFDeriv 𝕜 n f := by
   have h' : ContDiffWithinAt 𝕜' n f Set.univ x := h
   convert! (h'.restrictScalars_iteratedFDerivWithin_eventuallyEq _ trivial)
-  <;> simp [iteratedFDerivWithin_univ.symm, uniqueDiffOn_univ]
+    <;> simp [iteratedFDerivWithin_univ.symm, uniqueDiffOn_univ]
 
 /--
 If `f` is `n` times continuously differentiable at `x`, then the `n`th iterated Fréchet derivative
 with respect to `𝕜` equals scalar restriction of the `n`th iterated Fréchet derivative with respect
 to `𝕜'`.
 -/
-theorem ContDiffAt.restrictScalars_iteratedFDeriv (h : ContDiffAt 𝕜' n f x) :
-    ((restrictScalars 𝕜) ∘ iteratedFDeriv 𝕜' n f) x = iteratedFDeriv 𝕜 n f x :=
+theorem ContDiffAt.restrictScalars_iteratedFDeriv (h : ContDiffAt 𝕜' n f x)
+    : ((restrictScalars 𝕜) ∘ iteratedFDeriv 𝕜' n f) x = iteratedFDeriv 𝕜 n f x :=
   h.restrictScalars_iteratedFDeriv_eventuallyEq.eq_of_nhds

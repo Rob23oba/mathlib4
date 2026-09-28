@@ -31,11 +31,8 @@ section DecidableEq
 
 variable [DecidableEq α]
 
-/--
-The unique atom less than an element in an `OrderBot` with archimedean predecessor.
--/
-def findAtom (r : α) : α :=
-  Order.pred^[Nat.find (bot_le (a := r)).exists_pred_iterate - 1] r
+/-- The unique atom less than an element in an `OrderBot` with archimedean predecessor. -/
+def findAtom (r : α) : α := Order.pred^[Nat.find (bot_le (a := r)).exists_pred_iterate - 1] r
 
 @[simp]
 lemma findAtom_le (r : α) : findAtom r ≤ r :=
@@ -90,21 +87,22 @@ lemma isAtom_findAtom_iff {r : α} :
 end DecidableEq
 
 instance instIsAtomic : IsAtomic α where
-  eq_bot_or_exists_atom_le b := by classical
+  eq_bot_or_exists_atom_le b := by
+    classical
     rw [or_iff_not_imp_left]
     intro hb
     use findAtom b, isAtom_findAtom hb, findAtom_le b
 
 end IsPredArchimedean
 
-/--
-The type of rooted trees.
--/
+/-- The type of rooted trees. -/
 structure RootedTree where
   /-- The type representing the elements in the tree. -/
   α : Type*
-  /-- The type should be a `SemilatticeInf`,
-  where `inf` is the least common ancestor in the tree. -/
+  /--
+  The type should be a `SemilatticeInf`,
+  where `inf` is the least common ancestor in the tree.
+  -/
   [semilatticeInf : SemilatticeInf α]
   /-- The type should have a bottom, the root. -/
   [orderBot : OrderBot α]
@@ -117,22 +115,16 @@ attribute [coe] RootedTree.α
 
 instance : CoeSort RootedTree Type* := ⟨RootedTree.α⟩
 
-attribute [instance] RootedTree.semilatticeInf RootedTree.predOrder
-    RootedTree.orderBot RootedTree.isPredArchimedean
+attribute [instance]
+  RootedTree.semilatticeInf RootedTree.predOrder RootedTree.orderBot RootedTree.isPredArchimedean
 
-/--
-A subtree is represented by its root, therefore this is a type synonym.
--/
+/-- A subtree is represented by its root, therefore this is a type synonym. -/
 def SubRootedTree (t : RootedTree) : Type* := t
 
-/--
-The root of a `SubRootedTree`.
--/
+/-- The root of a `SubRootedTree`. -/
 def SubRootedTree.root {t : RootedTree} (v : SubRootedTree t) : t := v
 
-/--
-The `SubRootedTree` rooted at a given node.
--/
+/-- The `SubRootedTree` rooted at a given node. -/
 def RootedTree.subtree (t : RootedTree) (r : t) : SubRootedTree t := r
 
 @[simp]
@@ -147,15 +139,12 @@ lemma SubRootedTree.ext {t : RootedTree} {v₁ v₂ : SubRootedTree t}
 
 instance (t : RootedTree) : SetLike (SubRootedTree t) t where
   coe v := Set.Ici v.root
-  coe_injective a₁ a₂ h := by
-    simpa only [Set.Ici_inj, ← SubRootedTree.ext_iff] using h
+  coe_injective a₁ a₂ h := by simpa only [Set.Ici_inj, ← SubRootedTree.ext_iff] using h
 
 lemma SubRootedTree.mem_iff {t : RootedTree} {r : SubRootedTree t} {v : t} :
     v ∈ r ↔ r.root ≤ v := Iff.rfl
 
-/--
-The coercion from a `SubRootedTree` to a `RootedTree`.
--/
+/-- The coercion from a `SubRootedTree` to a `RootedTree`. -/
 @[coe, reducible]
 noncomputable def SubRootedTree.coeTree {t : RootedTree} (r : SubRootedTree t) : RootedTree where
   α := Set.Ici r.root
@@ -172,8 +161,7 @@ lemma SubRootedTree.bot_mem_iff {t : RootedTree} (r : SubRootedTree t) :
 All of the immediate subtrees of a given rooted tree, that is subtrees which are rooted at a direct
 child of the root (or, order-theoretically, at an atom).
 -/
-def RootedTree.subtrees (t : RootedTree) : Set (SubRootedTree t) :=
-  {x | IsAtom x.root}
+def RootedTree.subtrees (t : RootedTree) : Set (SubRootedTree t) := {x | IsAtom x.root}
 
 variable {t : RootedTree}
 
@@ -214,9 +202,7 @@ lemma RootedTree.subtrees_disjoint : t.subtrees.PairwiseDisjoint ((↑) : _ → 
   simp only [SetLike.mem_coe, SubRootedTree.bot_mem_iff] at ha
   exact t₁.root_ne_bot_of_mem_subtrees ht₁ ha
 
-/--
-The immediate subtree of `t` containing `v`, or all of `t` if `v` is the root.
--/
+/-- The immediate subtree of `t` containing `v`, or all of `t` if `v` is the root. -/
 def RootedTree.subtreeOf (t : RootedTree) [DecidableEq t] (v : t) : SubRootedTree t :=
   t.subtree (IsPredArchimedean.findAtom v)
 

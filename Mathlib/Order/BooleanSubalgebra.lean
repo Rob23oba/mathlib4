@@ -20,16 +20,19 @@ open Function Set
 variable {ι : Sort*} {α β γ : Type*}
 
 variable (α) in
-/-- A Boolean subalgebra of a Boolean algebra is a set containing the bottom and top elements, and
-closed under suprema, infima and complements. -/
+/--
+A Boolean subalgebra of a Boolean algebra is a set containing the bottom and top elements, and
+closed under suprema, infima and complements.
+-/
 structure BooleanSubalgebra [BooleanAlgebra α] extends Sublattice α where
   compl_mem' {a} : a ∈ carrier → aᶜ ∈ carrier
   bot_mem' : ⊥ ∈ carrier
 
 namespace BooleanSubalgebra
 section BooleanAlgebra
-variable [BooleanAlgebra α] [BooleanAlgebra β] [BooleanAlgebra γ] {L M : BooleanSubalgebra α}
-  {f : BoundedLatticeHom α β} {s t : Set α} {a b : α}
+variable
+  [BooleanAlgebra α] [BooleanAlgebra β] [BooleanAlgebra γ]
+  {L M : BooleanSubalgebra α} {f : BoundedLatticeHom α β} {s t : Set α} {a b : α}
 
 initialize_simps_projections BooleanSubalgebra (carrier → coe, as_prefix coe)
 
@@ -64,8 +67,10 @@ lemma mem_carrier : a ∈ L.carrier ↔ a ∈ L := .rfl
 @[simp] lemma mk_lt_mk {L M : Sublattice α} (hL_compl hL_bot hM_compl hM_bot) :
     mk L hL_compl hL_bot < mk M hM_compl hM_bot ↔ L < M := .rfl
 
-/-- Copy of a Boolean subalgebra with a new `carrier` equal to the old one. Useful to fix
-definitional equalities. -/
+/--
+Copy of a Boolean subalgebra with a new `carrier` equal to the old one. Useful to fix
+definitional equalities.
+-/
 protected def copy (L : BooleanSubalgebra α) (s : Set α) (hs : s = L) : BooleanSubalgebra α where
   toSublattice := L.toSublattice.copy s <| by subst hs; rfl
   compl_mem' := by subst hs; exact L.compl_mem'
@@ -81,25 +86,32 @@ lemma copy_eq (L : BooleanSubalgebra α) (s : Set α) (hs) : L.copy s hs = L :=
 lemma ext : (∀ a, a ∈ L ↔ a ∈ M) → L = M := SetLike.ext
 
 /-- A Boolean subalgebra of a lattice inherits a bottom element. -/
-instance instBotCoe : Bot L where bot := ⟨⊥, bot_mem⟩
+instance instBotCoe : Bot L where
+  bot := ⟨⊥, bot_mem⟩
 
 /-- A Boolean subalgebra of a lattice inherits a top element. -/
-instance instTopCoe : Top L where top := ⟨⊤, top_mem⟩
+instance instTopCoe : Top L where
+  top := ⟨⊤, top_mem⟩
 
 /-- A Boolean subalgebra of a lattice inherits a supremum. -/
-instance instSupCoe : Max L where max a b := ⟨a ⊔ b, L.supClosed a.2 b.2⟩
+instance instSupCoe : Max L where
+  max a b := ⟨a ⊔ b, L.supClosed a.2 b.2⟩
 
 /-- A Boolean subalgebra of a lattice inherits an infimum. -/
-instance instInfCoe : Min L where min a b := ⟨a ⊓ b, L.infClosed a.2 b.2⟩
+instance instInfCoe : Min L where
+  min a b := ⟨a ⊓ b, L.infClosed a.2 b.2⟩
 
 /-- A Boolean subalgebra of a lattice inherits a complement. -/
-instance instComplCoe : Compl L where compl a := ⟨aᶜ, compl_mem a.2⟩
+instance instComplCoe : Compl L where
+  compl a := ⟨aᶜ, compl_mem a.2⟩
 
 /-- A Boolean subalgebra of a lattice inherits a difference. -/
-instance instSDiffCoe : SDiff L where sdiff a b := ⟨a \ b, sdiff_mem a.2 b.2⟩
+instance instSDiffCoe : SDiff L where
+  sdiff a b := ⟨a \ b, sdiff_mem a.2 b.2⟩
 
 /-- A Boolean subalgebra of a lattice inherits a Heyting implication. -/
-instance instHImpCoe : HImp L where himp a b := ⟨a ⇨ b, himp_mem a.2 b.2⟩
+instance instHImpCoe : HImp L where
+  himp a b := ⟨a ⇨ b, himp_mem a.2 b.2⟩
 
 @[simp, norm_cast] lemma val_bot : (⊥ : L) = (⊥ : α) := rfl
 @[simp, norm_cast] lemma val_top : (⊤ : L) = (⊤ : α) := rfl
@@ -121,8 +133,7 @@ instance instHImpCoe : HImp L where himp a b := ⟨a ⇨ b, himp_mem a.2 b.2⟩
 @[simp] lemma mk_himp_mk (a b : α) (ha hb) : (⟨a, ha⟩ ⇨ ⟨b, hb⟩ : L) = ⟨a ⇨ b, himp_mem ha hb⟩ :=
   rfl
 
-instance (L : BooleanSubalgebra α) : PartialOrder L :=
-  PartialOrder.lift _ Subtype.coe_injective
+instance (L : BooleanSubalgebra α) : PartialOrder L := PartialOrder.lift _ Subtype.coe_injective
 
 /-- A Boolean subalgebra of a lattice inherits a Boolean algebra structure. -/
 instance instBooleanAlgebraCoe (L : BooleanSubalgebra α) : BooleanAlgebra L :=
@@ -176,27 +187,35 @@ instance instBot : Bot (BooleanSubalgebra α) where
 
 /-- The inf of two Boolean subalgebras is their intersection. -/
 instance instInf : Min (BooleanSubalgebra α) where
-  min L M := { carrier := L ∩ M
-               bot_mem' := ⟨bot_mem, bot_mem⟩
-               compl_mem' := fun ha ↦ ⟨compl_mem ha.1, compl_mem ha.2⟩
-               supClosed' := L.supClosed.inter M.supClosed
-               infClosed' := L.infClosed.inter M.infClosed }
+  min L M := {
+    carrier := L ∩ M
+    bot_mem' := ⟨bot_mem, bot_mem⟩
+    compl_mem' := fun ha ↦ ⟨compl_mem ha.1, compl_mem ha.2⟩
+    supClosed' := L.supClosed.inter M.supClosed
+    infClosed' := L.infClosed.inter M.infClosed
+  }
 
 /-- The inf of Boolean subalgebras is their intersection. -/
 instance instInfSet : InfSet (BooleanSubalgebra α) where
-  sInf S := { carrier := ⋂ L ∈ S, L
-              bot_mem' := mem_iInter₂.2 fun _ _ ↦ bot_mem
-              compl_mem' := fun ha ↦ mem_iInter₂.2 fun L hL ↦ compl_mem <| mem_iInter₂.1 ha L hL
-              supClosed' := supClosed_sInter <| forall_mem_range.2 fun L ↦ supClosed_sInter <|
-                forall_mem_range.2 fun _ ↦ L.supClosed
-              infClosed' := infClosed_sInter <| forall_mem_range.2 fun L ↦ infClosed_sInter <|
-                forall_mem_range.2 fun _ ↦ L.infClosed }
+  sInf S := {
+    carrier := ⋂ L ∈ S, L
+    bot_mem' := mem_iInter₂.2 fun _ _ ↦ bot_mem
+    compl_mem' := fun ha ↦ mem_iInter₂.2 fun L hL ↦ compl_mem <| mem_iInter₂.1 ha L hL
+    supClosed' :=
+      supClosed_sInter <|
+        forall_mem_range.2 fun L ↦ supClosed_sInter <| forall_mem_range.2 fun _ ↦ L.supClosed
+    infClosed' :=
+      infClosed_sInter <|
+        forall_mem_range.2 fun L ↦ infClosed_sInter <| forall_mem_range.2 fun _ ↦ L.infClosed
+  }
 
 instance instInhabited : Inhabited (BooleanSubalgebra α) := ⟨⊥⟩
 
-/-- The top Boolean subalgebra is isomorphic to the original Boolean algebra.
+/--
+The top Boolean subalgebra is isomorphic to the original Boolean algebra.
 
-This is the Boolean subalgebra version of `Equiv.Set.univ α`. -/
+This is the Boolean subalgebra version of `Equiv.Set.univ α`.
+-/
 def topEquiv : (⊤ : BooleanSubalgebra α) ≃o α where
   toEquiv := Equiv.Set.univ _
   map_rel_iff' := .rfl
@@ -231,8 +250,9 @@ instance instCompleteLattice : CompleteLattice (BooleanSubalgebra α) where
   le_inf _L _M _N hM hN _a ha := ⟨hM ha, hN ha⟩
   inf_le_left _L _M _a := And.left
   inf_le_right _L _M _a := And.right
-  __ := completeLatticeOfInf (BooleanSubalgebra α)
-      fun _s ↦ IsGLB.of_image SetLike.coe_subset_coe isGLB_biInf
+  __ :=
+    completeLatticeOfInf (BooleanSubalgebra α) fun _s ↦
+      IsGLB.of_image SetLike.coe_subset_coe isGLB_biInf
 
 instance [IsEmpty α] : Subsingleton (BooleanSubalgebra α) := SetLike.coe_injective.subsingleton
 instance [IsEmpty α] : Unique (BooleanSubalgebra α) := uniqueOfSubsingleton ⊤
@@ -396,13 +416,17 @@ section sdiff_sup
 variable (isSublattice : IsSublattice s) (bot_mem : ⊥ ∈ s) (top_mem : ⊤ ∈ s)
 include isSublattice bot_mem top_mem
 
-theorem mem_closure_iff_sup_sdiff {a : α} :
-    a ∈ closure s ↔ ∃ t : Finset (s × s), a = t.sup fun x ↦ x.1.1 \ x.2.1 := by
+theorem mem_closure_iff_sup_sdiff {a : α}
+    : a ∈ closure s ↔ ∃ t : Finset (s × s), a = t.sup fun x ↦ x.1.1 \ x.2.1 := by
   classical
-  refine ⟨closure_bot_sup_induction
-    (fun x h ↦ ⟨{(⟨x, h⟩, ⟨⊥, bot_mem⟩)}, by simp⟩) ⟨∅, by simp⟩ ?_ ?_, ?_⟩
+  refine ⟨
+    closure_bot_sup_induction (fun x h ↦ ⟨{(⟨x, h⟩, ⟨⊥, bot_mem⟩)}, by simp⟩) ⟨∅, by simp⟩ ?_ ?_,
+    ?_
+  ⟩
   · rintro ⟨t, rfl⟩
-    exact t.sup_mem _ (subset_closure bot_mem) (fun _ h _ ↦ sup_mem h) _
+    exact t.sup_mem _ (subset_closure bot_mem)
+      (fun _ h _ ↦ sup_mem h)
+      _
       fun x hx ↦ sdiff_mem (subset_closure x.1.2) (subset_closure x.2.2)
   · rintro _ - _ - ⟨t₁, rfl⟩ ⟨t₂, rfl⟩
     exact ⟨t₁ ∪ t₂, by rw [Finset.sup_union]⟩
@@ -415,10 +439,13 @@ theorem mem_closure_iff_sup_sdiff {a : α} :
   simp_rw [Finset.sup_union, Finset.sup_insert, Finset.sup_singleton, _root_.sdiff_eq,
     compl_sup, inf_left_comm z.1, compl_inf, compl_compl, inf_sup_right, inf_assoc]
 
-@[elab_as_elim] theorem closure_sdiff_sup_induction {p : ∀ g ∈ closure s, Prop}
+@[elab_as_elim]
+theorem closure_sdiff_sup_induction
+    {p : ∀ g ∈ closure s, Prop}
     (sdiff : ∀ x hx y hy, p (x \ y) (sdiff_mem (subset_closure hx) (subset_closure hy)))
     (sup : ∀ x hx y hy, p x hx → p y hy → p (x ⊔ y) (sup_mem hx hy))
-    (x) (hx : x ∈ closure s) : p x hx := by
+    (x) (hx : x ∈ closure s)
+    : p x hx := by
   obtain ⟨t, rfl⟩ := (mem_closure_iff_sup_sdiff isSublattice bot_mem top_mem).mp hx
   revert hx
   classical

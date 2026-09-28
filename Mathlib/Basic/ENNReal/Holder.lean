@@ -27,7 +27,8 @@ public section
 
 namespace ENNReal
 
-/-- A class stating that `p q r : ℝ≥0∞` satisfy `p⁻¹ + q⁻¹ = r⁻¹`.
+/--
+A class stating that `p q r : ℝ≥0∞` satisfy `p⁻¹ + q⁻¹ = r⁻¹`.
 This is exactly the condition for which **Hölder's inequality** is valid
 (see `MeasureTheory.MemLp.smul`).
 
@@ -37,7 +38,8 @@ This class exists so that we can define a heterogeneous scalar multiplication
 on `MeasureTheory.Lp`, and this is why `r` must be marked as a
 `semiOutParam`. We don't mark it as an `outParam` because this would
 prevent Lean from using `HolderTriple p q r` and `HolderTriple p q r'`
-within a single proof, as may be occasionally convenient. -/
+within a single proof, as may be occasionally convenient.
+-/
 @[mk_iff]
 class HolderTriple (p q : ℝ≥0∞) (r : semiOutParam ℝ≥0∞) : Prop where
   inv_add_inv_eq_inv (p q r) : p⁻¹ + q⁻¹ = r⁻¹
@@ -57,8 +59,10 @@ and a more canonical value of `r` can be used. -/
 lemma of (p q : ℝ≥0∞) : HolderTriple p q (p⁻¹ + q⁻¹)⁻¹ where
   inv_add_inv_eq_inv := inv_inv _ |>.symm
 
-/- This instance causes a trivial loop, but this is exactly the kind of loop that
-Lean should be able to detect and avoid. -/
+/-
+This instance causes a trivial loop, but this is exactly the kind of loop that
+Lean should be able to detect and avoid.
+-/
 instance symm {p q r : ℝ≥0∞} [hpqr : HolderTriple p q r] : HolderTriple q p r where
   inv_add_inv_eq_inv := add_comm p⁻¹ q⁻¹ ▸ hpqr.inv_add_inv_eq_inv
 
@@ -125,10 +129,11 @@ end HolderTriple
 
 namespace HolderConjugate
 
-/- This instance causes a trivial loop, but this is exactly the kind of loop that
-Lean should be able to detect and avoid. -/
-instance symm {p q : ℝ≥0∞} [hpq : HolderConjugate p q] : HolderConjugate q p :=
-  inferInstance
+/-
+This instance causes a trivial loop, but this is exactly the kind of loop that
+Lean should be able to detect and avoid.
+-/
+instance symm {p q : ℝ≥0∞} [hpq : HolderConjugate p q] : HolderConjugate q p := inferInstance
 
 instance instTwoTwo : HolderConjugate 2 2 where
   inv_add_inv_eq_inv := by

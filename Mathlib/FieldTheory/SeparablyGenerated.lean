@@ -41,40 +41,44 @@ open MvPolynomial
 open scoped IntermediateField
 
 variable {k K ι : Type*} [Field k] [Field K] [Algebra k K] (p : ℕ) (hp : p.Prime)
-variable (H : ∀ s : Finset K,
-  LinearIndepOn k _root_.id (s : Set K) → LinearIndepOn k (· ^ p) (s : Set K))
+variable
+  (H : ∀ s : Finset K, LinearIndepOn k _root_.id (s : Set K) → LinearIndepOn k (· ^ p) (s : Set K))
 variable {a : ι → K} (n : ι)
 
 namespace MvPolynomial
 
-/-- View a multivariate polynomial `F(x₁,...,xₙ)` as a polynomial in `xᵢ` with coefficients
-in `F(x₁,...,xᵢ₋₁,xᵢ₊₁,...,xₙ)`. -/
-def toPolynomialAdjoinImageCompl (F : MvPolynomial ι k) (a : ι → K) (i : ι) :
-    Polynomial (Algebra.adjoin k (a '' {i}ᶜ)) :=
+/--
+View a multivariate polynomial `F(x₁,...,xₙ)` as a polynomial in `xᵢ` with coefficients
+in `F(x₁,...,xᵢ₋₁,xᵢ₊₁,...,xₙ)`.
+-/
+def toPolynomialAdjoinImageCompl (F : MvPolynomial ι k) (a : ι → K) (i : ι)
+    : Polynomial (Algebra.adjoin k (a '' {i}ᶜ)) :=
   letI := Classical.typeDecidableEq ι
   (optionEquivLeft k _ (renameEquiv k (Equiv.optionSubtypeNe i).symm F)).mapAlgHom
     (aeval fun j : {j // j ≠ i} ↦
       (⟨a j, Algebra.subset_adjoin ⟨j, j.2, rfl⟩⟩ : Algebra.adjoin k (a '' {i}ᶜ)))
 
 theorem aeval_toPolynomialAdjoinImageCompl_eq_zero
-    {a : ι → K} {F : MvPolynomial ι k} (hFa : F.aeval a = 0) (i : ι) :
-    (toPolynomialAdjoinImageCompl F a i).aeval (a i) = 0 := by
+    {a : ι → K} {F : MvPolynomial ι k} (hFa : F.aeval a = 0) (i : ι)
+    : (toPolynomialAdjoinImageCompl F a i).aeval (a i) = 0 := by
   rw [← hFa, ← AlgHom.restrictScalars_apply k]
   simp_rw [toPolynomialAdjoinImageCompl, ← AlgEquiv.coe_toAlgHom, ← AlgHom.comp_apply]
-  congr; ext; aesop (add simp optionEquivLeft_X_some) (add simp optionEquivLeft_X_none)
+  congr
+  ext
+  aesop (add simp optionEquivLeft_X_some) (add simp optionEquivLeft_X_none)
 
-theorem irreducible_toPolynomialAdjoinImageCompl {F : MvPolynomial ι k} (hF : Irreducible F) (i : ι)
-    (H : AlgebraicIndependent k fun x : {j | j ≠ i} ↦ a x) :
-    Irreducible (toPolynomialAdjoinImageCompl F a i) := by
+theorem irreducible_toPolynomialAdjoinImageCompl
+    {F : MvPolynomial ι k} (hF : Irreducible F)
+    (i : ι) (H : AlgebraicIndependent k fun x : {j | j ≠ i} ↦ a x)
+    : Irreducible (toPolynomialAdjoinImageCompl F a i) := by
   classical
   unfold toPolynomialAdjoinImageCompl
   have hc : a '' {i}ᶜ = Set.range (fun x : {j | j ≠ i} ↦ a x) := by ext; simp
   let d : {j // j ≠ i} ≃ {j | j ≠ i} := .subtypeEquivRight (by simp)
-  refine (congrArg Irreducible ?_).mp <|
-    hF.map (renameEquiv k ((Equiv.optionSubtypeNe i).symm)) |>.map
-      (optionEquivLeft k _) |>.map (Polynomial.mapAlgEquiv <|
-        (renameEquiv k d).trans <| H.aevalEquiv.trans
-        (Subalgebra.equivOfEq _ _ congr(Algebra.adjoin k $hc.symm)))
+  refine (congrArg Irreducible ?_).mp <| hF.map (renameEquiv k ((Equiv.optionSubtypeNe i).symm))
+    |>.map (optionEquivLeft k _)
+    |>.map (Polynomial.mapAlgEquiv <| (renameEquiv k d).trans <|
+      H.aevalEquiv.trans (Subalgebra.equivOfEq _ _ congr(Algebra.adjoin k $hc.symm)))
   rw [Polynomial.coe_mapAlgEquiv, Polynomial.coe_mapAlgHom]
   congrm Polynomial.map ?_ _
   ext <;> simp [d]
@@ -99,8 +103,8 @@ lemma irreducible_of_forall_totalDegree_le (hF0 : F ≠ 0) (hFa : F.aeval a = 0)
   simpa using ne.2
 
 theorem coeff_toPolynomialAdjoinImageCompl_ne_zero
-    (σ : ι →₀ ℕ) (hσ : σ ∈ F.support) (i : ι) (hσi : σ i ≠ 0) :
-    (toPolynomialAdjoinImageCompl F a i).coeff (σ i) ≠ 0 := by
+    (σ : ι →₀ ℕ) (hσ : σ ∈ F.support) (i : ι) (hσi : σ i ≠ 0)
+    : (toPolynomialAdjoinImageCompl F a i).coeff (σ i) ≠ 0 := by
   classical
   intro H
   let F₀ := optionEquivLeft k _ (renameEquiv k (Equiv.optionSubtypeNe i).symm F)
@@ -116,29 +120,38 @@ theorem coeff_toPolynomialAdjoinImageCompl_ne_zero
     have : (F₀.coeff _).coeff _ = _ :=
       optionEquivLeft_coeff_some_coeff_none _ _ (σ.equivMapDomain e) (renameEquiv k e F)
     dsimp only [F₀] at this
-    rw [renameEquiv_apply, Finsupp.equivMapDomain_eq_mapDomain, coeff_rename_mapDomain _
-      e.injective, Finsupp.mapDomain_equiv_apply, Equiv.symm_symm, Equiv.optionSubtypeNe_none,
-      ← renameEquiv_apply, H, AddMonoidAlgebra.coeff_zero, Finsupp.zero_apply, eq_comm,
-      ← notMem_support_iff] at this
+    rw [
+        renameEquiv_apply, Finsupp.equivMapDomain_eq_mapDomain,
+        coeff_rename_mapDomain _ e.injective, Finsupp.mapDomain_equiv_apply, Equiv.symm_symm,
+        Equiv.optionSubtypeNe_none, ← renameEquiv_apply, H, AddMonoidAlgebra.coeff_zero,
+        Finsupp.zero_apply, eq_comm, ← notMem_support_iff
+      ]
+      at this
     exact this hσ
   · apply_fun Subalgebra.val _ at H
     simp_rw [toPolynomialAdjoinImageCompl, Polynomial.coe_mapAlgHom, Polynomial.coeff_map,
       AlgHom.coe_toRingHom, map_zero] at H
     simp_rw [← H, ← AlgHom.comp_apply]
-    congr; ext; simp
+    congr
+    ext
+    simp
 
-theorem isAlgebraic_of_mem_vars_of_forall_totalDegree_le (hFa : F.aeval a = 0) (i : ι)
-    (hi : i ∈ F.vars) : IsAlgebraic (Algebra.adjoin k (a '' {i}ᶜ)) (a i) := by
+theorem isAlgebraic_of_mem_vars_of_forall_totalDegree_le
+    (hFa : F.aeval a = 0) (i : ι) (hi : i ∈ F.vars)
+    : IsAlgebraic (Algebra.adjoin k (a '' {i}ᶜ)) (a i) := by
   have ⟨σ, hσ, hσi⟩ := (mem_vars_iff_mem_support i).mp hi
-  refine ⟨toPolynomialAdjoinImageCompl F a i,
-    fun h ↦ coeff_toPolynomialAdjoinImageCompl_ne_zero HF σ hσ i
-      (Finsupp.mem_support_iff.mp hσi) ?_, aeval_toPolynomialAdjoinImageCompl_eq_zero hFa ..⟩
+  refine ⟨
+    toPolynomialAdjoinImageCompl F a i,
+    fun h ↦
+      coeff_toPolynomialAdjoinImageCompl_ne_zero HF σ hσ i (Finsupp.mem_support_iff.mp hσi) ?_,
+    aeval_toPolynomialAdjoinImageCompl_eq_zero hFa ..
+  ⟩
   rw [h, Polynomial.coeff_zero]
 
 set_option backward.defeqAttrib.useBackward true in
 include hp H in
-theorem exists_mem_support_not_dvd_of_forall_totalDegree_le (hF0 : F ≠ 0) (hFa : F.aeval a = 0) :
-    ∃ i, ∃ σ ∈ F.support, ¬ p ∣ σ i := by
+theorem exists_mem_support_not_dvd_of_forall_totalDegree_le (hF0 : F ≠ 0) (hFa : F.aeval a = 0)
+    : ∃ i, ∃ σ ∈ F.support, ¬ p ∣ σ i := by
   by_contra!
   have (σ) (hσ : σ ∈ F.support) : ∃ σ', σ = p • σ' := by
     choose σ' hσ' using (this · σ hσ)
@@ -146,27 +159,34 @@ theorem exists_mem_support_not_dvd_of_forall_totalDegree_le (hF0 : F ≠ 0) (hFa
   choose! σ' hσ' using this
   have hσ'' (σ : F.support) : σ.1 = p • σ' σ := hσ' σ.1 σ.2
   classical
-  replace H (ι : Type u_3) (_ : Fintype ι) (v : ι → K) (hv : LinearIndependent k v) :
-      LinearIndependent k (v · ^ p) := by
-    simpa only [Finset.coe_image, Finset.coe_univ, Set.image_univ, linearIndepOn_range_iff
-      hv.injective] using! H (Finset.univ.image v) (by simpa using! hv.linearIndepOn_id)
-  have := mt (H F.support inferInstance (fun s ↦ aeval a (monomial (σ' s) (1 : k)))) (by
-    simp_rw [← map_pow, monomial_pow, ← hσ'', one_pow, not_linearIndependent_iff]
-    refine ⟨.univ, (F.coeff ·), ?_, by simpa [MvPolynomial.eq_zero_iff] using! hF0⟩
-    simp only [← map_smul, ← map_sum, Finset.univ_eq_attach, smul_eq_mul, mul_one]
-    rw [F.support.sum_attach (fun i ↦ monomial i (F.coeff i)), support_sum_monomial_coeff, hFa])
+  replace H (ι : Type u_3) (_ : Fintype ι) (v : ι → K) (hv : LinearIndependent k v)
+      : LinearIndependent k (v · ^ p) := by
+    simpa only [
+        Finset.coe_image, Finset.coe_univ, Set.image_univ, linearIndepOn_range_iff hv.injective
+      ]
+      using! H (Finset.univ.image v) (by simpa using! hv.linearIndepOn_id)
+  have :=
+    mt (H F.support inferInstance (fun s ↦ aeval a (monomial (σ' s) (1 : k)))) (by
+      simp_rw [← map_pow, monomial_pow, ← hσ'', one_pow, not_linearIndependent_iff]
+      refine ⟨.univ, (F.coeff ·), ?_, by simpa [MvPolynomial.eq_zero_iff] using! hF0⟩
+      simp only [← map_smul, ← map_sum, Finset.univ_eq_attach, smul_eq_mul, mul_one]
+      rw [F.support.sum_attach (fun i ↦ monomial i (F.coeff i)), support_sum_monomial_coeff, hFa])
   simp only [LinearIndependent, injective_iff_map_eq_zero, not_forall] at this
   obtain ⟨F', hF', hF'0⟩ := this
   let F'' : MvPolynomial ι k := .ofCoeff <| F'.mapDomain fun s ↦ σ' s.1
-  have hF''0 : F'' ≠ 0 := ne_of_ne_of_eq (AddMonoidAlgebra.ofCoeff_eq_zero.ne.2 <|
-    (Finsupp.mapDomain_injective fun s t h ↦ Subtype.ext
-    (Finsupp.ext fun i ↦ by rw [hσ' _ s.2, hσ' _ t.2, h])).ne hF'0) (by simp)
+  have hF''0 : F'' ≠ 0 :=
+    ne_of_ne_of_eq
+      (AddMonoidAlgebra.ofCoeff_eq_zero.ne.2 <| (Finsupp.mapDomain_injective fun s t h ↦
+          Subtype.ext (Finsupp.ext fun i ↦ by rw [hσ' _ s.2, hσ' _ t.2, h])).ne
+        hF'0)
+      (by simp)
   have hF'' : aeval a F'' = 0 := by
-    have : (aeval a).toLinearMap ∘ₗ (AddMonoidAlgebra.coeffLinearEquiv _).symm.toLinearMap ∘ₗ
-      Finsupp.lmapDomain k k (fun s : F.support ↦ σ' s) =
-        (Finsupp.linearCombination k fun s : F.support ↦ aeval a (monomial (σ' s) (1 : k))) := by
+    have : (aeval a).toLinearMap ∘ₗ (AddMonoidAlgebra.coeffLinearEquiv _).symm.toLinearMap
+          ∘ₗ Finsupp.lmapDomain k k (fun s : F.support ↦ σ' s)
+        = (Finsupp.linearCombination k fun s : F.support ↦ aeval a (monomial (σ' s) (1 : k))) := by
       ext v; simp [monomial]
-    simp only [← hF', F'', ← this]; rfl
+    simp only [← hF', F'', ← this]
+    rfl
   suffices hpm : p * F''.totalDegree ≤ F.totalDegree by
     have hF''0' : F''.totalDegree ≠ 0 := by
       contrapose hF''0

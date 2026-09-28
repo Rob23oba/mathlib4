@@ -60,11 +60,11 @@ open scoped Topology ENNReal NNReal
 
 namespace Measure
 
-variable {ι κ Z T : Type*} {X : ι → Type*} {Y : κ → Type*}
-  {mX : ∀ i, MeasurableSpace (X i)} [∀ i, TopologicalSpace (X i)] [∀ i, BorelSpace (X i)]
-  [∀ i, HasOuterApproxClosed (X i)]
-  {mY : ∀ j, MeasurableSpace (Y j)} [∀ j, TopologicalSpace (Y j)] [∀ j, BorelSpace (Y j)]
-  [∀ j, HasOuterApproxClosed (Y j)]
+variable
+  {ι κ Z T : Type*} {X : ι → Type*} {Y : κ → Type*} {mX : ∀ i, MeasurableSpace (X i)}
+  [∀ i, TopologicalSpace (X i)] [∀ i, BorelSpace (X i)] [∀ i, HasOuterApproxClosed (X i)]
+  {mY : ∀ j, MeasurableSpace (Y j)}
+  [∀ j, TopologicalSpace (Y j)] [∀ j, BorelSpace (Y j)] [∀ j, HasOuterApproxClosed (Y j)]
   {mZ : MeasurableSpace Z} [TopologicalSpace Z] [BorelSpace Z] [HasOuterApproxClosed Z]
   {mT : MeasurableSpace T} [TopologicalSpace T] [BorelSpace T] [HasOuterApproxClosed T]
 

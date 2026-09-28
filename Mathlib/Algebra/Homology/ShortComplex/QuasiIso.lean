@@ -24,12 +24,14 @@ open Category Limits
 
 namespace ShortComplex
 
-variable {C : Type _} [Category* C] [HasZeroMorphisms C]
-  {S₁ S₂ S₃ S₄ : ShortComplex C}
-  [S₁.HasHomology] [S₂.HasHomology] [S₃.HasHomology] [S₄.HasHomology]
+variable
+  {C : Type _} [Category* C] [HasZeroMorphisms C]
+  {S₁ S₂ S₃ S₄ : ShortComplex C} [S₁.HasHomology] [S₂.HasHomology] [S₃.HasHomology] [S₄.HasHomology]
 
-/-- A morphism `φ : S₁ ⟶ S₂` of short complexes that have homology is a quasi-isomorphism if
-the induced map `homologyMap φ : S₁.homology ⟶ S₂.homology` is an isomorphism. -/
+/--
+A morphism `φ : S₁ ⟶ S₂` of short complexes that have homology is a quasi-isomorphism if
+the induced map `homologyMap φ : S₁.homology ⟶ S₂.homology` is an isomorphism.
+-/
 class QuasiIso (φ : S₁ ⟶ S₂) : Prop where
   /-- the homology map is an isomorphism -/
   isIso' : IsIso (homologyMap φ)
@@ -47,8 +49,8 @@ lemma quasiIso_iff (φ : S₁ ⟶ S₂) :
 instance quasiIso_of_isIso (φ : S₁ ⟶ S₂) [IsIso φ] : QuasiIso φ :=
   ⟨(homologyMapIso (asIso φ)).isIso_hom⟩
 
-instance quasiIso_comp (φ : S₁ ⟶ S₂) (φ' : S₂ ⟶ S₃) [hφ : QuasiIso φ] [hφ' : QuasiIso φ'] :
-    QuasiIso (φ ≫ φ') := by
+instance quasiIso_comp (φ : S₁ ⟶ S₂) (φ' : S₂ ⟶ S₃) [hφ : QuasiIso φ] [hφ' : QuasiIso φ']
+    : QuasiIso (φ ≫ φ') := by
   rw [quasiIso_iff] at hφ hφ' ⊢
   rw [homologyMap_comp]
   infer_instance

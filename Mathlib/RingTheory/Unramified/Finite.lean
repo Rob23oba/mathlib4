@@ -48,16 +48,19 @@ A finite-type `R`-algebra `S` is (formally) unramified iff there exists a `t : S
 1. `t` annihilates every `1 ⊗ s - s ⊗ 1`.
 2. the image of `t` is `1` under the map `S ⊗[R] S → S`.
 -/
-theorem iff_exists_tensorProduct [EssFiniteType R S] :
-    FormallyUnramified R S ↔ ∃ t : S ⊗[R] S,
-      (∀ s, ((1 : S) ⊗ₜ[R] s - s ⊗ₜ[R] (1 : S)) * t = 0) ∧ TensorProduct.lmul' R t = 1 := by
-  rw [formallyUnramified_iff, KaehlerDifferential,
-    Ideal.cotangent_subsingleton_iff, Ideal.isIdempotentElem_iff_of_fg _
-      (KaehlerDifferential.ideal_fg R S)]
+theorem iff_exists_tensorProduct [EssFiniteType R S]
+    : FormallyUnramified R S
+      ↔ ∃ t : S ⊗[R] S,
+        (∀ s, ((1 : S) ⊗ₜ[R] s - s ⊗ₜ[R] (1 : S)) * t = 0) ∧ TensorProduct.lmul' R t = 1 := by
+  rw [
+    formallyUnramified_iff, KaehlerDifferential, Ideal.cotangent_subsingleton_iff,
+    Ideal.isIdempotentElem_iff_of_fg _ (KaehlerDifferential.ideal_fg R S)
+  ]
   have : ∀ t : S ⊗[R] S, TensorProduct.lmul' R t = 1 ↔ 1 - t ∈ KaehlerDifferential.ideal R S := by
     intro t
-    simp only [KaehlerDifferential.ideal, RingHom.mem_ker, map_sub, map_one,
-      sub_eq_zero, @eq_comm S 1]
+    simp only [
+      KaehlerDifferential.ideal, RingHom.mem_ker, map_sub, map_one, sub_eq_zero, @eq_comm S 1
+    ]
   simp_rw [this, ← KaehlerDifferential.span_range_eq_ideal]
   constructor
   · rintro ⟨e, he₁, he₂ : _ = Ideal.span _⟩
@@ -70,15 +73,25 @@ theorem iff_exists_tensorProduct [EssFiniteType R S] :
     · rw [sub_sub_cancel, he₂, Ideal.mem_span_singleton]
   · rintro ⟨t, ht₁, ht₂⟩
     use 1 - t
-    rw [← sub_sub_self 1 t] at ht₁; generalize 1 - t = e at *
+    rw [← sub_sub_self 1 t] at ht₁
+    generalize 1 - t = e at *
     constructor
     · suffices e ∈ (Submodule.span (S ⊗[R] S) {1 - e}).annihilator by
-        simpa [IsIdempotentElem, mul_sub, sub_eq_zero, eq_comm,
-          Submodule.mem_annihilator_span_singleton] using this
-      exact (show Ideal.span _ ≤ _ by simpa only [Ideal.span_le, Set.range_subset_iff,
-        Submodule.mem_annihilator_span_singleton, SetLike.mem_coe]) ht₂
-    · apply le_antisymm <;> simp only [Ideal.submodule_span_eq, Ideal.mem_span_singleton, ht₂,
-        Ideal.span_le, Set.singleton_subset_iff, SetLike.mem_coe, Set.range_subset_iff]
+        simpa [
+            IsIdempotentElem, mul_sub, sub_eq_zero, eq_comm,
+            Submodule.mem_annihilator_span_singleton
+          ]
+          using this
+      exact (show Ideal.span _ ≤ _ by
+          simpa only [
+            Ideal.span_le, Set.range_subset_iff, Submodule.mem_annihilator_span_singleton,
+            SetLike.mem_coe
+          ])
+        ht₂
+    · apply le_antisymm <;> simp only [
+        Ideal.submodule_span_eq, Ideal.mem_span_singleton, ht₂, Ideal.span_le,
+        Set.singleton_subset_iff, SetLike.mem_coe, Set.range_subset_iff
+      ]
       intro s
       use 1 ⊗ₜ[R] s - s ⊗ₜ[R] 1
       linear_combination ht₁ s
@@ -135,9 +148,7 @@ A finite-type `R`-algebra `S` is (formally) unramified iff there exists a `t : S
 See `Algebra.FormallyUnramified.iff_exists_tensorProduct`.
 This is the choice of such a `t`.
 -/
-noncomputable
-def elem : S ⊗[R] S :=
-  (iff_exists_tensorProduct.mp inferInstance).choose
+noncomputable def elem : S ⊗[R] S := (iff_exists_tensorProduct.mp inferInstance).choose
 
 lemma one_tmul_sub_tmul_one_mul_elem
     (s : S) : (1 ⊗ₜ s - s ⊗ₜ 1) * elem R S = 0 :=
@@ -150,7 +161,6 @@ lemma one_tmul_mul_elem
 lemma lmul_elem :
     TensorProduct.lmul' R (elem R S) = 1 :=
   (iff_exists_tensorProduct.mp inferInstance).choose_spec.2
-
 
 variable (R S)
 
@@ -232,15 +242,18 @@ lemma finite_of_free [Module.Free R S] : Module.Finite R S := by
 /--
 Proposition I.2.3 of [iversen]
 If `S` is an unramified `R`-algebra, and `M` is an `S`-module, then the map
-`S ⊗[R] M →ₗ[S] M` taking `(b, m) ↦ b • m` admits an `S`-linear section. -/
-noncomputable
-def sec :
-    M →ₗ[S] S ⊗[R] M where
-  __ := ((TensorProduct.AlgebraTensorModule.mapBilinear R S S S S S M
-    LinearMap.id).flip (elem R S)).comp (lsmul R R M).toLinearMap.flip
+`S ⊗[R] M →ₗ[S] M` taking `(b, m) ↦ b • m` admits an `S`-linear section.
+-/
+noncomputable def sec : M →ₗ[S] S ⊗[R] M where
+  __ :=
+    ((TensorProduct.AlgebraTensorModule.mapBilinear R S S S S S M LinearMap.id).flip
+        (elem R S)).comp
+      (lsmul R R M).toLinearMap.flip
   map_smul' r m := by
-    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearMap.coe_comp, Function.comp_apply,
-      LinearMap.flip_apply, TensorProduct.AlgebraTensorModule.mapBilinear_apply, RingHom.id_apply]
+    simp only [
+      AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearMap.coe_comp, Function.comp_apply,
+      LinearMap.flip_apply, TensorProduct.AlgebraTensorModule.mapBilinear_apply, RingHom.id_apply
+    ]
     trans (TensorProduct.AlgebraTensorModule.map (LinearMap.id (R := S) (M := S))
       ((LinearMap.flip (AlgHom.toLinearMap (lsmul R R M))) m)) ((1 ⊗ₜ r) * elem R S)
     · induction elem R S using TensorProduct.inductionOn

@@ -60,8 +60,7 @@ namespace Polynomial
 
 open Ideal.Quotient Ideal RingHom
 
-variable {R : Type*} [CommRing R] [IsDomain R]
-  {K : Type*} [Field K] [Algebra R K]
+variable {R : Type*} [CommRing R] [IsDomain R] {K : Type*} [Field K] [Algebra R K]
 
 private lemma generalizedEisenstein_aux {q f g : R[X]} {p : ℕ}
     (hq_irr : Irreducible (q.map (algebraMap R K)))
@@ -110,7 +109,8 @@ private lemma generalizedEisenstein_aux {q f g : R[X]} {p : ℕ}
   rw [hg, leadingCoeff, coeff_add, ← hg, coeff_C, ite_eq_right hg', zero_add,
     mem_ker, ← coeff_map, hr, coeff_zero]
 
-/-- A generalized Eisenstein criterion
+/--
+A generalized Eisenstein criterion
 
 Let `R` be an integral domain and `K` an `R`-algebra which is a domain.
 Let `q : R[X]` be a monic polynomial which is prime in `K[X]`.
@@ -119,18 +119,16 @@ whose leading coefficient is not zero in `K`
 and such that the image `f` in `K[X]` is a power of `q`.
 Assume moreover that `f.modByMonic q` is not zero in `(R ⧸ (P ^ 2))[X]`,
 where `P` is the kernel of `algebraMap R K`.
-Then `f` is irreducible. -/
-theorem generalizedEisenstein {q f : R[X]} {p : ℕ}
-    (hq_irr : Irreducible (q.map (algebraMap R K))) (hq_monic : q.Monic)
-    (hf_prim : f.IsPrimitive)
-    (hfd0 : 0 < natDegree f)
-    (hfP : algebraMap R K f.leadingCoeff ≠ 0)
-    (hfmodP : f.map (algebraMap R K) =
-      C (algebraMap R K f.leadingCoeff) * q.map (algebraMap R K) ^ p)
-    (hfmodP2 : (f.modByMonic q).map (mk ((ker (algebraMap R K)) ^ 2)) ≠ 0) :
-    Irreducible f where
-  not_isUnit := mt degree_eq_zero_of_isUnit fun h => by
-    simp_all [natDegree_pos_iff_degree_pos]
+Then `f` is irreducible.
+-/
+theorem generalizedEisenstein
+    {q f : R[X]} {p : ℕ} (hq_irr : Irreducible (q.map (algebraMap R K))) (hq_monic : q.Monic)
+    (hf_prim : f.IsPrimitive) (hfd0 : 0 < natDegree f) (hfP : algebraMap R K f.leadingCoeff ≠ 0)
+    (hfmodP
+      : f.map (algebraMap R K) = C (algebraMap R K f.leadingCoeff) * q.map (algebraMap R K) ^ p)
+    (hfmodP2 : (f.modByMonic q).map (mk ((ker (algebraMap R K)) ^ 2)) ≠ 0)
+    : Irreducible f where
+  not_isUnit := mt degree_eq_zero_of_isUnit fun h => by simp_all [natDegree_pos_iff_degree_pos]
   isUnit_or_isUnit g h h_eq := by
     -- We have to show that factorizations `f = g * h` are trivial
     set P : Ideal R := ker (algebraMap R K)
@@ -169,25 +167,30 @@ theorem generalizedEisenstein {q f : R[X]} {p : ℕ}
       exact (dvd_pow_self q hn).mul_left _
     · exact ((dvd_pow_self q hn).mul_left _).mul_left _
 
-/-- If `f` is a nonconstant polynomial with coefficients in `R`, and `P` is a prime ideal in `R`,
+/--
+If `f` is a nonconstant polynomial with coefficients in `R`, and `P` is a prime ideal in `R`,
 then if every coefficient in `R` except the leading coefficient is in `P`, and
 the trailing coefficient is not in `P^2` and no nonunits in `R` divide `f`, then `f` is
-irreducible. -/
-theorem irreducible_of_eisenstein_criterion {f : R[X]} {P : Ideal R} (hP : P.IsPrime)
-    (hfl : f.leadingCoeff ∉ P)
-    (hfP : ∀ n : ℕ, ↑n < degree f → f.coeff n ∈ P) (hfd0 : 0 < degree f)
-    (h0 : f.coeff 0 ∉ P ^ 2) (hu : f.IsPrimitive) : Irreducible f := by
+irreducible.
+-/
+theorem irreducible_of_eisenstein_criterion
+    {f : R[X]} {P : Ideal R}
+    (hP : P.IsPrime) (hfl : f.leadingCoeff ∉ P) (hfP : ∀ n : ℕ, ↑n < degree f → f.coeff n ∈ P)
+    (hfd0 : 0 < degree f) (h0 : f.coeff 0 ∉ P ^ 2) (hu : f.IsPrimitive)
+    : Irreducible f := by
   apply generalizedEisenstein (K := FractionRing (R ⧸ P)) (q := X) (p := f.natDegree)
-    (by simp [map_X, irreducible_X]) monic_X hu
-    (natDegree_pos_iff_degree_pos.mpr hfd0)
-  · simp only [IsScalarTower.algebraMap_eq R (R ⧸ P) (FractionRing (R ⧸ P)),
-      Quotient.algebraMap_eq, coe_comp, Function.comp_apply, ne_eq,
-      FaithfulSMul.algebraMap_eq_zero_iff]
+    (by simp [map_X, irreducible_X]) monic_X hu (natDegree_pos_iff_degree_pos.mpr hfd0)
+  · simp only [
+      IsScalarTower.algebraMap_eq R (R ⧸ P) (FractionRing (R ⧸ P)), Quotient.algebraMap_eq,
+      coe_comp, Function.comp_apply, ne_eq, FaithfulSMul.algebraMap_eq_zero_iff
+    ]
     rw [Ideal.Quotient.eq_zero_iff_mem]
     exact hfl
   · rw [← map_C, ← Polynomial.map_pow, ← Polynomial.map_mul]
-    simp only [IsScalarTower.algebraMap_eq R (R ⧸ P) (FractionRing (R ⧸ P)),
-      Quotient.algebraMap_eq, ← map_map]
+    simp only [
+      IsScalarTower.algebraMap_eq R (R ⧸ P) (FractionRing (R ⧸ P)), Quotient.algebraMap_eq,
+      ← map_map
+    ]
     congr 1
     ext n
     simp only [coeff_map, Ideal.Quotient.mk_eq_mk_iff_sub_mem]
@@ -200,8 +203,10 @@ theorem irreducible_of_eisenstein_criterion {f : R[X]} {P : Ideal R} (hP : P.IsP
       · rw [f.coeff_eq_zero_of_natDegree_lt]
         · exact P.zero_mem
         · simp [Nat.lt_iff_le_and_ne, ← Nat.not_lt, hn', Ne.symm hn]
-  · rw [modByMonic_X, map_C, ne_eq, C_eq_zero, Ideal.Quotient.eq_zero_iff_mem,
-      ← coeff_zero_eq_eval_zero]
+  · rw [
+      modByMonic_X, map_C, ne_eq, C_eq_zero, Ideal.Quotient.eq_zero_iff_mem,
+      ← coeff_zero_eq_eval_zero
+    ]
     convert! h0
     · rw [IsScalarTower.algebraMap_eq R (R ⧸ P) (FractionRing (R ⧸ P))]
       rw [ker_comp_of_injective]

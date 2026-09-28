@@ -6,7 +6,6 @@ Authors: Kevin Buzzard, Jujian Zhang, Yunzhou Xie
 module
 
 public import Mathlib.Algebra.Central.Defs
-
 import Mathlib.Algebra.Module.Torsion.Field
 
 /-!
@@ -28,8 +27,9 @@ universe u v
 
 namespace Algebra.IsCentral
 
-variable (K : Type u) [CommSemiring K] (D D' : Type v) [Semiring D] [Algebra K D]
-  [h : IsCentral K D] [Semiring D'] [Algebra K D']
+variable
+  (K : Type u) [CommSemiring K]
+  (D D' : Type v) [Semiring D] [Algebra K D] [h : IsCentral K D] [Semiring D'] [Algebra K D']
 
 @[simp]
 lemma center_eq_bot : Subalgebra.center K D = ⊥ := eq_bot_iff.2 IsCentral.out
@@ -65,10 +65,12 @@ lemma of_algEquiv (e : D ≃ₐ[K] D') : IsCentral K D' where
     ⟨k, by simpa [ofId] using congr(e $hk)⟩
 
 open MulOpposite in
-/-- Opposite algebra of a central algebra is central. This instance combined with the coming
-  `IsSimpleRing` instance for the opposite of central simple algebra will be an
-  inverse for an element in `BrauerGroup`, find out more about this in
-  `Mathlib/Algebra/BrauerGroup/Defs.lean`. -/
+/--
+Opposite algebra of a central algebra is central. This instance combined with the coming
+`IsSimpleRing` instance for the opposite of central simple algebra will be an
+inverse for an element in `BrauerGroup`, find out more about this in
+`Mathlib/Algebra/BrauerGroup/Defs.lean`.
+-/
 instance : IsCentral K Dᵐᵒᵖ where
   out z hz :=
     have ⟨k, hk⟩ := h.1 (MulOpposite.unop_mem_center_iff.mpr hz)

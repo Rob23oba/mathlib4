@@ -32,8 +32,10 @@ attribute [local instance] uliftCategory in
 def chosenTerminalIsTerminal : IsTerminal chosenTerminal.{v, u} :=
   IsTerminal.ofUniqueHom (fun C ↦ ((Functor.const C).obj ⟨⟨⟨⟩⟩⟩).toCatHom) fun _ _ ↦ rfl
 
-/-- The type of functors out of the chosen terminal category is equivalent to the type of objects
-in the target category. TODO: upgrade to an equivalence of categories. -/
+/--
+The type of functors out of the chosen terminal category is equivalent to the type of objects
+in the target category. TODO: upgrade to an equivalence of categories.
+-/
 def fromChosenTerminalEquiv {C : Type u} [Category.{v} C] : Cat.chosenTerminal ⥤ C ≃ C where
   toFun F := F.obj ⟨⟨()⟩⟩
   invFun := (Functor.const _).obj
@@ -50,23 +52,31 @@ def prodCone (C D : Cat.{v, u}) : BinaryFan C D :=
   .mk (P := ↧(C × D)) (Prod.fst _ _).toCatHom (Prod.snd _ _).toCatHom
 
 /-- The product cone in `Cat` is indeed a product. -/
-def isLimitProdCone (X Y : Cat) : IsLimit (prodCone X Y) := BinaryFan.isLimitMk
-  (fun S => (S.fst.toFunctor.prod' S.snd.toFunctor).toCatHom) (fun _ => rfl)
-    (fun _ => rfl) (fun _ _ h1 h2 => Cat.Hom.ext <| Functor.hext
-      (fun _ ↦ Prod.ext (by simp [← h1]) (by simp [← h2]))
-      (fun _ _ _ ↦ by dsimp; rw [← h1, ← h2]; rfl))
+def isLimitProdCone (X Y : Cat) : IsLimit (prodCone X Y) :=
+  BinaryFan.isLimitMk
+    (fun S => (S.fst.toFunctor.prod' S.snd.toFunctor).toCatHom)
+    (fun _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ h1 h2 =>
+      Cat.Hom.ext <| Functor.hext
+        (fun _ ↦ Prod.ext (by simp [← h1]) (by simp [← h2]))
+        (fun _ _ _ ↦ by dsimp; rw [← h1, ← h2]; rfl))
 
 instance : CartesianMonoidalCategory Cat :=
-  .ofChosenFiniteProducts ⟨_, chosenTerminalIsTerminal⟩ fun X Y ↦
-    { cone := X.prodCone Y, isLimit := isLimitProdCone X Y }
+  .ofChosenFiniteProducts ⟨_, chosenTerminalIsTerminal⟩ fun X Y ↦ {
+    cone := X.prodCone Y
+    isLimit := isLimitProdCone X Y
+  }
 
 instance : BraidedCategory Cat := .ofCartesianMonoidalCategory
 
 /-- A monoidal instance for `Cat` is provided from the `CartesianMonoidalCategory` instance. -/
 example : MonoidalCategory Cat := by infer_instance
 
-/-- A symmetric monoidal instance for `Cat` is provided through
-`CartesianMonoidalCategory.toSymmetricCategory`. -/
+/--
+A symmetric monoidal instance for `Cat` is provided through
+`CartesianMonoidalCategory.toSymmetricCategory`.
+-/
 example : SymmetricCategory Cat := by infer_instance
 
 end Cat

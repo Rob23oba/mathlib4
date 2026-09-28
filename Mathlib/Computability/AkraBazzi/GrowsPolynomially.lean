@@ -35,9 +35,11 @@ open scoped Topology
 
 namespace AkraBazziRecurrence
 
-/-- The growth condition that the function `g` must satisfy for the Akra-Bazzi theorem to apply.
+/--
+The growth condition that the function `g` must satisfy for the Akra-Bazzi theorem to apply.
 It roughly states that `c₁ g(n) ≤ g(u) ≤ c₂ g(n)`, for `u` between `b * n` and `n`, for any
-constant `b ∈ (0, 1)`. -/
+constant `b ∈ (0, 1)`.
+-/
 def GrowsPolynomially (f : ℝ → ℝ) : Prop :=
   ∀ b ∈ Set.Ioo 0 1, ∃ c₁ > 0, ∃ c₂ > 0,
     ∀ᶠ x in atTop, ∀ u ∈ Set.Icc (b * x) x, f u ∈ Set.Icc (c₁ * (f x)) (c₂ * f x)

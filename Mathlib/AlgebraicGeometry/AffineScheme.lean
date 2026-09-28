@@ -51,8 +51,7 @@ namespace AlgebraicGeometry
 open Spec (structureSheaf)
 
 /-- The category of affine schemes -/
-def AffineScheme :=
-  Scheme.Spec.EssImageSubcategory
+def AffineScheme := Scheme.Spec.EssImageSubcategory
 deriving Category
 
 /-- A Scheme is affine if the canonical map `X ⟶ Spec Γ(X)` is an isomorphism. -/
@@ -65,19 +64,20 @@ instance (X : Scheme.{u}) [IsAffine X] : IsIso (ΓSpec.adjunction.unit.app X) :=
 
 /-- The canonical isomorphism `X ≅ Spec Γ(X)` for an affine scheme. -/
 @[simps! -isSimp hom]
-def Scheme.isoSpec (X : Scheme) [IsAffine X] : X ≅ Spec Γ(X, ⊤) :=
-  asIso X.toSpecΓ
+def Scheme.isoSpec (X : Scheme) [IsAffine X] : X ≅ Spec Γ(X, ⊤) := asIso X.toSpecΓ
 
 @[reassoc]
-theorem Scheme.isoSpec_hom_naturality {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y) :
-    X.isoSpec.hom ≫ Spec.map (f.appTop) = f ≫ Y.isoSpec.hom := by
+theorem Scheme.isoSpec_hom_naturality {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y)
+    : X.isoSpec.hom ≫ Spec.map (f.appTop) = f ≫ Y.isoSpec.hom := by
   simp only [isoSpec, asIso_hom, Scheme.toSpecΓ_naturality]
 
 @[reassoc]
-theorem Scheme.isoSpec_inv_naturality {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y) :
-    Spec.map (f.appTop) ≫ Y.isoSpec.inv = X.isoSpec.inv ≫ f := by
-  rw [Iso.eq_inv_comp, isoSpec, asIso_hom, ← Scheme.toSpecΓ_naturality_assoc, isoSpec,
-    asIso_inv, IsIso.hom_inv_id, Category.comp_id]
+theorem Scheme.isoSpec_inv_naturality {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y)
+    : Spec.map (f.appTop) ≫ Y.isoSpec.inv = X.isoSpec.inv ≫ f := by
+  rw [
+    Iso.eq_inv_comp, isoSpec, asIso_hom, ← Scheme.toSpecΓ_naturality_assoc, isoSpec, asIso_inv,
+    IsIso.hom_inv_id, Category.comp_id
+  ]
 
 @[reassoc (attr := simp)]
 lemma Scheme.toSpecΓ_isoSpec_inv (X : Scheme.{u}) [IsAffine X] :
@@ -89,26 +89,28 @@ lemma Scheme.isoSpec_inv_toSpecΓ (X : Scheme.{u}) [IsAffine X] :
     X.isoSpec.inv ≫ X.toSpecΓ = 𝟙 _ :=
   X.isoSpec.inv_hom_id
 
-/-- Construct an affine scheme from a scheme and the information that it is affine.
-Also see `AffineScheme.of` for a typeclass version. -/
+/--
+Construct an affine scheme from a scheme and the information that it is affine.
+Also see `AffineScheme.of` for a typeclass version.
+-/
 @[simps]
 def AffineScheme.mk (X : Scheme) (_ : IsAffine X) : AffineScheme :=
   ⟨X, ΓSpec.adjunction.mem_essImage_of_unit_isIso _⟩
 
-/-- Construct an affine scheme from a scheme. Also see `AffineScheme.mk` for a non-typeclass
-version. -/
-def AffineScheme.of (X : Scheme) [h : IsAffine X] : AffineScheme :=
-  AffineScheme.mk X h
+/--
+Construct an affine scheme from a scheme. Also see `AffineScheme.mk` for a non-typeclass
+version.
+-/
+def AffineScheme.of (X : Scheme) [h : IsAffine X] : AffineScheme := AffineScheme.mk X h
 
 /-- Type check a morphism of schemes as a morphism in `AffineScheme`. -/
-def AffineScheme.ofHom {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y) :
-    AffineScheme.of X ⟶ AffineScheme.of Y :=
+def AffineScheme.ofHom {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y)
+    : AffineScheme.of X ⟶ AffineScheme.of Y :=
   InducedCategory.homMk f
 
 @[simp]
 theorem essImage_Spec {X : Scheme} : Scheme.Spec.essImage X ↔ IsAffine X :=
-  ⟨fun h => ⟨Functor.essImage.unit_isIso h⟩,
-    fun _ => ΓSpec.adjunction.mem_essImage_of_unit_isIso _⟩
+  ⟨fun h => ⟨Functor.essImage.unit_isIso h⟩, fun _ => ΓSpec.adjunction.mem_essImage_of_unit_isIso _⟩
 
 instance isAffine_affineScheme (X : AffineScheme.{u}) : IsAffine X.obj :=
   ⟨Functor.essImage.unit_isIso X.property⟩
@@ -125,45 +127,52 @@ theorem IsAffine.of_isIso {X Y : Scheme} (f : X ⟶ Y) [IsIso f] [h : IsAffine Y
 theorem IsAffine.iff_of_isIso {X Y : Scheme} (f : X ⟶ Y) [IsIso f] : IsAffine X ↔ IsAffine Y :=
   ⟨fun _ ↦ .of_isIso (inv f), fun _ ↦ .of_isIso f⟩
 
-/-- If `f : X ⟶ Y` is a morphism between affine schemes, the corresponding arrow is isomorphic
-to the arrow of the morphism on prime spectra induced by the map on global sections. -/
-noncomputable
-def arrowIsoSpecΓOfIsAffine {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y) :
-    Arrow.mk f ≅ Arrow.mk (Spec.map f.appTop) :=
+/--
+If `f : X ⟶ Y` is a morphism between affine schemes, the corresponding arrow is isomorphic
+to the arrow of the morphism on prime spectra induced by the map on global sections.
+-/
+noncomputable def arrowIsoSpecΓOfIsAffine {X Y : Scheme} [IsAffine X] [IsAffine Y] (f : X ⟶ Y)
+    : Arrow.mk f ≅ Arrow.mk (Spec.map f.appTop) :=
   Arrow.isoMk X.isoSpec Y.isoSpec (ΓSpec.adjunction.unit_naturality _)
 
-/-- If `f : A ⟶ B` is a ring homomorphism, the corresponding arrow is isomorphic
-to the arrow of the morphism induced on global sections by the map on prime spectra. -/
-def arrowIsoΓSpecOfIsAffine {A B : CommRingCat} (f : A ⟶ B) :
-    Arrow.mk f ≅ Arrow.mk ((Spec.map f).appTop) :=
+/--
+If `f : A ⟶ B` is a ring homomorphism, the corresponding arrow is isomorphic
+to the arrow of the morphism induced on global sections by the map on prime spectra.
+-/
+def arrowIsoΓSpecOfIsAffine {A B : CommRingCat} (f : A ⟶ B)
+    : Arrow.mk f ≅ Arrow.mk ((Spec.map f).appTop) :=
   Arrow.isoMk (Scheme.ΓSpecIso _).symm (Scheme.ΓSpecIso _).symm
     (Scheme.ΓSpecIso_inv_naturality f).symm
 
-theorem Scheme.isoSpec_Spec (R : CommRingCat.{u}) :
-    (Spec R).isoSpec = Scheme.Spec.mapIso (Scheme.ΓSpecIso R).op :=
+theorem Scheme.isoSpec_Spec (R : CommRingCat.{u})
+    : (Spec R).isoSpec = Scheme.Spec.mapIso (Scheme.ΓSpecIso R).op :=
   Iso.ext (SpecMap_ΓSpecIso_hom R).symm
 
-@[simp] theorem Scheme.isoSpec_Spec_hom (R : CommRingCat.{u}) :
-    (Spec R).isoSpec.hom = Spec.map (Scheme.ΓSpecIso R).hom :=
+@[simp]
+theorem Scheme.isoSpec_Spec_hom (R : CommRingCat.{u})
+    : (Spec R).isoSpec.hom = Spec.map (Scheme.ΓSpecIso R).hom :=
   (SpecMap_ΓSpecIso_hom R).symm
 
-@[simp] theorem Scheme.isoSpec_Spec_inv (R : CommRingCat.{u}) :
-    (Spec R).isoSpec.inv = Spec.map (Scheme.ΓSpecIso R).inv :=
+@[simp]
+theorem Scheme.isoSpec_Spec_inv (R : CommRingCat.{u})
+    : (Spec R).isoSpec.inv = Spec.map (Scheme.ΓSpecIso R).inv :=
   congr($(isoSpec_Spec R).inv)
 
 lemma ext_of_isAffine {X Y : Scheme} [IsAffine Y] {f g : X ⟶ Y} (e : f.appTop = g.appTop) :
     f = g := by
   rw [← cancel_mono Y.toSpecΓ, Scheme.toSpecΓ_naturality, Scheme.toSpecΓ_naturality, e]
 
-instance (P : MorphismProperty Scheme.{u}) {S : Scheme.{u}} (𝒰 : S.AffineCover P) (i : 𝒰.I₀) :
-    IsAffine (𝒰.cover.X i) :=
+instance (P : MorphismProperty Scheme.{u}) {S : Scheme.{u}} (𝒰 : S.AffineCover P) (i : 𝒰.I₀)
+    : IsAffine (𝒰.cover.X i) :=
   inferInstanceAs <| IsAffine (Spec _)
 
-/-- `Scheme.Γ.rightOp : Scheme ⥤ CommRingCatᵒᵖ` preserves limits of diagrams consisting of
-affine schemes. -/
+/--
+`Scheme.Γ.rightOp : Scheme ⥤ CommRingCatᵒᵖ` preserves limits of diagrams consisting of
+affine schemes.
+-/
 instance preservesLimit_rightOp_Γ.{v, w}
-    {I : Type w} [Category.{v} I] (D : I ⥤ Scheme.{u}) [∀ i, IsAffine (D.obj i)] :
-    PreservesLimit D Scheme.Γ.rightOp := by
+    {I : Type w} [Category.{v} I] (D : I ⥤ Scheme.{u}) [∀ i, IsAffine (D.obj i)]
+    : PreservesLimit D Scheme.Γ.rightOp := by
   let α : D ⟶ (D ⋙ Scheme.Γ.rightOp) ⋙ Scheme.Spec := D.whiskerLeft ΓSpec.adjunction.unit
   have (i : _) : IsIso (α.app i) := IsAffine.affine
   have : IsIso α := NatIso.isIso_of_isIso_app α
@@ -174,19 +183,20 @@ instance preservesLimit_rightOp_Γ.{v, w}
     preservesLimit_comp_of_createsLimit _ _
   exact preservesLimit_of_natIso _ (NatIso.op Scheme.SpecΓIdentity)
 
-/-- `Scheme.Γ : Schemeᵒᵖ ⥤ CommRingCat` preserves colimits of diagrams consisting of
-affine schemes. -/
+/--
+`Scheme.Γ : Schemeᵒᵖ ⥤ CommRingCat` preserves colimits of diagrams consisting of
+affine schemes.
+-/
 instance preservesColimit_Γ.{v, w}
-    {I : Type w} [Category.{v} I] (D : I ⥤ Scheme.{u}ᵒᵖ) [∀ i, IsAffine (D.obj i).unop] :
-    PreservesColimit D Scheme.Γ := by
+    {I : Type w} [Category.{v} I] (D : I ⥤ Scheme.{u}ᵒᵖ) [∀ i, IsAffine (D.obj i).unop]
+    : PreservesColimit D Scheme.Γ := by
   have (i : _) : IsAffine (D.leftOp.obj i) := Functor.leftOp_obj D _ ▸ inferInstance
   exact preservesColimit_of_rightOp D Scheme.Γ
 
 namespace AffineScheme
 
 /-- The `Spec` functor into the category of affine schemes. -/
-def Spec : CommRingCatᵒᵖ ⥤ AffineScheme :=
-  Scheme.Spec.toEssImage
+def Spec : CommRingCatᵒᵖ ⥤ AffineScheme := Scheme.Spec.toEssImage
 
 /-! We copy over instances from `Scheme.Spec.toEssImage`. -/
 
@@ -197,25 +207,20 @@ instance Spec_faithful : Spec.Faithful := Functor.Faithful.toEssImage _
 instance Spec_essSurj : Spec.EssSurj := Functor.EssSurj.toEssImage (F := _)
 
 /-- The forgetful functor `AffineScheme ⥤ Scheme`. -/
-@[simps!]
-def forgetToScheme : AffineScheme ⥤ Scheme :=
-  Scheme.Spec.essImage.ι
+@[simps!] def forgetToScheme : AffineScheme ⥤ Scheme := Scheme.Spec.essImage.ι
 
 /-! We copy over instances from `Scheme.Spec.essImageInclusion`. -/
 
-instance forgetToScheme_full : forgetToScheme.Full :=
-  inferInstanceAs Scheme.Spec.essImage.ι.Full
+instance forgetToScheme_full : forgetToScheme.Full := inferInstanceAs Scheme.Spec.essImage.ι.Full
 
 instance forgetToScheme_faithful : forgetToScheme.Faithful :=
   inferInstanceAs Scheme.Spec.essImage.ι.Faithful
 
 /-- The global section functor of an affine scheme. -/
-def Γ : AffineSchemeᵒᵖ ⥤ CommRingCat :=
-  forgetToScheme.op ⋙ Scheme.Γ
+def Γ : AffineSchemeᵒᵖ ⥤ CommRingCat := forgetToScheme.op ⋙ Scheme.Γ
 
 /-- The category of affine schemes is equivalent to the category of commutative rings. -/
-def equivCommRingCat : AffineScheme ≌ CommRingCatᵒᵖ :=
-  equivEssImageOfReflective.symm
+def equivCommRingCat : AffineScheme ≌ CommRingCatᵒᵖ := equivEssImageOfReflective.symm
 
 instance : Γ.{u}.rightOp.IsEquivalence := equivCommRingCat.isEquivalence_functor
 
@@ -248,19 +253,16 @@ instance createsLimitsForgetToScheme : CreatesLimits forgetToScheme.{u} :=
 end AffineScheme
 
 /-- An open subset of a scheme is affine if the open subscheme is affine. -/
-def IsAffineOpen {X : Scheme} (U : X.Opens) : Prop :=
-  IsAffine U
+def IsAffineOpen {X : Scheme} (U : X.Opens) : Prop := IsAffine U
 
 /-- The set of affine opens as a subset of `opens X`. -/
-def Scheme.affineOpens (X : Scheme) : Set X.Opens :=
-  {U : X.Opens | IsAffineOpen U}
+def Scheme.affineOpens (X : Scheme) : Set X.Opens := {U : X.Opens | IsAffineOpen U}
 
-instance {Y : Scheme.{u}} (U : Y.affineOpens) : IsAffine U :=
-  U.property
+instance {Y : Scheme.{u}} (U : Y.affineOpens) : IsAffine U := U.property
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem isAffineOpen_opensRange {X Y : Scheme} [IsAffine X] (f : X ⟶ Y)
-    [H : IsOpenImmersion f] : IsAffineOpen f.opensRange := by
+theorem isAffineOpen_opensRange {X Y : Scheme} [IsAffine X] (f : X ⟶ Y) [H : IsOpenImmersion f]
+    : IsAffineOpen f.opensRange := by
   refine .of_isIso (IsOpenImmersion.isoOfRangeEq f (Y.ofRestrict _) ?_).inv
   exact Subtype.range_val.symm
 
@@ -269,37 +271,39 @@ theorem isAffineOpen_top (X : Scheme) [IsAffine X] : IsAffineOpen (⊤ : X.Opens
   ext1
   exact Set.range_id.symm
 
-theorem exists_isAffineOpen_mem_and_subset {X : Scheme.{u}} {x : X}
-    {U : X.Opens} (hxU : x ∈ U) : ∃ W : X.Opens, IsAffineOpen W ∧ x ∈ W ∧ W.1 ⊆ U := by
+theorem exists_isAffineOpen_mem_and_subset {X : Scheme.{u}} {x : X} {U : X.Opens} (hxU : x ∈ U)
+    : ∃ W : X.Opens, IsAffineOpen W ∧ x ∈ W ∧ W.1 ⊆ U := by
   obtain ⟨R, f, hf⟩ := AlgebraicGeometry.Scheme.exists_affine_mem_range_and_range_subset hxU
-  exact ⟨Scheme.Hom.opensRange f (H := hf.1),
-    ⟨AlgebraicGeometry.isAffineOpen_opensRange f (H := hf.1), hf.2.1, hf.2.2⟩⟩
+  exact ⟨
+    Scheme.Hom.opensRange f (H := hf.1),
+    ⟨AlgebraicGeometry.isAffineOpen_opensRange f (H := hf.1), hf.2.1, hf.2.2⟩
+  ⟩
 
 lemma Scheme.exists_Spec_apply_eq {X : Scheme.{u}} (x : X) :
     ∃ (R : CommRingCat.{u}) (f : Spec R ⟶ X) (_ : IsOpenImmersion f) (y : Spec R),
     f.base y = x :=
   ⟨X.affineOpenCover.X _, X.affineOpenCover.f _, inferInstance, X.affineOpenCover.covers x⟩
 
-instance Scheme.isAffine_affineCover (X : Scheme) (i : X.affineCover.I₀) :
-    IsAffine (X.affineCover.X i) :=
+instance Scheme.isAffine_affineCover (X : Scheme) (i : X.affineCover.I₀)
+    : IsAffine (X.affineCover.X i) :=
   isAffine_Spec _
 
-instance Scheme.isAffine_affineBasisCover (X : Scheme) (i : X.affineBasisCover.I₀) :
-    IsAffine (X.affineBasisCover.X i) :=
+instance Scheme.isAffine_affineBasisCover (X : Scheme) (i : X.affineBasisCover.I₀)
+    : IsAffine (X.affineBasisCover.X i) :=
   isAffine_Spec _
 
-instance Scheme.isAffine_affineOpenCover (X : Scheme) (𝒰 : X.AffineOpenCover) (i : 𝒰.I₀) :
-    IsAffine (𝒰.openCover.X i) :=
+instance Scheme.isAffine_affineOpenCover (X : Scheme) (𝒰 : X.AffineOpenCover) (i : 𝒰.I₀)
+    : IsAffine (𝒰.openCover.X i) :=
   inferInstanceAs (IsAffine (Spec (𝒰.X i)))
 
-instance (X : Scheme) [CompactSpace X] (𝒰 : X.OpenCover) [∀ i, IsAffine (𝒰.X i)] (i) :
-    IsAffine (𝒰.finiteSubcover.X i) :=
+instance (X : Scheme) [CompactSpace X] (𝒰 : X.OpenCover) [∀ i, IsAffine (𝒰.X i)] (i)
+    : IsAffine (𝒰.finiteSubcover.X i) :=
   inferInstanceAs (IsAffine (𝒰.X _))
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-instance {X} [IsAffine X] (i) :
-    IsAffine ((Scheme.coverOfIsIso (P := @IsOpenImmersion) (𝟙 X)).X i) := by
+instance {X} [IsAffine X] (i)
+    : IsAffine ((Scheme.coverOfIsIso (P := @IsOpenImmersion) (𝟙 X)).X i) := by
   dsimp; infer_instance
 
 theorem Scheme.isBasis_affineOpens (X : Scheme) : Opens.IsBasis X.affineOpens := by
@@ -317,25 +321,24 @@ theorem iSup_affineOpens_eq_top (X : Scheme) : ⨆ i : X.affineOpens, (i : X.Ope
   rw [← Set.image_eq_range]
   exact X.isBasis_affineOpens
 
-theorem Scheme.map_PrimeSpectrum_basicOpen_of_affine
-    (X : Scheme) [IsAffine X] (f : Γ(X, ⊤)) :
-    X.isoSpec.hom ⁻¹ᵁ PrimeSpectrum.basicOpen f = X.basicOpen f :=
+theorem Scheme.map_PrimeSpectrum_basicOpen_of_affine (X : Scheme) [IsAffine X] (f : Γ(X, ⊤))
+    : X.isoSpec.hom ⁻¹ᵁ PrimeSpectrum.basicOpen f = X.basicOpen f :=
   Scheme.toSpecΓ_preimage_basicOpen _ _
 
-theorem isBasis_basicOpen (X : Scheme) [IsAffine X] :
-    Opens.IsBasis (Set.range (X.basicOpen : Γ(X, ⊤) → X.Opens)) := by
+theorem isBasis_basicOpen (X : Scheme) [IsAffine X]
+    : Opens.IsBasis (Set.range (X.basicOpen : Γ(X, ⊤) → X.Opens)) := by
   convert!
     PrimeSpectrum.isBasis_basic_opens.of_isInducing
       (TopCat.homeoOfIso (Scheme.forgetToTop.mapIso X.isoSpec)).isInducing using 1
   ext V
-  simp only [Set.mem_range, exists_exists_eq_and, Set.mem_ofPred,
-    ← Opens.coe_inj (V := V), ← Scheme.toSpecΓ_preimage_basicOpen]
+  simp only [
+    Set.mem_range, exists_exists_eq_and, Set.mem_ofPred, ← Opens.coe_inj (V := V),
+    ← Scheme.toSpecΓ_preimage_basicOpen
+  ]
   rfl
 
 /-- The canonical map `U ⟶ Spec Γ(X, U)` for an open `U ⊆ X`. -/
-noncomputable
-def Scheme.Opens.toSpecΓ {X : Scheme.{u}} (U : X.Opens) :
-    U.toScheme ⟶ Spec Γ(X, U) :=
+noncomputable def Scheme.Opens.toSpecΓ {X : Scheme.{u}} (U : X.Opens) : U.toScheme ⟶ Spec Γ(X, U) :=
   U.toScheme.toSpecΓ ≫ Spec.map U.topIso.inv
 
 set_option backward.isDefEq.respectTransparency false in
@@ -385,8 +388,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 attribute [-simp] eqToHom_op in
 /-- The isomorphism `U ≅ Spec Γ(X, U)` for an affine `U`. -/
 @[simps! -isSimp inv]
-def isoSpec :
-    ↑U ≅ Spec Γ(X, U) :=
+def isoSpec : ↑U ≅ Spec Γ(X, U) :=
   haveI : IsAffine U := hU
   U.toScheme.isoSpec ≪≫ Scheme.Spec.mapIso U.topIso.symm.op
 
@@ -424,13 +426,11 @@ lemma isoSpec_inv_appTop :
   rfl
 
 /-- The open immersion `Spec Γ(X, U) ⟶ X` for an affine `U`. -/
-def fromSpec :
-    Spec Γ(X, U) ⟶ X :=
+def fromSpec : Spec Γ(X, U) ⟶ X :=
   haveI : IsAffine U := hU
   hU.isoSpec.inv ≫ U.ι
 
-instance isOpenImmersion_fromSpec :
-    IsOpenImmersion hU.fromSpec := by
+instance isOpenImmersion_fromSpec : IsOpenImmersion hU.fromSpec := by
   delta fromSpec
   infer_instance
 
@@ -447,9 +447,9 @@ lemma toSpecΓ_fromSpec : U.toSpecΓ ≫ hU.fromSpec = U.ι := toSpecΓ_isoSpec_
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
-theorem range_fromSpec :
-    Set.range hU.fromSpec = U := by
-  delta IsAffineOpen.fromSpec; dsimp [IsAffineOpen.isoSpec_inv]
+theorem range_fromSpec : Set.range hU.fromSpec = U := by
+  delta IsAffineOpen.fromSpec
+  dsimp [IsAffineOpen.isoSpec_inv]
   rw [Set.range_comp, Set.range_eq_univ.mpr, Set.image_univ]
   · exact Subtype.range_coe
   rw [← TopCat.coe_comp, ← TopCat.epi_iff_surjective]
@@ -461,13 +461,12 @@ lemma fromSpec_toSpecΓ {X : Scheme} {U : X.Opens} (hU : IsAffineOpen U) :
   rw [fromSpec, Category.assoc, ← Scheme.Opens.toSpecΓ_SpecMap_presheaf_map_top,
     isoSpec_inv_toSpecΓ_assoc]
 
-@[simp]
-theorem opensRange_fromSpec : hU.fromSpec.opensRange = U := Opens.ext (range_fromSpec hU)
+@[simp] theorem opensRange_fromSpec : hU.fromSpec.opensRange = U := Opens.ext (range_fromSpec hU)
 
 set_option backward.isDefEq.respectTransparency false in
 @[reassoc (attr := simp)]
-theorem map_fromSpec {V : X.Opens} (hV : IsAffineOpen V) (f : op U ⟶ op V) :
-    Spec.map (X.presheaf.map f) ≫ hU.fromSpec = hV.fromSpec := by
+theorem map_fromSpec {V : X.Opens} (hV : IsAffineOpen V) (f : op U ⟶ op V)
+    : Spec.map (X.presheaf.map f) ≫ hU.fromSpec = hV.fromSpec := by
   have : IsAffine U := hU
   have : IsAffine _ := hV
   conv_rhs =>
@@ -507,50 +506,54 @@ lemma fromSpec_app_of_le (V : X.Opens) (h : U ≤ V) :
   rfl
 
 include hU in
-protected theorem isCompact :
-    IsCompact (U : Set X) := by
+protected theorem isCompact : IsCompact (U : Set X) := by
   convert! @IsCompact.image _ _ _ _ Set.univ hU.fromSpec PrimeSpectrum.compactSpace.1 (by fun_prop)
   convert! hU.range_fromSpec.symm
   exact Set.image_univ
 
 theorem _root_.AlgebraicGeometry.Scheme.Hom.isAffineOpen_iff_of_isOpenImmersion
-    (f : X ⟶ Y) [H : IsOpenImmersion f] {U : X.Opens} :
-    IsAffineOpen (f ''ᵁ U) ↔ IsAffineOpen U :=
+    (f : X ⟶ Y) [H : IsOpenImmersion f] {U : X.Opens}
+    : IsAffineOpen (f ''ᵁ U) ↔ IsAffineOpen U :=
   IsAffine.iff_of_isIso (IsOpenImmersion.isoOfRangeEq (U.ι ≫ f) (f ''ᵁ U).ι
     (by simp [Scheme.Hom.comp_base, Set.range_comp])).inv
 
 include hU in
-theorem image_of_isOpenImmersion (f : X ⟶ Y) [H : IsOpenImmersion f] :
-    IsAffineOpen (f ''ᵁ U) := by
+theorem image_of_isOpenImmersion (f : X ⟶ Y) [H : IsOpenImmersion f] : IsAffineOpen (f ''ᵁ U) := by
   rwa [f.isAffineOpen_iff_of_isOpenImmersion]
 
-theorem preimage_of_isIso {U : Y.Opens} (hU : IsAffineOpen U) (f : X ⟶ Y) [IsIso f] :
-    IsAffineOpen (f ⁻¹ᵁ U) :=
+theorem preimage_of_isIso {U : Y.Opens} (hU : IsAffineOpen U) (f : X ⟶ Y) [IsIso f]
+    : IsAffineOpen (f ⁻¹ᵁ U) :=
   haveI : IsAffine _ := hU
   .of_isIso (f ∣_ U)
 
-theorem preimage_of_isOpenImmersion {U : Y.Opens} (hU : IsAffineOpen U)
-    (f : X ⟶ Y) [IsOpenImmersion f] (hU' : U ≤ f.opensRange) :
-    IsAffineOpen (f ⁻¹ᵁ U) := by
-  rwa [← f.isAffineOpen_iff_of_isOpenImmersion, f.image_preimage_eq_opensRange_inf,
-    inf_eq_right.mpr hU']
+theorem preimage_of_isOpenImmersion
+    {U : Y.Opens} (hU : IsAffineOpen U) (f : X ⟶ Y) [IsOpenImmersion f] (hU' : U ≤ f.opensRange)
+    : IsAffineOpen (f ⁻¹ᵁ U) := by
+  rwa [
+    ← f.isAffineOpen_iff_of_isOpenImmersion, f.image_preimage_eq_opensRange_inf,
+    inf_eq_right.mpr hU'
+  ]
 
-/-- The affine open sets of an open subscheme corresponds to
-the affine open sets containing in the image. -/
+/--
+The affine open sets of an open subscheme corresponds to
+the affine open sets containing in the image.
+-/
 @[simps]
-def _root_.AlgebraicGeometry.IsOpenImmersion.affineOpensEquiv (f : X ⟶ Y) [H : IsOpenImmersion f] :
-    X.affineOpens ≃o { U : Y.affineOpens // U ≤ f.opensRange } where
+def _root_.AlgebraicGeometry.IsOpenImmersion.affineOpensEquiv (f : X ⟶ Y) [H : IsOpenImmersion f]
+    : X.affineOpens ≃o {U : Y.affineOpens // U ≤ f.opensRange} where
   toFun U := ⟨⟨f ''ᵁ U, U.2.image_of_isOpenImmersion f⟩, Set.image_subset_range _ _⟩
   invFun U := ⟨f ⁻¹ᵁ U, U.1.2.preimage_of_isOpenImmersion _ U.2⟩
   left_inv _ := Subtype.ext (f.preimage_image_eq _)
   right_inv U := Subtype.ext (Subtype.ext (Opens.ext (Set.image_preimage_eq_of_subset U.2)))
   map_rel_iff' := f.image_le_image_iff _ _
 
-/-- The affine open sets of an open subscheme
-corresponds to the affine open sets containing in the subset. -/
+/--
+The affine open sets of an open subscheme
+corresponds to the affine open sets containing in the subset.
+-/
 @[simps! apply_coe_coe]
-def _root_.AlgebraicGeometry.affineOpensRestrict {X : Scheme.{u}} (U : X.Opens) :
-    U.toScheme.affineOpens ≃ { V : X.affineOpens // V ≤ U } :=
+def _root_.AlgebraicGeometry.affineOpensRestrict {X : Scheme.{u}} (U : X.Opens)
+    : U.toScheme.affineOpens ≃ {V : X.affineOpens // V ≤ U} :=
   (IsOpenImmersion.affineOpensEquiv U.ι).toEquiv.trans (Equiv.subtypeEquivProp (by simp))
 
 @[simp]
@@ -559,38 +562,38 @@ lemma _root_.AlgebraicGeometry.affineOpensRestrict_symm_apply_coe
     ((affineOpensRestrict U).symm V).1 = U.ι ⁻¹ᵁ V := rfl
 
 instance (priority := 100) _root_.AlgebraicGeometry.Scheme.compactSpace_of_isAffine
-    (X : Scheme) [IsAffine X] :
-    CompactSpace X :=
+    (X : Scheme) [IsAffine X]
+    : CompactSpace X :=
   ⟨(isAffineOpen_top X).isCompact⟩
 
 @[simp]
-theorem fromSpec_preimage_self :
-    hU.fromSpec ⁻¹ᵁ U = ⊤ := by
+theorem fromSpec_preimage_self : hU.fromSpec ⁻¹ᵁ U = ⊤ := by
   simp_rw [← hU.opensRange_fromSpec, Scheme.Hom.preimage_opensRange]
 
-theorem ΓSpecIso_hom_fromSpec_app :
-    (Scheme.ΓSpecIso Γ(X, U)).hom ≫ hU.fromSpec.app U =
-      (Spec Γ(X, U)).presheaf.map (eqToHom hU.fromSpec_preimage_self).op := by
+theorem ΓSpecIso_hom_fromSpec_app
+    : (Scheme.ΓSpecIso Γ(X, U)).hom ≫ hU.fromSpec.app U
+      = (Spec Γ(X, U)).presheaf.map (eqToHom hU.fromSpec_preimage_self).op := by
   change _ = (Spec Γ(X, U)).presheaf.map (homOfLE le_top).op
   simp [IsAffineOpen.fromSpec_app_of_le]
 
 @[elementwise]
-theorem fromSpec_app_self :
-    hU.fromSpec.app U = (Scheme.ΓSpecIso Γ(X, U)).inv ≫
-      (Spec Γ(X, U)).presheaf.map (eqToHom hU.fromSpec_preimage_self).op := by
+theorem fromSpec_app_self
+    : hU.fromSpec.app U
+      = (Scheme.ΓSpecIso Γ(X, U)).inv
+        ≫ (Spec Γ(X, U)).presheaf.map (eqToHom hU.fromSpec_preimage_self).op := by
   rw [← hU.ΓSpecIso_hom_fromSpec_app, Iso.inv_hom_id_assoc]
 
-theorem fromSpec_preimage_basicOpen' :
-    hU.fromSpec ⁻¹ᵁ X.basicOpen f = (Spec Γ(X, U)).basicOpen ((Scheme.ΓSpecIso Γ(X, U)).inv f) := by
+theorem fromSpec_preimage_basicOpen'
+    : hU.fromSpec ⁻¹ᵁ X.basicOpen f
+      = (Spec Γ(X, U)).basicOpen ((Scheme.ΓSpecIso Γ(X, U)).inv f) := by
   rw [Scheme.preimage_basicOpen, hU.fromSpec_app_self]
   exact Scheme.basicOpen_res_eq _ _ (eqToHom hU.fromSpec_preimage_self).op
 
-theorem fromSpec_preimage_basicOpen :
-    hU.fromSpec ⁻¹ᵁ X.basicOpen f = PrimeSpectrum.basicOpen f := by
+theorem fromSpec_preimage_basicOpen
+    : hU.fromSpec ⁻¹ᵁ X.basicOpen f = PrimeSpectrum.basicOpen f := by
   rw [fromSpec_preimage_basicOpen', ← basicOpen_eq_of_affine]
 
-theorem fromSpec_image_basicOpen :
-    hU.fromSpec ''ᵁ PrimeSpectrum.basicOpen f = X.basicOpen f := by
+theorem fromSpec_image_basicOpen : hU.fromSpec ''ᵁ PrimeSpectrum.basicOpen f = X.basicOpen f := by
   rw [← hU.fromSpec_preimage_basicOpen]
   ext1
   change hU.fromSpec '' hU.fromSpec ⁻¹' (X.basicOpen f : Set X) = _
@@ -598,14 +601,13 @@ theorem fromSpec_image_basicOpen :
   exact Scheme.basicOpen_le _ _
 
 @[simp]
-theorem basicOpen_fromSpec_app :
-    (Spec Γ(X, U)).basicOpen (hU.fromSpec.app U f) = PrimeSpectrum.basicOpen f := by
+theorem basicOpen_fromSpec_app
+    : (Spec Γ(X, U)).basicOpen (hU.fromSpec.app U f) = PrimeSpectrum.basicOpen f := by
   rw [← hU.fromSpec_preimage_basicOpen, Scheme.preimage_basicOpen]
 
 set_option backward.isDefEq.respectTransparency.types false in
 include hU in
-theorem basicOpen :
-    IsAffineOpen (X.basicOpen f) := by
+theorem basicOpen : IsAffineOpen (X.basicOpen f) := by
   rw [← hU.fromSpec_image_basicOpen, Scheme.Hom.isAffineOpen_iff_of_isOpenImmersion]
   convert!
     isAffineOpen_opensRange
@@ -616,21 +618,21 @@ lemma Spec_basicOpen {R : CommRingCat} (f : R) :
     IsAffineOpen (X := Spec R) (PrimeSpectrum.basicOpen f) :=
   basicOpen_eq_of_affine f ▸ (isAffineOpen_top (Spec ↧R)).basicOpen _
 
-instance [IsAffine X] (r : Γ(X, ⊤)) : IsAffine (X.basicOpen r) :=
-  (isAffineOpen_top X).basicOpen _
+instance [IsAffine X] (r : Γ(X, ⊤)) : IsAffine (X.basicOpen r) := (isAffineOpen_top X).basicOpen _
 
 include hU in
-theorem ι_basicOpen_preimage (r : Γ(X, ⊤)) :
-    IsAffineOpen ((X.basicOpen r).ι ⁻¹ᵁ U) := by
+theorem ι_basicOpen_preimage (r : Γ(X, ⊤)) : IsAffineOpen ((X.basicOpen r).ι ⁻¹ᵁ U) := by
   apply (X.basicOpen r).ι.isAffineOpen_iff_of_isOpenImmersion.mp
-  rw [Scheme.Hom.image_preimage_eq_opensRange_inf, Scheme.Opens.opensRange_ι, inf_comm,
-    ← Scheme.basicOpen_res _ _ (homOfLE le_top).op]
+  rw [
+    Scheme.Hom.image_preimage_eq_opensRange_inf, Scheme.Opens.opensRange_ι, inf_comm,
+    ← Scheme.basicOpen_res _ _ (homOfLE le_top).op
+  ]
   exact hU.basicOpen _
 
 set_option backward.isDefEq.respectTransparency false in
 include hU in
-theorem exists_basicOpen_le {V : X.Opens} (x : V) (h : ↑x ∈ U) :
-    ∃ f : Γ(X, U), X.basicOpen f ≤ V ∧ ↑x ∈ X.basicOpen f := by
+theorem exists_basicOpen_le {V : X.Opens} (x : V) (h : ↑x ∈ U)
+    : ∃ f : Γ(X, U), X.basicOpen f ≤ V ∧ ↑x ∈ X.basicOpen f := by
   have : IsAffine _ := hU
   obtain ⟨_, ⟨_, ⟨r, rfl⟩, rfl⟩, h₁, h₂ : _ ≤ U.ι ⁻¹ᵁ V⟩ :=
     (isBasis_basicOpen U).exists_subset_of_mem_open (x.2 : (⟨x, h⟩ : U) ∈ _) (U.ι ⁻¹ᵁ V).isOpen
@@ -640,8 +642,7 @@ theorem exists_basicOpen_le {V : X.Opens} (x : V) (h : ↑x ∈ U) :
   exact ⟨U.topIso.hom.hom r, by simp [Scheme.Opens.toScheme_presheaf_obj, h₁, h₂]⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-noncomputable
-instance {R : CommRingCat} {U} : Algebra R Γ(Spec R, U) :=
+noncomputable instance {R : CommRingCat} {U} : Algebra R Γ(Spec R, U) :=
   inferInstanceAs (Algebra R ((Spec.structureSheaf R).presheaf.obj _))
 
 @[simp]
@@ -649,44 +650,42 @@ lemma algebraMap_Spec_obj {R : CommRingCat} {U} : algebraMap R Γ(Spec R, U) =
     ((Scheme.ΓSpecIso R).inv ≫ (Spec R).presheaf.map (homOfLE le_top).op).hom := rfl
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {R : CommRingCat} {f : R} :
-    IsLocalization.Away f Γ(Spec R, PrimeSpectrum.basicOpen f) :=
-  inferInstanceAs (IsLocalization.Away f
-    ((Spec.structureSheaf R).obj.obj (op <| PrimeSpectrum.basicOpen f)))
+instance {R : CommRingCat} {f : R} : IsLocalization.Away f Γ(Spec R, PrimeSpectrum.basicOpen f) :=
+  inferInstanceAs
+    (IsLocalization.Away f ((Spec.structureSheaf R).obj.obj (op <| PrimeSpectrum.basicOpen f)))
 
-/-- Given an affine open U and some `f : U`,
+/--
+Given an affine open U and some `f : U`,
 this is the canonical map `Γ(𝒪ₓ, D(f)) ⟶ Γ(Spec 𝒪ₓ(U), D(f))`
-This is an isomorphism, as witnessed by an `IsIso` instance. -/
-def basicOpenSectionsToAffine :
-    Γ(X, X.basicOpen f) ⟶ Γ(Spec Γ(X, U), PrimeSpectrum.basicOpen f) :=
-  hU.fromSpec.app (X.basicOpen f) ≫
-    (Spec Γ(X, U)).presheaf.map (eqToHom (hU.fromSpec_preimage_basicOpen f).symm).op
+This is an isomorphism, as witnessed by an `IsIso` instance.
+-/
+def basicOpenSectionsToAffine : Γ(X, X.basicOpen f) ⟶ Γ(Spec Γ(X, U), PrimeSpectrum.basicOpen f) :=
+  hU.fromSpec.app (X.basicOpen f)
+    ≫ (Spec Γ(X, U)).presheaf.map (eqToHom (hU.fromSpec_preimage_basicOpen f).symm).op
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance basicOpenSectionsToAffine_isIso :
-    IsIso (basicOpenSectionsToAffine hU f) :=
+instance basicOpenSectionsToAffine_isIso : IsIso (basicOpenSectionsToAffine hU f) :=
   (hU.fromSpec.isIso_app _ (hU.opensRange_fromSpec.symm ▸ X.basicOpen_le f)).comp_isIso'
     inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
 include hU in
-theorem isLocalization_basicOpen :
-    IsLocalization.Away f Γ(X, X.basicOpen f) := by
-  apply
-    (IsLocalization.isLocalization_iff_of_ringEquiv (Submonoid.powers f)
-      (asIso <| basicOpenSectionsToAffine hU f).commRingCatIsoToRingEquiv).mpr
+theorem isLocalization_basicOpen : IsLocalization.Away f Γ(X, X.basicOpen f) := by
+  apply (IsLocalization.isLocalization_iff_of_ringEquiv (Submonoid.powers f)
+    (asIso <| basicOpenSectionsToAffine hU f).commRingCatIsoToRingEquiv).mpr
   convert! StructureSheaf.IsLocalization.to_basicOpen _ f using 1
   apply Algebra.algebra_ext
   intro _
   congr 1
-  dsimp [CommRingCat.ofHom, RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp,
-    basicOpenSectionsToAffine]
+  dsimp [
+    CommRingCat.ofHom, RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp,
+    basicOpenSectionsToAffine
+  ]
   rw [hU.fromSpec.naturality_assoc, hU.fromSpec_app_self]
   rfl
 
-instance _root_.AlgebraicGeometry.isLocalization_away_of_isAffine
-    [IsAffine X] (r : Γ(X, ⊤)) :
-    IsLocalization.Away r Γ(X, X.basicOpen r) :=
+instance _root_.AlgebraicGeometry.isLocalization_away_of_isAffine [IsAffine X] (r : Γ(X, ⊤))
+    : IsLocalization.Away r Γ(X, X.basicOpen r) :=
   isLocalization_basicOpen (isAffineOpen_top X) r
 
 lemma appLE_eq_away_map {X Y : Scheme.{u}} (f : X ⟶ Y) {U : Y.Opens} (hU : IsAffineOpen U)
@@ -722,47 +721,49 @@ lemma app_basicOpen_eq_away_map {X Y : Scheme.{u}} (f : X ⟶ Y) {U : Y.Opens}
   simp
 
 set_option backward.defeqAttrib.useBackward true in
-/-- `f.app (Y.basicOpen r)` is isomorphic to map induced on localizations
-`Γ(Y, Y.basicOpen r) ⟶ Γ(X, X.basicOpen (f.app U r))` -/
-def appBasicOpenIsoAwayMap {X Y : Scheme.{u}} (f : X ⟶ Y) {U : Y.Opens}
-    (hU : IsAffineOpen U) (h : IsAffineOpen (f ⁻¹ᵁ U)) (r : Γ(Y, U)) :
-    haveI := hU.isLocalization_basicOpen r
-    haveI := h.isLocalization_basicOpen (f.app U r)
-    Arrow.mk (f.app (Y.basicOpen r)) ≅
-      Arrow.mk (CommRingCat.ofHom (IsLocalization.Away.map Γ(Y, Y.basicOpen r)
-        Γ(X, X.basicOpen (f.app U r)) (f.app U).hom r)) :=
+/--
+`f.app (Y.basicOpen r)` is isomorphic to map induced on localizations
+`Γ(Y, Y.basicOpen r) ⟶ Γ(X, X.basicOpen (f.app U r))`
+-/
+def appBasicOpenIsoAwayMap
+    {X Y : Scheme.{u}} (f : X ⟶ Y)
+    {U : Y.Opens} (hU : IsAffineOpen U) (h : IsAffineOpen (f ⁻¹ᵁ U)) (r : Γ(Y, U))
+    : haveI := hU.isLocalization_basicOpen r
+      haveI := h.isLocalization_basicOpen (f.app U r)
+      Arrow.mk (f.app (Y.basicOpen r)) ≅ Arrow.mk (CommRingCat.ofHom (IsLocalization.Away.map
+        (Γ(Y, Y.basicOpen r)) (Γ(X, X.basicOpen (f.app U r))) (f.app U).hom r)) :=
   Arrow.isoMk (Iso.refl _) (X.presheaf.mapIso (eqToIso (by simp)).op) <| by
     simp [hU.app_basicOpen_eq_away_map f h]
     rfl
 
 include hU in
-theorem isLocalization_of_eq_basicOpen {V : X.Opens} (i : V ⟶ U) (e : V = X.basicOpen f) :
-    @IsLocalization.Away _ _ f Γ(X, V) _ (X.presheaf.map i.op).hom.toAlgebra := by
+theorem isLocalization_of_eq_basicOpen {V : X.Opens} (i : V ⟶ U) (e : V = X.basicOpen f)
+    : @IsLocalization.Away _ _ f (Γ(X, V)) _ (X.presheaf.map i.op).hom.toAlgebra := by
   subst e; exact isLocalization_basicOpen hU f
 
 instance _root_.AlgebraicGeometry.Γ_restrict_isLocalization
-    (X : Scheme.{u}) [IsAffine X] (r : Γ(X, ⊤)) :
-    IsLocalization.Away r Γ(X.basicOpen r, ⊤) :=
+    (X : Scheme.{u}) [IsAffine X] (r : Γ(X, ⊤))
+    : IsLocalization.Away r Γ(X.basicOpen r, ⊤) :=
   (isAffineOpen_top X).isLocalization_of_eq_basicOpen r _ (Opens.isOpenEmbedding_obj_top _)
 
 include hU in
-theorem basicOpen_basicOpen_is_basicOpen (g : Γ(X, X.basicOpen f)) :
-    ∃ f' : Γ(X, U), X.basicOpen f' = X.basicOpen g := by
+theorem basicOpen_basicOpen_is_basicOpen (g : Γ(X, X.basicOpen f))
+    : ∃ f' : Γ(X, U), X.basicOpen f' = X.basicOpen g := by
   have := isLocalization_basicOpen hU f
   obtain ⟨x, ⟨_, n, rfl⟩, rfl⟩ := IsLocalization.surj' (Submonoid.powers f) g
   use f * x
-  rw [Algebra.smul_def, Scheme.basicOpen_mul, Scheme.basicOpen_mul, RingHom.algebraMap_toAlgebra,
-    Scheme.basicOpen_res]
+  rw [
+    Algebra.smul_def, Scheme.basicOpen_mul, Scheme.basicOpen_mul, RingHom.algebraMap_toAlgebra,
+    Scheme.basicOpen_res
+  ]
   refine (inf_eq_left.mpr (inf_le_left.trans_eq (Scheme.basicOpen_of_isUnit _ ?_).symm)).symm
-  exact
-    Submonoid.leftInv_le_isUnit _
-      (IsLocalization.toInvSubmonoid (Submonoid.powers f) (Γ(X, X.basicOpen f))
-        _).prop
+  exact Submonoid.leftInv_le_isUnit _
+    (IsLocalization.toInvSubmonoid (Submonoid.powers f) (Γ(X, X.basicOpen f)) _).prop
 
 include hU in
 theorem _root_.AlgebraicGeometry.exists_basicOpen_le_affine_inter
-    {V : X.Opens} (hV : IsAffineOpen V) (x : X) (hx : x ∈ U ⊓ V) :
-    ∃ (f : Γ(X, U)) (g : Γ(X, V)), X.basicOpen f = X.basicOpen g ∧ x ∈ X.basicOpen f := by
+    {V : X.Opens} (hV : IsAffineOpen V) (x : X) (hx : x ∈ U ⊓ V)
+    : ∃ (f : Γ(X, U)) (g : Γ(X, V)), X.basicOpen f = X.basicOpen g ∧ x ∈ X.basicOpen f := by
   obtain ⟨f, hf₁, hf₂⟩ := hU.exists_basicOpen_le ⟨x, hx.2⟩ hx.1
   obtain ⟨g, hg₁, hg₂⟩ := hV.exists_basicOpen_le ⟨x, hf₂⟩ hx.2
   obtain ⟨f', hf'⟩ :=
@@ -771,20 +772,17 @@ theorem _root_.AlgebraicGeometry.exists_basicOpen_le_affine_inter
   exact ⟨f', g, hf', hf'.symm ▸ hg₂⟩
 
 /-- The prime ideal of `𝒪ₓ(U)` corresponding to a point `x : U`. -/
-noncomputable def primeIdealOf (x : U) :
-    PrimeSpectrum Γ(X, U) :=
-  hU.isoSpec.hom x
+noncomputable def primeIdealOf (x : U) : PrimeSpectrum Γ(X, U) := hU.isoSpec.hom x
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem fromSpec_primeIdealOf (x : U) :
-    hU.fromSpec (hU.primeIdealOf x) = x.1 := by
+theorem fromSpec_primeIdealOf (x : U) : hU.fromSpec (hU.primeIdealOf x) = x.1 := by
   dsimp only [IsAffineOpen.fromSpec, Subtype.coe_mk, IsAffineOpen.primeIdealOf]
   rw [← Scheme.Hom.comp_apply, Iso.hom_inv_id_assoc]
   rfl
 
 open IsLocalRing in
-theorem primeIdealOf_eq_map_closedPoint (x : U) :
-    hU.primeIdealOf x = Spec.map (X.presheaf.germ _ x x.2) (closedPoint _) :=
+theorem primeIdealOf_eq_map_closedPoint (x : U)
+    : hU.primeIdealOf x = Spec.map (X.presheaf.germ _ x x.2) (closedPoint _) :=
   hU.isoSpec_hom_apply _
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -801,37 +799,35 @@ lemma comap_primeIdealOf_appLE {f : X ⟶ Y} {x : X} (U : Y.Opens)
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- If a point `x : U` is a closed point, then its corresponding prime ideal is maximal. -/
-theorem primeIdealOf_isMaximal_of_isClosed (x : U) (hx : IsClosed {(x : X)}) :
-    (hU.primeIdealOf x).asIdeal.IsMaximal := by
+theorem primeIdealOf_isMaximal_of_isClosed (x : U) (hx : IsClosed {(x : X)})
+    : (hU.primeIdealOf x).asIdeal.IsMaximal := by
   have hx₀ : IsClosed {x} := by
-    simpa [← Set.image_singleton, Set.preimage_image_eq _ Subtype.val_injective]
-      using hx.preimage U.isOpenEmbedding'.continuous
+    simpa [← Set.image_singleton, Set.preimage_image_eq _ Subtype.val_injective] using
+      hx.preimage U.isOpenEmbedding'.continuous
   apply (hU.primeIdealOf x).isClosed_singleton_iff_isMaximal.mp
   rw [primeIdealOf, ← Set.image_singleton]
   refine (Topology.IsClosedEmbedding.isClosed_iff_image_isClosed <|
-    IsHomeomorph.isClosedEmbedding ?_).mp hx₀
+      IsHomeomorph.isClosedEmbedding ?_).mp
+    hx₀
   apply (TopCat.isIso_iff_isHomeomorph _).mp
   infer_instance
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem isLocalization_stalk' (y : PrimeSpectrum Γ(X, U)) (hy : hU.fromSpec y ∈ U) :
-    @IsLocalization.AtPrime
-      (R := Γ(X, U))
-      (S := X.presheaf.stalk <| hU.fromSpec y) _ _
+theorem isLocalization_stalk' (y : PrimeSpectrum Γ(X, U)) (hy : hU.fromSpec y ∈ U)
+    : @IsLocalization.AtPrime (R := Γ(X, U)) (S := X.presheaf.stalk <| hU.fromSpec y) _ _
       ((TopCat.Presheaf.algebra_section_stalk X.presheaf _)) y.asIdeal _ := by
-  apply
-    (@IsLocalization.isLocalization_iff_of_ringEquiv (R := Γ(X, U))
-      (S := X.presheaf.stalk (hU.fromSpec y)) _ y.asIdeal.primeCompl _
-      (TopCat.Presheaf.algebra_section_stalk X.presheaf ⟨hU.fromSpec y, hy⟩) _ _
-      (asIso <| hU.fromSpec.stalkMap y).commRingCatIsoToRingEquiv).mpr
+  apply (@IsLocalization.isLocalization_iff_of_ringEquiv (R := Γ(X, U))
+    (S := X.presheaf.stalk (hU.fromSpec y)) _ y.asIdeal.primeCompl _
+    (TopCat.Presheaf.algebra_section_stalk X.presheaf ⟨hU.fromSpec y, hy⟩) _ _
+    (asIso <| hU.fromSpec.stalkMap y).commRingCatIsoToRingEquiv).mpr
   convert StructureSheaf.IsLocalization.to_stalk Γ(X, U) y
   delta IsLocalization.AtPrime StructureSheaf.stalkAlgebra
   congr!
   simp [RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp, IsAffineOpen.fromSpec_app_self]
   rfl
 
-theorem isLocalization_stalk (x : U) :
-    IsLocalization.AtPrime (X.presheaf.stalk x) (hU.primeIdealOf x).asIdeal := by
+theorem isLocalization_stalk (x : U)
+    : IsLocalization.AtPrime (X.presheaf.stalk x) (hU.primeIdealOf x).asIdeal := by
   rcases x with ⟨x, hx⟩
   set y := hU.primeIdealOf ⟨x, hx⟩ with hy
   have : hU.fromSpec y = x := hy ▸ hU.fromSpec_primeIdealOf ⟨x, hx⟩
@@ -879,12 +875,16 @@ lemma ideal_ext_iff {I J : Ideal Γ(X, U)} :
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- Given affine opens `x ∈ V ⊆ f⁻¹(U)`, the stalk map of `f` at `x` is isomorphic to
-`Localization.localRingHom` of `f.appLE U V`. -/
-def arrowStalkMapIso (f : X ⟶ Y) {x : X} (U : Y.Opens)
-      (hU : IsAffineOpen U) (V : X.Opens) (hV : IsAffineOpen V) (hVU : V ≤ f ⁻¹ᵁ U)
-      (hx : x ∈ V) :
-    Arrow.mk (f.stalkMap x) ≅ Arrow.mk (CommRingCat.ofHom <|
+/--
+Given affine opens `x ∈ V ⊆ f⁻¹(U)`, the stalk map of `f` at `x` is isomorphic to
+`Localization.localRingHom` of `f.appLE U V`.
+-/
+def arrowStalkMapIso
+    (f : X ⟶ Y)
+    {x : X}
+    (U : Y.Opens) (hU : IsAffineOpen U)
+    (V : X.Opens) (hV : IsAffineOpen V) (hVU : V ≤ f ⁻¹ᵁ U) (hx : x ∈ V)
+    : Arrow.mk (f.stalkMap x) ≅ Arrow.mk (CommRingCat.ofHom <|
       Localization.localRingHom _ _ (f.appLE U V hVU).hom
         congr($(IsAffineOpen.comap_primeIdealOf_appLE U hU V hV hVU hx).1).symm) := by
   let := Y.presheaf.algebra_section_stalk ⟨f x, hVU hx⟩
@@ -893,27 +893,32 @@ def arrowStalkMapIso (f : X ⟶ Y) {x : X} (U : Y.Opens)
   have := hV.isLocalization_stalk ⟨x, hx⟩
   refine Arrow.isoMk' _ _ ?_ ?_ ?_
   · exact ((IsLocalization.algEquiv (hU.primeIdealOf ⟨f x, hVU hx⟩).asIdeal.primeCompl
-      (Y.presheaf.stalk (f x))
-      (Localization.AtPrime (hU.primeIdealOf ⟨f x, hVU hx⟩).asIdeal)).toCommRingCatIso:)
+        (Y.presheaf.stalk (f x))
+        (Localization.AtPrime (hU.primeIdealOf ⟨f x, hVU hx⟩).asIdeal)).toCommRingCatIso
+      :)
   · exact ((IsLocalization.algEquiv (hV.primeIdealOf ⟨x, hx⟩).asIdeal.primeCompl
-      (X.presheaf.stalk x)
-      (Localization.AtPrime (hV.primeIdealOf ⟨x, hx⟩).asIdeal)).toCommRingCatIso:)
+        (X.presheaf.stalk x)
+        (Localization.AtPrime (hV.primeIdealOf ⟨x, hx⟩).asIdeal)).toCommRingCatIso
+      :)
   · rw [← Iso.comp_inv_eq]
     ext1
-    apply IsLocalization.ringHom_ext
-      (hU.primeIdealOf ⟨f x, hVU hx⟩).asIdeal.primeCompl
+    apply IsLocalization.ringHom_ext (hU.primeIdealOf ⟨f x, hVU hx⟩).asIdeal.primeCompl
     ext a
     dsimp [← AlgEquiv.symm_toRingEquiv]
-    simp only [IsLocalization.map_eq, RingHom.id_apply, Localization.localRingHom_to_map,
-      RingHomCompTriple.comp_apply]
-    simp only [RingHom.algebraMap_toAlgebra, Scheme.Hom.germ_stalkMap_apply, Scheme.Hom.appLE,
+    simp only [
+      IsLocalization.map_eq, RingHom.id_apply, Localization.localRingHom_to_map,
+      RingHomCompTriple.comp_apply
+    ]
+    simp only [
+      RingHom.algebraMap_toAlgebra, Scheme.Hom.germ_stalkMap_apply, Scheme.Hom.appLE,
       homOfLE_leOfHom, CommRingCat.hom_comp, RingHom.coe_comp, Function.comp_apply,
-      X.presheaf.germ_res_apply]
+      X.presheaf.germ_res_apply
+    ]
 
 /-- The basic open set of a section `f` on an affine open as an `X.affineOpens`. -/
 @[simps]
-def _root_.AlgebraicGeometry.Scheme.affineBasicOpen
-    (X : Scheme) {U : X.affineOpens} (f : Γ(X, U)) : X.affineOpens :=
+def _root_.AlgebraicGeometry.Scheme.affineBasicOpen (X : Scheme) {U : X.affineOpens} (f : Γ(X, U))
+    : X.affineOpens :=
   ⟨X.basicOpen f, U.prop.basicOpen f⟩
 
 lemma _root_.AlgebraicGeometry.Scheme.affineBasicOpen_le
@@ -925,8 +930,8 @@ include hU in
 In an affine open set `U`, a family of basic open covers `U` iff the sections span `Γ(X, U)`.
 See `iSup_basicOpen_of_span_eq_top` for the inverse direction without the affine-ness assumption.
 -/
-theorem iSup_basicOpen_eq_self_iff {s : Set Γ(X, U)} :
-    ⨆ f : s, X.basicOpen (f : Γ(X, U)) = U ↔ Ideal.span s = ⊤ := by
+theorem iSup_basicOpen_eq_self_iff {s : Set Γ(X, U)}
+    : ⨆ f : s, X.basicOpen (f : Γ(X, U)) = U ↔ Ideal.span s = ⊤ := by
   trans ⋃ i : s, (PrimeSpectrum.basicOpen i.1).1 = Set.univ
   · trans hU.fromSpec ⁻¹' (⨆ f : s, X.basicOpen (f : Γ(X, U))).1 = hU.fromSpec ⁻¹' U.1
     · refine ⟨fun h => by rw [h], ?_⟩
@@ -947,13 +952,15 @@ theorem iSup_basicOpen_eq_self_iff {s : Set Γ(X, U)} :
         congrm Opens.carrier $(hU.fromSpec_preimage_basicOpen _)
       · congrm Opens.carrier $(hU.fromSpec_preimage_self)
   · simp only [Opens.carrier_eq_coe, PrimeSpectrum.basicOpen_eq_zeroLocus_compl]
-    rw [← Set.compl_iInter, Set.compl_univ_iff, ← PrimeSpectrum.zeroLocus_iUnion, ←
-      PrimeSpectrum.zeroLocus_empty_iff_eq_top, PrimeSpectrum.zeroLocus_span]
+    rw [
+      ← Set.compl_iInter, Set.compl_univ_iff, ← PrimeSpectrum.zeroLocus_iUnion,
+      ← PrimeSpectrum.zeroLocus_empty_iff_eq_top, PrimeSpectrum.zeroLocus_span
+    ]
     simp only [Set.iUnion_singleton_eq_range, Subtype.range_val_subtype, Set.ofPred_mem_eq]
 
 include hU in
-theorem self_le_iSup_basicOpen_iff {s : Set Γ(X, U)} :
-    (U ≤ ⨆ f : s, X.basicOpen f.1) ↔ Ideal.span s = ⊤ := by
+theorem self_le_iSup_basicOpen_iff {s : Set Γ(X, U)}
+    : (U ≤ ⨆ f : s, X.basicOpen f.1) ↔ Ideal.span s = ⊤ := by
   rw [← hU.iSup_basicOpen_eq_self_iff, @comm _ Eq]
   refine ⟨fun h => le_antisymm h ?_, le_of_eq⟩
   simp only [iSup_le_iff, SetCoe.forall]
@@ -965,9 +972,10 @@ end IsAffineOpen
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The affine open cover given by a covering family of affine opens. -/
 @[simps I₀ X f]
-def Scheme.AffineOpenCover.ofIsOpenCover {X : Scheme.{u}} {ι : Type*} (U : ι → X.Opens)
-    (hU : IsOpenCover U) (hU' : ∀ i, IsAffineOpen (U i)) :
-    AffineOpenCover X where
+def Scheme.AffineOpenCover.ofIsOpenCover
+    {X : Scheme.{u}} {ι : Type*}
+    (U : ι → X.Opens) (hU : IsOpenCover U) (hU' : ∀ i, IsAffineOpen (U i))
+    : AffineOpenCover X where
   I₀ := ι
   X i := Γ(X, U i)
   f i := (hU' i).fromSpec
@@ -978,17 +986,20 @@ def Scheme.AffineOpenCover.ofIsOpenCover {X : Scheme.{u}} {ι : Type*} (U : ι �
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 open _root_.PrimeSpectrum in
-/-- The restriction of `Spec.map f` to a basic open `D(r)` is isomorphic to `Spec.map` of the
-localization of `f` away from `r`. -/
-noncomputable def SpecMapRestrictBasicOpenIso {R S : CommRingCat} (f : R ⟶ S) (r : R) :
-    Arrow.mk (Spec.map f ∣_ (PrimeSpectrum.basicOpen r)) ≅
-      Arrow.mk (Spec.map <| CommRingCat.ofHom (Localization.awayMap f.hom r)) := by
+/--
+The restriction of `Spec.map f` to a basic open `D(r)` is isomorphic to `Spec.map` of the
+localization of `f` away from `r`.
+-/
+noncomputable def SpecMapRestrictBasicOpenIso {R S : CommRingCat} (f : R ⟶ S) (r : R)
+    : Arrow.mk (Spec.map f ∣_ (PrimeSpectrum.basicOpen r))
+      ≅ Arrow.mk (Spec.map <| CommRingCat.ofHom (Localization.awayMap f.hom r)) := by
   refine Arrow.isoMk ?_ ?_ ?_
   · exact (Spec _).isoOfEq (comap_basicOpen _ _) ≪≫ basicOpenIsoSpecAway (f.hom r)
   · exact basicOpenIsoSpecAway r
-  · have hcomp : CommRingCat.ofHom (algebraMap R (Localization.Away r)) ≫
-        CommRingCat.ofHom (Localization.awayMap f.hom r) =
-        f ≫ CommRingCat.ofHom (algebraMap S (Localization.Away (f.hom r))) := by
+  · have hcomp
+        : CommRingCat.ofHom (algebraMap R (Localization.Away r))
+            ≫ CommRingCat.ofHom (Localization.awayMap f.hom r)
+          = f ≫ CommRingCat.ofHom (algebraMap S (Localization.Away (f.hom r))) := by
       ext x
       simp [Localization.awayMap, IsLocalization.Away.map]
     rw [← cancel_mono (Spec.map (CommRingCat.ofHom (algebraMap R _)))]
@@ -1021,24 +1032,26 @@ lemma iSup_basicOpen_of_span_eq_top {X : Scheme} (U) (s : Set Γ(X, U))
     exact fun i hi ↦ (Set.inter_subset_right.trans
       (Set.subset_iUnion₂ (s := fun x _ ↦ (X.basicOpen x : Set X)) i hi))
 
-/-- Let `P` be a predicate on the affine open sets of `X` satisfying
+/--
+Let `P` be a predicate on the affine open sets of `X` satisfying
 1. If `P` holds on `U`, then `P` holds on the basic open set of every section on `U`.
 2. If `P` holds for a family of basic open sets covering `U`, then `P` holds for `U`.
 3. There exists an affine open cover of `X` each satisfying `P`.
 
 Then `P` holds for every affine open of `X`.
 
-This is also known as the **Affine communication lemma** in [*The rising sea*][RisingSea]. -/
+This is also known as the **Affine communication lemma** in [*The rising sea*][RisingSea].
+-/
 @[elab_as_elim]
-theorem of_affine_open_cover {X : Scheme} {P : X.affineOpens → Prop}
-    {ι} (U : ι → X.affineOpens) (iSup_U : (⨆ i, U i : X.Opens) = ⊤)
-    (V : X.affineOpens)
+theorem of_affine_open_cover
+    {X : Scheme} {P : X.affineOpens → Prop} {ι}
+    (U : ι → X.affineOpens) (iSup_U : (⨆ i, U i : X.Opens) = ⊤) (V : X.affineOpens)
     (basicOpen : ∀ (U : X.affineOpens) (f : Γ(X, U)), P U → P (X.affineBasicOpen f))
-    (openCover :
-      ∀ (U : X.affineOpens) (s : Finset (Γ(X, U)))
-        (_ : Ideal.span (s : Set (Γ(X, U))) = ⊤),
+    (openCover
+      : ∀ (U : X.affineOpens) (s : Finset (Γ(X, U))) (_ : Ideal.span (s : Set (Γ(X, U))) = ⊤),
         (∀ f : s, P (X.affineBasicOpen f.1)) → P U)
-    (hU : ∀ i, P (U i)) : P V := by
+    (hU : ∀ i, P (U i))
+    : P V := by
   have : ∀ (x : V.1), ∃ f : Γ(X, V), ↑x ∈ X.basicOpen f ∧ P (X.affineBasicOpen f) := by
     intro x
     obtain ⟨i, hi⟩ := Opens.mem_iSup.mp (iSup_U.ge (Set.mem_univ x))
@@ -1216,13 +1229,16 @@ section Factorization
 
 variable {X : Scheme.{u}} {A : CommRingCat}
 
-/-- Given `f : X ⟶ Spec A` and some ideal `I ≤ ker(A ⟶ Γ(X, ⊤))`,
-this is the lift to `X ⟶ Spec (A ⧸ I)`. -/
-def Scheme.Hom.liftQuotient (f : X.Hom (Spec A)) (I : Ideal A)
-    (hI : I ≤ RingHom.ker ((Scheme.ΓSpecIso A).inv ≫ f.appTop).hom) :
-    X ⟶ Spec <| .of (A ⧸ I) :=
-  X.toSpecΓ ≫ Spec.map (CommRingCat.ofHom
-    (Ideal.Quotient.lift _ ((Scheme.ΓSpecIso _).inv ≫ f.appTop).hom hI))
+/--
+Given `f : X ⟶ Spec A` and some ideal `I ≤ ker(A ⟶ Γ(X, ⊤))`,
+this is the lift to `X ⟶ Spec (A ⧸ I)`.
+-/
+def Scheme.Hom.liftQuotient
+    (f : X.Hom (Spec A)) (I : Ideal A)
+    (hI : I ≤ RingHom.ker ((Scheme.ΓSpecIso A).inv ≫ f.appTop).hom)
+    : X ⟶ Spec <| .of (A ⧸ I) :=
+  X.toSpecΓ ≫ Spec.map (CommRingCat.ofHom (Ideal.Quotient.lift _
+    ((Scheme.ΓSpecIso _).inv ≫ f.appTop).hom hI))
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[reassoc]
@@ -1235,26 +1251,33 @@ lemma Scheme.Hom.liftQuotient_comp (f : X.Hom (Spec A)) (I : Ideal A)
     Scheme.toSpecΓ_naturality_assoc, ← SpecMap_ΓSpecIso_hom]
   simp
 
-/-- If `X ⟶ Spec A` is a morphism of schemes, then `Spec` of `A ⧸ specTargetImage f`
+/--
+If `X ⟶ Spec A` is a morphism of schemes, then `Spec` of `A ⧸ specTargetImage f`
 is the scheme-theoretic image of `f`. For this quotient as an object of `CommRingCat` see
-`specTargetImage` below. -/
+`specTargetImage` below.
+-/
 def specTargetImageIdeal (f : X ⟶ Spec A) : Ideal A :=
   (RingHom.ker (((ΓSpec.adjunction).homEquiv X (op A)).symm f).unop.hom)
 
-/-- If `X ⟶ Spec A` is a morphism of schemes, then `Spec` of `specTargetImage f` is the
+/--
+If `X ⟶ Spec A` is a morphism of schemes, then `Spec` of `specTargetImage f` is the
 scheme-theoretic image of `f` and `f` factors as
 `specTargetImageFactorization f ≫ Spec.map (specTargetImageRingHom f)`
-(see `specTargetImageFactorization_comp`). -/
-def specTargetImage (f : X ⟶ Spec A) : CommRingCat :=
-  ↧(A ⧸ specTargetImageIdeal f)
+(see `specTargetImageFactorization_comp`).
+-/
+def specTargetImage (f : X ⟶ Spec A) : CommRingCat := ↧(A ⧸ specTargetImageIdeal f)
 
-/-- If `f : X ⟶ Spec A` is a morphism of schemes, then `f` factors via
-the inclusion of `Spec (specTargetImage f)` into `X`. -/
+/--
+If `f : X ⟶ Spec A` is a morphism of schemes, then `f` factors via
+the inclusion of `Spec (specTargetImage f)` into `X`.
+-/
 def specTargetImageFactorization (f : X ⟶ Spec A) : X ⟶ Spec (specTargetImage f) :=
   f.liftQuotient _ le_rfl
 
-/-- If `f : X ⟶ Spec A` is a morphism of schemes, the induced morphism on spectra of
-`specTargetImageRingHom f` is the inclusion of the scheme-theoretic image of `f` into `Spec A`. -/
+/--
+If `f : X ⟶ Spec A` is a morphism of schemes, the induced morphism on spectra of
+`specTargetImageRingHom f` is the inclusion of the scheme-theoretic image of `f` into `Spec A`.
+-/
 def specTargetImageRingHom (f : X ⟶ Spec A) : A ⟶ specTargetImage f :=
   CommRingCat.ofHom (Ideal.Quotient.mk (specTargetImageIdeal f))
 
@@ -1285,10 +1308,11 @@ section Stalks
 variable {R S : CommRingCat.{u}} (f : R ⟶ S) (p : PrimeSpectrum S) (x : PrimeSpectrum R)
 
 variable (R) (x : PrimeSpectrum R) in
-/-- The stalk of `Spec R` at `x` is isomorphic to `Rₚ`,
-where `p` is the prime corresponding to `x`. -/
-noncomputable
-def Spec.stalkIso : (Spec R).presheaf.stalk x ≅ ↧(Localization.AtPrime x.asIdeal) :=
+/--
+The stalk of `Spec R` at `x` is isomorphic to `Rₚ`,
+where `p` is the prime corresponding to `x`.
+-/
+noncomputable def Spec.stalkIso : (Spec R).presheaf.stalk x ≅ ↧(Localization.AtPrime x.asIdeal) :=
   (StructureSheaf.stalkIso ..).toCommRingCatIso.symm
 
 @[reassoc (attr := simp)]
@@ -1317,13 +1341,14 @@ lemma Scheme.localRingHom_comp_stalkIso {R S : CommRingCat.{u}} (f : R ⟶ S) (p
   AlgebraicGeometry.localRingHom_comp_stalkIso f p
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Given a morphism of rings `f : R ⟶ S`, the stalk map of `Spec S ⟶ Spec R` at
-a prime of `S` is isomorphic to the localized ring homomorphism. -/
-def Scheme.arrowStalkMapSpecIso {R S : CommRingCat.{u}} (f : R ⟶ S) (p : PrimeSpectrum S) :
-    Arrow.mk ((Spec.map f).stalkMap p) ≅ Arrow.mk (CommRingCat.ofHom <| Localization.localRingHom
-      (p.comap f.hom).asIdeal p.asIdeal f.hom rfl) := Arrow.isoMk
-  (Spec.stalkIso R (p.comap f.hom))
-  (Spec.stalkIso S p) <| by
+/--
+Given a morphism of rings `f : R ⟶ S`, the stalk map of `Spec S ⟶ Spec R` at
+a prime of `S` is isomorphic to the localized ring homomorphism.
+-/
+def Scheme.arrowStalkMapSpecIso {R S : CommRingCat.{u}} (f : R ⟶ S) (p : PrimeSpectrum S)
+    : Arrow.mk ((Spec.map f).stalkMap p) ≅ Arrow.mk (CommRingCat.ofHom <|
+      Localization.localRingHom (p.comap f.hom).asIdeal p.asIdeal f.hom rfl) :=
+  Arrow.isoMk (Spec.stalkIso R (p.comap f.hom)) (Spec.stalkIso S p) <| by
     rw [← Scheme.localRingHom_comp_stalkIso]
     simp
 

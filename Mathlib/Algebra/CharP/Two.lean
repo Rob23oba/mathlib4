@@ -46,9 +46,7 @@ theorem of_one_ne_zero_of_two_eq_zero (h₁ : (1 : R) ≠ 0) (h₂ : (2 : R) = 0
 variable [CharP R 2]
 
 -- For the use of `scoped` rather than `simp`, see library note [Simp lemmas with weak keys]
-@[scoped simp]
-theorem two_eq_zero : (2 : R) = 0 := by
-  rw [← Nat.cast_two, CharP.cast_eq_zero]
+@[scoped simp] theorem two_eq_zero : (2 : R) = 0 := by rw [← Nat.cast_two, CharP.cast_eq_zero]
 
 theorem natCast_eq_ite (n : ℕ) : (n : R) = if Even n then 0 else 1 := by
   induction n <;> aesop (add simp [one_add_one_eq_two])
@@ -60,11 +58,9 @@ theorem range_natCast : Set.range ((↑) : ℕ → R) = {0, 1} := by
   · use 1; simp
 
 variable (R) in
-theorem natCast_cases (n : ℕ) : (n : R) = 0 ∨ (n : R) = 1 :=
-  range_natCast.le (Set.mem_range_self _)
+theorem natCast_cases (n : ℕ) : (n : R) = 0 ∨ (n : R) = 1 := range_natCast.le (Set.mem_range_self _)
 
-theorem natCast_eq_mod (n : ℕ) : (n : R) = (n % 2 : ℕ) := by
-  simp [natCast_eq_ite, Nat.even_iff]
+theorem natCast_eq_mod (n : ℕ) : (n : R) = (n % 2 : ℕ) := by simp [natCast_eq_ite, Nat.even_iff]
 
 -- For the use of `scoped` rather than `simp`, see library note [Simp lemmas with weak keys]
 @[scoped simp]
@@ -104,16 +100,12 @@ section Ring
 variable [Ring R] [CharP R 2]
 
 -- For the use of `scoped` rather than `simp`, see library note [Simp lemmas with weak keys]
-@[scoped simp]
-theorem neg_eq (x : R) : -x = x := by
-  rw [neg_eq_iff_add_eq_zero, add_self_eq_zero]
+@[scoped simp] theorem neg_eq (x : R) : -x = x := by rw [neg_eq_iff_add_eq_zero, add_self_eq_zero]
 
-theorem neg_eq' : Neg.neg = (id : R → R) :=
-  funext neg_eq
+theorem neg_eq' : Neg.neg = (id : R → R) := funext neg_eq
 
 -- For the use of `scoped` rather than `simp`, see library note [Simp lemmas with weak keys]
-@[scoped simp]
-theorem sub_eq_add (x y : R) : x - y = x + y := by rw [sub_eq_add_neg, neg_eq]
+@[scoped simp] theorem sub_eq_add (x y : R) : x - y = x + y := by rw [sub_eq_add_neg, neg_eq]
 
 theorem add_eq_iff_eq_add {a b c : R} : a + b = c ↔ a = c + b := by
   rw [← sub_eq_iff_eq_add, sub_eq_add]
@@ -123,8 +115,7 @@ theorem eq_add_iff_add_eq {a b c : R} : a = b + c ↔ a + c = b := by
 
 -- For the use of `scoped` rather than `simp`, see library note [Simp lemmas with weak keys]
 @[scoped simp]
-protected theorem two_zsmul (x : R) : (2 : ℤ) • x = 0 := by
-  rw [two_zsmul, add_self_eq_zero]
+protected theorem two_zsmul (x : R) : (2 : ℤ) • x = 0 := by rw [two_zsmul, add_self_eq_zero]
 
 protected theorem add_eq_zero {a b : R} : a + b = 0 ↔ a = b := by
   rw [← CharTwo.sub_eq_add, sub_eq_iff_eq_add, zero_add]
@@ -142,8 +133,7 @@ variable (R) in
 theorem intCast_cases (n : ℤ) : (n : R) = 0 ∨ (n : R) = 1 :=
   (Set.ext_iff.1 range_intCast _).1 (Set.mem_range_self _)
 
-theorem intCast_eq_mod (n : ℤ) : (n : R) = (n % 2 : ℤ) := by
-  simp [intCast_eq_ite, Int.even_iff]
+theorem intCast_eq_mod (n : ℤ) : (n : R) = (n % 2 : ℤ) := by simp [intCast_eq_ite, Int.even_iff]
 
 end Ring
 
@@ -151,8 +141,7 @@ section CommSemiring
 
 variable [CommSemiring R] [CharP R 2]
 
-theorem add_sq (x y : R) : (x + y) ^ 2 = x ^ 2 + y ^ 2 := by
-  simp [add_pow_two]
+theorem add_sq (x y : R) : (x + y) ^ 2 = x ^ 2 + y ^ 2 := by simp [add_pow_two]
 
 theorem add_mul_self (x y : R) : (x + y) * (x + y) = x * x + y * y := by
   rw [← pow_two, ← pow_two, ← pow_two, add_sq]
@@ -163,8 +152,7 @@ private def sqAddMonoidHom : R →+ R where
   map_zero' := zero_pow two_ne_zero
   map_add' := add_sq
 
-theorem list_sum_sq (l : List R) : l.sum ^ 2 = (l.map (· ^ 2)).sum :=
-  map_list_sum sqAddMonoidHom _
+theorem list_sum_sq (l : List R) : l.sum ^ 2 = (l.map (· ^ 2)).sum := map_list_sum sqAddMonoidHom _
 
 theorem list_sum_mul_self (l : List R) : l.sum * l.sum = (List.map (fun x => x * x) l).sum := by
   simp_rw [← pow_two, list_sum_sq]
@@ -172,14 +160,16 @@ theorem list_sum_mul_self (l : List R) : l.sum * l.sum = (List.map (fun x => x *
 theorem multiset_sum_sq (l : Multiset R) : l.sum ^ 2 = (l.map (· ^ 2)).sum :=
   map_multiset_sum sqAddMonoidHom _
 
-theorem multiset_sum_mul_self (l : Multiset R) :
-    l.sum * l.sum = (Multiset.map (fun x => x * x) l).sum := by simp_rw [← pow_two, multiset_sum_sq]
+theorem multiset_sum_mul_self (l : Multiset R)
+    : l.sum * l.sum = (Multiset.map (fun x => x * x) l).sum := by
+  simp_rw [← pow_two, multiset_sum_sq]
 
 theorem sum_sq (s : Finset ι) (f : ι → R) : (∑ i ∈ s, f i) ^ 2 = ∑ i ∈ s, f i ^ 2 :=
   map_sum sqAddMonoidHom _ _
 
-theorem sum_mul_self (s : Finset ι) (f : ι → R) :
-    ((∑ i ∈ s, f i) * ∑ i ∈ s, f i) = ∑ i ∈ s, f i * f i := by simp_rw [← pow_two, sum_sq]
+theorem sum_mul_self (s : Finset ι) (f : ι → R)
+    : ((∑ i ∈ s, f i) * ∑ i ∈ s, f i) = ∑ i ∈ s, f i * f i := by
+  simp_rw [← pow_two, sum_sq]
 
 end CommSemiring
 
@@ -192,9 +182,7 @@ theorem sq_injective : Function.Injective fun x : R ↦ x ^ 2 := by
   rwa [← CharTwo.add_eq_zero, ← add_sq, pow_eq_zero_iff two_ne_zero, CharTwo.add_eq_zero] at h
 
 -- For the use of `scoped` rather than `simp`, see library note [Simp lemmas with weak keys]
-@[scoped simp]
-theorem sq_inj {x y : R} : x ^ 2 = y ^ 2 ↔ x = y :=
-  sq_injective.eq_iff
+@[scoped simp] theorem sq_inj {x y : R} : x ^ 2 = y ^ 2 ↔ x = y := sq_injective.eq_iff
 
 end CommRing
 

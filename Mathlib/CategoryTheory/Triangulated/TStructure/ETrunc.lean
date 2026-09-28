@@ -24,7 +24,8 @@ namespace CategoryTheory
 
 open Category Limits Pretriangulated ZeroObject Preadditive
 
-variable {C : Type*} [Category* C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
+variable
+  {C : Type*} [Category* C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
   [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
 namespace Triangulated
@@ -34,8 +35,10 @@ namespace TStructure
 variable (t : TStructure C)
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The functor `EInt ⥤ C ⥤ C` which sends `⊥` to the zero functor,
-`n : ℤ` to `t.truncLT n` and `⊤` to `𝟭 C`. -/
+/--
+The functor `EInt ⥤ C ⥤ C` which sends `⊥` to the zero functor,
+`n : ℤ` to `t.truncLT n` and `⊤` to `𝟭 C`.
+-/
 noncomputable def eTruncLT : EInt ⥤ C ⥤ C where
   obj := WithBotTop.rec 0 t.truncLT (𝟭 C)
   map {x y} f := by
@@ -59,8 +62,8 @@ noncomputable def eTruncLT : EInt ⥤ C ⥤ C where
   map_comp {x y z} f g := by
     have f' := leOfHom f
     have g' := leOfHom g
-    induction x using WithBotTop.rec <;> induction y using WithBotTop.rec <;>
-      induction z using WithBotTop.rec <;> cat_disch
+    induction x using WithBotTop.rec <;> induction y using WithBotTop.rec
+      <;> induction z using WithBotTop.rec <;> cat_disch
 
 @[simp]
 lemma eTruncLT_obj_top : t.eTruncLT.obj ⊤ = 𝟭 _ := rfl
@@ -80,8 +83,10 @@ instance (i : EInt) : (t.eTruncLT.obj i).Additive := by
   all_goals dsimp; infer_instance
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The functor `EInt ⥤ C ⥤ C` which sends `⊥` to `𝟭 C`,
-`n : ℤ` to `t.truncGE n` and `⊤` to the zero functor. -/
+/--
+The functor `EInt ⥤ C ⥤ C` which sends `⊥` to `𝟭 C`,
+`n : ℤ` to `t.truncGE n` and `⊤` to the zero functor.
+-/
 noncomputable def eTruncGE : EInt ⥤ C ⥤ C where
   obj := WithBotTop.rec (𝟭 C) t.truncGE 0
   map {x y} f := by
@@ -105,8 +110,8 @@ noncomputable def eTruncGE : EInt ⥤ C ⥤ C where
   map_comp {x y z} f g := by
     have f' := leOfHom f
     have g' := leOfHom g
-    induction x using WithBotTop.rec <;> induction y using WithBotTop.rec <;>
-      induction z using WithBotTop.rec <;> cat_disch
+    induction x using WithBotTop.rec <;> induction y using WithBotTop.rec
+      <;> induction z using WithBotTop.rec <;> cat_disch
 
 @[simp]
 lemma eTruncGE_obj_bot :
@@ -124,19 +129,21 @@ instance (i : EInt) : (t.eTruncGE.obj i).Additive := by
   all_goals dsimp; infer_instance
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The connecting homomorphism from `t.eTruncGE` to the
-shift by `1` of `t.eTruncLT`. -/
-noncomputable def eTruncGEδLT :
-    t.eTruncGE ⟶ t.eTruncLT ⋙ ((Functor.whiskeringRight ..).obj (shiftFunctor C (1 : ℤ))) where
+/--
+The connecting homomorphism from `t.eTruncGE` to the
+shift by `1` of `t.eTruncLT`.
+-/
+noncomputable def eTruncGEδLT
+    : t.eTruncGE ⟶ t.eTruncLT ⋙ ((Functor.whiskeringRight ..).obj (shiftFunctor C (1 : ℤ))) where
   app := WithBotTop.rec 0 t.truncGEδLT 0
   naturality {a b} hab := by
     replace hab := leOfHom hab
-    induction a using WithBotTop.rec; rotate_right
+    induction a using WithBotTop.rec
+    rotate_right
     · apply (isZero_zero _).eq_of_src
     all_goals
-      induction b using WithBotTop.rec <;> simp at hab <;>
-        dsimp [eTruncGE, eTruncLT] <;>
-        simp [t.truncGEδLT_comp_whiskerRight_natTransTruncLTOfLE]
+      induction b using WithBotTop.rec <;> simp at hab <;> dsimp [eTruncGE, eTruncLT]
+        <;> simp [t.truncGEδLT_comp_whiskerRight_natTransTruncLTOfLE]
 
 @[simp]
 lemma eTruncGEδLT_coe (n : ℤ) :
@@ -216,8 +223,10 @@ lemma eTruncLT_obj_map_eTruncLTι_app_eTruncLT_map_app
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The (distinguished) triangles given by the natural transformations
-`t.eTruncLT.obj i ⟶ 𝟭 C ⟶ t.eTruncGE.obj i ⟶ ...` for all `i : EInt`. -/
+/--
+The (distinguished) triangles given by the natural transformations
+`t.eTruncLT.obj i ⟶ 𝟭 C ⟶ t.eTruncGE.obj i ⟶ ...` for all `i : EInt`.
+-/
 @[simps!]
 noncomputable def eTriangleLTGE : EInt ⥤ C ⥤ Triangle C where
   obj i := Triangle.functorMk (t.eTruncLTι i) (t.eTruncGEπ i) (t.eTruncGEδLT.app i)
@@ -237,15 +246,13 @@ lemma eTriangleLTGE_distinguished (i : EInt) (X : C) :
     dsimp
     infer_instance
 
-instance (X : C) (n : ℤ) [t.IsLE X n] (i : EInt) :
-    t.IsLE ((t.eTruncLT.obj i).obj X) n := by
+instance (X : C) (n : ℤ) [t.IsLE X n] (i : EInt) : t.IsLE ((t.eTruncLT.obj i).obj X) n := by
   induction i using WithBotTop.rec with
   | bot => exact isLE_of_isZero _ (by simp) _
   | coe _ => dsimp; infer_instance
   | top => dsimp; infer_instance
 
-instance (X : C) (n : ℤ) [t.IsGE X n] (i : EInt) :
-    t.IsGE ((t.eTruncGE.obj i).obj X) n := by
+instance (X : C) (n : ℤ) [t.IsGE X n] (i : EInt) : t.IsGE ((t.eTruncGE.obj i).obj X) n := by
   induction i using WithBotTop.rec with
   | bot => dsimp; infer_instance
   | coe _ => dsimp; infer_instance
@@ -327,25 +334,25 @@ instance (a : EInt) (X : C) : IsIso ((t.eTruncLTι a).app ((t.eTruncLT.obj a).ob
   rw [← eTruncLT_obj_map_eTruncLTι_app]
   infer_instance
 
-instance (X : C) (n : ℤ) [t.IsGE X n] (i : EInt) :
-    t.IsGE ((t.eTruncLT.obj i).obj X) n := by
+instance (X : C) (n : ℤ) [t.IsGE X n] (i : EInt) : t.IsGE ((t.eTruncLT.obj i).obj X) n := by
   induction i using WithBotTop.rec with
   | bot => exact isGE_of_isZero _ (by simp) _
   | coe _ => dsimp; infer_instance
   | top => dsimp; infer_instance
 
-instance (X : C) (n : ℤ) [t.IsLE X n] (i : EInt) :
-    t.IsLE ((t.eTruncGE.obj i).obj X) n := by
+instance (X : C) (n : ℤ) [t.IsLE X n] (i : EInt) : t.IsLE ((t.eTruncGE.obj i).obj X) n := by
   induction i using WithBotTop.rec with
   | bot => dsimp; infer_instance
   | coe _ => dsimp; infer_instance
   | top => exact isLE_of_isZero _ (by simp) _
 
-/-- The natural transformation `t.eTruncGE.obj b ⟶ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b`
-for all `a` and `b` in `EInt`. -/
+/--
+The natural transformation `t.eTruncGE.obj b ⟶ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b`
+for all `a` and `b` in `EInt`.
+-/
 @[simps!]
-noncomputable def eTruncGEToGEGE (a b : EInt) :
-    t.eTruncGE.obj b ⟶ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b :=
+noncomputable def eTruncGEToGEGE (a b : EInt)
+    : t.eTruncGE.obj b ⟶ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b :=
   (Functor.leftUnitor _).inv ≫ Functor.whiskerRight (t.eTruncGEπ a) _
 
 lemma isIso_eTruncGEIsoGEGE (a b : EInt) (hab : a ≤ b) :
@@ -359,11 +366,12 @@ section
 
 variable (a b : EInt) (hab : a ≤ b)
 
-/-- The natural isomorphism `t.eTruncGE.obj b ≅ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b`
-when `a` and `b` in `EInt` satisfy `a ≤ b`. -/
+/--
+The natural isomorphism `t.eTruncGE.obj b ≅ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b`
+when `a` and `b` in `EInt` satisfy `a ≤ b`.
+-/
 @[simps! hom]
-noncomputable def eTruncGEIsoGEGE :
-    t.eTruncGE.obj b ≅ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b :=
+noncomputable def eTruncGEIsoGEGE : t.eTruncGE.obj b ≅ t.eTruncGE.obj a ⋙ t.eTruncGE.obj b :=
   haveI := t.isIso_eTruncGEIsoGEGE a b hab
   asIso (t.eTruncGEToGEGE a b)
 
@@ -381,11 +389,13 @@ lemma eTruncGEIsoGEGE_inv_hom_id_app (X : C) :
 
 end
 
-/-- The natural transformation `t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ⟶ t.eTruncLT.obj b`
-for all `a` and `b` in `EInt`. -/
+/--
+The natural transformation `t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ⟶ t.eTruncLT.obj b`
+for all `a` and `b` in `EInt`.
+-/
 @[simps!]
-noncomputable def eTruncLTLTToLT (a b : EInt) :
-    t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ⟶ t.eTruncLT.obj b :=
+noncomputable def eTruncLTLTToLT (a b : EInt)
+    : t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ⟶ t.eTruncLT.obj b :=
   Functor.whiskerRight (t.eTruncLTι a) _ ≫ (Functor.leftUnitor _).hom
 
 lemma isIso_eTruncLTLTIsoLT (a b : EInt) (hab : b ≤ a) :
@@ -399,11 +409,12 @@ section
 
 variable (a b : EInt) (hab : b ≤ a)
 
-/-- The natural isomorphism `t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ⟶ t.eTruncLT.obj b`
-when `a` and `b` in `EInt` satisfy `b ≤ a`. -/
+/--
+The natural isomorphism `t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ⟶ t.eTruncLT.obj b`
+when `a` and `b` in `EInt` satisfy `b ≤ a`.
+-/
 @[simps! hom]
-noncomputable def eTruncLTLTIsoLT :
-    t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ≅ t.eTruncLT.obj b :=
+noncomputable def eTruncLTLTIsoLT : t.eTruncLT.obj a ⋙ t.eTruncLT.obj b ≅ t.eTruncLT.obj b :=
   haveI := t.isIso_eTruncLTLTIsoLT a b hab
   asIso (t.eTruncLTLTToLT a b)
 
@@ -428,48 +439,57 @@ lemma eTruncLTLTIsoLT_inv_hom_id_app_eTruncLT_obj (X : C) :
 
 end
 
-
 section
 
 variable (a b : EInt)
 
-/-- The natural transformation from
+/--
+The natural transformation from
 `t.eTruncLT.obj b ⋙ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b` to
-`t.eTruncGE.obj a ⋙ t.eTruncLT.obj b`. (This is an isomorphism.) -/
+`t.eTruncGE.obj a ⋙ t.eTruncLT.obj b`. (This is an isomorphism.)
+-/
 @[simps!]
-noncomputable def eTruncLTGELTSelfToLTGE :
-    t.eTruncLT.obj b ⋙ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b ⟶
-      t.eTruncGE.obj a ⋙ t.eTruncLT.obj b :=
+noncomputable def eTruncLTGELTSelfToLTGE
+    : t.eTruncLT.obj b ⋙ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b
+      ⟶ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b :=
   Functor.whiskerRight (t.eTruncLTι b) _ ≫ (Functor.leftUnitor _).hom
 
-/-- The natural transformation from
+/--
+The natural transformation from
 `t.eTruncLT.obj b ⋙ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b` to
-`t.eTruncLT.obj b ⋙ t.eTruncGE.obj a`. (This is an isomorphism.) -/
+`t.eTruncLT.obj b ⋙ t.eTruncGE.obj a`. (This is an isomorphism.)
+-/
 @[simps!]
-noncomputable def eTruncLTGELTSelfToGELT :
-    t.eTruncLT.obj b ⋙ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b ⟶
-      t.eTruncLT.obj b ⋙ t.eTruncGE.obj a :=
-  (Functor.associator _ _ _).inv ≫ Functor.whiskerLeft _ (t.eTruncLTι b) ≫
-    (Functor.rightUnitor _).hom
+noncomputable def eTruncLTGELTSelfToGELT
+    : t.eTruncLT.obj b ⋙ t.eTruncGE.obj a ⋙ t.eTruncLT.obj b
+      ⟶ t.eTruncLT.obj b ⋙ t.eTruncGE.obj a :=
+  (Functor.associator _ _ _).inv ≫ Functor.whiskerLeft _ (t.eTruncLTι b)
+    ≫ (Functor.rightUnitor _).hom
 
 instance : IsIso (t.eTruncLTGELTSelfToLTGE a b) := by
   rw [NatTrans.isIso_iff_isIso_app]
   intro X
   induction b using WithBotTop.rec with
-  | bot => simp [isIsoZero_iff_source_target_isZero]
+  | bot =>
+    simp [isIsoZero_iff_source_target_isZero]
   | coe b =>
     induction a using WithBotTop.rec with
-    | bot => simpa using inferInstanceAs (IsIso ((t.truncLT b).map ((t.truncLTι b).app X)))
+    | bot =>
+      simpa using inferInstanceAs (IsIso ((t.truncLT b).map ((t.truncLTι b).app X)))
     | coe a =>
-      simp only [eTruncLT_obj_coe, eTruncGE_obj_coe, eTruncLTGELTSelfToLTGE_app,
-        eTruncLT_map_eq_truncLTι]
+      simp only [
+        eTruncLT_obj_coe, eTruncGE_obj_coe, eTruncLTGELTSelfToLTGE_app, eTruncLT_map_eq_truncLTι
+      ]
       infer_instance
     | top =>
-      simp only [eTruncLT_obj_coe, eTruncGE_obj_top, Functor.comp_obj, eTruncLTGELTSelfToLTGE_app,
-        eTruncLT_map_eq_truncLTι, zero_map, Functor.map_zero, isIsoZero_iff_source_target_isZero]
+      simp only [
+        eTruncLT_obj_coe, eTruncGE_obj_top, Functor.comp_obj, eTruncLTGELTSelfToLTGE_app,
+        eTruncLT_map_eq_truncLTι, zero_map, Functor.map_zero, isIsoZero_iff_source_target_isZero
+      ]
       constructor
       all_goals exact Functor.map_isZero _ (Functor.zero_obj _)
-  | top => simpa using inferInstanceAs (IsIso (𝟙 _))
+  | top =>
+    simpa using inferInstanceAs (IsIso (𝟙 _))
 
 variable (b : EInt) (X : C)
 
@@ -478,27 +498,33 @@ instance : IsIso (t.eTruncLTGELTSelfToGELT a b) := by
   rw [NatTrans.isIso_iff_isIso_app]
   intro X
   induction a using WithBotTop.rec with
-  | bot => simpa using inferInstanceAs (IsIso ((t.eTruncLTι b).app ((t.eTruncLT.obj b).obj X)))
+  | bot =>
+    simpa using inferInstanceAs (IsIso ((t.eTruncLTι b).app ((t.eTruncLT.obj b).obj X)))
   | coe a =>
     induction b using WithBotTop.rec with
-    | bot => simpa [isIsoZero_iff_source_target_isZero] using
+    | bot =>
+      simpa [isIsoZero_iff_source_target_isZero] using
         (t.eTruncGE.obj a).map_isZero (Functor.zero_obj _)
     | coe b =>
-      simp only [eTruncLT_obj_coe, eTruncGE_obj_coe, eTruncLTGELTSelfToGELT_app,
-        eTruncLT_map_eq_truncLTι]
+      simp only [
+        eTruncLT_obj_coe, eTruncGE_obj_coe, eTruncLTGELTSelfToGELT_app, eTruncLT_map_eq_truncLTι
+      ]
       infer_instance
-    | top => simpa using inferInstanceAs (IsIso (𝟙 _))
+    | top =>
+      simpa using inferInstanceAs (IsIso (𝟙 _))
   | top =>
-    exact ⟨0, ((t.eTruncLT.obj b).map_isZero (by simp)).eq_of_src _ _,
-      IsZero.eq_of_src (by simp) _ _⟩
+    exact
+      ⟨0, ((t.eTruncLT.obj b).map_isZero (by simp)).eq_of_src _ _, IsZero.eq_of_src (by simp) _ _⟩
 
 end
 
-/-- The commutation natural isomorphism
+/--
+The commutation natural isomorphism
 `t.eTruncGE.obj a ⋙ t.eTruncLT.obj b ≅ t.eTruncLT.obj b ⋙ t.eTruncGE.obj a`
-for all `a` and `b` in `EInt`. -/
-noncomputable def eTruncLTGEIsoGELT (a b : EInt) :
-    t.eTruncGE.obj a ⋙ t.eTruncLT.obj b ≅ t.eTruncLT.obj b ⋙ t.eTruncGE.obj a :=
+for all `a` and `b` in `EInt`.
+-/
+noncomputable def eTruncLTGEIsoGELT (a b : EInt)
+    : t.eTruncGE.obj a ⋙ t.eTruncLT.obj b ≅ t.eTruncLT.obj b ⋙ t.eTruncGE.obj a :=
   (asIso (t.eTruncLTGELTSelfToLTGE a b)).symm ≪≫ asIso (t.eTruncLTGELTSelfToGELT a b)
 
 @[reassoc (attr := simp)]

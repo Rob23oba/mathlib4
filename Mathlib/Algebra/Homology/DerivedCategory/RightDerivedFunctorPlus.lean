@@ -32,40 +32,44 @@ TODO(@joelriou): refactor the definition of `Functor.rightDerived`
 
 namespace CategoryTheory
 
-variable {C D : Type*} [Category* C] [Category* D] [Abelian C] [Abelian D]
-  [HasDerivedCategory C] [HasDerivedCategory D]
+variable
+  {C D : Type*}
+  [Category* C] [Category* D] [Abelian C] [Abelian D] [HasDerivedCategory C] [HasDerivedCategory D]
 
 namespace Functor
 
 variable (F : C ⥤ D) [F.Additive] [EnoughInjectives C]
 
-/-- The right derived functor `DerivedCategory.Plus C ⥤ DerivedCategory.Plus D`
+/--
+The right derived functor `DerivedCategory.Plus C ⥤ DerivedCategory.Plus D`
 when `F : C ⥤ D` is an additive functor between abelian categories and
-`C` has enough injectives. -/
+`C` has enough injectives.
+-/
 @[no_expose]
-noncomputable def rightDerivedFunctorPlus :
-    DerivedCategory.Plus C ⥤ DerivedCategory.Plus D :=
+noncomputable def rightDerivedFunctorPlus : DerivedCategory.Plus C ⥤ DerivedCategory.Plus D :=
   (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh).totalRightDerived DerivedCategory.Plus.Qh
     (HomotopyCategory.Plus.quasiIso C)
 
-/-- The natural transformation that is part of the data of the right derived functor
+/--
+The natural transformation that is part of the data of the right derived functor
 `F.rightDerivedFunctorPlus : DerivedCategory.Plus C ⥤ DerivedCategory.Plus D`
 when `F : C ⥤ D` is an additive functor between abelian categories and
 `C` has enough injectives. It is defined here as a derived functor of
 `F.mapHomotopyCategoryPlus : HomotopyCategory.Plus C ⥤ HomotopyCategory.Plus D`,
 postcomposed with `DerivedCategory.Plus.Qh`.
 (See `Functor.rightDerivedFunctorPlusUnit` for the similar result regarding
-`F.mapCochainComplexPlus : CochainComplex.Plus C ⥤ CochainComplex.Plus D`.) -/
+`F.mapCochainComplexPlus : CochainComplex.Plus C ⥤ CochainComplex.Plus D`.)
+-/
 @[no_expose]
-noncomputable def rightDerivedFunctorPlusUnith :
-    F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh ⟶
-      DerivedCategory.Plus.Qh ⋙ F.rightDerivedFunctorPlus :=
+noncomputable def rightDerivedFunctorPlusUnith
+    : F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh
+      ⟶ DerivedCategory.Plus.Qh ⋙ F.rightDerivedFunctorPlus :=
   (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh).totalRightDerivedUnit
     DerivedCategory.Plus.Qh (HomotopyCategory.Plus.quasiIso C)
 
-instance :
-    F.rightDerivedFunctorPlus.IsRightDerivedFunctor
-      F.rightDerivedFunctorPlusUnith (HomotopyCategory.Plus.quasiIso C) := by
+instance
+    : F.rightDerivedFunctorPlus.IsRightDerivedFunctor F.rightDerivedFunctorPlusUnith
+      (HomotopyCategory.Plus.quasiIso C) := by
   dsimp only [rightDerivedFunctorPlus, rightDerivedFunctorPlusUnith]
   infer_instance
 
@@ -83,31 +87,32 @@ instance : F.rightDerivedFunctorPlus.IsTriangulated :=
   (localizerMorphism_derives _).isTriangulated_of_isRightDerivedFunctor
     F.rightDerivedFunctorPlusUnith
 
-/-- A natural transformation that is part of the data of the right derived functor
+/--
+A natural transformation that is part of the data of the right derived functor
 `F.rightDerivedFunctorPlus : DerivedCategory.Plus C ⥤ DerivedCategory.Plus D`
 when `F : C ⥤ D` is an additive functor between abelian categories and
 `C` has enough injectives. While the right derived functor was defined using
 bounded below homotopy categories, this natural transformation allows to say
 that it is also the derived functor of the functor
 `F.mapCochainComplexPlus : CochainComplex.Plus C ⥤ CochainComplex.Plus D`,
-postcomposed with `DerivedCategory.Plus.Q`. -/
+postcomposed with `DerivedCategory.Plus.Q`.
+-/
 @[no_expose, simps! -isSimp app]
-noncomputable def rightDerivedFunctorPlusUnit :
-    F.mapCochainComplexPlus ⋙ DerivedCategory.Plus.Q ⟶
-    DerivedCategory.Plus.Q ⋙ F.rightDerivedFunctorPlus :=
-  whiskerLeft _ (DerivedCategory.Plus.quotientCompQhIso D).inv ≫
-    (associator _ _ _).inv ≫ whiskerRight F.quotientCompMapHomotopyCategoryPlusIso.inv _ ≫
-    (associator _ _ _).hom ≫
-    whiskerLeft (HomotopyCategory.Plus.quotient C) F.rightDerivedFunctorPlusUnith ≫
-    (associator _ _ _).inv ≫ whiskerRight (DerivedCategory.Plus.quotientCompQhIso C).hom _
+noncomputable def rightDerivedFunctorPlusUnit
+    : F.mapCochainComplexPlus ⋙ DerivedCategory.Plus.Q
+      ⟶ DerivedCategory.Plus.Q ⋙ F.rightDerivedFunctorPlus :=
+  whiskerLeft _ (DerivedCategory.Plus.quotientCompQhIso D).inv ≫ (associator _ _ _).inv
+    ≫ whiskerRight F.quotientCompMapHomotopyCategoryPlusIso.inv _ ≫ (associator _ _ _).hom
+    ≫ whiskerLeft (HomotopyCategory.Plus.quotient C) F.rightDerivedFunctorPlusUnith
+    ≫ (associator _ _ _).inv ≫ whiskerRight (DerivedCategory.Plus.quotientCompQhIso C).hom _
 
 instance : NatTrans.CommShift F.rightDerivedFunctorPlusUnit ℤ := by
   dsimp [rightDerivedFunctorPlusUnit]
   infer_instance
 
-instance (K : CochainComplex.Plus (InjectiveObject C)) :
-    IsIso (F.rightDerivedFunctorPlusUnit.app
-      ((InjectiveObject.ι C).mapCochainComplexPlus.obj K)) := by
+instance (K : CochainComplex.Plus (InjectiveObject C))
+    : IsIso (F.rightDerivedFunctorPlusUnit.app ((InjectiveObject.ι C).mapCochainComplexPlus.obj
+      K)) := by
   simp only [F.rightDerivedFunctorPlusUnit_app]
   infer_instance
 
@@ -124,20 +129,20 @@ lemma _root_.CochainComplex.Plus.localizerMorphism_derives_mapCochainComplexPlus
         ((InjectiveObject.ι C).homotopyEquivalences_mapCochainComplexPlus_map _ hf)))
 
 open CochainComplex.Plus in
-instance : F.rightDerivedFunctorPlus.IsRightDerivedFunctor
-    F.rightDerivedFunctorPlusUnit (CochainComplex.Plus.quasiIso C) :=
+instance
+    : F.rightDerivedFunctorPlus.IsRightDerivedFunctor F.rightDerivedFunctorPlusUnit
+      (CochainComplex.Plus.quasiIso C) :=
   (localizerMorphism_derives_mapCochainComplexPlus F).isRightDerivedFunctor_of_isIso _
     (by dsimp; infer_instance)
 
-example (X : HomotopyCategory.Plus (InjectiveObject C)) :
-    IsIso (F.rightDerivedFunctorPlusUnith.app
-      ((InjectiveObject.ι C).mapHomotopyCategoryPlus.obj X)) := by
+example (X : HomotopyCategory.Plus (InjectiveObject C))
+    : IsIso (F.rightDerivedFunctorPlusUnith.app ((InjectiveObject.ι C).mapHomotopyCategoryPlus.obj
+      X)) := by
   infer_instance
 
-example (K : CochainComplex.Plus (InjectiveObject C)) :
-    IsIso (F.rightDerivedFunctorPlusUnith.app
-      ((HomotopyCategory.Plus.quotient C).obj
-        ((InjectiveObject.ι C).mapCochainComplexPlus.obj K))) := by
+example (K : CochainComplex.Plus (InjectiveObject C))
+    : IsIso (F.rightDerivedFunctorPlusUnith.app ((HomotopyCategory.Plus.quotient C).obj
+      ((InjectiveObject.ι C).mapCochainComplexPlus.obj K))) := by
   infer_instance
 
 end Functor
@@ -146,17 +151,17 @@ namespace NatTrans
 
 open CategoryTheory.Functor
 
-variable [EnoughInjectives C] {F₁ F₂ F₃ : C ⥤ D}
-  [F₁.Additive] [F₂.Additive] [F₃.Additive]
+variable [EnoughInjectives C] {F₁ F₂ F₃ : C ⥤ D} [F₁.Additive] [F₂.Additive] [F₃.Additive]
 
-/-- The natural transformation `F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus`
-induced by a natural transformation `F₁ ⟶ F₂`. -/
+/--
+The natural transformation `F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus`
+induced by a natural transformation `F₁ ⟶ F₂`.
+-/
 @[no_expose]
-noncomputable def rightDerivedFunctorPlus (τ : F₁ ⟶ F₂) :
-    F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus :=
-  rightDerivedNatTrans _ _ F₁.rightDerivedFunctorPlusUnith
-    F₂.rightDerivedFunctorPlusUnith (HomotopyCategory.Plus.quasiIso C)
-      (whiskerRight τ.mapHomotopyCategoryPlus _)
+noncomputable def rightDerivedFunctorPlus (τ : F₁ ⟶ F₂)
+    : F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus :=
+  rightDerivedNatTrans _ _ F₁.rightDerivedFunctorPlusUnith F₂.rightDerivedFunctorPlusUnith
+    (HomotopyCategory.Plus.quasiIso C) (whiskerRight τ.mapHomotopyCategoryPlus _)
 
 @[reassoc (attr := simp)]
 lemma rightDerivedFunctorPlus_fach (τ : F₁ ⟶ F₂) :
@@ -193,14 +198,16 @@ lemma rightDerivedFunctorPlus_fac (τ : F₁ ⟶ F₂) :
     whiskerRight (τ.mapCochainComplexPlus) _ ≫ F₂.rightDerivedFunctorPlusUnit := by
   cat_disch
 
-/-- The additive map from `F₁ ⟶ F₂` to `F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus`
-that is given by `NatTrans.rightDerivedFunctorPlus`. -/
+/--
+The additive map from `F₁ ⟶ F₂` to `F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus`
+that is given by `NatTrans.rightDerivedFunctorPlus`.
+-/
 @[simps!]
-noncomputable def rightDerivedFunctorPlusAddMonoidHom :
-    (F₁ ⟶ F₂) →+ (F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus) :=
-  AddMonoidHom.mk' rightDerivedFunctorPlus
-    (fun τ τ' ↦ rightDerived_ext _ (F₁.rightDerivedFunctorPlusUnit)
-      (CochainComplex.Plus.quasiIso C) _ _ _ (by cat_disch))
+noncomputable def rightDerivedFunctorPlusAddMonoidHom
+    : (F₁ ⟶ F₂) →+ (F₁.rightDerivedFunctorPlus ⟶ F₂.rightDerivedFunctorPlus) :=
+  AddMonoidHom.mk' rightDerivedFunctorPlus (fun τ τ' ↦
+    rightDerived_ext _ (F₁.rightDerivedFunctorPlusUnit) (CochainComplex.Plus.quasiIso C) _ _ _
+      (by cat_disch))
 
 @[simp]
 lemma rightDerivedFunctorPlus_add (τ τ' : F₁ ⟶ F₂) :

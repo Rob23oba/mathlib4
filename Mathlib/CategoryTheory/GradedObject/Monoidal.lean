@@ -37,8 +37,10 @@ variable {I : Type u} [AddMonoid I] {C : Type*} [Category* C] [MonoidalCategory 
 
 namespace GradedObject
 
-/-- The tensor product of two graded objects `X₁` and `X₂` exists if for any `n`,
-the coproduct of the objects `X₁ i ⊗ X₂ j` for `i + j = n` exists. -/
+/--
+The tensor product of two graded objects `X₁` and `X₂` exists if for any `n`,
+the coproduct of the objects `X₁ i ⊗ X₂ j` for `i + j = n` exists.
+-/
 abbrev HasTensor (X₁ X₂ : GradedObject I C) : Prop :=
   HasMap (((mapBifunctor (curriedTensor C) I I).obj X₁).obj X₂) (fun ⟨i, j⟩ => i + j)
 
@@ -53,8 +55,7 @@ lemma hasTensor_of_iso {X₁ X₂ Y₁ Y₂ : GradedObject I C}
 namespace Monoidal
 
 /-- The tensor product of two graded objects. -/
-noncomputable abbrev tensorObj (X₁ X₂ : GradedObject I C) [HasTensor X₁ X₂] :
-    GradedObject I C :=
+noncomputable abbrev tensorObj (X₁ X₂ : GradedObject I C) [HasTensor X₁ X₂] : GradedObject I C :=
   mapBifunctorMapObj (curriedTensor C) (fun ⟨i, j⟩ => i + j) X₁ X₂
 
 section
@@ -62,8 +63,8 @@ section
 variable (X₁ X₂ : GradedObject I C) [HasTensor X₁ X₂]
 
 /-- The inclusion of a summand in a tensor product of two graded objects. -/
-noncomputable def ιTensorObj (i₁ i₂ i₁₂ : I) (h : i₁ + i₂ = i₁₂) :
-    X₁ i₁ ⊗ X₂ i₂ ⟶ tensorObj X₁ X₂ i₁₂ :=
+noncomputable def ιTensorObj (i₁ i₂ i₁₂ : I) (h : i₁ + i₂ = i₁₂)
+    : X₁ i₁ ⊗ X₂ i₂ ⟶ tensorObj X₁ X₂ i₁₂ :=
   ιMapBifunctorMapObj (curriedTensor C) _ _ _ _ _ _ h
 
 variable {X₁ X₂}
@@ -77,8 +78,9 @@ lemma tensorObj_ext {A : C} {j : I} (f g : tensorObj X₁ X₂ j ⟶ A)
   exact h i₁ i₂ hi
 
 /-- Constructor for morphisms from a tensor product of two graded objects. -/
-noncomputable def tensorObjDesc {A : C} {k : I}
-    (f : ∀ (i₁ i₂ : I) (_ : i₁ + i₂ = k), X₁ i₁ ⊗ X₂ i₂ ⟶ A) : tensorObj X₁ X₂ k ⟶ A :=
+noncomputable def tensorObjDesc
+    {A : C} {k : I} (f : ∀ (i₁ i₂ : I) (_ : i₁ + i₂ = k), X₁ i₁ ⊗ X₂ i₂ ⟶ A)
+    : tensorObj X₁ X₂ k ⟶ A :=
   mapBifunctorMapObjDesc f
 
 @[reassoc (attr := simp)]
@@ -89,11 +91,13 @@ lemma ι_tensorObjDesc {A : C} {k : I}
 
 end
 
-/-- The morphism `tensorObj X₁ Y₁ ⟶ tensorObj X₂ Y₂` induced by morphisms of graded
-objects `f : X₁ ⟶ X₂` and `g : Y₁ ⟶ Y₂`. -/
-noncomputable def tensorHom {X₁ X₂ Y₁ Y₂ : GradedObject I C} (f : X₁ ⟶ X₂) (g : Y₁ ⟶ Y₂)
-    [HasTensor X₁ Y₁] [HasTensor X₂ Y₂] :
-    tensorObj X₁ Y₁ ⟶ tensorObj X₂ Y₂ :=
+/--
+The morphism `tensorObj X₁ Y₁ ⟶ tensorObj X₂ Y₂` induced by morphisms of graded
+objects `f : X₁ ⟶ X₂` and `g : Y₁ ⟶ Y₂`.
+-/
+noncomputable def tensorHom
+    {X₁ X₂ Y₁ Y₂ : GradedObject I C} (f : X₁ ⟶ X₂) (g : Y₁ ⟶ Y₂) [HasTensor X₁ Y₁] [HasTensor X₂ Y₂]
+    : tensorObj X₁ Y₁ ⟶ tensorObj X₂ Y₂ :=
   mapBifunctorMapMap _ _ f g
 
 @[reassoc (attr := simp)]
@@ -104,16 +108,24 @@ lemma ι_tensorHom {X₁ X₂ Y₁ Y₂ : GradedObject I C} (f : X₁ ⟶ X₂) 
   rw [tensorHom_def, assoc]
   apply ι_mapBifunctorMapMap
 
-/-- The morphism `tensorObj X Y₁ ⟶ tensorObj X Y₂` induced by a morphism of graded objects
-`φ : Y₁ ⟶ Y₂`. -/
-noncomputable abbrev whiskerLeft (X : GradedObject I C) {Y₁ Y₂ : GradedObject I C} (φ : Y₁ ⟶ Y₂)
-    [HasTensor X Y₁] [HasTensor X Y₂] : tensorObj X Y₁ ⟶ tensorObj X Y₂ :=
+/--
+The morphism `tensorObj X Y₁ ⟶ tensorObj X Y₂` induced by a morphism of graded objects
+`φ : Y₁ ⟶ Y₂`.
+-/
+noncomputable abbrev whiskerLeft
+    (X : GradedObject I C)
+    {Y₁ Y₂ : GradedObject I C} (φ : Y₁ ⟶ Y₂) [HasTensor X Y₁] [HasTensor X Y₂]
+    : tensorObj X Y₁ ⟶ tensorObj X Y₂ :=
   tensorHom (𝟙 X) φ
 
-/-- The morphism `tensorObj X₁ Y ⟶ tensorObj X₂ Y` induced by a morphism of graded objects
-`φ : X₁ ⟶ X₂`. -/
-noncomputable abbrev whiskerRight {X₁ X₂ : GradedObject I C} (φ : X₁ ⟶ X₂) (Y : GradedObject I C)
-    [HasTensor X₁ Y] [HasTensor X₂ Y] : tensorObj X₁ Y ⟶ tensorObj X₂ Y :=
+/--
+The morphism `tensorObj X₁ Y ⟶ tensorObj X₂ Y` induced by a morphism of graded objects
+`φ : X₁ ⟶ X₂`.
+-/
+noncomputable abbrev whiskerRight
+    {X₁ X₂ : GradedObject I C} (φ : X₁ ⟶ X₂)
+    (Y : GradedObject I C) [HasTensor X₁ Y] [HasTensor X₂ Y]
+    : tensorObj X₁ Y ⟶ tensorObj X₂ Y :=
   tensorHom φ (𝟙 Y)
 
 @[simp]
@@ -130,12 +142,15 @@ lemma tensorHom_comp_tensorHom {X₁ X₂ X₃ Y₁ Y₂ Y₃ : GradedObject I C
   ext
   simp
 
-/-- The isomorphism `tensorObj X₁ Y₁ ≅ tensorObj X₂ Y₂` induced by isomorphisms of graded
-objects `e : X₁ ≅ X₂` and `e' : Y₁ ≅ Y₂`. -/
+/--
+The isomorphism `tensorObj X₁ Y₁ ≅ tensorObj X₂ Y₂` induced by isomorphisms of graded
+objects `e : X₁ ≅ X₂` and `e' : Y₁ ≅ Y₂`.
+-/
 @[simps]
-noncomputable def tensorIso {X₁ X₂ Y₁ Y₂ : GradedObject I C} (e : X₁ ≅ X₂) (e' : Y₁ ≅ Y₂)
-    [HasTensor X₁ Y₁] [HasTensor X₂ Y₂] :
-    tensorObj X₁ Y₁ ≅ tensorObj X₂ Y₂ where
+noncomputable def tensorIso
+    {X₁ X₂ Y₁ Y₂ : GradedObject I C} (e : X₁ ≅ X₂) (e' : Y₁ ≅ Y₂)
+    [HasTensor X₁ Y₁] [HasTensor X₂ Y₂]
+    : tensorObj X₁ Y₁ ≅ tensorObj X₂ Y₂ where
   hom := tensorHom e.hom e'.hom
   inv := tensorHom e.inv e'.inv
   hom_inv_id := by simp [tensorHom_comp_tensorHom]
@@ -150,14 +165,16 @@ lemma tensorHom_def {X₁ X₂ Y₁ Y₂ : GradedObject I C} (f : X₁ ⟶ X₂)
 def r₁₂₃ : I × I × I → I := fun ⟨i, j, k⟩ => i + j + k
 
 /-- Auxiliary definition for `associator`. -/
-@[reducible] def ρ₁₂ : BifunctorComp₁₂IndexData (r₁₂₃ : _ → I) where
+@[reducible]
+def ρ₁₂ : BifunctorComp₁₂IndexData (r₁₂₃ : _ → I) where
   I₁₂ := I
   p := fun ⟨i₁, i₂⟩ => i₁ + i₂
   q := fun ⟨i₁₂, i₃⟩ => i₁₂ + i₃
   hpq := fun _ => rfl
 
 /-- Auxiliary definition for `associator`. -/
-@[reducible] def ρ₂₃ : BifunctorComp₂₃IndexData (r₁₂₃ : _ → I) where
+@[reducible]
+def ρ₂₃ : BifunctorComp₂₃IndexData (r₁₂₃ : _ → I) where
   I₂₃ := I
   p := fun ⟨i₂, i₃⟩ => i₂ + i₃
   q := fun ⟨i₁₂, i₃⟩ => i₁₂ + i₃
@@ -174,33 +191,39 @@ def triangleIndexData : TriangleIndexData (r₁₂₃ : _ → I) (fun ⟨i₁, i
   h₁ := add_zero
   h₃ := zero_add
 
-/-- Given three graded objects `X₁`, `X₂`, `X₃` in `GradedObject I C`, this is the
+/--
+Given three graded objects `X₁`, `X₂`, `X₃` in `GradedObject I C`, this is the
 assumption that for all `i₁₂ : I` and `i₃ : I`, the tensor product functor `- ⊗ X₃ i₃`
-commutes with the coproduct of the objects `X₁ i₁ ⊗ X₂ i₂` such that `i₁ + i₂ = i₁₂`. -/
+commutes with the coproduct of the objects `X₁ i₁ ⊗ X₂ i₂` such that `i₁ + i₂ = i₁₂`.
+-/
 abbrev _root_.CategoryTheory.GradedObject.HasGoodTensor₁₂Tensor (X₁ X₂ X₃ : GradedObject I C) :=
   HasGoodTrifunctor₁₂Obj (curriedTensor C) (curriedTensor C) ρ₁₂ X₁ X₂ X₃
 
-/-- Given three graded objects `X₁`, `X₂`, `X₃` in `GradedObject I C`, this is the
+/--
+Given three graded objects `X₁`, `X₂`, `X₃` in `GradedObject I C`, this is the
 assumption that for all `i₁ : I` and `i₂₃ : I`, the tensor product functor `X₁ i₁ ⊗ -`
-commutes with the coproduct of the objects `X₂ i₂ ⊗ X₃ i₃` such that `i₂ + i₃ = i₂₃`. -/
+commutes with the coproduct of the objects `X₂ i₂ ⊗ X₃ i₃` such that `i₂ + i₃ = i₂₃`.
+-/
 abbrev _root_.CategoryTheory.GradedObject.HasGoodTensorTensor₂₃ (X₁ X₂ X₃ : GradedObject I C) :=
   HasGoodTrifunctor₂₃Obj (curriedTensor C) (curriedTensor C) ρ₂₃ X₁ X₂ X₃
 
 section
 
-variable (Z : C) (X₁ X₂ X₃ : GradedObject I C)
-  {Y₁ Y₂ Y₃ : GradedObject I C}
+variable (Z : C) (X₁ X₂ X₃ : GradedObject I C) {Y₁ Y₂ Y₃ : GradedObject I C}
 
 section
-variable [HasTensor X₂ X₃] [HasTensor X₁ (tensorObj X₂ X₃)] [HasTensor Y₂ Y₃]
+variable
+  [HasTensor X₂ X₃] [HasTensor X₁ (tensorObj X₂ X₃)] [HasTensor Y₂ Y₃]
   [HasTensor Y₁ (tensorObj Y₂ Y₃)]
 
-/-- The inclusion `X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⟶ tensorObj X₁ (tensorObj X₂ X₃) j`
-when `i₁ + i₂ + i₃ = j`. -/
-noncomputable def ιTensorObj₃ (i₁ i₂ i₃ j : I) (h : i₁ + i₂ + i₃ = j) :
-    X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⟶ tensorObj X₁ (tensorObj X₂ X₃) j :=
-  X₁ i₁ ◁ ιTensorObj X₂ X₃ i₂ i₃ _ rfl ≫ ιTensorObj X₁ (tensorObj X₂ X₃) i₁ (i₂ + i₃) j
-    (by rw [← add_assoc, h])
+/--
+The inclusion `X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⟶ tensorObj X₁ (tensorObj X₂ X₃) j`
+when `i₁ + i₂ + i₃ = j`.
+-/
+noncomputable def ιTensorObj₃ (i₁ i₂ i₃ j : I) (h : i₁ + i₂ + i₃ = j)
+    : X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⟶ tensorObj X₁ (tensorObj X₂ X₃) j :=
+  X₁ i₁ ◁ ιTensorObj X₂ X₃ i₂ i₃ _ rfl
+    ≫ ιTensorObj X₁ (tensorObj X₂ X₃) i₁ (i₂ + i₃) j (by rw [← add_assoc, h])
 
 @[reassoc]
 lemma ιTensorObj₃_eq (i₁ i₂ i₃ j : I) (h : i₁ + i₂ + i₃ = j) (i₂₃ : I) (h' : i₂ + i₃ = i₂₃) :
@@ -235,15 +258,17 @@ lemma tensorObj₃_ext {j : I} {A : C} (f g : tensorObj X₁ (tensorObj X₂ X�
 end
 
 section
-variable [HasTensor X₁ X₂] [HasTensor (tensorObj X₁ X₂) X₃] [HasTensor Y₁ Y₂]
+variable
+  [HasTensor X₁ X₂] [HasTensor (tensorObj X₁ X₂) X₃] [HasTensor Y₁ Y₂]
   [HasTensor (tensorObj Y₁ Y₂) Y₃]
 
-/-- The inclusion `X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⟶ tensorObj (tensorObj X₁ X₂) X₃ j`
-when `i₁ + i₂ + i₃ = j`. -/
-noncomputable def ιTensorObj₃' (i₁ i₂ i₃ j : I) (h : i₁ + i₂ + i₃ = j) :
-    (X₁ i₁ ⊗ X₂ i₂) ⊗ X₃ i₃ ⟶ tensorObj (tensorObj X₁ X₂) X₃ j :=
-  (ιTensorObj X₁ X₂ i₁ i₂ (i₁ + i₂) rfl ▷ X₃ i₃) ≫
-    ιTensorObj (tensorObj X₁ X₂) X₃ (i₁ + i₂) i₃ j h
+/--
+The inclusion `X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⟶ tensorObj (tensorObj X₁ X₂) X₃ j`
+when `i₁ + i₂ + i₃ = j`.
+-/
+noncomputable def ιTensorObj₃' (i₁ i₂ i₃ j : I) (h : i₁ + i₂ + i₃ = j)
+    : (X₁ i₁ ⊗ X₂ i₂) ⊗ X₃ i₃ ⟶ tensorObj (tensorObj X₁ X₂) X₃ j :=
+  (ιTensorObj X₁ X₂ i₁ i₂ (i₁ + i₂) rfl ▷ X₃ i₃) ≫ ιTensorObj (tensorObj X₁ X₂) X₃ (i₁ + i₂) i₃ j h
 
 @[reassoc]
 lemma ιTensorObj₃'_eq (i₁ i₂ i₃ j : I) (h : i₁ + i₂ + i₃ = j) (i₁₂ : I)
@@ -279,12 +304,13 @@ lemma tensorObj₃'_ext {j : I} {A : C} (f g : tensorObj (tensorObj X₁ X₂) X
 end
 
 section
-variable [HasTensor X₁ X₂] [HasTensor (tensorObj X₁ X₂) X₃] [HasTensor X₂ X₃]
+variable
+  [HasTensor X₁ X₂] [HasTensor (tensorObj X₁ X₂) X₃] [HasTensor X₂ X₃]
   [HasTensor X₁ (tensorObj X₂ X₃)]
 
 /-- The associator isomorphism for graded objects. -/
-noncomputable def associator [HasGoodTensor₁₂Tensor X₁ X₂ X₃] [HasGoodTensorTensor₂₃ X₁ X₂ X₃] :
-    tensorObj (tensorObj X₁ X₂) X₃ ≅ tensorObj X₁ (tensorObj X₂ X₃) :=
+noncomputable def associator [HasGoodTensor₁₂Tensor X₁ X₂ X₃] [HasGoodTensorTensor₂₃ X₁ X₂ X₃]
+    : tensorObj (tensorObj X₁ X₂) X₃ ≅ tensorObj X₁ (tensorObj X₂ X₃) :=
   mapBifunctorAssociator (MonoidalCategory.curriedAssociatorNatIso C) ρ₁₂ ρ₂₃ X₁ X₂ X₃
 
 @[reassoc (attr := simp)]
@@ -307,7 +333,8 @@ lemma ιTensorObj₃_associator_inv
 
 variable {X₁ X₂ X₃}
 
-variable [HasTensor Y₁ Y₂] [HasTensor (tensorObj Y₁ Y₂) Y₃] [HasTensor Y₂ Y₃]
+variable
+  [HasTensor Y₁ Y₂] [HasTensor (tensorObj Y₁ Y₂) Y₃] [HasTensor Y₂ Y₃]
   [HasTensor Y₁ (tensorObj Y₂ Y₃)] in
 lemma associator_naturality (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) (f₃ : X₃ ⟶ Y₃)
     [HasGoodTensor₁₂Tensor X₁ X₂ X₃] [HasGoodTensorTensor₂₃ X₁ X₂ X₃]
@@ -318,14 +345,18 @@ lemma associator_naturality (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) (f₃ 
 
 end
 
-/-- Given `Z : C` and three graded objects `X₁`, `X₂` and `X₃` in `GradedObject I C`,
+/--
+Given `Z : C` and three graded objects `X₁`, `X₂` and `X₃` in `GradedObject I C`,
 this typeclass expresses that functor `Z ⊗ _` commutes with the coproduct of
 the objects `X₁ i₁ ⊗ (X₂ i₂ ⊗ X₃ i₃)` such that `i₁ + i₂ + i₃ = j` for a certain `j`.
-See lemma `left_tensor_tensorObj₃_ext`. -/
-abbrev _root_.CategoryTheory.GradedObject.HasLeftTensor₃ObjExt (j : I) := PreservesColimit
-  (Discrete.functor fun (i : { i : (I × I × I) | i.1 + i.2.1 + i.2.2 = j }) ↦
-    (((mapTrifunctor (bifunctorComp₂₃ (curriedTensor C)
-      (curriedTensor C)) I I I).obj X₁).obj X₂).obj X₃ i)
+See lemma `left_tensor_tensorObj₃_ext`.
+-/
+abbrev _root_.CategoryTheory.GradedObject.HasLeftTensor₃ObjExt (j : I) :=
+  PreservesColimit
+    (Discrete.functor fun (i : { i : (I × I × I) | i.1 + i.2.1 + i.2.2 = j }) ↦
+      (((mapTrifunctor (bifunctorComp₂₃ (curriedTensor C) (curriedTensor C)) I I I).obj X₁).obj
+          X₂).obj
+        X₃ i)
     ((curriedTensor C).obj Z)
 
 variable {X₁ X₂ X₃}
@@ -348,18 +379,19 @@ end
 
 section
 
-variable (X₁ X₂ X₃ X₄ : GradedObject I C)
-  [HasTensor X₃ X₄] [HasTensor X₂ (tensorObj X₃ X₄)]
-  [HasTensor X₁ (tensorObj X₂ (tensorObj X₃ X₄))]
+variable
+  (X₁ X₂ X₃ X₄ : GradedObject I C)
+  [HasTensor X₃ X₄] [HasTensor X₂ (tensorObj X₃ X₄)] [HasTensor X₁ (tensorObj X₂ (tensorObj X₃ X₄))]
 
-/-- The inclusion
+/--
+The inclusion
 `X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⊗ X₄ i₄ ⟶ tensorObj X₁ (tensorObj X₂ (tensorObj X₃ X₄)) j`
-when `i₁ + i₂ + i₃ + i₄ = j`. -/
-noncomputable def ιTensorObj₄ (i₁ i₂ i₃ i₄ j : I) (h : i₁ + i₂ + i₃ + i₄ = j) :
-    X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⊗ X₄ i₄ ⟶ tensorObj X₁ (tensorObj X₂ (tensorObj X₃ X₄)) j :=
-  (_ ◁ ιTensorObj₃ X₂ X₃ X₄ i₂ i₃ i₄ _ rfl) ≫
-    ιTensorObj X₁ (tensorObj X₂ (tensorObj X₃ X₄)) i₁ (i₂ + i₃ + i₄) j
-      (by rw [← h, ← add_assoc, ← add_assoc])
+when `i₁ + i₂ + i₃ + i₄ = j`.
+-/
+noncomputable def ιTensorObj₄ (i₁ i₂ i₃ i₄ j : I) (h : i₁ + i₂ + i₃ + i₄ = j)
+    : X₁ i₁ ⊗ X₂ i₂ ⊗ X₃ i₃ ⊗ X₄ i₄ ⟶ tensorObj X₁ (tensorObj X₂ (tensorObj X₃ X₄)) j :=
+  (_ ◁ ιTensorObj₃ X₂ X₃ X₄ i₂ i₃ i₄ _ rfl) ≫ ιTensorObj X₁ (tensorObj X₂ (tensorObj X₃ X₄)) i₁
+    (i₂ + i₃ + i₄) j (by rw [← h, ← add_assoc, ← add_assoc])
 
 lemma ιTensorObj₄_eq (i₁ i₂ i₃ i₄ j : I) (h : i₁ + i₂ + i₃ + i₄ = j) (i₂₃₄ : I)
     (hi : i₂ + i₃ + i₄ = i₂₃₄) :
@@ -370,9 +402,11 @@ lemma ιTensorObj₄_eq (i₁ i₂ i₃ i₄ j : I) (h : i₁ + i₂ + i₃ + i�
   subst hi
   rfl
 
-/-- Given four graded objects, this is the condition
+/--
+Given four graded objects, this is the condition
 `HasLeftTensor₃ObjExt (X₁ i₁) X₂ X₃ X₄ i₂₃₄` for all indices `i₁` and `i₂₃₄`,
-see the lemma `tensorObj₄_ext`. -/
+see the lemma `tensorObj₄_ext`.
+-/
 abbrev _root_.CategoryTheory.GradedObject.HasTensor₄ObjExt :=
   ∀ (i₁ i₂₃₄ : I), HasLeftTensor₃ObjExt (X₁ i₁) X₂ X₃ X₄ i₂₃₄
 
@@ -396,24 +430,18 @@ end
 
 section Pentagon
 
-variable (X₁ X₂ X₃ X₄ : GradedObject I C)
-  [HasTensor X₁ X₂] [HasTensor X₂ X₃] [HasTensor X₃ X₄]
-  [HasTensor (tensorObj X₁ X₂) X₃] [HasTensor X₁ (tensorObj X₂ X₃)]
-  [HasTensor (tensorObj X₂ X₃) X₄] [HasTensor X₂ (tensorObj X₃ X₄)]
-  [HasTensor (tensorObj (tensorObj X₁ X₂) X₃) X₄]
-  [HasTensor (tensorObj X₁ (tensorObj X₂ X₃)) X₄]
-  [HasTensor X₁ (tensorObj (tensorObj X₂ X₃) X₄)]
-  [HasTensor X₁ (tensorObj X₂ (tensorObj X₃ X₄))]
-  [HasTensor (tensorObj X₁ X₂) (tensorObj X₃ X₄)]
-  [HasGoodTensor₁₂Tensor X₁ X₂ X₃] [HasGoodTensorTensor₂₃ X₁ X₂ X₃]
-  [HasGoodTensor₁₂Tensor X₁ (tensorObj X₂ X₃) X₄]
-  [HasGoodTensorTensor₂₃ X₁ (tensorObj X₂ X₃) X₄]
-  [HasGoodTensor₁₂Tensor X₂ X₃ X₄] [HasGoodTensorTensor₂₃ X₂ X₃ X₄]
-  [HasGoodTensor₁₂Tensor (tensorObj X₁ X₂) X₃ X₄]
-  [HasGoodTensorTensor₂₃ (tensorObj X₁ X₂) X₃ X₄]
-  [HasGoodTensor₁₂Tensor X₁ X₂ (tensorObj X₃ X₄)]
-  [HasGoodTensorTensor₂₃ X₁ X₂ (tensorObj X₃ X₄)]
-  [HasTensor₄ObjExt X₁ X₂ X₃ X₄]
+variable
+  (X₁ X₂ X₃ X₄ : GradedObject I C)
+  [HasTensor X₁ X₂] [HasTensor X₂ X₃] [HasTensor X₃ X₄] [HasTensor (tensorObj X₁ X₂) X₃]
+  [HasTensor X₁ (tensorObj X₂ X₃)] [HasTensor (tensorObj X₂ X₃) X₄] [HasTensor X₂ (tensorObj X₃ X₄)]
+  [HasTensor (tensorObj (tensorObj X₁ X₂) X₃) X₄] [HasTensor (tensorObj X₁ (tensorObj X₂ X₃)) X₄]
+  [HasTensor X₁ (tensorObj (tensorObj X₂ X₃) X₄)] [HasTensor X₁ (tensorObj X₂ (tensorObj X₃ X₄))]
+  [HasTensor (tensorObj X₁ X₂) (tensorObj X₃ X₄)] [HasGoodTensor₁₂Tensor X₁ X₂ X₃]
+  [HasGoodTensorTensor₂₃ X₁ X₂ X₃] [HasGoodTensor₁₂Tensor X₁ (tensorObj X₂ X₃) X₄]
+  [HasGoodTensorTensor₂₃ X₁ (tensorObj X₂ X₃) X₄] [HasGoodTensor₁₂Tensor X₂ X₃ X₄]
+  [HasGoodTensorTensor₂₃ X₂ X₃ X₄] [HasGoodTensor₁₂Tensor (tensorObj X₁ X₂) X₃ X₄]
+  [HasGoodTensorTensor₂₃ (tensorObj X₁ X₂) X₃ X₄] [HasGoodTensor₁₂Tensor X₁ X₂ (tensorObj X₃ X₄)]
+  [HasGoodTensorTensor₂₃ X₁ X₂ (tensorObj X₃ X₄)] [HasTensor₄ObjExt X₁ X₂ X₃ X₄]
 
 @[reassoc]
 lemma pentagon_inv :
@@ -474,29 +502,32 @@ noncomputable def tensorUnit₀ : (tensorUnit : GradedObject I C) 0 ≅ 𝟙_ C 
   singleObjApplyIso (0 : I) (𝟙_ C)
 
 /-- `tensorUnit i` is an initial object when `i ≠ 0`. -/
-noncomputable def isInitialTensorUnitApply (i : I) (hi : i ≠ 0) :
-    IsInitial ((tensorUnit : GradedObject I C) i) :=
+noncomputable def isInitialTensorUnitApply (i : I) (hi : i ≠ 0)
+    : IsInitial ((tensorUnit : GradedObject I C) i) :=
   isInitialSingleObjApply _ _ _ hi
 
 end TensorUnit
 
 section LeftUnitor
 
-variable [DecidableEq I] [HasInitial C]
+variable
+  [DecidableEq I] [HasInitial C]
   [∀ X₂, PreservesColimit (Functor.empty.{0} C) ((curriedTensor C).flip.obj X₂)]
   (X X' : GradedObject I C)
 
 instance : HasTensor tensorUnit X :=
   mapBifunctorLeftUnitor_hasMap _ _ (leftUnitorNatIso C) _ zero_add _
 
-instance : HasMap (((mapBifunctor (curriedTensor C) I I).obj
-    ((single₀ I).obj (𝟙_ C))).obj X) (fun ⟨i₁, i₂⟩ => i₁ + i₂) :=
+instance
+    : HasMap (((mapBifunctor (curriedTensor C) I I).obj ((single₀ I).obj (𝟙_ C))).obj X)
+      (fun ⟨i₁, i₂⟩ => i₁ + i₂) :=
   inferInstanceAs <| HasTensor tensorUnit X
 
 /-- The left unitor isomorphism for graded objects. -/
 noncomputable def leftUnitor : tensorObj tensorUnit X ≅ X :=
-    mapBifunctorLeftUnitor (curriedTensor C) (𝟙_ C)
-      (leftUnitorNatIso C) (fun (⟨i₁, i₂⟩ : I × I) => i₁ + i₂) zero_add X
+  mapBifunctorLeftUnitor (curriedTensor C) (𝟙_ C) (leftUnitorNatIso C)
+    (fun (⟨i₁, i₂⟩ : I × I) => i₁ + i₂)
+    zero_add X
 
 lemma leftUnitor_inv_apply (i : I) :
     (leftUnitor X).inv i = (λ_ (X i)).inv ≫ tensorUnit₀.inv ▷ (X i) ≫
@@ -514,22 +545,24 @@ end LeftUnitor
 
 section RightUnitor
 
-variable [DecidableEq I] [HasInitial C]
+variable
+  [DecidableEq I] [HasInitial C]
   [∀ X₁, PreservesColimit (Functor.empty.{0} C) ((curriedTensor C).obj X₁)]
   (X X' : GradedObject I C)
 
 instance : HasTensor X tensorUnit :=
-  mapBifunctorRightUnitor_hasMap (curriedTensor C) _
-    (rightUnitorNatIso C) _ add_zero _
+  mapBifunctorRightUnitor_hasMap (curriedTensor C) _ (rightUnitorNatIso C) _ add_zero _
 
-instance : HasMap (((mapBifunctor (curriedTensor C) I I).obj X).obj
-    ((single₀ I).obj (𝟙_ C))) (fun ⟨i₁, i₂⟩ => i₁ + i₂) :=
+instance
+    : HasMap (((mapBifunctor (curriedTensor C) I I).obj X).obj ((single₀ I).obj (𝟙_ C)))
+      (fun ⟨i₁, i₂⟩ => i₁ + i₂) :=
   inferInstanceAs <| HasTensor X tensorUnit
 
 /-- The right unitor isomorphism for graded objects. -/
 noncomputable def rightUnitor : tensorObj X tensorUnit ≅ X :=
-    mapBifunctorRightUnitor (curriedTensor C) (𝟙_ C)
-      (rightUnitorNatIso C) (fun (⟨i₁, i₂⟩ : I × I) => i₁ + i₂) add_zero X
+  mapBifunctorRightUnitor (curriedTensor C) (𝟙_ C) (rightUnitorNatIso C)
+    (fun (⟨i₁, i₂⟩ : I × I) => i₁ + i₂)
+    add_zero X
 
 lemma rightUnitor_inv_apply (i : I) :
     (rightUnitor X).inv i = (ρ_ (X i)).inv ≫ (X i) ◁ tensorUnit₀.inv ≫
@@ -547,13 +580,13 @@ end RightUnitor
 
 section Triangle
 
-variable [DecidableEq I] [HasInitial C]
+variable
+  [DecidableEq I] [HasInitial C]
   [∀ X₁, PreservesColimit (Functor.empty.{0} C) ((curriedTensor C).obj X₁)]
-  [∀ X₂, PreservesColimit (Functor.empty.{0} C)
-    ((curriedTensor C).flip.obj X₂)]
-  (X₁ X₃ : GradedObject I C) [HasTensor X₁ X₃]
-  [HasTensor (tensorObj X₁ tensorUnit) X₃] [HasTensor X₁ (tensorObj tensorUnit X₃)]
-  [HasGoodTensor₁₂Tensor X₁ tensorUnit X₃] [HasGoodTensorTensor₂₃ X₁ tensorUnit X₃]
+  [∀ X₂, PreservesColimit (Functor.empty.{0} C) ((curriedTensor C).flip.obj X₂)]
+  (X₁ X₃ : GradedObject I C) [HasTensor X₁ X₃] [HasTensor (tensorObj X₁ tensorUnit) X₃]
+  [HasTensor X₁ (tensorObj tensorUnit X₃)] [HasGoodTensor₁₂Tensor X₁ tensorUnit X₃]
+  [HasGoodTensorTensor₂₃ X₁ tensorUnit X₃]
 
 set_option backward.defeqAttrib.useBackward true in
 lemma triangle :
@@ -573,8 +606,7 @@ section
 variable
   [∀ (X₁ X₂ : GradedObject I C), HasTensor X₁ X₂]
   [∀ (X₁ X₂ X₃ : GradedObject I C), HasGoodTensor₁₂Tensor X₁ X₂ X₃]
-  [∀ (X₁ X₂ X₃ : GradedObject I C), HasGoodTensorTensor₂₃ X₁ X₂ X₃]
-  [DecidableEq I] [HasInitial C]
+  [∀ (X₁ X₂ X₃ : GradedObject I C), HasGoodTensorTensor₂₃ X₁ X₂ X₃] [DecidableEq I] [HasInitial C]
   [∀ X₁, PreservesColimit (Functor.empty.{0} C) ((curriedTensor C).obj X₁)]
   [∀ X₂, PreservesColimit (Functor.empty.{0} C) ((curriedTensor C).flip.obj X₂)]
   [∀ (X₁ X₂ X₃ X₄ : GradedObject I C), HasTensor₄ObjExt X₁ X₂ X₃ X₄]
@@ -601,15 +633,18 @@ end
 section
 
 instance (n : ℕ) : Finite ((fun (i : ℕ × ℕ) => i.1 + i.2) ⁻¹' {n}) := by
-  refine Finite.of_injective (fun ⟨⟨i₁, i₂⟩, (hi : i₁ + i₂ = n)⟩ =>
-    ((⟨i₁, by lia⟩, ⟨i₂, by lia⟩) : Fin (n + 1) × Fin (n + 1))) ?_
+  refine Finite.of_injective
+    (fun ⟨⟨i₁, i₂⟩, (hi : i₁ + i₂ = n)⟩ =>
+      ((⟨i₁, by lia⟩, ⟨i₂, by lia⟩) : Fin (n + 1) × Fin (n + 1)))
+    ?_
   rintro ⟨⟨_, _⟩, _⟩ ⟨⟨_, _⟩, _⟩ h
   simpa using h
 
 instance (n : ℕ) : Finite ({ i : (ℕ × ℕ × ℕ) | i.1 + i.2.1 + i.2.2 = n }) := by
-  refine Finite.of_injective (fun ⟨⟨i₁, i₂, i₃⟩, (hi : i₁ + i₂ + i₃ = n)⟩ =>
-    (⟨⟨i₁, by lia⟩, ⟨i₂, by lia⟩, ⟨i₃, by lia⟩⟩ :
-      Fin (n + 1) × Fin (n + 1) × Fin (n + 1))) ?_
+  refine Finite.of_injective
+    (fun ⟨⟨i₁, i₂, i₃⟩, (hi : i₁ + i₂ + i₃ = n)⟩ =>
+      (⟨⟨i₁, by lia⟩, ⟨i₂, by lia⟩, ⟨i₃, by lia⟩⟩ : Fin (n + 1) × Fin (n + 1) × Fin (n + 1)))
+    ?_
   intro _ _ h
   exact Subtype.ext (congrArg (fun x => (x.1.1, x.2.1.1, x.2.2.1)) h)
 

@@ -37,7 +37,8 @@ open scoped ENNReal NNReal Real Topology
 
 namespace ProbabilityTheory.IsGaussian
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
   {μ : Measure E} [IsGaussian μ]
 
 section Rotation
@@ -158,14 +159,17 @@ lemma integrable_exp_sq_of_conv_neg (μ : Measure E) [IsGaussian μ] {C C' : ℝ
   _ ≤ C' * ((1 + ε) * ‖x - y‖ ^ 2 + (1 + 1 / ε) * ‖y‖ ^ 2) := by gcongr
   _ = C / ε * ‖y‖ ^ 2 + C * ‖x - y‖ ^ 2 := by grind
 
-/-- **Fernique's theorem**: for a Gaussian measure, there exists `C > 0` such that the function
-`x ↦ exp (C * ‖x‖ ^ 2)` is integrable. -/
-theorem exists_integrable_exp_sq [CompleteSpace E] (μ : Measure E) [IsGaussian μ] :
-    ∃ C, 0 < C ∧ Integrable (fun x ↦ rexp (C * ‖x‖ ^ 2)) μ := by
+/--
+**Fernique's theorem**: for a Gaussian measure, there exists `C > 0` such that the function
+`x ↦ exp (C * ‖x‖ ^ 2)` is integrable.
+-/
+theorem exists_integrable_exp_sq [CompleteSpace E] (μ : Measure E) [IsGaussian μ]
+    : ∃ C, 0 < C ∧ Integrable (fun x ↦ rexp (C * ‖x‖ ^ 2)) μ := by
   -- Since `μ ∗ μ.map (ContinuousLinearEquiv.neg ℝ)` is a centered Gaussian measure, it is invariant
   -- under rotation. We can thus apply a version of Fernique's theorem to it.
-  obtain ⟨C, hC_pos, hC⟩ : ∃ C, 0 < C
-      ∧ Integrable (fun x ↦ rexp (C * ‖x‖ ^ 2)) (μ ∗ μ.map (ContinuousLinearEquiv.neg ℝ)) :=
+  obtain ⟨C, hC_pos, hC⟩
+      : ∃ C,
+        0 < C ∧ Integrable (fun x ↦ rexp (C * ‖x‖ ^ 2)) (μ ∗ μ.map (ContinuousLinearEquiv.neg ℝ)) :=
     exists_integrable_exp_sq_of_map_rotation_eq_self
       (map_rotation_eq_self_of_forall_strongDual_eq_zero
         (integral_dual_conv_map_neg_eq_zero (μ := μ)) _)

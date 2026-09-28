@@ -25,8 +25,8 @@ namespace LieAlgebra
 
 open AddSubmonoid Function IsKilling LieModule LieSubalgebra Matrix Set
 
-variable {K L : Type*} [Field K] [CharZero K]
-  [LieRing L] [LieAlgebra K L] [FiniteDimensional K L]
+variable
+  {K L : Type*} [Field K] [CharZero K] [LieRing L] [LieAlgebra K L] [FiniteDimensional K L]
   {H : LieSubalgebra K L}
 
 namespace Basis
@@ -34,9 +34,9 @@ namespace Basis
 variable {ι : Type*} [Fintype ι] (b : Basis ι H)
 
 /-- The elements `LieAlgebra.Basis.baseSupp` as roots in the sense of `LieSubalgebra.root`. -/
-def baseSupp' (i : ι) :
-    letI := b.isCartanSubalgebra
-    H.root := by
+def baseSupp' (i : ι)
+    : letI := b.isCartanSubalgebra
+      H.root := by
   let := b.isCartanSubalgebra
   refine ⟨⟨b.baseSupp i, ?_⟩, ?_⟩
   · simp only [LieSubmodule.eq_bot_iff, ne_eq, not_forall]
@@ -85,17 +85,19 @@ lemma root_mem_or_mem_neg (χ : letI := b.isCartanSubalgebra; H.root) :
   refine hs.symm.imp (fun ⟨n, hn₀, hn⟩ ↦ ?_) (fun ⟨n, hn₀, hn⟩ ↦ ?_) <;> simpa [hn] using this n
 
 /-- The distinguished root system base associated to a basis. -/
-def base :
-    letI := b.isCartanSubalgebra
-    RootPairing.Base (rootSystem H) :=
+def base
+    : letI := b.isCartanSubalgebra
+      RootPairing.Base (rootSystem H) :=
   letI := b.isCartanSubalgebra
   .mk' (rootSystem H) (range b.baseSupp') b.linearIndepOn_root_baseSupp b.root_mem_or_mem_neg
 
-/-- The support of `LieAlgebra.Basis.base` is in one-to-one correspondence with the indexing
-set of the basis. -/
+/--
+The support of `LieAlgebra.Basis.base` is in one-to-one correspondence with the indexing
+set of the basis.
+-/
 def baseSupportEquiv : ι ≃ b.base.support :=
-  have : Injective b.baseSupp' :=
-    fun i j hij ↦ b.linearIndependent_baseSupp.injective <| by simpa [baseSupp'] using hij
+  have : Injective b.baseSupp' := fun i j hij ↦
+    b.linearIndependent_baseSupp.injective <| by simpa [baseSupp'] using hij
   (Equiv.ofInjective _ this).trans (Set.Finite.subtypeEquivToFinset _)
 
 @[simp] lemma coe_baseSupportEquiv_apply (i : ι) : b.baseSupportEquiv i = b.baseSupp i := rfl
@@ -256,11 +258,12 @@ lemma exists_basis_of_base [IsKilling K L] (b : (rootSystem H).Base) :
 
 open scoped Classical in
 /-- Lie algebras with equivalent root systems are equivalent. -/
-def equivOfRootSystemEquiv {L₂ : Type*} [LieRing L₂] [LieAlgebra K L₂] [FiniteDimensional K L₂]
-    {H₂ : LieSubalgebra K L₂} [H₂.IsCartanSubalgebra] [IsTriangularizable K H₂ L₂]
-    [IsSimple K L] [IsSimple K L₂]
-    (e : (rootSystem H).Equiv (rootSystem H₂)) :
-    L ≃ₗ⁅K⁆ L₂ :=
+def equivOfRootSystemEquiv
+    {L₂ : Type*} [LieRing L₂] [LieAlgebra K L₂] [FiniteDimensional K L₂]
+    {H₂ : LieSubalgebra K L₂}
+    [H₂.IsCartanSubalgebra] [IsTriangularizable K H₂ L₂] [IsSimple K L] [IsSimple K L₂]
+    (e : (rootSystem H).Equiv (rootSystem H₂))
+    : L ≃ₗ⁅K⁆ L₂ :=
   letI b := (rootSystem H).nonempty_base.some
   letI B₁ := (exists_basis_of_base b).choose
   letI B₂ := (exists_basis_of_base (b.map e)).choose

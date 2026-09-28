@@ -34,9 +34,10 @@ open Category Limits Preadditive ZeroObject Pretriangulated ZeroObject
 
 namespace Triangulated
 
-variable {C A : Type*} [Category* C] [HasZeroObject C] [Preadditive C] [HasShift C ℤ]
-  [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
-  [Category* A] {ι : A ⥤ C}
+variable
+  {C A : Type*} [Category* C] [HasZeroObject C] [Preadditive C] [HasShift C ℤ]
+  [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C] [Category* A]
+  {ι : A ⥤ C}
 
 namespace AbelianSubcategory
 
@@ -54,10 +55,11 @@ lemma eq_zero_of_hom_shift_pos
 
 section
 
-variable {X₁ X₂ : A} {f₁ : X₁ ⟶ X₂} {X₃ : C} (f₂ : ι.obj X₂ ⟶ X₃) (f₃ : X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
-  (hT : Triangle.mk (ι.map f₁) f₂ f₃ ∈ distTriang C) {K Q : A}
-  (α : (ι.obj K)⟦(1 : ℤ)⟧ ⟶ X₃) (β : X₃ ⟶ (ι.obj Q)) {γ : ι.obj Q ⟶ (ι.obj K)⟦(1 : ℤ)⟧⟦(1 : ℤ)⟧}
-  (hT' : Triangle.mk α β γ ∈ distTriang C)
+variable
+  {X₁ X₂ : A} {f₁ : X₁ ⟶ X₂} {X₃ : C} (f₂ : ι.obj X₂ ⟶ X₃) (f₃ : X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
+  (hT : Triangle.mk (ι.map f₁) f₂ f₃ ∈ distTriang C)
+  {K Q : A} (α : (ι.obj K)⟦(1 : ℤ)⟧ ⟶ X₃) (β : X₃ ⟶ (ι.obj Q))
+  {γ : ι.obj Q ⟶ (ι.obj K)⟦(1 : ℤ)⟧⟦(1 : ℤ)⟧} (hT' : Triangle.mk α β γ ∈ distTriang C)
 
 variable [ι.Full]
 
@@ -74,8 +76,8 @@ lemma shift_ι_map_ιK :
     (ι.map (ιK f₃ α))⟦(1 : ℤ)⟧' = α ≫ f₃ :=
   (ι ⋙ shiftFunctor C (1 : ℤ)).map_preimage _
 
-omit [Preadditive C] [HasZeroObject C] [∀ (n : ℤ), (shiftFunctor C n).Additive]
-  [Pretriangulated C] [HasShift C ℤ] in
+omit [Preadditive C] [HasZeroObject C] [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
+  [HasShift C ℤ] in
 @[simp, reassoc]
 lemma ι_map_πQ : ι.map (πQ f₂ β) = f₂ ≫ β :=
   ι.map_preimage _
@@ -179,17 +181,19 @@ lemma hasCokernel : HasCokernel f₁ := ⟨_, isColimitCokernelCofork hι hT hT'
 end
 
 variable (ι) in
-/-- Given a functor `ι : A ⥤ C` from a preadditive category to a triangulated category,
+/--
+Given a functor `ι : A ⥤ C` from a preadditive category to a triangulated category,
 a morphism `X₁ ⟶ X₂` in `A` is admissible if, when we complete `ι.obj f₁` in
 a distinguished triangle `ι.obj X₁ ⟶ ι.obj X₂ ⟶ X₃ ⟶ (ι.obj X₁)⟦1⟧`,
 there exists objects `K` and `Q`, and a distinguished triangle
-`(ι.obj K)⟦1⟧ ⟶ X₃ ⟶ (ι.obj Q) ⟶ ...`. -/
-def admissibleMorphism : MorphismProperty A :=
-  fun X₁ X₂ f₁ ↦
-    ∀ ⦃X₃ : C⦄ (f₂ : ι.obj X₂ ⟶ X₃) (f₃ : X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
+`(ι.obj K)⟦1⟧ ⟶ X₃ ⟶ (ι.obj Q) ⟶ ...`.
+-/
+def admissibleMorphism : MorphismProperty A := fun X₁ X₂ f₁ ↦
+  ∀ ⦃X₃ : C⦄ (f₂ : ι.obj X₂ ⟶ X₃) (f₃ : X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
       (_ : Triangle.mk (ι.map f₁) f₂ f₃ ∈ distTriang C),
     ∃ (K Q : A) (α : (ι.obj K)⟦(1 : ℤ)⟧ ⟶ X₃) (β : X₃ ⟶ ι.obj Q)
-      (γ : ι.obj Q ⟶ (ι.obj K)⟦(1 : ℤ)⟧⟦(1 : ℤ)⟧), Triangle.mk α β γ ∈ distTriang C
+        (γ : ι.obj Q ⟶ (ι.obj K)⟦(1 : ℤ)⟧⟦(1 : ℤ)⟧),
+      Triangle.mk α β γ ∈ distTriang C
 
 variable [Preadditive A] [ι.Full] [ι.Faithful]
 
@@ -216,45 +220,58 @@ attribute [local instance] hasZeroObject_of_hasTerminal_object
 variable [HasFiniteProducts A] [ι.Additive]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `ι.obj X₁ ⟶ ι.obj X₂ ⟶ ι.obj X₃ ⟶ ...` is a distinguished triangle,
-then `X₁` is a kernel of `X₂ ⟶ X₃`. -/
-noncomputable def isLimitKernelForkOfDistTriang {X₁ X₂ X₃ : A}
-    (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃) (f₃ : ι.obj X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
-    (hT : Triangle.mk (ι.map f₁) (ι.map f₂) f₃ ∈ distTriang C) :
-    IsLimit (KernelFork.ofι f₁ (show f₁ ≫ f₂ = 0 from ι.map_injective (by
-      have := comp_distTriang_mor_zero₁₂ _ hT
-      dsimp at this
-      cat_disch))) := by
+/--
+If `ι.obj X₁ ⟶ ι.obj X₂ ⟶ ι.obj X₃ ⟶ ...` is a distinguished triangle,
+then `X₁` is a kernel of `X₂ ⟶ X₃`.
+-/
+noncomputable def isLimitKernelForkOfDistTriang
+    {X₁ X₂ X₃ : A} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃) (f₃ : ι.obj X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
+    (hT : Triangle.mk (ι.map f₁) (ι.map f₂) f₃ ∈ distTriang C)
+    : IsLimit (KernelFork.ofι f₁
+      (show f₁ ≫ f₂ = 0 from
+        ι.map_injective (by
+          have := comp_distTriang_mor_zero₁₂ _ hT
+          dsimp at this
+          cat_disch))) := by
   have hT' : Triangle.mk (𝟙 ((ι.obj X₁)⟦(1 : ℤ)⟧)) (0 : _ ⟶ ι.obj 0) 0 ∈ distTriang C := by
-    refine isomorphic_distinguished _ (contractible_distinguished
-      (((ι ⋙ shiftFunctor C (1 : ℤ)).obj X₁))) _ ?_
-    exact Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _) (IsZero.iso (by
-      dsimp
-      rw [IsZero.iff_id_eq_zero, ← ι.map_id, id_zero, ι.map_zero]) (isZero_zero C))
-  refine IsLimit.ofIsoLimit (AbelianSubcategory.isLimitKernelFork hι
-    (rot_of_distTriang _ hT) hT') ?_
-  exact Fork.ext (-(Iso.refl _)) ((ι ⋙ shiftFunctor C (1 : ℤ)).map_injective
-    (by simp))
+    refine isomorphic_distinguished _
+      (contractible_distinguished (((ι ⋙ shiftFunctor C (1 : ℤ)).obj X₁))) _ ?_
+    exact Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _)
+      (IsZero.iso
+        (by
+          dsimp
+          rw [IsZero.iff_id_eq_zero, ← ι.map_id, id_zero, ι.map_zero])
+        (isZero_zero C))
+  refine IsLimit.ofIsoLimit (AbelianSubcategory.isLimitKernelFork hι (rot_of_distTriang _ hT) hT')
+    ?_
+  exact Fork.ext (-(Iso.refl _)) ((ι ⋙ shiftFunctor C (1 : ℤ)).map_injective (by simp))
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- If `ι.obj X₁ ⟶ ι.obj X₂ ⟶ ι.obj X₃ ⟶ ...` is a distinguished triangle,
-then `X₃` is a cokernel of `X₁ ⟶ X₂`. -/
-noncomputable def isColimitCokernelCoforkOfDistTriang {X₁ X₂ X₃ : A}
-    (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃) (f₃ : ι.obj X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
-    (hT : Triangle.mk (ι.map f₁) (ι.map f₂) f₃ ∈ distTriang C) :
-    IsColimit (CokernelCofork.ofπ f₂ (show f₁ ≫ f₂ = 0 from ι.map_injective (by
-      have := comp_distTriang_mor_zero₁₂ _ hT
-      dsimp at this
-      cat_disch))) := by
-  have hT' : Triangle.mk (0 : ((ι ⋙ shiftFunctor C (1 : ℤ)).obj 0) ⟶ _) (𝟙 (ι.obj X₃)) 0 ∈
-      distTriang C := by
-    refine isomorphic_distinguished _ (inv_rot_of_distTriang _
-      (contractible_distinguished (ι.obj X₃))) _ ?_
+/--
+If `ι.obj X₁ ⟶ ι.obj X₂ ⟶ ι.obj X₃ ⟶ ...` is a distinguished triangle,
+then `X₃` is a cokernel of `X₁ ⟶ X₂`.
+-/
+noncomputable def isColimitCokernelCoforkOfDistTriang
+    {X₁ X₂ X₃ : A} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃) (f₃ : ι.obj X₃ ⟶ (ι.obj X₁)⟦(1 : ℤ)⟧)
+    (hT : Triangle.mk (ι.map f₁) (ι.map f₂) f₃ ∈ distTriang C)
+    : IsColimit (CokernelCofork.ofπ f₂
+      (show f₁ ≫ f₂ = 0 from
+        ι.map_injective (by
+          have := comp_distTriang_mor_zero₁₂ _ hT
+          dsimp at this
+          cat_disch))) := by
+  have hT'
+      : Triangle.mk (0 : ((ι ⋙ shiftFunctor C (1 : ℤ)).obj 0) ⟶ _) (𝟙 (ι.obj X₃)) 0
+        ∈ distTriang C := by
+    refine isomorphic_distinguished _
+      (inv_rot_of_distTriang _ (contractible_distinguished (ι.obj X₃))) _ ?_
     refine Triangle.isoMk _ _ (IsZero.iso ?_ ?_) (Iso.refl _) (Iso.refl _) ?_ ?_ ?_
     · dsimp
-      rw [IsZero.iff_id_eq_zero, ← Functor.map_id, ← Functor.map_id, id_zero,
-        Functor.map_zero, Functor.map_zero]
+      rw [
+        IsZero.iff_id_eq_zero, ← Functor.map_id, ← Functor.map_id, id_zero, Functor.map_zero,
+        Functor.map_zero
+      ]
     · dsimp
       rw [IsZero.iff_id_eq_zero, ← Functor.map_id, id_zero, Functor.map_zero]
     all_goals simp
@@ -288,7 +305,8 @@ lemma exists_distinguished_triangle_of_epi {X₂ X₃ : A} (π : X₂ ⟶ X₃) 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 variable (ι) in
-/-- Let `ι : A ⥤ C` be a fully faithful additive functor where `A` is
+/--
+Let `ι : A ⥤ C` be a fully faithful additive functor where `A` is
 an additive category and `C` is a triangulated category. The category `A`
 is abelian if the following conditions are satisfied:
 * For any object `X` and `Y` in `A`, there is no nonzero morphism
@@ -296,7 +314,8 @@ is abelian if the following conditions are satisfied:
 * Any morphism `f₁ : X₁ ⟶ X₂` in `A` is admissible, i.e. when
   we complete `ι.obj f₁` in a distinguished triangle
   `ι.obj X₁ ⟶ ι.obj X₂ ⟶ X₃ ⟶ (ι.obj X₁)⟦1⟧`, there exists objects `K`
-  and `Q`, and a distinguished triangle `(ι.obj K)⟦1⟧ ⟶ X₃ ⟶ (ι.obj Q) ⟶ ...`. -/
+  and `Q`, and a distinguished triangle `(ι.obj K)⟦1⟧ ⟶ X₃ ⟶ (ι.obj Q) ⟶ ...`.
+-/
 @[instance_reducible]
 noncomputable def abelian [IsTriangulated C] : Abelian A :=
   Abelian.mk' (fun X₁ X₂ f₁ ↦ by
@@ -305,13 +324,13 @@ noncomputable def abelian [IsTriangulated C] : Abelian A :=
     obtain ⟨K, Q, α, β, γ, hT'⟩ := this f₂ f₃ hT
     have := epi_πQ hι hT hT'
     obtain ⟨I, i, δ, hI⟩ := exists_distinguished_triangle_of_epi hι hA (πQ f₂ β)
-    have H := someOctahedron (show f₂ ≫ β = ι.map (πQ f₂ β) by simp)
-      (rot_of_distTriang _ hT) (rot_of_distTriang _ hT')
-      (rot_of_distTriang _ hI)
+    have H :=
+      someOctahedron (show f₂ ≫ β = ι.map (πQ f₂ β) by simp) (rot_of_distTriang _ hT)
+        (rot_of_distTriang _ hT') (rot_of_distTriang _ hI)
     obtain ⟨m₁, hm₁⟩ : ∃ (m₁ : X₁ ⟶ I), (shiftFunctor C (1 : ℤ)).map (ι.map m₁) = H.m₁ :=
       ⟨(ι ⋙ shiftFunctor C (1 : ℤ)).preimage H.m₁, Functor.map_preimage (ι ⋙ _) _⟩
-    obtain ⟨m₃ : ι.obj I ⟶ (ι.obj K)⟦(1 : ℤ)⟧, hm₃⟩ :
-        ∃ m₃, (shiftFunctor C (1 : ℤ)).map m₃ = H.m₃ :=
+    obtain ⟨m₃ : ι.obj I ⟶ (ι.obj K)⟦(1 : ℤ)⟧, hm₃⟩
+        : ∃ m₃, (shiftFunctor C (1 : ℤ)).map m₃ = H.m₃ :=
       ⟨(shiftFunctor C (1 : ℤ)).preimage H.m₃, Functor.map_preimage _ _⟩
     have Hmem : Triangle.mk (ι.map (ιK f₃ α)) (ι.map m₁) (-m₃) ∈ distTriang C := by
       rw [rotate_distinguished_triangle, ← Triangle.shift_distinguished_iff _ 1]
@@ -329,7 +348,8 @@ noncomputable def abelian [IsTriangulated C] : Abelian A :=
       imageι_π := _
       imageIsCokernel := isColimitCokernelCoforkOfDistTriang hι _ _ _ Hmem
       imageIsKernel := isLimitKernelForkOfDistTriang hι _ _ _ hI
-      fac := (ι ⋙ shiftFunctor C (1 : ℤ)).map_injective (by simpa [hm₁] using H.comm₂) }⟩)
+      fac := (ι ⋙ shiftFunctor C (1 : ℤ)).map_injective (by simpa [hm₁] using H.comm₂)
+    }⟩)
 
 end
 

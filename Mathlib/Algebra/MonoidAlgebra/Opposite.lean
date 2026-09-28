@@ -23,18 +23,22 @@ variable {R M : Type*} [Semiring R] [Mul M]
 
 namespace MonoidAlgebra
 
-/-- The opposite of a monoid algebra is equivalent as a ring to the opposite monoid algebra over the
-opposite ring. -/
+/--
+The opposite of a monoid algebra is equivalent as a ring to the opposite monoid algebra over the
+opposite ring.
+-/
 @[to_additive (dont_translate := R) (attr := simps! +simpRhs apply symm_apply)
-/-- The opposite of a monoid algebra is equivalent as a ring to the opposite monoid algebra over the
+  /-- The opposite of a monoid algebra is equivalent as a ring to the opposite monoid algebra over the
 opposite ring. -/]
 protected noncomputable def opRingEquiv : R[M]ᵐᵒᵖ ≃+* Rᵐᵒᵖ[Mᵐᵒᵖ] where
   toAddEquiv :=
     opAddEquiv.symm.trans <| (mapDomainAddEquiv _ opEquiv).trans <| mapAddEquiv _ opAddEquiv
   map_mul' := by
     classical
-    simp [coeff_mul, MonoidAlgebra.ext_iff, Finsupp.ext_iff, ← MulOpposite.unop_inj,
-      unop_finsuppSum, sum_mapRange_index, apply_ite unop, mapAddEquiv]
+    simp [
+      coeff_mul, MonoidAlgebra.ext_iff, Finsupp.ext_iff, ← MulOpposite.unop_inj, unop_finsuppSum,
+      sum_mapRange_index, apply_ite unop, mapAddEquiv
+    ]
     simpa using fun _ _ _ ↦ Finsupp.sum_comm ..
 
 @[to_additive (dont_translate := R)]

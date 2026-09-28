@@ -27,23 +27,32 @@ assert_not_exists RelIso
 
 namespace OreLocalization
 
-/-- Cancellability in monoids with zeros can act as a replacement for the `ore_right_cancel`
-condition of an ore set. -/
+/--
+Cancellability in monoids with zeros can act as a replacement for the `ore_right_cancel`
+condition of an ore set.
+-/
 @[instance_reducible]
-def oreSetOfIsCancelMulZero {R : Type*} [MonoidWithZero R] [IsCancelMulZero R]
+def oreSetOfIsCancelMulZero
+    {R : Type*} [MonoidWithZero R] [IsCancelMulZero R]
     {S : Submonoid R} (oreNum : R → S → R) (oreDenom : R → S → S)
-    (ore_eq : ∀ (r : R) (s : S), oreDenom r s * r = oreNum r s * s) : OreSet S :=
-  { ore_right_cancel := fun _ _ s h => ⟨s, mul_eq_mul_left_iff.mpr (mul_eq_mul_right_iff.mp h)⟩
-    oreNum
-    oreDenom
-    ore_eq }
+    (ore_eq : ∀ (r : R) (s : S), oreDenom r s * r = oreNum r s * s)
+    : OreSet S := {
+  ore_right_cancel := fun _ _ s h => ⟨s, mul_eq_mul_left_iff.mpr (mul_eq_mul_right_iff.mp h)⟩
+  oreNum
+  oreDenom
+  ore_eq
+}
 
-/-- In rings without zero divisors, the first (cancellability) condition is always fulfilled,
-it suffices to give a proof for the Ore condition itself. -/
+/--
+In rings without zero divisors, the first (cancellability) condition is always fulfilled,
+it suffices to give a proof for the Ore condition itself.
+-/
 @[instance_reducible]
-def oreSetOfNoZeroDivisors {R : Type*} [Ring R] [NoZeroDivisors R] {S : Submonoid R}
-    (oreNum : R → S → R) (oreDenom : R → S → S)
-    (ore_eq : ∀ (r : R) (s : S), oreDenom r s * r = oreNum r s * s) : OreSet S :=
+def oreSetOfNoZeroDivisors
+    {R : Type*} [Ring R] [NoZeroDivisors R]
+    {S : Submonoid R} (oreNum : R → S → R) (oreDenom : R → S → S)
+    (ore_eq : ∀ (r : R) (s : S), oreDenom r s * r = oreNum r s * s)
+    : OreSet S :=
   letI : IsCancelMulZero R := NoZeroDivisors.toIsCancelMulZero
   oreSetOfIsCancelMulZero oreNum oreDenom ore_eq
 

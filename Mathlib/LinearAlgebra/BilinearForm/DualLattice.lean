@@ -52,10 +52,11 @@ lemma le_flip_dualSubmodule {N₁ N₂ : Submodule R M} :
   simp only [mem_dualSubmodule, Submodule.mem_one, flip_apply]
   exact forall₂_comm
 
-/-- The natural paring of `B.dualSubmodule N` and `N`.
-This is bundled as a bilinear map in `BilinForm.dualSubmoduleToDual`. -/
-noncomputable
-def dualSubmodulePairing {N : Submodule R M} (x : B.dualSubmodule N) (y : N) : R :=
+/--
+The natural paring of `B.dualSubmodule N` and `N`.
+This is bundled as a bilinear map in `BilinForm.dualSubmoduleToDual`.
+-/
+noncomputable def dualSubmodulePairing {N : Submodule R M} (x : B.dualSubmodule N) (y : N) : R :=
   (Submodule.mem_one.mp <| x.prop y y.prop).choose
 
 @[deprecated (since := "2026-09-17")] alias dualSubmoduleParing := dualSubmodulePairing
@@ -70,18 +71,17 @@ lemma dualSubmodulePairing_spec {N : Submodule R M} (x : B.dualSubmodule N) (y :
 /-- The natural paring of `B.dualSubmodule N` and `N`. -/
 -- TODO: Show that this is perfect when `N` is a lattice and `B` is nondegenerate.
 @[simps]
-noncomputable
-def dualSubmoduleToDual [IsDomain R] [IsTorsionFree R S] (N : Submodule R M) :
-    B.dualSubmodule N →ₗ[R] Module.Dual R N :=
-  { toFun := fun x ↦
-    { toFun := B.dualSubmodulePairing x
-      map_add' := fun x y ↦ FaithfulSMul.algebraMap_injective R S (by simp)
-      map_smul' := fun r m ↦ FaithfulSMul.algebraMap_injective R S
-        (by simp [← Algebra.smul_def]) }
-    map_add' := fun x y ↦ LinearMap.ext fun z ↦ FaithfulSMul.algebraMap_injective R S
-      (by simp)
-    map_smul' := fun r x ↦ LinearMap.ext fun y ↦ FaithfulSMul.algebraMap_injective R S
-      (by simp [← Algebra.smul_def]) }
+noncomputable def dualSubmoduleToDual [IsDomain R] [IsTorsionFree R S] (N : Submodule R M)
+    : B.dualSubmodule N →ₗ[R] Module.Dual R N := {
+  toFun := fun x ↦ {
+    toFun := B.dualSubmodulePairing x
+    map_add' := fun x y ↦ FaithfulSMul.algebraMap_injective R S (by simp)
+    map_smul' := fun r m ↦ FaithfulSMul.algebraMap_injective R S (by simp [← Algebra.smul_def])
+  }
+  map_add' := fun x y ↦ LinearMap.ext fun z ↦ FaithfulSMul.algebraMap_injective R S (by simp)
+  map_smul' := fun r x ↦
+    LinearMap.ext fun y ↦ FaithfulSMul.algebraMap_injective R S (by simp [← Algebra.smul_def])
+}
 
 lemma dualSubmoduleToDual_injective [IsDomain R] (hB : B.Nondegenerate) [IsTorsionFree R S]
     (N : Submodule R M) (hN : Submodule.span S (N : Set M) = ⊤) :

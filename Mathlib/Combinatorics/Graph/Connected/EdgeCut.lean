@@ -77,8 +77,10 @@ end edgeCut
 
 section IsEdgeCut
 
-/-- A set of edges is an edge cut if there exists a set of vertices such that the edges in the set
-are between the set of vertices and its complement. -/
+/--
+A set of edges is an edge cut if there exists a set of vertices such that the edges in the set
+are between the set of vertices and its complement.
+-/
 def IsEdgeCut (G : Graph α β) (F : Set β) : Prop := ∃ S : Set α, G.edgeCut S = F
 
 lemma IsEdgeCut.exists_edgeCut (hF : G.IsEdgeCut F) : ∃ S ⊆ V(G), G.edgeCut S = F := by
@@ -161,8 +163,10 @@ end IsBridge
 
 section IsBond
 
-/-- A bond of a graph is a minimal nonempty edge-cut; see
-[Diestel, *Graph Theory*, Section 1.9][diestel2017]. -/
+/--
+A bond of a graph is a minimal nonempty edge-cut; see
+[Diestel, *Graph Theory*, Section 1.9][diestel2017].
+-/
 @[expose]
 def IsBond (G : Graph α β) (F : Set β) : Prop := Minimal (fun F ↦ G.IsEdgeCut F ∧ F.Nonempty) F
 

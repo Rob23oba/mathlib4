@@ -37,11 +37,12 @@ variable {C : Type*} [Category* C] [Abelian C]
 -- is acyclic, then `HomComplex K L` is acyclic. (The condition below
 -- is equivalent to the acyclicity of `HomComplex K L` in degree
 -- `0`, and the general case follows by shifting `K`.)
-/-- A cochain complex `L` is K-injective if any morphism `K ⟶ L`
-with `K` acyclic is homotopic to zero. -/
+/--
+A cochain complex `L` is K-injective if any morphism `K ⟶ L`
+with `K` acyclic is homotopic to zero.
+-/
 class IsKInjective (L : CochainComplex C ℤ) : Prop where
-  nonempty_homotopy_zero {K : CochainComplex C ℤ} (f : K ⟶ L) :
-    K.Acyclic → Nonempty (Homotopy f 0)
+  nonempty_homotopy_zero {K : CochainComplex C ℤ} (f : K ⟶ L) : K.Acyclic → Nonempty (Homotopy f 0)
 
 /-- A choice of homotopy to zero for a morphism from an acyclic
 cochain complex to a K-injective cochain complex. -/
@@ -85,8 +86,7 @@ lemma IsKInjective.rightOrthogonal (L : CochainComplex C ℤ) [L.IsKInjective] :
         ((HomotopyCategory.quotient _ _).obj L) := by
   rwa [← isKInjective_iff_rightOrthogonal]
 
-instance (L : CochainComplex C ℤ) [hL : L.IsKInjective] (n : ℤ) :
-    (L⟦n⟧).IsKInjective := by
+instance (L : CochainComplex C ℤ) [hL : L.IsKInjective] (n : ℤ) : (L⟦n⟧).IsKInjective := by
   rw [isKInjective_iff_rightOrthogonal] at hL ⊢
   exact ObjectProperty.prop_of_iso _
     (((HomotopyCategory.quotient C (.up ℤ)).commShiftIso n).symm.app L)
@@ -162,8 +162,8 @@ lemma isKInjective_of_injective (L : CochainComplex C ℤ) (d : ℤ)
       limitSequence_eqUpTo φ hφ x₀ k₀ n (n - 1) (by lia) (by lia),
       limitSequence_eqUpTo φ hφ x₀ k₀ (n + 1) n (by lia) (by lia)]
 
-instance (K : CochainComplex C ℕ) [∀ n, Injective (K.X n)] :
-    IsKInjective (K.extend ComplexShape.embeddingUpNat) :=
+instance (K : CochainComplex C ℕ) [∀ n, Injective (K.X n)]
+    : IsKInjective (K.extend ComplexShape.embeddingUpNat) :=
   isKInjective_of_injective _ 0
 
 set_option backward.defeqAttrib.useBackward true in

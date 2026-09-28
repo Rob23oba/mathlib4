@@ -23,8 +23,10 @@ namespace CategoryTheory.Join
 
 variable (C D : Type*) [Category* C] [Category* D]
 
-/-- The canonical functor from the sum to the join.
-It sends `inl c` to `left c` and `inr d` to `right d`. -/
+/--
+The canonical functor from the sum to the join.
+It sends `inl c` to `left c` and `inr d` to `right d`.
+-/
 @[simps! obj] -- Maps get characterized w.r.t. the inclusions below
 def fromSum : C ⊕ D ⥤ C ⋆ D := (inclLeft C D).sum' <| inclRight C D
 

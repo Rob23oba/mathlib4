@@ -30,8 +30,10 @@ open Limits
 
 namespace Types
 
-/-- The jointly surjective precoverage in the category of types has the jointly surjective
-families as coverings. -/
+/--
+The jointly surjective precoverage in the category of types has the jointly surjective
+families as coverings.
+-/
 def jointlySurjectivePrecoverage : Precoverage (Type u) where
   coverings X := {R | ∀ x : X, ∃ (Y : Type u) (g : Y ⟶ X), R g ∧ x ∈ Set.range g}
 

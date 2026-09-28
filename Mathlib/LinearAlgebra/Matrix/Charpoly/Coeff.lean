@@ -38,7 +38,6 @@ We give methods for computing coefficients of the characteristic polynomial.
 
 @[expose] public section
 
-
 noncomputable section
 
 universe u v w z
@@ -53,45 +52,54 @@ variable {M : Matrix n n R}
 
 namespace Matrix
 
-theorem charmatrix_apply_natDegree [Nontrivial R] (i j : n) :
-    (charmatrix M i j).natDegree = ite (i = j) 1 0 := by
+theorem charmatrix_apply_natDegree [Nontrivial R] (i j : n)
+    : (charmatrix M i j).natDegree = ite (i = j) 1 0 := by
   by_cases h : i = j <;> simp [h]
 
-theorem charmatrix_apply_natDegree_le (i j : n) :
-    (charmatrix M i j).natDegree ≤ ite (i = j) 1 0 := by
+theorem charmatrix_apply_natDegree_le (i j : n)
+    : (charmatrix M i j).natDegree ≤ ite (i = j) 1 0 := by
   split_ifs with h <;> simp [h, natDegree_X_le]
 
 variable (M)
 
-theorem charpoly_sub_diagonal_degree_lt :
-    (M.charpoly - ∏ i : n, (X - C (M i i))).degree < ↑(Fintype.card n - 1) := by
-  rw [charpoly, det_apply', ← insert_erase (mem_univ (Equiv.refl n)),
-    sum_insert (notMem_erase (Equiv.refl n) univ), add_comm]
-  simp only [charmatrix_apply_eq, one_mul, Equiv.Perm.sign_refl, id, Int.cast_one,
-    Units.val_one, add_sub_cancel_right, Equiv.coe_refl]
+theorem charpoly_sub_diagonal_degree_lt
+    : (M.charpoly - ∏ i : n, (X - C (M i i))).degree < ↑(Fintype.card n - 1) := by
+  rw [
+    charpoly, det_apply', ← insert_erase (mem_univ (Equiv.refl n)),
+    sum_insert (notMem_erase (Equiv.refl n) univ), add_comm
+  ]
+  simp only [
+    charmatrix_apply_eq, one_mul, Equiv.Perm.sign_refl, id, Int.cast_one, Units.val_one,
+    add_sub_cancel_right, Equiv.coe_refl
+  ]
   rw [← mem_degreeLT]
   apply Submodule.sum_mem (degreeLT R (Fintype.card n - 1))
-  intro c hc; rw [← C_eq_intCast, C_mul']
-  apply Submodule.smul_mem (degreeLT R (Fintype.card n - 1)) ↑↑(Equiv.Perm.sign c)
+  intro c hc
+  rw [← C_eq_intCast, C_mul']
+  apply Submodule.smul_mem (degreeLT R (Fintype.card n - 1)) ↑ ↑(Equiv.Perm.sign c)
   rw [mem_degreeLT]
   apply lt_of_le_of_lt degree_le_natDegree _
   rw [Nat.cast_lt]
   apply lt_of_le_of_lt _ (Equiv.Perm.fixed_point_card_lt_of_ne_one (ne_of_mem_erase hc))
   apply le_trans (Polynomial.natDegree_prod_le univ fun i : n => charmatrix M (c i) i) _
-  rw [card_eq_sum_ones]; rw [sum_filter]; apply sum_le_sum
+  rw [card_eq_sum_ones]
+  rw [sum_filter]
+  apply sum_le_sum
   intros
   apply charmatrix_apply_natDegree_le
 
-theorem charpoly_coeff_eq_prod_coeff_of_le {k : ℕ} (h : Fintype.card n - 1 ≤ k) :
-    M.charpoly.coeff k = (∏ i : n, (X - C (M i i))).coeff k := by
-  apply eq_of_sub_eq_zero; rw [← coeff_sub]
+theorem charpoly_coeff_eq_prod_coeff_of_le {k : ℕ} (h : Fintype.card n - 1 ≤ k)
+    : M.charpoly.coeff k = (∏ i : n, (X - C (M i i))).coeff k := by
+  apply eq_of_sub_eq_zero
+  rw [← coeff_sub]
   apply Polynomial.coeff_eq_zero_of_degree_lt
   apply lt_of_lt_of_le (charpoly_sub_diagonal_degree_lt M) ?_
-  rw [Nat.cast_le]; apply h
+  rw [Nat.cast_le]
+  apply h
 
 @[simp]
-theorem charpoly_degree_eq_dim [Nontrivial R] (M : Matrix n n R) :
-    M.charpoly.degree = Fintype.card n := by
+theorem charpoly_degree_eq_dim [Nontrivial R] (M : Matrix n n R)
+    : M.charpoly.degree = Fintype.card n := by
   by_cases h : Fintype.card n = 0
   · rw [h]
     unfold charpoly
@@ -113,8 +121,9 @@ theorem charpoly_degree_eq_dim [Nontrivial R] (M : Matrix n n R) :
   rw [Nat.cast_lt]
   lia
 
-@[simp] theorem charpoly_natDegree_eq_dim [Nontrivial R] (M : Matrix n n R) :
-    M.charpoly.natDegree = Fintype.card n :=
+@[simp]
+theorem charpoly_natDegree_eq_dim [Nontrivial R] (M : Matrix n n R)
+    : M.charpoly.natDegree = Fintype.card n :=
   natDegree_eq_of_degree_eq_some (charpoly_degree_eq_dim M)
 
 theorem charpoly_monic (M : Matrix n n R) : M.charpoly.Monic := by
@@ -136,10 +145,12 @@ theorem charpoly_monic (M : Matrix n n R) : M.charpoly.Monic := by
   lia
 
 /-- See also `Matrix.coeff_charpolyRev_eq_neg_trace`. -/
-theorem trace_eq_neg_charpoly_coeff [Nonempty n] (M : Matrix n n R) :
-    trace M = -M.charpoly.coeff (Fintype.card n - 1) := by
-  rw [charpoly_coeff_eq_prod_coeff_of_le _ le_rfl, Fintype.card,
-    prod_X_sub_C_coeff_card_pred univ (fun i : n => M i i) Fintype.card_pos, neg_neg, trace]
+theorem trace_eq_neg_charpoly_coeff [Nonempty n] (M : Matrix n n R)
+    : trace M = - M.charpoly.coeff (Fintype.card n - 1) := by
+  rw [
+    charpoly_coeff_eq_prod_coeff_of_le _ le_rfl, Fintype.card,
+    prod_X_sub_C_coeff_card_pred univ (fun i : n => M i i) Fintype.card_pos, neg_neg, trace
+  ]
   simp_rw [diag_apply]
 
 theorem trace_eq_neg_charpoly_nextCoeff (M : Matrix n n R) : M.trace = -M.charpoly.nextCoeff := by
@@ -148,8 +159,8 @@ theorem trace_eq_neg_charpoly_nextCoeff (M : Matrix n n R) : M.trace = -M.charpo
   nontriviality
   simp [trace_eq_neg_charpoly_coeff, nextCoeff]
 
-theorem det_eq_sign_charpoly_coeff (M : Matrix n n R) :
-    M.det = (-1) ^ Fintype.card n * M.charpoly.coeff 0 := by
+theorem det_eq_sign_charpoly_coeff (M : Matrix n n R)
+    : M.det = (-1) ^ Fintype.card n * M.charpoly.coeff 0 := by
   rw [coeff_zero_eq_eval_zero, charpoly, eval_det, matPolyEquiv_charmatrix, ← det_smul]
   simp
 
@@ -232,12 +243,14 @@ lemma charpoly_fin_two [Nontrivial R] (M : Matrix (Fin 2) (Fin 2) R) :
 
 end Matrix
 
-theorem matPolyEquiv_eq_X_pow_sub_C {K : Type*} (k : ℕ) [CommRing K] (M : Matrix n n K) :
-    matPolyEquiv ((expand K k : K[X] →+* K[X]).mapMatrix (charmatrix (M ^ k))) =
-      X ^ k - C (M ^ k) := by
+theorem matPolyEquiv_eq_X_pow_sub_C {K : Type*} (k : ℕ) [CommRing K] (M : Matrix n n K)
+    : matPolyEquiv ((expand K k : K[X] →+* K[X]).mapMatrix (charmatrix (M ^ k)))
+      = X ^ k - C (M ^ k) := by
   ext m i j
-  rw [coeff_sub, coeff_C, matPolyEquiv_coeff_apply, RingHom.mapMatrix_apply, Matrix.map_apply,
-    AlgHom.coe_toRingHom, coeff_X_pow]
+  rw [
+    coeff_sub, coeff_C, matPolyEquiv_coeff_apply, RingHom.mapMatrix_apply, Matrix.map_apply,
+    AlgHom.coe_toRingHom, coeff_X_pow
+  ]
   by_cases hij : i = j
   · rw [hij, charmatrix_apply_eq, map_sub, expand_C, expand_X, coeff_sub, coeff_X_pow, coeff_C]
     split_ifs with mp m0 <;> simp
@@ -246,22 +259,27 @@ theorem matPolyEquiv_eq_X_pow_sub_C {K : Type*} (k : ℕ) [CommRing K] (M : Matr
 
 namespace Matrix
 
-/-- Any matrix polynomial `p` is equivalent under evaluation to `p %ₘ M.charpoly`; that is, `p`
-is equivalent to a polynomial with degree less than the dimension of the matrix. -/
-theorem aeval_eq_aeval_mod_charpoly (M : Matrix n n R) (p : R[X]) :
-    aeval M p = aeval M (p %ₘ M.charpoly) :=
+/--
+Any matrix polynomial `p` is equivalent under evaluation to `p %ₘ M.charpoly`; that is, `p`
+is equivalent to a polynomial with degree less than the dimension of the matrix.
+-/
+theorem aeval_eq_aeval_mod_charpoly (M : Matrix n n R) (p : R[X])
+    : aeval M p = aeval M (p %ₘ M.charpoly) :=
   (aeval_modByMonic_eq_self_of_root M.aeval_self_charpoly).symm
 
-/-- Any matrix power can be computed as the sum of matrix powers less than `Fintype.card n`.
+/--
+Any matrix power can be computed as the sum of matrix powers less than `Fintype.card n`.
 
-TODO: add the statement for negative powers phrased with `zpow`. -/
-theorem pow_eq_aeval_mod_charpoly (M : Matrix n n R) (k : ℕ) :
-    M ^ k = aeval M (X ^ k %ₘ M.charpoly) := by rw [← aeval_eq_aeval_mod_charpoly, map_pow, aeval_X]
+TODO: add the statement for negative powers phrased with `zpow`.
+-/
+theorem pow_eq_aeval_mod_charpoly (M : Matrix n n R) (k : ℕ)
+    : M ^ k = aeval M (X ^ k %ₘ M.charpoly) := by
+  rw [← aeval_eq_aeval_mod_charpoly, map_pow, aeval_X]
 
 section Ideal
 
-theorem coeff_charpoly_mem_ideal_pow {I : Ideal R} (h : ∀ i j, M i j ∈ I) (k : ℕ) :
-    M.charpoly.coeff k ∈ I ^ (Fintype.card n - k) := by
+theorem coeff_charpoly_mem_ideal_pow {I : Ideal R} (h : ∀ i j, M i j ∈ I) (k : ℕ)
+    : M.charpoly.coeff k ∈ I ^ (Fintype.card n - k) := by
   delta charpoly
   rw [Matrix.det_apply, finsetSum_coeff]
   apply sum_mem
@@ -271,8 +289,10 @@ theorem coeff_charpoly_mem_ideal_pow {I : Ideal R} (h : ∀ i j, M i j ∈ I) (k
   rw [← this]
   apply coeff_prod_mem_ideal_pow_tsub
   rintro i - (_ | k)
-  · rw [tsub_zero, pow_one, charmatrix_apply, coeff_sub, ← smul_one_eq_diagonal, smul_apply,
-      smul_eq_mul, coeff_X_mul_zero, coeff_C_zero, zero_sub, neg_mem_iff]
+  · rw [
+      tsub_zero, pow_one, charmatrix_apply, coeff_sub, ← smul_one_eq_diagonal, smul_apply,
+      smul_eq_mul, coeff_X_mul_zero, coeff_C_zero, zero_sub, neg_mem_iff
+    ]
     exact h (c i) i
   · rw [add_comm, tsub_self_add, pow_zero, Ideal.one_eq_top]
     exact Submodule.mem_top
@@ -283,11 +303,13 @@ section reverse
 
 open LaurentPolynomial hiding C
 
-/-- The reverse of the characteristic polynomial of a matrix.
+/--
+The reverse of the characteristic polynomial of a matrix.
 
 It has some advantages over the characteristic polynomial, including the fact that it can be
 extended to infinite dimensions (for appropriate operators). In such settings it is known as the
-"characteristic power series". -/
+"characteristic power series".
+-/
 def charpolyRev (M : Matrix n n R) : R[X] := det (1 - (X : R[X]) • M.map C)
 
 lemma reverse_charpoly (M : Matrix n n R) :
@@ -311,19 +333,20 @@ lemma reverse_charpoly (M : Matrix n n R) :
     diagonal_one, invert.map_det]
   simp [t_inv, map_sub, map_one, map_mul, t, smul_eq_diagonal_mul]
 
-theorem charpoly_inv (A : Matrix n n R) (h : IsUnit A) :
-    A⁻¹.charpoly = (-1) ^ Fintype.card n * C A.det⁻¹ʳ * A.charpolyRev := by
+theorem charpoly_inv (A : Matrix n n R) (h : IsUnit A)
+    : A⁻¹.charpoly = (-1) ^ Fintype.card n * C A.det⁻¹ʳ * A.charpolyRev := by
   have : Invertible A := h.invertible
   calc
-  _ = (scalar n X - C.mapMatrix A⁻¹).det := rfl
-  _ = C (A⁻¹ * A).det * (scalar n X - C.mapMatrix A⁻¹).det := by simp
-  _ = C A⁻¹.det * C A.det * (scalar n X - C.mapMatrix A⁻¹).det := by rw [det_mul]; simp
-  _ = C A⁻¹.det * (C A.det * (scalar n X - C.mapMatrix A⁻¹).det) := by ac_rfl
-  _ = C A⁻¹.det * (C.mapMatrix A * (scalar n X - C.mapMatrix A⁻¹)).det := by simp [RingHom.map_det]
-  _ = C A⁻¹.det * (C.mapMatrix A * scalar n X - 1).det := by rw [mul_sub, ← map_mul]; simp
-  _ = C A⁻¹.det * ((-1) ^ Fintype.card n * (1 - scalar n X * C.mapMatrix A).det) := by
-    rw [← neg_sub, det_neg, det_one_sub_mul_comm]
-  _ = _ := by simp [charpolyRev, smul_eq_diagonal_mul]; ac_rfl
+    _ = (scalar n X - C.mapMatrix A⁻¹).det := rfl
+    _ = C (A⁻¹ * A).det * (scalar n X - C.mapMatrix A⁻¹).det := by simp
+    _ = C A⁻¹.det * C A.det * (scalar n X - C.mapMatrix A⁻¹).det := by rw [det_mul]; simp
+    _ = C A⁻¹.det * (C A.det * (scalar n X - C.mapMatrix A⁻¹).det) := by ac_rfl
+    _ = C A⁻¹.det * (C.mapMatrix A * (scalar n X - C.mapMatrix A⁻¹)).det := by
+      simp [RingHom.map_det]
+    _ = C A⁻¹.det * (C.mapMatrix A * scalar n X - 1).det := by rw [mul_sub, ← map_mul]; simp
+    _ = C A⁻¹.det * ((-1) ^ Fintype.card n * (1 - scalar n X * C.mapMatrix A).det) := by
+      rw [← neg_sub, det_neg, det_one_sub_mul_comm]
+    _ = _ := by simp [charpolyRev, smul_eq_diagonal_mul]; ac_rfl
 
 @[simp] lemma eval_charpolyRev :
     eval 0 M.charpolyRev = 1 := by
@@ -393,14 +416,15 @@ lemma det_piecewise_one_eq_submatrix_det
   rw [h_blocks, Matrix.det_fromBlocks_zero₂₁, Matrix.det_one, mul_one]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The k-th coefficient of `det (1 + X • M)` equals the sum of all k×k principal minors of M.
+/--
+The k-th coefficient of `det (1 + X • M)` equals the sum of all k×k principal minors of M.
 This generalizes `coeff_det_one_add_X_smul_one` (the k = 1 case, which gives the trace)
-and `det_eq_sign_charpoly_coeff` (the k = n case, which gives the determinant). -/
-theorem coeff_det_one_add_X_smul_eq_sum_minors
-    (M : Matrix n n R) (k : ℕ) :
-    (det (1 + (X : R[X]) • M.map C)).coeff k =
-    ∑ s ∈ Finset.univ.powersetCard k,
-      (M.submatrix (Subtype.val : s → n) (Subtype.val : s → n)).det := by
+and `det_eq_sign_charpoly_coeff` (the k = n case, which gives the determinant).
+-/
+theorem coeff_det_one_add_X_smul_eq_sum_minors (M : Matrix n n R) (k : ℕ)
+    : (det (1 + (X : R[X]) • M.map C)).coeff k
+      = ∑ s ∈ Finset.univ.powersetCard k,
+          (M.submatrix (Subtype.val : s → n) (Subtype.val : s → n)).det := by
   simp only [det]
   let D := (detRowAlternating : (n → R[X]) [⋀^n]→ₗ[R[X]] R[X])
   rw [add_comm]
@@ -408,57 +432,65 @@ theorem coeff_det_one_add_X_smul_eq_sum_minors
   conv_lhs => rw [show (fun i ↦ ((X : R[X]) • M.map C) i + (1 : Matrix n n R[X]) i) =
       (fun i => ((X : R[X]) • M.map C) i) + (fun i => (1 : Matrix n n R[X]) i) from rfl]
   conv_lhs => rw [D.map_add_univ]
-  have h_map : ∀ s : Finset n,
-        (s.piecewise (fun i ↦ (M.map C) i)
-          (fun i ↦ (1 : Matrix n n R[X]) i) : Matrix n n R[X]) =
-        Matrix.map (s.piecewise M (1 : Matrix n n R)) C := by
-      intro s; ext i j
-      simp only [Finset.piecewise, Matrix.map_apply]
-      split_ifs with h <;> simp [Matrix.one_apply]
-  have h_det : ∀ s : Finset n,
-      D (s.piecewise (fun i ↦ (M.map C) i)
-        (fun i ↦ (1 : Matrix n n R[X]) i)) =
-      C (det (s.piecewise M (1 : Matrix n n R))) := by
-    intro s; change det _ = _
-    rw [h_map]; exact (RingHom.map_det C _).symm
-  calc (∑ s : Finset n, D (Finset.piecewise s (fun i ↦ ((X : R[X]) • M.map C) i)
-            (fun i ↦ (1 : Matrix n n R[X]) i))).coeff k
-      _ = (∑ s : Finset n, (X : R[X]) ^ s.card •
-            D (s.piecewise (fun i ↦ (M.map C) i)
-              (fun i ↦ (1 : Matrix n n R[X]) i))).coeff k := by
-        congr 3 with s
-        have h_smul : s.piecewise (fun i ↦ ((X : R[X]) • M.map C) i)
-            (fun i ↦ (1 : Matrix n n R[X]) i) =
-            fun i => (if i ∈ s then (X : R[X]) else 1) •
-              s.piecewise (fun i ↦ (M.map C) i) (fun i ↦ (1 : Matrix n n R[X]) i) i := by
-          funext i j
-          simp only [piecewise, Pi.smul_apply, smul_eq_mul, ite_mul, one_mul]
-          split_ifs <;> rfl
-        rw [h_smul, D.map_smul_univ]
-        congr 1
-        simp only [Finset.prod_ite_mem, Finset.univ_inter, Finset.prod_const]
-      _ = ∑ s : Finset n, ((X : R[X]) ^ s.card •
-            D (Finset.piecewise s (fun i ↦ (M.map C) i)
-              (fun i ↦ (1 : Matrix n n R[X]) i))).coeff k := by
-        simp only [Polynomial.finsetSum_coeff]
-      _ = _ := by
-        simp_rw [h_det, smul_eq_mul, mul_comm (X ^ _) (C _)]
-        simp_rw [C_mul_X_pow_eq_monomial, coeff_monomial]
-        rw [← Finset.sum_filter]
-        have h_set : Finset.univ.filter (fun s : Finset n => s.card = k) =
-            Finset.univ.powersetCard k := by
-          ext s; simp [Finset.mem_powersetCard]
-        rw [h_set]
-        exact Finset.sum_congr rfl fun s _ => det_piecewise_one_eq_submatrix_det M s
+  have h_map
+      : ∀ s : Finset n,
+        (s.piecewise (fun i ↦ (M.map C) i) (fun i ↦ (1 : Matrix n n R[X]) i) : Matrix n n R[X])
+          = Matrix.map (s.piecewise M (1 : Matrix n n R)) C := by
+    intro s
+    ext i j
+    simp only [Finset.piecewise, Matrix.map_apply]
+    split_ifs with h <;> simp [Matrix.one_apply]
+  have h_det
+      : ∀ s : Finset n,
+        D (s.piecewise (fun i ↦ (M.map C) i) (fun i ↦ (1 : Matrix n n R[X]) i))
+          = C (det (s.piecewise M (1 : Matrix n n R))) := by
+    intro s
+    change det _ = _
+    rw [h_map]
+    exact (RingHom.map_det C _).symm
+  calc
+    (∑ s : Finset n, D (Finset.piecewise s (fun i ↦ ((X : R[X]) • M.map C) i)
+         (fun i ↦ (1 : Matrix n n R[X]) i))).coeff
+      k
+    _ = (∑ s : Finset n, (X : R[X]) ^ s.card •
+          D (s.piecewise (fun i ↦ (M.map C) i)
+            (fun i ↦ (1 : Matrix n n R[X]) i))).coeff
+        k := by
+      congr 3 with s
+      have h_smul
+          : s.piecewise (fun i ↦ ((X : R[X]) • M.map C) i) (fun i ↦ (1 : Matrix n n R[X]) i)
+            = fun i =>
+              (if i ∈ s then (X : R[X]) else 1)
+                • s.piecewise (fun i ↦ (M.map C) i) (fun i ↦ (1 : Matrix n n R[X]) i) i := by
+        funext i j
+        simp only [piecewise, Pi.smul_apply, smul_eq_mul, ite_mul, one_mul]
+        split_ifs <;> rfl
+      rw [h_smul, D.map_smul_univ]
+      congr 1
+      simp only [Finset.prod_ite_mem, Finset.univ_inter, Finset.prod_const]
+    _ = ∑ s : Finset n, ((X : R[X]) ^ s.card •
+          D (Finset.piecewise s (fun i ↦ (M.map C) i)
+            (fun i ↦ (1 : Matrix n n R[X]) i))).coeff k := by
+      simp only [Polynomial.finsetSum_coeff]
+    _ = _ := by
+      simp_rw [h_det, smul_eq_mul, mul_comm (X ^ _) (C _)]
+      simp_rw [C_mul_X_pow_eq_monomial, coeff_monomial]
+      rw [← Finset.sum_filter]
+      have h_set
+          : Finset.univ.filter (fun s : Finset n => s.card = k) = Finset.univ.powersetCard k := by
+        ext s; simp [Finset.mem_powersetCard]
+      rw [h_set]
+      exact Finset.sum_congr rfl fun s _ => det_piecewise_one_eq_submatrix_det M s
 
-/-- The coefficients of the characteristic polynomial are signed sums of principal minors.
+/--
+The coefficients of the characteristic polynomial are signed sums of principal minors.
 Specifically, the (n-k)-th coefficient of the characteristic polynomial of M equals
-`(-1)^k` times the sum of all k×k principal minors of M. -/
-theorem charpoly_coeff_eq_sum_minors
-    (M : Matrix n n R) (k : ℕ) (hk : k ≤ Fintype.card n) :
-    M.charpoly.coeff (Fintype.card n - k) =
-    (-1) ^ k * ∑ s ∈ Finset.univ.powersetCard k,
-      (M.submatrix (Subtype.val : s → n) (Subtype.val : s → n)).det := by
+`(-1)^k` times the sum of all k×k principal minors of M.
+-/
+theorem charpoly_coeff_eq_sum_minors (M : Matrix n n R) (k : ℕ) (hk : k ≤ Fintype.card n)
+    : M.charpoly.coeff (Fintype.card n - k)
+      = (-1) ^ k * ∑ s ∈ Finset.univ.powersetCard k,
+        (M.submatrix (Subtype.val : s → n) (Subtype.val : s → n)).det := by
   nontriviality R
   have hnd := M.charpoly_natDegree_eq_dim
   have hrev : M.charpoly.coeff (Fintype.card n - k) = M.charpoly.reverse.coeff k := by

@@ -43,8 +43,7 @@ open CategoryTheory Limits
 namespace TopCat
 
 /-- The morphism property on the category of topological spaces given by open embeddings. -/
-def isOpenEmbedding : MorphismProperty TopCat :=
-  fun _ _ f ↦ Topology.IsOpenEmbedding f
+def isOpenEmbedding : MorphismProperty TopCat := fun _ _ f ↦ Topology.IsOpenEmbedding f
 
 @[simp]
 lemma isOpenEmbedding_iff {X Y : TopCat.{u}} (f : X ⟶ Y) :
@@ -63,15 +62,16 @@ instance : isOpenEmbedding.IsStableUnderBaseChange :=
 
 /-- The precoverage on `TopCat` given by jointly surjective families of open embeddings. -/
 def precoverage : Precoverage TopCat.{u} :=
-    Types.jointlySurjectivePrecoverage.comap (forget TopCat) ⊓ isOpenEmbedding.precoverage
-  deriving Precoverage.HasIsos, Precoverage.IsStableUnderComposition
+  Types.jointlySurjectivePrecoverage.comap (forget TopCat) ⊓ isOpenEmbedding.precoverage
+deriving Precoverage.HasIsos, Precoverage.IsStableUnderComposition
 
 deriving instance Precoverage.IsStableUnderBaseChange for precoverage
 
-/-- The Grothendieck topology on the category of topological spaces is the topology given by
-jointly surjective open embeddings. -/
-abbrev grothendieckTopology : GrothendieckTopology TopCat.{u} :=
-  precoverage.toGrothendieck
+/--
+The Grothendieck topology on the category of topological spaces is the topology given by
+jointly surjective open embeddings.
+-/
+abbrev grothendieckTopology : GrothendieckTopology TopCat.{u} := precoverage.toGrothendieck
 
 lemma exists_mem_zeroHypercover_range {X : TopCat.{u}} (E : precoverage.ZeroHypercover X) :
     ∀ x, ∃ (i : E.I₀), x ∈ Set.range (E.f i) := by
@@ -81,8 +81,7 @@ lemma isOpenEmbedding_f_zeroHypercover {X : TopCat.{u}} (E : precoverage.ZeroHyp
     ∀ i, Topology.IsOpenEmbedding (E.f i) := by
   simpa using E.mem₀.right
 
-instance : Precoverage.Small.{u} precoverage.{u} :=
-  .inf fun _ _ _ hRS hS _ _ hf ↦ hS (hRS _ _ hf)
+instance : Precoverage.Small.{u} precoverage.{u} := .inf fun _ _ _ hRS hS _ _ hf ↦ hS (hRS _ _ hf)
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The Grothendieck topology on `TopCat` is subcanonical. -/
@@ -101,8 +100,9 @@ instance subcanonical_grothendieckTopology : grothendieckTopology.Subcanonical :
       intro xi hi xj hj
       conv_lhs => simp only [← hi]
       conv_rhs => simp only [← hj]
-      have := hx i j _ (TopCat.pullbackCone (𝒰.f i) (𝒰.f j)).fst
-        (TopCat.pullbackCone (𝒰.f i) (𝒰.f j)).snd (TopCat.pullbackCone (𝒰.f i) (𝒰.f j)).condition
+      have :=
+        hx i j _ (TopCat.pullbackCone (𝒰.f i) (𝒰.f j)).fst (TopCat.pullbackCone (𝒰.f i) (𝒰.f j)).snd
+          (TopCat.pullbackCone (𝒰.f i) (𝒰.f j)).condition
       dsimp at this
       simpa using! congr($this ⟨(xi, xj), hi ▸ hj.symm⟩)
     · intro x
@@ -110,8 +110,10 @@ instance subcanonical_grothendieckTopology : grothendieckTopology.Subcanonical :
       exact ⟨i, (isOpenEmbedding_f_zeroHypercover 𝒰 i).isOpen_range.mem_nhds hi⟩
   · apply ConcreteCategory.hom_ext
     intro
-    simp only [yoneda_obj_map, Quiver.Hom.unop_op, ConcreteCategory.hom_ofHom, TypeCat.Fun.coe_mk,
-      hom_comp, ContinuousMap.comp_apply]
+    simp only [
+      yoneda_obj_map, Quiver.Hom.unop_op, ConcreteCategory.hom_ofHom, TypeCat.Fun.coe_mk, hom_comp,
+      ContinuousMap.comp_apply
+    ]
     rw [heq, ContinuousMap.liftCover_coe]
     simp
   · dsimp

@@ -69,16 +69,17 @@ open AddSubgroup (zmultiples)
 
 noncomputable section
 
-variable (ι R M N : Type*)
-  [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable (ι R M N : Type*) [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
 
-/-- Given two perfectly-paired `R`-modules `M` and `N`, a root pairing with indexing set `ι`
+/--
+Given two perfectly-paired `R`-modules `M` and `N`, a root pairing with indexing set `ι`
 is the data of an `ι`-indexed subset of `M` ("the roots"), an `ι`-indexed subset of `N`
 ("the coroots"), and an `ι`-indexed set of permutations of `ι`, such that each root-coroot pair
 evaluates to `2`, and the permutation attached to each element of `ι` is compatible with the
 reflections on the corresponding roots and coroots.
 
-It exists to allow for a convenient unification of the theories of root systems and root data. -/
+It exists to allow for a convenient unification of the theories of root systems and root data.
+-/
 structure RootPairing extends M →ₗ[R] N →ₗ[R] R where
   [isPerfPair_toLinearMap : toLinearMap.IsPerfPair]
   /-- A parametrized family of vectors, called roots. -/
@@ -86,20 +87,23 @@ structure RootPairing extends M →ₗ[R] N →ₗ[R] R where
   /-- A parametrized family of dual vectors, called coroots. -/
   coroot : ι ↪ N
   root_coroot_two : ∀ i, toLinearMap (root i) (coroot i) = 2
-  /-- A parametrized family of permutations, induced by reflections. This corresponds to the
+  /--
+  A parametrized family of permutations, induced by reflections. This corresponds to the
   classical requirement that the symmetry attached to each root (later defined in
   `RootPairing.reflection`) leave the whole set of roots stable: as explained above, we
   formalize this stability by fixing the image of the roots through each reflection (whence the
-  permutation); and similarly for coroots. -/
+  permutation); and similarly for coroots.
+  -/
   reflectionPerm : ι → (ι ≃ ι)
-  reflectionPerm_root : ∀ i j,
-    root j - toLinearMap (root j) (coroot i) • root i = root (reflectionPerm i j)
-  reflectionPerm_coroot : ∀ i j,
-    coroot j - toLinearMap (root i) (coroot j) • coroot i = coroot (reflectionPerm i j)
+  reflectionPerm_root
+    : ∀ i j, root j - toLinearMap (root j) (coroot i) • root i = root (reflectionPerm i j)
+  reflectionPerm_coroot
+    : ∀ i j, coroot j - toLinearMap (root i) (coroot j) • coroot i = coroot (reflectionPerm i j)
 
 attribute [instance] RootPairing.isPerfPair_toLinearMap
 
-/-- Informally a root datum is a root pairing with coefficients in the integers, for which the root
+/--
+Informally a root datum is a root pairing with coefficients in the integers, for which the root
 and coroot spaces are finitely-generated free Abelian groups.
 
 Formally `RootDatum` does not demand the finite generation hypotheses. Thus to capture the informal
@@ -108,7 +112,8 @@ concept one must supply the two assumptions `[Module.Finite ℤ X₁] [Module.Fi
 Finally note that if `[Module.Finite ℤ X₁] [Module.Finite ℤ X₂]` are supplied, one does not need to
 assume freeness since it follows automatically. Moreover Mathlib knows this via
 `Module.IsReflexive.of_isPerfPair`, `Module.IsReflexive.to_isTorsionFree`,
-`Module.free_of_finite_type_torsion_free'`. -/
+`Module.free_of_finite_type_torsion_free'`.
+-/
 abbrev RootDatum (X₁ X₂ : Type*) [AddCommGroup X₁] [AddCommGroup X₂] := RootPairing ι ℤ X₁ X₂
 
 namespace RootPairing
@@ -142,7 +147,8 @@ lemma flip_flip : P.flip.flip = P :=
 
 variable (ι R M N) in
 /-- `RootPairing.flip` as an equivalence. -/
-@[simps] def flipEquiv : RootPairing ι R N M ≃ RootPairing ι R M N where
+@[simps]
+def flipEquiv : RootPairing ι R N M ≃ RootPairing ι R M N where
   toFun P := P.flip
   invFun P := P.flip
 
@@ -232,16 +238,14 @@ lemma coroot_root_two :
   simp
 
 /-- The reflection associated to a root. -/
-def reflection : M ≃ₗ[R] M :=
-  Module.reflection (P.flip.root_coroot_two i)
+def reflection : M ≃ₗ[R] M := Module.reflection (P.flip.root_coroot_two i)
 
 @[simp]
 lemma root_reflectionPerm (j : ι) :
     P.root (P.reflectionPerm i j) = (P.reflection i) (P.root j) :=
   (P.reflectionPerm_root i j).symm
 
-theorem mapsTo_reflection_root :
-    MapsTo (P.reflection i) (range P.root) (range P.root) := by
+theorem mapsTo_reflection_root : MapsTo (P.reflection i) (range P.root) (range P.root) := by
   rintro - ⟨j, rfl⟩
   exact P.root_reflectionPerm i j ▸ mem_range_self (P.reflectionPerm i j)
 
@@ -304,16 +308,15 @@ lemma reflection_image_eq :
   (P.bijOn_reflection_root i).image_eq
 
 /-- The reflection associated to a coroot. -/
-def coreflection : N ≃ₗ[R] N :=
-  Module.reflection (P.root_coroot_two i)
+def coreflection : N ≃ₗ[R] N := Module.reflection (P.root_coroot_two i)
 
 @[simp]
 lemma coroot_reflectionPerm (j : ι) :
     P.coroot (P.reflectionPerm i j) = (P.coreflection i) (P.coroot j) :=
   (P.reflectionPerm_coroot i j).symm
 
-theorem mapsTo_coreflection_coroot :
-    MapsTo (P.coreflection i) (range P.coroot) (range P.coroot) := by
+theorem mapsTo_coreflection_coroot
+    : MapsTo (P.coreflection i) (range P.coroot) (range P.coroot) := by
   rintro - ⟨j, rfl⟩
   exact P.coroot_reflectionPerm i j ▸ mem_range_self (P.reflectionPerm i j)
 
@@ -409,15 +412,20 @@ lemma pairing_reflectionPerm_self_right (i j : ι) :
   rw [pairing, ← reflectionPerm_coroot, root_coroot_eq_pairing, pairing_same, two_smul,
     sub_add_cancel_left, map_neg, root_coroot_eq_pairing]
 
-/-- The indexing set of a root pairing carries an involutive negation, corresponding to the negation
-of a root / coroot. -/
-@[simps, instance_reducible] def indexNeg : InvolutiveNeg ι where
+/--
+The indexing set of a root pairing carries an involutive negation, corresponding to the negation
+of a root / coroot.
+-/
+@[simps, instance_reducible]
+def indexNeg : InvolutiveNeg ι where
   neg i := P.reflectionPerm i i
   neg_neg i := by
     apply P.root.injective
-    simp only [root_reflectionPerm, reflection_apply, LinearMap.flip_apply, root_coroot_eq_pairing,
+    simp only [
+      root_reflectionPerm, reflection_apply, LinearMap.flip_apply, root_coroot_eq_pairing,
       pairing_same, map_sub, coroot_reflectionPerm, coreflection_apply_self, map_neg, neg_smul,
-      sub_neg_eq_add, map_smul, smul_add]
+      sub_neg_eq_add, map_smul, smul_add
+    ]
     module
 
 lemma ne_neg [NeZero (2 : R)] [IsDomain R] :
@@ -559,8 +567,10 @@ lemma reflectionPerm_eq_reflectionPerm_iff [P.IsRootSystem] (i j : ι) :
 @[simp] lemma toPerfPair_flip_comp_coroot :
     P.toLinearMap.flip.toPerfPair ∘ P.coroot = P.coroot' := rfl
 
-/-- The Coxeter Weight of a pair gives the weight of an edge in a Coxeter diagram, when it is
-finite.  It is `4 cos² θ`, where `θ` describes the dihedral angle between hyperplanes. -/
+/--
+The Coxeter Weight of a pair gives the weight of an edge in a Coxeter diagram, when it is
+finite.  It is `4 cos² θ`, where `θ` describes the dihedral angle between hyperplanes.
+-/
 def coxeterWeight : R := pairing P i j * pairing P j i
 
 @[simp] lemma coxeterWeight_flip :
@@ -665,8 +675,7 @@ section Map
 variable {ι₂ M₂ N₂ : Type*} [AddCommGroup M₂] [Module R M₂] [AddCommGroup N₂] [Module R N₂]
 
 /-- Push forward a root pairing along linear equivalences, also reindexing the (co)roots. -/
-protected def map (e : ι ≃ ι₂) (f : M ≃ₗ[R] M₂) (g : N ≃ₗ[R] N₂) :
-    RootPairing ι₂ R M₂ N₂ where
+protected def map (e : ι ≃ ι₂) (f : M ≃ₗ[R] M₂) (g : N ≃ₗ[R] N₂) : RootPairing ι₂ R M₂ N₂ where
   __ := (f.symm.trans P.toPerfPair).trans g.symm.dualMap
   isPerfPair_toLinearMap := by
     have : IsReflexive R N := .of_isPerfPair P.flip.toLinearMap
@@ -679,8 +688,8 @@ protected def map (e : ι ≃ ι₂) (f : M ≃ₗ[R] M₂) (g : N ≃ₗ[R] N�
   reflectionPerm_root i j := by simp [reflection_apply]
   reflectionPerm_coroot i j := by simp [coreflection_apply]
 
-instance [P.IsRootSystem] (e : ι ≃ ι₂) (f : M ≃ₗ[R] M₂) (g : N ≃ₗ[R] N₂) :
-    (P.map e f g).IsRootSystem where
+instance [P.IsRootSystem] (e : ι ≃ ι₂) (f : M ≃ₗ[R] M₂) (g : N ≃ₗ[R] N₂)
+    : (P.map e f g).IsRootSystem where
   span_root_eq_top := by simp [RootPairing.map, range_comp]
   span_coroot_eq_top := by simp [range_comp, RootPairing.map]
 

@@ -69,20 +69,23 @@ variable {C : Type u} [Category.{v} C] (I : MorphismProperty C)
 
 namespace MorphismProperty
 
-/-- Given `I : MorphismProperty C` and a regular cardinal `κ : Cardinal.{w}`,
+/--
+Given `I : MorphismProperty C` and a regular cardinal `κ : Cardinal.{w}`,
 this property asserts the technical conditions which allow to proceed
 to the small object argument by doing a construction by transfinite
-induction indexed by the well-ordered type `κ.ord.ToType`. -/
-class IsCardinalForSmallObjectArgument (κ : Cardinal.{w}) [Fact κ.IsRegular]
-    [OrderBot κ.ord.ToType] : Prop where
+induction indexed by the well-ordered type `κ.ord.ToType`.
+-/
+class IsCardinalForSmallObjectArgument (κ : Cardinal.{w}) [Fact κ.IsRegular] [OrderBot κ.ord.ToType]
+    : Prop where
   isSmall : IsSmall.{w} I := by infer_instance
   locallySmall : LocallySmall.{w} C := by infer_instance
   hasPushouts : HasPushouts C := by infer_instance
   hasCoproducts : HasCoproducts.{w} C := by infer_instance
   hasIterationOfShape : HasIterationOfShape κ.ord.ToType C := by infer_instance
-  preservesColimit {A B X Y : C} (i : A ⟶ B) (_ : I i) (f : X ⟶ Y)
-    (hf : RelativeCellComplex.{w} (fun (_ : κ.ord.ToType) ↦ I.homFamily) f) :
-    PreservesColimit hf.F (coyoneda.obj (Opposite.op A))
+  preservesColimit
+    {A B X Y : C} (i : A ⟶ B) (_ : I i)
+    (f : X ⟶ Y) (hf : RelativeCellComplex.{w} (fun (_ : κ.ord.ToType) ↦ I.homFamily) f)
+    : PreservesColimit hf.F (coyoneda.obj (Opposite.op A))
 
 end MorphismProperty
 
@@ -90,8 +93,9 @@ namespace SmallObject
 
 open MorphismProperty
 
-variable (κ : Cardinal.{w}) [Fact κ.IsRegular] [OrderBot κ.ord.ToType]
-  [I.IsCardinalForSmallObjectArgument κ]
+variable
+  (κ : Cardinal.{w})
+  [Fact κ.IsRegular] [OrderBot κ.ord.ToType] [I.IsCardinalForSmallObjectArgument κ]
 
 include I κ
 
@@ -124,34 +128,38 @@ lemma hasColimitsOfShape_discrete (X Y : C) (p : X ⟶ Y) :
   exact hasColimitsOfShape_of_equivalence
     (Discrete.equivalence (equivShrink.{w} _)).symm
 
-/-- The successor structure on `Arrow C ⥤ Arrow C` corresponding
+/--
+The successor structure on `Arrow C ⥤ Arrow C` corresponding
 to the iterations of the natural transformation
 `ε : 𝟭 (Arrow C) ⟶ SmallObject.functor I.homFamily`
-(see the file `SmallObject.Construction`). -/
+(see the file `SmallObject.Construction`).
+-/
 noncomputable def succStruct : SuccStruct (Arrow C ⥤ Arrow C) :=
   haveI := hasColimitsOfShape_discrete I κ
   haveI := hasPushouts I κ
   SuccStruct.ofNatTrans (ε I.homFamily)
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- For the successor structure `succStruct I κ` on `Arrow C ⥤ Arrow C`,
+/--
+For the successor structure `succStruct I κ` on `Arrow C ⥤ Arrow C`,
 the morphism from an object to its successor induces
-morphisms in `C` which consists in attaching `I`-cells. -/
+morphisms in `C` which consists in attaching `I`-cells.
+-/
 noncomputable def attachCellsOfSuccStructProp
-    {F G : Arrow C ⥤ Arrow C} {φ : F ⟶ G}
-    (h : (succStruct I κ).prop φ) (f : Arrow C) :
-    AttachCells.{w} I.homFamily (φ.app f).left :=
+    {F G : Arrow C ⥤ Arrow C} {φ : F ⟶ G} (h : (succStruct I κ).prop φ) (f : Arrow C)
+    : AttachCells.{w} I.homFamily (φ.app f).left :=
   haveI := locallySmall I κ
   haveI := isSmall I κ
   haveI := hasColimitsOfShape_discrete I κ
   haveI := hasPushouts I κ
   AttachCells.ofArrowIso (attachCellsιFunctorObjOfSmall _ _)
-    ((Functor.mapArrow ((evaluation _ _).obj f ⋙
-      Arrow.leftFunc)).mapIso h.arrowIso.symm)
+    ((Functor.mapArrow ((evaluation _ _).obj f ⋙ Arrow.leftFunc)).mapIso h.arrowIso.symm)
 
-/-- The class of morphisms in `Arrow C` which on the left side are
+/--
+The class of morphisms in `Arrow C` which on the left side are
 pushouts of coproducts of morphisms in `I`, and which are
-isomorphisms on the right side. -/
+isomorphisms on the right side.
+-/
 def propArrow : MorphismProperty (Arrow C) := fun _ _ f ↦
   (coproducts.{w} I).pushouts f.left ∧ (isomorphisms C) f.right
 
@@ -199,8 +207,10 @@ lemma succStruct_prop_le_propArrow :
     dsimp [succStruct]
     infer_instance
 
-/-- The functor `κ.ord.ToType ⥤ Arrow C ⥤ Arrow C` corresponding to the
-iterations of the successor structure `succStruct I κ`. -/
+/--
+The functor `κ.ord.ToType ⥤ Arrow C ⥤ Arrow C` corresponding to the
+iterations of the successor structure `succStruct I κ`.
+-/
 noncomputable def iterationFunctor : κ.ord.ToType ⥤ Arrow C ⥤ Arrow C :=
   haveI := hasIterationOfShape I κ
   (succStruct I κ).iterationFunctor κ.ord.ToType
@@ -215,10 +225,12 @@ noncomputable def ιIteration : 𝟭 _ ⟶ iteration I κ :=
   haveI := hasIterationOfShape I κ
   (succStruct I κ).ιIteration κ.ord.ToType
 
-/-- The morphism `ιIteration I κ` is a transfinite composition of shape
-`κ.ord.ToType` of morphisms satisfying `(succStruct I κ).prop`. -/
-noncomputable def transfiniteCompositionOfShapeSuccStructPropιIteration :
-    (succStruct I κ).prop.TransfiniteCompositionOfShape κ.ord.ToType (ιIteration I κ) :=
+/--
+The morphism `ιIteration I κ` is a transfinite composition of shape
+`κ.ord.ToType` of morphisms satisfying `(succStruct I κ).prop`.
+-/
+noncomputable def transfiniteCompositionOfShapeSuccStructPropιIteration
+    : (succStruct I κ).prop.TransfiniteCompositionOfShape κ.ord.ToType (ιIteration I κ) :=
   haveI := hasIterationOfShape I κ
   (succStruct I κ).transfiniteCompositionOfShapeιIteration κ.ord.ToType
 
@@ -228,38 +240,44 @@ lemma transfiniteCompositionOfShapeSuccStructPropιIteration_F :
       iterationFunctor I κ :=
   rfl
 
-/-- For any `f : Arrow C`, the map `((ιIteration I κ).app f).right` is
-a transfinite composition of isomorphisms. -/
-noncomputable def transfiniteCompositionOfShapeιIterationAppRight (f : Arrow C) :
-    (isomorphisms C).TransfiniteCompositionOfShape κ.ord.ToType
-      ((ιIteration I κ).app f).right :=
+/--
+For any `f : Arrow C`, the map `((ιIteration I κ).app f).right` is
+a transfinite composition of isomorphisms.
+-/
+noncomputable def transfiniteCompositionOfShapeιIterationAppRight (f : Arrow C)
+    : (isomorphisms C).TransfiniteCompositionOfShape κ.ord.ToType ((ιIteration I κ).app f).right :=
   haveI := hasIterationOfShape I κ
   let h := transfiniteCompositionOfShapeSuccStructPropιIteration I κ
-  { toTransfiniteCompositionOfShape :=
+  {
+    toTransfiniteCompositionOfShape :=
       h.toTransfiniteCompositionOfShape.map ((evaluation _ _).obj f ⋙ Arrow.rightFunc)
-    map_mem j hj := ((succStruct_prop_le_propArrow I κ _ (h.map_mem j hj)) f).2 }
+    map_mem j hj := ((succStruct_prop_le_propArrow I κ _ (h.map_mem j hj)) f).2
+  }
 
 instance (f : Arrow C) : IsIso ((ιIteration I κ).app f).right :=
   (transfiniteCompositionOfShapeιIterationAppRight I κ f).isIso
 
-instance {j₁ j₂ : κ.ord.ToType} (φ : j₁ ⟶ j₂) (f : Arrow C) :
-    IsIso (((iterationFunctor I κ).map φ).app f).right :=
+instance {j₁ j₂ : κ.ord.ToType} (φ : j₁ ⟶ j₂) (f : Arrow C)
+    : IsIso (((iterationFunctor I κ).map φ).app f).right :=
   inferInstanceAs (IsIso ((transfiniteCompositionOfShapeιIterationAppRight I κ f).F.map φ))
 
-/-- For any `f : Arrow C`, the object `((iteration I κ).obj f).right`
-identifies to `f.right`. -/
+/--
+For any `f : Arrow C`, the object `((iteration I κ).obj f).right`
+identifies to `f.right`.
+-/
 @[simps! hom]
-noncomputable def iterationObjRightIso (f : Arrow C) :
-    f.right ≅ ((iteration I κ).obj f).right :=
+noncomputable def iterationObjRightIso (f : Arrow C) : f.right ≅ ((iteration I κ).obj f).right :=
   asIso ((ιIteration I κ).app f).right
 
 set_option backward.isDefEq.respectTransparency false in
-/-- For any `f : Arrow C` and `j : κ.ord.ToType`, the object
-`(((iterationFunctor I κ).obj j).obj f).right` identifies to `f.right`. -/
-noncomputable def iterationFunctorObjObjRightIso (f : Arrow C) (j : κ.ord.ToType) :
-    (((iterationFunctor I κ).obj j).obj f).right ≅ f.right :=
-  asIso ((transfiniteCompositionOfShapeιIterationAppRight I κ f).incl.app j) ≪≫
-    (iterationObjRightIso I κ f).symm
+/--
+For any `f : Arrow C` and `j : κ.ord.ToType`, the object
+`(((iterationFunctor I κ).obj j).obj f).right` identifies to `f.right`.
+-/
+noncomputable def iterationFunctorObjObjRightIso (f : Arrow C) (j : κ.ord.ToType)
+    : (((iterationFunctor I κ).obj j).obj f).right ≅ f.right :=
+  asIso ((transfiniteCompositionOfShapeιIterationAppRight I κ f).incl.app j)
+    ≪≫ (iterationObjRightIso I κ f).symm
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -277,24 +295,26 @@ lemma prop_iterationFunctor_map_succ (j : κ.ord.ToType) :
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- For any `f : Arrow C` and `j : κ.ord.ToType`, the morphism
+/--
+For any `f : Arrow C` and `j : κ.ord.ToType`, the morphism
 `((iterationFunctor I κ).map (homOfLE (Order.le_succ j))).app f` identifies
-to a morphism given by `SmallObject.ε I.homFamily`. -/
-noncomputable def iterationFunctorMapSuccAppArrowIso (f : Arrow C) (j : κ.ord.ToType) :
-    letI := hasColimitsOfShape_discrete I κ
-    letI := hasPushouts I κ
-    Arrow.mk (((iterationFunctor I κ).map (homOfLE (Order.le_succ j))).app f) ≅
-      (ε I.homFamily).app (((iterationFunctor I κ).obj j).obj f) :=
+to a morphism given by `SmallObject.ε I.homFamily`.
+-/
+noncomputable def iterationFunctorMapSuccAppArrowIso (f : Arrow C) (j : κ.ord.ToType)
+    : letI := hasColimitsOfShape_discrete I κ
+      letI := hasPushouts I κ
+      Arrow.mk (((iterationFunctor I κ).map (homOfLE (Order.le_succ j))).app f)
+        ≅ (ε I.homFamily).app (((iterationFunctor I κ).obj j).obj f) :=
   have := hasIterationOfShape I κ
   have := Cardinal.noMaxOrder (Fact.elim inferInstance : κ.IsRegular).aleph0_le
   Arrow.isoMk (Iso.refl _)
-    (((evaluation _ _).obj f).mapIso
-      ((succStruct I κ).iterationFunctorObjSuccIso j (not_isMax j))) (by
-    have := congr($((succStruct I κ).iterationFunctor_map_succ j (not_isMax j)).app f)
-    dsimp at this
-    dsimp [iterationFunctor]
-    rw [id_comp, this, assoc, Iso.inv_hom_id_app, comp_id]
-    dsimp [succStruct])
+    (((evaluation _ _).obj f).mapIso ((succStruct I κ).iterationFunctorObjSuccIso j (not_isMax j)))
+    (by
+      have := congr($((succStruct I κ).iterationFunctor_map_succ j (not_isMax j)).app f)
+      dsimp at this
+      dsimp [iterationFunctor]
+      rw [id_comp, this, assoc, Iso.inv_hom_id_app, comp_id]
+      dsimp [succStruct])
 
 @[simp]
 lemma iterationFunctorMapSuccAppArrowIso_hom_left (f : Arrow C) (j : κ.ord.ToType) :
@@ -316,16 +336,22 @@ section
 
 variable {X Y : C} (f : X ⟶ Y)
 
-/-- The intermediate object in the factorization given by the
-small object argument. -/
+/--
+The intermediate object in the factorization given by the
+small object argument.
+-/
 noncomputable def obj : C := ((iteration I κ).obj (Arrow.mk f)).left
 
-/-- The "inclusion" morphism in the factorization given by
-the small object argument. -/
+/--
+The "inclusion" morphism in the factorization given by
+the small object argument.
+-/
 noncomputable def ιObj : X ⟶ obj I κ f := ((ιIteration I κ).app (Arrow.mk f)).left
 
-/-- The "projection" morphism in the factorization given by
-the small object argument. -/
+/--
+The "projection" morphism in the factorization given by
+the small object argument.
+-/
 noncomputable def πObj : obj I κ f ⟶ Y :=
   ((iteration I κ).obj (Arrow.mk f)).hom ≫ inv ((ιIteration I κ).app f).right
 
@@ -341,16 +367,15 @@ lemma ιObj_πObj : ιObj I κ f ≫ πObj I κ f = f := by
   simp [ιObj, πObj]
 
 /-- The morphism `ιObj I κ f` is a relative `I`-cell complex. -/
-noncomputable def relativeCellComplexιObj :
-    RelativeCellComplex.{w} (fun (_ : κ.ord.ToType) ↦ I.homFamily)
-      (ιObj I κ f) := by
+noncomputable def relativeCellComplexιObj
+    : RelativeCellComplex.{w} (fun (_ : κ.ord.ToType) ↦ I.homFamily) (ιObj I κ f) := by
   have := hasIterationOfShape I κ
   let h := transfiniteCompositionOfShapeSuccStructPropιIteration I κ
-  exact
-  { toTransfiniteCompositionOfShape :=
+  exact {
+    toTransfiniteCompositionOfShape :=
       h.toTransfiniteCompositionOfShape.map ((evaluation _ _).obj f ⋙ Arrow.leftFunc)
-    attachCells j hj :=
-      attachCellsOfSuccStructProp I κ (h.map_mem j hj) f }
+    attachCells j hj := attachCellsOfSuccStructProp I κ (h.map_mem j hj) f
+  }
 
 lemma transfiniteCompositionsOfShape_ιObj :
     (coproducts.{w} I).pushouts.transfiniteCompositionsOfShape κ.ord.ToType
@@ -362,16 +387,17 @@ lemma llp_rlp_ιObj : I.rlp.llp (ιObj I κ f) := by
   apply I.transfiniteCompositionsOfShape_pushouts_coproducts_le_llp_rlp κ.ord.ToType
   apply transfiniteCompositionsOfShape_ιObj
 
-/-- When `ιObj I κ f` is considered as a relative `I`-cell complex,
+/--
+When `ιObj I κ f` is considered as a relative `I`-cell complex,
 the object at the `j`th step is obtained by applying the construction
-`SmallObject.functorObj`. -/
-noncomputable def relativeCellComplexιObjFObjSuccIso (j : κ.ord.ToType) :
-    letI := hasColimitsOfShape_discrete I κ
-    letI := hasPushouts I κ
-    (relativeCellComplexιObj I κ f).F.obj (Order.succ j) ≅
-      functorObj I.homFamily (((iterationFunctor I κ).obj j).obj (Arrow.mk f)).hom :=
-  (Arrow.rightFunc ⋙ Arrow.leftFunc).mapIso
-    (iterationFunctorMapSuccAppArrowIso I κ f j)
+`SmallObject.functorObj`.
+-/
+noncomputable def relativeCellComplexιObjFObjSuccIso (j : κ.ord.ToType)
+    : letI := hasColimitsOfShape_discrete I κ
+      letI := hasPushouts I κ
+      (relativeCellComplexιObj I κ f).F.obj (Order.succ j)
+        ≅ functorObj I.homFamily (((iterationFunctor I κ).obj j).obj (Arrow.mk f)).hom :=
+  (Arrow.rightFunc ⋙ Arrow.leftFunc).mapIso (iterationFunctorMapSuccAppArrowIso I κ f j)
 
 set_option backward.defeqAttrib.useBackward true in
 lemma ιFunctorObj_eq (j : κ.ord.ToType) :
@@ -440,8 +466,10 @@ lemma rlp_πObj : I.rlp (πObj I κ f) :=
 
 end
 
-/-- The functoriality of the intermediate object in the
-factorization of the small object argument. -/
+/--
+The functoriality of the intermediate object in the
+factorization of the small object argument.
+-/
 noncomputable def objMap {f g : Arrow C} (φ : f ⟶ g) : obj I κ f.hom ⟶ obj I κ g.hom :=
   ((iteration I κ).map φ).left
 
@@ -480,14 +508,13 @@ lemma πObj_naturality {f g : Arrow C} (φ : f ⟶ g) :
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The functorial factorization `ιObj I κ f ≫ πObj I κ f.hom = f`
-with `ιObj I κ f` in `I.rlp.llp` and `πObj I κ f.hom` in `I.rlp`. -/
+/--
+The functorial factorization `ιObj I κ f ≫ πObj I κ f.hom = f`
+with `ιObj I κ f` in `I.rlp.llp` and `πObj I κ f.hom` in `I.rlp`.
+-/
 @[simps]
-noncomputable def functorialFactorizationData :
-    FunctorialFactorizationData I.rlp.llp I.rlp where
-  Z :=
-    { obj f := obj I κ f.hom
-      map φ := objMap I κ φ }
+noncomputable def functorialFactorizationData : FunctorialFactorizationData I.rlp.llp I.rlp where
+  Z := { obj f := obj I κ f.hom, map φ := objMap I κ φ }
   i := { app f := ιObj I κ f.hom }
   p := { app f := πObj I κ f.hom }
   hi f := llp_rlp_ιObj I κ f.hom
@@ -517,8 +544,7 @@ lemma llp_rlp_of_isCardinalForSmallObjectArgument' :
       r := Arrow.homMk (𝟙 _) (πObj I κ f) }
 
 omit κ in
-attribute [local instance] Cardinal.fact_isRegular_aleph0
-  Cardinal.orderBotAleph0OrdToType in
+attribute [local instance] Cardinal.fact_isRegular_aleph0 Cardinal.orderBotAleph0OrdToType in
 lemma llp_rlp_of_isCardinalForSmallObjectArgument_aleph0
     [I.IsCardinalForSmallObjectArgument Cardinal.aleph0.{w}] :
     I.rlp.llp = (transfiniteCompositionsOfShape (coproducts.{w} I).pushouts ℕ).retracts := by

@@ -41,16 +41,18 @@ variable {x : n → R}
 
 /- ## Row-stochastic matrices -/
 
-/-- A square matrix is row stochastic iff all entries are nonnegative, and right
-multiplication by the vector of all 1s gives the vector of all 1s. -/
-def rowStochastic (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [PartialOrder R]
-    [IsOrderedRing R] : Submonoid (Matrix n n R) where
+/--
+A square matrix is row stochastic iff all entries are nonnegative, and right
+multiplication by the vector of all 1s gives the vector of all 1s.
+-/
+def rowStochastic
+    (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [PartialOrder R] [IsOrderedRing R]
+    : Submonoid (Matrix n n R) where
   carrier := {M | (∀ i j, 0 ≤ M i j) ∧ M *ᵥ 1 = 1  }
   mul_mem' {M N} hM hN := by
     refine ⟨fun i j => sum_nonneg fun i _ => mul_nonneg (hM.1 _ _) (hN.1 _ _), ?_⟩
     rw [← mulVec_mulVec, hN.2, hM.2]
-  one_mem' := by
-    simp [zero_le_one_elem]
+  one_mem' := by simp [zero_le_one_elem]
 
 lemma mem_rowStochastic :
     M ∈ rowStochastic R n ↔ (∀ i j, 0 ≤ M i j) ∧ M *ᵥ 1 = 1 :=
@@ -121,13 +123,15 @@ lemma permMatrix_mem_rowStochastic {σ : Equiv.Perm n} :
   case g1 => aesop
   case g2 => simp [Equiv.toPEquiv_apply]
 
-
 /- ## Column-stochastic matrices -/
 
-/-- A square matrix is column stochastic iff all entries are nonnegative, and left
-multiplication by the vector of all 1s gives the vector of all 1s. -/
-def colStochastic (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [PartialOrder R]
-    [IsOrderedRing R] : Submonoid (Matrix n n R) where
+/--
+A square matrix is column stochastic iff all entries are nonnegative, and left
+multiplication by the vector of all 1s gives the vector of all 1s.
+-/
+def colStochastic
+    (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [PartialOrder R] [IsOrderedRing R]
+    : Submonoid (Matrix n n R) where
   carrier := {M | (∀ i j, 0 ≤ M i j) ∧ 1 ᵥ* M = 1  }
   mul_mem' {M N} hM hN := by
     refine Set.mem_sep ?_ ?_
@@ -135,8 +139,7 @@ def colStochastic (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [Partia
       apply Finset.sum_nonneg
       grind [mul_nonneg]
     · rw [← vecMul_vecMul, hM.2, hN.2]
-  one_mem' := by
-    simp [zero_le_one_elem]
+  one_mem' := by simp [zero_le_one_elem]
 
 lemma mem_colStochastic :
     M ∈ colStochastic R n ↔ (∀ i j, 0 ≤ M i j) ∧ 1 ᵥ* M = 1 :=

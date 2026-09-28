@@ -40,8 +40,10 @@ variable (n : Type u) (S : Scheme.{u})
 
 local notation3 "ℤ[" n "]" => CommRingCat.of (MvPolynomial n (ULift ℤ))
 
-/-- `𝔸(n; S)` is the affine `n`-space over `S`.
-Note that `n : Type u` is an arbitrary index type (e.g. `ULift.{u} (Fin m)`). -/
+/--
+`𝔸(n; S)` is the affine `n`-space over `S`.
+Note that `n : Type u` is an arbitrary index type (e.g. `ULift.{u} (Fin m)`).
+-/
 def AffineSpace (n : Type u) (S : Scheme.{u}) : Scheme.{u} :=
   pullback (terminal.from S) (terminal.from (Spec ℤ[n]))
 
@@ -62,7 +64,6 @@ lemma of_mvPolynomial_int_ext {R} {f g : ℤ[n] ⟶ R} (h : ∀ i, f (.X i) = g 
   · exact RingHom.ext_int _ _
   · simpa using! h _
 
-
 @[simps -isSimp]
 instance over : 𝔸(n; S).CanonicallyOver S where
   hom := pullback.fst _ _
@@ -78,8 +79,9 @@ Use `homOverEquiv` instead.
 @[simps]
 def toSpecMvPolyIntEquiv {X : Scheme.{u}} : (X ⟶ Spec ℤ[n]) ≃ (n → Γ(X, ⊤)) where
   toFun f i := f.appTop ((Scheme.ΓSpecIso ℤ[n]).inv (.X i))
-  invFun v := X.toSpecΓ ≫ Spec.map
-    (CommRingCat.ofHom (MvPolynomial.eval₂Hom ((algebraMap ℤ _).comp ULift.ringEquiv.toRingHom) v))
+  invFun v :=
+    X.toSpecΓ ≫ Spec.map (CommRingCat.ofHom (MvPolynomial.eval₂Hom
+      ((algebraMap ℤ _).comp ULift.ringEquiv.toRingHom) v))
   left_inv f := by
     apply (ΓSpec.adjunction.homEquiv _ _).symm.injective
     apply Quiver.Hom.unop_inj
@@ -145,13 +147,11 @@ end homOfVector
 
 variable {n}
 
-instance {X : Scheme.{u}} [X.Over S] (v : n → Γ(X, ⊤)) :
-    (homOfVector (X ↘ S) v).IsOver S where
+instance {X : Scheme.{u}} [X.Over S] (v : n → Γ(X, ⊤)) : (homOfVector (X ↘ S) v).IsOver S where
 
 /-- `S`-morphisms into `Spec 𝔸(n; S)` are equivalent to the choice of `n` global sections. -/
 @[simps]
-def homOverEquiv {X : Scheme.{u}} [X.Over S] :
-    { f : X ⟶ 𝔸(n; S) // f.IsOver S } ≃ (n → Γ(X, ⊤)) where
+def homOverEquiv {X : Scheme.{u}} [X.Over S] : {f : X ⟶ 𝔸(n; S) // f.IsOver S} ≃ (n → Γ(X, ⊤)) where
   toFun f i := f.1.appTop (coord S i)
   invFun v := ⟨homOfVector (X ↘ S) v, inferInstance⟩
   left_inv f := by
@@ -167,40 +167,45 @@ The affine space over an affine base is isomorphic to the spectrum of the polyno
 Also see `AffineSpace.SpecIso`.
 -/
 @[simps -isSimp hom inv]
-def isoOfIsAffine [IsAffine S] :
-    𝔸(n; S) ≅ Spec <| .of <| MvPolynomial n Γ(S, ⊤) where
-      hom := 𝔸(n; S).toSpecΓ ≫ Spec.map (CommRingCat.ofHom
-        (eval₂Hom ((𝔸(n; S) ↘ S).appTop).hom (coord S)))
-      inv := homOfVector (Spec.map (CommRingCat.ofHom C) ≫ S.isoSpec.inv)
-        ((Scheme.ΓSpecIso ↧(MvPolynomial n Γ(S, ⊤))).inv ∘ MvPolynomial.X)
-      hom_inv_id := by
-        ext1
-        · simp only [Category.assoc, homOfVector_over, Category.id_comp]
-          rw [← Spec.map_comp_assoc, ← CommRingCat.ofHom_comp, eval₂Hom_comp_C,
-            CommRingCat.ofHom_hom, ← Scheme.toSpecΓ_naturality_assoc]
-          simp [Scheme.isoSpec]
-        · simp
-      inv_hom_id := by
-        apply ext_of_isAffine
-        simp only [Scheme.Hom.comp_base, TopologicalSpace.Opens.map_comp_obj,
-          TopologicalSpace.Opens.map_top, Scheme.Hom.comp_app, Scheme.toSpecΓ_appTop,
-          Scheme.ΓSpecIso_naturality, Category.assoc, Scheme.Hom.id_app, ← Iso.eq_inv_comp,
-          Category.comp_id]
-        ext : 1
-        apply ringHom_ext'
-        · change _ = (CommRingCat.ofHom C ≫ _).hom
-          rw [CommRingCat.hom_comp, RingHom.comp_assoc, CommRingCat.hom_ofHom, eval₂Hom_comp_C,
-            ← CommRingCat.hom_comp, ← CommRingCat.hom_ext_iff,
-            ← cancel_mono (Scheme.ΓSpecIso _).hom]
-          rw [← Scheme.Hom.comp_appTop, homOfVector_over, Scheme.Hom.comp_appTop]
-          simp only [Category.assoc, Scheme.ΓSpecIso_naturality, CommRingCat.of_carrier,
-            ← Scheme.toSpecΓ_appTop]
-          rw [← Scheme.Hom.comp_appTop_assoc, Scheme.isoSpec, asIso_inv, IsIso.hom_inv_id]
-          simp
-        · intro i
-          rw [CommRingCat.comp_apply, ConcreteCategory.hom_ofHom, coe_eval₂Hom]
-          simp only [eval₂_X]
-          exact homOfVector_appTop_coord _ _ _
+def isoOfIsAffine [IsAffine S] : 𝔸(n; S) ≅ Spec <| .of <| MvPolynomial n Γ(S, ⊤) where
+  hom :=
+    𝔸(n; S).toSpecΓ ≫ Spec.map (CommRingCat.ofHom (eval₂Hom ((𝔸(n; S) ↘ S).appTop).hom (coord S)))
+  inv :=
+    homOfVector (Spec.map (CommRingCat.ofHom C) ≫ S.isoSpec.inv)
+      ((Scheme.ΓSpecIso ↧(MvPolynomial n Γ(S, ⊤))).inv ∘ MvPolynomial.X)
+  hom_inv_id := by
+    ext1
+    · simp only [Category.assoc, homOfVector_over, Category.id_comp]
+      rw [
+        ← Spec.map_comp_assoc, ← CommRingCat.ofHom_comp, eval₂Hom_comp_C, CommRingCat.ofHom_hom,
+        ← Scheme.toSpecΓ_naturality_assoc
+      ]
+      simp [Scheme.isoSpec]
+    · simp
+  inv_hom_id := by
+    apply ext_of_isAffine
+    simp only [
+      Scheme.Hom.comp_base, TopologicalSpace.Opens.map_comp_obj, TopologicalSpace.Opens.map_top,
+      Scheme.Hom.comp_app, Scheme.toSpecΓ_appTop, Scheme.ΓSpecIso_naturality, Category.assoc,
+      Scheme.Hom.id_app, ← Iso.eq_inv_comp, Category.comp_id
+    ]
+    ext : 1
+    apply ringHom_ext'
+    · change _ = (CommRingCat.ofHom C ≫ _).hom
+      rw [
+        CommRingCat.hom_comp, RingHom.comp_assoc, CommRingCat.hom_ofHom, eval₂Hom_comp_C,
+        ← CommRingCat.hom_comp, ← CommRingCat.hom_ext_iff, ← cancel_mono (Scheme.ΓSpecIso _).hom
+      ]
+      rw [← Scheme.Hom.comp_appTop, homOfVector_over, Scheme.Hom.comp_appTop]
+      simp only [
+        Category.assoc, Scheme.ΓSpecIso_naturality, CommRingCat.of_carrier, ← Scheme.toSpecΓ_appTop
+      ]
+      rw [← Scheme.Hom.comp_appTop_assoc, Scheme.isoSpec, asIso_inv, IsIso.hom_inv_id]
+      simp
+    · intro i
+      rw [CommRingCat.comp_apply, ConcreteCategory.hom_ofHom, coe_eval₂Hom]
+      simp only [eval₂_X]
+      exact homOfVector_appTop_coord _ _ _
 
 @[simp]
 lemma isoOfIsAffine_hom_appTop [IsAffine S] :
@@ -223,8 +228,7 @@ instance [IsAffine S] : IsAffine 𝔸(n; S) := .of_isIso (isoOfIsAffine n S).hom
 
 variable (n) in
 /-- The affine space over an affine base is isomorphic to the spectrum of the polynomial ring. -/
-def SpecIso (R : CommRingCat.{u}) :
-    𝔸(n; Spec R) ≅ Spec <| .of <| MvPolynomial n R :=
+def SpecIso (R : CommRingCat.{u}) : 𝔸(n; Spec R) ≅ Spec <| .of <| MvPolynomial n R :=
   isoOfIsAffine _ _ ≪≫ Scheme.Spec.mapIso (MvPolynomial.mapEquiv _
     (Scheme.ΓSpecIso R).symm.commRingCatIsoToRingEquiv).toCommRingCatIso.op
 
@@ -310,11 +314,13 @@ lemma map_SpecMap {R S : CommRingCat.{u}} (φ : R ⟶ S) :
         CommRingCat.comp_apply, ConcreteCategory.hom_ofHom, map_X]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The map between affine spaces over affine bases is
-isomorphic to the natural map between polynomial rings. -/
-def mapSpecMap {R S : CommRingCat.{u}} (φ : R ⟶ S) :
-    Arrow.mk (map n (Spec.map φ)) ≅
-      Arrow.mk (Spec.map (CommRingCat.ofHom (MvPolynomial.map (σ := n) φ.hom))) :=
+/--
+The map between affine spaces over affine bases is
+isomorphic to the natural map between polynomial rings.
+-/
+def mapSpecMap {R S : CommRingCat.{u}} (φ : R ⟶ S)
+    : Arrow.mk (map n (Spec.map φ))
+      ≅ Arrow.mk (Spec.map (CommRingCat.ofHom (MvPolynomial.map (σ := n) φ.hom))) :=
   Arrow.isoMk (SpecIso n S) (SpecIso n R) (by have := (SpecIso n R).inv_hom_id; simp [map_SpecMap])
 
 set_option backward.isDefEq.respectTransparency false in
@@ -370,34 +376,41 @@ set_option backward.isDefEq.respectTransparency.types false in
 instance : IsAffineHom (𝔸(n; S) ↘ S) := MorphismProperty.pullback_fst _ _ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance : Surjective (𝔸(n; S) ↘ S) := MorphismProperty.pullback_fst _ _ <| by
-  have := isIso_of_isTerminal specULiftZIsTerminal terminalIsTerminal (terminal.from _)
-  rw [← terminal.comp_from (Spec.map (CommRingCat.ofHom C)),
-    MorphismProperty.cancel_right_of_respectsIso (P := @Surjective)]
-  exact ⟨MvPolynomial.comap_C_surjective⟩
+instance : Surjective (𝔸(n; S) ↘ S) :=
+  MorphismProperty.pullback_fst _ _ <| by
+    have := isIso_of_isTerminal specULiftZIsTerminal terminalIsTerminal (terminal.from _)
+    rw [
+      ← terminal.comp_from (Spec.map (CommRingCat.ofHom C)),
+      MorphismProperty.cancel_right_of_respectsIso (P := @Surjective)
+    ]
+    exact ⟨MvPolynomial.comap_C_surjective⟩
 
 variable (n) in
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The affine `n`-space over `S` is smooth of relative dimension `Nat.card n`. -/
-instance smoothOfRelativeDimension [Finite n] :
-    SmoothOfRelativeDimension (Nat.card n) (𝔸(n; S) ↘ S) :=
+instance smoothOfRelativeDimension [Finite n]
+    : SmoothOfRelativeDimension (Nat.card n) (𝔸(n; S) ↘ S) :=
   MorphismProperty.pullback_fst _ _ <| by
-  have := isIso_of_isTerminal specULiftZIsTerminal.{u} terminalIsTerminal (terminal.from _)
-  rw [← terminal.comp_from (Spec.map (CommRingCat.ofHom C)),
-    MorphismProperty.cancel_right_of_respectsIso (P := @SmoothOfRelativeDimension _),
-    HasRingHomProperty.Spec_iff (P := @SmoothOfRelativeDimension _)]
-  apply RingHom.locally_of RingHom.isStandardSmoothOfRelativeDimension_respectsIso
-  simp_rw [ConcreteCategory.hom_ofHom, ← MvPolynomial.algebraMap_eq,
-    RingHom.isStandardSmoothOfRelativeDimension_algebraMap]
-  exact Algebra.IsStandardSmoothOfRelativeDimension.mvPolynomial _ _
+    have := isIso_of_isTerminal specULiftZIsTerminal.{u} terminalIsTerminal (terminal.from _)
+    rw [
+      ← terminal.comp_from (Spec.map (CommRingCat.ofHom C)),
+      MorphismProperty.cancel_right_of_respectsIso (P := @SmoothOfRelativeDimension _),
+      HasRingHomProperty.Spec_iff (P := @SmoothOfRelativeDimension _)
+    ]
+    apply RingHom.locally_of RingHom.isStandardSmoothOfRelativeDimension_respectsIso
+    simp_rw [ConcreteCategory.hom_ofHom, ← MvPolynomial.algebraMap_eq,
+      RingHom.isStandardSmoothOfRelativeDimension_algebraMap]
+    exact Algebra.IsStandardSmoothOfRelativeDimension.mvPolynomial _ _
 
 lemma smoothOfRelativeDimension_of_card_eq [Finite n] {m : ℕ} (h : Nat.card n = m) :
     SmoothOfRelativeDimension m (𝔸(n; S) ↘ S) := h ▸ smoothOfRelativeDimension n S
 
-/-- The affine `n`-space (indexed by `ULift (Fin n)`) over `S` is smooth of relative
-dimension `n`. -/
-instance smoothOfRelativeDimension_fin {S : Scheme.{u}} (n : ℕ) :
-    SmoothOfRelativeDimension n (𝔸(ULift.{u} (Fin n); S) ↘ S) :=
+/--
+The affine `n`-space (indexed by `ULift (Fin n)`) over `S` is smooth of relative
+dimension `n`.
+-/
+instance smoothOfRelativeDimension_fin {S : Scheme.{u}} (n : ℕ)
+    : SmoothOfRelativeDimension n (𝔸(ULift.{u} (Fin n); S) ↘ S) :=
   smoothOfRelativeDimension_of_card_eq S (by simp)
 
 instance [Finite n] : Smooth (𝔸(n; S) ↘ S) := (smoothOfRelativeDimension n S).smooth
@@ -451,15 +464,19 @@ instance [IsIntegral S] : IsIntegral 𝔸(n; S) := isIntegral_of_irreducibleSpac
 
 set_option backward.isDefEq.respectTransparency.types false in
 open MorphismProperty in
-instance [IsEmpty n] : IsIso (𝔸(n; S) ↘ S) := pullback_fst
-    (P := isomorphisms _) _ _ <| by
-  rw [← terminal.comp_from (Spec.map (CommRingCat.ofHom C))]
-  apply IsStableUnderComposition.comp_mem
-  · rw [HasAffineProperty.iff_of_isAffine (P := isomorphisms _), ← isomorphisms,
-      ← arrow_mk_iso_iff (isomorphisms _) (arrowIsoΓSpecOfIsAffine _)]
-    exact ⟨inferInstance, (ConcreteCategory.isIso_iff_bijective _).mpr
-      ⟨C_injective n _, C_surjective _⟩⟩
-  · exact isIso_of_isTerminal specULiftZIsTerminal terminalIsTerminal (terminal.from _)
+instance [IsEmpty n] : IsIso (𝔸(n; S) ↘ S) :=
+  pullback_fst (P := isomorphisms _) _ _ <| by
+    rw [← terminal.comp_from (Spec.map (CommRingCat.ofHom C))]
+    apply IsStableUnderComposition.comp_mem
+    · rw [
+        HasAffineProperty.iff_of_isAffine (P := isomorphisms _), ← isomorphisms,
+        ← arrow_mk_iso_iff (isomorphisms _) (arrowIsoΓSpecOfIsAffine _)
+      ]
+      exact ⟨
+        inferInstance,
+        (ConcreteCategory.isIso_iff_bijective _).mpr ⟨C_injective n _, C_surjective _⟩
+      ⟩
+    · exact isIso_of_isTerminal specULiftZIsTerminal terminalIsTerminal (terminal.from _)
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma isIntegralHom_over_iff_isEmpty : IsIntegralHom (𝔸(n; S) ↘ S) ↔ IsEmpty S ∨ IsEmpty n := by
@@ -502,8 +519,9 @@ lemma spec_le_iff (R : CommRingCat) (p q : Spec R) : p ≤ q ↔ q.asIdeal ≤ p
 One should bear this equality in mind when breaking the `Spec R/ PrimeSpectrum R` abstraction
 boundary, since these instances are not definitionally equal.
 -/
-example (R : CommRingCat) :
-    inferInstance (α := Preorder (Spec R)) = inferInstance (α := Preorder (PrimeSpectrum R)ᵒᵈ) := by
+example (R : CommRingCat)
+    : inferInstance (α := Preorder (Spec R))
+      = inferInstance (α := Preorder (PrimeSpectrum R)ᵒᵈ) := by
   aesop (add simp spec_le_iff)
 
 end instances

@@ -66,8 +66,10 @@ public section
 open Topology Filter Set
 open scoped Pointwise Set.Notation
 
-variable {𝕜₁ 𝕜₂ E F : Type*} [NontriviallyNormedField 𝕜₁] [NontriviallyNormedField 𝕜₂]
-  [AddCommGroup E] [AddCommGroup F] [Module 𝕜₁ E] [Module 𝕜₂ F] {σ : 𝕜₁ →+* 𝕜₂} {f : E →ₛₗ[σ] F}
+variable
+  {𝕜₁ 𝕜₂ E F : Type*} [NontriviallyNormedField 𝕜₁] [NontriviallyNormedField 𝕜₂] [AddCommGroup E]
+  [AddCommGroup F] [Module 𝕜₁ E] [Module 𝕜₂ F]
+  {σ : 𝕜₁ →+* 𝕜₂} {f : E →ₛₗ[σ] F}
 
 variable (𝕜₁) in
 /-- Consider a vector space `E` over a `NontriviallyNormedField` `𝕜`, and `t₁`, `t₂` two
@@ -138,8 +140,8 @@ lemma ContinuousSMul.topology_eq_of_induced_eq (t₁ t₂ : TopologicalSpace E)
   simp_rw [← map_comap_setCoe_val, show 0 = (o : E) from rfl, ← nhds_induced]
   rw [H]
 
-variable [TopologicalSpace E] [TopologicalSpace F]
-  [IsTopologicalAddGroup E] [IsTopologicalAddGroup F]
+variable
+  [TopologicalSpace E] [TopologicalSpace F] [IsTopologicalAddGroup E] [IsTopologicalAddGroup F]
   [ContinuousSMul 𝕜₁ E] [ContinuousSMul 𝕜₂ F] [RingHomIsometric σ]
 
 lemma LinearMap.isInducing_of_restrict_nhds_zero {V : Set E}

@@ -35,8 +35,10 @@ namespace CategoryTheory
 
 variable (Ω : Type w)
 
-/-- Structure which allows to construct a category whose types
-of objects and morphisms are subtypes of a fixed type `Ω`. -/
+/--
+Structure which allows to construct a category whose types
+of objects and morphisms are subtypes of a fixed type `Ω`.
+-/
 structure SmallCategoryOfSet where
   /-- objects -/
   obj : Set Ω
@@ -48,8 +50,9 @@ structure SmallCategoryOfSet where
   comp {X Y Z : obj} (f : hom X Y) (g : hom Y Z) : hom X Z
   id_comp {X Y : obj} (f : hom X Y) : comp (id _) f = f := by cat_disch
   comp_id {X Y : obj} (f : hom X Y) : comp f (id _) = f := by cat_disch
-  assoc {X Y Z T : obj} (f : hom X Y) (g : hom Y Z) (h : hom Z T) :
-      comp (comp f g) h = comp f (comp g h) := by cat_disch
+  assoc {X Y Z T : obj} (f : hom X Y) (g : hom Y Z) (h : hom Z T)
+      : comp (comp f g) h = comp f (comp g h) := by
+    cat_disch
 
 namespace SmallCategoryOfSet
 
@@ -61,17 +64,21 @@ instance (S : SmallCategoryOfSet Ω) : SmallCategory S.obj where
   id := S.id
   comp := S.comp
 
-/-- The family of all categories such that the types of objects and
-morphisms are subtypes of a given type `Ω`. -/
+/--
+The family of all categories such that the types of objects and
+morphisms are subtypes of a given type `Ω`.
+-/
 abbrev categoryFamily : SmallCategoryOfSet Ω → Type w := fun S ↦ S.obj
 
 end SmallCategoryOfSet
 
 variable (C : Type u) [Category.{v} C]
 
-/-- Helper structure for the construction of a term in `SmallCategoryOfSet`.
+/--
+Helper structure for the construction of a term in `SmallCategoryOfSet`.
 This involves the choice of bijections between types of objects and morphisms
-in a category `C` and subtypes of a type `Ω`. -/
+in a category `C` and subtypes of a type `Ω`.
+-/
 structure CoreSmallCategoryOfSet where
   /-- objects -/
   obj : Set Ω
@@ -86,8 +93,10 @@ namespace CoreSmallCategoryOfSet
 
 variable {Ω C} (h : CoreSmallCategoryOfSet Ω C)
 
-/-- The `SmallCategoryOfSet` structure induced by a
-`CoreSmallCategoryOfSet` structure. -/
+/--
+The `SmallCategoryOfSet` structure induced by a
+`CoreSmallCategoryOfSet` structure.
+-/
 @[simps]
 def smallCategoryOfSet : SmallCategoryOfSet Ω where
   obj := h.obj
@@ -96,8 +105,10 @@ def smallCategoryOfSet : SmallCategoryOfSet Ω where
   comp f g := h.homEquiv.symm (h.homEquiv f ≫ h.homEquiv g)
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given `h : CoreSmallCategoryOfSet Ω C`, this is the
-obvious functor `h.smallCategoryOfSet.obj ⥤ C`. -/
+/--
+Given `h : CoreSmallCategoryOfSet Ω C`, this is the
+obvious functor `h.smallCategoryOfSet.obj ⥤ C`.
+-/
 @[simps!]
 def functor : h.smallCategoryOfSet.obj ⥤ C where
   obj := h.objEquiv
@@ -106,8 +117,10 @@ def functor : h.smallCategoryOfSet.obj ⥤ C where
   map_comp _ _ := by rw [SmallCategoryOfSet.comp_def]; simp
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given `h : CoreSmallCategoryOfSet Ω C`,
-the obvious functor `h.smallCategoryOfSet.obj ⥤ C` is fully faithful. -/
+/--
+Given `h : CoreSmallCategoryOfSet Ω C`,
+the obvious functor `h.smallCategoryOfSet.obj ⥤ C` is fully faithful.
+-/
 def fullyFaithfulFunctor : h.functor.FullyFaithful where
   preimage := h.homEquiv.symm
 
@@ -118,16 +131,19 @@ instance : h.functor.IsEquivalence where
     obtain ⟨X, rfl⟩ := h.objEquiv.surjective Y
     exact ⟨_, ⟨Iso.refl _⟩⟩
 
-/-- Given `h : CoreSmallCategoryOfSet Ω C`,
-the obvious functor `h.smallCategoryOfSet.obj ⥤ C` is an equivalence. -/
-noncomputable def equivalence : h.smallCategoryOfSet.obj ≌ C :=
-  h.functor.asEquivalence
+/--
+Given `h : CoreSmallCategoryOfSet Ω C`,
+the obvious functor `h.smallCategoryOfSet.obj ⥤ C` is an equivalence.
+-/
+noncomputable def equivalence : h.smallCategoryOfSet.obj ≌ C := h.functor.asEquivalence
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `h : CoreSmallCategoryOfSet Ω C`, the equivalence of categories
+/--
+Given `h : CoreSmallCategoryOfSet Ω C`, the equivalence of categories
 `h.smallCategoryOfSet.obj ≌ C` is actually an isomorphism: it induces
-a bijection on the type of arrows. -/
+a bijection on the type of arrows.
+-/
 noncomputable def arrowEquiv : Arrow h.smallCategoryOfSet.obj ≃ Arrow C :=
   Equiv.ofBijective h.functor.mapArrow.obj (by
     constructor
@@ -163,17 +179,21 @@ lemma exists_equivalence (C : Type u) [Category.{v} C]
 
 end SmallCategoryOfSet
 
-/-- Index set of a representative set of all categories `C` which satisfy
-`HasCardinalLT C κ`, see `SmallCategoryCardinalLT.categoryFamily`. -/
+/--
+Index set of a representative set of all categories `C` which satisfy
+`HasCardinalLT C κ`, see `SmallCategoryCardinalLT.categoryFamily`.
+-/
 def SmallCategoryCardinalLT (κ : Cardinal.{w}) : Type w :=
-  { S : SmallCategoryOfSet κ.ord.ToType // HasCardinalLT (Arrow S.obj) κ}
+  {S : SmallCategoryOfSet κ.ord.ToType // HasCardinalLT (Arrow S.obj) κ}
 
 namespace SmallCategoryCardinalLT
 
 variable (κ : Cardinal.{w})
 
-/-- Given a cardinal `κ`, this is a representative family of all categories `C`
-such that `HasCardinalLT C κ`. -/
+/--
+Given a cardinal `κ`, this is a representative family of all categories `C`
+such that `HasCardinalLT C κ`.
+-/
 abbrev categoryFamily (S : SmallCategoryCardinalLT κ) : Type w := S.1.obj
 
 lemma hasCardinalLT (S : SmallCategoryCardinalLT κ) :

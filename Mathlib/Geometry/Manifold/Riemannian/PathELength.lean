@@ -45,8 +45,8 @@ noncomputable section
 
 variable
   {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H} {n : ℕ∞ω}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners ℝ E H} {n : ℕ∞ω} {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
 namespace Manifold
 

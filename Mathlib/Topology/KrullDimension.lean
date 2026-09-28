@@ -46,28 +46,29 @@ variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
 ### Main dimension theorems -/
 
 /-- If `f : Y → X` is inducing, then `dim(Y) ≤ dim(X)`. -/
-theorem Topology.IsInducing.topologicalKrullDim_le {f : Y → X} (hf : IsInducing f) :
-    topologicalKrullDim Y ≤ topologicalKrullDim X :=
+theorem Topology.IsInducing.topologicalKrullDim_le {f : Y → X} (hf : IsInducing f)
+    : topologicalKrullDim Y ≤ topologicalKrullDim X :=
   krullDim_le_of_strictMono _ (map_strictMono_of_isInducing hf)
 
 /-- The topological Krull dimension is invariant under homeomorphisms -/
-theorem IsHomeomorph.topologicalKrullDim_eq (f : X → Y) (h : IsHomeomorph f) :
-    topologicalKrullDim X = topologicalKrullDim Y :=
-  have fwd : topologicalKrullDim X ≤ topologicalKrullDim Y :=
-    h.isInducing.topologicalKrullDim_le
+theorem IsHomeomorph.topologicalKrullDim_eq (f : X → Y) (h : IsHomeomorph f)
+    : topologicalKrullDim X = topologicalKrullDim Y :=
+  have fwd : topologicalKrullDim X ≤ topologicalKrullDim Y := h.isInducing.topologicalKrullDim_le
   have bwd : topologicalKrullDim Y ≤ topologicalKrullDim X :=
     (h.homeomorph f).symm.isInducing.topologicalKrullDim_le
   le_antisymm fwd bwd
 
-/-- The topological Krull dimension of any subspace is at most the dimension of the
-ambient space. -/
-theorem topologicalKrullDim_subspace_le (X : Type*) [TopologicalSpace X] (Y : Set X) :
-    topologicalKrullDim Y ≤ topologicalKrullDim X :=
+/--
+The topological Krull dimension of any subspace is at most the dimension of the
+ambient space.
+-/
+theorem topologicalKrullDim_subspace_le (X : Type*) [TopologicalSpace X] (Y : Set X)
+    : topologicalKrullDim Y ≤ topologicalKrullDim X :=
   IsInducing.subtypeVal.topologicalKrullDim_le
 
 theorem topologicalKrullDim_zero_of_discreteTopology
-    (X : Type*) [TopologicalSpace X] [DiscreteTopology X] :
-    topologicalKrullDim X ≤ 0 := by
+    (X : Type*) [TopologicalSpace X] [DiscreteTopology X]
+    : topologicalKrullDim X ≤ 0 := by
   refine krullDim_nonpos_iff_forall_isMax.mpr fun Z Y h ↦ (h.antisymm' fun x hx ↦ ?_).le
   obtain ⟨z, hz⟩ := Z.2.nonempty
   rwa [DiscreteTopology.isDiscrete.subsingleton_of_isPreirreducible Y.2.isPreirreducible hx (h hz)]
@@ -97,16 +98,17 @@ attribute [local instance] specializationOrder in
 In a sober space `X`, the set of points of coheight `0` in the specialization order is order
 isomorphic to the set of irreducible components of `X`.
 -/
-noncomputable
-def coheightZeroSetOrderIsoIrreducibleComponents [QuasiSober X] [T0Space X] :
-    {x : X | coheight x = 0} ≃o irreducibleComponents X := by
-  have univIso : Subtype (fun _ : X ↦ (⊤ : Prop)) ≃o X :=
-    { Equiv.subtypeUnivEquiv fun _ ↦ trivial with map_rel_iff' := Iff.rfl }
+noncomputable def coheightZeroSetOrderIsoIrreducibleComponents [QuasiSober X] [T0Space X]
+    : {x : X | coheight x = 0} ≃o irreducibleComponents X := by
+  have univIso : Subtype (fun _ : X ↦ (⊤ : Prop)) ≃o X := {
+    Equiv.subtypeUnivEquiv fun _ ↦ trivial with
+    map_rel_iff' := Iff.rfl
+  }
   have : {x : X | coheight x = 0} = {x : X | Maximal ⊤ x} := by simp [maximal_iff_isMax]
   rw [irreducibleComponents_eq_maximals_closed, this]
-  exact OrderIso.mapSetOfPredMaximal <| OrderIso.trans
-    (OrderIso.trans univIso (irreducibleSetEquivPoints (α := X)).symm) <|
-    TopologicalSpace.IrreducibleCloseds.orderIsoSubtype' X
+  exact OrderIso.mapSetOfPredMaximal <|
+    OrderIso.trans (OrderIso.trans univIso (irreducibleSetEquivPoints (α := X)).symm) <|
+      TopologicalSpace.IrreducibleCloseds.orderIsoSubtype' X
 
 attribute [local instance] specializationPreorder in
 /--

@@ -50,13 +50,17 @@ lemma e2Summand_even (z : ℍ) : (e2Summand · z).Even := by
   rw_mod_cast [Int.cast_neg]
   ring
 
-/-- The Eisenstein series of weight `2` and level `1` defined as the conditional sum
+/--
+The Eisenstein series of weight `2` and level `1` defined as the conditional sum
 of `m` in `[N,N]` of `e2Summand m`. This sum over symmetric intervals is handy in showing it is
-Summable. -/
+Summable.
+-/
 def G2 : ℍ → ℂ := fun z ↦ ∑'[symmetricIcc ℤ] m, e2Summand m z
 
-/-- The normalised Eisenstein series of weight `2` and level `1`.
-Defined as `(1 / 2 * ζ(2)) * G2 `. -/
+/--
+The normalised Eisenstein series of weight `2` and level `1`.
+Defined as `(1 / 2 * ζ(2)) * G2 `.
+-/
 def E2 : ℍ → ℂ := (1 / (2 * riemannZeta 2)) • G2
 
 /-- This function measures the defect in `G2` being a modular form. -/

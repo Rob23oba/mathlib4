@@ -34,10 +34,12 @@ section dissociation
 variable {s : Set α} {t u : Finset α} {a : α}
 open Set
 
-/-- A set is dissociated iff all its finite subsets have different products.
+/--
+A set is dissociated iff all its finite subsets have different products.
 
 This is an analog of linear independence in a vector space, but with the "scalars" restricted to
-`0` and `±1`. -/
+`0` and `±1`.
+-/
 @[to_additive /-- A set is dissociated iff all its finite subsets have different sums.
 
 This is an analog of linear independence in a vector space, but with the "scalars" restricted to
@@ -92,11 +94,13 @@ end dissociation
 namespace Finset
 variable [DecidableEq α] [Fintype α] {s t u : Finset α} {a : α} {d : ℕ}
 
-/-- The span of a finset `s` is the finset of elements of the form `∏ a ∈ s, a ^ ε a` where
+/--
+The span of a finset `s` is the finset of elements of the form `∏ a ∈ s, a ^ ε a` where
 `ε ∈ {-1, 0, 1} ^ s`.
 
 This is an analog of the linear span in a vector space, but with the "scalars" restricted to
-`0` and `±1`. -/
+`0` and `±1`.
+-/
 @[to_additive /-- The span of a finset `s` is the finset of elements of the form `∑ a ∈ s, ε a • a`
 where `ε ∈ {-1, 0, 1} ^ s`.
 

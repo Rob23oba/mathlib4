@@ -37,8 +37,7 @@ open TensorProduct PrimeSpectrum
 
 /-- An ideal `I` of `R` is pure if `R ⧸ I` is a flat `R`-module. -/
 @[stacks 04PR]
-abbrev Ideal.Pure (I : Ideal R) : Prop :=
-  Module.Flat R (R ⧸ I)
+abbrev Ideal.Pure (I : Ideal R) : Prop := Module.Flat R (R ⧸ I)
 
 lemma injective_lTensor_quotient_iff_inf_eq_mul (I J : Ideal R) :
     Function.Injective (J.subtype.lTensor (R ⧸ I)) ↔ I ⊓ J = I * J := by

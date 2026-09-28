@@ -46,8 +46,10 @@ instance {α : Type*} [LE α] : SetLike (NonemptyChain α) α where
 
 instance {α : Type*} [LE α] : PartialOrder (NonemptyChain α) := .ofSetLike (NonemptyChain α)
 
-/-- A chain complete partial order (CCPO) is a nonempty partial order such that every
-nonempty chain has a supremum (which we call `cSup`) -/
+/--
+A chain complete partial order (CCPO) is a nonempty partial order such that every
+nonempty chain has a supremum (which we call `cSup`)
+-/
 class ChainCompletePartialOrder (α : Type*) extends PartialOrder α where
   /-- The supremum of a nonempty chain -/
   cSup : NonemptyChain α → α
@@ -72,8 +74,10 @@ instance [CompleteLattice α] : ChainCompletePartialOrder α where
 
 variable [ChainCompletePartialOrder α] {x : α} {f : α → α}
 
-/-- An admissible set for given `x : α` and `f : α → α` has `x`, the base point, as a least element
-and is closed under applying `f` and `cSup`. -/
+/--
+An admissible set for given `x : α` and `f : α → α` has `x`, the base point, as a least element
+and is closed under applying `f` and `cSup`.
+-/
 structure IsAdmissible (x : α) (f : α → α) (s : Set α) : Prop where
   /-- The base point is the least element of an admissible set -/
   base_isLeast : IsLeast s x
@@ -115,9 +119,11 @@ lemma subset_bot_iff {s : Set α} (h : IsAdmissible x f s) : s ⊆ bot x f ↔ s
 lemma map_mem_bot {y : α} (le_map : ∀ x, x ≤ f x) (h : y ∈ bot x f) : f y ∈ bot x f :=
   (bot_isAdmissible le_map).image_self_subset_self <| mem_image_of_mem f h
 
-/-- `y` is an extreme point for `x : α` and `f : α → α` if it is in the bottom admissible set and
+/--
+`y` is an extreme point for `x : α` and `f : α → α` if it is in the bottom admissible set and
 `y` is larger than `f z` for any `z < y` in the bottom admissible set.
-This definition comes from [serge_lang_algebra] -/
+This definition comes from [serge_lang_algebra]
+-/
 structure IsExtremePt (x : α) (f : α → α) (y : α) : Prop where
   mem_bot : y ∈ bot x f
   map_le_of_mem_of_lt {z : α} (h : z ∈ bot x f) (h' : z < y) : f z ≤ y
@@ -218,13 +224,16 @@ end IsExtremePt
 
 open Function IsExtremePt
 
-/-- **The Bourbaki-Witt Theorem**: If `α` is a chain complete partial order and `f : α → α` is
-inflationary, then `f` has a fixed point -/
-theorem nonempty_fixedPoints_of_inflationary [Nonempty α] (le_map : ∀ x, x ≤ f x) :
-    (fixedPoints f).Nonempty := by
+/--
+**The Bourbaki-Witt Theorem**: If `α` is a chain complete partial order and `f : α → α` is
+inflationary, then `f` has a fixed point
+-/
+theorem nonempty_fixedPoints_of_inflationary [Nonempty α] (le_map : ∀ x, x ≤ f x)
+    : (fixedPoints f).Nonempty := by
   let x : α := Classical.ofNonempty
-  let y := cSup
-    (NonemptyChain.mk (bot x f) ⟨x, (bot_isAdmissible le_map).base_isLeast.1⟩ (bot_isChain le_map))
+  let y :=
+    cSup (NonemptyChain.mk (bot x f) ⟨x, (bot_isAdmissible le_map).base_isLeast.1⟩
+      (bot_isChain le_map))
   use y
   apply le_antisymm (le_cSup _ _ (_ : f y ∈ bot x f)) (le_map y)
   apply (bot_isAdmissible le_map).image_self_subset_self

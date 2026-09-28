@@ -38,7 +38,6 @@ Then, a cover-preserving and compatible-preserving functor is continuous.
 
 public section
 
-
 universe w v₁ v₂ v₃ u₁ u₂ u₃
 
 noncomputable section
@@ -53,34 +52,34 @@ variable {A : Type u₃} [Category.{v₃} A]
 variable (J : GrothendieckTopology C) (K : GrothendieckTopology D)
 variable {L : GrothendieckTopology A}
 
-/-- A functor `G : (C, J) ⥤ (D, K)` between sites is *cover-preserving*
+/--
+A functor `G : (C, J) ⥤ (D, K)` between sites is *cover-preserving*
 if for all covering sieves `R` in `C`, `R.functorPushforward G` is a covering sieve in `D`.
 -/
 structure CoverPreserving (G : C ⥤ D) : Prop where
   cover_preserve : ∀ {U : C} {S : Sieve U} (_ : S ∈ J U), S.functorPushforward G ∈ K (G.obj U)
 
 /-- The identity functor on a site is cover-preserving. -/
-theorem idCoverPreserving : CoverPreserving J J (𝟭 _) :=
-  ⟨fun hS => by simpa using! hS⟩
+theorem idCoverPreserving : CoverPreserving J J (𝟭 _) := ⟨fun hS => by simpa using! hS⟩
 
 /-- The composition of two cover-preserving functors is cover-preserving. -/
-theorem CoverPreserving.comp {F} (hF : CoverPreserving J K F) {G} (hG : CoverPreserving K L G) :
-    CoverPreserving J L (F ⋙ G) :=
-  ⟨fun hS => by
-    rw [Sieve.functorPushforward_comp]
-    exact hG.cover_preserve (hF.cover_preserve hS)⟩
+theorem CoverPreserving.comp {F} (hF : CoverPreserving J K F) {G} (hG : CoverPreserving K L G)
+    : CoverPreserving J L (F ⋙ G) := ⟨fun hS => by
+  rw [Sieve.functorPushforward_comp]
+  exact hG.cover_preserve (hF.cover_preserve hS)⟩
 
-/-- A functor `G : (C, J) ⥤ (D, K)` between sites is called compatible preserving if for each
+/--
+A functor `G : (C, J) ⥤ (D, K)` between sites is called compatible preserving if for each
 compatible family of elements at `C` and valued in `G.op ⋙ ℱ`, and each commuting diagram
 `f₁ ≫ G.map g₁ = f₂ ≫ G.map g₂`, `x g₁` and `x g₂` coincide when restricted via `fᵢ`.
 This is actually stronger than merely preserving compatible families because of the definition of
 `functorPushforward` used.
 -/
 structure CompatiblePreserving (K : GrothendieckTopology D) (G : C ⥤ D) : Prop where
-  compatible :
-    ∀ (ℱ : Sheaf K (Type w)) {Z} {T : Presieve Z} {x : FamilyOfElements (G.op ⋙ ℱ.obj) T}
-      (_ : x.Compatible) {Y₁ Y₂} {X} (f₁ : X ⟶ G.obj Y₁) (f₂ : X ⟶ G.obj Y₂) {g₁ : Y₁ ⟶ Z}
-      {g₂ : Y₂ ⟶ Z} (hg₁ : T g₁) (hg₂ : T g₂) (_ : f₁ ≫ G.map g₁ = f₂ ≫ G.map g₂),
+  compatible
+    : ∀ (ℱ : Sheaf K (Type w)) {Z} {T : Presieve Z} {x : FamilyOfElements (G.op ⋙ ℱ.obj) T}
+        (_ : x.Compatible) {Y₁ Y₂} {X} (f₁ : X ⟶ G.obj Y₁) (f₂ : X ⟶ G.obj Y₂) {g₁ : Y₁ ⟶ Z}
+        {g₂ : Y₂ ⟶ Z} (hg₁ : T g₁) (hg₂ : T g₂) (_ : f₁ ≫ G.map g₁ = f₂ ≫ G.map g₂),
       ℱ.obj.map f₁.op (x g₁ hg₁) = ℱ.obj.map f₂.op (x g₂ hg₂)
 
 section
@@ -89,20 +88,19 @@ variable {T : Presieve Z} {x : FamilyOfElements (G.op ⋙ ℱ.obj) T} (h : x.Com
 include hG h
 
 /-- `CompatiblePreserving` functors indeed preserve compatible families. -/
-theorem Presieve.FamilyOfElements.Compatible.functorPushforward :
-    (x.functorPushforward G).Compatible := by
+theorem Presieve.FamilyOfElements.Compatible.functorPushforward
+    : (x.functorPushforward G).Compatible := by
   rintro Z₁ Z₂ W g₁ g₂ f₁' f₂' H₁ H₂ eq
   unfold FamilyOfElements.functorPushforward
   rcases getFunctorPushforwardStructure H₁ with ⟨X₁, f₁, h₁, hf₁, rfl⟩
   rcases getFunctorPushforwardStructure H₂ with ⟨X₂, f₂, h₂, hf₂, rfl⟩
-  suffices ℱ.obj.map (g₁ ≫ h₁).op (x f₁ hf₁) = ℱ.obj.map (g₂ ≫ h₂).op (x f₂ hf₂) by
-    simpa using this
+  suffices ℱ.obj.map (g₁ ≫ h₁).op (x f₁ hf₁) = ℱ.obj.map (g₂ ≫ h₂).op (x f₂ hf₂) by simpa using this
   apply hG.compatible ℱ h _ _ hf₁ hf₂
   simpa using eq
 
 @[simp]
-theorem CompatiblePreserving.apply_map {Y : C} {f : Y ⟶ Z} (hf : T f) :
-    x.functorPushforward G (G.map f) (image_mem_functorPushforward G T hf) = x f hf := by
+theorem CompatiblePreserving.apply_map {Y : C} {f : Y ⟶ Z} (hf : T f)
+    : x.functorPushforward G (G.map f) (image_mem_functorPushforward G T hf) = x f hf := by
   unfold FamilyOfElements.functorPushforward
   rcases getFunctorPushforwardStructure (image_mem_functorPushforward G T hf) with
     ⟨X, g, f', hg, eq⟩
@@ -113,18 +111,22 @@ end
 open Limits.WalkingCospan
 
 set_option backward.defeqAttrib.useBackward true in
-theorem compatiblePreservingOfFlat {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
-    (K : GrothendieckTopology D) (G : C ⥤ D) [RepresentablyFlat G] : CompatiblePreserving K G := by
+theorem compatiblePreservingOfFlat
+    {C : Type u₁} [Category.{v₁} C]
+    {D : Type u₂} [Category.{v₂} D]
+    (K : GrothendieckTopology D)
+    (G : C ⥤ D) [RepresentablyFlat G]
+    : CompatiblePreserving K G := by
   constructor
   intro ℱ Z T x hx Y₁ Y₂ X f₁ f₂ g₁ g₂ hg₁ hg₂ e
   -- First, `f₁` and `f₂` form a cone over `cospan g₁ g₂ ⋙ u`.
   let c : Cone (cospan g₁ g₂ ⋙ G) :=
     (Cone.postcompose (diagramIsoCospan (cospan g₁ g₂ ⋙ G)).inv).obj (PullbackCone.mk f₁ f₂ e)
   /-
-    This can then be viewed as a cospan of structured arrows, and we may obtain an arbitrary cone
-    over it since `StructuredArrow W u` is cofiltered.
-    Then, it suffices to prove that it is compatible when restricted onto `u(c'.X.right)`.
-    -/
+  This can then be viewed as a cospan of structured arrows, and we may obtain an arbitrary cone
+  over it since `StructuredArrow W u` is cofiltered.
+  Then, it suffices to prove that it is compatible when restricted onto `u(c'.X.right)`.
+  -/
   let c' := IsCofiltered.cone (c.toStructuredArrow ⋙ StructuredArrow.pre _ _ _)
   have eq₁ : f₁ = (c'.pt.hom ≫ G.map (c'.π.app left).right) ≫ eqToHom (by simp) := by simp [c]
   have eq₂ : f₂ = (c'.pt.hom ≫ G.map (c'.π.app right).right) ≫ eqToHom (by simp) := by simp [c]
@@ -134,16 +136,17 @@ theorem compatiblePreservingOfFlat {C : Type u₁} [Category.{v₁} C] {D : Type
   apply congr_arg -- Porting note: was `congr 1` which for some reason doesn't do anything here
   -- despite goal being of the form f a = f b, with f=`ℱ.val.map (Quiver.Hom.op c'.pt.hom)`
   /-
-    Since everything now falls in the image of `u`,
-    the result follows from the compatibility of `x` in the image of `u`.
-    -/
+  Since everything now falls in the image of `u`,
+  the result follows from the compatibility of `x` in the image of `u`.
+  -/
   injection c'.π.naturality WalkingCospan.Hom.inl with _ e₁
   injection c'.π.naturality WalkingCospan.Hom.inr with _ e₂
   exact hx (c'.π.app left).right (c'.π.app right).right hg₁ hg₂ (e₁.symm.trans e₂)
 
 set_option backward.defeqAttrib.useBackward true in
-theorem compatiblePreservingOfDownwardsClosed (F : C ⥤ D) [F.Full] [F.Faithful]
-    (hF : ∀ {c : C} {d : D} (_ : d ⟶ F.obj c), Σ c', F.obj c' ≅ d) : CompatiblePreserving K F := by
+theorem compatiblePreservingOfDownwardsClosed
+    (F : C ⥤ D) [F.Full] [F.Faithful] (hF : ∀ {c : C} {d : D} (_ : d ⟶ F.obj c), Σ c', F.obj c' ≅ d)
+    : CompatiblePreserving K F := by
   constructor
   introv hx he
   obtain ⟨X', e⟩ := hF f₁

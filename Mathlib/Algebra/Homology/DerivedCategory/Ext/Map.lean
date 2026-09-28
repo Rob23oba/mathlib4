@@ -119,17 +119,17 @@ section Ext
 
 open Localization
 
-instance [h : HasExt.{w'} D] (X Y : C) : HasSmallLocalizedShiftedHom.{w'}
-    (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) ℤ
-    ((F ⋙ CochainComplex.singleFunctor D 0).obj X)
-    ((F ⋙ CochainComplex.singleFunctor D 0).obj Y) :=
+instance [h : HasExt.{w'} D] (X Y : C)
+    : HasSmallLocalizedShiftedHom.{w'} (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) ℤ
+      ((F ⋙ CochainComplex.singleFunctor D 0).obj X)
+      ((F ⋙ CochainComplex.singleFunctor D 0).obj Y) :=
   h (F.obj X) (F.obj Y)
 
 /-- The map between `Ext` induced by `LocalizerMorphism.smallShiftedHomMap`. -/
-noncomputable def Abelian.Ext.mapExactFunctor [HasExt.{w} C] [HasExt.{w'} D] {X Y : C} {n : ℕ}
-    (f : Ext.{w} X Y n) : Ext.{w'} (F.obj X) (F.obj Y) n :=
-  (F.mapHomologicalComplexUpToQuasiIsoLocalizerMorphism
-    (ComplexShape.up ℤ)).smallShiftedHomMap
+noncomputable def Abelian.Ext.mapExactFunctor
+    [HasExt.{w} C] [HasExt.{w'} D] {X Y : C} {n : ℕ} (f : Ext.{w} X Y n)
+    : Ext.{w'} (F.obj X) (F.obj Y) n :=
+  (F.mapHomologicalComplexUpToQuasiIsoLocalizerMorphism (ComplexShape.up ℤ)).smallShiftedHomMap
     ((F.mapCochainComplexSingleFunctor 0).app X) ((F.mapCochainComplexSingleFunctor 0).app Y) f
 
 set_option backward.isDefEq.respectTransparency false in
@@ -166,8 +166,8 @@ lemma Abelian.Ext.mapExactFunctor_add (f g : Ext.{w} X Y n) :
   aesop
 
 /-- Upgraded of `CategoryTheory.Abelian.Ext.mapExactFunctor` into an additive homomorphism. -/
-noncomputable def Functor.mapExtAddHom (X Y : C) (n : ℕ) :
-    Ext.{w} X Y n →+ Ext.{w'} (F.obj X) (F.obj Y) n where
+noncomputable def Functor.mapExtAddHom (X Y : C) (n : ℕ)
+    : Ext.{w} X Y n →+ Ext.{w'} (F.obj X) (F.obj Y) n where
   toFun e := e.mapExactFunctor F
   map_zero' := by simp
   map_add' := by simp
@@ -186,8 +186,8 @@ lemma Functor.mapExactFunctor_smul (r : R) (f : Ext.{w} X Y n) :
   aesop
 
 /-- Upgrade of `F.mapExtAddHom` assuming `F` is linear. -/
-noncomputable def Functor.mapExtLinearMap (X Y : C) (n : ℕ) :
-    Ext.{w} X Y n →ₗ[R] Ext.{w'} (F.obj X) (F.obj Y) n where
+noncomputable def Functor.mapExtLinearMap (X Y : C) (n : ℕ)
+    : Ext.{w} X Y n →ₗ[R] Ext.{w'} (F.obj X) (F.obj Y) n where
   __ := F.mapExtAddHom X Y n
   map_smul' := by simp
 

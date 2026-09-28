@@ -221,15 +221,18 @@ lemma LFunction_dft (Φ : ZMod N → ℂ) {s : ℂ} (hs : Φ 0 = 0 ∨ s ≠ 1) 
   rw [mul_assoc (Φ _), mul_comm (Φ _), neg_mul]
 
 /-- Functional equation for `ZMod` L-functions, in terms of discrete Fourier transform. -/
-theorem LFunction_one_sub (Φ : ZMod N → ℂ) {s : ℂ}
-    (hs : ∀ (n : ℕ), s ≠ -n) (hs' : Φ 0 = 0 ∨ s ≠ 1) :
-    LFunction Φ (1 - s) = N ^ (s - 1) * (2 * π) ^ (-s) * Gamma s *
-      (cexp (π * I * s / 2) * LFunction (𝓕 Φ) s
-       + cexp (-π * I * s / 2) * LFunction (𝓕 fun x ↦ Φ (-x)) s) := by
+theorem LFunction_one_sub (Φ : ZMod N → ℂ) {s : ℂ} (hs : ∀ (n : ℕ), s ≠ -n) (hs' : Φ 0 = 0 ∨ s ≠ 1)
+    : LFunction Φ (1 - s)
+      = N ^ (s - 1) * (2 * π) ^ (-s) * Gamma s
+        * (cexp (π * I * s / 2) * LFunction (𝓕 Φ) s
+          + cexp (-π * I * s / 2) * LFunction (𝓕 fun x ↦ Φ (-x)) s) := by
   rw [LFunction]
-  have (j : ZMod N) : Φ j * hurwitzZeta (toAddCircle j) (1 - s) = Φ j *
-      ((2 * π) ^ (-s) * Gamma s * (cexp (-π * I * s / 2) *
-      expZeta (toAddCircle j) s + cexp (π * I * s / 2) * expZeta (-toAddCircle j) s)) := by
+  have (j : ZMod N)
+      : Φ j * hurwitzZeta (toAddCircle j) (1 - s)
+        = Φ j
+          * ((2 * π) ^ (-s) * Gamma s
+            * (cexp (-π * I * s / 2) * expZeta (toAddCircle j) s
+              + cexp (π * I * s / 2) * expZeta (- toAddCircle j) s)) := by
     rcases eq_or_ne j 0 with rfl | hj
     · rcases hs' with hΦ | hs'
       · simp only [hΦ, zero_mul]
@@ -294,7 +297,7 @@ by linearity.
 -/
 noncomputable def completedLFunction (Φ : ZMod N → ℂ) (s : ℂ) : ℂ :=
   N ^ (-s) * ∑ j, Φ j * completedHurwitzZetaEven (toAddCircle j) s
-  + N ^ (-s) * ∑ j, Φ j * completedHurwitzZetaOdd (toAddCircle j) s
+    + N ^ (-s) * ∑ j, Φ j * completedHurwitzZetaOdd (toAddCircle j) s
 
 @[simp] lemma completedLFunction_zero (s : ℂ) : completedLFunction (0 : ZMod N → ℂ) s = 0 := by
   simp only [completedLFunction, Pi.zero_apply, zero_mul, sum_const_zero, mul_zero, zero_add]
@@ -334,7 +337,7 @@ and `N ^ (-s) / (1 - s)` to make it entire.
 -/
 noncomputable def completedLFunction₀ (Φ : ZMod N → ℂ) (s : ℂ) : ℂ :=
   N ^ (-s) * ∑ j : ZMod N, Φ j * completedHurwitzZetaEven₀ (toAddCircle j) s
-  + N ^ (-s) * ∑ j : ZMod N, Φ j * completedHurwitzZetaOdd (toAddCircle j) s
+    + N ^ (-s) * ∑ j : ZMod N, Φ j * completedHurwitzZetaOdd (toAddCircle j) s
 
 /-- The function `completedLFunction₀ Φ` is differentiable. -/
 lemma differentiable_completedLFunction₀ (Φ : ZMod N → ℂ) :
@@ -458,9 +461,9 @@ private lemma completedLFunction_one_sub_of_one_lt_odd (hΦ : Φ.Odd) {s : ℂ} 
 /--
 Functional equation for completed L-functions (even case), valid at all points of differentiability.
 -/
-theorem completedLFunction_one_sub_even (hΦ : Φ.Even) (s : ℂ)
-    (hs₀ : s ≠ 0 ∨ ∑ j, Φ j = 0) (hs₁ : s ≠ 1 ∨ Φ 0 = 0) :
-    completedLFunction Φ (1 - s) = N ^ (s - 1) * completedLFunction (𝓕 Φ) s := by
+theorem completedLFunction_one_sub_even
+    (hΦ : Φ.Even) (s : ℂ) (hs₀ : s ≠ 0 ∨ ∑ j, Φ j = 0) (hs₁ : s ≠ 1 ∨ Φ 0 = 0)
+    : completedLFunction Φ (1 - s) = N ^ (s - 1) * completedLFunction (𝓕 Φ) s := by
   -- We prove this using `AnalyticOnNhd.eqOn_of_preconnected_of_eventuallyEq`, so we need to
   -- gather up the ingredients for this big theorem.
   -- First set up some notations:
@@ -471,58 +474,57 @@ theorem completedLFunction_one_sub_even (hΦ : Φ.Even) (s : ℂ)
   -- Properties of U:
   have hsU : s ∈ U := ⟨hs₀, hs₁⟩
   have h2U : 2 ∈ U := ⟨.inl two_ne_zero, .inl (OfNat.ofNat_ne_one _)⟩
-  have hUo : IsOpen U := (isOpen_compl_singleton.union isOpen_const).inter
-    (isOpen_compl_singleton.union isOpen_const)
+  have hUo : IsOpen U :=
+    (isOpen_compl_singleton.union isOpen_const).inter (isOpen_compl_singleton.union isOpen_const)
   have hUp : IsPreconnected U := by
     -- need to write `U` as the complement of an obviously countable set
     let Uc : Set ℂ := (if ∑ j, Φ j = 0 then ∅ else {0}) ∪ (if Φ 0 = 0 then ∅ else {1})
     have : Uc.Countable := by
-      apply Countable.union <;>
-      split_ifs <;>
-      simp only [countable_singleton, countable_empty]
+      apply Countable.union <;> split_ifs <;> simp only [countable_singleton, countable_empty]
     convert! (this.isConnected_compl_of_one_lt_rank ?_).isPreconnected using 1
     · ext x
-      by_cases h : Φ 0 = 0 <;>
-      by_cases h' : ∑ j, Φ j = 0 <;>
-      simp [U, Uc, h, h', and_comm]
+      by_cases h : Φ 0 = 0 <;> by_cases h' : ∑ j, Φ j = 0 <;> simp [U, Uc, h, h', and_comm]
     · simp only [rank_real_complex, Nat.one_lt_ofNat]
   -- Analyticity on U:
   have hF : AnalyticOnNhd ℂ F U := by
-    refine DifferentiableOn.analyticOnNhd
-      (fun t ht ↦ DifferentiableAt.differentiableWithinAt ?_) hUo
+    refine
+      DifferentiableOn.analyticOnNhd (fun t ht ↦ DifferentiableAt.differentiableWithinAt ?_) hUo
     refine (differentiableAt_completedLFunction Φ _ ?_ ?_).comp t (differentiableAt_id.const_sub 1)
     exacts [ht.2.imp_left (sub_ne_zero.mpr ∘ Ne.symm), ht.1.imp_left sub_eq_self.not.mpr]
   have hG : AnalyticOnNhd ℂ G U := by
-    refine DifferentiableOn.analyticOnNhd
-      (fun t ht ↦ DifferentiableAt.differentiableWithinAt ?_) hUo
+    refine
+      DifferentiableOn.analyticOnNhd (fun t ht ↦ DifferentiableAt.differentiableWithinAt ?_) hUo
     apply ((differentiableAt_id.sub_const 1).const_cpow (.inl (NeZero.ne _))).mul
     apply differentiableAt_completedLFunction _ _ (ht.1.imp_right fun h ↦ dft_apply_zero Φ ▸ h)
     exact ht.2.imp_right (fun h ↦ by simp only [← dft_apply_zero, dft_dft, neg_zero, h, smul_zero])
   -- set where we know equality
   have hV : {z | 1 < re z} ∈ 𝓝 2 := (continuous_re.isOpen_preimage _ isOpen_Ioi).mem_nhds (by simp)
-  have hFG : F =ᶠ[𝓝 2] G := eventually_of_mem hV <| fun t ht ↦ by
-    simpa only [F, G, pow_zero, mul_one] using completedLFunction_one_sub_of_one_lt_even hΦ ht
+  have hFG : F =ᶠ[𝓝 2] G :=
+    eventually_of_mem hV <| fun t ht ↦ by
+      simpa only [F, G, pow_zero, mul_one] using completedLFunction_one_sub_of_one_lt_even hΦ ht
   -- now apply the big hammer to finish
   exact hF.eqOn_of_preconnected_of_eventuallyEq hG hUp h2U hFG hsU
 
 /-- Functional equation for completed L-functions (odd case), valid for all `s`. -/
-theorem completedLFunction_one_sub_odd (hΦ : Φ.Odd) (s : ℂ) :
-    completedLFunction Φ (1 - s) = N ^ (s - 1) * I * completedLFunction (𝓕 Φ) s := by
+theorem completedLFunction_one_sub_odd (hΦ : Φ.Odd) (s : ℂ)
+    : completedLFunction Φ (1 - s) = N ^ (s - 1) * I * completedLFunction (𝓕 Φ) s := by
   -- This is much easier than the even case since both functions are entire.
   -- First set up some notations:
   let F (t) := completedLFunction Φ (1 - t)
   let G (t) := ↑N ^ (t - 1) * I * completedLFunction (𝓕 Φ) t
   -- check F, G globally differentiable
-  have hF : Differentiable ℂ F := (differentiable_completedLFunction hΦ.map_zero
-    hΦ.sum_eq_zero).comp (differentiable_id.const_sub 1)
+  have hF : Differentiable ℂ F :=
+    (differentiable_completedLFunction hΦ.map_zero hΦ.sum_eq_zero).comp
+      (differentiable_id.const_sub 1)
   have hG : Differentiable ℂ G := by
     apply (((differentiable_id.sub_const 1).const_cpow (.inl (NeZero.ne _))).mul_const _).mul
     rw [← dft_odd_iff] at hΦ
     exact differentiable_completedLFunction hΦ.map_zero hΦ.sum_eq_zero
   -- set where we know equality
   have : {z | 1 < re z} ∈ 𝓝 2 := (continuous_re.isOpen_preimage _ isOpen_Ioi).mem_nhds (by simp)
-  have hFG : F =ᶠ[𝓝 2] G := by filter_upwards [this] with t ht
-    using completedLFunction_one_sub_of_one_lt_odd hΦ ht
+  have hFG : F =ᶠ[𝓝 2] G := by
+    filter_upwards [this] with t ht
+      using completedLFunction_one_sub_of_one_lt_odd hΦ ht
   -- now apply the big hammer to finish
   rw [← analyticOnNhd_univ_iff_differentiable] at hF hG
   congrm $(hF.eq_of_eventuallyEq hG hFG) s

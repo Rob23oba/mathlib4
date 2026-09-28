@@ -31,8 +31,10 @@ universe u
 
 variable {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
 
-/-- The class of morphisms `f : X ⟶ Y` between schemes such that
-`𝒪_{Y, f x} ⟶ 𝒪_{X, x}` is surjective for all `x : X`. -/
+/--
+The class of morphisms `f : X ⟶ Y` between schemes such that
+`𝒪_{Y, f x} ⟶ 𝒪_{X, x}` is surjective for all `x : X`.
+-/
 @[mk_iff]
 class SurjectiveOnStalks (f : X ⟶ Y) : Prop where
   stalkMap_surjective (f) : ∀ x, Function.Surjective (f.stalkMap x)
@@ -52,8 +54,8 @@ instance : MorphismProperty.IsMultiplicative @SurjectiveOnStalks where
     exact (f.stalkMap_surjective x).comp (g.stalkMap_surjective (f x))
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [SurjectiveOnStalks f]
-    [SurjectiveOnStalks g] : SurjectiveOnStalks (f ≫ g) :=
+instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [SurjectiveOnStalks f] [SurjectiveOnStalks g]
+    : SurjectiveOnStalks (f ≫ g) :=
   MorphismProperty.IsStableUnderComposition.comp_mem f g inferInstance inferInstance
 
 lemma eq_stalkwise :
@@ -86,8 +88,7 @@ theorem of_comp [SurjectiveOnStalks (f ≫ g)] : SurjectiveOnStalks f := by
   rw [Scheme.Hom.stalkMap_comp] at this
   exact Function.Surjective.of_comp this
 
-instance stableUnderBaseChange :
-    MorphismProperty.IsStableUnderBaseChange @SurjectiveOnStalks := by
+instance stableUnderBaseChange : MorphismProperty.IsStableUnderBaseChange @SurjectiveOnStalks := by
   apply HasRingHomProperty.isStableUnderBaseChange
   apply RingHom.IsStableUnderBaseChange.mk
   · exact (HasRingHomProperty.isLocal_ringHomProperty @SurjectiveOnStalks).respectsIso

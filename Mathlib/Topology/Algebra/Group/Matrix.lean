@@ -22,8 +22,10 @@ public section
 
 open Matrix Topology
 
-variable {n R S : Type*} [Fintype n] [DecidableEq n]
-  [CommRing R] [TopologicalSpace R] [CommRing S] [TopologicalSpace S] {f : R →+* S}
+variable
+  {n R S : Type*}
+  [Fintype n] [DecidableEq n] [CommRing R] [TopologicalSpace R] [CommRing S] [TopologicalSpace S]
+  {f : R →+* S}
 
 /-!
 ### Topology of the general linear group
@@ -32,9 +34,9 @@ variable {n R S : Type*} [Fintype n] [DecidableEq n]
 namespace Matrix.GeneralLinearGroup
 
 @[fun_prop]
-theorem continuous_apply {α : Type*} [TopologicalSpace α]
-    (f : α → GL n R) (hf : Continuous f) (i : n) :
-    Continuous (fun x ↦ f x i) :=
+theorem continuous_apply
+    {α : Type*} [TopologicalSpace α] (f : α → GL n R) (hf : Continuous f) (i : n)
+    : Continuous (fun x ↦ f x i) :=
   (by fun_prop : Continuous fun A : Matrix n n R ↦ A i).comp <| by fun_prop
 
 @[fun_prop]
@@ -80,13 +82,11 @@ namespace Matrix.SpecialLinearGroup
 
 local notation "SL" => SpecialLinearGroup
 
-instance : TopologicalSpace (SL n R) :=
-  inferInstanceAs <| TopologicalSpace (Subtype _)
+instance : TopologicalSpace (SL n R) := inferInstanceAs <| TopologicalSpace (Subtype _)
 
 @[fun_prop]
-theorem continuous_apply {α : Type*} [TopologicalSpace α]
-    (f : α → SL n R) (hf : Continuous f) (i) :
-    Continuous (fun x ↦ f x i) :=
+theorem continuous_apply {α : Type*} [TopologicalSpace α] (f : α → SL n R) (hf : Continuous f) (i)
+    : Continuous (fun x ↦ f x i) :=
   (by fun_prop : Continuous fun A : Matrix n n R ↦ A i).comp <| by fun_prop
 
 /-- The topology on `SL n R` is functorial in `R`. -/
@@ -106,8 +106,10 @@ lemma _root_.Topology.IsEmbedding.specialLinearGroup_map (hf : IsEmbedding f) :
 
 variable [IsTopologicalRing R]
 
-/-- If `R` is a commutative ring with the discrete topology, then `SL(n, R)` has the discrete
-topology. -/
+/--
+If `R` is a commutative ring with the discrete topology, then `SL(n, R)` has the discrete
+topology.
+-/
 instance [DiscreteTopology R] : DiscreteTopology (SL n R) :=
   inferInstanceAs <| DiscreteTopology (Subtype _)
 
@@ -124,8 +126,9 @@ instance instT1Space [T1Space R] : T1Space (SL n R) := isClosedEmbedding_val.isE
 /-- The special linear group over a topological ring is a topological group. -/
 instance isTopologicalGroup : IsTopologicalGroup (SL n R) where
   continuous_inv := continuous_induced_rng.mpr continuous_induced_dom.matrix_adjugate
-  continuous_mul := continuous_induced_rng.mpr <|
-    (continuous_induced_dom.comp continuous_fst).mul (continuous_induced_dom.comp continuous_snd)
+  continuous_mul :=
+    continuous_induced_rng.mpr <|
+      (continuous_induced_dom.comp continuous_fst).mul (continuous_induced_dom.comp continuous_snd)
 
 @[deprecated (since := "2026-08-21")] alias topologicalGroup := isTopologicalGroup
 
@@ -151,8 +154,8 @@ lemma isEmbedding_toGL : IsEmbedding (toGL : SL n R → GL n R) :=
   ⟨isInducing_toGL, toGL_injective⟩
 
 @[deprecated "Use range_toGL_eq_ker_det instead" (since := "2026-09-14")]
-theorem range_toGL {A : Type*} [CommRing A] :
-    Set.range (toGL : SL n A → GL n A) = GeneralLinearGroup.det ⁻¹' {1} := by
+theorem range_toGL {A : Type*} [CommRing A]
+    : Set.range (toGL : SL n A → GL n A) = GeneralLinearGroup.det ⁻¹' {1} := by
   ext x
   simpa [Units.ext_iff] using ⟨fun ⟨y, hy⟩ ↦ by simp [← hy], fun hx ↦ ⟨⟨x, hx⟩, rfl⟩⟩
 

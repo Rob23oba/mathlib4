@@ -71,13 +71,19 @@ open scoped Nat NNReal Topology
 
 /-! ## Assumptions of the Picard-Lindelöf theorem-/
 
-/-- Prop structure holding the assumptions of the Picard-Lindelöf theorem.
+/--
+Prop structure holding the assumptions of the Picard-Lindelöf theorem.
 `IsPicardLindelof f t₀ x₀ a r L K`, where `t₀ ∈ Icc tmin tmax`, means that the time-dependent vector
 field `f` satisfies the conditions to admit an integral curve `α : ℝ → E` to `f` defined on
 `Icc tmin tmax` with the initial condition `α t₀ = x`, where `‖x - x₀‖ ≤ r`. Note that the initial
-point `x` is allowed to differ from the point `x₀` about which the conditions on `f` are stated. -/
-structure IsPicardLindelof {E : Type*} [NormedAddCommGroup E]
-    (f : ℝ → E → E) {tmin tmax : ℝ} (t₀ : Icc tmin tmax) (x₀ : E) (a r L K : ℝ≥0) : Prop where
+point `x` is allowed to differ from the point `x₀` about which the conditions on `f` are stated.
+-/
+structure IsPicardLindelof
+    {E : Type*} [NormedAddCommGroup E]
+    (f : ℝ → E → E)
+    {tmin tmax : ℝ} (t₀ : Icc tmin tmax)
+    (x₀ : E) (a r L K : ℝ≥0)
+    : Prop where
   /-- The vector field at any time is Lipschitz with constant `K` within a closed ball. -/
   lipschitzOnWith : ∀ t ∈ Icc tmin tmax, LipschitzOnWith K (f t) (closedBall x₀ a)
   /-- The vector field is continuous in time within a closed ball. -/
@@ -97,13 +103,16 @@ equivalent to the initial value problem defined by `f`.
 
 section
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {f : ℝ → E → E} {α : ℝ → E} {s : Set ℝ} {u : Set E} {t₀ : ℝ}
 
-/-- The Picard iteration. It will be shown that if `α : ℝ → E` and `picard f t₀ x₀ α` agree on an
-interval containing `t₀`, then `α` is a solution to `f` with `α t₀ = x₀` on this interval. -/
-noncomputable def picard (f : ℝ → E → E) (t₀ : ℝ) (x₀ : E) (α : ℝ → E) : ℝ → E :=
-  fun t ↦ x₀ + ∫ τ in t₀..t, f τ (α τ)
+/--
+The Picard iteration. It will be shown that if `α : ℝ → E` and `picard f t₀ x₀ α` agree on an
+interval containing `t₀`, then `α` is a solution to `f` with `α t₀ = x₀` on this interval.
+-/
+noncomputable def picard (f : ℝ → E → E) (t₀ : ℝ) (x₀ : E) (α : ℝ → E) : ℝ → E := fun t ↦
+  x₀ + ∫ τ in t₀..t, f τ (α τ)
 
 @[simp]
 lemma picard_apply {x₀ : E} {t : ℝ} : picard f t₀ x₀ α t = x₀ + ∫ τ in t₀..t, f τ (α τ) := rfl
@@ -140,8 +149,10 @@ within a closed ball.
 -/
 
 /-- The space of `L`-Lipschitz functions `α : Icc tmin tmax → E` -/
-structure FunSpace {E : Type*} [NormedAddCommGroup E]
-    {tmin tmax : ℝ} (t₀ : Icc tmin tmax) (x₀ : E) (r L : ℝ≥0) where
+structure FunSpace
+    {E : Type*} [NormedAddCommGroup E]
+    {tmin tmax : ℝ} (t₀ : Icc tmin tmax)
+    (x₀ : E) (r L : ℝ≥0) where
   /-- The domain is `Icc tmin tmax`. -/
   toFun : Icc tmin tmax → E
   lipschitzWith : LipschitzWith L toFun
@@ -179,9 +190,11 @@ lemma toContinuousMap_apply_eq_apply (α : FunSpace t₀ x₀ r L) (t : Icc tmin
 lemma apply_of_zero (α : FunSpace t₀ x₀ 0 L) : α t₀ = x₀ := by
   simpa using α.mem_closedBall₀
 
-/-- The metric between two curves `α` and `β` is the supremum of the metric between `α t` and `β t`
+/--
+The metric between two curves `α` and `β` is the supremum of the metric between `α t` and `β t`
 over all `t` in the domain. This is finite when the domain is compact, such as a closed
-interval in our case. -/
+interval in our case.
+-/
 noncomputable instance : MetricSpace (FunSpace t₀ x₀ r L) :=
   MetricSpace.induced toContinuousMap toContinuousMap.injective inferInstance
 
@@ -207,8 +220,10 @@ instance [CompleteSpace E] : CompleteSpace (FunSpace t₀ x₀ r L) := by
   simp_rw [mem_closedBall_iff_norm]
   exact isClosed_le (by fun_prop) (by fun_prop)
 
-/-- Extend the domain of `α` from `Icc tmin tmax` to `ℝ` such that `α t = α tmin` for all `t ≤ tmin`
-and `α t = α tmax` for all `t ≥ tmax`. -/
+/--
+Extend the domain of `α` from `Icc tmin tmax` to `ℝ` such that `α t = α tmin` for all `t ≤ tmin`
+and `α t = α tmax` for all `t ≥ tmax`.
+-/
 noncomputable def compProj (α : FunSpace t₀ x₀ r L) (t : ℝ) : E :=
   α <| projIcc tmin tmax (le_trans t₀.2.1 t₀.2.2) t
 
@@ -254,7 +269,8 @@ end
 
 section
 
-variable [NormedSpace ℝ E]
+variable
+  [NormedSpace ℝ E]
   {f : ℝ → E → E} {tmin tmax : ℝ} {t₀ : Icc tmin tmax} {x₀ x y : E} {a r L K : ℝ≥0}
 
 /-- The integrand in `next` is continuous. -/
@@ -274,20 +290,27 @@ lemma intervalIntegrable_comp_compProj (hf : IsPicardLindelof f t₀ x₀ a r L 
   apply α.continuousOn_comp_compProj hf |>.mono
   exact uIcc_subset_Icc t₀.2 t.2
 
-/-- The map on `FunSpace` defined by `picard`, some `n`-th iterate of which will be a contracting
-map -/
-noncomputable def next (hf : IsPicardLindelof f t₀ x₀ a r L K) (hx : x ∈ closedBall x₀ r)
-    (α : FunSpace t₀ x₀ r L) : FunSpace t₀ x₀ r L where
+/--
+The map on `FunSpace` defined by `picard`, some `n`-th iterate of which will be a contracting
+map
+-/
+noncomputable def next
+    (hf : IsPicardLindelof f t₀ x₀ a r L K) (hx : x ∈ closedBall x₀ r) (α : FunSpace t₀ x₀ r L)
+    : FunSpace t₀ x₀ r L where
   toFun t := picard f t₀ x α.compProj t
-  lipschitzWith := LipschitzWith.of_dist_le_mul fun t₁ t₂ ↦ by
-    rw [dist_eq_norm, picard_apply, picard_apply, add_sub_add_left_eq_sub,
-      integral_interval_sub_left (intervalIntegrable_comp_compProj hf _ t₁)
-        (intervalIntegrable_comp_compProj hf _ t₂), Subtype.dist_eq, Real.dist_eq]
-    apply intervalIntegral.norm_integral_le_of_norm_le_const
-    intro t ht
-    -- Can `grind` do this in the future?
-    have ht : t ∈ Icc tmin tmax := subset_trans uIoc_subset_uIcc (uIcc_subset_Icc t₂.2 t₁.2) ht
-    exact hf.norm_le _ ht _ <| α.mem_closedBall hf.mul_max_le
+  lipschitzWith :=
+    LipschitzWith.of_dist_le_mul fun t₁ t₂ ↦ by
+      rw [
+        dist_eq_norm, picard_apply, picard_apply, add_sub_add_left_eq_sub,
+        integral_interval_sub_left (intervalIntegrable_comp_compProj hf _ t₁)
+          (intervalIntegrable_comp_compProj hf _ t₂),
+        Subtype.dist_eq, Real.dist_eq
+      ]
+      apply intervalIntegral.norm_integral_le_of_norm_le_const
+      intro t ht
+      -- Can `grind` do this in the future?
+      have ht : t ∈ Icc tmin tmax := subset_trans uIoc_subset_uIcc (uIcc_subset_Icc t₂.2 t₁.2) ht
+      exact hf.norm_le _ ht _ <| α.mem_closedBall hf.mul_max_le
   mem_closedBall₀ := by simp [hx]
 
 @[simp]
@@ -475,7 +498,8 @@ end FunSpace
 
 section
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   {f : ℝ → E → E} {α : ℝ → E} {s : Set ℝ} {u : Set E} {t₀ tmin tmax : ℝ}
 
 -- TODO: generalise to open sets and `Ici` and `Iic`
@@ -557,19 +581,22 @@ lemma contDiffOn_enat_picard_Icc
   | coe n => exact contDiffOn_nat_picard_Icc ht₀ hf hα hmem x₀ heqon
 
 /-- Solutions to ODEs defined by $C^n$ vector fields are also $C^n$. -/
-theorem contDiffOn_enat_Icc_of_hasDerivWithinAt {n : ℕ∞}
-    (hf : ContDiffOn ℝ n (uncurry f) ((Icc tmin tmax) ×ˢ u))
+theorem contDiffOn_enat_Icc_of_hasDerivWithinAt
+    {n : ℕ∞} (hf : ContDiffOn ℝ n (uncurry f) ((Icc tmin tmax) ×ˢ u))
     (hα : ∀ t ∈ Icc tmin tmax, HasDerivWithinAt α (f t (α t)) (Icc tmin tmax) t)
-    (hmem : MapsTo α (Icc tmin tmax) u) :
-    ContDiffOn ℝ n α (Icc tmin tmax) := by
+    (hmem : MapsTo α (Icc tmin tmax) u)
+    : ContDiffOn ℝ n α (Icc tmin tmax) := by
   by_cases hlt : tmin < tmax
   · set t₀ := (tmin + tmax) / 2 with h
     have ht₀ : t₀ ∈ Icc tmin tmax := ⟨by linarith, by linarith⟩
     have : ∀ t ∈ Icc tmin tmax, α t = picard f t₀ (α t₀) α t := by
       intro t ht
       have : uIcc t₀ t ⊆ Icc tmin tmax := uIcc_subset_Icc ht₀ ht
-      rw [picard_eq_of_hasDerivAt (hf.continuousOn.mono (prod_subset_prod_left this))
-        (fun t' ht' ↦ hα t' (this ht') |>.mono this) (hmem.mono_left this)]
+      rw [
+        picard_eq_of_hasDerivAt (hf.continuousOn.mono (prod_subset_prod_left this))
+          (fun t' ht' ↦ hα t' (this ht') |>.mono this)
+          (hmem.mono_left this)
+      ]
     exact contDiffOn_enat_picard_Icc ht₀ hf (HasDerivWithinAt.continuousOn hα) hmem (α t₀) this
       |>.congr this
   · rw [not_lt, le_iff_lt_or_eq] at hlt
@@ -595,7 +622,8 @@ namespace IsPicardLindelof
 
 section
 
-variable {E : Type*} [NormedAddCommGroup E]
+variable
+  {E : Type*} [NormedAddCommGroup E]
   {f : ℝ → E → E} {tmin tmax : ℝ} {t₀ : Icc tmin tmax} {x₀ x : E} {a r L K : ℝ≥0}
 
 lemma continuousOn_uncurry (hf : IsPicardLindelof f t₀ x₀ a r L K) :
@@ -711,15 +739,18 @@ end
 
 open ODE
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   {f : ℝ → E → E} {tmin tmax : ℝ} {t₀ : Icc tmin tmax} {x₀ x : E} {a r L K : ℝ≥0}
 
-/-- **Picard-Lindelöf (Cauchy-Lipschitz) theorem**, integral form. This version shows the existence
+/--
+**Picard-Lindelöf (Cauchy-Lipschitz) theorem**, integral form. This version shows the existence
 of a local solution whose initial point `x` may be different from the centre `x₀` of the closed
-ball within which the properties of the vector field hold. -/
+ball within which the properties of the vector field hold.
+-/
 theorem exists_eq_forall_mem_Icc_eq_picard
-    (hf : IsPicardLindelof f t₀ x₀ a r L K) (hx : x ∈ closedBall x₀ r) :
-    ∃ α : ℝ → E, α t₀ = x ∧ ∀ t ∈ Icc tmin tmax, α t = ODE.picard f t₀ x α t := by
+    (hf : IsPicardLindelof f t₀ x₀ a r L K) (hx : x ∈ closedBall x₀ r)
+    : ∃ α : ℝ → E, α t₀ = x ∧ ∀ t ∈ Icc tmin tmax, α t = ODE.picard f t₀ x α t := by
   obtain ⟨α, hα⟩ := FunSpace.exists_isFixedPt_next hf hx
   refine ⟨(FunSpace.next hf hx α).compProj, by simp, fun t ht ↦ ?_⟩
   rw [FunSpace.compProj_apply, FunSpace.next_apply, hα, projIcc_of_mem _ ht]

@@ -82,11 +82,14 @@ variable [FiniteDimensional ℝ F] [ContinuousSMul ℝ F] [LocallyConvexSpace �
 open TensorProduct Module
 
 set_option backward.isDefEq.respectTransparency false in
-/-- If `C₁` is a simplicial and generating cone and `C₂` is a proper cone, then their minimal
-and maximal tensor products are equal. -/
-theorem minTensorProduct_eq_max_of_simplicial_generating_left (C₁ : PointedCone ℝ E)
-    (C₂ : ProperCone ℝ F) (h₁_simp : C₁.IsSimplicial) (h₁_gen : Submodule.span ℝ (C₁ : Set E) = ⊤) :
-    minTensorProduct C₁ C₂.toPointedCone = maxTensorProduct C₁ C₂.toPointedCone := by
+/--
+If `C₁` is a simplicial and generating cone and `C₂` is a proper cone, then their minimal
+and maximal tensor products are equal.
+-/
+theorem minTensorProduct_eq_max_of_simplicial_generating_left
+    (C₁ : PointedCone ℝ E)
+    (C₂ : ProperCone ℝ F) (h₁_simp : C₁.IsSimplicial) (h₁_gen : Submodule.span ℝ (C₁ : Set E) = ⊤)
+    : minTensorProduct C₁ C₂.toPointedCone = maxTensorProduct C₁ C₂.toPointedCone := by
   classical
   obtain ⟨s, hs_fin, hs_lin, hs_span⟩ := h₁_simp
   have : Fintype s := hs_fin.fintype
@@ -95,12 +98,13 @@ theorem minTensorProduct_eq_max_of_simplicial_generating_left (C₁ : PointedCon
     intro x hx
     rw [SetLike.mem_coe, PointedCone.mem_hull_set] at hx
     obtain ⟨c, hc_supp, _, hc_sum⟩ := hx
-    exact hc_sum ▸ Submodule.sum_mem _ fun m hm =>
-      Submodule.smul_mem _ _ (Submodule.subset_span (hc_supp hm))
+    exact hc_sum
+      ▸ Submodule.sum_mem _ fun m hm => Submodule.smul_mem _ _ (Submodule.subset_span (hc_supp hm))
   -- Extract basis from `C₁.IsSimplicial` + generating
-  let b := Basis.mk hs_lin <| by
-    simpa only [id_eq, Subtype.range_coe] using!
-      h₁_gen ▸ hs_span ▸ Submodule.span_le.mpr hull_sub_span
+  let b :=
+    Basis.mk hs_lin <| by
+      simpa only [id_eq, Subtype.range_coe] using!
+        h₁_gen ▸ hs_span ▸ Submodule.span_le.mpr hull_sub_span
   -- Dual basis elements are in C₁*
   have h_coord_dual : ∀ i, b.coord i ∈ dual (Dual.eval ℝ E) C₁ :=
     basis_coord_mem_dual _ _ (hs_span ▸ (Submodule.span_mono <| by simp [b]))
@@ -108,8 +112,10 @@ theorem minTensorProduct_eq_max_of_simplicial_generating_left (C₁ : PointedCon
   apply le_antisymm (minTensorProduct_le_maxTensorProduct C₁ C₂.toPointedCone)
   intro z hz
   -- Express z using basis: z = ∑ b_i ⊗ y_i
-  rw [← (equivFinsuppOfBasisLeft b).symm_apply_apply z,
-    TensorProduct.equivFinsuppOfBasisLeft_symm_apply, Finsupp.sum_fintype _ _ (by simp)]
+  rw [
+    ← (equivFinsuppOfBasisLeft b).symm_apply_apply z,
+    TensorProduct.equivFinsuppOfBasisLeft_symm_apply, Finsupp.sum_fintype _ _ (by simp)
+  ]
   -- Show z ∈ min by showing b_i ∈ C₁ and y_i ∈ C₂
   refine Submodule.sum_mem _ fun i _ => tmul_mem_minTensorProduct ?_ ?_
   · simpa only [b, Basis.coe_mk] using! (hs_span ▸ subset_hull) i.prop
@@ -118,19 +124,24 @@ theorem minTensorProduct_eq_max_of_simplicial_generating_left (C₁ : PointedCon
     intro f (hf : (f : F →ₗ[ℝ] ℝ) ∈ dual (Dual.eval ℝ F) (C₂ : Set F))
     simp only [mem_maxTensorProduct] at hz
     have h_nonneg := hz (b.coord i) (h_coord_dual i) (f : F →ₗ[ℝ] ℝ) hf
-    have h_eq : dualDistrib ℝ E F ((b.coord i) ⊗ₜ[ℝ] (f : F →ₗ[ℝ] ℝ)) =
-        (f : F →ₗ[ℝ] ℝ) ∘ₗ (TensorProduct.lid ℝ F) ∘ₗ (b.coord i).rTensor F := by
+    have h_eq
+        : dualDistrib ℝ E F ((b.coord i) ⊗ₜ[ℝ] (f : F →ₗ[ℝ] ℝ))
+          = (f : F →ₗ[ℝ] ℝ) ∘ₗ (TensorProduct.lid ℝ F) ∘ₗ (b.coord i).rTensor F := by
       ext; simp [mul_comm]
     simpa only [h_eq, LinearMap.comp_apply, LinearEquiv.coe_coe] using! h_nonneg
 
-/-- If `C₁` is a proper cone and `C₂` is a simplicial and generating cone, then their minimal
-and maximal tensor products are equal. -/
-theorem minTensorProduct_eq_max_of_simplicial_generating_right (C₁ : ProperCone ℝ F)
-    (C₂ : PointedCone ℝ E) (h₂_simp : C₂.IsSimplicial)
-    (h₂_gen : Submodule.span ℝ (C₂ : Set E) = ⊤) :
-    minTensorProduct C₁.toPointedCone C₂ = maxTensorProduct C₁.toPointedCone C₂ := by
-  rw [← minTensorProduct_comm, ← maxTensorProduct_comm,
-    minTensorProduct_eq_max_of_simplicial_generating_left C₂ C₁ h₂_simp h₂_gen]
+/--
+If `C₁` is a proper cone and `C₂` is a simplicial and generating cone, then their minimal
+and maximal tensor products are equal.
+-/
+theorem minTensorProduct_eq_max_of_simplicial_generating_right
+    (C₁ : ProperCone ℝ F)
+    (C₂ : PointedCone ℝ E) (h₂_simp : C₂.IsSimplicial) (h₂_gen : Submodule.span ℝ (C₂ : Set E) = ⊤)
+    : minTensorProduct C₁.toPointedCone C₂ = maxTensorProduct C₁.toPointedCone C₂ := by
+  rw [
+    ← minTensorProduct_comm, ← maxTensorProduct_comm,
+    minTensorProduct_eq_max_of_simplicial_generating_left C₂ C₁ h₂_simp h₂_gen
+  ]
 
 end MainTheorems
 

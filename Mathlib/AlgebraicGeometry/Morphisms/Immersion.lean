@@ -37,10 +37,12 @@ namespace AlgebraicGeometry
 
 variable {X Y Z : Scheme.{u}} (f : X ⟶ Y)
 
-/-- A morphism of schemes `f : X ⟶ Y` is an immersion if
+/--
+A morphism of schemes `f : X ⟶ Y` is an immersion if
 1. the underlying map of topological spaces is an embedding
 2. the range of the map is locally closed
-3. the induced morphisms of stalks are all surjective. -/
+3. the induced morphisms of stalks are all surjective.
+-/
 @[mk_iff]
 class IsImmersion (f : X ⟶ Y) : Prop extends IsPreimmersion f where
   isLocallyClosed_range : IsLocallyClosed (Set.range f)
@@ -60,8 +62,7 @@ def Scheme.Hom.coborderRange (f : X ⟶ Y) [IsImmersion f] : Y.Opens :=
 The first part of the factorization of an immersion `f : X ⟶ Y` to a closed immersion
 `f.liftCoborder : X ⟶ f.coborderRange` and a dominant open immersion `f.coborderRange.ι`.
 -/
-noncomputable
-def Scheme.Hom.liftCoborder (f : X ⟶ Y) [IsImmersion f] : X ⟶ f.coborderRange :=
+noncomputable def Scheme.Hom.liftCoborder (f : X ⟶ Y) [IsImmersion f] : X ⟶ f.coborderRange :=
   IsOpenImmersion.lift f.coborderRange.ι f (by simpa using! subset_coborder)
 
 /--
@@ -109,16 +110,17 @@ namespace IsImmersion
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance : IsZariskiLocalAtTarget @IsImmersion := by
-  suffices IsZariskiLocalAtTarget
-      (topologically fun {X Y} _ _ f ↦ IsLocallyClosed (Set.range f)) from
-    isImmersion_eq_inf ▸ inferInstance
+  suffices IsZariskiLocalAtTarget (topologically fun {X Y} _ _ f ↦ IsLocallyClosed (Set.range f))
+  from isImmersion_eq_inf ▸ inferInstance
   apply +allowSynthFailures topologically_isZariskiLocalAtTarget'
   · refine { precomp := ?_, postcomp := ?_ }
     · intro X Y Z i hi f hf
       change IsIso i at hi
       change IsLocallyClosed _
-      simpa only [Scheme.Hom.comp_base, TopCat.coe_comp, Set.range_comp,
-        Set.range_eq_univ.mpr i.surjective, Set.image_univ]
+      simpa only [
+        Scheme.Hom.comp_base, TopCat.coe_comp, Set.range_comp, Set.range_eq_univ.mpr i.surjective,
+        Set.image_univ
+      ]
     · intro X Y Z i hi f hf
       change IsIso i at hi
       change IsLocallyClosed _
@@ -143,8 +145,8 @@ instance : MorphismProperty.IsMultiplicative @IsImmersion where
     exact f.isLocallyClosed_range.image g.isEmbedding.isInducing g.isLocallyClosed_range
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsImmersion f]
-    [IsImmersion g] : IsImmersion (f ≫ g) :=
+instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsImmersion f] [IsImmersion g]
+    : IsImmersion (f ≫ g) :=
   MorphismProperty.IsStableUnderComposition.comp_mem f g inferInstance inferInstance
 
 variable {f} in
@@ -163,12 +165,16 @@ instance isStableUnderBaseChange : MorphismProperty.IsStableUnderBaseChange @IsI
     let Z := Limits.pullback f g.coborderRange.ι
     let e : Y' ⟶ Z := Limits.pullback.lift g' (f' ≫ g.liftCoborder) (by simpa using H.w.symm)
     have : IsClosedImmersion e := by
-      have := (IsPullback.paste_horiz_iff (.of_hasPullback f g.coborderRange.ι)
-        (show e ≫ Limits.pullback.snd _ _ = _ from Limits.pullback.lift_snd _ _ _)).mp ?_
+      have :=
+        (IsPullback.paste_horiz_iff (.of_hasPullback f g.coborderRange.ι)
+            (show e ≫ Limits.pullback.snd _ _ = _ from Limits.pullback.lift_snd _ _ _)).mp
+          ?_
       · exact MorphismProperty.of_isPullback this.flip inferInstance
       · simpa [e] using H.flip
-    rw [← Limits.pullback.lift_fst (f := f) (g := g.coborderRange.ι) g' (f' ≫ g.liftCoborder)
-      (by simpa using H.w.symm)]
+    rw [
+      ← Limits.pullback.lift_fst (f := f) (g := g.coborderRange.ι) g' (f' ≫ g.liftCoborder)
+        (by simpa using H.w.symm)
+    ]
     infer_instance
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -182,8 +188,8 @@ instance (f : X ⟶ Z) (g : Y ⟶ Z) [IsImmersion f] : IsImmersion (Limits.pullb
 instance (f : X ⟶ Y) (V : Y.Opens) [IsImmersion f] : IsImmersion (f ∣_ V) :=
   IsZariskiLocalAtTarget.restrict ‹_› V
 
-instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [IsImmersion f] :
-    IsImmersion (f.resLE V U e) := by
+instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [IsImmersion f]
+    : IsImmersion (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
 
 instance (priority := 900) (f : X ⟶ Y) [IsImmersion f] : LocallyOfFiniteType f := by
@@ -200,26 +206,30 @@ instance : IsImmersion (pullback.diagonal f) := by
   have H : pullback.diagonal f ⁻¹ᵁ diagonalCoverDiagonalRange f 𝒰 𝒱 = ⊤ :=
     top_le_iff.mp fun _ _ ↦ range_diagonal_subset_diagonalCoverDiagonalRange _ _ _ ⟨_, rfl⟩
   have := isClosedImmersion_diagonal_restrict_diagonalCoverDiagonalRange f 𝒰 𝒱
-  have : IsImmersion ((pullback.diagonal f ∣_
-    diagonalCoverDiagonalRange f 𝒰 𝒱) ≫ Scheme.Opens.ι _) := inferInstance
-  rwa [morphismRestrict_ι, H, ← Scheme.topIso_hom,
-    MorphismProperty.cancel_left_of_respectsIso (P := @IsImmersion)] at this
+  have : IsImmersion
+      ((pullback.diagonal f ∣_ diagonalCoverDiagonalRange f 𝒰 𝒱) ≫ Scheme.Opens.ι _) :=
+    inferInstance
+  rwa [
+      morphismRestrict_ι, H, ← Scheme.topIso_hom,
+      MorphismProperty.cancel_left_of_respectsIso (P := @IsImmersion)
+    ]
+    at this
 
 /-- The map `X ×[S] Y ⟶ X ×[T] Y` induced by any `S ⟶ T` is always an immersion. -/
-instance {S T : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) (i : S ⟶ T) :
-    IsImmersion (pullback.mapDesc f g i) :=
+instance {S T : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) (i : S ⟶ T)
+    : IsImmersion (pullback.mapDesc f g i) :=
   MorphismProperty.of_isPullback (pullback_map_diagonal_isPullback f g i) inferInstance
 
 instance : MorphismProperty.HasOfPostcompProperty @IsImmersion ⊤ :=
-  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr
-    fun _ _ _ _ ↦ inferInstanceAs (IsImmersion _)
+  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr fun _ _ _ _ ↦
+    inferInstanceAs (IsImmersion _)
 
 lemma of_comp (f : X ⟶ Y) (g : Y ⟶ Z) [IsImmersion (f ≫ g)] :
     IsImmersion f :=
   MorphismProperty.HasOfPostcompProperty.of_postcomp (W' := ⊤) _ g trivial ‹_›
 
-theorem comp_iff {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsImmersion g] :
-    IsImmersion (f ≫ g) ↔ IsImmersion f :=
+theorem comp_iff {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsImmersion g]
+    : IsImmersion (f ≫ g) ↔ IsImmersion f :=
   ⟨fun _ ↦ of_comp f g, fun _ ↦ inferInstance⟩
 
 set_option backward.isDefEq.respectTransparency false in
@@ -229,8 +239,8 @@ instance : IsImmersion (prod.lift (𝟙 X) (𝟙 X)) := by
   ext : 1 <;> simp
 
 instance (f g : X ⟶ Y) : IsImmersion (equalizer.ι f g) :=
-  MorphismProperty.of_isPullback (P := @IsImmersion)
-    (isPullback_equalizer_prod f g).flip inferInstance
+  MorphismProperty.of_isPullback (P := @IsImmersion) (isPullback_equalizer_prod f g).flip
+    inferInstance
 
 instance [IsImmersion f] : IsImmersion f.toImage :=
   have : IsImmersion (f.toImage ≫ f.imageι) := by simpa

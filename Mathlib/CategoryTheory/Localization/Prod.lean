@@ -35,10 +35,13 @@ namespace CategoryTheory
 
 open CategoryTheory.Functor
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} {D₁ : Type u₃} {D₂ : Type u₄}
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} {D₁ : Type u₃} {D₂ : Type u₄}
   [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} D₁] [Category.{v₄} D₂]
-  (L₁ : C₁ ⥤ D₁) {W₁ : MorphismProperty C₁}
-  (L₂ : C₂ ⥤ D₂) {W₂ : MorphismProperty C₂}
+  (L₁ : C₁ ⥤ D₁)
+  {W₁ : MorphismProperty C₁}
+  (L₂ : C₂ ⥤ D₂)
+  {W₂ : MorphismProperty C₂}
 
 namespace Localization
 
@@ -58,12 +61,11 @@ lemma prod_uniq (F₁ F₂ : (W₁.Localization × W₂.Localization ⥤ E))
   simpa only [Functor.uncurry_obj_curry_obj_flip_flip] using h
 
 /-- Auxiliary definition for `prodLift`. -/
-noncomputable def prodLift₁ [W₂.ContainsIdentities]
-    (hF : (W₁.prod W₂).IsInvertedBy F) :
-    W₁.Localization ⥤ C₂ ⥤ E :=
+noncomputable def prodLift₁ [W₂.ContainsIdentities] (hF : (W₁.prod W₂).IsInvertedBy F)
+    : W₁.Localization ⥤ C₂ ⥤ E :=
   Construction.lift (curry.obj F) (fun _ _ f₁ hf₁ => by
-    have : ∀ (X₂ : C₂), IsIso (((curry.obj F).map f₁).app X₂) :=
-      fun X₂ => hF _ ⟨hf₁, MorphismProperty.id_mem _ _⟩
+    have : ∀ (X₂ : C₂), IsIso (((curry.obj F).map f₁).app X₂) := fun X₂ =>
+      hF _ ⟨hf₁, MorphismProperty.id_mem _ _⟩
     apply NatIso.isIso_of_isIso_app)
 
 variable (hF : (W₁.prod W₂).IsInvertedBy F)
@@ -74,19 +76,21 @@ lemma prod_fac₁ [W₂.ContainsIdentities] :
 
 variable [W₁.ContainsIdentities] [W₂.ContainsIdentities]
 
-/-- The lifting of a functor `F : C₁ × C₂ ⥤ E` inverting `W₁.prod W₂` to a functor
-`W₁.Localization × W₂.Localization ⥤ E` -/
-noncomputable def prodLift :
-    W₁.Localization × W₂.Localization ⥤ E := by
+/--
+The lifting of a functor `F : C₁ × C₂ ⥤ E` inverting `W₁.prod W₂` to a functor
+`W₁.Localization × W₂.Localization ⥤ E`
+-/
+noncomputable def prodLift : W₁.Localization × W₂.Localization ⥤ E := by
   refine uncurry.obj (Construction.lift (prodLift₁ F hF).flip ?_).flip
   intro _ _ f₂ hf₂
   have : ∀ (X₁ : W₁.Localization),
       IsIso (((Functor.flip (prodLift₁ F hF)).map f₂).app X₁) := fun X₁ => by
     obtain ⟨X₁, rfl⟩ := (Construction.objEquiv W₁).surjective X₁
     exact ((MorphismProperty.isomorphisms E).arrow_mk_iso_iff
-      (((Functor.mapArrowFunctor _ _).mapIso
-        (eqToIso (Functor.congr_obj (prod_fac₁ F hF) X₁))).app (Arrow.mk f₂))).2
-          (hF _ ⟨MorphismProperty.id_mem _ _, hf₂⟩)
+        (((Functor.mapArrowFunctor _ _).mapIso
+            (eqToIso (Functor.congr_obj (prod_fac₁ F hF) X₁))).app
+          (Arrow.mk f₂))).2
+      (hF _ ⟨MorphismProperty.id_mem _ _, hf₂⟩)
   apply NatIso.isIso_of_isIso_app
 
 lemma prod_fac₂ :
@@ -101,10 +105,11 @@ lemma prod_fac :
 
 variable (W₁ W₂)
 
-/-- The product of two (constructed) localized categories satisfies the universal
-property of the localized category of the product. -/
-noncomputable def prod :
-    StrictUniversalPropertyFixedTarget (W₁.Q.prod W₂.Q) (W₁.prod W₂) E where
+/--
+The product of two (constructed) localized categories satisfies the universal
+property of the localized category of the product.
+-/
+noncomputable def prod : StrictUniversalPropertyFixedTarget (W₁.Q.prod W₂.Q) (W₁.prod W₂) E where
   inverts := (Localization.inverts W₁.Q W₁).prod (Localization.inverts W₂.Q W₂)
   lift := fun F hF => prodLift F hF
   fac := fun F hF => prod_fac F hF
@@ -132,12 +137,14 @@ namespace IsLocalization
 variable (W₁ W₂)
 variable [W₁.ContainsIdentities] [W₂.ContainsIdentities]
 
-/-- If `L₁ : C₁ ⥤ D₁` and `L₂ : C₂ ⥤ D₂` are localization functors
+/--
+If `L₁ : C₁ ⥤ D₁` and `L₂ : C₂ ⥤ D₂` are localization functors
 for `W₁ : MorphismProperty C₁` and `W₂ : MorphismProperty C₂` respectively,
 and if both `W₁` and `W₂` contain identities, then the product
-functor `L₁.prod L₂ : C₁ × C₂ ⥤ D₁ × D₂` is a localization functor for `W₁.prod W₂`. -/
-instance prod [L₁.IsLocalization W₁] [L₂.IsLocalization W₂] :
-    (L₁.prod L₂).IsLocalization (W₁.prod W₂) := by
+functor `L₁.prod L₂ : C₁ × C₂ ⥤ D₁ × D₂` is a localization functor for `W₁.prod W₂`.
+-/
+instance prod [L₁.IsLocalization W₁] [L₂.IsLocalization W₂]
+    : (L₁.prod L₂).IsLocalization (W₁.prod W₂) := by
   have := Construction.prodIsLocalization W₁ W₂
   exact of_equivalence_target (W₁.Q.prod W₂.Q) (W₁.prod W₂) (L₁.prod L₂)
     ((uniq W₁.Q L₁ W₁).prod (uniq W₂.Q L₂ W₂))

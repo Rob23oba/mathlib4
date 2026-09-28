@@ -35,12 +35,16 @@ namespace HomologicalComplex
 
 section
 
-variable {C : Type*} [Category* C] [HasZeroMorphisms C]
-  (K L : HomologicalComplex C c') (e' : K ≅ L) (φ : K ⟶ L) (e : c.Embedding c')
+variable
+  {C : Type*} [Category* C] [HasZeroMorphisms C]
+  (K L : HomologicalComplex C c') (e' : K ≅ L) (φ : K ⟶ L)
+  (e : c.Embedding c')
 
-/-- If `K : HomologicalComplex C c'`, then `K.IsStrictlySupported e` holds for
+/--
+If `K : HomologicalComplex C c'`, then `K.IsStrictlySupported e` holds for
 an embedding `e : c.Embedding c'` of complex shapes if `K.X i'` is zero
-whenever `i'` is not of the form `e.f i` for some `i`. -/
+whenever `i'` is not of the form `e.f i` for some `i`.
+-/
 class IsStrictlySupported : Prop where
   isZero (i' : ι') (hi' : ∀ i, e.f i ≠ i') : IsZero (K.X i')
 
@@ -65,9 +69,11 @@ instance [K.IsStrictlySupported e] : K.op.IsStrictlySupported e.op := by
   rw [isStrictlySupported_op_iff]
   infer_instance
 
-/-- If `K : HomologicalComplex C c'`, then `K.IsStrictlySupported e` holds for
+/--
+If `K : HomologicalComplex C c'`, then `K.IsStrictlySupported e` holds for
 an embedding `e : c.Embedding c'` of complex shapes if `K` is exact at `i'`
-whenever `i'` is not of the form `e.f i` for some `i`. -/
+whenever `i'` is not of the form `e.f i` for some `i`.
+-/
 @[mk_iff]
 class IsSupported : Prop where
   exactAt (i' : ι') (hi' : ∀ i, e.f i ≠ i') : K.ExactAt i'
@@ -99,8 +105,10 @@ lemma isSupported_op_iff :
   ⟨fun _ ↦ ⟨fun i' hi' ↦ (K.op.exactAt_of_isSupported e.op i' hi').unop⟩,
     fun _ ↦ ⟨fun i' hi' ↦ (K.exactAt_of_isSupported e i' hi').op⟩⟩
 
-/-- If `K : HomologicalComplex C c'`, then `K.IsStrictlySupportedOutside e` holds for
-an embedding `e : c.Embedding c'` of complex shapes if `K.X (e.f i)` is zero for all `i`. -/
+/--
+If `K : HomologicalComplex C c'`, then `K.IsStrictlySupportedOutside e` holds for
+an embedding `e : c.Embedding c'` of complex shapes if `K.X (e.f i)` is zero for all `i`.
+-/
 structure IsStrictlySupportedOutside : Prop where
   isZero (i : ι) : IsZero (K.X (e.f i))
 
@@ -109,8 +117,10 @@ lemma isStrictlySupportedOutside_op_iff :
     K.op.IsStrictlySupportedOutside e.op ↔ K.IsStrictlySupportedOutside e :=
   ⟨fun h ↦ ⟨fun i ↦ (h.isZero i).unop⟩, fun h ↦ ⟨fun i ↦ (h.isZero i).op⟩⟩
 
-/-- If `K : HomologicalComplex C c'`, then `K.IsSupportedOutside e` holds for
-an embedding `e : c.Embedding c'` of complex shapes if `K` is exact at `e.f i` for all `i`. -/
+/--
+If `K : HomologicalComplex C c'`, then `K.IsSupportedOutside e` holds for
+an embedding `e : c.Embedding c'` of complex shapes if `K` is exact at `e.f i` for all `i`.
+-/
 structure IsSupportedOutside : Prop where
   exactAt (i : ι) : K.ExactAt (e.f i)
 
@@ -149,12 +159,15 @@ end
 
 section
 
-variable {C D : Type*} [Category* C] [Category* D] [HasZeroMorphisms C] [HasZeroMorphisms D]
-  (K : HomologicalComplex C c') (F : C ⥤ D) [F.PreservesZeroMorphisms] (e : c.Embedding c')
+variable
+  {C D : Type*} [Category* C] [Category* D] [HasZeroMorphisms C] [HasZeroMorphisms D]
+  (K : HomologicalComplex C c')
+  (F : C ⥤ D) [F.PreservesZeroMorphisms]
+  (e : c.Embedding c')
 
 set_option backward.defeqAttrib.useBackward true in
-instance map_isStrictlySupported [K.IsStrictlySupported e] :
-    ((F.mapHomologicalComplex c').obj K).IsStrictlySupported e where
+instance map_isStrictlySupported [K.IsStrictlySupported e]
+    : ((F.mapHomologicalComplex c').obj K).IsStrictlySupported e where
   isZero i' hi' := by
     rw [IsZero.iff_id_eq_zero]
     dsimp

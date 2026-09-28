@@ -49,12 +49,13 @@ open scoped Topology
 
 namespace ProbabilityTheory
 
-/-- Cumulative distribution function of a real measure. The definition currently makes sense only
+/--
+Cumulative distribution function of a real measure. The definition currently makes sense only
 for probability measures. In that case, it satisfies `cdf μ x = μ.real (Iic x)` (see
-`ProbabilityTheory.cdf_eq_real`). -/
+`ProbabilityTheory.cdf_eq_real`).
+-/
 @[wikidata Q386228]
-noncomputable
-def cdf (μ : Measure ℝ) : StieltjesFunction ℝ :=
+noncomputable def cdf (μ : Measure ℝ) : StieltjesFunction ℝ :=
   condCDF ((dirac Unit.unit).prod μ) Unit.unit
 
 section ExplicitMeasureArg
@@ -84,8 +85,10 @@ lemma cdf_eq_real [IsProbabilityMeasure μ] (x : ℝ) : cdf μ x = μ.real (Iic 
 
 instance instIsProbabilityMeasurecdf : IsProbabilityMeasure (cdf μ).measure := by
   constructor
-  simp only [StieltjesFunction.measure_univ _ (tendsto_cdf_atBot μ) (tendsto_cdf_atTop μ), sub_zero,
-    ENNReal.ofReal_one]
+  simp only [
+    StieltjesFunction.measure_univ _ (tendsto_cdf_atBot μ) (tendsto_cdf_atTop μ), sub_zero,
+    ENNReal.ofReal_one
+  ]
 
 /-- The measure associated to the cdf of a probability measure is the same probability measure. -/
 lemma measure_cdf [IsProbabilityMeasure μ] : (cdf μ).measure = μ := by

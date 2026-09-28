@@ -28,9 +28,8 @@ namespace SmallObject
 
 namespace SuccStruct
 
-variable {C : Type*} [Category* C]
-  {J : Type u} [LinearOrder J]
-  {j : J} {F : Set.Iio j ⥤ C} (c : Cocone F)
+variable
+  {C : Type*} [Category* C] {J : Type u} [LinearOrder J] {j : J} {F : Set.Iio j ⥤ C} (c : Cocone F)
 
 namespace ofCocone
 
@@ -38,21 +37,17 @@ namespace ofCocone
 def obj (i : J) : C :=
   if hi : i < j then
     F.obj ⟨i, hi⟩
-  else c.pt
+  else
+    c.pt
 
 /-- Auxiliary definition for `ofCocone`. -/
-def objIso (i : J) (hi : i < j) :
-    obj c i ≅ F.obj ⟨i, hi⟩ :=
-  eqToIso (dite_eq_left hi)
+def objIso (i : J) (hi : i < j) : obj c i ≅ F.obj ⟨i, hi⟩ := eqToIso (dite_eq_left hi)
 
 /-- Auxiliary definition for `ofCocone`. -/
-def objIsoPt :
-    obj c j ≅ c.pt :=
-  eqToIso (dite_eq_right (by simp))
+def objIsoPt : obj c j ≅ c.pt := eqToIso (dite_eq_right (by simp))
 
 /-- Auxiliary definition for `ofCocone`. -/
-def map (i₁ i₂ : J) (hi : i₁ ≤ i₂) (hi₂ : i₂ ≤ j) :
-    obj c i₁ ⟶ obj c i₂ :=
+def map (i₁ i₂ : J) (hi : i₁ ≤ i₂) (hi₂ : i₂ ≤ j) : obj c i₁ ⟶ obj c i₂ :=
   if h₂ : i₂ < j then
     (objIso c i₁ (lt_of_le_of_lt hi h₂)).hom ≫ F.map (homOfLE hi) ≫ (objIso c i₂ h₂).inv
   else
@@ -87,9 +82,11 @@ lemma map_comp (i₁ i₂ i₃ : J) (hi : i₁ ≤ i₂) (hi' : i₂ ≤ i₃) (
 
 end ofCocone
 
-/-- Given a functor `F : Set.Iio j ⥤ C` and a cocone `c : Cocone F`,
+/--
+Given a functor `F : Set.Iio j ⥤ C` and a cocone `c : Cocone F`,
 where `j : J` and `J` is linearly ordered, this is the functor
-`Set.Iic j ⥤ C` which extends `F` and sends the top element to `c.pt`. -/
+`Set.Iic j ⥤ C` which extends `F` and sends the top element to `c.pt`.
+-/
 def ofCocone : Set.Iic j ⥤ C where
   obj i := ofCocone.obj c i.1
   map {_ j} f := ofCocone.map c _ _ (leOfHom f) j.2
@@ -101,8 +98,7 @@ lemma ofCocone_obj_eq (i : J) (hi : i < j) :
   dite_eq_left hi
 
 /-- The isomorphism `(ofCocone c).obj ⟨i, _⟩ ≅ F.obj ⟨i, _⟩` when `i < j`. -/
-def ofCoconeObjIso (i : J) (hi : i < j) :
-    (ofCocone c).obj ⟨i, hi.le⟩ ≅ F.obj ⟨i, hi⟩ :=
+def ofCoconeObjIso (i : J) (hi : i < j) : (ofCocone c).obj ⟨i, hi.le⟩ ≅ F.obj ⟨i, hi⟩ :=
   ofCocone.objIso c _ _
 
 lemma ofCocone_obj_eq_pt :
@@ -110,9 +106,7 @@ lemma ofCocone_obj_eq_pt :
   dite_eq_right (by simp)
 
 /-- The isomorphism `(ofCocone c).obj ⟨j, _⟩ ≅ c.pt`. -/
-def ofCoconeObjIsoPt :
-    (ofCocone c).obj ⟨j, by simp⟩ ≅ c.pt :=
-  ofCocone.objIsoPt c
+def ofCoconeObjIsoPt : (ofCocone c).obj ⟨j, by simp⟩ ≅ c.pt := ofCocone.objIsoPt c
 
 lemma ofCocone_map_to_top (i : J) (hi : i < j) :
     (ofCocone c).map (homOfLE hi.le) =
@@ -135,20 +129,21 @@ lemma ofCoconeObjIso_hom_naturality (i₁ i₂ : J) (hi : i₁ ≤ i₂) (hi₂ 
       (ofCoconeObjIso c i₁ (lt_of_le_of_lt hi hi₂)).hom ≫ F.map (homOfLE hi) := by
   rw [ofCocone_map c i₁ i₂ hi hi₂, assoc, assoc, Iso.inv_hom_id, comp_id]
 
-/-- The isomorphism expressing that `ofCocone c` extends the functor `F`
-when `c : Cocone F`. -/
+/--
+The isomorphism expressing that `ofCocone c` extends the functor `F`
+when `c : Cocone F`.
+-/
 @[simps!]
-def restrictionLTOfCoconeIso :
-    SmallObject.restrictionLT (ofCocone c) (le_refl j) ≅ F :=
-  NatIso.ofComponents (fun ⟨i, hi⟩ ↦ ofCoconeObjIso c i hi)
-    (by intros; apply ofCoconeObjIso_hom_naturality)
+def restrictionLTOfCoconeIso : SmallObject.restrictionLT (ofCocone c) (le_refl j) ≅ F :=
+  NatIso.ofComponents (fun ⟨i, hi⟩ ↦ ofCoconeObjIso c i hi) (by
+    intros; apply ofCoconeObjIso_hom_naturality)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 variable {c} in
 /-- If `c` is a colimit cocone, then so is `coconeOfLE (ofCocone c) (le_refl j)`. -/
-def isColimitCoconeOfLEOfCocone (hc : IsColimit c) :
-    IsColimit (coconeOfLE (ofCocone c) (le_refl j)) :=
+def isColimitCoconeOfLEOfCocone (hc : IsColimit c)
+    : IsColimit (coconeOfLE (ofCocone c) (le_refl j)) :=
   (IsColimit.precomposeInvEquiv (restrictionLTOfCoconeIso c) _).1
     (IsColimit.ofIsoColimit hc
       (Cocone.ext (ofCoconeObjIsoPt c).symm (fun ⟨i, hi⟩ ↦ by

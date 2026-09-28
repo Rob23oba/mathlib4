@@ -7,9 +7,8 @@ module
 
 public import Mathlib.Data.Finset.Lattice.Fold
 public import Mathlib.Data.Finset.Order
-public import Mathlib.Data.Set.Finite.Basic  -- shake: keep (IsAtomic α), cf. lean#13417
+public import Mathlib.Data.Set.Finite.Basic -- shake: keep (IsAtomic α), cf. lean#13417
 public import Mathlib.Order.Atoms
-
 import Mathlib.Basic.Finite.Prod
 import Mathlib.Order.ConditionallyCompleteLattice.Finset
 
@@ -74,8 +73,7 @@ abbrev toOrderTop [SemilatticeSup α] : OrderTop α where
 
 -- See note [reducible non-instances]
 /-- Constructs the `⊤` and `⊥` of a finite nonempty `Lattice`. -/
-abbrev toBoundedOrder [Lattice α] : BoundedOrder α :=
-  { toOrderBot α, toOrderTop α with }
+abbrev toBoundedOrder [Lattice α] : BoundedOrder α := { toOrderBot α, toOrderTop α with }
 
 end Nonempty
 
@@ -97,8 +95,8 @@ noncomputable abbrev toCompleteLattice [Lattice α] [BoundedOrder α] : Complete
 attribute [local instance] toCompleteLattice in
 -- See note [reducible non-instances]
 /-- A finite bounded distributive lattice is completely distributive. -/
-noncomputable abbrev toCompleteDistribLatticeMinimalAxioms [DistribLattice α] [BoundedOrder α] :
-    CompleteDistribLattice.MinimalAxioms α where
+noncomputable abbrev toCompleteDistribLatticeMinimalAxioms [DistribLattice α] [BoundedOrder α]
+    : CompleteDistribLattice.MinimalAxioms α where
   iInf_sup_le_sup_sInf := fun a s => by
     convert! (Finset.inf_sup_distrib_left s.toFinset id a).ge using 1
     rw [Finset.inf_eq_iInf]
@@ -113,18 +111,22 @@ noncomputable abbrev toCompleteDistribLatticeMinimalAxioms [DistribLattice α] [
 attribute [local instance] toCompleteLattice in
 -- See note [reducible non-instances]
 /-- A finite bounded distributive lattice is completely distributive. -/
-noncomputable abbrev toCompleteDistribLattice [DistribLattice α] [BoundedOrder α] :
-    CompleteDistribLattice α := .ofMinimalAxioms (toCompleteDistribLatticeMinimalAxioms _)
+noncomputable abbrev toCompleteDistribLattice [DistribLattice α] [BoundedOrder α]
+    : CompleteDistribLattice α :=
+  .ofMinimalAxioms (toCompleteDistribLatticeMinimalAxioms _)
 
 -- See note [reducible non-instances]
-/-- A finite bounded linear order is complete.
+/--
+A finite bounded linear order is complete.
 
 If the `α` is already a `BiheytingAlgebra`, then prefer to construct this instance manually using
 `Fintype.toCompleteLattice` instead, to avoid creating a diamond with
-`LinearOrder.toBiheytingAlgebra`. -/
-noncomputable abbrev toCompleteLinearOrder
-    [LinearOrder α] [BoundedOrder α] : CompleteLinearOrder α :=
-  { toCompleteLattice α, ‹LinearOrder α›, LinearOrder.toBiheytingAlgebra _ with }
+`LinearOrder.toBiheytingAlgebra`.
+-/
+noncomputable abbrev toCompleteLinearOrder [LinearOrder α] [BoundedOrder α]
+    : CompleteLinearOrder α := {
+  toCompleteLattice α, ‹LinearOrder α›, LinearOrder.toBiheytingAlgebra _ with
+}
 
 -- See note [reducible non-instances]
 /-- A finite Boolean algebra is complete. -/
@@ -134,8 +136,8 @@ noncomputable abbrev toCompleteBooleanAlgebra [BooleanAlgebra α] : CompleteBool
 
 -- See note [reducible non-instances]
 /-- A finite Boolean algebra is complete and atomic. -/
-noncomputable abbrev toCompleteAtomicBooleanAlgebra [BooleanAlgebra α] :
-    CompleteAtomicBooleanAlgebra α :=
+noncomputable abbrev toCompleteAtomicBooleanAlgebra [BooleanAlgebra α]
+    : CompleteAtomicBooleanAlgebra α :=
   (toCompleteBooleanAlgebra α).toCompleteAtomicBooleanAlgebra
 
 end BoundedOrder
@@ -145,15 +147,19 @@ section Nonempty
 variable (α) [Nonempty α]
 
 -- See note [reducible non-instances]
-/-- A nonempty finite lattice is complete. If the lattice is already a `BoundedOrder`, then use
-`Fintype.toCompleteLattice` instead, as this gives definitional equality for `⊥` and `⊤`. -/
+/--
+A nonempty finite lattice is complete. If the lattice is already a `BoundedOrder`, then use
+`Fintype.toCompleteLattice` instead, as this gives definitional equality for `⊥` and `⊤`.
+-/
 noncomputable abbrev toCompleteLatticeOfNonempty [Lattice α] : CompleteLattice α :=
   @toCompleteLattice _ _ _ <| toBoundedOrder α
 
 -- See note [reducible non-instances]
-/-- A nonempty finite linear order is complete. If the linear order is already a `BoundedOrder`,
+/--
+A nonempty finite linear order is complete. If the linear order is already a `BoundedOrder`,
 then use `Fintype.toCompleteLinearOrder` instead, as this gives definitional equality for `⊥` and
-`⊤`. -/
+`⊤`.
+-/
 noncomputable abbrev toCompleteLinearOrderOfNonempty [LinearOrder α] : CompleteLinearOrder α :=
   @toCompleteLinearOrder _ _ _ <| toBoundedOrder α
 
@@ -181,11 +187,13 @@ noncomputable instance Bool.completeAtomicBooleanAlgebra : CompleteAtomicBoolean
 
 section DirectedOrders
 
-variable {ι : Sort*} {α : Type*} {r : α → α → Prop} [IsTrans α r] {γ : Type*} [Nonempty γ]
+variable
+  {ι : Sort*} {α : Type*} {r : α → α → Prop} [IsTrans α r]
+  {γ : Type*} [Nonempty γ]
   {f : γ → α} [Finite ι]
 
-theorem Directed.finite_set_le (D : Directed r f) {s : Set γ} (hs : s.Finite) :
-    ∃ z, ∀ i ∈ s, r (f i) (f z) := by
+theorem Directed.finite_set_le (D : Directed r f) {s : Set γ} (hs : s.Finite)
+    : ∃ z, ∀ i ∈ s, r (f i) (f z) := by
   convert! D.finset_le hs.toFinset using 3; rw [Set.Finite.mem_toFinset]
 
 lemma Directed.finite_le {ι κ : Sort*} [Nonempty ι] [Finite κ] {f : ι → α} (hf : Directed r f)
@@ -201,12 +209,12 @@ theorem Finite.exists_le [IsDirectedOrder α] (f : ι → α) : ∃ M, ∀ i, f 
 theorem Finite.exists_ge [IsCodirectedOrder α] (f : ι → α) : ∃ M, ∀ i, M ≤ f i :=
   directed_id.finite_le (r := (· ≥ ·)) _
 
-theorem Set.Finite.exists_le [IsDirectedOrder α] {s : Set α} (hs : s.Finite) :
-    ∃ M, ∀ i ∈ s, i ≤ M :=
+theorem Set.Finite.exists_le [IsDirectedOrder α] {s : Set α} (hs : s.Finite)
+    : ∃ M, ∀ i ∈ s, i ≤ M :=
   directed_id.finite_set_le hs
 
-theorem Set.Finite.exists_ge [IsCodirectedOrder α] {s : Set α} (hs : s.Finite) :
-    ∃ M, ∀ i ∈ s, M ≤ i :=
+theorem Set.Finite.exists_ge [IsCodirectedOrder α] {s : Set α} (hs : s.Finite)
+    : ∃ M, ∀ i ∈ s, M ≤ i :=
   directed_id.finite_set_le (r := (· ≥ ·)) hs
 
 @[simp]
@@ -310,8 +318,9 @@ end CCL
 
 section CCLO
 
-variable {α β ι : Type*} [ConditionallyCompleteLinearOrder α] [ConditionallyCompleteLattice β]
-  [Finite ι] [Nonempty ι]
+variable
+  {α β ι : Type*}
+  [ConditionallyCompleteLinearOrder α] [ConditionallyCompleteLattice β] [Finite ι] [Nonempty ι]
 
 lemma map_iSup_of_monotoneOn {s : Set α} {f : ι → α} {g : α → β} (hg : MonotoneOn g s)
     (hs : ∀ i, f i ∈ s) :

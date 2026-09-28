@@ -30,48 +30,55 @@ variable {ι κ M N R α : Type*}
 namespace Pi
 
 @[to_additive]
-theorem list_prod_apply {α : Type*} {M : α → Type*} [∀ a, Monoid (M a)] (a : α)
-    (l : List (∀ a, M a)) : l.prod a = (l.map fun f : ∀ a, M a ↦ f a).prod :=
+theorem list_prod_apply
+    {α : Type*} {M : α → Type*} [∀ a, Monoid (M a)] (a : α) (l : List (∀ a, M a))
+    : l.prod a = (l.map fun f : ∀ a, M a ↦ f a).prod :=
   map_list_prod (evalMonoidHom M a) _
 
 @[to_additive]
-theorem multiset_prod_apply {α : Type*} {M : α → Type*} [∀ a, CommMonoid (M a)] (a : α)
-    (s : Multiset (∀ a, M a)) : s.prod a = (s.map fun f : ∀ a, M a ↦ f a).prod :=
+theorem multiset_prod_apply
+    {α : Type*} {M : α → Type*} [∀ a, CommMonoid (M a)] (a : α) (s : Multiset (∀ a, M a))
+    : s.prod a = (s.map fun f : ∀ a, M a ↦ f a).prod :=
   (evalMonoidHom M a).map_multiset_prod _
 
 end Pi
 
 @[to_additive (attr := simp)]
-theorem Finset.prod_apply {α : Type*} {M : α → Type*} [∀ a, CommMonoid (M a)] (a : α)
-    (s : Finset ι) (g : ι → ∀ a, M a) : (∏ c ∈ s, g c) a = ∏ c ∈ s, g c a :=
+theorem Finset.prod_apply
+    {α : Type*} {M : α → Type*} [∀ a, CommMonoid (M a)] (a : α) (s : Finset ι) (g : ι → ∀ a, M a)
+    : (∏ c ∈ s, g c) a = ∏ c ∈ s, g c a :=
   map_prod (Pi.evalMonoidHom M a) _ _
 
 /-- An 'unapplied' analogue of `Finset.prod_apply`. -/
 @[to_additive (attr := push ←) /-- An 'unapplied' analogue of `Finset.sum_apply`. -/]
-theorem Finset.prod_fn {α : Type*} {M : α → Type*} {ι} [∀ a, CommMonoid (M a)] (s : Finset ι)
-    (g : ι → ∀ a, M a) : ∏ c ∈ s, g c = fun a ↦ ∏ c ∈ s, g c a :=
+theorem Finset.prod_fn
+    {α : Type*} {M : α → Type*} {ι} [∀ a, CommMonoid (M a)] (s : Finset ι) (g : ι → ∀ a, M a)
+    : ∏ c ∈ s, g c = fun a ↦ ∏ c ∈ s, g c a :=
   funext fun _ ↦ Finset.prod_apply _ _ _
 
 @[to_additive]
-theorem Fintype.prod_apply {α : Type*} {M : α → Type*} [Fintype ι] [∀ a, CommMonoid (M a)] (a : α)
-    (g : ι → ∀ a, M a) : (∏ c, g c) a = ∏ c, g c a :=
+theorem Fintype.prod_apply
+    {α : Type*} {M : α → Type*} [Fintype ι] [∀ a, CommMonoid (M a)] (a : α) (g : ι → ∀ a, M a)
+    : (∏ c, g c) a = ∏ c, g c a :=
   Finset.prod_apply a Finset.univ g
 
 @[to_additive prod_mk_sum]
-theorem prod_mk_prod [CommMonoid M] [CommMonoid N] (s : Finset ι) (f : ι → M) (g : ι → N) :
-    (∏ x ∈ s, f x, ∏ x ∈ s, g x) = ∏ x ∈ s, (f x, g x) :=
+theorem prod_mk_prod [CommMonoid M] [CommMonoid N] (s : Finset ι) (f : ι → M) (g : ι → N)
+    : (∏ x ∈ s, f x, ∏ x ∈ s, g x) = ∏ x ∈ s, (f x, g x) :=
   haveI := Classical.decEq ι
   Finset.induction_on s rfl (by simp +contextual [Prod.ext_iff])
 
 /-- decomposing `x : ι → R` as a sum along the canonical basis -/
-theorem pi_eq_sum_univ {ι : Type*} [Fintype ι] [DecidableEq ι] {R : Type*} [NonAssocSemiring R]
-    (x : ι → R) : x = ∑ i, (x i) • fun j => if i = j then (1 : R) else 0 := by
+theorem pi_eq_sum_univ
+    {ι : Type*} [Fintype ι] [DecidableEq ι] {R : Type*} [NonAssocSemiring R] (x : ι → R)
+    : x = ∑ i, (x i) • fun j => if i = j then (1 : R) else 0 := by
   ext
   simp
 
 /-- Decomposing `x : ι → R` as a sum along the canonical basis `Pi.single i 1` for `i : ι`. -/
-theorem pi_eq_sum_univ' {ι : Type*} [Fintype ι] [DecidableEq ι] {R : Type*} [NonAssocSemiring R]
-    (x : ι → R) : x = ∑ i, (x i) • Pi.single (M := fun _ ↦ R) i 1 := by
+theorem pi_eq_sum_univ'
+    {ι : Type*} [Fintype ι] [DecidableEq ι] {R : Type*} [NonAssocSemiring R] (x : ι → R)
+    : x = ∑ i, (x i) • Pi.single (M := fun _ ↦ R) i 1 := by
   convert! pi_eq_sum_univ x
   aesop
 
@@ -108,26 +115,35 @@ variable {I : Type*} [DecidableEq I] {M : I → Type*}
 variable [∀ i, CommMonoid (M i)]
 
 @[to_additive]
-theorem Finset.univ_prod_mulSingle [Fintype I] (f : ∀ i, M i) :
-    (∏ i, Pi.mulSingle i (f i)) = f := by
+theorem Finset.univ_prod_mulSingle [Fintype I] (f : ∀ i, M i)
+    : (∏ i, Pi.mulSingle i (f i)) = f := by
   ext a
   simp
 
 @[to_additive]
-theorem MonoidHom.functions_ext [Finite I] (N : Type*) [CommMonoid N] (g h : (∀ i, M i) →* N)
-    (H : ∀ i x, g (Pi.mulSingle i x) = h (Pi.mulSingle i x)) : g = h := by
+theorem MonoidHom.functions_ext
+    [Finite I]
+    (N : Type*) [CommMonoid N]
+    (g h : (∀ i, M i) →* N) (H : ∀ i x, g (Pi.mulSingle i x) = h (Pi.mulSingle i x))
+    : g = h := by
   cases nonempty_fintype I
   ext k
   rw [← Finset.univ_prod_mulSingle k, map_prod, map_prod]
   simp only [H]
 
-/-- This is used as the ext lemma instead of `MonoidHom.functions_ext` for reasons explained in
-note [partially-applied ext lemmas]. -/
+/--
+This is used as the ext lemma instead of `MonoidHom.functions_ext` for reasons explained in
+note [partially-applied ext lemmas].
+-/
 @[to_additive (attr := ext)
       /-- This is used as the ext lemma instead of `AddMonoidHom.functions_ext` for reasons
       explained in note [partially-applied ext lemmas]. -/]
-theorem MonoidHom.functions_ext' [Finite I] (N : Type*) [CommMonoid N] (g h : (∀ i, M i) →* N)
-    (H : ∀ i, g.comp (MonoidHom.mulSingle M i) = h.comp (MonoidHom.mulSingle M i)) : g = h :=
+theorem MonoidHom.functions_ext'
+    [Finite I]
+    (N : Type*) [CommMonoid N]
+    (g h : (∀ i, M i) →* N)
+    (H : ∀ i, g.comp (MonoidHom.mulSingle M i) = h.comp (MonoidHom.mulSingle M i))
+    : g = h :=
   g.functions_ext N h fun i => DFunLike.congr_fun (H i)
 
 end MulSingle
@@ -140,8 +156,11 @@ variable {I : Type*} [DecidableEq I] {R : I → Type*}
 variable [∀ i, NonAssocSemiring (R i)]
 
 @[ext]
-theorem RingHom.functions_ext [Finite I] (S : Type*) [NonAssocSemiring S] (g h : (∀ i, R i) →+* S)
-    (H : ∀ (i : I) (x : R i), g (single i x) = h (single i x)) : g = h :=
+theorem RingHom.functions_ext
+    [Finite I]
+    (S : Type*) [NonAssocSemiring S]
+    (g h : (∀ i, R i) →+* S) (H : ∀ (i : I) (x : R i), g (single i x) = h (single i x))
+    : g = h :=
   RingHom.toAddMonoidHom_injective <|
     @AddMonoidHom.functions_ext I _ R _ _ S _ (g : (∀ i, R i) →+ S) h H
 
@@ -152,38 +171,44 @@ namespace Prod
 variable [CommMonoid M] [CommMonoid N] {s : Finset ι} {f : ι → M × N}
 
 @[to_additive]
-theorem fst_prod : (∏ c ∈ s, f c).1 = ∏ c ∈ s, (f c).1 :=
-  map_prod (MonoidHom.fst ..) f s
+theorem fst_prod : (∏ c ∈ s, f c).1 = ∏ c ∈ s, (f c).1 := map_prod (MonoidHom.fst ..) f s
 
 @[to_additive]
-theorem snd_prod : (∏ c ∈ s, f c).2 = ∏ c ∈ s, (f c).2 :=
-  map_prod (MonoidHom.snd ..) f s
+theorem snd_prod : (∏ c ∈ s, f c).2 = ∏ c ∈ s, (f c).2 := map_prod (MonoidHom.snd ..) f s
 
 end Prod
 
 section MulEquiv
 
-/-- The canonical isomorphism between the monoid of homomorphisms from a finite product of
-commutative monoids to another commutative monoid and the product of the homomorphism monoids. -/
+/--
+The canonical isomorphism between the monoid of homomorphisms from a finite product of
+commutative monoids to another commutative monoid and the product of the homomorphism monoids.
+-/
 @[to_additive /-- The canonical isomorphism between the additive monoid of homomorphisms from
 a finite product of additive commutative monoids to another additive commutative monoid and
 the product of the homomorphism monoids. -/]
-def Pi.monoidHomMulEquiv {ι : Type*} [Fintype ι] [DecidableEq ι] (M : ι → Type*)
-    [(i : ι) → CommMonoid (M i)] (M' : Type*) [CommMonoid M'] :
-    (((i : ι) → M i) →* M') ≃* ((i : ι) → (M i →* M')) where
+def Pi.monoidHomMulEquiv
+    {ι : Type*} [Fintype ι] [DecidableEq ι]
+    (M : ι → Type*) [(i : ι) → CommMonoid (M i)]
+    (M' : Type*) [CommMonoid M']
+    : (((i : ι) → M i) →* M') ≃* ((i : ι) → (M i →* M')) where
   toFun φ i := φ.comp <| MonoidHom.mulSingle M i
   invFun φ := ∏ (i : ι), (φ i).comp (Pi.evalMonoidHom M i)
   left_inv φ := by
     ext
-    simp only [MonoidHom.finsetProd_apply, MonoidHom.coe_comp, Function.comp_apply,
-      evalMonoidHom_apply, MonoidHom.mulSingle_apply, ← map_prod]
+    simp only [
+      MonoidHom.finsetProd_apply, MonoidHom.coe_comp, Function.comp_apply, evalMonoidHom_apply,
+      MonoidHom.mulSingle_apply, ← map_prod
+    ]
     refine congrArg _ <| funext fun _ ↦ ?_
     rw [Fintype.prod_apply]
     exact Fintype.prod_pi_mulSingle ..
   right_inv φ := by
     ext i m
-    simp only [MonoidHom.coe_comp, Function.comp_apply, MonoidHom.mulSingle_apply,
-      MonoidHom.finsetProd_apply, evalMonoidHom_apply]
+    simp only [
+      MonoidHom.coe_comp, Function.comp_apply, MonoidHom.mulSingle_apply,
+      MonoidHom.finsetProd_apply, evalMonoidHom_apply
+    ]
     let φ' i : M i → M' := ⇑(φ i)
     conv =>
       enter [1, 2, j]
@@ -192,8 +217,10 @@ def Pi.monoidHomMulEquiv {ι : Type*} [Fintype ι] [DecidableEq ι] (M : ι → 
     exact Fintype.prod_pi_mulSingle' ..
   map_mul' φ ψ := by
     ext
-    simp only [MonoidHom.coe_comp, Function.comp_apply, MonoidHom.mulSingle_apply,
-      MonoidHom.mul_apply, mul_apply]
+    simp only [
+      MonoidHom.coe_comp, Function.comp_apply, MonoidHom.mulSingle_apply, MonoidHom.mul_apply,
+      mul_apply
+    ]
 
 end MulEquiv
 
@@ -210,23 +237,28 @@ lemma Pi.mulSingle_induction [∀ i, CommMonoid (M i)] (p : (Π i, M i) → Prop
 section EqOn
 
 @[to_additive]
-theorem eqOn_finsetProd {ι α β : Type*} [CommMonoid α]
-    {s : Set β} {f f' : ι → β → α} (h : ∀ (i : ι), Set.EqOn (f i) (f' i) s) (v : Finset ι) :
-    Set.EqOn (∏ i ∈ v, f i) (∏ i ∈ v, f' i) s :=
-  fun t ht => by simp [funext fun i ↦ h i ht]
+theorem eqOn_finsetProd
+    {ι α β : Type*} [CommMonoid α]
+    {s : Set β} {f f' : ι → β → α} (h : ∀ (i : ι), Set.EqOn (f i) (f' i) s)
+    (v : Finset ι)
+    : Set.EqOn (∏ i ∈ v, f i) (∏ i ∈ v, f' i) s := fun t ht => by
+  simp [funext fun i ↦ h i ht]
 
 @[to_additive]
-theorem eqOn_fun_finsetProd {ι α β : Type*} [CommMonoid α]
-    {s : Set β} {f f' : ι → β → α} (h : ∀ (i : ι), Set.EqOn (f i) (f' i) s) (v : Finset ι) :
-    Set.EqOn (fun b ↦ ∏ i ∈ v, f i b) (fun b ↦ ∏ i ∈ v, f' i b) s := by
+theorem eqOn_fun_finsetProd
+    {ι α β : Type*} [CommMonoid α]
+    {s : Set β} {f f' : ι → β → α} (h : ∀ (i : ι), Set.EqOn (f i) (f' i) s)
+    (v : Finset ι)
+    : Set.EqOn (fun b ↦ ∏ i ∈ v, f i b) (fun b ↦ ∏ i ∈ v, f' i b) s := by
   convert! eqOn_finsetProd h v <;> simp
 
 end EqOn
 
 section FunLike
 
-variable {F α β ι : Type*} [FunLike F α β] [CommMonoid β] [CommMonoid F]
-  [IsOneApply F α β] [IsMulApply F α β]
+variable
+  {F α β ι : Type*}
+  [FunLike F α β] [CommMonoid β] [CommMonoid F] [IsOneApply F α β] [IsMulApply F α β]
 
 @[to_additive (attr := simp, grind =)]
 theorem prod_apply (s : Finset ι) (f : ι → F) (x : α) : (∏ i ∈ s, f i) x = ∏ i ∈ s, f i x := by

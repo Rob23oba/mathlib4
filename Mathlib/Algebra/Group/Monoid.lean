@@ -27,49 +27,63 @@ open Function
 
 variable {G : Type*}
 
-/-- Bundling an `Add` and `Zero` structure together without any axioms about their
-compatibility. See `AddZeroClass` for the additional assumption that 0 is an identity. -/
+/--
+Bundling an `Add` and `Zero` structure together without any axioms about their
+compatibility. See `AddZeroClass` for the additional assumption that 0 is an identity.
+-/
 class AddZero (M : Type*) extends Zero M, Add M
 
-/-- Bundling a `Mul` and `One` structure together without any axioms about their
-compatibility. See `MulOneClass` for the additional assumption that 1 is an identity. -/
+/--
+Bundling a `Mul` and `One` structure together without any axioms about their
+compatibility. See `MulOneClass` for the additional assumption that 1 is an identity.
+-/
 @[to_additive (attr := ext)]
 class MulOne (M : Type*) extends One M, Mul M
 
-/-- An additive monoid is Dedekind-finite if every left inverse is also a right inverse.
-Also called von Neumann-finite or directly finite. -/
+/--
+An additive monoid is Dedekind-finite if every left inverse is also a right inverse.
+Also called von Neumann-finite or directly finite.
+-/
 class IsDedekindFiniteAddMonoid (M : Type*) [AddZero M] : Prop where
   add_eq_zero_symm {a b : M} : a + b = 0 → b + a = 0
 
-/-- A monoid is Dedekind-finite if every left inverse is also a right inverse.
+/--
+A monoid is Dedekind-finite if every left inverse is also a right inverse.
 It is more common to talk about Dedekind-finite rings, but https://arxiv.org/abs/2102.01598
-does define Dedekind-finite monoids in §2.2. -/
-@[to_additive (attr := mk_iff)] class IsDedekindFiniteMonoid (M : Type*) [MulOne M] : Prop where
+does define Dedekind-finite monoids in §2.2.
+-/
+@[to_additive (attr := mk_iff)]
+class IsDedekindFiniteMonoid (M : Type*) [MulOne M] : Prop where
   mul_eq_one_symm {a b : M} : a * b = 1 → b * a = 1
 
 export IsDedekindFiniteMonoid (mul_eq_one_symm)
 export IsDedekindFiniteAddMonoid (add_eq_zero_symm)
 attribute [to_additive existing] isDedekindFiniteMonoid_iff
 
-@[to_additive] theorem mul_eq_one_comm {M} [MulOne M] [IsDedekindFiniteMonoid M] {a b : M} :
-    a * b = 1 ↔ b * a = 1 where
+@[to_additive]
+theorem mul_eq_one_comm {M} [MulOne M] [IsDedekindFiniteMonoid M] {a b : M}
+    : a * b = 1 ↔ b * a = 1 where
   mp := mul_eq_one_symm
   mpr := mul_eq_one_symm
 
-@[to_additive] instance (priority := low) (M) [MulOne M] [IsMulCommutative M] :
-    IsDedekindFiniteMonoid M where
+@[to_additive]
+instance (priority := low) (M) [MulOne M] [IsMulCommutative M] : IsDedekindFiniteMonoid M where
   mul_eq_one_symm := mul_comm' .. |>.trans
 
-/-- Typeclass for expressing that a type `M` with addition and a zero satisfies
-`0 + a = a` and `a + 0 = a` for all `a : M`. -/
+/--
+Typeclass for expressing that a type `M` with addition and a zero satisfies
+`0 + a = a` and `a + 0 = a` for all `a : M`.
+-/
 class AddZeroClass (M : Type*) extends Zero M, Add M, AddZero M where
   /-- Zero is a left neutral element for addition -/
   protected zero_add : ∀ a : M, 0 + a = a
   /-- Zero is a right neutral element for addition -/
   protected add_zero : ∀ a : M, a + 0 = a
 
-/-- Typeclass for expressing that a type `M` with multiplication and a one satisfies
-`1 * a = a` and `a * 1 = a` for all `a : M`. -/
+/--
+Typeclass for expressing that a type `M` with multiplication and a one satisfies
+`1 * a = a` and `a * 1 = a` for all `a : M`.
+-/
 @[to_additive]
 class MulOneClass (M : Type*) extends One M, Mul M, MulOne M where
   /-- One is a left neutral element for multiplication -/
@@ -88,29 +102,33 @@ section MulOneClass
 variable {M : Type*} [MulOneClass M]
 
 @[to_additive (attr := simp)]
-theorem one_mul : ∀ a : M, 1 * a = a :=
-  MulOneClass.one_mul
+theorem one_mul : ∀ a : M, 1 * a = a := MulOneClass.one_mul
 
 @[to_additive (attr := simp)]
-theorem mul_one : ∀ a : M, a * 1 = a :=
-  MulOneClass.mul_one
+theorem mul_one : ∀ a : M, a * 1 = a := MulOneClass.mul_one
 
 end MulOneClass
 
 section IsUnital
 
-/-- A multiplicative magma is **unital** if there exists a unit.
+/--
+A multiplicative magma is **unital** if there exists a unit.
 
 **Note**: Do not use this unless it is the only reasonable way to phrase or prove a statement.
-In general you should use `NonUnitalRing`, `Ring`, etc. -/
-@[mk_iff] class IsUnital (A : Type*) [Mul A] : Prop where
+In general you should use `NonUnitalRing`, `Ring`, etc.
+-/
+@[mk_iff]
+class IsUnital (A : Type*) [Mul A] : Prop where
   isUnital : ∃ u : A, ∀ x : A, u * x = x ∧ x * u = x
 
-/-- A multiplicative magma is **not-unital** if there does not exist a unit.
+/--
+A multiplicative magma is **not-unital** if there does not exist a unit.
 
 **Note**: Do not use this unless it is the only reasonable way to phrase or prove a statement.
-In general you should use `NonUnitalRing`, `Ring`, etc. -/
-@[mk_iff] class IsNotUnital (A : Type*) [Mul A] : Prop where
+In general you should use `NonUnitalRing`, `Ring`, etc.
+-/
+@[mk_iff]
+class IsNotUnital (A : Type*) [Mul A] : Prop where
   isNotUnital : ∀ u : A, ∃ x : A, u * x ≠ x ∨ x * u ≠ x
 
 variable {A : Type*}
@@ -121,10 +139,12 @@ variable {A : Type*}
 @[simp, push] lemma not_isNotUnital_iff_isUnital [Mul A] : ¬IsNotUnital A ↔ IsUnital A := by
   grind [not_isUnital_iff_isNotUnital]
 
-/-- A unital magma is `MulOneClass`.
+/--
+A unital magma is `MulOneClass`.
 
 This constructor is primarily intended to be used within proofs since it creates bad definitional
-equalities. -/
+equalities.
+-/
 noncomputable abbrev IsUnital.toMulOneClass [Mul A] [IsUnital A] : MulOneClass A where
   one := isUnital.choose
   one_mul a := (isUnital.choose_spec a).1
@@ -142,13 +162,16 @@ variable {M : Type*}
 variable [One M] [Semigroup M] (m n : ℕ) (hn : n ≠ 0) (a : M) (ha : 1 * a = a)
 include hn ha
 
-@[to_additive] theorem npowRec_add : npowRec (m + n) a = npowRec m a * npowRec n a := by
-  obtain _ | n := n; · exact (hn rfl).elim
+@[to_additive]
+theorem npowRec_add : npowRec (m + n) a = npowRec m a * npowRec n a := by
+  obtain _ | n := n
+  · exact (hn rfl).elim
   induction n with
   | zero => simp only [npowRec, ha]
   | succ n ih => rw [← Nat.add_assoc, npowRec, ih n.succ_ne_zero]; simp only [npowRec, mul_assoc]
 
-@[to_additive] theorem npowRec_succ : npowRec (n + 1) a = a * npowRec n a := by
+@[to_additive]
+theorem npowRec_succ : npowRec (n + 1) a = a * npowRec n a := by
   rw [Nat.add_comm, npowRec_add 1 n hn a ha, npowRec, npowRec, ha]
 
 end
@@ -204,7 +227,6 @@ inheritance paths in dependent type theory: a case study in functional
 analysis](https://hal.inria.fr/hal-02463336).
 -/
 
-
 /-!
 ### Design note on `AddMonoid` and `Monoid`
 
@@ -234,52 +256,52 @@ the `npow` field when defining multiplicative objects.
 /-- Exponentiation by repeated squaring. -/
 @[to_additive /-- Scalar multiplication by repeated self-addition,
 the additive version of exponentiation by repeated squaring. -/]
-def npowBinRec {M : Type*} [One M] [Mul M] (k : ℕ) : M → M :=
-  npowBinRec.go k 1
+def npowBinRec {M : Type*} [One M] [Mul M] (k : ℕ) : M → M := npowBinRec.go k 1
 where
   /-- Auxiliary tail-recursive implementation for `npowBinRec`. -/
   @[to_additive nsmulBinRec.go /-- Auxiliary tail-recursive implementation for `nsmulBinRec`. -/]
   go (k : ℕ) : M → M → M :=
     k.binaryRec (fun y _ ↦ y) fun bn _n fn y x ↦ fn (cond bn (y * x) y) (x * x)
 
-/--
-A variant of `npowRec` which is a semigroup homomorphism from `ℕ₊` to `M`.
--/
+/-- A variant of `npowRec` which is a semigroup homomorphism from `ℕ₊` to `M`. -/
 def npowRec' {M : Type*} [One M] [Mul M] : ℕ → M → M
-  | 0, _ => 1
-  | 1, m => m
-  | k + 2, m => npowRec' (k + 1) m * m
+  | 0, _ =>
+    1
+  | 1, m =>
+    m
+  | k + 2, m =>
+    npowRec' (k + 1) m * m
 
-/--
-A variant of `nsmulRec` which is a semigroup homomorphism from `ℕ₊` to `M`.
--/
+/-- A variant of `nsmulRec` which is a semigroup homomorphism from `ℕ₊` to `M`. -/
 def nsmulRec' {M : Type*} [Zero M] [Add M] : ℕ → M → M
-  | 0, _ => 0
-  | 1, m => m
-  | k + 2, m => nsmulRec' (k + 1) m + m
+  | 0, _ =>
+    0
+  | 1, m =>
+    m
+  | k + 2, m =>
+    nsmulRec' (k + 1) m + m
 
 attribute [to_additive existing] npowRec'
 
 @[to_additive]
-theorem npowRec'_succ {M : Type*} [Mul M] [One M] {k : ℕ} (_ : k ≠ 0) (m : M) :
-    npowRec' (k + 1) m = npowRec' k m * m :=
+theorem npowRec'_succ {M : Type*} [Mul M] [One M] {k : ℕ} (_ : k ≠ 0) (m : M)
+    : npowRec' (k + 1) m = npowRec' k m * m :=
   match k with
   | _ + 1 => rfl
 
 @[to_additive]
-theorem npowRec'_two_mul {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M) :
-    npowRec' (2 * k) m = npowRec' k (m * m) := by
+theorem npowRec'_two_mul {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M)
+    : npowRec' (2 * k) m = npowRec' k (m * m) := by
   induction k using Nat.strongRecOn with
   | ind k' ih =>
     match k' with
     | 0 => rfl
     | 1 => simp [npowRec']
-    | k + 2 =>
-      simp [npowRec', ← mul_assoc, ← ih, Nat.mul_succ]
+    | k + 2 => simp [npowRec', ← mul_assoc, ← ih, Nat.mul_succ]
 
 @[to_additive]
-theorem npowRec'_mul_comm {M : Type*} [Semigroup M] [One M] {k : ℕ} (k0 : k ≠ 0) (m : M) :
-    m * npowRec' k m = npowRec' k m * m := by
+theorem npowRec'_mul_comm {M : Type*} [Semigroup M] [One M] {k : ℕ} (k0 : k ≠ 0) (m : M)
+    : m * npowRec' k m = npowRec' k m * m := by
   induction k using Nat.strongRecOn with
   | ind k' ih =>
     match k' with
@@ -287,31 +309,36 @@ theorem npowRec'_mul_comm {M : Type*} [Semigroup M] [One M] {k : ℕ} (k0 : k �
     | k + 2 => simp [npowRec', ← mul_assoc, ih]
 
 @[to_additive]
-theorem npowRec_eq {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M) :
-    npowRec (k + 1) m = 1 * npowRec' (k + 1) m := by
+theorem npowRec_eq {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M)
+    : npowRec (k + 1) m = 1 * npowRec' (k + 1) m := by
   induction k using Nat.strongRecOn with
   | ind k' ih =>
     match k' with
-    | 0 => rfl
+    | 0 =>
+      rfl
     | k + 1 =>
       rw [npowRec, npowRec'_succ k.succ_ne_zero, ← mul_assoc]
       congr
       simp [ih]
 
 @[to_additive]
-theorem npowBinRec.go_spec {M : Type*} [Semigroup M] [One M] (k : ℕ) (m n : M) :
-    npowBinRec.go (k + 1) m n = m * npowRec' (k + 1) n := by
+theorem npowBinRec.go_spec {M : Type*} [Semigroup M] [One M] (k : ℕ) (m n : M)
+    : npowBinRec.go (k + 1) m n = m * npowRec' (k + 1) n := by
   unfold go
   generalize hk : k + 1 = k'
   replace hk : k' ≠ 0 := by lia
   induction k' using Nat.binaryRecFromOne generalizing n m with
-  | zero => simp at hk
-  | one => simp [npowRec']
+  | zero =>
+    simp at hk
+  | one =>
+    simp [npowRec']
   | bit b k' k'0 ih =>
     rw [Nat.binaryRec_eq _ _ (Or.inl rfl), ih _ _ k'0]
     cases b <;> simp only [Nat.bit, Bool.cond_false, Bool.cond_true, npowRec'_two_mul]
-    rw [npowRec'_succ (by lia), npowRec'_two_mul, ← npowRec'_two_mul,
-      ← npowRec'_mul_comm (by lia), mul_assoc]
+    rw [
+      npowRec'_succ (by lia), npowRec'_two_mul, ← npowRec'_two_mul, ← npowRec'_mul_comm (by lia),
+      mul_assoc
+    ]
 
 /--
 An abbreviation for `npowRec` with an additional typeclass assumption on associativity
@@ -319,22 +346,20 @@ so that we can use `@[csimp]` to replace it with an implementation by repeated s
 in compiled code.
 -/
 @[to_additive
-/-- An abbreviation for `nsmulRec` with an additional typeclass assumptions on associativity
+  /-- An abbreviation for `nsmulRec` with an additional typeclass assumptions on associativity
 so that we can use `@[csimp]` to replace it with an implementation by repeated doubling in compiled
 code as an automatic parameter. -/]
-abbrev npowRecAuto {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M) : M :=
-  npowRec k m
+abbrev npowRecAuto {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M) : M := npowRec k m
 
 /--
 An abbreviation for `npowBinRec` with an additional typeclass assumption on associativity
 so that we can use it in `@[csimp]` for more performant code generation.
 -/
 @[to_additive
-/-- An abbreviation for `nsmulBinRec` with an additional typeclass assumption on associativity
+  /-- An abbreviation for `nsmulBinRec` with an additional typeclass assumption on associativity
 so that we can use it in `@[csimp]` for more performant code generation
 as an automatic parameter. -/]
-abbrev npowBinRecAuto {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M) : M :=
-  npowBinRec k m
+abbrev npowBinRecAuto {M : Type*} [Semigroup M] [One M] (k : ℕ) (m : M) : M := npowBinRec k m
 
 @[to_additive (attr := csimp)]
 theorem npowRec_eq_npowBinRec : @npowRecAuto = @npowBinRecAuto := by
@@ -344,31 +369,37 @@ theorem npowRec_eq_npowBinRec : @npowRecAuto = @npowBinRecAuto := by
   | 0 => rw [npowRec, npowBinRec.go, Nat.binaryRec_zero]
   | k + 1 => rw [npowBinRec.go_spec, npowRec_eq]
 
-@[to_additive] theorem npowBinRec_zero {M : Type*} [Mul M] [One M] (m : M) :
-    npowBinRec 0 m = 1 := rfl
+@[to_additive]
+theorem npowBinRec_zero {M : Type*} [Mul M] [One M] (m : M) : npowBinRec 0 m = 1 := rfl
 
-@[to_additive] theorem npowBinRec_succ {M : Type*} [Semigroup M] [One M] (n : ℕ) (m : M) :
-    npowBinRec (n + 1) m = npowBinRec n m * m := by
+@[to_additive]
+theorem npowBinRec_succ {M : Type*} [Semigroup M] [One M] (n : ℕ) (m : M)
+    : npowBinRec (n + 1) m = npowBinRec n m * m := by
   iterate 2 rw [← npowBinRecAuto, ← npowRec_eq_npowBinRec]
   rfl
 
-/-- `NSMul` is an implementation detail of `AddMonoid`. It is needed because it is
-impossible to extend `SMul ℕ M` and `SMul ℤ M` at the same time. -/
+/--
+`NSMul` is an implementation detail of `AddMonoid`. It is needed because it is
+impossible to extend `SMul ℕ M` and `SMul ℤ M` at the same time.
+-/
 class NSMul (M : Type*) where
-  /-- Multiplication by a natural number.
-  Set this to `nsmulRec` unless `Module` diamonds are possible. -/
+  /--
+  Multiplication by a natural number.
+  Set this to `nsmulRec` unless `Module` diamonds are possible.
+  -/
   protected nsmul : ℕ → M → M
 
-/-- `NPow` is an implementation detail of `Monoid`. It is needed because it is
-impossible to extend `Pow M ℕ` and `Pow M ℤ` at the same time. -/
+/--
+`NPow` is an implementation detail of `Monoid`. It is needed because it is
+impossible to extend `Pow M ℕ` and `Pow M ℤ` at the same time.
+-/
 @[to_additive]
 class NPow (M : Type*) where
   /-- Raising to the power of a natural number. -/
   protected npow : ℕ → M → M
 
 @[default_instance high, to_additive toSMul]
-instance NPow.toPow {M : Type*} [NPow M] : Pow M ℕ :=
-  ⟨fun x n ↦ NPow.npow n x⟩
+instance NPow.toPow {M : Type*} [NPow M] : Pow M ℕ := ⟨fun x n ↦ NPow.npow n x⟩
 
 @[to_additive ofSMul]
 instance NPow.ofPow {M : Type*} [Pow M ℕ] : NPow M := ⟨fun n x ↦ Pow.pow x n⟩
@@ -396,20 +427,17 @@ section Monoid
 variable {M : Type*} [Monoid M] {a b c : M}
 
 @[to_additive (attr := simp) nsmul_eq_smul]
-theorem npow_eq_pow (n : ℕ) (x : M) : NPow.npow n x = x ^ n :=
-  rfl
+theorem npow_eq_pow (n : ℕ) (x : M) : NPow.npow n x = x ^ n := rfl
 
 @[to_additive] lemma left_inv_eq_right_inv (hba : b * a = 1) (hac : a * c = 1) : b = c := by
   rw [← one_mul c, ← hba, mul_assoc, hac, mul_one b]
 
 -- This lemma is higher priority than later `zero_smul` so that the `simpNF` is happy
 @[to_additive (attr := simp high) zero_nsmul]
-theorem pow_zero (a : M) : a ^ 0 = 1 :=
-  Monoid.npow_zero _
+theorem pow_zero (a : M) : a ^ 0 = 1 := Monoid.npow_zero _
 
 @[to_additive succ_nsmul]
-theorem pow_succ (a : M) (n : ℕ) : a ^ (n + 1) = a ^ n * a :=
-  Monoid.npow_succ n a
+theorem pow_succ (a : M) (n : ℕ) : a ^ (n + 1) = a ^ n * a := Monoid.npow_succ n a
 
 @[to_additive one_nsmul, simp]
 lemma pow_one (a : M) : a ^ 1 = a := by rw [pow_succ, pow_zero, one_mul]
@@ -472,10 +500,12 @@ lemma pow_right_comm (a : M) (m n : ℕ) : (a ^ m) ^ n = (a ^ n) ^ m := by
 
 variable (M)
 
-@[to_additive] instance [IsLeftCancelMul M] : IsDedekindFiniteMonoid M where
+@[to_additive]
+instance [IsLeftCancelMul M] : IsDedekindFiniteMonoid M where
   mul_eq_one_symm := (IsLeftCancelMul.mul_left_cancel _).mul_eq_one_symm
 
-@[to_additive] instance [IsRightCancelMul M] : IsDedekindFiniteMonoid M where
+@[to_additive]
+instance [IsRightCancelMul M] : IsDedekindFiniteMonoid M where
   mul_eq_one_symm := (IsRightCancelMul.mul_right_cancel _).mul_eq_one_symm
 
 namespace IsDedekindFiniteMonoid
@@ -499,14 +529,18 @@ end IsDedekindFiniteMonoid
 end Monoid
 
 attribute [local instance] IsUnital.toMulOneClass in
-/-- A unital semigroup is a monoid.
+/--
+A unital semigroup is a monoid.
 
 This constructor is primarily intended to be used within proofs since it creates bad definitional
-equalities. -/
+equalities.
+-/
 noncomputable abbrev IsUnital.toMonoid {A : Type*} [Semigroup A] [IsUnital A] : Monoid A where
 
-/-- An additive monoid is torsion-free if scalar multiplication by every non-zero element `n : ℕ` is
-injective. -/
+/--
+An additive monoid is torsion-free if scalar multiplication by every non-zero element `n : ℕ` is
+injective.
+-/
 @[mk_iff]
 class IsAddTorsionFree (M : Type*) [AddMonoid M] where
   protected nsmul_right_injective ⦃n : ℕ⦄ (hn : n ≠ 0) : Injective fun a : M ↦ n • a
@@ -522,28 +556,30 @@ attribute [to_additive existing] isMulTorsionFree_iff
 class AddCommMonoid (M : Type*) extends AddMonoid M, AddCommSemigroup M
 
 /-- A commutative monoid is a monoid with commutative `(*)`. -/
-@[to_additive]
-class CommMonoid (M : Type*) extends Monoid M, CommSemigroup M
+@[to_additive] class CommMonoid (M : Type*) extends Monoid M, CommSemigroup M
 
-/-- Shortcut instance for `IsCommutativeHMul M → IsDedekindFiniteMonoid M`.
+/--
+Shortcut instance for `IsCommutativeHMul M → IsDedekindFiniteMonoid M`.
 
 This is assigned default rather than low priority because it gives the most common examples
 of Dedekind-finite monoids and is used the most often. Benchmark results indicate default
-priority performs better than low or high priority. -/
+priority performs better than low or high priority.
+-/
 @[to_additive] instance (M) [CommMonoid M] : IsDedekindFiniteMonoid M := inferInstance
 
 section LeftCancelMonoid
 
-/-- An additive monoid in which addition is left-cancellative.
+/--
+An additive monoid in which addition is left-cancellative.
 Main examples are `ℕ` and groups. This is the right typeclass for many sum lemmas, as having a zero
-is useful to define the sum over the empty set, so `AddLeftCancelSemigroup` is not enough. -/
+is useful to define the sum over the empty set, so `AddLeftCancelSemigroup` is not enough.
+-/
 class AddLeftCancelMonoid (M : Type*) extends AddMonoid M, AddLeftCancelSemigroup M
 
 attribute [instance 75] AddLeftCancelMonoid.toAddMonoid -- See note [lower cancel priority]
 
 /-- A monoid in which multiplication is left-cancellative. -/
-@[to_additive]
-class LeftCancelMonoid (M : Type*) extends Monoid M, LeftCancelSemigroup M
+@[to_additive] class LeftCancelMonoid (M : Type*) extends Monoid M, LeftCancelSemigroup M
 
 attribute [instance 75] LeftCancelMonoid.toMonoid -- See note [lower cancel priority]
 
@@ -551,16 +587,17 @@ end LeftCancelMonoid
 
 section RightCancelMonoid
 
-/-- An additive monoid in which addition is right-cancellative.
+/--
+An additive monoid in which addition is right-cancellative.
 Main examples are `ℕ` and groups. This is the right typeclass for many sum lemmas, as having a zero
-is useful to define the sum over the empty set, so `AddRightCancelSemigroup` is not enough. -/
+is useful to define the sum over the empty set, so `AddRightCancelSemigroup` is not enough.
+-/
 class AddRightCancelMonoid (M : Type*) extends AddMonoid M, AddRightCancelSemigroup M
 
 attribute [instance 75] AddRightCancelMonoid.toAddMonoid -- See note [lower cancel priority]
 
 /-- A monoid in which multiplication is right-cancellative. -/
-@[to_additive]
-class RightCancelMonoid (M : Type*) extends Monoid M, RightCancelSemigroup M
+@[to_additive] class RightCancelMonoid (M : Type*) extends Monoid M, RightCancelSemigroup M
 
 attribute [instance 75] RightCancelMonoid.toMonoid -- See note [lower cancel priority]
 
@@ -568,14 +605,15 @@ end RightCancelMonoid
 
 section CancelMonoid
 
-/-- An additive monoid in which addition is cancellative on both sides.
+/--
+An additive monoid in which addition is cancellative on both sides.
 Main examples are `ℕ` and groups. This is the right typeclass for many sum lemmas, as having a zero
-is useful to define the sum over the empty set, so `AddRightCancelMonoid` is not enough. -/
+is useful to define the sum over the empty set, so `AddRightCancelMonoid` is not enough.
+-/
 class AddCancelMonoid (M : Type*) extends AddLeftCancelMonoid M, AddRightCancelMonoid M
 
 /-- A monoid in which multiplication is cancellative. -/
-@[to_additive]
-class CancelMonoid (M : Type*) extends LeftCancelMonoid M, RightCancelMonoid M
+@[to_additive] class CancelMonoid (M : Type*) extends LeftCancelMonoid M, RightCancelMonoid M
 
 /-- Commutative version of `AddCancelMonoid`. -/
 class AddCancelCommMonoid (M : Type*) extends AddCommMonoid M, AddLeftCancelMonoid M
@@ -583,21 +621,21 @@ class AddCancelCommMonoid (M : Type*) extends AddCommMonoid M, AddLeftCancelMono
 attribute [instance 75] AddCancelCommMonoid.toAddCommMonoid -- See note [lower cancel priority]
 
 /-- Commutative version of `CancelMonoid`. -/
-@[to_additive]
-class CancelCommMonoid (M : Type*) extends CommMonoid M, LeftCancelMonoid M
+@[to_additive] class CancelCommMonoid (M : Type*) extends CommMonoid M, LeftCancelMonoid M
 
 attribute [instance 75] CancelCommMonoid.toCommMonoid -- See note [lower cancel priority]
 
 -- see Note [lower instance priority]
 @[to_additive]
-instance (priority := 100) CancelCommMonoid.toCancelMonoid (M : Type*) [CancelCommMonoid M] :
-    CancelMonoid M :=
-  { CommMagma.IsLeftCancelMul.toIsRightCancelMul M with }
+instance (priority := 100) CancelCommMonoid.toCancelMonoid (M : Type*) [CancelCommMonoid M]
+    : CancelMonoid M := {
+  CommMagma.IsLeftCancelMul.toIsRightCancelMul M with
+}
 
 /-- Any `CancelMonoid G` satisfies `IsCancelMul G`. -/
 @[to_additive /-- Any `AddCancelMonoid G` satisfies `IsCancelAdd G`. -/]
-instance (priority := 100) CancelMonoid.toIsCancelMul (M : Type*) [CancelMonoid M] :
-    IsCancelMul M where
+instance (priority := 100) CancelMonoid.toIsCancelMul (M : Type*) [CancelMonoid M]
+  : IsCancelMul M where
 
 end CancelMonoid
 

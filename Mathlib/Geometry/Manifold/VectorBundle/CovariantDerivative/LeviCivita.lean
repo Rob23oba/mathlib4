@@ -68,8 +68,8 @@ section funpropsetup
 -- This will require adding a custom discharger for models with corners.
 -- In the mean-time, add the following attributes in this file, as they are too useful to not use.
 
-attribute [fun_prop] MDifferentiable MDifferentiableAt
-  MDifferentiable.add MDifferentiableAt.add
+attribute [fun_prop]
+  MDifferentiable MDifferentiableAt MDifferentiable.add MDifferentiableAt.add
   mdifferentiableAt_fun_add_section MDifferentiableAt.fun_smul_section
 
 end funpropsetup
@@ -83,8 +83,8 @@ section
 
 variable
   {EB : Type*} [NormedAddCommGroup EB] [NormedSpace ℝ EB]
-  {HB : Type*} [TopologicalSpace HB] {IB : ModelWithCorners ℝ EB HB}
-  {B : Type*} [TopologicalSpace B] [ChartedSpace HB B]
+  {HB : Type*} [TopologicalSpace HB]
+  {IB : ModelWithCorners ℝ EB HB} {B : Type*} [TopologicalSpace B] [ChartedSpace HB B]
   {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
   {E : B → Type*} [TopologicalSpace (TotalSpace F E)] [∀ x, NormedAddCommGroup (E x)]
   [∀ x, InnerProductSpace ℝ (E x)] [FiberBundle F E]
@@ -120,8 +120,10 @@ end
 section -- and a specialisation to manifolds
 
 -- Let `M` be a `C²` manifold modeled on `(E, H)`, endowed with a Riemannian metric.
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type*} [TopologicalSpace H]
+  (I : ModelWithCorners ℝ E H)
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 1 M]
   [RiemannianBundle (fun (x : M) ↦ TangentSpace I x)]
 
@@ -147,7 +149,8 @@ end ext
 -- Let `M` be a `C²` manifold modeled on `(E, H)`.
 variable
   {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
+  {H : Type*} [TopologicalSpace H]
+  (I : ModelWithCorners ℝ E H)
 
 variable {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 2 M]
 
@@ -161,12 +164,16 @@ open scoped RealInnerProductSpace
 -- Let `cov` and `cov'` be covariant derivatives on `TM`.
 variable (cov cov' : CovariantDerivative I E (TangentSpace I : M → Type _))
 
-/-- Local notation for a covariant derivative on a vector bundle acting on a vector field and a
-section. -/
+/--
+Local notation for a covariant derivative on a vector bundle acting on a vector field and a
+section.
+-/
 local syntax:max "∇" term:arg term:arg : term
-local macro_rules | `(∇ $X $σ) => `(fun (x : M) ↦ cov $σ x ($X x))
+local macro_rules
+  | `(∇ $X $σ) => `(fun (x : M) ↦ cov $σ x ($X x))
 local syntax:max "∇'" term:arg term:arg : term
-local macro_rules | `(∇' $X $σ) => `(fun (x : M) ↦ cov' $σ x ($X x))
+local macro_rules
+  | `(∇' $X $σ) => `(fun (x : M) ↦ cov' $σ x ($X x))
 
 -- From now on, we assume the Riemannian metric on `M` is `C¹`.
 variable [IsContMDiffRiemannianBundle I 1 E (fun (x : M) ↦ TangentSpace I x)]
@@ -176,9 +183,11 @@ variable [IsContMDiffRiemannianBundle I 1 E (fun (x : M) ↦ TangentSpace I x)]
 -- with `open scoped RealInnerProductSpace`.
 local notation "⟪" X ", " Y "⟫" => fun x ↦ inner ℝ (X x) (Y x)
 
-/- TODO: The next two lemmas are workarounds for https://github.com/leanprover/lean4/issues/14949
+/-
+TODO: The next two lemmas are workarounds for https://github.com/leanprover/lean4/issues/14949
 (Unification sees through type synonyms when checking instances' types).
-They should be removed when that issue will be fully solved. -/
+They should be removed when that issue will be fully solved.
+-/
 
 variable {I} in
 @[fun_prop] lemma _root_.MDifferentiable.inner_bundle' {X Y : Π x : M, TangentSpace I x}
@@ -194,7 +203,8 @@ variable {I} in
 namespace CovariantDerivative
 variable {x : M}
 
-/-- A covariant derivative on the tangent bundle `TM` to a Riemannian manifold is called a
+/--
+A covariant derivative on the tangent bundle `TM` to a Riemannian manifold is called a
 **Levi-Civita connection** if it is torsion-free and compatible with `g`.
 Note that the bundle metric on `TM` is implicitly hidden in this definition.
 -/
@@ -248,15 +258,18 @@ public lemma IsLeviCivitaConnection.apply_eq_extend
   simp_rw [h.apply_eq _ (mdifferentiableAt_extend _ _ X₀) hY hZ]
   simp
 
-/-- The Levi-Civita connection on `(M, g)` is uniquely determined on differentiable vector fields.
+/--
+The Levi-Civita connection on `(M, g)` is uniquely determined on differentiable vector fields.
 
 Note that the differentiability hypothesis on `Y` is required, since `CovariantDerivative` objects
-are unconstrained in their behaviour on non-differentiable vector fields. -/
+are unconstrained in their behaviour on non-differentiable vector fields.
+-/
 public theorem IsLeviCivitaConnection.uniqueness
     (hcov : cov.IsLeviCivitaConnection) (hcov' : cov'.IsLeviCivitaConnection)
-    (hY : MDiffAt (T% Y) x) (X₀ : TangentSpace% x) :
-    cov Y x X₀ = cov' Y x X₀ := by
-  apply injective_inner_mdifferentiableAt_vectorField; ext Z hZ
+    (hY : MDiffAt (T% Y) x) (X₀ : TangentSpace% x)
+    : cov Y x X₀ = cov' Y x X₀ := by
+  apply injective_inner_mdifferentiableAt_vectorField
+  ext Z hZ
   exact (hcov.apply_eq_extend I X₀ hY hZ).trans (hcov'.apply_eq_extend I X₀ hY hZ).symm
 
 end uniqueness
@@ -264,73 +277,76 @@ end uniqueness
 section existence
 
 variable (X Y Z) in
-/-- Auxiliary quantity for the construction of the Levi-Civita connection:
-If `∇` is the Levi-Civita connection on `TM`, this formula will express `⟨∇ X Y, Z⟩`. -/
+/--
+Auxiliary quantity for the construction of the Levi-Civita connection:
+If `∇` is the Levi-Civita connection on `TM`, this formula will express `⟨∇ X Y, Z⟩`.
+-/
 noncomputable def leviCivitaAuxInner (x : M) : ℝ :=
-  (d% ⟪Y, Z⟫ x (X x) + d% ⟪Z, X⟫ x (Y x) - d% ⟪X, Y⟫ x (Z x)
-  - ⟪Y, VectorField.mlieBracket I X Z⟫ x
-  - ⟪Z, VectorField.mlieBracket I Y X⟫ x
-  + ⟪X, VectorField.mlieBracket I Z Y⟫ x) / 2
+  (d% ⟪Y, Z⟫ x (X x) + d% ⟪Z, X⟫ x (Y x) - d% ⟪X, Y⟫ x (Z x) - ⟪Y, VectorField.mlieBracket I X Z⟫ x
+      - ⟪Z, VectorField.mlieBracket I Y X⟫ x + ⟪X, VectorField.mlieBracket I Z Y⟫ x)
+    / 2
 
 /-- `leviCivitaAuxInner` is tensorial with respect to its first argument. -/
-theorem tensorialAt_leviCivitaAuxInner₁
-    (x : M) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x) :
-    TensorialAt I E (leviCivitaAuxInner I · Y Z x) x where
+theorem tensorialAt_leviCivitaAuxInner₁ (x : M) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x)
+    : TensorialAt I E (leviCivitaAuxInner I · Y Z x) x where
   smul hf hX := by
-    simp (disch := fun_prop) [leviCivitaAuxInner, mvfderiv_fun_mul,
-      mlieBracket_smul_left, mlieBracket_smul_right,
-      inner_add_right, inner_smul_left, inner_smul_right, real_inner_comm]
+    simp (disch := fun_prop) [
+      leviCivitaAuxInner, mvfderiv_fun_mul, mlieBracket_smul_left, mlieBracket_smul_right,
+      inner_add_right, inner_smul_left, inner_smul_right, real_inner_comm
+    ]
     ring
   add hX₁ hX₂ := by
-    simp (disch := fun_prop) [leviCivitaAuxInner, mlieBracket_add_right, mlieBracket_add_left,
-      mvfderiv_fun_add, inner_add_left, inner_add_right]
+    simp (disch := fun_prop) [
+      leviCivitaAuxInner, mlieBracket_add_right, mlieBracket_add_left, mvfderiv_fun_add,
+      inner_add_left, inner_add_right
+    ]
     ring
 
 /-- `leviCivitaAuxInner` is tensorial with respect to its third argument. -/
-theorem tensorialAt_leviCivitaAuxInner₃
-    (x : M) (hY : MDiffAt (T% Y) x) (hX : MDiffAt (T% X) x) :
-    TensorialAt I E (leviCivitaAuxInner I X Y · x) x where
+theorem tensorialAt_leviCivitaAuxInner₃ (x : M) (hY : MDiffAt (T% Y) x) (hX : MDiffAt (T% X) x)
+    : TensorialAt I E (leviCivitaAuxInner I X Y · x) x where
   smul hf hZ := by
-    simp (disch := fun_prop) [leviCivitaAuxInner,
-      mlieBracket_smul_right, mlieBracket_smul_left,
-      mvfderiv_fun_mul,
-      inner_smul_left, inner_smul_right, inner_add_right, real_inner_comm]
+    simp (disch := fun_prop) [
+      leviCivitaAuxInner, mlieBracket_smul_right, mlieBracket_smul_left, mvfderiv_fun_mul,
+      inner_smul_left, inner_smul_right, inner_add_right, real_inner_comm
+    ]
     ring
   add hZ₁ hZ₂ := by
-    simp (disch := fun_prop) [leviCivitaAuxInner,
-      mlieBracket_add_right, mlieBracket_add_left,
-      mvfderiv_fun_add,
-      inner_add_left, inner_add_right]
+    simp (disch := fun_prop) [
+      leviCivitaAuxInner, mlieBracket_add_right, mlieBracket_add_left, mvfderiv_fun_add,
+      inner_add_left, inner_add_right
+    ]
     ring
 
-/-- Almost the function underlying our construction of the Levi-Civita connection:
+/--
+Almost the function underlying our construction of the Levi-Civita connection:
 this is the desired `(1,1)`-tensor, but without considerations to the junk value when
-applied to non-differentiable vector fields. -/
-noncomputable def leviCivitaAuxOfMDiffAt (hY : MDiffAt (T% Y) x) :
-    TangentSpace I x →L[ℝ] TangentSpace I x :=
+applied to non-differentiable vector fields.
+-/
+noncomputable def leviCivitaAuxOfMDiffAt (hY : MDiffAt (T% Y) x)
+    : TangentSpace I x →L[ℝ] TangentSpace I x :=
   -- Use the musical isomorphism to produce a candidate `∇ Y` as a `(1,1)`-tensor
   -- (rather than a `2`-tensor).
-  (InnerProductSpace.toDual ℝ _).symm.toContinuousLinearEquiv.toContinuousLinearMap ∘L
-    (TensorialAt.mkHom₂ _ (x := x)
+  (InnerProductSpace.toDual ℝ _).symm.toContinuousLinearEquiv.toContinuousLinearMap
+    ∘L (TensorialAt.mkHom₂ _ (x := x)
       (fun _Z hZ ↦ tensorialAt_leviCivitaAuxInner₁ _ _ hY hZ)
       (fun _X hX ↦ tensorialAt_leviCivitaAuxInner₃ _ _ hY hX))
 
 theorem leviCivitaAuxOfMDiffAt_apply_inner
-    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x) :
-    ⟪leviCivitaAuxOfMDiffAt I hY (X x), Z x⟫ = leviCivitaAuxInner I X Y Z x := by
+    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x)
+    : ⟪leviCivitaAuxOfMDiffAt I hY (X x), Z x⟫ = leviCivitaAuxInner I X Y Z x := by
   unfold leviCivitaAuxOfMDiffAt
   simp [TensorialAt.mkHom₂_apply _ _ hX hZ]
 
 open scoped Classical in
 /-- The function underlying our construction of the Levi-Civita connection on `(M,g)` -/
-noncomputable def leviCivitaAux
-    (Y : Π x : M, TangentSpace I x) (x : M) :
-    TangentSpace I x →L[ℝ] TangentSpace I x :=
+noncomputable def leviCivitaAux (Y : Π x : M, TangentSpace I x) (x : M)
+    : TangentSpace I x →L[ℝ] TangentSpace I x :=
   if hY : MDiffAt (T% Y) x then leviCivitaAuxOfMDiffAt I hY else 0
 
 theorem leviCivitaAux_apply_inner
-    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x) :
-    ⟪leviCivitaAux I Y x (X x), Z x⟫ = leviCivitaAuxInner I X Y Z x := by
+    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x)
+    : ⟪leviCivitaAux I Y x (X x), Z x⟫ = leviCivitaAuxInner I X Y Z x := by
   simpa [leviCivitaAux, dite_eq_left hY] using leviCivitaAuxOfMDiffAt_apply_inner I hX hY hZ
 
 lemma isCovariantDerivativeOn_leviCivitaAux :
@@ -353,30 +369,32 @@ lemma isCovariantDerivativeOn_leviCivitaAux :
     ring
 
 variable (M) in
-/-- A choice of Levi-Civita connection on the tangent bundle `TM` of a Riemannian manifold `(M, g)`:
+/--
+A choice of Levi-Civita connection on the tangent bundle `TM` of a Riemannian manifold `(M, g)`:
 this is unique up to the value on non-differentiable vector fields.
-If you know the Levi-Civita connection already, you can use `IsLeviCivitaConnection` instead. -/
-public noncomputable def leviCivitaConnection :
-    CovariantDerivative I E (TangentSpace I : M → Type _) where
+If you know the Levi-Civita connection already, you can use `IsLeviCivitaConnection` instead.
+-/
+public noncomputable def leviCivitaConnection
+    : CovariantDerivative I E (TangentSpace I : M → Type _) where
   toFun := leviCivitaAux I
   isCovariantDerivativeOnUniv := isCovariantDerivativeOn_leviCivitaAux I
 
 public theorem leviCivitaConnection_apply_inner
-    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x) :
-    ⟪leviCivitaConnection I M Y x (X x), Z x⟫ =
-      (d% ⟪Y, Z⟫ x (X x) + d% ⟪Z, X⟫ x (Y x) - d% ⟪X, Y⟫ x (Z x)
-      - ⟪Y, VectorField.mlieBracket I X Z⟫ x
-      - ⟪Z, VectorField.mlieBracket I Y X⟫ x
-      + ⟪X, VectorField.mlieBracket I Z Y⟫ x) / 2 :=
+    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x)
+    : ⟪leviCivitaConnection I M Y x (X x), Z x⟫
+      = (d% ⟪Y, Z⟫ x (X x) + d% ⟪Z, X⟫ x (Y x) - d% ⟪X, Y⟫ x (Z x)
+          - ⟪Y, VectorField.mlieBracket I X Z⟫ x - ⟪Z, VectorField.mlieBracket I Y X⟫ x
+          + ⟪X, VectorField.mlieBracket I Z Y⟫ x)
+        / 2 :=
   leviCivitaAux_apply_inner _ hX hY hZ
 
 public theorem leviCivitaConnection_apply_inner_right
-    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x) :
-    ⟪X x, leviCivitaConnection I M Y x (Z x)⟫ =
-      (d% ⟪Y, X⟫ x (Z x) + d% ⟪X, Z⟫ x (Y x) - d% ⟪Z, Y⟫ x (X x)
-      - ⟪Y ,VectorField.mlieBracket I Z X⟫ x
-      - ⟪X, VectorField.mlieBracket I Y Z⟫ x
-      + ⟪Z, VectorField.mlieBracket I X Y⟫ x) / 2 := by
+    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) (hZ : MDiffAt (T% Z) x)
+    : ⟪X x, leviCivitaConnection I M Y x (Z x)⟫
+      = (d% ⟪Y, X⟫ x (Z x) + d% ⟪X, Z⟫ x (Y x) - d% ⟪Z, Y⟫ x (X x)
+          - ⟪Y ,VectorField.mlieBracket I Z X⟫ x - ⟪X, VectorField.mlieBracket I Y Z⟫ x
+          + ⟪Z, VectorField.mlieBracket I X Y⟫ x)
+        / 2 := by
   rw [real_inner_comm]
   exact leviCivitaAux_apply_inner _ hZ hY hX
 

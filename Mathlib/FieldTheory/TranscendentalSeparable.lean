@@ -29,12 +29,15 @@ section
 
 variable (k : Type*) (K : Type*) [Field k] [Field K] [Algebra k K]
 
-/-- A field extension is separably generated if there exists a transcendence basis such that
-the extension above it is separable. -/
+/--
+A field extension is separably generated if there exists a transcendence basis such that
+the extension above it is separable.
+-/
 @[mk_iff, stacks 030O "Part 1"]
 class Algebra.IsSeparablyGenerated : Prop where
-  isSeparable : ∃ (s : Set K), IsTranscendenceBasis k ((↑) : s → K) ∧
-    Algebra.IsSeparable (IntermediateField.adjoin k s) K
+  isSeparable
+    : ∃ (s : Set K),
+      IsTranscendenceBasis k ((↑) : s → K) ∧ Algebra.IsSeparable (IntermediateField.adjoin k s) K
 
 variable {k K} in
 lemma AlgEquiv.isSeparablyGenerated {K' : Type*} [Field K'] [Algebra k K'] (e : K ≃ₐ[k] K')
@@ -66,12 +69,14 @@ instance [PerfectField k] [Algebra.EssFiniteType k K] : Algebra.IsSeparablyGener
   rcases exists_isTranscendenceBasis_and_isSeparable_of_perfectField k K with ⟨s, isT, sep⟩
   exact ⟨s, isT, sep⟩
 
-/-- A field extension is transcendental separable if every finitely generated subextension is
-separably generated. -/
+/--
+A field extension is transcendental separable if every finitely generated subextension is
+separably generated.
+-/
 @[mk_iff, stacks 030O "Part 2, called separable in the Stacks project."]
 class Algebra.IsTranscendentalSeparable : Prop where
-  forall_isSeparablyGenerated : ∀ (L : IntermediateField k K),
-    Algebra.EssFiniteType k L → Algebra.IsSeparablyGenerated k L
+  forall_isSeparablyGenerated
+    : ∀ (L : IntermediateField k K), Algebra.EssFiniteType k L → Algebra.IsSeparablyGenerated k L
 
 lemma Algebra.isSeparable_iff_isTranscendentalSeparable_and_isAlgebraic :
     Algebra.IsSeparable k K ↔

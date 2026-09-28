@@ -31,7 +31,6 @@ variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable {A : Type u'} [Category.{v'} A] {FA : A → A → Type*} {CA : A → Type w'}
 variable [∀ X Y, FunLike (FA X Y) (CA X) (CA Y)] [ConcreteCategory.{w'} A FA]
 
-
 namespace Sheaf
 
 section
@@ -78,8 +77,8 @@ end
 
 section
 
-variable {F G : Sheaf J A} (f : F ⟶ G) [(forget A).ReflectsIsomorphisms]
-  [J.HasSheafCompose (forget A)]
+variable
+  {F G : Sheaf J A} (f : F ⟶ G) [(forget A).ReflectsIsomorphisms] [J.HasSheafCompose (forget A)]
 
 lemma isLocallyBijective_iff_isIso :
     IsLocallyInjective f ∧ IsLocallySurjective f ↔ IsIso f := by
@@ -99,12 +98,14 @@ variable (J A)
 
 namespace GrothendieckTopology
 
-/-- Given a category `C` equipped with a Grothendieck topology `J` and a concrete category `A`,
+/--
+Given a category `C` equipped with a Grothendieck topology `J` and a concrete category `A`,
 this property holds if a morphism in `Cᵒᵖ ⥤ A` satisfies `J.W` (i.e. becomes an iso after
-sheafification) iff it is both locally injective and locally surjective. -/
+sheafification) iff it is both locally injective and locally surjective.
+-/
 class WEqualsLocallyBijective : Prop where
-  iff {X Y : Cᵒᵖ ⥤ A} (f : X ⟶ Y) :
-    J.W f ↔ Presheaf.IsLocallyInjective J f ∧ Presheaf.IsLocallySurjective J f
+  iff {X Y : Cᵒᵖ ⥤ A} (f : X ⟶ Y)
+    : J.W f ↔ Presheaf.IsLocallyInjective J f ∧ Presheaf.IsLocallySurjective J f
 
 section
 
@@ -150,15 +151,15 @@ lemma WEqualsLocallyBijective.mk' [HasWeakSheafify J A] [(forget A).ReflectsIsom
       CategoryTheory.toSheafify_naturality, Presheaf.comp_isLocallyInjective_iff,
       Presheaf.comp_isLocallySurjective_iff]
 
-instance {D : Type w} [Category.{w'} D] {FD : D → D → Type*} {CD : D → Type (max u v)}
-    [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory.{max u v} D FD]
-    [HasWeakSheafify J D] [J.HasSheafCompose (forget D)]
-    [J.PreservesSheafification (forget D)] [(forget D).ReflectsIsomorphisms] :
-    J.WEqualsLocallyBijective D := by
+instance
+    {D : Type w} [Category.{w'} D]
+    {FD : D → D → Type*} {CD : D → Type (max u v)} [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)]
+    [ConcreteCategory.{max u v} D FD] [HasWeakSheafify J D] [J.HasSheafCompose (forget D)]
+    [J.PreservesSheafification (forget D)] [(forget D).ReflectsIsomorphisms]
+    : J.WEqualsLocallyBijective D := by
   apply WEqualsLocallyBijective.mk'
 
-instance : J.WEqualsLocallyBijective (Type (max u v)) :=
-  inferInstance
+instance : J.WEqualsLocallyBijective (Type (max u v)) := inferInstance
 
 end GrothendieckTopology
 

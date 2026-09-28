@@ -99,22 +99,16 @@ structure map, see `AlgebraicGeometry.Scheme.Cover.RelativeGluingData.toBase` an
 with the preimages `AlgebraicGeometry.Scheme.Cover.RelativeGluingData.isPullback_natTrans_ι_toBase`.
 -/
 @[stacks 01LH]
-noncomputable abbrev glued : Scheme.{u} :=
-  colimit d.functor
+noncomputable abbrev glued : Scheme.{u} := colimit d.functor
 
 /-- The cover of the glued `Xᵢ` given by the `Xᵢ`. -/
-@[simps!]
-noncomputable def cover : OpenCover d.glued :=
-  Scheme.IsLocallyDirected.openCover _
+@[simps!] noncomputable def cover : OpenCover d.glued := Scheme.IsLocallyDirected.openCover _
 
-instance : Category d.cover.I₀ :=
-  inferInstanceAs <| Category 𝒰.I₀
+instance : Category d.cover.I₀ := inferInstanceAs <| Category 𝒰.I₀
 
 /-- The structure map from the colimit of the `Xᵢ` to `S`. -/
 noncomputable def toBase : d.glued ⟶ S :=
-  colimit.desc _
-    { pt := S
-      ι := d.natTrans ≫ 𝒰.functorOfLocallyDirectedHomBase }
+  colimit.desc _ { pt := S, ι := d.natTrans ≫ 𝒰.functorOfLocallyDirectedHomBase }
 
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
@@ -133,16 +127,17 @@ instance : d.cover.LocallyDirected where
     let xi := pullback.fst (d.cover.f i) _ x
     let xj := pullback.snd (d.cover.f i) _ x
     obtain ⟨k, fi, fj, uk, h1, h2⟩ :=
-        𝒰.exists_of_f_eq_f (d.natTrans.app i xi) (d.natTrans.app j xj) <| by
-      dsimp [functorOfLocallyDirected_obj, xi, xj]
-      rw [← Scheme.Hom.comp_apply, ← Scheme.Hom.comp_apply, ← ι_toBase, pullback.condition_assoc]
-      simp
+      𝒰.exists_of_f_eq_f (d.natTrans.app i xi) (d.natTrans.app j xj) <| by
+        dsimp [functorOfLocallyDirected_obj, xi, xj]
+        rw [← Scheme.Hom.comp_apply, ← Scheme.Hom.comp_apply, ← ι_toBase, pullback.condition_assoc]
+        simp
     use k, fi, fj
-    obtain ⟨xk, h1, h2⟩ := exists_preimage_of_isPullback (d.equifibered fj) xj uk <| by
-      apply (𝒰.f j).injective
-      dsimp only [functorOfLocallyDirected_obj, functorOfLocallyDirected_map]
-      rw [← Scheme.Hom.comp_apply]
-      simp [xj, h2]
+    obtain ⟨xk, h1, h2⟩ :=
+      exists_preimage_of_isPullback (d.equifibered fj) xj uk <| by
+        apply (𝒰.f j).injective
+        dsimp only [functorOfLocallyDirected_obj, functorOfLocallyDirected_map]
+        rw [← Scheme.Hom.comp_apply]
+        simp [xj, h2]
     use xk
     apply (pullback.snd (d.cover.f i) _).injective
     rw [← Scheme.Hom.comp_apply]

@@ -30,13 +30,15 @@ morphisms such that every compact open is compact-open covered.
 
 open TopologicalSpace Opens
 
-/-- A set `U` is compact-open covered by the family `fᵢ : X i → S`, if
-`U` is the finite union of images of compact open sets in the `X i`. -/
-def IsCompactOpenCovered {S ι : Type*} {X : ι → Type*} (f : ∀ i, X i → S)
-    [∀ i, TopologicalSpace (X i)] (U : Set S) : Prop :=
+/--
+A set `U` is compact-open covered by the family `fᵢ : X i → S`, if
+`U` is the finite union of images of compact open sets in the `X i`.
+-/
+def IsCompactOpenCovered
+    {S ι : Type*} {X : ι → Type*} (f : ∀ i, X i → S) [∀ i, TopologicalSpace (X i)] (U : Set S)
+    : Prop :=
   ∃ (s : Set ι) (_ : s.Finite) (V : ∀ i ∈ s, Opens (X i)),
-    (∀ (i : ι) (h : i ∈ s), IsCompact (V i h).1) ∧
-    ⋃ (i : ι) (h : i ∈ s), (f i) '' (V i h) = U
+    (∀ (i : ι) (h : i ∈ s), IsCompact (V i h).1) ∧ ⋃ (i : ι) (h : i ∈ s), (f i) '' (V i h) = U
 
 namespace IsCompactOpenCovered
 

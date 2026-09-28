@@ -110,12 +110,10 @@ section Ψ₂Sq
 /-! ### The univariate polynomial `Ψ₂Sq` -/
 
 /-- The `2`-division polynomial `ψ₂ = Ψ₂`. -/
-noncomputable def ψ₂ : R[X][Y] :=
-  W.toAffine.polynomialY
+noncomputable def ψ₂ : R[X][Y] := W.toAffine.polynomialY
 
 /-- The univariate polynomial `Ψ₂Sq` congruent to `ψ₂²`. -/
-noncomputable def Ψ₂Sq : R[X] :=
-  C 4 * X ^ 3 + C W.b₂ * X ^ 2 + C (2 * W.b₄) * X + C W.b₆
+noncomputable def Ψ₂Sq : R[X] := C 4 * X ^ 3 + C W.b₂ * X ^ 2 + C (2 * W.b₄) * X + C W.b₆
 
 lemma C_Ψ₂Sq : C W.Ψ₂Sq = W.ψ₂ ^ 2 - 4 * W.toAffine.polynomial := by
   rw [Ψ₂Sq, ψ₂, b₂, b₄, b₆, Affine.polynomialY, Affine.polynomial]
@@ -142,16 +140,19 @@ section preΨ'
 noncomputable def Ψ₃ : R[X] :=
   3 * X ^ 4 + C W.b₂ * X ^ 3 + 3 * C W.b₄ * X ^ 2 + 3 * C W.b₆ * X + C W.b₈
 
-/-- The univariate polynomial `preΨ₄`, which is auxiliary to the 4-division polynomial
-`ψ₄ = Ψ₄ = preΨ₄ψ₂`. -/
+/--
+The univariate polynomial `preΨ₄`, which is auxiliary to the 4-division polynomial
+`ψ₄ = Ψ₄ = preΨ₄ψ₂`.
+-/
 noncomputable def preΨ₄ : R[X] :=
-  2 * X ^ 6 + C W.b₂ * X ^ 5 + 5 * C W.b₄ * X ^ 4 + 10 * C W.b₆ * X ^ 3 + 10 * C W.b₈ * X ^ 2 +
-    C (W.b₂ * W.b₈ - W.b₄ * W.b₆) * X + C (W.b₄ * W.b₈ - W.b₆ ^ 2)
+  2 * X ^ 6 + C W.b₂ * X ^ 5 + 5 * C W.b₄ * X ^ 4 + 10 * C W.b₆ * X ^ 3 + 10 * C W.b₈ * X ^ 2
+    + C (W.b₂ * W.b₈ - W.b₄ * W.b₆) * X + C (W.b₄ * W.b₈ - W.b₆ ^ 2)
 
-/-- The univariate polynomials `preΨₙ` for `n ∈ ℕ`, which are auxiliary to the bivariate polynomials
-`Ψₙ` congruent to the bivariate `n`-division polynomials `ψₙ`. -/
-noncomputable def preΨ' (n : ℕ) : R[X] :=
-  preNormEDS' (W.Ψ₂Sq ^ 2) W.Ψ₃ W.preΨ₄ n
+/--
+The univariate polynomials `preΨₙ` for `n ∈ ℕ`, which are auxiliary to the bivariate polynomials
+`Ψₙ` congruent to the bivariate `n`-division polynomials `ψₙ`.
+-/
+noncomputable def preΨ' (n : ℕ) : R[X] := preNormEDS' (W.Ψ₂Sq ^ 2) W.Ψ₃ W.preΨ₄ n
 
 @[simp]
 lemma preΨ'_zero : W.preΨ' 0 = 0 :=
@@ -189,10 +190,11 @@ section preΨ
 
 /-! ### The univariate polynomials `preΨₙ` for `n ∈ ℤ` -/
 
-/-- The univariate polynomials `preΨₙ` for `n ∈ ℤ`, which are auxiliary to the bivariate polynomials
-`Ψₙ` congruent to the bivariate `n`-division polynomials `ψₙ`. -/
-noncomputable def preΨ (n : ℤ) : R[X] :=
-  preNormEDS (W.Ψ₂Sq ^ 2) W.Ψ₃ W.preΨ₄ n
+/--
+The univariate polynomials `preΨₙ` for `n ∈ ℤ`, which are auxiliary to the bivariate polynomials
+`Ψₙ` congruent to the bivariate `n`-division polynomials `ψₙ`.
+-/
+noncomputable def preΨ (n : ℤ) : R[X] := preNormEDS (W.Ψ₂Sq ^ 2) W.Ψ₃ W.preΨ₄ n
 
 @[simp]
 lemma preΨ_ofNat (n : ℕ) : W.preΨ n = W.preΨ' n :=
@@ -239,8 +241,7 @@ section ΨSq
 /-! ### The univariate polynomials `ΨSqₙ` -/
 
 /-- The univariate polynomials `ΨSqₙ` congruent to `ψₙ²`. -/
-noncomputable def ΨSq (n : ℤ) : R[X] :=
-  W.preΨ n ^ 2 * if Even n then W.Ψ₂Sq else 1
+noncomputable def ΨSq (n : ℤ) : R[X] := W.preΨ n ^ 2 * if Even n then W.Ψ₂Sq else 1
 
 @[simp]
 lemma ΨSq_ofNat (n : ℕ) : W.ΨSq n = W.preΨ' n ^ 2 * if Even n then W.Ψ₂Sq else 1 := by
@@ -287,8 +288,7 @@ section Ψ
 /-! ### The bivariate polynomials `Ψₙ` -/
 
 /-- The bivariate polynomials `Ψₙ` congruent to the `n`-division polynomials `ψₙ`. -/
-protected noncomputable def Ψ (n : ℤ) : R[X][Y] :=
-  C (W.preΨ n) * if Even n then W.ψ₂ else 1
+protected noncomputable def Ψ (n : ℤ) : R[X][Y] := C (W.preΨ n) * if Even n then W.ψ₂ else 1
 
 open WeierstrassCurve (Ψ)
 
@@ -398,8 +398,7 @@ section ψ
 /-! ### The bivariate polynomials `ψₙ` -/
 
 /-- The bivariate `n`-division polynomials `ψₙ`. -/
-protected noncomputable def ψ (n : ℤ) : R[X][Y] :=
-  normEDS W.ψ₂ (C W.Ψ₃) (C W.preΨ₄) n
+protected noncomputable def ψ (n : ℤ) : R[X][Y] := normEDS W.ψ₂ (C W.Ψ₃) (C W.preΨ₄) n
 
 open WeierstrassCurve (Ψ ψ)
 
@@ -445,8 +444,7 @@ section φ
 /-! ### The bivariate polynomials `φₙ` -/
 
 /-- The bivariate polynomials `φₙ`. -/
-protected noncomputable def φ (n : ℤ) : R[X][Y] :=
-  C X * W.ψ n ^ 2 - W.ψ (n + 1) * W.ψ (n - 1)
+protected noncomputable def φ (n : ℤ) : R[X][Y] := C X * W.ψ n ^ 2 - W.ψ (n + 1) * W.ψ (n - 1)
 
 open WeierstrassCurve (Ψ Φ φ)
 
@@ -547,8 +545,11 @@ section BaseChange
 
 /-! ### Base changes across algebra homomorphisms -/
 
-variable [Algebra R S] {A : Type u} [CommRing A] [Algebra R A] [Algebra S A] [IsScalarTower R S A]
-  {B : Type v} [CommRing B] [Algebra R B] [Algebra S B] [IsScalarTower R S B] (f : A →ₐ[S] B)
+variable
+  [Algebra R S]
+  {A : Type u} [CommRing A] [Algebra R A] [Algebra S A] [IsScalarTower R S A]
+  {B : Type v} [CommRing B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
+  (f : A →ₐ[S] B)
 
 lemma baseChange_ψ₂ : (W⁄B).ψ₂ = (W⁄A).ψ₂.map (mapRingHom f) := by
   rw [← map_ψ₂, map_baseChange]

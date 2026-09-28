@@ -43,19 +43,23 @@ open scoped ENNReal NNReal
 
 namespace Real
 
-/-- Real numbers `p q r : ℝ` are said to be a **Hölder triple** if `p` and `q` are positive
-and `p⁻¹ + q⁻¹ = r⁻¹`. -/
+/--
+Real numbers `p q r : ℝ` are said to be a **Hölder triple** if `p` and `q` are positive
+and `p⁻¹ + q⁻¹ = r⁻¹`.
+-/
 @[mk_iff]
 structure HolderTriple (p q r : ℝ) : Prop where
   inv_add_inv_eq_inv : p⁻¹ + q⁻¹ = r⁻¹
   left_pos : 0 < p
   right_pos : 0 < q
 
-/-- Real numbers `p q : ℝ` are **Hölder conjugate** if they are positive and satisfy the
+/--
+Real numbers `p q : ℝ` are **Hölder conjugate** if they are positive and satisfy the
 equality `p⁻¹ + q⁻¹ = 1`. This is an abbreviation for `Real.HolderTriple p q 1`. This condition
 shows up in many theorems in analysis, notably related to `L^p` norms.
 
-It is equivalent that `1 < p` and `p⁻¹ + q⁻¹ = 1`. See `Real.holderConjugate_iff`. -/
+It is equivalent that `1 < p` and `p⁻¹ + q⁻¹ = 1`. See `Real.holderConjugate_iff`.
+-/
 abbrev HolderConjugate (p q : ℝ) := HolderTriple p q 1
 
 /-- The conjugate exponent of `p` is `q = p / (p-1)`, so that `p⁻¹ + q⁻¹ = 1`. -/
@@ -171,9 +175,10 @@ theorem div_conj_eq_sub_one : p / q = p - 1 := by
   linear_combination -h.sub_one_mul_conj
 
 theorem inv_add_inv_ennreal : (ENNReal.ofReal p)⁻¹ + (ENNReal.ofReal q)⁻¹ = 1 := by
-  rw [← ENNReal.ofReal_one, ← ENNReal.ofReal_inv_of_pos h.pos,
-    ← ENNReal.ofReal_inv_of_pos h.symm.pos, ← ENNReal.ofReal_add h.inv_nonneg h.symm.inv_nonneg,
-    h.inv_add_inv_eq_one]
+  rw [
+    ← ENNReal.ofReal_one, ← ENNReal.ofReal_inv_of_pos h.pos, ← ENNReal.ofReal_inv_of_pos h.symm.pos,
+    ← ENNReal.ofReal_add h.inv_nonneg h.symm.inv_nonneg, h.inv_add_inv_eq_one
+  ]
 
 end
 
@@ -213,19 +218,23 @@ end Real
 
 namespace NNReal
 
-/-- Nonnegative real numbers `p q r : ℝ≥0` are said to be a **Hölder triple** if `p` and `q` are
-positive and `p⁻¹ + q⁻¹ = r⁻¹`. -/
+/--
+Nonnegative real numbers `p q r : ℝ≥0` are said to be a **Hölder triple** if `p` and `q` are
+positive and `p⁻¹ + q⁻¹ = r⁻¹`.
+-/
 @[mk_iff]
 structure HolderTriple (p q r : ℝ≥0) : Prop where
   inv_add_inv_eq_inv : p⁻¹ + q⁻¹ = r⁻¹
   left_pos : 0 < p
   right_pos : 0 < q
 
-/-- Nonnegative real numbers `p q : ℝ≥0` are **Hölder conjugate** if they are positive and satisfy
+/--
+Nonnegative real numbers `p q : ℝ≥0` are **Hölder conjugate** if they are positive and satisfy
 the equality `p⁻¹ + q⁻¹ = 1`. This is an abbreviation for `NNReal.HolderTriple p q 1`. This
 condition shows up in many theorems in analysis, notably related to `L^p` norms.
 
-It is equivalent that `1 < p` and `p⁻¹ + q⁻¹ = 1`. See `NNReal.holderConjugate_iff`. -/
+It is equivalent that `1 < p` and `p⁻¹ + q⁻¹ = 1`. See `NNReal.holderConjugate_iff`.
+-/
 abbrev HolderConjugate (p q : ℝ≥0) := HolderTriple p q 1
 
 /-- The conjugate exponent of `p` is `q = p/(p-1)`, so that `p⁻¹ + q⁻¹ = 1`. -/
@@ -408,7 +417,6 @@ lemma coe_conjExponent {p : ℝ≥0} (hp : 1 < p) : p.conjExponent = conjExponen
   norm_cast
   field_simp [(tsub_pos_of_lt hp).ne']
   rw [tsub_add_cancel_of_le hp.le]
-
 
 variable {a b p q r : ℝ≥0∞}
 

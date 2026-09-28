@@ -33,8 +33,7 @@ theorem isZero_of_subsingleton (G : GrpCat) [Subsingleton G] : IsZero G := by
     subsingleton
 
 @[to_additive AddGrpCat.hasZeroObject]
-instance : HasZeroObject GrpCat :=
-  ⟨⟨of PUnit, isZero_of_subsingleton _⟩⟩
+instance : HasZeroObject GrpCat := ⟨⟨of PUnit, isZero_of_subsingleton _⟩⟩
 
 @[to_additive]
 lemma subsingleton_of_isZero {G : GrpCat} (h : Limits.IsZero G) :
@@ -64,8 +63,7 @@ theorem isZero_of_subsingleton (G : CommGrpCat) [Subsingleton G] : IsZero G := b
     subsingleton
 
 @[to_additive AddCommGrpCat.hasZeroObject]
-instance : HasZeroObject CommGrpCat :=
-  ⟨⟨of PUnit, isZero_of_subsingleton _⟩⟩
+instance : HasZeroObject CommGrpCat := ⟨⟨of PUnit, isZero_of_subsingleton _⟩⟩
 
 @[to_additive]
 lemma subsingleton_of_isZero {G : CommGrpCat} (h : Limits.IsZero G) :

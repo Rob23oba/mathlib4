@@ -24,7 +24,6 @@ For the definitions of semirings and rings see `Mathlib/Algebra/Ring/Defs.lean`.
 
 public section
 
-
 universe u
 
 variable {R : Type u}
@@ -42,36 +41,33 @@ theorem add_left [Distrib R] {a b c : R} : Commute a c → Commute b c → Commu
 -- for some reason mathport expected `Semiring` instead of `Distrib`?
 
 /-- Representation of a difference of two squares of commuting elements as a product. -/
-theorem mul_self_sub_mul_self_eq [NonUnitalNonAssocRing R] {a b : R} (h : Commute a b) :
-    a * a - b * b = (a + b) * (a - b) := by
+theorem mul_self_sub_mul_self_eq [NonUnitalNonAssocRing R] {a b : R} (h : Commute a b)
+    : a * a - b * b = (a + b) * (a - b) := by
   rw [add_mul, mul_sub, mul_sub, h.eq, sub_add_sub_cancel]
 
-theorem mul_self_sub_mul_self_eq' [NonUnitalNonAssocRing R] {a b : R} (h : Commute a b) :
-    a * a - b * b = (a - b) * (a + b) := by
+theorem mul_self_sub_mul_self_eq' [NonUnitalNonAssocRing R] {a b : R} (h : Commute a b)
+    : a * a - b * b = (a - b) * (a + b) := by
   rw [mul_add, sub_mul, sub_mul, h.eq, sub_add_sub_cancel]
 
-theorem mul_self_eq_mul_self_iff [NonUnitalNonAssocRing R] [NoZeroDivisors R] {a b : R}
-    (h : Commute a b) : a * a = b * b ↔ a = b ∨ a = -b := by
-  rw [← sub_eq_zero, h.mul_self_sub_mul_self_eq, mul_eq_zero, or_comm, sub_eq_zero,
-    add_eq_zero_iff_eq_neg]
+theorem mul_self_eq_mul_self_iff
+    [NonUnitalNonAssocRing R] [NoZeroDivisors R] {a b : R} (h : Commute a b)
+    : a * a = b * b ↔ a = b ∨ a = -b := by
+  rw [
+    ← sub_eq_zero, h.mul_self_sub_mul_self_eq, mul_eq_zero, or_comm, sub_eq_zero,
+    add_eq_zero_iff_eq_neg
+  ]
 
 section
 
 variable [Mul R] [HasDistribNeg R] {a b : R}
 
-theorem neg_right : Commute a b → Commute a (-b) :=
-  SemiconjBy.neg_right
+theorem neg_right : Commute a b → Commute a (-b) := SemiconjBy.neg_right
 
-@[simp]
-theorem neg_right_iff : Commute a (-b) ↔ Commute a b :=
-  SemiconjBy.neg_right_iff
+@[simp] theorem neg_right_iff : Commute a (-b) ↔ Commute a b := SemiconjBy.neg_right_iff
 
-theorem neg_left : Commute a b → Commute (-a) b :=
-  SemiconjBy.neg_left
+theorem neg_left : Commute a b → Commute (-a) b := SemiconjBy.neg_left
 
-@[simp]
-theorem neg_left_iff : Commute (-a) b ↔ Commute a b :=
-  SemiconjBy.neg_left_iff
+@[simp] theorem neg_left_iff : Commute (-a) b ↔ Commute a b := SemiconjBy.neg_left_iff
 
 end
 
@@ -79,11 +75,9 @@ section
 
 variable [MulOneClass R] [HasDistribNeg R]
 
-theorem neg_one_right (a : R) : Commute a (-1) :=
-  SemiconjBy.neg_one_right a
+theorem neg_one_right (a : R) : Commute a (-1) := SemiconjBy.neg_one_right a
 
-theorem neg_one_left (a : R) : Commute (-1) a :=
-  SemiconjBy.neg_one_left a
+theorem neg_one_left (a : R) : Commute (-1) a := SemiconjBy.neg_one_left a
 
 end
 
@@ -91,13 +85,9 @@ section
 
 variable [NonUnitalNonAssocRing R] {a b c : R}
 
-@[simp]
-theorem sub_right : Commute a b → Commute a c → Commute a (b - c) :=
-  SemiconjBy.sub_right
+@[simp] theorem sub_right : Commute a b → Commute a c → Commute a (b - c) := SemiconjBy.sub_right
 
-@[simp]
-theorem sub_left : Commute a c → Commute b c → Commute (a - b) c :=
-  SemiconjBy.sub_left
+@[simp] theorem sub_left : Commute a c → Commute b c → Commute (a - b) c := SemiconjBy.sub_left
 
 end
 
@@ -179,19 +169,19 @@ lemma sq_ne_one_iff : a ^ 2 ≠ 1 ↔ a ≠ 1 ∧ a ≠ -1 := sq_eq_one_iff.not.
 end Ring
 
 /-- Representation of a difference of two squares in a commutative ring as a product. -/
-theorem mul_self_sub_mul_self [NonUnitalNonAssocCommRing R] (a b : R) :
-    a * a - b * b = (a + b) * (a - b) :=
+theorem mul_self_sub_mul_self [NonUnitalNonAssocCommRing R] (a b : R)
+    : a * a - b * b = (a + b) * (a - b) :=
   (Commute.all a b).mul_self_sub_mul_self_eq
 
 theorem mul_self_sub_one [NonAssocRing R] (a : R) : a * a - 1 = (a + 1) * (a - 1) := by
   rw [← (Commute.one_right a).mul_self_sub_mul_self_eq, mul_one]
 
-theorem mul_self_eq_mul_self_iff [NonUnitalNonAssocCommRing R] [NoZeroDivisors R] {a b : R} :
-    a * a = b * b ↔ a = b ∨ a = -b :=
+theorem mul_self_eq_mul_self_iff [NonUnitalNonAssocCommRing R] [NoZeroDivisors R] {a b : R}
+    : a * a = b * b ↔ a = b ∨ a = -b :=
   (Commute.all a b).mul_self_eq_mul_self_iff
 
-theorem mul_self_eq_one_iff [NonAssocRing R] [NoZeroDivisors R] {a : R} :
-    a * a = 1 ↔ a = 1 ∨ a = -1 := by
+theorem mul_self_eq_one_iff [NonAssocRing R] [NoZeroDivisors R] {a : R}
+    : a * a = 1 ↔ a = 1 ∨ a = -1 := by
   rw [← (Commute.one_right a).mul_self_eq_mul_self_iff, mul_one]
 
 section CommRing
@@ -234,8 +224,10 @@ end CommRing
 
 namespace Units
 
-/-- In the unit group of an integral domain, a unit is its own inverse iff the unit is one or
-  one's additive inverse. -/
+/--
+In the unit group of an integral domain, a unit is its own inverse iff the unit is one or
+one's additive inverse.
+-/
 theorem inv_eq_self_iff [Ring R] [NoZeroDivisors R] (u : Rˣ) : u⁻¹ = u ↔ u = 1 ∨ u = -1 := by
   rw [inv_eq_iff_mul_eq_one]
   simp only [Units.ext_iff]

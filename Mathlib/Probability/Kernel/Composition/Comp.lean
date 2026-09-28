@@ -35,7 +35,6 @@ a kernel from `α` to `γ`.
 
 @[expose] public section
 
-
 open MeasureTheory
 
 open scoped ENNReal
@@ -54,20 +53,19 @@ noncomputable def comp (η : Kernel β γ) (κ : Kernel α β) : Kernel α γ wh
 @[inherit_doc]
 scoped[ProbabilityTheory] infixl:100 " ∘ₖ " => ProbabilityTheory.Kernel.comp
 
-theorem comp_apply (η : Kernel β γ) (κ : Kernel α β) (a : α) : (η ∘ₖ κ) a = (κ a).bind η :=
-  rfl
+theorem comp_apply (η : Kernel β γ) (κ : Kernel α β) (a : α) : (η ∘ₖ κ) a = (κ a).bind η := rfl
 
-theorem comp_apply' (η : Kernel β γ) (κ : Kernel α β) (a : α) {s : Set γ} (hs : MeasurableSet s) :
-    (η ∘ₖ κ) a s = ∫⁻ b, η b s ∂κ a := by
+theorem comp_apply' (η : Kernel β γ) (κ : Kernel α β) (a : α) {s : Set γ} (hs : MeasurableSet s)
+    : (η ∘ₖ κ) a s = ∫⁻ b, η b s ∂κ a := by
   rw [comp_apply, Measure.bind_apply hs (Kernel.aemeasurable _)]
 
-theorem comp_apply_univ_le (κ : Kernel α β) (η : Kernel β γ) (a : α) :
-    (η ∘ₖ κ) a Set.univ ≤ κ a Set.univ * η.bound := by
+theorem comp_apply_univ_le (κ : Kernel α β) (η : Kernel β γ) (a : α)
+    : (η ∘ₖ κ) a Set.univ ≤ κ a Set.univ * η.bound := by
   rw [comp_apply' _ _ _ .univ]
   let Cη := η.bound
   calc
-    ∫⁻ b, η b Set.univ ∂κ a ≤ ∫⁻ _, Cη ∂κ a :=
-      lintegral_mono fun b => measure_le_bound η b Set.univ
+    ∫⁻ b, η b Set.univ ∂κ a
+      ≤ ∫⁻ _, Cη ∂κ a := lintegral_mono fun b => measure_le_bound η b Set.univ
     _ = Cη * κ a Set.univ := MeasureTheory.lintegral_const Cη
     _ = κ a Set.univ * Cη := mul_comm _ _
 
@@ -98,21 +96,23 @@ theorem ae_lt_top_of_comp_ne_top (a : α) (hs : (η ∘ₖ κ) a s ≠ ∞) : �
     rwa [← Kernel.comp_apply' _ _ _ (measurableSet_toMeasurable ..), measure_toMeasurable]
   filter_upwards [h] with b hb using (measure_mono (subset_toMeasurable _ _)).trans_lt hb
 
-theorem comp_null (a : α) (hs : MeasurableSet s) :
-    (η ∘ₖ κ) a s = 0 ↔ (fun y ↦ η y s) =ᵐ[κ a] 0 := by
+theorem comp_null (a : α) (hs : MeasurableSet s)
+    : (η ∘ₖ κ) a s = 0 ↔ (fun y ↦ η y s) =ᵐ[κ a] 0 := by
   rw [comp_apply' _ _ _ hs, lintegral_eq_zero_iff (η.measurable_coe hs)]
 
 theorem ae_null_of_comp_null (h : (η ∘ₖ κ) a s = 0) : (η · s) =ᵐ[κ a] 0 := by
   obtain ⟨t, hst, mt, ht⟩ := exists_measurable_superset_of_null h
   simp_rw [comp_null a mt] at ht
   rw [Filter.eventuallyLE_antisymm_iff]
-  exact ⟨Filter.EventuallyLE.trans_eq (ae_of_all _ fun _ ↦ measure_mono hst) ht,
-    ae_of_all _ fun _ ↦ zero_le⟩
+  exact ⟨
+    Filter.EventuallyLE.trans_eq (ae_of_all _ fun _ ↦ measure_mono hst) ht,
+    ae_of_all _ fun _ ↦ zero_le
+  ⟩
 
 variable {p : γ → Prop}
 
-theorem ae_ae_of_ae_comp (h : ∀ᵐ z ∂(η ∘ₖ κ) a, p z) :
-    ∀ᵐ y ∂κ a, ∀ᵐ z ∂η y, p z := ae_null_of_comp_null h
+theorem ae_ae_of_ae_comp (h : ∀ᵐ z ∂(η ∘ₖ κ) a, p z) : ∀ᵐ y ∂κ a, ∀ᵐ z ∂η y, p z :=
+  ae_null_of_comp_null h
 
 lemma ae_comp_of_ae_ae (hp : MeasurableSet {z | p z})
     (h : ∀ᵐ y ∂κ a, ∀ᵐ z ∂η y, p z) : ∀ᵐ z ∂(η ∘ₖ κ) a, p z := by
@@ -129,20 +129,21 @@ section Restrict
 
 variable {κ : Kernel α β} {η : Kernel β γ}
 
-theorem comp_restrict {s : Set γ} (hs : MeasurableSet s) :
-    η.restrict hs ∘ₖ κ = (η ∘ₖ κ).restrict hs := by
+theorem comp_restrict {s : Set γ} (hs : MeasurableSet s)
+    : η.restrict hs ∘ₖ κ = (η ∘ₖ κ).restrict hs := by
   ext a t ht
   simp_rw [comp_apply' _ _ _ ht, restrict_apply' _ _ _ ht, comp_apply' _ _ _ (ht.inter hs)]
 
 end Restrict
 
-theorem lintegral_comp (η : Kernel β γ) (κ : Kernel α β) (a : α) {g : γ → ℝ≥0∞}
-    (hg : Measurable g) : ∫⁻ c, g c ∂(η ∘ₖ κ) a = ∫⁻ b, ∫⁻ c, g c ∂η b ∂κ a := by
+theorem lintegral_comp (η : Kernel β γ) (κ : Kernel α β) (a : α) {g : γ → ℝ≥0∞} (hg : Measurable g)
+    : ∫⁻ c, g c ∂(η ∘ₖ κ) a = ∫⁻ b, ∫⁻ c, g c ∂η b ∂κ a := by
   rw [comp_apply, Measure.lintegral_bind (Kernel.aemeasurable _) hg.aemeasurable]
 
 /-- Composition of kernels is associative. -/
-theorem comp_assoc {δ : Type*} {mδ : MeasurableSpace δ} (ξ : Kernel γ δ)
-    (η : Kernel β γ) (κ : Kernel α β) : ξ ∘ₖ η ∘ₖ κ = ξ ∘ₖ (η ∘ₖ κ) := by
+theorem comp_assoc
+    {δ : Type*} {mδ : MeasurableSpace δ} (ξ : Kernel γ δ) (η : Kernel β γ) (κ : Kernel α β)
+    : ξ ∘ₖ η ∘ₖ κ = ξ ∘ₖ (η ∘ₖ κ) := by
   refine ext_fun fun a f hf => ?_
   simp_rw [lintegral_comp _ _ _ hf, lintegral_comp _ _ _ hf.lintegral_kernel]
 
@@ -208,28 +209,31 @@ lemma copy_comp_apply_prod (κ : Kernel α β) (a : α) {s t : Set β} (hs : Mea
     simp [Set.inter_indicator_one]
   _ = κ a (s ∩ t) := lintegral_indicator_one <| hs.inter ht
 
-instance IsMarkovKernel.comp (η : Kernel β γ) [IsMarkovKernel η] (κ : Kernel α β)
-    [IsMarkovKernel κ] : IsMarkovKernel (η ∘ₖ κ) where
+instance IsMarkovKernel.comp (η : Kernel β γ) [IsMarkovKernel η] (κ : Kernel α β) [IsMarkovKernel κ]
+    : IsMarkovKernel (η ∘ₖ κ) where
   isProbabilityMeasure a := by
     rw [comp_apply]
     constructor
     rw [Measure.bind_apply .univ η.aemeasurable]
     simp
 
-instance IsZeroOrMarkovKernel.comp (κ : Kernel α β) [IsZeroOrMarkovKernel κ]
-    (η : Kernel β γ) [IsZeroOrMarkovKernel η] : IsZeroOrMarkovKernel (η ∘ₖ κ) := by
+instance IsZeroOrMarkovKernel.comp
+    (κ : Kernel α β) [IsZeroOrMarkovKernel κ] (η : Kernel β γ) [IsZeroOrMarkovKernel η]
+    : IsZeroOrMarkovKernel (η ∘ₖ κ) := by
   obtain rfl | _ := eq_zero_or_isMarkovKernel κ <;> obtain rfl | _ := eq_zero_or_isMarkovKernel η
   all_goals simpa using by infer_instance
 
-instance IsFiniteKernel.comp (η : Kernel β γ) [IsFiniteKernel η] (κ : Kernel α β)
-    [IsFiniteKernel κ] : IsFiniteKernel (η ∘ₖ κ) := by
+instance IsFiniteKernel.comp (η : Kernel β γ) [IsFiniteKernel η] (κ : Kernel α β) [IsFiniteKernel κ]
+    : IsFiniteKernel (η ∘ₖ κ) := by
   refine ⟨⟨κ.bound * η.bound, ENNReal.mul_lt_top κ.bound_lt_top η.bound_lt_top, fun a ↦ ?_⟩⟩
-  calc (η ∘ₖ κ) a Set.univ
-  _ ≤ κ a Set.univ * η.bound := comp_apply_univ_le κ η a
-  _ ≤ κ.bound * η.bound := by gcongr; exact measure_le_bound κ a Set.univ
+  calc
+    (η ∘ₖ κ) a Set.univ
+    _ ≤ κ a Set.univ * η.bound := comp_apply_univ_le κ η a
+    _ ≤ κ.bound * η.bound := by gcongr; exact measure_le_bound κ a Set.univ
 
-instance IsSFiniteKernel.comp (η : Kernel β γ) [IsSFiniteKernel η] (κ : Kernel α β)
-    [IsSFiniteKernel κ] : IsSFiniteKernel (η ∘ₖ κ) := by
+instance IsSFiniteKernel.comp
+    (η : Kernel β γ) [IsSFiniteKernel η] (κ : Kernel α β) [IsSFiniteKernel κ]
+    : IsSFiniteKernel (η ∘ₖ κ) := by
   simp_rw [← kernel_sum_seq κ, ← kernel_sum_seq η, comp_sum_left, comp_sum_right]
   infer_instance
 
@@ -244,22 +248,24 @@ noncomputable instance : Monoid (Kernel α α) where
 
 /-! ### Chapman-Kolmogorov Equations -/
 
-/-- The **Chapman-Kolmogorov equation**, kernel composition version.
+/--
+The **Chapman-Kolmogorov equation**, kernel composition version.
 The `n+m`-step transition kernel is the composition of the `n`-step and `m`-step kernels.
-Ref. *Meyn-Tweedie* Theorem 3.4.2, page 68 -/
-theorem pow_add (κ : Kernel α α) (m n : ℕ) :
-    κ ^ (m + n) = (κ ^ m) ∘ₖ (κ ^ n) := _root_.pow_add κ m n
+Ref. *Meyn-Tweedie* Theorem 3.4.2, page 68
+-/
+theorem pow_add (κ : Kernel α α) (m n : ℕ) : κ ^ (m + n) = (κ ^ m) ∘ₖ (κ ^ n) :=
+  _root_.pow_add κ m n
 
 /-- The **Chapman-Kolmogorov equation**, integral version. -/
-theorem pow_add_apply_eq_lintegral (κ : Kernel α α) (m n : ℕ) (a : α) {s : Set α}
-    (hs : MeasurableSet s) :
-    (κ ^ (m + n)) a s = ∫⁻ b, (κ ^ n) b s ∂((κ ^ m) a) := by
+theorem pow_add_apply_eq_lintegral
+    (κ : Kernel α α) (m n : ℕ) (a : α) {s : Set α} (hs : MeasurableSet s)
+    : (κ ^ (m + n)) a s = ∫⁻ b, (κ ^ n) b s ∂((κ ^ m) a) := by
   rw [add_comm]; simp [pow_add, comp_apply' _ _ _ hs]
 
 /-- A version of the Chapman-Kolmogorov equation useful for paths. -/
-theorem pow_succ_apply_eq_lintegral (κ : Kernel α α) (n : ℕ) (a : α) {s : Set α}
-    (hs : MeasurableSet s) :
-    (κ ^ (n + 1)) a s = ∫⁻ b, κ b s ∂((κ ^ n) a) := by
+theorem pow_succ_apply_eq_lintegral
+    (κ : Kernel α α) (n : ℕ) (a : α) {s : Set α} (hs : MeasurableSet s)
+    : (κ ^ (n + 1)) a s = ∫⁻ b, κ b s ∂((κ ^ n) a) := by
   simpa using pow_add_apply_eq_lintegral _ n 1 _ hs
 
 end Monoid

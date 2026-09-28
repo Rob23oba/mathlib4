@@ -23,15 +23,15 @@ open scoped Simplicial
 
 namespace SimplexCategory
 
-/-- If `n + i = m`, this is the morphism `⦋n⦌ ⟶ ⦋m⦌` in the simplex category
+/--
+If `n + i = m`, this is the morphism `⦋n⦌ ⟶ ⦋m⦌` in the simplex category
 which is obtained as the `i`th iteration of `δ 0`: it sends `j : Fin (n + 1)` to
 `⟨j.val + i, _⟩`. This may also be described as the order embedding
 `Fin.addNatOrderEmb i : Fin (n + 1) ↪o Fin (n + 1 + i)`
-followed by the order isomorphism `Fin (n + 1 + i) ≃o Fin (m + 1)`. -/
+followed by the order isomorphism `Fin (n + 1 + i) ≃o Fin (m + 1)`.
+-/
 def δ₀Iter (i : ℕ) {n m : ℕ} (hi : n + i = m := by lia) : ⦋n⦌ ⟶ ⦋m⦌ :=
-  Hom.mk
-    { toFun j := ⟨j.val + i, by lia ⟩
-      monotone' _ _ := by grind }
+  Hom.mk { toFun j := ⟨j.val + i, by lia⟩, monotone' _ _ := by grind }
 
 lemma δ₀Iter_apply (i : ℕ) {n m : ℕ} (j : Fin (n + 1)) (hi : n + i = m := by lia) :
     dsimp% (δ₀Iter i hi j) = ⟨j.val + i, by lia⟩ := rfl
@@ -115,13 +115,15 @@ lemma δ₀Iter_σ' (i : ℕ) {n m : ℕ} (j : Fin (m + 1))
         dsimp% δ_comp_σ_of_le (i := 0) (j := j) (by simp),
         reassoc_of% hi j j' (by lia) (by grind)]
 
-/-- If `n + i = m`, this is the morphism `⦋m⦌ ⟶ ⦋n⦌` in the simplex category
-which is obtained as the `i`th iteration of `σ 0`. -/
+/--
+If `n + i = m`, this is the morphism `⦋m⦌ ⟶ ⦋n⦌` in the simplex category
+which is obtained as the `i`th iteration of `σ 0`.
+-/
 def σ₀Iter (i : ℕ) {n m : ℕ} (hi : n + i = m := by lia) : ⦋m⦌ ⟶ ⦋n⦌ :=
-  Hom.mk
-    { toFun j :=
-        if j.val < i then 0 else ⟨j.val - i, by lia⟩
-      monotone' _ _ _ := by grind [Fin.zero_le] }
+  Hom.mk {
+    toFun j := if j.val < i then 0 else ⟨j.val - i, by lia⟩
+    monotone' _ _ _ := by grind [Fin.zero_le]
+  }
 
 lemma σ₀Iter_coe_eq_of_lt (i : ℕ) {n m : ℕ}
     (j : Fin (m + 1)) (hi : n + i = m := by lia) (hj : j.val < i := by grind) :

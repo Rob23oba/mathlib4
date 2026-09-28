@@ -72,17 +72,20 @@ lemma mul_apply (γ₁ γ₂ : ZeroCochain G U) (i : I) : (γ₁ * γ₂) i = γ
 
 end Cochain₀
 
-/-- A 1-cochain of a presheaf of groups `G : Cᵒᵖ ⥤ GrpCat` on a family `U : I → C` of objects
+/--
+A 1-cochain of a presheaf of groups `G : Cᵒᵖ ⥤ GrpCat` on a family `U : I → C` of objects
 consists of the data of an element in `G.obj (Opposite.op T)` whenever we have elements
 `i` and `j` in `I` and maps `a : T ⟶ U i` and `b : T ⟶ U j`, and it must satisfy a compatibility
 with respect to precomposition. (When the binary product of `U i` and `U j` exists, this
-data for all `T`, `a` and `b` corresponds to the data of a section of `G` on this product.) -/
+data for all `T`, `a` and `b` corresponds to the data of a section of `G` on this product.)
+-/
 @[ext]
 structure OneCochain where
   /-- the data involved in a 1-cochain -/
   ev (i j : I) ⦃T : C⦄ (a : T ⟶ U i) (b : T ⟶ U j) : G.obj (Opposite.op T)
-  ev_precomp (i j : I) ⦃T T' : C⦄ (φ : T ⟶ T') (a : T' ⟶ U i) (b : T' ⟶ U j) :
-    G.map φ.op (ev i j a b) = ev i j (φ ≫ a) (φ ≫ b) := by aesop
+  ev_precomp (i j : I) ⦃T T' : C⦄ (φ : T ⟶ T') (a : T' ⟶ U i) (b : T' ⟶ U j)
+      : G.map φ.op (ev i j a b) = ev i j (φ ≫ a) (φ ≫ b) := by
+    aesop
 
 namespace OneCochain
 
@@ -121,8 +124,9 @@ end OneCochain
 
 /-- A 1-cocycle is a 1-cochain which satisfies the cocycle condition. -/
 structure OneCocycle extends OneCochain G U where
-  ev_trans (i j k : I) ⦃T : C⦄ (a : T ⟶ U i) (b : T ⟶ U j) (c : T ⟶ U k) :
-      ev i j a b * ev j k b c = ev i k a c := by aesop
+  ev_trans (i j k : I) ⦃T : C⦄ (a : T ⟶ U i) (b : T ⟶ U j) (c : T ⟶ U k)
+      : ev i j a b * ev j k b c = ev i k a c := by
+    aesop
 
 namespace OneCocycle
 
@@ -146,8 +150,10 @@ end OneCocycle
 
 variable {G U}
 
-/-- The assertion that two cochains in `OneCochain G U` are cohomologous via
-an explicit zero-cochain. -/
+/--
+The assertion that two cochains in `OneCochain G U` are cohomologous via
+an explicit zero-cochain.
+-/
 def OneCohomologyRelation (γ₁ γ₂ : OneCochain G U) (α : ZeroCochain G U) : Prop :=
   ∀ (i j : I) ⦃T : C⦄ (a : T ⟶ U i) (b : T ⟶ U j),
     G.map a.op (α i) * γ₁.ev i j a b = γ₂.ev i j a b * G.map b.op (α j)
@@ -192,8 +198,10 @@ lemma equivalence_isCohomologous :
 end OneCocycle
 
 variable (G U) in
-/-- The cohomology in degree 1 of a presheaf of groups
-`G : Cᵒᵖ ⥤ GrpCat` on a family of objects `U : I → C`. -/
+/--
+The cohomology in degree 1 of a presheaf of groups
+`G : Cᵒᵖ ⥤ GrpCat` on a family of objects `U : I → C`.
+-/
 def H1 := Quot (OneCocycle.IsCohomologous (G := G) (U := U))
 
 /-- The cohomology class of a 1-cocycle. -/

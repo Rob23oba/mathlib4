@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.SpecificLimits.Normed
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 
-
 /-!
 # Lemmas on infinite sums over the antidiagonal of the divisors function
 
@@ -28,12 +27,15 @@ open Filter ArithmeticFunction Nat
 
 open scoped Topology
 
-/-- The map from `Nat.divisorsAntidiagonal n` to `ℕ+ × ℕ+` given by sending `n = a * b`
-to `(a, b)`. -/
-def divisorsAntidiagonalFactors (n : ℕ+) : Nat.divisorsAntidiagonal n → ℕ+ × ℕ+ := fun x ↦
-  ⟨⟨x.1.1, Nat.pos_of_mem_divisors (Nat.fst_mem_divisors_of_mem_antidiagonal x.2)⟩,
-    (⟨x.1.2, Nat.pos_of_mem_divisors (Nat.snd_mem_divisors_of_mem_antidiagonal x.2)⟩ : ℕ+),
-    Nat.pos_of_mem_divisors (Nat.snd_mem_divisors_of_mem_antidiagonal x.2)⟩
+/--
+The map from `Nat.divisorsAntidiagonal n` to `ℕ+ × ℕ+` given by sending `n = a * b`
+to `(a, b)`.
+-/
+def divisorsAntidiagonalFactors (n : ℕ+) : Nat.divisorsAntidiagonal n → ℕ+ × ℕ+ := fun x ↦ ⟨
+  ⟨x.1.1, Nat.pos_of_mem_divisors (Nat.fst_mem_divisors_of_mem_antidiagonal x.2)⟩,
+  (⟨x.1.2, Nat.pos_of_mem_divisors (Nat.snd_mem_divisors_of_mem_antidiagonal x.2)⟩ : ℕ+),
+  Nat.pos_of_mem_divisors (Nat.snd_mem_divisors_of_mem_antidiagonal x.2)
+⟩
 
 lemma divisorsAntidiagonalFactors_eq {n : ℕ+} (x : Nat.divisorsAntidiagonal n) :
     (divisorsAntidiagonalFactors n x).1.1 * (divisorsAntidiagonalFactors n x).2.1 = n := by
@@ -46,8 +48,10 @@ lemma divisorsAntidiagonalFactors_one (x : Nat.divisorsAntidiagonal 1) :
   simp [divisorsAntidiagonalFactors, h.1, h.2]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The equivalence from the union over `n` of `Nat.divisorsAntidiagonal n` to `ℕ+ × ℕ+`
-given by sending `n = a * b` to `(a, b)`. -/
+/--
+The equivalence from the union over `n` of `Nat.divisorsAntidiagonal n` to `ℕ+ × ℕ+`
+given by sending `n = a * b` to `(a, b)`.
+-/
 def sigmaAntidiagonalEquivProd : (Σ n : ℕ+, Nat.divisorsAntidiagonal n) ≃ ℕ+ × ℕ+ where
   toFun x := divisorsAntidiagonalFactors x.1 x.2
   invFun x :=
@@ -99,25 +103,29 @@ private lemma summable_divisorsAntidiagonal_aux (k : ℕ) {r : 𝕜} (hr : ‖r�
       gcongr
       simpa using! Nat.card_divisors_le_self b
 
-theorem summable_prod_mul_pow (k : ℕ) {r : 𝕜} (hr : ‖r‖ < 1) :
-    Summable fun c : (ℕ+ × ℕ+) ↦ c.2 ^ k * (r ^ (c.1 * c.2 : ℕ)) := by
+theorem summable_prod_mul_pow (k : ℕ) {r : 𝕜} (hr : ‖r‖ < 1)
+    : Summable fun c : (ℕ+ × ℕ+) ↦ c.2 ^ k * (r ^ (c.1 * c.2 : ℕ)) := by
   simpa [sigmaAntidiagonalEquivProd.summable_iff.symm] using! summable_divisorsAntidiagonal_aux k hr
 
 -- access notation `σ`
 open scoped sigma
 
-theorem tsum_prod_pow_eq_tsum_sigma (k : ℕ) {r : 𝕜} (hr : ‖r‖ < 1) :
-    ∑' d : ℕ+, ∑' c : ℕ+, c ^ k * r ^ (d * c : ℕ) = ∑' e : ℕ+, σ k e * r ^ (e : ℕ) := by
-  suffices ∑' c : ℕ+ × ℕ+, c.2 ^ k * r ^ (c.1 * c.2 : ℕ) =
-    ∑' e : ℕ+, σ k e * r ^ (e : ℕ) by rwa [← (summable_prod_mul_pow k hr).tsum_prod]
-  simp only [← sigmaAntidiagonalEquivProd.tsum_eq, sigmaAntidiagonalEquivProd,
-    divisorsAntidiagonalFactors, PNat.mk_coe, Equiv.coe_fn_mk, sigma_eq_sum_div, cast_sum,
-    cast_pow, Summable.tsum_sigma (summable_divisorsAntidiagonal_aux k hr :)]
+theorem tsum_prod_pow_eq_tsum_sigma (k : ℕ) {r : 𝕜} (hr : ‖r‖ < 1)
+    : ∑' d : ℕ+, ∑' c : ℕ+, c ^ k * r ^ (d * c : ℕ) = ∑' e : ℕ+, σ k e * r ^ (e : ℕ) := by
+  suffices ∑' c : ℕ+ × ℕ+, c.2 ^ k * r ^ (c.1 * c.2 : ℕ) = ∑' e : ℕ+, σ k e * r ^ (e : ℕ) by
+    rwa [← (summable_prod_mul_pow k hr).tsum_prod]
+  simp only [
+    ← sigmaAntidiagonalEquivProd.tsum_eq, sigmaAntidiagonalEquivProd, divisorsAntidiagonalFactors,
+    PNat.mk_coe, Equiv.coe_fn_mk, sigma_eq_sum_div, cast_sum, cast_pow,
+    Summable.tsum_sigma (summable_divisorsAntidiagonal_aux k hr :)
+  ]
   refine tsum_congr fun n ↦ ?_
-  simpa [tsum_fintype, Finset.sum_mul,
-    (n : ℕ).divisorsAntidiagonal.sum_attach fun x : ℕ × ℕ ↦ x.2 ^ k * r ^ (x.1 * x.2),
-    sum_divisorsAntidiagonal fun x y ↦ y ^ k * r ^ (x * y)]
-      using Finset.sum_congr rfl fun i hi ↦ by rw [Nat.mul_div_cancel' (dvd_of_mem_divisors hi)]
+  simpa [
+      tsum_fintype, Finset.sum_mul,
+      (n : ℕ).divisorsAntidiagonal.sum_attach fun x : ℕ × ℕ ↦ x.2 ^ k * r ^ (x.1 * x.2),
+      sum_divisorsAntidiagonal fun x y ↦ y ^ k * r ^ (x * y)
+    ]
+    using Finset.sum_congr rfl fun i hi ↦ by rw [Nat.mul_div_cancel' (dvd_of_mem_divisors hi)]
 
 lemma tsum_pow_div_one_sub_eq_tsum_sigma {r : 𝕜} (hr : ‖r‖ < 1) (k : ℕ) :
     ∑' n : ℕ+, n ^ k * r ^ (n : ℕ) / (1 - r ^ (n : ℕ)) = ∑' n : ℕ+, σ k n * r ^ (n : ℕ) := by

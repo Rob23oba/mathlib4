@@ -18,7 +18,6 @@ public import Mathlib.Data.Nat.Cast.Order.Ring
 
 @[expose] public section
 
-
 variable {α : Type*}
 
 section LinearOrderedAddCommGroup
@@ -160,8 +159,10 @@ variable [CommRing α] [LinearOrder α] (a b : α) (n : ℕ)
 
 theorem abs_sub_sq (a b : α) : |a - b| * |a - b| = a * a + b * b - (1 + 1) * a * b := by
   rw [abs_mul_abs_self]
-  simp only [mul_add, add_comm, add_left_comm, mul_comm, sub_eq_add_neg, mul_one, mul_neg,
-    neg_add_rev, neg_neg, add_assoc]
+  simp only [
+    mul_add, add_comm, add_left_comm, mul_comm, sub_eq_add_neg, mul_one, mul_neg, neg_add_rev,
+    neg_neg, add_assoc
+  ]
 
 lemma abs_unit_intCast [IsOrderedRing α] (a : ℤˣ) : |((a : ℤ) : α)| = 1 := by
   cases Int.units_eq_one_or a <;> simp_all
@@ -170,8 +171,11 @@ private def geomSum : ℕ → α
   | 0 => 1
   | n + 1 => a * geomSum n + b ^ (n + 1)
 
-private theorem abs_geomSum_le [IsOrderedRing α] : |geomSum a b n| ≤ (n + 1) * max |a| |b| ^ n := by
-  induction n with | zero => simp [geomSum] | succ n ih => ?_
+private theorem abs_geomSum_le [IsOrderedRing α]
+    : |geomSum a b n| ≤ (n + 1) * max (|a|) |b| ^ n := by
+  induction n with
+  | zero => simp [geomSum]
+  | succ n ih => ?_
   refine (abs_add_le ..).trans ?_
   rw [abs_mul, abs_pow, Nat.cast_succ, add_one_mul]
   refine add_le_add ?_ (pow_le_pow_left₀ (abs_nonneg _) le_sup_right _)
@@ -180,15 +184,20 @@ private theorem abs_geomSum_le [IsOrderedRing α] : |geomSum a b n| ≤ (n + 1) 
   exacts [abs_nonneg _, (abs_nonneg _).trans ih, le_sup_left]
 
 omit [LinearOrder α] in
-private theorem pow_sub_pow_eq_sub_mul_geomSum :
-    a ^ (n + 1) - b ^ (n + 1) = (a - b) * geomSum a b n := by
-  induction n with | zero => simp [geomSum] | succ n ih => ?_
-  rw [geomSum, mul_add, mul_comm a, ← mul_assoc, ← ih,
-    sub_mul, sub_mul, ← pow_succ, ← pow_succ', mul_comm, sub_add_sub_cancel]
+private theorem pow_sub_pow_eq_sub_mul_geomSum
+    : a ^ (n + 1) - b ^ (n + 1) = (a - b) * geomSum a b n := by
+  induction n with
+  | zero => simp [geomSum]
+  | succ n ih => ?_
+  rw [
+    geomSum, mul_add, mul_comm a, ← mul_assoc, ← ih, sub_mul, sub_mul, ← pow_succ, ← pow_succ',
+    mul_comm, sub_add_sub_cancel
+  ]
 
-theorem abs_pow_sub_pow_le [IsOrderedRing α] :
-    |a ^ n - b ^ n| ≤ |a - b| * n * max |a| |b| ^ (n - 1) := by
-  obtain _ | n := n; · simp
+theorem abs_pow_sub_pow_le [IsOrderedRing α]
+    : |a ^ n - b ^ n| ≤ |a - b| * n * max (|a|) |b| ^ (n - 1) := by
+  obtain _ | n := n
+  · simp
   rw [Nat.add_sub_cancel, pow_sub_pow_eq_sub_mul_geomSum, abs_mul, mul_assoc, Nat.cast_succ]
   gcongr
   · exact abs_nonneg _
@@ -204,18 +213,15 @@ variable [Ring α] [LinearOrder α]
 theorem abs_dvd (a b : α) : |a| ∣ b ↔ a ∣ b := by
   rcases abs_choice a with h | h <;> simp only [h, neg_dvd]
 
-theorem abs_dvd_self (a : α) : |a| ∣ a :=
-  (abs_dvd a a).mpr (dvd_refl a)
+theorem abs_dvd_self (a : α) : |a| ∣ a := (abs_dvd a a).mpr (dvd_refl a)
 
 @[simp]
 theorem dvd_abs (a b : α) : a ∣ |b| ↔ a ∣ b := by
   rcases abs_choice b with h | h <;> simp only [h, dvd_neg]
 
-theorem self_dvd_abs (a : α) : a ∣ |a| :=
-  (dvd_abs a a).mpr (dvd_refl a)
+theorem self_dvd_abs (a : α) : a ∣ |a| := (dvd_abs a a).mpr (dvd_refl a)
 
-theorem abs_dvd_abs (a b : α) : |a| ∣ |b| ↔ a ∣ b :=
-  (abs_dvd _ _).trans (dvd_abs _ _)
+theorem abs_dvd_abs (a b : α) : |a| ∣ |b| ↔ a ∣ b := (abs_dvd _ _).trans (dvd_abs _ _)
 
 end
 

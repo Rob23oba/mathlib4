@@ -37,25 +37,27 @@ open Limits ZeroObject
 
 variable {C : Type u} [Category.{v} C]
 
-/-- An object `X` in a category `C` is Noetherian if `Subobject X`
+/--
+An object `X` in a category `C` is Noetherian if `Subobject X`
 satisfies the ascending chain condition. This definition is a
 term in `ObjectProperty C` which allows to study the stability
 properties of Noetherian objects. For statements regarding
 specific objects, it is advisable to use the type class
-`IsNoetherianObject` instead. -/
+`IsNoetherianObject` instead.
+-/
 @[stacks 0FCG]
-def isNoetherianObject : ObjectProperty C :=
-  fun X ↦ WellFoundedGT (Subobject X)
+def isNoetherianObject : ObjectProperty C := fun X ↦ WellFoundedGT (Subobject X)
 
 variable (X Y : C)
 
-/-- An object `X` in a category `C` is Noetherian if `Subobject X`
-satisfies the ascending chain condition. -/
+/--
+An object `X` in a category `C` is Noetherian if `Subobject X`
+satisfies the ascending chain condition.
+-/
 @[stacks 0FCG]
 abbrev IsNoetherianObject : Prop := isNoetherianObject.Is X
 
-instance [IsNoetherianObject X] : WellFoundedGT (Subobject X) :=
-  isNoetherianObject.prop_of_is X
+instance [IsNoetherianObject X] : WellFoundedGT (Subobject X) := isNoetherianObject.prop_of_is X
 
 lemma isNoetherianObject_iff_monotone_chain_condition :
     IsNoetherianObject X ↔ ∀ (f : ℕ →o Subobject X),
@@ -113,9 +115,13 @@ lemma isNoetherianObject_of_isZero (hX : IsZero X) : IsNoetherianObject X := by
   exact ⟨0, fun m hm ↦ Subsingleton.elim _ _⟩
 
 instance [HasZeroObject C] : (isNoetherianObject (C := C)).ContainsZero where
-  exists_zero := ⟨0, isZero_zero _, by
-    rw [← isNoetherianObject.is_iff]
-    exact isNoetherianObject_of_isZero (isZero_zero C)⟩
+  exists_zero := ⟨
+    0,
+    isZero_zero _,
+    by
+      rw [← isNoetherianObject.is_iff]
+      exact isNoetherianObject_of_isZero (isZero_zero C)
+  ⟩
 
 lemma isNoetherianObject_of_mono (i : X ⟶ Y) [Mono i] [IsNoetherianObject Y] :
     IsNoetherianObject X := by

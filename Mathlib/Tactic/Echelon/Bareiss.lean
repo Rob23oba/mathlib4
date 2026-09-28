@@ -34,8 +34,10 @@ initialize registerTraceClass `Tactic.evalRank
 
 namespace Mathlib.Tactic.Echelon
 
-/-- The applicability check of the Bareiss method, which requires a commutative domain
-with kernel-decidable equality. -/
+/--
+The applicability check of the Bareiss method, which requires a commutative domain
+with kernel-decidable equality.
+-/
 def checkBareissApplicable (R : Expr) : MetaM (Except MessageData Unit) := do
   let u ← getDecLevel R
   have α : Q(Type u) := R
@@ -49,8 +51,10 @@ def checkBareissApplicable (R : Expr) : MetaM (Except MessageData Unit) := do
     return .error e.toMessageData
   return .ok ()
 
-/-- Select the computation model for the ring expression `R`: the first registered
-`bareiss_ext` extension that handles `R`, or the default rational model. -/
+/--
+Select the computation model for the ring expression `R`: the first registered
+`bareiss_ext` extension that handles `R`, or the default rational model.
+-/
 def producerFor (R : Expr) : MetaM Producer := do
   for (name, ext) in bareissExt.getState (← getEnv) do
     if let some p ← ext.producer? R then
@@ -65,10 +69,13 @@ structure BareissResult where
   /-- The decomposition data underlying the certificate. -/
   data : BareissData Expr
 
-/-- Produce and elaborate the `Echelon.Decomposition` certificate of the matrix literal
-`A`. -/
-def mkBareissDecomposition {u : Level} (A : Expr) (m n : Nat) (α : Q(Type u))
-    (entries : Array (Array Expr)) : MetaM BareissResult := do
+/--
+Produce and elaborate the `Echelon.Decomposition` certificate of the matrix literal
+`A`.
+-/
+def mkBareissDecomposition
+    {u : Level} (A : Expr) (m n : Nat) (α : Q(Type u)) (entries : Array (Array Expr))
+    : MetaM BareissResult := do
   let d ← (← producerFor α) entries
   have _cr : Q(CommRing $α) := ← synthInstanceQ q(CommRing $α)
   have A : Q(Matrix (Fin $m) (Fin $n) $α) := A

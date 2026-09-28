@@ -27,33 +27,33 @@ open Function Module Set
 
 variable {R S : Type*} {x y : R}
 
-theorem RingHom.ker_isRadical_iff_reduced_of_surjective {S F} [CommSemiring R] [Semiring S]
-    [FunLike F R S] [RingHomClass F R S] {f : F} (hf : Function.Surjective f) :
-    (RingHom.ker f).IsRadical ↔ IsReduced S := by
+theorem RingHom.ker_isRadical_iff_reduced_of_surjective
+    {S F} [CommSemiring R] [Semiring S] [FunLike F R S] [RingHomClass F R S]
+    {f : F} (hf : Function.Surjective f)
+    : (RingHom.ker f).IsRadical ↔ IsReduced S := by
   simp_rw [isReduced_iff, hf.forall, IsNilpotent, ← map_pow, ← RingHom.mem_ker]
   rfl
 
-theorem isRadical_iff_span_singleton [CommSemiring R] :
-    IsRadical y ↔ (Ideal.span ({y} : Set R)).IsRadical := by
+theorem isRadical_iff_span_singleton [CommSemiring R]
+    : IsRadical y ↔ (Ideal.span ({y} : Set R)).IsRadical := by
   simp_rw [IsRadical, ← Ideal.mem_span_singleton]
   exact forall_comm.trans (forall_congr' fun r => exists_imp.symm)
 
-theorem isNilpotent_iff_zero_mem_powers [Monoid R] [Zero R] :
-    IsNilpotent x ↔ 0 ∈ Submonoid.powers x := Iff.rfl
+theorem isNilpotent_iff_zero_mem_powers [Monoid R] [Zero R]
+    : IsNilpotent x ↔ 0 ∈ Submonoid.powers x :=
+  Iff.rfl
 
 section CommSemiring
 
 variable [CommSemiring R]
 
 /-- The nilradical of a commutative semiring is the ideal of nilpotent elements. -/
-def nilradical (R : Type*) [CommSemiring R] : Ideal R :=
-  (0 : Ideal R).radical
+def nilradical (R : Type*) [CommSemiring R] : Ideal R := (0 : Ideal R).radical
 
-theorem mem_nilradical : x ∈ nilradical R ↔ IsNilpotent x :=
-  Iff.rfl
+theorem mem_nilradical : x ∈ nilradical R ↔ IsNilpotent x := Iff.rfl
 
-theorem nilradical_eq_sInf (R : Type*) [CommSemiring R] :
-    nilradical R = sInf { J : Ideal R | J.IsPrime } :=
+theorem nilradical_eq_sInf (R : Type*) [CommSemiring R]
+    : nilradical R = sInf { J : Ideal R | J.IsPrime } :=
   (Ideal.radical_eq_sInf ⊥).trans <| by simp_rw [and_iff_right bot_le]
 
 theorem nilpotent_iff_mem_prime : IsNilpotent x ↔ ∀ J : Ideal R, J.IsPrime → x ∈ J := by
@@ -91,15 +91,13 @@ variable (R) {A : Type v} [CommSemiring R] [Semiring A] [Algebra R A]
 
 @[simp]
 theorem isNilpotent_mulLeft_iff (a : A) : IsNilpotent (mulLeft R a) ↔ IsNilpotent a := by
-  constructor <;> rintro ⟨n, hn⟩ <;> use n <;>
-      simp only [mulLeft_eq_zero_iff, pow_mulLeft] at hn ⊢ <;>
-    exact hn
+  constructor <;> rintro ⟨n, hn⟩ <;> use n <;> simp only [mulLeft_eq_zero_iff, pow_mulLeft] at hn ⊢
+    <;> exact hn
 
 @[simp]
 theorem isNilpotent_mulRight_iff (a : A) : IsNilpotent (mulRight R a) ↔ IsNilpotent a := by
-  constructor <;> rintro ⟨n, hn⟩ <;> use n <;>
-      simp only [mulRight_eq_zero_iff, pow_mulRight] at hn ⊢ <;>
-    exact hn
+  constructor <;> rintro ⟨n, hn⟩ <;> use n
+    <;> simp only [mulRight_eq_zero_iff, pow_mulRight] at hn ⊢ <;> exact hn
 
 variable {R}
 variable {ι M : Type*} [Fintype ι] [DecidableEq ι] [AddCommMonoid M] [Module R M]

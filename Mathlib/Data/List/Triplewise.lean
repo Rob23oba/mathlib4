@@ -19,7 +19,6 @@ public import Batteries.Data.List.Lemmas
 
 public section
 
-
 namespace List
 
 variable {α β : Type*}

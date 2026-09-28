@@ -63,7 +63,8 @@ namespace Functor
 
 section
 
-variable {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D]
+variable
+  {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D]
   (F : C ⥤ D) [F.Additive] [F.PreservesHomology] [HasZeroObject C]
 
 /-- An additive functor which preserves homology preserves finite limits. -/

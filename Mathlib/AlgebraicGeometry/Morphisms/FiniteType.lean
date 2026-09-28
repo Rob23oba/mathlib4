@@ -36,13 +36,14 @@ namespace AlgebraicGeometry
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
-/-- A morphism of schemes `f : X ⟶ Y` is locally of finite type if for each affine `U ⊆ Y` and
+/--
+A morphism of schemes `f : X ⟶ Y` is locally of finite type if for each affine `U ⊆ Y` and
 `V ⊆ f ⁻¹' U`, The induced map `Γ(Y, U) ⟶ Γ(X, V)` is of finite type.
 -/
 @[mk_iff]
 class LocallyOfFiniteType (f : X ⟶ Y) : Prop where
-  finiteType_appLE (f) :
-    ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
+  finiteType_appLE (f)
+    : ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
       (f.appLE U V e).hom.FiniteType
 
 alias Scheme.Hom.finiteType_appLE := LocallyOfFiniteType.finiteType_appLE
@@ -53,46 +54,49 @@ instance : HasRingHomProperty @LocallyOfFiniteType RingHom.FiniteType where
     ext X Y f
     rw [locallyOfFiniteType_iff, affineLocally_iff_forall_isAffineOpen]
 
-instance (priority := 900) locallyOfFiniteType_of_isOpenImmersion [IsOpenImmersion f] :
-    LocallyOfFiniteType f :=
+instance (priority := 900) locallyOfFiniteType_of_isOpenImmersion [IsOpenImmersion f]
+    : LocallyOfFiniteType f :=
   HasRingHomProperty.of_isOpenImmersion
     RingHom.finiteType_holdsForLocalizationAway.containsIdentities
 
 instance : MorphismProperty.IsStableUnderComposition @LocallyOfFiniteType :=
   HasRingHomProperty.stableUnderComposition RingHom.finiteType_stableUnderComposition
 
-instance locallyOfFiniteType_comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [hf : LocallyOfFiniteType f] [hg : LocallyOfFiniteType g] : LocallyOfFiniteType (f ≫ g) :=
+instance locallyOfFiniteType_comp
+    {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
+    [hf : LocallyOfFiniteType f] [hg : LocallyOfFiniteType g]
+    : LocallyOfFiniteType (f ≫ g) :=
   MorphismProperty.comp_mem _ f g hf hg
 
-theorem locallyOfFiniteType_of_comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [LocallyOfFiniteType (f ≫ g)] : LocallyOfFiniteType f :=
+theorem locallyOfFiniteType_of_comp
+    {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [LocallyOfFiniteType (f ≫ g)]
+    : LocallyOfFiniteType f :=
   HasRingHomProperty.of_comp (fun _ _ ↦ RingHom.FiniteType.of_comp_finiteType) ‹_›
 
 instance : MorphismProperty.IsMultiplicative @LocallyOfFiniteType where
   id_mem _ := inferInstance
 
 open scoped TensorProduct in
-instance locallyOfFiniteType_isStableUnderBaseChange :
-    MorphismProperty.IsStableUnderBaseChange @LocallyOfFiniteType :=
+instance locallyOfFiniteType_isStableUnderBaseChange
+    : MorphismProperty.IsStableUnderBaseChange @LocallyOfFiniteType :=
   HasRingHomProperty.isStableUnderBaseChange RingHom.finiteType_isStableUnderBaseChange
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyOfFiniteType g] :
-    LocallyOfFiniteType (pullback.fst f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyOfFiniteType g]
+    : LocallyOfFiniteType (pullback.fst f g) :=
   MorphismProperty.pullback_fst f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyOfFiniteType f] :
-    LocallyOfFiniteType (pullback.snd f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyOfFiniteType f]
+    : LocallyOfFiniteType (pullback.snd f g) :=
   MorphismProperty.pullback_snd f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance (f : X ⟶ Y) (V : Y.Opens) [LocallyOfFiniteType f] : LocallyOfFiniteType (f ∣_ V) :=
   IsZariskiLocalAtTarget.restrict ‹_› V
 
-instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [LocallyOfFiniteType f] :
-    LocallyOfFiniteType (f.resLE V U e) := by
+instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [LocallyOfFiniteType f]
+    : LocallyOfFiniteType (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
 
 lemma LocallyOfFiniteType.stalkMap [LocallyOfFiniteType f] (x : X) :

@@ -147,8 +147,8 @@ lemma evalEval_dvd (x y : R) {p q : R[X][Y]} : p ∣ q → p.evalEval x y ∣ q.
 lemma coe_algebraMap_eq_CC : algebraMap R R[X][Y] = CC (R := R) := rfl
 
 /-- `evalEval x y` as a ring homomorphism. -/
-@[simps!] abbrev evalEvalRingHom (x y : R) : R[X][Y] →+* R :=
-  (evalRingHom x).comp (evalRingHom <| C y)
+@[simps!]
+abbrev evalEvalRingHom (x y : R) : R[X][Y] →+* R := (evalRingHom x).comp (evalRingHom <| C y)
 
 lemma coe_evalEvalRingHom (x y : R) : evalEvalRingHom x y = evalEval x y := rfl
 
@@ -215,20 +215,24 @@ noncomputable section
 variable {R A : Type*} [CommSemiring R] [CommSemiring A] [Algebra R A]
 
 variable (R A) in
-/-- Given valuations `x` and `y` of the variables in an `R`-algebra `A`, the bijection induced by
-the unique `R`-algebra homomorphism from `R[X][Y]` to `A` sending `X` to `x` and `Y` to `y`. -/
+/--
+Given valuations `x` and `y` of the variables in an `R`-algebra `A`, the bijection induced by
+the unique `R`-algebra homomorphism from `R[X][Y]` to `A` sending `X` to `x` and `Y` to `y`.
+-/
 @[simps! apply_apply symm_apply]
 def aevalAevalEquiv : A × A ≃ (R[X][Y] →ₐ[R] A) where
-  toFun xy := aeval xy.fst |>.restrictScalars R |>.comp <|
-    let := Polynomial.algebra; aeval (R := R[X]) (C xy.snd) |>.restrictScalars R
+  toFun xy :=
+    aeval xy.fst |>.restrictScalars R |>.comp <|
+      let := Polynomial.algebra; aeval (R := R[X]) (C xy.snd) |>.restrictScalars R
   invFun f := ⟨f <| C X, f Y⟩
   left_inv f := by simp
   right_inv f := algHom_ext' (by ext; simp) (by simp)
 
-/-- Given valuations `x` and `y` of the variables in an `R`-algebra `A`, `aevalAeval x y` is
-the unique `R`-algebra homomorphism from `R[X][Y]` to `A` sending `X` to `x` and `Y` to `y`. -/
-abbrev aevalAeval (x y : A) : R[X][Y] →ₐ[R] A :=
-  aevalAevalEquiv R A ⟨x, y⟩
+/--
+Given valuations `x` and `y` of the variables in an `R`-algebra `A`, `aevalAeval x y` is
+the unique `R`-algebra homomorphism from `R[X][Y]` to `A` sending `X` to `x` and `Y` to `y`.
+-/
+abbrev aevalAeval (x y : A) : R[X][Y] →ₐ[R] A := aevalAevalEquiv R A ⟨x, y⟩
 
 lemma aevalAevalEquiv_apply (xy : A × A) : aevalAevalEquiv R A xy = aevalAeval xy.1 xy.2 :=
   rfl
@@ -249,8 +253,7 @@ def Bivariate.swap : R[X][Y] ≃ₐ[R] R[X][Y] := by
   apply AlgEquiv.ofAlgHom (aevalAeval (Y : R[X][Y]) (C X)) (aevalAeval (Y : R[X][Y]) (C X))
     <;> (ext n m <;> simp)
 
-@[simp]
-theorem Bivariate.swap_symm : swap.symm = (swap (R := R)) := rfl
+@[simp] theorem Bivariate.swap_symm : swap.symm = (swap (R := R)) := rfl
 
 theorem Bivariate.swap_apply (p : R[X][Y]) : swap p = p.aevalAeval (A := R[X][Y]) Y (C X) := rfl
 
@@ -270,36 +273,41 @@ theorem Bivariate.swap_swap_apply (p : R[X][Y]) : swap (swap p) = p :=
 
 theorem Bivariate.swap_map_C (f : R[X]) : swap (f.map C) = C f := by
   induction f using Polynomial.induction_on' with
-  | add => aesop
-  | monomial n a => rw [map_monomial, ← C_mul_X_pow_eq_monomial, ← C_mul_X_pow_eq_monomial,
-    map_mul, map_pow, swap_Y, C_mul, C_pow, Bivariate.swap_C_C]
+  | add =>
+    aesop
+  | monomial n a =>
+    rw [
+      map_monomial, ← C_mul_X_pow_eq_monomial, ← C_mul_X_pow_eq_monomial, map_mul, map_pow, swap_Y,
+      C_mul, C_pow, Bivariate.swap_C_C
+    ]
 
-theorem Bivariate.swap_monomial (n : ℕ) (f : R[X]) :
-    swap (monomial n f) = f.map C * C (X ^ n) := by
+theorem Bivariate.swap_monomial (n : ℕ) (f : R[X]) : swap (monomial n f) = f.map C * C (X ^ n) := by
   simp [← C_mul_X_pow_eq_monomial, aeval_X_left_eq_map]
 
-theorem Bivariate.swap_monomial_monomial (n m : ℕ) (r : R) :
-    swap (monomial n (monomial m r)) = (monomial m (monomial n r)) := by
+theorem Bivariate.swap_monomial_monomial (n m : ℕ) (r : R)
+    : swap (monomial n (monomial m r)) = (monomial m (monomial n r)) := by
   simp [← C_mul_X_pow_eq_monomial]; ac_rfl
 
 /-- Evaluating `swap p` at `x`, `y` is the same as evaluating `p` at `y` `x`. -/
-theorem Bivariate.aevalAeval_swap (x y : A) (p : R[X][Y]) :
-    aevalAeval x y (swap p) = aevalAeval y x p := by
+theorem Bivariate.aevalAeval_swap (x y : A) (p : R[X][Y])
+    : aevalAeval x y (swap p) = aevalAeval y x p := by
   induction p using Polynomial.induction_on' with
-  | add => aesop
+  | add =>
+    aesop
   | monomial n a =>
     simp
     induction a using Polynomial.induction_on' <;> aesop (add norm add_mul)
 
 attribute [local instance] Polynomial.algebra in
-theorem Bivariate.aeval_eq_map_swap (x : A) (p : R[X][Y]) :
-    aeval (C x) p = mapAlgHom (aeval x) (swap p) := by
+theorem Bivariate.aeval_eq_map_swap (x : A) (p : R[X][Y])
+    : aeval (C x) p = mapAlgHom (aeval x) (swap p) := by
   induction p using Polynomial.induction_on' with
-  | add => aesop
+  | add =>
+    aesop
   | monomial n a =>
-      simp
-      induction a using Polynomial.induction_on'
-        <;> aesop (add norm [add_mul, C_mul_X_pow_eq_monomial])
+    simp
+    induction a using Polynomial.induction_on'
+      <;> aesop (add norm [add_mul, C_mul_X_pow_eq_monomial])
 
 @[deprecated (since := "2026-09-17")]
 alias Bivariate.aveal_eq_map_swap := Bivariate.aeval_eq_map_swap
@@ -315,8 +323,7 @@ variable {R : Type*} [CommSemiring R]
 
 variable (R) in
 /-- The equiv between `R[X][Y]` and `R[X, Y]`. -/
-noncomputable
-def equivMvPolynomial : R[X][Y] ≃ₐ[R] MvPolynomial (Fin 2) R :=
+noncomputable def equivMvPolynomial : R[X][Y] ≃ₐ[R] MvPolynomial (Fin 2) R :=
   .ofAlgHom (aevalAeval (.X 0) (.X 1)) (MvPolynomial.aeval ![.C X, X])
     (by ext i; fin_cases i <;> simp) (by ext <;> simp)
 
@@ -379,11 +386,13 @@ namespace AdjoinRoot
 
 variable {R : Type*} [CommRing R] {x y : R} {p : R[X][Y]} (h : p.evalEval x y = 0)
 
-/-- If the evaluation (`evalEval`) of a bivariate polynomial `p : R[X][Y]` at a point (x,y)
+/--
+If the evaluation (`evalEval`) of a bivariate polynomial `p : R[X][Y]` at a point (x,y)
 is zero, then `Polynomial.evalEval x y` factors through `AdjoinRoot.evalEval`, a ring homomorphism
-from `AdjoinRoot p` to `R`. -/
-@[simps!] noncomputable def evalEval : AdjoinRoot p →+* R :=
-  lift (evalRingHom x) y <| eval₂_evalRingHom x ▸ h
+from `AdjoinRoot p` to `R`.
+-/
+@[simps!]
+noncomputable def evalEval : AdjoinRoot p →+* R := lift (evalRingHom x) y <| eval₂_evalRingHom x ▸ h
 
 lemma evalEval_mk (g : R[X][Y]) : evalEval h (mk p g) = g.evalEval x y := by
   rw [evalEval, lift_mk, eval₂_evalRingHom]

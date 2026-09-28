@@ -31,8 +31,8 @@ public section
 
 variable {X Y : Type*}
 
-instance SetRel.isTrans_entourageProd {s : SetRel X X} {t : SetRel Y Y} [s.IsTrans] [t.IsTrans] :
-    (entourageProd s t).IsTrans where
+instance SetRel.isTrans_entourageProd {s : SetRel X X} {t : SetRel Y Y} [s.IsTrans] [t.IsTrans]
+    : (entourageProd s t).IsTrans where
   trans _ _ _ h h' := ⟨s.trans h.left h'.left, t.trans h.right h'.right⟩
 
 lemma IsUltraUniformity.comap {u : UniformSpace Y} (h : IsUltraUniformity Y) (f : X → Y) :
@@ -52,11 +52,13 @@ lemma IsUltraUniformity.inf {u u' : UniformSpace X} (h : @IsUltraUniformity _ u)
     rintro _ ⟨⟨_, _, _⟩, _, _, _⟩
     infer_instance
 
-/-- The product of uniform spaces with nonarchimedean uniformities has a
-nonarchimedean uniformity. -/
-instance IsUltraUniformity.prod [UniformSpace X] [UniformSpace Y]
-    [IsUltraUniformity X] [IsUltraUniformity Y] :
-    IsUltraUniformity (X × Y) :=
+/--
+The product of uniform spaces with nonarchimedean uniformities has a
+nonarchimedean uniformity.
+-/
+instance IsUltraUniformity.prod
+    [UniformSpace X] [UniformSpace Y] [IsUltraUniformity X] [IsUltraUniformity Y]
+    : IsUltraUniformity (X × Y) :=
   .inf (.comap ‹_› _) (.comap ‹_› _)
 
 lemma IsUltraUniformity.iInf {ι : Type*} {U : (i : ι) → UniformSpace X}
@@ -68,11 +70,13 @@ lemma IsUltraUniformity.iInf {ι : Type*} {U : (i : ι) → UniformSpace X}
     rintro _ _ _ _ _
     infer_instance
 
-/-- The indexed product of uniform spaces with nonarchimedean uniformities has a
-nonarchimedean uniformity. -/
-instance IsUltraUniformity.pi {ι : Type*} {X : ι → Type*} [U : Π i, UniformSpace (X i)]
-    [h : ∀ i, IsUltraUniformity (X i)] :
-    IsUltraUniformity (Π i, X i) := by
+/--
+The indexed product of uniform spaces with nonarchimedean uniformities has a
+nonarchimedean uniformity.
+-/
+instance IsUltraUniformity.pi
+    {ι : Type*} {X : ι → Type*} [U : Π i, UniformSpace (X i)] [h : ∀ i, IsUltraUniformity (X i)]
+    : IsUltraUniformity (Π i, X i) := by
   suffices @IsUltraUniformity _ (⨅ i, UniformSpace.comap (Function.eval i) (U i)) by
     simpa +instances [Pi.uniformSpace_eq _] using this
   exact .iInf fun i ↦ .comap (h i) (Function.eval i)

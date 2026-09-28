@@ -26,17 +26,21 @@ namespace CategoryTheory
 
 variable (C : Type u) [Category.{v} C]
 
-/-- The center of a category `C` is the type `End (𝟭 C)` of the endomorphisms
-of the identify functor of `C`. -/
+/--
+The center of a category `C` is the type `End (𝟭 C)` of the endomorphisms
+of the identify functor of `C`.
+-/
 abbrev CatCenter := End (𝟭 C)
 
 namespace CatCenter
 
 variable {C}
 
-/-- The action of the center of a category on an object. (This is necessary as
+/--
+The action of the center of a category on an object. (This is necessary as
 `NatTrans.app x X` is syntactically an endomorphism of `(𝟭 C).obj X`
-rather than of `X`.) -/
+rather than of `X`.)
+-/
 abbrev app (x : CatCenter C) (X : C) : X ⟶ X := NatTrans.app x X
 
 @[ext]
@@ -68,16 +72,17 @@ lemma smul_eq (z : CatCenter C) {X Y : C} (f : X ⟶ Y) : z • f = f ≫ z.app 
 lemma smul_eq' (z : CatCenter C) {X Y : C} (f : X ⟶ Y) : z • f = z.app X ≫ f :=
   z.naturality f
 
-instance {X Y : C} : SMul (CatCenter C)ˣ (X ≅ Y) where
-  smul z e :=
-    { hom := z.1 • e.hom
-      inv := (z⁻¹).1 • e.inv
-      hom_inv_id := by
-        rw [smul_eq, smul_eq', Category.assoc, ← mul_app_assoc]
-        simp
-      inv_hom_id := by
-        rw [smul_eq, smul_eq', Category.assoc, ← mul_app_assoc]
-        simp }
+instance {X Y : C} : SMul ((CatCenter C)ˣ) (X ≅ Y) where
+  smul z e := {
+    hom := z.1 • e.hom
+    inv := (z⁻¹).1 • e.inv
+    hom_inv_id := by
+      rw [smul_eq, smul_eq', Category.assoc, ← mul_app_assoc]
+      simp
+    inv_hom_id := by
+      rw [smul_eq, smul_eq', Category.assoc, ← mul_app_assoc]
+      simp
+  }
 
 @[reassoc]
 lemma smul_iso_hom_eq (z : (CatCenter C)ˣ) {X Y : C} (f : X ≅ Y) :

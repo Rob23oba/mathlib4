@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Measure.Prod
 public import Mathlib.MeasureTheory.Measure.Regular
-
 import Mathlib.MeasureTheory.Measure.RegularityCompacts
 
 /-!
@@ -41,17 +40,18 @@ open scoped Topology
 
 namespace MeasureTheory
 
-variable {𝓧 𝓨 : Type*} {m𝓧 : MeasurableSpace 𝓧}
-  {μ : Measure 𝓧} {S T : Set (Measure 𝓧)}
+variable {𝓧 𝓨 : Type*} {m𝓧 : MeasurableSpace 𝓧} {μ : Measure 𝓧} {S T : Set (Measure 𝓧)}
 
 section Basic
 
 variable [TopologicalSpace 𝓧]
 
-/-- A set of measures `S` is tight if for all `0 < ε`, there exists a compact set `K` such that
+/--
+A set of measures `S` is tight if for all `0 < ε`, there exists a compact set `K` such that
 for all `μ ∈ S`, `μ Kᶜ ≤ ε`.
 This is formulated in terms of filters, and proven equivalent to the definition above
-in `IsTightMeasureSet_iff_exists_isCompact_measure_compl_le`. -/
+in `IsTightMeasureSet_iff_exists_isCompact_measure_compl_le`.
+-/
 def IsTightMeasureSet (S : Set (Measure 𝓧)) : Prop :=
   Tendsto (⨆ μ ∈ S, μ) (cocompact 𝓧).smallSets (𝓝 0)
 
@@ -69,9 +69,10 @@ lemma isTightMeasureSet_iff_exists_isCompact_measure_compl_le :
     exact ⟨Kᶜ, ⟨K, h1, subset_rfl⟩, fun A hA μ hμS ↦ (μ.mono hA).trans (h2 μ hμS)⟩
 
 /-- Finite measures that are inner regular with respect to closed compact sets are tight. -/
-theorem isTightMeasureSet_singleton_of_innerRegularWRT [OpensMeasurableSpace 𝓧] [IsFiniteMeasure μ]
-    (h : μ.InnerRegularWRT (fun s ↦ IsCompact s ∧ IsClosed s) MeasurableSet) :
-    IsTightMeasureSet {μ} := by
+theorem isTightMeasureSet_singleton_of_innerRegularWRT
+    [OpensMeasurableSpace 𝓧] [IsFiniteMeasure μ]
+    (h : μ.InnerRegularWRT (fun s ↦ IsCompact s ∧ IsClosed s) MeasurableSet)
+    : IsTightMeasureSet {μ} := by
   rw [isTightMeasureSet_iff_exists_isCompact_measure_compl_le]
   intro ε hε
   let r := μ Set.univ
@@ -84,7 +85,8 @@ theorem isTightMeasureSet_singleton_of_innerRegularWRT [OpensMeasurableSpace �
     rw [measure_compl hK_closed.measurableSet (measure_ne_top μ _), tsub_le_iff_right]
     rw [ENNReal.sub_lt_iff_lt_right (ne_top_of_lt hεr) hεr.le, add_comm] at hKμ
     exact hKμ.le
-  | inr hεr => exact ⟨∅, isCompact_empty, by simpa⟩
+  | inr hεr =>
+    exact ⟨∅, isCompact_empty, by simpa⟩
 
 /-- Inner regular finite measures on T2 spaces are tight. -/
 lemma isTightMeasureSet_singleton_of_innerRegular [T2Space 𝓧] [OpensMeasurableSpace 𝓧]
@@ -96,10 +98,11 @@ lemma isTightMeasureSet_singleton_of_innerRegular [T2Space 𝓧] [OpensMeasurabl
   exact ⟨K, hKs, ⟨hK_compact, hK_compact.isClosed⟩, hμK⟩
 
 /-- In a complete second-countable pseudo-metric space, finite measures are tight. -/
-theorem isTightMeasureSet_singleton {α : Type*} [MeasurableSpace α] [TopologicalSpace α]
-    [IsCompletelyPseudoMetrizableSpace α] [SecondCountableTopology α] [BorelSpace α]
-    {μ : Measure α} [IsFiniteMeasure μ] :
-    IsTightMeasureSet {μ} :=
+theorem isTightMeasureSet_singleton
+    {α : Type*} [MeasurableSpace α] [TopologicalSpace α] [IsCompletelyPseudoMetrizableSpace α]
+    [SecondCountableTopology α] [BorelSpace α]
+    {μ : Measure α} [IsFiniteMeasure μ]
+    : IsTightMeasureSet {μ} :=
   isTightMeasureSet_singleton_of_innerRegularWRT
     (innerRegular_isCompact_isClosed_measurableSet_of_finite _)
 

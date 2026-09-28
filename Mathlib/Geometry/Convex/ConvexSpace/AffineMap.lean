@@ -23,14 +23,14 @@ namespace Convexity.ConvexSpace
 
 variable (R) in
 /-- The type of (bundled) affine maps between two convex spaces. -/
-protected structure AffineMap
-    (X Y : Type*) [ConvexSpace R X] [ConvexSpace R Y] where
+protected structure AffineMap (X Y : Type*) [ConvexSpace R X] [ConvexSpace R Y] where
   /-- The underlying map of an affine map between convex spaces. -/
   toFun : X → Y
   isAffineMap_toFun : IsAffineMap R toFun := by fun_prop
 
 namespace AffineMap
-variable {X Y Z T : Type*} [ConvexSpace R X] [ConvexSpace R Y] [ConvexSpace R Z] [ConvexSpace R T]
+variable
+  {X Y Z T : Type*} [ConvexSpace R X] [ConvexSpace R Y] [ConvexSpace R Z] [ConvexSpace R T]
   {f g : ConvexSpace.AffineMap R X Y}
 
 @[macro_inline]
@@ -56,8 +56,8 @@ def id : ConvexSpace.AffineMap R X X where
 
 /-- The composition of bundled affine maps between convex spaces. -/
 @[simps, implicit_reducible]
-def comp (g : ConvexSpace.AffineMap R Y Z) (f : ConvexSpace.AffineMap R X Y) :
-    ConvexSpace.AffineMap R X Z where
+def comp (g : ConvexSpace.AffineMap R Y Z) (f : ConvexSpace.AffineMap R X Y)
+    : ConvexSpace.AffineMap R X Z where
   toFun := g ∘ f
 
 @[simp]
@@ -79,7 +79,6 @@ def const (y : Y) : ConvexSpace.AffineMap R X Y where
 
 end ConvexSpace.AffineMap
 
-
 namespace StdSimplex
 
 @[ext]
@@ -92,10 +91,12 @@ lemma affineMap_ext {M : Type*} {Y : Type*} [ConvexSpace R Y]
   rw [f.isAffineMap.map_iConvexComb, g.isAffineMap.map_iConvexComb]
   aesop
 
-/-- The (bundled) affine map `StdSimplex R M → StdSimplex R N` induced
-by a map `f : M → N`. -/
-noncomputable def affineMap {M N : Type*} (f : M → N) :
-    ConvexSpace.AffineMap R (StdSimplex R M) (StdSimplex R N) where
+/--
+The (bundled) affine map `StdSimplex R M → StdSimplex R N` induced
+by a map `f : M → N`.
+-/
+noncomputable def affineMap {M N : Type*} (f : M → N)
+    : ConvexSpace.AffineMap R (StdSimplex R M) (StdSimplex R N) where
   toFun := map f
 
 @[simp]
@@ -105,10 +106,12 @@ lemma coe_affineMap {M N : Type*} (f : M → N) :
 @[simp]
 lemma affineMap_id (M : Type*) : affineMap (R := R) (id : M → M) = .id _ := by aesop
 
-/-- Given a map `f : M → X` where `X` is a convex space over `R`, this is the affine
-map `StdSimplex R M → X` which sends the vertex corresponding to `m : M` to `f m`. -/
-noncomputable def affineMapMk {M X : Type*} [ConvexSpace R X] (f : M → X) :
-    ConvexSpace.AffineMap R (StdSimplex R M) X where
+/--
+Given a map `f : M → X` where `X` is a convex space over `R`, this is the affine
+map `StdSimplex R M → X` which sends the vertex corresponding to `m : M` to `f m`.
+-/
+noncomputable def affineMapMk {M X : Type*} [ConvexSpace R X] (f : M → X)
+    : ConvexSpace.AffineMap R (StdSimplex R M) X where
   toFun x := iConvexComb x f
   isAffineMap_toFun.map_sConvexComb s := by simp
 

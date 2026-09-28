@@ -36,9 +36,9 @@ open scoped ENNReal
 
 namespace ProbabilityTheory.Kernel
 
-variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
-  {κ : Kernel α β} {η : Kernel γ δ} {x : α × γ}
+variable
+  {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
+  {mδ : MeasurableSpace δ} {κ : Kernel α β} {η : Kernel γ δ} {x : α × γ}
 
 open scoped Classical in
 /-- Parallel product of two kernels. -/
@@ -152,12 +152,13 @@ instance [IsZeroOrMarkovKernel κ] [IsZeroOrMarkovKernel η] : IsZeroOrMarkovKer
 
 instance [IsFiniteKernel κ] [IsFiniteKernel η] : IsFiniteKernel (κ ∥ₖ η) := by
   refine ⟨⟨κ.bound * η.bound, ENNReal.mul_lt_top κ.bound_lt_top η.bound_lt_top, fun a ↦ ?_⟩⟩
-  calc (κ ∥ₖ η) a Set.univ
-  _ = κ a.1 Set.univ * η a.2 Set.univ := parallelComp_apply_univ
-  _ ≤ κ.bound * η.bound := by
-    gcongr
-    · exact measure_le_bound κ a.1 Set.univ
-    · exact measure_le_bound η a.2 Set.univ
+  calc
+    (κ ∥ₖ η) a Set.univ
+    _ = κ a.1 Set.univ * η a.2 Set.univ := parallelComp_apply_univ
+    _ ≤ κ.bound * η.bound := by
+      gcongr
+      · exact measure_le_bound κ a.1 Set.univ
+      · exact measure_le_bound η a.2 Set.univ
 
 instance : IsSFiniteKernel (κ ∥ₖ η) := by
   by_cases h : IsSFiniteKernel κ

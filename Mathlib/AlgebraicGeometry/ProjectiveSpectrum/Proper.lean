@@ -80,23 +80,28 @@ lemma lift_awayMapₐ_awayMapₐ_surjective {d e : ℕ} {f : A} (hf : f ∈ 𝒜
 set_option backward.isDefEq.respectTransparency false in
 open TensorProduct in
 instance isSeparated : IsSeparated (toSpecZero 𝒜) := by
-  refine ⟨IsZariskiLocalAtTarget.of_openCover (Pullback.openCoverOfLeftRight
-    (affineOpenCover 𝒜).openCover (affineOpenCover 𝒜).openCover _ _) ?_⟩
+  refine ⟨IsZariskiLocalAtTarget.of_openCover
+    (Pullback.openCoverOfLeftRight (affineOpenCover 𝒜).openCover (affineOpenCover 𝒜).openCover _ _)
+    ?_⟩
   intro ⟨i, j⟩
   dsimp [Scheme, Cover.pullbackHom]
   refine (MorphismProperty.cancel_left_of_respectsIso (P := @IsClosedImmersion)
-    (f := (pullbackDiagonalMapIdIso ..).inv) _).mp ?_
-  let e₁ : pullback ((affineOpenCover 𝒜).f i ≫ toSpecZero 𝒜)
-        ((affineOpenCover 𝒜).f j ≫ toSpecZero 𝒜) ≅
-        Spec (.of <| TensorProduct (𝒜 0) (Away 𝒜 (i.2 : A)) (Away 𝒜 (j.2 : A))) := by
+      (f := (pullbackDiagonalMapIdIso ..).inv) _).mp
+    ?_
+  let e₁
+      : pullback ((affineOpenCover 𝒜).f i ≫ toSpecZero 𝒜) ((affineOpenCover 𝒜).f j ≫ toSpecZero 𝒜)
+        ≅ Spec (.of <| TensorProduct (𝒜 0) (Away 𝒜 (i.2 : A)) (Away 𝒜 (j.2 : A))) := by
     refine pullback.congrHom ?_ ?_ ≪≫ pullbackSpecIso (𝒜 0) (Away 𝒜 (i.2 : A)) (Away 𝒜 (j.2 : A))
     · simp [affineOpenCover, affineOpenCoverOfIrrelevantLESpan, awayι_toSpecZero]; rfl
     · simp [affineOpenCover, affineOpenCoverOfIrrelevantLESpan, awayι_toSpecZero]; rfl
-  let e₂ : pullback ((affineOpenCover 𝒜).f i) ((affineOpenCover 𝒜).f j) ≅
-        Spec (.of <| Away 𝒜 (i.2 * j.2 : A)) :=
+  let e₂
+      : pullback ((affineOpenCover 𝒜).f i) ((affineOpenCover 𝒜).f j)
+        ≅ Spec (.of <| Away 𝒜 (i.2 * j.2 : A)) :=
     pullbackAwayιIso 𝒜 _ _ _ _ rfl
-  rw [← MorphismProperty.cancel_right_of_respectsIso (P := @IsClosedImmersion) _ e₁.hom,
-    ← MorphismProperty.cancel_left_of_respectsIso (P := @IsClosedImmersion) e₂.inv]
+  rw [
+    ← MorphismProperty.cancel_right_of_respectsIso (P := @IsClosedImmersion) _ e₁.hom,
+    ← MorphismProperty.cancel_left_of_respectsIso (P := @IsClosedImmersion) e₂.inv
+  ]
   let F : Away 𝒜 i.2.1 ⊗[𝒜 0] Away 𝒜 j.2.1 →+* Away 𝒜 (i.2.1 * j.2.1) :=
     (Algebra.TensorProduct.lift (awayMapₐ 𝒜 j.2.2 rfl) (awayMapₐ 𝒜 i.2.2 (mul_comm _ _))
       (fun _ _ ↦ .all _ _)).toRingHom
@@ -106,18 +111,20 @@ instance isSeparated : IsSeparated (toSpecZero 𝒜) := by
       (CommRingCat.ofHom (R := Away 𝒜 i.2.1 ⊗[𝒜 0] Away 𝒜 j.2.1) F) this using 1
   rw [← cancel_mono (pullbackSpecIso ..).inv]
   apply pullback.hom_ext
-  · simp only [Iso.trans_hom, congrHom_hom, Category.assoc, Iso.hom_inv_id, Category.comp_id,
-      limit.lift_π, PullbackCone.mk_π_app, e₂, e₁,
-      pullbackSpecIso_inv_fst, ← Spec.map_comp]
+  · simp only [
+      Iso.trans_hom, congrHom_hom, Category.assoc, Iso.hom_inv_id, Category.comp_id, limit.lift_π,
+      PullbackCone.mk_π_app, e₂, e₁, pullbackSpecIso_inv_fst, ← Spec.map_comp
+    ]
     erw [pullbackDiagonalMapIdIso_inv_snd_fst]
     erw [pullbackAwayιIso_inv_fst]
     congr 1
     ext x : 2
     congrm $((Algebra.TensorProduct.lift_comp_includeLeft
      (awayMapₐ 𝒜 j.2.2 rfl) (awayMapₐ 𝒜 i.2.2 (mul_comm _ _)) (fun _ _ ↦ .all _ _)).symm) x
-  · simp only [Iso.trans_hom, congrHom_hom, Category.assoc, Iso.hom_inv_id, Category.comp_id,
-      limit.lift_π, PullbackCone.mk_π_app, pullbackSpecIso_inv_snd,
-      ← Spec.map_comp, e₂, e₁]
+  · simp only [
+      Iso.trans_hom, congrHom_hom, Category.assoc, Iso.hom_inv_id, Category.comp_id, limit.lift_π,
+      PullbackCone.mk_π_app, pullbackSpecIso_inv_snd, ← Spec.map_comp, e₂, e₁
+    ]
     erw [pullbackDiagonalMapIdIso_inv_snd_snd]
     erw [pullbackAwayιIso_inv_snd]
     congr 1
@@ -138,12 +145,17 @@ set_option backward.isDefEq.respectTransparency.types false in
 instance [Algebra.FiniteType (𝒜 0) A] : LocallyOfFiniteType (Proj.toSpecZero 𝒜) := by
   obtain ⟨x, hx, hx'⟩ := GradedAlgebra.exists_finset_adjoin_eq_top_and_homogeneous_ne_zero 𝒜
   choose d hd hxd using hx'
-  rw [IsZariskiLocalAtSource.iff_of_iSup_eq_top (P := @LocallyOfFiniteType) _
-    (Proj.iSup_basicOpen_eq_top' 𝒜 (ι := x) (↑) (fun i ↦ ⟨_, hxd _ i.2⟩) (by simpa using hx))]
+  rw [
+    IsZariskiLocalAtSource.iff_of_iSup_eq_top (P := @LocallyOfFiniteType) _
+      (Proj.iSup_basicOpen_eq_top' 𝒜 (ι := x) (↑) (fun i ↦ ⟨_, hxd _ i.2⟩) (by simpa using hx))
+  ]
   intro i
-  rw [← MorphismProperty.cancel_left_of_respectsIso (P := @LocallyOfFiniteType)
-    (Proj.basicOpenIsoSpec 𝒜 (i : A) (hxd _ i.2) (hd _ i.2).bot_lt).inv, ← Category.assoc,
-    ← Proj.awayι, Proj.awayι_toSpecZero, HasRingHomProperty.Spec_iff (P := @LocallyOfFiniteType)]
+  rw [
+    ← MorphismProperty.cancel_left_of_respectsIso (P := @LocallyOfFiniteType)
+      (Proj.basicOpenIsoSpec 𝒜 (i : A) (hxd _ i.2) (hd _ i.2).bot_lt).inv,
+    ← Category.assoc, ← Proj.awayι, Proj.awayι_toSpecZero,
+    HasRingHomProperty.Spec_iff (P := @LocallyOfFiniteType)
+  ]
   exact HomogeneousLocalization.Away.finiteType _ _ (hxd _ i.2)
 
 end LocallyOfFiniteType
@@ -158,10 +170,14 @@ instance [Algebra.FiniteType (𝒜 0) A] : QuasiCompact (Proj.toSpecZero 𝒜) :
   have H (i : x) : IsCompact (Proj.basicOpen 𝒜 (i : A)).1 := by
     rw [← Proj.opensRange_awayι _ _ (hxd _ i.2) (hd _ i.2).bot_lt]
     exact isCompact_range (Proj.awayι _ _ (hxd _ i.2) (hd _ i.2).bot_lt).continuous
-  have := congr($(Proj.iSup_basicOpen_eq_top' 𝒜
-    (ι := x) (↑) (fun i ↦ ⟨_, hxd _ i.2⟩) (by simpa using hx)).1)
-  simp only [TopologicalSpace.Opens.iSup_mk, TopologicalSpace.Opens.carrier_eq_coe,
-    TopologicalSpace.Opens.coe_mk, TopologicalSpace.Opens.coe_top] at this
+  have :=
+    congr($(Proj.iSup_basicOpen_eq_top' 𝒜
+      (ι := x) (↑) (fun i ↦ ⟨_, hxd _ i.2⟩) (by simpa using hx)).1)
+  simp only [
+      TopologicalSpace.Opens.iSup_mk, TopologicalSpace.Opens.carrier_eq_coe,
+      TopologicalSpace.Opens.coe_mk, TopologicalSpace.Opens.coe_top
+    ]
+    at this
   rw [← isCompact_univ_iff, ← this]
   exact isCompact_iUnion H
 
@@ -201,12 +217,15 @@ theorem valuativeCriterion_existence_aux
     {O : Type*} [CommRing O] [IsDomain O] [ValuationRing O]
     {K : Type*} [Field K] [Algebra O K] [IsFractionRing O K]
     (φ₀ : (𝒜 0) →+* O)
-    (ι : Type*) [Finite ι] (x : ι → A) (h2 : Algebra.adjoin (𝒜 0) (Set.range x) = ⊤)
+    (ι : Type*) [Finite ι]
+    (x : ι → A) (h2 : Algebra.adjoin (𝒜 0) (Set.range x) = ⊤)
     (j : ι) (φ : Away 𝒜 (x j) →+* K)
     (hcomm : (algebraMap O K).comp φ₀ = φ.comp (fromZeroRingHom 𝒜 _))
-    (d : ι → ℕ) (hdi : ∀ i, 0 < d i) (hxdi : ∀ i, x i ∈ 𝒜 (d i)) :
-    ∃ (j₀ : ι) (φ' : Away 𝒜 (x j * x j₀) →+* K), φ'.comp (awayMap 𝒜 (hxdi j₀) rfl) = φ ∧
-      (φ'.comp (awayMap 𝒜 (hxdi j) (mul_comm (x j) (x j₀)))).range ≤ (algebraMap O K).range := by
+    (d : ι → ℕ) (hdi : ∀ i, 0 < d i) (hxdi : ∀ i, x i ∈ 𝒜 (d i))
+    : ∃ (j₀ : ι) (φ' : Away 𝒜 (x j * x j₀) →+* K),
+      φ'.comp (awayMap 𝒜 (hxdi j₀) rfl) = φ
+        ∧ (φ'.comp (awayMap 𝒜 (hxdi j) (mul_comm (x j) (x j₀)))).range
+          ≤ (algebraMap O K).range := by
   classical
   cases nonempty_fintype ι
   let ψ (i : ι) : ValueGroup O K :=
@@ -223,8 +242,9 @@ theorem valuativeCriterion_existence_aux
     simp only [map_one, one_ne_zero] at this
   let := (awayMap 𝒜 (f := x j) (hxdi i₀) rfl).toAlgebra
   have := Away.isLocalization_mul (hxdi j) (hxdi i₀) rfl (hdi _).ne'
-  have hunit : IsUnit (φ (Away.isLocalizationElem (hxdi j) (hxdi i₀))) := isUnit_iff_ne_zero.mpr
-    fun rid ↦ hKmax.ne' (.symm (by simpa [ψ, rid, Finset.prod_eq_zero_iff, (hdi _).ne'] using hi1))
+  have hunit : IsUnit (φ (Away.isLocalizationElem (hxdi j) (hxdi i₀))) :=
+    isUnit_iff_ne_zero.mpr fun rid ↦
+      hKmax.ne' (.symm (by simpa [ψ, rid, Finset.prod_eq_zero_iff, (hdi _).ne'] using hi1))
   let φ' := IsLocalization.Away.lift (S := Away 𝒜 (x j * x i₀)) _ hunit
   have hφ'1 (s) : φ' (awayMap 𝒜 (hxdi i₀) rfl s) = φ s := IsLocalization.Away.lift_eq _ hunit s
   use i₀, φ', IsLocalization.Away.lift_comp ..
@@ -232,18 +252,23 @@ theorem valuativeCriterion_existence_aux
   rw [RingHom.mem_range, ← ValuationRing.mem_integer_iff, Valuation.mem_integer_iff]
   have := (Away.span_mk_prod_pow_eq_top (hxdi i₀) x h2 d hxdi).ge (Submodule.mem_top (x := sx))
   induction this using Submodule.span_induction with
-  | zero => simp
+  | zero =>
+    simp
   | add x y hx hy hhx hhy =>
     simp only [RingHom.coe_comp, Function.comp_apply, map_add, ge_iff_le]
     exact ((valuation O K).map_add _ _).trans <| sup_le_iff.mpr ⟨hhx, hhy⟩
   | smul a x₀ hx hx1 =>
     simp only [Algebra.smul_def, RingHom.coe_comp, Function.comp_apply, map_mul, ge_iff_le]
     refine mul_le_one' ?_ hx1
-    rw [RingHom.algebraMap_toAlgebra, awayMap_fromZeroRingHom 𝒜 (hxdi j) (mul_comm (x j) (x i₀)),
-      ← awayMap_fromZeroRingHom 𝒜 (hxdi i₀) rfl a, hφ'1]
+    rw [
+      RingHom.algebraMap_toAlgebra, awayMap_fromZeroRingHom 𝒜 (hxdi j) (mul_comm (x j) (x i₀)),
+      ← awayMap_fromZeroRingHom 𝒜 (hxdi i₀) rfl a, hφ'1
+    ]
     change valuation O K (φ.comp (fromZeroRingHom 𝒜 (.powers (x j))) a) ≤ 1
-    simp only [← hcomm, RingHom.coe_comp, Function.comp_apply, ← Valuation.mem_integer_iff,
-      IsFractionRing.coe_inj, exists_eq, mem_integer_iff]
+    simp only [
+      ← hcomm, RingHom.coe_comp, Function.comp_apply, ← Valuation.mem_integer_iff,
+      IsFractionRing.coe_inj, exists_eq, mem_integer_iff
+    ]
   | mem x1 h =>
     obtain ⟨a, ai, hai, rfl⟩ := h
     simp only [smul_eq_mul] at hai
@@ -255,62 +280,79 @@ theorem valuativeCriterion_existence_aux
       cases h : d j
       · cases (hdi j).ne' h
       · simp only [add_tsub_cancel_right]; ring
-    suffices valuation O K (φ (Away.mk 𝒜 (hxdi j) _ _ H) /
-          φ (Away.isLocalizationElem (hxdi j) (hxdi i₀)) ^ a) ≤ 1 by
+    suffices valuation O K
+        (φ (Away.mk 𝒜 (hxdi j) _ _ H) / φ (Away.isLocalizationElem (hxdi j) (hxdi i₀)) ^ a)
+      ≤ 1
+    by
       convert! this
-      rw [eq_div_iff (pow_ne_zero _ hunit.ne_zero), ← hφ'1, ← hφ'1, RingHom.comp_apply,
-        ← map_pow, ← map_mul]
+      rw [
+        eq_div_iff (pow_ne_zero _ hunit.ne_zero), ← hφ'1, ← hφ'1, RingHom.comp_apply, ← map_pow,
+        ← map_mul
+      ]
       congr
       ext
-      simp only [awayMap_mk, Away.val_mk, val_pow, Localization.mk_pow, Localization.mk_mul,
-        Localization.mk_eq_mk_iff, Localization.r_iff_exists, val_mul]
+      simp only [
+        awayMap_mk, Away.val_mk, val_pow, Localization.mk_pow, Localization.mk_mul,
+        Localization.mk_eq_mk_iff, Localization.r_iff_exists, val_mul
+      ]
       use 1
       simp only [OneMemClass.coe_one, one_mul, Submonoid.coe_mul, SubmonoidClass.coe_pow]
       cases h : d j
       · cases (hdi j).ne' h
       · rw [Nat.add_sub_cancel]; ring
-    rw [map_div₀, div_le_iff₀ ((pow_pos ((Valuation.pos_iff _).mpr hunit.ne_zero) _).trans_eq
-      (Valuation.map_pow _ _ _).symm), one_mul, ← pow_le_pow_iff_left₀ zero_le zero_le
-        (mul_pos (hdi j) (Finset.prod_pos fun i _ => hdi i)).ne.symm]
+    rw [
+      map_div₀,
+      div_le_iff₀ ((pow_pos ((Valuation.pos_iff _).mpr hunit.ne_zero) _).trans_eq
+        (Valuation.map_pow _ _ _).symm),
+      one_mul,
+      ← pow_le_pow_iff_left₀ zero_le zero_le
+        (mul_pos (hdi j) (Finset.prod_pos fun i _ => hdi i)).ne.symm
+    ]
     calc
       _ = (∏ i, ψ i ^ (d i * ai i)) * ψ i₀ ^ (d i₀ * a * (d j - 1)) := by
-          simp only [ψ, ← map_pow, ← map_prod, ← map_mul]
-          congr 2
-          apply (show Function.Injective (algebraMap (Away 𝒜 (x j)) (Localization.Away (x j)))
-            from val_injective _)
-          simp only [map_pow, map_prod, map_mul]
-          simp only [HomogeneousLocalization.algebraMap_apply, Away.val_mk, Localization.mk_pow,
-            Localization.mk_prod, Localization.mk_mul]
-          rw [Localization.mk_eq_mk_iff, Localization.r_iff_exists]
-          use 1
-          simp only [OneMemClass.coe_one, ← pow_mul, Submonoid.coe_mul,
-            SubmonoidClass.coe_finsetProd, one_mul]
-          simp_rw [← mul_assoc, Finset.prod_erase_mul _ d (h := Finset.mem_univ _), mul_assoc,
-            ← mul_assoc (Finset.prod ..), Finset.prod_erase_mul _ d (h := Finset.mem_univ _),
-            SubmonoidClass.coe_pow, ← pow_mul, Finset.prod_pow_eq_pow_sum,
-            ← pow_add, mul_pow, ← Finset.prod_pow, ← pow_mul]
-          congr 3
-          · simp only [mul_comm _ (∏ i, d i), mul_assoc, mul_left_comm _ (∏ i, d i),
-              mul_comm (d _) (ai _), ← Finset.mul_sum, hai]
-            cases h : d j
-            · cases (hdi j).ne' h
-            · simp; ring
-          · ext i; congr 1; ring
-          · ring
-      _ ≤ (∏ i : ι, ψ i₀ ^ (d i * ai i)) * ψ i₀ ^ (d i₀ * a * (d j - 1)) := by
-          gcongr with i; exacts [fun i _ ↦ zero_le, zero_le, hi₀ i]
-      _ = ψ i₀ ^ (d i₀ * a * d j) := by
-          rw [Finset.prod_pow_eq_pow_sum, ← pow_add]
-          simp_rw [mul_comm (d _) (ai _), hai]
+        simp only [ψ, ← map_pow, ← map_prod, ← map_mul]
+        congr 2
+        apply (show Function.Injective (algebraMap (Away 𝒜 (x j)) (Localization.Away (x j))) from
+          val_injective _)
+        simp only [map_pow, map_prod, map_mul]
+        simp only [
+          HomogeneousLocalization.algebraMap_apply, Away.val_mk, Localization.mk_pow,
+          Localization.mk_prod, Localization.mk_mul
+        ]
+        rw [Localization.mk_eq_mk_iff, Localization.r_iff_exists]
+        use 1
+        simp only [
+          OneMemClass.coe_one, ← pow_mul, Submonoid.coe_mul, SubmonoidClass.coe_finsetProd, one_mul
+        ]
+        simp_rw [← mul_assoc, Finset.prod_erase_mul _ d (h := Finset.mem_univ _), mul_assoc,
+          ← mul_assoc (Finset.prod ..), Finset.prod_erase_mul _ d (h := Finset.mem_univ _),
+          SubmonoidClass.coe_pow, ← pow_mul, Finset.prod_pow_eq_pow_sum,
+          ← pow_add, mul_pow, ← Finset.prod_pow, ← pow_mul]
+        congr 3
+        · simp only [
+            mul_comm _ (∏ i, d i), mul_assoc, mul_left_comm _ (∏ i, d i), mul_comm (d _) (ai _),
+            ← Finset.mul_sum, hai
+          ]
           cases h : d j
           · cases (hdi j).ne' h
-          · simp; ring_nf
+          · simp; ring
+        · ext i; congr 1; ring
+        · ring
+      _ ≤ (∏ i : ι, ψ i₀ ^ (d i * ai i)) * ψ i₀ ^ (d i₀ * a * (d j - 1)) := by
+        gcongr with i; exacts [fun i _ ↦ zero_le, zero_le, hi₀ i]
+      _ = ψ i₀ ^ (d i₀ * a * d j) := by
+        rw [Finset.prod_pow_eq_pow_sum, ← pow_add]
+        simp_rw [mul_comm (d _) (ai _), hai]
+        cases h : d j
+        · cases (hdi j).ne' h
+        · simp; ring_nf
       _ = valuation O K ((φ _) ^ a) ^ (d j * ∏ i, d i) := by
-          · simp only [ψ, ← map_pow]
-            congr 2
-            rw [← pow_mul, ← pow_mul, ← mul_assoc, ← mul_assoc, ← mul_assoc,
-              Finset.univ.prod_erase_mul d (h := Finset.mem_univ _),
-              mul_comm _ a, mul_right_comm]
+        · simp only [ψ, ← map_pow]
+          congr 2
+          rw [
+            ← pow_mul, ← pow_mul, ← mul_assoc, ← mul_assoc, ← mul_assoc,
+            Finset.univ.prod_erase_mul d (h := Finset.mem_univ _), mul_comm _ a, mul_right_comm
+          ]
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[stacks 01MF]

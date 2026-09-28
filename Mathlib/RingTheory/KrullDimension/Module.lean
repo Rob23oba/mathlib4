@@ -29,8 +29,7 @@ namespace Module
 open Order
 
 /-- The krull dimension of module, defined as `krullDim` of its support. -/
-noncomputable def supportDim : WithBot ℕ∞ :=
-  krullDim (Module.support R M)
+noncomputable def supportDim : WithBot ℕ∞ := krullDim (Module.support R M)
 
 @[nontriviality]
 lemma supportDim_eq_bot_of_subsingleton [Subsingleton M] : supportDim R M = ⊥ := by

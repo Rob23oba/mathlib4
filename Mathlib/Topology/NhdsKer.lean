@@ -54,8 +54,8 @@ lemma IsOpen.nhdsKer_subset (ht : IsOpen t) : nhdsKer s ⊆ t ↔ s ⊆ t :=
 theorem nhdsKer_iUnion (s : ι → Set X) : nhdsKer (⋃ i, s i) = ⋃ i, nhdsKer (s i) := by
   simp only [nhdsKer, nhdsSet_iUnion, ker_iSup]
 
-theorem nhdsKer_biUnion {ι : Type*} (s : Set ι) (t : ι → Set X) :
-    nhdsKer (⋃ i ∈ s, t i) = ⋃ i ∈ s, nhdsKer (t i) := by
+theorem nhdsKer_biUnion {ι : Type*} (s : Set ι) (t : ι → Set X)
+    : nhdsKer (⋃ i ∈ s, t i) = ⋃ i ∈ s, nhdsKer (t i) := by
   simp only [nhdsKer_iUnion]
 
 @[simp]
@@ -63,13 +63,15 @@ theorem nhdsKer_union (s t : Set X) : nhdsKer (s ∪ t) = nhdsKer s ∪ nhdsKer 
   simp only [nhdsKer, nhdsSet_union, ker_sup]
 
 @[simp]
-theorem nhdsKer_sUnion (S : Set (Set X)) : nhdsKer (⋃₀ S) = ⋃ s ∈ S, nhdsKer s := by
+theorem nhdsKer_sUnion (S : Set (Set X)) : nhdsKer (⋃₀S) = ⋃ s ∈ S, nhdsKer s := by
   simp only [sUnion_eq_biUnion, nhdsKer_iUnion]
 
-theorem mem_nhdsKer_iff_specializes : x ∈ nhdsKer s ↔ ∃ y ∈ s, x ⤳ y := calc
-  x ∈ nhdsKer s ↔ x ∈ nhdsKer (⋃ y ∈ s, {y}) := by simp
-  _ ↔ ∃ y ∈ s, x ⤳ y := by
-    simp only [nhdsKer_iUnion, mem_nhdsKer_singleton, mem_iUnion₂, exists_prop]
+theorem mem_nhdsKer_iff_specializes : x ∈ nhdsKer s ↔ ∃ y ∈ s, x ⤳ y :=
+  calc
+    x ∈ nhdsKer s
+      ↔ x ∈ nhdsKer (⋃ y ∈ s, {y}) := by simp
+    _ ↔ ∃ y ∈ s, x ⤳ y := by
+      simp only [nhdsKer_iUnion, mem_nhdsKer_singleton, mem_iUnion₂, exists_prop]
 
 @[gcongr, mono] lemma nhdsKer_mono : Monotone (nhdsKer : Set X → Set X) :=
   fun _s _t h ↦ ker_mono <| nhdsSet_mono h
@@ -95,7 +97,7 @@ theorem nhdsKer_iInter_subset {s : ι → Set X} : nhdsKer (⋂ i, s i) ⊆ ⋂ 
 theorem nhdsKer_inter_subset {s t : Set X} : nhdsKer (s ∩ t) ⊆ nhdsKer s ∩ nhdsKer t :=
   nhdsKer_mono.map_inf_le _ _
 
-theorem nhdsKer_sInter_subset {s : Set (Set X)} : nhdsKer (⋂₀ s) ⊆ ⋂ x ∈ s, nhdsKer x :=
+theorem nhdsKer_sInter_subset {s : Set (Set X)} : nhdsKer (⋂₀s) ⊆ ⋂ x ∈ s, nhdsKer x :=
   nhdsKer_mono.map_sInf_le
 
 @[simp] lemma nhdsKer_empty : nhdsKer (∅ : Set X) = ∅ := isOpen_empty.nhdsKer_eq

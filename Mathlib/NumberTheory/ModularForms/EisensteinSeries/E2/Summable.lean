@@ -104,8 +104,8 @@ lemma E2_eq_tsum_cexp : E2 z = 1 - 24 * ∑' n : ℕ+, σ 1 n * 𝕢 z ^ (n : �
   field
 
 /-- The `q`-expansion of `E2` as a `HasSum` over `ℕ`. -/
-theorem hasSum_qExpansion_E2 :
-    HasSum (fun m : ℕ ↦ (if m = 0 then 1 else -24 * σ 1 m : ℂ) • 𝕢 z ^ m) (E2 z) := by
+theorem hasSum_qExpansion_E2
+    : HasSum (fun m : ℕ ↦ (if m = 0 then 1 else -24 * σ 1 m : ℂ) • 𝕢 z ^ m) (E2 z) := by
   have hS : Summable fun n : ℕ ↦ σ 1 (n + 1) * 𝕢 z ^ (n + 1) :=
     (summable_nat_add_iff 1).mpr (summable_sigma_mul_cexp_pow (k := 2) (one_le_two) z)
   rw [← hasSum_nat_add_iff' 1]
@@ -121,8 +121,7 @@ theorem tendsto_E2_atImInfty : Tendsto E2 atImInfty (𝓝 1) :=
     simpa only [Function.Periodic.qParam, ofReal_one, div_one] using hasSum_qExpansion_E2 (z := z)
 
 /-- `E2` is bounded at `i∞`. -/
-theorem isBoundedAtImInfty_E2 : IsBoundedAtImInfty E2 :=
-  tendsto_E2_atImInfty.isBigO_one ℝ
+theorem isBoundedAtImInfty_E2 : IsBoundedAtImInfty E2 := tendsto_E2_atImInfty.isBigO_one ℝ
 
 lemma tendsto_e2Summand_atTop_nhds_zero : Tendsto (e2Summand · z) atTop (𝓝 0) :=
   (summable_e2Summand_symmetricIcc z).tendsto_zero_of_even_summable_symmetricIcc (e2Summand_even _)
@@ -167,8 +166,10 @@ lemma summable_right_one_div_linear_sub_one_div_linear_succ (m : ℤ) :
   simpa [add_assoc, mul_comm] using
     (one_div_linear_sub_one_div_linear_eq z b (b + 1) m (by grind)).symm
 
-/- Acting by `S` (which sends `z` to `-z ⁻¹`) swaps the sums and pulls out a factor of
-`(z ^ 2)⁻¹`. -/
+/-
+Acting by `S` (which sends `z` to `-z ⁻¹`) swaps the sums and pulls out a factor of
+`(z ^ 2)⁻¹`.
+-/
 private lemma aux_sum_Ico_S_identity (N : ℕ) :
     ((z : ℂ) ^ 2)⁻¹ * (∑ x ∈ Ico (-N : ℤ) N, ∑' (n : ℤ), (((x : ℂ) * (-↑z)⁻¹ + n) ^ 2)⁻¹) =
     ∑' (n : ℤ), ∑ x ∈ Ico (-N : ℤ) N, (((n : ℂ) * z + x) ^ 2)⁻¹ := by
@@ -208,7 +209,7 @@ lemma tsum_symmetricIco_linear_sub_linear_add_one_eq_zero (m : ℤ) :
   simp_rw [hasSum_symmetricIco_int_iff, telescope_aux z m]
   simpa using (tendsto_zero_inv_linear_sub z m).sub (tendsto_zero_inv_linear z m)
 
-/- We split the sum over `ℤ` into a sum over `ℕ+` but of four terms.-/
+/- We split the sum over `ℤ` into a sum over `ℕ+` but of four terms. -/
 private lemma aux_tsum_identity_1 (d : ℕ+) :
     ∑' (m : ℤ), (1 / ((m : ℂ) * z - d) - 1 / (m * z + d)) = -(2 / d) +
     ∑' m : ℕ+, (1 / ((m : ℂ) * z - d) + 1 / (-m * z + -d) - 1 / (m * z + d) -1 / (-m * z + d)) := by
@@ -226,7 +227,7 @@ private lemma aux_tsum_identity_1 (d : ℕ+) :
       grind [Int.cast_neg, Int.cast_natCast, neg_mul, one_div]
   · simpa using! summable_left_one_div_linear_sub_one_div_linear z (-d) d
 
-/- The sum of four terms can now be combined into a sum where `z` has changed for `-1 / z`.-/
+/- The sum of four terms can now be combined into a sum where `z` has changed for `-1 / z`. -/
 private lemma aux_tsum_identity_2 (d : ℕ+) :
     ∑' m : ℕ+, (1 / ((m : ℂ) * z - d) + 1 / (-m * z + -d) - (1 / (m * z + d)) -
     1 / (-m * z + d)) = 2 / z * ∑' m : ℕ+, (1 / (-(d : ℂ) / z - m) + 1 / (-d / z + m)) := by
@@ -244,8 +245,10 @@ private lemma aux_tendsto_tsum_cexp_pnat :
   simp only [← exp_nsmul, nsmul_eq_mul, Nat.cast_mul] at *
   exact this.congr <| by grind
 
-/- Now this sum of terms with `-1 / z` tendsto `-2 * π * I / z` which is exactly `D2_S`. The key is
-to use the cotangent series to write this as a sum of exponentials.-/
+/-
+Now this sum of terms with `-1 / z` tendsto `-2 * π * I / z` which is exactly `D2_S`. The key is
+to use the cotangent series to write this as a sum of exponentials.
+-/
 private lemma aux_tendsto_tsum : Tendsto (fun n : ℕ ↦ 2 / z *
     ∑' (m : ℕ+), (1 / (-(n : ℂ) / z - m) + 1 / (-n / z + m))) atTop (𝓝 (-2 * π * I / z)) := by
   rw [← PNat.tendsto_comp_val_iff]
@@ -263,9 +266,11 @@ private lemma aux_tendsto_tsum : Tendsto (fun n : ℕ ↦ 2 / z *
   refine aux_tendsto_tsum_cexp_pnat z |>.const_mul _ |>.const_sub _ |>.add (.const_mul _ ?_)
   exact PNat.tendsto_comp_val_iff.mpr tendsto_inv_atTop_nhds_zero_nat
 
-/- This shows that the limit of the conditional sum over larger intervals tends
+/-
+This shows that the limit of the conditional sum over larger intervals tends
 to `-2 * π * I / z`. We will then show, in `tsum_tsum_symmetricIco_sub_eq` that if we swap the
-order of the sum it tends to `0` instead. -/
+order of the sum it tends to `0` instead.
+-/
 lemma tendsto_tsum_one_div_linear_sub_succ_eq :
     Tendsto (fun N : ℕ+ ↦ ∑ n ∈ Ico (-N : ℤ) N,
     ∑' m : ℤ, (1 / ((m : ℂ) * z + n) - 1 / (m * z + n + 1))) atTop (𝓝 (-2 * π * I / z)) := by
@@ -282,8 +287,10 @@ lemma tendsto_tsum_one_div_linear_sub_succ_eq :
       (tendsto_inv_atTop_nhds_zero_nat (𝕜 := ℂ)).const_mul (-2)
   · simpa only [aux_tsum_identity_2, ← PNat.tendsto_comp_val_iff] using! aux_tendsto_tsum z
 
-/- These are the two key lemmas, which show that swapping the order of summation gives
-results differing by the term `-2 * π * I / z`. -/
+/-
+These are the two key lemmas, which show that swapping the order of summation gives
+results differing by the term `-2 * π * I / z`.
+-/
 lemma tsum_symmetricIco_tsum_sub_eq :
     ∑'[symmetricIco ℤ] n : ℤ, ∑' m : ℤ, (1 / ((m : ℂ) * z + n) - 1 / (m * z + n + 1)) =
     -2 * π * I / z := by

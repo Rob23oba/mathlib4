@@ -33,11 +33,13 @@ namespace Matrix
 
 variable {m m' n n' R : Type*} [CommRing R]
 
-/-- `A.IsTotallyUnimodular` means that every square submatrix of `A` (not necessarily contiguous)
-has determinant `0` or `1` or `-1`; that is, the determinant is in the range of `SignType.cast`. -/
+/--
+`A.IsTotallyUnimodular` means that every square submatrix of `A` (not necessarily contiguous)
+has determinant `0` or `1` or `-1`; that is, the determinant is in the range of `SignType.cast`.
+-/
 def IsTotallyUnimodular (A : Matrix m n R) : Prop :=
-  ∀ k : ℕ, ∀ f : Fin k → m, ∀ g : Fin k → n, f.Injective → g.Injective →
-    (A.submatrix f g).det ∈ Set.range SignType.cast
+  ∀ k : ℕ, ∀ f : Fin k → m, ∀ g : Fin k → n,
+    f.Injective → g.Injective → (A.submatrix f g).det ∈ Set.range SignType.cast
 
 lemma isTotallyUnimodular_iff (A : Matrix m n R) : A.IsTotallyUnimodular ↔
     ∀ k : ℕ, ∀ f : Fin k → m, ∀ g : Fin k → n,

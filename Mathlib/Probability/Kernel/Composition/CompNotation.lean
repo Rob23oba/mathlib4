@@ -24,16 +24,18 @@ This file does not define composition but only introduces notation for
 
 public section
 
-/- This file is only for lemmas that are direct specializations of `Measure.bind` to kernels,
-anything more involved should go elsewhere (for example the `MeasureComp` file). -/
+/-
+This file is only for lemmas that are direct specializations of `Measure.bind` to kernels,
+anything more involved should go elsewhere (for example the `MeasureComp` file).
+-/
 assert_not_exists ProbabilityTheory.Kernel.compProd
 
 open ProbabilityTheory
 
 namespace MeasureTheory.Measure
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ : Measure α} {κ : Kernel α β}
+variable
+  {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} {κ : Kernel α β}
 
 /-- Composition of a measure and a kernel.
 

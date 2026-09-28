@@ -36,11 +36,13 @@ variable [Monoid G] [Monoid H] [Monoid I]
 
 namespace MonoidHom
 
-/-- The graph of a monoid homomorphism as a submonoid.
+/--
+The graph of a monoid homomorphism as a submonoid.
 
-See also `MonoidHom.graph` for the graph as a subgroup. -/
+See also `MonoidHom.graph` for the graph as a subgroup.
+-/
 @[to_additive (attr := simps! coe)
-/-- The graph of a monoid homomorphism as a submonoid.
+  /-- The graph of a monoid homomorphism as a submonoid.
 
 See also `AddMonoidHom.graph` for the graph as a subgroup. -/]
 def mgraph (f : G →* H) : Submonoid (G × H) where
@@ -143,11 +145,13 @@ variable [Group G] [Group H] [Group I]
 
 namespace MonoidHom
 
-/-- The graph of a group homomorphism as a subgroup.
+/--
+The graph of a group homomorphism as a subgroup.
 
-See also `MonoidHom.mgraph` for the graph as a submonoid. -/
+See also `MonoidHom.mgraph` for the graph as a submonoid.
+-/
 @[to_additive
-/-- The graph of a group homomorphism as a subgroup.
+  /-- The graph of a group homomorphism as a subgroup.
 
 See also `AddMonoidHom.mgraph` for the graph as a submonoid. -/]
 def graph (f : G →* H) : Subgroup (G × H) where

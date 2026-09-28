@@ -52,16 +52,28 @@ instance instAddCommMonoid [AddCommMonoid α] : AddCommMonoid αᵐᵒᵖ :=
   unop_injective.addCommMonoid _ rfl (fun _ _ => rfl) fun _ _ => rfl
 
 instance instSubNegMonoid [SubNegMonoid α] : SubNegMonoid αᵐᵒᵖ :=
-  unop_injective.subNegMonoid _ (by exact rfl) (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl)
-    (fun _ _ => rfl) fun _ _ => rfl
+  unop_injective.subNegMonoid _ (by exact rfl)
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    fun _ _ => rfl
 
 instance instAddGroup [AddGroup α] : AddGroup αᵐᵒᵖ :=
-  unop_injective.addGroup _ (by exact rfl) (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl)
-  (fun _ _ => rfl) fun _ _ => rfl
+  unop_injective.addGroup _ (by exact rfl)
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    fun _ _ => rfl
 
 instance instAddCommGroup [AddCommGroup α] : AddCommGroup αᵐᵒᵖ :=
-  unop_injective.addCommGroup _ rfl (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl)
-    (fun _ _ => rfl) fun _ _ => rfl
+  unop_injective.addCommGroup _ rfl
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    fun _ _ => rfl
 
 /-!
 ### Multiplicative structures on `αᵐᵒᵖ`
@@ -141,9 +153,10 @@ instance instDivInvMonoid [DivInvMonoid α] : DivInvMonoid αᵐᵒᵖ where
   toInv := instInv
   zpow n a := op <| a.unop ^ n
   zpow_zero' _ := unop_injective <| zpow_zero _
-  zpow_succ' _ _ := unop_injective <| by
-    simp_rw [HPow.hPow, Pow.pow]
-    rw [unop_op, zpow_natCast, pow_succ', unop_mul, unop_op, zpow_natCast]
+  zpow_succ' _ _ :=
+    unop_injective <| by
+      simp_rw [HPow.hPow, Pow.pow]
+      rw [unop_op, zpow_natCast, pow_succ', unop_mul, unop_op, zpow_natCast]
   zpow_neg' _ _ := unop_injective <| DivInvMonoid.zpow_neg' _ _
 
 @[to_additive]
@@ -187,8 +200,7 @@ variable [DivInvMonoid α]
 end DivInvMonoid
 
 @[to_additive (attr := simp)]
-theorem unop_div [DivInvMonoid α] (x y : αᵐᵒᵖ) : unop (x / y) = (unop y)⁻¹ * unop x :=
-  rfl
+theorem unop_div [DivInvMonoid α] (x y : αᵐᵒᵖ) : unop (x / y) = (unop y)⁻¹ * unop x := rfl
 
 @[to_additive (attr := simp)]
 theorem op_div [DivInvMonoid α] (x y : α) : op (x / y) = (op y)⁻¹ * op x := by simp [div_eq_mul_inv]
@@ -198,20 +210,20 @@ theorem semiconjBy_op [Mul α] {a x y : α} : SemiconjBy (op a) (op y) (op x) �
   simp only [SemiconjBy, ← op_mul, op_inj, eq_comm]
 
 @[to_additive (attr := simp, nolint simpComm)]
-theorem semiconjBy_unop [Mul α] {a x y : αᵐᵒᵖ} :
-    SemiconjBy (unop a) (unop y) (unop x) ↔ SemiconjBy a x y := by
+theorem semiconjBy_unop [Mul α] {a x y : αᵐᵒᵖ}
+    : SemiconjBy (unop a) (unop y) (unop x) ↔ SemiconjBy a x y := by
   conv_rhs => rw [← op_unop a, ← op_unop x, ← op_unop y, semiconjBy_op]
 
 attribute [nolint simpComm] AddOpposite.addSemiconjBy_unop
 
 @[to_additive]
-theorem _root_.SemiconjBy.op [Mul α] {a x y : α} (h : SemiconjBy a x y) :
-    SemiconjBy (op a) (op y) (op x) :=
+theorem _root_.SemiconjBy.op [Mul α] {a x y : α} (h : SemiconjBy a x y)
+    : SemiconjBy (op a) (op y) (op x) :=
   semiconjBy_op.2 h
 
 @[to_additive]
-theorem _root_.SemiconjBy.unop [Mul α] {a x y : αᵐᵒᵖ} (h : SemiconjBy a x y) :
-    SemiconjBy (unop a) (unop y) (unop x) :=
+theorem _root_.SemiconjBy.unop [Mul α] {a x y : αᵐᵒᵖ} (h : SemiconjBy a x y)
+    : SemiconjBy (unop a) (unop y) (unop x) :=
   semiconjBy_unop.2 h
 
 @[to_additive]
@@ -219,13 +231,12 @@ theorem _root_.Commute.op [Mul α] {x y : α} (h : Commute x y) : Commute (op x)
   SemiconjBy.op h
 
 @[to_additive]
-nonrec theorem _root_.Commute.unop [Mul α] {x y : αᵐᵒᵖ} (h : Commute x y) :
-    Commute (unop x) (unop y) :=
+nonrec theorem _root_.Commute.unop [Mul α] {x y : αᵐᵒᵖ} (h : Commute x y)
+    : Commute (unop x) (unop y) :=
   h.unop
 
 @[to_additive (attr := simp)]
-theorem commute_op [Mul α] {x y : α} : Commute (op x) (op y) ↔ Commute x y :=
-  semiconjBy_op
+theorem commute_op [Mul α] {x y : α} : Commute (op x) (op y) ↔ Commute x y := semiconjBy_op
 
 @[to_additive (attr := simp, nolint simpComm)]
 theorem commute_unop [Mul α] {x y : αᵐᵒᵖ} : Commute (unop x) (unop y) ↔ Commute x y :=
@@ -233,12 +244,14 @@ theorem commute_unop [Mul α] {x y : αᵐᵒᵖ} : Commute (unop x) (unop y) �
 
 attribute [nolint simpComm] AddOpposite.addCommute_unop
 
-@[to_additive] protected theorem isDedekindFiniteMonoid_iff [MulOne α] :
-    IsDedekindFiniteMonoid αᵐᵒᵖ ↔ IsDedekindFiniteMonoid α := by
+@[to_additive]
+protected theorem isDedekindFiniteMonoid_iff [MulOne α]
+    : IsDedekindFiniteMonoid αᵐᵒᵖ ↔ IsDedekindFiniteMonoid α := by
   simp_rw [isDedekindFiniteMonoid_iff, ← opEquiv.forall_congr_right]
   simpa [← op_one, ← op_mul] using forall_comm
 
-@[to_additive] instance [MulOne α] [IsDedekindFiniteMonoid α] : IsDedekindFiniteMonoid αᵐᵒᵖ :=
+@[to_additive]
+instance [MulOne α] [IsDedekindFiniteMonoid α] : IsDedekindFiniteMonoid αᵐᵒᵖ :=
   MulOpposite.isDedekindFiniteMonoid_iff.mpr ‹_›
 
 @[to_additive (attr := simp)]
@@ -246,15 +259,13 @@ theorem isMulCommutative_op_iff [Mul α] : IsMulCommutative αᵐᵒᵖ ↔ IsMu
   simp [isMulCommutative_iff, ← commute_iff_eq]
 
 @[to_additive]
-instance [Mul α] [IsMulCommutative α] : IsMulCommutative αᵐᵒᵖ :=
-  isMulCommutative_op_iff.mpr ‹_›
+instance [Mul α] [IsMulCommutative α] : IsMulCommutative αᵐᵒᵖ := isMulCommutative_op_iff.mpr ‹_›
 
 end MulOpposite
 
 /-!
 ### Multiplicative structures on `αᵃᵒᵖ`
 -/
-
 
 namespace AddOpposite
 
@@ -272,15 +283,12 @@ instance instCommSemigroup [CommSemigroup α] : CommSemigroup αᵃᵒᵖ :=
 instance instMulOneClass [MulOneClass α] : MulOneClass αᵃᵒᵖ :=
   unop_injective.mulOneClass _ (by exact rfl) fun _ _ => rfl
 
-instance pow {β} [Pow α β] : Pow αᵃᵒᵖ β where pow a b := op (unop a ^ b)
+instance pow {β} [Pow α β] : Pow αᵃᵒᵖ β where
+  pow a b := op (unop a ^ b)
 
-@[simp]
-theorem op_pow {β} [Pow α β] (a : α) (b : β) : op (a ^ b) = op a ^ b :=
-  rfl
+@[simp] theorem op_pow {β} [Pow α β] (a : α) (b : β) : op (a ^ b) = op a ^ b := rfl
 
-@[simp]
-theorem unop_pow {β} [Pow α β] (a : αᵃᵒᵖ) (b : β) : unop (a ^ b) = unop a ^ b :=
-  rfl
+@[simp] theorem unop_pow {β} [Pow α β] (a : αᵃᵒᵖ) (b : β) : unop (a ^ b) = unop a ^ b := rfl
 
 instance instMonoid [Monoid α] : Monoid αᵃᵒᵖ :=
   unop_injective.monoid _ (by exact rfl) (fun _ _ => rfl) fun _ _ => rfl
@@ -289,16 +297,28 @@ instance instCommMonoid [CommMonoid α] : CommMonoid αᵃᵒᵖ :=
   unop_injective.commMonoid _ (by exact rfl) (fun _ _ => rfl) fun _ _ => rfl
 
 instance instDivInvMonoid [DivInvMonoid α] : DivInvMonoid αᵃᵒᵖ :=
-  unop_injective.divInvMonoid _ (by exact rfl) (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl)
-    (fun _ _ => rfl) fun _ _ => rfl
+  unop_injective.divInvMonoid _ (by exact rfl)
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    fun _ _ => rfl
 
 instance instGroup [Group α] : Group αᵃᵒᵖ :=
-  unop_injective.group _ (by exact rfl) (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl)
-    (fun _ _ => rfl) fun _ _ => rfl
+  unop_injective.group _ (by exact rfl)
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    fun _ _ => rfl
 
 instance instCommGroup [CommGroup α] : CommGroup αᵃᵒᵖ :=
-  unop_injective.commGroup _ (by exact rfl) (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl)
-    (fun _ _ => rfl) fun _ _ => rfl
+  unop_injective.commGroup _ (by exact rfl)
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    fun _ _ => rfl
 
 @[to_additive]
 instance instMulTorsionFree [Monoid α] [IsMulTorsionFree α] : IsMulTorsionFree αᵐᵒᵖ :=

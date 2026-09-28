@@ -25,8 +25,8 @@ open CategoryTheory
 variable (R : Type u) [CommRing R]
 
 /-- The category of finitely generated `R`-algebras. -/
-abbrev FGAlgCat := ObjectProperty.FullSubcategory
-  fun A : CommAlgCat.{v, u} R ↦ Algebra.FiniteType R A
+abbrev FGAlgCat :=
+  ObjectProperty.FullSubcategory fun A : CommAlgCat.{v, u} R ↦ Algebra.FiniteType R A
 
 instance (A : FGAlgCat R) : Algebra.FiniteType R A.1 := A.2
 
@@ -57,8 +57,9 @@ lemma RingHom.FiniteType.exists_smallRepr {S : Type v} [CommRing S] {f : R →+*
 /-- Universe lift functor for finitely generated algebras. -/
 def FGAlgCat.uliftFunctor : FGAlgCat.{v} R ⥤ FGAlgCat.{max v w} R where
   obj A := ⟨.of R <| ULift A.1, .equiv inferInstance ULift.algEquiv.symm⟩
-  map {A B} f := ConcreteCategory.ofHom <|
-    ULift.algEquiv.symm.toAlgHom.comp <| f.hom.hom.comp ULift.algEquiv.toAlgHom
+  map {A B} f :=
+    ConcreteCategory.ofHom <| ULift.algEquiv.symm.toAlgHom.comp <|
+      f.hom.hom.comp ULift.algEquiv.toAlgHom
 
 /-- The universe lift functor for finitely generated algebras is fully faithful. -/
 def FGAlgCat.fullyFaithfulUliftFunctor : (FGAlgCat.uliftFunctor R).FullyFaithful where
@@ -66,11 +67,9 @@ def FGAlgCat.fullyFaithfulUliftFunctor : (FGAlgCat.uliftFunctor R).FullyFaithful
     ConcreteCategory.ofHom <| ULift.algEquiv.toAlgHom.comp <|
       f.hom.hom.comp ULift.algEquiv.symm.toAlgHom
 
-instance : (FGAlgCat.uliftFunctor R).Full :=
-  (FGAlgCat.fullyFaithfulUliftFunctor R).full
+instance : (FGAlgCat.uliftFunctor R).Full := (FGAlgCat.fullyFaithfulUliftFunctor R).full
 
-instance : (FGAlgCat.uliftFunctor R).Faithful :=
-  (FGAlgCat.fullyFaithfulUliftFunctor R).faithful
+instance : (FGAlgCat.uliftFunctor R).Faithful := (FGAlgCat.fullyFaithfulUliftFunctor R).faithful
 
 /-- The category of finitely generated algebras is essentially small. -/
 instance : EssentiallySmall.{u} (FGAlgCat.{v} R) := by
@@ -81,8 +80,8 @@ instance : EssentiallySmall.{u} (FGAlgCat.{v} R) := by
   · let f := toSkeleton ∘ (FGAlgCat.uliftFunctor R).obj ∘ FGAlgCatSkeleton.eval R
     refine small_of_surjective (f := f) fun A ↦ ?_
     simp only [Function.comp_apply, f, toSkeleton_eq_iff]
-    obtain ⟨P, ⟨e⟩⟩ := Algebra.FiniteType.exists_fgAlgCatSkeleton R
-      ((fromSkeleton (FGAlgCat R)).obj A).obj
+    obtain ⟨P, ⟨e⟩⟩ :=
+      Algebra.FiniteType.exists_fgAlgCatSkeleton R ((fromSkeleton (FGAlgCat R)).obj A).obj
     exact ⟨P, ⟨ObjectProperty.isoMk _ (CommAlgCat.isoMk <| ULift.algEquiv.trans e.symm)⟩⟩
   · refine ⟨fun A B ↦ ?_⟩
     obtain ⟨PA, ⟨eA⟩⟩ := Algebra.FiniteType.exists_fgAlgCatSkeleton R A.obj
@@ -97,17 +96,22 @@ section Under
 
 open RingHom
 
-/-- The category of finitely generated `R`-algebras is equivalent to the category of
-finite type ring homomorphisms from `R`. -/
-def FGAlgCat.equivUnder (R : CommRingCat.{u}) :
-    FGAlgCat R ≌ MorphismProperty.Under (toMorphismProperty FiniteType) ⊤ R where
-  functor.obj A := ⟨(commAlgCatEquivUnder R).functor.obj A.obj,
-    (RingHom.finiteType_algebraMap (A := R) (B := A.obj)).mpr A.2⟩
+/--
+The category of finitely generated `R`-algebras is equivalent to the category of
+finite type ring homomorphisms from `R`.
+-/
+def FGAlgCat.equivUnder (R : CommRingCat.{u})
+    : FGAlgCat R ≌ MorphismProperty.Under (toMorphismProperty FiniteType) ⊤ R where
+  functor.obj A := ⟨
+    (commAlgCatEquivUnder R).functor.obj A.obj,
+    (RingHom.finiteType_algebraMap (A := R) (B := A.obj)).mpr A.2
+  ⟩
   functor.map {A B} f := ⟨(commAlgCatEquivUnder R).functor.map f.hom, trivial, trivial⟩
   inverse.obj A := ⟨(commAlgCatEquivUnder R).inverse.obj A.1, A.2⟩
   inverse.map {A B} f := ObjectProperty.homMk ((commAlgCatEquivUnder R).inverse.map f.hom)
-  unitIso := NatIso.ofComponents fun A ↦
-    ObjectProperty.isoMk _ (CommAlgCat.isoMk { toRingEquiv := .refl A.1, commutes' _ := rfl })
+  unitIso :=
+    NatIso.ofComponents fun A ↦
+      ObjectProperty.isoMk _ (CommAlgCat.isoMk { toRingEquiv := .refl A.1, commutes' _ := rfl })
   counitIso := .refl _
 
 variable {Q : MorphismProperty CommRingCat.{u}}

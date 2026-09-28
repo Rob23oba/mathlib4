@@ -29,8 +29,7 @@ open Limits Pretriangulated
 
 namespace ObjectProperty
 
-variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
-  (P : ObjectProperty C)
+variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D] (P : ObjectProperty C)
 
 section
 
@@ -50,8 +49,9 @@ instance [P.IsStableUnderShift M] : P.leftOrthogonal.IsStableUnderShift M where
 
 end
 
-variable [HasZeroObject C] [HasShift C ℤ] [Preadditive C]
-  [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
+variable
+  [HasZeroObject C] [HasShift C ℤ] [Preadditive C] [∀ (n : ℤ), (shiftFunctor C n).Additive]
+  [Pretriangulated C]
 
 instance : P.rightOrthogonal.IsTriangulatedClosed₂ :=
   .mk' (fun T hT h₁ h₃ X f hX ↦ by

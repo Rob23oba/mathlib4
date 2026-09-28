@@ -32,13 +32,17 @@ public section
 
 open Filter Set TopologicalSpace Topology
 
-/-- A topological space is **Alexandrov-discrete** or **finitely generated** if the intersection of
-a family of open sets is open. -/
+/--
+A topological space is **Alexandrov-discrete** or **finitely generated** if the intersection of
+a family of open sets is open.
+-/
 @[mk_iff]
 class AlexandrovDiscrete (α : Type*) [TopologicalSpace α] : Prop where
-  /-- The intersection of a family of open sets is an open set. Use `isOpen_sInter` in the root
-  namespace instead. -/
-  protected isOpen_sInter : ∀ S : Set (Set α), (∀ s ∈ S, IsOpen s) → IsOpen (⋂₀ S)
+  /--
+  The intersection of a family of open sets is an open set. Use `isOpen_sInter` in the root
+  namespace instead.
+  -/
+  protected isOpen_sInter : ∀ S : Set (Set α), (∀ s ∈ S, IsOpen s) → IsOpen (⋂₀S)
 
 variable {ι : Sort*} {κ : ι → Sort*} {α β : Type*}
 section
@@ -141,7 +145,8 @@ lemma alexandrovDiscrete_iSup {t : ι → TopologicalSpace α} (_ : ∀ i, @Alex
         fun _s hs ↦ isOpen_iSup_iff.1 (hS _ hs) _
 
 section
-variable [TopologicalSpace α] [TopologicalSpace β] [AlexandrovDiscrete α] [AlexandrovDiscrete β]
+variable
+  [TopologicalSpace α] [TopologicalSpace β] [AlexandrovDiscrete α] [AlexandrovDiscrete β]
   {s t : Set α} {a : α}
 
 @[simp] lemma isOpen_nhdsKer : IsOpen (nhdsKer s) := by
@@ -207,9 +212,12 @@ instance AlexandrovDiscrete.toFirstCountable : FirstCountableTopology α where
   nhds_generated_countable a := ⟨{nhdsKer {a}}, countable_singleton _, by simp⟩
 
 instance AlexandrovDiscrete.toLocallyCompactSpace : LocallyCompactSpace α where
-  local_compact_nhds a _U hU := ⟨nhdsKer {a},
+  local_compact_nhds a _U hU := ⟨
+    nhdsKer {a},
     isOpen_nhdsKer.mem_nhds <| subset_nhdsKer <| mem_singleton _,
-      nhdsKer_singleton_subset_iff_mem_nhds.2 hU, isCompact_singleton.nhdsKer⟩
+    nhdsKer_singleton_subset_iff_mem_nhds.2 hU,
+    isCompact_singleton.nhdsKer
+  ⟩
 
 instance Subtype.instAlexandrovDiscrete {p : α → Prop} : AlexandrovDiscrete {a // p a} :=
   IsInducing.subtypeVal.alexandrovDiscrete
@@ -220,17 +228,19 @@ instance Quotient.instAlexandrovDiscrete {s : Setoid α} : AlexandrovDiscrete (Q
 instance Sum.instAlexandrovDiscrete : AlexandrovDiscrete (α ⊕ β) :=
   alexandrovDiscrete_coinduced.sup alexandrovDiscrete_coinduced
 
-instance Sigma.instAlexandrovDiscrete {ι : Type*} {X : ι → Type*} [∀ i, TopologicalSpace (X i)]
-    [∀ i, AlexandrovDiscrete (X i)] : AlexandrovDiscrete (Σ i, X i) :=
+instance Sigma.instAlexandrovDiscrete
+    {ι : Type*} {X : ι → Type*} [∀ i, TopologicalSpace (X i)] [∀ i, AlexandrovDiscrete (X i)]
+    : AlexandrovDiscrete (Σ i, X i) :=
   alexandrovDiscrete_iSup fun _ ↦ alexandrovDiscrete_coinduced
 
 instance Prod.instAlexandrovDiscrete : AlexandrovDiscrete (α × β) := by
   simp_rw [alexandrovDiscrete_iff_nhds, Prod.forall, nhds_prod_eq, ← principal_nhdsKer_singleton,
     prod_principal_principal, nhdsKer_pair, forall_true_iff]
 
-instance Pi.instAlexandrovDiscreteOfFinite {ι : Type*} [Finite ι] {X : ι → Type*}
-    [Π i, TopologicalSpace (X i)] [∀ i, AlexandrovDiscrete (X i)] :
-    AlexandrovDiscrete (Π i, X i) := by
+instance Pi.instAlexandrovDiscreteOfFinite
+    {ι : Type*} [Finite ι]
+    {X : ι → Type*} [Π i, TopologicalSpace (X i)] [∀ i, AlexandrovDiscrete (X i)]
+    : AlexandrovDiscrete (Π i, X i) := by
   simp_rw [alexandrovDiscrete_iff_nhds, nhds_pi, ← principal_nhdsKer_singleton,
     pi_principal, nhdsKer_singleton_pi, forall_true_iff]
 

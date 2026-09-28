@@ -36,8 +36,9 @@ universe v₁ v₂ v₃ u₁ u₂ u₃
 
 namespace CategoryTheory
 
-variable {C : Type u₁} [Category.{v₁} C] {J : GrothendieckTopology C}
-  {A : Type u₃} [Category.{v₃} A] [MonoidalCategory A]
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  {J : GrothendieckTopology C} {A : Type u₃} [Category.{v₃} A] [MonoidalCategory A]
 
 open Opposite Limits MonoidalCategory MonoidalClosed Enriched.FunctorCategory
 
@@ -48,31 +49,37 @@ variable [MonoidalClosed A]
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- Relation between `functorEnrichedHom` and `presheafHom`. -/
-noncomputable def functorEnrichedHomCoyonedaObjEquiv (M : A) (F G : Cᵒᵖ ⥤ A)
-    [HasFunctorEnrichedHom A F G] (X : C) :
-    (functorEnrichedHom A F G ⋙ coyoneda.obj (op M)).obj (op X) ≃
-    (presheafHom (F ⊗ (Functor.const _).obj M) G).obj (op X) where
-  toFun f :=
-    { app j := MonoidalClosed.uncurry (f ≫ enrichedHomπ A _ _ (Under.mk j.unop.hom.op))
-      naturality j j' φ := by
-        dsimp
-        rw [tensorHom_id, ← uncurry_natural_right, ← uncurry_pre_app, Category.assoc,
-          Category.assoc, ← enrichedOrdinaryCategorySelf_eHomWhiskerRight,
-          ← enrichedOrdinaryCategorySelf_eHomWhiskerLeft]
-        congr 2
-        exact (enrichedHom_condition A (Under.forget (op X) ⋙ F) (Under.forget (op X) ⋙ G)
-          (i := Under.mk j.unop.hom.op) (j := Under.mk j'.unop.hom.op)
-            (Under.homMk φ.unop.left.op (Quiver.Hom.unop_inj (by simp)))).symm }
-  invFun g :=
-    end_.lift (fun j ↦ MonoidalClosed.curry (g.app (op (Over.mk j.hom.unop)))) (fun j j' φ ↦ by
+noncomputable def functorEnrichedHomCoyonedaObjEquiv
+    (M : A) (F G : Cᵒᵖ ⥤ A) [HasFunctorEnrichedHom A F G] (X : C)
+    : (functorEnrichedHom A F G ⋙ coyoneda.obj (op M)).obj (op X)
+      ≃ (presheafHom (F ⊗ (Functor.const _).obj M) G).obj (op X) where
+  toFun f := {
+    app j := MonoidalClosed.uncurry (f ≫ enrichedHomπ A _ _ (Under.mk j.unop.hom.op))
+    naturality j j' φ := by
       dsimp
-      rw [enrichedOrdinaryCategorySelf_eHomWhiskerRight,
-        enrichedOrdinaryCategorySelf_eHomWhiskerLeft,
-        curry_pre_app, ← curry_natural_right]
-      congr 1
-      let α : Over.mk j'.hom.unop ⟶ Over.mk j.hom.unop := Over.homMk φ.right.unop
-        (Quiver.Hom.op_inj (by simp))
-      simpa using! (g.naturality α.op).symm)
+      rw [
+        tensorHom_id, ← uncurry_natural_right, ← uncurry_pre_app, Category.assoc, Category.assoc,
+        ← enrichedOrdinaryCategorySelf_eHomWhiskerRight,
+        ← enrichedOrdinaryCategorySelf_eHomWhiskerLeft
+      ]
+      congr 2
+      exact (enrichedHom_condition A (Under.forget (op X) ⋙ F) (Under.forget (op X) ⋙ G)
+        (i := Under.mk j.unop.hom.op) (j := Under.mk j'.unop.hom.op)
+        (Under.homMk φ.unop.left.op (Quiver.Hom.unop_inj (by simp)))).symm
+  }
+  invFun g :=
+    end_.lift
+      (fun j ↦ MonoidalClosed.curry (g.app (op (Over.mk j.hom.unop))))
+      (fun j j' φ ↦ by
+        dsimp
+        rw [
+          enrichedOrdinaryCategorySelf_eHomWhiskerRight,
+          enrichedOrdinaryCategorySelf_eHomWhiskerLeft, curry_pre_app, ← curry_natural_right
+        ]
+        congr 1
+        let α : Over.mk j'.hom.unop ⟶ Over.mk j.hom.unop :=
+          Over.homMk φ.right.unop (Quiver.Hom.op_inj (by simp))
+        simpa using! (g.naturality α.op).symm)
   left_inv f := by
     dsimp
     ext j
@@ -124,8 +131,8 @@ lemma transport_isMonoidal {D : Type u₂} [Category.{v₂} D] (K : Grothendieck
   rw [← J.W_inverseImage_whiskeringLeft K G]
   infer_instance
 
-variable [MonoidalClosed A]
-  [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasFunctorEnrichedHom A F₁ F₂]
+variable
+  [MonoidalClosed A] [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasFunctorEnrichedHom A F₁ F₂]
   [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂]
 
 open MonoidalClosed.FunctorCategory
@@ -161,64 +168,71 @@ namespace Sheaf
 
 variable (J A)
 
-/-- The monoidal category structure on `Sheaf J A` that is obtained
+/--
+The monoidal category structure on `Sheaf J A` that is obtained
 by localization of the monoidal category structure on the category
-of presheaves. -/
+of presheaves.
+-/
 @[instance_reducible]
-noncomputable def monoidalCategory [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A] :
-    MonoidalCategory (Sheaf J A) :=
-  inferInstanceAs (MonoidalCategory
-    (LocalizedMonoidal (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)))
+noncomputable def monoidalCategory [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A]
+    : MonoidalCategory (Sheaf J A) :=
+  inferInstanceAs
+    (MonoidalCategory (LocalizedMonoidal (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)))
 
 attribute [local instance] monoidalCategory
 
-/-- The monoidal category structure on `Sheaf J A` obtained in `Sheaf.monoidalCategory` is
-braided when `A` is braided. -/
+/--
+The monoidal category structure on `Sheaf J A` obtained in `Sheaf.monoidalCategory` is
+braided when `A` is braided.
+-/
 @[instance_reducible]
-noncomputable def braidedCategory [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A]
-    [BraidedCategory A] : BraidedCategory (Sheaf J A) :=
-  inferInstanceAs (BraidedCategory
-    (LocalizedMonoidal (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)))
+noncomputable def braidedCategory
+    [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A] [BraidedCategory A]
+    : BraidedCategory (Sheaf J A) :=
+  inferInstanceAs
+    (BraidedCategory (LocalizedMonoidal (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)))
 
-/-- The monoidal category structure on `Sheaf J A` obtained in `Sheaf.monoidalCategory` is
-symmetric when `A` is symmetric. -/
+/--
+The monoidal category structure on `Sheaf J A` obtained in `Sheaf.monoidalCategory` is
+symmetric when `A` is symmetric.
+-/
 @[instance_reducible]
-noncomputable def symmetricCategory [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A]
-    [SymmetricCategory A] :
-    SymmetricCategory (Sheaf J A) :=
-  inferInstanceAs (SymmetricCategory
-    (LocalizedMonoidal (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)))
+noncomputable def symmetricCategory
+    [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A] [SymmetricCategory A]
+    : SymmetricCategory (Sheaf J A) :=
+  inferInstanceAs
+    (SymmetricCategory (LocalizedMonoidal (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)))
 
-noncomputable instance [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A] :
-    (presheafToSheaf J A).Monoidal :=
-  inferInstanceAs (Localization.Monoidal.toMonoidalCategory
-    (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)).Monoidal
+noncomputable instance [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A]
+    : (presheafToSheaf J A).Monoidal :=
+  inferInstanceAs (Localization.Monoidal.toMonoidalCategory (L := presheafToSheaf J A) (W := J.W)
+    (Iso.refl _)).Monoidal
 
-noncomputable instance [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A] [BraidedCategory A] :
-    letI := braidedCategory J A
-    (presheafToSheaf J A).Braided :=
-  inferInstanceAs (Localization.Monoidal.toMonoidalCategory
-    (L := presheafToSheaf J A) (W := J.W) (Iso.refl _)).Braided
+noncomputable instance [(J.W (A := A)).IsMonoidal] [HasWeakSheafify J A] [BraidedCategory A]
+    : letI := braidedCategory J A
+      (presheafToSheaf J A).Braided :=
+  inferInstanceAs (Localization.Monoidal.toMonoidalCategory (L := presheafToSheaf J A) (W := J.W)
+    (Iso.refl _)).Braided
 
 noncomputable example
     [HasWeakSheafify J A] [MonoidalClosed A] [BraidedCategory A]
     [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasFunctorEnrichedHom A F₁ F₂]
-    [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂] :
-    MonoidalCategory (Sheaf J A) :=
+    [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂]
+    : MonoidalCategory (Sheaf J A) :=
   monoidalCategory J A
 
 noncomputable example
     [HasWeakSheafify J A] [MonoidalClosed A] [BraidedCategory A]
     [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasFunctorEnrichedHom A F₁ F₂]
-    [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂] :
-    BraidedCategory (Sheaf J A) :=
+    [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂]
+    : BraidedCategory (Sheaf J A) :=
   braidedCategory J A
 
 noncomputable example
     [HasWeakSheafify J A] [MonoidalClosed A] [SymmetricCategory A]
     [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasFunctorEnrichedHom A F₁ F₂]
-    [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂] :
-    SymmetricCategory (Sheaf J A) :=
+    [∀ (F₁ F₂ : Cᵒᵖ ⥤ A), HasEnrichedHom A F₁ F₂]
+    : SymmetricCategory (Sheaf J A) :=
   symmetricCategory J A
 
 end Sheaf

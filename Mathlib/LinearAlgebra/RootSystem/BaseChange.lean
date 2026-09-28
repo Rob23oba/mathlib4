@@ -37,45 +37,53 @@ open Submodule (span injective_subtype span subset_span span_setOfPred_mem_eq_to
 
 namespace RootPairing
 
-/-- We say a root pairing is balanced if the root span and coroot span are perfectly
+/--
+We say a root pairing is balanced if the root span and coroot span are perfectly
 complementary.
 
-All root systems are balanced and all finite root pairings over a field are balanced. -/
-class IsBalanced {ι R M N : Type*} [AddCommGroup M] [AddCommGroup N]
-    [CommRing R] [Module R M] [Module R N] (P : RootPairing ι R M N) : Prop where
+All root systems are balanced and all finite root pairings over a field are balanced.
+-/
+class IsBalanced
+    {ι R M N : Type*} [AddCommGroup M] [AddCommGroup N] [CommRing R] [Module R M] [Module R N]
+    (P : RootPairing ι R M N)
+    : Prop where
   isPerfectCompl : P.toLinearMap.IsPerfectCompl (P.rootSpan R) (P.corootSpan R)
 
-instance {ι R M N : Type*} [AddCommGroup M] [AddCommGroup N]
-    [CommRing R] [Module R M] [Module R N] (P : RootPairing ι R M N) [P.IsRootSystem] :
-    P.IsBalanced where
+instance
+    {ι R M N : Type*} [AddCommGroup M] [AddCommGroup N] [CommRing R] [Module R M] [Module R N]
+    (P : RootPairing ι R M N) [P.IsRootSystem]
+    : P.IsBalanced where
   isPerfectCompl := by simp
 
-variable {ι L M N : Type*}
-  [Field L] [AddCommGroup M] [AddCommGroup N] [Module L M] [Module L N]
+variable
+  {ι L M N : Type*} [Field L] [AddCommGroup M] [AddCommGroup N] [Module L M] [Module L N]
   (P : RootPairing ι L M N)
 
 section restrictScalars
 
-variable (K : Type*) [Field K] [Algebra K L]
-  [Module K M] [Module K N] [IsScalarTower K L M] [IsScalarTower K L N]
-  [P.IsBalanced]
+variable
+  (K : Type*) [Field K] [Algebra K L] [Module K M] [Module K N] [IsScalarTower K L M]
+  [IsScalarTower K L N] [P.IsBalanced]
 
 section SubfieldValued
 
 variable [P.IsValuedIn K]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Restriction of scalars for a root pairing taking values in a subfield.
+/--
+Restriction of scalars for a root pairing taking values in a subfield.
 
-See also `RootPairing.restrictScalars`. -/
-def restrictScalars' :
-    RootPairing ι K (span K (range P.root)) (span K (range P.coroot)) where
-  toLinearMap := .restrictScalarsRange₂ (R := L)
-    (span K (range P.root)).subtype (span K (range P.coroot)).subtype (Algebra.linearMap K L)
-    (FaithfulSMul.algebraMap_injective K L) P.toLinearMap fun x y ↦
-      P.toLinearMap_apply_apply_mem_range_algebraMap K x x.property y y.property
-  isPerfPair_toLinearMap := .restrictScalars_of_field P.toLinearMap _ _
-    (injective_subtype _) (injective_subtype _) (by simpa using IsBalanced.isPerfectCompl) _
+See also `RootPairing.restrictScalars`.
+-/
+def restrictScalars' : RootPairing ι K (span K (range P.root)) (span K (range P.coroot)) where
+  toLinearMap :=
+    .restrictScalarsRange₂ (R := L) (span K (range P.root)).subtype
+      (span K (range P.coroot)).subtype (Algebra.linearMap K L)
+      (FaithfulSMul.algebraMap_injective K L) P.toLinearMap
+      fun x y ↦ P.toLinearMap_apply_apply_mem_range_algebraMap K x x.property y y.property
+  isPerfPair_toLinearMap :=
+    .restrictScalars_of_field P.toLinearMap _ _ (injective_subtype _) (injective_subtype _)
+      (by simpa using IsBalanced.isPerfectCompl) _
   root := ⟨fun i ↦ ⟨_, subset_span (mem_range_self i)⟩, fun i j h ↦ by simpa using h⟩
   coroot := ⟨fun i ↦ ⟨_, subset_span (mem_range_self i)⟩, fun i j h ↦ by simpa using h⟩
   root_coroot_two i := by
@@ -123,8 +131,8 @@ set_option backward.isDefEq.respectTransparency.types false in
 end SubfieldValued
 
 /-- Restriction of scalars for a crystallographic root pairing. -/
-abbrev restrictScalars [P.IsCrystallographic] :
-    RootPairing ι K (span K (range P.root)) (span K (range P.coroot)) :=
+abbrev restrictScalars [P.IsCrystallographic]
+    : RootPairing ι K (span K (range P.root)) (span K (range P.coroot)) :=
   have := IsValuedIn.trans P K ℤ
   P.restrictScalars' K
 

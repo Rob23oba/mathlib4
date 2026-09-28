@@ -49,11 +49,13 @@ namespace SSet.Subcomplex
 
 variable {X : SSet.{u}} (A : X.Subcomplex)
 
-/-- A pairing for a subcomplex `A` of a simplicial set `X` consists of a partition
+/--
+A pairing for a subcomplex `A` of a simplicial set `X` consists of a partition
 of the nondegenerate simplices of `X` not in `A` in two types (I) and (II) of simplices,
 and a bijection between the type (II) simplices and the type (I) simplices.
 See the introduction of the file
-`Mathlib/AlgebraicTopology/SimplicialSet/AnodyneExtensions/Pairing.lean`. -/
+`Mathlib/AlgebraicTopology/SimplicialSet/AnodyneExtensions/Pairing.lean`.
+-/
 structure Pairing where
   /-- the set of type (I) simplices -/
   I : Set A.N
@@ -68,12 +70,13 @@ namespace Pairing
 
 variable {A} (P : A.Pairing)
 
-/-- A pairing is proper when each type (II) simplex
+/--
+A pairing is proper when each type (II) simplex
 is uniquely a `1`-codimensional face of the corresponding (I)
-simplex. -/
+simplex.
+-/
 class IsProper where
-  isUniquelyCodimOneFace (x : P.II) :
-    S.IsUniquelyCodimOneFace x.1.toS (P.p x).1.toS
+  isUniquelyCodimOneFace (x : P.II) : S.IsUniquelyCodimOneFace x.1.toS (P.p x).1.toS
 
 lemma isUniquelyCodimOneFace [P.IsProper] (x : P.II) :
     S.IsUniquelyCodimOneFace x.1.toS (P.p x).1.toS :=
@@ -86,14 +89,11 @@ lemma dim_p [P.IsProper] (x : P.II) :
 
 /-- The condition that a pairing only involves inner horns. -/
 class IsInner [P.IsProper] : Prop where
-  ne_zero (x : P.II) {d : ℕ} (hd : x.1.dim = d) :
-    (P.isUniquelyCodimOneFace x).index hd ≠ 0
-  ne_last (x : P.II) {d : ℕ} (hd : x.1.dim = d) :
-    (P.isUniquelyCodimOneFace x).index hd ≠ Fin.last _
+  ne_zero (x : P.II) {d : ℕ} (hd : x.1.dim = d) : (P.isUniquelyCodimOneFace x).index hd ≠ 0
+  ne_last (x : P.II) {d : ℕ} (hd : x.1.dim = d) : (P.isUniquelyCodimOneFace x).index hd ≠ Fin.last _
 
 /-- The ancestrality relation on type (II) simplices. -/
-def AncestralRel (x y : P.II) : Prop :=
-  x ≠ y ∧ x.1 < (P.p y).1
+def AncestralRel (x y : P.II) : Prop := x ≠ y ∧ x.1 < (P.p y).1
 
 variable {P} in
 lemma AncestralRel.dim_le [P.IsProper] {x y : P.II} (hxy : P.AncestralRel x y) :
@@ -101,8 +101,10 @@ lemma AncestralRel.dim_le [P.IsProper] {x y : P.II} (hxy : P.AncestralRel x y) :
   simpa only [(P.isUniquelyCodimOneFace y).dim_eq, Nat.lt_succ_iff] using
     SSet.N.dim_lt_of_lt hxy.2
 
-/-- A proper pairing is regular when the ancestrality relation
-is well founded. -/
+/--
+A proper pairing is regular when the ancestrality relation
+is well founded.
+-/
 class IsRegular extends P.IsProper where
   [wf : WellFounded P.AncestralRel]
 
@@ -141,24 +143,29 @@ lemma lt [P.IsProper] (x : P.II) :
 
 variable {Y : SSet.{u}} {B : Y.Subcomplex} (e : Y ≅ X) (hA : A.preimage e.hom = B)
 
-/-- Given an isomorphism `Y ≅ X` of simplicial sets, a pairing `P` of a subcomplex
-`A` of `X`, this is a pairing for a subcomplex `B` of `Y` if `A.preimage e.hom = B`. -/
+/--
+Given an isomorphism `Y ≅ X` of simplicial sets, a pairing `P` of a subcomplex
+`A` of `X`, this is a pairing for a subcomplex `B` of `Y` if `A.preimage e.hom = B`.
+-/
 @[implicit_reducible, simps I II]
 def ofIso : B.Pairing where
   I := Subcomplex.N.orderIsoOfIso e hA ⁻¹' P.I
   II := Subcomplex.N.orderIsoOfIso e hA ⁻¹' P.II
   inter := by simp [← Set.preimage_inter, P.inter]
   union := by simp [← Set.preimage_union, P.union]
-  p := ((Subcomplex.N.orderIsoOfIso e hA).subtypeEquiv (by simp)).trans
-    (P.p.trans ((Subcomplex.N.orderIsoOfIso e hA).symm.subtypeEquiv (by simp)))
+  p :=
+    ((Subcomplex.N.orderIsoOfIso e hA).subtypeEquiv (by simp)).trans
+      (P.p.trans ((Subcomplex.N.orderIsoOfIso e hA).symm.subtypeEquiv (by simp)))
 
 /-- A unification hint for the type (I) simplices of `Pairing.ofIso`. -/
-unif_hint {X : SSet.{u}} {A : X.Subcomplex} (P : A.Pairing)
+unif_hint
+    {X : SSet.{u}} {A : X.Subcomplex} (P : A.Pairing)
     {Y : SSet.{u}} {B : Y.Subcomplex} (e : Y ≅ X) (hA : A.preimage e.hom = B) where
   ⊢ (P.ofIso e hA).I ≟ (N.orderIsoOfIso e hA) ⁻¹' P.I
 
 /-- A unification hint for the type (II) simplices of `Pairing.ofIso`. -/
-unif_hint {X : SSet.{u}} {A : X.Subcomplex} (P : A.Pairing)
+unif_hint
+    {X : SSet.{u}} {A : X.Subcomplex} (P : A.Pairing)
     {Y : SSet.{u}} {B : Y.Subcomplex} (e : Y ≅ X) (hA : A.preimage e.hom = B) where
   ⊢ (P.ofIso e hA).II ≟ (N.orderIsoOfIso e hA) ⁻¹' P.II
 

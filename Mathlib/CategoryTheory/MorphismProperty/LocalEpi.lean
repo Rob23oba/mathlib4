@@ -41,8 +41,10 @@ variable {C : Type*} [Category* C] {P : ObjectProperty C}
 
 namespace ObjectProperty
 
-/-- A morphism `f` is a local epimorphism wrt. the object property `P`
-if it satisfies left cancellation for morphisms with codomain in `P`. -/
+/--
+A morphism `f` is a local epimorphism wrt. the object property `P`
+if it satisfies left cancellation for morphisms with codomain in `P`.
+-/
 def localEpi (P : ObjectProperty C) : MorphismProperty C := fun _ _ f ↦
   ∀ ⦃Z⦄, P Z → Function.Injective fun (g : _ ⟶ Z) ↦ f ≫ g
 
@@ -97,8 +99,7 @@ instance : P.localEpi.Respects P.isLocal where
   precomp _ hf _ hg := MorphismProperty.comp_mem _ _ _ (isLocal_le_localEpi _ hf) hg
   postcomp _ hf _ hg := MorphismProperty.comp_mem _ _ _ hg (isLocal_le_localEpi _ hf)
 
-variable {D : Type*} [Category* D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
-  [G.Faithful] [G.Full]
+variable {D : Type*} [Category* D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) [G.Faithful] [G.Full]
 include adj
 
 lemma localEpi_mem_range_iff_epi {X Y : C} (f : X ⟶ Y) :

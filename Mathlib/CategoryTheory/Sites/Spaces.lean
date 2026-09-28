@@ -35,7 +35,6 @@ by the pretopology for the purpose of having nice definitional properties for th
 
 @[expose] public section
 
-
 universe u
 
 namespace Opens
@@ -75,11 +74,13 @@ def pretopology : Pretopology (Opens T) where
     rcases hTi f hf x hU with ⟨V, g, hg, hV⟩
     exact ⟨_, _, ⟨_, g, f, hf, hg, rfl⟩, hV⟩
 
-/-- The pretopology associated to a space is the largest pretopology that
-generates the Grothendieck topology associated to the space. -/
+/--
+The pretopology associated to a space is the largest pretopology that
+generates the Grothendieck topology associated to the space.
+-/
 @[simp]
-theorem toPretopology_grothendieckTopology :
-    (Opens.grothendieckTopology T).toPretopology = Opens.pretopology T := by
+theorem toPretopology_grothendieckTopology
+    : (Opens.grothendieckTopology T).toPretopology = Opens.pretopology T := by
   apply le_antisymm
   · intro X R hR x hx
     rcases hR x hx with ⟨U, f, ⟨V, g₁, g₂, hg₂, _⟩, hU⟩
@@ -88,11 +89,12 @@ theorem toPretopology_grothendieckTopology :
     rcases hR x hx with ⟨U, f, hf, hU⟩
     exact ⟨U, f, Sieve.le_generate R U _ hf, hU⟩
 
-/-- The pretopology associated to a space induces the Grothendieck topology associated to the space.
+/--
+The pretopology associated to a space induces the Grothendieck topology associated to the space.
 -/
 @[simp]
-theorem pretopology_toGrothendieck :
-    (Opens.pretopology T).toGrothendieck = Opens.grothendieckTopology T := by
+theorem pretopology_toGrothendieck
+    : (Opens.pretopology T).toGrothendieck = Opens.grothendieckTopology T := by
   rw [← toPretopology_grothendieckTopology]
   apply (Pretopology.gi (Opens T)).l_u_eq
 

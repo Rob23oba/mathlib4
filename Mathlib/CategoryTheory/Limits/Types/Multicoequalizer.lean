@@ -75,47 +75,55 @@ variable {X : Type u} {ι : Type w} {A : Set X} {U : ι → Set X} {V : ι → �
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Given `X : Type u`, `A : Set X`, `U : ι → Set X` and `V : ι → ι → Set X` such
+/--
+Given `X : Type u`, `A : Set X`, `U : ι → Set X` and `V : ι → ι → Set X` such
 that `MulticoequalizerDiagram A U V` holds, then in the category of types,
-`A` is the multicoequalizer of the `U i`s along the `V i j`s. -/
-noncomputable def isColimitOfMulticoequalizerDiagram
-    (c : MulticoequalizerDiagram A U V) :
-    IsColimit (c.multicofork.map Set.functorToTypes) := by
+`A` is the multicoequalizer of the `U i`s along the `V i j`s.
+-/
+noncomputable def isColimitOfMulticoequalizerDiagram (c : MulticoequalizerDiagram A U V)
+    : IsColimit (c.multicofork.map Set.functorToTypes) := by
   let e := (c.multispanIndex.map Set.functorToTypes).multispan
   apply _root_.Nonempty.some
-  rw [Types.isColimit_iff_coconeTypesIsColimit,
-    Functor.CoconeTypes.isMulticoequalizer_iff]
+  rw [Types.isColimit_iff_coconeTypesIsColimit, Functor.CoconeTypes.isMulticoequalizer_iff]
   refine ⟨fun i₁ i₂ ⟨x₁, h₁⟩ ⟨x₂, h₂⟩ h ↦ ?_, fun ⟨x, hx⟩ ↦ ?_⟩
   · dsimp at i₁ i₂ h₁ h₂
     obtain rfl : x₁ = x₂ := by simpa using h
-    have eq₁ := e.ιColimitType_map (WalkingMultispan.Hom.fst (J := .prod ι) ⟨i₁, i₂⟩)
-      ⟨x₁, by dsimp; rw [c.eq_inf]; exact ⟨h₁, h₂⟩⟩
-    have eq₂ := e.ιColimitType_map (WalkingMultispan.Hom.snd (J := .prod ι) ⟨i₁, i₂⟩)
-      ⟨x₁, by dsimp; rw [c.eq_inf]; exact ⟨h₁, h₂⟩⟩
+    have eq₁ :=
+      e.ιColimitType_map (WalkingMultispan.Hom.fst (J := .prod ι) ⟨i₁, i₂⟩)
+        ⟨x₁, by dsimp; rw [c.eq_inf]; exact ⟨h₁, h₂⟩⟩
+    have eq₂ :=
+      e.ιColimitType_map (WalkingMultispan.Hom.snd (J := .prod ι) ⟨i₁, i₂⟩)
+        ⟨x₁, by dsimp; rw [c.eq_inf]; exact ⟨h₁, h₂⟩⟩
     dsimp [e] at eq₁ eq₂
     rw [eq₁, eq₂]
-  · simp only [MulticoequalizerDiagram.multicofork_pt, ← c.iSup_eq,
-      Set.iSup_eq_iUnion, Set.mem_iUnion] at hx
+  · simp only [
+        MulticoequalizerDiagram.multicofork_pt, ← c.iSup_eq, Set.iSup_eq_iUnion, Set.mem_iUnion
+      ]
+      at hx
     obtain ⟨i, hi⟩ := hx
     exact ⟨i, ⟨x, hi⟩, rfl⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- Let `X : Type u`, `A : Set X`, `U : ι → Set X` and `V : ι → ι → Set X` such
+/--
+Let `X : Type u`, `A : Set X`, `U : ι → Set X` and `V : ι → ι → Set X` such
 that `MulticoequalizerDiagram A U V` holds, then in the category of types,
 `A` is the multicoequalizer of the `U i`s along the `V i j`s. In this version,
 we assume `ι` has a linear order, which allows to consider only the `V i j`
-for which `i < j`. -/
-noncomputable def isColimitOfMulticoequalizerDiagram' [LinearOrder ι]
-    (c : MulticoequalizerDiagram A U V) :
-    IsColimit (c.multicofork.toLinearOrder.map Set.functorToTypes) :=
-  Multicofork.isColimitToLinearOrder _ (isColimitOfMulticoequalizerDiagram c)
-    { iso i j := Set.functorToTypes.mapIso (eqToIso (by
+for which `i < j`.
+-/
+noncomputable def isColimitOfMulticoequalizerDiagram'
+    [LinearOrder ι] (c : MulticoequalizerDiagram A U V)
+    : IsColimit (c.multicofork.toLinearOrder.map Set.functorToTypes) :=
+  Multicofork.isColimitToLinearOrder _ (isColimitOfMulticoequalizerDiagram c) {
+    iso i j :=
+      Set.functorToTypes.mapIso (eqToIso (by
         dsimp
         rw [c.eq_inf, c.eq_inf, inf_comm]))
-      iso_hom_fst _ _ := rfl
-      iso_hom_snd _ _ := rfl
-      fst_eq_snd _ := rfl }
+    iso_hom_fst _ _ := rfl
+    iso_hom_snd _ _ := rfl
+    fst_eq_snd _ := rfl
+  }
 
 /-- A bicartesian square in the lattice `Set X` gives a pushout diagram in the
 category of types. -/

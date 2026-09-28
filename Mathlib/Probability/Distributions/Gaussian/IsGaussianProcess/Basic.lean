@@ -6,7 +6,6 @@ Authors: Etienne Marion
 module
 
 public import Mathlib.Probability.Distributions.Gaussian.IsGaussianProcess.Def
-
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 
 /-!
@@ -116,9 +115,11 @@ section Transformations
 
 /-! ### Operations that preserve Gaussianity -/
 
-variable [NormedSpace ℝ E] [SecondCountableTopology E]
-  {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F] [MeasurableSpace F]
-  [BorelSpace F] [SecondCountableTopology F] {Y : S → Ω → F}
+variable
+  [NormedSpace ℝ E] [SecondCountableTopology E]
+  {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F] [MeasurableSpace F] [BorelSpace F]
+  [SecondCountableTopology F]
+  {Y : S → Ω → F}
 
 /-- If a stochastic process `Y` is such that for each `s`, `Y s` can be written as a linear
 combination of finitely many values of a Gaussian process, then `Y` is a Gaussian process. -/

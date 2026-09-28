@@ -43,7 +43,8 @@ end OnePoint
 
 namespace Subgroup.HasDetPlusMinusOne
 
-variable {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K]
+variable
+  {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K]
   {𝒢 : Subgroup (GL (Fin 2) K)} [𝒢.HasDetPlusMinusOne]
 
 lemma isParabolic_iff_of_upperTriangular {g} (hg : g ∈ 𝒢) (hg10 : g 1 0 = 0) :
@@ -158,8 +159,8 @@ We consider the orbits for the action of `𝒢` on its own cusps. The main resul
 -/
 
 /-- The action of `𝒢` on its own cusps. -/
-noncomputable def cuspsSubMulAction (𝒢 : Subgroup (GL (Fin 2) ℝ)) :
-    SubMulAction 𝒢 (OnePoint ℝ) where
+noncomputable def cuspsSubMulAction (𝒢 : Subgroup (GL (Fin 2) ℝ))
+    : SubMulAction 𝒢 (OnePoint ℝ) where
   carrier := {c | IsCusp c 𝒢}
   smul_mem' g _ hc := IsCusp.smul_of_mem hc g.property
 
@@ -167,15 +168,18 @@ noncomputable def cuspsSubMulAction (𝒢 : Subgroup (GL (Fin 2) ℝ)) :
 abbrev CuspOrbits (𝒢 : Subgroup (GL (Fin 2) ℝ)) :=
   MulAction.orbitRel.Quotient 𝒢 (cuspsSubMulAction 𝒢)
 
-/-- Surjection from `SL(2, ℤ) / (𝒢 ⊓ SL(2, ℤ))` to cusp orbits of `𝒢`. Mostly useful for showing
-that `CuspOrbits 𝒢` is finite for arithmetic subgroups. -/
-noncomputable def cosetToCuspOrbit (𝒢 : Subgroup (GL (Fin 2) ℝ)) [𝒢.IsArithmetic] :
-    SL(2, ℤ) ⧸ (𝒢.comap <| mapGL ℝ) → CuspOrbits 𝒢 :=
+/--
+Surjection from `SL(2, ℤ) / (𝒢 ⊓ SL(2, ℤ))` to cusp orbits of `𝒢`. Mostly useful for showing
+that `CuspOrbits 𝒢` is finite for arithmetic subgroups.
+-/
+noncomputable def cosetToCuspOrbit (𝒢 : Subgroup (GL (Fin 2) ℝ)) [𝒢.IsArithmetic]
+    : SL(2, ℤ) ⧸ (𝒢.comap <| mapGL ℝ) → CuspOrbits 𝒢 :=
   Quotient.lift
-    (fun g ↦ ⟦⟨mapGL ℝ g⁻¹ • ∞,
-      (Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z 𝒢).mpr <| isCusp_SL2Z_iff.mpr
-        ⟨mapGL ℚ g⁻¹ • ∞, by rw [← Rat.coe_castHom, OnePoint.map_smul, OnePoint.map_infty,
-          ← (Rat.castHom ℝ).algebraMap_toAlgebra, map_mapGL]⟩⟩⟧)
+    (fun g ↦
+      ⟦⟨mapGL ℝ g⁻¹ • ∞,
+        (Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z 𝒢).mpr <| isCusp_SL2Z_iff.mpr
+          ⟨mapGL ℚ g⁻¹ • ∞, by rw [← Rat.coe_castHom, OnePoint.map_smul, OnePoint.map_infty,
+            ← (Rat.castHom ℝ).algebraMap_toAlgebra, map_mapGL]⟩⟩⟧)
     (fun a b hab ↦ by
       rw [← Quotient.eq_iff_equiv, Quotient.eq, QuotientGroup.leftRel_apply] at hab
       refine Quotient.eq.mpr ⟨⟨_, hab⟩, ?_⟩
@@ -219,20 +223,22 @@ section Ring
 
 variable {R : Type*} [Ring R] (𝒢 : Subgroup (GL (Fin 2) R))
 
-/-- For a subgroup `𝒢` of `GL(2, R)`, this is the additive group of `x : R` such that
-`[1, x; 0, 1] ∈ 𝒢`. -/
-def strictPeriods : AddSubgroup R :=
-  (toAddSubgroup 𝒢).comap upperRightHom.toAddMonoidHom
+/--
+For a subgroup `𝒢` of `GL(2, R)`, this is the additive group of `x : R` such that
+`[1, x; 0, 1] ∈ 𝒢`.
+-/
+def strictPeriods : AddSubgroup R := (toAddSubgroup 𝒢).comap upperRightHom.toAddMonoidHom
 
 variable {𝒢} in
 @[simp] lemma mem_strictPeriods_iff {x : R} :
     x ∈ 𝒢.strictPeriods ↔ upperRightHom x ∈ 𝒢 := by
   simp [strictPeriods]
 
-/-- For a subgroup `𝒢` of `GL(2, R)`, this is the additive group of `x : R` such that
-`±[1, x; 0, 1] ∈ 𝒢`. -/
-protected noncomputable def periods : AddSubgroup R :=
-  𝒢.adjoinNegOne.strictPeriods
+/--
+For a subgroup `𝒢` of `GL(2, R)`, this is the additive group of `x : R` such that
+`±[1, x; 0, 1] ∈ 𝒢`.
+-/
+protected noncomputable def periods : AddSubgroup R := 𝒢.adjoinNegOne.strictPeriods
 
 lemma strictPeriods_le_periods : 𝒢.strictPeriods ≤ 𝒢.periods := by
   intro k
@@ -240,8 +246,7 @@ lemma strictPeriods_le_periods : 𝒢.strictPeriods ≤ 𝒢.periods := by
   apply 𝒢.le_adjoinNegOne
 
 /-- A subgroup is *regular at ∞* if its periods and strict periods coincide. -/
-def IsRegularAtInfty : Prop :=
-  𝒢.strictPeriods = 𝒢.periods
+def IsRegularAtInfty : Prop := 𝒢.strictPeriods = 𝒢.periods
 
 lemma IsRegularAtInfty.eq (h : 𝒢.IsRegularAtInfty) : 𝒢.strictPeriods = 𝒢.periods := h
 
@@ -278,8 +283,8 @@ lemma isRegularAtInfty_of_neg_one_mem (h𝒢 : -1 ∈ 𝒢) : 𝒢.IsRegularAtIn
 variable [TopologicalSpace R] [IsTopologicalRing R]
 
 /-- If `𝒢` is discrete, so is its strict period subgroup. -/
-instance instDiscreteTopStrictPeriods [hG : DiscreteTopology 𝒢] :
-    DiscreteTopology 𝒢.strictPeriods := by
+instance instDiscreteTopStrictPeriods [hG : DiscreteTopology 𝒢]
+    : DiscreteTopology 𝒢.strictPeriods := by
   let H : Set (GL (Fin 2) R) := 𝒢 ∩ Set.range upperRightHom
   have hH : DiscreteTopology H := hG.of_subset Set.inter_subset_left
   have : Set.MapsTo upperRightHom 𝒢.strictPeriods H := fun x hx ↦ by
@@ -288,8 +293,8 @@ instance instDiscreteTopStrictPeriods [hG : DiscreteTopology 𝒢] :
     (this.restrict_inj.mpr injective_upperRightHom.injOn)
 
 /-- If `𝒢` is discrete, so is its period subgroup. -/
-instance instDiscreteTopPeriods [T2Space R] [hG : DiscreteTopology 𝒢] :
-    DiscreteTopology 𝒢.periods :=
+instance instDiscreteTopPeriods [T2Space R] [hG : DiscreteTopology 𝒢]
+    : DiscreteTopology 𝒢.periods :=
   inferInstanceAs (DiscreteTopology 𝒢.adjoinNegOne.strictPeriods)
 
 end Ring
@@ -313,19 +318,24 @@ section Real
 variable (𝒢 : Subgroup (GL (Fin 2) ℝ))
 
 open scoped Classical in
-/-- The strict width of the cusp `∞`, i.e. the `x` such that `𝒢.strictPeriods = zmultiples x`, or
-0 if no such `x` exists. -/
+/--
+The strict width of the cusp `∞`, i.e. the `x` such that `𝒢.strictPeriods = zmultiples x`, or
+0 if no such `x` exists.
+-/
 noncomputable def strictWidthInfty : ℝ :=
   if h : DiscreteTopology 𝒢.strictPeriods then
     |Exists.choose <| 𝒢.strictPeriods.isAddCyclic_iff_exists_zmultiples_eq_top.mp
       <| AddSubgroup.discrete_iff_addCyclic.mpr h|
-  else 0
+  else
+    0
 
 lemma strictWidthInfty_nonneg : 0 ≤ 𝒢.strictWidthInfty := by
   unfold strictWidthInfty; aesop
 
-/-- The width of the cusp `∞`, i.e. the `x` such that `𝒢.periods = zmultiples x`, or 0 if no such
-`x` exists. -/
+/--
+The width of the cusp `∞`, i.e. the `x` such that `𝒢.periods = zmultiples x`, or 0 if no such
+`x` exists.
+-/
 noncomputable def widthInfty : ℝ := 𝒢.adjoinNegOne.strictWidthInfty
 
 lemma widthInfty_nonneg : 0 ≤ 𝒢.widthInfty := 𝒢.adjoinNegOne.strictWidthInfty_nonneg

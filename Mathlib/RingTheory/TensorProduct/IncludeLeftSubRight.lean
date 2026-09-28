@@ -43,8 +43,7 @@ section IncludeLeftSubRight
 
 variable (R S) in
 /-- The `R`-linear map `S →ₗ[R] S ⊗[R] S` sending `s : S` to `s ⊗ₜ 1 - 1 ⊗ₜ s`. -/
-def includeLeftSubRight : S →ₗ[R] S ⊗[R] S :=
-  includeLeft.toLinearMap - includeRight.toLinearMap
+def includeLeftSubRight : S →ₗ[R] S ⊗[R] S := includeLeft.toLinearMap - includeRight.toLinearMap
 
 @[simp]
 lemma includeLeftSubRight_apply (s : S) : includeLeftSubRight R S s = s ⊗ₜ[R] 1 - 1 ⊗ₜ[R] s :=
@@ -82,10 +81,12 @@ end IncludeLeftSubRight
 end TensorProduct
 
 variable (R S) in
-/-- For an `R`-algebra `S`, this asserts that the maps `algebraMap : R → S` and
+/--
+For an `R`-algebra `S`, this asserts that the maps `algebraMap : R → S` and
 `includeLeftSubRight R S : S → S ⊗[R] S` form an exact pair.
 When `R` and `S` are commutative rings, this is true if and only if the inclusion
-`im (algebraMap : R → S) → S` is an effective monomorphism in the category of commutative rings. -/
+`im (algebraMap : R → S) → S` is an effective monomorphism in the category of commutative rings.
+-/
 def IsEffective : Prop :=
   Function.Exact (Algebra.linearMap R S) (TensorProduct.includeLeftSubRight R S)
 
@@ -158,11 +159,13 @@ universe u
 variable (R S : Type u) [CommRing R] [CommRing S] [Algebra R S]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The canonical ring map from `R` to the explicit equalizer of
-`includeLeft : S ⟶ S ⊗[R] S` and `includeRight : S ⟶ S ⊗[R] S`. -/
-def codRestrictEqLocusPushoutCocone :
-    R →+* (CommRingCat.equalizerFork
-      (CommRingCat.pushoutCocone R S S).inl (CommRingCat.pushoutCocone R S S).inr).pt :=
+/--
+The canonical ring map from `R` to the explicit equalizer of
+`includeLeft : S ⟶ S ⊗[R] S` and `includeRight : S ⟶ S ⊗[R] S`.
+-/
+def codRestrictEqLocusPushoutCocone
+    : R →+* (CommRingCat.equalizerFork (CommRingCat.pushoutCocone R S S).inl
+      (CommRingCat.pushoutCocone R S S).inr).pt :=
   RingHom.codRestrict (algebraMap R S)
     ((CommRingCat.pushoutCocone R S S).inl.hom.eqLocus (CommRingCat.pushoutCocone R S S).inr.hom)
     (by simp)

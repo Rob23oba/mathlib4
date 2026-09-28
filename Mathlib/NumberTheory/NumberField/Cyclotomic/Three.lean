@@ -48,12 +48,14 @@ lemma _root_.IsPrimitiveRoot.toInteger_cube_eq_one : hζ.toInteger ^ 3 = 1 :=
 /-- Let `u` be a unit in `(𝓞 K)ˣ`, then `u ∈ [1, -1, η, -η, η^2, -η^2]`. -/
 -- Here `List` is more convenient than `Finset`, even if further from the informal statement.
 -- For example, `fin_cases` below does not work with a `Finset`.
-theorem Units.mem [NumberField K] [IsCyclotomicExtension {3} ℚ K] :
-    u ∈ [1, -1, η, -η, η ^ 2, -η ^ 2] := by
+theorem Units.mem [NumberField K] [IsCyclotomicExtension {3} ℚ K]
+    : u ∈ [1, -1, η, -η, η ^ 2, - η ^ 2] := by
   have hrank : rank K = 0 := by
     dsimp only [rank]
-    rw [card_eq_nrRealPlaces_add_nrComplexPlaces, nrRealPlaces_eq_zero (n := 3) K (by decide),
-      zero_add, nrComplexPlaces_eq_totient_div_two (n := 3)]
+    rw [
+      card_eq_nrRealPlaces_add_nrComplexPlaces, nrRealPlaces_eq_zero (n := 3) K (by decide),
+      zero_add, nrComplexPlaces_eq_totient_div_two (n := 3)
+    ]
     rfl
   obtain ⟨⟨x, e⟩, hxu, -⟩ := exist_unique_eq_mul_prod _ u
   replace hxu : u = x := by
@@ -69,10 +71,11 @@ theorem Units.mem [NumberField K] [IsCyclotomicExtension {3} ℚ K] :
     convert! map_one (algebraMap (𝓞 K) K)
     rw_mod_cast [hxu, hn]
     simp
-  obtain ⟨r, hr3, hru⟩ := hζ.exists_pow_or_neg_mul_pow_of_isOfFinOrder (by decide)
-    (isOfFinOrder_iff_pow_eq_one.2 ⟨n, hnpos, hn⟩)
+  obtain ⟨r, hr3, hru⟩ :=
+    hζ.exists_pow_or_neg_mul_pow_of_isOfFinOrder (by decide)
+      (isOfFinOrder_iff_pow_eq_one.2 ⟨n, hnpos, hn⟩)
   replace hr : r ∈ Finset.Ico 0 3 := Finset.mem_Ico.2 ⟨by simp, hr3⟩
-  replace hru : ↑u = η ^ r ∨ ↑u = -η ^ r := by
+  replace hru : ↑u = η ^ r ∨ ↑u = - η ^ r := by
     rcases hru with h | h
     · left; ext; exact h
     · right; ext; exact h
@@ -94,12 +97,14 @@ lemma eta_sq : (η ^ 2 : 𝓞 K) = -η - 1 := by
   ext; simpa using hζ.isRoot_cyclotomic (by decide)
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- If a unit `u` is congruent to an integer modulo `λ ^ 2`, then `u = 1` or `u = -1`.
+/--
+If a unit `u` is congruent to an integer modulo `λ ^ 2`, then `u = 1` or `u = -1`.
 
-This is a special case of the so-called *Kummer's lemma*. -/
+This is a special case of the so-called *Kummer's lemma*.
+-/
 theorem eq_one_or_neg_one_of_unit_of_congruent
-    [NumberField K] [IsCyclotomicExtension {3} ℚ K] (hcong : ∃ n : ℤ, λ ^ 2 ∣ (u - n : 𝓞 K)) :
-    u = 1 ∨ u = -1 := by
+    [NumberField K] [IsCyclotomicExtension {3} ℚ K] (hcong : ∃ n : ℤ, λ ^ 2 ∣ (u - n : 𝓞 K))
+    : u = 1 ∨ u = -1 := by
   replace hcong : ∃ n : ℤ, (3 : 𝓞 K) ∣ (↑u - n : 𝓞 K) := by
     obtain ⟨n, x, hx⟩ := hcong
     exact ⟨n, -η * x, by rw [← mul_assoc, mul_neg, ← neg_mul, ← lambda_sq, hx]⟩
@@ -113,8 +118,10 @@ theorem eq_one_or_neg_one_of_unit_of_congruent
     obtain ⟨n, x, hx⟩ := hcong
     rw [sub_eq_iff_eq_add] at hx
     refine ⟨-n, -x, sub_eq_iff_eq_add.2 ?_⟩
-    simp only [Nat.cast_ofNat, mul_neg, Int.cast_neg, ← neg_add, ← hx, Units.val_neg,
-      IsUnit.unit_spec, RingOfIntegers.neg_mk, neg_neg]
+    simp only [
+      Nat.cast_ofNat, mul_neg, Int.cast_neg, ← neg_add, ← hx, Units.val_neg, IsUnit.unit_spec,
+      RingOfIntegers.neg_mk, neg_neg
+    ]
   · exact (hζ.pow_of_coprime 2 (by decide)).not_exists_int_prime_dvd_sub_of_prime_ne_two'
       (by decide) hcong
   · apply (hζ.pow_of_coprime 2 (by decide)).not_exists_int_prime_dvd_sub_of_prime_ne_two'
@@ -122,8 +129,10 @@ theorem eq_one_or_neg_one_of_unit_of_congruent
     obtain ⟨n, x, hx⟩ := hcong
     refine ⟨-n, -x, sub_eq_iff_eq_add.2 ?_⟩
     have : (hζ.pow_of_coprime 2 (by decide)).toInteger = hζ.toInteger ^ 2 := by ext; simp
-    simp only [this, Nat.cast_ofNat, mul_neg, Int.cast_neg, ← neg_add, ← sub_eq_iff_eq_add.1 hx,
-      Units.val_neg, val_pow_eq_pow_val, IsUnit.unit_spec, neg_neg]
+    simp only [
+      this, Nat.cast_ofNat, mul_neg, Int.cast_neg, ← neg_add, ← sub_eq_iff_eq_add.1 hx,
+      Units.val_neg, val_pow_eq_pow_val, IsUnit.unit_spec, neg_neg
+    ]
 
 variable (x : 𝓞 K)
 

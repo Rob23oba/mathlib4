@@ -35,7 +35,8 @@ variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
 open CategoryTheory.MorphismProperty
 
-/-- A morphism of schemes `f : X ⟶ Y` is universally open if the base change `X ×[Y] Y' ⟶ Y'`
+/--
+A morphism of schemes `f : X ⟶ Y` is universally open if the base change `X ×[Y] Y' ⟶ Y'`
 along any morphism `Y' ⟶ Y` is (topologically) an open map.
 -/
 @[mk_iff]
@@ -56,11 +57,9 @@ instance (priority := 900) [IsOpenImmersion f] : UniversallyOpen f := by
   have hf' : IsOpenImmersion f' := MorphismProperty.of_isPullback hf.flip inferInstance
   exact f'.isOpenEmbedding.isOpenMap
 
-instance : RespectsIso @UniversallyOpen :=
-  eq.symm ▸ inferInstance
+instance : RespectsIso @UniversallyOpen := eq.symm ▸ inferInstance
 
-instance : IsStableUnderBaseChange @UniversallyOpen :=
-  eq.symm ▸ inferInstance
+instance : IsStableUnderBaseChange @UniversallyOpen := eq.symm ▸ inferInstance
 
 instance : IsStableUnderComposition (topologically @IsOpenMap) where
   comp_mem f g hf hg := IsOpenMap.comp (f := f) (g := g) hg hf
@@ -69,21 +68,21 @@ instance : IsStableUnderComposition @UniversallyOpen := by
   rw [eq]
   infer_instance
 
-instance {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [hf : UniversallyOpen f] [hg : UniversallyOpen g] : UniversallyOpen (f ≫ g) :=
+instance {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [hf : UniversallyOpen f] [hg : UniversallyOpen g]
+    : UniversallyOpen (f ≫ g) :=
   comp_mem _ _ _ hf hg
 
 instance : MorphismProperty.IsMultiplicative @UniversallyOpen where
   id_mem _ := inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance fst {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hg : UniversallyOpen g] :
-    UniversallyOpen (pullback.fst f g) :=
+instance fst {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hg : UniversallyOpen g]
+    : UniversallyOpen (pullback.fst f g) :=
   MorphismProperty.pullback_fst f g hg
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance snd {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hf : UniversallyOpen f] :
-    UniversallyOpen (pullback.snd f g) :=
+instance snd {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hf : UniversallyOpen f]
+    : UniversallyOpen (pullback.snd f g) :=
   MorphismProperty.pullback_snd f g hf
 
 instance : IsZariskiLocalAtTarget @UniversallyOpen := by
@@ -141,12 +140,11 @@ lemma Flat.generalizingMap [Flat f] : GeneralizingMap f := by
 
 /-- A flat morphism, locally of finite presentation is universally open. -/
 @[stacks 01UA]
-instance (priority := low) UniversallyOpen.of_flat [Flat f] [LocallyOfFinitePresentation f] :
-    UniversallyOpen f :=
+instance (priority := low) UniversallyOpen.of_flat [Flat f] [LocallyOfFinitePresentation f]
+    : UniversallyOpen f :=
   ⟨universally_mk' _ _ fun _ _ ↦ isOpenMap_of_generalizingMap _ (Flat.generalizingMap _)⟩
 
-nonrec instance (priority := low) [IsIntegral Y] [Subsingleton Y] :
-    UniversallyOpen f := by
+nonrec instance (priority := low) [IsIntegral Y] [Subsingleton Y] : UniversallyOpen f := by
   wlog hX : ∃ S, X = Spec S generalizing X
   · refine (IsZariskiLocalAtSource.iff_of_openCover X.affineCover).mpr fun i ↦ this _ ⟨_, rfl⟩
   obtain ⟨S, rfl⟩ := hX
@@ -160,7 +158,8 @@ nonrec instance (priority := low) [IsIntegral Y] [Subsingleton Y] :
   wlog hT : ∃ R, T = Spec R generalizing T
   · refine (IsZariskiLocalAtTarget.iff_of_openCover T.affineCover).mpr fun i ↦ ?_
     refine (MorphismProperty.cancel_left_of_respectsIso _
-      ((pullbackRightPullbackFstIso ..).inv ≫ (pullbackSymmetry ..).hom) _).mp ?_
+        ((pullbackRightPullbackFstIso ..).inv ≫ (pullbackSymmetry ..).hom) _).mp
+      ?_
     simpa [Scheme.Cover.pullbackHom] using! this _ _ ⟨_, rfl⟩
   obtain ⟨R, rfl⟩ := hT
   obtain ⟨ψ, rfl⟩ := Spec.map_surjective g

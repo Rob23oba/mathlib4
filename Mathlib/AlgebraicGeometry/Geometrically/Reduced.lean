@@ -38,8 +38,10 @@ namespace AlgebraicGeometry
 
 variable {X Y Z S : Scheme} (f : X ⟶ S) (g : Y ⟶ S)
 
-/-- We say that morphism `f : X ⟶ Y` is geometrically reduced if for all `Spec K ⟶ Y` with `K`
-a field, `X ×[Y] Spec K` is reduced. -/
+/--
+We say that morphism `f : X ⟶ Y` is geometrically reduced if for all `Spec K ⟶ Y` with `K`
+a field, `X ×[Y] Spec K` is reduced.
+-/
 @[mk_iff]
 class GeometricallyReduced (f : X ⟶ Y) : Prop where
   geometrically_isReduced : geometrically IsReduced f
@@ -63,8 +65,7 @@ instance (V : S.Opens) [GeometricallyReduced f] : GeometricallyReduced (f ∣_ V
   MorphismProperty.of_isPullback (isPullback_morphismRestrict ..).flip ‹_›
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (s : S) [GeometricallyReduced f] :
-    GeometricallyReduced (f.fiberToSpecResidueField s) :=
+instance (s : S) [GeometricallyReduced f] : GeometricallyReduced (f.fiberToSpecResidueField s) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 instance (s : S) [GeometricallyReduced f] : IsReduced (f.fiber s) :=
@@ -117,16 +118,18 @@ lemma GeometricallyReduced.isReduced_of_flat_of_isLocallyNoetherian
     exact TopologicalSpace.NoetherianSpace.finite_irreducibleComponents
   exact isReduced_of_flat_of_finite_irreducibleComponents (pullback.snd _ _)
 
-/-- If `X` is geometrically reduced over `S`, and `Y` is both reduced and locally noetherian,
+/--
+If `X` is geometrically reduced over `S`, and `Y` is both reduced and locally noetherian,
 then `X ×ₛ Y` is also reduced.
 
-TODO: get rid of the noetherian hypothesis. -/
-instance [GeometricallyReduced f] [Flat f] [IsReduced Y] [IsLocallyNoetherian Y] :
-    IsReduced (pullback f g) :=
+TODO: get rid of the noetherian hypothesis.
+-/
+instance [GeometricallyReduced f] [Flat f] [IsReduced Y] [IsLocallyNoetherian Y]
+    : IsReduced (pullback f g) :=
   GeometricallyReduced.isReduced_of_flat_of_isLocallyNoetherian (pullback.snd _ _)
 
-instance [GeometricallyReduced g] [Flat g] [IsReduced X] [IsLocallyNoetherian X] :
-    IsReduced (pullback f g) :=
+instance [GeometricallyReduced g] [Flat g] [IsReduced X] [IsLocallyNoetherian X]
+    : IsReduced (pullback f g) :=
   GeometricallyReduced.isReduced_of_flat_of_isLocallyNoetherian (pullback.fst _ _)
 
 end AlgebraicGeometry

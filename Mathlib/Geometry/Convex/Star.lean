@@ -37,14 +37,17 @@ namespace Convexity
 variable {R X Y : Type*} {ι : Sort*} {κ : ι → Sort*}
 
 section Semiring
-variable [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [ConvexSpace R X] [ConvexSpace R Y]
+variable
+  [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [ConvexSpace R X] [ConvexSpace R Y]
   {f : X → Y} {w : StdSimplex R X} {x : X} {s t : Set X} {y : X}
 
 variable (R x s) in
-/-- A set `s` is star-convex at a point `x` if every segment from `x` to a point in `s` is
+/--
+A set `s` is star-convex at a point `x` if every segment from `x` to a point in `s` is
 contained in `s`.
 
-TODO: Replace `StarConvex` with this predicate. -/
+TODO: Replace `StarConvex` with this predicate.
+-/
 @[expose]
 def IsStarConvexSet : Prop :=
   ∀ ⦃y⦄, y ∈ s → ∀ ⦃a b : R⦄ ha hb hab, convexCombPair a b ha hb hab x y ∈ s

@@ -35,13 +35,14 @@ and elements of `F.val.obj X`.
 def yonedaEquiv {X : C} {F : Sheaf J (Type v)} : (J.yoneda.obj X ⟶ F) ≃ F.obj.obj (op X) :=
   (fullyFaithfulSheafToPresheaf _ _).homEquiv.trans CategoryTheory.yonedaEquiv
 
-theorem yonedaEquiv_apply {X : C} {F : Sheaf J (Type v)} (f : J.yoneda.obj X ⟶ F) :
-    yonedaEquiv J f = f.hom.app (op X) (𝟙 X) :=
+theorem yonedaEquiv_apply {X : C} {F : Sheaf J (Type v)} (f : J.yoneda.obj X ⟶ F)
+    : yonedaEquiv J f = f.hom.app (op X) (𝟙 X) :=
   rfl
 
 @[simp]
-theorem yonedaEquiv_symm_app_apply {X : C} {F : Sheaf J (Type v)} (x : F.obj.obj (op X))
-    (Y : Cᵒᵖ) (f : Y.unop ⟶ X) : dsimp% (J.yonedaEquiv.symm x).hom.app Y f = F.obj.map f.op x :=
+theorem yonedaEquiv_symm_app_apply
+    {X : C} {F : Sheaf J (Type v)} (x : F.obj.obj (op X)) (Y : Cᵒᵖ) (f : Y.unop ⟶ X)
+    : dsimp% (J.yonedaEquiv.symm x).hom.app Y f = F.obj.map f.op x :=
   rfl
 
 set_option backward.defeqAttrib.useBackward true in
@@ -117,28 +118,28 @@ lemma hom_ext_yoneda {P Q : Sheaf J (Type v)} {f g : P ⟶ Q}
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The Yoneda lemma for sheaves. -/
 @[simps! +dsimpLhs hom_app_app_hom_apply_down inv_app_app]
-def yonedaOpCompCoyoneda :
-    J.yoneda.op ⋙ coyoneda ≅
-      evaluation Cᵒᵖ (Type v) ⋙ (whiskeringRight _ _ _).obj uliftFunctor.{u} ⋙
-      (whiskeringLeft _ _ _).obj (sheafToPresheaf _ _) :=
+def yonedaOpCompCoyoneda
+    : J.yoneda.op ⋙ coyoneda
+      ≅ evaluation (Cᵒᵖ) (Type v) ⋙ (whiskeringRight _ _ _).obj uliftFunctor.{u}
+        ⋙ (whiskeringLeft _ _ _).obj (sheafToPresheaf _ _) :=
   ((isoWhiskerLeft _ sheafToPresheafCompCoyonedaCompWhiskeringLeftSheafToPresheaf.symm).trans
-    (isoWhiskerRight (NatIso.op J.yonedaCompSheafToPresheaf.symm)
-    (_ ⋙ (whiskeringLeft _ _ _).obj _))).trans
+      (isoWhiskerRight (NatIso.op J.yonedaCompSheafToPresheaf.symm)
+        (_ ⋙ (whiskeringLeft _ _ _).obj _))).trans
     (isoWhiskerRight CategoryTheory.largeCurriedYonedaLemma ((whiskeringLeft _ _ _).obj _))
 
 /-- A version of `yonedaEquiv` for `uliftYoneda`. -/
-def uliftYonedaEquiv {X : C} {F : Sheaf J (Type (max v v'))} :
-    ((uliftYoneda.{v'} J).obj X ⟶ F) ≃ F.obj.obj (op X) :=
+def uliftYonedaEquiv {X : C} {F : Sheaf J (Type (max v v'))}
+    : ((uliftYoneda.{v'} J).obj X ⟶ F) ≃ F.obj.obj (op X) :=
   (fullyFaithfulSheafToPresheaf _ _).homEquiv.trans CategoryTheory.uliftYonedaEquiv
 
-theorem uliftYonedaEquiv_apply {X : C} {F : Sheaf J (Type (max v v'))}
-    (f : J.uliftYoneda.obj X ⟶ F) : uliftYonedaEquiv.{v'} J f = f.hom.app (op X) ⟨𝟙 X⟩ :=
+theorem uliftYonedaEquiv_apply {X : C} {F : Sheaf J (Type (max v v'))} (f : J.uliftYoneda.obj X ⟶ F)
+    : uliftYonedaEquiv.{v'} J f = f.hom.app (op X) ⟨𝟙 X⟩ :=
   rfl
 
 @[simp]
-theorem uliftYonedaEquiv_symm_app_apply {X : C} {F : Sheaf J (Type (max v v'))}
-    (x : F.obj.obj (op X)) (Y : Cᵒᵖ) (f : Y.unop ⟶ X) :
-    dsimp% (J.uliftYonedaEquiv.symm x).hom.app Y ⟨f⟩ = F.obj.map f.op x :=
+theorem uliftYonedaEquiv_symm_app_apply
+    {X : C} {F : Sheaf J (Type (max v v'))} (x : F.obj.obj (op X)) (Y : Cᵒᵖ) (f : Y.unop ⟶ X)
+    : dsimp% (J.uliftYonedaEquiv.symm x).hom.app Y ⟨f⟩ = F.obj.map f.op x :=
   rfl
 
 set_option backward.defeqAttrib.useBackward true in
@@ -218,16 +219,15 @@ lemma hom_ext_uliftYoneda {P Q : Sheaf J (Type (max v v'))} {f g : P ⟶ Q}
 set_option backward.isDefEq.respectTransparency.types false in
 /-- A variant of the Yoneda lemma for sheaves with a raise in the universe level. -/
 @[simps! +dsimpLhs -isSimp]
-def uliftYonedaOpCompCoyoneda :
-    J.uliftYoneda.op ⋙ coyoneda ≅
-      evaluation Cᵒᵖ (Type max v v') ⋙ (whiskeringRight _ _ _).obj uliftFunctor.{u} ⋙
-      (whiskeringLeft _ _ _).obj (sheafToPresheaf _ _) :=
+def uliftYonedaOpCompCoyoneda
+    : J.uliftYoneda.op ⋙ coyoneda
+      ≅ evaluation (Cᵒᵖ) (Type max v v') ⋙ (whiskeringRight _ _ _).obj uliftFunctor.{u}
+        ⋙ (whiskeringLeft _ _ _).obj (sheafToPresheaf _ _) :=
   ((isoWhiskerLeft (J.yoneda.op ⋙ (sheafCompose J _).op)
-    sheafToPresheafCompCoyonedaCompWhiskeringLeftSheafToPresheaf.symm).trans
-    (isoWhiskerRight (NatIso.op (J.uliftYonedaCompSheafToPresheaf.symm))
-    (_ ⋙ (whiskeringLeft _ _ _).obj _))).trans
-    (isoWhiskerRight CategoryTheory.uliftYonedaOpCompCoyoneda
-    ((whiskeringLeft _ _ _).obj _))
+        sheafToPresheafCompCoyonedaCompWhiskeringLeftSheafToPresheaf.symm).trans
+      (isoWhiskerRight (NatIso.op (J.uliftYonedaCompSheafToPresheaf.symm))
+        (_ ⋙ (whiskeringLeft _ _ _).obj _))).trans
+    (isoWhiskerRight CategoryTheory.uliftYonedaOpCompCoyoneda ((whiskeringLeft _ _ _).obj _))
 
 attribute [simp] uliftYonedaOpCompCoyoneda_hom_app_app_hom_apply_down
 
@@ -255,15 +255,17 @@ set_option backward.isDefEq.respectTransparency false in
 Let `{ Xᵢ ⟶ Y }` be a family of pairwise disjoint maps that form a cover in `J`. Then its
 image under the yoneda embedding to `J`-sheaves is a coproduct.
 -/
-noncomputable def isColimitCofanMkYoneda {ι : Type*} (X : ι → C) {c : Cofan X}
-    (H : (Sieve.ofArrows _ c.inj) ∈ J c.pt) [∀ (i : ι), Mono (c.inj i)]
+noncomputable def isColimitCofanMkYoneda
+    {ι : Type*} (X : ι → C)
+    {c : Cofan X} (H : (Sieve.ofArrows _ c.inj) ∈ J c.pt) [∀ (i : ι), Mono (c.inj i)]
     (hempty : (Y : C) → IsInitial Y → ⊥ ∈ J Y)
-    (hdisj : ∀ {i j : ι} (_ : i ≠ j) {Y : C} (a : Y ⟶ X i)
-      (b : Y ⟶ X j), a ≫ c.inj i = b ≫ c.inj j → Nonempty (IsInitial Y)) :
-    IsColimit (Cofan.mk _ fun i ↦ J.yoneda.map (c.inj i)) := by
-  have heq (s : Cofan fun i ↦ J.yoneda.obj (X i))
-      {Y : C} {i j : ι} (a : Y ⟶ X i) (b : Y ⟶ X j) (hab : a ≫ c.inj i = b ≫ c.inj j) :
-      (s.inj i).hom.app (op Y) a = (s.inj j).hom.app (op Y) b := by
+    (hdisj : ∀ {i j : ι} (_ : i ≠ j) {Y : C} (a : Y ⟶ X i) (b : Y ⟶ X j),
+      a ≫ c.inj i = b ≫ c.inj j → Nonempty (IsInitial Y))
+    : IsColimit (Cofan.mk _ fun i ↦ J.yoneda.map (c.inj i)) := by
+  have heq
+      (s : Cofan fun i ↦ J.yoneda.obj (X i))
+      {Y : C} {i j : ι} (a : Y ⟶ X i) (b : Y ⟶ X j) (hab : a ≫ c.inj i = b ≫ c.inj j)
+      : (s.inj i).hom.app (op Y) a = (s.inj j).hom.app (op Y) b := by
     by_cases h : i = j
     · subst h
       rw [(cancel_mono _).mp hab]
@@ -272,20 +274,27 @@ noncomputable def isColimitCofanMkYoneda {ι : Type*} (X : ι → C) {c : Cofan 
       exact Subsingleton.elim _ _
   refine Cofan.IsColimit.mk _ (fun s ↦ ⟨?_⟩) (fun s j ↦ ?_) fun s m hm ↦ ?_
   · refine (s.pt.2.isSheafFor _ H).extend ?_
-    refine ⟨fun Y ↦ ↾fun g ↦ ((s.inj (Sieve.ofArrows.i g.2)).hom.app Y)
-      (Sieve.ofArrows.h g.2), ?_⟩
+    refine ⟨
+      fun Y ↦
+        ↾fun g ↦ ((s.inj (Sieve.ofArrows.i g.2)).hom.app Y)
+          (Sieve.ofArrows.h g.2),
+      ?_
+    ⟩
     intro ⟨Y⟩ ⟨Z⟩ ⟨(g : Z ⟶ Y)⟩
     ext u
-    simp only [Sieve.functor_obj, Sieve.generate_apply, Sieve.functor_map, Quiver.Hom.unop_op',
+    simp only [
+      Sieve.functor_obj, Sieve.generate_apply, Sieve.functor_map, Quiver.Hom.unop_op',
       TypeCat.Fun.toFun_apply, comp_apply, ConcreteCategory.hom_ofHom, TypeCat.Fun.coe_mk,
-      ← heq s (g ≫ Sieve.ofArrows.h u.2)
-      (Sieve.ofArrows.h <| Sieve.downward_closed _ u.2 g) (by simp)]
+      ← heq s (g ≫ Sieve.ofArrows.h u.2) (Sieve.ofArrows.h <| Sieve.downward_closed _ u.2 g)
+        (by simp)
+    ]
     congrm $((s.inj _).hom.naturality g.op) _
   · ext : 1
     let u (j : ι) : CategoryTheory.yoneda.obj (X j) ⟶ (Sieve.ofArrows _ c.inj).functor :=
       (Sieve.ofArrows _ c.inj).toFunctor (c.inj j) (Sieve.ofArrows_mk _ _ j)
-    have (j : ι) : u j ≫ (Sieve.ofArrows _ c.inj).functorInclusion =
-      CategoryTheory.yoneda.map (c.inj j) := rfl
+    have (j : ι)
+        : u j ≫ (Sieve.ofArrows _ c.inj).functorInclusion = CategoryTheory.yoneda.map (c.inj j) :=
+      rfl
     dsimp
     simp only [← this, Category.assoc, Presieve.IsSheafFor.functorInclusion_comp_extend]
     ext Z (g : Z.unop ⟶ X j)
@@ -311,8 +320,9 @@ lemma preservesColimitsOfShape_yoneda_of_ofArrows_inj_mem {ι : Type*}
   refine isColimitCofanMkYoneda _ _ (hcov hc) htriv fun hij Y a b hab ↦ ⟨?_⟩
   exact .ofCoproductDisjointOfCommSq hij hc _ _ hab
 
-variable {D : Type*} [Category.{v'} D] (F : C ⥤ D) (J : GrothendieckTopology C)
-  (K : GrothendieckTopology D)
+variable
+  {D : Type*} [Category.{v'} D]
+  (F : C ⥤ D) (J : GrothendieckTopology C) (K : GrothendieckTopology D)
 
 lemma subcanonical_of_full_of_faithful [F.Full] [F.Faithful]
     [Functor.IsContinuous F J K] [K.Subcanonical] :

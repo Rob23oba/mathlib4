@@ -21,7 +21,6 @@ Next, the general lemmas get specialized for some yet-to-be-defined `degree`s.
 
 @[expose] public section
 
-
 variable {R R' A T B ι : Type*}
 
 namespace AddMonoidAlgebra
@@ -66,7 +65,6 @@ To see this in action, you can look at the triple
 `(sup_support_mul_le, maxDegree_mul_le, le_minDegree_mul)`.
 -/
 
-
 section GeneralResultsAssumingSemilatticeSup
 
 variable [SemilatticeSup B] [OrderBot B] [SemilatticeInf T] [OrderTop T]
@@ -83,18 +81,17 @@ In this section, we use `degb` and `degt` to denote "degree functions" on `A` wi
 a type with *b*ot or *t*op respectively.
 -/
 
-
 variable (degb : A → B) (degt : A → T) (f g : R[A])
 
-theorem sup_support_coeff_add_le :
-    (f + g).coeff.support.sup degb ≤ f.coeff.support.sup degb ⊔ g.coeff.support.sup degb := by
+theorem sup_support_coeff_add_le
+    : (f + g).coeff.support.sup degb ≤ f.coeff.support.sup degb ⊔ g.coeff.support.sup degb := by
   classical
   exact (Finset.sup_mono Finsupp.support_add).trans_eq Finset.sup_union
 
 @[deprecated (since := "2026-06-18")] alias sup_support_add_le := sup_support_coeff_add_le
 
-theorem le_inf_support_coeff_add :
-    f.coeff.support.inf degt ⊓ g.coeff.support.inf degt ≤ (f + g).coeff.support.inf degt :=
+theorem le_inf_support_coeff_add
+    : f.coeff.support.inf degt ⊓ g.coeff.support.inf degt ≤ (f + g).coeff.support.inf degt :=
   sup_support_coeff_add_le (fun a : A => OrderDual.toDual (degt a)) f g
 
 @[deprecated (since := "2026-06-18")] alias le_inf_support_add := le_inf_support_coeff_add
@@ -103,12 +100,11 @@ end ExplicitDegrees
 
 section AddOnly
 
-variable [Add A] [Add B] [Add T] [AddLeftMono B] [AddRightMono B]
-  [AddLeftMono T] [AddRightMono T]
+variable [Add A] [Add B] [Add T] [AddLeftMono B] [AddRightMono B] [AddLeftMono T] [AddRightMono T]
 
-theorem sup_support_coeff_mul_le {degb : A → B} (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b)
-    (f g : R[A]) :
-    (f * g).coeff.support.sup degb ≤ f.coeff.support.sup degb + g.coeff.support.sup degb := by
+theorem sup_support_coeff_mul_le
+    {degb : A → B} (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) (f g : R[A])
+    : (f * g).coeff.support.sup degb ≤ f.coeff.support.sup degb + g.coeff.support.sup degb := by
   classical
   grw [support_coeff_mul_subset, Finset.sup_add_le]
   rintro _fd fds _gd gds
@@ -116,9 +112,9 @@ theorem sup_support_coeff_mul_le {degb : A → B} (degbm : ∀ a b, degb (a + b)
 
 @[deprecated (since := "2026-06-18")] alias sup_support_mul_le := sup_support_coeff_mul_le
 
-theorem le_inf_support_coeff_mul {degt : A → T} (degtm : ∀ a b, degt a + degt b ≤ degt (a + b))
-    (f g : R[A]) :
-    f.coeff.support.inf degt + g.coeff.support.inf degt ≤ (f * g).coeff.support.inf degt :=
+theorem le_inf_support_coeff_mul
+    {degt : A → T} (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (f g : R[A])
+    : f.coeff.support.inf degt + g.coeff.support.inf degt ≤ (f * g).coeff.support.inf degt :=
   sup_support_coeff_mul_le (B := Tᵒᵈ) degtm f g
 
 @[deprecated (since := "2026-06-18")] alias le_inf_support_mul := le_inf_support_coeff_mul
@@ -127,24 +123,25 @@ end AddOnly
 
 section AddMonoids
 
-variable [AddMonoid A] [AddMonoid B] [AddLeftMono B] [AddRightMono B]
-  [AddMonoid T] [AddLeftMono T] [AddRightMono T]
+variable
+  [AddMonoid A] [AddMonoid B] [AddLeftMono B] [AddRightMono B] [AddMonoid T] [AddLeftMono T]
+  [AddRightMono T]
   {degb : A → B} {degt : A → T}
 
-theorem sup_support_list_prod_le (degb0 : degb 0 ≤ 0)
-    (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) :
-    ∀ l : List R[A],
+theorem sup_support_list_prod_le
+    (degb0 : degb 0 ≤ 0) (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b)
+    : ∀ l : List R[A],
       l.prod.coeff.support.sup degb ≤ (l.map fun f : R[A] => f.coeff.support.sup degb).sum
   | [] => by
     rw [List.map_nil, Finset.sup_le_iff, List.prod_nil, List.sum_nil]
     exact fun a ha => by rwa [Finset.mem_singleton.mp (Finsupp.support_single_subset ha)]
-  | f::fs => by
+  | f :: fs => by
     rw [List.prod_cons, List.map_cons, List.sum_cons]
     grw [sup_support_coeff_mul_le degbm, sup_support_list_prod_le degb0 degbm]
 
-theorem le_inf_support_list_prod (degt0 : 0 ≤ degt 0)
-    (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (l : List R[A]) :
-    (l.map fun f : R[A] => f.coeff.support.inf degt).sum ≤ l.prod.coeff.support.inf degt := by
+theorem le_inf_support_list_prod
+    (degt0 : 0 ≤ degt 0) (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (l : List R[A])
+    : (l.map fun f : R[A] => f.coeff.support.inf degt).sum ≤ l.prod.coeff.support.inf degt := by
   refine OrderDual.ofDual_le_ofDual.mpr ?_
   refine sup_support_list_prod_le ?_ ?_ l
   · refine (OrderDual.ofDual_le_ofDual.mp ?_)
@@ -152,16 +149,19 @@ theorem le_inf_support_list_prod (degt0 : 0 ≤ degt 0)
   · refine (fun a b => OrderDual.ofDual_le_ofDual.mp ?_)
     exact degtm a b
 
-theorem sup_support_pow_le (degb0 : degb 0 ≤ 0) (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b)
-    (n : ℕ) (f : R[A]) : (f ^ n).coeff.support.sup degb ≤ n • f.coeff.support.sup degb := by
+theorem sup_support_pow_le
+    (degb0 : degb 0 ≤ 0) (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) (n : ℕ) (f : R[A])
+    : (f ^ n).coeff.support.sup degb ≤ n • f.coeff.support.sup degb := by
   rw [← List.prod_replicate, ← List.sum_replicate]
   refine (sup_support_list_prod_le degb0 degbm _).trans_eq ?_
   rw [List.map_replicate]
 
-theorem le_inf_support_pow (degt0 : 0 ≤ degt 0) (degtm : ∀ a b, degt a + degt b ≤ degt (a + b))
-    (n : ℕ) (f : R[A]) : n • f.coeff.support.inf degt ≤ (f ^ n).coeff.support.inf degt := by
+theorem le_inf_support_pow
+    (degt0 : 0 ≤ degt 0) (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (n : ℕ) (f : R[A])
+    : n • f.coeff.support.inf degt ≤ (f ^ n).coeff.support.inf degt := by
   refine OrderDual.ofDual_le_ofDual.mpr <| sup_support_pow_le (OrderDual.ofDual_le_ofDual.mp ?_)
-      (fun a b => OrderDual.ofDual_le_ofDual.mp ?_) n f
+    (fun a b => OrderDual.ofDual_le_ofDual.mp ?_)
+    n f
   · exact degt0
   · exact degtm _ _
 
@@ -171,13 +171,14 @@ end Semiring
 
 section CommutativeLemmas
 
-variable [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B] [AddLeftMono B] [AddRightMono B]
+variable
+  [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B] [AddLeftMono B] [AddRightMono B]
   [AddCommMonoid T] [AddLeftMono T] [AddRightMono T]
   {degb : A → B} {degt : A → T}
 
-theorem sup_support_coeff_multisetProd_le (degb0 : degb 0 ≤ 0)
-    (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) (m : Multiset R[A]) :
-    m.prod.coeff.support.sup degb ≤ (m.map fun f : R[A] => f.coeff.support.sup degb).sum := by
+theorem sup_support_coeff_multisetProd_le
+    (degb0 : degb 0 ≤ 0) (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) (m : Multiset R[A])
+    : m.prod.coeff.support.sup degb ≤ (m.map fun f : R[A] => f.coeff.support.sup degb).sum := by
   induction m using Quot.inductionOn
   rw [Multiset.quot_mk_to_coe'', Multiset.map_coe, Multiset.sum_coe, Multiset.prod_coe]
   exact sup_support_list_prod_le degb0 degbm _
@@ -185,21 +186,23 @@ theorem sup_support_coeff_multisetProd_le (degb0 : degb 0 ≤ 0)
 @[deprecated (since := "2026-06-18")]
 alias sup_support_multiset_prod_le := sup_support_coeff_multisetProd_le
 
-theorem le_inf_support_coeff_multisetProd (degt0 : 0 ≤ degt 0)
-    (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (m : Multiset R[A]) :
-    (m.map fun f : R[A] => f.coeff.support.inf degt).sum ≤ m.prod.coeff.support.inf degt := by
+theorem le_inf_support_coeff_multisetProd
+    (degt0 : 0 ≤ degt 0) (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (m : Multiset R[A])
+    : (m.map fun f : R[A] => f.coeff.support.inf degt).sum ≤ m.prod.coeff.support.inf degt := by
   refine OrderDual.ofDual_le_ofDual.mpr <|
     sup_support_coeff_multisetProd_le (OrderDual.ofDual_le_ofDual.mp ?_)
-      (fun a b => OrderDual.ofDual_le_ofDual.mp ?_) m
+      (fun a b => OrderDual.ofDual_le_ofDual.mp ?_)
+      m
   · exact degt0
   · exact degtm _ _
 
 @[deprecated (since := "2026-06-18")]
 alias le_inf_support_multiset_prod := le_inf_support_coeff_multisetProd
 
-theorem sup_support_coeff_finsetProd_le (degb0 : degb 0 ≤ 0)
-    (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) (s : Finset ι) (f : ι → R[A]) :
-    (∏ i ∈ s, f i).coeff.support.sup degb ≤ ∑ i ∈ s, (f i).coeff.support.sup degb :=
+theorem sup_support_coeff_finsetProd_le
+    (degb0 : degb 0 ≤ 0) (degbm : ∀ a b, degb (a + b) ≤ degb a + degb b) (s : Finset ι)
+    (f : ι → R[A])
+    : (∏ i ∈ s, f i).coeff.support.sup degb ≤ ∑ i ∈ s, (f i).coeff.support.sup degb :=
   (sup_support_coeff_multisetProd_le degb0 degbm _).trans_eq <| congr_arg _ <| Multiset.map_map ..
 
 @[deprecated (since := "2026-06-18")]
@@ -208,9 +211,10 @@ alias sup_support_finsetProd_le := sup_support_coeff_finsetProd_le
 @[deprecated (since := "2026-04-08")]
 alias sup_support_finset_prod_le := sup_support_coeff_finsetProd_le
 
-theorem le_inf_support_coeff_finsetProd (degt0 : 0 ≤ degt 0)
-    (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (s : Finset ι) (f : ι → R[A]) :
-    (∑ i ∈ s, (f i).coeff.support.inf degt) ≤ (∏ i ∈ s, f i).coeff.support.inf degt :=
+theorem le_inf_support_coeff_finsetProd
+    (degt0 : 0 ≤ degt 0) (degtm : ∀ a b, degt a + degt b ≤ degt (a + b)) (s : Finset ι)
+    (f : ι → R[A])
+    : (∑ i ∈ s, (f i).coeff.support.inf degt) ≤ (∏ i ∈ s, f i).coeff.support.inf degt :=
   le_of_eq_of_le (by rw [Multiset.map_map]; rfl) (le_inf_support_coeff_multisetProd degt0 degtm _)
 
 @[deprecated (since := "2026-06-18")]
@@ -223,11 +227,9 @@ end CommutativeLemmas
 
 end GeneralResultsAssumingSemilatticeSup
 
-
 /-! ### Shorthands for special cases
 Note that these definitions are reducible, in order to make it easier to apply the more generic
 lemmas above. -/
-
 
 section Degrees
 
@@ -237,7 +239,8 @@ section SupDegree
 
 variable [SemilatticeSup B] [OrderBot B] (D : A → B)
 
-/-- Let `R` be a semiring, let `A` be an `AddZeroClass`, let `B` be an `OrderBot`,
+/--
+Let `R` be a semiring, let `A` be an `AddZeroClass`, let `B` be an `OrderBot`,
 and let `D : A → B` be a "degree" function.
 For an element `f : R[A]`, the element `supDegree f : B` is the supremum of all the elements in the
 support of `f`, or `⊥` if `f` is zero.
@@ -250,59 +253,54 @@ the induced linear order on `Lex A` equips `MvPolynomial` ring with a
 [monomial order](https://en.wikipedia.org/wiki/Monomial_order) (i.e. a linear order on `A`, the
 type of (monic) monomials in `R[A]`, that respects addition). We make use of this monomial order
 by taking `D := toLex`, and different monomial orders could be accessed via different type
-synonyms once they are added. -/
-abbrev supDegree (f : R[A]) : B :=
-  f.coeff.support.sup D
+synonyms once they are added.
+-/
+abbrev supDegree (f : R[A]) : B := f.coeff.support.sup D
 
 variable {D}
 
-theorem supDegree_add_le {f g : R[A]} :
-    (f + g).supDegree D ≤ (f.supDegree D) ⊔ (g.supDegree D) :=
+theorem supDegree_add_le {f g : R[A]} : (f + g).supDegree D ≤ (f.supDegree D) ⊔ (g.supDegree D) :=
   sup_support_coeff_add_le D f g
 
-@[simp]
-theorem supDegree_neg {f : R'[A]} : (-f).supDegree D = f.supDegree D := by simp [supDegree]
+@[simp] theorem supDegree_neg {f : R'[A]} : (-f).supDegree D = f.supDegree D := by simp [supDegree]
 
-theorem supDegree_sub_le {f g : R'[A]} :
-    (f - g).supDegree D ≤ f.supDegree D ⊔ g.supDegree D := by
+theorem supDegree_sub_le {f g : R'[A]} : (f - g).supDegree D ≤ f.supDegree D ⊔ g.supDegree D := by
   rw [sub_eq_add_neg, ← supDegree_neg (f := g)]; apply supDegree_add_le
 
-theorem supDegree_sum_le {ι} {s : Finset ι} {f : ι → R[A]} :
-    (∑ i ∈ s, f i).supDegree D ≤ s.sup (fun i => (f i).supDegree D) := by
+theorem supDegree_sum_le {ι} {s : Finset ι} {f : ι → R[A]}
+    : (∑ i ∈ s, f i).supDegree D ≤ s.sup (fun i => (f i).supDegree D) := by
   classical
   simp only [supDegree, coeff_sum]
   grw [Finsupp.support_finsetSum, Finset.sup_biUnion]
 
-theorem supDegree_single_ne_zero (a : A) {r : R} (hr : r ≠ 0) :
-    (single a r).supDegree D = D a := by
+theorem supDegree_single_ne_zero (a : A) {r : R} (hr : r ≠ 0) : (single a r).supDegree D = D a := by
   simp [supDegree, hr]
 
 open scoped Classical in
-theorem supDegree_single (a : A) (r : R) :
-    (single a r).supDegree D = if r = 0 then ⊥ else D a := by
+theorem supDegree_single (a : A) (r : R) : (single a r).supDegree D = if r = 0 then ⊥ else D a := by
   split_ifs with hr <;> simp [supDegree_single_ne_zero, hr]
 
-theorem coeff_eq_zero_of_not_le_supDegree {p : R[A]} {a : A} (hlt : ¬ D a ≤ p.supDegree D) :
-    p.coeff a = 0 := by
+theorem coeff_eq_zero_of_not_le_supDegree {p : R[A]} {a : A} (hlt : ¬ D a ≤ p.supDegree D)
+    : p.coeff a = 0 := by
   contrapose! hlt
   exact Finset.le_sup (Finsupp.mem_support_iff.2 hlt)
 
 @[deprecated (since := "2026-06-18")]
 alias apply_eq_zero_of_not_le_supDegree := coeff_eq_zero_of_not_le_supDegree
 
-theorem supDegree_withBot_some_comp {s : AddMonoidAlgebra R A} (hs : s.coeff.support.Nonempty) :
-    supDegree (WithBot.some ∘ D) s = supDegree D s := by
+theorem supDegree_withBot_some_comp {s : AddMonoidAlgebra R A} (hs : s.coeff.support.Nonempty)
+    : supDegree (WithBot.some ∘ D) s = supDegree D s := by
   unfold AddMonoidAlgebra.supDegree
   rw [← Finset.coe_sup' hs, Finset.sup'_eq_sup]
 
-theorem supDegree_eq_of_isMaxOn {p : R[A]} {a : A} (hmem : a ∈ p.coeff.support)
-    (hmax : IsMaxOn D p.coeff.support a) : p.supDegree D = D a :=
+theorem supDegree_eq_of_isMaxOn
+    {p : R[A]} {a : A} (hmem : a ∈ p.coeff.support) (hmax : IsMaxOn D p.coeff.support a)
+    : p.supDegree D = D a :=
   sup_eq_of_isMaxOn hmem hmax
 
 variable {p q : R[A]}
 
-@[simp]
-theorem supDegree_zero : (0 : R[A]).supDegree D = ⊥ := by simp [supDegree]
+@[simp] theorem supDegree_zero : (0 : R[A]).supDegree D = ⊥ := by simp [supDegree]
 
 theorem ne_zero_of_supDegree_ne_bot : p.supDegree D ≠ ⊥ → p ≠ 0 := mt (fun h => h ▸ supDegree_zero)
 
@@ -311,48 +309,55 @@ theorem ne_zero_of_not_supDegree_le {b : B} (h : ¬ p.supDegree D ≤ b) : p ≠
 
 variable [AddZeroClass A]
 
-theorem supDegree_eq_of_max {b : B} (hb : b ∈ Set.range D) (hmem : D.invFun b ∈ p.coeff.support)
-    (hmax : ∀ a ∈ p.coeff.support, D a ≤ b) : p.supDegree D = b :=
+theorem supDegree_eq_of_max
+    {b : B} (hb : b ∈ Set.range D) (hmem : D.invFun b ∈ p.coeff.support)
+    (hmax : ∀ a ∈ p.coeff.support, D a ≤ b)
+    : p.supDegree D = b :=
   sup_eq_of_max hb hmem hmax
 
 variable [Add B]
 
-theorem supDegree_mul_le (hadd : ∀ a1 a2, D (a1 + a2) = D a1 + D a2)
-    [AddLeftMono B] [AddRightMono B] :
-    (p * q).supDegree D ≤ p.supDegree D + q.supDegree D :=
+theorem supDegree_mul_le
+    (hadd : ∀ a1 a2, D (a1 + a2) = D a1 + D a2) [AddLeftMono B] [AddRightMono B]
+    : (p * q).supDegree D ≤ p.supDegree D + q.supDegree D :=
   sup_support_coeff_mul_le (fun {_ _} => (hadd _ _).le) p q
 
-theorem supDegree_prod_le {R A B : Type*} [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B]
-    [SemilatticeSup B] [OrderBot B]
-    [AddLeftMono B] [AddRightMono B]
+theorem supDegree_prod_le
+    {R A B : Type*} [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B] [SemilatticeSup B]
+    [OrderBot B] [AddLeftMono B] [AddRightMono B]
     {D : A → B} (hzero : D 0 = 0) (hadd : ∀ a1 a2, D (a1 + a2) = D a1 + D a2)
-    {ι} {s : Finset ι} {f : ι → R[A]} :
-    (∏ i ∈ s, f i).supDegree D ≤ ∑ i ∈ s, (f i).supDegree D := by
+    {ι} {s : Finset ι} {f : ι → R[A]}
+    : (∏ i ∈ s, f i).supDegree D ≤ ∑ i ∈ s, (f i).supDegree D := by
   classical
   refine s.induction ?_ ?_
   · rw [Finset.prod_empty, Finset.sum_empty, one_def, supDegree_single]
-    split_ifs; exacts [bot_le, hzero.le]
+    split_ifs
+    exacts [bot_le, hzero.le]
   · intro i s his ih
     rw [Finset.prod_insert his, Finset.sum_insert his]
     exact (supDegree_mul_le hadd).trans (by gcongr)
 
-theorem coeff_add_of_supDegree_le (hadd : ∀ a1 a2, D (a1 + a2) = D a1 + D a2)
+theorem coeff_add_of_supDegree_le
+    (hadd : ∀ a1 a2, D (a1 + a2) = D a1 + D a2)
     [AddLeftStrictMono B] [AddRightStrictMono B]
-    (hD : D.Injective) {ap aq : A} (hp : p.supDegree D ≤ D ap) (hq : q.supDegree D ≤ D aq) :
-    (p * q).coeff (ap + aq) = p.coeff ap * q.coeff aq := by
+    (hD : D.Injective)
+    {ap aq : A} (hp : p.supDegree D ≤ D ap) (hq : q.supDegree D ≤ D aq)
+    : (p * q).coeff (ap + aq) = p.coeff ap * q.coeff aq := by
   classical
   simp_rw [coeff_mul, Finsupp.sum]
   rw [Finset.sum_eq_single ap, Finset.sum_eq_single aq, ite_eq_left rfl]
   · refine fun a ha hne => ite_eq_right (fun he => ?_)
-    apply_fun D at he; simp_rw [hadd] at he
+    apply_fun D at he
+    simp_rw [hadd] at he
     exact (add_lt_add_right (((Finset.le_sup ha).trans hq).lt_of_ne <| hD.ne_iff.2 hne) _).ne he
   · intro h; rw [ite_eq_left rfl, Finsupp.notMem_support_iff.1 h, mul_zero]
   · refine fun a ha hne => Finset.sum_eq_zero (fun a' ha' => ite_eq_right <| fun he => ?_)
     apply_fun D at he
     simp_rw [hadd] at he
     have := addLeftMono_of_addLeftStrictMono B
-    exact (add_lt_add_of_lt_of_le (((Finset.le_sup ha).trans hp).lt_of_ne <| hD.ne_iff.2 hne)
-      <| (Finset.le_sup ha').trans hq).ne he
+    exact (add_lt_add_of_lt_of_le (((Finset.le_sup ha).trans hp).lt_of_ne <| hD.ne_iff.2 hne) <|
+        (Finset.le_sup ha').trans hq).ne
+      he
   · refine fun h => Finset.sum_eq_zero (fun a _ => ite_eq_right_iff.mpr <| fun _ => ?_)
     rw [Finsupp.notMem_support_iff.mp h, zero_mul]
 
@@ -364,28 +369,28 @@ section LinearOrder
 
 variable [LinearOrder B] [OrderBot B] {p q : R[A]} (D : A → B)
 
-/-- If `D` is an injection into a linear order `B`, the leading coefficient of `f : R[A]` is the
-  nonzero coefficient of highest degree according to `D`, or 0 if `f = 0`. In general, it is defined
-  to be the coefficient at an inverse image of `supDegree f` (if such exists). -/
+/--
+If `D` is an injection into a linear order `B`, the leading coefficient of `f : R[A]` is the
+nonzero coefficient of highest degree according to `D`, or 0 if `f = 0`. In general, it is defined
+to be the coefficient at an inverse image of `supDegree f` (if such exists).
+-/
 noncomputable def leadingCoeff [Nonempty A] (f : R[A]) : R := f.coeff <| D.invFun <| f.supDegree D
 
 /-- An element `f : R[A]` is monic if its leading coefficient is one. -/
-@[reducible] def Monic [Nonempty A] (f : R[A]) : Prop :=
-  f.leadingCoeff D = 1
+@[reducible] def Monic [Nonempty A] (f : R[A]) : Prop := f.leadingCoeff D = 1
 
 variable {D}
 
 @[simp]
-theorem leadingCoeff_single [Nonempty A] (hD : D.Injective) (a : A) (r : R) :
-    (single a r).leadingCoeff D = r := by
+theorem leadingCoeff_single [Nonempty A] (hD : D.Injective) (a : A) (r : R)
+    : (single a r).leadingCoeff D = r := by
   rw [leadingCoeff, supDegree_single]
   split_ifs with hr
   · simp [hr]
   · rw [Function.leftInverse_invFun hD]
     simp
 
-@[simp]
-theorem leadingCoeff_zero [Nonempty A] : (0 : R[A]).leadingCoeff D = 0 := rfl
+@[simp] theorem leadingCoeff_zero [Nonempty A] : (0 : R[A]).leadingCoeff D = 0 := rfl
 
 lemma Monic.ne_zero [Nonempty A] [Nontrivial R] (hp : p.Monic D) : p ≠ 0 := fun h => by
   simp_rw [Monic, h, leadingCoeff_zero, zero_ne_one] at hp
@@ -584,8 +589,9 @@ lemma Monic.mul
 
 section AddMonoid
 
-variable {A B : Type*} [AddMonoid A] [AddMonoid B] [LinearOrder B] [OrderBot B]
-  [AddLeftStrictMono B] [AddRightStrictMono B]
+variable
+  {A B : Type*} [AddMonoid A] [AddMonoid B] [LinearOrder B] [OrderBot B] [AddLeftStrictMono B]
+  [AddRightStrictMono B]
   {D : A → B} {p : R[A]} {n : ℕ}
 
 lemma Monic.pow
@@ -614,29 +620,29 @@ section InfDegree
 
 variable [SemilatticeInf T] [OrderTop T] (D : A → T)
 
-/-- Let `R` be a semiring, let `A` be an `AddZeroClass`, let `T` be an `OrderTop`,
+/--
+Let `R` be a semiring, let `A` be an `AddZeroClass`, let `T` be an `OrderTop`,
 and let `D : A → T` be a "degree" function.
 For an element `f : R[A]`, the element `infDegree f : T` is the infimum of all the elements in the
 support of `f`, or `⊤` if `f` is zero.
 Often, the Type `T` is `WithTop A`,
 If, further, `A` has a linear order, then this notion coincides with the usual one,
-using the minimum of the exponents. -/
-abbrev infDegree (f : R[A]) : T :=
-  f.coeff.support.inf D
+using the minimum of the exponents.
+-/
+abbrev infDegree (f : R[A]) : T := f.coeff.support.inf D
 
-theorem le_infDegree_add (f g : R[A]) :
-    (f.infDegree D) ⊓ (g.infDegree D) ≤ (f + g).infDegree D :=
+theorem le_infDegree_add (f g : R[A]) : (f.infDegree D) ⊓ (g.infDegree D) ≤ (f + g).infDegree D :=
   le_inf_support_coeff_add D f g
 
 variable {D} in
-theorem infDegree_withTop_some_comp {s : AddMonoidAlgebra R A} (hs : s.coeff.support.Nonempty) :
-    infDegree (WithTop.some ∘ D) s = infDegree D s := by
+theorem infDegree_withTop_some_comp {s : AddMonoidAlgebra R A} (hs : s.coeff.support.Nonempty)
+    : infDegree (WithTop.some ∘ D) s = infDegree D s := by
   unfold AddMonoidAlgebra.infDegree
   rw [← Finset.coe_inf' hs, Finset.inf'_eq_inf]
 
-theorem le_infDegree_mul [AddZeroClass A] [Add T] [AddLeftMono T] [AddRightMono T]
-    (D : AddHom A T) (f g : R[A]) :
-    f.infDegree D + g.infDegree D ≤ (f * g).infDegree D :=
+theorem le_infDegree_mul
+    [AddZeroClass A] [Add T] [AddLeftMono T] [AddRightMono T] (D : AddHom A T) (f g : R[A])
+    : f.infDegree D + g.infDegree D ≤ (f * g).infDegree D :=
   le_inf_support_coeff_mul (fun {a b : A} => (map_add D a b).ge) _ _
 
 end InfDegree

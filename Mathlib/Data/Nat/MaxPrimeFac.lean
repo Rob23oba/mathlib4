@@ -32,10 +32,12 @@ namespace Nat
 
 variable {m n p : ℕ}
 
-/-- The greatest prime divisor of a natural number `n > 1`.
+/--
+The greatest prime divisor of a natural number `n > 1`.
 
 At the exceptional inputs `n = 0` and `n = 1`, it returns the explicit default `n` because
-`n.primeFactorsList` is empty. -/
+`n.primeFactorsList` is empty.
+-/
 def maxPrimeFac (n : ℕ) : ℕ := n.primeFactorsList.getLastD n
 
 @[simp] lemma maxPrimeFac_zero : maxPrimeFac 0 = 0 := by simp [maxPrimeFac]

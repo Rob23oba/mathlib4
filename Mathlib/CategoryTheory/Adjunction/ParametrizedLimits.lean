@@ -26,9 +26,10 @@ namespace CategoryTheory.ParametrizedAdjunction
 
 open Limits Opposite
 
-variable {C₁ C₂ C₃ : Type*} [Category* C₁] [Category* C₂] [Category* C₃]
-  {F : C₁ ⥤ C₂ ⥤ C₃} {G : C₁ᵒᵖ ⥤ C₃ ⥤ C₂}
-  (adj₂ : F ⊣₂ G) {J : Type*} [Category* J]
+variable
+  {C₁ C₂ C₃ : Type*} [Category* C₁] [Category* C₂] [Category* C₃]
+  {F : C₁ ⥤ C₂ ⥤ C₃} {G : C₁ᵒᵖ ⥤ C₃ ⥤ C₂} (adj₂ : F ⊣₂ G)
+  {J : Type*} [Category* J]
 
 include adj₂
 

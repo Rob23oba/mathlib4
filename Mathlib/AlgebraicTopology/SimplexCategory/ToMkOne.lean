@@ -26,15 +26,18 @@ open scoped Simplicial
 
 namespace SimplexCategory
 
-/-- Given `i : Fin (n + 2)`, this is the morphism `⦋n⦌ ⟶ ⦋1⦌` in the simplex
+/--
+Given `i : Fin (n + 2)`, this is the morphism `⦋n⦌ ⟶ ⦋1⦌` in the simplex
 category which corresponds to the monotone map `Fin (n + 1) → Fin 2` which
-takes `i` times the value `0`. -/
+takes `i` times the value `0`.
+-/
 def toMk₁ {n : ℕ} (i : Fin (n + 2)) : ⦋n⦌ ⟶ ⦋1⦌ :=
-  Hom.mk
-    { toFun j := if j.castSucc < i then 0 else 1
-      monotone' j₁ j₂ h := by
-        dsimp
-        split_ifs <;> grind }
+  Hom.mk {
+    toFun j := if j.castSucc < i then 0 else 1
+    monotone' j₁ j₂ h := by
+      dsimp
+      split_ifs <;> grind
+  }
 
 @[local grind =]
 lemma toMk₁_apply {n : ℕ} (i : Fin (n + 2)) (j : Fin (n + 1)) :
@@ -150,9 +153,11 @@ lemma toMk₁_surjective {n : ℕ} : Function.Surjective (toMk₁ (n := n)) := b
 lemma toMk₁_bijective {n : ℕ} : Function.Bijective (toMk₁ (n := n)) :=
   ⟨toMk₁_injective, toMk₁_surjective⟩
 
-/-- The bijection `Fin (n + 2) ≃ (⦋n⦌ ⟶ ⦋1⦌)` which sends `i : Fin (n + 2)` to the
+/--
+The bijection `Fin (n + 2) ≃ (⦋n⦌ ⟶ ⦋1⦌)` which sends `i : Fin (n + 2)` to the
 morphism `⦋n⦌ ⟶ ⦋1⦌` in the simplex category which corresponds to the monotone map
-`Fin (n + 1) → Fin 2` which takes `i` times the value `0`. -/
+`Fin (n + 1) → Fin 2` which takes `i` times the value `0`.
+-/
 @[simps! apply]
 noncomputable def toMk₁Equiv {n : ℕ} : Fin (n + 2) ≃ (⦋n⦌ ⟶ ⦋1⦌) :=
   Equiv.ofBijective _ toMk₁_bijective

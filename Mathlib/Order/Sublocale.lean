@@ -31,21 +31,27 @@ Create separate definitions for `sInf_mem` and `HImpClosed` (also useful for `Co
 variable {X : Type*} [Order.Frame X]
 open Set
 
-/-- A sublocale of a locale `X` is a set `S` which is closed under all meets and such that
+/--
+A sublocale of a locale `X` is a set `S` which is closed under all meets and such that
 `x ⇨ s ∈ S` for all `x : X` and `s ∈ S`.
 
 Note that locales are the same thing as frames, but with reverse morphisms, which is why we assume
-`Frame X`. We only need to define locales categorically. See `Locale`. -/
+`Frame X`. We only need to define locales categorically. See `Locale`.
+-/
 structure Sublocale (X : Type*) [Order.Frame X] where
   /-- The set corresponding to the sublocale. -/
   carrier : Set X
-  /-- A sublocale is closed under all meets.
+  /--
+  A sublocale is closed under all meets.
 
-  Do NOT use directly. Use `Sublocale.sInf_mem` instead. -/
+  Do NOT use directly. Use `Sublocale.sInf_mem` instead.
+  -/
   sInf_mem' : ∀ s ⊆ carrier, sInf s ∈ carrier
-  /-- A sublocale is closed under heyting implication.
+  /--
+  A sublocale is closed under heyting implication.
 
-  Do NOT use directly. Use `Sublocale.himp_mem` instead. -/
+  Do NOT use directly. Use `Sublocale.himp_mem` instead.
+  -/
   himp_mem' : ∀ a b, b ∈ carrier → a ⇨ b ∈ carrier
 
 namespace Sublocale
@@ -88,11 +94,12 @@ instance carrier.instSemilatticeInf : SemilatticeInf S := Subtype.semilatticeInf
 
 instance carrier.instOrderTop : OrderTop S := Subtype.orderTop top_mem
 
-instance carrier.instHImp : HImp S where himp a b := ⟨a ⇨ b, S.himp_mem b.2⟩
+instance carrier.instHImp : HImp S where
+  himp a b := ⟨a ⇨ b, S.himp_mem b.2⟩
 
 instance carrier.instInfSet : InfSet S where
-  sInf x := ⟨sInf (Subtype.val '' x), S.sInf_mem' _
-    (by simp_rw [image_subset_iff, subset_def]; simp)⟩
+  sInf x :=
+    ⟨sInf (Subtype.val '' x), S.sInf_mem' _ (by simp_rw [image_subset_iff, subset_def]; simp)⟩
 
 @[simp, norm_cast] lemma coe_inf (a b : S) : (a ⊓ b).val = ↑a ⊓ ↑b := rfl
 @[simp, norm_cast] lemma coe_sInf (s : Set S) : (sInf s).val = sInf (Subtype.val '' s) := rfl
@@ -124,9 +131,12 @@ private lemma le_restrictAux : a ≤ S.restrictAux a := by simp +contextual [res
 set_option backward.privateInPublic true in
 /-- See `Sublocale.giRestrict` for the public-facing version. -/
 private def giAux (S : Sublocale X) : GaloisInsertion S.restrictAux Subtype.val where
-  choice x hx := ⟨x, by
-    rw [le_antisymm le_restrictAux hx]
-    exact S.sInf_mem <| by simp +contextual [Set.subset_def]⟩
+  choice x hx := ⟨
+    x,
+    by
+      rw [le_antisymm le_restrictAux hx]
+      exact S.sInf_mem <| by simp +contextual [Set.subset_def]
+  ⟩
   gc a b := by
     constructor <;> intro h
     · exact le_trans (by simp +contextual [restrictAux]) h
@@ -160,8 +170,10 @@ def restrict (S : Sublocale X) : FrameHom X S where
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- The restriction corresponding to a sublocale forms a Galois insertion with the forgetful map
-from the sublocale to the original locale. -/
+/--
+The restriction corresponding to a sublocale forms a Galois insertion with the forgetful map
+from the sublocale to the original locale.
+-/
 def giRestrict (S : Sublocale X) : GaloisInsertion S.restrict Subtype.val := S.giAux
 
 @[simp] lemma restrict_of_mem (ha : a ∈ S) : S.restrict a = ⟨a, ha⟩ := S.giRestrict.l_u_eq ⟨a, ha⟩
@@ -214,8 +226,10 @@ lemma mem_toSublocale {n : Nucleus X} {x : X} : x ∈ n.toSublocale ↔ ∃ y, n
 
 end Nucleus
 
-/-- The nuclei on a frame corresponds exactly to the sublocales on this frame.
-The sublocales are ordered dually to the nuclei. -/
+/--
+The nuclei on a frame corresponds exactly to the sublocales on this frame.
+The sublocales are ordered dually to the nuclei.
+-/
 def nucleusIsoSublocale : (Nucleus X)ᵒᵈ ≃o Sublocale X where
   toFun n := n.ofDual.toSublocale
   invFun s := .toDual s.toNucleus
@@ -231,7 +245,12 @@ instance Sublocale.instCompleteLattice : CompleteLattice (Sublocale X) :=
   nucleusIsoSublocale.toGaloisInsertion.liftCompleteLattice
 
 set_option backward.isDefEq.respectTransparency false in
-instance Sublocale.instCoframe : Order.Coframe (Sublocale X) := .ofMinimalAxioms {
-  iInf_sup_le_sup_sInf a s := by simp [← toNucleus_le_toNucleus,
-    nucleusIsoSublocale.symm_eq_toNucleus, nucleusIsoSublocale.symm.map_sup,
-    nucleusIsoSublocale.symm.map_sInf, sup_iInf_eq, nucleusIsoSublocale.symm.map_iInf] }
+instance Sublocale.instCoframe : Order.Coframe (Sublocale X) :=
+  .ofMinimalAxioms {
+    iInf_sup_le_sup_sInf a s := by
+      simp [
+        ← toNucleus_le_toNucleus, nucleusIsoSublocale.symm_eq_toNucleus,
+        nucleusIsoSublocale.symm.map_sup, nucleusIsoSublocale.symm.map_sInf, sup_iInf_eq,
+        nucleusIsoSublocale.symm.map_iInf
+      ]
+  }

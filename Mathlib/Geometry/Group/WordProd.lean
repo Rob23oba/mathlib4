@@ -38,8 +38,10 @@ namespace Group.Generators
 
 variable (P : Group.Generators G ι) (i : ι) (b : Bool) (l l₁ l₂ : List (ι × Bool))
 
-/-- The canonical map from a word `List (ι × Bool)` over a generating family `ι` to its
-corresponding group `G`. -/
+/--
+The canonical map from a word `List (ι × Bool)` over a generating family `ι` to its
+corresponding group `G`.
+-/
 def wordProd : G := P.lift (FreeGroup.mk l)
 
 /-- Every element of `G` is the product of some word over a generating family. -/

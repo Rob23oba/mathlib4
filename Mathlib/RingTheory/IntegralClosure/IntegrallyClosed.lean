@@ -56,17 +56,16 @@ but we could also consider a version of `NormalDomain` that only requires the lo
 
 public section
 
-
 open scoped nonZeroDivisors Polynomial
 
 open Polynomial
 
-/-- `R` is integrally closed in `A` if all integral elements of `A` are also elements of `R`.
--/
+/-- `R` is integrally closed in `A` if all integral elements of `A` are also elements of `R`. -/
 abbrev IsIntegrallyClosedIn (R A : Type*) [CommRing R] [CommRing A] [Algebra R A] :=
   IsIntegralClosure R R A
 
-/-- `R` is integrally closed if all integral elements of `Frac(R)` are also elements of `R`.
+/--
+`R` is integrally closed if all integral elements of `Frac(R)` are also elements of `R`.
 
 This definition uses `FractionRing R` to denote `Frac(R)`. See `isIntegrallyClosed_iff`
 if you want to choose another field of fractions for `R`.
@@ -79,8 +78,8 @@ variable {R : Type*} [CommRing R]
 variable {A B : Type*} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B]
 
 /-- Being integrally closed is preserved under injective algebra homomorphisms. -/
-theorem AlgHom.isIntegrallyClosedIn (f : A →ₐ[R] B) (hf : Function.Injective f) :
-    IsIntegrallyClosedIn R B → IsIntegrallyClosedIn R A := by
+theorem AlgHom.isIntegrallyClosedIn (f : A →ₐ[R] B) (hf : Function.Injective f)
+    : IsIntegrallyClosedIn R B → IsIntegrallyClosedIn R A := by
   rintro ⟨inj, cl⟩
   refine ⟨Function.Injective.of_comp (f := f) ?_, fun hx => ?_, ?_⟩
   · convert! inj
@@ -92,26 +91,26 @@ theorem AlgHom.isIntegrallyClosedIn (f : A →ₐ[R] B) (hf : Function.Injective
     simp_all
 
 /-- Being integrally closed is preserved under algebra isomorphisms. -/
-theorem AlgEquiv.isIntegrallyClosedIn (e : A ≃ₐ[R] B) :
-    IsIntegrallyClosedIn R A ↔ IsIntegrallyClosedIn R B :=
+theorem AlgEquiv.isIntegrallyClosedIn (e : A ≃ₐ[R] B)
+    : IsIntegrallyClosedIn R A ↔ IsIntegrallyClosedIn R B :=
   ⟨AlgHom.isIntegrallyClosedIn e.symm e.symm.injective, AlgHom.isIntegrallyClosedIn e e.injective⟩
 
 variable (K : Type*) [CommRing K] [Algebra R K] [IsFractionRing R K]
 
 /-- `R` is integrally closed iff it is the integral closure of itself in its field of fractions. -/
-theorem isIntegrallyClosed_iff_isIntegrallyClosedIn :
-    IsIntegrallyClosed R ↔ IsIntegrallyClosedIn R K :=
-  (IsLocalization.algEquiv R⁰ _ _).isIntegrallyClosedIn
+theorem isIntegrallyClosed_iff_isIntegrallyClosedIn
+    : IsIntegrallyClosed R ↔ IsIntegrallyClosedIn R K :=
+  (IsLocalization.algEquiv (R⁰) _ _).isIntegrallyClosedIn
 
 /-- `R` is integrally closed iff it is the integral closure of itself in its field of fractions. -/
 theorem isIntegrallyClosed_iff_isIntegralClosure : IsIntegrallyClosed R ↔ IsIntegralClosure R R K :=
   isIntegrallyClosed_iff_isIntegrallyClosedIn K
 
 /-- `R` is integrally closed in `A` iff all integral elements of `A` are also elements of `R`. -/
-theorem isIntegrallyClosedIn_iff :
-    IsIntegrallyClosedIn R A ↔
-      Function.Injective (algebraMap R A) ∧
-        ∀ {x : A}, IsIntegral R x → ∃ y, algebraMap R A y = x := by
+theorem isIntegrallyClosedIn_iff
+    : IsIntegrallyClosedIn R A
+      ↔ Function.Injective (algebraMap R A)
+        ∧ ∀ {x : A}, IsIntegral R x → ∃ y, algebraMap R A y = x := by
   constructor
   · rintro ⟨_, cl⟩
     simp_all
@@ -120,12 +119,16 @@ theorem isIntegrallyClosedIn_iff :
     rintro ⟨y, rfl⟩
     apply isIntegral_algebraMap
 
-/-- `R` is integrally closed iff all integral elements of its fraction field `K`
-are also elements of `R`. -/
-theorem isIntegrallyClosed_iff :
-    IsIntegrallyClosed R ↔ ∀ {x : K}, IsIntegral R x → ∃ y, algebraMap R K y = x := by
-  simp [isIntegrallyClosed_iff_isIntegrallyClosedIn K, isIntegrallyClosedIn_iff,
-        IsFractionRing.injective R K]
+/--
+`R` is integrally closed iff all integral elements of its fraction field `K`
+are also elements of `R`.
+-/
+theorem isIntegrallyClosed_iff
+    : IsIntegrallyClosed R ↔ ∀ {x : K}, IsIntegral R x → ∃ y, algebraMap R K y = x := by
+  simp [
+    isIntegrallyClosed_iff_isIntegrallyClosedIn K, isIntegrallyClosedIn_iff,
+    IsFractionRing.injective R K
+  ]
 
 instance : IsIntegrallyClosedIn (integralClosure R A) A :=
   isIntegrallyClosedIn_iff.mpr
@@ -138,25 +141,26 @@ namespace Subring
 
 variable {C : Type*} [SetLike C A] [SubringClass C A] {S : C}
 
-protected theorem isIntegrallyClosedIn_iff :
-    IsIntegrallyClosedIn S A ↔ ∀ ⦃x : A⦄, IsIntegral S x → x ∈ S := by
+protected theorem isIntegrallyClosedIn_iff
+    : IsIntegrallyClosedIn S A ↔ ∀ ⦃x : A⦄, IsIntegral S x → x ∈ S := by
   rw [isIntegrallyClosedIn_iff, and_iff_right (FaithfulSMul.algebraMap_injective _ _)]
   congrm ∀ _ _, _ ∈ $Subtype.range_val
 
-protected theorem isIntegrallyClosed_iff [IsFractionRing S A] :
-    IsIntegrallyClosed S ↔ ∀ ⦃x : A⦄, IsIntegral S x → x ∈ S := by
+protected theorem isIntegrallyClosed_iff [IsFractionRing S A]
+    : IsIntegrallyClosed S ↔ ∀ ⦃x : A⦄, IsIntegral S x → x ∈ S := by
   rw [isIntegrallyClosed_iff A]; congrm ∀ _ _, _ ∈ $Subtype.range_val
 
-theorem integralClosure_le_iff {T : Subring A} [IsIntegrallyClosedIn T A] :
-    (integralClosure R A).toSubring ≤ T ↔ ∀ r, algebraMap R A r ∈ T where
+theorem integralClosure_le_iff {T : Subring A} [IsIntegrallyClosedIn T A]
+    : (integralClosure R A).toSubring ≤ T ↔ ∀ r, algebraMap R A r ∈ T where
   mp h r := h (algebraMap_mem (integralClosure R A) r)
-  mpr h a ha := Subring.isIntegrallyClosedIn_iff.mp ‹_› <|
-    let : Algebra R T := RingHom.toAlgebra <| .codRestrict _ _ h
-    have : IsScalarTower R T A := .of_algebraMap_eq fun _ ↦ rfl
-    ha.tower_top
+  mpr h a ha :=
+    Subring.isIntegrallyClosedIn_iff.mp ‹_› <|
+      let : Algebra R T := RingHom.toAlgebra <| .codRestrict _ _ h
+      have : IsScalarTower R T A := .of_algebraMap_eq fun _ ↦ rfl
+      ha.tower_top
 
-theorem integralClosure_subring_le_iff {T : Subring A} [IsIntegrallyClosedIn T A] :
-    (integralClosure S A).toSubring ≤ T ↔ .ofClass S ≤ T := by
+theorem integralClosure_subring_le_iff {T : Subring A} [IsIntegrallyClosedIn T A]
+    : (integralClosure S A).toSubring ≤ T ↔ .ofClass S ≤ T := by
   rw [integralClosure_le_iff, Subtype.forall, IsConcreteLE.le_iff]; rfl
 
 end Subring
@@ -170,32 +174,34 @@ variable {R A : Type*} [CommRing R] [CommRing A] [Algebra R A]
 instance : IsIntegrallyClosedIn R R :=
   ⟨Function.injective_id, by simp [Algebra.IsIntegral.isIntegral]⟩
 
-theorem algebraMap_eq_of_integral [IsIntegrallyClosedIn R A] {x : A} :
-    IsIntegral R x → ∃ y : R, algebraMap R A y = x :=
+theorem algebraMap_eq_of_integral [IsIntegrallyClosedIn R A] {x : A}
+    : IsIntegral R x → ∃ y : R, algebraMap R A y = x :=
   IsIntegralClosure.isIntegral_iff.mp
 
-theorem isIntegral_iff [IsIntegrallyClosedIn R A] {x : A} :
-    IsIntegral R x ↔ ∃ y : R, algebraMap R A y = x :=
+theorem isIntegral_iff [IsIntegrallyClosedIn R A] {x : A}
+    : IsIntegral R x ↔ ∃ y : R, algebraMap R A y = x :=
   IsIntegralClosure.isIntegral_iff
 
-theorem exists_algebraMap_eq_of_isIntegral_pow [IsIntegrallyClosedIn R A]
-    {x : A} {n : ℕ} (hn : 0 < n)
-    (hx : IsIntegral R <| x ^ n) : ∃ y : R, algebraMap R A y = x :=
+theorem exists_algebraMap_eq_of_isIntegral_pow
+    [IsIntegrallyClosedIn R A] {x : A} {n : ℕ} (hn : 0 < n) (hx : IsIntegral R <| x ^ n)
+    : ∃ y : R, algebraMap R A y = x :=
   isIntegral_iff.mp <| hx.of_pow hn
 
-theorem exists_algebraMap_eq_of_pow_mem_subalgebra {A : Type*} [CommRing A] [Algebra R A]
-    {S : Subalgebra R A} [IsIntegrallyClosedIn S A] {x : A} {n : ℕ} (hn : 0 < n)
-    (hx : x ^ n ∈ S) : ∃ y : S, algebraMap S A y = x :=
+theorem exists_algebraMap_eq_of_pow_mem_subalgebra
+    {A : Type*} [CommRing A] [Algebra R A]
+    {S : Subalgebra R A} [IsIntegrallyClosedIn S A]
+    {x : A} {n : ℕ} (hn : 0 < n) (hx : x ^ n ∈ S)
+    : ∃ y : S, algebraMap S A y = x :=
   exists_algebraMap_eq_of_isIntegral_pow hn <| isIntegral_iff.mpr ⟨⟨x ^ n, hx⟩, rfl⟩
 
 variable (A)
 
-theorem integralClosure_eq_bot_iff (hRA : Function.Injective (algebraMap R A)) :
-    integralClosure R A = ⊥ ↔ IsIntegrallyClosedIn R A := by
+theorem integralClosure_eq_bot_iff (hRA : Function.Injective (algebraMap R A))
+    : integralClosure R A = ⊥ ↔ IsIntegrallyClosedIn R A := by
   refine eq_bot_iff.trans ?_
   constructor
   · intro h
-    refine ⟨ hRA, fun hx => Set.mem_range.mp (Algebra.mem_bot.mp (h hx)), ?_⟩
+    refine ⟨hRA, fun hx => Set.mem_range.mp (Algebra.mem_bot.mp (h hx)), ?_⟩
     rintro ⟨y, rfl⟩
     apply isIntegral_algebraMap
   · intro h x hx
@@ -205,8 +211,9 @@ theorem integralClosure_eq_bot_iff (hRA : Function.Injective (algebraMap R A)) :
 variable (R)
 
 @[simp]
-theorem integralClosure_eq_bot [IsIntegrallyClosedIn R A] [IsDomain R] [Module.IsTorsionFree R A]
-    [Nontrivial A] : integralClosure R A = ⊥ :=
+theorem integralClosure_eq_bot
+    [IsIntegrallyClosedIn R A] [IsDomain R] [Module.IsTorsionFree R A] [Nontrivial A]
+    : integralClosure R A = ⊥ :=
   (integralClosure_eq_bot_iff A (FaithfulSMul.algebraMap_injective _ _)).mpr ‹_›
 
 variable {A} {B : Type*} [CommRing B]
@@ -236,26 +243,31 @@ namespace IsIntegrallyClosed
 variable {R S : Type*} [CommRing R] [CommRing S]
 variable {K : Type*} [CommRing K] [Algebra R K] [ifr : IsFractionRing R K]
 
-/-- Note that this is not a duplicate instance, since `IsIntegrallyClosed R` is instead defined
-as `IsIntegrallyClosed R R (FractionRing R)`. -/
+/--
+Note that this is not a duplicate instance, since `IsIntegrallyClosed R` is instead defined
+as `IsIntegrallyClosed R R (FractionRing R)`.
+-/
 instance [iic : IsIntegrallyClosed R] : IsIntegralClosure R R K :=
   (isIntegrallyClosed_iff_isIntegralClosure K).mp iic
 
-theorem algebraMap_eq_of_integral [IsIntegrallyClosed R] {x : K} :
-    IsIntegral R x → ∃ y : R, algebraMap R K y = x :=
+theorem algebraMap_eq_of_integral [IsIntegrallyClosed R] {x : K}
+    : IsIntegral R x → ∃ y : R, algebraMap R K y = x :=
   IsIntegralClosure.isIntegral_iff.mp
 
-theorem isIntegral_iff [IsIntegrallyClosed R] {x : K} :
-    IsIntegral R x ↔ ∃ y : R, algebraMap R K y = x :=
+theorem isIntegral_iff [IsIntegrallyClosed R] {x : K}
+    : IsIntegral R x ↔ ∃ y : R, algebraMap R K y = x :=
   IsIntegrallyClosedIn.isIntegral_iff
 
-theorem exists_algebraMap_eq_of_isIntegral_pow [IsIntegrallyClosed R] {x : K} {n : ℕ} (hn : 0 < n)
-    (hx : IsIntegral R <| x ^ n) : ∃ y : R, algebraMap R K y = x :=
+theorem exists_algebraMap_eq_of_isIntegral_pow
+    [IsIntegrallyClosed R] {x : K} {n : ℕ} (hn : 0 < n) (hx : IsIntegral R <| x ^ n)
+    : ∃ y : R, algebraMap R K y = x :=
   IsIntegrallyClosedIn.exists_algebraMap_eq_of_isIntegral_pow hn hx
 
-theorem exists_algebraMap_eq_of_pow_mem_subalgebra {K : Type*} [CommRing K] [Algebra R K]
-    {S : Subalgebra R K} [IsIntegrallyClosed S] [IsFractionRing S K] {x : K} {n : ℕ} (hn : 0 < n)
-    (hx : x ^ n ∈ S) : ∃ y : S, algebraMap S K y = x :=
+theorem exists_algebraMap_eq_of_pow_mem_subalgebra
+    {K : Type*} [CommRing K] [Algebra R K]
+    {S : Subalgebra R K} [IsIntegrallyClosed S] [IsFractionRing S K]
+    {x : K} {n : ℕ} (hn : 0 < n) (hx : x ^ n ∈ S)
+    : ∃ y : S, algebraMap S K y = x :=
   IsIntegrallyClosedIn.exists_algebraMap_eq_of_pow_mem_subalgebra hn hx
 
 theorem of_equiv (f : R ≃+* S) [h : IsIntegrallyClosed R] : IsIntegrallyClosed S := by
@@ -264,14 +276,18 @@ theorem of_equiv (f : R ≃+* S) [h : IsIntegrallyClosed R] : IsIntegrallyClosed
   let g : FractionRing S ≃ₐ[S] FractionRing R := IsFractionRing.algEquivOfAlgEquiv f
   refine (isIntegrallyClosed_iff (FractionRing S)).mpr (fun hx ↦ ?_)
   rcases (isIntegrallyClosed_iff _).mp h ((isIntegral_algEquiv g).mpr hx).tower_top with ⟨z, hz⟩
-  exact ⟨f.symm z, (IsFractionRing.algEquivOfAlgEquiv_algebraMap f.symm z).symm.trans <|
-    (AlgEquiv.symm_apply_eq g).mpr hz⟩
+  exact ⟨
+    f.symm z,
+    (IsFractionRing.algEquivOfAlgEquiv_algebraMap f.symm z).symm.trans <|
+      (AlgEquiv.symm_apply_eq g).mpr hz
+  ⟩
 
 variable (R S K)
 
-instance _root_.IsIntegralClosure.of_isIntegrallyClosed [IsIntegrallyClosed R]
-    [Algebra S R] [Algebra S K] [IsScalarTower S R K] [Algebra.IsIntegral S R] :
-    IsIntegralClosure R S K :=
+instance _root_.IsIntegralClosure.of_isIntegrallyClosed
+    [IsIntegrallyClosed R] [Algebra S R] [Algebra S K] [IsScalarTower S R K]
+    [Algebra.IsIntegral S R]
+    : IsIntegralClosure R S K :=
   IsIntegralClosure.of_isIntegrallyClosedIn
 
 lemma of_isIntegrallyClosedIn
@@ -320,8 +336,8 @@ theorem integralClosure_eq_bot_iff : integralClosure R K = ⊥ ↔ IsIntegrallyC
     (isIntegrallyClosed_iff_isIntegrallyClosedIn _).symm
 
 @[simp]
-theorem pow_dvd_pow_iff [IsDomain R] [IsIntegrallyClosed R]
-    {n : ℕ} (hn : n ≠ 0) {a b : R} : a ^ n ∣ b ^ n ↔ a ∣ b := by
+theorem pow_dvd_pow_iff [IsDomain R] [IsIntegrallyClosed R] {n : ℕ} (hn : n ≠ 0) {a b : R}
+    : a ^ n ∣ b ^ n ↔ a ∣ b := by
   refine ⟨fun ⟨x, hx⟩ ↦ ?_, fun h ↦ pow_dvd_pow_of_dvd h n⟩
   by_cases ha : a = 0
   · simpa [ha, hn] using hx
@@ -340,15 +356,16 @@ theorem pow_dvd_pow_iff [IsDomain R] [IsIntegrallyClosed R]
   rw [map_mul, hk, mul_div_cancel₀ _ ha]
 
 @[simp]
-theorem _root_.Associated.pow_iff [IsDomain R] [IsIntegrallyClosed R] {n : ℕ} (hn : n ≠ 0)
-    {a b : R} :
-    Associated (a ^ n) (b ^ n) ↔ Associated a b := by
+theorem _root_.Associated.pow_iff [IsDomain R] [IsIntegrallyClosed R] {n : ℕ} (hn : n ≠ 0) {a b : R}
+    : Associated (a ^ n) (b ^ n) ↔ Associated a b := by
   simp_rw [← dvd_dvd_iff_associated, pow_dvd_pow_iff hn]
 
 variable (R)
 
-/-- This is almost a duplicate of `IsIntegrallyClosedIn.integralClosure_eq_bot`,
-except the `Module.IsTorsionFree` hypothesis isn't inferred automatically from `IsFractionRing`. -/
+/--
+This is almost a duplicate of `IsIntegrallyClosedIn.integralClosure_eq_bot`,
+except the `Module.IsTorsionFree` hypothesis isn't inferred automatically from `IsFractionRing`.
+-/
 @[simp]
 theorem integralClosure_eq_bot [IsIntegrallyClosed R] : integralClosure R K = ⊥ :=
   (integralClosure_eq_bot_iff K).mpr ‹_›
@@ -365,8 +382,8 @@ variable [IsFractionRing R K]
 variable {L : Type*} [Field L] [Algebra K L] [Algebra R L] [IsScalarTower R K L]
 
 -- Can't be an instance because you need to supply `K`.
-theorem isIntegrallyClosedOfFiniteExtension [IsDomain R] [FiniteDimensional K L] :
-    IsIntegrallyClosed (integralClosure R L) :=
+theorem isIntegrallyClosedOfFiniteExtension [IsDomain R] [FiniteDimensional K L]
+    : IsIntegrallyClosed (integralClosure R L) :=
   letI : IsFractionRing (integralClosure R L) L := isFractionRing_of_finite_extension K L
   (integralClosure_eq_bot_iff L).mp integralClosure_idem
 
@@ -396,8 +413,10 @@ lemma isIntegrallyClosed_of_isLocalization [IsIntegrallyClosed R] [IsDomain R] (
 end localization
 
 /-- Any field is integral closed. -/
-/- Although `infer_instance` can find this if you import Mathlib, in this file they have not been
-  proven yet. However, it is used to prove a fundamental property of `IsIntegrallyClosed`,
-  and it is not desirable to involve more content from other files. -/
+/-
+Although `infer_instance` can find this if you import Mathlib, in this file they have not been
+proven yet. However, it is used to prove a fundamental property of `IsIntegrallyClosed`,
+and it is not desirable to involve more content from other files.
+-/
 instance Field.instIsIntegrallyClosed (K : Type*) [Field K] : IsIntegrallyClosed K :=
   (isIntegrallyClosed_iff K).mpr fun {x} _ ↦ ⟨x, rfl⟩

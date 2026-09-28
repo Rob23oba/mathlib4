@@ -56,7 +56,15 @@ lemma exists_openSubgroup_separating {a b : G} (h : a ≠ b) :
 instance (priority := 100) instTotallySeparated : TotallySeparatedSpace G where
   isTotallySeparated_univ x _ y _ hxy := by
     obtain ⟨V, dxy⟩ := exists_openSubgroup_separating hxy
-    exact ⟨_, _, V.isOpen.smul x, (V.isClosed.smul x).isOpen_compl, mem_own_leftCoset ..,
-      dxy.subset_compl_left <| mem_own_leftCoset .., by simp, disjoint_compl_right⟩
+    exact ⟨
+      _,
+      _,
+      V.isOpen.smul x,
+      (V.isClosed.smul x).isOpen_compl,
+      mem_own_leftCoset ..,
+      dxy.subset_compl_left <| mem_own_leftCoset ..,
+      by simp,
+      disjoint_compl_right
+    ⟩
 
 end NonarchimedeanGroup

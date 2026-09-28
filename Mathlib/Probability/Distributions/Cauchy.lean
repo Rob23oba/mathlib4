@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 
 /-! # Cauchy Distribution over ℝ
@@ -39,8 +38,7 @@ namespace ProbabilityTheory
 section CauchyPDF
 
 /-- The pdf of the cauchy distribution depending on its location `x₀` and scale `γ` parameters. -/
-noncomputable def cauchyPDFReal (x₀ : ℝ) (γ : ℝ≥0) (x : ℝ) : ℝ :=
-  π⁻¹ * γ * ((x - x₀) ^ 2 + γ ^ 2)⁻¹
+noncomputable def cauchyPDFReal (x₀ : ℝ) (γ : ℝ≥0) (x : ℝ) : ℝ := π⁻¹ * γ * ((x - x₀) ^ 2 + γ ^ 2)⁻¹
 
 @[deprecated (since := "2026-03-06")] alias _root_Probability.CauchyPDFReal := cauchyPDFReal
 
@@ -185,8 +183,8 @@ lemma cauchyMeasure_zero_scale (x₀ : ℝ) : cauchyMeasure x₀ 0 = dirac x₀ 
 @[deprecated (since := "2026-03-06")]
 alias _root_Probability.cauchyMeasure_zero_scale := cauchyMeasure_zero_scale
 
-instance instIsProbabilityMeasure_cauchyMeasure (x₀ : ℝ) (γ : ℝ≥0) :
-    IsProbabilityMeasure (cauchyMeasure x₀ γ) where
+instance instIsProbabilityMeasure_cauchyMeasure (x₀ : ℝ) (γ : ℝ≥0)
+    : IsProbabilityMeasure (cauchyMeasure x₀ γ) where
   measure_univ := by by_cases h : γ = 0 <;> simp [cauchyMeasure_of_scale_ne_zero, h]
 
 @[deprecated (since := "2026-03-06")]

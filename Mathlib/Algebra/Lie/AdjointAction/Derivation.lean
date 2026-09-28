@@ -38,19 +38,24 @@ section AdjointAction
 
 variable (R L : Type*) [CommRing R] [LieRing L] [LieAlgebra R L]
 
-/-- The adjoint action of a Lie algebra `L` on itself, seen as a morphism of Lie algebras from
+/--
+The adjoint action of a Lie algebra `L` on itself, seen as a morphism of Lie algebras from
 `L` to its derivations.
-Note the minus sign: this is chosen to so that `ad ⁅x, y⁆ = ⁅ad x, ad y⁆`. -/
+Note the minus sign: this is chosen to so that `ad ⁅x, y⁆ = ⁅ad x, ad y⁆`.
+-/
 @[simps!]
-def ad : L →ₗ⁅R⁆ LieDerivation R L L :=
-  { __ := - inner R L L
-    map_lie' := by
-      intro x y
-      ext z
-      simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearMap.neg_apply, coe_neg,
-        Pi.neg_apply, inner_apply_apply, commutator_apply]
-      rw [leibniz_lie, neg_lie, neg_lie, ← lie_skew x]
-      abel }
+def ad : L →ₗ⁅R⁆ LieDerivation R L L := {
+  __ := - inner R L L
+  map_lie' := by
+    intro x y
+    ext z
+    simp only [
+      AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearMap.neg_apply, coe_neg, Pi.neg_apply,
+      inner_apply_apply, commutator_apply
+    ]
+    rw [leibniz_lie, neg_lie, neg_lie, ← lie_skew x]
+    abel
+}
 
 variable {R L}
 

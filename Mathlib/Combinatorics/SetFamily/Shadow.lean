@@ -45,7 +45,6 @@ shadow, set family
 
 @[expose] public section
 
-
 open Finset Nat
 
 variable {α : Type*}
@@ -56,31 +55,26 @@ section Shadow
 
 variable [DecidableEq α] {𝒜 ℬ : Finset (Finset α)} {s t : Finset α} {a : α} {k r : ℕ}
 
-/-- The shadow of a set family `𝒜` is all sets we can get by removing one element from any set in
+/--
+The shadow of a set family `𝒜` is all sets we can get by removing one element from any set in
 `𝒜`, and the (`k` times) iterated shadow (`shadow^[k]`) is all sets we can get by removing `k`
-elements from any set in `𝒜`. -/
-def shadow (𝒜 : Finset (Finset α)) : Finset (Finset α) :=
-  𝒜.sup fun s => s.image (erase s)
+elements from any set in `𝒜`.
+-/
+def shadow (𝒜 : Finset (Finset α)) : Finset (Finset α) := 𝒜.sup fun s => s.image (erase s)
 
 @[inherit_doc] scoped[FinsetFamily] notation:max "∂" => Finset.shadow
 
 open scoped FinsetFamily
 
 /-- The shadow of the empty set is empty. -/
-@[simp]
-theorem shadow_empty : ∂ (∅ : Finset (Finset α)) = ∅ :=
-  rfl
+@[simp] theorem shadow_empty : ∂ (∅ : Finset (Finset α)) = ∅ := rfl
 
 @[simp] lemma shadow_iterate_empty (k : ℕ) : ∂^[k] (∅ : Finset (Finset α)) = ∅ := by
   induction k <;> simp [*, shadow_empty]
 
-@[simp]
-theorem shadow_singleton_empty : ∂ ({∅} : Finset (Finset α)) = ∅ :=
-  rfl
+@[simp] theorem shadow_singleton_empty : ∂ ({∅} : Finset (Finset α)) = ∅ := rfl
 
-@[simp]
-theorem shadow_singleton (a : α) : ∂ {{a}} = {∅} := by
-  simp [shadow]
+@[simp] theorem shadow_singleton (a : α) : ∂ {{a}} = {∅} := by simp [shadow]
 
 /-- The shadow is monotone. -/
 @[gcongr, mono]
@@ -149,8 +143,8 @@ lemma mem_shadow_iterate_iff_exists_mem_card_add :
   exact card_mono hst
 
 /-- The shadow of a family of `r`-sets is a family of `r - 1`-sets. -/
-protected theorem _root_.Set.Sized.shadow (h𝒜 : (𝒜 : Set (Finset α)).Sized r) :
-    (∂ 𝒜 : Set (Finset α)).Sized (r - 1) := by
+protected theorem _root_.Set.Sized.shadow (h𝒜 : (𝒜 : Set (Finset α)).Sized r)
+    : (∂ 𝒜 : Set (Finset α)).Sized (r - 1) := by
   intro A h
   obtain ⟨A, hA, i, hi, rfl⟩ := mem_shadow_iff.1 h
   rw [card_erase_of_mem hi, h𝒜 hA]
@@ -162,8 +156,8 @@ lemma _root_.Set.Sized.shadow_iterate (h𝒜 : (𝒜 : Set (Finset α)).Sized r)
   rintro t ⟨s, hs, hts, rfl⟩
   rw [card_sdiff_of_subset hts, ← h𝒜 hs, Nat.sub_sub_self (card_le_card hts)]
 
-theorem sized_shadow_iff (h : ∅ ∉ 𝒜) :
-    (∂ 𝒜 : Set (Finset α)).Sized r ↔ (𝒜 : Set (Finset α)).Sized (r + 1) := by
+theorem sized_shadow_iff (h : ∅ ∉ 𝒜)
+    : (∂ 𝒜 : Set (Finset α)).Sized r ↔ (𝒜 : Set (Finset α)).Sized (r + 1) := by
   refine ⟨fun h𝒜 s hs => ?_, Set.Sized.shadow⟩
   obtain ⟨a, ha⟩ := nonempty_iff_ne_empty.2 (ne_of_mem_of_not_mem hs h)
   rw [← h𝒜 (erase_mem_shadow hs ha), card_erase_add_one ha]
@@ -181,18 +175,18 @@ section UpShadow
 
 variable [DecidableEq α] [Fintype α] {𝒜 : Finset (Finset α)} {s t : Finset α} {a : α} {k r : ℕ}
 
-/-- The upper shadow of a set family `𝒜` is all sets we can get by adding one element to any set in
+/--
+The upper shadow of a set family `𝒜` is all sets we can get by adding one element to any set in
 `𝒜`, and the (`k` times) iterated upper shadow (`upShadow^[k]`) is all sets we can get by adding
-`k` elements from any set in `𝒜`. -/
+`k` elements from any set in `𝒜`.
+-/
 def upShadow (𝒜 : Finset (Finset α)) : Finset (Finset α) :=
   𝒜.sup fun s => sᶜ.image fun a => insert a s
 
 @[inherit_doc] scoped[FinsetFamily] notation:max "∂⁺ " => Finset.upShadow
 
 /-- The upper shadow of the empty set is empty. -/
-@[simp]
-theorem upShadow_empty : ∂⁺ (∅ : Finset (Finset α)) = ∅ :=
-  rfl
+@[simp] theorem upShadow_empty : ∂⁺ (∅ : Finset (Finset α)) = ∅ := rfl
 
 /-- The upper shadow is monotone. -/
 @[gcongr, mono]
@@ -277,8 +271,7 @@ theorem exists_subset_of_mem_upShadow (hs : s ∈ ∂⁺ 𝒜) : ∃ t ∈ 𝒜,
   ⟨t, ht, hts⟩
 
 /-- `t ∈ ∂^k 𝒜` iff `t` is exactly `k` elements more than something in `𝒜`. -/
-theorem mem_upShadow_iff_exists_mem_card_add :
-    s ∈ ∂⁺ ^[k] 𝒜 ↔ ∃ t ∈ 𝒜, t ⊆ s ∧ #t + k = #s := by
+theorem mem_upShadow_iff_exists_mem_card_add : s ∈ ∂⁺ ^[k] 𝒜 ↔ ∃ t ∈ 𝒜, t ⊆ s ∧ #t + k = #s := by
   induction k generalizing 𝒜 s with
   | zero =>
     refine ⟨fun hs => ⟨s, hs, Subset.refl _, rfl⟩, ?_⟩
@@ -295,8 +288,8 @@ theorem mem_upShadow_iff_exists_mem_card_add :
       rw [← hcardst, hcardtu, add_right_comm]
       rfl
     · rintro ⟨t, ht, hts, hcard⟩
-      obtain ⟨u, htu, hus, hu⟩ := Finset.exists_subsuperset_card_eq hts (Nat.le_add_right _ 1)
-        (by lia)
+      obtain ⟨u, htu, hus, hu⟩ :=
+        Finset.exists_subsuperset_card_eq hts (Nat.le_add_right _ 1) (by lia)
       refine ⟨u, mem_upShadow_iff_exists_mem_card_add_one.2 ⟨t, ht, htu, hu⟩, hus, ?_⟩
       rw [hu, ← hcard, add_right_comm]
       rfl

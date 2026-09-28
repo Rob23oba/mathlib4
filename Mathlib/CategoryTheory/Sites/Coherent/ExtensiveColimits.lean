@@ -29,8 +29,9 @@ open Limits Sheaf GrothendieckTopology Opposite
 
 section
 
-variable {A C J : Type*} [Category* A] [Category* C] [Category* J]
-  [FinitaryExtensive C] [HasColimitsOfShape J A]
+variable
+  {A C J : Type*}
+  [Category* A] [Category* C] [Category* J] [FinitaryExtensive C] [HasColimitsOfShape J A]
 
 set_option backward.defeqAttrib.useBackward true in
 lemma isSheaf_pointwiseColimit [PreservesFiniteProducts (colim (J := J) (C := A))]
@@ -50,8 +51,8 @@ instance [Preadditive A] : PreservesFiniteProducts (colim (J := J) (C := A)) whe
     apply +allowSynthFailures preservesProductsOfShape_of_preservesBiproductsOfShape
     apply preservesBiproductsOfShape_of_preservesCoproductsOfShape
 
-instance [PreservesFiniteProducts (colim (J := J) (C := A))] :
-    PreservesColimitsOfShape J (sheafToPresheaf (extensiveTopology C) A) where
+instance [PreservesFiniteProducts (colim (J := J) (C := A))]
+    : PreservesColimitsOfShape J (sheafToPresheaf (extensiveTopology C) A) where
   preservesColimit {G} := by
     suffices CreatesColimit G (sheafToPresheaf (extensiveTopology C) A) from inferInstance
     refine createsColimitOfIsSheaf _ (fun c hc ↦ ?_)
@@ -60,8 +61,8 @@ instance [PreservesFiniteProducts (colim (J := J) (C := A))] :
     rw [Presheaf.isSheaf_of_iso_iff i]
     exact isSheaf_pointwiseColimit _
 
-instance [Preadditive A] [HasFiniteColimits A] :
-    PreservesFiniteColimits (sheafToPresheaf (extensiveTopology C) A) where
+instance [Preadditive A] [HasFiniteColimits A]
+    : PreservesFiniteColimits (sheafToPresheaf (extensiveTopology C) A) where
   preservesFiniteColimits _ := inferInstance
 
 end

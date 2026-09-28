@@ -36,8 +36,10 @@ namespace PartialMap
 
 set_option backward.defeqAttrib.useBackward true in
 /-- Restricting a dominant partial map to a dense open yields a dominant partial map. -/
-instance isDominant_restrict_hom (f : X.PartialMap Y) [IsDominant f.hom] (U : X.Opens)
-    (hU : Dense (U : Set X)) (hU' : U ≤ f.domain) : IsDominant (f.restrict U hU hU').hom := by
+instance isDominant_restrict_hom
+    (f : X.PartialMap Y) [IsDominant f.hom]
+    (U : X.Opens) (hU : Dense (U : Set X)) (hU' : U ≤ f.domain)
+    : IsDominant (f.restrict U hU hU').hom := by
   dsimp only [restrict_domain, restrict_hom]
   have : IsDominant (X.homOfLE hU') := Opens.isDominant_homOfLE hU hU'
   rwa [IsDominant.comp_iff]
@@ -67,24 +69,25 @@ lemma isDominant_hom_iff_of_equiv (f g : X.PartialMap Y) (h : f.equiv g) :
 
 end PartialMap
 
-/-- A rational map is dominant if some (equivalently, any) representative partial map has
-dominant underlying morphism. -/
+/--
+A rational map is dominant if some (equivalently, any) representative partial map has
+dominant underlying morphism.
+-/
 @[mk_iff, stacks 0A1Z]
 protected class RationalMap.IsDominant (f : X ⤏ Y) : Prop where
-  out : Quotient.liftOn f (fun g ↦ IsDominant g.hom) <| fun _ _ h ↦
-    propext (PartialMap.isDominant_hom_iff_of_equiv _ _ h)
+  out
+    : Quotient.liftOn f (fun g ↦ IsDominant g.hom) <| fun _ _ h ↦
+      propext (PartialMap.isDominant_hom_iff_of_equiv _ _ h)
 
 @[simp]
 lemma PartialMap.isDominant_toRationalMap_iff (f : X.PartialMap Y) :
     f.toRationalMap.IsDominant ↔ IsDominant f.hom :=
   f.toRationalMap.isDominant_iff
 
-instance (f : X.PartialMap Y) [IsDominant f.hom] :
-    f.toRationalMap.IsDominant := by
+instance (f : X.PartialMap Y) [IsDominant f.hom] : f.toRationalMap.IsDominant := by
   rwa [f.isDominant_toRationalMap_iff]
 
-instance (f : X ⤏ Y) [f.IsDominant] :
-    IsDominant f.representative.hom := by
+instance (f : X ⤏ Y) [f.IsDominant] : IsDominant f.representative.hom := by
   rwa [← f.representative.isDominant_toRationalMap_iff, f.toRationalMap_representative]
 
 end Scheme

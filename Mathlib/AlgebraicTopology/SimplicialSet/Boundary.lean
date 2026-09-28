@@ -34,11 +34,13 @@ open scoped Simplicial
 
 namespace SSet
 
-/-- The boundary `∂Δ[n]` of the `n`-th standard simplex consists of
+/--
+The boundary `∂Δ[n]` of the `n`-th standard simplex consists of
 all `m`-simplices of `stdSimplex n` that are not surjective
-(when viewed as monotone function `m → n`). -/
+(when viewed as monotone function `m → n`).
+-/
 def boundary (n : ℕ) : (Δ[n] : SSet.{u}).Subcomplex where
-  obj _ := Set.ofPred (fun s ↦ ¬Function.Surjective (stdSimplex.asOrderHom s))
+  obj _ := Set.ofPred (fun s ↦ ¬ Function.Surjective (stdSimplex.asOrderHom s))
   map _ _ hs h := hs (Function.Surjective.of_comp h)
 
 /-- The boundary `∂Δ[n]` of the `n`-th standard simplex -/
@@ -153,22 +155,21 @@ end stdSimplex
 namespace boundary
 
 /-- The inclusion of a face of `∂Δ[n]`. -/
-def faceι {n : ℕ} (i : Fin (n + 1)) :
-    (stdSimplex.face {i}ᶜ : SSet.{u}) ⟶ ∂Δ[n] :=
+def faceι {n : ℕ} (i : Fin (n + 1)) : (stdSimplex.face {i}ᶜ : SSet.{u}) ⟶ ∂Δ[n] :=
   Subcomplex.homOfLE (face_singleton_compl_le_boundary i)
 
-instance {n : ℕ} (i : Fin (n + 1)) : Mono (faceι.{u} i) := by
-  dsimp [faceι]; infer_instance
+instance {n : ℕ} (i : Fin (n + 1)) : Mono (faceι.{u} i) := by dsimp [faceι]; infer_instance
 
 @[reassoc (attr := simp)]
 lemma faceι_ι {n : ℕ} (i : Fin (n + 2)) :
     faceι i ≫ (boundary.{u} (n + 1)).ι = (stdSimplex.face {i}ᶜ).ι := by
   simp [faceι]
 
-/-- The morphism `Δ[n] ⟶ ∂Δ[n + 1]` corresponding to face
-the face `i : Fin (n + 2)`. -/
-def ι {n : ℕ} (i : Fin (n + 2)) :
-    Δ[n] ⟶ (∂Δ[n + 1] : SSet.{u}) :=
+/--
+The morphism `Δ[n] ⟶ ∂Δ[n + 1]` corresponding to face
+the face `i : Fin (n + 2)`.
+-/
+def ι {n : ℕ} (i : Fin (n + 2)) : Δ[n] ⟶ (∂Δ[n + 1] : SSet.{u}) :=
   Subcomplex.lift ((stdSimplex.{u}.map (SimplexCategory.δ i))) (by
     simp only [Subcomplex.range_eq_ofSimplex]
     refine le_trans ?_ (face_singleton_compl_le_boundary i)
@@ -185,8 +186,9 @@ lemma faceSingletonComplIso_inv_ι {n : ℕ} (i : Fin (n + 2)) :
   rfl
 
 instance {n : ℕ} (i : Fin (n + 2)) : Mono (ι.{u} i) := by
-  rw [← mono_comp_iff_of_isIso (stdSimplex.faceSingletonComplIso i).inv,
-    faceSingletonComplIso_inv_ι]
+  rw [
+    ← mono_comp_iff_of_isIso (stdSimplex.faceSingletonComplIso i).inv, faceSingletonComplIso_inv_ι
+  ]
   infer_instance
 
 instance {n : ℕ} (i : Fin (n + 2)) : Mono (stdSimplex.{u}.δ i) := by

@@ -55,30 +55,32 @@ lemma ringKrullDim_nonneg_of_nontrivial [Nontrivial R] : 0 ≤ ringKrullDim R :=
   krullDim_nonneg
 
 /-- If `f : R →+* S` is surjective, then `ringKrullDim S ≤ ringKrullDim R`. -/
-theorem ringKrullDim_le_of_surjective (f : R →+* S) (hf : Function.Surjective f) :
-    ringKrullDim S ≤ ringKrullDim R :=
-  krullDim_le_of_strictMono (fun I ↦ ⟨Ideal.comap f I.asIdeal, inferInstance⟩)
-    (Monotone.strictMono_of_injective (fun _ _ hab ↦ Ideal.comap_mono hab)
-      (fun _ _ h => PrimeSpectrum.ext_iff.mpr <| Ideal.comap_injective_of_surjective f hf <| by
-        simpa using h))
+theorem ringKrullDim_le_of_surjective (f : R →+* S) (hf : Function.Surjective f)
+    : ringKrullDim S ≤ ringKrullDim R :=
+  krullDim_le_of_strictMono
+    (fun I ↦ ⟨Ideal.comap f I.asIdeal, inferInstance⟩)
+    (Monotone.strictMono_of_injective
+      (fun _ _ hab ↦ Ideal.comap_mono hab)
+      (fun _ _ h =>
+        PrimeSpectrum.ext_iff.mpr <| Ideal.comap_injective_of_surjective f hf <| by simpa using h))
 
 /-- If `I` is an ideal of `R`, then `ringKrullDim (R ⧸ I) ≤ ringKrullDim R`. -/
-theorem ringKrullDim_quotient_le {R : Type*} [CommRing R] (I : Ideal R) :
-    ringKrullDim (R ⧸ I) ≤ ringKrullDim R :=
+theorem ringKrullDim_quotient_le {R : Type*} [CommRing R] (I : Ideal R)
+    : ringKrullDim (R ⧸ I) ≤ ringKrullDim R :=
   ringKrullDim_le_of_surjective _ Ideal.Quotient.mk_surjective
 
 /-- If `R` and `S` are isomorphic, then `ringKrullDim R = ringKrullDim S`. -/
-theorem ringKrullDim_eq_of_ringEquiv (e : R ≃+* S) :
-    ringKrullDim R = ringKrullDim S :=
+theorem ringKrullDim_eq_of_ringEquiv (e : R ≃+* S) : ringKrullDim R = ringKrullDim S :=
   le_antisymm (ringKrullDim_le_of_surjective e.symm e.symm.surjective)
     (ringKrullDim_le_of_surjective e e.surjective)
 
 alias RingEquiv.ringKrullDim := ringKrullDim_eq_of_ringEquiv
 
-/-- A ring has finite Krull dimension if its `PrimeSpectrum` is
-finite-dimensional (and non-empty). -/
-abbrev FiniteRingKrullDim (R : Type*) [CommSemiring R] :=
-  FiniteDimensionalOrder (PrimeSpectrum R)
+/--
+A ring has finite Krull dimension if its `PrimeSpectrum` is
+finite-dimensional (and non-empty).
+-/
+abbrev FiniteRingKrullDim (R : Type*) [CommSemiring R] := FiniteDimensionalOrder (PrimeSpectrum R)
 
 lemma ringKrullDim_ne_top [FiniteRingKrullDim R] :
     ringKrullDim R ≠ ⊤ := krullDim_ne_top_of_finiteDimensionalOrder
@@ -108,8 +110,8 @@ lemma Ring.krullDimLE_zero_iff : Ring.KrullDimLE 0 R ↔ ∀ I : Ideal R, I.IsPr
   rfl
 
 /-- A ring has krull dimension at most zero if and only if all minimal primes are maximal. -/
-theorem Ring.krullDimLE_zero_iff_forall_minimalPrimes_isMaximal :
-    Ring.KrullDimLE 0 R ↔ ∀ I ∈ minimalPrimes R, I.IsMaximal := by
+theorem Ring.krullDimLE_zero_iff_forall_minimalPrimes_isMaximal
+    : Ring.KrullDimLE 0 R ↔ ∀ I ∈ minimalPrimes R, I.IsMaximal := by
   refine Ring.krullDimLE_zero_iff.trans ⟨fun h I hI ↦ h I hI.1.1, fun h I hI ↦ ?_⟩
   obtain ⟨J, hJ, hle⟩ := Ideal.exists_minimalPrimes_le bot_le (J := I)
   exact (h J hJ).eq_of_le hI.ne_top hle ▸ h J hJ
@@ -142,10 +144,10 @@ lemma Ideal.mem_minimalPrimes_iff_isPrime [Ring.KrullDimLE 0 R] {I : Ideal R} :
 theorem nilradical_le_jacobson (R) [CommRing R] : nilradical R ≤ Ring.jacobson R :=
   nilradical_eq_sInf R ▸ le_sInf fun _I hI ↦ sInf_le (Ideal.IsMaximal.isPrime ⟨hI⟩)
 
-theorem Ring.jacobson_eq_nilradical_of_krullDimLE_zero (R) [CommRing R] [KrullDimLE 0 R] :
-    jacobson R = nilradical R :=
-  (nilradical_le_jacobson R).antisymm' <| nilradical_eq_sInf R ▸ le_sInf fun I (_ : I.IsPrime) ↦
-    sInf_le Ideal.IsMaximal.out
+theorem Ring.jacobson_eq_nilradical_of_krullDimLE_zero (R) [CommRing R] [KrullDimLE 0 R]
+    : jacobson R = nilradical R :=
+  (nilradical_le_jacobson R).antisymm' <|
+    nilradical_eq_sInf R ▸ le_sInf fun I (_ : I.IsPrime) ↦ sInf_le Ideal.IsMaximal.out
 
 end Zero
 

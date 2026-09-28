@@ -86,7 +86,6 @@ lemma add_apply_apply (a b : twoCochain R L M) (x y : L) :
     (a + b) x y = a x y + b x y := by
   rfl
 
-
 @[simp]
 lemma smul_apply_apply (r : R) (a : twoCochain R L M) (x y : L) :
     (r • a) x y = r • (a x y) := by
@@ -99,15 +98,18 @@ variable [LieRingModule L M] [LieModule R L M]
 /-- The coboundary operator taking degree 1 cochains to degree 2 cochains. -/
 @[simps]
 def d₁₂ : oneCochain R L M →ₗ[R] twoCochain R L M where
-  toFun f :=
-    { val :=
-      { toFun x :=
-          { toFun y := ⁅x, f y⁆ - ⁅y, f x⁆ - f ⁅x, y⁆
-            map_add' _ _ := by simp; abel
-            map_smul' _ _ := by simp [smul_sub] }
-        map_add' _ _ := by ext; simp; abel
-        map_smul' _ _ := by ext; simp [smul_sub] }
-      property x := by simp }
+  toFun f := {
+    val := {
+      toFun x := {
+        toFun y := ⁅x, f y⁆ - ⁅y, f x⁆ - f ⁅x, y⁆
+        map_add' _ _ := by simp; abel
+        map_smul' _ _ := by simp [smul_sub]
+      }
+      map_add' _ _ := by ext; simp; abel
+      map_smul' _ _ := by ext; simp [smul_sub]
+    }
+    property x := by simp
+  }
   map_add' _ _ := by ext; simp; abel
   map_smul' _ _ := by ext; simp [smul_sub]
 
@@ -124,13 +126,16 @@ def d₂₃ : twoCochain R L M →ₗ[R] L →ₗ[R] L →ₗ[R] L →ₗ[R] M w
   toFun a := {
     toFun x := {
       toFun y := {
-        toFun z := ⁅x, a y z⁆ - ⁅y, a x z⁆ + ⁅z, a x y⁆ - a ⁅x, y⁆ z + a ⁅x, z⁆ y - a ⁅y, z⁆ x
+        toFun z := ⁅x, a y z⁆ - ⁅y, a x z⁆ + ⁅z, a x y⁆ - a (⁅x, y⁆) z + a (⁅x, z⁆) y - a (⁅y, z⁆) x
         map_add' _ _ := by simp; abel
-        map_smul' _ _ := by simp; abel_nf; simp }
+        map_smul' _ _ := by simp; abel_nf; simp
+      }
       map_add' _ _ := by ext; simp; abel
-      map_smul' _ _ := by ext; simp; abel_nf; simp }
+      map_smul' _ _ := by ext; simp; abel_nf; simp
+    }
     map_add' _ _ := by ext; simp; abel
-    map_smul' _ _ := by ext; simp; abel_nf; simp }
+    map_smul' _ _ := by ext; simp; abel_nf; simp
+  }
   map_add' _ _ := by ext; simp; abel
   map_smul' _ _ := by ext; simp; abel_nf; simp
 

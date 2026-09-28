@@ -127,7 +127,8 @@ lemma posLog_le_posLog (hx : -1 ≤ x) (hxy : x ≤ y) : log⁺ x ≤ log⁺ y :
   simp [posLog_eq_log this, posLog_eq_log hx.le]
 
 /-- The function `log⁺` commutes with real powers with nonnegative base and exponent. -/
-@[simp] theorem posLog_rpow {x α : ℝ} (hx : -1 ≤ x) (hα : 0 ≤ α) : log⁺ (x ^ α) = α * log⁺ x := by
+@[simp]
+theorem posLog_rpow {x α : ℝ} (hx : -1 ≤ x) (hα : 0 ≤ α) : log⁺ (x ^ α) = α * log⁺ x := by
   rcases le_or_gt x 0 with h | h
   · have h₁ : |x| ≤ 1 := abs_le.2 ⟨hx, h.trans zero_le_one⟩
     rw [(posLog_eq_zero_iff x).2 h₁, mul_zero, (posLog_eq_zero_iff _).2]
@@ -135,7 +136,8 @@ lemma posLog_le_posLog (hx : -1 ≤ x) (hxy : x ≤ y) : log⁺ x ≤ log⁺ y :
   · rw [posLog_apply, posLog_apply, log_rpow h, mul_max_of_nonneg _ _ hα, mul_zero]
 
 /-- The function `log⁺` is continuous. -/
-@[fun_prop] theorem continuous_posLog : Continuous log⁺ := by
+@[fun_prop]
+theorem continuous_posLog : Continuous log⁺ := by
   rw [continuous_iff_continuousAt]
   intro x
   by_cases hx : x = 0
@@ -180,8 +182,10 @@ lemma posLog_le_abs (x : ℝ) : log⁺ x ≤ |x| := by
 ## Estimates for Products
 -/
 
-/-- Estimate for `log⁺` of a product. See `Real.posLog_prod` for a variant involving
-multiple factors. -/
+/--
+Estimate for `log⁺` of a product. See `Real.posLog_prod` for a variant involving
+multiple factors.
+-/
 theorem posLog_mul : log⁺ (x * y) ≤ log⁺ x + log⁺ y := by
   by_cases ha : x = 0
   · simp [ha, posLog]
@@ -191,56 +195,63 @@ theorem posLog_mul : log⁺ (x * y) ≤ log⁺ x + log⁺ y := by
   nth_rw 1 [← add_zero 0, log_mul ha hb]
   exact max_add_add_le_max_add_max
 
-/-- Estimate for `log⁺` of a product. Special case of `Real.posLog_mul` where one of
-the factors is a natural number. -/
+/--
+Estimate for `log⁺` of a product. Special case of `Real.posLog_mul` where one of
+the factors is a natural number.
+-/
 theorem posLog_nat_mul {n : ℕ} : log⁺ (n * x) ≤ log n + log⁺ x := by
   rw [← log_of_nat_eq_posLog]
   exact posLog_mul
 
-/-- Estimate for `log⁺` of a product. See `Real.posLog_mul` for a variant with
-only two factors. -/
-theorem posLog_prod {α : Type*} (s : Finset α) (f : α → ℝ) :
-    log⁺ (∏ t ∈ s, f t) ≤ ∑ t ∈ s, log⁺ (f t) := by
+/--
+Estimate for `log⁺` of a product. See `Real.posLog_mul` for a variant with
+only two factors.
+-/
+theorem posLog_prod {α : Type*} (s : Finset α) (f : α → ℝ)
+    : log⁺ (∏ t ∈ s, f t) ≤ ∑ t ∈ s, log⁺ (f t) := by
   classical
   induction s using Finset.induction with
-  | empty => simp [posLog]
+  | empty =>
+    simp [posLog]
   | insert a s ha hs =>
-    calc log⁺ (∏ t ∈ insert a s, f t)
-    _ = log⁺ (f a * ∏ t ∈ s, f t) := by rw [Finset.prod_insert ha]
-    _ ≤ log⁺ (f a) + log⁺ (∏ t ∈ s, f t) := posLog_mul
-    _ ≤ log⁺ (f a) + ∑ t ∈ s, log⁺ (f t) := add_le_add (by rfl) hs
-    _ = ∑ t ∈ insert a s, log⁺ (f t) := by rw [Finset.sum_insert ha]
+    calc
+      log⁺ (∏ t ∈ insert a s, f t)
+      _ = log⁺ (f a * ∏ t ∈ s, f t) := by rw [Finset.prod_insert ha]
+      _ ≤ log⁺ (f a) + log⁺ (∏ t ∈ s, f t) := posLog_mul
+      _ ≤ log⁺ (f a) + ∑ t ∈ s, log⁺ (f t) := add_le_add (by rfl) hs
+      _ = ∑ t ∈ insert a s, log⁺ (f t) := by rw [Finset.sum_insert ha]
 
 /-!
 ## Estimates for Sums
 -/
 
-/-- Estimate for `log⁺` of a sum. See `Real.posLog_add` for a variant involving
-just two summands. -/
-theorem posLog_sum {α : Type*} (s : Finset α) (f : α → ℝ) :
-    log⁺ (∑ t ∈ s, f t) ≤ log (s.card) + ∑ t ∈ s, log⁺ (f t) := by
+/--
+Estimate for `log⁺` of a sum. See `Real.posLog_add` for a variant involving
+just two summands.
+-/
+theorem posLog_sum {α : Type*} (s : Finset α) (f : α → ℝ)
+    : log⁺ (∑ t ∈ s, f t) ≤ log (s.card) + ∑ t ∈ s, log⁺ (f t) := by
   -- Trivial case: empty sum
   by_cases! hs : s = ∅
   · simp [hs, posLog]
   -- Nontrivial case: Obtain maximal element…
   obtain ⟨t_max, ht_max⟩ := s.exists_max_image (fun t ↦ |f t|) hs
   -- …then calculate
-  calc log⁺ (∑ t ∈ s, f t)
-  _ = log⁺ |∑ t ∈ s, f t| := by
-    rw [Real.posLog_abs]
-  _ ≤ log⁺ (∑ t ∈ s, |f t|) := by
-    apply posLog_le_posLog (neg_one_lt_zero.le.trans (abs_nonneg _))
-    simp [Finset.abs_sum_le_sum_abs]
-  _ ≤ log⁺ (∑ t ∈ s, |f t_max|) := by
-    apply posLog_le_posLog (neg_one_lt_zero.le.trans (Finset.sum_nonneg fun _ _ ↦ abs_nonneg _))
-    apply Finset.sum_le_sum (fun i ih ↦ ht_max.2 i ih)
-  _ = log⁺ (s.card * |f t_max|) := by
-    simp [Finset.sum_const]
-  _ ≤ log s.card + log⁺ |f t_max| := posLog_nat_mul
-  _ ≤ log s.card + ∑ t ∈ s, log⁺ (f t) := by
-    gcongr
-    rw [posLog_abs]
-    apply Finset.single_le_sum (fun _ _ ↦ posLog_nonneg) ht_max.1
+  calc
+    log⁺ (∑ t ∈ s, f t)
+    _ = log⁺ |∑ t ∈ s, f t| := by rw [Real.posLog_abs]
+    _ ≤ log⁺ (∑ t ∈ s, |f t|) := by
+      apply posLog_le_posLog (neg_one_lt_zero.le.trans (abs_nonneg _))
+      simp [Finset.abs_sum_le_sum_abs]
+    _ ≤ log⁺ (∑ t ∈ s, |f t_max|) := by
+      apply posLog_le_posLog (neg_one_lt_zero.le.trans (Finset.sum_nonneg fun _ _ ↦ abs_nonneg _))
+      apply Finset.sum_le_sum (fun i ih ↦ ht_max.2 i ih)
+    _ = log⁺ (s.card * |f t_max|) := by simp [Finset.sum_const]
+    _ ≤ log s.card + log⁺ |f t_max| := posLog_nat_mul
+    _ ≤ log s.card + ∑ t ∈ s, log⁺ (f t) := by
+      gcongr
+      rw [posLog_abs]
+      apply Finset.single_le_sum (fun _ _ ↦ posLog_nonneg) ht_max.1
 
 /--
 Variant of `posLog_sum` for norms of elements in normed additive commutative
@@ -271,8 +282,8 @@ lemma posLog_norm_add_le {E : Type*} [SeminormedAddCommGroup E] (a b : E) :
 Multiplying the argument of `log⁺` by a nonzero factor `x` changes its value by at most
 `log⁺ x + log⁺ x⁻¹`, which equals `|log x|` by `Real.abs_log_eq_posLog_add_posLog_inv`.
 -/
-theorem abs_posLog_mul_sub_posLog_le_posLog_add_posLog {x y : ℝ} (hx : x ≠ 0) :
-    |log⁺ (x * y) - log⁺ y| ≤ log⁺ x + log⁺ x⁻¹ := by
+theorem abs_posLog_mul_sub_posLog_le_posLog_add_posLog {x y : ℝ} (hx : x ≠ 0)
+    : |log⁺ (x * y) - log⁺ y| ≤ log⁺ x + log⁺ x⁻¹ := by
   rw [abs_le]
   constructor
   · grind [posLog_mul (x := x⁻¹) (y := x * y), posLog_nonneg]

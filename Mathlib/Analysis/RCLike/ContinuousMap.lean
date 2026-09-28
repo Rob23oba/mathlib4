@@ -21,7 +21,9 @@ namespace ContinuousMap
 variable {X : Type*} (𝕜 : Type*) [TopologicalSpace X] [RCLike 𝕜]
 
 /-- Lifting `C(X, ℝ)` to `C(X, 𝕜)` using `RCLike.ofReal`. -/
-@[simps] def realToRCLike (f : C(X, ℝ)) : C(X, 𝕜) where toFun x := RCLike.ofReal (f x)
+@[simps]
+def realToRCLike (f : C(X, ℝ)) : C(X, 𝕜) where
+  toFun x := RCLike.ofReal (f x)
 
 @[simp, grind .] lemma isSelfAdjoint_realToRCLike {f : C(X, ℝ)} :
     IsSelfAdjoint (f.realToRCLike 𝕜) := by ext; simp
@@ -35,7 +37,8 @@ open ComplexOrder
 set_option backward.isDefEq.respectTransparency.types false in
 variable (X) in
 /-- `ContinuousMap.realToRCLike` as an order embedding. -/
-@[simps] def realToRCLikeOrderEmbedding : C(X, ℝ) ↪o C(X, 𝕜) where
+@[simps]
+def realToRCLikeOrderEmbedding : C(X, ℝ) ↪o C(X, 𝕜) where
   toFun := realToRCLike 𝕜
   inj' f g hfg := by ext x; simpa using congr($hfg x)
   map_rel_iff' := by simp [le_def]
@@ -65,7 +68,8 @@ variable (X) in
   realToRCLikeOrderEmbedding X 𝕜 |>.lt_iff_lt
 
 variable (X) in
-@[simp] theorem isometry_realToRCLike [CompactSpace X] : Isometry (realToRCLike 𝕜 (X := X)) :=
+@[simp]
+theorem isometry_realToRCLike [CompactSpace X] : Isometry (realToRCLike 𝕜 (X := X)) :=
   .of_dist_eq fun f g ↦ by simp [dist_eq_norm, norm_eq_iSup_norm, ← map_sub]
 
 variable (X) in
@@ -89,7 +93,9 @@ lemma realToRCLike_star (f : C(X, ℝ)) : (star f).realToRCLike 𝕜 = star (f.r
 
 variable {𝕜} in
 /-- Mapping `C(X, 𝕜)` to `C(X, ℝ)` using `RCLike.re`. -/
-@[simps] def rclikeToReal (f : C(X, 𝕜)) : C(X, ℝ) where toFun x := RCLike.re (f x)
+@[simps]
+def rclikeToReal (f : C(X, 𝕜)) : C(X, ℝ) where
+  toFun x := RCLike.re (f x)
 
 variable (X) in
 lemma rclikeToReal_monotone : Monotone (rclikeToReal (X := X) (𝕜 := 𝕜)) := by
@@ -99,13 +105,14 @@ variable (X) in
 @[simp, fun_prop] lemma continuous_rclikeToReal : Continuous (rclikeToReal (X := X) (𝕜 := 𝕜)) :=
   continuous_postcomp { toFun x := RCLike.re x }
 
-@[simp] theorem rclikeToReal_realToRCLike (f : C(X, ℝ)) :
-    (f.realToRCLike 𝕜).rclikeToReal = f := by ext; simp
+@[simp]
+theorem rclikeToReal_realToRCLike (f : C(X, ℝ)) : (f.realToRCLike 𝕜).rclikeToReal = f := by
+  ext; simp
 
 variable {𝕜} in
 @[aesop safe apply, grind =]
-theorem IsSelfAdjoint.realToRCLike_rclikeToReal {f : C(X, 𝕜)} (hf : IsSelfAdjoint f) :
-    f.rclikeToReal.realToRCLike 𝕜 = f := by
+theorem IsSelfAdjoint.realToRCLike_rclikeToReal {f : C(X, 𝕜)} (hf : IsSelfAdjoint f)
+    : f.rclikeToReal.realToRCLike 𝕜 = f := by
   ext
   simp only [realToRCLike_apply, rclikeToReal_apply, ← RCLike.conj_eq_iff_re]
   conv_rhs => rw [← hf.star_eq]
@@ -113,9 +120,10 @@ theorem IsSelfAdjoint.realToRCLike_rclikeToReal {f : C(X, 𝕜)} (hf : IsSelfAdj
 
 variable (X) in
 open ContinuousMap in
-theorem range_realToRCLike_eq_isSelfAdjoint :
-    .range (realToRCLike 𝕜) = {f : C(X, 𝕜) | IsSelfAdjoint f} :=
-  le_antisymm (fun _ ⟨_, h⟩ ↦ by simp [← h]) fun f hf ↦
-    ⟨f.rclikeToReal, hf.realToRCLike_rclikeToReal⟩
+theorem range_realToRCLike_eq_isSelfAdjoint
+    : .range (realToRCLike 𝕜) = {f : C(X, 𝕜) | IsSelfAdjoint f} :=
+  le_antisymm
+    (fun _ ⟨_, h⟩ ↦ by simp [← h])
+    fun f hf ↦ ⟨f.rclikeToReal, hf.realToRCLike_rclikeToReal⟩
 
 end ContinuousMap

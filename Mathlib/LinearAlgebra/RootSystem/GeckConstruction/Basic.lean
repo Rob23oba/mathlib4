@@ -61,13 +61,13 @@ attribute [local simp] Matrix.mul_apply Matrix.one_apply Matrix.diagonal_apply
 
 namespace RootPairing.GeckConstruction
 
-variable {ι R M N : Type*} [CommRing R]
-  [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
-  {P : RootPairing ι R M N} [P.IsCrystallographic] {b : P.Base}
+variable
+  {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+  {P : RootPairing ι R M N} [P.IsCrystallographic]
+  {b : P.Base}
 
 /-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/
-def h (i : b.support) :
-    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
+def h (i : b.support) : Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
   open scoped Classical in
   .fromBlocks 0 0 0 (.diagonal (P.pairingIn ℤ · i))
 
@@ -136,62 +136,65 @@ lemma lie_h_h [Fintype ι] (i j : b.support) :
 variable [Finite ι] [IsDomain R] [CharZero R]
 
 /-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/
-def e (i : b.support) :
-    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
+def e (i : b.support) : Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
   open scoped Classical in
   letI := P.indexNeg
-  .fromBlocks 0
-    (.of fun i' j ↦ if i' = i ∧ j = -i then 1 else 0)
-    (.of fun i' j ↦ if i' = i then ↑|b.cartanMatrix i j| else 0)
+  .fromBlocks 0 (.of fun i' j ↦ if i' = i ∧ j = -i then 1 else 0)
+    (.of fun i' j ↦ if i' = i then ↑ |b.cartanMatrix i j| else 0)
     (.of fun i' j ↦ if P.root i' = P.root i + P.root j then P.chainBotCoeff i j + 1 else 0)
 
 /-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/
-def f (i : b.support) :
-    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
+def f (i : b.support) : Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
   open scoped Classical in
   letI := P.indexNeg
-  .fromBlocks 0
-    (.of fun i' j ↦ if i' = i ∧ j = i then 1 else 0)
-    (.of fun i' j ↦ if i' = -i then ↑|b.cartanMatrix i j| else 0)
+  .fromBlocks 0 (.of fun i' j ↦ if i' = i ∧ j = i then 1 else 0)
+    (.of fun i' j ↦ if i' = -i then ↑ |b.cartanMatrix i j| else 0)
     (.of fun i' j ↦ if P.root i' = P.root j - P.root i then P.chainTopCoeff i j + 1 else 0)
 
 variable (b)
 
-/-- An involutive matrix which can transfer results between `RootPairing.GeckConstruction.e` and
-`RootPairing.GeckConstruction.f`. -/
-def ω :
-    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
+/--
+An involutive matrix which can transfer results between `RootPairing.GeckConstruction.e` and
+`RootPairing.GeckConstruction.f`.
+-/
+def ω : Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=
   open scoped Classical in
   letI := P.indexNeg
   .fromBlocks 1 0 0 <| .of fun i j ↦ if i = -j then 1 else 0
 
 attribute [local instance 100] LieRing.ofAssociativeRing
 
-/-- Geck's construction of the Lie algebra associated to a root system with distinguished base.
+/--
+Geck's construction of the Lie algebra associated to a root system with distinguished base.
 
 Note that it is convenient to include `range h` in the Lie span, to make it elementary that it
 contains `RootPairing.GeckConstruction.cartanSubalgebra`, and not depend on
-`RootPairing.GeckConstruction.lie_e_f_same`. -/
-def lieAlgebra [Fintype ι] [DecidableEq ι] :
-    LieSubalgebra R (Matrix (b.support ⊕ ι) (b.support ⊕ ι) R) :=
+`RootPairing.GeckConstruction.lie_e_f_same`.
+-/
+def lieAlgebra [Fintype ι] [DecidableEq ι]
+    : LieSubalgebra R (Matrix (b.support ⊕ ι) (b.support ⊕ ι) R) :=
   LieSubalgebra.lieSpan R _ (range h ∪ range e ∪ range f)
 
-/-- A distinguished subalgebra corresponding to a Cartan subalgebra of the Geck construction.
+/--
+A distinguished subalgebra corresponding to a Cartan subalgebra of the Geck construction.
 
-See also `RootPairing.GeckConstruction.cartanSubalgebra'`. -/
-def cartanSubalgebra [Fintype ι] [DecidableEq ι] :
-    LieSubalgebra R (Matrix (b.support ⊕ ι) (b.support ⊕ ι) R) where
+See also `RootPairing.GeckConstruction.cartanSubalgebra'`.
+-/
+def cartanSubalgebra [Fintype ι] [DecidableEq ι]
+    : LieSubalgebra R (Matrix (b.support ⊕ ι) (b.support ⊕ ι) R) where
   __ := Submodule.span R (range h)
   lie_mem' {x y} hx hy := by
     have aux : (∀ u ∈ range (h (b := b)), ∀ v ∈ range (h (b := b)), ⁅u, v⁆ = 0) := by
       rintro - ⟨i, rfl⟩ - ⟨j, rfl⟩; exact lie_h_h i j
-    simp only [Submodule.carrier_eq_coe, SetLike.mem_coe, LieSubalgebra.mem_toSubmodule,
-      ← LieSubalgebra.coe_lieSpan_eq_span_of_forall_lie_eq_zero (R := R) aux] at hx hy ⊢
+    simp only [
+        Submodule.carrier_eq_coe, SetLike.mem_coe, LieSubalgebra.mem_toSubmodule,
+        ← LieSubalgebra.coe_lieSpan_eq_span_of_forall_lie_eq_zero (R := R) aux
+      ]
+      at hx hy ⊢
     exact LieSubalgebra.lie_mem _ hx hy
 
 /-- A distinguished Cartan subalgebra of the Geck construction. -/
-def cartanSubalgebra' [Fintype ι] [DecidableEq ι] :
-    LieSubalgebra R (lieAlgebra b) :=
+def cartanSubalgebra' [Fintype ι] [DecidableEq ι] : LieSubalgebra R (lieAlgebra b) :=
   (cartanSubalgebra b).comap (lieAlgebra b).incl
 
 omit [Finite ι] [IsDomain R] [CharZero R] in
@@ -373,8 +376,9 @@ section ωConj
 
 variable (b) in
 /-- The conjugation `x ↦ ωxω` as an equivalence of Lie algebras. -/
-@[simps] def ωConj :
-    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R ≃ₗ⁅R⁆ Matrix (b.support ⊕ ι) (b.support ⊕ ι) R where
+@[simps]
+def ωConj
+    : Matrix (b.support ⊕ ι) (b.support ⊕ ι) R ≃ₗ⁅R⁆ Matrix (b.support ⊕ ι) (b.support ⊕ ι) R where
   toFun x := ω b * x * ω b
   invFun x := ω b * x * ω b
   map_add' x y := by noncomm_ring
@@ -413,8 +417,7 @@ lemma ωConj_mem_of_mem
 variable (N : LieSubmodule R (lieAlgebra b) (b.support ⊕ ι → R))
 
 /-- The equivalence `x ↦ ωxω` as an operation on Lie submodules of the Geck construction. -/
-def ωConjLieSubmodule :
-    LieSubmodule R (lieAlgebra b) (b.support ⊕ ι → R) where
+def ωConjLieSubmodule : LieSubmodule R (lieAlgebra b) (b.support ⊕ ι → R) where
   __ := N.toSubmodule.comap (ω b).toLin'
   lie_mem A {x} hx := by
     let A' : lieAlgebra b := ⟨ωConj b _, ωConj_mem_of_mem A.property⟩

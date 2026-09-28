@@ -36,8 +36,7 @@ namespace Pretriangulated
 
 section
 
-variable [HasZeroObject C] [∀ (n : ℤ), (shiftFunctor C n).Additive]
-  [Pretriangulated C]
+variable [HasZeroObject C] [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
 @[stacks 0149]
 instance (A : Cᵒᵖ) : (preadditiveCoyoneda.obj A).IsHomological where
@@ -78,10 +77,14 @@ variable [∀ (n : ℤ), (shiftFunctor C n).Additive]
 noncomputable instance (B : C) : (preadditiveYoneda.obj B).ShiftSequence ℤ where
   sequence n := preadditiveYoneda.obj (B⟦n⟧)
   isoZero := preadditiveYoneda.mapIso ((shiftFunctorZero C ℤ).app B)
-  shiftIso n a a' h := NatIso.ofComponents (fun A ↦ AddEquiv.toAddCommGrpIso
-    { toEquiv := Quiver.Hom.opEquiv.trans (ShiftedHom.opEquiv' n a a' h).symm
-      map_add' := fun _ _ ↦ ShiftedHom.opEquiv'_symm_add _ _ _ h })
-        (by intros; ext; apply ShiftedHom.opEquiv'_symm_comp _ _ _ h)
+  shiftIso n a a' h :=
+    NatIso.ofComponents
+      (fun A ↦
+        AddEquiv.toAddCommGrpIso {
+          toEquiv := Quiver.Hom.opEquiv.trans (ShiftedHom.opEquiv' n a a' h).symm
+          map_add' := fun _ _ ↦ ShiftedHom.opEquiv'_symm_add _ _ _ h
+        })
+      (by intros; ext; apply ShiftedHom.opEquiv'_symm_comp _ _ _ h)
   shiftIso_zero a := by ext; apply ShiftedHom.opEquiv'_zero_add_symm
   shiftIso_add n m a a' a'' ha' ha'' := by
     ext _ x

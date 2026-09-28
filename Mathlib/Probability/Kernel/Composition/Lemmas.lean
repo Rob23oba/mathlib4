@@ -21,9 +21,9 @@ open MeasureTheory ProbabilityTheory
 
 open scoped ENNReal
 
-variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
-  {μ : Measure α} {ν : Measure β} {κ : Kernel α β}
+variable
+  {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
+  {mδ : MeasurableSpace δ} {μ : Measure α} {ν : Measure β} {κ : Kernel α β}
 
 namespace ProbabilityTheory.Kernel
 

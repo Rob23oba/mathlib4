@@ -39,14 +39,15 @@ namespace CategoryTheory
 
 open MorphismProperty Preadditive Limits Category
 
-variable {C D : Type*} [Category* C] [Category* D] [Preadditive C] (L : C ⥤ D)
+variable
+  {C D : Type*} [Category* C] [Category* D] [Preadditive C]
+  (L : C ⥤ D)
   {W : MorphismProperty C} [L.IsLocalization W]
 
 namespace MorphismProperty
 
 /-- The opposite of a left fraction. -/
-abbrev LeftFraction.neg {X Y : C} (φ : W.LeftFraction X Y) :
-    W.LeftFraction X Y where
+abbrev LeftFraction.neg {X Y : C} (φ : W.LeftFraction X Y) : W.LeftFraction X Y where
   Y' := φ.Y'
   f := -φ.f
   s := φ.s
@@ -96,8 +97,10 @@ there is a calculus of left fractions. -/
 variable [W.HasLeftCalculusOfFractions] {X Y Z : C}
 variable {L}
 
-/-- The opposite of a map `L.obj X ⟶ L.obj Y` when `L : C ⥤ D` is a localization
-functor, `C` is preadditive and there is a left calculus of fractions. -/
+/--
+The opposite of a map `L.obj X ⟶ L.obj Y` when `L : C ⥤ D` is a localization
+functor, `C` is preadditive and there is a left calculus of fractions.
+-/
 noncomputable def neg' (f : L.obj X ⟶ L.obj Y) : L.obj X ⟶ L.obj Y :=
   (exists_leftFraction L W f).choose.neg.map L (inverts L W)
 
@@ -117,8 +120,10 @@ lemma neg'_eq (f : L.obj X ⟶ L.obj Y) (φ : W.LeftFraction X Y)
     LeftFraction.map_comp_map_s_assoc, ← L.map_comp, ← L.map_comp,
     neg_comp, neg_comp, hft]
 
-/-- The addition of two maps `L.obj X ⟶ L.obj Y` when `L : C ⥤ D` is a localization
-functor, `C` is preadditive and there is a left calculus of fractions. -/
+/--
+The addition of two maps `L.obj X ⟶ L.obj Y` when `L : C ⥤ D` is a localization
+functor, `C` is preadditive and there is a left calculus of fractions.
+-/
 noncomputable def add' (f₁ f₂ : L.obj X ⟶ L.obj Y) : L.obj X ⟶ L.obj Y :=
   (exists_leftFraction₂ L W f₁ f₂).choose.add.map L (inverts L W)
 
@@ -218,29 +223,34 @@ lemma add'_map (f₁ f₂ : X ⟶ Y) :
 
 variable (L X Y)
 
-/-- The abelian group structure on `L.obj X ⟶ L.obj Y` when `L : C ⥤ D` is a localization
-functor, `C` is preadditive and there is a left calculus of fractions. -/
+/--
+The abelian group structure on `L.obj X ⟶ L.obj Y` when `L : C ⥤ D` is a localization
+functor, `C` is preadditive and there is a left calculus of fractions.
+-/
 @[instance_reducible]
 noncomputable def addCommGroup' : AddCommGroup (L.obj X ⟶ L.obj Y) := by
   letI : Zero (L.obj X ⟶ L.obj Y) := ⟨L.map 0⟩
   letI : Add (L.obj X ⟶ L.obj Y) := ⟨add' W⟩
   letI : Neg (L.obj X ⟶ L.obj Y) := ⟨neg' W⟩
-  exact
-    { add_assoc := add'_assoc _
-      add_zero := add'_zero _
-      add_comm := add'_comm _
-      zero_add := zero_add' _
-      neg_add_cancel := neg'_add'_self _
-      nsmul := nsmulRec
-      zsmul := zsmulRec }
+  exact {
+    add_assoc := add'_assoc _
+    add_zero := add'_zero _
+    add_comm := add'_comm _
+    zero_add := zero_add' _
+    neg_add_cancel := neg'_add'_self _
+    nsmul := nsmulRec
+    zsmul := zsmulRec
+  }
 
 variable {X Y}
 
 variable {L}
 variable {X' Y' Z' : D} (eX : L.obj X ≅ X') (eY : L.obj Y ≅ Y') (eZ : L.obj Z ≅ Z')
 
-/-- The bijection `(X' ⟶ Y') ≃ (L.obj X ⟶ L.obj Y)` induced by isomorphisms
-`eX : L.obj X ≅ X'` and `eY : L.obj Y ≅ Y'`. -/
+/--
+The bijection `(X' ⟶ Y') ≃ (L.obj X ⟶ L.obj Y)` induced by isomorphisms
+`eX : L.obj X ≅ X'` and `eY : L.obj Y ≅ Y'`.
+-/
 @[simps]
 def homEquiv : (X' ⟶ Y') ≃ (L.obj X ⟶ L.obj Y) where
   toFun f := eX.hom ≫ f ≫ eY.inv
@@ -248,8 +258,10 @@ def homEquiv : (X' ⟶ Y') ≃ (L.obj X ⟶ L.obj Y) where
   left_inv _ := by simp
   right_inv _ := by simp
 
-/-- The addition of morphisms in `D`, when `L : C ⥤ D` is a localization
-functor, `C` is preadditive and there is a left calculus of fractions. -/
+/--
+The addition of morphisms in `D`, when `L : C ⥤ D` is a localization
+functor, `C` is preadditive and there is a left calculus of fractions.
+-/
 noncomputable def add (f₁ f₂ : X' ⟶ Y') : X' ⟶ Y' :=
   (homEquiv eX eY).symm (add' W (homEquiv eX eY f₁) (homEquiv eX eY f₂))
 
@@ -275,8 +287,10 @@ lemma add_eq_add {X'' Y'' : C} (eX' : L.obj X'' ≅ X') (eY' : L.obj Y'' ≅ Y')
   rw [h₁, h₂]
 
 variable (L X' Y') in
-/-- The abelian group structure on morphisms in `D`, when `L : C ⥤ D` is a localization
-functor, `C` is preadditive and there is a left calculus of fractions. -/
+/--
+The abelian group structure on morphisms in `D`, when `L : C ⥤ D` is a localization
+functor, `C` is preadditive and there is a left calculus of fractions.
+-/
 @[instance_reducible]
 noncomputable def addCommGroup : AddCommGroup (X' ⟶ Y') := by
   have := Localization.essSurj L W
@@ -302,8 +316,10 @@ end Preadditive
 
 variable [W.HasLeftCalculusOfFractions]
 
-/-- The preadditive structure on `D`, when `L : C ⥤ D` is a localization
-functor, `C` is preadditive and there is a left calculus of fractions. -/
+/--
+The preadditive structure on `D`, when `L : C ⥤ D` is a localization
+functor, `C` is preadditive and there is a left calculus of fractions.
+-/
 @[instance_reducible]
 noncomputable def preadditive : Preadditive D where
   homGroup := Preadditive.addCommGroup L W

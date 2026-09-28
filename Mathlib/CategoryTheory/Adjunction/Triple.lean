@@ -105,9 +105,11 @@ section InnerFullyFaithful
 
 variable [G.Full] [G.Faithful]
 
-/-- The natural transformation `H ⟶ F` that exists for every adjoint triple `F ⊣ G ⊣ H` where `G`
+/--
+The natural transformation `H ⟶ F` that exists for every adjoint triple `F ⊣ G ⊣ H` where `G`
 is fully faithful, given here as the preimage of `adj₂.counit ≫ adj₁.unit : H ⋙ G ⟶ F ⋙ G`
-under whiskering with `G`. -/
+under whiskering with `G`.
+-/
 noncomputable def rightToLeft : H ⟶ F :=
   ((FullyFaithful.ofFullyFaithful G).whiskeringRight _).preimage (t.adj₂.counit ≫ t.adj₁.unit)
 
@@ -193,12 +195,14 @@ section OuterFullyFaithful
 
 variable [F.Full] [F.Faithful] [H.Full] [H.Faithful]
 
-/-- The natural transformation `F ⟶ H` that exists for every adjoint triple `F ⊣ G ⊣ H` where `F`
+/--
+The natural transformation `F ⟶ H` that exists for every adjoint triple `F ⊣ G ⊣ H` where `F`
 and `H` are fully faithful, given here as the whiskered unit `F ⟶ F ⋙ G ⋙ H` of the second
-adjunction followed by the inverse of the whiskered unit `F ⋙ G ⋙ H ⟶ H` of the first. -/
+adjunction followed by the inverse of the whiskered unit `F ⋙ G ⋙ H ⟶ H` of the first.
+-/
 noncomputable def leftToRight : F ⟶ H :=
-  F.rightUnitor.inv ≫ whiskerLeft F t.adj₂.unit ≫ (Functor.associator _ _ _).inv ≫
-  inv (whiskerRight t.adj₁.unit H) ≫ H.leftUnitor.hom
+  F.rightUnitor.inv ≫ whiskerLeft F t.adj₂.unit ≫ (Functor.associator _ _ _).inv
+    ≫ inv (whiskerRight t.adj₁.unit H) ≫ H.leftUnitor.hom
 
 set_option backward.defeqAttrib.useBackward true in
 omit [H.Full] [H.Faithful] in

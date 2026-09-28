@@ -6,7 +6,6 @@ Authors: Sébastien Gouëzel
 module
 
 public import Mathlib.MeasureTheory.VectorMeasure.Variation.Basic
-
 import Mathlib.Analysis.Normed.Module.HahnBanach
 
 /-!
@@ -45,11 +44,14 @@ open Set Filter
 
 namespace MeasureTheory.VectorMeasure
 
-variable {X E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] {mX : MeasurableSpace X}
-  {μ : VectorMeasure X E} {s t : Set X}
+variable
+  {X E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {mX : MeasurableSpace X} {μ : VectorMeasure X E} {s t : Set X}
 
-/-- The semivariation of a vector measure, defined as the supremum of the variations
-of the images of the vector measures under continuous linear forms of norm at most `1`. -/
+/--
+The semivariation of a vector measure, defined as the supremum of the variations
+of the images of the vector measures under continuous linear forms of norm at most `1`.
+-/
 noncomputable def semivariation (μ : VectorMeasure X E) (s : Set X) : ℝ≥0∞ :=
   ⨆ ℓ ∈ {ℓ : StrongDual ℝ E | ‖ℓ‖ₑ ≤ 1}, (μ.mapRange (ℓ : E →+ ℝ) ℓ.continuous).variation s
 

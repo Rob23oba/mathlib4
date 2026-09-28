@@ -64,7 +64,8 @@ namespace Fin
 section accumulate
 
 /-- The `j`th entry of `accumulate n m t` is the sum of `t i` over all `i ≥ j`. -/
-@[simps] def accumulate (n m : ℕ) : (Fin n → ℕ) →+ (Fin m → ℕ) where
+@[simps]
+def accumulate (n m : ℕ) : (Fin n → ℕ) →+ (Fin m → ℕ) where
   toFun t j := ∑ i : Fin n with j.val ≤ i.val, t i
   map_zero' := funext <| fun _ ↦ sum_eq_zero <| fun _ _ ↦ rfl
   map_add' _ _ := funext <| fun _ ↦ sum_add_distrib
@@ -131,10 +132,11 @@ section CommSemiring
 variable [CommSemiring R] [Fintype σ] [Fintype τ]
 
 variable (σ R n) in
-/-- The `R`-algebra homomorphism from $R[x_1,\dots,x_n]$ to the symmetric subalgebra of
-  $R[\{x_i \mid i ∈ σ\}]$ sending $x_i$ to the $i$-th elementary symmetric polynomial. -/
-noncomputable def esymmAlgHom :
-    MvPolynomial (Fin n) R →ₐ[R] symmetricSubalgebra σ R :=
+/--
+The `R`-algebra homomorphism from $R[x_1,\dots,x_n]$ to the symmetric subalgebra of
+$R[\{x_i \mid i ∈ σ\}]$ sending $x_i$ to the $i$-th elementary symmetric polynomial.
+-/
+noncomputable def esymmAlgHom : MvPolynomial (Fin n) R →ₐ[R] symmetricSubalgebra σ R :=
   aeval (fun i ↦ ⟨esymm σ R (i + 1), esymm_isSymmetric σ R _⟩)
 
 lemma esymmAlgHom_apply (p : MvPolynomial (Fin n) R) :
@@ -149,8 +151,8 @@ lemma rename_esymmAlgHom (e : σ ≃ τ) :
 
 variable (σ) in
 /-- The image of a monomial under `esymmAlgHom`. -/
-noncomputable def esymmAlgHomMonomial (t : Fin n →₀ ℕ) (r : R) :
-    MvPolynomial σ R := (esymmAlgHom σ R n <| monomial t r).val
+noncomputable def esymmAlgHomMonomial (t : Fin n →₀ ℕ) (r : R) : MvPolynomial σ R :=
+  (esymmAlgHom σ R n <| monomial t r).val
 
 variable {i : Fin n} {r : R}
 
@@ -337,8 +339,8 @@ lemma esymmAlgHom_surjective (hn : Fintype.card σ ≤ n) :
 variable (σ) in
 /-- If the cardinality of `σ` is `n`, then `esymmAlgHom σ R n` is an isomorphism. -/
 @[simps! apply]
-noncomputable def esymmAlgEquiv (hn : Fintype.card σ = n) :
-    MvPolynomial (Fin n) R ≃ₐ[R] symmetricSubalgebra σ R :=
+noncomputable def esymmAlgEquiv (hn : Fintype.card σ = n)
+    : MvPolynomial (Fin n) R ≃ₐ[R] symmetricSubalgebra σ R :=
   AlgEquiv.ofBijective (esymmAlgHom σ R n)
     ⟨esymmAlgHom_injective R hn.ge, esymmAlgHom_surjective R hn.le⟩
 

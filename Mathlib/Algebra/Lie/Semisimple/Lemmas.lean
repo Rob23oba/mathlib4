@@ -34,8 +34,8 @@ namespace LieAlgebra
 
 open LieModule LieSubmodule Module Set
 
-variable (k L M : Type*) [Field k] [CharZero k]
-  [LieRing L] [LieAlgebra k L] [Module.Finite k L]
+variable
+  (k L M : Type*) [Field k] [CharZero k] [LieRing L] [LieAlgebra k L] [Module.Finite k L]
   [AddCommGroup M] [Module k M] [LieRingModule L M] [LieModule k L M] [Module.Finite k M]
   [IsIrreducible k L M] [IsFaithful k L M] [IsTriangularizable k L M]
 
@@ -65,7 +65,8 @@ lemma hasCentralRadical_and_of_isIrreducible_of_isFaithful :
       (toEnd k L M y).commute_id_right.lie_eq]
 
 theorem hasTrivialRadical_of_isIrreducible_of_isFaithful
-    (h : ∀ x, LinearMap.trace k _ (toEnd k L M x) = 0) : HasTrivialRadical k L := by
+    (h : ∀ x, LinearMap.trace k _ (toEnd k L M x) = 0)
+    : HasTrivialRadical k L := by
   have : finrank k M ≠ 0 := (finrank_pos_iff.mpr <| nontrivial_of_isIrreducible k L M).ne'
   obtain ⟨_i, h'⟩ := hasCentralRadical_and_of_isIrreducible_of_isFaithful k L M
   rw [hasTrivialRadical_iff, (hasCentralRadical_iff k L).mp inferInstance, LieSubmodule.eq_bot_iff]

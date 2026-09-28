@@ -42,15 +42,19 @@ section ruzsaSzemerediNumber
 variable [DecidableEq α] [DecidableEq β] [Fintype α] [Fintype β] {G : SimpleGraph α}
 
 variable (α) in
-/-- The **Ruzsa-Szemerédi number** of a fintype is the maximum number of edges a locally linear
+/--
+The **Ruzsa-Szemerédi number** of a fintype is the maximum number of edges a locally linear
 graph on that type can have.
 
 In other words, `ruzsaSzemerediNumber α` is the maximum number of edges a graph on `α` can have such
-that each edge belongs to exactly one triangle. -/
+that each edge belongs to exactly one triangle.
+-/
 noncomputable def ruzsaSzemerediNumber : ℕ := by
   classical
-  exact Nat.findGreatest (fun m ↦ ∃ (G : SimpleGraph α) (_ : DecidableRel G.Adj),
-    #(G.cliqueFinset 3) = m ∧ G.LocallyLinear) ((card α).choose 3)
+  exact Nat.findGreatest
+    (fun m ↦
+      ∃ (G : SimpleGraph α) (_ : DecidableRel G.Adj), #(G.cliqueFinset 3) = m ∧ G.LocallyLinear)
+    ((card α).choose 3)
 
 lemma ruzsaSzemerediNumber_le : ruzsaSzemerediNumber α ≤ (card α).choose 3 := by
   classical
@@ -83,11 +87,13 @@ lemma ruzsaSzemerediNumber_mono (f : α ↪ β) : ruzsaSzemerediNumber α ≤ ru
 lemma ruzsaSzemerediNumber_congr (e : α ≃ β) : ruzsaSzemerediNumber α = ruzsaSzemerediNumber β :=
   (ruzsaSzemerediNumber_mono (e : α ↪ β)).antisymm <| ruzsaSzemerediNumber_mono e.symm
 
-/-- The `n`-th **Ruzsa-Szemerédi number** is the maximum number of edges a locally linear graph on
+/--
+The `n`-th **Ruzsa-Szemerédi number** is the maximum number of edges a locally linear graph on
 `n` vertices can have.
 
 In other words, `ruzsaSzemerediNumberNat n` is the maximum number of edges a graph on `n` vertices
-can have such that each edge belongs to exactly one triangle. -/
+can have such that each edge belongs to exactly one triangle.
+-/
 noncomputable def ruzsaSzemerediNumberNat (n : ℕ) : ℕ := ruzsaSzemerediNumber (Fin n)
 
 @[simp]
@@ -119,13 +125,15 @@ variable [Fintype α] [CommRing α] {s : Finset α} {x : α × α × α}
 
 /-- The triangle indices for the Ruzsa-Szemerédi construction. -/
 private def triangleIndices (s : Finset α) : Finset (α × α × α) :=
-  (univ ×ˢ s).map
-    ⟨fun xa ↦ (xa.1, xa.1 + xa.2, xa.1 + 2 * xa.2), by
+  (univ ×ˢ s).map ⟨
+    fun xa ↦ (xa.1, xa.1 + xa.2, xa.1 + 2 * xa.2),
+    by
       rintro ⟨x, a⟩ ⟨y, b⟩ h
       simp only [Prod.ext_iff] at h
       obtain rfl := h.1
       obtain rfl := add_right_injective _ h.2.1
-      rfl⟩
+      rfl
+  ⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -199,16 +207,20 @@ lemma rothNumberNat_le_ruzsaSzemerediNumberNat (n : ℕ) :
       simp_rw [← ruzsaSzemerediNumberNat_card, Fintype.card_sum, α, Fintype.card_fin]
       ring_nf
 
-/-- Lower bound on the **Ruzsa-Szemerédi problem** in terms of 3AP-free sets.
+/--
+Lower bound on the **Ruzsa-Szemerédi problem** in terms of 3AP-free sets.
 
 If there exists a 3AP-free subset of `[1, ..., (n - 3) / 6]` of size `m`, then there exists a graph
 with `n` vertices and `(n / 3 - 2) * m` edges such that each edge belongs to exactly one triangle.
 -/
-theorem rothNumberNat_le_ruzsaSzemerediNumberNat' :
-    ∀ n : ℕ, (n / 3 - 2 : ℝ) * rothNumberNat ((n - 3) / 6) ≤ ruzsaSzemerediNumberNat n
-  | 0 => by simp
-  | 1 => by simp
-  | 2 => by simp
+theorem rothNumberNat_le_ruzsaSzemerediNumberNat'
+    : ∀ n : ℕ, (n / 3 - 2 : ℝ) * rothNumberNat ((n - 3) / 6) ≤ ruzsaSzemerediNumberNat n
+  | 0 => by
+    simp
+  | 1 => by
+    simp
+  | 2 => by
+    simp
   | n + 3 => by
     calc
       _ ≤ (↑(2 * (n / 6) + 1) : ℝ) * rothNumberNat (n / 6) :=
@@ -216,38 +228,43 @@ theorem rothNumberNat_le_ruzsaSzemerediNumberNat' :
       _ ≤ (ruzsaSzemerediNumberNat (6 * (n / 6) + 3) : ℝ) := ?_
       _ ≤ _ := by grw [Nat.mul_div_le]
     · simp only [cast_add, cast_ofNat, cast_mul, cast_one, tsub_le_iff_right]
-      rw [← div_add_one (three_ne_zero' ℝ), ← le_sub_iff_add_le, div_le_iff₀ (zero_lt_three' ℝ),
-        add_assoc, add_sub_assoc, add_mul, mul_right_comm, add_sub_cancel_left]
+      rw [
+        ← div_add_one (three_ne_zero' ℝ), ← le_sub_iff_add_le, div_le_iff₀ (zero_lt_three' ℝ),
+        add_assoc, add_sub_assoc, add_mul, mul_right_comm, add_sub_cancel_left
+      ]
       norm_cast
       rw [← mul_add_one]
       exact (Nat.lt_mul_div_succ _ <| by simp).le
     · norm_cast
       exact rothNumberNat_le_ruzsaSzemerediNumberNat _
 
-/-- Explicit lower bound on the **Ruzsa-Szemerédi problem**.
+/--
+Explicit lower bound on the **Ruzsa-Szemerédi problem**.
 
 There exists a graph with `n` vertices and
 `(n / 3 - 2) * (n - 3) / 6 * exp (-4 * √(log ((n - 3) / 6)))` edges such that each edge belongs
-to exactly one triangle. -/
-theorem ruzsaSzemerediNumberNat_lower_bound (n : ℕ) :
-    (n / 3 - 2 : ℝ) * ↑((n - 3) / 6) * exp (-4 * √(log ↑((n - 3) / 6))) ≤
-      ruzsaSzemerediNumberNat n := by
+to exactly one triangle.
+-/
+theorem ruzsaSzemerediNumberNat_lower_bound (n : ℕ)
+    : (n / 3 - 2 : ℝ) * ↑((n - 3) / 6) * exp (-4 * √(log ↑((n - 3) / 6)))
+      ≤ ruzsaSzemerediNumberNat n := by
   rw [mul_assoc]
   obtain hn | hn := le_total (n / 3 - 2 : ℝ) 0
   · exact (mul_nonpos_of_nonpos_of_nonneg hn <| by positivity).trans (Nat.cast_nonneg _)
-  exact
-    (mul_le_mul_of_nonneg_left Behrend.roth_lower_bound hn).trans
-      (rothNumberNat_le_ruzsaSzemerediNumberNat' _)
+  exact (mul_le_mul_of_nonneg_left Behrend.roth_lower_bound hn).trans
+    (rothNumberNat_le_ruzsaSzemerediNumberNat' _)
 
 open Asymptotics Filter
 
-/-- Asymptotic lower bound on the **Ruzsa-Szemerédi problem**.
+/--
+Asymptotic lower bound on the **Ruzsa-Szemerédi problem**.
 
 There exists a graph with `n` vertices and `Ω((n ^ 2 * exp (-4 * √(log n))))` edges such that
-each edge belongs to exactly one triangle. -/
-theorem ruzsaSzemerediNumberNat_asymptotic_lower_bound :
-    (fun n ↦ n ^ 2 * exp (-4 * √(log n)) : ℕ → ℝ) =O[atTop]
-     fun n ↦ (ruzsaSzemerediNumberNat n : ℝ) := by
+each edge belongs to exactly one triangle.
+-/
+theorem ruzsaSzemerediNumberNat_asymptotic_lower_bound
+    : (fun n ↦ n ^ 2 * exp (-4 * √(log n)) : ℕ → ℝ) =O[atTop]
+       fun n ↦ (ruzsaSzemerediNumberNat n : ℝ) := by
   trans fun n ↦ (n / 3 - 2) * ↑((n - 3) / 6) * exp (-4 * √(log ↑((n - 3) / 6)))
   · simp_rw [sq]
     refine (IsBigO.mul ?_ ?_).mul ?_
@@ -263,8 +280,10 @@ theorem ruzsaSzemerediNumberNat_asymptotic_lower_bound :
       exact ⟨15, fun x hx ↦ by norm_cast; lia⟩
     · rw [isBigO_exp_comp_exp_comp]
       refine ⟨0, ?_⟩
-      simp only [neg_mul, eventually_map, Pi.sub_apply, sub_neg_eq_add, neg_add_le_iff_le_add,
-        add_zero, eventually_atTop]
+      simp only [
+        neg_mul, eventually_map, Pi.sub_apply, sub_neg_eq_add, neg_add_le_iff_le_add, add_zero,
+        eventually_atTop
+      ]
       refine ⟨9, fun x hx ↦ ?_⟩
       gcongr
       · simp

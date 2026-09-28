@@ -73,20 +73,26 @@ attribute [instance] commRing domain valuationRing field algebra isFractionRing
 
 end ValuativeCommSq
 
-/-- A morphism `f : X ⟶ Y` satisfies the existence part of the valuative criterion if
-every valuative commutative square over `f` has (at least) a lift. -/
-def ValuativeCriterion.Existence : MorphismProperty Scheme :=
-  fun _ _ f ↦ ∀ S : ValuativeCommSq f, S.commSq.HasLift
+/--
+A morphism `f : X ⟶ Y` satisfies the existence part of the valuative criterion if
+every valuative commutative square over `f` has (at least) a lift.
+-/
+def ValuativeCriterion.Existence : MorphismProperty Scheme := fun _ _ f ↦
+  ∀ S : ValuativeCommSq f, S.commSq.HasLift
 
-/-- A morphism `f : X ⟶ Y` satisfies the uniqueness part of the valuative criterion if
-every valuative commutative square over `f` has at most one lift. -/
-def ValuativeCriterion.Uniqueness : MorphismProperty Scheme :=
-  fun _ _ f ↦ ∀ S : ValuativeCommSq f, Subsingleton S.commSq.LiftStruct
+/--
+A morphism `f : X ⟶ Y` satisfies the uniqueness part of the valuative criterion if
+every valuative commutative square over `f` has at most one lift.
+-/
+def ValuativeCriterion.Uniqueness : MorphismProperty Scheme := fun _ _ f ↦
+  ∀ S : ValuativeCommSq f, Subsingleton S.commSq.LiftStruct
 
-/-- A morphism `f : X ⟶ Y` satisfies the valuative criterion if
-every valuative commutative square over `f` has a unique lift. -/
-def ValuativeCriterion : MorphismProperty Scheme :=
-  fun _ _ f ↦ ∀ S : ValuativeCommSq f, Nonempty (Unique (S.commSq.LiftStruct))
+/--
+A morphism `f : X ⟶ Y` satisfies the valuative criterion if
+every valuative commutative square over `f` has a unique lift.
+-/
+def ValuativeCriterion : MorphismProperty Scheme := fun _ _ f ↦
+  ∀ S : ValuativeCommSq f, Nonempty (Unique (S.commSq.LiftStruct))
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
@@ -138,8 +144,7 @@ lemma specializingMap (H : ValuativeCriterion.Existence f) :
       comap_closedPoint (S := A) (stalk_y_to_residue_x'.hom.codRestrict A.toSubring hA)
     rw [this, Y.fromSpecStalk_closedPoint]
 
-instance {R S : CommRingCat} (e : R ≅ S) : IsLocalHom e.hom.hom :=
-  isLocalHom_of_isIso _
+instance {R S : CommRingCat} (e : R ≅ S) : IsLocalHom e.hom.hom := isLocalHom_of_isIso _
 
 set_option backward.isDefEq.respectTransparency false in
 lemma of_specializingMap (H : (topologically @SpecializingMap).universally f) :
@@ -199,12 +204,13 @@ lemma of_specializingMap (H : (topologically @SpecializingMap).universally f) :
 instance stableUnderBaseChange : ValuativeCriterion.Existence.IsStableUnderBaseChange := by
   constructor
   intro Y' X X' Y Y'_to_Y f X'_to_X f' hP hf commSq
-  let commSq' : ValuativeCommSq f :=
-  { R := commSq.R
+  let commSq' : ValuativeCommSq f := {
+    R := commSq.R
     K := commSq.K
     i₁ := commSq.i₁ ≫ X'_to_X
     i₂ := commSq.i₂ ≫ Y'_to_Y
-    commSq := ⟨by simp only [Category.assoc, hP.w, reassoc_of% commSq.commSq.w]⟩ }
+    commSq := ⟨by simp only [Category.assoc, hP.w, reassoc_of% commSq.commSq.w]⟩
+  }
   obtain ⟨l₀, hl₁, hl₂⟩ := (hf commSq').exists_lift
   refine ⟨⟨⟨hP.lift l₀ commSq.i₂ (by simp_all only [commSq']), ?_, hP.lift_snd _ _ _⟩⟩⟩
   apply hP.hom_ext

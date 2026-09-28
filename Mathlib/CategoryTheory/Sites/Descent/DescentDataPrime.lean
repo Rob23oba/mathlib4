@@ -32,9 +32,10 @@ namespace Pseudofunctor
 
 open LocallyDiscreteOpToCat
 
-variable {C : Type u} [Category.{v} C] (F : Pseudofunctor (LocallyDiscrete Cᵒᵖ) Cat.{v', u'})
-  {ι : Type t} {S : C} {X : ι → C} {f : ∀ i, X i ⟶ S}
-  (sq : ∀ i j, ChosenPullback (f i) (f j))
+variable
+  {C : Type u} [Category.{v} C]
+  (F : Pseudofunctor (LocallyDiscrete Cᵒᵖ) Cat.{v', u'})
+  {ι : Type t} {S : C} {X : ι → C} {f : ∀ i, X i ⟶ S} (sq : ∀ i j, ChosenPullback (f i) (f j))
   (sq₃ : ∀ (i₁ i₂ i₃ : ι), ChosenPullback₃ (sq i₁ i₂) (sq i₂ i₃) (sq i₁ i₃))
 
 namespace DescentData'
@@ -43,15 +44,21 @@ variable {F sq}
 
 section
 
-variable {obj obj' : ∀ (i : ι), F.obj (.mk (op (X i)))}
-  (hom : ∀ (i j : ι), (F.map (sq i j).p₁.op.toLoc).toFunctor.obj (obj i) ⟶
-    (F.map (sq i j).p₂.op.toLoc).toFunctor.obj (obj' j))
+variable
+  {obj obj' : ∀ (i : ι), F.obj (.mk (op (X i)))}
+  (hom : ∀ (i j : ι),
+    (F.map (sq i j).p₁.op.toLoc).toFunctor.obj (obj i)
+      ⟶ (F.map (sq i j).p₂.op.toLoc).toFunctor.obj (obj' j))
 
-/-- Variant of `Pseudofunctor.LocallyDiscreteOpToCat.pullHom` when we have
-chosen pullbacks. -/
-noncomputable def pullHom' ⦃Y : C⦄ (q : Y ⟶ S) ⦃i₁ i₂ : ι⦄ (f₁ : Y ⟶ X i₁) (f₂ : Y ⟶ X i₂)
-    (hf₁ : f₁ ≫ f i₁ = q := by cat_disch) (hf₂ : f₂ ≫ f i₂ = q := by cat_disch) :
-    (F.map f₁.op.toLoc).toFunctor.obj (obj i₁) ⟶ (F.map f₂.op.toLoc).toFunctor.obj (obj' i₂) :=
+/--
+Variant of `Pseudofunctor.LocallyDiscreteOpToCat.pullHom` when we have
+chosen pullbacks.
+-/
+noncomputable def pullHom'
+    ⦃Y : C⦄ (q : Y ⟶ S)
+    ⦃i₁ i₂ : ι⦄ (f₁ : Y ⟶ X i₁) (f₂ : Y ⟶ X i₂)
+    (hf₁ : f₁ ≫ f i₁ = q := by cat_disch) (hf₂ : f₂ ≫ f i₂ = q := by cat_disch)
+    : (F.map f₁.op.toLoc).toFunctor.obj (obj i₁) ⟶ (F.map f₂.op.toLoc).toFunctor.obj (obj' i₂) :=
   pullHom (hom i₁ i₂) ((sq i₁ i₂).isPullback.lift f₁ f₂ (by cat_disch)) f₁ f₂
 
 @[reassoc]
@@ -107,9 +114,11 @@ end
 
 section
 
-variable {obj : ∀ (i : ι), F.obj (.mk (op (X i)))}
-  (hom : ∀ (i j : ι), (F.map (sq i j).p₁.op.toLoc).toFunctor.obj (obj i) ⟶
-    (F.map (sq i j).p₂.op.toLoc).toFunctor.obj (obj j))
+variable
+  {obj : ∀ (i : ι), F.obj (.mk (op (X i)))}
+  (hom : ∀ (i j : ι),
+    (F.map (sq i j).p₁.op.toLoc).toFunctor.obj (obj i)
+      ⟶ (F.map (sq i j).p₂.op.toLoc).toFunctor.obj (obj j))
 
 @[simp]
 lemma pullHom'_p₁_p₂ (i₁ i₂ : ι) :
@@ -144,24 +153,30 @@ end
 end DescentData'
 
 open DescentData' in
-/-- Given a pseudofunctor `F` from `LocallyDiscrete Cᵒᵖ` to `Cat`, a family of
+/--
+Given a pseudofunctor `F` from `LocallyDiscrete Cᵒᵖ` to `Cat`, a family of
 morphisms `f i : X i ⟶ S`, chosen pullbacks `sq i j` of `f i` and `f j` for all `i` and `j`,
 and chosen threefold wide pullbacks `sq₃`, this structure contains a description
 of objects over the `X i` equipped with a descent data relative to the morphisms `f i`,
-where the (iso)morphisms are compatibilities are considered over the chosen pullbacks. -/
+where the (iso)morphisms are compatibilities are considered over the chosen pullbacks.
+-/
 structure DescentData' where
   /-- The objects over `X i` for all `i` -/
   obj (i : ι) : F.obj (.mk (op (X i)))
-  /-- The compatibility morphisms after pulling back to the chosen pullbacks. It follows
+  /--
+  The compatibility morphisms after pulling back to the chosen pullbacks. It follows
   from the conditions `pullHom'_hom_self` and `pullHom'_hom_comp` that these morphisms
-  are isomorphisms. -/
-  hom : ∀ (i j : ι), (F.map (sq i j).p₁.op.toLoc).toFunctor.obj (obj i) ⟶
-    (F.map (sq i j).p₂.op.toLoc).toFunctor.obj (obj j)
+  are isomorphisms.
+  -/
+  hom
+    : ∀ (i j : ι),
+      (F.map (sq i j).p₁.op.toLoc).toFunctor.obj (obj i)
+        ⟶ (F.map (sq i j).p₂.op.toLoc).toFunctor.obj (obj j)
   pullHom'_hom_self : ∀ i, pullHom' hom (f i) (𝟙 (X i)) (𝟙 (X i)) = 𝟙 _
-  pullHom'_hom_comp (i₁ i₂ i₃ : ι) :
-    pullHom' hom (sq₃ i₁ i₂ i₃).p (sq₃ i₁ i₂ i₃).p₁ (sq₃ i₁ i₂ i₃).p₂ ≫
-    pullHom' hom (sq₃ i₁ i₂ i₃).p (sq₃ i₁ i₂ i₃).p₂ (sq₃ i₁ i₂ i₃).p₃ =
-    pullHom' hom (sq₃ i₁ i₂ i₃).p (sq₃ i₁ i₂ i₃).p₁ (sq₃ i₁ i₂ i₃).p₃
+  pullHom'_hom_comp (i₁ i₂ i₃ : ι)
+    : pullHom' hom (sq₃ i₁ i₂ i₃).p (sq₃ i₁ i₂ i₃).p₁ (sq₃ i₁ i₂ i₃).p₂
+        ≫ pullHom' hom (sq₃ i₁ i₂ i₃).p (sq₃ i₁ i₂ i₃).p₂ (sq₃ i₁ i₂ i₃).p₃
+      = pullHom' hom (sq₃ i₁ i₂ i₃).p (sq₃ i₁ i₂ i₃).p₁ (sq₃ i₁ i₂ i₃).p₃
 
 namespace DescentData'
 
@@ -184,19 +199,18 @@ lemma comp_pullHom' (D : F.DescentData' sq sq₃)
       pullHom' D.hom q f₁ f₃ hf₁ hf₃ :=
   comp_pullHom'' _ D.pullHom'_hom_comp _ _ _ _ hf₁ hf₂ hf₃
 
-instance (D : F.DescentData' sq sq₃)
-    {Y : C} (q : Y ⟶ S) (i₁ i₂ : ι) (f₁ : Y ⟶ X i₁)
-    (f₂ : Y ⟶ X i₂) (hf₁ : f₁ ≫ f i₁ = q)
-    (hf₂ : f₂ ≫ f i₂ = q) :
-    IsIso (pullHom' D.hom q f₁ f₂ hf₁ hf₂) :=
+instance
+    (D : F.DescentData' sq sq₃)
+    {Y : C} (q : Y ⟶ S)
+    (i₁ i₂ : ι) (f₁ : Y ⟶ X i₁) (f₂ : Y ⟶ X i₂) (hf₁ : f₁ ≫ f i₁ = q) (hf₂ : f₂ ≫ f i₂ = q)
+    : IsIso (pullHom' D.hom q f₁ f₂ hf₁ hf₂) :=
   ⟨pullHom' D.hom q f₂ f₁ hf₂ hf₁, by simp, by simp⟩
 
 lemma pullHom'_eq_hom (D : F.DescentData' sq sq₃) (i₁ i₂ : ι) :
     pullHom' D.hom _ _ _ (by simp) = D.hom i₁ i₂ := by
   simp
 
-instance (D : F.DescentData' sq sq₃) (i₁ i₂ : ι) :
-    IsIso (D.hom i₁ i₂) := by
+instance (D : F.DescentData' sq sq₃) (i₁ i₂ : ι) : IsIso (D.hom i₁ i₂) := by
   simpa using (inferInstance : IsIso (pullHom' D.hom (sq i₁ i₂).p (sq i₁ i₂).p₁ (sq i₁ i₂).p₂))
 
 /-- The type of morphisms in the category `F.DescentData' sq sq₃`. -/
@@ -204,9 +218,10 @@ instance (D : F.DescentData' sq sq₃) (i₁ i₂ : ι) :
 structure Hom (D₁ D₂ : F.DescentData' sq sq₃) where
   /-- The morphisms between the `obj` fields of descent data. -/
   hom (i : ι) : D₁.obj i ⟶ D₂.obj i
-  comm (i₁ i₂ : ι) :
-    (F.map (sq i₁ i₂).p₁.op.toLoc).toFunctor.map (hom i₁) ≫ D₂.hom i₁ i₂ =
-    D₁.hom i₁ i₂ ≫ (F.map (sq i₁ i₂).p₂.op.toLoc).toFunctor.map (hom i₂) := by cat_disch
+  comm (i₁ i₂ : ι)
+      : (F.map (sq i₁ i₂).p₁.op.toLoc).toFunctor.map (hom i₁) ≫ D₂.hom i₁ i₂
+        = D₁.hom i₁ i₂ ≫ (F.map (sq i₁ i₂).p₂.op.toLoc).toFunctor.map (hom i₂) := by
+    cat_disch
 
 attribute [reassoc (attr := simp)] Hom.comm
 
@@ -243,26 +258,29 @@ lemma comm {D₁ D₂ : F.DescentData' sq sq₃} (φ : D₁ ⟶ D₂)
 
 /-- Constructor for isomorphisms in the category `F.DescentData' sq sq₃`. -/
 @[simps]
-def isoMk {D₁ D₂ : F.DescentData' sq sq₃} (e : ∀ (i : ι), D₁.obj i ≅ D₂.obj i)
-    (comm : ∀ (i₁ i₂ : ι), (F.map (sq i₁ i₂).p₁.op.toLoc).toFunctor.map (e i₁).hom ≫ D₂.hom i₁ i₂ =
-      D₁.hom i₁ i₂ ≫ (F.map (sq i₁ i₂).p₂.op.toLoc).toFunctor.map (e i₂).hom := by cat_disch) :
-    D₁ ≅ D₂ where
+def isoMk
+    {D₁ D₂ : F.DescentData' sq sq₃} (e : ∀ (i : ι), D₁.obj i ≅ D₂.obj i)
+    (comm : ∀ (i₁ i₂ : ι),
+        (F.map (sq i₁ i₂).p₁.op.toLoc).toFunctor.map (e i₁).hom ≫ D₂.hom i₁ i₂
+          = D₁.hom i₁ i₂ ≫ (F.map (sq i₁ i₂).p₂.op.toLoc).toFunctor.map (e i₂).hom := by
+      cat_disch)
+    : D₁ ≅ D₂ where
   hom.hom i := (e i).hom
   hom.comm := comm
   inv.hom i := (e i).inv
   inv.comm i₁ i₂ := by
-    rw [← cancel_mono ((F.map _).toFunctor.map (e i₂).hom), Category.assoc,
-      Category.assoc, Iso.inv_hom_id_map, Category.comp_id,
-      ← cancel_epi ((F.map _).toFunctor.map (e i₁).hom),
-      Iso.hom_inv_id_map_assoc, comm i₁ i₂]
+    rw [
+      ← cancel_mono ((F.map _).toFunctor.map (e i₂).hom), Category.assoc, Category.assoc,
+      Iso.inv_hom_id_map, Category.comp_id, ← cancel_epi ((F.map _).toFunctor.map (e i₁).hom),
+      Iso.hom_inv_id_map_assoc, comm i₁ i₂
+    ]
 
 /-- The functor `toDescentDataFunctor : F.DescentData' sq sq₃ ⥤ F.DescentData f`, on objects. -/
 @[simps]
 noncomputable def descentData (D : F.DescentData' sq sq₃) : F.DescentData f where
   obj := D.obj
   hom _ _ _ _ _ _ _ _ := pullHom' D.hom _ _ _
-  pullHom_hom _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ :=
-    pullHom_pullHom' _ _ _ _ _ _ _ _
+  pullHom_hom _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ := pullHom_pullHom' _ _ _ _ _ _ _ _
 
 variable (sq sq₃) in
 /-- The functor `fromDescentDataFunctor : F.DescentData f ⥤ F.DescentData' sq sq₃`, on objects. -/
@@ -276,11 +294,12 @@ def ofDescentData (D : F.DescentData f) : F.DescentData' sq sq₃ where
     rw [pullHom'_eq_pullHom _ _ _ _ p, D.pullHom_hom _ _ (f i), D.hom_self (f i) (𝟙 _)]
     all_goals cat_disch
   pullHom'_hom_comp i₁ i₂ i₃ := by
-    rw [pullHom'_eq_pullHom _ _ _ _ (sq₃ i₁ i₂ i₃).p₁₂,
+    rw [
+      pullHom'_eq_pullHom _ _ _ _ (sq₃ i₁ i₂ i₃).p₁₂,
       pullHom'_eq_pullHom _ _ _ _ (sq₃ i₁ i₂ i₃).p₂₃,
-      pullHom'_eq_pullHom _ _ _ _ (sq₃ i₁ i₂ i₃).p₁₃,
-      D.pullHom_hom _ _ (sq₃ i₁ i₂ i₃).p, D.pullHom_hom _ _ (sq₃ i₁ i₂ i₃).p,
-      D.pullHom_hom _ _ (sq₃ i₁ i₂ i₃).p, D.hom_comp]
+      pullHom'_eq_pullHom _ _ _ _ (sq₃ i₁ i₂ i₃).p₁₃, D.pullHom_hom _ _ (sq₃ i₁ i₂ i₃).p,
+      D.pullHom_hom _ _ (sq₃ i₁ i₂ i₃).p, D.pullHom_hom _ _ (sq₃ i₁ i₂ i₃).p, D.hom_comp
+    ]
     all_goals cat_disch
 
 set_option backward.defeqAttrib.useBackward true in
@@ -302,9 +321,7 @@ variable (F sq sq₃)
 @[simps]
 noncomputable def toDescentDataFunctor : F.DescentData' sq sq₃ ⥤ F.DescentData f where
   obj D := D.descentData
-  map φ :=
-    { hom := φ.hom
-      comm := comm φ }
+  map φ := { hom := φ.hom, comm := comm φ }
 
 set_option backward.defeqAttrib.useBackward true in
 attribute [local simp] DescentData.Hom.comm in

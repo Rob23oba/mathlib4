@@ -27,24 +27,28 @@ respectively.
 open Function LinearMap
 
 namespace Submodule
-variable {R M N : Type*} [Ring R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  {R M N : Type*} [Ring R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
   {L : Submodule R (M × N)}
   (hL₁ : Surjective (Prod.fst ∘ L.subtype)) (hL₂ : Surjective (Prod.snd ∘ L.subtype))
 
 variable (L) in
-/-- For `L` a submodule of `M × N`, `L.goursatFst` is the kernel of the projection map `L → N`,
+/--
+For `L` a submodule of `M × N`, `L.goursatFst` is the kernel of the projection map `L → N`,
 considered as a submodule of `M`.
 
-This is the first submodule appearing in Goursat's lemma. See `Subgroup.goursat`. -/
+This is the first submodule appearing in Goursat's lemma. See `Subgroup.goursat`.
+-/
 def goursatFst : Submodule R M :=
   (LinearMap.ker <| (LinearMap.snd R M N).comp L.subtype).map ((LinearMap.fst R M N).comp L.subtype)
 
-
 variable (L) in
-/-- For `L` a subgroup of `M × N`, `L.goursatSnd` is the kernel of the projection map `L → M`,
+/--
+For `L` a subgroup of `M × N`, `L.goursatSnd` is the kernel of the projection map `L → M`,
 considered as a subgroup of `N`.
 
-This is the second subgroup appearing in Goursat's lemma. See `Subgroup.goursat`. -/
+This is the second subgroup appearing in Goursat's lemma. See `Subgroup.goursat`.
+-/
 def goursatSnd : Submodule R N :=
   (LinearMap.ker <| (LinearMap.fst R M N).comp L.subtype).map ((LinearMap.snd R M N).comp L.subtype)
 

@@ -20,7 +20,6 @@ Furthermore, we define the type classes `HasCofilteredLimitsOfSize` and `HasFilt
 
 public section
 
-
 universe w' w w₂' w₂ v u
 
 noncomputable section
@@ -35,13 +34,16 @@ section NonemptyLimit
 
 open CategoryTheory.Limits Opposite
 
-/-- `C` is filtered if and only if for every functor `F : J ⥤ C` from a finite category there is
-    some `X : C` such that `lim Hom(F·, X)` is nonempty.
+/--
+`C` is filtered if and only if for every functor `F : J ⥤ C` from a finite category there is
+some `X : C` such that `lim Hom(F·, X)` is nonempty.
 
-    Lemma 3.1.2 of [Kashiwara2006] -/
-theorem IsFiltered.iff_nonempty_limit : IsFiltered C ↔
-    ∀ {J : Type v} [SmallCategory J] [FinCategory J] (F : J ⥤ C),
-      ∃ (X : C), Nonempty (limit (F.op ⋙ yoneda.obj X)) := by
+Lemma 3.1.2 of [Kashiwara2006]
+-/
+theorem IsFiltered.iff_nonempty_limit
+    : IsFiltered C
+      ↔ ∀ {J : Type v} [SmallCategory J] [FinCategory J] (F : J ⥤ C), ∃ (X : C),
+        Nonempty (limit (F.op ⋙ yoneda.obj X)) := by
   rw [IsFiltered.iff_cocone_nonempty.{v}]
   refine ⟨fun h J _ _ F => ?_, fun h J _ _ F => ?_⟩
   · obtain ⟨c⟩ := h F
@@ -49,11 +51,14 @@ theorem IsFiltered.iff_nonempty_limit : IsFiltered C ↔
   · obtain ⟨pt, ⟨ι⟩⟩ := h F
     exact ⟨⟨pt, (limitCompYonedaIsoCocone F pt).hom ι⟩⟩
 
-/-- `C` is cofiltered if and only if for every functor `F : J ⥤ C` from a finite category there is
-    some `X : C` such that `lim Hom(X, F·)` is nonempty. -/
-theorem IsCofiltered.iff_nonempty_limit : IsCofiltered C ↔
-    ∀ {J : Type v} [SmallCategory J] [FinCategory J] (F : J ⥤ C),
-      ∃ (X : C), Nonempty (limit (F ⋙ coyoneda.obj (op X))) := by
+/--
+`C` is cofiltered if and only if for every functor `F : J ⥤ C` from a finite category there is
+some `X : C` such that `lim Hom(X, F·)` is nonempty.
+-/
+theorem IsCofiltered.iff_nonempty_limit
+    : IsCofiltered C
+      ↔ ∀ {J : Type v} [SmallCategory J] [FinCategory J] (F : J ⥤ C), ∃ (X : C),
+        Nonempty (limit (F ⋙ coyoneda.obj (op X))) := by
   rw [IsCofiltered.iff_cone_nonempty.{v}]
   refine ⟨fun h J _ _ F => ?_, fun h J _ _ F => ?_⟩
   · obtain ⟨c⟩ := h F
@@ -94,21 +99,22 @@ abbrev HasFilteredColimits := HasFilteredColimitsOfSize.{v, v} C
 end
 
 instance (priority := 100) hasFilteredColimitsOfSize_of_hasColimitsOfSize
-    [HasColimitsOfSize.{w', w} C] : HasFilteredColimitsOfSize.{w', w} C where
+    [HasColimitsOfSize.{w', w} C]
+    : HasFilteredColimitsOfSize.{w', w} C where
   HasColimitsOfShape _ _ _ := inferInstance
 
-instance (priority := 100) hasCofilteredLimitsOfSize_of_hasLimitsOfSize
-    [HasLimitsOfSize.{w', w} C] : HasCofilteredLimitsOfSize.{w', w} C where
+instance (priority := 100) hasCofilteredLimitsOfSize_of_hasLimitsOfSize [HasLimitsOfSize.{w', w} C]
+    : HasCofilteredLimitsOfSize.{w', w} C where
   HasLimitsOfShape _ _ _ := inferInstance
 
 instance (priority := 100) hasLimitsOfShape_of_has_cofiltered_limits
-    [HasCofilteredLimitsOfSize.{w', w} C] (I : Type w) [Category.{w'} I] [IsCofiltered I] :
-    HasLimitsOfShape I C :=
+    [HasCofilteredLimitsOfSize.{w', w} C] (I : Type w) [Category.{w'} I] [IsCofiltered I]
+    : HasLimitsOfShape I C :=
   HasCofilteredLimitsOfSize.HasLimitsOfShape _
 
 instance (priority := 100) hasColimitsOfShape_of_has_filtered_colimits
-    [HasFilteredColimitsOfSize.{w', w} C] (I : Type w) [Category.{w'} I] [IsFiltered I] :
-    HasColimitsOfShape I C :=
+    [HasFilteredColimitsOfSize.{w', w} C] (I : Type w) [Category.{w'} I] [IsFiltered I]
+    : HasColimitsOfShape I C :=
   HasFilteredColimitsOfSize.HasColimitsOfShape _
 
 lemma hasCofilteredLimitsOfSize_of_univLE [UnivLE.{w, w₂}] [UnivLE.{w', w₂'}]

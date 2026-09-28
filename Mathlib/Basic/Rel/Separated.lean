@@ -33,8 +33,10 @@ open Set
 namespace SetRel
 variable {X : Type*} {R S : SetRel X X} {s t : Set X} {x : X}
 
-/-- Given a relation `R`, a set `s` is `R`-separated if its elements are pairwise `R`-unrelated from
-each other. -/
+/--
+Given a relation `R`, a set `s` is `R`-separated if its elements are pairwise `R`-unrelated from
+each other.
+-/
 def IsSeparated (R : SetRel X X) (s : Set X) : Prop := s.Pairwise fun x y ↦ ¬ x ~[R] y
 
 protected lemma IsSeparated.empty : IsSeparated R (∅ : Set X) := pairwise_empty _

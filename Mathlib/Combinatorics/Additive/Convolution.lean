@@ -24,13 +24,15 @@ open scoped Pointwise RightActions
 namespace Finset
 variable {G : Type*} [Group G] [DecidableEq G] {A B : Finset G} {s x y : G}
 
-/-- Given finite subsets `A` and `B` of a group `G`, convolution of `A` and `B` is a map `G → ℕ`
+/--
+Given finite subsets `A` and `B` of a group `G`, convolution of `A` and `B` is a map `G → ℕ`
 that maps `x ∈ G` to the number of distinct representations of `x` in the form `x = ab`, where
-`a ∈ A`, `b ∈ B`. -/
+`a ∈ A`, `b ∈ B`.
+-/
 @[to_additive addConvolution /-- Given finite subsets `A` and `B` of an additive group `G`,
 convolution of `A` and `B` is a map `G → ℕ` that maps `x ∈ G` to the number of distinct
 representations of `x` in the form `x = a + b`, where `a ∈ A`, `b ∈ B`. -/]
-def convolution (A B : Finset G) : G → ℕ := fun x => #{ab ∈ A ×ˢ B | ab.1 * ab.2 = x}
+def convolution (A B : Finset G) : G → ℕ := fun x => # {ab ∈ A ×ˢ B | ab.1 * ab.2 = x}
 
 @[to_additive]
 lemma card_smul_inter_smul (A B : Finset G) (x y : G) :

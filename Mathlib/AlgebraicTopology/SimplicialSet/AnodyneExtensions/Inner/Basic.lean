@@ -37,15 +37,16 @@ namespace SSet
 
 open MorphismProperty
 
-/-- In the category of simplicial sets, an *inner* anodyne extension is a morphism
+/--
+In the category of simplicial sets, an *inner* anodyne extension is a morphism
 that has the left lifting property with respect to *inner* fibrations, where
 an inner fibration is a morphism that has the right lifting property with respect
-to inner horn inclusions. -/
+to inner horn inclusions.
+-/
 @[expose, kerodon 01BR]
 def innerAnodyneExtensions : MorphismProperty SSet.{u} := innerFibrations.llp
-deriving IsMultiplicative, RespectsIso, IsStableUnderCobaseChange,
-  IsStableUnderRetracts, IsStableUnderTransfiniteComposition,
-  IsStableUnderCoproducts
+deriving IsMultiplicative, RespectsIso, IsStableUnderCobaseChange, IsStableUnderRetracts,
+  IsStableUnderTransfiniteComposition, IsStableUnderCoproducts
 
 lemma innerAnodyneExtensions.of_isIso {X Y : SSet.{u}} (f : X ⟶ Y) [IsIso f] :
     innerAnodyneExtensions f :=
@@ -66,13 +67,11 @@ lemma innerAnodyneExtensions_le : innerAnodyneExtensions ≤ anodyneExtensions.{
     rlp_llp_rlp]
   exact antitone_rlp innerHornInclusions_le_J
 
-attribute [local instance] Cardinal.fact_isRegular_aleph0
-  Cardinal.orderBotAleph0OrdToType
+attribute [local instance] Cardinal.fact_isRegular_aleph0 Cardinal.orderBotAleph0OrdToType
 
 instance : MorphismProperty.IsSmall.{u} innerHornInclusions.{u} := by
   rw [innerHornInclusions_eq_iSup]
-  have (n : ℕ) : MorphismProperty.IsSmall.{u}
-    (MorphismProperty.ofHoms.{u}
+  have (n : ℕ) : MorphismProperty.IsSmall.{u} (MorphismProperty.ofHoms.{u}
       fun p : {p : Fin (n + 3) // 0 < p ∧ p < Fin.last (n + 2)} ↦ Λ[n + 2, p].ι) :=
     isSmall_ofHoms ..
   exact isSmall_iSup _
@@ -99,14 +98,16 @@ lemma innerAnodyneExtensions_eq_retracts_transfiniteCompositionsOfShape :
   rw [innerAnodyneExtensions_eq_llp_rlp,
     SmallObject.llp_rlp_of_isCardinalForSmallObjectArgument_aleph0]
 
-/-- In the category of simplicial sets, a strong *inner* anodyne extension is a morphism
+/--
+In the category of simplicial sets, a strong *inner* anodyne extension is a morphism
 which belongs to the closure of *inner* horn inclusions by pushouts, coproducts,
 transfinite compositions (but not by retracts). We define this class here
 by saying that `f : X ⟶ Y` is a strong inner anodyne extension if `f` is a monomorphism
 and there exists a regular, *inner* pairing (in the sense of Moss) for the subcomplex
-`Subcomplex.range f` of `Y`. -/
-def strongInnerAnodyneExtensions : MorphismProperty SSet.{u} :=
-  fun _ _ f ↦ Mono f ∧ ∃ (P : (Subcomplex.range f).Pairing) (_ : P.IsRegular), P.IsInner
+`Subcomplex.range f` of `Y`.
+-/
+def strongInnerAnodyneExtensions : MorphismProperty SSet.{u} := fun _ _ f ↦
+  Mono f ∧ ∃ (P : (Subcomplex.range f).Pairing) (_ : P.IsRegular), P.IsInner
 
 lemma strongInnerAnodyneExtensions.mono {X Y : SSet.{u}} {f : X ⟶ Y}
     (hf : strongInnerAnodyneExtensions f) : Mono f := hf.1

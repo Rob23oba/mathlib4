@@ -11,7 +11,6 @@ public import Mathlib.Analysis.InnerProductSpace.Defs
 public import Mathlib.MeasureTheory.Function.L1Space.Integrable
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.Tactic.MoveAdd
-
 import Mathlib.Analysis.Calculus.ContDiff.Bounds
 import Mathlib.Analysis.InnerProductSpace.Calculus
 import Mathlib.Analysis.SpecialFunctions.JapaneseBracket
@@ -34,13 +33,16 @@ namespace Function
 variable [NormedAddCommGroup E] [NormedSpace ℝ E]
 variable [NormedAddCommGroup F] [NormedSpace ℝ F]
 
-/-- A function is called of temperate growth if it is smooth and all iterated derivatives are
-polynomially bounded. -/
+/--
+A function is called of temperate growth if it is smooth and all iterated derivatives are
+polynomially bounded.
+-/
 @[fun_prop]
 def HasTemperateGrowth (f : E → F) : Prop :=
   ContDiff ℝ ∞ f ∧ ∀ n : ℕ, ∃ (k : ℕ) (C : ℝ), ∀ x, ‖iteratedFDeriv ℝ n f x‖ ≤ C * (1 + ‖x‖) ^ k
 
-/-- A function has temperate growth if and only if it is smooth and its `n`-th iterated
+/--
+A function has temperate growth if and only if it is smooth and its `n`-th iterated
 derivative is `O((1 + ‖x‖) ^ k)` for some `k : ℕ` (depending on `n`).
 
 Note that the `O` here is with respect to the `⊤` filter, meaning that the bound holds everywhere.
@@ -48,31 +50,31 @@ Note that the `O` here is with respect to the `⊤` filter, meaning that the bou
 TODO: when `E` is finite dimensional, this is equivalent to the derivatives being `O(‖x‖ ^ k)`
 as `‖x‖ → ∞`.
 -/
-theorem hasTemperateGrowth_iff_isBigO {f : E → F} :
-    f.HasTemperateGrowth ↔ ContDiff ℝ ∞ f ∧
-      ∀ n, ∃ k, iteratedFDeriv ℝ n f =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) := by
+theorem hasTemperateGrowth_iff_isBigO {f : E → F}
+    : f.HasTemperateGrowth
+      ↔ ContDiff ℝ ∞ f ∧ ∀ n, ∃ k, iteratedFDeriv ℝ n f =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) := by
   simp_rw [Asymptotics.isBigO_top]
   congrm ContDiff ℝ ∞ f ∧ (∀ n, ∃ k C, ∀ x, _ ≤ C * ?_)
   rw [norm_pow, Real.norm_of_nonneg (by positivity)]
 
-/-- If `f` has temperate growth, then its `n`-th iterated derivative is `O((1 + ‖x‖) ^ k)` for
+/--
+If `f` has temperate growth, then its `n`-th iterated derivative is `O((1 + ‖x‖) ^ k)` for
 some `k : ℕ` (depending on `n`).
 
 Note that the `O` here is with respect to the `⊤` filter, meaning that the bound holds everywhere.
 -/
-theorem HasTemperateGrowth.isBigO {f : E → F}
-    (hf_temperate : f.HasTemperateGrowth) (n : ℕ) :
-    ∃ k, iteratedFDeriv ℝ n f =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) :=
+theorem HasTemperateGrowth.isBigO {f : E → F} (hf_temperate : f.HasTemperateGrowth) (n : ℕ)
+    : ∃ k, iteratedFDeriv ℝ n f =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) :=
   Function.hasTemperateGrowth_iff_isBigO.mp hf_temperate |>.2 n
 
-/-- If `f` has temperate growth, then for any `N : ℕ` one can find `k` such that *all* iterated
+/--
+If `f` has temperate growth, then for any `N : ℕ` one can find `k` such that *all* iterated
 derivatives of `f` of order `≤ N` are `O((1 + ‖x‖) ^ k)`.
 
 Note that the `O` here is with respect to the `⊤` filter, meaning that the bound holds everywhere.
 -/
-theorem HasTemperateGrowth.isBigO_uniform {f : E → F}
-    (hf_temperate : f.HasTemperateGrowth) (N : ℕ) :
-    ∃ k, ∀ n ≤ N, iteratedFDeriv ℝ n f =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) := by
+theorem HasTemperateGrowth.isBigO_uniform {f : E → F} (hf_temperate : f.HasTemperateGrowth) (N : ℕ)
+    : ∃ k, ∀ n ≤ N, iteratedFDeriv ℝ n f =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) := by
   choose k hk using hf_temperate.isBigO
   use (Finset.range (N + 1)).sup k
   intro n hn
@@ -82,17 +84,20 @@ theorem HasTemperateGrowth.isBigO_uniform {f : E → F}
   · simp
   · exact Finset.le_sup (by simpa using hn)
 
-theorem HasTemperateGrowth.norm_iteratedFDeriv_le_uniform {f : E → F}
-    (hf_temperate : f.HasTemperateGrowth) (n : ℕ) :
-    ∃ (k : ℕ) (C : ℝ), 0 ≤ C ∧ ∀ N ≤ n, ∀ x : E, ‖iteratedFDeriv ℝ N f x‖ ≤ C * (1 + ‖x‖) ^ k := by
+theorem HasTemperateGrowth.norm_iteratedFDeriv_le_uniform
+    {f : E → F} (hf_temperate : f.HasTemperateGrowth) (n : ℕ)
+    : ∃ (k : ℕ) (C : ℝ),
+      0 ≤ C ∧ ∀ N ≤ n, ∀ x : E, ‖iteratedFDeriv ℝ N f x‖ ≤ C * (1 + ‖x‖) ^ k := by
   rcases hf_temperate.isBigO_uniform n with ⟨k, hk⟩
   set F := fun x (N : Fin (n + 1)) ↦ iteratedFDeriv ℝ N f x
   have : F =O[⊤] (fun x ↦ (1 + ‖x‖) ^ k) := by
     simp_rw [F, isBigO_pi, Fin.forall_iff, Nat.lt_succ_iff]
     exact hk
   rcases this.exists_nonneg with ⟨C, C_nonneg, hC⟩
-  simp (discharger := positivity) only [isBigOWith_top, Real.norm_of_nonneg,
-    pi_norm_le_iff_of_nonneg, Fin.forall_iff, Nat.lt_succ_iff] at hC
+  simp (discharger := positivity) only [
+      isBigOWith_top, Real.norm_of_nonneg, pi_norm_le_iff_of_nonneg, Fin.forall_iff, Nat.lt_succ_iff
+    ]
+    at hC
   exact ⟨k, C, C_nonneg, fun N hN x ↦ hC x N hN⟩
 
 lemma HasTemperateGrowth.of_fderiv {f : E → F}
@@ -127,15 +132,20 @@ lemma _root_.HasCompactSupport.hasTemperateGrowth {f : E → F} (h₁ : HasCompa
   refine ⟨0, g x₀, fun x ↦ ?_⟩
   simpa using hx₀ x
 
-/-- Composition of two temperate growth functions is of temperate growth.
+/--
+Composition of two temperate growth functions is of temperate growth.
 
 Version where the outer function `g` is only of temperate growth on the image of inner function
-`f`. -/
-theorem HasTemperateGrowth.comp' [NormedAddCommGroup D] [NormedSpace ℝ D] {g : E → F} {f : D → E}
-    {t : Set E} (ht : Set.range f ⊆ t) (ht' : UniqueDiffOn ℝ t) (hg₁ : ContDiffOn ℝ ∞ g t)
+`f`.
+-/
+theorem HasTemperateGrowth.comp'
+    [NormedAddCommGroup D] [NormedSpace ℝ D]
+    {g : E → F} {f : D → E} {t : Set E}
+    (ht : Set.range f ⊆ t) (ht' : UniqueDiffOn ℝ t) (hg₁ : ContDiffOn ℝ ∞ g t)
     (hg₂ : ∀ N, ∃ k C, ∃ (_hC : 0 ≤ C), ∀ n ≤ N, ∀ x ∈ t,
-    ‖iteratedFDerivWithin ℝ n g t x‖ ≤ C * (1 + ‖x‖) ^ k)
-    (hf : f.HasTemperateGrowth) : (g ∘ f).HasTemperateGrowth := by
+      ‖iteratedFDerivWithin ℝ n g t x‖ ≤ C * (1 + ‖x‖) ^ k)
+    (hf : f.HasTemperateGrowth)
+    : (g ∘ f).HasTemperateGrowth := by
   refine ⟨hg₁.comp_contDiff hf.1 (ht ⟨·, rfl⟩), fun n ↦ ?_⟩
   obtain ⟨k₁, C₁, hC₁, h₁⟩ := hf.norm_iteratedFDeriv_le_uniform n
   obtain ⟨k₂, C₂, hC₂, h₂⟩ := hg₂ n
@@ -145,7 +155,8 @@ theorem HasTemperateGrowth.comp' [NormedAddCommGroup D] [NormedSpace ℝ D] {g :
   intro x
   have hg' : ∀ i, i ≤ n → ‖iteratedFDerivWithin ℝ i g t (f x)‖ ≤ C₃ * (1 + ‖x‖) ^ (k₁ * k₂) := by
     intro i hi
-    calc _ ≤ C₂ * (1 + ‖f x‖) ^ k₂ := h₂ i hi (f x) (ht ⟨x, rfl⟩)
+    calc
+      _ ≤ C₂ * (1 + ‖f x‖) ^ k₂ := h₂ i hi (f x) (ht ⟨x, rfl⟩)
       _ = ∑ i ∈ Finset.range (k₂ + 1), C₂ * (‖f x‖ ^ i * (k₂.choose i)) := by
         rw [add_comm, add_pow, Finset.mul_sum]
         simp
@@ -161,19 +172,23 @@ theorem HasTemperateGrowth.comp' [NormedAddCommGroup D] [NormedSpace ℝ D] {g :
       _ = _ := by simp [C₃, Finset.sum_mul]
   have hf' : ∀ i, 1 ≤ i → i ≤ n → ‖iteratedFDeriv ℝ i f x‖ ≤ ((1 + C₁) * (1 + ‖x‖) ^ k₁) ^ i := by
     intro i hi hi'
-    calc _ ≤ C₁ * (1 + ‖x‖) ^ k₁ := h₁ i hi' x
+    calc
+      _ ≤ C₁ * (1 + ‖x‖) ^ k₁ := h₁ i hi' x
       _ ≤ (1 + C₁) * (1 + ‖x‖) ^ k₁ := by gcongr; simp
       _ ≤ _ := by
         apply le_self_pow₀ (one_le_mul_of_one_le_of_one_le (by simp [hC₁]) (by simp [one_le_pow₀]))
         grind
-  calc _ ≤ n ! * (C₃ * (1 + ‖x‖) ^ (k₁ * k₂)) * ((1 + C₁) * (1 + ‖x‖) ^ k₁) ^ n :=
+  calc
+    _ ≤ n ! * (C₃ * (1 + ‖x‖) ^ (k₁ * k₂)) * ((1 + C₁) * (1 + ‖x‖) ^ k₁) ^ n :=
       norm_iteratedFDeriv_comp_le' ht ht' hg₁ hf.1 (mod_cast le_top) x hg' hf'
     _ = _ := by rw [mul_pow, ← pow_mul, pow_add]; ring
 
 /-- Composition of two temperate growth functions is of temperate growth. -/
 @[fun_prop]
-theorem HasTemperateGrowth.comp [NormedAddCommGroup D] [NormedSpace ℝ D] {g : E → F} {f : D → E}
-    (hg : g.HasTemperateGrowth) (hf : f.HasTemperateGrowth) : (g ∘ f).HasTemperateGrowth := by
+theorem HasTemperateGrowth.comp
+    [NormedAddCommGroup D] [NormedSpace ℝ D]
+    {g : E → F} {f : D → E} (hg : g.HasTemperateGrowth) (hf : f.HasTemperateGrowth)
+    : (g ∘ f).HasTemperateGrowth := by
   apply hf.comp' (t := Set.univ)
   · simp
   · simp
@@ -192,8 +207,8 @@ theorem HasTemperateGrowth.neg (hf : f.HasTemperateGrowth) : (-f).HasTemperateGr
   exact ⟨k, C, fun x ↦ by simpa [iteratedFDeriv_neg_apply] using h x⟩
 
 @[to_fun (attr := fun_prop)]
-theorem HasTemperateGrowth.add (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth) :
-    (f + g).HasTemperateGrowth := by
+theorem HasTemperateGrowth.add (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth)
+    : (f + g).HasTemperateGrowth := by
   rw [hasTemperateGrowth_iff_isBigO] at *
   refine ⟨hf.1.add hg.1, fun n ↦ ?_⟩
   obtain ⟨k₁, h₁⟩ := hf.2 n
@@ -206,17 +221,19 @@ theorem HasTemperateGrowth.add (hf : f.HasTemperateGrowth) (hg : g.HasTemperateG
     (h₂.trans (IsBigO.pow_of_le_right this (k₁.le_max_right k₂)))
 
 @[to_fun (attr := fun_prop)]
-theorem HasTemperateGrowth.sub (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth) :
-    (f - g).HasTemperateGrowth := by
+theorem HasTemperateGrowth.sub (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth)
+    : (f - g).HasTemperateGrowth := by
   convert hf.add hg.neg
   grind
 
 @[fun_prop]
-theorem HasTemperateGrowth.sum {f : ι → E → F} {s : Finset ι}
-    (hf : ∀ i ∈ s, (f i).HasTemperateGrowth) : (∑ i ∈ s, f i ·).HasTemperateGrowth := by
+theorem HasTemperateGrowth.sum
+    {f : ι → E → F} {s : Finset ι} (hf : ∀ i ∈ s, (f i).HasTemperateGrowth)
+    : (∑ i ∈ s, f i ·).HasTemperateGrowth := by
   classical
   induction s using Finset.induction_on with
-  | empty => simp
+  | empty =>
+    simp
   | insert a s has ih =>
     obtain ⟨hf, h⟩ := by simpa using! hf
     simpa [has] using! hf.add (ih h)
@@ -225,18 +242,21 @@ end Addition
 
 section Multiplication
 
-variable [NontriviallyNormedField 𝕜] [NormedAlgebra ℝ 𝕜]
-  [NormedAddCommGroup D] [NormedSpace ℝ D]
-  [NormedAddCommGroup G] [NormedSpace ℝ G]
-  [NormedSpace 𝕜 F] [NormedSpace 𝕜 G]
+variable
+  [NontriviallyNormedField 𝕜] [NormedAlgebra ℝ 𝕜] [NormedAddCommGroup D] [NormedSpace ℝ D]
+  [NormedAddCommGroup G] [NormedSpace ℝ G] [NormedSpace 𝕜 F] [NormedSpace 𝕜 G]
 
-/-- The product of two functions of temperate growth is again of temperate growth.
+/--
+The product of two functions of temperate growth is again of temperate growth.
 
-Version for bilinear maps. -/
+Version for bilinear maps.
+-/
 @[fun_prop]
-theorem _root_.ContinuousLinearMap.bilinear_hasTemperateGrowth [NormedSpace 𝕜 E]
-    (B : E →L[𝕜] F →L[𝕜] G) {f : D → E} {g : D → F} (hf : f.HasTemperateGrowth)
-    (hg : g.HasTemperateGrowth) : (fun x ↦ B (f x) (g x)).HasTemperateGrowth := by
+theorem _root_.ContinuousLinearMap.bilinear_hasTemperateGrowth
+    [NormedSpace 𝕜 E]
+    (B : E →L[𝕜] F →L[𝕜] G)
+    {f : D → E} {g : D → F} (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth)
+    : (fun x ↦ B (f x) (g x)).HasTemperateGrowth := by
   rw [Function.hasTemperateGrowth_iff_isBigO]
   constructor
   · apply (B.bilinearRestrictScalars ℝ).isBoundedBilinearMap.contDiff.comp (hf.1.prodMk hg.1)
@@ -244,14 +264,14 @@ theorem _root_.ContinuousLinearMap.bilinear_hasTemperateGrowth [NormedSpace 𝕜
   rcases hf.isBigO_uniform n with ⟨k1, h1⟩
   rcases hg.isBigO_uniform n with ⟨k2, h2⟩
   use k1 + k2
-  have estimate (x : D) : ‖iteratedFDeriv ℝ n (fun x ↦ B (f x) (g x)) x‖ ≤
-      ‖B‖ * ∑ i ∈ Finset.range (n + 1), (n.choose i) *
-        ‖iteratedFDeriv ℝ i f x‖ * ‖iteratedFDeriv ℝ (n - i) g x‖ :=
+  have estimate (x : D)
+      : ‖iteratedFDeriv ℝ n (fun x ↦ B (f x) (g x)) x‖
+        ≤ ‖B‖ * ∑ i ∈ Finset.range (n + 1), (n.choose i) *
+          ‖iteratedFDeriv ℝ i f x‖ * ‖iteratedFDeriv ℝ (n - i) g x‖ :=
     (B.bilinearRestrictScalars ℝ).norm_iteratedFDeriv_le_of_bilinear hf.1 hg.1 x (mod_cast le_top)
   refine (IsBigO.of_norm_le estimate).trans (.const_mul_left (.fun_sum fun i hi ↦ ?_) _)
   simp_rw [mul_assoc, pow_add]
-  refine .const_mul_left (.mul (h1 i ?_).norm_left (h2 (n - i) ?_).norm_left) _ <;>
-  grind
+  refine .const_mul_left (.mul (h1 i ?_).norm_left (h2 (n - i) ?_).norm_left) _ <;> grind
 
 lemma HasTemperateGrowth.id : Function.HasTemperateGrowth (id : E → E) := by
   apply Function.HasTemperateGrowth.of_fderiv (k := 1) (C := 1)
@@ -264,25 +284,28 @@ lemma HasTemperateGrowth.id : Function.HasTemperateGrowth (id : E → E) := by
 lemma HasTemperateGrowth.id' : Function.HasTemperateGrowth (fun (x : E) ↦ x) :=
   Function.HasTemperateGrowth.id
 
-/-- The product of two functions of temperate growth is again of temperate growth.
+/--
+The product of two functions of temperate growth is again of temperate growth.
 
-Version for scalar multiplication. -/
+Version for scalar multiplication.
+-/
 @[to_fun (attr := fun_prop)]
-theorem HasTemperateGrowth.smul {f : E → 𝕜} {g : E → F} (hf : f.HasTemperateGrowth)
-    (hg : g.HasTemperateGrowth) : (f • g).HasTemperateGrowth :=
+theorem HasTemperateGrowth.smul
+    {f : E → 𝕜} {g : E → F} (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth)
+    : (f • g).HasTemperateGrowth :=
   (ContinuousLinearMap.lsmul ℝ 𝕜).bilinear_hasTemperateGrowth hf hg
 
 variable [NormedRing R] [NormedAlgebra ℝ R]
 
 /-- The product of two functions of temperate growth is again of temperate growth. -/
 @[to_fun (attr := fun_prop)]
-theorem HasTemperateGrowth.mul {f g : E → R} (hf : f.HasTemperateGrowth)
-    (hg : g.HasTemperateGrowth) : (f * g).HasTemperateGrowth :=
+theorem HasTemperateGrowth.mul {f g : E → R} (hf : f.HasTemperateGrowth) (hg : g.HasTemperateGrowth)
+    : (f * g).HasTemperateGrowth :=
   (ContinuousLinearMap.mul ℝ R).bilinear_hasTemperateGrowth hf hg
 
 @[to_fun (attr := fun_prop)]
-theorem HasTemperateGrowth.pow {f : E → R} (hf : f.HasTemperateGrowth) (k : ℕ) :
-    (f ^ k).HasTemperateGrowth := by
+theorem HasTemperateGrowth.pow {f : E → R} (hf : f.HasTemperateGrowth) (k : ℕ)
+    : (f ^ k).HasTemperateGrowth := by
   induction k with
   | zero => simpa only [pow_zero] using! HasTemperateGrowth.const 1
   | succ k IH => rw [pow_succ]; fun_prop
@@ -326,11 +349,13 @@ theorem hasTemperateGrowth_norm_sq : (fun (x : H) ↦ ‖x‖ ^ 2).HasTemperateG
 variable (H) in
 /-- The Bessel potential `x ↦ (1 + ‖x‖ ^ 2) ^ r` has temperate growth. -/
 @[fun_prop]
-theorem hasTemperateGrowth_one_add_norm_sq_rpow (r : ℝ) :
-    (fun (x : H) ↦ (1 + ‖x‖ ^ 2) ^ r).HasTemperateGrowth := by
-  /- We prove this using that the composition of temperate functions is temperate.
+theorem hasTemperateGrowth_one_add_norm_sq_rpow (r : ℝ)
+    : (fun (x : H) ↦ (1 + ‖x‖ ^ 2) ^ r).HasTemperateGrowth := by
+  /-
+  We prove this using that the composition of temperate functions is temperate.
   Since `x ^ r` is not smooth at the origin, we have to use `HasTemperateGrowth.comp'`, with any
-  open set `t` that is contains the complement of the unit ball and does not contain the origin. -/
+  open set `t` that is contains the complement of the unit ball and does not contain the origin.
+  -/
   set t := {y : ℝ | 1 / 2 < y}
   have ht : Set.range (fun (x : H) ↦ (1 + ‖x‖ ^ 2)) ⊆ t := by
     rintro - ⟨y, rfl⟩
@@ -343,9 +368,11 @@ theorem hasTemperateGrowth_one_add_norm_sq_rpow (r : ℝ) :
   -- The remaining part of the proof is proving that `x ↦ x ^ r` has temperate growth on `t`.
   -- This could be generalized to `t := {y : ℝ | ε < y}` for any `0 < ε < 1` if necessary.
   intro N
-  /- Since `x ^ r` for negative `r` blows up near the origin (and we can't take
+  /-
+  Since `x ^ r` for negative `r` blows up near the origin (and we can't take
   `t := {y : ℝ | 1 / 2 < y}`), we have to choose `k` later than `N - r` times some factor depending
-  on `t`. -/
+  on `t`.
+  -/
   obtain ⟨k, hk⟩ := exists_nat_ge (max r <| (N - r) * Real.log 2 / (Real.log (3 / 2)))
   have hk₁ : r ≤ k := le_sup_left.trans hk
   have hk₂ : Real.log 2 * (N - r) ≤ (Real.log (3 / 2)) * k := by
@@ -357,9 +384,11 @@ theorem hasTemperateGrowth_one_add_norm_sq_rpow (r : ℝ) :
   have : ContDiffAt ℝ n (fun x ↦ x ^ r) x :=
     Real.contDiffAt_rpow_const <| Or.inl (lt_trans (by norm_num) hx).ne'
   -- We calculate the derivative of `x ^ r`.
-  rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin,
+  rw [
+    norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin,
     iteratedDerivWithin_eq_iteratedDeriv hunique this hx, iteratedDeriv_eq_iterate,
-    Real.iter_deriv_rpow_const, norm_mul]
+    Real.iter_deriv_rpow_const, norm_mul
+  ]
   gcongr 1
   · have : n ∈ Finset.range (N + 1) := by grind
     apply Finset.single_le_sum (fun _ _ ↦ by positivity) this
@@ -376,8 +405,10 @@ theorem hasTemperateGrowth_one_add_norm_sq_rpow (r : ℝ) :
       (Real.rpow_le_rpow_of_exponent_le (by simp) this)
   have h : 0 < n - r := by grind
   calc
-    /- In the case `0 < n - r`, we need the factor `Real.log 2 / (Real.log (3 / 2))` to control
-    the growth near `‖x‖ = 1/2`. -/
+    /-
+    In the case `0 < n - r`, we need the factor `Real.log 2 / (Real.log (3 / 2))` to control
+    the growth near `‖x‖ = 1/2`.
+    -/
     _ = x ^ (-(n - r)) := by
       rw [neg_sub]
       congr
@@ -406,14 +437,12 @@ end Function
 section Real
 
 @[fun_prop]
-theorem Real.hasTemperateGrowth_sin :
-    Real.sin.HasTemperateGrowth := by
+theorem Real.hasTemperateGrowth_sin : Real.sin.HasTemperateGrowth := by
   refine ⟨Real.contDiff_sin, fun n ↦ ⟨0, 1, fun x ↦ ?_⟩⟩
   simpa [norm_iteratedFDeriv_eq_norm_iteratedDeriv] using Real.abs_iteratedDeriv_sin_le_one n x
 
 @[fun_prop]
-theorem Real.hasTemperateGrowth_cos :
-    Real.cos.HasTemperateGrowth := by
+theorem Real.hasTemperateGrowth_cos : Real.cos.HasTemperateGrowth := by
   refine ⟨Real.contDiff_cos, fun n ↦ ⟨0, 1, fun x ↦ ?_⟩⟩
   simpa [norm_iteratedFDeriv_eq_norm_iteratedDeriv] using Real.abs_iteratedDeriv_cos_le_one n x
 
@@ -438,8 +467,8 @@ theorem Complex.hasTemperateGrowth_im : Complex.im.HasTemperateGrowth :=
 
 /-- The function `x ↦ exp (x * I)` has temperate growth. -/
 @[fun_prop]
-theorem Complex.hasTemperateGrowth_exp_mul_I :
-    (fun x : ℝ ↦ Complex.exp (x * Complex.I)).HasTemperateGrowth := by
+theorem Complex.hasTemperateGrowth_exp_mul_I
+    : (fun x : ℝ ↦ Complex.exp (x * Complex.I)).HasTemperateGrowth := by
   simp only [Complex.exp_ofReal_mul_I]
   fun_prop
 
@@ -476,14 +505,18 @@ variable [NormedAddCommGroup E] [MeasurableSpace E]
 open Module
 open scoped ENNReal
 
-/-- A measure `μ` has temperate growth if there is an `n : ℕ` such that `(1 + ‖x‖) ^ (- n)` is
-`μ`-integrable. -/
+/--
+A measure `μ` has temperate growth if there is an `n : ℕ` such that `(1 + ‖x‖) ^ (- n)` is
+`μ`-integrable.
+-/
 class HasTemperateGrowth (μ : Measure E) : Prop where
-  exists_integrable : ∃ (n : ℕ), Integrable (fun x ↦ (1 + ‖x‖) ^ (- (n : ℝ))) μ
+  exists_integrable : ∃ (n : ℕ), Integrable (fun x ↦ (1 + ‖x‖) ^ (-(n : ℝ))) μ
 
 open scoped Classical in
-/-- An integer exponent `l` such that `(1 + ‖x‖) ^ (-l)` is integrable if `μ` has
-temperate growth. -/
+/--
+An integer exponent `l` such that `(1 + ‖x‖) ^ (-l)` is integrable if `μ` has
+temperate growth.
+-/
 def integrablePower (μ : Measure E) : ℕ :=
   if h : μ.HasTemperateGrowth then h.exists_integrable.choose else 0
 
@@ -492,12 +525,14 @@ lemma integrable_pow_neg_integrablePower
     Integrable (fun x ↦ (1 + ‖x‖) ^ (- (μ.integrablePower : ℝ))) μ := by
   simpa [Measure.integrablePower, h] using h.exists_integrable.choose_spec
 
-instance _root_.MeasureTheory.IsFiniteMeasure.instHasTemperateGrowth {μ : Measure E}
-    [h : IsFiniteMeasure μ] : μ.HasTemperateGrowth := ⟨⟨0, by simp⟩⟩
+instance _root_.MeasureTheory.IsFiniteMeasure.instHasTemperateGrowth
+    {μ : Measure E} [h : IsFiniteMeasure μ]
+    : μ.HasTemperateGrowth :=
+  ⟨⟨0, by simp⟩⟩
 
 variable [NormedSpace ℝ E] [FiniteDimensional ℝ E] [BorelSpace E] in
-instance IsAddHaarMeasure.instHasTemperateGrowth {μ : Measure E}
-    [h : μ.IsAddHaarMeasure] : μ.HasTemperateGrowth :=
+instance IsAddHaarMeasure.instHasTemperateGrowth {μ : Measure E} [h : μ.IsAddHaarMeasure]
+    : μ.HasTemperateGrowth :=
   ⟨⟨finrank ℝ E + 1, by apply integrable_one_add_norm; norm_num⟩⟩
 
 /-- Pointwise inequality to control `x ^ k * f` in terms of `1 / (1 + x) ^ l` if one controls both
@@ -562,24 +597,26 @@ lemma _root_.integral_pow_mul_le_of_le_of_pow_mul_le
   exact (pow_mul_le_of_le_of_pow_mul_le (norm_nonneg _) (norm_nonneg _) (hf v) (h'f v)).trans
     (le_of_eq (by ring))
 
-/-- For any `HasTemperateGrowth` measure and `p`, there exists an integer power `k` such that
-`(1 + ‖x‖) ^ (-k)` is in `L^p`. -/
-theorem HasTemperateGrowth.exists_eLpNorm_lt_top [OpensMeasurableSpace E] (p : ℝ≥0∞)
-    {μ : Measure E} (hμ : μ.HasTemperateGrowth) :
-    ∃ k : ℕ, eLpNorm (fun x ↦ (1 + ‖x‖) ^ (-k : ℝ)) p μ < ⊤ := by
+/--
+For any `HasTemperateGrowth` measure and `p`, there exists an integer power `k` such that
+`(1 + ‖x‖) ^ (-k)` is in `L^p`.
+-/
+theorem HasTemperateGrowth.exists_eLpNorm_lt_top
+    [OpensMeasurableSpace E] (p : ℝ≥0∞) {μ : Measure E} (hμ : μ.HasTemperateGrowth)
+    : ∃ k : ℕ, eLpNorm (fun x ↦ (1 + ‖x‖) ^ (-k : ℝ)) p μ < ⊤ := by
   have hmeas (k : ℕ) : AEStronglyMeasurable (fun x : E ↦ (1 + ‖x‖) ^ (-k : ℝ)) μ :=
     (Continuous.rpow_const (by fun_prop) (fun x ↦ Or.inl (by positivity))).aestronglyMeasurable
   cases p with
   | top =>
-      refine ⟨0, ?_⟩
-      rw [eLpNorm_exponent_top (hmeas 0)]
-      exact eLpNormEssSup_lt_top_of_ae_bound (C := 1) (by simp)
+    refine ⟨0, ?_⟩
+    rw [eLpNorm_exponent_top (hmeas 0)]
+    exact eLpNormEssSup_lt_top_of_ae_bound (C := 1) (by simp)
   | coe p =>
     cases eq_or_ne (p : ℝ≥0∞) 0 with
     | inl hp =>
-        refine ⟨0, ?_⟩
-        rw [hp, eLpNorm_exponent_zero (hmeas 0)]
-        exact bot_lt_top
+      refine ⟨0, ?_⟩
+      rw [hp, eLpNorm_exponent_zero (hmeas 0)]
+      exact bot_lt_top
     | inr hp =>
       have h_one_add (x : E) : 0 < 1 + ‖x‖ := lt_add_of_pos_of_le zero_lt_one (norm_nonneg x)
       have hp_pos : 0 < (p : ℝ) := by simpa [zero_lt_iff] using hp

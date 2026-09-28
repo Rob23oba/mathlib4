@@ -34,8 +34,8 @@ namespace CategoryTheory
 
 open Category Limits ZeroObject
 
-variable {C : Type*} [Category* C] {I : Type*} {D : I → Type*} [∀ i, Category* (D i)]
-  {F : ∀ i, C ⥤ D i}
+variable
+  {C : Type*} [Category* C] {I : Type*} {D : I → Type*} [∀ i, Category* (D i)] {F : ∀ i, C ⥤ D i}
 
 namespace JointlyReflectIsomorphisms
 
@@ -45,8 +45,7 @@ include hP
 
 section
 
-variable [HasZeroMorphisms C] [∀ i, HasZeroMorphisms (D i)]
-  [∀ i, (F i).PreservesZeroMorphisms]
+variable [HasZeroMorphisms C] [∀ i, HasZeroMorphisms (D i)] [∀ i, (F i).PreservesZeroMorphisms]
 
 lemma isZero_iff [HasZeroObject C] {X : C} :
     IsZero X ↔ ∀ (i : I), IsZero ((F i).obj X) := by
@@ -75,8 +74,9 @@ end
 
 section
 
-variable [Abelian C] [∀ i, Abelian (D i)] [CategoryWithHomology C]
-  [∀ i, PreservesFiniteLimits (F i)] [∀ i, PreservesFiniteColimits (F i)]
+variable
+  [Abelian C] [∀ i, Abelian (D i)] [CategoryWithHomology C] [∀ i, PreservesFiniteLimits (F i)]
+  [∀ i, PreservesFiniteColimits (F i)]
 
 lemma shortExact_iff (S : ShortComplex C) :
     S.ShortExact ↔ ∀ (i : I), (S.map (F i)).ShortExact := by

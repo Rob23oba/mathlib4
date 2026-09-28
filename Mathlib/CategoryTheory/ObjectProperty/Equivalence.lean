@@ -58,24 +58,27 @@ end CategoryTheory.ObjectProperty
 
 namespace CategoryTheory.Equivalence
 
-variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
-  {P : ObjectProperty C} {Q : ObjectProperty D} (e : C ≌ D)
+variable
+  {C : Type u} [Category.{v} C]
+  {D : Type u'} [Category.{v'} D]
+  {P : ObjectProperty C} {Q : ObjectProperty D}
+  (e : C ≌ D)
 
-/-- The equivalence of categories between two fullsubcategories `P` and `Q`
+/--
+The equivalence of categories between two fullsubcategories `P` and `Q`
 of categories `C` and `D` that is induced by an equivalence `e : C ≌ D`
-when `Q.inverseImage e.functor = P` and `Q` respects isomorphisms. -/
+when `Q.inverseImage e.functor = P` and `Q` respects isomorphisms.
+-/
 @[simps]
-def congrFullSubcategory [Q.IsClosedUnderIsomorphisms] (h : Q.inverseImage e.functor = P) :
-    P.FullSubcategory ≌ Q.FullSubcategory where
+def congrFullSubcategory [Q.IsClosedUnderIsomorphisms] (h : Q.inverseImage e.functor = P)
+    : P.FullSubcategory ≌ Q.FullSubcategory where
   functor := Q.lift (P.ι ⋙ e.functor) (fun ⟨X, hX⟩ ↦ by rwa [← h] at hX)
-  inverse := P.lift (Q.ι ⋙ e.inverse) (fun ⟨Y, hY⟩ ↦ by
-    rw [← h]
-    exact Q.prop_of_iso (e.counitIso.app Y).symm hY)
-  unitIso := (P.fullyFaithfulι.whiskeringRight _).preimageIso
-    (P.ι.isoWhiskerLeft e.unitIso)
-  counitIso := (Q.fullyFaithfulι.whiskeringRight _).preimageIso
-    (Q.ι.isoWhiskerLeft e.counitIso)
-  functor_unitIso_comp X :=
-    ObjectProperty.hom_ext _ (e.functor_unit_comp X.obj)
+  inverse :=
+    P.lift (Q.ι ⋙ e.inverse) (fun ⟨Y, hY⟩ ↦ by
+      rw [← h]
+      exact Q.prop_of_iso (e.counitIso.app Y).symm hY)
+  unitIso := (P.fullyFaithfulι.whiskeringRight _).preimageIso (P.ι.isoWhiskerLeft e.unitIso)
+  counitIso := (Q.fullyFaithfulι.whiskeringRight _).preimageIso (Q.ι.isoWhiskerLeft e.counitIso)
+  functor_unitIso_comp X := ObjectProperty.hom_ext _ (e.functor_unit_comp X.obj)
 
 end CategoryTheory.Equivalence

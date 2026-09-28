@@ -48,9 +48,11 @@ namespace HurwitzZeta
 ## The Hurwitz zeta function
 -/
 
-/-- The Hurwitz zeta function, which is the meromorphic continuation of
+/--
+The Hurwitz zeta function, which is the meromorphic continuation of
 `∑ (n : ℕ), 1 / (n + a) ^ s` if `0 ≤ a ≤ 1`. See `hasSum_hurwitzZeta_of_one_lt_re` for the relation
-to the Dirichlet series in the convergence range. -/
+to the Dirichlet series in the convergence range.
+-/
 noncomputable def hurwitzZeta (a : UnitAddCircle) (s : ℂ) :=
   hurwitzZetaEven a s + hurwitzZetaOdd a s
 
@@ -112,10 +114,11 @@ lemma differentiable_hurwitzZeta_sub_hurwitzZeta (a b : UnitAddCircle) :
 ## The exponential zeta function
 -/
 
-/-- Meromorphic continuation of the series `∑' (n : ℕ), exp (2 * π * I * a * n) / n ^ s`.  See
-`hasSum_expZeta_of_one_lt_re` for the relation to the Dirichlet series. -/
-noncomputable def expZeta (a : UnitAddCircle) (s : ℂ) :=
-  cosZeta a s + I * sinZeta a s
+/--
+Meromorphic continuation of the series `∑' (n : ℕ), exp (2 * π * I * a * n) / n ^ s`.  See
+`hasSum_expZeta_of_one_lt_re` for the relation to the Dirichlet series.
+-/
+noncomputable def expZeta (a : UnitAddCircle) (s : ℂ) := cosZeta a s + I * sinZeta a s
 
 lemma cosZeta_eq (a : UnitAddCircle) (s : ℂ) :
     cosZeta a s = (expZeta a s + expZeta (-a) s) / 2 := by

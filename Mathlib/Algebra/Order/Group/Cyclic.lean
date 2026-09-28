@@ -44,8 +44,10 @@ lemma exists_generator_lt_one : ∃ (a : G), a < 1 ∧ Subgroup.zpowers a = H :=
   · use a⁻¹, Left.inv_lt_one_iff.mpr ha1
     rw [Subgroup.zpowers_inv, ha]
 
-/-- Given a subgroup of a cyclic linearly ordered commutative group, this is a generator of
-the subgroup that is `< 1`. -/
+/--
+Given a subgroup of a cyclic linearly ordered commutative group, this is a generator of
+the subgroup that is `< 1`.
+-/
 @[to_additive negGen /-- Given an additive subgroup of an additive cyclic linearly ordered
 commutative group, this is a negative generator of the subgroup. -/]
 protected noncomputable def genLTOne : G := H.exists_generator_lt_one.choose

@@ -62,8 +62,10 @@ end general_exponential
 namespace CFC
 section RCLikeNormed
 
-variable {𝕜 : Type*} {A : Type*} [RCLike 𝕜] {p : A → Prop} [NormedRing A]
-  [StarRing A] [NormedAlgebra 𝕜 A] [ContinuousFunctionalCalculus 𝕜 A p]
+variable
+  {𝕜 : Type*} {A : Type*} [RCLike 𝕜]
+  {p : A → Prop}
+  [NormedRing A] [StarRing A] [NormedAlgebra 𝕜 A] [ContinuousFunctionalCalculus 𝕜 A p]
 
 open scoped ContinuousFunctionalCalculus in
 lemma exp_eq_normedSpace_exp {a : A} (ha : p a := by cfc_tac) :
@@ -81,8 +83,9 @@ end RCLikeNormed
 
 section RealNormed
 
-variable {A : Type*} [NormedRing A] [StarRing A] [NormedAlgebra ℝ A]
-  [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+variable
+  {A : Type*}
+  [NormedRing A] [StarRing A] [NormedAlgebra ℝ A] [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 
 lemma real_exp_eq_normedSpace_exp {a : A} (ha : IsSelfAdjoint a := by cfc_tac) :
     cfc Real.exp a = exp a :=
@@ -99,8 +102,9 @@ end RealNormed
 
 section ComplexNormed
 
-variable {A : Type*} {p : A → Prop} [NormedRing A] [StarRing A]
-  [NormedAlgebra ℂ A] [ContinuousFunctionalCalculus ℂ A p]
+variable
+  {A : Type*} {p : A → Prop}
+  [NormedRing A] [StarRing A] [NormedAlgebra ℂ A] [ContinuousFunctionalCalculus ℂ A p]
 
 lemma complex_exp_eq_normedSpace_exp {a : A} (ha : p a := by cfc_tac) :
     cfc Complex.exp a = exp a :=
@@ -108,16 +112,18 @@ lemma complex_exp_eq_normedSpace_exp {a : A} (ha : p a := by cfc_tac) :
 
 end ComplexNormed
 
-
 section real_log
 
 open scoped ComplexOrder
 
-variable {A : Type*} [NormedRing A] [StarRing A] [NormedAlgebra ℝ A]
-  [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+variable
+  {A : Type*}
+  [NormedRing A] [StarRing A] [NormedAlgebra ℝ A] [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 
-/-- The real logarithm, defined via the continuous functional calculus. This can be used on
-matrices, operators on a Hilbert space, elements of a C⋆-algebra, etc. -/
+/--
+The real logarithm, defined via the continuous functional calculus. This can be used on
+matrices, operators on a Hilbert space, elements of a C⋆-algebra, etc.
+-/
 noncomputable def log (a : A) : A := cfc Real.log a
 
 @[simp, grind =>]

@@ -38,24 +38,25 @@ variable {C D : Type*} [Category* C] [Category* D]
 
 namespace Quotient
 
-variable (r : HomRel C) (W : MorphismProperty C)
-  (hW : W.IsInvertedBy (functor r))
-  (hr : ∀ ⦃X Y : C⦄ (f₀ f₁ : X ⟶ Y) (_ : r f₀ f₁),
-    ∃ (P : Precylinder X) (_ : P.LeftHomotopy f₀ f₁), W P.π)
+variable
+  (r : HomRel C) (W : MorphismProperty C) (hW : W.IsInvertedBy (functor r))
+  (hr : ∀ ⦃X Y : C⦄ (f₀ f₁ : X ⟶ Y) (_ : r f₀ f₁), ∃ (P : Precylinder X) (_ : P.LeftHomotopy f₀ f₁),
+    W P.π)
 
 namespace isLocalization_functor
 
 variable {r W} in
 /-- Auxiliary definition for `Quotient.isLocalization_functor`. -/
-private def strictUniversalPropertyFixedTarget (E : Type*) [Category* E] :
-    Localization.StrictUniversalPropertyFixedTarget (functor r) W E where
+private def strictUniversalPropertyFixedTarget (E : Type*) [Category* E]
+    : Localization.StrictUniversalPropertyFixedTarget (functor r) W E where
   inverts := hW
-  lift F hF := Quotient.lift r F (fun X Y f₀ f₁ hf ↦ by
-    obtain ⟨P, h, hπ⟩ := hr f₀ f₁ hf
-    simp only [← h.h₀, ← h.h₁, Functor.map_comp]
-    congr 1
-    have := hF _ hπ
-    simp [← cancel_mono (F.map P.π), ← Functor.map_comp])
+  lift F hF :=
+    Quotient.lift r F (fun X Y f₀ f₁ hf ↦ by
+      obtain ⟨P, h, hπ⟩ := hr f₀ f₁ hf
+      simp only [← h.h₀, ← h.h₁, Functor.map_comp]
+      congr 1
+      have := hF _ hπ
+      simp [← cancel_mono (F.map P.π), ← Functor.map_comp])
   fac F hF := rfl
   uniq F₁ F₂ h := by
     fapply Functor.ext

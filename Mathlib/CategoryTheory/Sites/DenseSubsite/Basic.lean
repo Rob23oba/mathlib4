@@ -58,36 +58,43 @@ namespace CategoryTheory
 variable {C : Type*} [Category* C] {D : Type*} [Category* D]
 variable (J : GrothendieckTopology C) (K : GrothendieckTopology D)
 
-/-- An auxiliary structure that witnesses the fact that `f` factors through an image object of `G`.
+/--
+An auxiliary structure that witnesses the fact that `f` factors through an image object of `G`.
 -/
 structure Presieve.CoverByImageStructure (G : C ⥤ D) {V U : D} (f : V ⟶ U) where
   obj : C
   lift : V ⟶ G.obj obj
   map : G.obj obj ⟶ U
   fac : lift ≫ map = f := by cat_disch
-attribute [nolint docBlame] Presieve.CoverByImageStructure.obj Presieve.CoverByImageStructure.lift
+attribute [nolint docBlame]
+  Presieve.CoverByImageStructure.obj Presieve.CoverByImageStructure.lift
   Presieve.CoverByImageStructure.map Presieve.CoverByImageStructure.fac
 
 attribute [reassoc (attr := simp)] Presieve.CoverByImageStructure.fac
 
-/-- For a functor `G : C ⥤ D`, and an object `U : D`, `Presieve.coverByImage G U` is the presieve
+/--
+For a functor `G : C ⥤ D`, and an object `U : D`, `Presieve.coverByImage G U` is the presieve
 of `U` consisting of those arrows that factor through images of `G`.
 -/
 def Presieve.coverByImage (G : C ⥤ D) (U : D) : Presieve U := fun _ f =>
   Nonempty (Presieve.CoverByImageStructure G f)
 
-/-- For a functor `G : C ⥤ D`, and an object `U : D`, `Sieve.coverByImage G U` is the sieve of `U`
+/--
+For a functor `G : C ⥤ D`, and an object `U : D`, `Sieve.coverByImage G U` is the sieve of `U`
 consisting of those arrows that factor through images of `G`.
 -/
-def Sieve.coverByImage (G : C ⥤ D) (U : D) : Sieve U :=
-  ⟨Presieve.coverByImage G U, fun ⟨⟨Z, f₁, f₂, (e : _ = _)⟩⟩ g =>
-    ⟨⟨Z, g ≫ f₁, f₂, show (g ≫ f₁) ≫ f₂ = g ≫ _ by rw [Category.assoc, ← e]⟩⟩⟩
+def Sieve.coverByImage (G : C ⥤ D) (U : D) : Sieve U := ⟨
+  Presieve.coverByImage G U,
+  fun ⟨⟨Z, f₁, f₂, (e : _ = _)⟩⟩ g =>
+    ⟨⟨Z, g ≫ f₁, f₂, show (g ≫ f₁) ≫ f₂ = g ≫ _ by rw [Category.assoc, ← e]⟩⟩
+⟩
 
-theorem Presieve.in_coverByImage (G : C ⥤ D) {X : D} {Y : C} (f : G.obj Y ⟶ X) :
-    Presieve.coverByImage G X f :=
+theorem Presieve.in_coverByImage (G : C ⥤ D) {X : D} {Y : C} (f : G.obj Y ⟶ X)
+    : Presieve.coverByImage G X f :=
   ⟨⟨Y, 𝟙 _, f, by simp⟩⟩
 
-/-- A functor `G : (C, J) ⥤ (D, K)` is cover dense if for each object in `D`,
+/--
+A functor `G : (C, J) ⥤ (D, K)` is cover dense if for each object in `D`,
   there exists a covering sieve in `D` that factors through images of `G`.
 
 This definition can be found in https://ncatlab.org/nlab/show/dense+sub-site Definition 2.2.
@@ -122,54 +129,67 @@ variable {K}
 variable {A : Type*} [Category* A] (G : C ⥤ D)
 
 -- this is not marked with `@[ext]` because `H` cannot be inferred from the type
-theorem ext [G.IsCoverDense K] (ℱ : Sheaf K Type*) (X : D) {s t : ℱ.obj.obj (op X)}
-    (h : ∀ ⦃Y : C⦄ (f : G.obj Y ⟶ X), ℱ.obj.map f.op s = ℱ.obj.map f.op t) : s = t := by
-  apply ((isSheaf_iff_isSheaf_of_type _ _).1 ℱ.property
-    (Sieve.coverByImage G X) (G.is_cover_of_isCoverDense K X)).isSeparatedFor.ext
+theorem ext
+    [G.IsCoverDense K]
+    (ℱ : Sheaf K Type*) (X : D)
+    {s t : ℱ.obj.obj (op X)} (h : ∀ ⦃Y : C⦄ (f : G.obj Y ⟶ X), ℱ.obj.map f.op s = ℱ.obj.map f.op t)
+    : s = t := by
+  apply ((isSheaf_iff_isSheaf_of_type _ _).1 ℱ.property (Sieve.coverByImage G X)
+    (G.is_cover_of_isCoverDense K X)).isSeparatedFor.ext
   rintro Y _ ⟨Z, f₁, f₂, ⟨rfl⟩⟩
   simp [h f₂]
 
 variable {G}
 
-theorem functorPullback_pushforward_covering [G.IsCoverDense K] [G.IsLocallyFull K] {X : C}
-    (T : K (G.obj X)) : (T.val.functorPullback G).functorPushforward G ∈ K (G.obj X) := by
+theorem functorPullback_pushforward_covering
+    [G.IsCoverDense K] [G.IsLocallyFull K] {X : C} (T : K (G.obj X))
+    : (T.val.functorPullback G).functorPushforward G ∈ K (G.obj X) := by
   refine K.transitive T.2 _ fun Y iYX hiYX ↦ ?_
   apply K.transitive (G.is_cover_of_isCoverDense _ _) _
   rintro W _ ⟨Z, iWZ, iZY, rfl⟩
-  rw [Sieve.pullback_comp]; apply K.pullback_stable; clear W iWZ
+  rw [Sieve.pullback_comp]
+  apply K.pullback_stable
+  clear W iWZ
   apply K.superset_covering ?_ (G.functorPushforward_imageSieve_mem _ (iZY ≫ iYX))
   rintro W _ ⟨V, iVZ, iWV, ⟨iVX, e⟩, rfl⟩
   exact ⟨_, iVX, iWV, by simpa [e] using T.1.downward_closed hiYX (G.map iVZ ≫ iZY), by simp [e]⟩
 
-/-- (Implementation). Given a hom between the pullbacks of two sheaves, we can whisker it with
+/--
+(Implementation). Given a hom between the pullbacks of two sheaves, we can whisker it with
 `coyoneda` to obtain a hom between the pullbacks of the sheaves of maps from `X`.
 -/
 @[simps! app]
-def homOver {ℱ : Dᵒᵖ ⥤ A} {ℱ' : Sheaf K A} (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) (X : A) :
-    G.op ⋙ ℱ ⋙ coyoneda.obj (op X) ⟶ G.op ⋙ (sheafOver ℱ' X).obj :=
+def homOver {ℱ : Dᵒᵖ ⥤ A} {ℱ' : Sheaf K A} (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) (X : A)
+    : G.op ⋙ ℱ ⋙ coyoneda.obj (op X) ⟶ G.op ⋙ (sheafOver ℱ' X).obj :=
   whiskerRight α (coyoneda.obj (op X))
 
-/-- (Implementation). Given an iso between the pullbacks of two sheaves, we can whisker it with
+/--
+(Implementation). Given an iso between the pullbacks of two sheaves, we can whisker it with
 `coyoneda` to obtain an iso between the pullbacks of the sheaves of maps from `X`.
 -/
 @[simps! +dsimpLhs]
-def isoOver {ℱ ℱ' : Sheaf K A} (α : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) (X : A) :
-    G.op ⋙ (sheafOver ℱ X).obj ≅ G.op ⋙ (sheafOver ℱ' X).obj :=
+def isoOver {ℱ ℱ' : Sheaf K A} (α : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) (X : A)
+    : G.op ⋙ (sheafOver ℱ X).obj ≅ G.op ⋙ (sheafOver ℱ' X).obj :=
   isoWhiskerRight α (coyoneda.obj (op X))
 
-theorem sheaf_eq_amalgamation (ℱ : Sheaf K A) {X : A} {U : D} {T : Sieve U} (hT)
-    (x : FamilyOfElements _ T) (hx) (t) (h : x.IsAmalgamation t) :
-    t = (ℱ.property X T hT).amalgamate x hx :=
+theorem sheaf_eq_amalgamation
+    (ℱ : Sheaf K A)
+    {X : A} {U : D} {T : Sieve U}
+    (hT)
+    (x : FamilyOfElements _ T)
+    (hx)
+    (t) (h : x.IsAmalgamation t)
+    : t = (ℱ.property X T hT).amalgamate x hx :=
   (ℱ.property X T hT).isSeparatedFor x t _ h ((ℱ.property X T hT).isAmalgamation hx)
 
 namespace Types
 
 variable {ℱ : Dᵒᵖ ⥤ Type v} {ℱ' : Sheaf K (Type v)} (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj)
 
-theorem naturality_apply [G.IsLocallyFull K] {X Y : C} (i : G.obj X ⟶ G.obj Y) (x) :
-    ℱ'.1.map i.op (α.app _ x) = α.app _ (ℱ.map i.op x) := by
-  have {X Y} (i : X ⟶ Y) (x) :
-      ℱ'.1.map (G.map i).op (α.app _ x) = α.app _ (ℱ.map (G.map i).op x) := by
+theorem naturality_apply [G.IsLocallyFull K] {X Y : C} (i : G.obj X ⟶ G.obj Y) (x)
+    : ℱ'.1.map i.op (α.app _ x) = α.app _ (ℱ.map i.op x) := by
+  have {X Y} (i : X ⟶ Y) (x)
+      : ℱ'.1.map (G.map i).op (α.app _ x) = α.app _ (ℱ.map (G.map i).op x) := by
     congrm $((α.naturality i.op).symm) x
   refine IsLocallyFull.ext G _ i fun V iVX iVY e ↦ ?_
   simp only [← Functor.map_comp_apply, ← op_comp, ← e, this]
@@ -178,25 +198,28 @@ theorem naturality_apply [G.IsLocallyFull K] {X Y : C} (i : G.obj X ⟶ G.obj Y)
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
 @[reassoc]
-theorem naturality [G.IsLocallyFull K] {X Y : C} (i : G.obj X ⟶ G.obj Y) :
-    α.app _ ≫ ℱ'.1.map i.op = ℱ.map i.op ≫ α.app _ := by ext; exact naturality_apply α i _
+theorem naturality [G.IsLocallyFull K] {X Y : C} (i : G.obj X ⟶ G.obj Y)
+    : α.app _ ≫ ℱ'.1.map i.op = ℱ.map i.op ≫ α.app _ := by
+  ext; exact naturality_apply α i _
 
 /--
 (Implementation). Given a section of `ℱ` on `X`, we can obtain a family of elements valued in `ℱ'`
-that is defined on a cover generated by the images of `G`. -/
-noncomputable def pushforwardFamily {X} (x : ℱ.obj (op X)) :
-    FamilyOfElements ℱ'.obj (coverByImage G X) := fun _ _ hf =>
+that is defined on a cover generated by the images of `G`.
+-/
+noncomputable def pushforwardFamily {X} (x : ℱ.obj (op X))
+    : FamilyOfElements ℱ'.obj (coverByImage G X) := fun _ _ hf =>
   ℱ'.obj.map hf.some.lift.op <| α.app (op _) (ℱ.map hf.some.map.op x)
 
-@[simp] theorem pushforwardFamily_def {X} (x : ℱ.obj (op X)) :
-    pushforwardFamily α x = fun _ _ hf =>
-    ℱ'.obj.map hf.some.lift.op <| α.app (op _) (ℱ.map hf.some.map.op x) := rfl
+@[simp]
+theorem pushforwardFamily_def {X} (x : ℱ.obj (op X))
+    : pushforwardFamily α x
+      = fun _ _ hf => ℱ'.obj.map hf.some.lift.op <| α.app (op _) (ℱ.map hf.some.map.op x) :=
+  rfl
 
 set_option backward.defeqAttrib.useBackward true in
 @[simp]
-theorem pushforwardFamily_apply [G.IsLocallyFull K]
-    {X} (x : ℱ.obj (op X)) {Y : C} (f : G.obj Y ⟶ X) :
-    pushforwardFamily α x f (Presieve.in_coverByImage G f) = α.app (op Y) (ℱ.map f.op x) := by
+theorem pushforwardFamily_apply [G.IsLocallyFull K] {X} (x : ℱ.obj (op X)) {Y : C} (f : G.obj Y ⟶ X)
+    : pushforwardFamily α x f (Presieve.in_coverByImage G f) = α.app (op Y) (ℱ.map f.op x) := by
   simp only [pushforwardFamily_def, op_obj]
   generalize Nonempty.some (Presieve.in_coverByImage G f) = l
   obtain ⟨W, iYW, iWX, rfl⟩ := l
@@ -205,11 +228,13 @@ theorem pushforwardFamily_apply [G.IsLocallyFull K]
 variable [G.IsCoverDense K] [G.IsLocallyFull K]
 
 /-- (Implementation). The `pushforwardFamily` defined is compatible. -/
-theorem pushforwardFamily_compatible {X} (x : ℱ.obj (op X)) :
-    (pushforwardFamily α x).Compatible := by
+theorem pushforwardFamily_compatible {X} (x : ℱ.obj (op X))
+    : (pushforwardFamily α x).Compatible := by
   suffices ∀ {Z W₁ W₂} (iWX₁ : G.obj W₁ ⟶ X) (iWX₂ : G.obj W₂ ⟶ X) (iZW₁ : Z ⟶ G.obj W₁)
-      (iZW₂ : Z ⟶ G.obj W₂), iZW₁ ≫ iWX₁ = iZW₂ ≫ iWX₂ →
-      ℱ'.1.map iZW₁.op (α.app _ (ℱ.map iWX₁.op x)) = ℱ'.1.map iZW₂.op (α.app _ (ℱ.map iWX₂.op x)) by
+      (iZW₂ : Z ⟶ G.obj W₂),
+    iZW₁ ≫ iWX₁ = iZW₂ ≫ iWX₂
+      → ℱ'.1.map iZW₁.op (α.app _ (ℱ.map iWX₁.op x)) = ℱ'.1.map iZW₂.op (α.app _ (ℱ.map iWX₂.op x))
+  by
     rintro Y₁ Y₂ Z iZY₁ iZY₂ f₁ f₂ h₁ h₂ e
     simp only [pushforwardFamily, ← Functor.map_comp_apply, ← op_comp]
     generalize Nonempty.some h₁ = l₁
@@ -219,39 +244,42 @@ theorem pushforwardFamily_compatible {X} (x : ℱ.obj (op X)) :
     exact this _ _ _ _ (by simpa only [Category.assoc] using e)
   introv e
   refine ext G _ _ fun V iVZ ↦ ?_
-  simp only [← op_comp, ← Functor.map_comp_apply, naturality_apply,
-    Category.assoc, e]
+  simp only [← op_comp, ← Functor.map_comp_apply, naturality_apply, Category.assoc, e]
 
 /-- (Implementation). The morphism `ℱ(X) ⟶ ℱ'(X)` given by gluing the `pushforwardFamily`. -/
-noncomputable def appHom (X : D) : ℱ.obj (op X) ⟶ ℱ'.obj.obj (op X) := ↾fun x =>
-  ((isSheaf_iff_isSheaf_of_type _ _).1 ℱ'.property _
-    (G.is_cover_of_isCoverDense _ X)).amalgamate (pushforwardFamily α x)
-      (pushforwardFamily_compatible α x)
+noncomputable def appHom (X : D) : ℱ.obj (op X) ⟶ ℱ'.obj.obj (op X) :=
+  ↾fun x =>
+    ((isSheaf_iff_isSheaf_of_type _ _).1 ℱ'.property _
+      (G.is_cover_of_isCoverDense _ X)).amalgamate (pushforwardFamily α x)
+        (pushforwardFamily_compatible α x)
 
 @[simp]
-theorem appHom_restrict {X : D} {Y : C} (f : op X ⟶ op (G.obj Y)) (x) :
-    ℱ'.obj.map f (appHom α X x) = α.app (op Y) (ℱ.map f x) :=
+theorem appHom_restrict {X : D} {Y : C} (f : op X ⟶ op (G.obj Y)) (x)
+    : ℱ'.obj.map f (appHom α X x) = α.app (op Y) (ℱ.map f x) :=
   (((isSheaf_iff_isSheaf_of_type _ _).1 ℱ'.property _ (G.is_cover_of_isCoverDense _ X)).valid_glue
-      (pushforwardFamily_compatible α x) f.unop
-          (Presieve.in_coverByImage G f.unop)).trans (pushforwardFamily_apply _ _ _)
+      (pushforwardFamily_compatible α x) f.unop (Presieve.in_coverByImage G f.unop)).trans
+    (pushforwardFamily_apply _ _ _)
 
 @[simp]
-theorem appHom_valid_glue {X : D} {Y : C} (f : op X ⟶ op (G.obj Y)) :
-    appHom α X ≫ ℱ'.obj.map f = ℱ.map f ≫ α.app (op Y) := by
+theorem appHom_valid_glue {X : D} {Y : C} (f : op X ⟶ op (G.obj Y))
+    : appHom α X ≫ ℱ'.obj.map f = ℱ.map f ≫ α.app (op Y) := by
   ext
   apply appHom_restrict
 
-unif_hint {J J' C : Type*} [Category* J] [Category* J'] [Category* C]
+unif_hint
+    {J J' C : Type*} [Category* J] [Category* J'] [Category* C]
     (G G' : J' ⥤ J) (F F' : Jᵒᵖ ⥤ C) (j j' : J') where
   G ≟ G'
   F ≟ F'
-  j ≟ j' ⊢ (G.op ⋙ F).obj (op j) ≟ F'.obj (op (G'.obj j')) in
+  j ≟ j'
+  ⊢
+  (G.op ⋙ F).obj (op j) ≟ F'.obj (op (G'.obj j')) in
 /--
 (Implementation). The maps given in `appIso` is inverse to each other and gives a `ℱ(X) ≅ ℱ'(X)`.
 -/
 @[simps]
-noncomputable def appIso {ℱ ℱ' : Sheaf K (Type v)} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj)
-    (X : D) : ℱ.obj.obj (op X) ≅ ℱ'.obj.obj (op X) where
+noncomputable def appIso {ℱ ℱ' : Sheaf K (Type v)} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) (X : D)
+    : ℱ.obj.obj (op X) ≅ ℱ'.obj.obj (op X) where
   hom := appHom i.hom X
   inv := appHom i.inv X
   hom_inv_id := by
@@ -287,8 +315,8 @@ where `G` is locally-full and cover-dense, and `ℱ, ℱ'` are sheaves,
 we may obtain a natural isomorphism between presheaves.
 -/
 @[simps!]
-noncomputable def presheafIso {ℱ ℱ' : Sheaf K (Type v)} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) :
-    ℱ.obj ≅ ℱ'.obj :=
+noncomputable def presheafIso {ℱ ℱ' : Sheaf K (Type v)} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj)
+    : ℱ.obj ≅ ℱ'.obj :=
   NatIso.ofComponents (fun X => appIso i (unop X)) @(presheafHom i.hom).naturality
 
 /--
@@ -297,8 +325,7 @@ where `G` is locally-full and cover-dense, and `ℱ, ℱ'` are sheaves,
 we may obtain a natural isomorphism between sheaves.
 -/
 @[simps! hom_hom inv_hom]
-noncomputable def sheafIso {ℱ ℱ' : Sheaf K (Type v)} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) :
-    ℱ ≅ ℱ' :=
+noncomputable def sheafIso {ℱ ℱ' : Sheaf K (Type v)} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) : ℱ ≅ ℱ' :=
   (fullyFaithfulSheafToPresheaf _ _).preimageIso (presheafIso i)
 
 end Types
@@ -311,15 +338,14 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- (Implementation). The sheaf map given in `types.sheaf_hom` is natural in terms of `X`. -/
 @[simps]
-noncomputable def sheafCoyonedaHom (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) :
-    coyoneda ⋙ (whiskeringLeft Dᵒᵖ A (Type _)).obj ℱ ⟶
-      coyoneda ⋙ (whiskeringLeft Dᵒᵖ A (Type _)).obj ℱ'.obj where
+noncomputable def sheafCoyonedaHom (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj)
+    : coyoneda ⋙ (whiskeringLeft (Dᵒᵖ) A (Type _)).obj ℱ
+      ⟶ coyoneda ⋙ (whiskeringLeft (Dᵒᵖ) A (Type _)).obj ℱ'.obj where
   app X := presheafHom (homOver α (unop X))
   naturality X Y f := by
     ext U x
-    change
-      appHom (homOver α (unop Y)) (unop U) (f.unop ≫ x) =
-        f.unop ≫ appHom (homOver α (unop X)) (unop U) x
+    change appHom (homOver α (unop Y)) (unop U) (f.unop ≫ x)
+      = f.unop ≫ appHom (homOver α (unop X)) (unop U) x
     symm
     apply sheaf_eq_amalgamation
     · apply G.is_cover_of_isCoverDense
@@ -337,12 +363,13 @@ noncomputable def sheafCoyonedaHom (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) :
 /--
 (Implementation). `sheafCoyonedaHom` but the order of the arguments of the functor are swapped.
 -/
-noncomputable def sheafYonedaHom (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) :
-    ℱ ⋙ yoneda ⟶ ℱ'.obj ⋙ yoneda where
+noncomputable def sheafYonedaHom (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) : ℱ ⋙ yoneda ⟶ ℱ'.obj ⋙ yoneda where
   app U :=
     let α := (sheafCoyonedaHom α)
-    { app := fun X => (α.app X).app U
-      naturality := fun X Y f => by simpa using! congr_app (α.naturality f) U }
+    {
+      app := fun X => (α.app X).app U
+      naturality := fun X Y f => by simpa using! congr_app (α.naturality f) U
+    }
   naturality U V i := by
     ext X x
     congrm $(((sheafCoyonedaHom α).app X).naturality i) x
@@ -354,8 +381,10 @@ transformation between presheaves.
 -/
 noncomputable def sheafHom (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) : ℱ ⟶ ℱ'.obj :=
   let α' := sheafYonedaHom α
-  { app := fun X => yoneda.preimage (α'.app X)
-    naturality := fun X Y f => yoneda.map_injective (by simpa using! α'.naturality f) }
+  {
+    app := fun X => yoneda.preimage (α'.app X)
+    naturality := fun X Y f => yoneda.map_injective (by simpa using! α'.naturality f)
+  }
 
 /--
 Given a natural isomorphism `G ⋙ ℱ ≅ G ⋙ ℱ'` between presheaves of arbitrary category,
@@ -363,14 +392,14 @@ where `G` is locally-full and cover-dense, and `ℱ', ℱ` are sheaves,
 we may obtain a natural isomorphism between presheaves.
 -/
 @[simps!]
-noncomputable def presheafIso {ℱ ℱ' : Sheaf K A} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj) :
-    ℱ.obj ≅ ℱ'.obj := by
+noncomputable def presheafIso {ℱ ℱ' : Sheaf K A} (i : G.op ⋙ ℱ.obj ≅ G.op ⋙ ℱ'.obj)
+    : ℱ.obj ≅ ℱ'.obj := by
   have : ∀ X : Dᵒᵖ, IsIso ((sheafHom i.hom).app X) := by
     intro X
     rw [← isIso_iff_of_reflects_iso _ yoneda]
     use (sheafYonedaHom i.inv).app X
-    constructor <;> ext x : 2 <;>
-      simp only [sheafHom, NatTrans.comp_app, NatTrans.id_app, Functor.map_preimage]
+    constructor <;> ext x : 2
+      <;> simp only [sheafHom, NatTrans.comp_app, NatTrans.id_app, Functor.map_preimage]
     · exact ((Types.presheafIso (isoOver i (unop x))).app X).hom_inv_id
     · exact ((Types.presheafIso (isoOver i (unop x))).app X).inv_hom_id
   haveI : IsIso (sheafHom i.hom) := by apply NatIso.isIso_of_isIso_app
@@ -388,8 +417,8 @@ noncomputable def sheafIso {ℱ ℱ' : Sheaf K A} (i : G.op ⋙ ℱ.obj ≅ G.op
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The constructed `sheafHom α` is equal to `α` when restricted onto `C`. -/
-theorem sheafHom_restrict_eq (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) :
-    whiskerLeft G.op (sheafHom α) = α := by
+theorem sheafHom_restrict_eq (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj)
+    : whiskerLeft G.op (sheafHom α) = α := by
   ext X
   apply yoneda.map_injective
   ext U
@@ -407,10 +436,13 @@ theorem sheafHom_restrict_eq (α : G.op ⋙ ℱ ⟶ G.op ⋙ ℱ'.obj) :
   congr 1
   simp only [Category.assoc]
   congr 1
-  simpa using naturality_apply (G := G) (ℱ := ℱ ⋙ coyoneda.obj (op <| (G.op ⋙ ℱ).obj X))
-    (ℱ' := ⟨_, Presheaf.isSheaf_comp_of_isSheaf K ℱ'.obj
-      (coyoneda.obj (op ((G.op ⋙ ℱ).obj X))) ℱ'.property⟩)
-    (whiskerRight α (coyoneda.obj _)) hf.some.map (𝟙 _)
+  simpa using
+    naturality_apply (G := G) (ℱ := ℱ ⋙ coyoneda.obj (op <| (G.op ⋙ ℱ).obj X))
+      (ℱ' := ⟨
+        _,
+        Presheaf.isSheaf_comp_of_isSheaf K ℱ'.obj (coyoneda.obj (op ((G.op ⋙ ℱ).obj X))) ℱ'.property
+      ⟩)
+      (whiskerRight α (coyoneda.obj _)) hf.some.map (𝟙 _)
 
 set_option backward.defeqAttrib.useBackward true in
 variable (G) in
@@ -432,7 +464,8 @@ theorem sheafHom_eq (α : ℱ ⟶ ℱ'.obj) : sheafHom (whiskerLeft G.op α) = �
   · exact (pushforwardFamily_compatible _ _)
   intro Y f hf
   conv_lhs => rw [← hf.some.fac]
-  dsimp; simp
+  dsimp
+  simp
 
 /--
 A locally-full and cover-dense functor `G` induces an equivalence between morphisms into a sheaf and
@@ -475,11 +508,12 @@ lemma restrictHomEquivHom_naturality_left
     (restrictHomEquivHom_naturality_left_symm (G := G) (f := f)
       (g := restrictHomEquivHom g)).symm
 
-/-- Given a locally-full and cover-dense functor `G` and a natural transformation of sheaves
+/--
+Given a locally-full and cover-dense functor `G` and a natural transformation of sheaves
 `α : ℱ ⟶ ℱ'`, if the pullback of `α` along `G` is iso, then `α` is also iso.
 -/
-theorem iso_of_restrict_iso {ℱ ℱ' : Sheaf K A} (α : ℱ ⟶ ℱ') (i : IsIso (whiskerLeft G.op α.hom)) :
-    IsIso α := by
+theorem iso_of_restrict_iso {ℱ ℱ' : Sheaf K A} (α : ℱ ⟶ ℱ') (i : IsIso (whiskerLeft G.op α.hom))
+    : IsIso α := by
   convert! (sheafIso (asIso (whiskerLeft G.op α.hom))).isIso_hom using 1
   ext1
   apply (sheafHom_eq _ _).symm
@@ -503,13 +537,13 @@ lemma compatiblePreserving [G.IsLocallyFaithful K] : CompatiblePreserving K G :=
 lemma isContinuous [G.IsLocallyFaithful K] (Hp : CoverPreserving J K G) : G.IsContinuous J K :=
   isContinuous_of_coverPreserving (compatiblePreserving K G) Hp
 
-instance full_sheafPushforwardContinuous [G.IsContinuous J K] :
-    Full (G.sheafPushforwardContinuous A J K) where
+instance full_sheafPushforwardContinuous [G.IsContinuous J K]
+    : Full (G.sheafPushforwardContinuous A J K) where
   map_surjective α := ⟨⟨sheafHom α.hom⟩, Sheaf.hom_ext <| sheafHom_restrict_eq α.hom⟩
 
 set_option backward.defeqAttrib.useBackward true in
-instance faithful_sheafPushforwardContinuous [G.IsContinuous J K] :
-    Faithful (G.sheafPushforwardContinuous A J K) where
+instance faithful_sheafPushforwardContinuous [G.IsContinuous J K]
+    : Faithful (G.sheafPushforwardContinuous A J K) where
   map_injective := by
     intro ℱ ℱ' α β e
     ext1
@@ -529,9 +563,11 @@ lemma whiskerLeft_obj_map_bijective_of_isCoverDense (G : C ⥤ D)
 
 variable (G : C ⥤ D) {A : Type*} [Category* A]
 
-/-- The functor `G : C ⥤ D` exhibits `(C, J)` as a dense subsite of `(D, K)`
+/--
+The functor `G : C ⥤ D` exhibits `(C, J)` as a dense subsite of `(D, K)`
 if `G` is cover-dense, locally fully-faithful,
-and `S` is a cover of `C` if and only if the image of `S` in `D` is a cover. -/
+and `S` is a cover of `C` if and only if the image of `S` in `D` is a cover.
+-/
 class IsDenseSubsite : Prop where
   isCoverDense' : G.IsCoverDense K := by infer_instance
   isLocallyFull' : G.IsLocallyFull K := by infer_instance
@@ -564,17 +600,15 @@ instance (priority := 900) : G.IsCocontinuous J K where
   cover_lift hS :=
     letI := IsDenseSubsite.isCoverDense J K G
     letI := IsDenseSubsite.isLocallyFull J K G
-    IsDenseSubsite.functorPushforward_mem_iff.mp
-      (IsCoverDense.functorPullback_pushforward_covering ⟨_, hS⟩)
+    IsDenseSubsite.functorPushforward_mem_iff.mp (IsCoverDense.functorPullback_pushforward_covering
+      ⟨_, hS⟩)
 
-instance full_sheafPushforwardContinuous :
-    Full (G.sheafPushforwardContinuous A J K) :=
+instance full_sheafPushforwardContinuous : Full (G.sheafPushforwardContinuous A J K) :=
   letI := IsDenseSubsite.isCoverDense J K G
   letI := IsDenseSubsite.isLocallyFull J K G
   inferInstance
 
-instance faithful_sheafPushforwardContinuous :
-    Faithful (G.sheafPushforwardContinuous A J K) :=
+instance faithful_sheafPushforwardContinuous : Faithful (G.sheafPushforwardContinuous A J K) :=
   letI := IsDenseSubsite.isCoverDense J K G
   letI := IsDenseSubsite.isLocallyFull J K G
   inferInstance
@@ -601,18 +635,21 @@ lemma map_eq_of_eq {X Y : C} (f₁ f₂ : X ⟶ Y)
       dsimp at ha ⊢
       simp only [← Functor.map_comp, ← op_comp, ha])
 
-/-- If `G : C ⥤ D` is a dense subsite and `F` a sheaf on `C`, this is the morphism
+/--
+If `G : C ⥤ D` is a dense subsite and `F` a sheaf on `C`, this is the morphism
 `F.val.obj (op Y) ⟶ F.val.obj (op X)` induced by a morphism
-`G.obj X ⟶ G.obj Y` in the category `D`. -/
-noncomputable def mapPreimage {X Y : C} (f : G.obj X ⟶ G.obj Y) :
-    F.obj.obj (op Y) ⟶ F.obj.obj (op X) :=
-  F.property.amalgamate
-    ⟨_, imageSieve_mem J K G f⟩ (fun ⟨W₀, a, ha⟩ ↦ F.obj.map ha.choose.op) (by
-      rintro ⟨W₀, a, ha⟩ ⟨W₀', a', ha'⟩ ⟨T₀, p₁, p₂, fac⟩
-      rw [← Functor.map_comp, ← Functor.map_comp, ← op_comp, ← op_comp]
-      apply map_eq_of_eq K G
-      rw [Functor.map_comp, Functor.map_comp, ha.choose_spec, ha'.choose_spec,
-        ← Functor.map_comp_assoc, ← Functor.map_comp_assoc, fac])
+`G.obj X ⟶ G.obj Y` in the category `D`.
+-/
+noncomputable def mapPreimage {X Y : C} (f : G.obj X ⟶ G.obj Y)
+    : F.obj.obj (op Y) ⟶ F.obj.obj (op X) :=
+  F.property.amalgamate ⟨_, imageSieve_mem J K G f⟩ (fun ⟨W₀, a, ha⟩ ↦ F.obj.map ha.choose.op) (by
+    rintro ⟨W₀, a, ha⟩ ⟨W₀', a', ha'⟩ ⟨T₀, p₁, p₂, fac⟩
+    rw [← Functor.map_comp, ← Functor.map_comp, ← op_comp, ← op_comp]
+    apply map_eq_of_eq K G
+    rw [
+      Functor.map_comp, Functor.map_comp, ha.choose_spec, ha'.choose_spec, ← Functor.map_comp_assoc,
+      ← Functor.map_comp_assoc, fac
+    ])
 
 lemma mapPreimage_map_of_fac {X Y Z : C} (f : G.obj X ⟶ G.obj Y)
     (p : Z ⟶ X) (g : Z ⟶ Y) (fac : G.map p ≫ f = G.map g) :
@@ -677,31 +714,33 @@ section
 variable [HasWeakSheafify J A]
 
 variable (A) in
-/-- Assuming that `(C, J)` is a dense subsite of `(D, K)` (via a functor `G : C ⥤ D`)
+/--
+Assuming that `(C, J)` is a dense subsite of `(D, K)` (via a functor `G : C ⥤ D`)
 and `sheafPushforwardContinuous G A J₀ J` is an equivalence of categories
 this is a sheafification functor `(Dᵒᵖ ⥤ A) ⥤ Sheaf K A`
-when `HasWeakSheafify J A` holds. -/
-noncomputable def sheafifyOfIsEquivalence :
-    (Dᵒᵖ ⥤ A) ⥤ Sheaf K A :=
-  (whiskeringLeft _ _ _).obj G.op ⋙ presheafToSheaf J A ⋙
-    inv (G.sheafPushforwardContinuous A J K)
+when `HasWeakSheafify J A` holds.
+-/
+noncomputable def sheafifyOfIsEquivalence : (Dᵒᵖ ⥤ A) ⥤ Sheaf K A :=
+  (whiskeringLeft _ _ _).obj G.op ⋙ presheafToSheaf J A ⋙ inv (G.sheafPushforwardContinuous A J K)
 
 variable (A) in
-/-- Assuming that `(C, J)` is a dense subsite of `(D, K)` (via a functor `G : C ⥤ D`)
+/--
+Assuming that `(C, J)` is a dense subsite of `(D, K)` (via a functor `G : C ⥤ D`)
 and `sheafPushforwardContinuous G A J₀ J` is an equivalence of categories, this is
 the isomorphism between `sheafifyOfIsEquivalence J K G A ⋙ G.sheafPushforwardContinuous A J K`
-and the functor which sends a presheaf to the sheafification of its precomposition by `G.op`. -/
-noncomputable def sheafifyOfIsEquivalenceCompIso :
-    sheafifyOfIsEquivalence J K G A ⋙ G.sheafPushforwardContinuous A J K ≅
-      (whiskeringLeft _ _ _).obj G.op ⋙ presheafToSheaf J A :=
-  associator _ _ _ ≪≫ isoWhiskerLeft _ (associator _ _ _) ≪≫
-    isoWhiskerLeft _ (isoWhiskerLeft _
-      (sheafPushforwardContinuous G A J K).asEquivalence.counitIso ≪≫ Functor.rightUnitor _)
+and the functor which sends a presheaf to the sheafification of its precomposition by `G.op`.
+-/
+noncomputable def sheafifyOfIsEquivalenceCompIso
+    : sheafifyOfIsEquivalence J K G A ⋙ G.sheafPushforwardContinuous A J K
+      ≅ (whiskeringLeft _ _ _).obj G.op ⋙ presheafToSheaf J A :=
+  associator _ _ _ ≪≫ isoWhiskerLeft _ (associator _ _ _)
+    ≪≫ isoWhiskerLeft _
+      (isoWhiskerLeft _ (sheafPushforwardContinuous G A J K).asEquivalence.counitIso
+        ≪≫ Functor.rightUnitor _)
 
 /-- Auxiliary definition for `sheafifyAdjunctionOfIsEquivalence`. -/
-noncomputable def sheafifyHomEquivOfIsEquivalence
-    {P : Dᵒᵖ ⥤ A} {Q : Sheaf K A} :
-    ((sheafifyOfIsEquivalence J K G A).obj P ⟶ Q) ≃ (P ⟶ Q.obj) :=
+noncomputable def sheafifyHomEquivOfIsEquivalence {P : Dᵒᵖ ⥤ A} {Q : Sheaf K A}
+    : ((sheafifyOfIsEquivalence J K G A).obj P ⟶ Q) ≃ (P ⟶ Q.obj) :=
   haveI := IsDenseSubsite.isLocallyFull J K G
   haveI := IsDenseSubsite.isCoverDense J K G
   ((G.sheafPushforwardContinuous A J K).asEquivalence.symm.toAdjunction.homEquiv _ _).trans
@@ -748,19 +787,21 @@ lemma sheafifyHomEquivOfIsEquivalence_naturality_right
 
 variable (A)
 
-/-- Assuming that `(C, J)` is a dense subsite of `(D, K)` (via a functor `G : C ⥤ D`)
+/--
+Assuming that `(C, J)` is a dense subsite of `(D, K)` (via a functor `G : C ⥤ D`)
 and `sheafPushforwardContinuous G A J K` is an equivalence of categories, and
 that `HasWeakSheafify J A` holds, then this adjunction shows the existence
-of a left adjoint to `sheafToPresheaf K A`. -/
-noncomputable def sheafifyAdjunctionOfIsEquivalence :
-    sheafifyOfIsEquivalence J K G A ⊣ sheafToPresheaf K A :=
-  Adjunction.mkOfHomEquiv
-    { homEquiv := fun P Q ↦ sheafifyHomEquivOfIsEquivalence J K G
-      homEquiv_naturality_left_symm := fun {P₁ P₂ Q} f g ↦
-        (sheafifyHomEquivOfIsEquivalence J K G).injective (by
-          simp [sheafifyHomEquivOfIsEquivalence_naturality_left _ _ _ f])
-      homEquiv_naturality_right :=
-        sheafifyHomEquivOfIsEquivalence_naturality_right J K G }
+of a left adjoint to `sheafToPresheaf K A`.
+-/
+noncomputable def sheafifyAdjunctionOfIsEquivalence
+    : sheafifyOfIsEquivalence J K G A ⊣ sheafToPresheaf K A :=
+  Adjunction.mkOfHomEquiv {
+    homEquiv := fun P Q ↦ sheafifyHomEquivOfIsEquivalence J K G
+    homEquiv_naturality_left_symm := fun {P₁ P₂ Q} f g ↦
+      (sheafifyHomEquivOfIsEquivalence J K G).injective
+        (by simp [sheafifyHomEquivOfIsEquivalence_naturality_left _ _ _ f])
+    homEquiv_naturality_right := sheafifyHomEquivOfIsEquivalence_naturality_right J K G
+  }
 
 include G K in
 lemma hasWeakSheafify_of_isEquivalence :
@@ -788,23 +829,23 @@ variable (J A) [IsEquivalence (sheafPushforwardContinuous G A J K)]
 /--
 If `G : C ⥤ D` exhibits `(C, J)` as a dense subsite of `(D, K)`, and the
 pushforward functor `Sheaf K A ⥤ Sheaf J A` is an equivalence, then this
-is the equivalence `Sheaf K A ≌ Sheaf J A`. -/
+is the equivalence `Sheaf K A ≌ Sheaf J A`.
+-/
 @[simps! inverse]
 noncomputable def sheafEquiv : Sheaf J A ≌ Sheaf K A :=
   (sheafPushforwardContinuous G A J K).asEquivalence.symm
 
 variable [HasWeakSheafify J A] [HasWeakSheafify K A]
 
-/-- The natural isomorphism exhibiting the compatibility of
-`IsDenseSubsite.sheafEquiv` with sheafification. -/
-noncomputable
-def sheafEquivSheafificationCompatibility :
-    (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf J A ≅
-      presheafToSheaf K A ⋙ (sheafEquiv J K G A).inverse :=
-  (sheafifyOfIsEquivalenceCompIso _ _ _ _).symm ≪≫
-    isoWhiskerRight
-      ((sheafifyAdjunctionOfIsEquivalence J K G A).leftAdjointUniq
-        (sheafificationAdjunction K A)) _
+/--
+The natural isomorphism exhibiting the compatibility of
+`IsDenseSubsite.sheafEquiv` with sheafification.
+-/
+noncomputable def sheafEquivSheafificationCompatibility
+    : (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf J A
+      ≅ presheafToSheaf K A ⋙ (sheafEquiv J K G A).inverse :=
+  (sheafifyOfIsEquivalenceCompIso _ _ _ _).symm ≪≫ isoWhiskerRight
+    ((sheafifyAdjunctionOfIsEquivalence J K G A).leftAdjointUniq (sheafificationAdjunction K A)) _
 
 end
 

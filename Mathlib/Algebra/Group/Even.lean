@@ -50,8 +50,10 @@ variable {F α β : Type*}
 section Mul
 variable [Mul α]
 
-/-- An element `a` of a type `α` with multiplication satisfies `IsSquare a` if `a = r * r`,
-for some root `r : α`. -/
+/--
+An element `a` of a type `α` with multiplication satisfies `IsSquare a` if `a = r * r`,
+for some root `r : α`.
+-/
 @[to_additive /-- An element `a` of a type `α` with addition satisfies `Even a` if `a = r + r`,
 for some `r : α`. -/]
 def IsSquare (a : α) : Prop := ∃ r, a = r * r
@@ -73,8 +75,8 @@ lemma isSquare_op_iff {a : α} : IsSquare (op a) ↔ IsSquare a :=
 lemma isSquare_unop_iff {a : αᵐᵒᵖ} : IsSquare (unop a) ↔ IsSquare a := isSquare_op_iff.symm
 
 @[to_additive]
-instance [DecidablePred (IsSquare : α → Prop)] : DecidablePred (IsSquare : αᵐᵒᵖ → Prop) :=
-  fun _ ↦ decidable_of_iff _ isSquare_unop_iff
+instance [DecidablePred (IsSquare : α → Prop)] : DecidablePred (IsSquare : αᵐᵒᵖ → Prop) := fun _ ↦
+  decidable_of_iff _ isSquare_unop_iff
 
 @[simp]
 lemma even_ofMul_iff {a : α} : Even (Additive.ofMul a) ↔ IsSquare a := Iff.rfl
@@ -82,9 +84,9 @@ lemma even_ofMul_iff {a : α} : Even (Additive.ofMul a) ↔ IsSquare a := Iff.rf
 @[simp]
 lemma isSquare_toMul_iff {a : Additive α} : IsSquare (a.toMul) ↔ Even a := Iff.rfl
 
-instance Additive.instDecidablePredEven [DecidablePred (IsSquare : α → Prop)] :
-    DecidablePred (Even : Additive α → Prop) :=
-  fun _ ↦ decidable_of_iff _ isSquare_toMul_iff
+instance Additive.instDecidablePredEven [DecidablePred (IsSquare : α → Prop)]
+    : DecidablePred (Even : Additive α → Prop) := fun _ ↦
+  decidable_of_iff _ isSquare_toMul_iff
 
 end Mul
 
@@ -96,9 +98,9 @@ variable [Add α]
 @[simp]
 lemma even_toAdd_iff {a : Multiplicative α} : Even a.toAdd ↔ IsSquare a := Iff.rfl
 
-instance Multiplicative.instDecidablePredIsSquare [DecidablePred (Even : α → Prop)] :
-    DecidablePred (IsSquare : Multiplicative α → Prop) :=
-  fun _ ↦ decidable_of_iff _ even_toAdd_iff
+instance Multiplicative.instDecidablePredIsSquare [DecidablePred (Even : α → Prop)]
+    : DecidablePred (IsSquare : Multiplicative α → Prop) := fun _ ↦
+  decidable_of_iff _ even_toAdd_iff
 
 end Add
 
@@ -172,8 +174,10 @@ lemma IsSquare.div [DivisionCommMonoid α] {a b : α} (ha : IsSquare a) (hb : Is
 lemma Even.isSquare_zpow [Group α] {n : ℤ} : Even n → ∀ a : α, IsSquare (a ^ n) := by
   aesop (add simp zpow_add)
 
-example {G : Type*} [CommGroup G] {a b c d e : G} (ha : IsSquare a) {n : ℕ} {k : ℤ} (hk : Even k) :
-    IsSquare <| a * (b * b) / (c ^ 2) * (d ^ k) * (e ^ (n + n)) := by aesop
+example {G : Type*} [CommGroup G] {a b c d e : G} (ha : IsSquare a) {n : ℕ} {k : ℤ} (hk : Even k)
+    : IsSquare <| a * (b * b) / (c ^ 2) * (d ^ k) * (e ^ (n + n)) := by
+  aesop
 
-example {G : Type*} [AddCommGroup G] {a b c d e : G} (ha : Even a) {n : ℕ} {k : ℤ} (hk : Even k) :
-    Even <| a + (b + b) - 2 • c + k • d + (n + n) • e := by aesop
+example {G : Type*} [AddCommGroup G] {a b c d e : G} (ha : Even a) {n : ℕ} {k : ℤ} (hk : Even k)
+    : Even <| a + (b + b) - 2 • c + k • d + (n + n) • e := by
+  aesop

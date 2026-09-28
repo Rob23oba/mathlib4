@@ -106,13 +106,16 @@ private theorem exists_pow_two_le_of_one_lt (hx : 1 < x) : ∃ y : M, 1 < y ∧ 
 
 @[to_additive]
 theorem exists_pow_lt_of_one_lt (hx : 1 < x) : ∀ n : ℕ, ∃ y : M, 1 < y ∧ y ^ n < x
-  | 0 => ⟨x, by simpa⟩
-  | 1 => by simpa using exists_between hx
+  | 0 =>
+    ⟨x, by simpa⟩
+  | 1 => by
+    simpa using exists_between hx
   | n + 2 => by
     obtain ⟨y, hy, hyx⟩ := exists_pow_lt_of_one_lt hx (n + 1)
     obtain ⟨z, hz, hzy⟩ := exists_pow_two_le_of_one_lt hy
     refine ⟨z, hz, hyx.trans_le' ?_⟩
-    calc z ^ (n + 2)
+    calc
+      z ^ (n + 2)
       _ ≤ z ^ (2 * (n + 1)) := pow_right_monotone hz.le (by lia)
       _ = (z ^ 2) ^ (n + 1) := by rw [pow_mul]
       _ ≤ y ^ (n + 1) := pow_le_pow_left' hzy (n + 1)

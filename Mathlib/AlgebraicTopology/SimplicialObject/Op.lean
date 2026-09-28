@@ -27,18 +27,20 @@ namespace SimplicialObject
 
 variable {C : Type*} [Category.{v} C]
 
-/-- The covariant involution of the category of simplicial objects
+/--
+The covariant involution of the category of simplicial objects
 that is induced by the involution
 `SimplexCategory.rev : SimplexCategory ⥤ SimplexCategory`.
 This functor is purposely not made `implicit_reducible` so as to avoid
 confusion between `(opFunctor.obj X) _⦋n⦌` and `X _⦋n⦌`: use the
-isomorphism `opObjIso`. -/
+isomorphism `opObjIso`.
+-/
 def opFunctor : SimplicialObject C ⥤ SimplicialObject C :=
   (Functor.whiskeringLeft _ _ _).obj SimplexCategory.rev.op
 
 /-- The isomorphism `(opFunctor.obj X).obj n ≅ X.obj n` when `X` is a simplicial object. -/
-def opObjIso {X : SimplicialObject C} {n : SimplexCategoryᵒᵖ} :
-    (opFunctor.obj X).obj n ≅ X.obj n := Iso.refl _
+def opObjIso {X : SimplicialObject C} {n : SimplexCategoryᵒᵖ} : (opFunctor.obj X).obj n ≅ X.obj n :=
+  Iso.refl _
 
 @[simp]
 lemma opFunctor_map_app {X Y : SimplicialObject C} (f : X ⟶ Y) (n : SimplexCategoryᵒᵖ) :
@@ -61,15 +63,16 @@ lemma opFunctor_obj_σ (X : SimplicialObject C) {n : ℕ} (i : Fin (n + 1)) :
     (opFunctor.obj X).σ i = opObjIso.hom ≫ X.σ i.rev ≫ opObjIso.inv := by
   simp [opObjIso, SimplicialObject.σ]
 
-/-- The functor `opFunctor : SimplicialObject C ⥤ SimplicialObject C`
-is a covariant involution. -/
+/--
+The functor `opFunctor : SimplicialObject C ⥤ SimplicialObject C`
+is a covariant involution.
+-/
 def opFunctorCompOpFunctorIso : opFunctor (C := C) ⋙ opFunctor ≅ 𝟭 _ :=
-  (Functor.whiskeringLeftObjCompIso _ _).symm ≪≫
-    (Functor.whiskeringLeft _ _ _).mapIso
-    ((Functor.opComp _ _).symm ≪≫
-      (Functor.opHom _ _).mapIso (SimplexCategory.revCompRevIso).symm.op ≪≫
-      Functor.opId _) ≪≫
-    Functor.whiskeringLeftObjIdIso
+  (Functor.whiskeringLeftObjCompIso _ _).symm
+    ≪≫ (Functor.whiskeringLeft _ _ _).mapIso
+      ((Functor.opComp _ _).symm
+        ≪≫ (Functor.opHom _ _).mapIso (SimplexCategory.revCompRevIso).symm.op ≪≫ Functor.opId _)
+    ≪≫ Functor.whiskeringLeftObjIdIso
 
 @[simp]
 lemma opFunctorCompOpFunctorIso_hom_app_app (X : SimplicialObject C) (n : SimplexCategoryᵒᵖ) :
@@ -81,8 +84,10 @@ lemma opFunctorCompOpFunctorIso_inv_app_app (X : SimplicialObject C) (n : Simple
     (opFunctorCompOpFunctorIso.inv.app X).app n = opObjIso.inv ≫ opObjIso.inv := by
   simp [opFunctorCompOpFunctorIso, opObjIso, opFunctor]
 
-/-- The functor `opFunctor : SimplicialObject C ⥤ SimplicialObject C`
-as an equivalence of categories. -/
+/--
+The functor `opFunctor : SimplicialObject C ⥤ SimplicialObject C`
+as an equivalence of categories.
+-/
 @[simps]
 def opEquivalence : SimplicialObject C ≌ SimplicialObject C where
   functor := opFunctor

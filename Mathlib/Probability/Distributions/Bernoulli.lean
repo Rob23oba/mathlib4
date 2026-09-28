@@ -40,15 +40,16 @@ namespace ProbabilityTheory
 
 variable {X Y : Type*} [MeasurableSpace X] [MeasurableSpace Y] {x y : X} {p : I}
 
-/-- The **Bernoulli distribution** over an arbitrary measurable space `X`.
+/--
+The **Bernoulli distribution** over an arbitrary measurable space `X`.
 Given `x y : X` and `p : I` (`I` is the `unitInterval`),
-it is the measure which gives mass `p` to `{x}` and `1 - p` to `{y}`. -/
+it is the measure which gives mass `p` to `{x}` and `1 - p` to `{y}`.
+-/
 @[expose]
 noncomputable def bernoulliMeasure (x y : X) (p : I) : Measure X :=
   toNNReal p • dirac x + toNNReal (σ p) • dirac y
 
-@[inherit_doc]
-scoped notation "Ber(" x ", " y ", " p ")" => bernoulliMeasure x y p
+@[inherit_doc] scoped notation "Ber(" x ", " y ", " p ")" => bernoulliMeasure x y p
 
 lemma bernoulliMeasure_def (x y : X) (p : I) :
     Ber(x, y, p) = toNNReal p • dirac x + toNNReal (σ p) • dirac y := rfl
@@ -145,21 +146,20 @@ instance : IsProbabilityMeasure Ber(x, y, p) where
   measure_univ := by simp [bernoulliMeasure_def]
 
 @[simp]
-theorem bernoulliMeasure_self_eq_dirac (x : X) (p : I) :
-    bernoulliMeasure x x p = dirac x := by
+theorem bernoulliMeasure_self_eq_dirac (x : X) (p : I) : bernoulliMeasure x x p = dirac x := by
   simp [bernoulliMeasure_def, ← add_smul]
 
 @[simp]
-theorem map_bernoulliMeasure [MeasurableSingletonClass X] [MeasurableSingletonClass Y]
-    (x y : X) (f : X → Y) (p : I) :
-    Ber(x, y, p).map f = bernoulliMeasure (f x) (f y) p := by
+theorem map_bernoulliMeasure
+    [MeasurableSingletonClass X] [MeasurableSingletonClass Y] (x y : X) (f : X → Y) (p : I)
+    : Ber(x, y, p).map f = bernoulliMeasure (f x) (f y) p := by
   have hf (x : X) : AEMeasurable f (dirac x) := by fun_prop
   simp only [bernoulliMeasure_def]
   rw [AEMeasurable.map_add₀ (by fun_prop) (by fun_prop)]
   simp [hf]
 
-theorem map_bernoulliMeasure' (x y : X) {f : X → Y} (hf : Measurable f) (p : I) :
-    Ber(x, y, p).map f = bernoulliMeasure (f x) (f y) p := by
+theorem map_bernoulliMeasure' (x y : X) {f : X → Y} (hf : Measurable f) (p : I)
+    : Ber(x, y, p).map f = bernoulliMeasure (f x) (f y) p := by
   simp [bernoulliMeasure_def, Measure.map_add _ _ hf, hf.aemeasurable, map_dirac' hf]
 
 lemma eq_bernoulliMeasure {μ : Measure X}
@@ -197,21 +197,28 @@ section HasLaw
 variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
 
 /-- The constant indicator of a set follows a Bernoulli distribution. -/
-theorem hasLaw_indicator_bernoulliMeasure [IsProbabilityMeasure P] {M : Type*} [Zero M]
-    [MeasurableSpace M] (c : M) {s : Set Ω} (hs : NullMeasurableSet s P) :
-    HasLaw (s.indicator (fun _ ↦ c)) Ber(c, 0, ⟨P.real s, by simp⟩) P := by
+theorem hasLaw_indicator_bernoulliMeasure
+    [IsProbabilityMeasure P]
+    {M : Type*} [Zero M] [MeasurableSpace M]
+    (c : M)
+    {s : Set Ω} (hs : NullMeasurableSet s P)
+    : HasLaw (s.indicator (fun _ ↦ c)) (Ber(c, 0, ⟨P.real s, by simp⟩)) P := by
   classical
   have h : AEMeasurable (s.indicator fun _ ↦ c) P := aemeasurable_const.indicator₀ hs
   refine ⟨h, eq_bernoulliMeasure ?_ ?_ ?_ ?_⟩
   all_goals
     intro t ht h1 h2
-    simp_all [map_apply_of_aemeasurable h ht, Set.indicator_const_preimage_eq_union,
-      measure_compl₀ hs, ENNReal.coe_nnreal_eq, ENNReal.ofReal_sub]
+    simp_all [
+      map_apply_of_aemeasurable h ht, Set.indicator_const_preimage_eq_union, measure_compl₀ hs,
+      ENNReal.coe_nnreal_eq, ENNReal.ofReal_sub
+    ]
 
 /-- The constant indicator of a set follows a Bernoulli distribution. -/
-theorem hasLaw_indicator_one_bernoulliMeasure [IsProbabilityMeasure P] {M : Type*} [Zero M] [One M]
-    [MeasurableSpace M] {s : Set Ω} (hs : NullMeasurableSet s P) :
-    HasLaw (s.indicator (1 : Ω → M)) Ber(1, 0, ⟨P.real s, by simp⟩) P :=
+theorem hasLaw_indicator_one_bernoulliMeasure
+    [IsProbabilityMeasure P]
+    {M : Type*} [Zero M] [One M] [MeasurableSpace M]
+    {s : Set Ω} (hs : NullMeasurableSet s P)
+    : HasLaw (s.indicator (1 : Ω → M)) (Ber(1, 0, ⟨P.real s, by simp⟩)) P :=
   hasLaw_indicator_bernoulliMeasure 1 hs
 
 end HasLaw

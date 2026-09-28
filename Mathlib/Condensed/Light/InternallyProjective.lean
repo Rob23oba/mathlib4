@@ -49,11 +49,10 @@ namespace LightCondensed
 The `S`-valued points of the internal hom `A ⟶[LightCondMod R] B` are in bijection with
 morphisms `A ⊗ R[S] ⟶ B`.
 -/
-noncomputable def ihomPoints (A B : LightCondMod.{u} R) (S : LightProfinite) :
-    (A ⟶[LightCondMod R] B).obj.obj ⟨S⟩ ≃ ((A ⊗ ((free R).obj S.toCondensed)) ⟶ B) :=
-  (((freeForgetAdjunction R).homEquiv _ _).trans
-    (coherentTopology _).yonedaEquiv).symm.trans
-      ((ihom.adjunction A).homEquiv _ _).symm
+noncomputable def ihomPoints (A B : LightCondMod.{u} R) (S : LightProfinite)
+    : (A ⟶[LightCondMod R] B).obj.obj ⟨S⟩ ≃ ((A ⊗ ((free R).obj S.toCondensed)) ⟶ B) :=
+  (((freeForgetAdjunction R).homEquiv _ _).trans (coherentTopology _).yonedaEquiv).symm.trans
+    ((ihom.adjunction A).homEquiv _ _).symm
 
 lemma ihomPoints_apply (A B : LightCondMod.{u} R) (S : LightProfinite)
     (x : (A ⟶[LightCondMod R] B).obj.obj ⟨S⟩) :

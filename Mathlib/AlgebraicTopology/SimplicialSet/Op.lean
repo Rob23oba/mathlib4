@@ -37,18 +37,19 @@ open scoped Simplicial
 
 namespace SSet
 
-/-- The covariant involution of the category of simplicial sets that
+/--
+The covariant involution of the category of simplicial sets that
 is induced by `SimplexCategory.rev : SimplexCategory ⥤ SimplexCategory`.
 This functor is purposely not made `implicit_reducible` so as to avoid
-confusion between `X.op _⦋n⦌` and `X _⦋n⦌`: use the bijection `opObjEquiv`. -/
+confusion between `X.op _⦋n⦌` and `X _⦋n⦌`: use the bijection `opObjEquiv`.
+-/
 def opFunctor : SSet.{u} ⥤ SSet.{u} := SimplicialObject.opFunctor
 
 /-- The image of a simplicial set by the involution `opFunctor : SSet ⥤ SSet`. -/
 protected abbrev op (X : SSet.{u}) : SSet.{u} := opFunctor.obj X
 
 /-- The type of `n`-simplices of `X.op` identify to type of `n`-simplices of `X`. -/
-def opObjEquiv {X : SSet.{u}} {n : SimplexCategoryᵒᵖ} :
-    X.op.obj n ≃ X.obj n := Equiv.refl _
+def opObjEquiv {X : SSet.{u}} {n : SimplexCategoryᵒᵖ} : X.op.obj n ≃ X.obj n := Equiv.refl _
 
 lemma opFunctor_map {X Y : SSet.{u}} (f : X ⟶ Y) {n : SimplexCategoryᵒᵖ} (x : X.op.obj n) :
     (opFunctor.map f).app n x = opObjEquiv.symm (f.app _ (opObjEquiv x)) :=
@@ -84,8 +85,10 @@ def opFunctorCompOpFunctorIso : opFunctor.{u} ⋙ opFunctor ≅ 𝟭 _ :=
   dsimp% NatIso.ofComponents (fun X ↦ NatIso.ofComponents
     (fun n ↦ Equiv.toIso (opObjEquiv.trans opObjEquiv)))
 
-/-- The covariant involution `opFunctor : SSet ⥤ SSet`,
-as an equivalence of categories. -/
+/--
+The covariant involution `opFunctor : SSet ⥤ SSet`,
+as an equivalence of categories.
+-/
 @[simps]
 def opEquivalence : SSet.{u} ≌ SSet.{u} where
   functor := opFunctor

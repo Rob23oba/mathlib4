@@ -54,29 +54,31 @@ section
 variable [HasEqualizers C] [HasPullbacks C] {X Y S T : C}
 
 /-- The natural isomorphism `eq(f ×[S] T, g ×[S] T) ≅ eq(f, g) ×[S] T`. -/
-noncomputable def equalizerPullbackMapIso {f g : X ⟶ Y} {s : X ⟶ S} {t : Y ⟶ S}
-    (hf : f ≫ t = s) (hg : g ≫ t = s) (v : T ⟶ S) :
-    equalizer
-      (pullback.map s v t v f (𝟙 T) (𝟙 S) (by simp [hf]) (by simp))
-      (pullback.map s v t v g (𝟙 T) (𝟙 S) (by simp [hg]) (by simp)) ≅
-    pullback (equalizer.ι f g) (pullback.fst s v) :=
+noncomputable def equalizerPullbackMapIso
+    {f g : X ⟶ Y} {s : X ⟶ S} {t : Y ⟶ S} (hf : f ≫ t = s) (hg : g ≫ t = s) (v : T ⟶ S)
+    : equalizer (pullback.map s v t v f (𝟙 T) (𝟙 S) (by simp [hf]) (by simp))
+        (pullback.map s v t v g (𝟙 T) (𝟙 S) (by simp [hg]) (by simp))
+      ≅ pullback (equalizer.ι f g) (pullback.fst s v) :=
   letI lhs := pullback.map s v t v f (𝟙 T) (𝟙 S) (by simp [hf]) (by simp)
   letI rhs := pullback.map s v t v g (𝟙 T) (𝟙 S) (by simp [hg]) (by simp)
   haveI hl : pullback.fst s v ≫ f = lhs ≫ pullback.fst _ _ := by simp [lhs]
   haveI hr : pullback.fst s v ≫ g = rhs ≫ pullback.fst _ _ := by simp [rhs]
-  letI e : equalizer lhs rhs ≅ pullback (equalizer.ι f g) (pullback.fst s v) :=
-    { hom := pullback.lift
-        (equalizer.lift (equalizer.ι _ _ ≫ pullback.fst _ _) (by
-          simp [hl, hr, equalizer.condition_assoc lhs rhs]))
-        (pullback.lift (equalizer.ι _ _ ≫ pullback.fst _ _)
-          (equalizer.ι _ _ ≫ pullback.snd _ _) (by simp [pullback.condition]))
+  letI e : equalizer lhs rhs ≅ pullback (equalizer.ι f g) (pullback.fst s v) := {
+    hom :=
+      pullback.lift
+        (equalizer.lift (equalizer.ι _ _ ≫ pullback.fst _ _)
+          (by simp [hl, hr, equalizer.condition_assoc lhs rhs]))
+        (pullback.lift (equalizer.ι _ _ ≫ pullback.fst _ _) (equalizer.ι _ _ ≫ pullback.snd _ _)
+          (by simp [pullback.condition]))
         (by simp)
-      inv := equalizer.lift
+    inv :=
+      equalizer.lift
         (pullback.map _ _ _ _ (equalizer.ι _ _) (pullback.snd _ _) s rfl
           (by simp [pullback.condition]))
         (by ext <;> simp [lhs, rhs, equalizer.condition f g])
-      hom_inv_id := by ext <;> simp
-      inv_hom_id := by ext <;> simp [pullback.condition] }
+    hom_inv_id := by ext <;> simp
+    inv_hom_id := by ext <;> simp [pullback.condition]
+  }
   e
 
 variable {f g : X ⟶ Y} {s : X ⟶ S} {t : Y ⟶ S} (hf : f ≫ t = s) (hg : g ≫ t = s) (v : T ⟶ S)

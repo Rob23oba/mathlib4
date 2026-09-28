@@ -36,8 +36,8 @@ lemma hasLiftingProperty_of_isZero
     l := Injective.factorThru f i
     fac_right := hZ.eq_of_tgt _ _ }⟩⟩
 
-instance {A B I : C} (i : A ⟶ B) [Mono i] [Injective I] [HasZeroObject C] (p : I ⟶ 0) :
-    HasLiftingProperty i (p : I ⟶ 0) :=
+instance {A B I : C} (i : A ⟶ B) [Mono i] [Injective I] [HasZeroObject C] (p : I ⟶ 0)
+    : HasLiftingProperty i (p : I ⟶ 0) :=
   Injective.hasLiftingProperty_of_isZero i p (isZero_zero C)
 
 end Injective

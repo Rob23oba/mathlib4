@@ -47,10 +47,11 @@ open scoped Pointwise UniformConvergence Uniformity
 
 section Module
 
-variable (𝕜 α E H : Type*) {hom : Type*} [NormedField 𝕜] [AddCommGroup H] [Module 𝕜 H]
-  [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace H] [UniformSpace E] [IsUniformAddGroup E]
-  [ContinuousSMul 𝕜 E] {𝔖 : Set <| Set α}
-  [FunLike hom H (α → E)] [LinearMapClass hom 𝕜 H (α → E)]
+variable
+  (𝕜 α E H : Type*)
+  {hom : Type*} [NormedField 𝕜] [AddCommGroup H] [Module 𝕜 H] [AddCommGroup E] [Module 𝕜 E]
+  [TopologicalSpace H] [UniformSpace E] [IsUniformAddGroup E] [ContinuousSMul 𝕜 E]
+  {𝔖 : Set <| Set α} [FunLike hom H (α → E)] [LinearMapClass hom 𝕜 H (α → E)]
 
 /-- Let `E` be a topological vector space over a normed field `𝕜`, let `α` be any type.
 Let `H` be a submodule of `α →ᵤ E` such that the range of each `f ∈ H` is von Neumann bounded.
@@ -109,14 +110,17 @@ lemma UniformOnFun.continuousSMul_induced_of_image_bounded (φ : hom) (hφ : IsI
   refine UniformFun.continuousSMul_induced_of_range_bounded 𝕜 s E H φ' ⟨rfl⟩ fun u ↦ ?_
   simpa only [Set.image_eq_range] using! h u s hs
 
-/-- Let `E` be a TVS, `𝔖 : Set (Set α)` and `H` a submodule of `α →ᵤ[𝔖] E`. If the image of any
+/--
+Let `E` be a TVS, `𝔖 : Set (Set α)` and `H` a submodule of `α →ᵤ[𝔖] E`. If the image of any
 `S ∈ 𝔖` by any `u ∈ H` is bounded (in the sense of `Bornology.IsVonNBounded`), then `H`,
 equipped with the topology of `𝔖`-convergence, is a TVS.
 
-If you have a hard time using this lemma, try the one above instead. -/
-theorem UniformOnFun.continuousSMul_submodule_of_image_bounded (H : Submodule 𝕜 (α →ᵤ[𝔖] E))
-    (h : ∀ u ∈ H, ∀ s ∈ 𝔖, Bornology.IsVonNBounded 𝕜 (u '' s)) :
-    @ContinuousSMul 𝕜 H _ _ ((UniformOnFun.topologicalSpace α E 𝔖).induced ((↑) : H → α →ᵤ[𝔖] E)) :=
+If you have a hard time using this lemma, try the one above instead.
+-/
+theorem UniformOnFun.continuousSMul_submodule_of_image_bounded
+    (H : Submodule 𝕜 (α →ᵤ[𝔖] E)) (h : ∀ u ∈ H, ∀ s ∈ 𝔖, Bornology.IsVonNBounded 𝕜 (u '' s))
+    : @ContinuousSMul 𝕜 H _ _
+      ((UniformOnFun.topologicalSpace α E 𝔖).induced ((↑) : H → α →ᵤ[𝔖] E)) :=
   UniformOnFun.continuousSMul_induced_of_image_bounded 𝕜 α E H
     (LinearMap.id.domRestrict H : H →ₗ[𝕜] α → E) IsInducing.subtypeVal fun ⟨u, hu⟩ => h u hu
 

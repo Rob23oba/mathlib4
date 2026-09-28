@@ -9,7 +9,6 @@ public import Mathlib.CategoryTheory.ObjectProperty.Small
 public import Mathlib.CategoryTheory.ObjectProperty.LimitsOfShape
 public import Mathlib.CategoryTheory.ObjectProperty.Retract
 public import Mathlib.CategoryTheory.Limits.Presentation
-
 import Mathlib.CategoryTheory.Adjunction.Limits
 
 /-!
@@ -54,15 +53,18 @@ namespace CategoryTheory.ObjectProperty
 
 open Limits
 
-variable {C D : Type*} [Category* C] [Category* D] (P : ObjectProperty C)
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (P : ObjectProperty C)
   (J : Type u') [Category.{v'} J]
   {J' : Type u''} [Category.{v''} J']
 
-/-- The property of objects that are *equal* to `colimit F` for some
-functor `F : J ⥤ C` where all `F.obj j` satisfy `P`. -/
+/--
+The property of objects that are *equal* to `colimit F` for some
+functor `F : J ⥤ C` where all `F.obj j` satisfy `P`.
+-/
 inductive strictColimitsOfShape : ObjectProperty C
-  | colimit (F : J ⥤ C) [HasColimit F] (hF : ∀ j, P (F.obj j)) :
-    strictColimitsOfShape (colimit F)
+  | colimit (F : J ⥤ C) [HasColimit F] (hF : ∀ j, P (F.obj j)) : strictColimitsOfShape (colimit F)
 
 variable {P} in
 lemma strictColimitsOfShape_monotone {Q : ObjectProperty C} (h : P ≤ Q) :
@@ -77,8 +79,10 @@ lemma strictColimitsOfShape_bot [Nonempty J] :
   rintro _ ⟨_, h⟩
   exact h (Classical.arbitrary J)
 
-/-- A structure expressing that `X : C` is the colimit of a functor
-`diag : J ⥤ C` such that `P (diag.obj j)` holds for all `j`. -/
+/--
+A structure expressing that `X : C` is the colimit of a functor
+`diag : J ⥤ C` such that `P (diag.obj j)` holds for all `j`.
+-/
 structure ColimitOfShape (X : C) extends ColimitPresentation J X where
   prop_diag_obj (j : J) : P (diag.obj j)
 
@@ -86,54 +90,60 @@ namespace ColimitOfShape
 
 variable {P J}
 
-/-- If `F : J ⥤ C` is a functor that has a colimit and is such that for all `j`,
+/--
+If `F : J ⥤ C` is a functor that has a colimit and is such that for all `j`,
 `F.obj j` satisfies a property `P`, then this structure expresses that `colimit F`
-is indeed a colimit of objects satisfying `P`. -/
+is indeed a colimit of objects satisfying `P`.
+-/
 @[simps toColimitPresentation]
-noncomputable def colimit (F : J ⥤ C) [HasColimit F] (hF : ∀ j, P (F.obj j)) :
-    P.ColimitOfShape J (colimit F) where
+noncomputable def colimit (F : J ⥤ C) [HasColimit F] (hF : ∀ j, P (F.obj j))
+    : P.ColimitOfShape J (colimit F) where
   toColimitPresentation := .colimit F
   prop_diag_obj := hF
 
-/-- If `X` is a colimit indexed by `J` of objects satisfying a property `P`, then
-any object that is isomorphic to `X` also is. -/
+/--
+If `X` is a colimit indexed by `J` of objects satisfying a property `P`, then
+any object that is isomorphic to `X` also is.
+-/
 @[simps toColimitPresentation]
-def ofIso {X : C} (h : P.ColimitOfShape J X) {Y : C} (e : X ≅ Y) :
-    P.ColimitOfShape J Y where
+def ofIso {X : C} (h : P.ColimitOfShape J X) {Y : C} (e : X ≅ Y) : P.ColimitOfShape J Y where
   toColimitPresentation := .ofIso h.toColimitPresentation e
   prop_diag_obj := h.prop_diag_obj
 
-/-- If `X` is a colimit indexed by `J` of objects satisfying a property `P`,
-it is also a colimit indexed by `J` of objects satisfying `Q` if `P ≤ Q`. -/
+/--
+If `X` is a colimit indexed by `J` of objects satisfying a property `P`,
+it is also a colimit indexed by `J` of objects satisfying `Q` if `P ≤ Q`.
+-/
 @[simps toColimitPresentation]
-def ofLE {X : C} (h : P.ColimitOfShape J X) {Q : ObjectProperty C} (hPQ : P ≤ Q) :
-    Q.ColimitOfShape J X where
+def ofLE {X : C} (h : P.ColimitOfShape J X) {Q : ObjectProperty C} (hPQ : P ≤ Q)
+    : Q.ColimitOfShape J X where
   toColimitPresentation := h.toColimitPresentation
   prop_diag_obj j := hPQ _ (h.prop_diag_obj j)
 
 /-- Change the index category for `ObjectProperty.ColimitOfShape`. -/
 @[simps toColimitPresentation]
-noncomputable def reindex {X : C} (h : P.ColimitOfShape J X) (G : J' ⥤ J) [G.Final] :
-    P.ColimitOfShape J' X where
+noncomputable def reindex {X : C} (h : P.ColimitOfShape J X) (G : J' ⥤ J) [G.Final]
+    : P.ColimitOfShape J' X where
   toColimitPresentation := h.toColimitPresentation.reindex G
   prop_diag_obj _ := h.prop_diag_obj _
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `P : ObjectProperty C`, and a presentation `P.ColimitOfShape J X`
-of an object `X : C`, this is the induced functor `J ⥤ CostructuredArrow P.ι X`. -/
+/--
+Given `P : ObjectProperty C`, and a presentation `P.ColimitOfShape J X`
+of an object `X : C`, this is the induced functor `J ⥤ CostructuredArrow P.ι X`.
+-/
 @[simps]
-def toCostructuredArrow
-    {X : C} (p : P.ColimitOfShape J X) :
-    J ⥤ CostructuredArrow P.ι X where
+def toCostructuredArrow {X : C} (p : P.ColimitOfShape J X) : J ⥤ CostructuredArrow P.ι X where
   obj j := CostructuredArrow.mk (Y := ⟨_, p.prop_diag_obj j⟩) (by exact p.ι.app j)
   map f := CostructuredArrow.homMk (ObjectProperty.homMk (by exact p.diag.map f))
 
 end ColimitOfShape
 
-/-- The property of objects that are the point of a colimit cocone for a
-functor `F : J ⥤ C` where all objects `F.obj j` satisfy `P`. -/
-def colimitsOfShape : ObjectProperty C :=
-  fun X ↦ Nonempty (P.ColimitOfShape J X)
+/--
+The property of objects that are the point of a colimit cocone for a
+functor `F : J ⥤ C` where all objects `F.obj j` satisfy `P`.
+-/
+def colimitsOfShape : ObjectProperty C := fun X ↦ Nonempty (P.ColimitOfShape J X)
 
 variable {P J} in
 lemma ColimitOfShape.colimitsOfShape {X : C} (h : P.ColimitOfShape J X) :
@@ -181,16 +191,19 @@ lemma colimitsOfShape_isoClosure :
    ⟨{ toColimitPresentation := h.changeDiag (h.diag.isoCopyObj obj (fun j ↦ (h₂ j).some)).symm
       prop_diag_obj := h₁ }⟩
 
-instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} J] [LocallySmall.{w} J] :
-    ObjectProperty.Small.{w} (P.strictColimitsOfShape J) := by
+instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} J] [LocallySmall.{w} J]
+    : ObjectProperty.Small.{w} (P.strictColimitsOfShape J) := by
   refine small_of_surjective
-    (f := fun (F : { F : J ⥤ P.FullSubcategory // HasColimit (F ⋙ P.ι) }) ↦
-      (⟨_, letI := F.2; ⟨F.1 ⋙ P.ι, fun j ↦ (F.1.obj j).2⟩⟩)) ?_
+    (f := fun (F : {F : J ⥤ P.FullSubcategory // HasColimit (F ⋙ P.ι)}) ↦
+      (⟨_, letI := F.2; ⟨F.1 ⋙ P.ι, fun j ↦ (F.1.obj j).2⟩⟩))
+    ?_
   rintro ⟨_, ⟨F, hF⟩⟩
   exact ⟨⟨P.lift F hF, by assumption⟩, rfl⟩
 
-/-- A property of objects satisfies `P.IsClosedUnderColimitsOfShape J` if it
-is stable by colimits of shape `J`. -/
+/--
+A property of objects satisfies `P.IsClosedUnderColimitsOfShape J` if it
+is stable by colimits of shape `J`.
+-/
 @[mk_iff]
 class IsClosedUnderColimitsOfShape (P : ObjectProperty C) (J : Type u') [Category.{v'} J] where
   colimitsOfShape_le (P J) : P.colimitsOfShape J ≤ P
@@ -254,8 +267,9 @@ lemma IsClosedUnderColimitsOfShape.of_equivalence (e : J ≌ J')
   rwa [← P.isClosedUnderColimitsOfShape_iff_of_equivalence e]
 
 instance IsClosedUnderColimitsOfShape.inverseImage
-    (P : ObjectProperty D) (F : C ⥤ D) [P.IsClosedUnderColimitsOfShape J]
-    [PreservesColimitsOfShape J F] : (P.inverseImage F).IsClosedUnderColimitsOfShape J :=
+    (P : ObjectProperty D) (F : C ⥤ D)
+    [P.IsClosedUnderColimitsOfShape J] [PreservesColimitsOfShape J F]
+    : (P.inverseImage F).IsClosedUnderColimitsOfShape J :=
   ⟨fun _ ⟨c, H⟩ ↦ ColimitOfShape.prop (P := P) ⟨c.map F, H⟩⟩
 
 lemma isClosedUnderColimitsOfShape_inverseImage_iff (P : ObjectProperty D)
@@ -333,20 +347,16 @@ lemma isClosedUnderLimitsOfShape_op_iff_op :
   rw [isClosedUnderColimitsOfShape_iff, isClosedUnderLimitsOfShape_iff,
     colimitsOfShape_op, op_monotone_iff]
 
-instance [P.IsClosedUnderColimitsOfShape J] :
-    P.op.IsClosedUnderLimitsOfShape Jᵒᵖ := by
+instance [P.IsClosedUnderColimitsOfShape J] : P.op.IsClosedUnderLimitsOfShape Jᵒᵖ := by
   rwa [← isClosedUnderColimitsOfShape_iff_op]
 
-instance [P.IsClosedUnderLimitsOfShape J] :
-    P.op.IsClosedUnderColimitsOfShape Jᵒᵖ := by
+instance [P.IsClosedUnderLimitsOfShape J] : P.op.IsClosedUnderColimitsOfShape Jᵒᵖ := by
   rwa [← isClosedUnderLimitsOfShape_iff_op]
 
-instance [P.IsClosedUnderColimitsOfShape Jᵒᵖ] :
-    P.op.IsClosedUnderLimitsOfShape J := by
+instance [P.IsClosedUnderColimitsOfShape Jᵒᵖ] : P.op.IsClosedUnderLimitsOfShape J := by
   rwa [← isClosedUnderColimitsOfShape_op_iff_op]
 
-instance [P.IsClosedUnderLimitsOfShape Jᵒᵖ] :
-    P.op.IsClosedUnderColimitsOfShape J := by
+instance [P.IsClosedUnderLimitsOfShape Jᵒᵖ] : P.op.IsClosedUnderColimitsOfShape J := by
   rwa [← isClosedUnderLimitsOfShape_op_iff_op]
 
 section
@@ -373,30 +383,26 @@ lemma isClosedUnderLimitsOfShape_op_iff_unop :
       Q.unop.IsClosedUnderColimitsOfShape J :=
   (Q.unop.isClosedUnderColimitsOfShape_iff_op J).symm
 
-instance [Q.IsClosedUnderColimitsOfShape J] :
-    Q.unop.IsClosedUnderLimitsOfShape Jᵒᵖ := by
+instance [Q.IsClosedUnderColimitsOfShape J] : Q.unop.IsClosedUnderLimitsOfShape Jᵒᵖ := by
   rwa [← isClosedUnderColimitsOfShape_iff_unop]
 
-instance [Q.IsClosedUnderLimitsOfShape J] :
-    Q.unop.IsClosedUnderColimitsOfShape Jᵒᵖ := by
+instance [Q.IsClosedUnderLimitsOfShape J] : Q.unop.IsClosedUnderColimitsOfShape Jᵒᵖ := by
   rwa [← isClosedUnderLimitsOfShape_iff_unop]
 
-instance [Q.IsClosedUnderColimitsOfShape Jᵒᵖ] :
-    Q.unop.IsClosedUnderLimitsOfShape J := by
+instance [Q.IsClosedUnderColimitsOfShape Jᵒᵖ] : Q.unop.IsClosedUnderLimitsOfShape J := by
   rwa [← isClosedUnderColimitsOfShape_op_iff_unop]
 
-instance [Q.IsClosedUnderLimitsOfShape Jᵒᵖ] :
-    Q.unop.IsClosedUnderColimitsOfShape J := by
+instance [Q.IsClosedUnderLimitsOfShape Jᵒᵖ] : Q.unop.IsClosedUnderColimitsOfShape J := by
   rwa [← isClosedUnderLimitsOfShape_op_iff_unop]
 
 end
 
-instance [P.IsClosedUnderColimitsOfShape WalkingParallelPair] :
-    P.IsStableUnderRetracts where
+instance [P.IsClosedUnderColimitsOfShape WalkingParallelPair] : P.IsStableUnderRetracts where
   of_retract {X Y} h hY := by
     let c : Cofork (h.r ≫ h.i) (𝟙 Y) := Cofork.ofπ h.r (by simp)
     have hc : IsColimit c :=
-      Cofork.IsColimit.mk _ (fun s ↦ h.i ≫ s.π)
+      Cofork.IsColimit.mk _
+        (fun s ↦ h.i ≫ s.π)
         (fun s ↦ by simpa using! s.condition)
         (fun s m hm ↦ by dsimp [c] at hm; simp [← hm])
     exact P.prop_of_isColimit hc (by rintro (_ | _) <;> exact hY)

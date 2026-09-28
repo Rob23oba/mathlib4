@@ -121,7 +121,7 @@ lemma gammaSet_eq_gcd_mul_divIntMap {r : ℕ} {v : Fin 2 → ℤ} (hv : v ∈ ga
 
 /-- The equivalence between `gammaSet 1 r 0` and `gammaSet 1 1 0` for non-zero `r`. -/
 def gammaSetDivGcdEquiv (r : ℕ) [NeZero r] : gammaSet 1 r 0 ≃ gammaSet 1 1 0 :=
-    Set.BijOn.equiv _ (gammaSet_div_gcd_to_gammaSet10_bijection r)
+  Set.BijOn.equiv _ (gammaSet_div_gcd_to_gammaSet10_bijection r)
 
 @[simp]
 lemma gammaSetDivGcdEquiv_eq (r : ℕ) [NeZero r] (v : gammaSet 1 r 0) :
@@ -167,15 +167,22 @@ variable (a) in
 /-- The bijection between `GammaSets` given by multiplying by an element of `SL(2, ℤ)`. -/
 def gammaSetEquiv (γ : SL(2, ℤ)) : gammaSet N r a ≃ gammaSet N r (a ᵥ* γ) where
   toFun v := ⟨v.1 ᵥ* γ, vecMul_SL2_mem_gammaSet v.2 γ⟩
-  invFun v := ⟨v.1 ᵥ* ↑(γ⁻¹), by
+  invFun v := ⟨
+    v.1 ᵥ* ↑(γ⁻¹),
+    by
       have := vecMul_SL2_mem_gammaSet v.2 γ⁻¹
       rw [vecMul_vecMul, ← SpecialLinearGroup.coe_mul] at this
-      simpa only [SpecialLinearGroup.map_apply_coe, RingHom.mapMatrix_apply, Int.coe_castRingHom,
-        map_inv, mul_inv_cancel, SpecialLinearGroup.coe_one, vecMul_one]⟩
-  left_inv v := by simp_rw [vecMul_vecMul, ← SpecialLinearGroup.coe_mul, mul_inv_cancel,
-    SpecialLinearGroup.coe_one, vecMul_one]
-  right_inv v := by simp_rw [vecMul_vecMul, ← SpecialLinearGroup.coe_mul, inv_mul_cancel,
-    SpecialLinearGroup.coe_one, vecMul_one]
+      simpa only [
+        SpecialLinearGroup.map_apply_coe, RingHom.mapMatrix_apply, Int.coe_castRingHom, map_inv,
+        mul_inv_cancel, SpecialLinearGroup.coe_one, vecMul_one
+      ]
+  ⟩
+  left_inv v := by
+    simp_rw [vecMul_vecMul, ← SpecialLinearGroup.coe_mul, mul_inv_cancel,
+      SpecialLinearGroup.coe_one, vecMul_one]
+  right_inv v := by
+    simp_rw [vecMul_vecMul, ← SpecialLinearGroup.coe_mul, inv_mul_cancel,
+      SpecialLinearGroup.coe_one, vecMul_one]
 
 end gamma_action
 
@@ -185,11 +192,12 @@ section eisSummand
 def eisSummand (k : ℤ) (v : Fin 2 → ℤ) (z : ℍ) : ℂ := (v 0 * z + v 1) ^ (-k)
 
 /-- How the `eisSummand` function changes under the Moebius action. -/
-theorem eisSummand_SL2_apply (k : ℤ) (i : (Fin 2 → ℤ)) (A : SL(2, ℤ)) (z : ℍ) :
-    eisSummand k i (A • z) = (denom A z) ^ k * eisSummand k (i ᵥ* A) z := by
+theorem eisSummand_SL2_apply (k : ℤ) (i : (Fin 2 → ℤ)) (A : SL(2, ℤ)) (z : ℍ)
+    : eisSummand k i (A • z) = (denom A z) ^ k * eisSummand k (i ᵥ* A) z := by
   simp only [eisSummand, vecMul, vec2_dotProduct, denom, UpperHalfPlane.specialLinearGroup_apply]
-  have h (a b c d u v : ℂ) (hc : c * z + d ≠ 0) : (u * ((a * z + b) / (c * z + d)) + v) ^ (-k) =
-      (c * z + d) ^ k * ((u * a + v * c) * z + (u * b + v * d)) ^ (-k) := by
+  have h (a b c d u v : ℂ) (hc : c * z + d ≠ 0)
+      : (u * ((a * z + b) / (c * z + d)) + v) ^ (-k)
+        = (c * z + d) ^ k * ((u * a + v * c) * z + (u * b + v * d)) ^ (-k) := by
     replace hc : z * c + d ≠ 0 := by convert! hc using 1; ring
     field_simp
     simp [div_zpow]
@@ -212,8 +220,10 @@ lemma eisensteinSeries_slash_apply (k : ℤ) (γ : SL(2, ℤ)) :
   congr 1
   exact (gammaSetEquiv a γ).tsum_eq (eisSummand k · z)
 
-/-- The `SlashInvariantForm` defined by an Eisenstein series of weight `k : ℤ`, level `Γ(N)`,
-and congruence condition given by `a : Fin 2 → ZMod N`. -/
+/--
+The `SlashInvariantForm` defined by an Eisenstein series of weight `k : ℤ`, level `Γ(N)`,
+and congruence condition given by `a : Fin 2 → ZMod N`.
+-/
 def eisensteinSeriesSIF (k : ℤ) : SlashInvariantForm (Gamma N) k where
   toFun := eisensteinSeries a k
   slash_action_eq' A hA := by

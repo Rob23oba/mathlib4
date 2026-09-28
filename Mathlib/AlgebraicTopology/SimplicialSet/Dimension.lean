@@ -26,8 +26,10 @@ open scoped Simplicial
 
 namespace SSet
 
-/-- A simplicial set `X` has dimension `< d` iff for any `n : ℕ`
-such that `d ≤ n`, all `n`-simplices are degenerate. -/
+/--
+A simplicial set `X` has dimension `< d` iff for any `n : ℕ`
+such that `d ≤ n`, all `n`-simplices are degenerate.
+-/
 @[mk_iff]
 class HasDimensionLT (X : SSet.{u}) (d : ℕ) : Prop where
   degenerate_eq_top (n : ℕ) (hn : d ≤ n) : X.degenerate n = ⊤
@@ -64,8 +66,7 @@ lemma hasDimensionLT_of_le (hn : d ≤ n := by lia) : HasDimensionLT X n where
   degenerate_eq_top i hi :=
     X.degenerate_eq_univ_of_hasDimensionLT d i (hn.trans hi)
 
-instance [HasDimensionLT X n] (k : ℕ) : HasDimensionLT X (n + k) :=
-  X.hasDimensionLT_of_le n _
+instance [HasDimensionLT X n] (k : ℕ) : HasDimensionLT X (n + k) := X.hasDimensionLT_of_le n _
 
 end
 
@@ -117,8 +118,8 @@ lemma hasDimensionLT_iff_of_iso {X Y : SSet.{u}} (e : X ≅ Y) (d : ℕ) :
     X.HasDimensionLT d ↔ Y.HasDimensionLT d :=
   ⟨fun _ ↦ hasDimensionLT_of_epi e.hom d, fun _ ↦ hasDimensionLT_of_epi e.inv d⟩
 
-instance {X Y : SSet.{u}} (f : X ⟶ Y) (d : ℕ) [X.HasDimensionLT d] :
-    HasDimensionLT (Subcomplex.range f) d :=
+instance {X Y : SSet.{u}} (f : X ⟶ Y) (d : ℕ) [X.HasDimensionLT d]
+    : HasDimensionLT (Subcomplex.range f) d :=
   hasDimensionLT_of_epi (Subcomplex.toRange f) d
 
 lemma hasDimensionLT_iSup_iff {X : SSet.{u}} {ι : Type*} (A : ι → X.Subcomplex) (d : ℕ) :

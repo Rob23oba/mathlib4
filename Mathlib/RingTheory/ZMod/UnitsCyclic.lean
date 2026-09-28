@@ -57,29 +57,23 @@ namespace ZMod
 
 section EasyCases
 
-theorem isCyclic_units_zero :
-    IsCyclic (ZMod 0)ˣ := inferInstance
+theorem isCyclic_units_zero : IsCyclic (ZMod 0)ˣ := inferInstance
 
-theorem isCyclic_units_one :
-    IsCyclic (ZMod 1)ˣ := inferInstance
+theorem isCyclic_units_one : IsCyclic (ZMod 1)ˣ := inferInstance
 
-theorem isCyclic_units_two :
-    IsCyclic (ZMod 2)ˣ := inferInstance
+theorem isCyclic_units_two : IsCyclic (ZMod 2)ˣ := inferInstance
 
-theorem isCyclic_units_four :
-    IsCyclic (ZMod 4)ˣ := by
+theorem isCyclic_units_four : IsCyclic (ZMod 4)ˣ := by
   apply isCyclic_of_prime_card (p := 2)
   simp only [Nat.card_eq_fintype_card, card_units_eq_totient]
   decide
 
 /-- The multiplicative group of `ZMod p` is cyclic. -/
-theorem isCyclic_units_prime {p : ℕ} (hp : p.Prime) :
-    IsCyclic (ZMod p)ˣ :=
+theorem isCyclic_units_prime {p : ℕ} (hp : p.Prime) : IsCyclic (ZMod p)ˣ :=
   have : Fact (p.Prime) := ⟨hp⟩
   inferInstance
 
-theorem not_isCyclic_units_eight :
-    ¬ IsCyclic (ZMod 8)ˣ := by
+theorem not_isCyclic_units_eight : ¬ IsCyclic (ZMod 8)ˣ := by
   rw [IsCyclic.iff_exponent_eq_card, Nat.card_eq_fintype_card, card_units_eq_totient]
   have h : Monoid.exponent (ZMod 8)ˣ ∣ 2 := Monoid.exponent_dvd_of_forall_pow_eq_one (by decide)
   intro (h' : Monoid.exponent (ZMod 8)ˣ = 4)
@@ -157,36 +151,43 @@ end Divisibility
 
 section PrimePow
 
-theorem orderOf_one_add_mul_prime_pow {p : ℕ} (hp : p.Prime) (m : ℕ) (hm0 : m ≠ 0)
-    (hpm : m + 2 ≤ p * m) (a : ℤ) (ha : ¬ (p : ℤ) ∣ a) (n : ℕ) :
-    orderOf (1 + p ^ m * a : ZMod (p ^ (n + m))) = p ^ n := by
+theorem orderOf_one_add_mul_prime_pow
+    {p : ℕ} (hp : p.Prime)
+    (m : ℕ) (hm0 : m ≠ 0) (hpm : m + 2 ≤ p * m)
+    (a : ℤ) (ha : ¬ (p : ℤ) ∣ a)
+    (n : ℕ)
+    : orderOf (1 + p ^ m * a : ZMod (p ^ (n + m))) = p ^ n := by
   match n with
-  | 0 => rw [← Nat.cast_pow, zero_add m, ZMod.natCast_self]; simp
+  | 0 =>
+    rw [← Nat.cast_pow, zero_add m, ZMod.natCast_self]; simp
   | n + 1 =>
     have := Fact.mk hp
-    have := exists_one_add_mul_pow_prime_pow_eq
-      (R := ZMod (p ^ (n + 1 + m))) (u := p ^ m) (v := p) hp (dvd_pow_self _ hm0) ?_ a
+    have :=
+      exists_one_add_mul_pow_prime_pow_eq (R := ZMod (p ^ (n + 1 + m))) (u := p ^ m) (v := p) hp
+        (dvd_pow_self _ hm0) ?_ a
     · apply orderOf_eq_prime_pow
       · obtain ⟨y, hy⟩ := this n
         rw [hy, ← pow_add, add_eq_left, mul_add, ← mul_assoc, ← pow_succ]
         simp_rw [add_right_comm n _ 1, ← Nat.cast_pow, ZMod.natCast_self, zero_mul, add_zero]
-        rwa [← Int.cast_natCast, ← Int.cast_mul, ZMod.intCast_zmod_eq_zero_iff_dvd, add_right_comm,
-          pow_succ, Nat.cast_mul, Int.mul_dvd_mul_iff_left (by simp [hp.ne_zero])]
+        rwa [
+          ← Int.cast_natCast, ← Int.cast_mul, ZMod.intCast_zmod_eq_zero_iff_dvd, add_right_comm,
+          pow_succ, Nat.cast_mul, Int.mul_dvd_mul_iff_left (by simp [hp.ne_zero])
+        ]
       · obtain ⟨y, hy⟩ := this (n + 1)
         rw [hy, ← pow_add, ← Nat.cast_pow]
         simp
     · rw [← pow_succ', ← pow_succ, ← pow_mul, mul_comm]
       exact pow_dvd_pow _ hpm
 
-theorem orderOf_one_add_mul_prime {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (a : ℤ)
-    (ha : ¬ (p : ℤ) ∣ a) (n : ℕ) :
-    orderOf (1 + p * a : ZMod (p ^ (n + 1))) = p ^ n := by
+theorem orderOf_one_add_mul_prime
+    {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (a : ℤ) (ha : ¬ (p : ℤ) ∣ a) (n : ℕ)
+    : orderOf (1 + p * a : ZMod (p ^ (n + 1))) = p ^ n := by
   convert! orderOf_one_add_mul_prime_pow hp 1 one_ne_zero _ a ha n using 1
   · rw [pow_one]
   · have := hp.two_le; lia
 
-theorem orderOf_one_add_prime {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (n : ℕ) :
-    orderOf (1 + p : ZMod (p ^ (n + 1))) = p ^ n := by
+theorem orderOf_one_add_prime {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (n : ℕ)
+    : orderOf (1 + p : ZMod (p ^ (n + 1))) = p ^ n := by
   convert! orderOf_one_add_mul_prime hp hp2 1 _ n
   · simp
   · intro H
@@ -194,8 +195,8 @@ theorem orderOf_one_add_prime {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (n : ℕ)
     simpa using Int.eq_one_of_dvd_one (Int.natCast_nonneg p) H
 
 /-- If `p` is an odd prime, then `(ZMod (p ^ n))ˣ` is cyclic for all n -/
-theorem isCyclic_units_of_prime_pow (p : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) (n : ℕ) :
-    IsCyclic (ZMod (p ^ n))ˣ := by
+theorem isCyclic_units_of_prime_pow (p : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) (n : ℕ)
+    : IsCyclic (ZMod (p ^ n))ˣ := by
   have := Fact.mk hp
   rcases n with _ | n
   · rw [pow_zero]; infer_instance
@@ -219,19 +220,23 @@ theorem isCyclic_units_of_prime_pow (p : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) (n 
   rw [isCyclic_iff_exists_orderOf_eq_natCard]
   -- The product of `ha.unit` and `b ^ k` has the required order
   use ha.unit * b ^ k
-  rw [(Commute.all _ _).orderOf_mul_eq_mul_orderOf_of_coprime, this, Nat.card_eq_fintype_card,
-    ZMod.card_units_eq_totient, Nat.totient_prime_pow_succ hp, ← ha']
+  rw [
+    (Commute.all _ _).orderOf_mul_eq_mul_orderOf_of_coprime, this, Nat.card_eq_fintype_card,
+    ZMod.card_units_eq_totient, Nat.totient_prime_pow_succ hp, ← ha'
+  ]
   rw [ha', this]
   apply Nat.Coprime.pow_left
   rw [Nat.coprime_self_sub_right hp.pos]
   simp
 
-theorem isCyclic_units_two_pow_iff (n : ℕ) :
-    IsCyclic (ZMod (2 ^ n))ˣ ↔ n ≤ 2 := by
+theorem isCyclic_units_two_pow_iff (n : ℕ) : IsCyclic (ZMod (2 ^ n))ˣ ↔ n ≤ 2 := by
   match n with
-  | 0 => simp [isCyclic_units_one]
-  | 1 => simp [isCyclic_units_prime Nat.prime_two]
-  | 2 => simp [isCyclic_units_four]
+  | 0 =>
+    simp [isCyclic_units_one]
+  | 1 =>
+    simp [isCyclic_units_prime Nat.prime_two]
+  | 2 =>
+    simp [isCyclic_units_four]
   | n + 3 =>
     simp only [Nat.reduceLeDiff, iff_false]
     intro H
@@ -245,8 +250,7 @@ lemma orderOf_one_add_four_mul (a : ℤ) (ha : Odd a) (n : ℕ) :
   · norm_num
   · rwa [← Int.not_even_iff_odd, even_iff_two_dvd] at ha
 
-theorem orderOf_five (n : ℕ) :
-    orderOf (5 : ZMod (2 ^ (n + 2))) = 2 ^ n := by
+theorem orderOf_five (n : ℕ) : orderOf (5 : ZMod (2 ^ (n + 2))) = 2 ^ n := by
   convert! orderOf_one_add_four_mul 1 (by simp) n
   norm_num
 
@@ -254,8 +258,7 @@ end PrimePow
 
 section Products
 
-theorem isCyclic_units_four_mul_iff (n : ℕ) :
-    IsCyclic (ZMod (4 * n))ˣ ↔ n = 0 ∨ n = 1 := by
+theorem isCyclic_units_four_mul_iff (n : ℕ) : IsCyclic (ZMod (4 * n))ˣ ↔ n = 0 ∨ n = 1 := by
   obtain rfl | hn0 := eq_or_ne n 0
   · simp [isCyclic_units_zero]
   obtain rfl | hn1 := eq_or_ne n 1
@@ -267,22 +270,27 @@ theorem isCyclic_units_four_mul_iff (n : ℕ) :
     refine mt (fun _ ↦ ?_) not_isCyclic_units_eight
     exact isCyclic_of_surjective _ (ZMod.unitsMap_surjective (m := 4 * 2 * n) (dvd_mul_right 8 _))
   have : Nat.Coprime 4 n := (Nat.prime_two.coprime_iff_not_dvd.mpr h2n).pow_left 2
-  rw [((Units.mapEquiv (chineseRemainder this).toMulEquiv).trans .prodUnits).isCyclic,
-    Group.isCyclic_prod_iff]
+  rw [
+    ((Units.mapEquiv (chineseRemainder this).toMulEquiv).trans .prodUnits).isCyclic,
+    Group.isCyclic_prod_iff
+  ]
   rintro ⟨-, -, h⟩
   have : NeZero n := ⟨hn0⟩
   have : Odd (φ n) := by simpa [show φ 4 = 2 from rfl] using h
   rw [Nat.odd_totient_iff] at this
   lia
 
-theorem isCyclic_units_two_mul_iff_of_odd (n : ℕ) (hn : Odd n) :
-    IsCyclic (ZMod (2 * n))ˣ ↔ IsCyclic (ZMod n)ˣ := by
-  simp [((Units.mapEquiv (chineseRemainder <| Nat.coprime_two_left.mpr hn).toMulEquiv).trans
-    .prodUnits).isCyclic, Group.isCyclic_prod_iff, isCyclic_units_two]
+theorem isCyclic_units_two_mul_iff_of_odd (n : ℕ) (hn : Odd n)
+    : IsCyclic (ZMod (2 * n))ˣ ↔ IsCyclic (ZMod n)ˣ := by
+  simp [
+    ((Units.mapEquiv (chineseRemainder <| Nat.coprime_two_left.mpr hn).toMulEquiv).trans
+      .prodUnits).isCyclic,
+    Group.isCyclic_prod_iff, isCyclic_units_two
+  ]
 
-theorem not_isCyclic_units_of_mul_coprime (m n : ℕ)
-    (hm : Odd m) (hm1 : m ≠ 1) (hn : Odd n) (hn1 : n ≠ 1) (hmn : m.Coprime n) :
-    ¬ IsCyclic (ZMod (m * n))ˣ := by
+theorem not_isCyclic_units_of_mul_coprime
+    (m n : ℕ) (hm : Odd m) (hm1 : m ≠ 1) (hn : Odd n) (hn1 : n ≠ 1) (hmn : m.Coprime n)
+    : ¬ IsCyclic (ZMod (m * n))ˣ := by
   have _ : NeZero m := ⟨Nat.ne_of_odd_add hm⟩
   have _ : NeZero n := ⟨Nat.ne_of_odd_add hn⟩
   let e := (Units.mapEquiv (chineseRemainder hmn).toMulEquiv).trans .prodUnits
@@ -294,8 +302,8 @@ theorem not_isCyclic_units_of_mul_coprime (m n : ℕ)
   · simp [← Nat.not_even_iff_odd] at hm
   · simp [← Nat.not_even_iff_odd] at hn
 
-theorem isCyclic_units_iff_of_odd {n : ℕ} (hn : Odd n) :
-    IsCyclic (ZMod n)ˣ ↔ ∃ (p m : ℕ), p.Prime ∧ Odd p ∧ n = p ^ m := by
+theorem isCyclic_units_iff_of_odd {n : ℕ} (hn : Odd n)
+    : IsCyclic (ZMod n)ˣ ↔ ∃ (p m : ℕ), p.Prime ∧ Odd p ∧ n = p ^ m := by
   have hn0 : n ≠ 0 := by rintro rfl; exact Nat.not_odd_zero hn
   obtain rfl | h1 := eq_or_ne n 1
   · simp_rw [isCyclic_units_one, true_iff]
@@ -319,12 +327,15 @@ theorem isCyclic_units_iff_of_odd {n : ℕ} (hn : Odd n) :
 
 end Products
 
-/-- `(ZMod n)ˣ` is cyclic iff `n` is of the form
+/--
+`(ZMod n)ˣ` is cyclic iff `n` is of the form
 `0`, `1`, `2`, `4`, `p ^ m`, or `2 * p ^ m`,
-where `p` is an odd prime and `1 ≤ m`. -/
-theorem isCyclic_units_iff (n : ℕ) :
-    IsCyclic (ZMod n)ˣ ↔ n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 4 ∨
-      ∃ (p m : ℕ), p.Prime ∧ Odd p ∧ 1 ≤ m ∧ (n = p ^ m ∨ n = 2 * p ^ m) := by
+where `p` is an odd prime and `1 ≤ m`.
+-/
+theorem isCyclic_units_iff (n : ℕ)
+    : IsCyclic (ZMod n)ˣ
+      ↔ n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 4
+        ∨ ∃ (p m : ℕ), p.Prime ∧ Odd p ∧ 1 ≤ m ∧ (n = p ^ m ∨ n = 2 * p ^ m) := by
   by_cases h0 : n = 0
   · rw [h0]; simp [isCyclic_units_zero]
   by_cases h1 : n = 1

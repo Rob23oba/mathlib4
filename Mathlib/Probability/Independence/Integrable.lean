@@ -24,9 +24,10 @@ open scoped ENNReal NNReal Topology
 
 namespace MeasureTheory
 
-variable {Ω E F : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
-  [NormedAddCommGroup E] [MeasurableSpace E] [OpensMeasurableSpace E]
-  [MeasurableSpace F]
+variable
+  {Ω E F : Type*} [MeasurableSpace Ω]
+  {μ : Measure Ω}
+  [NormedAddCommGroup E] [MeasurableSpace E] [OpensMeasurableSpace E] [MeasurableSpace F]
 
 /-- If a nonzero function belongs to `ℒ^p` and is independent of another function, then
 the space is a probability space. -/
@@ -46,7 +47,6 @@ lemma MemLp.isProbabilityMeasure_of_indepFun
     (isClosed_le continuous_const continuous_nnnorm).measurableSet MeasurableSet.univ
   simp only [Set.preimage_ofPred_eq, Set.preimage_univ, Set.inter_univ] at this
   exact ⟨(ENNReal.mul_eq_left hc.ne' h'c.ne).1 this.symm⟩
-
 
 /-- If a nonzero function is integrable and is independent of another function, then
 the space is a probability space. -/

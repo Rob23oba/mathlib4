@@ -25,11 +25,15 @@ namespace AlgebraicGeometry
 
 universe u
 
-variable {X Y : Scheme.{u}} {K : Type u} [Field K] [IsAlgClosed K]
-    (f : X ⟶ Spec ↧K) [LocallyOfFiniteType f] (x : X) (hx : IsClosed {x})
+variable
+  {X Y : Scheme.{u}} {K : Type u} [Field K] [IsAlgClosed K]
+  (f : X ⟶ Spec ↧K) [LocallyOfFiniteType f]
+  (x : X) (hx : IsClosed {x})
 
-/-- If `X` is a locally of finite type `k`-scheme and `k` is algebraically closed, then
-the residue field of any closed point of `x` is isomorphic to `k`. -/
+/--
+If `X` is a locally of finite type `k`-scheme and `k` is algebraically closed, then
+the residue field of any closed point of `x` is isomorphic to `k`.
+-/
 def residueFieldIsoBase : X.residueField x ≅ ↧K :=
   letI : IsIso (Spec.preimage (X.fromSpecResidueField x ≫ f)) := by
     have : IsFinite (X.fromSpecResidueField x ≫ f) := by
@@ -48,8 +52,7 @@ lemma SpecMap_residueFieldIsoBase_inv :
   Spec.map_preimage _
 
 /-- If `k` is algebraically closed, this is the `k`-point of `X` associated to a closed point. -/
-noncomputable
-def pointOfClosedPoint : Spec ↧K ⟶ X :=
+noncomputable def pointOfClosedPoint : Spec ↧K ⟶ X :=
   Spec.map (residueFieldIsoBase f x hx).hom ≫ X.fromSpecResidueField x
 
 @[reassoc (attr := simp)]
@@ -62,16 +65,20 @@ lemma pointOfClosedPoint_apply (a : _) : pointOfClosedPoint f x hx a = x := by
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- If `k` is algebraically closed,
-then the closed points of `X` are in bijection with the `k`-points of `X`. -/
+/--
+If `k` is algebraically closed,
+then the closed points of `X` are in bijection with the `k`-points of `X`.
+-/
 @[simps]
-def pointEquivClosedPoint :
-    {p : Spec ↧K ⟶ X // p ≫ f = 𝟙 _} ≃ closedPoints X where
-  toFun p := ⟨p.1 (IsLocalRing.closedPoint K), by
-    have := isClosedImmersion_of_comp_eq_id _ _ p.2
-    have := p.1.isClosedEmbedding.isClosed_range
-    rwa [Set.range_eq_singleton] at this
-    exact fun x ↦ congr(p.1 $(Subsingleton.elim _ _))⟩
+def pointEquivClosedPoint : {p : Spec ↧K ⟶ X // p ≫ f = 𝟙 _} ≃ closedPoints X where
+  toFun p := ⟨
+    p.1 (IsLocalRing.closedPoint K),
+    by
+      have := isClosedImmersion_of_comp_eq_id _ _ p.2
+      have := p.1.isClosedEmbedding.isClosed_range
+      rwa [Set.range_eq_singleton] at this
+      exact fun x ↦ congr(p.1 $(Subsingleton.elim _ _))
+  ⟩
   invFun x := ⟨pointOfClosedPoint f x.1 x.2, pointOfClosedPoint_comp f x.1 x.2⟩
   left_inv p := by
     ext

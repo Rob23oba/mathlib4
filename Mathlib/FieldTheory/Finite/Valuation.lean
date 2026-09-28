@@ -18,8 +18,10 @@ namespace FiniteField
 
 open Valuation
 
-variable {Fq A Γ : Type*} [Field Fq] [Finite Fq] [Ring A] [Algebra Fq A]
-  [LinearOrderedCommMonoidWithZero Γ] (v : Valuation A Γ)
+variable
+  {Fq A Γ : Type*}
+  [Field Fq] [Finite Fq] [Ring A] [Algebra Fq A] [LinearOrderedCommMonoidWithZero Γ]
+  (v : Valuation A Γ)
 
 @[grind =>]
 lemma valuation_algebraMap_eq_one (a : Fq) (ha : a ≠ 0) : v (algebraMap Fq A a) = 1 := by

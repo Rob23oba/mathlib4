@@ -33,13 +33,11 @@ variable [Abelian C]
 
 noncomputable instance : IsNormalEpiCategory (HomologicalComplex C c) := ⟨fun p _ =>
   ⟨NormalEpi.mk _ (kernel.ι p) (kernel.condition _)
-    (isColimitOfEval _ _ (fun _ =>
-      Abelian.isColimitMapCoconeOfCokernelCoforkOfπ _ _))⟩⟩
+    (isColimitOfEval _ _ (fun _ => Abelian.isColimitMapCoconeOfCokernelCoforkOfπ _ _))⟩⟩
 
 noncomputable instance : IsNormalMonoCategory (HomologicalComplex C c) := ⟨fun p _ =>
   ⟨NormalMono.mk _ (cokernel.π p) (cokernel.condition _)
-    (isLimitOfEval _ _ (fun _ =>
-      Abelian.isLimitMapConeOfKernelForkOfι _ _))⟩⟩
+    (isLimitOfEval _ _ (fun _ => Abelian.isLimitMapConeOfKernelForkOfι _ _))⟩⟩
 
 noncomputable instance : Abelian (HomologicalComplex C c) where
 
@@ -81,16 +79,14 @@ section
 
 variable [HasZeroMorphisms C] [HasZeroObject C] [DecidableEq ι]
 
-instance (i j : ι) (I : C) [Injective I] :
-    Injective (((single C c i).obj I).X j) := by
+instance (i j : ι) (I : C) [Injective I] : Injective (((single C c i).obj I).X j) := by
   by_cases hij : j = i
   · subst hij
     simp only [single_obj_X_self]
     infer_instance
   · exact (isZero_single_obj_X _ _ _ _ hij).injective
 
-instance (i j : ι) (P : C) [Projective P] :
-    Projective (((single C c i).obj P).X j) := by
+instance (i j : ι) (P : C) [Projective P] : Projective (((single C c i).obj P).X j) := by
   by_cases hij : j = i
   · subst hij
     simp only [single_obj_X_self]
@@ -110,22 +106,26 @@ variable {D : Type*} [Category* D] [HasZeroMorphisms D]
 
 variable (F : C ⥤ D) {ι : Type*} (c : ComplexShape ι)
 
-instance [F.PreservesZeroMorphisms] {J : Type*} [Category* J] [HasLimitsOfShape J C]
-    [PreservesLimitsOfShape J F] : PreservesLimitsOfShape J (F.mapHomologicalComplex c) :=
-  HomologicalComplex.preservesLimitsOfShape_of_eval _ (fun i ↦
-    inferInstanceAs <| PreservesLimitsOfShape J <| HomologicalComplex.eval C c i ⋙ F)
+instance
+    [F.PreservesZeroMorphisms]
+    {J : Type*} [Category* J] [HasLimitsOfShape J C] [PreservesLimitsOfShape J F]
+    : PreservesLimitsOfShape J (F.mapHomologicalComplex c) :=
+  HomologicalComplex.preservesLimitsOfShape_of_eval _
+    (fun i ↦ inferInstanceAs <| PreservesLimitsOfShape J <| HomologicalComplex.eval C c i ⋙ F)
 
-instance [F.PreservesZeroMorphisms] {J : Type*} [Category* J] [HasColimitsOfShape J C]
-    [PreservesColimitsOfShape J F] : PreservesColimitsOfShape J (F.mapHomologicalComplex c) :=
-  HomologicalComplex.preservesColimitsOfShape_of_eval _ (fun i ↦
-    inferInstanceAs <| PreservesColimitsOfShape J <| HomologicalComplex.eval C c i ⋙ F)
+instance
+    [F.PreservesZeroMorphisms]
+    {J : Type*} [Category* J] [HasColimitsOfShape J C] [PreservesColimitsOfShape J F]
+    : PreservesColimitsOfShape J (F.mapHomologicalComplex c) :=
+  HomologicalComplex.preservesColimitsOfShape_of_eval _
+    (fun i ↦ inferInstanceAs <| PreservesColimitsOfShape J <| HomologicalComplex.eval C c i ⋙ F)
 
-instance [HasFiniteLimits C] [F.PreservesZeroMorphisms] [PreservesFiniteLimits F] :
-    PreservesFiniteLimits (F.mapHomologicalComplex c) :=
+instance [HasFiniteLimits C] [F.PreservesZeroMorphisms] [PreservesFiniteLimits F]
+    : PreservesFiniteLimits (F.mapHomologicalComplex c) :=
   ⟨by intros; infer_instance⟩
 
-instance [HasFiniteColimits C] [F.PreservesZeroMorphisms] [PreservesFiniteColimits F] :
-    PreservesFiniteColimits (F.mapHomologicalComplex c) :=
+instance [HasFiniteColimits C] [F.PreservesZeroMorphisms] [PreservesFiniteColimits F]
+    : PreservesFiniteColimits (F.mapHomologicalComplex c) :=
   ⟨by intros; infer_instance⟩
 
 end CategoryTheory

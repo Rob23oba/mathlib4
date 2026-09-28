@@ -29,13 +29,11 @@ variable {r : ℝ} {x : E} {c : 𝕜} {ε : ℝ}
 variable (𝕜 E)
 
 /-- The norm of a seminormed space as a seminorm. -/
-@[expose] def normSeminorm : Seminorm 𝕜 E :=
-  { normAddGroupSeminorm E with smul' := norm_smul }
+@[expose] def normSeminorm : Seminorm 𝕜 E := { normAddGroupSeminorm E with smul' := norm_smul }
 
 -- Todo: exposing this definition is questionable, but unexposing needs some work
 
-@[simp]
-theorem coe_normSeminorm : ⇑(normSeminorm 𝕜 E) = norm := by rfl
+@[simp] theorem coe_normSeminorm : ⇑(normSeminorm 𝕜 E) = norm := by rfl
 
 @[simp]
 theorem ball_normSeminorm : (normSeminorm 𝕜 E).ball = Metric.ball := by

@@ -27,16 +27,16 @@ variable {R S : Type*} [NonUnitalNonAssocRing R] [NonUnitalNonAssocSemiring S]
 variable {F : Type*} [FunLike F R S] [NonUnitalRingHomClass F R S]
 variable (f : F)
 
-/--
-The kernel of a ring homomorphism, as a two-sided ideal.
--/
+/-- The kernel of a ring homomorphism, as a two-sided ideal. -/
 def ker : TwoSidedIdeal R :=
   .ofRingCon
-  -- TODO: use `RingCon.ker`
-  { r := fun x y ↦ f x = f y
-    iseqv := by constructor <;> aesop
-    mul' := by intro; simp_all
-    add' := by intro; simp_all }
+    -- TODO: use `RingCon.ker`
+    {
+      r := fun x y ↦ f x = f y
+      iseqv := by constructor <;> aesop
+      mul' := by intro; simp_all
+      add' := by intro; simp_all
+    }
 
 @[simp]
 lemma ker_ringCon {x y : R} : (ker f).ringCon x y ↔ f x = f y := Iff.rfl

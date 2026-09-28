@@ -38,17 +38,19 @@ variable [Monoid M] [Monoid N] {l₁ l₂ : List M} {a : M}
 
 @[to_additive]
 theorem prod_isUnit : ∀ {L : List M}, (∀ m ∈ L, IsUnit m) → IsUnit L.prod
-  | [], _ => by simp
+  | [], _ => by
+    simp
   | h :: t, u => by
     simp only [List.prod_cons]
     exact IsUnit.mul (u h mem_cons_self) (prod_isUnit fun m mt => u m (mem_cons_of_mem h mt))
 
 @[to_additive]
-theorem prod_isUnit_iff {M : Type*} [CommMonoid M] {L : List M} :
-    IsUnit L.prod ↔ ∀ m ∈ L, IsUnit m := by
+theorem prod_isUnit_iff {M : Type*} [CommMonoid M] {L : List M}
+    : IsUnit L.prod ↔ ∀ m ∈ L, IsUnit m := by
   refine ⟨fun h => ?_, prod_isUnit⟩
   induction L with
-  | nil => exact fun m' h' => False.elim (not_mem_nil h')
+  | nil =>
+    exact fun m' h' => False.elim (not_mem_nil h')
   | cons m L ih =>
     rw [prod_cons, IsUnit.mul_iff] at h
     exact fun m' h' ↦ Or.elim (eq_or_mem_of_mem_cons h') (fun H => H.substr h.1) fun H => ih h.2 _ H
@@ -82,10 +84,11 @@ end Group
 variable [DecidableEq α]
 
 /-- Summing the count of `x` over a list filtered by some `p` is just `countP` applied to `p` -/
-theorem sum_map_count_dedup_filter_eq_countP (p : α → Bool) (l : List α) :
-    ((l.dedup.filter p).map fun x => l.count x).sum = l.countP p := by
+theorem sum_map_count_dedup_filter_eq_countP (p : α → Bool) (l : List α)
+    : ((l.dedup.filter p).map fun x => l.count x).sum = l.countP p := by
   induction l with
-  | nil => simp
+  | nil =>
+    simp
   | cons a as h =>
     simp_rw [List.countP_cons, List.count_cons, List.sum_map_add]
     congr 1
@@ -102,8 +105,8 @@ theorem sum_map_count_dedup_filter_eq_countP (p : α → Bool) (l : List α) :
         simp [hp, count_dedup]
       · exact _root_.trans (List.sum_eq_zero fun n hn => by grind) (by simp [hp])
 
-theorem sum_map_count_dedup_eq_length (l : List α) :
-    (l.dedup.map fun x => l.count x).sum = l.length := by
+theorem sum_map_count_dedup_eq_length (l : List α)
+    : (l.dedup.map fun x => l.count x).sum = l.length := by
   simpa using sum_map_count_dedup_filter_eq_countP (fun _ => True) l
 
 end List
@@ -141,23 +144,24 @@ lemma drop_take_succ_flatten_eq_getElem (L : List (List α)) (i : Nat) (h : i < 
 
 end List
 
-
 namespace List
 
 /-- If a product of integers is `-1`, then at least one factor must be `-1`. -/
 theorem neg_one_mem_of_prod_eq_neg_one {l : List ℤ} (h : l.prod = -1) : (-1 : ℤ) ∈ l := by
   obtain ⟨x, h₁, h₂⟩ := exists_mem_ne_one_of_prod_ne_one (ne_of_eq_of_ne h (by decide))
   exact Or.resolve_left
-    (Int.isUnit_iff.mp (prod_isUnit_iff.mp
-      (h.symm ▸ ⟨⟨-1, -1, by decide, by decide⟩, rfl⟩ : IsUnit l.prod) x h₁)) h₂ ▸ h₁
+      (Int.isUnit_iff.mp (prod_isUnit_iff.mp
+        (h.symm ▸ ⟨⟨-1, -1, by decide, by decide⟩, rfl⟩ : IsUnit l.prod) x h₁))
+      h₂
+    ▸ h₁
 
 theorem dvd_prod [CommMonoid M] {a} {l : List M} (ha : a ∈ l) : a ∣ l.prod := by
   let ⟨s, t, h⟩ := append_of_mem ha
   rw [h, prod_append, prod_cons, mul_left_comm]
   exact dvd_mul_right _ _
 
-theorem Sublist.prod_dvd_prod [CommMonoid M] {l₁ l₂ : List M} (h : l₁ <+ l₂) :
-    l₁.prod ∣ l₂.prod := by
+theorem Sublist.prod_dvd_prod [CommMonoid M] {l₁ l₂ : List M} (h : l₁ <+ l₂)
+    : l₁.prod ∣ l₂.prod := by
   obtain ⟨l, hl⟩ := h.exists_perm_append
   rw [hl.prod_eq, prod_append]
   exact dvd_mul_right _ _
@@ -167,18 +171,20 @@ section Alternating
 variable [CommGroup G]
 
 @[to_additive]
-theorem alternatingProd_append :
-    ∀ l₁ l₂ : List G,
+theorem alternatingProd_append
+    : ∀ l₁ l₂ : List G,
       alternatingProd (l₁ ++ l₂) = alternatingProd l₁ * alternatingProd l₂ ^ (-1 : ℤ) ^ length l₁
-  | [], l₂ => by simp
+  | [], l₂ => by
+    simp
   | a :: l₁, l₂ => by
     simp_rw [cons_append, alternatingProd_cons, alternatingProd_append, length_cons, pow_succ',
       Int.neg_mul, one_mul, zpow_neg, ← div_eq_mul_inv, div_div]
 
 @[to_additive]
-theorem alternatingProd_reverse :
-    ∀ l : List G, alternatingProd (reverse l) = alternatingProd l ^ (-1 : ℤ) ^ (length l + 1)
-  | [] => by simp only [alternatingProd_nil, one_zpow, reverse_nil]
+theorem alternatingProd_reverse
+    : ∀ l : List G, alternatingProd (reverse l) = alternatingProd l ^ (-1 : ℤ) ^ (length l + 1)
+  | [] => by
+    simp only [alternatingProd_nil, one_zpow, reverse_nil]
   | a :: l => by
     simp_rw [reverse_cons, alternatingProd_append, alternatingProd_reverse,
       alternatingProd_singleton, alternatingProd_cons, length_reverse, length, pow_succ',

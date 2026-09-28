@@ -20,10 +20,12 @@ public section
 variable (K L M : Type*) [Field K] [Field L] [Algebra K L]
 variable [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
-/-- The class of abelian extensions,
-defined as galois extensions whose galois group is commutative. -/
-class IsAbelianGalois (K L : Type*) [Field K] [Field L] [Algebra K L] : Prop extends
-  IsGalois K L, IsMulCommutative Gal(L/K)
+/--
+The class of abelian extensions,
+defined as galois extensions whose galois group is commutative.
+-/
+class IsAbelianGalois (K L : Type*) [Field K] [Field L] [Algebra K L] : Prop
+  extends IsGalois K L, IsMulCommutative Gal(L/K)
 
 open scoped IsMulCommutative in
 lemma IsAbelianGalois.tower_bot [IsAbelianGalois K M] :
@@ -56,8 +58,10 @@ lemma IsAbelianGalois.of_algHom (f : L →ₐ[K] M) [IsAbelianGalois K M] :
 instance [IsAbelianGalois K L] (K' : IntermediateField K L) : IsAbelianGalois K K' :=
   .tower_bot K K' L
 
-instance (K L : Type*) [Field K] [Field L] [Algebra K L] [IsAbelianGalois K L]
-    (K' : IntermediateField K L) : IsAbelianGalois K' L :=
+instance
+    (K L : Type*) [Field K] [Field L] [Algebra K L] [IsAbelianGalois K L]
+    (K' : IntermediateField K L)
+    : IsAbelianGalois K' L :=
   .tower_top K _ L
 
 instance : IsAbelianGalois K K where
@@ -68,12 +72,16 @@ instance : IsAbelianGalois K (⊥ : IntermediateField K L) :=
 
 lemma IsAbelianGalois.of_isCyclic [IsGalois K L] [IsCyclic Gal(L/K)] : IsAbelianGalois K L where
 
-/-- The compositum of two abelian extensions is abelian: its Galois group embeds into the product
-of the (commutative) factor Galois groups. -/
-instance IsAbelianGalois.sup {F E : Type*} [Field F] [Field E] [Algebra F E]
-    (K L : IntermediateField F E) [IsAbelianGalois F K] [IsAbelianGalois F L] :
-    IsAbelianGalois F ↑(K ⊔ L) :=
+/--
+The compositum of two abelian extensions is abelian: its Galois group embeds into the product
+of the (commutative) factor Galois groups.
+-/
+instance IsAbelianGalois.sup
+    {F E : Type*} [Field F] [Field E] [Algebra F E]
+    (K L : IntermediateField F E) [IsAbelianGalois F K] [IsAbelianGalois F L]
+    : IsAbelianGalois F ↑(K ⊔ L) :=
   haveI : IsMulCommutative Gal(↑(K ⊔ L)/F) :=
-    .of_comm fun a b ↦ IntermediateField.restrictNormalHomSupProd_injective K L <| by
-      rw [map_mul, map_mul, mul_comm']
-  { }
+    .of_comm fun a b ↦
+      IntermediateField.restrictNormalHomSupProd_injective K L <| by
+        rw [map_mul, map_mul, mul_comm']
+  {}

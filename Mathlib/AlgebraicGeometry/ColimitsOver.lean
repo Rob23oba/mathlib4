@@ -36,13 +36,15 @@ open CategoryTheory Limits MorphismProperty
 
 namespace AlgebraicGeometry.Scheme.Cover
 
-variable {P : MorphismProperty Scheme.{u}} [P.IsStableUnderBaseChange] [P.IsMultiplicative]
-  {S : Scheme.{u}} {J : Type*} [Category* J] (D : J ⥤ P.Over ⊤ S)
+variable
+  {P : MorphismProperty Scheme.{u}} [P.IsStableUnderBaseChange] [P.IsMultiplicative]
+  {S : Scheme.{u}} {J : Type*} [Category* J]
+  (D : J ⥤ P.Over ⊤ S)
   (𝒰 : S.OpenCover) [Category* 𝒰.I₀] [𝒰.LocallyDirected]
 
 /-- The data required for gluing the colimits of the `Dᵢ : J ⥤ P.Over ⊤ (𝒰.X i)`. -/
-structure ColimitGluingData (D : J ⥤ P.Over ⊤ S) (𝒰 : S.OpenCover)
-    [Category* 𝒰.I₀] [𝒰.LocallyDirected] where
+structure ColimitGluingData
+    (D : J ⥤ P.Over ⊤ S) (𝒰 : S.OpenCover) [Category* 𝒰.I₀] [𝒰.LocallyDirected] where
   /-- The cocones on the `Dᵢ`. -/
   cocone (i : 𝒰.I₀) : Cocone (D ⋙ MorphismProperty.Over.pullback P ⊤ (𝒰.f i))
   /-- The cocones on the `Dᵢ` are colimiting. -/
@@ -53,28 +55,31 @@ namespace ColimitGluingData
 
 variable {D} {𝒰} (d : ColimitGluingData D 𝒰)
 
-/-- (Implementation) Auxiliary natural transformation for construction of
-`AlgebraicGeometry.Scheme.Cover.ColimitGluingData.functor`. -/
+/--
+(Implementation) Auxiliary natural transformation for construction of
+`AlgebraicGeometry.Scheme.Cover.ColimitGluingData.functor`.
+-/
 @[simps!]
-noncomputable
-def trans {i j : 𝒰.I₀} (hij : i ⟶ j) :
-    D ⋙ Over.pullback P ⊤ (𝒰.f i) ⋙ Over.map _ (d.prop_trans hij) ⟶
-      D ⋙ Over.pullback P ⊤ (𝒰.f j) :=
+noncomputable def trans {i j : 𝒰.I₀} (hij : i ⟶ j)
+    : D ⋙ Over.pullback P ⊤ (𝒰.f i) ⋙ Over.map _ (d.prop_trans hij)
+      ⟶ D ⋙ Over.pullback P ⊤ (𝒰.f j) :=
   D.whiskerLeft <| Over.pullbackMapHomPullback (P := P) (Q := ⊤) _ _ trivial _ _
 
-/-- (Implementation) Cocone for transition map for construction of
-`AlgebraicGeometry.Scheme.Cover.ColimitGluingData.functor`. -/
+/--
+(Implementation) Cocone for transition map for construction of
+`AlgebraicGeometry.Scheme.Cover.ColimitGluingData.functor`.
+-/
 @[simps! pt ι_app]
-noncomputable
-def transitionCocone {i j : 𝒰.I₀} (hij : i ⟶ j) :
-    Cocone (D ⋙ Over.pullback P ⊤ (𝒰.f i) ⋙ Over.map _ (d.prop_trans hij)) :=
+noncomputable def transitionCocone {i j : 𝒰.I₀} (hij : i ⟶ j)
+    : Cocone (D ⋙ Over.pullback P ⊤ (𝒰.f i) ⋙ Over.map _ (d.prop_trans hij)) :=
   (Cocone.precompose (d.trans hij)).obj (d.cocone j)
 
-/-- (Implementation) Transition map for construction of
-`AlgebraicGeometry.Scheme.Cover.ColimitGluingData.functor`. -/
-noncomputable
-def transitionMap {i j : 𝒰.I₀} (hij : i ⟶ j) :
-    (Over.map ⊤ (d.prop_trans hij)).obj (d.cocone i).pt ⟶ (d.cocone j).pt :=
+/--
+(Implementation) Transition map for construction of
+`AlgebraicGeometry.Scheme.Cover.ColimitGluingData.functor`.
+-/
+noncomputable def transitionMap {i j : 𝒰.I₀} (hij : i ⟶ j)
+    : (Over.map ⊤ (d.prop_trans hij)).obj (d.cocone i).pt ⟶ (d.cocone j).pt :=
   (isColimitOfPreserves (Over.map ⊤ (d.prop_trans hij)) (d.isColimit i)).desc
     (d.transitionCocone hij)
 
@@ -148,8 +153,7 @@ lemma isPullback {i j : 𝒰.I₀} (hij : i ⟶ j) :
 set_option backward.isDefEq.respectTransparency false in
 /-- The relative gluing datum associated to the family of the `colim Dᵢ`. -/
 @[simps natTrans_app, simps -isSimp functor]
-noncomputable
-def relativeGluingData : 𝒰.RelativeGluingData where
+noncomputable def relativeGluingData : 𝒰.RelativeGluingData where
   functor := d.functor
   natTrans.app i := (d.cocone i).pt.hom
   equifibered {i j} hij := d.isPullback hij
@@ -162,16 +166,17 @@ noncomputable def glued : P.Over ⊤ S :=
   Over.mk _ d.relativeGluingData.toBase <| by
     rw [IsZariskiLocalAtTarget.iff_of_openCover (P := P) 𝒰]
     intro i
-    rw [Scheme.Cover.pullbackHom,
+    rw [
+      Scheme.Cover.pullbackHom,
       ← (d.relativeGluingData.isPullback_natTrans_ι_toBase i).flip.isoPullback_inv_snd,
-      P.cancel_left_of_respectsIso]
+      P.cancel_left_of_respectsIso
+    ]
     exact (d.cocone i).pt.prop
 
 set_option backward.isDefEq.respectTransparency false in
 /-- `colim Dᵢ` is the pullback of the glued object over `S` along the inclusion `𝒰ᵢ ⟶ S`. -/
-noncomputable
-def pullbackGluedIso (i : 𝒰.I₀) :
-    (MorphismProperty.Over.pullback P ⊤ (𝒰.f i)).obj d.glued ≅ (d.cocone i).pt :=
+noncomputable def pullbackGluedIso (i : 𝒰.I₀)
+    : (MorphismProperty.Over.pullback P ⊤ (𝒰.f i)).obj d.glued ≅ (d.cocone i).pt :=
   Over.isoMk (d.relativeGluingData.isPullback_natTrans_ι_toBase i).flip.isoPullback.symm
 
 set_option backward.defeqAttrib.useBackward true in
@@ -208,13 +213,15 @@ noncomputable def gluedCocone : Cocone D := by
   · ext
     apply (𝒱 a).hom_ext
     intro i
-    have : (𝒱 a).f i ≫ (D.map f).left =
-        ((D ⋙ Over.pullback _ _ (𝒰.f i)).map f).left ≫ (𝒱 b).f i := by
+    have : (𝒱 a).f i ≫ (D.map f).left
+        = ((D ⋙ Over.pullback _ _ (𝒰.f i)).map f).left ≫ (𝒱 b).f i := by
       simp [𝒱]
     dsimp
-    rw [Category.comp_id, Scheme.OpenCover.map_glueMorphismsOverOfLocallyDirected_left,
+    rw [
+      Category.comp_id, Scheme.OpenCover.map_glueMorphismsOverOfLocallyDirected_left,
       reassoc_of% this, Scheme.OpenCover.map_glueMorphismsOverOfLocallyDirected_left,
-      ← Over.comp_left_assoc, ← Comma.comp_hom, ← Functor.comp_map, Cocone.w]
+      ← Over.comp_left_assoc, ← Comma.comp_hom, ← Functor.comp_map, Cocone.w
+    ]
 
 set_option backward.isDefEq.respectTransparency false in
 @[reassoc]
@@ -230,21 +237,22 @@ lemma fst_gluedCocone_ι (a : J) (i : 𝒰.I₀) :
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The glued cocone is colimiting. -/
-noncomputable
-def isColimitGluedCocone : IsColimit d.gluedCocone := by
+noncomputable def isColimitGluedCocone : IsColimit d.gluedCocone := by
   letI 𝒱 : d.glued.left.OpenCover := d.relativeGluingData.cover
   refine { desc s := ?_, fac := ?_, uniq := ?_ }
   · refine ⟨𝒱.glueMorphismsOverOfLocallyDirected ?_ ?_ ?_, trivial, trivial⟩
     · intro i
       exact ((d.isColimit i).desc (Functor.mapCocone _ s)).left ≫ pullback.fst _ _
     · intro i j hij
-      simp only [Functor.mapCocone_pt, MorphismProperty.Over.pullback_obj_left,
-        Functor.id_obj, Functor.const_obj_obj]
+      simp only [
+        Functor.mapCocone_pt, MorphismProperty.Over.pullback_obj_left, Functor.id_obj,
+        Functor.const_obj_obj
+      ]
       change (d.transitionMap hij).left ≫ _ ≫ _ = _
-      have : d.transitionMap hij ≫ (d.isColimit j).desc ((Over.pullback P ⊤ (𝒰.f j)).mapCocone s) =
-          (Over.map ⊤ (d.prop_trans hij)).map
-            ((d.isColimit i).desc ((MorphismProperty.Over.pullback P ⊤ (𝒰.f i)).mapCocone s)) ≫
-          (Over.pullbackMapHomPullback _ (d.prop_trans hij) trivial _ _).app _ := by
+      have : d.transitionMap hij ≫ (d.isColimit j).desc ((Over.pullback P ⊤ (𝒰.f j)).mapCocone s)
+          = (Over.map ⊤ (d.prop_trans hij)).map
+              ((d.isColimit i).desc ((MorphismProperty.Over.pullback P ⊤ (𝒰.f i)).mapCocone s))
+            ≫ (Over.pullbackMapHomPullback _ (d.prop_trans hij) trivial _ _).app _ := by
         apply (isColimitOfPreserves (Over.map ⊤ <| d.prop_trans _) (d.isColimit i)).hom_ext
         intro
         ext
@@ -261,24 +269,29 @@ def isColimitGluedCocone : IsColimit d.gluedCocone := by
     ext
     refine (𝒲 a).hom_ext _ _ fun i ↦ ?_
     dsimp
-    simp only [Precoverage.ZeroHypercover.pullback₁_toPreZeroHypercover,
-      PreZeroHypercover.pullback₁_f, 𝒲, fst_gluedCocone_ι_assoc]
+    simp only [
+      Precoverage.ZeroHypercover.pullback₁_toPreZeroHypercover, PreZeroHypercover.pullback₁_f, 𝒲,
+      fst_gluedCocone_ι_assoc
+    ]
     change _ ≫ 𝒱.f _ ≫ _ = _
-    rw [Scheme.OpenCover.map_glueMorphismsOverOfLocallyDirected_left, ← Over.comp_left_assoc,
-      ← Comma.comp_hom]
+    rw [
+      Scheme.OpenCover.map_glueMorphismsOverOfLocallyDirected_left, ← Over.comp_left_assoc,
+      ← Comma.comp_hom
+    ]
     simp
   · intro s m hm
     ext
     refine 𝒱.hom_ext _ _ fun i ↦ ?_
-    have : (d.pullbackGluedIso i).inv ≫ (Over.pullback P ⊤ (𝒰.f i)).map m =
-        (d.isColimit i).desc ((Over.pullback P ⊤ (𝒰.f i)).mapCocone s) := by
+    have : (d.pullbackGluedIso i).inv ≫ (Over.pullback P ⊤ (𝒰.f i)).map m
+        = (d.isColimit i).desc ((Over.pullback P ⊤ (𝒰.f i)).mapCocone s) := by
       refine (d.isColimit i).hom_ext fun a ↦ ?_
       rw [IsColimit.fac]
       ext
       apply pullback.hom_ext
       · dsimp
-        simp only [Category.assoc, limit.lift_π, PullbackCone.mk_π_app,
-          pullbackGluedIso_inv_fst_assoc]
+        simp only [
+          Category.assoc, limit.lift_π, PullbackCone.mk_π_app, pullbackGluedIso_inv_fst_assoc
+        ]
         rw [← congr($(hm a).left)]
         simp [fst_gluedCocone_ι_assoc]
       · simp

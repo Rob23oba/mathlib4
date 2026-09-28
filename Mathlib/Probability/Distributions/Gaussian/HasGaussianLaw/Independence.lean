@@ -43,32 +43,35 @@ open scoped ENNReal NNReal RealInnerProductSpace
 
 variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
 
-
 section Diagonal
 
 namespace ContinuousLinearMap
 
 section Pi
 
-variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+variable
+  {ι : Type*} [Fintype ι] [DecidableEq ι]
   {E : ι → Type*} [∀ i, NormedAddCommGroup (E i)] [∀ i, NormedSpace ℝ (E i)]
   {L : (i : ι) → StrongDual ℝ (E i) →L[ℝ] StrongDual ℝ (E i) →L[ℝ] ℝ}
 
-/-- Given `L i : (E i)' × (E i)' → ℝ` a family of continuous bilinear forms,
+/--
+Given `L i : (E i)' × (E i)' → ℝ` a family of continuous bilinear forms,
 `diagonalStrongDualPi L` is the continuous bilinear form over `(Π i, E i)'`
 which maps `(x, y) : (Π i, E i)' × (Π i, E i)'` to
 `∑ i, L i (fun a ↦ x aᵢ) (fun a ↦ y aᵢ)`.
 
-This is an implementation detail used in `iIndepFun.hasGaussianLaw`. -/
-noncomputable
-def diagonalStrongDualPi (L : (i : ι) → StrongDual ℝ (E i) →L[ℝ] StrongDual ℝ (E i) →L[ℝ] ℝ) :
-    StrongDual ℝ (Π i, E i) →L[ℝ] StrongDual ℝ (Π i, E i) →L[ℝ] ℝ :=
-  letI g : LinearMap.BilinForm ℝ (StrongDual ℝ (Π i, E i)) := LinearMap.mk₂ ℝ
-    (fun x y ↦ ∑ i, L i (x ∘L (single ℝ E i)) (y ∘L (single ℝ E i)))
-    (fun x y z ↦ by simp [sum_add_distrib])
-    (fun c m n ↦ by simp [mul_sum])
-    (fun x y z ↦ by simp [sum_add_distrib])
-    (fun c m n ↦ by simp [mul_sum])
+This is an implementation detail used in `iIndepFun.hasGaussianLaw`.
+-/
+noncomputable def diagonalStrongDualPi
+    (L : (i : ι) → StrongDual ℝ (E i) →L[ℝ] StrongDual ℝ (E i) →L[ℝ] ℝ)
+    : StrongDual ℝ (Π i, E i) →L[ℝ] StrongDual ℝ (Π i, E i) →L[ℝ] ℝ :=
+  letI g : LinearMap.BilinForm ℝ (StrongDual ℝ (Π i, E i)) :=
+    LinearMap.mk₂ ℝ
+      (fun x y ↦ ∑ i, L i (x ∘L (single ℝ E i)) (y ∘L (single ℝ E i)))
+      (fun x y z ↦ by simp [sum_add_distrib])
+      (fun c m n ↦ by simp [mul_sum])
+      (fun x y z ↦ by simp [sum_add_distrib])
+      (fun c m n ↦ by simp [mul_sum])
   LinearMap.mkContinuous₂ g (∑ i, ‖L i‖) <| by
     intro x y
     simp only [LinearMap.mk₂_apply, g]
@@ -96,28 +99,31 @@ end Pi
 
 section Prod
 
-variable {E F : Type*}
-  [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F] [NormedSpace ℝ F]
+variable
+  {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F] [NormedSpace ℝ F]
   {L₁ : StrongDual ℝ E →L[ℝ] StrongDual ℝ E →L[ℝ] ℝ}
   {L₂ : StrongDual ℝ F →L[ℝ] StrongDual ℝ F →L[ℝ] ℝ}
 
-/-- Given `L₁ : E' × E' → ℝ` and `L₂ : F' × F' → ℝ` two continuous bilinear forms,
+/--
+Given `L₁ : E' × E' → ℝ` and `L₂ : F' × F' → ℝ` two continuous bilinear forms,
 `diagonalStrongDualProd L₁ L₂` is the continuous bilinear form over `(E × F)'`
 which maps `(x, y) : (E × F)' × (E × F)'` to
 `L₁ (fun (a, b) ↦ x a) (fun (a, b) ↦ y a) + L₂ (fun (a, b) ↦ x b) (fun (a, b) ↦ y b)`.
 
-This is an implementation detail used in `IndepFun.hasGaussianLaw`. -/
-noncomputable
-def diagonalStrongDualProd
+This is an implementation detail used in `IndepFun.hasGaussianLaw`.
+-/
+noncomputable def diagonalStrongDualProd
     (L₁ : StrongDual ℝ E →L[ℝ] StrongDual ℝ E →L[ℝ] ℝ)
-    (L₂ : StrongDual ℝ F →L[ℝ] StrongDual ℝ F →L[ℝ] ℝ) :
-    StrongDual ℝ (E × F) →L[ℝ] StrongDual ℝ (E × F) →L[ℝ] ℝ :=
-  letI g : LinearMap.BilinForm ℝ (StrongDual ℝ (E × F)) := LinearMap.mk₂ ℝ
-    (fun x y ↦ L₁ (x ∘L (inl ℝ E F)) (y ∘L (inl ℝ E F)) + L₂ (x ∘L (inr ℝ E F)) (y ∘L (inr ℝ E F)))
-    (fun x y z ↦ by simp [add_add_add_comm])
-    (fun c m n ↦ by simp [mul_add])
-    (fun x y z ↦ by simp [add_add_add_comm])
-    (fun c m n ↦ by simp [mul_add])
+    (L₂ : StrongDual ℝ F →L[ℝ] StrongDual ℝ F →L[ℝ] ℝ)
+    : StrongDual ℝ (E × F) →L[ℝ] StrongDual ℝ (E × F) →L[ℝ] ℝ :=
+  letI g : LinearMap.BilinForm ℝ (StrongDual ℝ (E × F)) :=
+    LinearMap.mk₂ ℝ
+      (fun x y ↦
+        L₁ (x ∘L (inl ℝ E F)) (y ∘L (inl ℝ E F)) + L₂ (x ∘L (inr ℝ E F)) (y ∘L (inr ℝ E F)))
+      (fun x y z ↦ by simp [add_add_add_comm])
+      (fun c m n ↦ by simp [mul_add])
+      (fun x y z ↦ by simp [add_add_add_comm])
+      (fun c m n ↦ by simp [mul_add])
   LinearMap.mkContinuous₂ g (‖L₁‖ + ‖L₂‖) <| by
     intro x y
     simp only [LinearMap.mk₂_apply, g]
@@ -152,15 +158,15 @@ end ContinuousLinearMap
 
 end Diagonal
 
-
 public section
 
 namespace ProbabilityTheory
 
 section iIndepFun
 
-variable {ι : Type*} [Finite ι] {E : ι → Type*}
-  [∀ i, NormedAddCommGroup (E i)] [∀ i, MeasurableSpace (E i)]
+variable
+  {ι : Type*} [Finite ι]
+  {E : ι → Type*} [∀ i, NormedAddCommGroup (E i)] [∀ i, MeasurableSpace (E i)]
   [∀ i, CompleteSpace (E i)] [∀ i, BorelSpace (E i)] [∀ i, SecondCountableTopology (E i)]
 
 section NormedSpace
@@ -271,11 +277,10 @@ end iIndepFun
 
 section IndepFun
 
-variable {E F : Type*}
-    [NormedAddCommGroup E] [MeasurableSpace E]
-    [CompleteSpace E] [BorelSpace E] [SecondCountableTopology E]
-    [NormedAddCommGroup F] [MeasurableSpace F]
-    [CompleteSpace F] [BorelSpace F] [SecondCountableTopology F]
+variable
+  {E F : Type*} [NormedAddCommGroup E] [MeasurableSpace E] [CompleteSpace E] [BorelSpace E]
+  [SecondCountableTopology E] [NormedAddCommGroup F] [MeasurableSpace F] [CompleteSpace F]
+  [BorelSpace F] [SecondCountableTopology F]
 
 /-- Independent Gaussian random variables are jointly Gaussian. -/
 lemma IndepFun.hasGaussianLaw [NormedSpace ℝ E] [NormedSpace ℝ F] {X : Ω → E} {Y : Ω → F}
@@ -377,7 +382,8 @@ end IndepFun
 
 section AddSub
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
   [SecondCountableTopology E]
 
 lemma iIndepFun.hasGaussianLaw_sum [CompleteSpace E] {ι : Type*} [Fintype ι] {X : ι → Ω → E}

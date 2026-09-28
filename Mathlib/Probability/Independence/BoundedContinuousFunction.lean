@@ -81,13 +81,13 @@ lemma IndepFun.singleton_indepSets_of_indicator {𝓧 : Type*} [mX : MeasurableS
   rw [hA']
   exact h.measure_inter_preimage_eq_mul _ _ (by simp) ht
 
-variable {E : S → Type*} {F : T → Type*} {G H : Type*}
+variable
+  {E : S → Type*} {F : T → Type*} {G H : Type*}
   [∀ s, TopologicalSpace (E s)] [∀ s, MeasurableSpace (E s)] [∀ s, BorelSpace (E s)]
-  [∀ s, HasOuterApproxClosed (E s)]
-  [∀ t, TopologicalSpace (F t)] [∀ t, MeasurableSpace (F t)] [∀ t, BorelSpace (F t)]
-  [∀ t, HasOuterApproxClosed (F t)]
-  [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G] [HasOuterApproxClosed G]
-  [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H] [HasOuterApproxClosed H]
+  [∀ s, HasOuterApproxClosed (E s)] [∀ t, TopologicalSpace (F t)] [∀ t, MeasurableSpace (F t)]
+  [∀ t, BorelSpace (F t)] [∀ t, HasOuterApproxClosed (F t)] [TopologicalSpace G] [MeasurableSpace G]
+  [BorelSpace G] [HasOuterApproxClosed G] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+  [HasOuterApproxClosed H]
   {X : (s : S) → Ω → E s} {Y : (t : T) → Ω → F t} {Z : Ω → G} {U : Ω → H}
 
 section Fintype
@@ -110,7 +110,8 @@ lemma pi_indepFun_pi_of_prod_bcf (mX : ∀ s, AEMeasurable (X s) P)
   any_goals fun_prop
   all_goals exact Measurable.aestronglyMeasurable (by fun_prop)
 
-omit [Fintype S] [Fintype T] in variable [Finite S] [Finite T] in
+omit [Fintype S] [Fintype T] in
+variable [Finite S] [Finite T] in
 /-- Two families of random variables $(X_1, ..., X_p)$ and $(Y_1, ..., Y_q)$ are independent if
 for all real bounded continuous functions $f$ and $g$,
 $$P[f(X_1, ..., X_p) g(Y_1, ..., Y_q)] = P[f(X_1, ..., X_p)] * P[g(Y_1, ..., Y_q)].$$ -/
@@ -137,7 +138,8 @@ lemma indepFun_pi_of_prod_bcf (mZ : AEMeasurable Z P)
   any_goals fun_prop
   all_goals exact Measurable.aestronglyMeasurable (by fun_prop)
 
-omit [Fintype T] in variable [Finite T] in
+omit [Fintype T] in
+variable [Finite T] in
 lemma indepFun_pi_of_bcf (mZ : AEMeasurable Z P)
     (mY : ∀ t, AEMeasurable (Y t) P)
     (h : ∀ (f : G →ᵇ ℝ) (g : (Π t, F t) →ᵇ ℝ),
@@ -159,7 +161,8 @@ lemma pi_indepFun_of_prod_bcf (mX : ∀ s, AEMeasurable (X s) P)
   any_goals fun_prop
   all_goals exact Measurable.aestronglyMeasurable (by fun_prop)
 
-omit [Fintype S] in variable [Finite S] in
+omit [Fintype S] in
+variable [Finite S] in
 lemma pi_indepFun_of_bcf (mX : ∀ s, AEMeasurable (X s) P)
     (mU : AEMeasurable U P)
     (h : ∀ (f : (Π s, E s) →ᵇ ℝ) (g : H →ᵇ ℝ),
@@ -226,7 +229,8 @@ lemma indicator_indepFun_pi_of_prod_bcf
   · exact (hg.indicator₀ mA).add hg
   · exact hg.indicator₀ mA
 
-omit [Fintype S] in variable [Finite S] in
+omit [Fintype S] in
+variable [Finite S] in
 /-- The indicator of a set $A$ and a family of random variables $(X_1, ..., X_p)$ are independent
 if for all real bounded continuous function $f$,
 $$P[\mathbb{I}_A f(X_1, ..., X_p)] = P(A) P[f(X_1, ..., X_p)].$$ -/
@@ -262,7 +266,8 @@ lemma indepSets_comap_pi_of_prod_bcf
   indepSets_iff_singleton_indepSets.2 fun A hA ↦ IndepFun.singleton_indepSets_of_indicator
     (indicator_indepFun_pi_of_prod_bcf (m𝒜 A hA) mX (h A hA))
 
-omit [Fintype S] in variable [Finite S] in
+omit [Fintype S] in
+variable [Finite S] in
 lemma indepSets_comap_pi_of_bcf
     {𝒜 : Set (Set Ω)} (m𝒜 : ∀ A ∈ 𝒜, NullMeasurableSet A P) (mX : ∀ s, AEMeasurable (X s) P)
     (h : ∀ A ∈ 𝒜, ∀ f : (Π s, E s) →ᵇ ℝ, ∫ ω in A, f (X · ω) ∂P = P.real A * ∫ ω, f (X · ω) ∂P) :
@@ -288,7 +293,8 @@ lemma indep_comap_pi_of_prod_bcf (hm : m ≤ mΩ) (mX : ∀ s, AEMeasurable (X s
   (Indep_iff_IndepSets _ _ P).2
     (indepSets_comap_pi_of_prod_bcf (fun A hA ↦ (hm A hA).nullMeasurableSet) mX h)
 
-omit [Fintype S] in variable [Finite S] in
+omit [Fintype S] in
+variable [Finite S] in
 /-- A sigma-algebra $\mathcal{A}$ and a family of random variables $(X_1, ..., X_p)$ are independent
 if for all set $A \in \mathcal{A}$ and for all real bounded continuous function $f$,
 $$P[\mathbb{I}_A f(X_1, ..., X_p)] = P(A) P[f(X_1, ..., X_p)].$$ -/

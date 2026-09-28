@@ -32,7 +32,6 @@ Where possible, the results in this file should be first proved in the generalit
 
 @[expose] public section
 
-
 variable {σ R : Type*} [CommSemiring R]
 
 namespace MvPolynomial
@@ -42,7 +41,6 @@ section CopiedDeclarations
 /-! Please ensure the declarations in this section are direct translations of `AddMonoidAlgebra`
 results. -/
 
-
 /-- Divide by `monomial 1 s`, discarding terms not divisible by this. -/
 noncomputable def divMonomial (p : MvPolynomial σ R) (s : σ →₀ ℕ) : MvPolynomial σ R :=
   AddMonoidAlgebra.divOf p s
@@ -50,38 +48,37 @@ noncomputable def divMonomial (p : MvPolynomial σ R) (s : σ →₀ ℕ) : MvPo
 local infixl:70 " /ᵐᵒⁿᵒᵐⁱᵃˡ " => divMonomial
 
 @[simp]
-theorem coeff_divMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R) (s' : σ →₀ ℕ) :
-    (x /ᵐᵒⁿᵒᵐⁱᵃˡ s).coeff s' = x.coeff (s + s') :=
+theorem coeff_divMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R) (s' : σ →₀ ℕ)
+    : (x /ᵐᵒⁿᵒᵐⁱᵃˡ s).coeff s' = x.coeff (s + s') :=
   rfl
 
 @[simp]
-theorem support_divMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R) :
-    (x /ᵐᵒⁿᵒᵐⁱᵃˡ s).support = x.support.preimage _ (add_right_injective s).injOn :=
+theorem support_divMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R)
+    : (x /ᵐᵒⁿᵒᵐⁱᵃˡ s).support = x.support.preimage _ (add_right_injective s).injOn :=
   rfl
 
 @[simp]
 theorem zero_divMonomial (s : σ →₀ ℕ) : (0 : MvPolynomial σ R) /ᵐᵒⁿᵒᵐⁱᵃˡ s = 0 :=
   AddMonoidAlgebra.zero_divOf _
 
-theorem divMonomial_zero (x : MvPolynomial σ R) : x /ᵐᵒⁿᵒᵐⁱᵃˡ 0 = x :=
-  x.divOf_zero
+theorem divMonomial_zero (x : MvPolynomial σ R) : x /ᵐᵒⁿᵒᵐⁱᵃˡ 0 = x := x.divOf_zero
 
-theorem add_divMonomial (x y : MvPolynomial σ R) (s : σ →₀ ℕ) :
-    (x + y) /ᵐᵒⁿᵒᵐⁱᵃˡ s = x /ᵐᵒⁿᵒᵐⁱᵃˡ s + y /ᵐᵒⁿᵒᵐⁱᵃˡ s := by
+theorem add_divMonomial (x y : MvPolynomial σ R) (s : σ →₀ ℕ)
+    : (x + y) /ᵐᵒⁿᵒᵐⁱᵃˡ s = x /ᵐᵒⁿᵒᵐⁱᵃˡ s + y /ᵐᵒⁿᵒᵐⁱᵃˡ s := by
   simp [divMonomial, MvPolynomial, AddMonoidAlgebra.add_divOf]
 
-theorem divMonomial_add (a b : σ →₀ ℕ) (x : MvPolynomial σ R) :
-    x /ᵐᵒⁿᵒᵐⁱᵃˡ (a + b) = x /ᵐᵒⁿᵒᵐⁱᵃˡ a /ᵐᵒⁿᵒᵐⁱᵃˡ b :=
+theorem divMonomial_add (a b : σ →₀ ℕ) (x : MvPolynomial σ R)
+    : x /ᵐᵒⁿᵒᵐⁱᵃˡ (a + b) = x /ᵐᵒⁿᵒᵐⁱᵃˡ a /ᵐᵒⁿᵒᵐⁱᵃˡ b :=
   x.divOf_add _ _
 
 @[simp]
-theorem divMonomial_monomial_mul (a : σ →₀ ℕ) (x : MvPolynomial σ R) :
-    monomial a 1 * x /ᵐᵒⁿᵒᵐⁱᵃˡ a = x :=
+theorem divMonomial_monomial_mul (a : σ →₀ ℕ) (x : MvPolynomial σ R)
+    : monomial a 1 * x /ᵐᵒⁿᵒᵐⁱᵃˡ a = x :=
   x.of'_mul_divOf _
 
 @[simp]
-theorem divMonomial_mul_monomial (a : σ →₀ ℕ) (x : MvPolynomial σ R) :
-    x * monomial a 1 /ᵐᵒⁿᵒᵐⁱᵃˡ a = x :=
+theorem divMonomial_mul_monomial (a : σ →₀ ℕ) (x : MvPolynomial σ R)
+    : x * monomial a 1 /ᵐᵒⁿᵒᵐⁱᵃˡ a = x :=
   x.mul_of'_divOf _
 
 @[simp]
@@ -89,45 +86,44 @@ theorem divMonomial_monomial (a : σ →₀ ℕ) : monomial a 1 /ᵐᵒⁿᵒᵐ
   AddMonoidAlgebra.of'_divOf _
 
 /-- The remainder upon division by `monomial 1 s`. -/
-noncomputable def modMonomial (x : MvPolynomial σ R) (s : σ →₀ ℕ) : MvPolynomial σ R :=
-  x.modOf s
+noncomputable def modMonomial (x : MvPolynomial σ R) (s : σ →₀ ℕ) : MvPolynomial σ R := x.modOf s
 
 local infixl:70 " %ᵐᵒⁿᵒᵐⁱᵃˡ " => modMonomial
 
 @[simp]
-theorem coeff_modMonomial_of_not_le {s' s : σ →₀ ℕ} (x : MvPolynomial σ R) (h : ¬s ≤ s') :
-    (x %ᵐᵒⁿᵒᵐⁱᵃˡ s).coeff s' = x.coeff s' :=
+theorem coeff_modMonomial_of_not_le {s' s : σ →₀ ℕ} (x : MvPolynomial σ R) (h : ¬ s ≤ s')
+    : (x %ᵐᵒⁿᵒᵐⁱᵃˡ s).coeff s' = x.coeff s' :=
   x.coeff_modOf_of_not_exists_add s s' <| by rintro ⟨d, rfl⟩; exact h le_self_add
 
 @[simp]
-theorem coeff_modMonomial_of_le {s' s : σ →₀ ℕ} (x : MvPolynomial σ R) (h : s ≤ s') :
-    (x %ᵐᵒⁿᵒᵐⁱᵃˡ s).coeff s' = 0 :=
+theorem coeff_modMonomial_of_le {s' s : σ →₀ ℕ} (x : MvPolynomial σ R) (h : s ≤ s')
+    : (x %ᵐᵒⁿᵒᵐⁱᵃˡ s).coeff s' = 0 :=
   x.coeff_modOf_of_exists_add _ _ <| exists_add_of_le h
 
 @[simp]
-theorem monomial_mul_modMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R) :
-    monomial s 1 * x %ᵐᵒⁿᵒᵐⁱᵃˡ s = 0 :=
+theorem monomial_mul_modMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R)
+    : monomial s 1 * x %ᵐᵒⁿᵒᵐⁱᵃˡ s = 0 :=
   x.of'_mul_modOf _
 
 @[simp]
-theorem mul_monomial_modMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R) :
-    x * monomial s 1 %ᵐᵒⁿᵒᵐⁱᵃˡ s = 0 :=
+theorem mul_monomial_modMonomial (s : σ →₀ ℕ) (x : MvPolynomial σ R)
+    : x * monomial s 1 %ᵐᵒⁿᵒᵐⁱᵃˡ s = 0 :=
   x.mul_of'_modOf _
 
 @[simp]
 theorem monomial_modMonomial (s : σ →₀ ℕ) : monomial s (1 : R) %ᵐᵒⁿᵒᵐⁱᵃˡ s = 0 :=
   AddMonoidAlgebra.of'_modOf _
 
-theorem divMonomial_add_modMonomial (x : MvPolynomial σ R) (s : σ →₀ ℕ) :
-    monomial s 1 * (x /ᵐᵒⁿᵒᵐⁱᵃˡ s) + x %ᵐᵒⁿᵒᵐⁱᵃˡ s = x :=
+theorem divMonomial_add_modMonomial (x : MvPolynomial σ R) (s : σ →₀ ℕ)
+    : monomial s 1 * (x /ᵐᵒⁿᵒᵐⁱᵃˡ s) + x %ᵐᵒⁿᵒᵐⁱᵃˡ s = x :=
   AddMonoidAlgebra.divOf_add_modOf x s
 
-theorem modMonomial_add_divMonomial (x : MvPolynomial σ R) (s : σ →₀ ℕ) :
-    x %ᵐᵒⁿᵒᵐⁱᵃˡ s + monomial s 1 * (x /ᵐᵒⁿᵒᵐⁱᵃˡ s) = x :=
+theorem modMonomial_add_divMonomial (x : MvPolynomial σ R) (s : σ →₀ ℕ)
+    : x %ᵐᵒⁿᵒᵐⁱᵃˡ s + monomial s 1 * (x /ᵐᵒⁿᵒᵐⁱᵃˡ s) = x :=
   AddMonoidAlgebra.modOf_add_divOf x s
 
-theorem monomial_one_dvd_iff_modMonomial_eq_zero {i : σ →₀ ℕ} {x : MvPolynomial σ R} :
-    monomial i (1 : R) ∣ x ↔ x %ᵐᵒⁿᵒᵐⁱᵃˡ i = 0 :=
+theorem monomial_one_dvd_iff_modMonomial_eq_zero {i : σ →₀ ℕ} {x : MvPolynomial σ R}
+    : monomial i (1 : R) ∣ x ↔ x %ᵐᵒⁿᵒᵐⁱᵃˡ i = 0 :=
   AddMonoidAlgebra.of'_dvd_iff_modOf_eq_zero
 
 end CopiedDeclarations
@@ -139,8 +135,8 @@ local infixl:70 " /ᵐᵒⁿᵒᵐⁱᵃˡ " => divMonomial
 local infixl:70 " %ᵐᵒⁿᵒᵐⁱᵃˡ " => modMonomial
 
 @[simp]
-theorem X_mul_divMonomial (i : σ) (x : MvPolynomial σ R) :
-    X i * x /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = x :=
+theorem X_mul_divMonomial (i : σ) (x : MvPolynomial σ R)
+    : X i * x /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = x :=
   divMonomial_monomial_mul _ _
 
 @[simp]
@@ -148,43 +144,42 @@ theorem X_divMonomial (i : σ) : (X i : MvPolynomial σ R) /ᵐᵒⁿᵒᵐⁱ�
   divMonomial_monomial (Finsupp.single i 1)
 
 @[simp]
-theorem mul_X_divMonomial (x : MvPolynomial σ R) (i : σ) :
-    x * X i /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = x :=
+theorem mul_X_divMonomial (x : MvPolynomial σ R) (i : σ)
+    : x * X i /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = x :=
   divMonomial_mul_monomial _ _
 
 @[simp]
-theorem X_mul_modMonomial (i : σ) (x : MvPolynomial σ R) :
-    X i * x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
+theorem X_mul_modMonomial (i : σ) (x : MvPolynomial σ R)
+    : X i * x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
   monomial_mul_modMonomial _ _
 
 @[simp]
-theorem mul_X_modMonomial (x : MvPolynomial σ R) (i : σ) :
-    x * X i %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
+theorem mul_X_modMonomial (x : MvPolynomial σ R) (i : σ)
+    : x * X i %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
   mul_monomial_modMonomial _ _
 
 @[simp]
 theorem modMonomial_X (i : σ) : (X i : MvPolynomial σ R) %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
   monomial_modMonomial _
 
-theorem divMonomial_add_modMonomial_single (x : MvPolynomial σ R) (i : σ) :
-    X i * (x /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1) + x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = x :=
+theorem divMonomial_add_modMonomial_single (x : MvPolynomial σ R) (i : σ)
+    : X i * (x /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1) + x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = x :=
   divMonomial_add_modMonomial _ _
 
-theorem modMonomial_add_divMonomial_single (x : MvPolynomial σ R) (i : σ) :
-    x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 + X i * (x /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1) = x :=
+theorem modMonomial_add_divMonomial_single (x : MvPolynomial σ R) (i : σ)
+    : x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 + X i * (x /ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1) = x :=
   modMonomial_add_divMonomial _ _
 
-theorem X_dvd_iff_modMonomial_eq_zero {i : σ} {x : MvPolynomial σ R} :
-    X i ∣ x ↔ x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
+theorem X_dvd_iff_modMonomial_eq_zero {i : σ} {x : MvPolynomial σ R}
+    : X i ∣ x ↔ x %ᵐᵒⁿᵒᵐⁱᵃˡ Finsupp.single i 1 = 0 :=
   monomial_one_dvd_iff_modMonomial_eq_zero
 
 end XLemmas
 
 /-! ### Some results about dvd (`∣`) on `monomial` and `X` -/
 
-
-theorem monomial_dvd_monomial {r s : R} {i j : σ →₀ ℕ} :
-    monomial i r ∣ monomial j s ↔ (s = 0 ∨ i ≤ j) ∧ r ∣ s := by
+theorem monomial_dvd_monomial {r s : R} {i j : σ →₀ ℕ}
+    : monomial i r ∣ monomial j s ↔ (s = 0 ∨ i ≤ j) ∧ r ∣ s := by
   constructor
   · rintro ⟨x, hx⟩
     rw [MvPolynomial.ext_iff] at hx
@@ -202,57 +197,57 @@ theorem monomial_dvd_monomial {r s : R} {i j : σ →₀ ℕ} :
       rw [monomial_mul_monomial, add_tsub_cancel_of_le hij]
 
 @[simp]
-theorem monomial_one_dvd_monomial_one [Nontrivial R] {i j : σ →₀ ℕ} :
-    monomial i (1 : R) ∣ monomial j 1 ↔ i ≤ j := by
+theorem monomial_one_dvd_monomial_one [Nontrivial R] {i j : σ →₀ ℕ}
+    : monomial i (1 : R) ∣ monomial j 1 ↔ i ≤ j := by
   rw [monomial_dvd_monomial]
   simp_rw [one_ne_zero, false_or, dvd_rfl, and_true]
 
 @[simp]
-theorem X_dvd_X [Nontrivial R] {i j : σ} :
-    (X i : MvPolynomial σ R) ∣ (X j : MvPolynomial σ R) ↔ i = j := by
+theorem X_dvd_X [Nontrivial R] {i j : σ}
+    : (X i : MvPolynomial σ R) ∣ (X j : MvPolynomial σ R) ↔ i = j := by
   refine monomial_one_dvd_monomial_one.trans ?_
   simp_rw [Finsupp.single_le_iff, Nat.one_le_iff_ne_zero, Finsupp.single_apply_ne_zero,
     ne_eq, reduceCtorEq, not_false_eq_true, and_true]
 
 @[simp]
-theorem X_dvd_monomial {i : σ} {j : σ →₀ ℕ} {r : R} :
-    (X i : MvPolynomial σ R) ∣ monomial j r ↔ r = 0 ∨ j i ≠ 0 := by
+theorem X_dvd_monomial {i : σ} {j : σ →₀ ℕ} {r : R}
+    : (X i : MvPolynomial σ R) ∣ monomial j r ↔ r = 0 ∨ j i ≠ 0 := by
   refine monomial_dvd_monomial.trans ?_
   simp_rw [one_dvd, and_true, Finsupp.single_le_iff, Nat.one_le_iff_ne_zero]
 
-theorem eq_divMonomial_single [IsLeftCancelAdd R]
-    {i : σ} {p q r : MvPolynomial σ R} (h : p = X i * q + r)
-    (hr : ∀ n ∈ r.support, n i = 0) :
-    q = p.divMonomial (Finsupp.single i 1) := by
+theorem eq_divMonomial_single
+    [IsLeftCancelAdd R]
+    {i : σ} {p q r : MvPolynomial σ R} (h : p = X i * q + r) (hr : ∀ n ∈ r.support, n i = 0)
+    : q = p.divMonomial (Finsupp.single i 1) := by
   ext n
-  rw [coeff_divMonomial, h, AddMonoidAlgebra.coeff_add, Finsupp.add_apply, coeff_X_mul, left_eq_add,
-    ← notMem_support_iff]
+  rw [
+    coeff_divMonomial, h, AddMonoidAlgebra.coeff_add, Finsupp.add_apply, coeff_X_mul, left_eq_add,
+    ← notMem_support_iff
+  ]
   intro hn
   simpa using hr _ hn
 
-instance [IsLeftCancelAdd R] :
-    IsCancelAdd (MvPolynomial σ R) := by
-  suffices IsLeftCancelAdd (MvPolynomial σ R) from
-    AddCommMagma.IsLeftCancelAdd.toIsCancelAdd _
+instance [IsLeftCancelAdd R] : IsCancelAdd (MvPolynomial σ R) := by
+  suffices IsLeftCancelAdd (MvPolynomial σ R) from AddCommMagma.IsLeftCancelAdd.toIsCancelAdd _
   refine { add_left_cancel := fun f g h H ↦ ?_ }
   ext d
   simpa using congr($(H).coeff d)
 
-theorem eq_modMonomial_single [IsLeftCancelAdd R]
+theorem eq_modMonomial_single
+    [IsLeftCancelAdd R]
     {σ : Type*} {i : σ} {p q r : MvPolynomial σ R}
-    (h : p = X i * q + r) (hr : ∀ n ∈ r.support, n i = 0) :
-    r = p.modMonomial (Finsupp.single i 1) := by
+    (h : p = X i * q + r) (hr : ∀ n ∈ r.support, n i = 0)
+    : r = p.modMonomial (Finsupp.single i 1) := by
   have h' := id h
-  rwa [← p.divMonomial_add_modMonomial_single i,
-    eq_divMonomial_single h hr, add_right_inj, eq_comm] at h'
+  rwa [← p.divMonomial_add_modMonomial_single i, eq_divMonomial_single h hr, add_right_inj, eq_comm]
+    at h'
 
 section CommRing
 
 variable {R : Type*} [CommRing R] {i : σ} {p q r : MvPolynomial σ R}
 
-theorem eq_modMonomial_single_iff (h : X i ∣ p - r) :
-    r = p.modMonomial (Finsupp.single i 1) ↔
-      ∀ n ∈ r.support, n i = 0 := by
+theorem eq_modMonomial_single_iff (h : X i ∣ p - r)
+    : r = p.modMonomial (Finsupp.single i 1) ↔ ∀ n ∈ r.support, n i = 0 := by
   refine ⟨fun h n ↦ ?_, fun hr ↦ ?_⟩
   · contrapose!
     intro hn
@@ -263,13 +258,13 @@ theorem eq_modMonomial_single_iff (h : X i ∣ p - r) :
     apply eq_modMonomial_single (q := q) _ hr
     rwa [← sub_eq_iff_eq_add]
 
-theorem X_dvd_mul_iff [IsCancelMulZero R] :
-    X i ∣ p * q ↔ X i ∣ p ∨ X i ∣ q := by
+theorem X_dvd_mul_iff [IsCancelMulZero R] : X i ∣ p * q ↔ X i ∣ p ∨ X i ∣ q := by
   nontriviality R
   constructor
   · intro h
-    suffices (p.modMonomial (Finsupp.single i 1)) * (q.modMonomial (Finsupp.single i 1)) =
-          (p * q).modMonomial (Finsupp.single i 1) by
+    suffices (p.modMonomial (Finsupp.single i 1)) * (q.modMonomial (Finsupp.single i 1))
+      = (p * q).modMonomial (Finsupp.single i 1)
+    by
       simp only [X_dvd_iff_modMonomial_eq_zero] at h ⊢
       rwa [h, mul_eq_zero] at this
     have hp := p.modMonomial_add_divMonomial_single i
@@ -307,8 +302,8 @@ theorem X_prime [IsCancelMulZero R] [Nontrivial R] : Prime (X i : MvPolynomial �
   apply_fun constantCoeff at hu
   simp at hu
 
-theorem dvd_X_mul_iff [IsCancelMulZero R] :
-    p ∣ X i * q ↔ p ∣ q ∨ (X i ∣ p ∧ p.divMonomial (Finsupp.single i 1) ∣ q) := by
+theorem dvd_X_mul_iff [IsCancelMulZero R]
+    : p ∣ X i * q ↔ p ∣ q ∨ (X i ∣ p ∧ p.divMonomial (Finsupp.single i 1) ∣ q) := by
   constructor
   · rintro ⟨r, hp⟩
     have : X i ∣ p ∨ X i ∣ r := by simp [← X_dvd_mul_iff, ← hp]
@@ -319,8 +314,8 @@ theorem dvd_X_mul_iff [IsCancelMulZero R] :
     · intro hip
       refine ⟨hip, ?_⟩
       rw [X_dvd_iff_modMonomial_eq_zero] at hip
-      rw [← p.modMonomial_add_divMonomial_single i, hip,
-        zero_add, mul_assoc, X_mul_cancel_left_iff] at hp
+      rw [← p.modMonomial_add_divMonomial_single i, hip, zero_add, mul_assoc, X_mul_cancel_left_iff]
+        at hp
       use r
   · rintro (hp | ⟨hi, hq⟩)
     · exact dvd_mul_of_dvd_right hp (X i)
@@ -328,23 +323,27 @@ theorem dvd_X_mul_iff [IsCancelMulZero R] :
         rw [this]
         exact mul_dvd_mul_left (X i) hq
       conv_lhs => rw [← p.modMonomial_add_divMonomial (Finsupp.single i 1)]
-      simpa only [← C_mul_X_eq_monomial, C_1, one_mul, add_eq_right,
-        ← X_dvd_iff_modMonomial_eq_zero]
+      simpa only [
+        ← C_mul_X_eq_monomial, C_1, one_mul, add_eq_right, ← X_dvd_iff_modMonomial_eq_zero
+      ]
 
-theorem dvd_monomial_mul_iff_exists [IsCancelMulZero R] {n : σ →₀ ℕ} :
-    p ∣ monomial n 1 * q ↔ ∃ m r, m ≤ n ∧ r ∣ q ∧ p = monomial m 1 * r := by
+theorem dvd_monomial_mul_iff_exists [IsCancelMulZero R] {n : σ →₀ ℕ}
+    : p ∣ monomial n 1 * q ↔ ∃ m r, m ≤ n ∧ r ∣ q ∧ p = monomial m 1 * r := by
   rcases subsingleton_or_nontrivial R with hR | hR
   · simp only [Subsingleton.elim _ p, dvd_refl, and_self, and_true, exists_const, true_iff]
     refine ⟨n, le_refl n⟩
   suffices ∀ (d) (n : σ →₀ ℕ) (hd : n.degree = d) (p q : MvPolynomial σ R),
-    p ∣ monomial n 1 * q ↔ ∃ m r, m ≤ n ∧ r ∣ q ∧ p = monomial m 1 * r from this n.degree n rfl p q
+    p ∣ monomial n 1 * q ↔ ∃ m r, m ≤ n ∧ r ∣ q ∧ p = monomial m 1 * r
+  from this n.degree n rfl p q
   intro d
   induction d with
   | zero =>
     intro n hn p
     rw [Finsupp.degree_eq_zero_iff] at hn
-    simp only [hn, monomial_zero', C_1, one_mul, nonpos_iff_eq_zero, exists_and_left,
-      exists_eq_left, exists_eq_right', implies_true]
+    simp only [
+      hn, monomial_zero', C_1, one_mul, nonpos_iff_eq_zero, exists_and_left, exists_eq_left,
+      exists_eq_right', implies_true
+    ]
   | succ d hd =>
     intro n hn p q
     refine ⟨fun hp ↦ ?_, fun ⟨m, r, hmn, hrq, hp⟩ ↦ ?_⟩

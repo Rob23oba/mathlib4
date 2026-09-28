@@ -34,8 +34,7 @@ variable {F α β : Type*}
 namespace Int
 
 /-- Coercion `ℕ → ℤ` as a `RingHom`. -/
-def ofNatHom : ℕ →+* ℤ :=
-  Nat.castRingHom ℤ
+def ofNatHom : ℕ →+* ℤ := Nat.castRingHom ℤ
 
 section cast
 
@@ -178,15 +177,18 @@ namespace AddMonoidHom
 
 variable {A : Type*}
 
-/-- Two additive monoid homomorphisms `f`, `g` from `ℤ` to an additive monoid are equal
-if `f 1 = g 1`. -/
+/--
+Two additive monoid homomorphisms `f`, `g` from `ℤ` to an additive monoid are equal
+if `f 1 = g 1`.
+-/
 @[ext high]
 theorem ext_int [AddMonoid A] {f g : ℤ →+ A} (h1 : f 1 = g 1) : f = g :=
   have : f.comp (Int.ofNatHom : ℕ →+ ℤ) = g.comp (Int.ofNatHom : ℕ →+ ℤ) := ext_nat' _ _ h1
   have this' : ∀ n : ℕ, f n = g n := DFunLike.ext_iff.1 this
-  ext fun n => match n with
-  | (n : ℕ) => this' n
-  | .negSucc n => eq_on_neg _ _ (this' <| n + 1)
+  ext fun n =>
+    match n with
+    | (n : ℕ) => this' n
+    | .negSucc n => eq_on_neg _ _ (this' <| n + 1)
 
 variable [AddGroupWithOne A]
 
@@ -198,22 +200,26 @@ end AddMonoidHom
 namespace AddEquiv
 variable {A : Type*}
 
-/-- Two additive monoid isomorphisms `f`, `g` from `ℤ` to an additive monoid are equal
-if `f 1 = g 1`. -/
+/--
+Two additive monoid isomorphisms `f`, `g` from `ℤ` to an additive monoid are equal
+if `f 1 = g 1`.
+-/
 @[ext high]
 theorem ext_int [AddMonoid A] {f g : ℤ ≃+ A} (h1 : f 1 = g 1) : f = g :=
   toAddMonoidHom_injective <| AddMonoidHom.ext_int h1
 
 end AddEquiv
 
-theorem eq_intCast' [AddGroupWithOne α] [FunLike F ℤ α] [AddMonoidHomClass F ℤ α]
-    (f : F) (h₁ : f 1 = 1) :
-    ∀ n : ℤ, f n = n :=
+theorem eq_intCast'
+    [AddGroupWithOne α] [FunLike F ℤ α] [AddMonoidHomClass F ℤ α] (f : F) (h₁ : f 1 = 1)
+    : ∀ n : ℤ, f n = n :=
   DFunLike.ext_iff.1 <| (f : ℤ →+ α).eq_intCastAddHom h₁
 
 /-- This version is primed so that the `RingHomClass` versions aren't. -/
-theorem map_intCast' [AddGroupWithOne α] [AddGroupWithOne β] [FunLike F α β]
-    [AddMonoidHomClass F α β] (f : F) (h₁ : f 1 = 1) : ∀ n : ℤ, f n = n :=
+theorem map_intCast'
+    [AddGroupWithOne α] [AddGroupWithOne β] [FunLike F α β] [AddMonoidHomClass F α β]
+    (f : F) (h₁ : f 1 = 1)
+    : ∀ n : ℤ, f n = n :=
   eq_intCast' ((f : α →+ β).comp <| Int.castAddHom _) (by simpa)
 
 @[simp]
@@ -230,8 +236,10 @@ theorem ext_mint {f g : Multiplicative ℤ →* M} (h1 : f (ofAdd 1) = g (ofAdd 
 
 /-- If two `MonoidHom`s agree on `-1` and the naturals then they are equal. -/
 @[ext]
-theorem ext_int {f g : ℤ →* M} (h_neg_one : f (-1) = g (-1))
-    (h_nat : f.comp Int.ofNatHom.toMonoidHom = g.comp Int.ofNatHom.toMonoidHom) : f = g := by
+theorem ext_int
+    {f g : ℤ →* M} (h_neg_one : f (-1) = g (-1))
+    (h_nat : f.comp Int.ofNatHom.toMonoidHom = g.comp Int.ofNatHom.toMonoidHom)
+    : f = g := by
   ext (x | x)
   · exact (congr($h_nat x) :)
   · rw [Int.negSucc_eq, ← neg_one_mul, f.map_mul, g.map_mul]
@@ -246,17 +254,19 @@ variable {M : Type*} [MonoidWithZero M]
 
 /-- If two `MonoidWithZeroHom`s agree on `-1` and the naturals then they are equal. -/
 @[ext]
-theorem ext_int {f g : ℤ →*₀ M} (h_neg_one : f (-1) = g (-1))
-    (h_nat : f.comp Int.ofNatHom.toMonoidWithZeroHom = g.comp Int.ofNatHom.toMonoidWithZeroHom) :
-    f = g :=
-  toMonoidHom_injective <| MonoidHom.ext_int h_neg_one <|
-    MonoidHom.ext (DFunLike.congr_fun h_nat :)
+theorem ext_int
+    {f g : ℤ →*₀ M} (h_neg_one : f (-1) = g (-1))
+    (h_nat : f.comp Int.ofNatHom.toMonoidWithZeroHom = g.comp Int.ofNatHom.toMonoidWithZeroHom)
+    : f = g :=
+  toMonoidHom_injective <| MonoidHom.ext_int h_neg_one <| MonoidHom.ext (DFunLike.congr_fun h_nat :)
 
 end MonoidWithZeroHom
 
 /-- If two `MonoidWithZeroHom`s agree on `-1` and the _positive_ naturals then they are equal. -/
-theorem ext_int' [MonoidWithZero α] [FunLike F ℤ α] [MonoidWithZeroHomClass F ℤ α] {f g : F}
-    (h_neg_one : f (-1) = g (-1)) (h_pos : ∀ n : ℕ, 0 < n → f n = g n) : f = g :=
+theorem ext_int'
+    [MonoidWithZero α] [FunLike F ℤ α] [MonoidWithZeroHomClass F ℤ α]
+    {f g : F} (h_neg_one : f (-1) = g (-1)) (h_pos : ∀ n : ℕ, 0 < n → f n = g n)
+    : f = g :=
   (DFunLike.ext _ _) fun n =>
     haveI :=
       congr($(@MonoidWithZeroHom.ext_int _ _ (.ofClass f) (.ofClass g) h_neg_one <|
@@ -268,16 +278,19 @@ variable (α) [Group α] (β) [AddGroup β]
 
 /-- Additive homomorphisms from `ℤ` are defined by the image of `1`. -/
 def zmultiplesHom : β ≃ (ℤ →+ β) where
-  toFun x :=
-  { toFun := fun n => n • x
+  toFun x := {
+    toFun := fun n => n • x
     map_zero' := zero_zsmul x
-    map_add' := fun _ _ => add_zsmul _ _ _ }
+    map_add' := fun _ _ => add_zsmul _ _ _
+  }
   invFun f := f 1
   left_inv := one_zsmul
   right_inv f := AddMonoidHom.ext_int <| one_zsmul (f 1)
 
-/-- Monoid homomorphisms from `Multiplicative ℤ` are defined by the image
-of `Multiplicative.ofAdd 1`. -/
+/--
+Monoid homomorphisms from `Multiplicative ℤ` are defined by the image
+of `Multiplicative.ofAdd 1`.
+-/
 def zpowersHom : α ≃ (Multiplicative ℤ →* α) :=
   ofMul.trans <| (zmultiplesHom _).trans AddMonoidHom.toMultiplicativeLeft
 
@@ -304,12 +317,16 @@ section CommGroup
 variable (α) [CommGroup α] (β) [AddCommGroup β]
 
 /-- If `α` is commutative, `zmultiplesHom` is an additive equivalence. -/
-def zmultiplesAddHom : β ≃+ (ℤ →+ β) :=
-  { zmultiplesHom β with map_add' := fun a b => AddMonoidHom.ext fun n => by simp [zsmul_add] }
+def zmultiplesAddHom : β ≃+ (ℤ →+ β) := {
+  zmultiplesHom β with
+  map_add' := fun a b => AddMonoidHom.ext fun n => by simp [zsmul_add]
+}
 
 /-- If `α` is commutative, `zpowersHom` is a multiplicative equivalence. -/
-def zpowersMulHom : α ≃* (Multiplicative ℤ →* α) :=
-  { zpowersHom α with map_mul' := fun a b => MonoidHom.ext fun n => by simp [mul_zpow] }
+def zpowersMulHom : α ≃* (Multiplicative ℤ →* α) := {
+  zpowersHom α with
+  map_mul' := fun a b => MonoidHom.ext fun n => by simp [mul_zpow]
+}
 
 variable {α}
 
@@ -340,8 +357,7 @@ theorem map_intCast [FunLike F α β] [RingHomClass F α β] (f : F) (n : ℤ) :
 
 namespace RingHom
 
-theorem eq_intCast' (f : ℤ →+* α) : f = Int.castRingHom α :=
-  RingHom.ext <| eq_intCast f
+theorem eq_intCast' (f : ℤ →+* α) : f = Int.castRingHom α := RingHom.ext <| eq_intCast f
 
 theorem ext_int {R : Type*} [NonAssocSemiring R] (f g : ℤ →+* R) : f = g :=
   toAddMonoidHom_injective <| AddMonoidHom.ext_int <| f.map_one.trans g.map_one.symm
@@ -354,5 +370,4 @@ end RingHom
 end NonAssocRing
 
 @[simp]
-theorem Int.castRingHom_int : Int.castRingHom ℤ = RingHom.id ℤ :=
-  (RingHom.id ℤ).eq_intCast'.symm
+theorem Int.castRingHom_int : Int.castRingHom ℤ = RingHom.id ℤ := (RingHom.id ℤ).eq_intCast'.symm

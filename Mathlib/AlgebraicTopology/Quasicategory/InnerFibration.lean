@@ -28,11 +28,13 @@ universe u
 
 namespace SSet
 
-/-- The family of morphisms in `SSet` which consists of inner horn inclusions
-`Λ[n, i].ι : Λ[n, i] ⟶ Δ[n]` (for `0 < i < n`). -/
+/--
+The family of morphisms in `SSet` which consists of inner horn inclusions
+`Λ[n, i].ι : Λ[n, i] ⟶ Δ[n]` (for `0 < i < n`).
+-/
 inductive innerHornInclusions : MorphismProperty SSet.{u} where
-  | intro {n : ℕ} (i : Fin (n + 3)) (h0 : 0 < i) (hn : i < Fin.last (n + 2)) :
-    innerHornInclusions Λ[n + 2, i].ι
+  | intro {n : ℕ} (i : Fin (n + 3)) (h0 : 0 < i) (hn : i < Fin.last (n + 2))
+    : innerHornInclusions Λ[n + 2, i].ι
 
 lemma horn_ι_mem_innerHornInclusions {n : ℕ} {i : Fin (n + 1)}
     (h0 : 0 < i) (hn : i < Fin.last n) : innerHornInclusions (horn.{u} n i).ι := by
@@ -60,12 +62,13 @@ lemma innerHornInclusions_le_monomorphisms :
     innerHornInclusions.{u} ≤ monomorphisms SSet :=
   innerHornInclusions_le_J.trans modelCategoryQuillen.J_le_monomorphisms
 
-/-- The inner fibrations are the morphisms which have the right lifting property
-with respect to inner horn inclusions. -/
+/--
+The inner fibrations are the morphisms which have the right lifting property
+with respect to inner horn inclusions.
+-/
 @[expose, kerodon 01BA]
 def innerFibrations : MorphismProperty SSet.{u} := innerHornInclusions.rlp
-deriving IsMultiplicative, RespectsIso, IsStableUnderBaseChange,
-  IsStableUnderRetracts
+deriving IsMultiplicative, RespectsIso, IsStableUnderBaseChange, IsStableUnderRetracts
 
 /-- A morphism `q` satisfies `[InnerFibration q]` if it belongs to `innerFibrations`. -/
 @[mk_iff]

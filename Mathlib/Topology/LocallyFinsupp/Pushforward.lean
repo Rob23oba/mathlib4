@@ -32,26 +32,28 @@ specialized to the degree of the residue field extension
 
 open Set TopologicalSpace
 
-variable {X Y R : Type*} [TopologicalSpace X] [TopologicalSpace Y]
-  {f : X → Y} (hf : IsSpectralMap f) (w : X → R)
+variable
+  {X Y R : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+  {f : X → Y} (hf : IsSpectralMap f)
+  (w : X → R)
 
 namespace Function.locallyFinsupp
 
-variable [Semiring R] (c : Function.locallyFinsupp X R)
-  [PrespectralSpace Y]
+variable [Semiring R] (c : Function.locallyFinsupp X R) [PrespectralSpace Y]
 
 variable (f) in
 /--
 The pushforward of a function `c` of locally finite support by a spectral map with respect to a
 weight function `w`.
 -/
-noncomputable
-def map (hf : IsSpectralMap f) (c : locallyFinsupp X R) : Function.locallyFinsupp Y R where
+noncomputable def map (hf : IsSpectralMap f) (c : locallyFinsupp X R)
+    : Function.locallyFinsupp Y R where
   toFun z := ∑ᶠ x ∈ f ⁻¹' {z}, c x * w x
   supportWithinDomain' := by simp
   supportLocallyFiniteWithinDomain' y _ := by
-    obtain ⟨U, hU⟩ := (PrespectralSpace.isTopologicalBasis (X := Y)).exists_subset_of_mem_open
-      (by simp : y ∈ ⊤) (by simp)
+    obtain ⟨U, hU⟩ :=
+      (PrespectralSpace.isTopologicalBasis (X := Y)).exists_subset_of_mem_open (by simp : y ∈ ⊤)
+        (by simp)
     refine ⟨U, IsOpen.mem_nhds hU.1.1 hU.2.1, ?_⟩
     suffices h : (U ∩ {z | (f ⁻¹' {z} ∩ support ⇑c).Nonempty}).Finite by
       refine h.subset (inter_subset_inter_right U fun y hy ↦ ?_)

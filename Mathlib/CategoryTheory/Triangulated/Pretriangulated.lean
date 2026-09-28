@@ -37,12 +37,11 @@ namespace CategoryTheory
 
 open Category Pretriangulated ZeroObject
 
-/-
-We work in a preadditive category `C` equipped with an additive shift.
--/
+/- We work in a preadditive category `C` equipped with an additive shift. -/
 variable (C : Type u) [Category.{v} C] [HasZeroObject C] [HasShift C ℤ] [Preadditive C]
 
-/-- A preadditive category `C` with an additive shift, and a class of "distinguished triangles"
+/--
+A preadditive category `C` with an additive shift, and a class of "distinguished triangles"
 relative to that shift is called pretriangulated if the following hold:
 * Any triangle that is isomorphic to a distinguished triangle is also distinguished.
 * Any triangle of the form `(X,X,0,id,0,0)` is distinguished.
@@ -66,24 +65,26 @@ class Pretriangulated [∀ n : ℤ, Functor.Additive (shiftFunctor C n)] where
   /-- a class of triangle which are called `distinguished` -/
   distinguishedTriangles : Set (Triangle C)
   /-- a triangle that is isomorphic to a distinguished triangle is distinguished -/
-  isomorphic_distinguished :
-    ∀ T₁ ∈ distinguishedTriangles, ∀ (T₂) (_ : T₂ ≅ T₁), T₂ ∈ distinguishedTriangles
+  isomorphic_distinguished
+    : ∀ T₁ ∈ distinguishedTriangles, ∀ (T₂) (_ : T₂ ≅ T₁), T₂ ∈ distinguishedTriangles
   /-- obvious triangles `X ⟶ X ⟶ 0 ⟶ X⟦1⟧` are distinguished -/
   contractible_distinguished : ∀ X : C, contractibleTriangle X ∈ distinguishedTriangles
   /-- any morphism `X ⟶ Y` is part of a distinguished triangle `X ⟶ Y ⟶ Z ⟶ X⟦1⟧` -/
-  distinguished_cocone_triangle :
-    ∀ {X Y : C} (f : X ⟶ Y),
-      ∃ (Z : C) (g : Y ⟶ Z) (h : Z ⟶ X⟦(1 : ℤ)⟧), Triangle.mk f g h ∈ distinguishedTriangles
+  distinguished_cocone_triangle
+    : ∀ {X Y : C} (f : X ⟶ Y), ∃ (Z : C) (g : Y ⟶ Z) (h : Z ⟶ X⟦(1 : ℤ)⟧),
+      Triangle.mk f g h ∈ distinguishedTriangles
   /-- a triangle is distinguished iff it is so after rotating it -/
-  rotate_distinguished_triangle :
-    ∀ T : Triangle C, T ∈ distinguishedTriangles ↔ T.rotate ∈ distinguishedTriangles
-  /-- given two distinguished triangle, a commutative square
-  can be extended as morphism of triangles -/
-  complete_distinguished_triangle_morphism :
-    ∀ (T₁ T₂ : Triangle C) (_ : T₁ ∈ distinguishedTriangles) (_ : T₂ ∈ distinguishedTriangles)
-      (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂) (_ : T₁.mor₁ ≫ b = a ≫ T₂.mor₁),
-      ∃ c : T₁.obj₃ ⟶ T₂.obj₃, T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧ T₁.mor₃ ≫ a⟦1⟧' = c ≫ T₂.mor₃
-
+  rotate_distinguished_triangle
+    : ∀ T : Triangle C, T ∈ distinguishedTriangles ↔ T.rotate ∈ distinguishedTriangles
+  /--
+  given two distinguished triangle, a commutative square
+  can be extended as morphism of triangles
+  -/
+  complete_distinguished_triangle_morphism
+    : ∀ (T₁ T₂ : Triangle C) (_ : T₁ ∈ distinguishedTriangles) (_ : T₂ ∈ distinguishedTriangles)
+        (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂) (_ : T₁.mor₁ ≫ b = a ≫ T₂.mor₁),
+      ∃ c : T₁.obj₃ ⟶ T₂.obj₃,
+        T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧ T₁.mor₃ ≫ a⟦1⟧' = c ≫ T₂.mor₃
 
 namespace Pretriangulated
 
@@ -99,25 +100,25 @@ lemma distinguished_iff_of_iso {T₁ T₂ : Triangle C} (e : T₁ ≅ T₂) :
   ⟨fun hT₁ => isomorphic_distinguished _ hT₁ _ e.symm,
     fun hT₂ => isomorphic_distinguished _ hT₂ _ e⟩
 
-/-- Given any distinguished triangle `T`, then we know `T.rotate` is also distinguished.
--/
+/-- Given any distinguished triangle `T`, then we know `T.rotate` is also distinguished. -/
 theorem rot_of_distTriang (T : Triangle C) (H : T ∈ distTriang C) : T.rotate ∈ distTriang C :=
   (rotate_distinguished_triangle T).mp H
 
-/-- Given any distinguished triangle `T`, then we know `T.inv_rotate` is also distinguished.
--/
-theorem inv_rot_of_distTriang (T : Triangle C) (H : T ∈ distTriang C) :
-    T.invRotate ∈ distTriang C :=
+/-- Given any distinguished triangle `T`, then we know `T.inv_rotate` is also distinguished. -/
+theorem inv_rot_of_distTriang (T : Triangle C) (H : T ∈ distTriang C)
+    : T.invRotate ∈ distTriang C :=
   (rotate_distinguished_triangle T.invRotate).mpr
     (isomorphic_distinguished T H T.invRotate.rotate (invRotCompRot.app T))
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Given any distinguished triangle
+/--
+Given any distinguished triangle
 ```
       f       g       h
   X  ───> Y  ───> Z  ───> X⟦1⟧
 ```
-the composition `f ≫ g = 0`. -/
+the composition `f ≫ g = 0`.
+-/
 @[reassoc, stacks 0146]
 theorem comp_distTriang_mor_zero₁₂ (T) (H : T ∈ distTriang C) : T.mor₁ ≫ T.mor₂ = 0 := by
   obtain ⟨c, hc⟩ :=
@@ -125,27 +126,30 @@ theorem comp_distTriang_mor_zero₁₂ (T) (H : T ∈ distTriang C) : T.mor₁ �
       T.mor₁ rfl
   simpa only [contractibleTriangle_mor₂, zero_comp] using hc.left.symm
 
-/-- Given any distinguished triangle
+/--
+Given any distinguished triangle
 ```
       f       g       h
   X  ───> Y  ───> Z  ───> X⟦1⟧
 ```
-the composition `g ≫ h = 0`. -/
+the composition `g ≫ h = 0`.
+-/
 @[reassoc, stacks 0146]
-theorem comp_distTriang_mor_zero₂₃ (T : Triangle C) (H : T ∈ distTriang C) :
-    T.mor₂ ≫ T.mor₃ = 0 :=
+theorem comp_distTriang_mor_zero₂₃ (T : Triangle C) (H : T ∈ distTriang C) : T.mor₂ ≫ T.mor₃ = 0 :=
   comp_distTriang_mor_zero₁₂ T.rotate (rot_of_distTriang T H)
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Given any distinguished triangle
+/--
+Given any distinguished triangle
 ```
       f       g       h
   X  ───> Y  ───> Z  ───> X⟦1⟧
 ```
-the composition `h ≫ f⟦1⟧ = 0`. -/
+the composition `h ≫ f⟦1⟧ = 0`.
+-/
 @[reassoc, stacks 0146]
-theorem comp_distTriang_mor_zero₃₁ (T : Triangle C) (H : T ∈ distTriang C) :
-    T.mor₃ ≫ T.mor₁⟦1⟧' = 0 := by
+theorem comp_distTriang_mor_zero₃₁ (T : Triangle C) (H : T ∈ distTriang C)
+    : T.mor₃ ≫ T.mor₁⟦1⟧' = 0 := by
   have H₂ := rot_of_distTriang T.rotate (rot_of_distTriang T H)
   simpa using comp_distTriang_mor_zero₁₂ T.rotate.rotate H₂
 
@@ -155,12 +159,14 @@ def shortComplexOfDistTriangle (T : Triangle C) (hT : T ∈ distTriang C) : Shor
   ShortComplex.mk T.mor₁ T.mor₂ (comp_distTriang_mor_zero₁₂ _ hT)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The isomorphism between the short complex attached to
-two isomorphic distinguished triangles. -/
+/--
+The isomorphism between the short complex attached to
+two isomorphic distinguished triangles.
+-/
 @[simps!]
-def shortComplexOfDistTriangleIsoOfIso {T T' : Triangle C} (e : T ≅ T') (hT : T ∈ distTriang C) :
-    shortComplexOfDistTriangle T hT ≅ shortComplexOfDistTriangle T'
-      (isomorphic_distinguished _ hT _ e.symm) :=
+def shortComplexOfDistTriangleIsoOfIso {T T' : Triangle C} (e : T ≅ T') (hT : T ∈ distTriang C)
+    : shortComplexOfDistTriangle T hT
+      ≅ shortComplexOfDistTriangle T' (isomorphic_distinguished _ hT _ e.symm) :=
   ShortComplex.isoMk (Triangle.π₁.mapIso e) (Triangle.π₂.mapIso e) (Triangle.π₃.mapIso e)
 
 /-- Any morphism `Y ⟶ Z` is part of a distinguished triangle `X ⟶ Y ⟶ Z ⟶ X⟦1⟧` -/
@@ -456,15 +462,15 @@ end Triangle
 instance : SplitEpiCategory C where
   isSplitEpi_of_epi f hf := by
     obtain ⟨Z, g, h, hT⟩ := distinguished_cocone_triangle f
-    obtain ⟨r, hr⟩ := Triangle.coyoneda_exact₂ _ hT (𝟙 _)
-      (by rw [Triangle.mor₂_eq_zero_of_epi₁ _ hT hf, comp_zero])
+    obtain ⟨r, hr⟩ :=
+      Triangle.coyoneda_exact₂ _ hT (𝟙 _) (by rw [Triangle.mor₂_eq_zero_of_epi₁ _ hT hf, comp_zero])
     exact ⟨r, hr.symm⟩
 
 instance : SplitMonoCategory C where
   isSplitMono_of_mono f hf := by
     obtain ⟨X, g, h, hT⟩ := distinguished_cocone_triangle₁ f
-    obtain ⟨r, hr⟩ := Triangle.yoneda_exact₂ _ hT (𝟙 _) (by
-      rw [Triangle.mor₁_eq_zero_of_mono₂ _ hT hf, zero_comp])
+    obtain ⟨r, hr⟩ :=
+      Triangle.yoneda_exact₂ _ hT (𝟙 _) (by rw [Triangle.mor₁_eq_zero_of_mono₂ _ hT hf, zero_comp])
     exact ⟨r, hr.symm⟩
 
 set_option backward.defeqAttrib.useBackward true in
@@ -525,34 +531,43 @@ lemma isIso₁_of_isIso₂₃ {T T' : Triangle C} (φ : T ⟶ T') (hT : T ∈ di
   isIso₂_of_isIso₁₃ ((invRotate C).map φ) (inv_rot_of_distTriang _ hT)
     (inv_rot_of_distTriang _ hT') (by dsimp; infer_instance) (by dsimp; infer_instance)
 
-/-- Given a distinguished triangle `T` such that `T.mor₃ = 0` and the datum of morphisms
+/--
+Given a distinguished triangle `T` such that `T.mor₃ = 0` and the datum of morphisms
 `inr : T.obj₃ ⟶ T.obj₂` and `fst : T.obj₂ ⟶ T.obj₁` satisfying suitable relations, this
 is the binary biproduct data expressing that `T.obj₂` identifies to the binary
 biproduct of `T.obj₁` and `T.obj₃`.
-See also `exists_iso_binaryBiproduct_of_distTriang`. -/
+See also `exists_iso_binaryBiproduct_of_distTriang`.
+-/
 @[simps]
-def binaryBiproductData (T : Triangle C) (hT : T ∈ distTriang C) (hT₀ : T.mor₃ = 0)
-    (inr : T.obj₃ ⟶ T.obj₂) (inr_snd : inr ≫ T.mor₂ = 𝟙 _) (fst : T.obj₂ ⟶ T.obj₁)
-    (total : fst ≫ T.mor₁ + T.mor₂ ≫ inr = 𝟙 T.obj₂) :
-    BinaryBiproductData T.obj₁ T.obj₃ := by
+def binaryBiproductData
+    (T : Triangle C) (hT : T ∈ distTriang C) (hT₀ : T.mor₃ = 0) (inr : T.obj₃ ⟶ T.obj₂)
+    (inr_snd : inr ≫ T.mor₂ = 𝟙 _) (fst : T.obj₂ ⟶ T.obj₁)
+    (total : fst ≫ T.mor₁ + T.mor₂ ≫ inr = 𝟙 T.obj₂)
+    : BinaryBiproductData T.obj₁ T.obj₃ := by
   have : Mono T.mor₁ := T.mono₁ hT hT₀
   have eq : fst ≫ T.mor₁ = 𝟙 T.obj₂ - T.mor₂ ≫ inr := by rw [← total, add_sub_cancel_right]
-  exact
-    { bicone :=
-      { pt := T.obj₂
-        fst := fst
-        snd := T.mor₂
-        inl := T.mor₁
-        inr := inr
-        inl_fst := by
-          simp only [← cancel_mono T.mor₁, assoc, id_comp, eq, comp_sub, comp_id,
-            comp_distTriang_mor_zero₁₂_assoc _ hT, zero_comp, sub_zero]
-        inl_snd := comp_distTriang_mor_zero₁₂ _ hT
-        inr_fst := by
-          simp only [← cancel_mono T.mor₁, assoc, eq, comp_sub, reassoc_of% inr_snd,
-            comp_id, sub_self, zero_comp]
-        inr_snd := inr_snd }
-      isBilimit := isBinaryBilimitOfTotal _ total }
+  exact {
+    bicone := {
+      pt := T.obj₂
+      fst := fst
+      snd := T.mor₂
+      inl := T.mor₁
+      inr := inr
+      inl_fst := by
+        simp only [
+          ← cancel_mono T.mor₁, assoc, id_comp, eq, comp_sub, comp_id,
+          comp_distTriang_mor_zero₁₂_assoc _ hT, zero_comp, sub_zero
+        ]
+      inl_snd := comp_distTriang_mor_zero₁₂ _ hT
+      inr_fst := by
+        simp only [
+          ← cancel_mono T.mor₁, assoc, eq, comp_sub, reassoc_of% inr_snd, comp_id, sub_self,
+          zero_comp
+        ]
+      inr_snd := inr_snd
+    }
+    isBilimit := isBinaryBilimitOfTotal _ total
+  }
 
 instance : HasBinaryBiproducts C := ⟨fun X₁ X₃ => by
   obtain ⟨X₂, inl, snd, mem⟩ := distinguished_cocone_triangle₂ (0 : X₃ ⟶ X₁⟦(1 : ℤ)⟧)
@@ -602,17 +617,19 @@ lemma binaryProductTriangle_distinguished (X₁ X₂ : C) :
 
 /-- A chosen extension of a commutative square into a morphism of distinguished triangles. -/
 @[simps hom₁ hom₂]
-def completeDistinguishedTriangleMorphism (T₁ T₂ : Triangle C)
-    (hT₁ : T₁ ∈ distTriang C) (hT₂ : T₂ ∈ distTriang C)
-    (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂) (comm : T₁.mor₁ ≫ b = a ≫ T₂.mor₁) :
-    T₁ ⟶ T₂ :=
-    have h := complete_distinguished_triangle_morphism _ _ hT₁ hT₂ a b comm
-    { hom₁ := a
-      hom₂ := b
-      hom₃ := h.choose
-      comm₁ := comm
-      comm₂ := h.choose_spec.1
-      comm₃ := h.choose_spec.2 }
+def completeDistinguishedTriangleMorphism
+    (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTriang C) (hT₂ : T₂ ∈ distTriang C) (a : T₁.obj₁ ⟶ T₂.obj₁)
+    (b : T₁.obj₂ ⟶ T₂.obj₂) (comm : T₁.mor₁ ≫ b = a ≫ T₂.mor₁)
+    : T₁ ⟶ T₂ :=
+  have h := complete_distinguished_triangle_morphism _ _ hT₁ hT₂ a b comm
+  {
+    hom₁ := a
+    hom₂ := b
+    hom₃ := h.choose
+    comm₁ := comm
+    comm₂ := h.choose_spec.1
+    comm₃ := h.choose_spec.2
+  }
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -700,37 +717,45 @@ lemma exists_iso_of_arrow_iso (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTri
   exact ⟨asIso φ, by simp [φ], by simp [φ]⟩
 
 set_option backward.defeqAttrib.useBackward true in
-/-- A choice of isomorphism `T₁ ≅ T₂` between two distinguished triangles
-when we are given two isomorphisms `e₁ : T₁.obj₁ ≅ T₂.obj₁` and `e₂ : T₁.obj₂ ≅ T₂.obj₂`. -/
+/--
+A choice of isomorphism `T₁ ≅ T₂` between two distinguished triangles
+when we are given two isomorphisms `e₁ : T₁.obj₁ ≅ T₂.obj₁` and `e₂ : T₁.obj₂ ≅ T₂.obj₂`.
+-/
 @[simps! hom_hom₁ hom_hom₂ inv_hom₁ inv_hom₂]
-def isoTriangleOfIso₁₂ (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTriang C)
-    (hT₂ : T₂ ∈ distTriang C) (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₂ : T₁.obj₂ ≅ T₂.obj₂)
-    (comm : T₁.mor₁ ≫ e₂.hom = e₁.hom ≫ T₂.mor₁) : T₁ ≅ T₂ := by
+def isoTriangleOfIso₁₂
+    (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTriang C) (hT₂ : T₂ ∈ distTriang C)
+    (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₂ : T₁.obj₂ ≅ T₂.obj₂) (comm : T₁.mor₁ ≫ e₂.hom = e₁.hom ≫ T₂.mor₁)
+    : T₁ ≅ T₂ := by
   have h := exists_iso_of_arrow_iso T₁ T₂ hT₁ hT₂ (Arrow.isoMk e₁ e₂ comm.symm)
-  exact Triangle.isoMk _ _ e₁ e₂ (Triangle.π₃.mapIso h.choose) comm (by
-    have eq := h.choose_spec.2
-    dsimp at eq ⊢
-    conv_rhs => rw [← eq, ← TriangleMorphism.comm₂]) (by
-    have eq := h.choose_spec.1
-    dsimp at eq ⊢
-    conv_lhs => rw [← eq, TriangleMorphism.comm₃])
+  exact Triangle.isoMk _ _ e₁ e₂ (Triangle.π₃.mapIso h.choose) comm
+    (by
+      have eq := h.choose_spec.2
+      dsimp at eq ⊢
+      conv_rhs => rw [← eq, ← TriangleMorphism.comm₂])
+    (by
+      have eq := h.choose_spec.1
+      dsimp at eq ⊢
+      conv_lhs => rw [← eq, TriangleMorphism.comm₃])
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- A choice of isomorphism `T₁ ≅ T₂` between two distinguished triangles
-when we are given two isomorphisms `e₁ : T₁.obj₁ ≅ T₂.obj₁` and `e₃ : T₁.obj₃ ≅ T₂.obj₃`. -/
+/--
+A choice of isomorphism `T₁ ≅ T₂` between two distinguished triangles
+when we are given two isomorphisms `e₁ : T₁.obj₁ ≅ T₂.obj₁` and `e₃ : T₁.obj₃ ≅ T₂.obj₃`.
+-/
 @[simps! hom_hom₁ hom_hom₃ inv_hom₁ inv_hom₃]
-def isoTriangleOfIso₁₃ (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTriang C)
-    (hT₂ : T₂ ∈ distTriang C) (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₃ : T₁.obj₃ ≅ T₂.obj₃)
-    (comm : T₁.mor₃ ≫ (shiftFunctor C 1).map e₁.hom = e₃.hom ≫ T₂.mor₃) :
-    T₁ ≅ T₂ := by
-  have h := exists_iso_of_arrow_iso _ _ (inv_rot_of_distTriang _ hT₁)
-    (inv_rot_of_distTriang _ hT₂)
-    (Arrow.isoMk ((shiftFunctor C (-1)).mapIso e₃) e₁ (by
-      have := (shiftFunctorCompIsoId C (1 : ℤ) (-1) (by simp)).hom.naturality e₁.hom
-      dsimp at this ⊢
-      simp only [comp_neg, neg_comp, assoc, neg_inj, ← Functor.map_comp_assoc, ← comm]
-      simp [this]))
+def isoTriangleOfIso₁₃
+    (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTriang C) (hT₂ : T₂ ∈ distTriang C)
+    (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₃ : T₁.obj₃ ≅ T₂.obj₃)
+    (comm : T₁.mor₃ ≫ (shiftFunctor C 1).map e₁.hom = e₃.hom ≫ T₂.mor₃)
+    : T₁ ≅ T₂ := by
+  have h :=
+    exists_iso_of_arrow_iso _ _ (inv_rot_of_distTriang _ hT₁) (inv_rot_of_distTriang _ hT₂)
+      (Arrow.isoMk ((shiftFunctor C (-1)).mapIso e₃) e₁ (by
+        have := (shiftFunctorCompIsoId C (1 : ℤ) (-1) (by simp)).hom.naturality e₁.hom
+        dsimp at this ⊢
+        simp only [comp_neg, neg_comp, assoc, neg_inj, ← Functor.map_comp_assoc, ← comm]
+        simp [this]))
   let e := h.choose
   have h₁ : e.hom.hom₁ = _ := h.choose_spec.1
   have h₂ : _ = e.hom.hom₂ := h.choose_spec.2.symm
@@ -739,8 +764,10 @@ def isoTriangleOfIso₁₃ (T₁ T₂ : Triangle C) (hT₁ : T₁ ∈ distTriang
   dsimp at h₁ h₂ h₃ h₄
   refine Triangle.isoMk _ _ e₁ (Triangle.π₃.mapIso e) e₃ ?_ ?_ comm
   · convert! e.hom.comm₂ using 2
-  · simp [← cancel_mono ((shiftFunctorCompIsoId C (-1) 1 (neg_add_cancel 1)).inv.app T₂.obj₃),
-      ← h₃, assoc, h₁, h₄]
+  · simp [
+      ← cancel_mono ((shiftFunctorCompIsoId C (-1) 1 (neg_add_cancel 1)).inv.app T₂.obj₃), ← h₃,
+      assoc, h₁, h₄
+    ]
 
 end Pretriangulated
 

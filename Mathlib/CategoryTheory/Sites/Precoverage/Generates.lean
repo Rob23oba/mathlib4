@@ -33,17 +33,21 @@ universe t t' w v u
 
 namespace CategoryTheory
 
-variable {C : Type u} [Category.{v} C] {A : Type*} [Category* A]
+variable
+  {C : Type u} [Category.{v} C]
+  {A : Type*} [Category* A]
   {K : Precoverage C} {J : GrothendieckTopology C}
 
 namespace Precoverage
 
-/-- A precoverage `K` generates the topology `J` if a presheaf on `C` is a sheaf
-for `K` if and only if it is a sheaf for `J`. -/
+/--
+A precoverage `K` generates the topology `J` if a presheaf on `C` is a sheaf
+for `K` if and only if it is a sheaf for `J`.
+-/
 structure Generates (K : Precoverage C) (J : GrothendieckTopology C) : Prop where
   le_toPrecoverage : K ≤ J.toPrecoverage
-  isSheaf_of_forall_max (F : Cᵒᵖ ⥤ Type (max u v)) (H : ∀ ⦃X : C⦄, ∀ R ∈ K X, R.IsSheafFor F) :
-    Presieve.IsSheaf J F
+  isSheaf_of_forall_max (F : Cᵒᵖ ⥤ Type (max u v)) (H : ∀ ⦃X : C⦄, ∀ R ∈ K X, R.IsSheafFor F)
+    : Presieve.IsSheaf J F
 
 variable {K : Precoverage C} {J : GrothendieckTopology C}
 

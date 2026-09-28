@@ -66,9 +66,11 @@ namespace ClosedSubmodule
 
 variable {H : Type*} [NormedAddCommGroup H] [ipc : InnerProductSpace ℂ H]
 
-/-- `H` as a real Hilbert space. This instance is declared inside `ClosedSubmodule` namespace. If
+/--
+`H` as a real Hilbert space. This instance is declared inside `ClosedSubmodule` namespace. If
 one needs this structure (for example when considering standard subspaces), one should just `open
-ClosedSubmodule` and not declare another instance. -/
+ClosedSubmodule` and not declare another instance.
+-/
 noncomputable scoped instance : InnerProductSpace ℝ H where
   inner x y := ⟪x, y⟫.re
   norm_sq_eq_re_inner := by simp [RCLike.re_to_real, ipc.norm_sq_eq_re_inner]
@@ -91,9 +93,11 @@ def _root_.Complex.UnitI : ℂˣ where
 /-- The image of a closed submodule by the multiplication by `Complex.I`. -/
 noncomputable abbrev mulI (S : ClosedSubmodule ℝ H) := S.mapEquiv (scalarSMulCLE H UnitI)
 
-/-- The symplectic complement of a closed submodule with respect to `⟪⬝, ⬝⟫.im`, defined as the
+/--
+The symplectic complement of a closed submodule with respect to `⟪⬝, ⬝⟫.im`, defined as the
 image of `mulI` and `orthogonal`. The proof that this is the symplectic complement is given by
-`mem_symplComp_iff`. -/
+`mem_symplComp_iff`.
+-/
 noncomputable abbrev symplComp (S : ClosedSubmodule ℝ H) := (S.mulI)ᗮ
 
 lemma mem_iff (S : ClosedSubmodule ℝ H) {x : H} : x ∈ S ↔ x ∈ S.toSubmodule.carrier := by
@@ -117,7 +121,6 @@ lemma mulI_orthogonal_eq_symplComp (S : ClosedSubmodule ℝ H) : Sᗮ.mulI = S.s
   rw [← mem_iff, ← mem_iff, mem_symplComp_iff, mem_mapEquiv_iff, scalarSMulCLE_symm_apply,
     Units.inv_mk, Units.smul_mk_apply]
   simp [inner_real_eq_re_inner]
-
 
 lemma mulI_orthogonal (S : ClosedSubmodule ℝ H) : Sᗮ.mulI = S.mulIᗮ := by
   rw [mulI_orthogonal_eq_symplComp]
@@ -172,8 +175,10 @@ section Def
 
 variable (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 
-/-- A standard subspace `S` of a complex Hilbert space (or just an inner product space) `H` is a
-closed real subspace `S` such that `S ⊓ i S = ⊥` and `S ⊔ i S = ⊤`. -/
+/--
+A standard subspace `S` of a complex Hilbert space (or just an inner product space) `H` is a
+closed real subspace `S` such that `S ⊓ i S = ⊥` and `S ⊔ i S = ⊤`.
+-/
 @[ext]
 structure StandardSubspace where
   /-- A real closed subspace `S`. -/
@@ -199,8 +204,10 @@ lemma toClosedSubmodule_inj {S T : StandardSubspace H} :
 lemma toClosedSubmodule_injective : Function.Injective (toClosedSubmodule (H := H)) :=
   fun _ _ ↦ toClosedSubmodule_inj.mp
 
-/-- The image of a standard subspace by the multiplication by `Complex.I`, bundled as a
-`StandardSubspace`. -/
+/--
+The image of a standard subspace by the multiplication by `Complex.I`, bundled as a
+`StandardSubspace`.
+-/
 noncomputable def mulI (S : StandardSubspace H) : StandardSubspace H where
   toClosedSubmodule := S.toClosedSubmodule.mulI
   IsSeparating := by simpa [mulI_mulI_eq, inf_comm] using S.IsSeparating
@@ -209,14 +216,13 @@ noncomputable def mulI (S : StandardSubspace H) : StandardSubspace H where
 /-- The symplectic complement of a standard subspace, bundled as a `StandardSubspace`. -/
 noncomputable def symplComp [CompleteSpace H] (S : StandardSubspace H) : StandardSubspace H where
   toClosedSubmodule := S.toClosedSubmodule.symplComp
-  IsSeparating := by
-    simp [mulI_symplComp, ClosedSubmodule.inf_orthogonal, sup_comm, S.IsCyclic]
-  IsCyclic := by
-    simp [mulI_symplComp, ClosedSubmodule.sup_orthogonal, inf_comm, S.IsSeparating]
+  IsSeparating := by simp [mulI_symplComp, ClosedSubmodule.inf_orthogonal, sup_comm, S.IsCyclic]
+  IsCyclic := by simp [mulI_symplComp, ClosedSubmodule.sup_orthogonal, inf_comm, S.IsSeparating]
 
 @[simp]
-theorem symplComp_symplComp_eq [CompleteSpace H] (S : StandardSubspace H) :
-    S.symplComp.symplComp = S := toClosedSubmodule_inj.mp ClosedSubmodule.symplComp_symplComp_eq
+theorem symplComp_symplComp_eq [CompleteSpace H] (S : StandardSubspace H)
+    : S.symplComp.symplComp = S :=
+  toClosedSubmodule_inj.mp ClosedSubmodule.symplComp_symplComp_eq
 
 lemma involutive_symplComp [CompleteSpace H] :
     Function.Involutive (symplComp : StandardSubspace H → StandardSubspace H)

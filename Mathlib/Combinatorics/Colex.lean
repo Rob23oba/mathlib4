@@ -71,8 +71,9 @@ open Colex
 
 namespace Colex
 section PartialOrder
-variable [PartialOrder α] [PartialOrder β] {f : α → β} {𝒜 𝒜₁ 𝒜₂ : Finset (Finset α)}
-  {s t u : Finset α} {a b : α}
+variable
+  [PartialOrder α] [PartialOrder β]
+  {f : α → β} {𝒜 𝒜₁ 𝒜₂ : Finset (Finset α)} {s t u : Finset α} {a b : α}
 
 instance instLE : LE (Colex (Finset α)) where
   le s t := ∀ ⦃a⦄, a ∈ ofColex s → a ∉ ofColex t → ∃ b, b ∈ ofColex t ∧ b ∉ ofColex s ∧ a ≤ b
@@ -197,8 +198,8 @@ lemma le_iff_sdiff_subset_lowerClosure {s t : Colex (Finset α)} :
 section DecidableEq
 variable [DecidableEq α]
 
-instance instDecidableLE [DecidableLE α] : DecidableLE (Colex (Finset α)) :=
-  fun s t ↦ decidable_of_iff'
+instance instDecidableLE [DecidableLE α] : DecidableLE (Colex (Finset α)) := fun s t ↦
+  decidable_of_iff'
     (∀ ⦃a⦄, a ∈ ofColex s → a ∉ ofColex t → ∃ b, b ∈ ofColex t ∧ b ∉ ofColex s ∧ a ≤ b) Iff.rfl
 
 instance instDecidableLT [DecidableLE α] : DecidableLT (Colex (Finset α)) :=
@@ -260,17 +261,19 @@ lemma erase_lt_erase (ha : a ∈ s) (hb : b ∈ s) :
 
 end PartialOrder
 
-variable [LinearOrder α] [LinearOrder β] {f : α → β} {𝒜 𝒜₁ 𝒜₂ : Finset (Finset α)}
-  {s t u : Finset α} {a b : α} {r : ℕ}
+variable
+  [LinearOrder α] [LinearOrder β]
+  {f : α → β} {𝒜 𝒜₁ 𝒜₂ : Finset (Finset α)} {s t u : Finset α} {a b : α} {r : ℕ}
 
 instance instLinearOrder : LinearOrder (Colex (Finset α)) where
   le_total s t := by
     obtain rfl | hts := eq_or_ne t s
     · simp
-    have ⟨a, ha, hamax⟩ := exists_max_image _ id
-      (symmDiff_nonempty.2 <| ofColex.injective.ne_iff.2 hts)
+    have ⟨a, ha, hamax⟩ :=
+      exists_max_image _ id (symmDiff_nonempty.2 <| ofColex.injective.ne_iff.2 hts)
     simp_rw [mem_symmDiff] at ha hamax
-    exact ha.imp (fun ha b hbs hbt ↦ ⟨a, ha.1, ha.2, hamax _ <| Or.inr ⟨hbs, hbt⟩⟩)
+    exact ha.imp
+      (fun ha b hbs hbt ↦ ⟨a, ha.1, ha.2, hamax _ <| Or.inr ⟨hbs, hbt⟩⟩)
       (fun ha b hbt hbs ↦ ⟨a, ha.1, ha.2, hamax _ <| Or.inl ⟨hbt, hbs⟩⟩)
   toDecidableLE := instDecidableLE
   toDecidableLT := instDecidableLT
@@ -413,12 +416,13 @@ end Fintype
 
 /-! ### Initial segments -/
 
-/-- `𝒜` is an initial segment of the colexicographic order on sets of `r`, and that if `t` is below
+/--
+`𝒜` is an initial segment of the colexicographic order on sets of `r`, and that if `t` is below
 `s` in colex where `t` has size `r` and `s` is in `𝒜`, then `t` is also in `𝒜`. In effect, `𝒜` is
-downwards closed with respect to colex among sets of size `r`. -/
+downwards closed with respect to colex among sets of size `r`.
+-/
 def IsInitSeg (𝒜 : Finset (Finset α)) (r : ℕ) : Prop :=
-  (𝒜 : Set (Finset α)).Sized r ∧
-    ∀ ⦃s t : Finset α⦄, s ∈ 𝒜 → toColex t < toColex s ∧ #t = r → t ∈ 𝒜
+  (𝒜 : Set (Finset α)).Sized r ∧ ∀ ⦃s t : Finset α⦄, s ∈ 𝒜 → toColex t < toColex s ∧ #t = r → t ∈ 𝒜
 
 @[simp] lemma isInitSeg_empty : IsInitSeg (∅ : Finset (Finset α)) r := by simp [IsInitSeg]
 
@@ -437,8 +441,10 @@ lemma IsInitSeg.total (h₁ : IsInitSeg 𝒜₁ r) (h₂ : IsInitSeg 𝒜₂ r) 
 
 variable [Fintype α]
 
-/-- The initial segment of the colexicographic order on sets with `#s` elements and ending at
-`s`. -/
+/--
+The initial segment of the colexicographic order on sets with `#s` elements and ending at
+`s`.
+-/
 def initSeg (s : Finset α) : Finset (Finset α) := {t | #s = #t ∧ toColex t ≤ toColex s}
 
 @[simp]
@@ -507,21 +513,25 @@ lemma geomSum_lt_geomSum_iff_toColex_lt_toColex (hn : 2 ≤ n) :
     ∑ i ∈ s, n ^ i < ∑ i ∈ t, n ^ i ↔ toColex s < toColex t :=
   (geomSum_ofColex_strictMono hn).lt_iff_lt
 
-theorem geomSum_injective {n : ℕ} (hn : 2 ≤ n) :
-    Function.Injective (fun s : Finset ℕ ↦ ∑ i ∈ s, n ^ i) := by
+theorem geomSum_injective {n : ℕ} (hn : 2 ≤ n)
+    : Function.Injective (fun s : Finset ℕ ↦ ∑ i ∈ s, n ^ i) := by
   intro _ _ h
-  rwa [le_antisymm_iff, geomSum_le_geomSum_iff_toColex_le_toColex hn,
-    geomSum_le_geomSum_iff_toColex_le_toColex hn, ← le_antisymm_iff] at h
+  rwa [
+      le_antisymm_iff, geomSum_le_geomSum_iff_toColex_le_toColex hn,
+      geomSum_le_geomSum_iff_toColex_le_toColex hn, ← le_antisymm_iff
+    ]
+    at h
 
 theorem lt_geomSum_of_mem {a : ℕ} (hn : 2 ≤ n) (hi : a ∈ s) : a < ∑ i ∈ s, n ^ i :=
   (a.lt_pow_self hn).trans_le <| single_le_sum (by simp) hi
 
-@[simp] theorem toFinset_bitIndices_sum_two_pow (s : Finset ℕ) :
-    (∑ i ∈ s, 2 ^ i).bitIndices.toFinset = s := by
+@[simp]
+theorem toFinset_bitIndices_sum_two_pow (s : Finset ℕ)
+    : (∑ i ∈ s, 2 ^ i).bitIndices.toFinset = s := by
   simp [← (geomSum_injective rfl.le).eq_iff, List.sum_toFinset _ Nat.bitIndices_sorted.nodup]
 
-@[simp] theorem sum_toFinset_bitIndices_two_pow (n : ℕ) :
-    ∑ i ∈ n.bitIndices.toFinset, 2 ^ i = n := by
+@[simp]
+theorem sum_toFinset_bitIndices_two_pow (n : ℕ) : ∑ i ∈ n.bitIndices.toFinset, 2 ^ i = n := by
   simp [List.sum_toFinset _ Nat.bitIndices_sorted.nodup]
 
 @[deprecated (since := "2026-05-15")] alias toFinset_bitIndices_twoPowSum :=
@@ -531,14 +541,16 @@ theorem lt_geomSum_of_mem {a : ℕ} (hn : 2 ≤ n) (hi : a ∈ s) : a < ∑ i �
   sum_toFinset_bitIndices_two_pow
 
 /-- The equivalence between `ℕ` and `Finset ℕ` that maps `∑ i ∈ s, 2^i` to `s`. -/
-@[simps] def equivBitIndices : ℕ ≃ Finset ℕ where
+@[simps]
+def equivBitIndices : ℕ ≃ Finset ℕ where
   toFun n := n.bitIndices.toFinset
   invFun s := ∑ i ∈ s, 2 ^ i
   left_inv := sum_toFinset_bitIndices_two_pow
   right_inv := toFinset_bitIndices_sum_two_pow
 
 /-- The equivalence `Nat.equivBitIndices` enumerates `Finset ℕ` in colexicographic order. -/
-@[simps] def orderIsoColex : ℕ ≃o Colex (Finset ℕ) where
+@[simps]
+def orderIsoColex : ℕ ≃o Colex (Finset ℕ) where
   toFun n := toColex (equivBitIndices n)
   invFun s := equivBitIndices.symm (ofColex s)
   left_inv n := equivBitIndices.symm_apply_apply n

@@ -65,10 +65,12 @@ lemma Module.Finite.exists_free_surjective [Module.Finite R S] :
       Set.insert_subset_iff, Set.mem_range]
     exact ⟨⟨.root _, by simp⟩, hsf.trans fun y ⟨x, hx⟩ ↦ ⟨.of _ x, by simpa⟩⟩
 
-/-- If `S` is finitely presented as a module over `R`, it is finitely
-presented as an algebra over `R`. -/
-instance Algebra.FinitePresentation.of_finitePresentation
-    [Module.FinitePresentation R S] : Algebra.FinitePresentation R S := by
+/--
+If `S` is finitely presented as a module over `R`, it is finitely
+presented as an algebra over `R`.
+-/
+instance Algebra.FinitePresentation.of_finitePresentation [Module.FinitePresentation R S]
+    : Algebra.FinitePresentation R S := by
   obtain ⟨S', _, _, _, _, _, f, hf⟩ := Module.Finite.exists_free_surjective R S
   refine .of_surjective hf ?_
   apply Submodule.FG.of_restrictScalars R

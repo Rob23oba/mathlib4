@@ -31,17 +31,16 @@ namespace exteriorPower
 variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] (k l : ℕ)
 
 /-- The wedge product as an operation on exterior powers. -/
-abbrev wedge :
-    ⋀[R]^k M →ₗ[R] ⋀[R]^l M →ₗ[R] ⋀[R]^(k + l) M :=
+abbrev wedge : ⋀[R]^k M →ₗ[R] ⋀[R]^l M →ₗ[R] ⋀[R]^(k + l) M :=
   DirectSum.gMulLHom R <| fun d ↦ ⋀[R]^d M
 
 variable {R M k l} (vol : ⋀[R]^(finrank R M) M ≃ₗ[R] R) (hkl : k + l = finrank R M)
 
-/-- The wedge product in complementary degrees as a scalar-valued bilinear map (for a choice of
-trivialisation of the top exterior power). -/
-abbrev wedgePairing :
-    ⋀[R]^k M →ₗ[R] ⋀[R]^l M →ₗ[R] R :=
-  (wedge R M k l).compr₂ (hkl ▸ vol)
+/--
+The wedge product in complementary degrees as a scalar-valued bilinear map (for a choice of
+trivialisation of the top exterior power).
+-/
+abbrev wedgePairing : ⋀[R]^k M →ₗ[R] ⋀[R]^l M →ₗ[R] R := (wedge R M k l).compr₂ (hkl ▸ vol)
 
 /-- An auxiliary lemma for `exteriorPower.wedgePairing_eq_apply_topVector_smul`. -/
 private lemma apply_eqRec {N : Type*} [AddCommGroup N] [Module R N]
@@ -127,8 +126,8 @@ lemma wedgePairing_eq_apply_topVector_smul :
 
 end Basis
 
-instance instIsPerfPairWedgePairing [Module.Finite R M] [Module.Free R M] :
-    (wedgePairing vol hkl).IsPerfPair := by
+instance instIsPerfPairWedgePairing [Module.Finite R M] [Module.Free R M]
+    : (wedgePairing vol hkl).IsPerfPair := by
   nontriviality R
   suffices Bijective (wedgePairing vol hkl) from
     LinearMap.IsPerfPair.of_bijective (wedgePairing vol hkl) this

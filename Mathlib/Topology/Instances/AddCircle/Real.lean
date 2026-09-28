@@ -17,7 +17,6 @@ Results specific to the additive circle over `ℝ`.
 
 @[expose] public section
 
-
 noncomputable section
 
 open AddCommGroup Set Function AddSubgroup
@@ -34,8 +33,10 @@ instance compactSpace [Fact (0 < p)] : CompactSpace <| AddCircle p := by
   rw [← isCompact_univ_iff, ← coe_image_Icc_eq p 0]
   exact isCompact_Icc.image (AddCircle.continuous_mk' p)
 
-/-- The action on `ℝ` by right multiplication of its the subgroup `zmultiples p` (the multiples of
-`p:ℝ`) is properly discontinuous. -/
+/--
+The action on `ℝ` by right multiplication of its the subgroup `zmultiples p` (the multiples of
+`p:ℝ`) is properly discontinuous.
+-/
 instance : ProperlyDiscontinuousVAdd (zmultiples p).op ℝ :=
   (zmultiples p).properlyDiscontinuousVAdd_opposite_of_tendsto_cofinite
     (AddSubgroup.tendsto_zmultiples_subtype_cofinite p)
@@ -45,8 +46,7 @@ end AddCircle
 section UnitAddCircle
 
 /-- The unit circle `ℝ ⧸ ℤ`. -/
-abbrev UnitAddCircle :=
-  AddCircle (1 : ℝ)
+abbrev UnitAddCircle := AddCircle (1 : ℝ)
 
 /-- The product indexed by `d` of copies of the unit circle. -/
 abbrev UnitAddTorus (d : Type*) := d → UnitAddCircle
@@ -59,8 +59,8 @@ variable {N : ℕ} [NeZero N]
 
 /-- The `AddMonoidHom` from `ZMod N` to `ℝ / ℤ` sending `j mod N` to `j / N mod 1`. -/
 noncomputable def toAddCircle : ZMod N →+ UnitAddCircle :=
-  lift N ⟨AddMonoidHom.mk' (fun j ↦ ↑(j / N : ℝ)) (by simp [add_div]),
-    by simp [div_self (NeZero.ne _)]⟩
+  lift N
+    ⟨AddMonoidHom.mk' (fun j ↦ ↑(j / N : ℝ)) (by simp [add_div]), by simp [div_self (NeZero.ne _)]⟩
 
 lemma toAddCircle_intCast (j : ℤ) :
     toAddCircle (j : ZMod N) = ↑(j / N : ℝ) := by

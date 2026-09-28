@@ -97,7 +97,7 @@ variable (α) in
 /-- A nontrivial densely linear ordered commutative group can't be a cyclic group. -/
 @[to_additive
   /-- A nontrivial densely linear ordered additive commutative group can't be a cyclic group. -/]
-theorem not_isCyclic_of_denselyOrdered [DenselyOrdered α] [Nontrivial α] : ¬IsCyclic α := by
+theorem not_isCyclic_of_denselyOrdered [DenselyOrdered α] [Nontrivial α] : ¬ IsCyclic α := by
   intro h
   rcases exists_zpow_surjective α with ⟨a, ha⟩
   rcases lt_trichotomy a 1 with hlt | rfl | hlt

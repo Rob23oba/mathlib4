@@ -38,19 +38,27 @@ variable (M' M'' : Submodule R M)
 
 namespace Submodule
 
-/-- Let `N` be a localization of an `R`-module `M` at `p`.
-This is the localization of an `R`-submodule of `M` viewed as an `R`-submodule of `N`. -/
+/--
+Let `N` be a localization of an `R`-module `M` at `p`.
+This is the localization of an `R`-submodule of `M` viewed as an `R`-submodule of `N`.
+-/
 def localized₀ : Submodule R N where
   carrier := { x | ∃ m ∈ M', ∃ s : p, IsLocalizedModule.mk' f m s = x }
-  add_mem' := fun {x y} ⟨m, hm, s, hx⟩ ⟨n, hn, t, hy⟩ ↦ ⟨t • m + s • n, add_mem (M'.smul_mem t hm)
-    (M'.smul_mem s hn), s * t, by rw [← hx, ← hy, IsLocalizedModule.mk'_add_mk']⟩
+  add_mem' := fun {x y} ⟨m, hm, s, hx⟩ ⟨n, hn, t, hy⟩ ↦ ⟨
+    t • m + s • n,
+    add_mem (M'.smul_mem t hm) (M'.smul_mem s hn),
+    s * t,
+    by rw [← hx, ← hy, IsLocalizedModule.mk'_add_mk']
+  ⟩
   zero_mem' := ⟨0, zero_mem _, 1, by simp⟩
   smul_mem' r x := by
     rintro ⟨m, hm, s, hx⟩
     exact ⟨r • m, smul_mem M' _ hm, s, by rw [IsLocalizedModule.mk'_smul, hx]⟩
 
-/-- Let `S` be the localization of `R` at `p` and `N` be a localization of `M` at `p`.
-This is the localization of an `R`-submodule of `M` viewed as an `S`-submodule of `N`. -/
+/--
+Let `S` be the localization of `R` at `p` and `N` be a localization of `M` at `p`.
+This is the localization of an `R`-submodule of `M` viewed as an `S`-submodule of `N`.
+-/
 def localized' : Submodule S N where
   __ := localized₀ p f M'
   smul_mem' := fun r x ⟨m, hm, s, hx⟩ ↦ by
@@ -81,16 +89,22 @@ theorem map_le_localized₀ : M'.map f ≤ localized₀ p f M' := by
   rw [mem_localized₀]
   exact ⟨x, hx, 1, IsLocalizedModule.mk'_one p f x⟩
 
-/-- The Galois insertion between `Submodule R M` and `Submodule S N`,
-where `S` is the localization of `R` at `p` and `N` is the localization of `M` at `p`. -/
+/--
+The Galois insertion between `Submodule R M` and `Submodule S N`,
+where `S` is the localization of `R` at `p` and `N` is the localization of `M` at `p`.
+-/
 def localized'gi : GaloisInsertion (localized' S p f) (comap f <| ·.restrictScalars R) where
-  gc M' N' := ⟨fun h m hm ↦ h ⟨m, hm, 1, by simp⟩, fun h ↦ by
-    rw [localized'_eq_span, span_le]; apply map_le_iff_le_comap.mpr h⟩
+  gc M' N' := ⟨
+    fun h m hm ↦ h ⟨m, hm, 1, by simp⟩,
+    fun h ↦ by rw [localized'_eq_span, span_le]; apply map_le_iff_le_comap.mpr h
+  ⟩
   le_l_u N' n hn := by
     obtain ⟨⟨m, s⟩, rfl⟩ := IsLocalizedModule.mk'_surjective p f n
     refine ⟨m, ?_, s, rfl⟩
-    rw [mem_comap, restrictScalars_mem, ← IsLocalizedModule.mk'_cancel' _ _ s,
-      Submonoid.smul_def, ← algebraMap_smul S]
+    rw [
+      mem_comap, restrictScalars_mem, ← IsLocalizedModule.mk'_cancel' _ _ s, Submonoid.smul_def,
+      ← algebraMap_smul S
+    ]
     exact smul_mem _ _ hn
   choice x _ := localized' S p f x
   choice_eq _ _ := rfl
@@ -120,8 +134,7 @@ lemma localized₀_top : (⊤ : Submodule R M).localized₀ p f = ⊤ := by
 lemma localized'_top : (⊤ : Submodule R M).localized' S p f = ⊤ :=
   SetLike.ext' (by apply SetLike.ext'_iff.mp <| Submodule.localized₀_top p f)
 
-theorem localized₀_inf :
-    (M' ⊓ M'').localized₀ p f = M'.localized₀ p f ⊓ M''.localized₀ p f := by
+theorem localized₀_inf : (M' ⊓ M'').localized₀ p f = M'.localized₀ p f ⊓ M''.localized₀ p f := by
   simp only [Submodule.ext_iff, Submodule.mem_inf, mem_localized₀]
   refine fun x ↦ ⟨by grind, ?_⟩
   rintro ⟨⟨i, hi, s, hs⟩, j, hj, t, ht⟩
@@ -133,16 +146,15 @@ theorem localized₀_inf :
     exact M''.smul_of_tower_mem (k * s) hj
   · rwa [mul_smul, hk, smul_smul, IsLocalizedModule.mk'_cancel_left]
 
-theorem localized'_inf :
-    (M' ⊓ M'').localized' S p f = M'.localized' S p f ⊓ M''.localized' S p f :=
+theorem localized'_inf : (M' ⊓ M'').localized' S p f = M'.localized' S p f ⊓ M''.localized' S p f :=
   SetLike.ext' (by apply SetLike.ext'_iff.mp <| Submodule.localized₀_inf p f M' M'')
 
-theorem localized'_iSup {ι : Type*} (g : ι → Submodule R M) :
-    (⨆ i, g i).localized' S p f = ⨆ i, (g i).localized' S p f := by
+theorem localized'_iSup {ι : Type*} (g : ι → Submodule R M)
+    : (⨆ i, g i).localized' S p f = ⨆ i, (g i).localized' S p f := by
   exact GaloisConnection.l_iSup (localized'gi S p f).gc
 
-theorem localized₀_iSup {ι : Type*} (g : ι → Submodule R M) :
-    (⨆ i, g i).localized₀ p f = ⨆ i, (g i).localized₀ p f := by
+theorem localized₀_iSup {ι : Type*} (g : ι → Submodule R M)
+    : (⨆ i, g i).localized₀ p f = ⨆ i, (g i).localized₀ p f := by
   let : Module (Localization p) N := IsLocalizedModule.module p f
   have : IsScalarTower R (Localization p) N := IsLocalizedModule.isScalarTower_module p f
   simpa using! congr(restrictScalars R $(localized'_iSup (Localization p) p f g))
@@ -160,8 +172,7 @@ lemma IsLocalizedModule.localized₀FrameHom_apply :
   rfl
 
 /-- `localized'` as a `FrameHom`. -/
-noncomputable def localized'FrameHom :
-    FrameHom (Submodule R M) (Submodule S N) where
+noncomputable def localized'FrameHom : FrameHom (Submodule R M) (Submodule S N) where
   toFun := localized' S p f
   map_inf' := localized'_inf S p f
   map_top' := localized'_top S p f
@@ -206,12 +217,10 @@ lemma localized'_smul (I : Submodule R R) :
     simp_rw [restrictScalars_localized'_smul, restrictScalars_localized', localized₀_smul]
 
 /-- The localization map of a submodule. -/
-@[simps!]
-def toLocalized₀ : M' →ₗ[R] M'.localized₀ p f := f.restrict fun x hx ↦ ⟨x, hx, 1, by simp⟩
+@[simps!] def toLocalized₀ : M' →ₗ[R] M'.localized₀ p f := f.restrict fun x hx ↦ ⟨x, hx, 1, by simp⟩
 
 /-- The localization map of a submodule. -/
-@[simps!]
-def toLocalized' : M' →ₗ[R] M'.localized' S p f := toLocalized₀ p f M'
+@[simps!] def toLocalized' : M' →ₗ[R] M'.localized' S p f := toLocalized₀ p f M'
 
 /-- The localization map of a submodule. -/
 noncomputable abbrev toLocalized : M' →ₗ[R] M'.localized p :=
@@ -221,23 +230,26 @@ instance : IsLocalizedModule p (M'.toLocalized₀ p f) where
   map_units x := by
     simp_rw [Module.End.isUnit_iff]
     constructor
-    · exact fun _ _ e ↦ Subtype.ext
-        (IsLocalizedModule.smul_injective f x congr($(e).val))
+    · exact fun _ _ e ↦ Subtype.ext (IsLocalizedModule.smul_injective f x congr($(e).val))
     · rintro ⟨_, m, hm, s, rfl⟩
       refine ⟨⟨IsLocalizedModule.mk' f m (s * x), ⟨_, hm, _, rfl⟩⟩, Subtype.ext ?_⟩
-      rw [Module.algebraMap_end_apply, SetLike.val_smul_of_tower,
-        ← IsLocalizedModule.mk'_smul, ← Submonoid.smul_def, IsLocalizedModule.mk'_cancel_right]
+      rw [
+        Module.algebraMap_end_apply, SetLike.val_smul_of_tower, ← IsLocalizedModule.mk'_smul,
+        ← Submonoid.smul_def, IsLocalizedModule.mk'_cancel_right
+      ]
   surj := by
     rintro ⟨y, x, hx, s, rfl⟩
     exact ⟨⟨⟨x, hx⟩, s⟩, by ext; simp⟩
-  exists_of_eq e := by simpa [Subtype.ext_iff] using
-      IsLocalizedModule.exists_of_eq (S := p) (f := f) congr($(e).val)
+  exists_of_eq e := by
+    simpa [Subtype.ext_iff] using IsLocalizedModule.exists_of_eq (S := p) (f := f) congr($(e).val)
 
 instance isLocalizedModule : IsLocalizedModule p (M'.toLocalized' S p f) :=
   inferInstanceAs (IsLocalizedModule p (M'.toLocalized₀ p f))
 
-/-- The canonical isomorphism between the localization of a submodule and its realization
-as a submodule in the localized module. -/
+/--
+The canonical isomorphism between the localization of a submodule and its realization
+as a submodule in the localized module.
+-/
 noncomputable def localizedEquiv : M'.localized p ≃ₗ[Localization p] LocalizedModule p M' :=
   have := IsLocalization.linearMap_compatibleSMul p
   IsLocalizedModule.linearEquiv p (M'.toLocalized p) (LocalizedModule.mkLinearMap _ _)
@@ -270,8 +282,8 @@ def Submodule.toLocalizedQuotient' : M ⧸ M' →ₗ[R] N ⧸ M'.localized' S p 
   Submodule.mapQ M' ((M'.localized' S p f).restrictScalars R) f (fun x hx ↦ ⟨x, hx, 1, by simp⟩)
 
 /-- The localization map of a quotient module. -/
-noncomputable abbrev Submodule.toLocalizedQuotient :
-    M ⧸ M' →ₗ[R] LocalizedModule p M ⧸ M'.localized p :=
+noncomputable abbrev Submodule.toLocalizedQuotient
+    : M ⧸ M' →ₗ[R] LocalizedModule p M ⧸ M'.localized p :=
   M'.toLocalizedQuotient' (Localization p) p (LocalizedModule.mkLinearMap p M)
 
 @[simp]
@@ -279,11 +291,16 @@ lemma Submodule.toLocalizedQuotient'_mk (x : M) :
     M'.toLocalizedQuotient' S p f (Submodule.Quotient.mk x) = Submodule.Quotient.mk (f x) := rfl
 
 open Submodule Submodule.Quotient IsLocalization in
-instance IsLocalizedModule.toLocalizedQuotient' (M' : Submodule R M) :
-    IsLocalizedModule p (M'.toLocalizedQuotient' S p f) where
+instance IsLocalizedModule.toLocalizedQuotient' (M' : Submodule R M)
+    : IsLocalizedModule p (M'.toLocalizedQuotient' S p f) where
   map_units x := by
-    refine (Module.End.isUnit_iff _).mpr ⟨fun m n e ↦ ?_, fun m ↦ ⟨(IsLocalization.mk' S 1 x) • m,
-      by rw [Module.algebraMap_end_apply, ← smul_assoc, smul_mk'_one, mk'_self', one_smul]⟩⟩
+    refine (Module.End.isUnit_iff _).mpr ⟨
+      fun m n e ↦ ?_,
+      fun m ↦ ⟨
+        (IsLocalization.mk' S 1 x) • m,
+        by rw [Module.algebraMap_end_apply, ← smul_assoc, smul_mk'_one, mk'_self', one_smul]
+      ⟩
+    ⟩
     obtain ⟨⟨m, rfl⟩, n, rfl⟩ := PProd.mk (mk_surjective _ m) (mk_surjective _ n)
     simp only [Module.algebraMap_end_apply, ← mk_smul, Submodule.Quotient.eq, ← smul_sub] at e
     replace e := Submodule.smul_mem _ (IsLocalization.mk' S 1 x) e
@@ -291,22 +308,30 @@ instance IsLocalizedModule.toLocalizedQuotient' (M' : Submodule R M) :
   surj y := by
     obtain ⟨y, rfl⟩ := mk_surjective _ y
     obtain ⟨⟨y, s⟩, rfl⟩ := IsLocalizedModule.mk'_surjective p f y
-    exact ⟨⟨Submodule.Quotient.mk y, s⟩,
-      by simp only [Function.uncurry_apply_pair, toLocalizedQuotient'_mk, ← mk_smul, mk'_cancel']⟩
+    exact ⟨
+      ⟨Submodule.Quotient.mk y, s⟩,
+      by simp only [Function.uncurry_apply_pair, toLocalizedQuotient'_mk, ← mk_smul, mk'_cancel']
+    ⟩
   exists_of_eq {m n} e := by
     obtain ⟨⟨m, rfl⟩, n, rfl⟩ := PProd.mk (mk_surjective _ m) (mk_surjective _ n)
     obtain ⟨x, hx, s, hs⟩ : f (m - n) ∈ _ := by simpa [Submodule.Quotient.eq] using! e
     obtain ⟨c, hc⟩ := exists_of_eq (S := p) (show f (s • (m - n)) = f x by simp [-map_sub, ← hs])
-    exact ⟨c * s, by simpa only [← Quotient.mk_smul, Submodule.Quotient.eq,
-      ← smul_sub, mul_smul, hc] using! M'.smul_mem c hx⟩
+    exact ⟨
+      c * s,
+      by
+        simpa only [← Quotient.mk_smul, Submodule.Quotient.eq, ← smul_sub, mul_smul, hc] using!
+          M'.smul_mem c hx
+    ⟩
 
 instance (M' : Submodule R M) : IsLocalizedModule p (M'.toLocalizedQuotient p) :=
   IsLocalizedModule.toLocalizedQuotient' _ _ _ _
 
-/-- The canonical isomorphism between the localization of a quotient module and its realization
-as a quotient of the localized module. -/
-noncomputable def localizedQuotientEquiv :
-    (LocalizedModule p M ⧸ M'.localized p) ≃ₗ[Localization p] LocalizedModule p (M ⧸ M') :=
+/--
+The canonical isomorphism between the localization of a quotient module and its realization
+as a quotient of the localized module.
+-/
+noncomputable def localizedQuotientEquiv
+    : (LocalizedModule p M ⧸ M'.localized p) ≃ₗ[Localization p] LocalizedModule p (M ⧸ M') :=
   have := IsLocalization.linearMap_compatibleSMul p
   IsLocalizedModule.linearEquiv p (M'.toLocalizedQuotient p) (LocalizedModule.mkLinearMap _ _)
     |>.restrictScalars _
@@ -348,8 +373,7 @@ The canonical map from the kernel of `g` to the kernel of `g` localized at a sub
 This is a localization map by `LinearMap.toKerLocalized_isLocalizedModule`.
 -/
 @[simps!]
-noncomputable def toKerIsLocalized (g : M →ₗ[R] P) :
-    ker g →ₗ[R] ker (map p f f' g) :=
+noncomputable def toKerIsLocalized (g : M →ₗ[R] P) : ker g →ₗ[R] ker (map p f f' g) :=
   f.restrict (fun x hx ↦ by simp [mem_ker, mem_ker.mp hx])
 
 include S in

@@ -89,7 +89,8 @@ lemma Commute.smul_left_iff₀ [Mul β] [SMulCommClass α β β] [IsScalarTower 
   SemiconjBy.smul_left_iff₀ ha
 
 /-- Right scalar multiplication as a bijection. -/
-@[simps] def Equiv.smulRight (ha : a ≠ 0) : β ≃ β where
+@[simps]
+def Equiv.smulRight (ha : a ≠ 0) : β ≃ β where
   toFun b := a • b
   invFun b := a⁻¹ • b
   left_inv := inv_smul_smul₀ ha
@@ -104,17 +105,17 @@ namespace Units
 instance instSMulZeroClass [Monoid M] [Zero α] [SMulZeroClass M α] : SMulZeroClass Mˣ α where
   smul_zero m := smul_zero (m : M)
 
-instance instDistribSMulUnits [Monoid M] [AddZeroClass α] [DistribSMul M α] :
-    DistribSMul Mˣ α where smul_add m := smul_add (m : M)
+instance instDistribSMulUnits [Monoid M] [AddZeroClass α] [DistribSMul M α] : DistribSMul Mˣ α where
+  smul_add m := smul_add (m : M)
 
-instance instDistribMulAction [Monoid M] [AddMonoid α] [DistribMulAction M α] :
-    DistribMulAction Mˣ α where
+instance instDistribMulAction [Monoid M] [AddMonoid α] [DistribMulAction M α]
+    : DistribMulAction Mˣ α where
   __ := instDistribSMulUnits
   one_smul := fun b => one_smul M b
   mul_smul := fun x y b => mul_smul (x : M) y b
 
-instance instMulDistribMulAction [Monoid M] [Monoid α] [MulDistribMulAction M α] :
-    MulDistribMulAction Mˣ α where
+instance instMulDistribMulAction [Monoid M] [Monoid α] [MulDistribMulAction M α]
+    : MulDistribMulAction Mˣ α where
   smul_mul m := smul_mul' (m : M)
   smul_one m := smul_one (m : M)
 

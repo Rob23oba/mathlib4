@@ -21,10 +21,10 @@ public section
 
 namespace CategoryTheory
 
-variable {C D : Type*} [Category* C] [Category* D] (F : C ⥤ D)
-  [F.PreservesFiniteEffectiveEpiFamilies] [F.ReflectsFiniteEffectiveEpiFamilies]
-  [F.EffectivelyEnough]
-  [Precoherent D] [F.Full] [F.Faithful]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (F : C ⥤ D) [F.PreservesFiniteEffectiveEpiFamilies] [F.ReflectsFiniteEffectiveEpiFamilies]
+  [F.EffectivelyEnough] [Precoherent D] [F.Full] [F.Faithful]
 
 set_option backward.isDefEq.respectTransparency false in
 include F in

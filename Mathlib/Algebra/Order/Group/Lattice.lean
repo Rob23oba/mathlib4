@@ -119,11 +119,13 @@ lemma inf_mul_sup [MulLeftMono α] (a b : α) : (a ⊓ b) * (a ⊔ b) = a * b :=
 -- Non-comm case needs cancellation law https://ncatlab.org/nlab/show/distributive+lattice
 @[to_additive (attr := instance_reducible)
   /-- Every lattice ordered commutative additive group is a distributive lattice -/]
-def CommGroup.toDistribLattice (α : Type*) [Lattice α] [CommGroup α]
-    [MulLeftMono α] : DistribLattice α where
+def CommGroup.toDistribLattice (α : Type*) [Lattice α] [CommGroup α] [MulLeftMono α]
+    : DistribLattice α where
   le_sup_inf x y z := by
-    rw [← mul_le_mul_iff_left (x ⊓ (y ⊓ z)), inf_mul_sup x (y ⊓ z), ← inv_mul_le_iff_le_mul,
-      le_inf_iff]
+    rw [
+      ← mul_le_mul_iff_left (x ⊓ (y ⊓ z)), inf_mul_sup x (y ⊓ z), ← inv_mul_le_iff_le_mul,
+      le_inf_iff
+    ]
     constructor
     · rw [inv_mul_le_iff_le_mul, ← inf_mul_sup x y]
       exact mul_le_mul' (inf_le_inf_left _ inf_le_left) inf_le_left

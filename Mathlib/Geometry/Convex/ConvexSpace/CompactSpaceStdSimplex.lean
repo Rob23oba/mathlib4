@@ -65,10 +65,10 @@ lemma diam_range_toFun_comp_weights_subset_closedBall_eq_one
 
 end Real
 
-instance compactSpace (R M : Type*) [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
-    [PartialOrder R] [IsStrictOrderedRing R] [CompactIccSpace R] [OrderClosedTopology R]
-    [Finite M] :
-    CompactSpace (StdSimplex R M) where
+instance compactSpace
+    (R M : Type*) [Ring R] [TopologicalSpace R] [IsTopologicalRing R] [PartialOrder R]
+    [IsStrictOrderedRing R] [CompactIccSpace R] [OrderClosedTopology R] [Finite M]
+    : CompactSpace (StdSimplex R M) where
   isCompact_univ := by
     rw [(isEmbedding_toFun_comp_weights R M).isCompact_iff, Set.image_univ]
     refine IsCompact.of_isClosed_subset (s := Set.Icc 0 1) isCompact_Icc

@@ -44,10 +44,10 @@ noncomputable section
 
 variable
   {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H} {n : WithTop ℕ∞}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners ℝ E H} {n : WithTop ℕ∞} {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
-instance (x : ℝ) : One (TangentSpace 𝓘(ℝ) x) where
+instance (x : ℝ) : One (TangentSpace (𝓘(ℝ)) x) where
   one := (1 : ℝ)
 
 /-- Unit vector in the tangent space to a segment, as the image of the unit vector in the real line

@@ -48,9 +48,7 @@ initialize_simps_projections GrpCat (carrier → coe, -str)
 
 namespace GrpCat
 
-@[to_additive]
-instance : CoeSort GrpCat (Type u) :=
-  ⟨GrpCat.carrier⟩
+@[to_additive] instance : CoeSort GrpCat (Type u) := ⟨GrpCat.carrier⟩
 
 attribute [coe] AddGrpCat.carrier GrpCat.carrier
 
@@ -103,8 +101,7 @@ instance : ConcreteCategory GrpCat (· →* ·) where
 
 /-- Turn a morphism in `GrpCat` back into a `MonoidHom`. -/
 @[to_additive /-- Turn a morphism in `AddGrpCat` back into an `AddMonoidHom`. -/]
-abbrev Hom.hom {X Y : GrpCat.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := GrpCat) f
+abbrev Hom.hom {X Y : GrpCat.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := GrpCat) f
 
 /-- Typecheck a `MonoidHom` as a morphism in `GrpCat`. -/
 @[to_additive /-- Typecheck an `AddMonoidHom` as a morphism in `AddGrpCat`. -/]
@@ -113,8 +110,7 @@ abbrev ofHom {X Y : Type u} [Group X] [Group Y] (f : X →* Y) : of X ⟶ of Y :
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : GrpCat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : GrpCat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 initialize_simps_projections AddGrpCat.Hom (hom' → hom)
@@ -135,8 +131,7 @@ lemma ext {X Y : GrpCat} {f g : X ⟶ Y} (w : ∀ x : X, f x = g x) : f = g :=
 
 @[to_additive]
 -- This is not `simp` to avoid rewriting in types of terms.
-theorem coe_of (R : Type u) [Group R] : ↑(GrpCat.of R) = R :=
-  rfl
+theorem coe_of (R : Type u) [Group R] : ↑(GrpCat.of R) = R := rfl
 
 @[to_additive (attr := simp)]
 lemma hom_id {X : GrpCat} : (𝟙 X : X ⟶ X).hom = MonoidHom.id X := rfl
@@ -189,9 +184,7 @@ lemma inv_hom_apply {X Y : GrpCat} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x :
 lemma hom_inv_apply {X Y : GrpCat} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-@[to_additive]
-instance : Inhabited GrpCat :=
-  ⟨↧PUnit⟩
+@[to_additive] instance : Inhabited GrpCat := ⟨↧PUnit⟩
 
 @[to_additive hasForgetToAddMonCat]
 instance hasForgetToMonCat : HasForget₂ GrpCat MonCat where
@@ -206,15 +199,15 @@ instance hasForgetToMonCat : HasForget₂ GrpCat MonCat where
     (forget₂ GrpCat MonCat).map f x = f x := rfl
 
 @[to_additive]
-instance : Coe GrpCat.{u} MonCat.{u} where coe := (forget₂ GrpCat MonCat).obj
+instance : Coe GrpCat.{u} MonCat.{u} where
+  coe := (forget₂ GrpCat MonCat).obj
 
 @[to_additive]
 instance (G H : GrpCat) : One (G ⟶ H) where
   one := ofHom 1
 
 @[to_additive (attr := simp)]
-theorem one_apply (G H : GrpCat) (g : G) : ((1 : G ⟶ H) : G → H) g = 1 :=
-  rfl
+theorem one_apply (G H : GrpCat) (g : G) : ((1 : G ⟶ H) : G → H) g = 1 := rfl
 
 @[to_additive]
 lemma ofHom_injective {X Y : Type u} [Group X] [Group Y] :
@@ -229,21 +222,18 @@ lemma ofHom_injective {X Y : Type u} [Group X] [Group Y] :
 def fullyFaithfulForget₂ToMonCat : (forget₂ GrpCat.{u} MonCat).FullyFaithful where
   preimage f := ofHom f.hom
 
-@[to_additive]
-instance : (forget₂ GrpCat.{u} MonCat).Full :=
-  fullyFaithfulForget₂ToMonCat.full
+@[to_additive] instance : (forget₂ GrpCat.{u} MonCat).Full := fullyFaithfulForget₂ToMonCat.full
 
 -- We verify that simp lemmas apply when coercing morphisms to functions.
-@[to_additive]
-example {R S : GrpCat} (i : R ⟶ S) (r : R) (h : r = 1) : i r = 1 := by simp [h]
+@[to_additive] example {R S : GrpCat} (i : R ⟶ S) (r : R) (h : r = 1) : i r = 1 := by simp [h]
 
 /-- Universe lift functor for groups. -/
 @[to_additive (attr := simps obj map)
   /-- Universe lift functor for additive groups. -/]
 def uliftFunctor : GrpCat.{v} ⥤ GrpCat.{max v u} where
   obj X := ↧(ULift.{u, v} X)
-  map {_ _} f := GrpCat.ofHom <|
-    MulEquiv.ulift.symm.toMonoidHom.comp <| f.hom.comp MulEquiv.ulift.toMonoidHom
+  map {_ _} f :=
+    GrpCat.ofHom <| MulEquiv.ulift.symm.toMonoidHom.comp <| f.hom.comp MulEquiv.ulift.toMonoidHom
   map_id X := by rfl
   map_comp {X Y Z} f g := by rfl
 
@@ -272,9 +262,7 @@ abbrev Ab := AddCommGrpCat
 
 namespace CommGrpCat
 
-@[to_additive]
-instance : CoeSort CommGrpCat (Type u) :=
-  ⟨CommGrpCat.carrier⟩
+@[to_additive] instance : CoeSort CommGrpCat (Type u) := ⟨CommGrpCat.carrier⟩
 
 attribute [coe] AddCommGrpCat.carrier CommGrpCat.carrier
 
@@ -327,8 +315,7 @@ instance : ConcreteCategory CommGrpCat (· →* ·) where
 
 /-- Turn a morphism in `CommGrpCat` back into a `MonoidHom`. -/
 @[to_additive /-- Turn a morphism in `AddCommGrpCat` back into an `AddMonoidHom`. -/]
-abbrev Hom.hom {X Y : CommGrpCat.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := CommGrpCat) f
+abbrev Hom.hom {X Y : CommGrpCat.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := CommGrpCat) f
 
 /-- Typecheck a `MonoidHom` as a morphism in `CommGrpCat`. -/
 @[to_additive /-- Typecheck an `AddMonoidHom` as a morphism in `AddCommGrpCat`. -/]
@@ -337,8 +324,7 @@ abbrev ofHom {X Y : Type u} [CommGroup X] [CommGroup Y] (f : X →* Y) : of X �
 
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
 @[to_additive /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/]
-def Hom.Simps.hom (X Y : CommGrpCat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : CommGrpCat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 initialize_simps_projections AddCommGrpCat.Hom (hom' → hom)
@@ -357,14 +343,11 @@ lemma coe_comp {X Y Z : CommGrpCat} {f : X ⟶ Y} {g : Y ⟶ Z} : (f ≫ g : X �
 lemma ext {X Y : CommGrpCat} {f g : X ⟶ Y} (w : ∀ x : X, f x = g x) : f = g :=
   ConcreteCategory.hom_ext _ _ w
 
-@[to_additive]
-instance : Inhabited CommGrpCat :=
-  ⟨↧PUnit⟩
+@[to_additive] instance : Inhabited CommGrpCat := ⟨↧PUnit⟩
 
 @[to_additive]
 -- This is not `simp` to avoid rewriting in types of terms.
-theorem coe_of (R : Type u) [CommGroup R] : ↑(CommGrpCat.of R) = R :=
-  rfl
+theorem coe_of (R : Type u) [CommGroup R] : ↑(CommGrpCat.of R) = R := rfl
 
 @[to_additive (attr := simp)]
 lemma hom_id {X : CommGrpCat} : (𝟙 X : X ⟶ X).hom = MonoidHom.id X := rfl
@@ -430,17 +413,16 @@ instance hasForgetToGroup : HasForget₂ CommGrpCat GrpCat where
     (forget₂ CommGrpCat GrpCat).map f x = f x := rfl
 
 @[to_additive]
-instance : Coe CommGrpCat.{u} GrpCat.{u} where coe := (forget₂ CommGrpCat GrpCat).obj
+instance : Coe CommGrpCat.{u} GrpCat.{u} where
+  coe := (forget₂ CommGrpCat GrpCat).obj
 
 /-- The forgetful functor from commutative groups to groups is fully faithful. -/
 @[to_additive fullyFaihtfulForget₂ToAddGrp
-/-- The forgetful functor from additive commutative groups to additive groups is fully faithful. -/]
+  /-- The forgetful functor from additive commutative groups to additive groups is fully faithful. -/]
 def fullyFaithfulForget₂ToGrp : (forget₂ CommGrpCat.{u} GrpCat).FullyFaithful where
   preimage f := ofHom f.hom
 
-@[to_additive]
-instance : (forget₂ CommGrpCat.{u} GrpCat).Full :=
-  fullyFaithfulForget₂ToGrp.full
+@[to_additive] instance : (forget₂ CommGrpCat.{u} GrpCat).Full := fullyFaithfulForget₂ToGrp.full
 
 @[to_additive hasForgetToAddCommMonCat]
 instance hasForgetToCommMonCat : HasForget₂ CommGrpCat CommMonCat where
@@ -452,15 +434,15 @@ instance hasForgetToCommMonCat : HasForget₂ CommGrpCat CommMonCat where
     (forget₂ CommGrpCat CommMonCat).map (ofHom f) = CommMonCat.ofHom f := rfl
 
 @[to_additive]
-instance : Coe CommGrpCat.{u} CommMonCat.{u} where coe := (forget₂ CommGrpCat CommMonCat).obj
+instance : Coe CommGrpCat.{u} CommMonCat.{u} where
+  coe := (forget₂ CommGrpCat CommMonCat).obj
 
 @[to_additive]
 instance (G H : CommGrpCat) : One (G ⟶ H) where
   one := ofHom 1
 
 @[to_additive (attr := simp)]
-theorem one_apply (G H : CommGrpCat) (g : G) : ((1 : G ⟶ H) : G → H) g = 1 :=
-  rfl
+theorem one_apply (G H : CommGrpCat) (g : G) : ((1 : G ⟶ H) : G → H) g = 1 := rfl
 
 @[to_additive]
 lemma ofHom_injective {X Y : Type u} [CommGroup X] [CommGroup Y] :
@@ -470,16 +452,16 @@ lemma ofHom_injective {X Y : Type u} [CommGroup X] [CommGroup Y] :
   apply ConcreteCategory.congr_hom h
 
 -- We verify that simp lemmas apply when coercing morphisms to functions.
-@[to_additive]
-example {R S : CommGrpCat} (i : R ⟶ S) (r : R) (h : r = 1) : i r = 1 := by simp [h]
+@[to_additive] example {R S : CommGrpCat} (i : R ⟶ S) (r : R) (h : r = 1) : i r = 1 := by simp [h]
 
 /-- Universe lift functor for commutative groups. -/
 @[to_additive (attr := simps obj map)
   /-- Universe lift functor for additive commutative groups. -/]
 def uliftFunctor : CommGrpCat.{v} ⥤ CommGrpCat.{max v u} where
   obj X := ↧(ULift.{u, v} X)
-  map {_ _} f := CommGrpCat.ofHom <|
-    MulEquiv.ulift.symm.toMonoidHom.comp <| f.hom.comp MulEquiv.ulift.toMonoidHom
+  map {_ _} f :=
+    CommGrpCat.ofHom <| MulEquiv.ulift.symm.toMonoidHom.comp <|
+      f.hom.comp MulEquiv.ulift.toMonoidHom
   map_id X := by rfl
   map_comp {X Y Z} f g := by rfl
 
@@ -490,24 +472,23 @@ namespace AddCommGrpCat
 -- Note that because `ℤ : Type 0`, this forces `G : AddCommGrpCat.{0}`,
 -- so we write this explicitly to be clear.
 -- TODO generalize this, requiring a `ULiftInstances.lean` file
-/-- Any element of an abelian group gives a unique morphism from `ℤ` sending
-`1` to that element. -/
-@[simps!]
-def asHom {G : AddCommGrpCat.{0}} (g : G) : ↧ℤ ⟶ G :=
-  ofHom (zmultiplesHom G g)
+/--
+Any element of an abelian group gives a unique morphism from `ℤ` sending
+`1` to that element.
+-/
+@[simps!] def asHom {G : AddCommGrpCat.{0}} (g : G) : ↧ℤ ⟶ G := ofHom (zmultiplesHom G g)
 
 theorem asHom_injective {G : AddCommGrpCat.{0}} : Function.Injective (@asHom G) := fun h k w => by
   simpa using congr($w 1)
 
 @[ext]
-theorem int_hom_ext {G : AddCommGrpCat.{0}} (f g : ↧ℤ ⟶ G)
-    (w : f (1 : ℤ) = g (1 : ℤ)) : f = g :=
+theorem int_hom_ext {G : AddCommGrpCat.{0}} (f g : ↧ℤ ⟶ G) (w : f (1 : ℤ) = g (1 : ℤ)) : f = g :=
   hom_ext (AddMonoidHom.ext_int w)
 
 -- TODO: this argument should be generalised to the situation where
 -- the forgetful functor is representable.
-theorem injective_of_mono {G H : AddCommGrpCat.{0}} (f : G ⟶ H) [Mono f] : Function.Injective f :=
-  fun g₁ g₂ h => by
+theorem injective_of_mono {G H : AddCommGrpCat.{0}} (f : G ⟶ H) [Mono f]
+    : Function.Injective f := fun g₁ g₂ h => by
   have t0 : asHom g₁ ≫ f = asHom g₂ ≫ f := by cat_disch
   have t1 : asHom g₁ = asHom g₂ := (cancel_mono _).1 t0
   apply asHom_injective t1
@@ -523,15 +504,19 @@ def MulEquiv.toGrpIso {X Y : GrpCat} (e : X ≃* Y) : X ≅ Y where
 /-- Build an isomorphism in the category `AddGrpCat` from an `AddEquiv` between `AddGroup`s. -/
 add_decl_doc AddEquiv.toAddGrpIso
 
-/-- Build an isomorphism in the category `CommGrpCat` from a `MulEquiv`
-between `CommGroup`s. -/
+/--
+Build an isomorphism in the category `CommGrpCat` from a `MulEquiv`
+between `CommGroup`s.
+-/
 @[to_additive (attr := simps)]
 def MulEquiv.toCommGrpIso {X Y : CommGrpCat} (e : X ≃* Y) : X ≅ Y where
   hom := CommGrpCat.ofHom e.toMonoidHom
   inv := CommGrpCat.ofHom e.symm.toMonoidHom
 
-/-- Build an isomorphism in the category `AddCommGrpCat` from an `AddEquiv`
-between `AddCommGroup`s. -/
+/--
+Build an isomorphism in the category `AddCommGrpCat` from an `AddEquiv`
+between `AddCommGroup`s.
+-/
 add_decl_doc AddEquiv.toAddCommGrpIso
 
 namespace CategoryTheory.Iso
@@ -554,46 +539,51 @@ add_decl_doc addCommGroupIsoToAddEquiv
 
 end CategoryTheory.Iso
 
-/-- multiplicative equivalences between `Group`s are the same as (isomorphic to) isomorphisms
-in `GrpCat` -/
+/--
+multiplicative equivalences between `Group`s are the same as (isomorphic to) isomorphisms
+in `GrpCat`
+-/
 @[to_additive]
 def mulEquivIsoGroupIso {X Y : GrpCat.{u}} : (X ≃* Y) ≅ (X ≅ Y) where
   hom := ↾fun e ↦ e.toGrpIso
   inv := ↾fun i ↦ i.groupIsoToMulEquiv
 
-/-- Additive equivalences between `AddGroup`s are the same
-as (isomorphic to) isomorphisms in `AddGrpCat`. -/
+/--
+Additive equivalences between `AddGroup`s are the same
+as (isomorphic to) isomorphisms in `AddGrpCat`.
+-/
 add_decl_doc addEquivIsoAddGroupIso
 
-/-- Multiplicative equivalences between `CommGroup`s are the same as (isomorphic to) isomorphisms
-in `CommGrpCat`. -/
+/--
+Multiplicative equivalences between `CommGroup`s are the same as (isomorphic to) isomorphisms
+in `CommGrpCat`.
+-/
 @[to_additive]
 def mulEquivIsoCommGroupIso {X Y : CommGrpCat.{u}} : (X ≃* Y) ≅ (X ≅ Y) where
   hom := ↾fun e ↦ e.toCommGrpIso
   inv := ↾fun i ↦ i.commGroupIsoToMulEquiv
 
-/-- Additive equivalences between `AddCommGroup`s are
-the same as (isomorphic to) isomorphisms in `AddCommGrpCat`. -/
+/--
+Additive equivalences between `AddCommGroup`s are
+the same as (isomorphic to) isomorphisms in `AddCommGrpCat`.
+-/
 add_decl_doc addEquivIsoAddCommGroupIso
 
 namespace CategoryTheory.Aut
 
-/-- The (bundled) group of automorphisms of a type is isomorphic to the (bundled) group
-of permutations. -/
+/--
+The (bundled) group of automorphisms of a type is isomorphic to the (bundled) group
+of permutations.
+-/
 def isoPerm {α : Type u} : GrpCat.of (Aut α) ≅ GrpCat.of (Equiv.Perm α) where
-  hom := GrpCat.ofHom
-    { toFun := fun g => g.toEquiv
-      map_one' := by aesop
-      map_mul' := by aesop }
-  inv := GrpCat.ofHom
-    { toFun := fun g => g.toIso
-      map_one' := by aesop
-      map_mul' := by aesop }
+  hom := GrpCat.ofHom { toFun := fun g => g.toEquiv, map_one' := by aesop, map_mul' := by aesop }
+  inv := GrpCat.ofHom { toFun := fun g => g.toIso, map_one' := by aesop, map_mul' := by aesop }
 
-/-- The (unbundled) group of automorphisms of a type is `MulEquiv` to the (unbundled) group
-of permutations. -/
-def mulEquivPerm {α : Type u} : Aut α ≃* Equiv.Perm α :=
-  isoPerm.groupIsoToMulEquiv
+/--
+The (unbundled) group of automorphisms of a type is `MulEquiv` to the (unbundled) group
+of permutations.
+-/
+def mulEquivPerm {α : Type u} : Aut α ≃* Equiv.Perm α := isoPerm.groupIsoToMulEquiv
 
 end CategoryTheory.Aut
 

@@ -14,7 +14,6 @@ public import Mathlib.Tactic.NormNum
 
 public section
 
-
 open Finset ZMod
 
 section Ring

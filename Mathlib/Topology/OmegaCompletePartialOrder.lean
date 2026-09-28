@@ -40,16 +40,17 @@ namespace Scott
 def IsωSup {α : Type u} [Preorder α] (c : Chain α) (x : α) : Prop :=
   (∀ i, c i ≤ x) ∧ ∀ y, (∀ i, c i ≤ y) → x ≤ y
 
-theorem isωSup_iff_isLUB {α : Type u} [Preorder α] {c : Chain α} {x : α} :
-    IsωSup c x ↔ IsLUB (range c) x := by
+theorem isωSup_iff_isLUB {α : Type u} [Preorder α] {c : Chain α} {x : α}
+    : IsωSup c x ↔ IsLUB (range c) x := by
   simp [IsωSup, IsLUB, IsLeast, upperBounds, lowerBounds]
 
 variable (α : Type u) [OmegaCompletePartialOrder α]
 
-/-- The characteristic function of open sets is monotone and preserves
-the limits of chains. -/
-def IsOpen (s : Set α) : Prop :=
-  ωScottContinuous fun x ↦ x ∈ s
+/--
+The characteristic function of open sets is monotone and preserves
+the limits of chains.
+-/
+def IsOpen (s : Set α) : Prop := ωScottContinuous fun x ↦ x ∈ s
 
 theorem isOpen_univ : IsOpen α univ := @CompleteLattice.ωScottContinuous.top α Prop _ _
 
@@ -58,7 +59,7 @@ theorem IsOpen.inter (s t : Set α) : IsOpen α s → IsOpen α t → IsOpen α 
   CompleteLattice.ωScottContinuous.inf
 
 set_option backward.isDefEq.respectTransparency false in
-theorem isOpen_sUnion (s : Set (Set α)) (hs : ∀ t ∈ s, IsOpen α t) : IsOpen α (⋃₀ s) := by
+theorem isOpen_sUnion (s : Set (Set α)) (hs : ∀ t ∈ s, IsOpen α t) : IsOpen α (⋃₀s) := by
   simp only [IsOpen] at hs ⊢
   convert! CompleteLattice.ωScottContinuous.sSup hs
   aesop

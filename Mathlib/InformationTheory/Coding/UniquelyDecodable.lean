@@ -37,8 +37,7 @@ variable {α : Type*}
 /-- A set of lists is uniquely decodable if distinct concatenations yield distinct strings. -/
 def IsUniquelyDecodable (S : Set (List α)) : Prop :=
   ∀ (L₁ L₂ : List (List α)),
-    (∀ w ∈ L₁, w ∈ S) → (∀ w ∈ L₂, w ∈ S) →
-    L₁.flatten = L₂.flatten → L₁ = L₂
+    (∀ w ∈ L₁, w ∈ S) → (∀ w ∈ L₂, w ∈ S) → L₁.flatten = L₂.flatten → L₁ = L₂
 
 @[deprecated (since := "2026-08-16")] alias UniquelyDecodable := IsUniquelyDecodable
 

@@ -25,8 +25,9 @@ variable {α ι : Type*}
 
 section order
 
-variable {β : Type*} [UniformSpace β] [AddGroup β] [IsUniformAddGroup β] [PartialOrder β]
-  [OrderTopology β] [AddLeftMono β] [AddRightMono β]
+variable
+  {β : Type*} [UniformSpace β] [AddGroup β] [IsUniformAddGroup β] [PartialOrder β] [OrderTopology β]
+  [AddLeftMono β] [AddRightMono β]
 
 variable {f : ι → α → β} {g : α → β} {K : Set α} {p : Filter ι}
 

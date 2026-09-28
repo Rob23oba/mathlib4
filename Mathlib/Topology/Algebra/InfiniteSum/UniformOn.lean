@@ -27,8 +27,9 @@ open Filter Function
 
 open scoped Topology
 
-variable {α β ι : Type*} [CommMonoid α] {f : ι → β → α} {g : β → α}
-  {x : β} {s : Set β} {I : Finset ι} [UniformSpace α]
+variable
+  {α β ι : Type*} [CommMonoid α]
+  {f : ι → β → α} {g : β → α} {x : β} {s : Set β} {I : Finset ι} [UniformSpace α]
 
 /-!
 ## Uniform convergence of sums and products
@@ -37,15 +38,19 @@ variable {α β ι : Type*} [CommMonoid α] {f : ι → β → α} {g : β → �
 section UniformlyOn
 
 variable (f g s) in
-/-- `HasProdUniformlyOn f g s` means that the (potentially infinite) product `∏' i, f i b`
-for `b : β` converges uniformly on `s` to `g`. -/
+/--
+`HasProdUniformlyOn f g s` means that the (potentially infinite) product `∏' i, f i b`
+for `b : β` converges uniformly on `s` to `g`.
+-/
 @[to_additive /-- `HasSumUniformlyOn f g s` means that the (potentially infinite) sum `∑' i, f i b`
 for `b : β` converges uniformly on `s` to `g`. -/]
 def HasProdUniformlyOn : Prop := HasProd (UniformOnFun.ofFun {s} ∘ f) (UniformOnFun.ofFun {s} g)
 
 variable (f g s) in
-/-- `MultipliableUniformlyOn f s` means that there is some infinite product to which
-`f` converges uniformly on `s`. Use `fun x ↦ ∏' i, f i x` to get the product function. -/
+/--
+`MultipliableUniformlyOn f s` means that there is some infinite product to which
+`f` converges uniformly on `s`. Use `fun x ↦ ∏' i, f i x` to get the product function.
+-/
 @[to_additive /-- `SummableUniformlyOn f s` means that there is some infinite sum to
 which `f` converges uniformly on `s`. Use fun x ↦ ∑' i, f i x to get the sum function. -/]
 def MultipliableUniformlyOn : Prop := Multipliable (UniformOnFun.ofFun {s} ∘ f)
@@ -56,8 +61,8 @@ lemma MultipliableUniformlyOn.exists (h : MultipliableUniformlyOn f s) :
   h
 
 @[to_additive]
-theorem HasProdUniformlyOn.multipliableUniformlyOn (h : HasProdUniformlyOn f g s) :
-    MultipliableUniformlyOn f s :=
+theorem HasProdUniformlyOn.multipliableUniformlyOn (h : HasProdUniformlyOn f g s)
+    : MultipliableUniformlyOn f s :=
   ⟨g, h⟩
 
 @[to_additive]
@@ -89,23 +94,23 @@ lemma HasProdUniformlyOn.tendstoUniformlyOn_finsetRange
   (tendsto_finset_range.eventually <| h.tendstoUniformlyOn · ·)
 
 @[to_additive]
-theorem HasProdUniformlyOn.hasProd (h : HasProdUniformlyOn f g s) (hx : x ∈ s) :
-    HasProd (f · x) (g x) :=
+theorem HasProdUniformlyOn.hasProd (h : HasProdUniformlyOn f g s) (hx : x ∈ s)
+    : HasProd (f · x) (g x) :=
   h.tendstoUniformlyOn.tendsto_at hx
 
 @[to_additive]
-theorem HasProdUniformlyOn.tprod_eqOn [T2Space α] (h : HasProdUniformlyOn f g s) :
-    s.EqOn (∏' b, f b ·) g :=
-  fun _ hx ↦ (h.hasProd hx).tprod_eq
+theorem HasProdUniformlyOn.tprod_eqOn [T2Space α] (h : HasProdUniformlyOn f g s)
+    : s.EqOn (∏' b, f b ·) g := fun _ hx ↦
+  (h.hasProd hx).tprod_eq
 
 @[to_additive]
-theorem MultipliableUniformlyOn.multipliable (h : MultipliableUniformlyOn f s) (hx : x ∈ s) :
-    Multipliable (f · x) :=
+theorem MultipliableUniformlyOn.multipliable (h : MultipliableUniformlyOn f s) (hx : x ∈ s)
+    : Multipliable (f · x) :=
   (h.exists.choose_spec.hasProd hx).multipliable
 
 @[to_additive]
-theorem MultipliableUniformlyOn.hasProdUniformlyOn (h : MultipliableUniformlyOn f s) :
-    HasProdUniformlyOn f (∏' i, f i ·) s := by
+theorem MultipliableUniformlyOn.hasProdUniformlyOn (h : MultipliableUniformlyOn f s)
+    : HasProdUniformlyOn f (∏' i, f i ·) s := by
   obtain ⟨g, hg⟩ := h.exists
   have hp := hg
   rw [hasProdUniformlyOn_iff_tendstoUniformlyOn] at hg ⊢
@@ -113,8 +118,8 @@ theorem MultipliableUniformlyOn.hasProdUniformlyOn (h : MultipliableUniformlyOn 
     tendsto_nhds_unique_inseparable (hp.hasProd hx) (hp.hasProd hx).multipliable.hasProd
 
 @[to_additive]
-theorem multipliableUniformlyOn_iff_hasProdUniformlyOn :
-    MultipliableUniformlyOn f s ↔ HasProdUniformlyOn f (∏' i, f i ·) s :=
+theorem multipliableUniformlyOn_iff_hasProdUniformlyOn
+    : MultipliableUniformlyOn f s ↔ HasProdUniformlyOn f (∏' i, f i ·) s :=
   ⟨MultipliableUniformlyOn.hasProdUniformlyOn, HasProdUniformlyOn.multipliableUniformlyOn⟩
 
 @[to_additive]
@@ -137,17 +142,21 @@ section LocallyUniformlyOn
 variable [TopologicalSpace β]
 
 variable (f g s) in
-/-- `HasProdLocallyUniformlyOn f g s` means that the (potentially infinite) product `∏' i, f i b`
+/--
+`HasProdLocallyUniformlyOn f g s` means that the (potentially infinite) product `∏' i, f i b`
 for `b : β` converges locally uniformly on `s` to `g b` (in the sense of
-`TendstoLocallyUniformlyOn`). -/
+`TendstoLocallyUniformlyOn`).
+-/
 @[to_additive /-- `HasSumLocallyUniformlyOn f g s` means that the (potentially infinite) sum
 `∑' i, f i b` for `b : β` converges locally uniformly on `s` to `g b` (in the sense of
 `TendstoLocallyUniformlyOn`). -/]
 def HasProdLocallyUniformlyOn : Prop := TendstoLocallyUniformlyOn (∏ i ∈ ·, f i ·) g atTop s
 
 variable (f g s) in
-/-- `MultipliableLocallyUniformlyOn f s` means that the product `∏' i, f i b` converges locally
-uniformly on `s` to something. -/
+/--
+`MultipliableLocallyUniformlyOn f s` means that the product `∏' i, f i b` converges locally
+uniformly on `s` to something.
+-/
 @[to_additive /-- `SummableLocallyUniformlyOn f s` means that `∑' i, f i b` converges locally
 uniformly on `s` to something. -/]
 def MultipliableLocallyUniformlyOn : Prop := ∃ g, HasProdLocallyUniformlyOn f g s
@@ -194,7 +203,8 @@ lemma hasProdLocallyUniformlyOn_of_forall_compact (hs : IsOpen s) [LocallyCompac
 
 @[to_additive]
 theorem HasProdLocallyUniformlyOn.multipliableLocallyUniformlyOn
-    (h : HasProdLocallyUniformlyOn f g s) : MultipliableLocallyUniformlyOn f s :=
+    (h : HasProdLocallyUniformlyOn f g s)
+    : MultipliableLocallyUniformlyOn f s :=
   ⟨g, h⟩
 
 @[to_additive]
@@ -230,26 +240,29 @@ lemma MultipliableLocallyUniformlyOn.exists_multipliableUniformlyOn [LocallyComp
   ⟨_, H.1, H.2.multipliableUniformlyOn⟩
 
 @[to_additive]
-theorem HasProdLocallyUniformlyOn.hasProd (h : HasProdLocallyUniformlyOn f g s) (hx : x ∈ s) :
-    HasProd (f · x) (g x) :=
+theorem HasProdLocallyUniformlyOn.hasProd (h : HasProdLocallyUniformlyOn f g s) (hx : x ∈ s)
+    : HasProd (f · x) (g x) :=
   h.tendsto_at hx
 
 @[to_additive]
 theorem MultipliableLocallyUniformlyOn.multipliable
-    (h : MultipliableLocallyUniformlyOn f s) (hx : x ∈ s) : Multipliable (f · x) :=
-  match h with | ⟨_, hg⟩ => (hg.hasProd hx).multipliable
+    (h : MultipliableLocallyUniformlyOn f s) (hx : x ∈ s)
+    : Multipliable (f · x) :=
+  match h with
+  | ⟨_, hg⟩ => (hg.hasProd hx).multipliable
 
 @[to_additive]
 theorem MultipliableLocallyUniformlyOn.hasProdLocallyUniformlyOn
-    (h : MultipliableLocallyUniformlyOn f s) :
-    HasProdLocallyUniformlyOn f (∏' i, f i ·) s :=
-  h.elim fun _ hg => hg.congr_inseparable_right fun _ hx =>
-    tendsto_nhds_unique_inseparable (hg.hasProd hx) (hg.hasProd hx).multipliable.hasProd
+    (h : MultipliableLocallyUniformlyOn f s)
+    : HasProdLocallyUniformlyOn f (∏' i, f i ·) s :=
+  h.elim fun _ hg =>
+    hg.congr_inseparable_right fun _ hx =>
+      tendsto_nhds_unique_inseparable (hg.hasProd hx) (hg.hasProd hx).multipliable.hasProd
 
 @[to_additive]
-theorem HasProdLocallyUniformlyOn.tprod_eqOn [T2Space α]
-    (h : HasProdLocallyUniformlyOn f g s) : Set.EqOn (∏' i, f i ·) g s :=
-  fun _ hx ↦ (h.hasProd hx).tprod_eq
+theorem HasProdLocallyUniformlyOn.tprod_eqOn [T2Space α] (h : HasProdLocallyUniformlyOn f g s)
+    : Set.EqOn (∏' i, f i ·) g s := fun _ hx ↦
+  (h.hasProd hx).tprod_eq
 
 @[to_additive]
 lemma MultipliableLocallyUniformlyOn_congr
@@ -259,16 +272,21 @@ lemma MultipliableLocallyUniformlyOn_congr
   exact (h2.hasProdLocallyUniformlyOn).congr fun v ↦ eqOn_fun_finsetProd h v
 
 @[to_additive]
-theorem HasProdLocallyUniformlyOn.comp {γ : Type*} [TopologicalSpace γ] {t : Set γ}
-    (h : HasProdLocallyUniformlyOn f g s) (h' : γ → β) (hh : Set.MapsTo h' t s)
-    (chh : ContinuousOn h' t) :
-    HasProdLocallyUniformlyOn (fun i y ↦ f i (h' y)) (g ∘ h') t :=
+theorem HasProdLocallyUniformlyOn.comp
+    {γ : Type*} [TopologicalSpace γ]
+    {t : Set γ}
+    (h : HasProdLocallyUniformlyOn f g s)
+    (h' : γ → β) (hh : Set.MapsTo h' t s) (chh : ContinuousOn h' t)
+    : HasProdLocallyUniformlyOn (fun i y ↦ f i (h' y)) (g ∘ h') t :=
   TendstoLocallyUniformlyOn.comp h h' hh chh
 
 @[to_additive]
-theorem MultipliableLocallyUniformlyOn.comp {γ : Type*} [TopologicalSpace γ] {t : Set γ}
-    (h : MultipliableLocallyUniformlyOn f s) (h' : γ → β) (hh : Set.MapsTo h' t s)
-    (chh : ContinuousOn h' t) : MultipliableLocallyUniformlyOn (fun i y ↦ f i (h' y)) t :=
+theorem MultipliableLocallyUniformlyOn.comp
+    {γ : Type*} [TopologicalSpace γ]
+    {t : Set γ}
+    (h : MultipliableLocallyUniformlyOn f s)
+    (h' : γ → β) (hh : Set.MapsTo h' t s) (chh : ContinuousOn h' t)
+    : MultipliableLocallyUniformlyOn (fun i y ↦ f i (h' y)) t :=
   (h.hasProdLocallyUniformlyOn.comp h' hh chh).multipliableLocallyUniformlyOn
 
 @[to_additive]
@@ -281,25 +299,30 @@ lemma HasProdLocallyUniformlyOn.tendstoLocallyUniformlyOn_finsetRange
   exact ⟨t, ht, Filter.tendsto_finset_range.eventually htr⟩
 
 @[to_additive]
-theorem multipliableLocallyUniformlyOn_iff_hasProdLocallyUniformlyOn :
-    MultipliableLocallyUniformlyOn f s ↔ HasProdLocallyUniformlyOn f (∏' i, f i ·) s :=
-  ⟨MultipliableLocallyUniformlyOn.hasProdLocallyUniformlyOn,
-    HasProdLocallyUniformlyOn.multipliableLocallyUniformlyOn⟩
+theorem multipliableLocallyUniformlyOn_iff_hasProdLocallyUniformlyOn
+    : MultipliableLocallyUniformlyOn f s ↔ HasProdLocallyUniformlyOn f (∏' i, f i ·) s := ⟨
+  MultipliableLocallyUniformlyOn.hasProdLocallyUniformlyOn,
+  HasProdLocallyUniformlyOn.multipliableLocallyUniformlyOn
+⟩
 
 end LocallyUniformlyOn
 
 section Uniformly
 
 variable (f g) in
-/-- `HasProdUniformly f g` means that
-the product `∏ i, f i b` converges uniformly (wrt `b`) to `g`. -/
+/--
+`HasProdUniformly f g` means that
+the product `∏ i, f i b` converges uniformly (wrt `b`) to `g`.
+-/
 @[to_additive /-- `HasSumUniformly f g` means that
 the sum `∑ i, f i b` converges uniformly (wrt `b`) to `g`. -/]
 def HasProdUniformly : Prop := HasProd (UniformFun.ofFun ∘ f) (UniformFun.ofFun g)
 
 variable (f g) in
-/-- `MultipliableUniformly f` means that there is some infinite product to which
-`f` converges uniformly. Use `fun x ↦ ∏' i, f i x` to get the product function. -/
+/--
+`MultipliableUniformly f` means that there is some infinite product to which
+`f` converges uniformly. Use `fun x ↦ ∏' i, f i x` to get the product function.
+-/
 @[to_additive /-- `SummableUniformly f` means that there is some infinite sum to which
 `f` converges uniformly. Use `fun x ↦ ∑' i, f i x` to get the product function. -/]
 def MultipliableUniformly : Prop := Multipliable (UniformFun.ofFun ∘ f)
@@ -310,8 +333,8 @@ lemma MultipliableUniformly.exists (h : MultipliableUniformly f) :
   h
 
 @[to_additive]
-theorem HasProdUniformly.multipliableUniformly (h : HasProdUniformly f g) :
-    MultipliableUniformly f :=
+theorem HasProdUniformly.multipliableUniformly (h : HasProdUniformly f g)
+    : MultipliableUniformly f :=
   ⟨g, h⟩
 
 @[to_additive]
@@ -324,8 +347,7 @@ lemma hasProdUniformly_iff_tendstoUniformly :
 alias ⟨HasProdUniformly.tendstoUniformly, _⟩ := hasProdUniformly_iff_tendstoUniformly
 
 @[to_additive]
-theorem HasProdUniformly.hasProdUniformlyOn (h : HasProdUniformly f g) :
-    HasProdUniformlyOn f g s :=
+theorem HasProdUniformly.hasProdUniformlyOn (h : HasProdUniformly f g) : HasProdUniformlyOn f g s :=
   hasProdUniformlyOn_iff_tendstoUniformlyOn.mpr h.tendstoUniformly.tendstoUniformlyOn
 
 @[to_additive]
@@ -335,8 +357,8 @@ lemma hasProdUniformlyOn_univ_iff :
     tendstoUniformlyOn_univ]
 
 @[to_additive]
-theorem MultipliableUniformly.multipliableUniformlyOn (h : MultipliableUniformly f) :
-    MultipliableUniformlyOn f s :=
+theorem MultipliableUniformly.multipliableUniformlyOn (h : MultipliableUniformly f)
+    : MultipliableUniformlyOn f s :=
   h.exists.choose_spec.hasProdUniformlyOn.multipliableUniformlyOn
 
 @[to_additive]
@@ -367,13 +389,13 @@ theorem MultipliableUniformly.multipliable (h : MultipliableUniformly f) : Multi
   h.exists.choose_spec.hasProd.multipliable
 
 @[to_additive]
-theorem MultipliableUniformly.hasProdUniformly (h : MultipliableUniformly f) :
-    HasProdUniformly f (∏' i, f i ·) :=
+theorem MultipliableUniformly.hasProdUniformly (h : MultipliableUniformly f)
+    : HasProdUniformly f (∏' i, f i ·) :=
   hasProdUniformlyOn_univ_iff.1 (multipliableUniformlyOn_univ_iff.2 h).hasProdUniformlyOn
 
 @[to_additive]
-theorem multipliableUniformly_iff_hasProdUniformly :
-    MultipliableUniformly f ↔ HasProdUniformly f (∏' i, f i ·) :=
+theorem multipliableUniformly_iff_hasProdUniformly
+    : MultipliableUniformly f ↔ HasProdUniformly f (∏' i, f i ·) :=
   ⟨MultipliableUniformly.hasProdUniformly, HasProdUniformly.multipliableUniformly⟩
 
 end Uniformly
@@ -386,17 +408,21 @@ section LocallyUniformly
 variable [TopologicalSpace β]
 
 variable (f g) in
-/-- `HasProdLocallyUniformly f g` means that the (potentially infinite) product `∏' i, f i b`
+/--
+`HasProdLocallyUniformly f g` means that the (potentially infinite) product `∏' i, f i b`
 for `b : β` converges locally uniformly to `g b` (in the sense of
-`TendstoLocallyUniformly`). -/
+`TendstoLocallyUniformly`).
+-/
 @[to_additive /-- `HasSumLocallyUniformly f g` means that the (potentially infinite) sum
 `∑' i, f i b` for `b : β` converges locally uniformly to `g b` (in the sense of
 `TendstoLocallyUniformly`). -/]
 def HasProdLocallyUniformly : Prop := TendstoLocallyUniformly (∏ i ∈ ·, f i ·) g atTop
 
 variable (f g) in
-/-- `MultipliableLocallyUniformly f` means that the product `∏' i, f i b` converges locally
-uniformly to something. -/
+/--
+`MultipliableLocallyUniformly f` means that the product `∏' i, f i b` converges locally
+uniformly to something.
+-/
 @[to_additive /-- `SummableLocallyUniformly f` means that `∑' i, f i b` converges locally
 uniformly to something. -/]
 def MultipliableLocallyUniformly : Prop := ∃ g, HasProdLocallyUniformly f g
@@ -406,8 +432,8 @@ lemma MultipliableLocallyUniformly.exists (h : MultipliableLocallyUniformly f) :
     ∃ g, HasProdLocallyUniformly f g := h
 
 @[to_additive]
-theorem HasProdLocallyUniformly.multipliableLocallyUniformly
-    (h : HasProdLocallyUniformly f g) : MultipliableLocallyUniformly f :=
+theorem HasProdLocallyUniformly.multipliableLocallyUniformly (h : HasProdLocallyUniformly f g)
+    : MultipliableLocallyUniformly f :=
   ⟨g, h⟩
 
 @[to_additive]
@@ -416,14 +442,14 @@ lemma hasProdLocallyUniformly_iff_tendstoLocallyUniformly :
   .rfl
 
 @[to_additive]
-theorem HasProdLocallyUniformly.hasProdLocallyUniformlyOn (h : HasProdLocallyUniformly f g) :
-    HasProdLocallyUniformlyOn f g s :=
+theorem HasProdLocallyUniformly.hasProdLocallyUniformlyOn (h : HasProdLocallyUniformly f g)
+    : HasProdLocallyUniformlyOn f g s :=
   h.tendstoLocallyUniformlyOn
 
 @[to_additive]
 theorem MultipliableLocallyUniformly.multipliableLocallyUniformlyOn
-    (h : MultipliableLocallyUniformly f) :
-    MultipliableLocallyUniformlyOn f s :=
+    (h : MultipliableLocallyUniformly f)
+    : MultipliableLocallyUniformlyOn f s :=
   h.exists.choose_spec.hasProdLocallyUniformlyOn.multipliableLocallyUniformlyOn
 
 /-- If every `x` has a neighbourhood on which `b ↦ ∏' i, f i b` converges uniformly
@@ -462,22 +488,23 @@ theorem HasProdLocallyUniformly.hasProd (h : HasProdLocallyUniformly f g) : HasP
   h.tendstoLocallyUniformlyOn.tendsto_at (Set.mem_univ x)
 
 @[to_additive]
-theorem MultipliableLocallyUniformly.multipliable
-    (h : MultipliableLocallyUniformly f) : Multipliable (f · x) :=
+theorem MultipliableLocallyUniformly.multipliable (h : MultipliableLocallyUniformly f)
+    : Multipliable (f · x) :=
   h.choose_spec.hasProd.multipliable
 
 @[to_additive]
-theorem MultipliableLocallyUniformly.hasProdLocallyUniformly
-    (h : MultipliableLocallyUniformly f) :
-    HasProdLocallyUniformly f (∏' i, f i ·) :=
-  h.elim fun _ hg => hg.congr_inseparable_right fun _ =>
-    tendsto_nhds_unique_inseparable hg.hasProd hg.hasProd.multipliable.hasProd
+theorem MultipliableLocallyUniformly.hasProdLocallyUniformly (h : MultipliableLocallyUniformly f)
+    : HasProdLocallyUniformly f (∏' i, f i ·) :=
+  h.elim fun _ hg =>
+    hg.congr_inseparable_right fun _ =>
+      tendsto_nhds_unique_inseparable hg.hasProd hg.hasProd.multipliable.hasProd
 
 @[to_additive]
-theorem multipliableLocallyUniformly_iff_hasProdLocallyUniformly :
-    MultipliableLocallyUniformly f ↔ HasProdLocallyUniformly f (∏' i, f i ·) :=
-  ⟨MultipliableLocallyUniformly.hasProdLocallyUniformly,
-    HasProdLocallyUniformly.multipliableLocallyUniformly⟩
+theorem multipliableLocallyUniformly_iff_hasProdLocallyUniformly
+    : MultipliableLocallyUniformly f ↔ HasProdLocallyUniformly f (∏' i, f i ·) := ⟨
+  MultipliableLocallyUniformly.hasProdLocallyUniformly,
+  HasProdLocallyUniformly.multipliableLocallyUniformly
+⟩
 
 @[to_additive]
 lemma HasProdLocallyUniformly.tendstoLocallyUniformly_finsetRange

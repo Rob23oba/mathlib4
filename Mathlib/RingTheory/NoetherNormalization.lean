@@ -72,10 +72,11 @@ private lemma lt_up (vlt : ∀ i, v i < up) : ∀ l ∈ ofFn v, l < up := by
 /-- `r` maps `(i : Fin (n + 1))` to `up ^ i`. -/
 local notation3 "r" => fun (i : Fin (n + 1)) ↦ up ^ i.1
 
-/-- We construct an algebra map `T1 f c` which maps `X_i` into `X_i + c • X_0 ^ r_i` when `i ≠ 0`
-and `X_0` to `X_0`. -/
-noncomputable abbrev T1 (c : k) :
-    MvPolynomial (Fin (n + 1)) k →ₐ[k] MvPolynomial (Fin (n + 1)) k :=
+/--
+We construct an algebra map `T1 f c` which maps `X_i` into `X_i + c • X_0 ^ r_i` when `i ≠ 0`
+and `X_0` to `X_0`.
+-/
+noncomputable abbrev T1 (c : k) : MvPolynomial (Fin (n + 1)) k →ₐ[k] MvPolynomial (Fin (n + 1)) k :=
   aeval fun i ↦ if i = 0 then X 0 else X i + c • X 0 ^ r i
 
 private lemma t1_comp_t1_neg (c : k) : (T1 f c).comp (T1 f (-c)) = AlgHom.id _ _ := by
@@ -84,8 +85,8 @@ private lemma t1_comp_t1_neg (c : k) : (T1 f c).comp (T1 f (-c)) = AlgHom.id _ _
   cases i using Fin.cases <;> simp
 
 /-- `T1 f 1` leads to an algebra equiv `T f`. -/
-private noncomputable abbrev T := AlgEquiv.ofAlgHom (T1 f 1) (T1 f (-1))
-  (t1_comp_t1_neg f 1) (by simpa using t1_comp_t1_neg f (-1))
+private noncomputable abbrev T :=
+  AlgEquiv.ofAlgHom (T1 f 1) (T1 f (-1)) (t1_comp_t1_neg f 1) (by simpa using t1_comp_t1_neg f (-1))
 
 private lemma sum_r_mul_ne (vlt : ∀ i, v i < up) (wlt : ∀ i, w i < up) (ne : v ≠ w) :
     ∑ x : Fin (n + 1), r x * v x ≠ ∑ x : Fin (n + 1), r x * w x := by
@@ -174,12 +175,15 @@ section intmaps
 
 variable (I : Ideal (MvPolynomial (Fin (n + 1)) k))
 
-/-- `hom1` is a homomorphism from `k[X_0,...X_{n-1}]` to `k[X_1,...X_n][X]/φ(T(I))`,
-where `φ` is the isomorphism from `k[X_0,...X_{n-1}]` to `k[X_1,...X_n][X]`. -/
-private noncomputable abbrev hom1 : MvPolynomial (Fin n) k →ₐ[MvPolynomial (Fin n) k]
-    (MvPolynomial (Fin n) k)[X] ⧸ (I.map <| T f).map (finSuccEquiv k n) :=
+/--
+`hom1` is a homomorphism from `k[X_0,...X_{n-1}]` to `k[X_1,...X_n][X]/φ(T(I))`,
+where `φ` is the isomorphism from `k[X_0,...X_{n-1}]` to `k[X_1,...X_n][X]`.
+-/
+private noncomputable abbrev hom1
+    : MvPolynomial (Fin n) k →ₐ[MvPolynomial (Fin n) k]
+      (MvPolynomial (Fin n) k)[X] ⧸ (I.map <| T f).map (finSuccEquiv k n) :=
   (Quotient.mkₐ (MvPolynomial (Fin n) k) (map (finSuccEquiv k n) (map (T f) I))).comp
-  (Algebra.ofId (MvPolynomial (Fin n) k) ((MvPolynomial (Fin n) k)[X]))
+    (Algebra.ofId (MvPolynomial (Fin n) k) ((MvPolynomial (Fin n) k)[X]))
 
 /-- `hom1 f I` is integral. -/
 private lemma hom1_isIntegral (fne : f ≠ 0) (fi : f ∈ I) : (hom1 f I).IsIntegral := by
@@ -187,35 +191,40 @@ private lemma hom1_isIntegral (fne : f ≠ 0) (fi : f ∈ I) : (hom1 f I).IsInte
   exact (monic_of_isUnit_leadingCoeff_inv_smul u).quotient_isIntegral <|
     Submodule.smul_of_tower_mem _ u.unit⁻¹.val <| mem_map_of_mem _ <| mem_map_of_mem _ fi
 
-/-- `eqv1` is the isomorphism from `k[X_1,...X_n][X]/φ(T(I))`
-to `k[X_0,...,X_n]/T(I)`, induced by `φ`. -/
-private noncomputable abbrev eqv1 :
-    ((MvPolynomial (Fin n) k)[X] ⧸ (I.map (T f)).map (finSuccEquiv k n)) ≃ₐ[k]
-    MvPolynomial (Fin (n + 1)) k ⧸ I.map (T f) := quotientEquivAlg
-  ((I.map (T f)).map (finSuccEquiv k n)) (I.map (T f)) (finSuccEquiv k n).symm <| by
-  set g := (finSuccEquiv k n)
-  have : g.symm.toRingEquiv.toRingHom.comp g = RingHom.id _ :=
-    g.toRingEquiv.symm_toRingHom_comp_toRingHom
-  calc
-    _ = Ideal.map ((RingHom.id _).comp <| T f) I := by rw [id_comp, Ideal.map_coe]
-    _ = (I.map (T f)).map (RingHom.id _) := by simp only [← Ideal.map_map, Ideal.map_coe]
-    _ = (I.map (T f)).map (g.symm.toAlgHom.toRingHom.comp g) :=
-      congr(Ideal.map $(this.symm) (I.map (T f)))
-    _ = _ := by simp [← Ideal.map_map, Ideal.map_coe]
+/--
+`eqv1` is the isomorphism from `k[X_1,...X_n][X]/φ(T(I))`
+to `k[X_0,...,X_n]/T(I)`, induced by `φ`.
+-/
+private noncomputable abbrev eqv1
+    : ((MvPolynomial (Fin n) k)[X] ⧸ (I.map (T f)).map (finSuccEquiv k n)) ≃ₐ[k]
+      MvPolynomial (Fin (n + 1)) k ⧸ I.map (T f) :=
+  quotientEquivAlg ((I.map (T f)).map (finSuccEquiv k n)) (I.map (T f)) (finSuccEquiv k n).symm <|
+    by
+      set g := (finSuccEquiv k n)
+      have : g.symm.toRingEquiv.toRingHom.comp g = RingHom.id _ :=
+        g.toRingEquiv.symm_toRingHom_comp_toRingHom
+      calc
+        _ = Ideal.map ((RingHom.id _).comp <| T f) I := by rw [id_comp, Ideal.map_coe]
+        _ = (I.map (T f)).map (RingHom.id _) := by simp only [← Ideal.map_map, Ideal.map_coe]
+        _ = (I.map (T f)).map (g.symm.toAlgHom.toRingHom.comp g) :=
+          congr(Ideal.map $(this.symm) (I.map (T f)))
+        _ = _ := by simp [← Ideal.map_map, Ideal.map_coe]
 
-/-- `eqv2` is the isomorphism from `k[X_0,...,X_n]/T(I)` into `k[X_0,...,X_n]/I`,
-induced by `T`. -/
-private noncomputable abbrev eqv2 :
-    (MvPolynomial (Fin (n + 1)) k ⧸ I.map (T f)) ≃ₐ[k] MvPolynomial (Fin (n + 1)) k ⧸ I :=
+/--
+`eqv2` is the isomorphism from `k[X_0,...,X_n]/T(I)` into `k[X_0,...,X_n]/I`,
+induced by `T`.
+-/
+private noncomputable abbrev eqv2
+    : (MvPolynomial (Fin (n + 1)) k ⧸ I.map (T f)) ≃ₐ[k] MvPolynomial (Fin (n + 1)) k ⧸ I :=
   quotientEquivAlg (R₁ := k) (I.map (T f)) I (T f).symm <| by
-  calc
-    _ = I.map ((T f).symm.toRingEquiv.toRingHom.comp (T f)) := by
-      have : (T f).symm.toRingEquiv.toRingHom.comp (T f) = RingHom.id _ :=
-        RingEquiv.symm_toRingHom_comp_toRingHom _
-      rw [this, Ideal.map_id]
-    _ = _ := by
-      rw [← Ideal.map_map, Ideal.map_coe, Ideal.map_coe]
-      exact congrArg _ rfl
+    calc
+      _ = I.map ((T f).symm.toRingEquiv.toRingHom.comp (T f)) := by
+        have : (T f).symm.toRingEquiv.toRingHom.comp (T f) = RingHom.id _ :=
+          RingEquiv.symm_toRingHom_comp_toRingHom _
+        rw [this, Ideal.map_id]
+      _ = _ := by
+        rw [← Ideal.map_map, Ideal.map_coe, Ideal.map_coe]
+        exact congrArg _ rfl
 
 /-- `hom2` is the composition of maps above, from `k[X_0,...X_(n-1)]` to `k[X_0,...X_n]/I`. -/
 private noncomputable def hom2 : MvPolynomial (Fin n) k →ₐ[k] MvPolynomial (Fin (n + 1)) k ⧸ I :=
@@ -233,15 +242,22 @@ section mainthm
 
 open NoetherNormalization
 
-/-- There exists some `s ≤ n` and an integral injective algebra homomorphism
-from `k[X_0,...,X_(s-1)]` to `k[X_0,...,X_(n-1)]/I` if `I ≠ ⊤`. -/
-theorem exists_integral_inj_algHom_of_quotient (I : Ideal (MvPolynomial (Fin n) k))
-    (hi : I ≠ ⊤) : ∃ s ≤ n, ∃ g : (MvPolynomial (Fin s) k) →ₐ[k] ((MvPolynomial (Fin n) k) ⧸ I),
-    Function.Injective g ∧ g.IsIntegral := by
+/--
+There exists some `s ≤ n` and an integral injective algebra homomorphism
+from `k[X_0,...,X_(s-1)]` to `k[X_0,...,X_(n-1)]/I` if `I ≠ ⊤`.
+-/
+theorem exists_integral_inj_algHom_of_quotient (I : Ideal (MvPolynomial (Fin n) k)) (hi : I ≠ ⊤)
+    : ∃ s ≤ n, ∃ g : (MvPolynomial (Fin s) k) →ₐ[k] ((MvPolynomial (Fin n) k) ⧸ I),
+      Function.Injective g ∧ g.IsIntegral := by
   induction n with
   | zero =>
-    refine ⟨0, le_rfl, Quotient.mkₐ k I, fun a b hab ↦ ?_,
-      isIntegral_of_surjective _ (Quotient.mkₐ_surjective k I)⟩
+    refine ⟨
+      0,
+      le_rfl,
+      Quotient.mkₐ k I,
+      fun a b hab ↦ ?_,
+      isIntegral_of_surjective _ (Quotient.mkₐ_surjective k I)
+    ⟩
     rw [Quotient.mkₐ_eq_mk, Ideal.Quotient.eq] at hab
     by_contra ne
     have eq := eq_C_of_isEmpty (a - b)
@@ -259,38 +275,47 @@ theorem exists_integral_inj_algHom_of_quotient (I : Ideal (MvPolynomial (Fin n) 
       set ϕ := kerLiftAlg <| hom2 f I
       have := Quotient.nontrivial_iff.mpr hi
       obtain ⟨s, _, g, injg, intg⟩ := hd (ker <| hom2 f I) (ker_ne_top <| hom2 f I)
-      exact ⟨s, by lia, ϕ.comp g, (ϕ.coe_comp g) ▸ (kerLiftAlg_injective _).comp injg,
-        intg.trans g.toRingHom ϕ.toRingHom (hom2_isIntegral f I fne fi).kerLift⟩
+      exact ⟨
+        s,
+        by lia,
+        ϕ.comp g,
+        (ϕ.coe_comp g) ▸ (kerLiftAlg_injective _).comp injg,
+        intg.trans g.toRingHom ϕ.toRingHom (hom2_isIntegral f I fne fi).kerLift
+      ⟩
 
-variable (k R : Type*) [Field k] [CommRing R] [Nontrivial R] [a : Algebra k R]
-  [fin : Algebra.FiniteType k R]
+variable
+  (k R : Type*)
+  [Field k] [CommRing R] [Nontrivial R] [a : Algebra k R] [fin : Algebra.FiniteType k R]
 
-/-- **Noether normalization lemma**
+/--
+**Noether normalization lemma**
 For a finitely generated algebra `A` over a field `k`,
 there exists a natural number `s` and an injective homomorphism
 from `k[X_0, X_1, ..., X_(s-1)]` to `A` such that `A` is integral over `k[X_0, X_1, ..., X_(s-1)]`.
 -/
 @[stacks 00OW]
-theorem exists_integral_inj_algHom_of_fg : ∃ s, ∃ g : (MvPolynomial (Fin s) k) →ₐ[k] R,
-    Function.Injective g ∧ g.IsIntegral := by
+theorem exists_integral_inj_algHom_of_fg
+    : ∃ s, ∃ g : (MvPolynomial (Fin s) k) →ₐ[k] R, Function.Injective g ∧ g.IsIntegral := by
   obtain ⟨n, f, fsurj⟩ := Algebra.FiniteType.iff_quotient_mvPolynomial''.mp fin
   set ϕ := quotientKerAlgEquivOfSurjective fsurj
   obtain ⟨s, _, g, injg, intg⟩ := exists_integral_inj_algHom_of_quotient (ker f) (ker_ne_top _)
   use s, ϕ.toAlgHom.comp g
-  simp only [AlgHom.coe_comp, AlgEquiv.coe_toAlgHom, EmbeddingLike.comp_injective,
-    AlgHom.toRingHom_eq_coe]
+  simp only [
+    AlgHom.coe_comp, AlgEquiv.coe_toAlgHom, EmbeddingLike.comp_injective, AlgHom.toRingHom_eq_coe
+  ]
   exact ⟨injg, intg.trans _ _ (isIntegral_of_surjective _ ϕ.surjective)⟩
 
-/-- For a finitely generated algebra `A` over a field `k`,
+/--
+For a finitely generated algebra `A` over a field `k`,
 there exists a natural number `s` and an injective homomorphism
-from `k[X_0, X_1, ..., X_(s-1)]` to `A` such that `A` is finite over `k[X_0, X_1, ..., X_(s-1)]`. -/
-theorem exists_finite_inj_algHom_of_fg : ∃ s, ∃ g : (MvPolynomial (Fin s) k) →ₐ[k] R,
-    Function.Injective g ∧ g.Finite := by
+from `k[X_0, X_1, ..., X_(s-1)]` to `A` such that `A` is finite over `k[X_0, X_1, ..., X_(s-1)]`.
+-/
+theorem exists_finite_inj_algHom_of_fg
+    : ∃ s, ∃ g : (MvPolynomial (Fin s) k) →ₐ[k] R, Function.Injective g ∧ g.Finite := by
   obtain ⟨s, g, ⟨inj, int⟩⟩ := exists_integral_inj_algHom_of_fg k R
   have h : algebraMap k R = g.toRingHom.comp (algebraMap k (MvPolynomial (Fin s) k)) := by
     algebraize [g.toRingHom]
     rw [IsScalarTower.algebraMap_eq k (MvPolynomial (Fin s) k), algebraMap_toAlgebra']
-  exact ⟨s, g, inj, int.to_finite
-    (h ▸ RingHom.finiteType_algebraMap.mpr fin).of_comp_finiteType⟩
+  exact ⟨s, g, inj, int.to_finite (h ▸ RingHom.finiteType_algebraMap.mpr fin).of_comp_finiteType⟩
 
 end mainthm

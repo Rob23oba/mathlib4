@@ -22,27 +22,27 @@ namespace Algebra
 
 open IsLocalization Away
 
-variable {R S T : Type*} [CommSemiring R] [CommSemiring S] [CommSemiring T]
-  [Algebra R S] [Algebra R T]
+variable
+  {R S T : Type*} [CommSemiring R] [CommSemiring S] [CommSemiring T] [Algebra R S] [Algebra R T]
 
 /-- A standard open immersion is one that is a localization map away from some element. -/
-@[mk_iff] class IsStandardOpenImmersion (R S : Type*) [CommSemiring R] [CommSemiring S]
-    [Algebra R S] : Prop where
+@[mk_iff]
+class IsStandardOpenImmersion (R S : Type*) [CommSemiring R] [CommSemiring S] [Algebra R S]
+    : Prop where
   exists_away (R S) : ∃ r : R, IsLocalization.Away r S
 
 namespace IsStandardOpenImmersion
 
-instance (r : R) : IsStandardOpenImmersion R (Localization.Away r) :=
-  ⟨r, inferInstance⟩
+instance (r : R) : IsStandardOpenImmersion R (Localization.Away r) := ⟨r, inferInstance⟩
 
 variable (R S T) in
-@[trans] theorem trans [Algebra S T] [IsScalarTower R S T]
-    [IsStandardOpenImmersion R S] [IsStandardOpenImmersion S T] :
-    IsStandardOpenImmersion R T :=
+@[trans]
+theorem trans
+    [Algebra S T] [IsScalarTower R S T] [IsStandardOpenImmersion R S] [IsStandardOpenImmersion S T]
+    : IsStandardOpenImmersion R T :=
   let ⟨r, _⟩ := exists_away R S
   let ⟨s, _⟩ := exists_away S T
-  have : Away (algebraMap R S (sec r s).1) T :=
-    .of_associated (associated_sec_fst r s).symm
+  have : Away (algebraMap R S (sec r s).1) T := .of_associated (associated_sec_fst r s).symm
   ⟨r * (sec r s).1, mul' S T r _⟩
 
 open _root_.TensorProduct in

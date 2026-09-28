@@ -20,7 +20,6 @@ is proved in `Complex.hasSum_arctan`.
 
 @[expose] public section
 
-
 namespace Complex
 
 open scoped Real
@@ -30,10 +29,12 @@ noncomputable def arctan (z : ℂ) : ℂ := -I / 2 * log ((1 + z * I) / (1 - z *
 
 theorem tan_arctan {z : ℂ} (h₁ : z ≠ I) (h₂ : z ≠ -I) : tan (arctan z) = z := by
   unfold tan sin cos
-  rw [div_div_eq_mul_div, div_mul_cancel₀ _ two_ne_zero, ← div_mul_eq_mul_div,
+  rw [
+    div_div_eq_mul_div, div_mul_cancel₀ _ two_ne_zero, ← div_mul_eq_mul_div,
     -- multiply top and bottom by `exp (arctan z * I)`
-    ← mul_div_mul_right _ _ (exp_ne_zero (arctan z * I)), sub_mul, add_mul,
-    ← exp_add, neg_mul, neg_add_cancel, exp_zero, ← exp_add, ← two_mul]
+    ← mul_div_mul_right _ _ (exp_ne_zero (arctan z * I)), sub_mul, add_mul, ← exp_add, neg_mul,
+    neg_add_cancel, exp_zero, ← exp_add, ← two_mul
+  ]
   have z₁ : 1 + z * I ≠ 0 := by
     contrapose h₁
     rw [add_eq_zero_iff_neg_eq, ← div_eq_iff I_ne_zero, div_I, neg_one_mul, neg_neg] at h₁
@@ -43,12 +44,16 @@ theorem tan_arctan {z : ℂ} (h₁ : z ≠ I) (h₂ : z ≠ -I) : tan (arctan z)
     rw [sub_eq_zero, ← div_eq_iff I_ne_zero, div_I, one_mul] at h₂
     exact h₂.symm
   have key : exp (2 * (arctan z * I)) = (1 + z * I) / (1 - z * I) := by
-    rw [arctan, ← mul_rotate, ← mul_assoc,
-      show 2 * (I * (-I / 2)) = 1 by simp [field], one_mul, exp_log]
+    rw [
+      arctan, ← mul_rotate, ← mul_assoc, show 2 * (I * (-I / 2)) = 1 by simp [field], one_mul,
+      exp_log
+    ]
     · exact div_ne_zero z₁ z₂
   -- multiply top and bottom by `1 - z * I`
-  rw [key, ← mul_div_mul_right _ _ z₂, sub_mul, add_mul, div_mul_cancel₀ _ z₂, one_mul,
-    show _ / _ * I = -(I * I) * z by ring, I_mul_I, neg_neg, one_mul]
+  rw [
+    key, ← mul_div_mul_right _ _ z₂, sub_mul, add_mul, div_mul_cancel₀ _ z₂, one_mul,
+    show _ / _ * I = -(I * I) * z by ring, I_mul_I, neg_neg, one_mul
+  ]
 
 /-- `cos z` is nonzero when the bounds in `arctan_tan` are met (`z` lies in the vertical strip
 `-π / 2 < z.re < π / 2` and `z ≠ π / 2`). -/
@@ -66,8 +71,8 @@ lemma cos_ne_zero_of_arctan_bounds {z : ℂ} (h₀ : z ≠ π / 2) (h₁ : -(π 
     rwa [show 2 * k + 1 = 1 by lia, Int.cast_one, one_mul] at nr
   · exact Or.inr ni
 
-theorem arctan_tan {z : ℂ} (h₀ : z ≠ π / 2) (h₁ : -(π / 2) < z.re) (h₂ : z.re ≤ π / 2) :
-    arctan (tan z) = z := by
+theorem arctan_tan {z : ℂ} (h₀ : z ≠ π / 2) (h₁ : -(π / 2) < z.re) (h₂ : z.re ≤ π / 2)
+    : arctan (tan z) = z := by
   have h := cos_ne_zero_of_arctan_bounds h₀ h₁ h₂
   unfold arctan tan
   -- multiply top and bottom by `cos z`
@@ -75,8 +80,10 @@ theorem arctan_tan {z : ℂ} (h₀ : z ≠ π / 2) (h₁ : -(π / 2) < z.re) (h�
   conv_lhs =>
     enter [2, 1, 2]
     rw [sub_eq_add_neg, ← neg_mul, ← sin_neg, ← cos_neg]
-  rw [← exp_mul_I, ← exp_mul_I, ← exp_sub, show z * I - -z * I = 2 * (I * z) by ring, log_exp,
-    show -I / 2 * (2 * (I * z)) = -(I * I) * z by ring, I_mul_I, neg_neg, one_mul]
+  rw [
+    ← exp_mul_I, ← exp_mul_I, ← exp_sub, show z * I - -z * I = 2 * (I * z) by ring, log_exp,
+    show -I / 2 * (2 * (I * z)) = -(I * I) * z by ring, I_mul_I, neg_neg, one_mul
+  ]
   all_goals rw [mul_left_comm, I_mul_im, show (2 : ℂ) = (2 : ℝ) by rfl, re_ofReal_mul]
   · rwa [← div_lt_iff₀' two_pos, neg_div]
   · rwa [← le_div_iff₀' two_pos]
@@ -118,10 +125,12 @@ lemma hasSum_arctan_aux {z : ℂ} (hz : ‖z‖ < 1) :
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The power series expansion of `Complex.arctan`, valid on the open unit disc. -/
-theorem hasSum_arctan {z : ℂ} (hz : ‖z‖ < 1) :
-    HasSum (fun n : ℕ ↦ (-1) ^ n * z ^ (2 * n + 1) / ↑(2 * n + 1)) (arctan z) := by
-  have := ((hasSum_taylorSeries_log (z := z * I) (by simpa)).add
-    (hasSum_taylorSeries_neg_log (z := z * I) (by simpa))).mul_left (-I / 2)
+theorem hasSum_arctan {z : ℂ} (hz : ‖z‖ < 1)
+    : HasSum (fun n : ℕ ↦ (-1) ^ n * z ^ (2 * n + 1) / ↑(2 * n + 1)) (arctan z) := by
+  have :=
+    ((hasSum_taylorSeries_log (z := z * I) (by simpa)).add
+        (hasSum_taylorSeries_neg_log (z := z * I) (by simpa))).mul_left
+      (-I / 2)
   simp_rw [← add_div, ← add_one_mul, hasSum_arctan_aux hz] at this
   replace := (Nat.divModEquiv 2).symm.hasSum_iff.mpr this
   dsimp [Function.comp_def] at this
@@ -129,17 +138,21 @@ theorem hasSum_arctan {z : ℂ} (hz : ‖z‖ < 1) :
   refine this.prod_fiberwise fun k => ?_
   dsimp only
   convert! hasSum_fintype (_ : Fin 2 → ℂ) using 1
-  rw [Fin.sum_univ_two, Fin.val_zero, Fin.val_one, Odd.neg_one_pow (n := 2 * k + 0 + 1) (by simp),
+  rw [
+    Fin.sum_univ_two, Fin.val_zero, Fin.val_one, Odd.neg_one_pow (n := 2 * k + 0 + 1) (by simp),
     neg_add_cancel, zero_mul, zero_div, mul_zero, zero_add,
     show 2 * k + 1 + 1 = 2 * (k + 1) by ring, Even.neg_one_pow (n := 2 * (k + 1)) (by simp),
-    ← mul_div_assoc (_ / _), ← mul_assoc, show -I / 2 * (1 + 1) = -I by ring]
+    ← mul_div_assoc (_ / _), ← mul_assoc, show -I / 2 * (1 + 1) = -I by ring
+  ]
   congr 1
-  rw [mul_pow, pow_succ' I, pow_mul, I_sq,
-    show -I * _ = -(I * I) * (-1) ^ k * z ^ (2 * k + 1) by ring, I_mul_I, neg_neg, one_mul]
+  rw [
+    mul_pow, pow_succ' I, pow_mul, I_sq,
+    show -I * _ = -(I * I) * (-1) ^ k * z ^ (2 * k + 1) by ring, I_mul_I, neg_neg, one_mul
+  ]
 
 end Complex
 
 /-- The power series expansion of `Real.arctan`, valid on `-1 < x < 1`. -/
-theorem Real.hasSum_arctan {x : ℝ} (hx : ‖x‖ < 1) :
-    HasSum (fun n : ℕ => (-1) ^ n * x ^ (2 * n + 1) / ↑(2 * n + 1)) (arctan x) :=
+theorem Real.hasSum_arctan {x : ℝ} (hx : ‖x‖ < 1)
+    : HasSum (fun n : ℕ => (-1) ^ n * x ^ (2 * n + 1) / ↑(2 * n + 1)) (arctan x) :=
   mod_cast Complex.hasSum_arctan (z := x) (by simpa)

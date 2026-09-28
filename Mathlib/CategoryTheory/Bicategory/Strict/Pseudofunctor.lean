@@ -34,8 +34,9 @@ open Bicategory
 
 namespace Pseudofunctor
 
-variable {B : Type u₁} {C : Type u₂} [Bicategory.{w₁, v₁} B]
-  [Strict B] [Bicategory.{w₂, v₂} C] (F : B ⥤ᵖ C)
+variable
+  {B : Type u₁} {C : Type u₂} [Bicategory.{w₁, v₁} B] [Strict B] [Bicategory.{w₂, v₂} C]
+  (F : B ⥤ᵖ C)
 
 set_option backward.defeqAttrib.useBackward true in
 lemma mapComp'_comp_id {b₀ b₁ : B} (f : b₀ ⟶ b₁) :
@@ -91,9 +92,9 @@ lemma mapComp'_id_comp_inv {b₀ b₁ : B} (f : b₀ ⟶ b₁) :
 
 section associativity
 
-variable {b₀ b₁ b₂ b₃ : B} (f₀₁ : b₀ ⟶ b₁)
-  (f₁₂ : b₁ ⟶ b₂) (f₂₃ : b₂ ⟶ b₃) (f₀₂ : b₀ ⟶ b₂) (f₁₃ : b₁ ⟶ b₃) (f : b₀ ⟶ b₃)
-  (h₀₂ : f₀₁ ≫ f₁₂ = f₀₂) (h₁₃ : f₁₂ ≫ f₂₃ = f₁₃)
+variable
+  {b₀ b₁ b₂ b₃ : B} (f₀₁ : b₀ ⟶ b₁) (f₁₂ : b₁ ⟶ b₂) (f₂₃ : b₂ ⟶ b₃) (f₀₂ : b₀ ⟶ b₂) (f₁₃ : b₁ ⟶ b₃)
+  (f : b₀ ⟶ b₃) (h₀₂ : f₀₁ ≫ f₁₂ = f₀₂) (h₁₃ : f₁₂ ≫ f₂₃ = f₁₃)
 
 set_option backward.defeqAttrib.useBackward true in
 @[to_app (attr := reassoc)]
@@ -189,9 +190,11 @@ section
 
 variable {t : X₁ ⟶ Y₁} {l : X₁ ⟶ X₂} {r : Y₁ ⟶ Y₂} {b : X₂ ⟶ Y₂} (sq : CommSq t l r b)
 
-/-- Given a commutative square `CommSq t l r b` in a strict bicategory `B` and
+/--
+Given a commutative square `CommSq t l r b` in a strict bicategory `B` and
 a pseudofunctor from `B`, this is the isomorphism
-`F.map t ≫ F.map r ≅ F.map l ≫ F.map b`. -/
+`F.map t ≫ F.map r ≅ F.map l ≫ F.map b`.
+-/
 def isoMapOfCommSq : F.map t ≫ F.map r ≅ F.map l ≫ F.map b :=
   (F.mapComp t r).symm ≪≫ F.mapComp' _ _ _ (by rw [sq.w])
 
@@ -229,14 +232,15 @@ end Pseudofunctor
 
 namespace LaxFunctor
 
-variable {B : Type u₁} {C : Type u₂} [Bicategory.{w₁, v₁} B]
-  [Strict B] [Bicategory.{w₂, v₂} C] (F : B ⥤ᴸ C)
+variable
+  {B : Type u₁} {C : Type u₂} [Bicategory.{w₁, v₁} B] [Strict B] [Bicategory.{w₂, v₂} C]
+  (F : B ⥤ᴸ C)
 
 section associativity
 
-variable {b₀ b₁ b₂ b₃ : B} (f₀₁ : b₀ ⟶ b₁)
-  (f₁₂ : b₁ ⟶ b₂) (f₂₃ : b₂ ⟶ b₃) (f₀₂ : b₀ ⟶ b₂) (f₁₃ : b₁ ⟶ b₃) (f : b₀ ⟶ b₃)
-  (h₀₂ : f₀₁ ≫ f₁₂ = f₀₂) (h₁₃ : f₁₂ ≫ f₂₃ = f₁₃)
+variable
+  {b₀ b₁ b₂ b₃ : B} (f₀₁ : b₀ ⟶ b₁) (f₁₂ : b₁ ⟶ b₂) (f₂₃ : b₂ ⟶ b₃) (f₀₂ : b₀ ⟶ b₂) (f₁₃ : b₁ ⟶ b₃)
+  (f : b₀ ⟶ b₃) (h₀₂ : f₀₁ ≫ f₁₂ = f₀₂) (h₁₃ : f₁₂ ≫ f₂₃ = f₁₃)
 
 @[reassoc]
 lemma whiskerLeft_mapComp'_comp_mapComp' (hf : f₀₁ ≫ f₁₃ = f) :
@@ -262,14 +266,15 @@ end LaxFunctor
 
 namespace OplaxFunctor
 
-variable {B : Type u₁} {C : Type u₂} [Bicategory.{w₁, v₁} B]
-  [Strict B] [Bicategory.{w₂, v₂} C] (F : B ⥤ᵒᵖᴸ C)
+variable
+  {B : Type u₁} {C : Type u₂} [Bicategory.{w₁, v₁} B] [Strict B] [Bicategory.{w₂, v₂} C]
+  (F : B ⥤ᵒᵖᴸ C)
 
 section associativity
 
-variable {b₀ b₁ b₂ b₃ : B} (f₀₁ : b₀ ⟶ b₁)
-  (f₁₂ : b₁ ⟶ b₂) (f₂₃ : b₂ ⟶ b₃) (f₀₂ : b₀ ⟶ b₂) (f₁₃ : b₁ ⟶ b₃) (f : b₀ ⟶ b₃)
-  (h₀₂ : f₀₁ ≫ f₁₂ = f₀₂) (h₁₃ : f₁₂ ≫ f₂₃ = f₁₃)
+variable
+  {b₀ b₁ b₂ b₃ : B} (f₀₁ : b₀ ⟶ b₁) (f₁₂ : b₁ ⟶ b₂) (f₂₃ : b₂ ⟶ b₃) (f₀₂ : b₀ ⟶ b₂) (f₁₃ : b₁ ⟶ b₃)
+  (f : b₀ ⟶ b₃) (h₀₂ : f₀₁ ≫ f₁₂ = f₀₂) (h₁₃ : f₁₂ ≫ f₂₃ = f₁₃)
 
 @[reassoc]
 lemma mapComp'_comp_whiskerLeft_mapComp' (hf : f₀₁ ≫ f₁₃ = f) :
@@ -280,7 +285,6 @@ lemma mapComp'_comp_whiskerLeft_mapComp' (hf : f₀₁ ≫ f₁₃ = f) :
   have := F.map₂_associator f₀₁ f₁₂ f₂₃
   simp only [Strict.associator_eqToIso, eqToIso.hom] at this
   simp [OplaxFunctor.mapComp', ← this, PrelaxFunctor.map₂_eqToHom]
-
 
 @[reassoc]
 lemma mapComp'_comp_mapComp'_whiskerRight (hf : f₀₂ ≫ f₂₃ = f) :

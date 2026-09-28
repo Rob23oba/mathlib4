@@ -24,17 +24,22 @@ open scoped MonoidAlgebra
 
 universe u u' v v' w w'
 
-variable {k : Type u} [Semiring k] {G : Type v} [Monoid G] {V : Type v'} [AddCommMonoid V]
-  [Module k V] {W : Type w'} [AddCommMonoid W] [Module k W] (H : Type w) [Subsingleton H]
-  [MulOneClass H] [MulAction G H]
+variable
+  {k : Type u} [Semiring k]
+  {G : Type v} [Monoid G]
+  {V : Type v'} [AddCommMonoid V] [Module k V]
+  {W : Type w'} [AddCommMonoid W] [Module k W]
+  (H : Type w) [Subsingleton H] [MulOneClass H] [MulAction G H]
 
 namespace Representation
 
 noncomputable section
 
 variable (k G) in
-/-- If there exists `G`-action on a trivial monoid `H` then the induced representation
-  on `k[H]` is equivalent to the trivial representation. -/
+/--
+If there exists `G`-action on a trivial monoid `H` then the induced representation
+on `k[H]` is equivalent to the trivial representation.
+-/
 def ofMulActionSubsingletonEquivTrivial : (ofMulAction k G H).Equiv (trivial k G k) :=
   .mk (MonoidAlgebra.uniqueLinearEquiv k H) fun g ↦ by ext a; simp [Subsingleton.elim (g • a) a]
 
@@ -64,8 +69,9 @@ lemma diagonalOneEquivLeftRegular_symm_apply_single (g : G) (r : k) :
 
 section comm
 
-variable {k : Type u} [CommSemiring k] [Module k V] [Module k W] (σ : Representation k G V)
-  (ρ : Representation k G W)
+variable
+  {k : Type u} [CommSemiring k] [Module k V] [Module k W]
+  (σ : Representation k G V) (ρ : Representation k G W)
 
 section finsupp
 
@@ -74,9 +80,9 @@ open Finsupp
 /-- Every `f : α → V` can induce an intertwining map between `(α →₀ k[G])` and `V`. -/
 @[simps! toLinearMap]
 def freeLift {α : Type w'} (f : α → V) : (free k G α).IntertwiningMap σ where
-  toLinearMap := linearCombination k (fun x => σ x.2 (f x.1)) ∘ₗ
-    (curryLinearEquiv k).symm.toLinearMap ∘ₗ
-    Finsupp.mapRange.linearMap (MonoidAlgebra.coeffLinearEquiv _).toLinearMap
+  toLinearMap :=
+    linearCombination k (fun x => σ x.2 (f x.1)) ∘ₗ (curryLinearEquiv k).symm.toLinearMap
+      ∘ₗ Finsupp.mapRange.linearMap (MonoidAlgebra.coeffLinearEquiv _).toLinearMap
   isIntertwining' g := by ext; simp
 
 @[simp]
@@ -96,10 +102,12 @@ def freeLiftLEquiv (α : Type w') : ((free k G α).IntertwiningMap σ) ≃ₗ[k]
   left_inv f := by ext; simp [← f.isIntertwining]
   right_inv f := by simp [← toLinearMap_apply]
 
-/-- Equiv between representations induced by linear equiv between `(α →₀ V) ⊗[k] W` and
-  `α →₀ (V ⊗[k] W)`. -/
-def finsuppTensorLeft (α : Type w') [DecidableEq α] :
-    ((σ.finsupp α).tprod ρ).Equiv ((σ.tprod ρ).finsupp α) :=
+/--
+Equiv between representations induced by linear equiv between `(α →₀ V) ⊗[k] W` and
+`α →₀ (V ⊗[k] W)`.
+-/
+def finsuppTensorLeft (α : Type w') [DecidableEq α]
+    : ((σ.finsupp α).tprod ρ).Equiv ((σ.tprod ρ).finsupp α) :=
   .mk (TensorProduct.finsuppLeft _ _ _ _ _) fun g ↦ by
     ext; simp [TensorProduct.finsuppLeft_apply_tmul]
 
@@ -117,10 +125,12 @@ lemma finsuppTensorLeft_symm_apply_single {α : Type w'} [DecidableEq α] (i : �
     (finsuppTensorLeft σ ρ α).symm (Finsupp.single i (v ⊗ₜ w)) = Finsupp.single i v ⊗ₜ w := by
   simp [finsuppTensorLeft]
 
-/-- Equiv between representations induced by linear equiv between `V ⊗[k] (α →₀ W)` and
-  `α →₀ (V ⊗[k] W)`. -/
-def finsuppTensorRight (α : Type w') [DecidableEq α] :
-    (σ.tprod (ρ.finsupp α)).Equiv ((σ.tprod ρ).finsupp α) :=
+/--
+Equiv between representations induced by linear equiv between `V ⊗[k] (α →₀ W)` and
+`α →₀ (V ⊗[k] W)`.
+-/
+def finsuppTensorRight (α : Type w') [DecidableEq α]
+    : (σ.tprod (ρ.finsupp α)).Equiv ((σ.tprod ρ).finsupp α) :=
   .mk (TensorProduct.finsuppRight _ _ _ _ _) fun g ↦ by
     ext; simp [TensorProduct.finsuppRight_apply_tmul]
 
@@ -138,13 +148,18 @@ lemma finsuppTensorRight_symm_apply_single {α : Type w'} [DecidableEq α] (i : 
     (finsuppTensorRight σ ρ α).symm (Finsupp.single i (v ⊗ₜ w)) = v ⊗ₜ Finsupp.single i w := by
   simp [finsuppTensorRight]
 
-/-- Equiv between representations induced by linear equiv between `(G →₀ k) ⊗[k] (α →₀ k)` and
-  `α →₀ G →₀ k`. -/
-def leftRegularTensorTrivialIsoFree (α : Type w') :
-    ((leftRegular k G).tprod (trivial k G k[α])).Equiv (free k G α) :=
-  .mk (TensorProduct.congr (MonoidAlgebra.coeffLinearEquiv _) (MonoidAlgebra.coeffLinearEquiv _) ≪≫ₗ
-    finsuppTensorFinsupp' k G α ≪≫ₗ Finsupp.domLCongr (Equiv.prodComm G α) ≪≫ₗ curryLinearEquiv k
-      ≪≫ₗ Finsupp.mapRange.linearEquiv (MonoidAlgebra.coeffLinearEquiv _).symm) fun g ↦ by ext; simp
+/--
+Equiv between representations induced by linear equiv between `(G →₀ k) ⊗[k] (α →₀ k)` and
+`α →₀ G →₀ k`.
+-/
+def leftRegularTensorTrivialIsoFree (α : Type w')
+    : ((leftRegular k G).tprod (trivial k G k[α])).Equiv (free k G α) :=
+  .mk
+    (TensorProduct.congr (MonoidAlgebra.coeffLinearEquiv _) (MonoidAlgebra.coeffLinearEquiv _)
+      ≪≫ₗ finsuppTensorFinsupp' k G α ≪≫ₗ Finsupp.domLCongr (Equiv.prodComm G α)
+      ≪≫ₗ curryLinearEquiv k
+      ≪≫ₗ Finsupp.mapRange.linearEquiv (MonoidAlgebra.coeffLinearEquiv _).symm)
+    fun g ↦ by ext; simp
 
 @[simp]
 lemma leftRegularTensorTrivialIsoFree_apply_single_tmul_single {α : Type w'} (g : G) (i : α)
@@ -164,12 +179,15 @@ end finsupp
 /-- The linear equiv between the hom module `k[G] ⟶ᵍ V` and `V` itself. -/
 @[simps!]
 def leftRegularMapEquiv : (leftRegular k G).IntertwiningMap σ ≃ₗ[k] V where
-  toFun f := (Finsupp.llift V k k G).symm
-    (f.toLinearMap ∘ₗ (MonoidAlgebra.coeffLinearEquiv _).symm.toLinearMap) (1 : G)
+  toFun f :=
+    (Finsupp.llift V k k G).symm
+      (f.toLinearMap ∘ₗ (MonoidAlgebra.coeffLinearEquiv _).symm.toLinearMap) (1 : G)
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
-  invFun v := ⟨Finsupp.llift _ _ k _ (fun g ↦ σ g v) ∘ₗ
-    (MonoidAlgebra.coeffLinearEquiv _).toLinearMap, fun g ↦ by ext g'; simp⟩
+  invFun v := ⟨
+    Finsupp.llift _ _ k _ (fun g ↦ σ g v) ∘ₗ (MonoidAlgebra.coeffLinearEquiv _).toLinearMap,
+    fun g ↦ by ext g'; simp
+  ⟩
   left_inv x := by ext; simp [← x.isIntertwining]
   right_inv v := by simp
 

@@ -33,8 +33,9 @@ open scoped Function Finset Topology
 
 namespace TopologicalSpace.IsOpenCover
 
-variable {ι X : Type*}
-  [TopologicalSpace X] [TotallyDisconnectedSpace X] [T2Space X] [CompactSpace X] {U : ι → Opens X}
+variable
+  {ι X : Type*} [TopologicalSpace X] [TotallyDisconnectedSpace X] [T2Space X] [CompactSpace X]
+  {U : ι → Opens X}
 
 /-- Any open cover of a profinite space can be refined to a finite cover by clopens. -/
 lemma exists_finite_clopen_cover (hU : IsOpenCover U) : ∃ (n : ℕ) (V : Fin n → Clopens X),
@@ -116,8 +117,11 @@ end TopologicalSpace
 
 namespace ContinuousMap
 
-variable {X V : Type*} [TopologicalSpace X] [TopologicalSpace V] [TotallyDisconnectedSpace X]
-  [T2Space X] [CompactSpace X] {S : Set (V × V)} (f : C(X, V))
+variable
+  {X V : Type*} [TopologicalSpace X] [TopologicalSpace V] [TotallyDisconnectedSpace X] [T2Space X]
+  [CompactSpace X]
+  {S : Set (V × V)}
+  (f : C(X, V))
 
 /--
 For any continuous function `f : X → V`, with `X` profinite, and `S` a neighbourhood of the

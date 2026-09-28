@@ -7,7 +7,6 @@ Authors: Rémy Degenne, Paulo Rauber
 module
 
 public import Mathlib.Probability.HasLaw
-
 import Mathlib.Probability.Kernel.Composition.Lemmas
 
 /-!
@@ -32,12 +31,14 @@ open MeasureTheory
 
 namespace ProbabilityTheory
 
-variable {Ω 𝓧 𝓨 𝓩 : Type*} {mΩ : MeasurableSpace Ω}
-  {m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨} {m𝓩 : MeasurableSpace 𝓩}
-  {P : Measure Ω} {X : Ω → 𝓧} {Y : Ω → 𝓨} {κ : Kernel 𝓧 𝓨}
+variable
+  {Ω 𝓧 𝓨 𝓩 : Type*} {mΩ : MeasurableSpace Ω} {m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨}
+  {m𝓩 : MeasurableSpace 𝓩} {P : Measure Ω} {X : Ω → 𝓧} {Y : Ω → 𝓨} {κ : Kernel 𝓧 𝓨}
 
-/-- Predicate stating that the conditional distribution of `Y` given `X` under the measure `P`
-is equal to the kernel `κ`. -/
+/--
+Predicate stating that the conditional distribution of `Y` given `X` under the measure `P`
+is equal to the kernel `κ`.
+-/
 def HasCondDistrib (Y : Ω → 𝓨) (X : Ω → 𝓧) (κ : Kernel 𝓧 𝓨) (P : Measure Ω) : Prop :=
   HasLaw (fun ω ↦ (X ω, Y ω)) ((P.map X) ⊗ₘ κ) P
 

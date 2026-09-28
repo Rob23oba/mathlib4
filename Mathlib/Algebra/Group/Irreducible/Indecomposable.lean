@@ -23,8 +23,10 @@ open Set
 
 variable {ι M G S : Type*} [Monoid M] [CommGroup G] [LinearOrder S]
 
-/-- Given a family of elements of a monoid, a member is said to be indecomposable if it cannot be
-written as a product of two others in a non-trivial way. -/
+/--
+Given a family of elements of a monoid, a member is said to be indecomposable if it cannot be
+written as a product of two others in a non-trivial way.
+-/
 @[to_additive (attr := simp) /-- Given a family of elements of an additive monoid, a member is said
 to be indecomposable if it cannot be written as a sum of two others in a non-trivial way.-/]
 def IsMulIndecomposable (v : ι → M) (s : Set ι) (i : ι) : Prop :=

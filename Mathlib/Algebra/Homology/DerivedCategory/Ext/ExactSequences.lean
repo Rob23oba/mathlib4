@@ -134,10 +134,12 @@ lemma covariant_sequence_exact₁' :
 
 open ComposableArrows
 
-/-- Given a short exact short complex `S` in an abelian category `C` and an object `X : C`,
+/--
+Given a short exact short complex `S` in an abelian category `C` and an object `X : C`,
 this is the long exact sequence
 `Ext X S.X₁ n₀ → Ext X S.X₂ n₀ → Ext X S.X₃ n₀ → Ext X S.X₁ n₁ → Ext X S.X₂ n₁ → Ext X S.X₃ n₁`
-when `n₀ + 1 = n₁` -/
+when `n₀ + 1 = n₁`
+-/
 noncomputable def covariantSequence : ComposableArrows AddCommGrpCat.{w} 5 :=
   mk₅ (AddCommGrpCat.ofHom ((mk₀ S.f).postcomp X (add_zero n₀)))
     (AddCommGrpCat.ofHom ((mk₀ S.g).postcomp X (add_zero n₀)))
@@ -266,10 +268,12 @@ lemma contravariant_sequence_exact₃' :
 
 open ComposableArrows
 
-/-- Given a short exact short complex `S` in an abelian category `C` and an object `Y : C`,
+/--
+Given a short exact short complex `S` in an abelian category `C` and an object `Y : C`,
 this is the long exact sequence
 `Ext S.X₃ Y n₀ → Ext S.X₂ Y n₀ → Ext S.X₁ Y n₀ → Ext S.X₃ Y n₁ → Ext S.X₂ Y n₁ → Ext S.X₁ Y n₁`
-when `1 + n₀ = n₁`. -/
+when `1 + n₀ = n₁`.
+-/
 noncomputable def contravariantSequence : ComposableArrows AddCommGrpCat.{w} 5 :=
   mk₅ (AddCommGrpCat.ofHom ((mk₀ S.g).precomp Y (zero_add n₀)))
     (AddCommGrpCat.ofHom ((mk₀ S.f).precomp Y (zero_add n₀)))
@@ -320,14 +324,15 @@ lemma mono_precomp_mk₀_of_epi (L : C) {M N : C} (g : M ⟶ N) [hg : Epi g] :
   (AddCommGrpCat.mono_iff_injective _).mpr (precomp_mk₀_injective_of_epi L g)
 
 variable {Y} in
-/-- The standard connecting homomorphism `Ext S.X₁ Y n₀ →+ Ext S.X₃ Y n₁`
+/--
+The standard connecting homomorphism `Ext S.X₁ Y n₀ →+ Ext S.X₃ Y n₁`
 for the contravariant long sequence of `Ext` when `n₀ + 1 = n₁` and `S` is a
 short exact sequence. This definition should be consistent with [conrad2000].
 It is obtained by multiplying by `(-1) ^ n₁` the precomposition
-with `hS.extClass : Ext S.X₃ X₁ 1`. -/
+with `hS.extClass : Ext S.X₃ X₁ 1`.
+-/
 @[simps -isSimp]
-protected noncomputable def δ (n₀ n₁ : ℕ) (h : n₀ + 1 = n₁) :
-    Ext S.X₁ Y n₀ →+ Ext S.X₃ Y n₁ where
+protected noncomputable def δ (n₀ n₁ : ℕ) (h : n₀ + 1 = n₁) : Ext S.X₁ Y n₀ →+ Ext S.X₃ Y n₁ where
   toFun e := Int.negOnePow n₁ • hS.extClass.comp e (by lia)
   map_zero' := by simp
   map_add' := by simp

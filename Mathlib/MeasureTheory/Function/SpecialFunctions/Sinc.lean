@@ -52,12 +52,12 @@ protected theorem AEMeasurable.sinc (hf : AEMeasurable f μ) : AEMeasurable (fun
   Real.measurable_sinc.comp_aemeasurable hf
 
 @[fun_prop]
-protected theorem MeasureTheory.StronglyMeasurable.sinc (hf : StronglyMeasurable f) :
-    StronglyMeasurable fun x ↦ sinc (f x) :=
+protected theorem MeasureTheory.StronglyMeasurable.sinc (hf : StronglyMeasurable f)
+    : StronglyMeasurable fun x ↦ sinc (f x) :=
   Real.stronglyMeasurable_sinc.comp_measurable hf.measurable
 
 @[fun_prop]
-protected theorem MeasureTheory.AEStronglyMeasurable.sinc (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (fun x ↦ sinc (f x)) μ := by
+protected theorem MeasureTheory.AEStronglyMeasurable.sinc (hf : AEStronglyMeasurable f μ)
+    : AEStronglyMeasurable (fun x ↦ sinc (f x)) μ := by
   rw [aestronglyMeasurable_iff_aemeasurable] at hf ⊢
   exact hf.sinc

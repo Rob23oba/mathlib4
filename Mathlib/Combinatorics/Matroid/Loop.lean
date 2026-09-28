@@ -462,8 +462,10 @@ section IsColoop
 
 variable {B K : Set α}
 
-/-- A coloop is a loop of the dual matroid.
-See `Matroid.isColoop_tfae` for a number of equivalent definitions. -/
+/--
+A coloop is a loop of the dual matroid.
+See `Matroid.isColoop_tfae` for a number of equivalent definitions.
+-/
 def IsColoop (M : Matroid α) (e : α) : Prop := M✶.IsLoop e
 
 /-- `M.coloops` is the set of coloops of `M`. -/

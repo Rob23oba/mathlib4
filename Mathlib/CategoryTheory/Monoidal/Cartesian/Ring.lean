@@ -29,12 +29,14 @@ open scoped CommRingObj RingObj
 @[simps! obj]
 def yonedaRingObj (R : C) [RingObj R] : Cᵒᵖ ⥤ RingCat.{v} where
   obj X := ↧(X.unop ⟶ R)
-  map f := RingCat.ofHom
-    { toFun x := f.unop ≫ x
+  map f :=
+    RingCat.ofHom {
+      toFun x := f.unop ≫ x
       map_one' := by simp
       map_zero' := by simp
       map_mul' _ _ := MonObj.comp_mul _ _ _
-      map_add' _ _ := AddMonObj.comp_add _ _ _ }
+      map_add' _ _ := AddMonObj.comp_add _ _ _
+    }
 
 set_option backward.defeqAttrib.useBackward true in
 @[simp]
@@ -46,13 +48,16 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The yoneda embedding of `RingObjCat C` into presheaves of rings. -/
 def yonedaRing : RingObjCat C ⥤ Cᵒᵖ ⥤ RingCat.{v} where
   obj R := yonedaRingObj R.X
-  map f :=
-    { app X := RingCat.ofHom
-        { toFun x := x ≫ f.hom
-          map_one' := by simp
-          map_zero' := by simp
-          map_mul' _ _ := MonObj.mul_comp _ _ _
-          map_add' _ _ := AddMonObj.add_comp _ _ _ } }
+  map f := {
+    app X :=
+      RingCat.ofHom {
+        toFun x := x ≫ f.hom
+        map_one' := by simp
+        map_zero' := by simp
+        map_mul' _ _ := MonObj.mul_comp _ _ _
+        map_add' _ _ := AddMonObj.add_comp _ _ _
+      }
+  }
 
 /-- If `R` is a commutative ring object, then `Hom(-, R)` is a presheaf of commutative rings. -/
 @[simps obj]
@@ -71,13 +76,16 @@ set_option backward.isDefEq.respectTransparency false in
 @[simps obj]
 def yonedaCommRing : CommRingObjCat C ⥤ Cᵒᵖ ⥤ CommRingCat.{v} where
   obj R := yonedaCommRingObj R.X
-  map f :=
-    { app X := CommRingCat.ofHom
-        { toFun x := x ≫ f.hom
-          map_one' := by simp
-          map_zero' := by simp
-          map_mul' _ _ := MonObj.mul_comp _ _ _
-          map_add' _ _ := AddMonObj.add_comp _ _ _ } }
+  map f := {
+    app X :=
+      CommRingCat.ofHom {
+        toFun x := x ≫ f.hom
+        map_one' := by simp
+        map_zero' := by simp
+        map_mul' _ _ := MonObj.mul_comp _ _ _
+        map_add' _ _ := AddMonObj.add_comp _ _ _
+      }
+  }
 
 @[simp]
 lemma yonedaCommRing_map_app_apply {R₁ R₂ : CommRingObjCat C} (f : R₁ ⟶ R₂)

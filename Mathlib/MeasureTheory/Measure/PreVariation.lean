@@ -48,12 +48,15 @@ section
 variable (f : Set X → ℝ≥0∞)
 
 open scoped Classical in
-/-- If `s` is measurable then `preVariationFun f s` is the supremum over partitions `P` of `s` of
-the quantity `∑ p ∈ P.parts, f p`. If `s` is not measurable then it is set to `0`. -/
+/--
+If `s` is measurable then `preVariationFun f s` is the supremum over partitions `P` of `s` of
+the quantity `∑ p ∈ P.parts, f p`. If `s` is not measurable then it is set to `0`.
+-/
 noncomputable def preVariationFun (s : Set X) : ℝ≥0∞ :=
   if h : MeasurableSet s then
     ⨆ (P : Finpartition (⟨s, h⟩ : Subtype MeasurableSet)), ∑ p ∈ P.parts, f p
-  else 0
+  else
+    0
 
 lemma preVariationFun_apply {s : Set X} (h : MeasurableSet s) :
     preVariationFun f s =
@@ -81,11 +84,13 @@ lemma sum_le {s : Set X} (hs : MeasurableSet s)
     ∑ p ∈ P.parts, f p ≤ preVariationFun f s := by
   simpa [preVariationFun, hs, le_iSup_iff] using fun _ a ↦ a P
 
-/-- A `Finpartition` constructor in the subtype of `MeasurableSet` from a `P : Finpartition s` with
-explicit measurability assumptions. -/
-noncomputable abbrev _root_.Finpartition.toMeasurableSet {s : Set X} (P : Finpartition s)
-    (hs : MeasurableSet s) (hP : ∀ p ∈ P.parts, MeasurableSet p) :
-    Finpartition (⟨s, hs⟩ : Subtype MeasurableSet) :=
+/--
+A `Finpartition` constructor in the subtype of `MeasurableSet` from a `P : Finpartition s` with
+explicit measurability assumptions.
+-/
+noncomputable abbrev _root_.Finpartition.toMeasurableSet
+    {s : Set X} (P : Finpartition s) (hs : MeasurableSet s) (hP : ∀ p ∈ P.parts, MeasurableSet p)
+    : Finpartition (⟨s, hs⟩ : Subtype MeasurableSet) :=
   P.toSubtype (by measurability) (by measurability) (by measurability) hs hP
 
 lemma sum_le' {s : Set X} (hs : MeasurableSet s)
@@ -190,11 +195,13 @@ lemma sum_le_preVariationFun_iUnion {s : ℕ → Set X} (hs : ∀ i, MeasurableS
 
 end preVariation
 
-/-- A set function is σ-subadditive on measurable sets if the value assigned to the union of a
-countable disjoint family of measurable sets is bounded above by the sum of values on the family. -/
+/--
+A set function is σ-subadditive on measurable sets if the value assigned to the union of a
+countable disjoint family of measurable sets is bounded above by the sum of values on the family.
+-/
 def IsSigmaSubadditiveSetFun (f : Set X → ℝ≥0∞) : Prop :=
-  ∀ (s : ℕ → {t : Set X // MeasurableSet t}), Pairwise (Disjoint on (Subtype.val ∘ s)) →
-    f (⋃ i, (s i).val) ≤ ∑' i, f (s i)
+  ∀ (s : ℕ → {t : Set X // MeasurableSet t}),
+    Pairwise (Disjoint on (Subtype.val ∘ s)) → f (⋃ i, (s i).val) ≤ ∑' i, f (s i)
 
 lemma isSigmaSubadditiveSetFun_zero : IsSigmaSubadditiveSetFun (0 : Set X → ℝ≥0∞) := by intro; simp
 
@@ -244,8 +251,8 @@ end preVariation
 variable (f : Set X → ℝ≥0∞)
 
 /-- The `VectorMeasure X ℝ≥0∞` built from a σ-subadditive function. -/
-noncomputable def ennrealPreVariation (hf : IsSigmaSubadditiveSetFun f) (hf' : f ∅ = 0) :
-    VectorMeasure X ℝ≥0∞ where
+noncomputable def ennrealPreVariation (hf : IsSigmaSubadditiveSetFun f) (hf' : f ∅ = 0)
+    : VectorMeasure X ℝ≥0∞ where
   measureOf' := preVariationFun f
   empty' := preVariation.empty f
   not_measurable' _ h := by simp [preVariationFun, h]

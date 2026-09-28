@@ -35,18 +35,19 @@ different fiber.
 
 @[expose] public section
 
-variable {R S T : Type*} [CommRing R] [CommRing S] [Algebra R S]
-  [CommRing T] [Algebra R T]
+variable {R S T : Type*} [CommRing R] [CommRing S] [Algebra R S] [CommRing T] [Algebra R T]
 variable (p : Ideal R) (q : Ideal S) [q.IsPrime]
 
 variable (R) in
-/-- (Implementation) An a priori weaker notion of being quasi-finite at a prime,
+/--
+(Implementation) An a priori weaker notion of being quasi-finite at a prime,
 which turns out to be equivalent to `Algebra.QuasiFiniteAt` (for finite type algebras)
 due to Zariski's main theorem.
 
 This class should not be used outside of this context,
 and `Algebra.QuasiFiniteAt` should be used instead.
-See `Algebra.QuasiFiniteAt.of_weaklyQuasiFiniteAt`. -/
+See `Algebra.QuasiFiniteAt.of_weaklyQuasiFiniteAt`.
+-/
 abbrev Algebra.WeaklyQuasiFiniteAt :=
   Algebra.QuasiFiniteAt R (q.map (Ideal.Quotient.mk ((q.under R).map (algebraMap R S))))
 
@@ -112,9 +113,8 @@ lemma of_surjectiveOnStalks
   exact of_algHom_localization _ _ (Localization.localAlgHom _ _ f rfl) (hf _ _)
 
 /-- By `infer_instance` for `Algebra.QuasiFiniteAt R p`. -/
-instance comap_algEquiv (p : Ideal S) [p.IsPrime]
-    [Algebra.WeaklyQuasiFiniteAt R p]
-    (f : T ≃ₐ[R] S) : WeaklyQuasiFiniteAt R (p.comap f.toRingHom) :=
+instance comap_algEquiv (p : Ideal S) [p.IsPrime] [Algebra.WeaklyQuasiFiniteAt R p] (f : T ≃ₐ[R] S)
+    : WeaklyQuasiFiniteAt R (p.comap f.toRingHom) :=
   .of_surjectiveOnStalks p _ f.symm.toAlgHom
     (RingHom.surjectiveOnStalks_of_surjective f.symm.surjective) (by ext; simp)
 

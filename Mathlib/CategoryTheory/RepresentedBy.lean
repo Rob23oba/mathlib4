@@ -62,20 +62,21 @@ lemma IsRepresentedBy.iff_isIso_uliftYonedaEquiv :
     ← Function.Bijective.of_comp_iff' Equiv.ulift.{v}.bijective]
   rfl
 
-/-- If `F` is represented by `X` with universal element `x : F.obj X`, modulo universe
-lifting, it is isomorphic to `yoneda.obj X`. -/
+/--
+If `F` is represented by `X` with universal element `x : F.obj X`, modulo universe
+lifting, it is isomorphic to `yoneda.obj X`.
+-/
 @[simps! hom]
-noncomputable def IsRepresentedBy.uliftYonedaIso (h : F.IsRepresentedBy x) :
-    uliftYoneda.obj X ≅ F ⋙ uliftFunctor.{v} :=
+noncomputable def IsRepresentedBy.uliftYonedaIso (h : F.IsRepresentedBy x)
+    : uliftYoneda.obj X ≅ F ⋙ uliftFunctor.{v} :=
   haveI : IsIso ((uliftYonedaEquiv (F := F ⋙ uliftFunctor.{v})).symm ⟨x⟩) := by
     rwa [IsRepresentedBy.iff_isIso_uliftYonedaEquiv] at h
   asIso <| (uliftYonedaEquiv (F := F ⋙ uliftFunctor.{v})).symm ⟨x⟩
 
 /-- The canonical representation induced by the universal element `x : F.obj X`. -/
-noncomputable def IsRepresentedBy.representableBy (h : F.IsRepresentedBy x) :
-    F.RepresentableBy X :=
-  Functor.representableByUliftFunctorEquiv.{v}
-    ((RepresentableBy.equivUliftYonedaIso _ _).symm h.uliftYonedaIso)
+noncomputable def IsRepresentedBy.representableBy (h : F.IsRepresentedBy x) : F.RepresentableBy X :=
+  Functor.representableByUliftFunctorEquiv.{v} ((RepresentableBy.equivUliftYonedaIso _ _).symm
+    h.uliftYonedaIso)
 
 @[simp]
 lemma IsRepresentedBy.representableBy_homEquiv_apply (h : F.IsRepresentedBy x)

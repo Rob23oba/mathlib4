@@ -54,11 +54,15 @@ namespace CategoryTheory.ObjectProperty
 
 open Category Limits Preadditive ZeroObject Pretriangulated Triangulated
 
-variable {C : Type*} [Category* C] [HasZeroObject C] [HasShift C ℤ] [Preadditive C]
-  [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C] (P : ObjectProperty C)
+variable
+  {C : Type*} [Category* C] [HasZeroObject C] [HasShift C ℤ] [Preadditive C]
+  [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
+  (P : ObjectProperty C)
 
-/-- All objects that can be reached by shifts, binary products, retracts and at most `n`
-extensions from objects in `P`. -/
+/--
+All objects that can be reached by shifts, binary products, retracts and at most `n`
+extensions from objects in `P`.
+-/
 abbrev triangEnvelopeIter (n : ℕ) : ObjectProperty C :=
   ((P.shiftClosure ℤ).binaryProductsClosure.retractClosure.extensionProductIter n).retractClosure
 
@@ -117,18 +121,22 @@ lemma le_triangEnvelopeIter (n : ℕ) : P ≤ P.triangEnvelopeIter n :=
       rw [← triangEnvelopeIter_zero]
       exact P.monotone'_triangEnvelopeIter (Nat.zero_le n)
 
-/-- An object property `P` is called a strong triangulated generator, if every object
+/--
+An object property `P` is called a strong triangulated generator, if every object
 can be reached from objects in `P` by shifts, binary products, retracts and at most `n`
-extensions, for some fixed `n`. -/
+extensions, for some fixed `n`.
+-/
 @[stacks 09SJ "(2)"]
 def IsStrongTriangulatedGenerator : Prop := ∃ n, P.triangEnvelopeIter n = ⊤
 
 lemma isStrongTriangulatedGenerator_iff :
     P.IsStrongTriangulatedGenerator ↔ ∃ n, P.triangEnvelopeIter n = ⊤ := Iff.rfl
 
-/-- All objects that can be reached by shifts, binary products, retracts and extensions
+/--
+All objects that can be reached by shifts, binary products, retracts and extensions
 from objects in `P`. This is the smallest triangulated object property closed under retracts
-that contains `P`, see `ObjectProperty.triangEnvelope_le_iff`. -/
+that contains `P`, see `ObjectProperty.triangEnvelope_le_iff`.
+-/
 def triangEnvelope : ObjectProperty C := ⨆ n, P.triangEnvelopeIter n
 
 lemma prop_triangEnvelope_iff (X : C) : P.triangEnvelope X ↔ ∃ n, P.triangEnvelopeIter n X :=
@@ -140,8 +148,7 @@ lemma triangEnvelopeIter_le_triangEnvelope (n : ℕ) : P.triangEnvelopeIter n �
 lemma le_triangEnvelope : P ≤ P.triangEnvelope :=
   (P.le_triangEnvelopeIter 0).trans (P.triangEnvelopeIter_le_triangEnvelope 0)
 
-instance [P.Nonempty] : P.triangEnvelope.Nonempty :=
-  .mono P.le_triangEnvelope
+instance [P.Nonempty] : P.triangEnvelope.Nonempty := .mono P.le_triangEnvelope
 
 variable {P} in
 lemma monotone_triangEnvelope {Q : ObjectProperty C} (h : P ≤ Q) :
@@ -157,12 +164,13 @@ instance : P.triangEnvelope.IsStableUnderRetracts where
     exact ⟨n, IsStableUnderRetracts.of_retract r hn⟩
 
 instance : P.triangEnvelope.IsStableUnderShift ℤ where
-  isStableUnderShiftBy a := IsStableUnderShiftBy.mk <| by
-    intro X hX
-    rw [prop_triangEnvelope_iff] at hX
-    obtain ⟨n, hn⟩ := hX
-    rw [prop_shift_iff, prop_triangEnvelope_iff]
-    exact ⟨n, IsStableUnderShiftBy.le_shift _ hn⟩
+  isStableUnderShiftBy a :=
+    IsStableUnderShiftBy.mk <| by
+      intro X hX
+      rw [prop_triangEnvelope_iff] at hX
+      obtain ⟨n, hn⟩ := hX
+      rw [prop_shift_iff, prop_triangEnvelope_iff]
+      exact ⟨n, IsStableUnderShiftBy.le_shift _ hn⟩
 
 instance [IsTriangulated C] : P.triangEnvelope.IsTriangulatedClosed₂ := by
   apply IsTriangulatedClosed₂.mk'
@@ -185,8 +193,10 @@ lemma triangEnvelope_le_iff {Q : ObjectProperty C} [Q.IsStableUnderRetracts] [Q.
   apply extensionProductIter_le_of_isTriangulatedClosed₂
   rwa [retractClosure_le_iff, binaryProductsClosure_le_iff, shiftClosure_le_iff]
 
-/-- An object property `P` is called a classical generator, if every object can be reached
-from objects in `P` by shifts, binary products, retracts and extensions. -/
+/--
+An object property `P` is called a classical generator, if every object can be reached
+from objects in `P` by shifts, binary products, retracts and extensions.
+-/
 @[stacks 09SJ "(1)"]
 def IsClassicalTriangulatedGenerator : Prop := P.triangEnvelope = ⊤
 

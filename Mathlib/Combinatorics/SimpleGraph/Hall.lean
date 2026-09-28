@@ -35,16 +35,22 @@ namespace SimpleGraph
 
 variable {V : Type*} {G : SimpleGraph V}
 
-/-- Given a partition `p` and a function `f` mapping vertices in `p` to the other partition, create
-the subgraph including only the edges between `x` and `f x` for all `x` in `p`. -/
-private
-abbrev hall_subgraph {p : Set V} [DecidablePred (· ∈ p)] (f : p → V) (h₁ : ∀ x : p, f x ∉ p)
-    (h₂ : ∀ x : p, G.Adj x (f x)) : Subgraph G where
+/--
+Given a partition `p` and a function `f` mapping vertices in `p` to the other partition, create
+the subgraph including only the edges between `x` and `f x` for all `x` in `p`.
+-/
+private abbrev hall_subgraph
+    {p : Set V} [DecidablePred (· ∈ p)]
+    (f : p → V) (h₁ : ∀ x : p, f x ∉ p) (h₂ : ∀ x : p, G.Adj x (f x))
+    : Subgraph G where
   verts := p ∪ Set.range f
   Adj v w :=
-    if h : v ∈ p then f ⟨v, h⟩ = w
-    else if h : w ∈ p then f ⟨w, h⟩ = v
-    else False
+    if h : v ∈ p then
+      f ⟨v, h⟩ = w
+    else if h : w ∈ p then
+      f ⟨w, h⟩ = v
+    else
+      False
   adj_sub {v w} h := by
     split_ifs at h
     · exact h ▸ h₂ ⟨v, by assumption⟩
@@ -54,20 +60,24 @@ abbrev hall_subgraph {p : Set V} [DecidablePred (· ∈ p)] (f : p → V) (h₁ 
 
 variable [G.LocallyFinite] {p₁ p₂ : Set V}
 
-/-- This is the version of **Hall's marriage theorem** for bipartite graphs that finds a matching
+/--
+This is the version of **Hall's marriage theorem** for bipartite graphs that finds a matching
 for a single partition given that the neighborhood-condition only holds for elements of that
-partition. -/
-theorem exists_isMatching_of_forall_ncard_le (h₁ : G.IsBipartiteWith p₁ p₂)
-    (h₂ : ∀ s ⊆ p₁, s.ncard ≤ (⋃ x ∈ s, G.neighborSet x).ncard) :
-    ∃ M : Subgraph G, p₁ ⊆ M.verts ∧ M.IsMatching := by
+partition.
+-/
+theorem exists_isMatching_of_forall_ncard_le
+    (h₁ : G.IsBipartiteWith p₁ p₂) (h₂ : ∀ s ⊆ p₁, s.ncard ≤ (⋃ x ∈ s, G.neighborSet x).ncard)
+    : ∃ M : Subgraph G, p₁ ⊆ M.verts ∧ M.IsMatching := by
   classical
-  obtain ⟨f, hf₁, hf₂⟩ := Finset.all_card_le_biUnion_card_iff_exists_injective
-      (fun (x : p₁) ↦ G.neighborFinset x) |>.mp fun s ↦ by
-    have := h₂ (s.image Subtype.val) (by simp)
-    rw [Set.ncard_coe_finset, Finset.card_image_of_injective _ Subtype.val_injective] at this
-    simpa [← Set.ncard_coe_finset, neighborFinset_def]
-  have (x : p₁) : f x ∉ p₁ := h₁.disjoint |>.notMem_of_mem_right <|
-    isBipartiteWith_neighborSet_subset h₁ x.2 <| Set.mem_toFinset.mp <| hf₂ x
+  obtain ⟨f, hf₁, hf₂⟩ :=
+    Finset.all_card_le_biUnion_card_iff_exists_injective (fun (x : p₁) ↦ G.neighborFinset x)
+      |>.mp fun s ↦ by
+        have := h₂ (s.image Subtype.val) (by simp)
+        rw [Set.ncard_coe_finset, Finset.card_image_of_injective _ Subtype.val_injective] at this
+        simpa [← Set.ncard_coe_finset, neighborFinset_def]
+  have (x : p₁) : f x ∉ p₁ :=
+    h₁.disjoint |>.notMem_of_mem_right <| isBipartiteWith_neighborSet_subset h₁ x.2 <|
+      Set.mem_toFinset.mp <| hf₂ x
   use hall_subgraph f this (fun v ↦ G.mem_neighborFinset _ _ |>.mp <| hf₂ v)
   refine ⟨by simp, fun v hv ↦ ?_⟩
   simp only [Set.mem_union, Set.mem_range, Subtype.exists] at hv ⊢
@@ -75,7 +85,7 @@ theorem exists_isMatching_of_forall_ncard_le (h₁ : G.IsBipartiteWith p₁ p₂
   · exact ⟨f ⟨v, h'⟩, by simp_all⟩
   · use x
     have := hx₂ ▸ this ⟨x, hx₁⟩
-    simp only [this, ↓reduceDIte, hx₁, hx₂, dite_false_right, forall_exists_index, true_and]
+    simp only [this, ↓ reduceDIte, hx₁, hx₂, dite_false_right, forall_exists_index, true_and]
     exact fun _ _ k ↦ Subtype.ext_iff.mp <| hf₁ (hx₂ ▸ k)
 
 lemma union_eq_univ_of_forall_ncard_le (h₁ : G.IsBipartiteWith p₁ p₂)
@@ -111,11 +121,13 @@ lemma exists_bijective_of_forall_ncard_le (h₁ : G.IsBipartiteWith p₁ p₂)
   · exact fun v ↦ mem_neighborFinset _ _ _ |>.mp (hf₂ v)
   · exact fun v ↦ mem_neighborFinset _ _ _ |>.mp (hf₂ v) |>.symm
 
-/-- This is the version of **Hall's marriage theorem** for bipartite graphs that finds a perfect
-matching given that the neighborhood-condition holds globally. -/
+/--
+This is the version of **Hall's marriage theorem** for bipartite graphs that finds a perfect
+matching given that the neighborhood-condition holds globally.
+-/
 theorem exists_isPerfectMatching_of_forall_ncard_le
-    (h₁ : G.IsBipartiteWith p₁ p₂) (h₂ : ∀ s : Set V, s.ncard ≤ (⋃ x ∈ s, G.neighborSet x).ncard) :
-    ∃ M : Subgraph G, M.IsPerfectMatching := by
+    (h₁ : G.IsBipartiteWith p₁ p₂) (h₂ : ∀ s : Set V, s.ncard ≤ (⋃ x ∈ s, G.neighborSet x).ncard)
+    : ∃ M : Subgraph G, M.IsPerfectMatching := by
   classical
   obtain ⟨b, hb₁, hb₂⟩ := exists_bijective_of_forall_ncard_le h₁ h₂
   use hall_subgraph (fun v ↦ b v) (fun v ↦ h₁.disjoint.notMem_of_mem_right (b v).property) hb₂

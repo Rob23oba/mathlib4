@@ -10,7 +10,6 @@ public import Mathlib.Order.Filter.AtTopBot.CountablyGenerated
 public import Mathlib.Order.Interval.Finset.Nat
 public import Mathlib.Order.LiminfLimsup
 
-
 /-!
 # Summation filters
 
@@ -27,23 +26,29 @@ open Set Filter Function
 
 variable {α β γ : Type*}
 
-/-- A filter on the set of finite subsets of a type `β`. (Used for defining infinite topological
-sums and products, as limits along the given filter of partial sums / products over finsets.) -/
+/--
+A filter on the set of finite subsets of a type `β`. (Used for defining infinite topological
+sums and products, as limits along the given filter of partial sums / products over finsets.)
+-/
 structure SummationFilter (β) where
   /-- The filter -/
   filter : Filter (Finset β)
 
 namespace SummationFilter
 
-/-- Typeclass asserting that a summation filter `L` is consistent with unconditional summation,
-so that any unconditionally-summable function is `L`-summable with the same sum. -/
+/--
+Typeclass asserting that a summation filter `L` is consistent with unconditional summation,
+so that any unconditionally-summable function is `L`-summable with the same sum.
+-/
 class LeAtTop (L : SummationFilter β) : Prop where
   le_atTop : L.filter ≤ atTop
 
 export LeAtTop (le_atTop)
 
-/-- Typeclass asserting that a summation filter is non-vacuous (if this is not satisfied, then
-every function is summable with every possible sum simultaneously). -/
+/--
+Typeclass asserting that a summation filter is non-vacuous (if this is not satisfied, then
+every function is summable with every possible sum simultaneously).
+-/
 class NeBot (L : SummationFilter β) : Prop where
   ne_bot : L.filter.NeBot
 
@@ -88,17 +93,19 @@ lemma leAtTop_of_not_NeBot (L : SummationFilter β) (hL : ¬L.NeBot) : L.LeAtTop
   exact ⟨L.support_eq_univ_iff.mp hLs⟩
 
 /-- Decidability instance: useful when working with `Finset` sums / products. -/
-instance (L : SummationFilter β) [L.LeAtTop] : DecidablePred (· ∈ L.support) :=
-  fun b ↦ isTrue (by simp)
+instance (L : SummationFilter β) [L.LeAtTop] : DecidablePred (· ∈ L.support) := fun b ↦
+  isTrue (by simp)
 
 end support
 
 section has_support
 
-/-- Typeclass asserting that the sets in `L.filter` are eventually contained in `L.support`. This
+/--
+Typeclass asserting that the sets in `L.filter` are eventually contained in `L.support`. This
 is a sufficient condition for `L`-summation to behave well on finitely-supported functions: every
 finitely-supported `f` is `L`-summable with the sum `∑ᶠ x ∈ L.support, f x` (and similarly for
-products). -/
+products).
+-/
 class HasSupport (L : SummationFilter β) : Prop where
   eventually_le_support : ∀ᶠ s in L.filter, ↑s ⊆ L.support
 
@@ -116,11 +123,14 @@ end has_support
 
 section map_comap
 
-/-- Pushforward of a summation filter along an embedding.
+/--
+Pushforward of a summation filter along an embedding.
 
 (We define this only for embeddings, rather than arbitrary maps, since this is the only case needed
-for the intended applications, and this avoids requiring a `DecidableEq` instance on `γ`.) -/
-@[simps] def map (L : SummationFilter β) (f : β ↪ γ) : SummationFilter γ where
+for the intended applications, and this avoids requiring a `DecidableEq` instance on `γ`.)
+-/
+@[simps]
+def map (L : SummationFilter β) (f : β ↪ γ) : SummationFilter γ where
   filter := L.filter.map (Finset.map f)
 
 @[simp] lemma support_map (L : SummationFilter β) [L.NeBot] (f : β ↪ γ) :
@@ -139,7 +149,8 @@ instance (L : SummationFilter β) [HasSupport L] (f : β ↪ γ) : HasSupport (L
   · simp [h]
 
 /-- Pullback of a summation filter along an embedding. -/
-@[simps] noncomputable def comap (L : SummationFilter β) (f : γ ↪ β) : SummationFilter γ where
+@[simps]
+noncomputable def comap (L : SummationFilter β) (f : γ ↪ β) : SummationFilter γ where
   filter := L.filter.map (fun s ↦ s.preimage f f.injective.injOn)
 
 @[simp] lemma support_comap (L : SummationFilter β) (f : γ ↪ β) :
@@ -163,9 +174,12 @@ section examples
 -/
 variable (β)
 
-/-- **Unconditional summation**: a function on `β` is said to be *unconditionally summable* if its
-partial sums over finite subsets converge with respect to the `atTop` filter. -/
-@[simps] def unconditional : SummationFilter β where
+/--
+**Unconditional summation**: a function on `β` is said to be *unconditionally summable* if its
+partial sums over finite subsets converge with respect to the `atTop` filter.
+-/
+@[simps]
+def unconditional : SummationFilter β where
   filter := atTop
 
 instance : (unconditional β).LeAtTop := ⟨le_rfl⟩
@@ -173,8 +187,7 @@ instance : (unconditional β).LeAtTop := ⟨le_rfl⟩
 instance : (unconditional β).NeBot := ⟨atTop_neBot⟩
 
 /-- This instance is useful for some measure-theoretic statements. -/
-instance [Countable β] : IsCountablyGenerated (unconditional β).filter :=
-  atTop.isCountablyGenerated
+instance [Countable β] : IsCountablyGenerated (unconditional β).filter := atTop.isCountablyGenerated
 
 /-- The unconditional filter is preserved by comaps. -/
 @[simp] lemma comap_unconditional {β} (f : γ ↪ β) :
@@ -210,20 +223,24 @@ section conditionalTop
 
 variable [Preorder β] [LocallyFiniteOrder β]
 
-/-- **Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are
-finite: this corresponds to limits of finite sums over larger and larger intervals. -/
-@[simps] def conditional : SummationFilter β where
+/--
+**Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are
+finite: this corresponds to limits of finite sums over larger and larger intervals.
+-/
+@[simps]
+def conditional : SummationFilter β where
   filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)
 
-instance : (conditional β).LeAtTop := ⟨support_eq_univ_iff.mp <| by
-  simpa [eq_univ_iff_forall, support, -eventually_and]
-    using! fun x ↦ prod_mem_prod (eventually_le_atBot x) (eventually_ge_atTop x)⟩
+instance : (conditional β).LeAtTop :=
+  ⟨support_eq_univ_iff.mp <| by
+    simpa [eq_univ_iff_forall, support, -eventually_and] using! fun x ↦
+      prod_mem_prod (eventually_le_atBot x) (eventually_ge_atTop x)⟩
 
 instance [Nonempty β] [IsDirectedOrder β] [IsCodirectedOrder β] : (conditional β).NeBot :=
   ⟨by rw [conditional_filter]; infer_instance⟩
 
-instance [IsCountablyGenerated (atTop : Filter β)] [IsCountablyGenerated (atBot : Filter β)] :
-    IsCountablyGenerated (conditional β).filter :=
+instance [IsCountablyGenerated (atTop : Filter β)] [IsCountablyGenerated (atBot : Filter β)]
+    : IsCountablyGenerated (conditional β).filter :=
   map.isCountablyGenerated ..
 
 /-- When `β` has a bottom element, `conditional β` is given by limits over finite intervals

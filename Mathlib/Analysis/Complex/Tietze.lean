@@ -28,33 +28,37 @@ public section
 universe u u₁ v w
 
 -- this is not an instance because Lean cannot determine `𝕜`.
-theorem TietzeExtension.of_tvs (𝕜 : Type v) [NontriviallyNormedField 𝕜] {E : Type w}
-    [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E] [IsTopologicalAddGroup E]
+theorem TietzeExtension.of_tvs
+    (𝕜 : Type v) [NontriviallyNormedField 𝕜]
+    {E : Type w} [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E] [IsTopologicalAddGroup E]
     [ContinuousSMul 𝕜 E] [T2Space E] [FiniteDimensional 𝕜 E] [CompleteSpace 𝕜]
-    [TietzeExtension.{u, v} 𝕜] : TietzeExtension.{u, w} E :=
+    [TietzeExtension.{u, v} 𝕜]
+    : TietzeExtension.{u, w} E :=
   Module.Basis.ofVectorSpace 𝕜 E |>.equivFun.toContinuousLinearEquiv.toHomeomorph |> .of_homeo
 
-instance Complex.instTietzeExtension : TietzeExtension ℂ :=
+instance Complex.instTietzeExtension : TietzeExtension ℂ := TietzeExtension.of_tvs ℝ
+
+instance (priority := 900) RCLike.instTietzeExtension {𝕜 : Type*} [RCLike 𝕜] : TietzeExtension 𝕜 :=
   TietzeExtension.of_tvs ℝ
 
-instance (priority := 900) RCLike.instTietzeExtension {𝕜 : Type*} [RCLike 𝕜] :
-    TietzeExtension 𝕜 := TietzeExtension.of_tvs ℝ
-
-instance RCLike.instTietzeExtensionTVS {𝕜 : Type v} [RCLike 𝕜] {E : Type w}
-    [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E] [IsTopologicalAddGroup E]
-    [ContinuousSMul 𝕜 E] [T2Space E] [FiniteDimensional 𝕜 E] :
-    TietzeExtension.{u, w} E :=
+instance RCLike.instTietzeExtensionTVS
+    {𝕜 : Type v} [RCLike 𝕜]
+    {E : Type w} [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E] [IsTopologicalAddGroup E]
+    [ContinuousSMul 𝕜 E] [T2Space E] [FiniteDimensional 𝕜 E]
+    : TietzeExtension.{u, w} E :=
   TietzeExtension.of_tvs 𝕜
 
-instance Set.instTietzeExtensionUnitBall {𝕜 : Type v} [RCLike 𝕜] {E : Type w}
-    [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E] :
-    TietzeExtension.{u, w} (Metric.ball (0 : E) 1) :=
+instance Set.instTietzeExtensionUnitBall
+    {𝕜 : Type v} [RCLike 𝕜]
+    {E : Type w} [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E]
+    : TietzeExtension.{u, w} (Metric.ball (0 : E) 1) :=
   have : NormedSpace ℝ E := NormedSpace.restrictScalars ℝ 𝕜 E
   .of_homeo Homeomorph.unitBall.symm
 
-instance Set.instTietzeExtensionUnitClosedBall {𝕜 : Type v} [RCLike 𝕜] {E : Type w}
-    [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E] :
-    TietzeExtension.{u, w} (Metric.closedBall (0 : E) 1) := by
+instance Set.instTietzeExtensionUnitClosedBall
+    {𝕜 : Type v} [RCLike 𝕜]
+    {E : Type w} [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E]
+    : TietzeExtension.{u, w} (Metric.closedBall (0 : E) 1) := by
   have : NormedSpace ℝ E := NormedSpace.restrictScalars ℝ 𝕜 E
   have : IsScalarTower ℝ 𝕜 E := Real.isScalarTower
   -- I didn't find this retract in Mathlib.
@@ -72,27 +76,36 @@ instance Set.instTietzeExtensionUnitClosedBall {𝕜 : Type v} [RCLike 𝕜] {E 
   · replace hx : ‖x‖ = 1 := by simpa [frontier_closedBall (0 : E) one_ne_zero] using hx
     simp [g, hx]
   · refine continuousOn_id.norm.inv₀ ?_ |>.smul continuousOn_id
-    simp only [closure_compl, interior_closedBall (0 : E) one_ne_zero, mem_compl_iff,
-      Metric.mem_ball, dist_zero_right, not_lt, id_eq, ne_eq, norm_eq_zero]
+    simp only [
+      closure_compl, interior_closedBall (0 : E) one_ne_zero, mem_compl_iff, Metric.mem_ball,
+      dist_zero_right, not_lt, id_eq, ne_eq, norm_eq_zero
+    ]
     exact fun x hx ↦ norm_pos_iff.mp <| one_pos.trans_le hx
 
-theorem Metric.instTietzeExtensionBall {𝕜 : Type v} [RCLike 𝕜] {E : Type w}
-    [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E] {r : ℝ} (hr : 0 < r) :
-    TietzeExtension.{u, w} (Metric.ball (0 : E) r) :=
+theorem Metric.instTietzeExtensionBall
+    {𝕜 : Type v} [RCLike 𝕜]
+    {E : Type w} [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E]
+    {r : ℝ} (hr : 0 < r)
+    : TietzeExtension.{u, w} (Metric.ball (0 : E) r) :=
   have : NormedSpace ℝ E := NormedSpace.restrictScalars ℝ 𝕜 E
   .of_homeo <| show (Metric.ball (0 : E) r) ≃ₜ (Metric.ball (0 : E) 1) from
     OpenPartialHomeomorph.unitBallBall (0 : E) r hr |>.toHomeomorphSourceTarget.symm
 
-theorem Metric.instTietzeExtensionClosedBall (𝕜 : Type v) [RCLike 𝕜] {E : Type w}
-    [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E] (y : E) {r : ℝ} (hr : 0 < r) :
-    TietzeExtension.{u, w} (Metric.closedBall y r) :=
+theorem Metric.instTietzeExtensionClosedBall
+    (𝕜 : Type v) [RCLike 𝕜]
+    {E : Type w} [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E]
+    (y : E)
+    {r : ℝ} (hr : 0 < r)
+    : TietzeExtension.{u, w} (Metric.closedBall y r) :=
   .of_homeo (Z := Metric.closedBall (0 : E) 1) <| by
     symm
     apply (DilationEquiv.smulTorsor y (k := (r : 𝕜)) <| by exact_mod_cast hr.ne').toHomeomorph.sets
     ext x
-    simp only [mem_closedBall, dist_zero_right, DilationEquiv.coe_toHomeomorph, Set.mem_preimage,
+    simp only [
+      mem_closedBall, dist_zero_right, DilationEquiv.coe_toHomeomorph, Set.mem_preimage,
       DilationEquiv.smulTorsor_apply, vadd_eq_add, dist_add_self_left, norm_smul,
-      RCLike.norm_ofReal, abs_of_nonneg hr.le]
+      RCLike.norm_ofReal, abs_of_nonneg hr.le
+    ]
     exact (mul_le_iff_le_one_right hr).symm
 
 instance unitInterval.instTietzeExtension : TietzeExtension unitInterval := by
@@ -106,18 +119,21 @@ variable {E : Type w} [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensi
 namespace BoundedContinuousFunction
 
 include 𝕜 hs in
-/-- **Tietze extension theorem** for real-valued bounded continuous maps, a version with a closed
+/--
+**Tietze extension theorem** for real-valued bounded continuous maps, a version with a closed
 embedding and bundled composition. If `e : C(X, Y)` is a closed embedding of a topological space
 into a normal topological space and `f : X →ᵇ ℝ` is a bounded continuous function, then there exists
-a bounded continuous function `g : Y →ᵇ ℝ` of the same norm such that `g ∘ e = f`. -/
-theorem exists_norm_eq_domRestrict_eq (f : s →ᵇ E) :
-    ∃ g : X →ᵇ E, ‖g‖ = ‖f‖ ∧ g.domRestrict s = f := by
-  by_cases hf : ‖f‖ = 0; · exact ⟨0, by aesop⟩
+a bounded continuous function `g : Y →ᵇ ℝ` of the same norm such that `g ∘ e = f`.
+-/
+theorem exists_norm_eq_domRestrict_eq (f : s →ᵇ E)
+    : ∃ g : X →ᵇ E, ‖g‖ = ‖f‖ ∧ g.domRestrict s = f := by
+  by_cases hf : ‖f‖ = 0
+  · exact ⟨0, by aesop⟩
   have := Metric.instTietzeExtensionClosedBall.{u, v} 𝕜 (0 : E) (by simp_all : 0 < ‖f‖)
   have hf' x : f x ∈ Metric.closedBall 0 ‖f‖ := by simpa using! f.norm_coe_le_norm x
   obtain ⟨g, hg_mem, hg⟩ := (f : C(s, E)).exists_forall_mem_restrict_eq hs hf'
   simp only [Metric.mem_closedBall, dist_zero_right] at hg_mem
-  let g' : X →ᵇ E := .ofNormedAddCommGroup g (map_continuous g) ‖f‖ hg_mem
+  let g' : X →ᵇ E := .ofNormedAddCommGroup g (map_continuous g) (‖f‖) hg_mem
   refine ⟨g', ?_, by ext x; congrm($(hg) x)⟩
   apply le_antisymm ((g'.norm_le <| by positivity).mpr hg_mem)
   refine (f.norm_le <| by positivity).mpr fun x ↦ ?_

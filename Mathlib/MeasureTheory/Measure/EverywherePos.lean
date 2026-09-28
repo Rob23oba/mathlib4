@@ -47,16 +47,18 @@ namespace MeasureTheory.Measure
 
 variable {α : Type*} [TopologicalSpace α] [MeasurableSpace α]
 
-/-- A set `s` is *everywhere positive* (also called *self-supporting*) with respect to a
+/--
+A set `s` is *everywhere positive* (also called *self-supporting*) with respect to a
 measure `μ` if it has positive measure around each of its points, i.e., if all neighborhoods `n`
-of points of `s` satisfy `μ (s ∩ n) > 0`. -/
-def IsEverywherePos (μ : Measure α) (s : Set α) : Prop :=
-  ∀ x ∈ s, ∀ n ∈ 𝓝[s] x, 0 < μ n
+of points of `s` satisfy `μ (s ∩ n) > 0`.
+-/
+def IsEverywherePos (μ : Measure α) (s : Set α) : Prop := ∀ x ∈ s, ∀ n ∈ 𝓝[s] x, 0 < μ n
 
-/-- The everywhere positive subset of a set is the subset made of those points all of whose
-neighborhoods have positive measure inside the set. -/
-def everywherePosSubset (μ : Measure α) (s : Set α) : Set α :=
-  {x | x ∈ s ∧ ∀ n ∈ 𝓝[s] x, 0 < μ n}
+/--
+The everywhere positive subset of a set is the subset made of those points all of whose
+neighborhoods have positive measure inside the set.
+-/
+def everywherePosSubset (μ : Measure α) (s : Set α) : Set α := {x | x ∈ s ∧ ∀ n ∈ 𝓝[s] x, 0 < μ n}
 
 lemma everywherePosSubset_subset (μ : Measure α) (s : Set α) : μ.everywherePosSubset s ⊆ s :=
   fun _x hx ↦ hx.1
@@ -206,9 +208,10 @@ lemma _root_.IsOpen.isEverywherePos [IsOpenPosMeasure μ] (hs : IsOpen s) : IsEv
 
 section IsTopologicalGroup
 
-variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-  [LocallyCompactSpace G] [MeasurableSpace G] [BorelSpace G] {μ : Measure G}
-  [IsMulLeftInvariant μ] [IsFiniteMeasureOnCompacts μ] [InnerRegularCompactLTTop μ]
+variable
+  {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
+  [MeasurableSpace G] [BorelSpace G]
+  {μ : Measure G} [IsMulLeftInvariant μ] [IsFiniteMeasureOnCompacts μ] [InnerRegularCompactLTTop μ]
 
 open scoped Pointwise
 
@@ -277,19 +280,24 @@ lemma IsEverywherePos.IsGdelta_of_isMulLeftInvariant
   have : 0 < μ (k \ ((z * x⁻¹) • k)) := h z zk _ this
   exact lt_irrefl _ (C.le.trans_lt this)
 
-/-- **Halmos' theorem: Haar measure is completion regular.** More precisely, any finite measure
-set can be approximated from inside by a level set of a continuous function with compact support. -/
+/--
+**Halmos' theorem: Haar measure is completion regular.** More precisely, any finite measure
+set can be approximated from inside by a level set of a continuous function with compact support.
+-/
 @[to_additive innerRegularWRT_preimage_one_hasCompactSupport_measure_ne_top_of_addGroup
-/-- **Halmos' theorem: Haar measure is completion regular.** More precisely, any finite measure
+  /-- **Halmos' theorem: Haar measure is completion regular.** More precisely, any finite measure
 set can be approximated from inside by a level set of a continuous function with compact
 support. -/]
-theorem innerRegularWRT_preimage_one_hasCompactSupport_measure_ne_top_of_group :
-    InnerRegularWRT μ (fun s ↦ ∃ (f : G → ℝ), Continuous f ∧ HasCompactSupport f ∧ s = f ⁻¹' {1})
-    (fun s ↦ MeasurableSet s ∧ μ s ≠ ∞) := by
-  /- First, approximate a measurable set from inside by a compact closed set `K`. Then notice that
+theorem innerRegularWRT_preimage_one_hasCompactSupport_measure_ne_top_of_group
+    : InnerRegularWRT μ
+      (fun s ↦ ∃ (f : G → ℝ), Continuous f ∧ HasCompactSupport f ∧ s = f ⁻¹' {1})
+      (fun s ↦ MeasurableSet s ∧ μ s ≠ ∞) := by
+  /-
+  First, approximate a measurable set from inside by a compact closed set `K`. Then notice that
   the everywhere positive subset of `K` is a Gδ,
   by Lemma `IsEverywherePos.IsGdelta_of_isMulLeftInvariant`, and therefore the level set of a
-  continuous compactly supported function. Moreover, it has the same measure as `K`. -/
+  continuous compactly supported function. Moreover, it has the same measure as `K`.
+  -/
   apply InnerRegularWRT.trans _ innerRegularWRT_isCompact_isClosed_measure_ne_top_of_group
   intro K ⟨K_comp, K_closed⟩ r hr
   let L := μ.everywherePosSubset K
@@ -298,12 +306,12 @@ theorem innerRegularWRT_preimage_one_hasCompactSupport_measure_ne_top_of_group :
   refine ⟨L, everywherePosSubset_subset μ K, ?_, ?_⟩
   · have : μ.IsEverywherePos L :=
       isEverywherePos_everywherePosSubset_of_measure_ne_top K_closed.measurableSet
-      K_comp.measure_lt_top.ne
+        K_comp.measure_lt_top.ne
     have L_Gδ : IsGδ L := this.IsGdelta_of_isMulLeftInvariant L_comp L_closed
-    obtain ⟨⟨f, f_cont⟩, Lf, -, f_comp, -⟩ : ∃ f : C(G, ℝ), L = f ⁻¹' {1} ∧ EqOn f 0 ∅
-        ∧ HasCompactSupport f ∧ ∀ x, f x ∈ Icc (0 : ℝ) 1 :=
-      exists_continuous_one_zero_of_isCompact_of_isGδ L_comp L_Gδ isClosed_empty
-        (disjoint_empty L)
+    obtain ⟨⟨f, f_cont⟩, Lf, -, f_comp, -⟩
+        : ∃ f : C(G, ℝ),
+          L = f ⁻¹' {1} ∧ EqOn f 0 ∅ ∧ HasCompactSupport f ∧ ∀ x, f x ∈ Icc (0 : ℝ) 1 :=
+      exists_continuous_one_zero_of_isCompact_of_isGδ L_comp L_Gδ isClosed_empty (disjoint_empty L)
     exact ⟨f, f_cont, f_comp, Lf⟩
   · convert! hr using 1
     apply measure_congr

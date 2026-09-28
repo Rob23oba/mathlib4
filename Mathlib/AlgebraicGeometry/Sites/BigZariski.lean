@@ -43,12 +43,10 @@ namespace AlgebraicGeometry
 namespace Scheme
 
 /-- The Zariski pretopology on the category of schemes. -/
-def zariskiPretopology : Pretopology Scheme.{u} :=
-  pretopology @IsOpenImmersion
+def zariskiPretopology : Pretopology Scheme.{u} := pretopology @IsOpenImmersion
 
 /-- The Zariski topology on the category of schemes. -/
-abbrev zariskiTopology : GrothendieckTopology Scheme.{u} :=
-  grothendieckTopology IsOpenImmersion
+abbrev zariskiTopology : GrothendieckTopology Scheme.{u} := grothendieckTopology IsOpenImmersion
 
 lemma zariskiTopology_eq : zariskiTopology.{u} = zariskiPretopology.toGrothendieck :=
   Precoverage.toGrothendieck_toPretopology_eq_toGrothendieck.symm
@@ -60,10 +58,11 @@ instance subcanonical_zariskiTopology : zariskiTopology.Subcanonical := by
   rw [Precoverage.isSheaf_toGrothendieck_iff_of_isStableUnderBaseChange]
   rintro Y S hS x hx
   obtain ⟨(𝓤 : OpenCover Y), rfl⟩ := exists_cover_of_mem_pretopology hS
-  let e : Y ⟶ X := 𝓤.glueMorphisms (fun j => x (𝓤.f _) (.mk _)) <| by
-    intro i j
-    apply hx
-    exact Limits.pullback.condition
+  let e : Y ⟶ X :=
+    𝓤.glueMorphisms (fun j => x (𝓤.f _) (.mk _)) <| by
+      intro i j
+      apply hx
+      exact Limits.pullback.condition
   refine ⟨e, ?_, ?_⟩
   · rintro Z e ⟨j⟩
     dsimp [e]
@@ -90,8 +89,7 @@ instance : Scheme.forgetToTop.{u}.IsContinuous zariskiTopology TopCat.grothendie
 set_option backward.isDefEq.respectTransparency.types false in
 /-- A Zariski-`1`-hypercover of a scheme where all components are affine. -/
 @[simps! toPreOneHypercover_toPreZeroHypercover]
-noncomputable
-def affineOneHypercover (X : Scheme.{u}) : zariskiTopology.OneHypercover X :=
+noncomputable def affineOneHypercover (X : Scheme.{u}) : zariskiTopology.OneHypercover X :=
   .mk'
     (X.affineCover.refineOneHypercover fun i j ↦
       (pullback (X.affineCover.f i) (X.affineCover.f j)).affineCover.toPreZeroHypercover)

@@ -43,7 +43,8 @@ section sylvester
 
 variable {R S : Type*} [Semiring R] [Semiring S]
 
-/-- The Sylvester matrix of two polynomials `f` and `g` of degrees `m` and `n` respectively is a
+/--
+The Sylvester matrix of two polynomials `f` and `g` of degrees `m` and `n` respectively is a
 `(m+n) × (m+n)` matrix with the coefficients of `f` and `g` arranged in a specific way. Here, `m`
 and `n` are free variables, not necessarily equal to the actual degrees of the polynomials `f` and
 `g`.
@@ -52,17 +53,19 @@ Note that the natural definition would be a `Matrix (Fin (m + n)) (Fin m ⊕ Fin
 having this as a square matrix to take determinants later on.
 -/
 def sylvester (f g : R[X]) (m n : ℕ) : Matrix (Fin (m + n)) (Fin (m + n)) R :=
-  .of fun i j ↦ j.addCases
-    (fun j₁ ↦ if (i : ℕ) ∈ Set.Icc (j₁ : ℕ) (j₁ + n) then g.coeff (i - j₁) else 0)
-    (fun j₁ ↦ if (i : ℕ) ∈ Set.Icc (j₁ : ℕ) (j₁ + m) then f.coeff (i - j₁) else 0)
+  .of fun i j ↦
+    j.addCases
+      (fun j₁ ↦ if (i : ℕ) ∈ Set.Icc (j₁ : ℕ) (j₁ + n) then g.coeff (i - j₁) else 0)
+      (fun j₁ ↦ if (i : ℕ) ∈ Set.Icc (j₁ : ℕ) (j₁ + m) then f.coeff (i - j₁) else 0)
 
 variable (f g : R[X]) (m n : ℕ)
 
-@[simp] theorem sylvester_zero_left_deg :
-    sylvester f g 0 m = Matrix.diagonal (fun _ ↦ f.coeff 0) :=
-  Matrix.ext fun i j ↦ j.addCases nofun fun j ↦ by
-    rw [sylvester, Matrix.of_apply, Fin.addCases_right, Matrix.diagonal_apply]
-    split_ifs <;> simp_all [Fin.ext_iff]
+@[simp]
+theorem sylvester_zero_left_deg : sylvester f g 0 m = Matrix.diagonal (fun _ ↦ f.coeff 0) :=
+  Matrix.ext fun i j ↦
+    j.addCases nofun fun j ↦ by
+      rw [sylvester, Matrix.of_apply, Fin.addCases_right, Matrix.diagonal_apply]
+      split_ifs <;> simp_all [Fin.ext_iff]
 
 lemma sylvester_comm :
     sylvester f g m n = (sylvester g f n m).reindex (finCongr (add_comm n m))
@@ -79,12 +82,14 @@ The Sylvester matrix for `f` and `f.derivative`, modified by dividing the bottom
 the leading coefficient of `f`. Important because its determinant is (up to a sign) the
 discriminant of `f`.
 -/
-noncomputable def sylvesterDeriv (f : R[X]) :
-    Matrix (Fin (f.natDegree - 1 + f.natDegree)) (Fin (f.natDegree - 1 + f.natDegree)) R :=
+noncomputable def sylvesterDeriv (f : R[X])
+    : Matrix (Fin (f.natDegree - 1 + f.natDegree)) (Fin (f.natDegree - 1 + f.natDegree)) R :=
   letI n := f.natDegree
-  if hn : n = 0 then 0
-  else (f.derivative.sylvester f (n - 1) n).updateRow ⟨2 * n - 2, by lia⟩
-    (fun j ↦ if ↑j = n - 2 then 1 else (if ↑j = 2 * n - 2 then n else 0))
+  if hn : n = 0 then
+    0
+  else
+    (f.derivative.sylvester f (n - 1) n).updateRow ⟨2 * n - 2, by lia⟩
+      (fun j ↦ if ↑j = n - 2 then 1 else (if ↑j = 2 * n - 2 then n else 0))
 
 /-- We can get the usual Sylvester matrix of `f` and `f.derivative` back from the modified one
 by multiplying the last row by the leading coefficient of `f`. -/
@@ -127,10 +132,12 @@ section resultant
 
 variable {R S : Type*} [CommRing R] [CommRing S]
 
-/-- The resultant of two polynomials `f` and `g` is the determinant of the Sylvester matrix of `f`
+/--
+The resultant of two polynomials `f` and `g` is the determinant of the Sylvester matrix of `f`
 and `g`. The size arguments `m` and `n` are implemented as `optParam`, meaning that the default
 values are `f.natDegree` and `g.natDegree` respectively, but they can also be specified to be
-other values. -/
+other values.
+-/
 def resultant (f g : R[X]) (m : ℕ := f.natDegree) (n : ℕ := g.natDegree) : R :=
   (sylvester f g m n).det
 
@@ -141,8 +148,7 @@ lemma resultant_map_map (φ : R →+* S) :
     resultant (f.map φ) (g.map φ) m n = φ (resultant f g m n) := by
   simp [resultant, Polynomial.sylvester_map_map, RingHom.map_det]
 
-@[simp] theorem resultant_zero_left_deg : resultant f g 0 m = f.coeff 0 ^ m := by
-  simp [resultant]
+@[simp] theorem resultant_zero_left_deg : resultant f g 0 m = f.coeff 0 ^ m := by simp [resultant]
 
 /-- For polynomial `f` and constant `a`, `Res(f, a) = a ^ m`. -/
 theorem resultant_C_zero_left : resultant (C r) g 0 m = r ^ m := by simp
@@ -163,15 +169,16 @@ lemma resultant_comm : resultant f g m n = (-1) ^ (m * n) * resultant g f n m :=
     ← ite_not (α := R) (p := _ < _) (y := 1), ← ite_and, and_not_self]
   simp [(Fin.isLt _).trans_le, (Fin.isLt _).le.trans, pow_mul]
 
-@[simp] theorem resultant_zero_right_deg : resultant f g m 0 = g.coeff 0 ^ m := by
-  rw [resultant_comm]; simp
+@[simp]
+theorem resultant_zero_right_deg : resultant f g m 0 = g.coeff 0 ^ m := by rw [resultant_comm]; simp
 
 /-- `Res(a, g) = a ^ deg g` -/
 theorem resultant_C_zero_right (r : R) : resultant f (C r) m 0 = r ^ m := by simp
 
 @[simp]
 theorem resultant_zero_right : resultant f 0 m n = 0 ^ m * f.coeff 0 ^ n := by
-  obtain _ | m := m; · simp
+  obtain _ | m := m
+  · simp
   have (i : Fin (m + 1 + n)) : sylvester f 0 (m + 1) n i ⟨0, by lia⟩ = 0 := by
     simp [sylvester, show (0 : Fin (m + 1 + n)) = Fin.castAdd _ 0 from rfl, Fin.addCases_left]
   simpa [resultant] using Matrix.det_eq_zero_of_column_eq_zero ⟨0, by lia⟩ this
@@ -356,19 +363,22 @@ lemma resultant_eq_zero_of_lt_lt (hf : f.natDegree < m) (hg : g.natDegree < n) :
   simp [coeff_eq_zero_of_natDegree_lt hg]
 
 @[simp]
-theorem resultant_C_left (r : R) :
-    resultant (C r) g m n = (-1) ^ (m * n) * g.coeff n ^ m * r ^ n := by
+theorem resultant_C_left (r : R)
+    : resultant (C r) g m n = (-1) ^ (m * n) * g.coeff n ^ m * r ^ n := by
   rw [← zero_add m, resultant_add_left_deg _ _ _ _ _ (by simp), mul_comm n m]
   simp
 
-@[simp] theorem resultant_C_right (r : R) : resultant f (C r) m n = f.coeff m ^ n * r ^ m := by
+@[simp]
+theorem resultant_C_right (r : R) : resultant f (C r) m n = f.coeff m ^ n * r ^ m := by
   rw [← zero_add n, resultant_add_right_deg _ _ _ _ _ (by simp)]
   simp
 
-@[simp] theorem resultant_one_left : resultant 1 g m n = (-1) ^ (m * n) * g.coeff n ^ m := by
+@[simp]
+theorem resultant_one_left : resultant 1 g m n = (-1) ^ (m * n) * g.coeff n ^ m := by
   simpa [-resultant_C_left] using! resultant_C_left g m n 1
 
-@[simp] theorem resultant_one_right : resultant f 1 m n = f.coeff m ^ n := by
+@[simp]
+theorem resultant_one_right : resultant f 1 m n = f.coeff m ^ n := by
   simpa [-resultant_C_right] using! resultant_C_right f m n 1
 
 /-- `Res(X - r, g) = g(r)` -/
@@ -804,19 +814,26 @@ attribute [local simp] Polynomial.mem_degreeLT
 
 /-- The map `(p, q) ↦ f * q + g * p` whose associated matrix is `Syl(f, g)`. -/
 @[simps]
-noncomputable
-def sylvesterMap (f g : R[X]) (hf : f.natDegree ≤ m) (hg : g.natDegree ≤ n) :
-    R[X]_m × R[X]_n →ₗ[R] R[X]_(m + n) where
-  toFun pq := ⟨f * pq.2 + g * pq.1, by
-    obtain ⟨⟨p, hp⟩, ⟨q, hq⟩⟩ := pq
-    rw [Polynomial.mem_degreeLT]
-    refine (degree_add_le _ _).trans_lt (max_lt ?_ ?_)
-    · by_cases hf' : f = 0; · simp_all
-      exact (degree_mul_le _ _).trans_lt (WithBot.add_lt_add_of_le_of_lt (by simpa)
-        (degree_le_of_natDegree_le hf) (by simpa using hq))
-    · by_cases hg' : g = 0; · simp_all
-      exact (degree_mul_le _ _).trans_lt ((WithBot.add_lt_add_of_le_of_lt (by simpa)
-        (degree_le_of_natDegree_le hg) (by simpa using hp)).trans_eq (add_comm _ _))⟩
+noncomputable def sylvesterMap (f g : R[X]) (hf : f.natDegree ≤ m) (hg : g.natDegree ≤ n)
+    : R[X]_m × R[X]_n →ₗ[R] R[X]_(m + n) where
+  toFun pq := ⟨
+    f * pq.2 + g * pq.1,
+    by
+      obtain ⟨⟨p, hp⟩, ⟨q, hq⟩⟩ := pq
+      rw [Polynomial.mem_degreeLT]
+      refine (degree_add_le _ _).trans_lt (max_lt ?_ ?_)
+      · by_cases hf' : f = 0
+        · simp_all
+        exact (degree_mul_le _ _).trans_lt
+          (WithBot.add_lt_add_of_le_of_lt (by simpa) (degree_le_of_natDegree_le hf)
+            (by simpa using hq))
+      · by_cases hg' : g = 0
+        · simp_all
+        exact (degree_mul_le _ _).trans_lt
+          ((WithBot.add_lt_add_of_le_of_lt (by simpa) (degree_le_of_natDegree_le hg)
+              (by simpa using hp)).trans_eq
+            (add_comm _ _))
+  ⟩
   map_add' _ _ := by ext1; dsimp; ring
   map_smul' _ _ := by ext1; simp
 
@@ -846,11 +863,11 @@ lemma toMatrix_sylvesterMap' (f g : R[X]) (hf : f.natDegree ≤ m) (hg : g.natDe
   obtain ⟨j, rfl⟩ := finSumFinEquiv.surjective j
   simpa [LinearMap.toMatrix_apply] using congr($(toMatrix_sylvesterMap f g hf hg) i j)
 
-/-- The adjugate map of the sylvester map. It takes `P` to `(p, q)` such that
-`f * q + g * p = Res(f, g) * P`. -/
-noncomputable
-def adjSylvester (f g : R[X]) :
-    R[X]_(m + n) →ₗ[R] R[X]_m × R[X]_n :=
+/--
+The adjugate map of the sylvester map. It takes `P` to `(p, q)` such that
+`f * q + g * p = Res(f, g) * P`.
+-/
+noncomputable def adjSylvester (f g : R[X]) : R[X]_(m + n) →ₗ[R] R[X]_m × R[X]_n :=
   (f.sylvester g m n).adjugate.toLin (degreeLT.basis R (m + n))
     (((degreeLT.basis R m).prod (degreeLT.basis R n)).reindex finSumFinEquiv)
 
@@ -932,9 +949,11 @@ section disc
 
 variable {R : Type*} [CommRing R]
 
-/-- The discriminant of a polynomial, defined as the determinant of `f.sylvesterDeriv` modified
+/--
+The discriminant of a polynomial, defined as the determinant of `f.sylvesterDeriv` modified
 by a sign. The sign is chosen so polynomials over `ℝ` with all roots real have non-negative
-discriminant. -/
+discriminant.
+-/
 noncomputable def discr (f : R[X]) : R :=
   f.sylvesterDeriv.det * (-1) ^ (f.natDegree * (f.natDegree - 1) / 2)
 

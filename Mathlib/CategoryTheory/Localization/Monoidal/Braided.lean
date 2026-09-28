@@ -28,8 +28,9 @@ open CategoryTheory Category MonoidalCategory BraidedCategory Functor
 
 namespace CategoryTheory.Localization.Monoidal
 
-variable {C D : Type*} [Category* C] [Category* D] (L : C ⥤ D) (W : MorphismProperty C)
-  [MonoidalCategory C] [W.IsMonoidal] [L.IsLocalization W]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (L : C ⥤ D) (W : MorphismProperty C) [MonoidalCategory C] [W.IsMonoidal] [L.IsLocalization W]
   {unit : D} (ε : L.obj (𝟙_ C) ≅ unit)
 
 local notation "L'" => toMonoidalCategory L W ε
@@ -40,19 +41,19 @@ section Braided
 
 variable [BraidedCategory C]
 
-noncomputable instance : Lifting₂ L' L' W W ((curriedTensor C).flip ⋙ (whiskeringRight C C
-    (LocalizedMonoidal L W ε)).obj L') (tensorBifunctor L W ε).flip :=
-  inferInstanceAs (Lifting₂ L' L' W W (((curriedTensor C) ⋙ (whiskeringRight C C
-    (LocalizedMonoidal L W ε)).obj L')).flip (tensorBifunctor L W ε).flip)
+noncomputable instance
+    : Lifting₂ L' L' W W
+      ((curriedTensor C).flip ⋙ (whiskeringRight C C (LocalizedMonoidal L W ε)).obj L')
+      (tensorBifunctor L W ε).flip :=
+  inferInstanceAs (Lifting₂ L' L' W W
+    (((curriedTensor C) ⋙ (whiskeringRight C C (LocalizedMonoidal L W ε)).obj L')).flip
+    (tensorBifunctor L W ε).flip)
 
 /-- The braiding on the localized category as a natural isomorphism of bifunctors. -/
 noncomputable def braidingNatIso : tensorBifunctor L W ε ≅ (tensorBifunctor L W ε).flip :=
-  lift₂NatIso L' L' W W
-    ((curriedTensor C) ⋙ (whiskeringRight C C
-      (LocalizedMonoidal L W ε)).obj L')
-    (((curriedTensor C).flip ⋙ (whiskeringRight C C
-      (LocalizedMonoidal L W ε)).obj L'))
-    _ _ (isoWhiskerRight (curriedBraidingNatIso C) _)
+  lift₂NatIso L' L' W W ((curriedTensor C) ⋙ (whiskeringRight C C (LocalizedMonoidal L W ε)).obj L')
+    (((curriedTensor C).flip ⋙ (whiskeringRight C C (LocalizedMonoidal L W ε)).obj L')) _ _
+    (isoWhiskerRight (curriedBraidingNatIso C) _)
 
 lemma braidingNatIso_hom_app (X Y : C) :
     ((braidingNatIso L W ε).hom.app ((L').obj X)).app ((L').obj Y) =

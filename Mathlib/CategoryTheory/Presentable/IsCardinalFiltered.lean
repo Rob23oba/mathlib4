@@ -37,14 +37,16 @@ namespace CategoryTheory
 
 open Limits Opposite
 
-/-- A category `J` is `κ`-filtered (for a regular cardinal `κ`) if
+/--
+A category `J` is `κ`-filtered (for a regular cardinal `κ`) if
 any functor `F : A ⥤ J` from a category `A` such that `HasCardinalLT (Arrow A) κ`
 admits a cocone. See `isCardinalFiltered_iff` for a more
-concrete characterization of `κ`-filtered categories. -/
-class IsCardinalFiltered (J : Type u) [Category.{v} J]
-    (κ : Cardinal.{w}) [Fact κ.IsRegular] : Prop where
-  nonempty_cocone {A : Type w} [SmallCategory A] (F : A ⥤ J)
-    (hA : HasCardinalLT (Arrow A) κ) : Nonempty (Cocone F)
+concrete characterization of `κ`-filtered categories.
+-/
+class IsCardinalFiltered (J : Type u) [Category.{v} J] (κ : Cardinal.{w}) [Fact κ.IsRegular]
+    : Prop where
+  nonempty_cocone {A : Type w} [SmallCategory A] (F : A ⥤ J) (hA : HasCardinalLT (Arrow A) κ)
+    : Nonempty (Cocone F)
 
 lemma hasCardinalLT_arrow_walkingParallelFamily {T : Type u}
     {κ : Cardinal.{w}} (hT : HasCardinalLT T κ) (hκ : Cardinal.aleph0 ≤ κ) :
@@ -54,22 +56,26 @@ lemma hasCardinalLT_arrow_walkingParallelFamily {T : Type u}
 
 namespace IsCardinalFiltered
 
-instance (priority := low) (κ : Cardinal.{w}) [Fact κ.IsRegular]
-    (J : Type*) [Category* J] [Subsingleton J] [Nonempty J] [Quiver.IsThin J] :
-    IsCardinalFiltered J κ where
+instance (priority := low)
+    (κ : Cardinal.{w}) [Fact κ.IsRegular]
+    (J : Type*) [Category* J] [Subsingleton J] [Nonempty J] [Quiver.IsThin J]
+    : IsCardinalFiltered J κ where
   nonempty_cocone F _ :=
-    ⟨Cocone.mk (Classical.arbitrary _)
-      { app _ := eqToHom (by subsingleton)
-        naturality _ _ _ := by subsingleton }⟩
+    ⟨Cocone.mk (Classical.arbitrary _) {
+      app _ := eqToHom (by subsingleton)
+      naturality _ _ _ := by subsingleton
+    }⟩
 
-variable {J : Type u} [Category.{v} J] {κ : Cardinal.{w}} [hκ : Fact κ.IsRegular]
-  [IsCardinalFiltered J κ]
+variable
+  {J : Type u} [Category.{v} J] {κ : Cardinal.{w}} [hκ : Fact κ.IsRegular] [IsCardinalFiltered J κ]
 
-/-- A choice of cocone for a functor `F : A ⥤ J` such that `HasCardinalLT (Arrow A) κ`
-when `J` is a `κ`-filtered category, and `Arrow A` has cardinality `< κ`. -/
-noncomputable def cocone {A : Type v'} [Category.{u'} A]
-    (F : A ⥤ J) (hA : HasCardinalLT (Arrow A) κ) :
-    Cocone F := by
+/--
+A choice of cocone for a functor `F : A ⥤ J` such that `HasCardinalLT (Arrow A) κ`
+when `J` is a `κ`-filtered category, and `Arrow A` has cardinality `< κ`.
+-/
+noncomputable def cocone
+    {A : Type v'} [Category.{u'} A] (F : A ⥤ J) (hA : HasCardinalLT (Arrow A) κ)
+    : Cocone F := by
   have := hA.small
   have := small_of_small_arrow.{w} A
   have := locallySmall_of_small_arrow.{w} A
@@ -91,16 +97,18 @@ section max
 
 variable {K : Type u'} (S : K → J) (hS : HasCardinalLT K κ)
 
-/-- If `S : K → J` is a family of objects of cardinality `< κ` in a `κ`-filtered category,
+/--
+If `S : K → J` is a family of objects of cardinality `< κ` in a `κ`-filtered category,
 this is a choice of objects in `J` which is the target of a map from any of
-the objects `S k`. -/
-noncomputable def max : J :=
-  (cocone (κ := κ) (Discrete.functor S) (by simpa using hS)).pt
+the objects `S k`.
+-/
+noncomputable def max : J := (cocone (κ := κ) (Discrete.functor S) (by simpa using hS)).pt
 
-/-- If `S : K → J` is a family of objects of cardinality `< κ` in a `κ`-filtered category,
-this is a choice of map `S k ⟶ max S hS` for any `k : K`. -/
-noncomputable def toMax (k : K) :
-    S k ⟶ max S hS :=
+/--
+If `S : K → J` is a family of objects of cardinality `< κ` in a `κ`-filtered category,
+this is a choice of map `S k ⟶ max S hS` for any `k : K`.
+-/
+noncomputable def toMax (k : K) : S k ⟶ max S hS :=
   (cocone (κ := κ) (Discrete.functor S) (by simpa using hS)).ι.app ⟨k⟩
 
 include hS in
@@ -114,25 +122,30 @@ section coeq
 
 variable {K : Type v'} {j j' : J} (f : K → (j ⟶ j')) (hK : HasCardinalLT K κ)
 
-/-- Given a family of maps `f : K → (j ⟶ j')` in a `κ`-filtered category `J`,
+/--
+Given a family of maps `f : K → (j ⟶ j')` in a `κ`-filtered category `J`,
 with `HasCardinalLT K κ`, this is an object of `J` where these morphisms
-shall be equalized. -/
+shall be equalized.
+-/
 noncomputable def coeq : J :=
-  (cocone (parallelFamily f)
-    (hasCardinalLT_arrow_walkingParallelFamily hK hκ.out.aleph0_le)).pt
+  (cocone (parallelFamily f) (hasCardinalLT_arrow_walkingParallelFamily hK hκ.out.aleph0_le)).pt
 
-/-- Given a family of maps `f : K → (j ⟶ j')` in a `κ`-filtered category `J`,
-with `HasCardinalLT K κ`, and `k : K`, this is a choice of morphism `j' ⟶ coeq f hK`. -/
+/--
+Given a family of maps `f : K → (j ⟶ j')` in a `κ`-filtered category `J`,
+with `HasCardinalLT K κ`, and `k : K`, this is a choice of morphism `j' ⟶ coeq f hK`.
+-/
 noncomputable def coeqHom : j' ⟶ coeq f hK :=
-  (cocone (parallelFamily f)
-    (hasCardinalLT_arrow_walkingParallelFamily hK hκ.out.aleph0_le)).ι.app .one
+  (cocone (parallelFamily f) (hasCardinalLT_arrow_walkingParallelFamily hK hκ.out.aleph0_le)).ι.app
+    .one
 
-/-- Given a family of maps `f : K → (j ⟶ j')` in a `κ`-filtered category `J`,
+/--
+Given a family of maps `f : K → (j ⟶ j')` in a `κ`-filtered category `J`,
 with `HasCardinalLT K κ`, this is a morphism `j ⟶ coeq f hK` which is equal
-to all compositions `f k ≫ coeqHom f hK` for `k : K`. -/
+to all compositions `f k ≫ coeqHom f hK` for `k : K`.
+-/
 noncomputable def toCoeq : j ⟶ coeq f hK :=
-  (cocone (parallelFamily f)
-    (hasCardinalLT_arrow_walkingParallelFamily hK hκ.out.aleph0_le)).ι.app .zero
+  (cocone (parallelFamily f) (hasCardinalLT_arrow_walkingParallelFamily hK hκ.out.aleph0_le)).ι.app
+    .zero
 
 @[reassoc]
 lemma coeq_condition (k : K) : f k ≫ coeqHom f hK = toCoeq f hK :=
@@ -197,8 +210,7 @@ lemma isCardinalFiltered_preorder (J : Type w) [Preorder J]
       { app a := homOfLE (hj a)
         naturality _ _ _ := rfl }⟩
 
-instance (κ : Cardinal.{w}) [hκ : Fact κ.IsRegular] :
-    IsCardinalFiltered κ.ord.ToType κ :=
+instance (κ : Cardinal.{w}) [hκ : Fact κ.IsRegular] : IsCardinalFiltered κ.ord.ToType κ :=
   isCardinalFiltered_preorder _ _ (fun ι f hs ↦ by
     contrapose! hs
     rw [← hκ.out.cof_ord, ← Ordinal.cof_toType]
@@ -211,61 +223,72 @@ open IsCardinalFiltered
 
 set_option backward.defeqAttrib.useBackward true in
 instance isCardinalFiltered_under
-    (J : Type u) [Category.{v} J] (κ : Cardinal.{w}) [Fact κ.IsRegular]
-    [IsCardinalFiltered J κ] (j₀ : J) : IsCardinalFiltered (Under j₀) κ where
+    (J : Type u) [Category.{v} J]
+    (κ : Cardinal.{w}) [Fact κ.IsRegular] [IsCardinalFiltered J κ]
+    (j₀ : J)
+    : IsCardinalFiltered (Under j₀) κ where
   nonempty_cocone {A _} F hA := ⟨by
     have := isFiltered_of_isCardinalFiltered J κ
     let c := cocone (F ⋙ Under.forget j₀) hA
-    let x (a : A) : j₀ ⟶ IsFiltered.max j₀ c.pt := (F.obj a).hom ≫ c.ι.app a ≫
-      IsFiltered.rightToMax j₀ c.pt
+    let x (a : A) : j₀ ⟶ IsFiltered.max j₀ c.pt :=
+      (F.obj a).hom ≫ c.ι.app a ≫ IsFiltered.rightToMax j₀ c.pt
     have hκ' : HasCardinalLT A κ := hasCardinalLT_of_hasCardinalLT_arrow hA
-    exact
-      { pt := Under.mk (toCoeq x hκ')
-        ι :=
-          { app a := Under.homMk (c.ι.app a ≫ IsFiltered.rightToMax j₀ c.pt ≫ coeqHom x hκ')
-              (by simpa [x] using coeq_condition x hκ' a)
-            naturality a b f := by
-              ext
-              have := c.w f
-              dsimp at this ⊢
-              simp only [reassoc_of% this, Category.comp_id] } }⟩
+    exact {
+      pt := Under.mk (toCoeq x hκ')
+      ι := {
+        app a :=
+          Under.homMk (c.ι.app a ≫ IsFiltered.rightToMax j₀ c.pt ≫ coeqHom x hκ')
+            (by simpa [x] using coeq_condition x hκ' a)
+        naturality a b f := by
+          ext
+          have := c.w f
+          dsimp at this ⊢
+          simp only [reassoc_of% this, Category.comp_id]
+      }
+    }⟩
 
 set_option backward.defeqAttrib.useBackward true in
-instance isCardinalFiltered_prod (J₁ : Type u) (J₂ : Type u')
-    [Category.{v} J₁] [Category.{v'} J₂] (κ : Cardinal.{w}) [Fact κ.IsRegular]
-    [IsCardinalFiltered J₁ κ] [IsCardinalFiltered J₂ κ] :
-    IsCardinalFiltered (J₁ × J₂) κ where
+instance isCardinalFiltered_prod
+    (J₁ : Type u) (J₂ : Type u') [Category.{v} J₁] [Category.{v'} J₂]
+    (κ : Cardinal.{w}) [Fact κ.IsRegular] [IsCardinalFiltered J₁ κ] [IsCardinalFiltered J₂ κ]
+    : IsCardinalFiltered (J₁ × J₂) κ where
   nonempty_cocone F hC := ⟨by
     let c₁ := cocone (F ⋙ Prod.fst _ _) hC
     let c₂ := cocone (F ⋙ Prod.snd _ _) hC
-    exact
-      { pt := (c₁.pt, c₂.pt)
-        ι.app i := (c₁.ι.app i, c₂.ι.app i)
-        ι.naturality {i j} f := by
-          ext
-          · simpa using c₁.w f
-          · simpa using c₂.w f }⟩
+    exact {
+      pt := (c₁.pt, c₂.pt)
+      ι.app i := (c₁.ι.app i, c₂.ι.app i)
+      ι.naturality {i j} f := by
+        ext
+        · simpa using c₁.w f
+        · simpa using c₂.w f
+    }⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance isCardinalFiltered_pi {ι : Type u'} (J : ι → Type u) [∀ i, Category.{v} (J i)]
-    (κ : Cardinal.{w}) [Fact κ.IsRegular] [∀ i, IsCardinalFiltered (J i) κ] :
-    IsCardinalFiltered (∀ i, J i) κ where
+instance isCardinalFiltered_pi
+    {ι : Type u'} (J : ι → Type u) [∀ i, Category.{v} (J i)]
+    (κ : Cardinal.{w}) [Fact κ.IsRegular] [∀ i, IsCardinalFiltered (J i) κ]
+    : IsCardinalFiltered (∀ i, J i) κ where
   nonempty_cocone F hC := ⟨by
     let c (i : ι) := cocone (F ⋙ Pi.eval J i) hC
-    exact
-      { pt i := (c i).pt
-        ι.app X i := (c i).ι.app X
-        ι.naturality {X Y} f := by
-          ext i
-          simpa using! (c i).ι.naturality f }⟩
+    exact {
+      pt i := (c i).pt
+      ι.app X i := (c i).ι.app X
+      ι.naturality {X Y} f := by
+        ext i
+        simpa using! (c i).ι.naturality f
+    }⟩
 
 section
 
-variable {J : Type u} [Category.{v} J] {κ : Cardinal.{w}} [Fact κ.IsRegular]
-  (h₁ : (∀ ⦃ι : Type w⦄ (j : ι → J) (_ : HasCardinalLT ι κ),
-          ∃ (k : J), ∀ (i : ι), Nonempty (j i ⟶ k)))
+variable
+  {J : Type u} [Category.{v} J]
+  {κ : Cardinal.{w}} [Fact κ.IsRegular]
+  (h₁ : (∀ ⦃ι : Type w⦄ (j : ι → J) (_ : HasCardinalLT ι κ), ∃ (k : J), ∀ (i : ι),
+    Nonempty (j i ⟶ k)))
   (h₂ : ∀ ⦃ι : Type w⦄ ⦃j k : J⦄ (f : ι → (j ⟶ k)) (_ : HasCardinalLT ι κ),
-      ∃ (l : J) (a : k ⟶ l) (b : j ⟶ l), ∀ (i : ι), f i ≫ a = b)
+    ∃ (l : J) (a : k ⟶ l) (b : j ⟶ l), ∀ (i : ι),
+      f i ≫ a = b)
 
 include h₁ h₂ in
 omit [Fact κ.IsRegular] in

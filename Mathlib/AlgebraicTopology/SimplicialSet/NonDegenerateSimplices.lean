@@ -34,7 +34,8 @@ namespace SSet
 variable (X : SSet.{u})
 
 /-- The type of non degenerate simplices of a simplicial set. -/
-structure N extends X.S where mk' ::
+structure N extends X.S where
+  mk' ::
   nonDegenerate : simplex ∈ X.nonDegenerate _
 
 namespace N
@@ -55,12 +56,15 @@ lemma mk_surjective (x : X.N) :
     ∃ (n : ℕ) (y : X.nonDegenerate n), x = N.mk _ y.prop :=
   ⟨x.dim, ⟨_, x.nonDegenerate⟩, rfl⟩
 
-/-- Induction principle for the type `X.N` of nondegenerate simplices of
-a simplicial set `X`. -/
+/--
+Induction principle for the type `X.N` of nondegenerate simplices of
+a simplicial set `X`.
+-/
 @[elab_as_elim, cases_eliminator, induction_eliminator]
-def induction {motive : X.N → Sort*}
-    (mk : ∀ (n : ℕ) (x : X.nonDegenerate n), motive (mk x.val x.property)) (s : X.N) :
-    motive s :=
+def induction
+    {motive : X.N → Sort*} (mk : ∀ (n : ℕ) (x : X.nonDegenerate n), motive (mk x.val x.property))
+    (s : X.N)
+    : motive s :=
   mk s.dim ⟨_, s.nonDegenerate⟩
 
 @[simp]
@@ -134,8 +138,10 @@ section
 
 variable (s : X.N) {d : ℕ} (hd : s.dim = d)
 
-/-- When `s : X.N` is such that `s.dim = d`, this is a term
-that is equal to `s`, but whose dimension if definitionally equal to `d`. -/
+/--
+When `s : X.N` is such that `s.dim = d`, this is a term
+that is equal to `s`, but whose dimension if definitionally equal to `d`.
+-/
 abbrev cast : X.N where
   toS := s.toS.cast hd
   nonDegenerate := by
@@ -172,10 +178,12 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The bijection `X.op.N ≃ X.N`. -/
 @[simps -isSimp apply symm_apply]
 def opEquiv : X.op.N ≃o X.N where
-  toFun x := N.mk (opObjEquiv x.simplex)
-    (by simpa only [opObjEquiv_mem_nonDegenerate_iff] using x.nonDegenerate)
-  invFun y := N.mk (opObjEquiv.symm y.simplex)
-    (by simpa [← opObjEquiv_mem_nonDegenerate_iff] using y.nonDegenerate)
+  toFun x :=
+    N.mk (opObjEquiv x.simplex)
+      (by simpa only [opObjEquiv_mem_nonDegenerate_iff] using x.nonDegenerate)
+  invFun y :=
+    N.mk (opObjEquiv.symm y.simplex)
+      (by simpa [← opObjEquiv_mem_nonDegenerate_iff] using y.nonDegenerate)
   map_rel_iff' {x y} := by
     dsimp
     simp only [le_iff, Subcomplex.ofSimplex_le_iff, Subcomplex.mem_ofSimplex_obj_iff]
@@ -187,14 +195,16 @@ def opEquiv : X.op.N ≃o X.N where
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The bijection `X.N ≃ Y.N` on nondegenerate simplices of simplicial sets
-that is induced by an isomorphism `X ≅ Y`. -/
+/--
+The bijection `X.N ≃ Y.N` on nondegenerate simplices of simplicial sets
+that is induced by an isomorphism `X ≅ Y`.
+-/
 @[simps -isSimp apply symm_apply]
 def orderIsoOfIso {Y : SSet.{u}} (e : X ≅ Y) : X.N ≃o Y.N where
-  toFun x := N.mk (e.hom.app _ x.simplex)
-    ((nonDegenerate_iff_of_isIso e.hom x.simplex).mpr x.nonDegenerate)
-  invFun y := N.mk (e.inv.app _ y.simplex)
-    ((nonDegenerate_iff_of_isIso e.inv y.simplex).mpr y.nonDegenerate)
+  toFun x :=
+    N.mk (e.hom.app _ x.simplex) ((nonDegenerate_iff_of_isIso e.hom x.simplex).mpr x.nonDegenerate)
+  invFun y :=
+    N.mk (e.inv.app _ y.simplex) ((nonDegenerate_iff_of_isIso e.inv y.simplex).mpr y.nonDegenerate)
   left_inv x := by simp [N.ext_iff, S.ext_iff']
   right_inv _ := by simp [N.ext_iff, S.ext_iff']
   map_rel_iff' {x y} := by
@@ -207,8 +217,10 @@ def orderIsoOfIso {Y : SSet.{u}} (e : X ≅ Y) : X.N ≃o Y.N where
 
 end N
 
-/-- The map which sends a non degenerate simplex of a simplicial set to
-the subcomplex it generates is an order embedding. -/
+/--
+The map which sends a non degenerate simplex of a simplicial set to
+the subcomplex it generates is an order embedding.
+-/
 @[simps]
 def orderEmbeddingN : X.N ↪o X.Subcomplex where
   toFun x := x.subcomplex
@@ -263,8 +275,10 @@ lemma existsUnique_n (x : X.S) : ∃! (y : X.N), y.subcomplex = x.subcomplex :=
       exact ⟨f.op, rfl⟩)
     (fun y₁ y₂ h₁ h₂ ↦ N.subcomplex_injective (by rw [h₁, h₂]))
 
-/-- This is the non degenerate simplex of a simplicial set which
-generates the same subcomplex as a given simplex. -/
+/--
+This is the non degenerate simplex of a simplicial set which
+generates the same subcomplex as a given simplex.
+-/
 noncomputable def toN (x : X.S) : X.N := x.existsUnique_n.exists.choose
 
 @[simp]
@@ -287,12 +301,14 @@ lemma existsUnique_toNπ {x : X.S} {y : X.N} (hy : x.toN = y) :
   refine existsUnique_of_exists_of_unique ⟨f, inferInstance, rfl⟩
     (fun f₁ f₂ ⟨_, hf₁⟩ ⟨_, hf₂⟩ ↦ unique_nonDegenerate_map _ _ _ _ hf₁.symm _ _ hf₂.symm)
 
-/-- Given a simplex `x : X.S` of a simplicial set `X`, this is the unique
+/--
+Given a simplex `x : X.S` of a simplicial set `X`, this is the unique
 (epi)morphism `f : ⦋x.dim⦌ ⟶ ⦋x.toN.dim⦌` such that `x.simplex` is
 `X.map f.op x.toN.simplex` where `x.toN : X.N` is the unique nondegenerate
-simplex of `X` which generates the same subcomplex as `x`. -/
-@[no_expose] noncomputable def toNπ (x : X.S) : ⦋x.dim⦌ ⟶ ⦋x.toN.dim⦌ :=
-  (existsUnique_toNπ rfl).exists.choose
+simplex of `X` which generates the same subcomplex as `x`.
+-/
+@[no_expose]
+noncomputable def toNπ (x : X.S) : ⦋x.dim⦌ ⟶ ⦋x.toN.dim⦌ := (existsUnique_toNπ rfl).exists.choose
 
 instance (x : X.S) : Epi x.toNπ := (existsUnique_toNπ rfl).exists.choose_spec.1
 

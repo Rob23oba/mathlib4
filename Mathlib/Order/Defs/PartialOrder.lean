@@ -45,8 +45,8 @@ You can override this definition to set a better def-eq.
 class Preorder (α : Type*) extends LE α, LT α where
   protected le_refl : ∀ a : α, a ≤ a
   protected le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c
-  lt := fun a b => a ≤ b ∧ ¬b ≤ a
-  protected lt_iff_le_not_ge : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬b ≤ a := by intros; rfl
+  lt := fun a b => a ≤ b ∧ ¬ b ≤ a
+  protected lt_iff_le_not_ge : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by intros; rfl
 
 attribute [to_dual self (reorder := le_trans (a c, 4 5), lt_iff_le_not_ge (a b))] Preorder.mk
 
@@ -139,31 +139,30 @@ instance instTransGEGT : @Trans α α α GE.ge GT.gt GT.gt := ⟨lt_of_le_of_lt'
 
 /-- `<` is decidable if `≤` is. -/
 @[instance_reducible]
-def decidableLTOfDecidableLE [DecidableLE α] : DecidableLT α :=
-  fun _ _ => decidable_of_iff _ lt_iff_le_not_ge.symm
+def decidableLTOfDecidableLE [DecidableLE α] : DecidableLT α := fun _ _ =>
+  decidable_of_iff _ lt_iff_le_not_ge.symm
 
-/-- `WCovBy a b` means that `a = b` or `b` covers `a`.
+/--
+`WCovBy a b` means that `a = b` or `b` covers `a`.
 This means that `a ≤ b` and there is no element in between. This is denoted `a ⩿ b`.
 -/
 @[to_dual self (reorder := 3 4)]
-def WCovBy (a b : α) : Prop :=
-  a ≤ b ∧ ∀ ⦃c⦄, a < c → ¬c < b
+def WCovBy (a b : α) : Prop := a ≤ b ∧ ∀ ⦃c⦄, a < c → ¬ c < b
 
 to_dual_insert_cast WCovBy := by grind
 
-@[inherit_doc]
-infixl:50 " ⩿ " => WCovBy
+@[inherit_doc] infixl:50 " ⩿ " => WCovBy
 
-/-- `CovBy a b` means that `b` covers `a`. This means that `a < b` and there is no element in
-between. This is denoted `a ⋖ b`. -/
+/--
+`CovBy a b` means that `b` covers `a`. This means that `a < b` and there is no element in
+between. This is denoted `a ⋖ b`.
+-/
 @[to_dual self (reorder := 3 4)]
-def CovBy {α : Type*} [LT α] (a b : α) : Prop :=
-  a < b ∧ ∀ ⦃c⦄, a < c → ¬c < b
+def CovBy {α : Type*} [LT α] (a b : α) : Prop := a < b ∧ ∀ ⦃c⦄, a < c → ¬ c < b
 
 to_dual_insert_cast CovBy := by grind
 
-@[inherit_doc]
-infixl:50 " ⋖ " => CovBy
+@[inherit_doc] infixl:50 " ⋖ " => CovBy
 
 end Preorder
 
@@ -208,7 +207,8 @@ def decidableEqOfDecidableLE [DecidableLE α] : DecidableEq α
   | a, b =>
     if hab : a ≤ b then
       if hba : b ≤ a then isTrue (le_antisymm hab hba) else isFalse fun heq => hba (heq ▸ le_refl _)
-    else isFalse fun heq => hab (heq ▸ le_refl _)
+    else
+      isFalse fun heq => hab (heq ▸ le_refl _)
 
 -- See Note [decidable namespace]
 @[to_dual Decidable.lt_or_eq_of_le']

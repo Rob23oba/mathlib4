@@ -25,15 +25,15 @@ instance [Preorder X] [h : SuccOrder X] : SuccOrder (Additive X) := h
 instance [Preorder X] [h : PredOrder X] : PredOrder (Multiplicative X) := h
 instance [Preorder X] [h : PredOrder X] : PredOrder (Additive X) := h
 
-instance [Preorder X] [SuccOrder X] [h : IsSuccArchimedean X] :
-    IsSuccArchimedean (Multiplicative X) := h
-instance [Preorder X] [SuccOrder X] [h : IsSuccArchimedean X] :
-    IsSuccArchimedean (Additive X) := h
+instance [Preorder X] [SuccOrder X] [h : IsSuccArchimedean X]
+    : IsSuccArchimedean (Multiplicative X) :=
+  h
+instance [Preorder X] [SuccOrder X] [h : IsSuccArchimedean X] : IsSuccArchimedean (Additive X) := h
 
-instance [Preorder X] [PredOrder X] [h : IsPredArchimedean X] :
-    IsPredArchimedean (Multiplicative X) := h
-instance [Preorder X] [PredOrder X] [h : IsPredArchimedean X] :
-    IsPredArchimedean (Additive X) := h
+instance [Preorder X] [PredOrder X] [h : IsPredArchimedean X]
+    : IsPredArchimedean (Multiplicative X) :=
+  h
+instance [Preorder X] [PredOrder X] [h : IsPredArchimedean X] : IsPredArchimedean (Additive X) := h
 
 namespace Order
 

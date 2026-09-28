@@ -89,8 +89,10 @@ noncomputable section
 
 open Function Multiplicative SkewMonoidAlgebra
 
-/-- The skew polynomials over `R` is the type of univariate polynomials over `R`
-endowed with a skewed convolution product. -/
+/--
+The skew polynomials over `R` is the type of univariate polynomials over `R`
+endowed with a skewed convolution product.
+-/
 abbrev SkewPolynomial (R : Type*) [AddCommMonoid R] := SkewMonoidAlgebra R (Multiplicative ℕ)
 
 namespace SkewPolynomial
@@ -101,14 +103,11 @@ section Semiring
 
 variable [Semiring R] {p q : SkewPolynomial R}
 
-
 lemma zero_def : (0 : SkewPolynomial R) = (0 : SkewMonoidAlgebra R (Multiplicative ℕ)) := rfl
 
 variable {S : Type*}
 
-/--
-The set of all `n` such that `X^n` has a non-zero coefficient.
--/
+/-- The set of all `n` such that `X^n` has a non-zero coefficient. -/
 def support (p : SkewPolynomial R) : Finset ℕ :=
   Finset.map ⟨toAdd, toAdd.injective⟩ (SkewMonoidAlgebra.support p)
 
@@ -136,8 +135,10 @@ lemma mem_support_iff : n ∈ p.support ↔ p.coeff n ≠ 0 := by
 
 lemma notMem_support_iff : n ∉ p.support ↔ p.coeff n = 0 := by simp
 
-/-- `p.sum f` is `∑ n ∈ p.support, f n (p.coeff n)`, i.e., one sums the values of functions applied
-  to coefficients of the polynomial `p`. -/
+/--
+`p.sum f` is `∑ n ∈ p.support, f n (p.coeff n)`, i.e., one sums the values of functions applied
+to coefficients of the polynomial `p`.
+-/
 def sum {S : Type*} [AddCommMonoid S] (p : SkewPolynomial R) (f : ℕ → R → S) : S :=
   (SkewMonoidAlgebra.coeff p).sum fun n r ↦ f (toAdd n : ℕ) r
 
@@ -215,8 +216,10 @@ section phi
 
 variable [MulSemiringAction (Multiplicative ℕ) R]
 
-/-- Ring homomorphism associated to the twist of the skew polynomial ring.
-The multiplication in a skew polynomial ring is given by `xr = φ(r)x`. -/
+/--
+Ring homomorphism associated to the twist of the skew polynomial ring.
+The multiplication in a skew polynomial ring is given by `xr = φ(r)x`.
+-/
 abbrev φ := MulSemiringAction.toRingHom (Multiplicative ℕ) R (ofAdd 1)
 
 theorem φ_def : φ = MulSemiringAction.toRingHom (Multiplicative ℕ) R (ofAdd 1) := rfl
@@ -263,8 +266,10 @@ section RingHom
 
 variable [MulSemiringAction (Multiplicative ℕ) R]
 
-/-- `CRingHom a` is the constant SkewPolynomial `a`, as a ring homomorphism. This requires
-`[MulSemiringAction (Multiplicative ℕ) R]`. -/
+/--
+`CRingHom a` is the constant SkewPolynomial `a`, as a ring homomorphism. This requires
+`[MulSemiringAction (Multiplicative ℕ) R]`.
+-/
 def CRingHom : R →+* SkewPolynomial R := SkewMonoidAlgebra.singleOneRingHom
 
 lemma CRingHom_eq_C : CRingHom a = C a := rfl
@@ -646,8 +651,7 @@ section erase
 variable [Semiring R]
 
 /-- `erase p n` is the polynomial `p` in which the `X ^ n` term has been erased. -/
-def erase (n : ℕ) (p : SkewPolynomial R) : SkewPolynomial R :=
-  SkewMonoidAlgebra.erase (ofAdd n) p
+def erase (n : ℕ) (p : SkewPolynomial R) : SkewPolynomial R := SkewMonoidAlgebra.erase (ofAdd n) p
 
 @[simp]
 lemma support_erase {p : SkewPolynomial R} (n : ℕ) :
@@ -686,9 +690,11 @@ section update
 
 variable [Semiring R]
 
-/-- Replace the coefficient of a `p : SkewPolynomial R` at a given degree `n : ℕ`
+/--
+Replace the coefficient of a `p : SkewPolynomial R` at a given degree `n : ℕ`
 by a given value `a : R`. If `a = 0`, this is equal to `p.erase n`
-If `p.natDegree < n` and `a ≠ 0`, this increases the degree to `n`. -/
+If `p.natDegree < n` and `a ≠ 0`, this increases the degree to `n`.
+-/
 def update (p : SkewPolynomial R) (n : ℕ) (a : R) : SkewPolynomial R :=
   SkewMonoidAlgebra.update p (ofAdd n) a
 

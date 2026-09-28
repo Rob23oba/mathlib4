@@ -28,14 +28,17 @@ namespace SSet
 
 namespace stdSimplex
 
-/-- Given `i : Fin (n + 2)`, this is the `n`-simplex of `Δ[1]` which corresponds
-to the monotone map `Fin (n + 1) → Fin 2` which takes `i` times the value `0`. -/
+/--
+Given `i : Fin (n + 2)`, this is the `n`-simplex of `Δ[1]` which corresponds
+to the monotone map `Fin (n + 1) → Fin 2` which takes `i` times the value `0`.
+-/
 def objMk₁ {n : ℕ} (i : Fin (n + 2)) : (Δ[1] _⦋n⦌ : Type u) :=
-  objMk
-    { toFun j := if j.castSucc < i then 0 else 1
-      monotone' j₁ j₂ h := by
-        dsimp
-        split_ifs <;> grind }
+  objMk {
+    toFun j := if j.castSucc < i then 0 else 1
+    monotone' j₁ j₂ h := by
+      dsimp
+      split_ifs <;> grind
+  }
 
 lemma objMk₁_apply {n : ℕ} (i : Fin (n + 2)) (j : Fin (n + 1)) :
     dsimp% objMk₁ i j = if j.castSucc < i then 0 else 1 := rfl

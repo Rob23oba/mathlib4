@@ -45,16 +45,15 @@ namespace CategoryTheory
 
 namespace LocalizerMorphism
 
-variable {C₁ C₂ D₁ D₂ : Type*} [Category* C₁] [Category* C₂] [Category* D₁] [Category* D₂]
-  {W₁ : MorphismProperty C₁} {W₁' : MorphismProperty D₁}
-  {W₂ : MorphismProperty C₂} {W₂' : MorphismProperty D₂}
-  {T : LocalizerMorphism W₁ W₂} {L : LocalizerMorphism W₁ W₁'}
+variable
+  {C₁ C₂ D₁ D₂ : Type*} [Category* C₁] [Category* C₂] [Category* D₁] [Category* D₂]
+  {W₁ : MorphismProperty C₁} {W₁' : MorphismProperty D₁} {W₂ : MorphismProperty C₂}
+  {W₂' : MorphismProperty D₂} {T : LocalizerMorphism W₁ W₂} {L : LocalizerMorphism W₁ W₁'}
   {R : LocalizerMorphism W₂ W₂'} {B : LocalizerMorphism W₁' W₂'}
 
 section
 
-variable [W₂'.RespectsIso]
-  [L.IsLocalizedEquivalence] [R.IsLocalizedEquivalence] [R.functor.EssSurj]
+variable [W₂'.RespectsIso] [L.IsLocalizedEquivalence] [R.IsLocalizedEquivalence] [R.functor.EssSurj]
 
 set_option backward.isDefEq.respectTransparency false in
 lemma isLeftDerivabilityStructure_of_isLocalizedEquivalence
@@ -142,8 +141,9 @@ lemma isRightDerivabilityStructure_iff_of_isLocalizedEquivalence
 
 end
 
-variable [W₁'.RespectsIso] [W₂'.RespectsIso] [L.IsInduced] [L.functor.IsEquivalence]
-  [R.IsInduced] [R.functor.IsEquivalence]
+variable
+  [W₁'.RespectsIso] [W₂'.RespectsIso] [L.IsInduced] [L.functor.IsEquivalence] [R.IsInduced]
+  [R.functor.IsEquivalence]
   (iso : T.functor ⋙ R.functor ≅ L.functor ⋙ B.functor)
 
 set_option backward.isDefEq.respectTransparency.types false in

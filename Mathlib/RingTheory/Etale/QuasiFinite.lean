@@ -29,15 +29,17 @@ open TensorProduct
 
 section BijectiveResidueField
 
-variable {R R' S : Type*} [CommRing R] [CommRing R'] [CommRing S] [Algebra R R'] [Algebra R S]
-    {p : Ideal R} {q : Ideal R'} [p.IsPrime] [q.IsPrime] [q.LiesOver p]
+variable
+  {R R' S : Type*} [CommRing R] [CommRing R'] [CommRing S] [Algebra R R'] [Algebra R S]
+  {p : Ideal R} {q : Ideal R'} [p.IsPrime] [q.IsPrime] [q.LiesOver p]
 
-/-- If `q` is a prime of `R'` lying over `p`, a prime of `R`, such that `κ(q) = κ(p)`, then
-the fiber of `R' → R' ⊗[R] S` over `q` is in bijection with the fiber of `R → S` over `p`. -/
-noncomputable
-def Ideal.fiberIsoOfBijectiveResidueField
-    (H : Function.Bijective (Ideal.ResidueField.mapₐ p q (Algebra.ofId _ _) (q.over_def p))) :
-    q.primesOver (R' ⊗[R] S) ≃o p.primesOver S :=
+/--
+If `q` is a prime of `R'` lying over `p`, a prime of `R`, such that `κ(q) = κ(p)`, then
+the fiber of `R' → R' ⊗[R] S` over `q` is in bijection with the fiber of `R → S` over `p`.
+-/
+noncomputable def Ideal.fiberIsoOfBijectiveResidueField
+    (H : Function.Bijective (Ideal.ResidueField.mapₐ p q (Algebra.ofId _ _) (q.over_def p)))
+    : q.primesOver (R' ⊗[R] S) ≃o p.primesOver S :=
   let := Localization.AtPrime.algebraOfLiesOver p q
   let e : q.Fiber (R' ⊗[R] S) ≃ₐ[p.ResidueField] p.Fiber S :=
     ((Algebra.TensorProduct.cancelBaseChange _ _ q.ResidueField _ _).restrictScalars _).trans
@@ -80,7 +82,8 @@ open Polynomial
 
 universe u v
 
-variable {R : Type u} {S : Type v} {T : Type*}
+variable
+  {R : Type u} {S : Type v} {T : Type*}
   [CommRing R] [CommRing S] [CommRing T] [Algebra R S] [Algebra R T]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -140,8 +143,8 @@ lemma Localization.exists_finite_awayMapₐ_of_surjective_awayMapₐ
     exact .of_restrictScalars_finiteType R _ _
 
 set_option backward.isDefEq.respectTransparency false in
-attribute [local instance high] Algebra.TensorProduct.leftAlgebra IsScalarTower.right
-  DivisionRing.instIsArtinianRing in
+attribute [local instance high]
+  Algebra.TensorProduct.leftAlgebra IsScalarTower.right DivisionRing.instIsArtinianRing in
 /-- A variant of `Ideal.exists_not_mem_forall_mem_of_ne_of_liesOver` that also gives you
 control on the primes in the integral closure. -/
 lemma Algebra.exists_notMem_and_isIntegral_forall_mem_of_ne_of_liesOver
@@ -446,41 +449,46 @@ attribute [local instance] Localization.AtPrime.algebraOfLiesOver
 /-- A key induction step of `exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq`. -/
 private theorem Algebra.exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq_aux
     {R : Type u} {S : Type (max u v)} [CommRing R] [CommRing S] [Algebra R S]
-    (p : Ideal R) [p.IsPrime] (q : Ideal S)
-    (R' : Type u) [CommRing R'] [Algebra R R'] [Algebra.Etale R R'] (P : Ideal R')
-    [P.IsPrime] [P.LiesOver p] (e : R' ⊗[R] S) (P' : Ideal (R' ⊗[R] S))
-    [P'.IsPrime] [P'.LiesOver P]
-    (hP'q : Ideal.comap Algebra.TensorProduct.includeRight.toRingHom P' = q)
-    (heP' : e ∉ P') (hpP : Function.Bijective
-      (Ideal.ResidueField.mapₐ p P (Algebra.ofId _ _) (P.over_def p)))
+    (p : Ideal R) [p.IsPrime]
+    (q : Ideal S)
+    (R' : Type u) [CommRing R'] [Algebra R R'] [Algebra.Etale R R']
+    (P : Ideal R') [P.IsPrime] [P.LiesOver p]
+    (e : R' ⊗[R] S)
+    (P' : Ideal (R' ⊗[R] S)) [P'.IsPrime] [P'.LiesOver P]
+    (hP'q : Ideal.comap Algebra.TensorProduct.includeRight.toRingHom P' = q) (heP' : e ∉ P')
+    (hpP : Function.Bijective (Ideal.ResidueField.mapₐ p P (Algebra.ofId _ _) (P.over_def p)))
     (H : ∀ (P'' : Ideal (R' ⊗[R] S)), P''.IsPrime → P''.LiesOver P → e ∉ P'' → P'' = P')
-    (R'' : Type u) [CommRing R''] [Algebra R' R''] [Algebra R R''] [IsScalarTower R R' R'']
-    [Algebra.Etale R' R''] (Q : Ideal R'')
-    [Q.IsPrime] [Q.LiesOver P] (n : ℕ)
-    (e' : Fin ((n + 1) + 1) → R'' ⊗[R] S)
-    (he' : CompleteOrthogonalIdempotents e')
+    (R'' : Type u)
+    [CommRing R''] [Algebra R' R''] [Algebra R R''] [IsScalarTower R R' R''] [Algebra.Etale R' R'']
+    (Q : Ideal R'') [Q.IsPrime] [Q.LiesOver P]
+    (n : ℕ) (e' : Fin ((n + 1) + 1) → R'' ⊗[R] S) (he' : CompleteOrthogonalIdempotents e')
     (he'0 : e' 0 = Algebra.TensorProduct.map (Algebra.ofId R' R'') (AlgHom.id R S) e)
     (Q' : Fin n → Ideal (R'' ⊗[R] S)) [∀ i, (Q' i).IsPrime] [∀ i, (Q' i).LiesOver Q]
     (hPQ : Function.Bijective (Ideal.ResidueField.mapₐ P Q (Algebra.ofId _ _) (Q.over_def P)))
     (hQ' : ∀ (i : Fin n), e' i.succ.castSucc ∉ Q' i)
-    (H' : ∀ (P'' : Ideal (R'' ⊗[R] S)), e' 0 ∈ P'' → P''.IsPrime → P''.LiesOver Q →
-      e' (.last _) ∈ P'' ∧ ∀ (i : Fin n), e' i.succ.castSucc ∉ P'' → P'' = Q' i) :
-    ∃ (R' : Type u) (_ : CommRing R') (_ : Algebra R R') (_ : Algebra.Etale R R') (P : Ideal R')
-      (_ : P.IsPrime) (_ : P.LiesOver p) (n : ℕ) (e : Fin (n + 1) → R' ⊗[R] S)
-      (_ : CompleteOrthogonalIdempotents e) (P' : Fin n → Ideal (R' ⊗[R] S))
-      (_ : ∀ i, (P' i).IsPrime) (_ : ∀ i, (P' i).LiesOver P),
-      Function.Bijective (Ideal.ResidueField.mapₐ p P (Algebra.ofId _ _) (P.over_def p)) ∧
-      (∀ i, e i.castSucc ∉ P' i) ∧
-      ∀ (P'' : Ideal (R' ⊗[R] S)), P''.IsPrime → P''.LiesOver P →
-        e (.last n) ∈ P'' ∧ ∀ i, e i.castSucc ∉ P'' → P'' = P' i := by
+    (H' : ∀ (P'' : Ideal (R'' ⊗[R] S)),
+      e' 0 ∈ P'' → P''.IsPrime → P''.LiesOver Q
+        → e' (.last _) ∈ P'' ∧ ∀ (i : Fin n), e' i.succ.castSucc ∉ P'' → P'' = Q' i)
+    : ∃ (R' : Type u) (_ : CommRing R') (_ : Algebra R R') (_ : Algebra.Etale R R') (P : Ideal R')
+        (_ : P.IsPrime) (_ : P.LiesOver p) (n : ℕ) (e : Fin (n + 1) → R' ⊗[R] S)
+        (_ : CompleteOrthogonalIdempotents e) (P' : Fin n → Ideal (R' ⊗[R] S))
+        (_ : ∀ i, (P' i).IsPrime) (_ : ∀ i, (P' i).LiesOver P),
+      Function.Bijective (Ideal.ResidueField.mapₐ p P (Algebra.ofId _ _) (P.over_def p))
+        ∧ (∀ i, e i.castSucc ∉ P' i)
+        ∧ ∀ (P'' : Ideal (R' ⊗[R] S)),
+          P''.IsPrime → P''.LiesOver P
+            → e (.last n) ∈ P'' ∧ ∀ i, e i.castSucc ∉ P'' → P'' = P' i := by
   let φ := Algebra.TensorProduct.map (Algebra.ofId R' R'') (AlgHom.id R S)
   have : Q.LiesOver p := .trans _ P _
-  have hpQ :
-    Function.Bijective (Ideal.ResidueField.mapₐ p Q (Algebra.ofId _ _) (Q.over_def p)) := by
+  have hpQ
+      : Function.Bijective (Ideal.ResidueField.mapₐ p Q (Algebra.ofId _ _) (Q.over_def p)) := by
     convert hPQ.comp hpP
-    rw [← @AlgHom.coe_restrictScalars' R R', ← AlgHom.coe_comp]; congr 1; ext
-  let P'φ := (Ideal.fiberIsoOfBijectiveResidueField hpQ).symm
-    (Ideal.fiberIsoOfBijectiveResidueField hpP ⟨P', ‹_›, ‹_›⟩)
+    rw [← @AlgHom.coe_restrictScalars' R R', ← AlgHom.coe_comp]
+    congr 1
+    ext
+  let P'φ :=
+    (Ideal.fiberIsoOfBijectiveResidueField hpQ).symm
+      (Ideal.fiberIsoOfBijectiveResidueField hpP ⟨P', ‹_›, ‹_›⟩)
   have : P'φ.1.LiesOver P := .trans _ Q _
   have : (P'φ.1.comap φ.toRingHom).LiesOver P := inferInstanceAs ((P'φ.1.comap φ).LiesOver P)
   have hP'φ : P'φ.1.comap φ.toRingHom = P' := by
@@ -489,8 +497,24 @@ private theorem Algebra.exists_etale_completeOrthogonalIdempotents_forall_liesOv
     convert Ideal.comap_fiberIsoOfBijectiveResidueField_symm hpQ _
     · ext; simp [φ]
     · simp; rfl
-  refine ⟨R'', inferInstance, _, .comp R R' R'', Q, ‹_›, .trans _ P _, _, _, he', Fin.cons P'φ
-    Q', Fin.cases P'φ.2.1 ?_, Fin.cases P'φ.2.2 ?_, hpQ, Fin.cases ?_ ?_, ?_⟩
+  refine ⟨
+    R'',
+    inferInstance,
+    _,
+    .comp R R' R'',
+    Q,
+    ‹_›,
+    .trans _ P _,
+    _,
+    _,
+    he',
+    Fin.cons P'φ Q',
+    Fin.cases P'φ.2.1 ?_,
+    Fin.cases P'φ.2.2 ?_,
+    hpQ,
+    Fin.cases ?_ ?_,
+    ?_
+  ⟩
   · intro P'' _ _
     by_cases heP'' : e ∈ P''.comap φ
     · obtain ⟨h₁, h₂⟩ := H' P'' (by simpa [he'0]) inferInstance inferInstance
@@ -504,8 +528,9 @@ private theorem Algebra.exists_etale_completeOrthogonalIdempotents_forall_liesOv
       refine ⟨by simp [this], Fin.cases (fun _ ↦ ?_) (by simp [this])⟩
       simp only [Fin.cons_zero]
       apply Ideal.eq_of_comap_eq_comap_of_bijective_residueFieldMap hpQ
-      have : (φ.restrictScalars _).comp Algebra.TensorProduct.includeRight =
-          Algebra.TensorProduct.includeRight := by ext; simp [φ]
+      have : (φ.restrictScalars _).comp Algebra.TensorProduct.includeRight
+          = Algebra.TensorProduct.includeRight := by
+        ext; simp [φ]
       rw [← this]
       exact congr(($hP'φ).comap Algebra.TensorProduct.includeRight).symm
   · simp only [Fin.cons_succ]; infer_instance

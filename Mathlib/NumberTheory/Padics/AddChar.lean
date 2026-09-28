@@ -45,8 +45,8 @@ open scoped fwdDiff Topology
 
 variable {p : ℕ} [Fact p.Prime]
 
-variable {R : Type*} [NormedRing R] [Algebra ℤ_[p] R] [IsBoundedSMul ℤ_[p] R]
-  [IsUltrametricDist R]
+variable
+  {R : Type*} [NormedRing R] [Algebra (ℤ_[p]) R] [IsBoundedSMul (ℤ_[p]) R] [IsUltrametricDist R]
 
 lemma AddChar.tendsto_eval_one_sub_pow {κ : AddChar ℤ_[p] R} (hκ : Continuous κ) :
     Tendsto (fun n ↦ (κ 1 - 1) ^ n) atTop (𝓝 0) := by
@@ -57,12 +57,14 @@ namespace PadicInt
 variable [CompleteSpace R]
 
 /-- The unique continuous additive character of `ℤ_[p]` mapping `1` to `1 + r`. -/
-noncomputable def addChar_of_value_at_one (r : R) (hr : Tendsto (r ^ ·) atTop (𝓝 0)) :
-    AddChar ℤ_[p] R where
+noncomputable def addChar_of_value_at_one (r : R) (hr : Tendsto (r ^ ·) atTop (𝓝 0))
+    : AddChar (ℤ_[p]) R where
   toFun := mahlerSeries (r ^ ·)
   map_zero_eq_one' := by
-    rw [← Nat.cast_zero, mahlerSeries_apply_nat hr le_rfl, zero_add, Finset.sum_range_one,
-      Nat.choose_self, pow_zero, one_smul]
+    rw [
+      ← Nat.cast_zero, mahlerSeries_apply_nat hr le_rfl, zero_add, Finset.sum_range_one,
+      Nat.choose_self, pow_zero, one_smul
+    ]
   map_add_eq_mul' a b := by
     let F : C(ℤ_[p], R) := mahlerSeries (r ^ ·)
     change F (a + b) = F a * F b
@@ -100,8 +102,8 @@ lemma eq_addChar_of_value_at_one {r : R} (hr : Tendsto (r ^ ·) atTop (𝓝 0))
 
 variable (p R) in
 /-- Equivalence between continuous additive characters `ℤ_[p] → R`, and `r ∈ R` with `r ^ n → 0`. -/
-noncomputable def continuousAddCharEquiv :
-    {κ : AddChar ℤ_[p] R // Continuous κ} ≃ {r : R // Tendsto (r ^ ·) atTop (𝓝 0)} where
+noncomputable def continuousAddCharEquiv
+    : {κ : AddChar (ℤ_[p]) R // Continuous κ} ≃ {r : R // Tendsto (r ^ ·) atTop (𝓝 0)} where
   toFun := fun ⟨κ, hκ⟩ ↦ ⟨κ 1 - 1, κ.tendsto_eval_one_sub_pow hκ⟩
   invFun := fun ⟨r, hr⟩ ↦ ⟨_, continuous_addChar_of_value_at_one hr⟩
   left_inv := fun ⟨κ, hκ⟩ ↦ by simpa using (eq_addChar_of_value_at_one _ hκ (by abel)).symm
@@ -120,10 +122,12 @@ section NormMulClass
 variable [NormMulClass R]
 
 variable (p R) in
-/-- Equivalence between continuous additive characters `ℤ_[p] → R`, and `r ∈ R` with `‖r‖ < 1`,
-for rings with strictly multiplicative norm. -/
-noncomputable def continuousAddCharEquiv_of_norm_mul :
-    {κ : AddChar ℤ_[p] R // Continuous κ} ≃ {r : R // ‖r‖ < 1} :=
+/--
+Equivalence between continuous additive characters `ℤ_[p] → R`, and `r ∈ R` with `‖r‖ < 1`,
+for rings with strictly multiplicative norm.
+-/
+noncomputable def continuousAddCharEquiv_of_norm_mul
+    : {κ : AddChar (ℤ_[p]) R // Continuous κ} ≃ {r : R // ‖r‖ < 1} :=
   (continuousAddCharEquiv p R).trans <|
     .subtypeEquivProp (by simp only [tendsto_pow_atTop_nhds_zero_iff_norm_lt_one])
 

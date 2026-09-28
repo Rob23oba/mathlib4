@@ -143,9 +143,9 @@ set_option backward.privateInPublic true in
 private def UsefulCompression (U V : Finset α) : Prop :=
   Disjoint U V ∧ #U = #V ∧ ∃ (HU : U.Nonempty) (HV : V.Nonempty), max' U HU < max' V HV
 
-private instance UsefulCompression.instDecidableRel :
-    DecidableRel (α := Finset α) UsefulCompression :=
-  fun _ _ ↦ inferInstanceAs (Decidable (_ ∧ _))
+private instance UsefulCompression.instDecidableRel
+    : DecidableRel (α := Finset α) UsefulCompression := fun _ _ ↦
+  inferInstanceAs (Decidable (_ ∧ _))
 
 /-- Applying a good compression will decrease measure, keep cardinality, keep sizes and decrease
 shadow. In particular, 'good' means it's useful, and every smaller compression won't make a
@@ -196,10 +196,12 @@ lemma isInitSeg_of_compressed {ℬ : Finset (Finset α)} {r : ℕ} (h₁ : (ℬ 
 
 attribute [-instance] Fintype.decidableForallFintype
 
-/-- This measures roughly how compressed the family is.
+/--
+This measures roughly how compressed the family is.
 
 Note that this does depend on the order of the ground set, unlike the Kruskal-Katona theorem itself
-(although `kruskal_katona` currently is stated in an order-dependent manner). -/
+(although `kruskal_katona` currently is stated in an order-dependent manner).
+-/
 private def familyMeasure (𝒜 : Finset (Finset (Fin n))) : ℕ := ∑ A ∈ 𝒜, ∑ a ∈ A, 2 ^ (a : ℕ)
 
 /-- Applying a compression strictly decreases the measure. This helps show that "compress until we
@@ -262,13 +264,16 @@ end UV
 section KK
 variable {r k i : ℕ} {𝒜 𝒞 : Finset <| Finset <| Fin n}
 
-/-- The **Kruskal-Katona theorem**.
+/--
+The **Kruskal-Katona theorem**.
 
 Given a set family `𝒜` consisting of `r`-sets, and `𝒞` an initial segment of the colex order of the
 same size, the shadow of `𝒞` is smaller than the shadow of `𝒜`. In particular, this gives that the
-minimum shadow size is achieved by initial segments of colex. -/
-theorem kruskal_katona (h𝒜r : (𝒜 : Set (Finset (Fin n))).Sized r) (h𝒞𝒜 : #𝒞 ≤ #𝒜)
-    (h𝒞 : IsInitSeg 𝒞 r) : #(∂ 𝒞) ≤ #(∂ 𝒜) := by
+minimum shadow size is achieved by initial segments of colex.
+-/
+theorem kruskal_katona
+    (h𝒜r : (𝒜 : Set (Finset (Fin n))).Sized r) (h𝒞𝒜 : #𝒞 ≤ #𝒜) (h𝒞 : IsInitSeg 𝒞 r)
+    : #(∂ 𝒞) ≤ #(∂ 𝒜) := by
   -- WLOG `|𝒜| = |𝒞|`
   obtain ⟨𝒜', h𝒜, h𝒜𝒞⟩ := exists_subset_card_eq h𝒞𝒜
   -- By `kruskal_katona_helper`, we find a fully compressed family `ℬ` of the same size as `𝒜`
@@ -282,25 +287,31 @@ theorem kruskal_katona (h𝒜r : (𝒜 : Set (Finset (Fin n))).Sized r) (h𝒞�
   · exact (eq_of_subset_of_card_le h𝒞ℬ hcard.le).symm
   · exact eq_of_subset_of_card_le hℬ𝒞 hcard.ge
 
-/-- An iterated form of the Kruskal-Katona theorem. In particular, the minimum possible iterated
-shadow size is attained by initial segments. -/
-theorem iterated_kk (h₁ : (𝒜 : Set (Finset (Fin n))).Sized r) (h₂ : #𝒞 ≤ #𝒜) (h₃ : IsInitSeg 𝒞 r) :
-    #(∂^[k] 𝒞) ≤ #(∂^[k] 𝒜) := by
+/--
+An iterated form of the Kruskal-Katona theorem. In particular, the minimum possible iterated
+shadow size is attained by initial segments.
+-/
+theorem iterated_kk (h₁ : (𝒜 : Set (Finset (Fin n))).Sized r) (h₂ : #𝒞 ≤ #𝒜) (h₃ : IsInitSeg 𝒞 r)
+    : #(∂^[k] 𝒞) ≤ #(∂^[k] 𝒜) := by
   induction k generalizing r 𝒜 𝒞 with
-  | zero => simpa
+  | zero =>
+    simpa
   | succ _ ih =>
     refine ih h₁.shadow (kruskal_katona h₁ h₂ h₃) ?_
     convert! h₃.shadow
 
-/-- The **Lovasz formulation of the Kruskal-Katona theorem**.
+/--
+The **Lovasz formulation of the Kruskal-Katona theorem**.
 
 If `|𝒜| ≥ k choose r`, (and everything in `𝒜` has size `r`) then the initial segment we compare to
 is just all the subsets of `{0, ..., k - 1}` of size `r`. The `i`-th iterated shadow of this is all
 the subsets of `{0, ..., k - 1}` of size `r - i`, so the `i`-th iterated shadow of `𝒜` has at least
-`k.choose (r - i)` elements. -/
-theorem kruskal_katona_lovasz_form (hir : i ≤ r) (hrk : r ≤ k) (hkn : k ≤ n)
-    (h₁ : (𝒜 : Set (Finset (Fin n))).Sized r) (h₂ : k.choose r ≤ #𝒜) :
-    k.choose (r - i) ≤ #(∂^[i] 𝒜) := by
+`k.choose (r - i)` elements.
+-/
+theorem kruskal_katona_lovasz_form
+    (hir : i ≤ r) (hrk : r ≤ k) (hkn : k ≤ n) (h₁ : (𝒜 : Set (Finset (Fin n))).Sized r)
+    (h₂ : k.choose r ≤ #𝒜)
+    : k.choose (r - i) ≤ #(∂^[i] 𝒜) := by
   set range'k : Finset (Fin n) :=
     attachFin (range k) fun m ↦ by rw [mem_range]; apply forall_lt_iff_le.2 hkn
   set 𝒞 : Finset (Finset (Fin n)) := powersetCard r range'k
@@ -314,8 +325,9 @@ theorem kruskal_katona_lovasz_form (hir : i ≤ r) (hrk : r ≤ k) (hkn : k ≤ 
       rw [mem_powersetCard, mem_shadow_iterate_iff_exists_sdiff]
       constructor
       · rintro ⟨hBk, hB⟩
-        have := exists_subsuperset_card_eq hBk (Nat.le_add_left _ i) <| by
-          rwa [hB, card_attachFin, card_range, ← Nat.add_sub_assoc hir, Nat.add_sub_cancel_left]
+        have :=
+          exists_subsuperset_card_eq hBk (Nat.le_add_left _ i) <| by
+            rwa [hB, card_attachFin, card_range, ← Nat.add_sub_assoc hir, Nat.add_sub_cancel_left]
         obtain ⟨C, BsubC, hCrange, hcard⟩ := this
         rw [hB, ← Nat.add_sub_assoc hir, Nat.add_sub_cancel_left] at hcard
         refine ⟨C, mem_powersetCard.2 ⟨hCrange, hcard⟩, BsubC, ?_⟩
@@ -340,14 +352,16 @@ theorem kruskal_katona_lovasz_form (hir : i ≤ r) (hrk : r ≤ k) (hkn : k ≤ 
 
 end KK
 
-/-- The **Erdős–Ko–Rado theorem**.
+/--
+The **Erdős–Ko–Rado theorem**.
 
 The maximum size of an intersecting family in `α` where all sets have size `r` is bounded by
-`(card α - 1).choose (r - 1)`. This bound is sharp. -/
-theorem erdos_ko_rado {𝒜 : Finset (Finset (Fin n))} {r : ℕ}
-    (h𝒜 : (𝒜 : Set (Finset (Fin n))).Intersecting) (h₂ : (𝒜 : Set (Finset (Fin n))).Sized r)
-    (h₃ : r ≤ n / 2) :
-    #𝒜 ≤ (n - 1).choose (r - 1) := by
+`(card α - 1).choose (r - 1)`. This bound is sharp.
+-/
+theorem erdos_ko_rado
+    {𝒜 : Finset (Finset (Fin n))} {r : ℕ} (h𝒜 : (𝒜 : Set (Finset (Fin n))).Intersecting)
+    (h₂ : (𝒜 : Set (Finset (Fin n))).Sized r) (h₃ : r ≤ n / 2)
+    : #𝒜 ≤ (n - 1).choose (r - 1) := by
   -- Take care of the r=0 case first: it's not very interesting.
   rcases Nat.eq_zero_or_pos r with b | h1r
   · convert! Nat.zero_le _
@@ -358,28 +372,31 @@ theorem erdos_ko_rado {𝒜 : Finset (Finset (Fin n))} {r : ℕ}
   refine le_of_not_gt fun size ↦ ?_
   -- Consider 𝒜ᶜˢ = {sᶜ | s ∈ 𝒜}
   -- Its iterated shadow (∂^[n-2k] 𝒜ᶜˢ) is disjoint from 𝒜 by intersecting-ness
-  have : Disjoint 𝒜 (∂^[n - 2 * r] 𝒜ᶜˢ) := disjoint_right.2 fun A hAbar hA ↦ by
-    simp only [mem_shadow_iterate_iff_exists_sdiff, mem_compls] at hAbar
-    obtain ⟨C, hC, hAC, _⟩ := hAbar
-    exact h𝒜 hA hC (disjoint_of_subset_left hAC disjoint_compl_right)
+  have : Disjoint 𝒜 (∂^[n - 2 * r] 𝒜ᶜˢ) :=
+    disjoint_right.2 fun A hAbar hA ↦ by
+      simp only [mem_shadow_iterate_iff_exists_sdiff, mem_compls] at hAbar
+      obtain ⟨C, hC, hAC, _⟩ := hAbar
+      exact h𝒜 hA hC (disjoint_of_subset_left hAC disjoint_compl_right)
   have : r ≤ n := h₃.trans (Nat.div_le_self n 2)
   have : 1 ≤ n := ‹1 ≤ r›.trans ‹r ≤ n›
   -- We know the size of 𝒜ᶜˢ since it's the same size as 𝒜
-  have z : (n - 1).choose (n - r) < #𝒜ᶜˢ := by
+  have z : (n - 1).choose (n - r) < # 𝒜ᶜˢ := by
     rwa [card_compls, choose_symm_of_eq_add (tsub_add_tsub_cancel ‹r ≤ n› ‹1 ≤ r›).symm]
   -- and everything in 𝒜ᶜˢ has size n-r.
   have h𝒜bar : (𝒜ᶜˢ : Set (Finset (Fin n))).Sized (n - r) := by simpa using h₂.compls
   -- We can use the Lovasz form of Kruskal-Katona to get |∂^[n-2k] 𝒜ᶜˢ| ≥ (n-1) choose r
-  have kk := kruskal_katona_lovasz_form (i := n - 2 * r) (by lia)
-    ((tsub_le_tsub_iff_left ‹1 ≤ n›).2 h1r) tsub_le_self h𝒜bar z.le
+  have kk :=
+    kruskal_katona_lovasz_form (i := n - 2 * r) (by lia) ((tsub_le_tsub_iff_left ‹1 ≤ n›).2 h1r)
+      tsub_le_self h𝒜bar z.le
   have : n - r - (n - 2 * r) = r := by lia
   rw [this] at kk
   -- But this gives a contradiction: `n choose r < |𝒜| + |∂^[n-2k] 𝒜ᶜˢ|`
-  have := calc
-    n.choose r = (n - 1).choose (r - 1) + (n - 1).choose r := by
-      convert! Nat.choose_succ_succ _ _ using 3 <;> rwa [Nat.sub_one, Nat.succ_pred_eq_of_pos]
-    _ < #𝒜 + #(∂^[n - 2 * r] 𝒜ᶜˢ) := add_lt_add_of_lt_of_le size kk
-    _ = #(𝒜 ∪ ∂^[n - 2 * r] 𝒜ᶜˢ) := by rw [card_union_of_disjoint ‹_›]
+  have :=
+    calc
+      n.choose r = (n - 1).choose (r - 1) + (n - 1).choose r := by
+        convert! Nat.choose_succ_succ _ _ using 3 <;> rwa [Nat.sub_one, Nat.succ_pred_eq_of_pos]
+      _ < #𝒜 + #(∂^[n - 2 * r] 𝒜ᶜˢ) := add_lt_add_of_lt_of_le size kk
+      _ = #(𝒜 ∪ ∂^[n - 2 * r] 𝒜ᶜˢ) := by rw [card_union_of_disjoint ‹_›]
   apply this.not_ge
   convert! Set.Sized.card_le _
   · rw [Fintype.card_fin]

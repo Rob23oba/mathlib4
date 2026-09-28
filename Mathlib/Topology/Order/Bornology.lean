@@ -29,15 +29,16 @@ variable {α : Type*} {s t : Set α}
 section Lattice
 variable [Lattice α] [Nonempty α]
 
-/-- Order-bornology on a nonempty lattice. The bounded sets are the sets that are bounded both above
-and below. -/
+/--
+Order-bornology on a nonempty lattice. The bounded sets are the sets that are bounded both above
+and below.
+-/
 @[instance_reducible]
-def orderBornology : Bornology α := .ofBounded
-  {s | BddBelow s ∧ BddAbove s}
-  (by simp)
-  (fun _ hs _ hst ↦ ⟨hs.1.mono hst, hs.2.mono hst⟩)
-  (fun _ hs _ ht ↦ ⟨hs.1.union ht.1, hs.2.union ht.2⟩)
-  (by simp)
+def orderBornology : Bornology α :=
+  .ofBounded ({s | BddBelow s ∧ BddAbove s}) (by simp)
+    (fun _ hs _ hst ↦ ⟨hs.1.mono hst, hs.2.mono hst⟩)
+    (fun _ hs _ ht ↦ ⟨hs.1.union ht.1, hs.2.union ht.2⟩)
+    (by simp)
 
 @[simp] lemma orderBornology_isBounded : orderBornology.IsBounded s ↔ BddBelow s ∧ BddAbove s := by
   simp [IsBounded, IsCobounded, -isCobounded_compl_iff]
@@ -47,8 +48,10 @@ end Lattice
 variable [Bornology α]
 
 variable (α) [Preorder α] in
-/-- Predicate for a preorder to be equipped with its order-bornology, namely for its bounded sets
-to be the ones that are bounded both above and below. -/
+/--
+Predicate for a preorder to be equipped with its order-bornology, namely for its bounded sets
+to be the ones that are bounded both above and below.
+-/
 class IsOrderBornology : Prop where
   protected isBounded_iff_bddBelow_bddAbove (s : Set α) : IsBounded s ↔ BddBelow s ∧ BddAbove s
 
@@ -84,17 +87,23 @@ lemma BddAbove.isBounded_inter (hs : BddAbove s) (ht : BddBelow t) : IsBounded (
 
 instance OrderDual.instIsOrderBornology : IsOrderBornology αᵒᵈ where
   isBounded_iff_bddBelow_bddAbove s := by
-    rw [← isBounded_preimage_toDual, ← bddBelow_preimage_toDual, ← bddAbove_preimage_toDual,
-      isBounded_iff_bddBelow_bddAbove, and_comm]
+    rw [
+      ← isBounded_preimage_toDual, ← bddBelow_preimage_toDual, ← bddAbove_preimage_toDual,
+      isBounded_iff_bddBelow_bddAbove, and_comm
+    ]
 
-instance Prod.instIsOrderBornology {β : Type*} [Preorder β] [Bornology β] [IsOrderBornology β] :
-    IsOrderBornology (α × β) where
+instance Prod.instIsOrderBornology {β : Type*} [Preorder β] [Bornology β] [IsOrderBornology β]
+    : IsOrderBornology (α × β) where
   isBounded_iff_bddBelow_bddAbove s := by
-    rw [← isBounded_image_fst_and_snd, bddBelow_prod, bddAbove_prod, and_and_and_comm,
-      isBounded_iff_bddBelow_bddAbove, isBounded_iff_bddBelow_bddAbove]
+    rw [
+      ← isBounded_image_fst_and_snd, bddBelow_prod, bddAbove_prod, and_and_and_comm,
+      isBounded_iff_bddBelow_bddAbove, isBounded_iff_bddBelow_bddAbove
+    ]
 
-instance Pi.instIsOrderBornology {ι : Type*} {α : ι → Type*} [∀ i, Preorder (α i)]
-    [∀ i, Bornology (α i)] [∀ i, IsOrderBornology (α i)] : IsOrderBornology (∀ i, α i) where
+instance Pi.instIsOrderBornology
+    {ι : Type*} {α : ι → Type*}
+    [∀ i, Preorder (α i)] [∀ i, Bornology (α i)] [∀ i, IsOrderBornology (α i)]
+    : IsOrderBornology (∀ i, α i) where
   isBounded_iff_bddBelow_bddAbove s := by
     simp_rw [← forall_isBounded_image_eval_iff, bddBelow_pi, bddAbove_pi, ← forall_and,
       isBounded_iff_bddBelow_bddAbove]

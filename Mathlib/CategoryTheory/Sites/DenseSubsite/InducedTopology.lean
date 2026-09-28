@@ -47,17 +47,18 @@ variable (A : Type v) [Category.{u} A]
 namespace Functor
 
 -- variables (A) [full G] [faithful G]
-/-- We say that a functor `C ⥤ D` into a site is "locally dense" if
+/--
+We say that a functor `C ⥤ D` into a site is "locally dense" if
 for each covering sieve `T` in `D`, `T ∩ mor(C)` generates a covering sieve in `D`.
 -/
 class LocallyCoverDense : Prop where
-  functorPushforward_functorPullback_mem :
-    ∀ ⦃X : C⦄ (T : K (G.obj X)), (T.val.functorPullback G).functorPushforward G ∈ K (G.obj X)
+  functorPushforward_functorPullback_mem
+    : ∀ ⦃X : C⦄ (T : K (G.obj X)), (T.val.functorPullback G).functorPushforward G ∈ K (G.obj X)
 
 variable [G.LocallyCoverDense K]
 
-theorem pushforward_cover_iff_cover_pullback [G.Full] [G.Faithful] {X : C} (S : Sieve X) :
-    S.functorPushforward G ∈ K (G.obj X) ↔ ∃ T : K (G.obj X), T.val.functorPullback G = S := by
+theorem pushforward_cover_iff_cover_pullback [G.Full] [G.Faithful] {X : C} (S : Sieve X)
+    : S.functorPushforward G ∈ K (G.obj X) ↔ ∃ T : K (G.obj X), T.val.functorPullback G = S := by
   constructor
   · intro hS
     exact ⟨⟨_, hS⟩, (Sieve.fullyFaithfulFunctorGaloisCoinsertion G X).u_l_eq S⟩
@@ -66,14 +67,18 @@ theorem pushforward_cover_iff_cover_pullback [G.Full] [G.Faithful] {X : C} (S : 
 
 variable [G.IsLocallyFull K] [G.IsLocallyFaithful K]
 
-/-- If `G` is locally fully faithful and locally cover dense, `G` is cover-preserving w.r.t. the
-restricted topology. -/
+/--
+If `G` is locally fully faithful and locally cover dense, `G` is cover-preserving w.r.t. the
+restricted topology.
+-/
 theorem coverPreserving_restrictedTopology : CoverPreserving (G.restrictedTopology K) K G where
   cover_preserve hS := by
     rw [Functor.restrictedTopology] at hS
     induction hS with
-    | of X S hS => rwa [← Sieve.generate_map_eq_functorPushforward]
-    | top X => simp
+    | of X S hS =>
+      rwa [← Sieve.generate_map_eq_functorPushforward]
+    | top X =>
+      simp
     | pullback X S _ Y f ih =>
       apply K.transitive (LocallyCoverDense.functorPushforward_functorPullback_mem
         ⟨_, K.pullback_stable (G.map f) ih⟩)
@@ -86,8 +91,8 @@ theorem coverPreserving_restrictedTopology : CoverPreserving (G.restrictedTopolo
       rw [Sieve.pullback_comp]
       apply K.pullback_stable
       clear iZU₁ Z
-      apply K.superset_covering ?_ (G.functorPushforward_equalizer_mem _
-        (iU₁U ≫ iUY ≫ f) (iU₁W ≫ iWX) (by simp [e₁, e₂]))
+      apply K.superset_covering ?_
+        (G.functorPushforward_equalizer_mem _ (iU₁U ≫ iUY ≫ f) (iU₁W ≫ iWX) (by simp [e₁, e₂]))
       rintro Z _ ⟨U₂, iU₂U₁, iZU₂, e₃ : _ = _, rfl⟩
       refine ⟨_, iU₂U₁ ≫ iU₁U ≫ iUY, iZU₂, ?_, by simp⟩
       simpa [e₃] using S.downward_closed hiWX (iU₂U₁ ≫ iU₁W)
@@ -122,10 +127,9 @@ instance : G.IsCocontinuous (G.restrictedTopology K) K where
     apply G.mem_restrictedTopology_of_functorPushforward_mem
     exact LocallyCoverDense.functorPushforward_functorPullback_mem ⟨_, hS⟩
 
-instance (priority := 900) locallyCoverDense_of_isCoverDense [G.IsCoverDense K] :
-    G.LocallyCoverDense K where
-  functorPushforward_functorPullback_mem _ _ :=
-    IsCoverDense.functorPullback_pushforward_covering _
+instance (priority := 900) locallyCoverDense_of_isCoverDense [G.IsCoverDense K]
+    : G.LocallyCoverDense K where
+  functorPushforward_functorPullback_mem _ _ := IsCoverDense.functorPullback_pushforward_covering _
 
 instance (priority := 900) [G.IsCoverDense K] : G.IsDenseSubsite (G.restrictedTopology K) K where
   functorPushforward_mem_iff := mem_restrictedTopology_iff.symm
@@ -151,14 +155,15 @@ instance over_forget_locallyCoverDense (X : C) : (Over.forget X).LocallyCoverDen
     · intro hf
       exact ⟨Over.mk (f ≫ Y.hom), Over.homMk f, 𝟙 _, hf, (Category.id_comp _).symm⟩
 
-/-- Cover-dense functors induce an equivalence of categories of sheaves.
+/--
+Cover-dense functors induce an equivalence of categories of sheaves.
 
 This is known as the comparison lemma. It requires that the sites are small and the value category
 is complete.
 -/
 noncomputable def sheafInducedTopologyEquivOfIsCoverDense
-    [G.IsCoverDense K] [∀ (X : Dᵒᵖ), HasLimitsOfShape (StructuredArrow X G.op) A] :
-    Sheaf (G.inducedTopology K) A ≌ Sheaf K A :=
+    [G.IsCoverDense K] [∀ (X : Dᵒᵖ), HasLimitsOfShape (StructuredArrow X G.op) A]
+    : Sheaf (G.inducedTopology K) A ≌ Sheaf K A :=
   Functor.IsDenseSubsite.sheafEquiv (G.inducedTopology K) K G A
 
 end Functor
@@ -167,8 +172,7 @@ namespace Precoverage
 
 variable {C D : Type*} [Category* C] [Category* D] (F : C ⥤ D) (K : Precoverage D)
 
-variable [K.HasIsos] [K.IsStableUnderBaseChange] [K.IsStableUnderComposition]
-  [K.HasPullbacks]
+variable [K.HasIsos] [K.IsStableUnderBaseChange] [K.IsStableUnderComposition] [K.HasPullbacks]
 
 lemma locallyCoverDense_of_map_functorPullback_mem
     (H : ∀ {S : C} {R : Presieve (F.obj S)}, R ∈ K (F.obj S) →

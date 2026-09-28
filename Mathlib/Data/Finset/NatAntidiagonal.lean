@@ -34,12 +34,13 @@ open Finset.HasAntidiagonal
 
 namespace Nat
 
-/-- The antidiagonal of a natural number `n` is
-    the finset of pairs `(i, j)` such that `i + j = n`. -/
+/--
+The antidiagonal of a natural number `n` is
+the finset of pairs `(i, j)` such that `i + j = n`.
+-/
 instance instHasAntidiagonal : HasAntidiagonal ℕ where
   antidiagonal n := ⟨Multiset.Nat.antidiagonal n, Multiset.Nat.nodup_antidiagonal n⟩
-  mem_antidiagonal {n} {xy} := by
-    rw [mem_def, Multiset.Nat.mem_antidiagonal]
+  mem_antidiagonal {n} {xy} := by rw [mem_def, Multiset.Nat.mem_antidiagonal]
 
 lemma antidiagonal_eq_map (n : ℕ) :
     antidiagonal n = (range (n + 1)).map ⟨fun i ↦ (i, n - i), fun _ _ h ↦ (Prod.ext_iff.1 h).1⟩ :=
@@ -61,40 +62,35 @@ lemma antidiagonal_eq_image' (n : ℕ) :
   simp only [antidiagonal_eq_map', map_eq_image, Function.Embedding.coeFn_mk]
 
 /-- The cardinality of the antidiagonal of `n` is `n + 1`. -/
-@[simp]
-theorem card_antidiagonal (n : ℕ) : (antidiagonal n).card = n + 1 := by simp [antidiagonal]
+@[simp] theorem card_antidiagonal (n : ℕ) : (antidiagonal n).card = n + 1 := by simp [antidiagonal]
 
 /-- The antidiagonal of `0` is the list `[(0, 0)]` -/
-@[simp]
-theorem antidiagonal_zero : antidiagonal 0 = {(0, 0)} := rfl
+@[simp] theorem antidiagonal_zero : antidiagonal 0 = {(0, 0)} := rfl
 
-theorem antidiagonal_succ (n : ℕ) :
-    antidiagonal (n + 1) =
-      cons (0, n + 1)
-        ((antidiagonal n).map
-          (Embedding.prodMap ⟨Nat.succ, Nat.succ_injective⟩ (Embedding.refl _)))
+theorem antidiagonal_succ (n : ℕ)
+    : antidiagonal (n + 1)
+      = cons (0, n + 1)
+        ((antidiagonal n).map (Embedding.prodMap ⟨Nat.succ, Nat.succ_injective⟩ (Embedding.refl _)))
         (by simp) := by
   apply eq_of_veq
   rw [cons_val, map_val]
   apply Multiset.Nat.antidiagonal_succ
 
-theorem antidiagonal_succ' (n : ℕ) :
-    antidiagonal (n + 1) =
-      cons (n + 1, 0)
-        ((antidiagonal n).map
-          (Embedding.prodMap (Embedding.refl _) ⟨Nat.succ, Nat.succ_injective⟩))
+theorem antidiagonal_succ' (n : ℕ)
+    : antidiagonal (n + 1)
+      = cons (n + 1, 0)
+        ((antidiagonal n).map (Embedding.prodMap (Embedding.refl _) ⟨Nat.succ, Nat.succ_injective⟩))
         (by simp) := by
   apply eq_of_veq
   rw [cons_val, map_val]
   exact Multiset.Nat.antidiagonal_succ'
 
-theorem antidiagonal_succ_succ' {n : ℕ} :
-    antidiagonal (n + 2) =
-      cons (0, n + 2)
+theorem antidiagonal_succ_succ' {n : ℕ}
+    : antidiagonal (n + 2)
+      = cons (0, n + 2)
         (cons (n + 2, 0)
             ((antidiagonal n).map
-              (Embedding.prodMap ⟨Nat.succ, Nat.succ_injective⟩
-                ⟨Nat.succ, Nat.succ_injective⟩)) <|
+              (Embedding.prodMap ⟨Nat.succ, Nat.succ_injective⟩ ⟨Nat.succ, Nat.succ_injective⟩)) <|
           by simp)
         (by simp) := by
   simp_rw [antidiagonal_succ (n + 1), antidiagonal_succ', Finset.map_cons, map_map]
@@ -160,9 +156,12 @@ theorem antidiagonal.snd_lt {n : ℕ} {kl : ℕ × ℕ} (hlk : kl ∈ antidiagon
 @[simps]
 def antidiagonalEquivFin (n : ℕ) : antidiagonal n ≃ Fin (n + 1) where
   toFun := fun ⟨⟨i, _⟩, h⟩ ↦ ⟨i, antidiagonal.fst_lt h⟩
-  invFun := fun ⟨i, h⟩ ↦ ⟨⟨i, n - i⟩, by
-    rw [mem_antidiagonal, add_comm, Nat.sub_add_cancel]
-    exact Nat.le_of_lt_succ h⟩
+  invFun := fun ⟨i, h⟩ ↦ ⟨
+    ⟨i, n - i⟩,
+    by
+      rw [mem_antidiagonal, add_comm, Nat.sub_add_cancel]
+      exact Nat.le_of_lt_succ h
+  ⟩
 
 end Nat
 

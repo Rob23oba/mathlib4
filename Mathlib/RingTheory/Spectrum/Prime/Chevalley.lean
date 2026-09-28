@@ -70,8 +70,8 @@ lemma isOpenMap_comap_of_hasGoingDown_of_finitePresentation
 open TensorProduct in
 @[stacks 037G]
 theorem isOpenMap_comap_algebraMap_tensorProduct_of_field
-    {K A B : Type*} [Field K] [CommRing A] [CommRing B] [Algebra K A] [Algebra K B] :
-    IsOpenMap (PrimeSpectrum.comap (algebraMap A (A ⊗[K] B))) := by
+    {K A B : Type*} [Field K] [CommRing A] [CommRing B] [Algebra K A] [Algebra K B]
+    : IsOpenMap (PrimeSpectrum.comap (algebraMap A (A ⊗[K] B))) := by
   intro U hU
   wlog hU' : ∃ f, U = SetLike.coe (basicOpen f) generalizing U
   · rw [eq_biUnion_of_isOpen hU, Set.image_iUnion₂]
@@ -84,15 +84,18 @@ theorem isOpenMap_comap_algebraMap_tensorProduct_of_field
     isOpenMap_comap_of_hasGoingDown_of_finitePresentation (R := A) (S := A ⊗[K] B') _
       (basicOpen f).isOpen using 1
   ext x
-  rw [PrimeSpectrum.mem_image_comap_basicOpen, PrimeSpectrum.mem_image_comap_basicOpen,
-    not_iff_not]
-  let ψ := Algebra.TensorProduct.map
-    (Algebra.TensorProduct.map (.id A A) B'.val) (.id A x.asIdeal.ResidueField)
-  have hψeq : ψ = (Algebra.TensorProduct.comm _ _ _ |>.toAlgHom.comp <|
-    Algebra.TensorProduct.cancelBaseChange K A A _ B |>.symm.toAlgHom.comp <|
-    Algebra.TensorProduct.map (.id _ _) B'.val |>.comp <|
-    Algebra.TensorProduct.cancelBaseChange K A A _ B' |>.toAlgHom.comp <|
-    (Algebra.TensorProduct.comm _ _ _).toAlgHom) := by ext; simp [ψ]
+  rw [PrimeSpectrum.mem_image_comap_basicOpen, PrimeSpectrum.mem_image_comap_basicOpen, not_iff_not]
+  let ψ :=
+    Algebra.TensorProduct.map (Algebra.TensorProduct.map (.id A A) B'.val)
+      (.id A x.asIdeal.ResidueField)
+  have hψeq
+      : ψ
+        = (Algebra.TensorProduct.comm _ _ _ |>.toAlgHom.comp <|
+          Algebra.TensorProduct.cancelBaseChange K A A _ B |>.symm.toAlgHom.comp <|
+            Algebra.TensorProduct.map (.id _ _) B'.val |>.comp <|
+              Algebra.TensorProduct.cancelBaseChange K A A _ B' |>.toAlgHom.comp <|
+                (Algebra.TensorProduct.comm _ _ _).toAlgHom) := by
+    ext; simp [ψ]
   have hψ : Function.Injective ψ := by
     rw [hψeq]
     dsimp

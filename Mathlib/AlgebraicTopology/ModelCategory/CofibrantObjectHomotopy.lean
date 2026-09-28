@@ -34,8 +34,7 @@ namespace CofibrantObject
 
 variable (C) in
 /-- The right homotopy relation on the category of cofibrant objects. -/
-def homRel : HomRel (CofibrantObject C) :=
-  fun _ _ f g ↦ RightHomotopyRel f.hom g.hom
+def homRel : HomRel (CofibrantObject C) := fun _ _ f g ↦ RightHomotopyRel f.hom g.hom
 
 lemma homRel_iff_rightHomotopyRel {X Y : CofibrantObject C} {f g : X ⟶ Y} :
     homRel C f g ↔ RightHomotopyRel f.hom g.hom := Iff.rfl
@@ -54,10 +53,11 @@ variable (C) in
 /-- The homotopy category of cofibrant objects. -/
 abbrev HoCat := Quotient (CofibrantObject.homRel C)
 
-/-- The quotient functor from the category of cofibrant objects to its
-homotopy category. -/
-@[implicit_reducible]
-def toHoCat : CofibrantObject C ⥤ HoCat C := Quotient.functor _
+/--
+The quotient functor from the category of cofibrant objects to its
+homotopy category.
+-/
+@[implicit_reducible] def toHoCat : CofibrantObject C ⥤ HoCat C := Quotient.functor _
 
 lemma toHoCat_obj_surjective : Function.Surjective (toHoCat (C := C)).obj :=
   fun ⟨_⟩ ↦ ⟨_, rfl⟩
@@ -91,14 +91,15 @@ lemma weakEquivalence_toHoCat_map_iff {X Y : CofibrantObject C} (f : X ⟶ Y) :
 
 variable (C) in
 /-- The functor `CofibrantObject C ⥤ HoCat C`, considered as a localizer morphism. -/
-def toHoCatLocalizerMorphism :
-    LocalizerMorphism (weakEquivalences (CofibrantObject C))
+def toHoCatLocalizerMorphism
+    : LocalizerMorphism (weakEquivalences (CofibrantObject C))
       (weakEquivalences (CofibrantObject.HoCat C)) where
   functor := toHoCat
   map _ _ _ h := by
     simp only [← weakEquivalence_iff] at h
-    simpa only [MorphismProperty.inverseImage_iff, ← weakEquivalence_iff,
-      weakEquivalence_toHoCat_map_iff]
+    simpa only [
+      MorphismProperty.inverseImage_iff, ← weakEquivalence_iff, weakEquivalence_toHoCat_map_iff
+    ]
 
 variable (C) in
 lemma factorsThroughLocalization :
@@ -119,9 +120,10 @@ instance : (toHoCatLocalizerMorphism C).IsLocalizedEquivalence := by
   apply (factorsThroughLocalization C).isLocalizedEquivalence
   apply MorphismProperty.eq_inverseImage_quotientFunctor
 
-instance {D : Type*} [Category* D] (L : CofibrantObject.HoCat C ⥤ D)
-    [L.IsLocalization (weakEquivalences _)] :
-    (toHoCat ⋙ L).IsLocalization (weakEquivalences _) :=
+instance
+    {D : Type*} [Category* D]
+    (L : CofibrantObject.HoCat C ⥤ D) [L.IsLocalization (weakEquivalences _)]
+    : (toHoCat ⋙ L).IsLocalization (weakEquivalences _) :=
   inferInstanceAs (((toHoCatLocalizerMorphism C).functor ⋙ L).IsLocalization _)
 
 lemma HoCat.exists_resolution (X : C) :
@@ -132,16 +134,19 @@ lemma HoCat.exists_resolution (X : C) :
   rw [isCofibrant_iff_of_isInitial h.i initialIsInitial]
   infer_instance
 
-/-- Given `X : C`, this is a cofibrant object `X'` equipped with a
-trivial fibration `X' ⟶ X` (see `HoCat.pResolutionObj`). -/
-noncomputable def HoCat.resolutionObj (X : C) : C :=
-  (exists_resolution X).choose
+/--
+Given `X : C`, this is a cofibrant object `X'` equipped with a
+trivial fibration `X' ⟶ X` (see `HoCat.pResolutionObj`).
+-/
+noncomputable def HoCat.resolutionObj (X : C) : C := (exists_resolution X).choose
 
 instance (X : C) : IsCofibrant (HoCat.resolutionObj X) :=
   (HoCat.exists_resolution X).choose_spec.choose
 
-/-- This is a trivial fibration `resolutionObj X ⟶ X` where
-`resolutionObj X` is a choice of a cofibrant resolution of `X`. -/
+/--
+This is a trivial fibration `resolutionObj X ⟶ X` where
+`resolutionObj X` is a choice of a cofibrant resolution of `X`.
+-/
 noncomputable def HoCat.pResolutionObj (X : C) : resolutionObj X ⟶ X :=
   (exists_resolution X).choose_spec.choose_spec.choose
 
@@ -161,10 +166,11 @@ lemma HoCat.exists_resolution_map {X Y : C} (f : X ⟶ Y) :
     (pResolutionObj X ≫ f) := ⟨by simp⟩
   exact ⟨sq.lift, sq.fac_right⟩
 
-/-- A lifting of a morphism `f : X ⟶ Y` on cofibrant resolutions.
-(This is functorial only up to homotopy, see `HoCat.resolution`.) -/
-noncomputable def HoCat.resolutionMap {X Y : C} (f : X ⟶ Y) :
-    resolutionObj X ⟶ resolutionObj Y :=
+/--
+A lifting of a morphism `f : X ⟶ Y` on cofibrant resolutions.
+(This is functorial only up to homotopy, see `HoCat.resolution`.)
+-/
+noncomputable def HoCat.resolutionMap {X Y : C} (f : X ⟶ Y) : resolutionObj X ⟶ resolutionObj Y :=
   (exists_resolution_map f).choose
 
 @[reassoc (attr := simp)]
@@ -189,8 +195,10 @@ lemma HoCat.resolutionObj_hom_ext {X : C} [IsCofibrant X] {Y : C} {f g : X ⟶ r
   exact (LeftHomotopyClass.postcomp_bijective_of_fibration_of_weakEquivalence
     (X := X) (g := pResolutionObj Y)).injective h
 
-/-- A cofibrant resolution functor from a model category to the homotopy category
-of cofibrant objects. -/
+/--
+A cofibrant resolution functor from a model category to the homotopy category
+of cofibrant objects.
+-/
 noncomputable def HoCat.resolution : C ⥤ CofibrantObject.HoCat C where
   obj X := toHoCat.obj (mk (resolutionObj X))
   map f := toHoCat.map (homMk (resolutionMap f))
@@ -204,36 +212,40 @@ noncomputable def HoCat.resolution : C ⥤ CofibrantObject.HoCat C where
 variable (C) in
 /-- The cofibrant resolution functor `HoCat.resolution`, as a localizer morphism. -/
 @[simps]
-noncomputable def HoCat.localizerMorphismResolution :
-    LocalizerMorphism (weakEquivalences C)
-      (weakEquivalences (CofibrantObject.HoCat C)) where
+noncomputable def HoCat.localizerMorphismResolution
+    : LocalizerMorphism (weakEquivalences C) (weakEquivalences (CofibrantObject.HoCat C)) where
   functor := HoCat.resolution
   map _ _ _ h := by
-    simpa only [MorphismProperty.inverseImage_iff, ← weakEquivalence_iff, HoCat.resolution,
-      weakEquivalence_toHoCat_map_iff, weakEquivalence_resolutionMap_iff,
-      weakEquivalence_homMk_iff] using h
+    simpa only [
+        MorphismProperty.inverseImage_iff, ← weakEquivalence_iff, HoCat.resolution,
+        weakEquivalence_toHoCat_map_iff, weakEquivalence_resolutionMap_iff,
+        weakEquivalence_homMk_iff
+      ]
+      using h
 
-/-- The map `HoCat.pResolutionObj`, when applied to already cofibrant objects, gives
-a natural transformation `ι ⋙ HoCat.resolution ⟶ toHoCat`. -/
+/--
+The map `HoCat.pResolutionObj`, when applied to already cofibrant objects, gives
+a natural transformation `ι ⋙ HoCat.resolution ⟶ toHoCat`.
+-/
 @[simps]
-noncomputable def HoCat.ιCompResolutionNatTrans :
-    ι ⋙ HoCat.resolution (C := C) ⟶ toHoCat where
+noncomputable def HoCat.ιCompResolutionNatTrans : ι ⋙ HoCat.resolution (C := C) ⟶ toHoCat where
   app X := toHoCat.map { hom := (HoCat.pResolutionObj (ι.obj X)) }
-  naturality _ _ f := toHoCat.congr_map (by
-    ext : 1
-    exact HoCat.resolutionMap_fac f.hom)
+  naturality _ _ f :=
+    toHoCat.congr_map (by
+      ext : 1
+      exact HoCat.resolutionMap_fac f.hom)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-instance (X : CofibrantObject C) :
-    WeakEquivalence (HoCat.ιCompResolutionNatTrans.app X) := by
+instance (X : CofibrantObject C) : WeakEquivalence (HoCat.ιCompResolutionNatTrans.app X) := by
   dsimp
   rw [weakEquivalence_toHoCat_map_iff, weakEquivalence_iff_of_objectProperty]
   infer_instance
 
-instance {D : Type*} [Category* D] (L : CofibrantObject.HoCat C ⥤ D)
-    [L.IsLocalization (weakEquivalences _)] :
-    IsIso (Functor.whiskerRight HoCat.ιCompResolutionNatTrans L) := by
+instance
+    {D : Type*} [Category* D]
+    (L : CofibrantObject.HoCat C ⥤ D) [L.IsLocalization (weakEquivalences _)]
+    : IsIso (Functor.whiskerRight HoCat.ιCompResolutionNatTrans L) := by
   rw [NatTrans.isIso_iff_isIso_app]
   intro X
   apply Localization.inverts L (weakEquivalences _)
@@ -244,23 +256,29 @@ section
 
 variable {D : Type*} [Category* D] (L : C ⥤ D) [L.IsLocalization (weakEquivalences C)]
 
-/-- The induced functor `CofibrantObject.HoCat C ⥤ D`, when `D` is a localization
-of `C` with respect to weak equivalences. -/
+/--
+The induced functor `CofibrantObject.HoCat C ⥤ D`, when `D` is a localization
+of `C` with respect to weak equivalences.
+-/
 def HoCat.toLocalization : HoCat C ⥤ D :=
-  CategoryTheory.Quotient.lift _ (ι ⋙ L)
-    (fun _ _ _ _ h ↦ (factorsThroughLocalization C h).map_eq_of_isInvertedBy _
+  CategoryTheory.Quotient.lift _ (ι ⋙ L) (fun _ _ _ _ h ↦
+    (factorsThroughLocalization C h).map_eq_of_isInvertedBy _
       (fun _ _ _ ↦ Localization.inverts L (weakEquivalences _) _))
 
-/-- The isomorphism `toHoCat ⋙ toLocalization L ≅ ι ⋙ L` which expresses that
+/--
+The isomorphism `toHoCat ⋙ toLocalization L ≅ ι ⋙ L` which expresses that
 if `L : C ⥤ D` is a localization functor, then its restriction on the
 full subcategory of cofibrant objects factors through the homotopy category
-of cofibrant objects. -/
+of cofibrant objects.
+-/
 def HoCat.toHoCatCompToLocalizationIso : toHoCat ⋙ toLocalization L ≅ ι ⋙ L := Iso.refl _
 
-/-- The natural isomorphism `HoCat.resolution ⋙ HoCat.toLocalization L ⟶ L` when
-`L : C ⥤ D` is a localization functor. -/
-noncomputable def HoCat.resolutionCompToLocalizationNatTrans :
-    HoCat.resolution ⋙ HoCat.toLocalization L ⟶ L where
+/--
+The natural isomorphism `HoCat.resolution ⋙ HoCat.toLocalization L ⟶ L` when
+`L : C ⥤ D` is a localization functor.
+-/
+noncomputable def HoCat.resolutionCompToLocalizationNatTrans
+    : HoCat.resolution ⋙ HoCat.toLocalization L ⟶ L where
   app X := L.map (pResolutionObj X)
   naturality _ _ f := by
     simpa only [Functor.map_comp] using! L.congr_map (HoCat.resolutionMap_fac f)
@@ -278,8 +296,8 @@ end
 variable (C) in
 /-- The inclusion `CofibrantObject C ⥤ C`, as a localizer morphism. -/
 @[simps]
-def localizerMorphism : LocalizerMorphism (weakEquivalences (CofibrantObject C))
-    (weakEquivalences C) where
+def localizerMorphism
+    : LocalizerMorphism (weakEquivalences (CofibrantObject C)) (weakEquivalences C) where
   functor := ι
   map := by rfl
 
@@ -298,32 +316,29 @@ instance : (localizerMorphism C).IsLocalizedEquivalence := by
   let G : H ⥤ Hcof := (HoCat.localizerMorphismResolution C).localizedFunctor L Lcofπ
   let eG : HoCat.resolution ⋙ Lcofπ ≅ L ⋙ G :=
     CatCommSq.iso (HoCat.localizerMorphismResolution C).functor L Lcofπ G
-  have : Localization.Lifting L (weakEquivalences C)
-      (HoCat.resolution ⋙ HoCat.toLocalization L) (G ⋙ F) :=
-    ⟨(associator _ _ _).symm ≪≫ isoWhiskerRight eG.symm _ ≪≫
-      associator _ _ _ ≪≫ isoWhiskerLeft _ eF'.symm⟩
+  have : Localization.Lifting L (weakEquivalences C) (HoCat.resolution ⋙ HoCat.toLocalization L)
+      (G ⋙ F) :=
+    ⟨(associator _ _ _).symm ≪≫ isoWhiskerRight eG.symm _ ≪≫ associator _ _ _
+      ≪≫ isoWhiskerLeft _ eF'.symm⟩
   have : Localization.Lifting Lcof (weakEquivalences (CofibrantObject C))
-        (ι ⋙ HoCat.resolution ⋙ Lcofπ) (F ⋙ G) :=
-    ⟨(associator _ _ _).symm ≪≫ isoWhiskerRight eF.symm G ≪≫
-      associator _ _ _ ≪≫ isoWhiskerLeft _ eG.symm⟩
-  let E : Hcof ≌ H := CategoryTheory.Equivalence.mk F G
-    (Localization.liftNatIso Lcof (weakEquivalences _) Lcof (ι ⋙ HoCat.resolution ⋙ Lcofπ) _ _
-      ((asIso (whiskerRight HoCat.ιCompResolutionNatTrans Lcofπ)).symm ≪≫
-          associator _ _ _))
-    (Localization.liftNatIso L (weakEquivalences _)
-      (HoCat.resolution ⋙ HoCat.toLocalization L) L _ _
-      (asIso (HoCat.resolutionCompToLocalizationNatTrans L)))
+      (ι ⋙ HoCat.resolution ⋙ Lcofπ) (F ⋙ G) :=
+    ⟨(associator _ _ _).symm ≪≫ isoWhiskerRight eF.symm G ≪≫ associator _ _ _
+      ≪≫ isoWhiskerLeft _ eG.symm⟩
+  let E : Hcof ≌ H :=
+    CategoryTheory.Equivalence.mk F G
+      (Localization.liftNatIso Lcof (weakEquivalences _) Lcof (ι ⋙ HoCat.resolution ⋙ Lcofπ) _ _
+        ((asIso (whiskerRight HoCat.ιCompResolutionNatTrans Lcofπ)).symm ≪≫ associator _ _ _))
+      (Localization.liftNatIso L (weakEquivalences _) (HoCat.resolution ⋙ HoCat.toLocalization L) L
+        _ _ (asIso (HoCat.resolutionCompToLocalizationNatTrans L)))
   have : F.IsEquivalence := E.isEquivalence_functor
   exact LocalizerMorphism.IsLocalizedEquivalence.mk' (localizerMorphism C) Lcof L F
 
 set_option backward.defeqAttrib.useBackward true in
-instance (X : CofibrantObject C) :
-    IsCofibrant ((localizerMorphism C).functor.obj X) := by
+instance (X : CofibrantObject C) : IsCofibrant ((localizerMorphism C).functor.obj X) := by
   dsimp; infer_instance
 
-instance {D : Type*} [Category* D] (L : C ⥤ D)
-    [L.IsLocalization (weakEquivalences C)] :
-    (ι ⋙ L).IsLocalization (weakEquivalences (CofibrantObject C)) :=
+instance {D : Type*} [Category* D] (L : C ⥤ D) [L.IsLocalization (weakEquivalences C)]
+    : (ι ⋙ L).IsLocalization (weakEquivalences (CofibrantObject C)) :=
   inferInstanceAs (((localizerMorphism C).functor ⋙ L).IsLocalization _)
 
 end CofibrantObject

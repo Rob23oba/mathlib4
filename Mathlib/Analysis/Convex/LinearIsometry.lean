@@ -22,9 +22,8 @@ open scoped Convex
 
 section SeminormedAddCommGroup
 
-variable {𝕜 E F : Type*}
-  [NormedField 𝕜] [PartialOrder 𝕜]
-  [SeminormedAddCommGroup E] [NormedSpace 𝕜 E]
+variable
+  {𝕜 E F : Type*} [NormedField 𝕜] [PartialOrder 𝕜] [SeminormedAddCommGroup E] [NormedSpace 𝕜 E]
   [SeminormedAddCommGroup F] [NormedSpace 𝕜 F]
 
 @[simp]
@@ -56,8 +55,8 @@ lemma LinearIsometry.strictConvexSpace_range_iff (e : E →ₗᵢ[𝕜] F) :
     StrictConvexSpace 𝕜 (e : E →ₗ[𝕜] F).range ↔ StrictConvexSpace 𝕜 E :=
   e.equivRange.strictConvexSpace_iff.symm
 
-instance LinearIsometry.strictConvexSpace_range [StrictConvexSpace 𝕜 E] (e : E →ₗᵢ[𝕜] F) :
-    StrictConvexSpace 𝕜 (e : E →ₗ[𝕜] F).range :=
+instance LinearIsometry.strictConvexSpace_range [StrictConvexSpace 𝕜 E] (e : E →ₗᵢ[𝕜] F)
+    : StrictConvexSpace 𝕜 (e : E →ₗ[𝕜] F).range :=
   e.strictConvexSpace_range_iff.mpr ‹_›
 
 lemma LinearIsometry.strictConvexSpace [StrictConvexSpace 𝕜 F] (f : E →ₗᵢ[𝕜] F) :
@@ -66,11 +65,14 @@ lemma LinearIsometry.strictConvexSpace [StrictConvexSpace 𝕜 F] (f : E →ₗ�
     rw [← f.isometry.preimage_closedBall]
     exact (strictConvex_closedBall _ _ _).linearIsometry_preimage _
 
-/-- A vector subspace of a strict convex space is a strict convex space.
+/--
+A vector subspace of a strict convex space is a strict convex space.
 
 This instance has priority 900
 to make sure that instances like `LinearIsometry.strictConvexSpace_range`
-are tried before this one. -/
-instance (priority := 900) Submodule.instStrictConvexSpace [StrictConvexSpace 𝕜 E]
-    (p : Submodule 𝕜 E) : StrictConvexSpace 𝕜 p :=
+are tried before this one.
+-/
+instance (priority := 900) Submodule.instStrictConvexSpace
+    [StrictConvexSpace 𝕜 E] (p : Submodule 𝕜 E)
+    : StrictConvexSpace 𝕜 p :=
   p.subtypeₗᵢ.strictConvexSpace

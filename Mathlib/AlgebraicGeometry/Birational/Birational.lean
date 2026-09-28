@@ -34,8 +34,10 @@ open CategoryTheory
 
 namespace AlgebraicGeometry.Scheme
 
-/-- A partial isomorphism from `X` to `Y` is an isomorphism between dense open subschemes
-of `X` and `Y`. -/
+/--
+A partial isomorphism from `X` to `Y` is an isomorphism between dense open subschemes
+of `X` and `Y`.
+-/
 structure PartialIso (X Y : Scheme.{u}) where
   /-- The source open subscheme of a partial isomorphism. -/
   source : X.Opens
@@ -52,8 +54,7 @@ variable {X Y Z S : Scheme.{u}} {sX : X ⟶ S} {sY : Y ⟶ S} {sZ : Z ⟶ S}
 
 variable (sX sY) in
 /-- A partial iso is an `S`-map if the underlying morphism is. -/
-abbrev IsOver (f : X.PartialIso Y) : Prop :=
-  f.iso.hom ≫ f.target.ι ≫ sY = f.source.ι ≫ sX
+abbrev IsOver (f : X.PartialIso Y) : Prop := f.iso.hom ≫ f.target.ι ≫ sY = f.source.ι ≫ sX
 
 lemma ext_iff (f g : X.PartialIso Y) :
     f = g ↔ ∃ (e : f.source = g.source) (e' : g.target = f.target),
@@ -96,11 +97,13 @@ set_option backward.defeqAttrib.useBackward true in
 lemma IsOver.symm {f : X.PartialIso Y} (hf : f.IsOver sX sY) : f.symm.IsOver sY sX := by
   simpa [IsOver, ← cancel_epi f.iso.hom] using Eq.symm hf
 
-/-- Compose two partial isomorphisms along a proof that the target of `f` equals the source
-of `g`. See `trans` for the version that does not require this. -/
+/--
+Compose two partial isomorphisms along a proof that the target of `f` equals the source
+of `g`. See `trans` for the version that does not require this.
+-/
 @[simps]
-noncomputable def trans' (f : X.PartialIso Y) (g : Y.PartialIso Z) (e : f.target = g.source) :
-    X.PartialIso Z where
+noncomputable def trans' (f : X.PartialIso Y) (g : Y.PartialIso Z) (e : f.target = g.source)
+    : X.PartialIso Z where
   source := f.source
   dense_source := f.dense_source
   target := g.target
@@ -114,8 +117,9 @@ lemma IsOver.trans' {f : X.PartialIso Y} {g : Y.PartialIso Z} {e : f.target = g.
 
 /-- Restrict the source of a partial isomorphism to a smaller dense open. -/
 @[simps]
-noncomputable def restrictSource (f : X.PartialIso Y) (U : Opens X) (hU : Dense (U : Set X))
-    (hU' : U ≤ f.source) : X.PartialIso Y where
+noncomputable def restrictSource
+    (f : X.PartialIso Y) (U : Opens X) (hU : Dense (U : Set X)) (hU' : U ≤ f.source)
+    : X.PartialIso Y where
   source := U
   dense_source := hU
   target := f.target.ι ''ᵁ f.iso.hom ''ᵁ f.source.ι ⁻¹ᵁ U
@@ -124,9 +128,9 @@ noncomputable def restrictSource (f : X.PartialIso Y) (U : Opens X) (hU : Dense 
     f.target.ι.denseRange.dense_image f.target.ι.continuous <|
       f.iso.hom.denseRange.dense_image f.iso.hom.continuous <|
         hU.preimage f.source.ι.isOpenEmbedding.isOpenMap
-  iso := (Opens.isoOfLE hU').symm ≪≫
-    (f.iso.hom.isoImage (f.source.ι ⁻¹ᵁ U)) ≪≫
-    (f.target.ι.isoImage (f.iso.hom ''ᵁ f.source.ι ⁻¹ᵁ U))
+  iso :=
+    (Opens.isoOfLE hU').symm ≪≫ (f.iso.hom.isoImage (f.source.ι ⁻¹ᵁ U))
+      ≪≫ (f.target.ι.isoImage (f.iso.hom ''ᵁ f.source.ι ⁻¹ᵁ U))
 
 set_option backward.defeqAttrib.useBackward true in
 lemma IsOver.restrictSource {f : X.PartialIso Y} (hf : f.IsOver sX sY) (U : Opens X)
@@ -136,8 +140,9 @@ lemma IsOver.restrictSource {f : X.PartialIso Y} (hf : f.IsOver sX sY) (U : Open
 
 /-- Restrict the target of a partial isomorphism to a smaller dense open. -/
 @[simps! source target iso]
-noncomputable def restrictTarget (f : X.PartialIso Y) (U : Opens Y) (hU : Dense (U : Set Y))
-    (hU' : U ≤ f.target) : X.PartialIso Y :=
+noncomputable def restrictTarget
+    (f : X.PartialIso Y) (U : Opens Y) (hU : Dense (U : Set Y)) (hU' : U ≤ f.target)
+    : X.PartialIso Y :=
   (f.symm.restrictSource U hU hU').symm
 
 lemma IsOver.restrictTarget {f : X.PartialIso Y} (hf : f.IsOver sX sY) (U : Opens Y)
@@ -181,8 +186,7 @@ end PartialIso
 def Birational (X Y : Scheme.{u}) : Prop := Nonempty (PartialIso X Y)
 
 /-- Choose a partial isomorphism witnessing that `X` and `Y` are birational. -/
-noncomputable def Birational.partialIso {X Y : Scheme.{u}} (h : Birational X Y) :
-    PartialIso X Y :=
+noncomputable def Birational.partialIso {X Y : Scheme.{u}} (h : Birational X Y) : PartialIso X Y :=
   Classical.choice h
 
 @[refl]
@@ -198,14 +202,16 @@ lemma Birational.trans {X Y Z : Scheme.{u}} (h₁ : Birational X Y) (h₂ : Bira
     Birational X Z :=
   ⟨h₁.partialIso.trans h₂.partialIso⟩
 
-/-- `X` and `Y` are birational over `S` if there exists a partial isomorphism between them
-that is compatible with the structure maps to `S`. -/
+/--
+`X` and `Y` are birational over `S` if there exists a partial isomorphism between them
+that is compatible with the structure maps to `S`.
+-/
 def BirationalOver {S X Y : Scheme.{u}} (sX : X ⟶ S) (sY : Y ⟶ S) : Prop :=
   ∃ f : PartialIso X Y, f.IsOver sX sY
 
 /-- Choose a partial isomorphism witnessing that `X` and `Y` are birational over `S`. -/
-noncomputable def BirationalOver.partialIso {S X Y : Scheme.{u}} (sX : X ⟶ S) (sY : Y ⟶ S)
-    (h : BirationalOver sX sY) :=
+noncomputable def BirationalOver.partialIso
+    {S X Y : Scheme.{u}} (sX : X ⟶ S) (sY : Y ⟶ S) (h : BirationalOver sX sY) :=
   h.choose
 
 lemma BirationalOver.partialIso_isOver {S X Y : Scheme.{u}} (sX : X ⟶ S) (sY : Y ⟶ S)
@@ -225,8 +231,10 @@ lemma BirationalOver.trans {S X Y Z : Scheme.{u}} {sX : X ⟶ S} {sY : Y ⟶ S} 
     BirationalOver sX sZ :=
   ⟨h₁.partialIso.trans h₂.partialIso, h₁.partialIso_isOver.trans h₂.partialIso_isOver⟩
 
-/-- `X` is rational over `S` (or `S`-rational) if it is birational over `S` to some
-affine space `𝔸(n; S)`. Note that we do not require `n` to be finite here. -/
+/--
+`X` is rational over `S` (or `S`-rational) if it is birational over `S` to some
+affine space `𝔸(n; S)`. Note that we do not require `n` to be finite here.
+-/
 @[mk_iff]
 class IsRationalOver {S X : Scheme.{u}} (sX : X ⟶ S) : Prop where
   exists_birationalOver_affineSpace (sX) : ∃ (n : Type u), BirationalOver sX (𝔸(n; S) ↘ S)

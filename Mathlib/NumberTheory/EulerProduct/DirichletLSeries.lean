@@ -31,26 +31,29 @@ open Complex
 variable {s : ℂ}
 
 /-- When `s ≠ 0`, the map `n ↦ n^(-s)` is completely multiplicative and vanishes at zero. -/
-noncomputable
-def riemannZetaSummandHom (hs : s ≠ 0) : ℕ →*₀ ℂ where
+noncomputable def riemannZetaSummandHom (hs : s ≠ 0) : ℕ →*₀ ℂ where
   toFun n := (n : ℂ) ^ (-s)
   map_zero' := by simp [hs]
   map_one' := by simp
   map_mul' m n := by
-    simpa only [Nat.cast_mul, ofReal_natCast]
-      using mul_cpow_ofReal_nonneg m.cast_nonneg n.cast_nonneg _
+    simpa only [Nat.cast_mul, ofReal_natCast] using
+      mul_cpow_ofReal_nonneg m.cast_nonneg n.cast_nonneg _
 
-/-- When `χ` is a Dirichlet character and `s ≠ 0`, the map `n ↦ χ n * n^(-s)` is completely
-multiplicative and vanishes at zero. -/
-noncomputable
-def dirichletSummandHom {n : ℕ} (χ : DirichletCharacter ℂ n) (hs : s ≠ 0) : ℕ →*₀ ℂ where
+/--
+When `χ` is a Dirichlet character and `s ≠ 0`, the map `n ↦ χ n * n^(-s)` is completely
+multiplicative and vanishes at zero.
+-/
+noncomputable def dirichletSummandHom {n : ℕ} (χ : DirichletCharacter ℂ n) (hs : s ≠ 0)
+    : ℕ →*₀ ℂ where
   toFun n := χ n * (n : ℂ) ^ (-s)
   map_zero' := by simp [hs]
   map_one' := by simp
   map_mul' m n := by
     simp_rw [← ofReal_natCast]
-    simpa only [Nat.cast_mul, IsUnit.mul_iff, not_and, map_mul, ofReal_mul,
-      mul_cpow_ofReal_nonneg m.cast_nonneg n.cast_nonneg _]
+    simpa only [
+        Nat.cast_mul, IsUnit.mul_iff, not_and, map_mul, ofReal_mul,
+        mul_cpow_ofReal_nonneg m.cast_nonneg n.cast_nonneg _
+      ]
       using mul_mul_mul_comm ..
 
 /-- When `s.re > 1`, the map `n ↦ n^(-s)` is norm-summable. -/
@@ -86,81 +89,96 @@ open Filter Nat EulerProduct
 
 open scoped Topology
 
-/-- The Euler product for the Riemann ζ function, valid for `s.re > 1`.
-This version is stated in terms of `HasProd`. -/
-theorem riemannZeta_eulerProduct_hasProd (hs : 1 < s.re) :
-    HasProd (fun p : Primes ↦ (1 - (p : ℂ) ^ (-s))⁻¹) (riemannZeta s) := by
+/--
+The Euler product for the Riemann ζ function, valid for `s.re > 1`.
+This version is stated in terms of `HasProd`.
+-/
+theorem riemannZeta_eulerProduct_hasProd (hs : 1 < s.re)
+    : HasProd (fun p : Primes ↦ (1 - (p : ℂ) ^ (-s))⁻¹) (riemannZeta s) := by
   rw [← tsum_riemannZetaSummand hs]
   apply eulerProduct_completely_multiplicative_hasProd <| summable_riemannZetaSummand hs
 
-/-- The Euler product for the Riemann ζ function, valid for `s.re > 1`.
-This version is stated in terms of `tprod`. -/
-theorem riemannZeta_eulerProduct_tprod (hs : 1 < s.re) :
-    ∏' p : Primes, (1 - (p : ℂ) ^ (-s))⁻¹ = riemannZeta s :=
+/--
+The Euler product for the Riemann ζ function, valid for `s.re > 1`.
+This version is stated in terms of `tprod`.
+-/
+theorem riemannZeta_eulerProduct_tprod (hs : 1 < s.re)
+    : ∏' p : Primes, (1 - (p : ℂ) ^ (-s))⁻¹ = riemannZeta s :=
   (riemannZeta_eulerProduct_hasProd hs).tprod_eq
 
-/-- The Euler product for the Riemann ζ function, valid for `s.re > 1`.
-This version is stated in the form of convergence of finite partial products. -/
-theorem riemannZeta_eulerProduct (hs : 1 < s.re) :
-    Tendsto (fun n : ℕ ↦ ∏ p ∈ primesBelow n, (1 - (p : ℂ) ^ (-s))⁻¹) atTop
-      (𝓝 (riemannZeta s)) := by
+/--
+The Euler product for the Riemann ζ function, valid for `s.re > 1`.
+This version is stated in the form of convergence of finite partial products.
+-/
+theorem riemannZeta_eulerProduct (hs : 1 < s.re)
+    : Tendsto
+      (fun n : ℕ ↦ ∏ p ∈ primesBelow n, (1 - (p : ℂ) ^ (-s))⁻¹)
+      atTop (𝓝 (riemannZeta s)) := by
   rw [← tsum_riemannZetaSummand hs]
   apply eulerProduct_completely_multiplicative <| summable_riemannZetaSummand hs
 
 open scoped LSeries.notation
 
-/-- The Euler product for Dirichlet L-series, valid for `s.re > 1`.
-This version is stated in terms of `HasProd`. -/
-theorem DirichletCharacter.LSeries_eulerProduct_hasProd {N : ℕ} (χ : DirichletCharacter ℂ N)
-    (hs : 1 < s.re) :
-    HasProd (fun p : Primes ↦ (1 - χ p * (p : ℂ) ^ (-s))⁻¹) (L ↗χ s) := by
+/--
+The Euler product for Dirichlet L-series, valid for `s.re > 1`.
+This version is stated in terms of `HasProd`.
+-/
+theorem DirichletCharacter.LSeries_eulerProduct_hasProd
+    {N : ℕ} (χ : DirichletCharacter ℂ N) (hs : 1 < s.re)
+    : HasProd (fun p : Primes ↦ (1 - χ p * (p : ℂ) ^ (-s))⁻¹) (L ↗χ s) := by
   rw [← tsum_dirichletSummand χ hs]
   convert! eulerProduct_completely_multiplicative_hasProd <| summable_dirichletSummand χ hs
 
-/-- The Euler product for Dirichlet L-series, valid for `s.re > 1`.
-This version is stated in terms of `tprod`. -/
-theorem DirichletCharacter.LSeries_eulerProduct_tprod {N : ℕ} (χ : DirichletCharacter ℂ N)
-    (hs : 1 < s.re) :
-    ∏' p : Primes, (1 - χ p * (p : ℂ) ^ (-s))⁻¹ = L ↗χ s :=
+/--
+The Euler product for Dirichlet L-series, valid for `s.re > 1`.
+This version is stated in terms of `tprod`.
+-/
+theorem DirichletCharacter.LSeries_eulerProduct_tprod
+    {N : ℕ} (χ : DirichletCharacter ℂ N) (hs : 1 < s.re)
+    : ∏' p : Primes, (1 - χ p * (p : ℂ) ^ (-s))⁻¹ = L ↗χ s :=
   (DirichletCharacter.LSeries_eulerProduct_hasProd χ hs).tprod_eq
 
-/-- The Euler product for Dirichlet L-series, valid for `s.re > 1`.
-This version is stated in the form of convergence of finite partial products. -/
-theorem DirichletCharacter.LSeries_eulerProduct {N : ℕ} (χ : DirichletCharacter ℂ N)
-    (hs : 1 < s.re) :
-    Tendsto (fun n : ℕ ↦ ∏ p ∈ primesBelow n, (1 - χ p * (p : ℂ) ^ (-s))⁻¹) atTop
-      (𝓝 (L ↗χ s)) := by
+/--
+The Euler product for Dirichlet L-series, valid for `s.re > 1`.
+This version is stated in the form of convergence of finite partial products.
+-/
+theorem DirichletCharacter.LSeries_eulerProduct {N : ℕ} (χ : DirichletCharacter ℂ N) (hs : 1 < s.re)
+    : Tendsto
+      (fun n : ℕ ↦ ∏ p ∈ primesBelow n, (1 - χ p * (p : ℂ) ^ (-s))⁻¹)
+      atTop (𝓝 (L ↗χ s)) := by
   rw [← tsum_dirichletSummand χ hs]
   apply eulerProduct_completely_multiplicative <| summable_dirichletSummand χ hs
 
 open LSeries
 
 /-- A variant of the Euler product for Dirichlet L-series. -/
-theorem DirichletCharacter.LSeries_eulerProduct_exp_log {N : ℕ} (χ : DirichletCharacter ℂ N)
-    {s : ℂ} (hs : 1 < s.re) :
-    exp (∑' p : Nat.Primes, -log (1 - χ p * p ^ (-s))) = L ↗χ s := by
+theorem DirichletCharacter.LSeries_eulerProduct_exp_log
+    {N : ℕ} (χ : DirichletCharacter ℂ N) {s : ℂ} (hs : 1 < s.re)
+    : exp (∑' p : Nat.Primes, -log (1 - χ p * p ^ (-s))) = L ↗χ s := by
   let f := dirichletSummandHom χ <| ne_zero_of_one_lt_re hs
   have h n : term ↗χ s n = f n := by
     rcases eq_or_ne n 0 with rfl | hn
     · simp only [term_zero, map_zero]
-    · simp only [ne_eq, hn, not_false_eq_true, term_of_ne_zero, div_eq_mul_inv,
-        dirichletSummandHom, cpow_neg, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk, f]
-  simpa only [LSeries, h]
-    using! exp_tsum_primes_log_eq_tsum (f := f) <| summable_dirichletSummand χ hs
+    · simp only [
+        ne_eq, hn, not_false_eq_true, term_of_ne_zero, div_eq_mul_inv, dirichletSummandHom,
+        cpow_neg, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk, f
+      ]
+  simpa only [LSeries, h] using!
+    exp_tsum_primes_log_eq_tsum (f := f) <| summable_dirichletSummand χ hs
 
 open DirichletCharacter
 
 /-- A variant of the Euler product for the L-series of `ζ`. -/
-theorem ArithmeticFunction.LSeries_zeta_eulerProduct_exp_log {s : ℂ} (hs : 1 < s.re) :
-    exp (∑' p : Nat.Primes, -Complex.log (1 - p ^ (-s))) = L 1 s := by
+theorem ArithmeticFunction.LSeries_zeta_eulerProduct_exp_log {s : ℂ} (hs : 1 < s.re)
+    : exp (∑' p : Nat.Primes, -Complex.log (1 - p ^ (-s))) = L 1 s := by
   convert!
     modOne_eq_one (R := ℂ) ▸
       DirichletCharacter.LSeries_eulerProduct_exp_log (1 : DirichletCharacter ℂ 1) hs using 7
   rw [MulChar.one_apply <| isUnit_of_subsingleton _, one_mul]
 
 /-- A variant of the Euler product for the Riemann zeta function. -/
-theorem riemannZeta_eulerProduct_exp_log {s : ℂ} (hs : 1 < s.re) :
-    exp (∑' p : Nat.Primes, -Complex.log (1 - p ^ (-s))) = riemannZeta s :=
+theorem riemannZeta_eulerProduct_exp_log {s : ℂ} (hs : 1 < s.re)
+    : exp (∑' p : Nat.Primes, -Complex.log (1 - p ^ (-s))) = riemannZeta s :=
   LSeries_one_eq_riemannZeta hs ▸ ArithmeticFunction.LSeries_zeta_eulerProduct_exp_log hs
 
 /-!
@@ -215,24 +233,29 @@ open ArithmeticFunction Summable
 
 variable {N : ℕ} (χ : DirichletCharacter ℂ N) {s : ℂ}
 
-/-- For `1 < s.re`, the sum over primes of `-log (1 - χ p * p ^ (-s))` — the logarithm of the Euler
+/--
+For `1 < s.re`, the sum over primes of `-log (1 - χ p * p ^ (-s))` — the logarithm of the Euler
 product — equals the `L`-series of `n ↦ χ n * Λ n / Real.log n`.
 -/
-theorem DirichletCharacter.eulerProduct_log_eq_LSeries (hs : 1 < s.re) :
-    ∑' p : Primes, -log (1 - χ p * p ^ (-s)) = LSeries (fun n ↦ χ n * Λ n / Real.log n) s := by
+theorem DirichletCharacter.eulerProduct_log_eq_LSeries (hs : 1 < s.re)
+    : ∑' p : Primes, -log (1 - χ p * p ^ (-s)) = LSeries (fun n ↦ χ n * Λ n / Real.log n) s := by
   have hpow_le (p : Primes) : ‖χ p * (p : ℂ) ^ (-s)‖ < 1 := by
     grw [norm_mul, norm_le_one, norm_natCast_cpow_of_pos (mod_cast p.prop.pos), neg_re, one_mul]
     apply rpow_lt_one_of_one_lt_of_neg (mod_cast p.prop.one_lt) (by linarith)
-  rw [tsum_congr (fun p ↦ (hasSum_taylorSeries_neg_log' (hpow_le p)).tsum_eq.symm),
-    LSeries_def₀ (by simp)]
+  rw [
+    tsum_congr (fun p ↦ (hasSum_taylorSeries_neg_log' (hpow_le p)).tsum_eq.symm),
+    LSeries_def₀ (by simp)
+  ]
   let f : ℕ → ℂ := fun n ↦ χ n * Λ n / Real.log n * ((n : ℂ) ^ (-s))
   calc
     _ = ∑' (p : Primes) (k : ℕ), (χ (p ^ (k + 1)) * ((p ^ (k + 1) : ℕ) : ℂ) ^ (-s)) *
           Λ (p ^ (k + 1)) / Real.log (p ^ (k + 1)) := by
       refine tsum_congr fun p ↦ tsum_congr fun k ↦ ?_
       have : Complex.log p ≠ 0 := mod_cast p.prop.log_ne_zero
-      simp [mul_pow, ← cpow_nat_mul, ← natCast_cpow_natCast_mul, vonMangoldt_apply_pow,
-        vonMangoldt_apply_prime p.2, field]
+      simp [
+        mul_pow, ← cpow_nat_mul, ← natCast_cpow_natCast_mul, vonMangoldt_apply_pow,
+        vonMangoldt_apply_prime p.2, field
+      ]
     _ = ∑' n : {n : ℕ // IsPrimePow n}, f n := by
       rw [← tsum_primes_pow_eq]
       · exact tsum_congr fun p ↦ tsum_congr fun k ↦ (by unfold f; simp; ring)
@@ -248,30 +271,31 @@ theorem DirichletCharacter.eulerProduct_log_eq_LSeries (hs : 1 < s.re) :
           simp
     _ = _ := by
       simp only [div_eq_mul_inv _ (_ ^ _), ← cpow_neg]
-      suffices (Function.support f) ⊆ {n | IsPrimePow n} from
-        tsum_subtype_eq_of_support_subset this
+      suffices (Function.support f) ⊆ {n | IsPrimePow n} from tsum_subtype_eq_of_support_subset this
       intro n hn
       contrapose hn
       simp [f, vonMangoldt_eq_zero_iff.mpr hn]
 
-/-- For `1 < s.re`, the Dirichlet L-function is the exponential of the `L`-series of
+/--
+For `1 < s.re`, the Dirichlet L-function is the exponential of the `L`-series of
 `n ↦ χ n * Λ n / Real.log n`.
 -/
-theorem DirichletCharacter.LSeries_eq_exp_LSeries (hs : 1 < s.re) :
-    exp (LSeries (fun (n : ℕ) ↦ χ n * Λ n / Real.log n) s) = L ↗χ s := by
+theorem DirichletCharacter.LSeries_eq_exp_LSeries (hs : 1 < s.re)
+    : exp (LSeries (fun (n : ℕ) ↦ χ n * Λ n / Real.log n) s) = L ↗χ s := by
   rw [← eulerProduct_log_eq_LSeries χ hs, LSeries_eulerProduct_exp_log χ hs]
 
-theorem riemannZeta_eq_exp_LSeries {s : ℂ} (hs : 1 < s.re) :
-    exp (LSeries (fun (n : ℕ) ↦ Λ n / Real.log n) s) = riemannZeta s := by
+theorem riemannZeta_eq_exp_LSeries {s : ℂ} (hs : 1 < s.re)
+    : exp (LSeries (fun (n : ℕ) ↦ Λ n / Real.log n) s) = riemannZeta s := by
   rw [← LSeries_one_eq_riemannZeta hs]
   convert LSeries_eq_exp_LSeries (1 : DirichletCharacter ℂ 1) hs
-  <;> simp [MulChar.one_apply <| isUnit_of_subsingleton _]
+    <;> simp [MulChar.one_apply <| isUnit_of_subsingleton _]
 
-/-- For real `s > 1`, the logarithm of the (real) Riemann zeta function equals
+/--
+For real `s > 1`, the logarithm of the (real) Riemann zeta function equals
 `∑' n, Λ n / (n ^ s * Real.log n)`, where `Λ` is the von Mangoldt function.
 -/
-theorem log_riemannZeta_eq {s : ℝ} (hs : 1 < s) :
-    Real.log (riemannZeta (s : ℂ)).re = ∑' n, Λ n / (n ^ s * Real.log n) := by
+theorem log_riemannZeta_eq {s : ℝ} (hs : 1 < s)
+    : Real.log (riemannZeta (s : ℂ)).re = ∑' n, Λ n / (n ^ s * Real.log n) := by
   rw [← riemannZeta_eq_exp_LSeries (by simpa using hs), LSeries_def₀ (by simp)]
   convert Real.log_exp _
   convert exp_ofReal_re _

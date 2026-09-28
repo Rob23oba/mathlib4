@@ -35,8 +35,7 @@ variable {F : Type*} [Field F] [AdmissibleAbsValues F] {W : Affine F}
 section NaiveHeight
 
 /-- The naïve logarithmic height of an affine point on `W`. -/
-noncomputable def Point.naiveHeight (P : W.Point) : ℝ :=
-  logHeight P.xRep
+noncomputable def Point.naiveHeight (P : W.Point) : ℝ := logHeight P.xRep
 
 lemma Point.naiveHeight_eq_logHeight (P : W.Point) : P.naiveHeight = logHeight P.xRep :=
   (rfl)
@@ -63,23 +62,24 @@ lemma abs_logHeight_sym2x_sub_le :
 
 variable [W.IsElliptic]
 
-/-- If `W` is a Weierstrass curve over `F`, then the map `Φ : ℙ² → ℙ²` given by `addSubMap W`
+/--
+If `W` is a Weierstrass curve over `F`, then the map `Φ : ℙ² → ℙ²` given by `addSubMap W`
 is a morphism.
 
 This implies that `|logHeight (Φ x) - 2 * logHeight x| ≤ C` for a constant `C`,
-where `x = ![s, t, u]` and `Φ` acts on the coordinate vector. -/
-theorem abs_logHeight_addSubMap_sub_two_mul_logHeight_le :
-    ∃ C, ∀ x : Fin 3 → F,
-      |logHeight (fun i ↦ (addSubMap W i).eval x) - 2 * logHeight x| ≤ C := by
+where `x = ![s, t, u]` and `Φ` acts on the coordinate vector.
+-/
+theorem abs_logHeight_addSubMap_sub_two_mul_logHeight_le
+    : ∃ C, ∀ x : Fin 3 → F, |logHeight (fun i ↦ (addSubMap W i).eval x) - 2 * logHeight x| ≤ C := by
   obtain ⟨C₁, hC₁⟩ := logHeight_eval_le' <| isHomogeneous_addSubMap W
-  obtain ⟨C₂, h⟩ := logHeight_eval_ge' (N := 2)
-    fun ij ↦ (isHomogeneous_addSubMapCoeff W ij).C_mul ↑W.Δ'⁻¹
+  obtain ⟨C₂, h⟩ :=
+    logHeight_eval_ge' (N := 2) fun ij ↦ (isHomogeneous_addSubMapCoeff W ij).C_mul ↑W.Δ'⁻¹
   have hC₂ := fun x ↦ h _ <| addSubMapCoeff_condition W x
   refine ⟨max C₁ (-C₂), fun x ↦ abs_sub_le_iff.mpr ⟨?_, ?_⟩⟩ <;> grind
 
 /-- The **approximate parallelogram law** for the naïve height on an elliptic curve. -/
-theorem approx_parallelogram_law [DecidableEq F] :
-    ∃ C, ∀ (P Q : W.Point),
+theorem approx_parallelogram_law [DecidableEq F]
+    : ∃ C, ∀ (P Q : W.Point),
       |(P + Q).naiveHeight + (P - Q).naiveHeight - 2 * (P.naiveHeight + Q.naiveHeight)| ≤ C := by
   obtain ⟨C₁, hC₁⟩ := abs_logHeight_sym2x_sub_le W
   obtain ⟨C₂, hC₂⟩ := abs_logHeight_addSubMap_sub_two_mul_logHeight_le W
@@ -119,8 +119,10 @@ lemma finite_naiveHeight_le (B : ℝ) : {P : W.Point | P.naiveHeight ≤ B}.Fini
 
 variable [DecidableEq F] [W.IsElliptic]
 
-/-- The group of `F`-rational torsion points on an elliptic curve is finite when `F` is a field
-that has the Northcott property (e.g., a number field). -/
+/--
+The group of `F`-rational torsion points on an elliptic curve is finite when `F` is a field
+that has the Northcott property (e.g., a number field).
+-/
 theorem finite_torsion : Finite (AddCommGroup.torsion W.Point) := by
   obtain ⟨C, hC⟩ := approx_parallelogram_law W
   exact AddCommGroup.finite_torsion_of_descent' hC

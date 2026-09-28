@@ -25,7 +25,6 @@ subgroup, subgroups
 
 public section
 
-
 variable {G : Type*} [Group G]
 variable {A : Type*} [AddGroup A]
 
@@ -54,8 +53,8 @@ attribute [to_additive existing] IsSimpleGroup isSimpleGroup_iff
 variable {G} {A}
 
 @[to_additive]
-theorem Subgroup.Normal.eq_bot_or_eq_top [IsSimpleGroup G] (H : Subgroup G) [H.Normal] :
-    H = ⊥ ∨ H = ⊤ :=
+theorem Subgroup.Normal.eq_bot_or_eq_top [IsSimpleGroup G] (H : Subgroup G) [H.Normal]
+    : H = ⊥ ∨ H = ⊤ :=
   IsSimpleGroup.eq_bot_or_eq_top_of_normal H
 
 @[to_additive]
@@ -79,13 +78,13 @@ theorem of_isSimpleOrder [hG : IsSimpleOrder (Subgroup G)] : IsSimpleGroup G whe
 open Subgroup
 
 @[to_additive]
-theorem isSimpleGroup_of_surjective {H : Type*} [Group H] [IsSimpleGroup G] [Nontrivial H]
-    (f : G →* H) (hf : Function.Surjective f) : IsSimpleGroup H :=
-  ⟨fun H iH => by
-    refine (iH.comap f).eq_bot_or_eq_top.imp (fun h => ?_) fun h => ?_
-    · rw [← map_bot f, ← h, map_comap_eq_self_of_surjective hf]
-    · rw [← comap_top f] at h
-      exact comap_injective hf h⟩
+theorem isSimpleGroup_of_surjective
+    {H : Type*} [Group H] [IsSimpleGroup G] [Nontrivial H] (f : G →* H) (hf : Function.Surjective f)
+    : IsSimpleGroup H := ⟨fun H iH => by
+  refine (iH.comap f).eq_bot_or_eq_top.imp (fun h => ?_) fun h => ?_
+  · rw [← map_bot f, ← h, map_comap_eq_self_of_surjective hf]
+  · rw [← comap_top f] at h
+    exact comap_injective hf h⟩
 
 @[to_additive]
 lemma _root_.MulEquiv.isSimpleGroup {H : Type*} [Group H] [IsSimpleGroup H] (e : G ≃* H) :

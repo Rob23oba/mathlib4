@@ -41,9 +41,10 @@ variable {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
 instance : MorphismProperty.RespectsIso (topologically Function.Injective) :=
   topologically_respectsIso _ (fun e ↦ e.injective) (fun _ _ hf hg ↦ hg.comp hf)
 
-instance injective_isZariskiLocalAtTarget :
-    IsZariskiLocalAtTarget (topologically Function.Injective) := by
-  refine topologically_isZariskiLocalAtTarget _ (fun _ s _ _ h ↦ h.restrictPreimage s)
+instance injective_isZariskiLocalAtTarget
+    : IsZariskiLocalAtTarget (topologically Function.Injective) := by
+  refine topologically_isZariskiLocalAtTarget _
+    (fun _ s _ _ h ↦ h.restrictPreimage s)
     fun f ι U H _ hf x₁ x₂ e ↦ ?_
   obtain ⟨i, hxi⟩ : ∃ i, f x₁ ∈ U i := by simpa using congr(f x₁ ∈ $H)
   congrm ($(@hf i ⟨x₁, hxi⟩ ⟨x₂, show f x₂ ∈ U i from e ▸ hxi⟩ (Subtype.ext e))).1
@@ -73,8 +74,8 @@ instance [Surjective f] [Surjective g] : Surjective (f ≫ g) := ⟨g.surjective
 lemma Surjective.of_comp [Surjective (f ≫ g)] : Surjective g where
   surj := Function.Surjective.of_comp (g := f) (f ≫ g).surjective
 
-instance (priority := low) [Nonempty X] [Subsingleton Y] (f : X ⟶ Y) :
-    Surjective f := ⟨Function.surjective_to_subsingleton _⟩
+instance (priority := low) [Nonempty X] [Subsingleton Y] (f : X ⟶ Y) : Surjective f :=
+  ⟨Function.surjective_to_subsingleton _⟩
 
 lemma Surjective.comp_iff [Surjective f] : Surjective (f ≫ g) ↔ Surjective g :=
   ⟨fun _ ↦ of_comp f g, fun _ ↦ inferInstance⟩
@@ -84,11 +85,11 @@ instance : MorphismProperty.IsMultiplicative @Surjective.{u} where
   comp_mem _ _ hf hg := ⟨hg.1.comp hf.1⟩
 
 instance : MorphismProperty.RespectsIso @Surjective :=
-  surjective_eq_topologically ▸ topologically_respectsIso _ (fun e ↦ e.surjective)
-    (fun _ _ hf hg ↦ hg.comp hf)
+  surjective_eq_topologically
+    ▸ topologically_respectsIso _ (fun e ↦ e.surjective) (fun _ _ hf hg ↦ hg.comp hf)
 
-instance (P : MorphismProperty Scheme.{u}) :
-    MorphismProperty.HasOfPrecompProperty @Surjective P where
+instance (P : MorphismProperty Scheme.{u})
+    : MorphismProperty.HasOfPrecompProperty @Surjective P where
   of_precomp f g _ _ := .of_comp f g
 
 instance surjective_isZariskiLocalAtTarget : IsZariskiLocalAtTarget @Surjective := by
@@ -122,14 +123,15 @@ lemma Surjective.sigmaDesc_of_union_range_eq_univ {X : Scheme.{u}}
   use Limits.Sigma.ι Y i x
   rw [← Scheme.Hom.comp_apply, Limits.Sigma.ι_comp_desc]
 
-instance {X : Scheme.{u}} {P : MorphismProperty Scheme.{u}} (𝒰 : X.Cover (Scheme.precoverage P)) :
-    Surjective (Limits.Sigma.desc fun i ↦ 𝒰.f i) :=
+instance {X : Scheme.{u}} {P : MorphismProperty Scheme.{u}} (𝒰 : X.Cover (Scheme.precoverage P))
+    : Surjective (Limits.Sigma.desc fun i ↦ 𝒰.f i) :=
   Surjective.sigmaDesc_of_union_range_eq_univ 𝒰.iUnion_range
 
 /-- The single object covering by one surjective morphism satisfying `P`. -/
 @[simps! I₀ X f]
-def Scheme.Hom.cover {P : MorphismProperty Scheme.{u}} {X S : Scheme.{u}} (f : X ⟶ S) (hf : P f)
-    [Surjective f] : Cover.{v} (precoverage P) S :=
+def Scheme.Hom.cover
+    {P : MorphismProperty Scheme.{u}} {X S : Scheme.{u}} (f : X ⟶ S) (hf : P f) [Surjective f]
+    : Cover.{v} (precoverage P) S :=
   .singleton f <| by
     rw [singleton_mem_precoverage_iff]
     exact ⟨f.surjective, hf⟩
@@ -139,16 +141,16 @@ lemma Scheme.Hom.presieve₀_cover {P : MorphismProperty Scheme.{u}} {X S : Sche
     (hf : P f) [Surjective f] : (f.cover hf).presieve₀ = Presieve.singleton f := by
   simp [cover]
 
-instance {P : MorphismProperty Scheme.{u}} {X S : Scheme.{u}} (f : X ⟶ S) (hf : P f)
-    [Surjective f] : Unique (Scheme.Hom.cover f hf).I₀ :=
+instance {P : MorphismProperty Scheme.{u}} {X S : Scheme.{u}} (f : X ⟶ S) (hf : P f) [Surjective f]
+    : Unique (Scheme.Hom.cover f hf).I₀ :=
   inferInstanceAs <| Unique PUnit
 
 end Surjective
 
 section Injective
 
-instance injective_isStableUnderComposition :
-    MorphismProperty.IsStableUnderComposition (topologically (Function.Injective ·)) where
+instance injective_isStableUnderComposition
+    : MorphismProperty.IsStableUnderComposition (topologically (Function.Injective ·)) where
   comp_mem _ _ hf hg := hg.comp hf
 
 end Injective
@@ -191,8 +193,8 @@ section IsOpenEmbedding
 instance : (topologically IsOpenEmbedding).RespectsIso :=
   topologically_respectsIso _ (fun e ↦ e.isOpenEmbedding) (fun _ _ hf hg ↦ hg.comp hf)
 
-instance isOpenEmbedding_isZariskiLocalAtTarget :
-    IsZariskiLocalAtTarget (topologically IsOpenEmbedding) :=
+instance isOpenEmbedding_isZariskiLocalAtTarget
+    : IsZariskiLocalAtTarget (topologically IsOpenEmbedding) :=
   topologically_isZariskiLocalAtTarget' _ fun _ _ _ hU ↦ hU.isOpenEmbedding_iff_restrictPreimage
 
 end IsOpenEmbedding
@@ -202,8 +204,8 @@ section IsClosedEmbedding
 instance : (topologically IsClosedEmbedding).RespectsIso :=
   topologically_respectsIso _ (fun e ↦ e.isClosedEmbedding) (fun _ _ hf hg ↦ hg.comp hf)
 
-instance isClosedEmbedding_isZariskiLocalAtTarget :
-    IsZariskiLocalAtTarget (topologically IsClosedEmbedding) :=
+instance isClosedEmbedding_isZariskiLocalAtTarget
+    : IsZariskiLocalAtTarget (topologically IsClosedEmbedding) :=
   topologically_isZariskiLocalAtTarget' _ fun _ _ _ hU ↦ hU.isClosedEmbedding_iff_restrictPreimage
 
 end IsClosedEmbedding
@@ -246,8 +248,8 @@ instance IsDominant.respectsIso : MorphismProperty.RespectsIso @IsDominant :=
 instance IsDominant.isZariskiLocalAtTarget : IsZariskiLocalAtTarget @IsDominant :=
   have : MorphismProperty.RespectsIso (topologically DenseRange) :=
     dominant_eq_topologically ▸ IsDominant.respectsIso
-  dominant_eq_topologically ▸ topologically_isZariskiLocalAtTarget' DenseRange
-    fun _ _ _ hU _ ↦ hU.denseRange_iff_restrictPreimage
+  dominant_eq_topologically ▸ topologically_isZariskiLocalAtTarget' DenseRange fun _ _ _ hU _ ↦
+    hU.denseRange_iff_restrictPreimage
 
 lemma surjective_of_isDominant_of_isClosed_range (f : X ⟶ Y) [IsDominant f]
     (hf : IsClosed (Set.range f)) :
@@ -283,8 +285,8 @@ instance specializingMap_respectsIso : (topologically @SpecializingMap).Respects
   · introv hf hg
     exact hf.comp hg
 
-instance specializingMap_isZariskiLocalAtTarget :
-    IsZariskiLocalAtTarget (topologically @SpecializingMap) := by
+instance specializingMap_isZariskiLocalAtTarget
+    : IsZariskiLocalAtTarget (topologically @SpecializingMap) := by
   apply topologically_isZariskiLocalAtTarget
   · introv _ _ hf
     rw [specializingMap_iff_closure_singleton_subset] at hf ⊢
@@ -315,15 +317,17 @@ end SpecializingMap
 section GeneralizingMap
 
 instance : (topologically GeneralizingMap).RespectsIso :=
-  topologically_respectsIso _ (fun f ↦ f.isOpenEmbedding.generalizingMap)
+  topologically_respectsIso _
+    (fun f ↦ f.isOpenEmbedding.generalizingMap)
     (fun _ _ hf hg ↦ hf.comp hg)
 
 instance : IsZariskiLocalAtSource (topologically GeneralizingMap) :=
   topologically_isZariskiLocalAtSource' (fun _ ↦ _) fun _ _ _ hU _ ↦ hU.generalizingMap_iff_comp
 
 instance : IsZariskiLocalAtTarget (topologically GeneralizingMap) :=
-  topologically_isZariskiLocalAtTarget' (fun _ ↦ _) fun _ _ _ hU _ ↦
-    hU.generalizingMap_iff_restrictPreimage
+  topologically_isZariskiLocalAtTarget'
+    (fun _ ↦ _)
+    fun _ _ _ hU _ ↦ hU.generalizingMap_iff_restrictPreimage
 
 end GeneralizingMap
 

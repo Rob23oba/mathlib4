@@ -28,11 +28,12 @@ universe u
 
 namespace AlgebraicGeometry.Scheme
 
-/-- A scheme `X` is quasi-affine if it is quasi-compact and `X ⟶ Spec Γ(X, ⊤)` is an immersion.
-This actually implies that `X ⟶ Spec Γ(X, ⊤)` is an open immersion. -/
+/--
+A scheme `X` is quasi-affine if it is quasi-compact and `X ⟶ Spec Γ(X, ⊤)` is an immersion.
+This actually implies that `X ⟶ Spec Γ(X, ⊤)` is an open immersion.
+-/
 @[stacks 01P6]
-class IsQuasiAffine (X : Scheme.{u}) : Prop extends
-  CompactSpace X, IsImmersion X.toSpecΓ
+class IsQuasiAffine (X : Scheme.{u}) : Prop extends CompactSpace X, IsImmersion X.toSpecΓ
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
@@ -100,13 +101,14 @@ lemma IsQuasiAffine.of_isAffineHom [IsAffineHom f] [Y.IsQuasiAffine] : X.IsQuasi
   exact ⟨hr.preimage _, hxr⟩
 
 /-- The affine basic opens of a quasi-affine scheme form an open cover. -/
-@[simps! f] def openCoverBasicOpenTop (X : Scheme.{u}) [X.IsQuasiAffine] :
-    X.OpenCover :=
-  X.openCoverOfIsOpenCover (fun i : { r // IsAffineOpen (X.basicOpen (U := ⊤) r) } ↦
-    X.basicOpen i.1) <| top_le_iff.mp fun x _ ↦ by
-  obtain ⟨_, ⟨_, ⟨r, hr, rfl⟩, rfl⟩, hxr, -⟩ :=
-    (IsQuasiAffine.isBasis_basicOpen X).exists_subset_of_mem_open (Set.mem_univ x) isOpen_univ
-  exact Opens.mem_iSup.mpr ⟨⟨r, hr⟩, hxr⟩
+@[simps! f]
+def openCoverBasicOpenTop (X : Scheme.{u}) [X.IsQuasiAffine] : X.OpenCover :=
+  X.openCoverOfIsOpenCover (fun i : {r // IsAffineOpen (X.basicOpen (U := ⊤) r)} ↦
+      X.basicOpen i.1) <|
+    top_le_iff.mp fun x _ ↦ by
+      obtain ⟨_, ⟨_, ⟨r, hr, rfl⟩, rfl⟩, hxr, -⟩ :=
+        (IsQuasiAffine.isBasis_basicOpen X).exists_subset_of_mem_open (Set.mem_univ x) isOpen_univ
+      exact Opens.mem_iSup.mpr ⟨⟨r, hr⟩, hxr⟩
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

@@ -56,9 +56,11 @@ section Preorder -- the *index type* is a preorder
 
 variable [Preorder ι] [LocallyFiniteOrderBot ι]
 
-/-- The function mapping `i` to `f i \ (⨆ j < i, f j)`. When `ι` is a partial order, this is the
+/--
+The function mapping `i` to `f i \ (⨆ j < i, f j)`. When `ι` is a partial order, this is the
 unique function `g` having the same `partialSups` as `f` and such that `g i` and `g j` are
-disjoint whenever `i < j`. -/
+disjoint whenever `i < j`.
+-/
 def disjointed (f : ι → α) (i : ι) : α := f i \ (Iio i).sup f
 
 lemma disjointed_apply (f : ι → α) (i : ι) : disjointed f i = f i \ (Iio i).sup f := rfl
@@ -71,14 +73,12 @@ lemma disjointed_of_isMin (f : ι → α) {i : ι} (hn : IsMin i) :
 @[simp] lemma disjointed_bot [OrderBot ι] (f : ι → α) : disjointed f ⊥ = f ⊥ :=
   disjointed_of_isMin _ isMin_bot
 
-theorem disjointed_le_id : disjointed ≤ (id : (ι → α) → ι → α) :=
-  fun _ _ ↦ sdiff_le
+theorem disjointed_le_id : disjointed ≤ (id : (ι → α) → ι → α) := fun _ _ ↦ sdiff_le
 
-theorem disjointed_le (f : ι → α) : disjointed f ≤ f :=
-  disjointed_le_id f
+theorem disjointed_le (f : ι → α) : disjointed f ≤ f := disjointed_le_id f
 
-theorem disjoint_disjointed_of_lt (f : ι → α) {i j : ι} (h : i < j) :
-    Disjoint (disjointed f i) (disjointed f j) :=
+theorem disjoint_disjointed_of_lt (f : ι → α) {i j : ι} (h : i < j)
+    : Disjoint (disjointed f i) (disjointed f j) :=
   (disjoint_sdiff_self_right.mono_left <| le_sup (mem_Iio.mpr h)).mono_left (disjointed_le f i)
 
 lemma disjointed_eq_self {f : ι → α} {i : ι} (hf : ∀ j < i, Disjoint (f j) (f i)) :
@@ -87,9 +87,11 @@ lemma disjointed_eq_self {f : ι → α} {i : ι} (hf : ∀ j < i, Disjoint (f j
     sup_congr rfl <| fun j hj ↦ disjoint_iff.mp (hf _ (mem_Iio.mp hj)).symm]
   exact sup_bot _
 
-/- NB: The original statement for `ι = ℕ` was a `def` and worked for `p : α → Sort*`. I couldn't
+/-
+NB: The original statement for `ι = ℕ` was a `def` and worked for `p : α → Sort*`. I couldn't
 prove the `Sort*` version for general `ι`, but all instances of `disjointedRec` in the library are
-for Prop anyway. -/
+for Prop anyway.
+-/
 /--
 An induction principle for `disjointed`. To prove something about `disjointed f i`, it's
 enough to prove it for `f i` and being able to extend through diffs.
@@ -114,8 +116,7 @@ section PartialOrder -- the index type is a partial order
 variable [PartialOrder ι] [LocallyFiniteOrderBot ι]
 
 @[simp]
-theorem partialSups_disjointed (f : ι → α) :
-    partialSups (disjointed f) = partialSups f := by
+theorem partialSups_disjointed (f : ι → α) : partialSups (disjointed f) = partialSups f := by
   -- This seems to be much more awkward than the case of linear orders, because the supremum
   -- in the definition of `disjointed` can involve multiple "paths" through the poset.
   classical
@@ -127,8 +128,10 @@ theorem partialSups_disjointed (f : ι → α) :
   | zero =>
     -- Base case: `n` is minimal, so `partialSups f i = partialSups (disjointed f) n = f i`.
     simp only [Nat.le_zero, card_eq_zero] at hi
-    simp only [partialSups_apply, Iic_eq_cons_Iio, hi, disjointed_apply, sup'_eq_sup, sup_cons,
-      sup_empty, sdiff_bot]
+    simp only [
+      partialSups_apply, Iic_eq_cons_Iio, hi, disjointed_apply, sup'_eq_sup, sup_cons, sup_empty,
+      sdiff_bot
+    ]
   | succ n ih =>
     -- Induction step: first WLOG arrange that `#(Iio i) = r + 1`
     rcases lt_or_eq_of_le hi with hn | hn
@@ -176,11 +179,14 @@ lemma disjointed_partialSups (f : ι → α) :
   simpa only [mem_biUnion, mem_Iio, mem_Iic] using
     ⟨fun ⟨a, ha⟩ ↦ ha.2.trans_lt ha.1, fun hr ↦ ⟨r, hr, le_rfl⟩⟩
 
-/-- `disjointed f` is the unique map `d : ι → α` such that `d` has the same partial sups as `f`,
-and `d i` and `d j` are disjoint whenever `i < j`. -/
-theorem disjointed_unique {f d : ι → α} (hdisj : ∀ {i j : ι} (_ : i < j), Disjoint (d i) (d j))
-    (hsups : partialSups d = partialSups f) :
-    d = disjointed f := by
+/--
+`disjointed f` is the unique map `d : ι → α` such that `d` has the same partial sups as `f`,
+and `d i` and `d j` are disjoint whenever `i < j`.
+-/
+theorem disjointed_unique
+    {f d : ι → α}
+    (hdisj : ∀ {i j : ι} (_ : i < j), Disjoint (d i) (d j)) (hsups : partialSups d = partialSups f)
+    : d = disjointed f := by
   rw [← disjointed_partialSups, ← hsups, disjointed_partialSups]
   exact funext fun _ ↦ (disjointed_eq_self (fun _ hj ↦ hdisj hj)).symm
 
@@ -206,10 +212,13 @@ variable [LinearOrder ι] [LocallyFiniteOrderBot ι]
 theorem disjoint_disjointed (f : ι → α) : Pairwise (Disjoint on disjointed f) :=
   (pairwise_disjoint_on _).mpr fun _ _ ↦ disjoint_disjointed_of_lt f
 
-/-- `disjointed f` is the unique sequence that is pairwise disjoint and has the same partial sups
-as `f`. -/
-theorem disjointed_unique' {f d : ι → α} (hdisj : Pairwise (Disjoint on d))
-    (hsups : partialSups d = partialSups f) : d = disjointed f :=
+/--
+`disjointed f` is the unique sequence that is pairwise disjoint and has the same partial sups
+as `f`.
+-/
+theorem disjointed_unique'
+    {f d : ι → α} (hdisj : Pairwise (Disjoint on d)) (hsups : partialSups d = partialSups f)
+    : d = disjointed f :=
   disjointed_unique (fun hij ↦ hdisj hij.ne) hsups
 
 set_option backward.isDefEq.respectTransparency false in
@@ -299,12 +308,12 @@ section CompleteBooleanAlgebra
 
 variable [CompleteBooleanAlgebra α]
 
-theorem iSup_disjointed [PartialOrder ι] [LocallyFiniteOrderBot ι] (f : ι → α) :
-    ⨆ i, disjointed f i = ⨆ i, f i :=
+theorem iSup_disjointed [PartialOrder ι] [LocallyFiniteOrderBot ι] (f : ι → α)
+    : ⨆ i, disjointed f i = ⨆ i, f i :=
   iSup_eq_iSup_of_partialSups_eq_partialSups (partialSups_disjointed f)
 
-theorem disjointed_eq_inf_compl [Preorder ι] [LocallyFiniteOrderBot ι] (f : ι → α) (i : ι) :
-    disjointed f i = f i ⊓ ⨅ j < i, (f j)ᶜ := by
+theorem disjointed_eq_inf_compl [Preorder ι] [LocallyFiniteOrderBot ι] (f : ι → α) (i : ι)
+    : disjointed f i = f i ⊓ ⨅ j < i, (f j)ᶜ := by
   simp only [disjointed_apply, Finset.sup_eq_iSup, mem_Iio, sdiff_eq, compl_iSup]
 
 end CompleteBooleanAlgebra
@@ -313,26 +322,28 @@ section Set
 
 /-! ### Lemmas specific to set-valued functions -/
 
-theorem disjointed_subset [Preorder ι] [LocallyFiniteOrderBot ι] (f : ι → Set α) (i : ι) :
-    disjointed f i ⊆ f i :=
+theorem disjointed_subset [Preorder ι] [LocallyFiniteOrderBot ι] (f : ι → Set α) (i : ι)
+    : disjointed f i ⊆ f i :=
   disjointed_le f i
 
-theorem iUnion_disjointed [PartialOrder ι] [LocallyFiniteOrderBot ι] {f : ι → Set α} :
-    ⋃ i, disjointed f i = ⋃ i, f i :=
+theorem iUnion_disjointed [PartialOrder ι] [LocallyFiniteOrderBot ι] {f : ι → Set α}
+    : ⋃ i, disjointed f i = ⋃ i, f i :=
   iSup_disjointed f
 
-theorem disjointed_eq_inter_compl [Preorder ι] [LocallyFiniteOrderBot ι] (f : ι → Set α) (i : ι) :
-    disjointed f i = f i ∩ ⋂ j < i, (f j)ᶜ :=
+theorem disjointed_eq_inter_compl [Preorder ι] [LocallyFiniteOrderBot ι] (f : ι → Set α) (i : ι)
+    : disjointed f i = f i ∩ ⋂ j < i, (f j)ᶜ :=
   disjointed_eq_inf_compl f i
 
-theorem preimage_find_eq_disjointed (s : ℕ → Set α) (H : ∀ x, ∃ n, x ∈ s n)
-    [∀ x n, Decidable (x ∈ s n)] (n : ℕ) : (fun x => Nat.find (H x)) ⁻¹' {n} = disjointed s n := by
+theorem preimage_find_eq_disjointed
+    (s : ℕ → Set α) (H : ∀ x, ∃ n, x ∈ s n) [∀ x n, Decidable (x ∈ s n)] (n : ℕ)
+    : (fun x => Nat.find (H x)) ⁻¹' {n} = disjointed s n := by
   ext x
   simp [Nat.find_eq_iff, disjointed_eq_inter_compl]
 
-theorem preimage_find_eq_disjointed_setOf {p : α → ℕ → Prop} (H : ∀ (x : α), ∃ n, p x n)
-    [inst : (x : α) → (n : ℕ) → Decidable (p x n)] (n : ℕ) :
-    (fun x => Nat.find (H x)) ⁻¹' {n} = disjointed (fun k ↦ {x | p x k}) n := by
+theorem preimage_find_eq_disjointed_setOf
+    {p : α → ℕ → Prop} (H : ∀ (x : α), ∃ n, p x n) [inst : (x : α) → (n : ℕ) → Decidable (p x n)]
+    (n : ℕ)
+    : (fun x => Nat.find (H x)) ⁻¹' {n} = disjointed (fun k ↦ {x | p x k}) n := by
   ext
   simp [Nat.find_eq_iff, disjointed_eq_inter_compl]
 
@@ -348,8 +359,6 @@ section Nat
 
 variable [GeneralizedBooleanAlgebra α]
 
-@[simp]
-theorem disjointed_zero (f : ℕ → α) : disjointed f 0 = f 0 :=
-  disjointed_bot f
+@[simp] theorem disjointed_zero (f : ℕ → α) : disjointed f 0 = f 0 := disjointed_bot f
 
 end Nat

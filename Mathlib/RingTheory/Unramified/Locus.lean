@@ -8,7 +8,6 @@ module
 public import Mathlib.RingTheory.Etale.Kaehler
 public import Mathlib.RingTheory.LocalRing.ResidueField.Fiber
 public import Mathlib.RingTheory.Support
-
 import Mathlib.RingTheory.Localization.InvSubmonoid
 
 /-!
@@ -32,23 +31,25 @@ namespace Algebra
 
 section
 
-variable {R A B : Type*} [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra A B]
-    [Algebra R B] [IsScalarTower R A B]
+variable
+  {R A B : Type*} [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra A B] [Algebra R B]
+  [IsScalarTower R A B]
 
 variable (R) in
-/-- We say that an `R`-algebra `A` is unramified at a prime `q` of `A`
+/--
+We say that an `R`-algebra `A` is unramified at a prime `q` of `A`
 if `A_q` is formally unramified over `R`.
 
 If `A` is of finite type over `R` and `q` is lying over `p`, then this is equivalent to
 `κ(q)/κ(p)` being separable and `pA_q = qA_q`.
-See `Algebra.isUnramifiedAt_iff_map_eq` in `RingTheory.Unramified.LocalRing` -/
+See `Algebra.isUnramifiedAt_iff_map_eq` in `RingTheory.Unramified.LocalRing`
+-/
 abbrev IsUnramifiedAt (q : Ideal A) [q.IsPrime] : Prop :=
   FormallyUnramified R (Localization.AtPrime q)
 
 variable (R A) in
 /-- `Algebra.unramifiedLocus R A` is the set of primes `p` of `A` that are unramified. -/
-def unramifiedLocus : Set (PrimeSpectrum A) :=
-  { p | IsUnramifiedAt R p.asIdeal }
+def unramifiedLocus : Set (PrimeSpectrum A) := { p | IsUnramifiedAt R p.asIdeal }
 
 lemma IsUnramifiedAt.comp
     (p : Ideal A) (P : Ideal B) [P.LiesOver p] [p.IsPrime] [P.IsPrime]
@@ -63,21 +64,25 @@ lemma IsUnramifiedAt.of_restrictScalars (P : Ideal B) [P.IsPrime]
     [IsUnramifiedAt R P] : IsUnramifiedAt A P :=
   FormallyUnramified.of_restrictScalars R _ _
 
-instance (p : Ideal R) [p.IsPrime] (q : Ideal A) [q.IsPrime] [IsUnramifiedAt R q]
-    [Algebra (Localization.AtPrime p) (Localization.AtPrime q)]
-    [IsScalarTower R (Localization.AtPrime p) (Localization.AtPrime q)] :
-    FormallyUnramified (Localization.AtPrime p) (Localization.AtPrime q) :=
+instance
+    (p : Ideal R) [p.IsPrime]
+    (q : Ideal A)
+    [q.IsPrime] [IsUnramifiedAt R q] [Algebra (Localization.AtPrime p) (Localization.AtPrime q)]
+    [IsScalarTower R (Localization.AtPrime p) (Localization.AtPrime q)]
+    : FormallyUnramified (Localization.AtPrime p) (Localization.AtPrime q) :=
   .of_restrictScalars R _ _
 
 open _root_.TensorProduct in
-/-- If `A` is an `R`-algebra unramified at `Q`, `P` is the prime of `R` lying under `Q`,
-then `κ(P) ⊗ A` is unramified at `Q'` (the prime corresponding to `Q`) over `κ(P)`. -/
+/--
+If `A` is an `R`-algebra unramified at `Q`, `P` is the prime of `R` lying under `Q`,
+then `κ(P) ⊗ A` is unramified at `Q'` (the prime corresponding to `Q`) over `κ(P)`.
+-/
 theorem IsUnramifiedAt.residueField
-    (P : Ideal R) [P.IsPrime] (Q : Ideal A) [Q.IsPrime]
-    [Q.LiesOver P] [Algebra.IsUnramifiedAt R Q]
+    (P : Ideal R) [P.IsPrime]
+    (Q : Ideal A) [Q.IsPrime] [Q.LiesOver P] [Algebra.IsUnramifiedAt R Q]
     (Q' : Ideal (P.Fiber A)) [Q'.IsPrime]
-    (hQ' : Q = Q'.comap Algebra.TensorProduct.includeRight.toRingHom) :
-    IsUnramifiedAt P.ResidueField Q' := by
+    (hQ' : Q = Q'.comap Algebra.TensorProduct.includeRight.toRingHom)
+    : IsUnramifiedAt P.ResidueField Q' := by
   let f₀ : Localization.AtPrime Q →ₐ[R] Localization.AtPrime Q' :=
     Localization.localAlgHom Q Q' _ hQ'
   have hf₀ : Function.Surjective f₀ := by
@@ -93,15 +98,17 @@ section IsUnramifiedIn
 
 variable {R : Type*} [CommRing R]
 
-/-- A prime `𝔭` of `R` is unramified in `A` if every prime ideal `𝔓` of `A` lying over `𝔭` is
-unramified . -/
+/--
+A prime `𝔭` of `R` is unramified in `A` if every prime ideal `𝔓` of `A` lying over `𝔭` is
+unramified .
+-/
 def IsUnramifiedIn (A : Type*) [CommRing A] [Algebra R A] (𝔭 : Ideal R) : Prop :=
   ∀ (𝔓 : Ideal A) (_ : 𝔓.IsPrime), 𝔓.LiesOver 𝔭 → Algebra.IsUnramifiedAt R 𝔓
 
 variable (A : Type*) [CommRing A] [Algebra R A]
 
-theorem isUnramifiedIn_top : IsUnramifiedIn A (⊤ : Ideal R) :=
-  fun P hP _ ↦ (hP.ne_top ((Ideal.eq_top_iff_of_liesOver P (⊤ : Ideal R)).mpr rfl)).elim
+theorem isUnramifiedIn_top : IsUnramifiedIn A (⊤ : Ideal R) := fun P hP _ ↦
+  (hP.ne_top ((Ideal.eq_top_iff_of_liesOver P (⊤ : Ideal R)).mpr rfl)).elim
 
 end IsUnramifiedIn
 section
@@ -130,12 +137,12 @@ lemma unramifiedLocus_eq_univ_iff :
   rw [unramifiedLocus_eq_compl_support, compl_eq_comm, Set.compl_univ, eq_comm,
     Module.support_eq_empty_iff, Algebra.formallyUnramified_iff]
 
-theorem formallyUnramified_iff_forall :
-    FormallyUnramified R A ↔ ∀ q : PrimeSpectrum A, IsUnramifiedAt R q.1 :=
+theorem formallyUnramified_iff_forall
+    : FormallyUnramified R A ↔ ∀ q : PrimeSpectrum A, IsUnramifiedAt R q.1 :=
   unramifiedLocus_eq_univ_iff.symm.trans Set.eq_univ_iff_forall
 
-theorem unramified_iff_forall [FiniteType R A] :
-    Unramified R A ↔ ∀ q : PrimeSpectrum A, IsUnramifiedAt R q.1 :=
+theorem unramified_iff_forall [FiniteType R A]
+    : Unramified R A ↔ ∀ q : PrimeSpectrum A, IsUnramifiedAt R q.1 :=
   .trans ⟨fun h ↦ h.formallyUnramified, fun h ↦ ⟨h, inferInstance⟩⟩ formallyUnramified_iff_forall
 
 lemma isOpen_unramifiedLocus [EssFiniteType R A] : IsOpen (unramifiedLocus R A) := by

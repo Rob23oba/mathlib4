@@ -33,11 +33,12 @@ section OrderedSemiring
 
 variable (𝕜) (ι : Type*) [Semiring 𝕜] [PartialOrder 𝕜] [Fintype ι]
 
-/-- The standard simplex in the space of functions `ι → 𝕜` is the set of vectors with non-negative
-coordinates with total sum `1`. This is the free object in the category of convex spaces. -/
+/--
+The standard simplex in the space of functions `ι → 𝕜` is the set of vectors with non-negative
+coordinates with total sum `1`. This is the free object in the category of convex spaces.
+-/
 @[deprecated StdSimplex +typeChanged (since := "2026-08-29")]
-def stdSimplex : Set (ι → 𝕜) :=
-  { f | (∀ x, 0 ≤ f x) ∧ ∑ x, f x = 1 }
+def stdSimplex : Set (ι → 𝕜) := { f | (∀ x, 0 ≤ f x) ∧ ∑ x, f x = 1 }
 
 @[deprecated StdSimplex.range_toFun_comp_weights +typeChanged (since := "2026-08-29")]
 theorem stdSimplex_eq_inter : stdSimplex 𝕜 ι = (⋂ x, { f | 0 ≤ f x }) ∩ { f | ∑ x, f x = 1 } := by
@@ -49,8 +50,10 @@ theorem convex_stdSimplex [IsOrderedRing 𝕜] : Convex 𝕜 (stdSimplex 𝕜 ι
   refine fun f hf g hg a b ha hb hab => ⟨fun x => ?_, ?_⟩
   · apply_rules [add_nonneg, mul_nonneg, hf.1, hg.1]
   · simp_rw [Pi.add_apply, Pi.smul_apply]
-    rwa [Finset.sum_add_distrib, ← Finset.smul_sum, ← Finset.smul_sum, hf.2, hg.2, smul_eq_mul,
-      smul_eq_mul, mul_one, mul_one]
+    rwa [
+      Finset.sum_add_distrib, ← Finset.smul_sum, ← Finset.smul_sum, hf.2, hg.2, smul_eq_mul,
+      smul_eq_mul, mul_one, mul_one
+    ]
 
 @[nontriviality, deprecated "no replacement" (since := "2026-08-29")]
 lemma stdSimplex_of_subsingleton [Subsingleton 𝕜] : stdSimplex 𝕜 ι = univ :=
@@ -75,9 +78,8 @@ variable {ι}
 variable {𝕜} in
 /-- All values of a function `f ∈ stdSimplex 𝕜 ι` belong to `[0, 1]`. -/
 @[deprecated "no replacement" (since := "2026-08-29")]
-theorem mem_Icc_of_mem_stdSimplex [IsOrderedAddMonoid 𝕜]
-    {f : ι → 𝕜} (hf : f ∈ stdSimplex 𝕜 ι) (x) :
-    f x ∈ Icc (0 : 𝕜) 1 :=
+theorem mem_Icc_of_mem_stdSimplex [IsOrderedAddMonoid 𝕜] {f : ι → 𝕜} (hf : f ∈ stdSimplex 𝕜 ι) (x)
+    : f x ∈ Icc (0 : 𝕜) 1 :=
   ⟨hf.1 x, hf.2 ▸ Finset.single_le_sum (fun y _ => hf.1 y) (Finset.mem_univ x)⟩
 
 /-- `stdSimplex 𝕜 ι` is a subset of the unit cube -/
@@ -121,16 +123,18 @@ section OrderedRing
 
 variable (𝕜) [Ring 𝕜] [PartialOrder 𝕜] [IsOrderedRing 𝕜]
 
-/-- The standard one-dimensional simplex in `Fin 2 → 𝕜` is equivalent to the unit interval.
+/--
+The standard one-dimensional simplex in `Fin 2 → 𝕜` is equivalent to the unit interval.
 This bijection sends the zeroth vertex `Pi.single 0 1` to `0` and
-the first vertex `Pi.single 1 1` to `1`. -/
+the first vertex `Pi.single 1 1` to `1`.
+-/
 @[simps -fullyApplied, deprecated StdSimplex.equivIcc +typeChanged (since := "2026-08-29")]
 def stdSimplexEquivIcc : stdSimplex 𝕜 (Fin 2) ≃ Icc (0 : 𝕜) 1 where
-  toFun f := ⟨f.1 1, f.2.1 _, f.2.2 ▸
-    Finset.single_le_sum (fun i _ ↦ f.2.1 i) (Finset.mem_univ _)⟩
+  toFun f := ⟨f.1 1, f.2.1 _, f.2.2 ▸ Finset.single_le_sum (fun i _ ↦ f.2.1 i) (Finset.mem_univ _)⟩
   invFun x := ⟨![1 - x, x], Fin.forall_fin_two.2 ⟨sub_nonneg.2 x.2.2, x.2.1⟩, by simp⟩
-  left_inv f := Subtype.ext <| funext <| Fin.forall_fin_two.2 <| by
-    simp [← (show f.1 0 + f.1 1 = 1 by simpa using f.2.2)]
+  left_inv f :=
+    Subtype.ext <| funext <| Fin.forall_fin_two.2 <| by
+      simp [← (show f.1 0 + f.1 1 = 1 by simpa using f.2.2)]
 
 @[simp, deprecated StdSimplex.equivIcc_single_zero +typeChanged (since := "2026-08-29")]
 lemma stdSimplexEquivIcc_zero :
@@ -148,21 +152,23 @@ variable (R : Type*) (ι : Type*) [Field R] [LinearOrder R] [IsStrictOrderedRing
 
 /-- `stdSimplex 𝕜 ι` is the convex hull of the canonical basis in `ι → 𝕜`. -/
 @[deprecated "no replacement" (since := "2026-08-29")]
-theorem convexHull_basis_eq_stdSimplex [DecidableEq ι] :
-    convexHull R (range fun i j : ι => if i = j then (1 : R) else 0) = stdSimplex R ι := by
+theorem convexHull_basis_eq_stdSimplex [DecidableEq ι]
+    : convexHull R (range fun i j : ι => if i = j then (1 : R) else 0) = stdSimplex R ι := by
   refine Subset.antisymm (convexHull_min ?_ (convex_stdSimplex R ι)) ?_
   · rintro _ ⟨i, rfl⟩
     exact ite_eq_mem_stdSimplex R i
   · rintro w ⟨hw₀, hw₁⟩
     rw [pi_eq_sum_univ w]
     rw [← Finset.univ.centerMass_eq_of_sum_1 _ hw₁]
-    exact Finset.univ.centerMass_mem_convexHull (fun i _ => hw₀ i) (hw₁.symm ▸ zero_lt_one)
+    exact Finset.univ.centerMass_mem_convexHull
+      (fun i _ => hw₀ i)
+      (hw₁.symm ▸ zero_lt_one)
       fun i _ => mem_range_self i
 
 /-- `stdSimplex 𝕜 ι` is the convex hull of the points `Pi.single i 1` for `i : ι`. -/
 @[deprecated "no replacement" (since := "2026-08-29")]
-theorem convexHull_rangle_single_eq_stdSimplex [DecidableEq ι] :
-    convexHull R (range fun i : ι ↦ Pi.single i 1) = stdSimplex R ι := by
+theorem convexHull_rangle_single_eq_stdSimplex [DecidableEq ι]
+    : convexHull R (range fun i : ι ↦ Pi.single i 1) = stdSimplex R ι := by
   convert! convexHull_basis_eq_stdSimplex R ι
   aesop
 
@@ -175,13 +181,14 @@ lemma Convexity.ConvexSpace.AffineMap.convex_range {X : Type*}
   rintro _ ⟨x, rfl⟩ _ ⟨y, rfl⟩ a b ha hb h
   exact ⟨convexCombPair a b ha hb h x y, by simp [f.isAffineMap.map_convexCombPair]⟩
 
-/-- The convex hull of a set `s` is the range of the affine map
-`StdSimplex R s → E` which sends `x : s` to `x : E`. -/
+/--
+The convex hull of a set `s` is the range of the affine map
+`StdSimplex R s → E` which sends `x : s` to `x : E`.
+-/
 theorem Set.convexHull_eq_range_iConvexComb
-    {E : Type*} [AddCommGroup E] [Module R E]
-    [ConvexSpace R E] [IsModuleConvexSpace R E] (s : Set E) :
-    convexHull R s =
-      Set.range (StdSimplex.affineMapMk (R := R) (fun (x : s) ↦ x.val)) := by
+    {E : Type*} [AddCommGroup E] [Module R E] [ConvexSpace R E] [IsModuleConvexSpace R E]
+    (s : Set E)
+    : convexHull R s = Set.range (StdSimplex.affineMapMk (R := R) (fun (x : s) ↦ x.val)) := by
   refine subset_antisymm ?_ ?_
   · rw [Convex.convexHull_subset_iff (ConvexSpace.AffineMap.convex_range _)]
     intro x hx
@@ -200,8 +207,9 @@ theorem Set.convexHull_eq_range_iConvexComb
 end Field
 
 section GeneralTopology
-variable (𝕜 ι : Type*) [Fintype ι]
-  [TopologicalSpace 𝕜] [Semiring 𝕜] [PartialOrder 𝕜] [OrderClosedTopology 𝕜] [ContinuousAdd 𝕜]
+variable
+  (𝕜 ι : Type*) [Fintype ι] [TopologicalSpace 𝕜] [Semiring 𝕜] [PartialOrder 𝕜]
+  [OrderClosedTopology 𝕜] [ContinuousAdd 𝕜]
 
 /-- `stdSimplex 𝕜 ι` is closed. -/
 @[deprecated StdSimplex.isClosedEmbedding_toFun_comp_weights +typeChanged (since := "2026-08-29")]
@@ -214,13 +222,13 @@ theorem isClosed_stdSimplex : IsClosed (stdSimplex 𝕜 ι) := by
 
 /-- `stdSimplex 𝕜 ι` is compact. -/
 @[deprecated StdSimplex.compactSpace +typeChanged (since := "2026-08-29")]
-theorem isCompact_stdSimplex [CompactIccSpace 𝕜] [IsOrderedAddMonoid 𝕜] :
-    IsCompact (stdSimplex 𝕜 ι) :=
+theorem isCompact_stdSimplex [CompactIccSpace 𝕜] [IsOrderedAddMonoid 𝕜]
+    : IsCompact (stdSimplex 𝕜 ι) :=
   IsCompact.of_isClosed_subset isCompact_Icc (isClosed_stdSimplex 𝕜 ι) (stdSimplex_subset_Icc 𝕜)
 
 @[deprecated StdSimplex.compactSpace +typeChanged (since := "2026-08-29")]
-instance stdSimplex.instCompactSpace_coe [CompactIccSpace 𝕜] [IsOrderedAddMonoid 𝕜] :
-    CompactSpace (stdSimplex 𝕜 ι) :=
+instance stdSimplex.instCompactSpace_coe [CompactIccSpace 𝕜] [IsOrderedAddMonoid 𝕜]
+    : CompactSpace (stdSimplex 𝕜 ι) :=
   isCompact_iff_compactSpace.mp <| isCompact_stdSimplex 𝕜 _
 
 end GeneralTopology
@@ -247,8 +255,7 @@ theorem bounded_stdSimplex : IsBounded (stdSimplex ℝ ι) :=
 
 /-- `stdSimplex ℝ ι` is path connected. -/
 @[deprecated StdSimplex.pathConnectedSpace +typeChanged (since := "2026-08-29")]
-theorem isPathConnected_stdSimplex [Nonempty ι] :
-    IsPathConnected (stdSimplex ℝ ι) :=
+theorem isPathConnected_stdSimplex [Nonempty ι] : IsPathConnected (stdSimplex ℝ ι) :=
   (convex_stdSimplex ℝ ι).isPathConnected (by
     classical
     exact ⟨_, single_mem_stdSimplex ℝ (Classical.arbitrary ι)⟩)
@@ -257,16 +264,18 @@ theorem isPathConnected_stdSimplex [Nonempty ι] :
 instance [Nonempty ι] : PathConnectedSpace (stdSimplex ℝ ι) :=
   isPathConnected_iff_pathConnectedSpace.1 (isPathConnected_stdSimplex _)
 
-/-- The standard one-dimensional simplex in `ℝ² = Fin 2 → ℝ`
-is homeomorphic to the unit interval. -/
+/--
+The standard one-dimensional simplex in `ℝ² = Fin 2 → ℝ`
+is homeomorphic to the unit interval.
+-/
 @[simps! -fullyApplied, deprecated StdSimplex.homeomorphI +typeChanged (since := "2026-08-29")]
 def stdSimplexHomeomorphUnitInterval : stdSimplex ℝ (Fin 2) ≃ₜ unitInterval where
   toEquiv := stdSimplexEquivIcc ℝ
   continuous_toFun := .subtype_mk ((continuous_apply 1).comp continuous_subtype_val) _
   continuous_invFun := by
     apply Continuous.subtype_mk
-    exact (continuous_pi <| Fin.forall_fin_two.2
-      ⟨continuous_const.sub continuous_subtype_val, continuous_subtype_val⟩)
+    exact (continuous_pi <|
+      Fin.forall_fin_two.2 ⟨continuous_const.sub continuous_subtype_val, continuous_subtype_val⟩)
 
 @[simp, deprecated StdSimplex.homeomorphI_single_zero +typeChanged (since := "2026-08-29")]
 lemma stdSimplexHomeomorphUnitInterval_zero :
@@ -291,31 +300,35 @@ theorem diam_stdSimplex_le : Metric.diam (stdSimplex ℝ ι) ≤ 1 :=
       grind [Real.dist_eq]
 
 /-- The (sup metric) diameter of a standard simplex indexed by a subsingleton is 0. -/
-@[simp, deprecated StdSimplex.diam_range_toFun_comp_weights_subset_closedBall_eq_zero +typeChanged
-  (since := "2026-08-29")]
+@[simp,
+  deprecated StdSimplex.diam_range_toFun_comp_weights_subset_closedBall_eq_zero +typeChanged
+    (since := "2026-08-29")]
 theorem diam_stdSimplex_of_subsingleton [Subsingleton ι] : Metric.diam (stdSimplex ℝ ι) = 0 := by
   cases isEmpty_or_nonempty ι with
   | inl h => rw [stdSimplex_of_isEmpty_index, Metric.diam_empty]
   | inr h => rw [stdSimplex_unique, Metric.diam_singleton]
 
 /-- The (sup metric) diameter of a standard simplex indexed by a nontrivial index is 1. -/
-@[simp, deprecated StdSimplex.diam_range_toFun_comp_weights_subset_closedBall_eq_one +typeChanged
-  (since := "2026-08-29")]
+@[simp,
+  deprecated StdSimplex.diam_range_toFun_comp_weights_subset_closedBall_eq_one +typeChanged
+    (since := "2026-08-29")]
 theorem diam_stdSimplex [Nontrivial ι] : Metric.diam (stdSimplex ℝ ι) = 1 := by
   refine le_antisymm diam_stdSimplex_le ?_
   obtain ⟨i, j, hij⟩ := exists_pair_ne ι
   classical
-  rw [show (1 : ℝ) = dist (Pi.single i 1 : ι → ℝ) (Pi.single j 1) by
-    simp [dist_single_single i j (1 : ℝ) 1 hij, Real.dist_eq]]
-  exact Metric.dist_le_diam_of_mem (bounded_stdSimplex _)
-    (single_mem_stdSimplex _ _) (single_mem_stdSimplex _ _)
+  rw [
+    show (1 : ℝ) = dist (Pi.single i 1 : ι → ℝ) (Pi.single j 1) by
+      simp [dist_single_single i j (1 : ℝ) 1 hij, Real.dist_eq]
+  ]
+  exact Metric.dist_le_diam_of_mem (bounded_stdSimplex _) (single_mem_stdSimplex _ _)
+    (single_mem_stdSimplex _ _)
 
 end Topology
 
 namespace stdSimplex
 
-variable {S : Type*} [Semiring S] [PartialOrder S]
-  {X Y Z : Type*} [Fintype X] [Fintype Y] [Fintype Z]
+variable
+  {S : Type*} [Semiring S] [PartialOrder S] {X Y Z : Type*} [Fintype X] [Fintype Y] [Fintype Z]
 
 @[deprecated "no replacement" (since := "2026-08-29"), macro_inline]
 instance : FunLike (stdSimplex S X) X S where
@@ -379,8 +392,7 @@ lemma map_comp_apply (f : X → Y) (g : Y → Z) (x : stdSimplex S X) :
 
 /-- The vertex corresponding to `x : X` in `stdSimplex S X`. -/
 @[deprecated StdSimplex.single +typeChanged (since := "2026-08-29")]
-abbrev vertex [DecidableEq X] (x : X) : stdSimplex S X :=
-  ⟨Pi.single x 1, single_mem_stdSimplex S x⟩
+abbrev vertex [DecidableEq X] (x : X) : stdSimplex S X := ⟨Pi.single x 1, single_mem_stdSimplex S x⟩
 
 @[simp, deprecated "no replacement" (since := "2026-08-29")]
 lemma vertex_coe [DecidableEq X] (x : X) :
@@ -445,22 +457,23 @@ section Barycenter
 
 variable {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [Nonempty X]
 
-/-- The barycenter of a standard simplex is the center of mass of
-the set of vertices (equally weighted). -/
+/--
+The barycenter of a standard simplex is the center of mass of
+the set of vertices (equally weighted).
+-/
 @[deprecated StdSimplex.barycenter +typeChanged (since := "2026-08-29")]
-def barycenter : stdSimplex 𝕜 X :=
-  ⟨fun i => (Fintype.card X : 𝕜)⁻¹, by simp [stdSimplex]⟩
+def barycenter : stdSimplex 𝕜 X := ⟨fun i => (Fintype.card X : 𝕜)⁻¹, by simp [stdSimplex]⟩
 
 /-- The barycenter of a standard simplex has coordinates `(Fintype.card X)⁻¹` at each index. -/
 @[simp, deprecated StdSimplex.weights_barycenter_apply +typeChanged (since := "2026-08-29")]
-theorem barycenter_apply (x : X) :
-    (barycenter : stdSimplex 𝕜 X).val x = (Fintype.card X : 𝕜)⁻¹ := rfl
+theorem barycenter_apply (x : X) : (barycenter : stdSimplex 𝕜 X).val x = (Fintype.card X : 𝕜)⁻¹ :=
+  rfl
 
 /-- The barycenter equals the (equal weight) center of mass of vertices (`Finset.centerMass`). -/
 @[deprecated "no replacement" (since := "2026-08-29")]
-theorem barycenter_eq_centerMass [DecidableEq X] :
-    (barycenter : stdSimplex 𝕜 X).val =
-      Finset.centerMass Finset.univ (fun _ => (1 : 𝕜)) (fun i => Pi.single i 1) := by
+theorem barycenter_eq_centerMass [DecidableEq X]
+    : (barycenter : stdSimplex 𝕜 X).val
+      = Finset.centerMass Finset.univ (fun _ => (1 : 𝕜)) (fun i => Pi.single i 1) := by
   simp only [Finset.centerMass, Finset.sum_const, Finset.card_univ]
   ext x
   simp [barycenter, Pi.smul_apply, Finset.sum_apply, Pi.single_apply]

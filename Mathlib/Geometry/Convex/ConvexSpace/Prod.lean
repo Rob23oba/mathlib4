@@ -17,16 +17,15 @@ open Convexity Finsupp
 
 public noncomputable section
 
-variable {I R S : Type*} [Semiring R] [PartialOrder R] [IsStrictOrderedRing R]
-  [Semiring S] [PartialOrder S] [IsStrictOrderedRing S]
+variable
+  {I R S : Type*} [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [Semiring S]
+  [PartialOrder S] [IsStrictOrderedRing S]
 
 namespace Prod
 variable {X Y : Type*} [ConvexSpace R X] [ConvexSpace R Y]
 
-instance : ConvexSpace R (X × Y) := .mk
-  (fun w ↦ (w.iConvexComb fst, w.iConvexComb snd))
-  (by simp)
-  (by simp [iConvexComb_assoc])
+instance : ConvexSpace R (X × Y) :=
+  .mk (fun w ↦ (w.iConvexComb fst, w.iConvexComb snd)) (by simp) (by simp [iConvexComb_assoc])
 
 @[simp]
 lemma fst_sConvexComb (w : StdSimplex R (X × Y)) : w.sConvexComb.fst = w.iConvexComb fst := rfl
@@ -60,8 +59,8 @@ lemma snd_convexCombPair (a b : R) (ha hb hab) (x y : X × Y) :
     (convexCombPair a b ha hb hab x y).snd = convexCombPair a b ha hb hab x.snd y.snd :=
   isAffineMap_snd.map_convexCombPair ..
 
-instance [ConvexSpace S X] [ConvexSpace S Y] [IsConvexCombComm R S X]
-    [IsConvexCombComm R S Y] : IsConvexCombComm R S (X × Y) where
+instance [ConvexSpace S X] [ConvexSpace S Y] [IsConvexCombComm R S X] [IsConvexCombComm R S Y]
+    : IsConvexCombComm R S (X × Y) where
   iConvexComb_comm' f g := by
     ext
     · simpa using iConvexComb_comm f g fun e k ↦ (e k).fst
@@ -72,10 +71,8 @@ end Prod
 namespace Pi
 variable {ι : Type*} {X : ι → Type*} [∀ i, ConvexSpace R (X i)] {i : ι}
 
-instance : ConvexSpace R (∀ i, X i) := .mk
-  (fun w i ↦ w.iConvexComb (· i))
-  (by simp)
-  (by simp [iConvexComb_assoc])
+instance : ConvexSpace R (∀ i, X i) :=
+  .mk (fun w i ↦ w.iConvexComb (· i)) (by simp) (by simp [iConvexComb_assoc])
 
 @[simp]
 lemma sConvexComb_apply (w : StdSimplex R (∀ i, X i)) (i : ι) :
@@ -94,8 +91,8 @@ lemma convexCombPair_apply (a b : R) (ha hb hab) (f g : ∀ i, X i) (i : ι) :
     convexCombPair a b ha hb hab f g i = convexCombPair a b ha hb hab (f i) (g i) :=
   isAffineMap_eval.map_convexCombPair ..
 
-instance [∀ i, ConvexSpace S (X i)] [∀ i, IsConvexCombComm R S (X i)] :
-    IsConvexCombComm R S (∀ i, X i) where
+instance [∀ i, ConvexSpace S (X i)] [∀ i, IsConvexCombComm R S (X i)]
+    : IsConvexCombComm R S (∀ i, X i) where
   iConvexComb_comm' f g := by ext i; simpa using iConvexComb_comm f g fun e k ↦ e k i
 
 end Pi
@@ -103,15 +100,16 @@ end Pi
 namespace Finsupp
 variable {ι : Type*} {X : Type*} [Zero X] [ConvexSpace R X] {i : ι}
 
-instance : ConvexSpace R (ι →₀ X) := .mk
-  (fun w ↦ by
-    classical
-    refine .onFinset (w.weights.support.biUnion Finsupp.support) (fun i ↦ w.iConvexComb (· i)) ?_
-    rintro i hi
-    contrapose hi
-    simp_all)
-  (by simp)
-  (fun w ↦ by ext; simp [iConvexComb_assoc])
+instance : ConvexSpace R (ι →₀ X) :=
+  .mk
+    (fun w ↦ by
+      classical
+      refine .onFinset (w.weights.support.biUnion Finsupp.support) (fun i ↦ w.iConvexComb (· i)) ?_
+      rintro i hi
+      contrapose hi
+      simp_all)
+    (by simp)
+    (fun w ↦ by ext; simp [iConvexComb_assoc])
 
 @[simp]
 lemma sConvexComb_apply (w : StdSimplex R (ι →₀ X)) (i : ι) :

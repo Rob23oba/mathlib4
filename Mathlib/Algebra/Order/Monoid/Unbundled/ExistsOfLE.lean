@@ -22,16 +22,20 @@ public section
 universe u
 variable {α : Type u}
 
-/-- An ordered additive monoid with one-sided 'subtraction' in the sense that
+/--
+An ordered additive monoid with one-sided 'subtraction' in the sense that
 if `a ≤ b`, then there is some `c` for which `a + c = b`. This is a weaker version
-of the condition on canonical orderings defined by `CanonicallyOrderedAdd`. -/
+of the condition on canonical orderings defined by `CanonicallyOrderedAdd`.
+-/
 class ExistsAddOfLE (α : Type u) [Add α] [LE α] : Prop where
   /-- For `a ≤ b`, there is a `c` so `b = a + c`. -/
   exists_add_of_le : ∀ {a b : α}, a ≤ b → ∃ c : α, b = a + c
 
-/-- An ordered monoid with one-sided 'division' in the sense that
+/--
+An ordered monoid with one-sided 'division' in the sense that
 if `a ≤ b`, there is some `c` for which `a * c = b`. This is a weaker version
-of the condition on canonical orderings defined by `CanonicallyOrderedMul`. -/
+of the condition on canonical orderings defined by `CanonicallyOrderedMul`.
+-/
 @[to_additive]
 class ExistsMulOfLE (α : Type u) [Mul α] [LE α] : Prop where
   /-- For `a ≤ b`, `a` left divides `b` -/
@@ -68,8 +72,8 @@ end MulOneClass
 
 section ExistsMulOfLE
 
-variable [LinearOrder α] [DenselyOrdered α] [Monoid α] [ExistsMulOfLE α]
-  [MulLeftReflectLT α] {a b : α}
+variable
+  [LinearOrder α] [DenselyOrdered α] [Monoid α] [ExistsMulOfLE α] [MulLeftReflectLT α] {a b : α}
 
 @[to_additive]
 theorem le_of_forall_one_lt_le_mul (h : ∀ ε : α, 1 < ε → a ≤ b * ε) : a ≤ b :=
@@ -82,13 +86,11 @@ theorem le_of_forall_one_lt_lt_mul' (h : ∀ ε : α, 1 < ε → a < b * ε) : a
   le_of_forall_one_lt_le_mul fun ε hε => (h ε hε).le
 
 @[to_additive]
-theorem le_iff_forall_one_lt_lt_mul' [MulLeftStrictMono α] :
-    a ≤ b ↔ ∀ ε, 1 < ε → a < b * ε :=
+theorem le_iff_forall_one_lt_lt_mul' [MulLeftStrictMono α] : a ≤ b ↔ ∀ ε, 1 < ε → a < b * ε :=
   ⟨fun h _ => lt_mul_of_le_of_one_lt h, le_of_forall_one_lt_lt_mul'⟩
 
 @[to_additive]
-theorem le_iff_forall_one_lt_le_mul [MulLeftStrictMono α] :
-    a ≤ b ↔ ∀ ε, 1 < ε → a ≤ b * ε :=
+theorem le_iff_forall_one_lt_le_mul [MulLeftStrictMono α] : a ≤ b ↔ ∀ ε, 1 < ε → a ≤ b * ε :=
   ⟨fun h _ hε ↦ lt_mul_of_le_of_one_lt h hε |>.le, le_of_forall_one_lt_le_mul⟩
 
 end ExistsMulOfLE

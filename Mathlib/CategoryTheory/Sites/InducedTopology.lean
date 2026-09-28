@@ -35,8 +35,8 @@ universe w v₁ v₂ v₃ u₁ u₂ u₃
 
 namespace CategoryTheory
 
-variable {C : Type u₁} {D : Type u₂} [Category.{v₁} C] [Category.{v₂} D]
-  {E : Type u₃} [Category.{v₃} E]
+variable
+  {C : Type u₁} {D : Type u₂} [Category.{v₁} C] [Category.{v₂} D] {E : Type u₃} [Category.{v₃} E]
 
 variable {F : C ⥤ D} {J : GrothendieckTopology C} {K : GrothendieckTopology D}
 
@@ -47,8 +47,7 @@ The induced topology by a topology on `D` along a functor `F : C ⥤ D` is the f
 topology on `C` making `F` continuous.
 [SGA4, III, 3.1][sga-4-tome-1]
 -/
-def inducedTopology (F : C ⥤ D) (K : GrothendieckTopology D) :
-    GrothendieckTopology C :=
+def inducedTopology (F : C ⥤ D) (K : GrothendieckTopology D) : GrothendieckTopology C :=
   Sheaf.finestTopology <| Set.range fun G : Sheaf K (Type max u₁ v₁ u₂ v₂) ↦ F.op ⋙ G.obj
 
 instance : F.IsContinuous (F.inducedTopology K) K where
@@ -96,8 +95,10 @@ lemma inducedTopology_eq_of_iso {F G : C ⥤ D} (e : F ≅ G) :
   · apply Functor.isContinuous_of_iso e
   · apply Functor.isContinuous_of_iso e.symm
 
-/-- The coarsest topology containing all sieves whose image under `F` generates a covering sieve
-of `K`. -/
+/--
+The coarsest topology containing all sieves whose image under `F` generates a covering sieve
+of `K`.
+-/
 def restrictedTopology (F : C ⥤ D) (K : GrothendieckTopology D) : GrothendieckTopology C :=
   Precoverage.toGrothendieck (Precoverage.comap F K.toPrecoverage)
 

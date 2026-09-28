@@ -34,14 +34,15 @@ public section
 
 namespace Matrix
 
-variable {ι κ R : Type*} [PartialOrder ι] [PartialOrder κ] [CommRing R] [PartialOrder R]
+variable
+  {ι κ R : Type*} [PartialOrder ι] [PartialOrder κ] [CommRing R] [PartialOrder R]
   {M : Matrix ι ι R} {i j : ι} {f g : κ → ι}
 
 /-- A matrix is totally nonnegative if all its finite minors have nonnegative determinant. -/
 @[expose]
 def IsTotallyNonneg (M : Matrix ι ι R) : Prop :=
-  ∀ ⦃n : ℕ⦄ ⦃rows cols : Fin n → ι⦄, StrictMono rows → StrictMono cols →
-    0 ≤ (M.submatrix rows cols).det
+  ∀ ⦃n : ℕ⦄ ⦃rows cols : Fin n → ι⦄,
+    StrictMono rows → StrictMono cols → 0 ≤ (M.submatrix rows cols).det
 
 protected lemma IsTotallyNonneg.submatrix (hM : M.IsTotallyNonneg) (hf : StrictMono f)
     (hg : StrictMono g) : (M.submatrix f g).IsTotallyNonneg :=
@@ -86,9 +87,10 @@ lemma IsTotallyNonneg.smul {M : Matrix ι ι R}
   change 0 ≤ (c • M.submatrix rows cols).det
   grind [det_smul, mul_nonneg, pow_nonneg, hM _]
 
-theorem isTotallyNonneg_smul_iff {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
-    {M : Matrix ι ι R} {c : R} (hc : 0 < c) :
-    (c • M).IsTotallyNonneg ↔ M.IsTotallyNonneg := by
+theorem isTotallyNonneg_smul_iff
+    {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
+    {M : Matrix ι ι R} {c : R} (hc : 0 < c)
+    : (c • M).IsTotallyNonneg ↔ M.IsTotallyNonneg := by
   constructor
   · intro hM _ _ _ hrows hcols
     simpa [submatrix_smul, hc] using hM hrows hcols

@@ -40,13 +40,16 @@ namespace CategoryTheory
 
 open Category CategoryTheory.Functor
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃} {C₄ : Type u₄}
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃} {C₄ : Type u₄}
   [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} C₃] [Category.{v₄} C₄]
   (T : C₁ ⥤ C₂) (L : C₁ ⥤ C₃) (R : C₂ ⥤ C₄) (B : C₃ ⥤ C₄)
 
-/-- A `2`-square consists of a natural transformation `T ⋙ R ⟶ L ⋙ B`
+/--
+A `2`-square consists of a natural transformation `T ⋙ R ⟶ L ⋙ B`
 involving fours functors `T`, `L`, `R`, `B` that are on the
-top/left/right/bottom sides of a square of categories. -/
+top/left/right/bottom sides of a square of categories.
+-/
 def TwoSquare := T ⋙ R ⟶ L ⋙ B
 
 namespace TwoSquare
@@ -58,8 +61,10 @@ variable {T} {L} {R} {B} in
 /-- The natural transformation associated to a 2-square. -/
 abbrev natTrans (w : TwoSquare T L R B) : T ⋙ R ⟶ L ⋙ B := w
 
-/-- The type of 2-squares on functors `T`, `L`, `R`, and `B` is trivially equivalent to
-the type of natural transformations `T ⋙ R ⟶ L ⋙ B`. -/
+/--
+The type of 2-squares on functors `T`, `L`, `R`, and `B` is trivially equivalent to
+the type of natural transformations `T ⋙ R ⟶ L ⋙ B`.
+-/
 @[simps]
 def equivNatTrans : TwoSquare T L R B ≃ (T ⋙ R ⟶ L ⋙ B) where
   toFun := natTrans
@@ -88,7 +93,7 @@ def hId (L : C₁ ⥤ C₃) : TwoSquare (𝟭 _) L L (𝟭 _) :=
   (Functor.leftUnitor L).hom ≫ (Functor.rightUnitor L).inv
 
 /-- Notation for the horizontal identity 2-square. -/
-scoped notation "𝟙ₕ" => hId  -- type as \b1\_h
+scoped notation "𝟙ₕ" => hId -- type as \b1\_h
 
 /-- The vertical identity 2-square. -/
 @[simps!]
@@ -96,7 +101,7 @@ def vId (T : C₁ ⥤ C₂) : TwoSquare T (𝟭 _) (𝟭 _) T :=
   (Functor.rightUnitor T).hom ≫ (Functor.leftUnitor T).inv
 
 /-- Notation for the vertical identity 2-square. -/
-scoped notation "𝟙ᵥ" => vId  -- type as \b1\_v
+scoped notation "𝟙ᵥ" => vId -- type as \b1\_v
 
 /-- Whiskering a 2-square with a natural transformation at the top. -/
 @[simps!]
@@ -105,42 +110,44 @@ protected def whiskerTop {T' : C₁ ⥤ C₂} (w : TwoSquare T' L R B) (α : T �
 
 /-- Whiskering a 2-square with a natural transformation at the left side. -/
 @[simps!]
-protected def whiskerLeft {L' : C₁ ⥤ C₃} (w : TwoSquare T L R B) (α : L ⟶ L') :
-    TwoSquare T L' R B :=
+protected def whiskerLeft {L' : C₁ ⥤ C₃} (w : TwoSquare T L R B) (α : L ⟶ L')
+    : TwoSquare T L' R B :=
   .mk _ _ _ _ <| w.natTrans ≫ whiskerRight α B
 
 /-- Whiskering a 2-square with a natural transformation at the right side. -/
 @[simps!]
-protected def whiskerRight {R' : C₂ ⥤ C₄} (w : TwoSquare T L R' B) (α : R ⟶ R') :
-    TwoSquare T L R B :=
+protected def whiskerRight {R' : C₂ ⥤ C₄} (w : TwoSquare T L R' B) (α : R ⟶ R')
+    : TwoSquare T L R B :=
   .mk _ _ _ _ <| whiskerLeft T α ≫ w.natTrans
 
 /-- Whiskering a 2-square with a natural transformation at the bottom. -/
 @[simps!]
-protected def whiskerBottom {B' : C₃ ⥤ C₄} (w : TwoSquare T L R B) (α : B ⟶ B') :
-    TwoSquare T L R B' :=
+protected def whiskerBottom {B' : C₃ ⥤ C₄} (w : TwoSquare T L R B) (α : B ⟶ B')
+    : TwoSquare T L R B' :=
   .mk _ _ _ _ <| w.natTrans ≫ whiskerLeft L α
 
-variable {C₅ : Type u₅} {C₆ : Type u₆} {C₇ : Type u₇} {C₈ : Type u₈}
+variable
+  {C₅ : Type u₅} {C₆ : Type u₆} {C₇ : Type u₇} {C₈ : Type u₈}
   [Category.{v₅} C₅] [Category.{v₆} C₆] [Category.{v₇} C₇] [Category.{v₈} C₈]
   {T' : C₂ ⥤ C₅} {R' : C₅ ⥤ C₆} {B' : C₄ ⥤ C₆} {L' : C₃ ⥤ C₇} {R'' : C₄ ⥤ C₈} {B'' : C₇ ⥤ C₈}
 
 /-- The horizontal composition of 2-squares. -/
 @[simps!]
-def hComp (w : TwoSquare T L R B) (w' : TwoSquare T' R R' B') :
-    TwoSquare (T ⋙ T') L R' (B ⋙ B') :=
-  .mk _ _ _ _ <| (associator _ _ _).hom ≫ (whiskerLeft T w'.natTrans) ≫
-    (associator _ _ _).inv ≫ (whiskerRight w.natTrans B') ≫ (associator _ _ _).hom
+def hComp (w : TwoSquare T L R B) (w' : TwoSquare T' R R' B') : TwoSquare (T ⋙ T') L R' (B ⋙ B') :=
+  .mk _ _ _ _ <|
+    (associator _ _ _).hom ≫ (whiskerLeft T w'.natTrans) ≫ (associator _ _ _).inv
+      ≫ (whiskerRight w.natTrans B') ≫ (associator _ _ _).hom
 
 /-- Notation for the horizontal composition of 2-squares. -/
 scoped infixr:80 " ≫ₕ " => hComp -- type as \gg\_h
 
 /-- The vertical composition of 2-squares. -/
 @[simps!]
-def vComp (w : TwoSquare T L R B) (w' : TwoSquare B L' R'' B'') :
-    TwoSquare T (L ⋙ L') (R ⋙ R'') B'' :=
-  .mk _ _ _ _ <| (associator _ _ _).inv ≫ whiskerRight w.natTrans R'' ≫
-    (associator _ _ _).hom ≫ whiskerLeft L w'.natTrans ≫ (associator _ _ _).inv
+def vComp (w : TwoSquare T L R B) (w' : TwoSquare B L' R'' B'')
+    : TwoSquare T (L ⋙ L') (R ⋙ R'') B'' :=
+  .mk _ _ _ _ <|
+    (associator _ _ _).inv ≫ whiskerRight w.natTrans R'' ≫ (associator _ _ _).hom
+      ≫ whiskerLeft L w'.natTrans ≫ (associator _ _ _).inv
 
 /-- Notation for the vertical composition of 2-squares. -/
 scoped infixr:80 " ≫ᵥ " => vComp -- type as \gg\_v

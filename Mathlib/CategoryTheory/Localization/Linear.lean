@@ -27,16 +27,19 @@ namespace CategoryTheory
 
 namespace Localization
 
-variable (R : Type w) [Ring R] {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
-  [Preadditive C] [Preadditive D]
-  (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W]
-  [L.Additive] [Linear R C]
+variable
+  (R : Type w) [Ring R]
+  {C : Type u₁} [Category.{v₁} C]
+  {D : Type u₂} [Category.{v₂} D] [Preadditive C] [Preadditive D]
+  (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W] [L.Additive] [Linear R C]
 
-/-- If `L : C ⥤ D` is a localization functor and `C` is `R`-linear, then `D` is
-`R`-linear if we already know that `D` is preadditive and `L` is additive. -/
+/--
+If `L : C ⥤ D` is a localization functor and `C` is `R`-linear, then `D` is
+`R`-linear if we already know that `D` is preadditive and `L` is additive.
+-/
 @[instance_reducible]
-noncomputable def linear : Linear R D := Linear.ofRingMorphism
-  ((CatCenter.localizationRingHom L W).comp (Linear.toCatCenter R C))
+noncomputable def linear : Linear R D :=
+  Linear.ofRingMorphism ((CatCenter.localizationRingHom L W).comp (Linear.toCatCenter R C))
 
 lemma functor_linear :
     letI := linear R L W
@@ -69,10 +72,10 @@ end
 
 section
 
-variable {E : Type*} [Category* E]
+variable
+  {E : Type*} [Category* E]
   (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W] [Preadditive E]
-  (R : Type*) [Ring R]
-  [Linear R C] [Linear R D] [Linear R E] [L.Linear R]
+  (R : Type*) [Ring R] [Linear R C] [Linear R D] [Linear R E] [L.Linear R]
 
 set_option backward.defeqAttrib.useBackward true in
 lemma functor_linear_iff (F : C ⥤ E) (G : D ⥤ E) [Lifting L W F G] :

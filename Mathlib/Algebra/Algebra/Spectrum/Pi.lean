@@ -37,19 +37,23 @@ variable {ι A B R : Type*} {κ : ι → Type*}
 section quasiregular
 
 variable (κ) in
-/-- The equivalence between pre-quasiregular elements of an indexed product and the indexed product
-of pre-quasiregular elements. -/
-def PreQuasiregular.toPi [∀ i, NonUnitalSemiring (κ i)] :
-    PreQuasiregular (∀ i, κ i) ≃* ∀ i, PreQuasiregular (κ i) where
+/--
+The equivalence between pre-quasiregular elements of an indexed product and the indexed product
+of pre-quasiregular elements.
+-/
+def PreQuasiregular.toPi [∀ i, NonUnitalSemiring (κ i)]
+    : PreQuasiregular (∀ i, κ i) ≃* ∀ i, PreQuasiregular (κ i) where
   toFun := fun x i => .mk <| x.val i
   invFun := fun x => .mk <| fun i => (x i).val
   map_mul' _ _ := rfl
 
 variable (A B) in
-/-- The equivalence between pre-quasiregular elements of a product and the product of
-pre-quasiregular elements. -/
-def PreQuasiregular.toProd [NonUnitalSemiring A] [NonUnitalSemiring B] :
-    PreQuasiregular (A × B) ≃* PreQuasiregular A × PreQuasiregular B where
+/--
+The equivalence between pre-quasiregular elements of a product and the product of
+pre-quasiregular elements.
+-/
+def PreQuasiregular.toProd [NonUnitalSemiring A] [NonUnitalSemiring B]
+    : PreQuasiregular (A × B) ≃* PreQuasiregular A × PreQuasiregular B where
   toFun := fun p => ⟨.mk p.val.1, .mk p.val.2⟩
   invFun := fun ⟨a, b⟩ => .mk ⟨a.val, b.val⟩
   map_mul' _ _ := rfl

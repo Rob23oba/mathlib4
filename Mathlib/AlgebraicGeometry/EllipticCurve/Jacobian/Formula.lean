@@ -76,18 +76,21 @@ universe r s u v
 
 namespace WeierstrassCurve
 
-variable {R : Type r} {S : Type s} {A F : Type u} {B K : Type v} [CommRing R] [CommRing S]
-  [CommRing A] [CommRing B] [Field F] [Field K] {W' : Jacobian R} {W : Jacobian F}
+variable
+  {R : Type r} {S : Type s} {A F : Type u} {B K : Type v}
+  [CommRing R] [CommRing S] [CommRing A] [CommRing B] [Field F] [Field K]
+  {W' : Jacobian R} {W : Jacobian F}
 
 namespace Jacobian
 
 /-! ## Negation formulae in Jacobian coordinates -/
 
 variable (W') in
-/-- The `Y`-coordinate of a representative of `-P` for a Jacobian point representative `P` on a
-Weierstrass curve. -/
-def negY (P : Fin 3 → R) : R :=
-  -P y - W'.a₁ * P x * P z - W'.a₃ * P z ^ 3
+/--
+The `Y`-coordinate of a representative of `-P` for a Jacobian point representative `P` on a
+Weierstrass curve.
+-/
+def negY (P : Fin 3 → R) : R := - P y - W'.a₁ * P x * P z - W'.a₃ * P z ^ 3
 
 lemma negY_eq (X Y Z : R) : W'.negY ![X, Y, Z] = -Y - W'.a₁ * X * Z - W'.a₃ * Z ^ 3 :=
   rfl
@@ -164,12 +167,13 @@ lemma nonsingular_iff_of_Y_eq_negY {P : Fin 3 → F} (hPz : P z ≠ 0) (hy : P y
 /-! ## Doubling formulae in Jacobian coordinates -/
 
 variable (W') in
-/-- The unit associated to a representative of `2 • P` for a Jacobian point representative `P` on a
+/--
+The unit associated to a representative of `2 • P` for a Jacobian point representative `P` on a
 Weierstrass curve `W` that is `2`-torsion.
 
-More specifically, the unit `u` such that `W.add P P = u • ![1, 1, 0]` where `P = W.neg P`. -/
-noncomputable def dblU (P : Fin 3 → R) : R :=
-  eval P W'.polynomialX
+More specifically, the unit `u` such that `W.add P P = u • ![1, 1, 0]` where `P = W.neg P`.
+-/
+noncomputable def dblU (P : Fin 3 → R) : R := eval P W'.polynomialX
 
 lemma dblU_eq (P : Fin 3 → R) : W'.dblU P =
     W'.a₁ * P y * P z - (3 * P x ^ 2 + 2 * W'.a₂ * P x * P z ^ 2 + W'.a₄ * P z ^ 4) := by
@@ -194,10 +198,11 @@ lemma isUnit_dblU_of_Y_eq {P Q : Fin 3 → F} (hP : W.Nonsingular P) (hPz : P z 
   (dblU_ne_zero_of_Y_eq hP hPz hQz hx hy hy').isUnit
 
 variable (W') in
-/-- The `Z`-coordinate of a representative of `2 • P` for a Jacobian point representative `P` on a
-Weierstrass curve. -/
-def dblZ (P : Fin 3 → R) : R :=
-  P z * (P y - W'.negY P)
+/--
+The `Z`-coordinate of a representative of `2 • P` for a Jacobian point representative `P` on a
+Weierstrass curve.
+-/
+def dblZ (P : Fin 3 → R) : R := P z * (P y - W'.negY P)
 
 lemma dblZ_smul (P : Fin 3 → R) (u : R) : W'.dblZ (u • P) = u ^ 4 * W'.dblZ P := by
   simp only [dblZ, negY_smul, smul_fin3_ext]
@@ -240,8 +245,10 @@ private lemma toAffine_slope_of_eq [DecidableEq F] {P Q : Fin 3 → F}
   simp [field]
 
 variable (W') in
-/-- The `X`-coordinate of a representative of `2 • P` for a Jacobian point representative `P` on a
-Weierstrass curve. -/
+/--
+The `X`-coordinate of a representative of `2 • P` for a Jacobian point representative `P` on a
+Weierstrass curve.
+-/
 noncomputable def dblX (P : Fin 3 → R) : R :=
   W'.dblU P ^ 2 - W'.a₁ * W'.dblU P * P z * (P y - W'.negY P)
     - W'.a₂ * P z ^ 2 * (P y - W'.negY P) ^ 2 - 2 * P x * (P y - W'.negY P) ^ 2
@@ -276,10 +283,12 @@ lemma dblX_of_Z_ne_zero [DecidableEq F]
     toAffine_addX_of_eq hPz <| sub_ne_zero.mpr <| Y_ne_negY_of_Y_ne' hP hQ hx hy]
 
 variable (W') in
-/-- The `Y`-coordinate of a representative of `-(2 • P)` for a Jacobian point representative `P` on
-a Weierstrass curve. -/
+/--
+The `Y`-coordinate of a representative of `-(2 • P)` for a Jacobian point representative `P` on
+a Weierstrass curve.
+-/
 noncomputable def negDblY (P : Fin 3 → R) : R :=
-  -W'.dblU P * (W'.dblX P - P x * (P y - W'.negY P) ^ 2) + P y * (P y - W'.negY P) ^ 3
+  - W'.dblU P * (W'.dblX P - P x * (P y - W'.negY P) ^ 2) + P y * (P y - W'.negY P) ^ 3
 
 lemma negDblY_smul (P : Fin 3 → R) (u : R) : W'.negDblY (u • P) = (u ^ 4) ^ 3 * W'.negDblY P := by
   simp only [negDblY, dblU_smul, dblX_smul, negY_smul, smul_fin3_ext]
@@ -313,10 +322,11 @@ lemma negDblY_of_Z_ne_zero [DecidableEq F] {P Q : Fin 3 → F} (hP : W.Equation 
     toAffine_negAddY_of_eq hPz <| sub_ne_zero.mpr <| Y_ne_negY_of_Y_ne' hP hQ hx hy]
 
 variable (W') in
-/-- The `Y`-coordinate of a representative of `2 • P` for a Jacobian point representative `P` on a
-Weierstrass curve. -/
-noncomputable def dblY (P : Fin 3 → R) : R :=
-  W'.negY ![W'.dblX P, W'.negDblY P, W'.dblZ P]
+/--
+The `Y`-coordinate of a representative of `2 • P` for a Jacobian point representative `P` on a
+Weierstrass curve.
+-/
+noncomputable def dblY (P : Fin 3 → R) : R := W'.negY ![W'.dblX P, W'.negDblY P, W'.dblZ P]
 
 lemma dblY_smul (P : Fin 3 → R) (u : R) : W'.dblY (u • P) = (u ^ 4) ^ 3 * W'.dblY P := by
   simp only [dblY, negY_eq, negDblY_smul, dblX_smul, dblZ_smul]
@@ -342,10 +352,11 @@ lemma dblY_of_Z_ne_zero [DecidableEq F] {P Q : Fin 3 → F}
     dblX_of_Z_ne_zero hP hQ hPz hQz hx hy, negDblY_of_Z_ne_zero hP hQ hPz hQz hx hy, Affine.addY]
 
 variable (W') in
-/-- The coordinates of a representative of `2 • P` for a Jacobian point representative `P` on a
-Weierstrass curve. -/
-noncomputable def dblXYZ (P : Fin 3 → R) : Fin 3 → R :=
-  ![W'.dblX P, W'.dblY P, W'.dblZ P]
+/--
+The coordinates of a representative of `2 • P` for a Jacobian point representative `P` on a
+Weierstrass curve.
+-/
+noncomputable def dblXYZ (P : Fin 3 → R) : Fin 3 → R := ![W'.dblX P, W'.dblY P, W'.dblZ P]
 
 lemma dblXYZ_X (P : Fin 3 → R) : W'.dblXYZ P x = W'.dblX P :=
   rfl
@@ -390,13 +401,14 @@ lemma dblXYZ_of_Z_ne_zero [DecidableEq F] {P Q : Fin 3 → F}
 
 /-! ## Addition formulae in Jacobian coordinates -/
 
-/-- The unit associated to a representative of `P + Q` for two Jacobian point representatives `P`
+/--
+The unit associated to a representative of `P + Q` for two Jacobian point representatives `P`
 and `Q` on a Weierstrass curve `W` that are not `2`-torsion.
 
 More specifically, the unit `u` such that `W.add P Q = u • ![1, 1, 0]` where
-`P x / P z ^ 2 = Q x / Q z ^ 2` but `P ≠ W.neg P`. -/
-def addU (P Q : Fin 3 → F) : F :=
-  -((P y * Q z ^ 3 - Q y * P z ^ 3) / (P z * Q z))
+`P x / P z ^ 2 = Q x / Q z ^ 2` but `P ≠ W.neg P`.
+-/
+def addU (P Q : Fin 3 → F) : F := -((P y * Q z ^ 3 - Q y * P z ^ 3) / (P z * Q z))
 
 lemma addU_smul {P Q : Fin 3 → F} (hPz : P z ≠ 0) (hQz : Q z ≠ 0) {u v : F} (hu : u ≠ 0)
     (hv : v ≠ 0) : addU (u • P) (v • Q) = (u * v) ^ 2 * addU P Q := by
@@ -416,12 +428,13 @@ lemma isUnit_addU_of_Y_ne {P Q : Fin 3 → F} (hPz : P z ≠ 0) (hQz : Q z ≠ 0
     (hy : P y * Q z ^ 3 ≠ Q y * P z ^ 3) : IsUnit (addU P Q) :=
   (addU_ne_zero_of_Y_ne hPz hQz hy).isUnit
 
-/-- The `Z`-coordinate of a representative of `P + Q` for two distinct Jacobian point
+/--
+The `Z`-coordinate of a representative of `P + Q` for two distinct Jacobian point
 representatives `P` and `Q` on a Weierstrass curve.
 
-If the representatives of `P` and `Q` are equal, then this returns the value `0`. -/
-def addZ (P Q : Fin 3 → R) : R :=
-  P x * Q z ^ 2 - Q x * P z ^ 2
+If the representatives of `P` and `Q` are equal, then this returns the value `0`.
+-/
+def addZ (P Q : Fin 3 → R) : R := P x * Q z ^ 2 - Q x * P z ^ 2
 
 lemma addZ_smul (P Q : Fin 3 → R) (u v : R) : addZ (u • P) (v • Q) = (u * v) ^ 2 * addZ P Q := by
   simp only [addZ, smul_fin3_ext]
@@ -458,10 +471,12 @@ private lemma toAffine_slope_of_ne [DecidableEq F] {P Q : Fin 3 → F} (hPz : P 
   simp [field]
 
 variable (W') in
-/-- The `X`-coordinate of a representative of `P + Q` for two distinct Jacobian point
+/--
+The `X`-coordinate of a representative of `P + Q` for two distinct Jacobian point
 representatives `P` and `Q` on a Weierstrass curve.
 
-If the representatives of `P` and `Q` are equal, then this returns the value `0`. -/
+If the representatives of `P` and `Q` are equal, then this returns the value `0`.
+-/
 def addX (P Q : Fin 3 → R) : R :=
   P x * Q x ^ 2 * P z ^ 2 - 2 * P y * Q y * P z * Q z + P x ^ 2 * Q x * Q z ^ 2
     - W'.a₁ * P x * Q y * P z ^ 2 * Q z - W'.a₁ * P y * Q x * P z * Q z ^ 2
@@ -530,12 +545,14 @@ lemma addX_of_Z_ne_zero [DecidableEq F] {P Q : Fin 3 → F}
     toAffine_addX_of_ne hPz hQz <| addZ_ne_zero_of_X_ne hx]
 
 variable (W') in
-/-- The `Y`-coordinate of a representative of `-(P + Q)` for two distinct Jacobian point
+/--
+The `Y`-coordinate of a representative of `-(P + Q)` for two distinct Jacobian point
 representatives `P` and `Q` on a Weierstrass curve.
 
-If the representatives of `P` and `Q` are equal, then this returns the value `0`. -/
+If the representatives of `P` and `Q` are equal, then this returns the value `0`.
+-/
 def negAddY (P Q : Fin 3 → R) : R :=
-  -P y * Q x ^ 3 * P z ^ 3 + 2 * P y * Q y ^ 2 * P z ^ 3 - 3 * P x ^ 2 * Q x * Q y * P z ^ 2 * Q z
+  - P y * Q x ^ 3 * P z ^ 3 + 2 * P y * Q y ^ 2 * P z ^ 3 - 3 * P x ^ 2 * Q x * Q y * P z ^ 2 * Q z
     + 3 * P x * P y * Q x ^ 2 * P z * Q z ^ 2 + P x ^ 3 * Q y * Q z ^ 3
     - 2 * P y ^ 2 * Q y * Q z ^ 3 + W'.a₁ * P x * Q y ^ 2 * P z ^ 4
     + W'.a₁ * P y * Q x * Q y * P z ^ 3 * Q z - W'.a₁ * P x * P y * Q y * P z * Q z ^ 3
@@ -605,12 +622,13 @@ lemma negAddY_of_Z_ne_zero [DecidableEq F] {P Q : Fin 3 → F} (hP : W.Equation 
     toAffine_negAddY_of_ne hPz hQz <| addZ_ne_zero_of_X_ne hx]
 
 variable (W') in
-/-- The `Y`-coordinate of a representative of `P + Q` for two distinct Jacobian point
+/--
+The `Y`-coordinate of a representative of `P + Q` for two distinct Jacobian point
 representatives `P` and `Q` on a Weierstrass curve.
 
-If the representatives of `P` and `Q` are equal, then this returns the value `0`. -/
-def addY (P Q : Fin 3 → R) : R :=
-  W'.negY ![W'.addX P Q, W'.negAddY P Q, addZ P Q]
+If the representatives of `P` and `Q` are equal, then this returns the value `0`.
+-/
+def addY (P Q : Fin 3 → R) : R := W'.negY ![W'.addX P Q, W'.negAddY P Q, addZ P Q]
 
 lemma addY_smul (P Q : Fin 3 → R) (u v : R) :
     W'.addY (u • P) (v • Q) = ((u * v) ^ 2) ^ 3 * W'.addY P Q := by
@@ -652,12 +670,13 @@ lemma addY_of_Z_ne_zero [DecidableEq F] {P Q : Fin 3 → F} (hP : W.Equation P) 
     negAddY_of_Z_ne_zero hP hQ hPz hQz hx, Affine.addY]
 
 variable (W') in
-/-- The coordinates of a representative of `P + Q` for two distinct Jacobian point
+/--
+The coordinates of a representative of `P + Q` for two distinct Jacobian point
 representatives `P` and `Q` on a Weierstrass curve.
 
-If the representatives of `P` and `Q` are equal, then this returns the value `![0, 0, 0]`. -/
-noncomputable def addXYZ (P Q : Fin 3 → R) : Fin 3 → R :=
-  ![W'.addX P Q, W'.addY P Q, addZ P Q]
+If the representatives of `P` and `Q` are equal, then this returns the value `![0, 0, 0]`.
+-/
+noncomputable def addXYZ (P Q : Fin 3 → R) : Fin 3 → R := ![W'.addX P Q, W'.addY P Q, addZ P Q]
 
 lemma addXYZ_X (P Q : Fin 3 → R) : W'.addXYZ P Q x = W'.addX P Q :=
   rfl
@@ -769,8 +788,10 @@ lemma map_addY : (W'.map f).addY (f ∘ P) (f ∘ Q) = f (W'.addY P Q) := by
 lemma map_addXYZ : (W'.map f).addXYZ (f ∘ P) (f ∘ Q) = f ∘ addXYZ W' P Q := by
   simp only [addXYZ, map_addX, map_addY, map_addZ, comp_fin3]
 
-variable [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [Algebra R B] [Algebra S B]
-  [IsScalarTower R S B] (f : A →ₐ[S] B) (P Q : Fin 3 → A)
+variable
+  [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [Algebra R B] [Algebra S B]
+  [IsScalarTower R S B]
+  (f : A →ₐ[S] B) (P Q : Fin 3 → A)
 
 lemma baseChange_negY : (W'⁄B).negY (f ∘ P) = f ((W'⁄A).negY P) := by
   rw [← RingHom.coe_coe, ← map_negY, map_baseChange]

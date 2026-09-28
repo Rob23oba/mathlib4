@@ -24,13 +24,14 @@ open Filter Function Set
 
 open scoped Topology
 
-variable {𝕜 𝕜' : Type*} [NontriviallyNormedField 𝕜] [NontriviallyNormedField 𝕜']
-  [NormedAlgebra 𝕜 𝕜']
+variable
+  {𝕜 𝕜' : Type*} [NontriviallyNormedField 𝕜] [NontriviallyNormedField 𝕜'] [NormedAlgebra 𝕜 𝕜']
 
-/-- The logarithmic derivative of a function defined as `deriv f /f`. Note that it will be zero
-at `x` if `f` is not DifferentiableAt `x`. -/
-def logDeriv (f : 𝕜 → 𝕜') :=
-  deriv f / f
+/--
+The logarithmic derivative of a function defined as `deriv f /f`. Note that it will be zero
+at `x` if `f` is not DifferentiableAt `x`.
+-/
+def logDeriv (f : 𝕜 → 𝕜') := deriv f / f
 
 theorem logDeriv_apply (f : 𝕜 → 𝕜') (x : 𝕜) : logDeriv f x = deriv f x / f x := rfl
 
@@ -52,9 +53,9 @@ lemma logDeriv_congr_nhdsNE {f g : 𝕜 → 𝕜'} {x : 𝕜} (h : f =ᶠ[𝓝[�
 If two functions agree on a codiscrete subset of an open set `U`, then so do their logarithmic
 derivatives.
 -/
-theorem logDeriv_congr_codiscreteWithin {f g : 𝕜 → 𝕜'} {U : Set 𝕜} (hU : IsOpen U)
-    (h : f =ᶠ[codiscreteWithin U] g) :
-    logDeriv f =ᶠ[codiscreteWithin U] logDeriv g := by
+theorem logDeriv_congr_codiscreteWithin
+    {f g : 𝕜 → 𝕜'} {U : Set 𝕜} (hU : IsOpen U) (h : f =ᶠ[codiscreteWithin U] g)
+    : logDeriv f =ᶠ[codiscreteWithin U] logDeriv g := by
   refine mem_codiscreteWithin_iff_forall_mem_nhdsNE.2 fun x hx ↦ ?_
   refine mem_of_superset (logDeriv_congr_nhdsNE ?_) Set.subset_union_left
   filter_upwards [mem_codiscreteWithin_iff_forall_mem_nhdsNE.1 h x hx,
@@ -64,13 +65,11 @@ theorem logDeriv_congr_codiscreteWithin {f g : 𝕜 → 𝕜'} {U : Set 𝕜} (h
 /--
 If two functions agree on a codiscrete subset of `𝕜`, then so do their logarithmic derivatives.
 -/
-theorem logDeriv_congr_codiscrete {f g : 𝕜 → 𝕜'} (h : f =ᶠ[codiscrete 𝕜] g) :
-    logDeriv f =ᶠ[codiscrete 𝕜] logDeriv g :=
+theorem logDeriv_congr_codiscrete {f g : 𝕜 → 𝕜'} (h : f =ᶠ[codiscrete 𝕜] g)
+    : logDeriv f =ᶠ[codiscrete 𝕜] logDeriv g :=
   logDeriv_congr_codiscreteWithin isOpen_univ h
 
-@[simp]
-theorem logDeriv_id (x : 𝕜) : logDeriv id x = 1 / x := by
-  simp [logDeriv_apply]
+@[simp] theorem logDeriv_id (x : 𝕜) : logDeriv id x = 1 / x := by simp [logDeriv_apply]
 
 @[simp] theorem logDeriv_id' (x : 𝕜) : logDeriv (·) x = 1 / x := logDeriv_id x
 
@@ -80,32 +79,36 @@ theorem logDeriv_const (a : 𝕜') : logDeriv (fun _ : 𝕜 ↦ a) = 0 := by
   simp [logDeriv_apply]
 
 @[to_fun logDeriv_fun_mul]
-theorem logDeriv_mul {f g : 𝕜 → 𝕜'} (x : 𝕜) (hf : f x ≠ 0) (hg : g x ≠ 0)
-    (hdf : DifferentiableAt 𝕜 f x) (hdg : DifferentiableAt 𝕜 g x) :
-      logDeriv (f * g) x = logDeriv f x + logDeriv g x := by
+theorem logDeriv_mul
+    {f g : 𝕜 → 𝕜'} (x : 𝕜) (hf : f x ≠ 0) (hg : g x ≠ 0) (hdf : DifferentiableAt 𝕜 f x)
+    (hdg : DifferentiableAt 𝕜 g x)
+    : logDeriv (f * g) x = logDeriv f x + logDeriv g x := by
   simp [field, logDeriv_apply, *]
 
 @[to_fun logDeriv_fun_div]
-theorem logDeriv_div {f g : 𝕜 → 𝕜'} (x : 𝕜) (hf : f x ≠ 0) (hg : g x ≠ 0)
-    (hdf : DifferentiableAt 𝕜 f x) (hdg : DifferentiableAt 𝕜 g x) :
-    logDeriv (f / g) x = logDeriv f x - logDeriv g x := by
+theorem logDeriv_div
+    {f g : 𝕜 → 𝕜'} (x : 𝕜) (hf : f x ≠ 0) (hg : g x ≠ 0) (hdf : DifferentiableAt 𝕜 f x)
+    (hdg : DifferentiableAt 𝕜 g x)
+    : logDeriv (f / g) x = logDeriv f x - logDeriv g x := by
   simp [field, logDeriv_apply, *]
 
-theorem logDeriv_mul_const {f : 𝕜 → 𝕜'} (x : 𝕜) (a : 𝕜') (ha : a ≠ 0) :
-    logDeriv (fun z => f z * a) x = logDeriv f x := by
+theorem logDeriv_mul_const {f : 𝕜 → 𝕜'} (x : 𝕜) (a : 𝕜') (ha : a ≠ 0)
+    : logDeriv (fun z => f z * a) x = logDeriv f x := by
   simp only [logDeriv_apply, deriv_mul_const_field, mul_div_mul_right _ _ ha]
 
-theorem logDeriv_const_mul {f : 𝕜 → 𝕜'} (x : 𝕜) (a : 𝕜') (ha : a ≠ 0) :
-    logDeriv (fun z => a * f z) x = logDeriv f x := by
+theorem logDeriv_const_mul {f : 𝕜 → 𝕜'} (x : 𝕜) (a : 𝕜') (ha : a ≠ 0)
+    : logDeriv (fun z => a * f z) x = logDeriv f x := by
   simp only [logDeriv_apply, deriv_const_mul_field, mul_div_mul_left _ _ ha]
 
 /-- The logarithmic derivative of a finite product is the sum of the logarithmic derivatives. -/
 @[to_fun logDeriv_fun_prod]
-theorem logDeriv_prod {ι : Type*} {s : Finset ι} {f : ι → 𝕜 → 𝕜'} {x : 𝕜} (hf : ∀ i ∈ s, f i x ≠ 0)
-    (hd : ∀ i ∈ s, DifferentiableAt 𝕜 (f i) x) :
-    logDeriv (∏ i ∈ s, f i) x = ∑ i ∈ s, logDeriv (f i) x := by
+theorem logDeriv_prod
+    {ι : Type*} {s : Finset ι} {f : ι → 𝕜 → 𝕜'} {x : 𝕜}
+    (hf : ∀ i ∈ s, f i x ≠ 0) (hd : ∀ i ∈ s, DifferentiableAt 𝕜 (f i) x)
+    : logDeriv (∏ i ∈ s, f i) x = ∑ i ∈ s, logDeriv (f i) x := by
   induction s using Finset.cons_induction with
-  | empty => simp [Pi.one_def]
+  | empty =>
+    simp [Pi.one_def]
   | cons a s ha ih =>
     rw [Finset.forall_mem_cons] at hf hd
     rw [Finset.prod_cons, Finset.sum_cons, logDeriv_mul, ih hf.2 hd.2]
@@ -139,16 +142,20 @@ lemma logDeriv_pow (x : 𝕜) (n : ℕ) : logDeriv (· ^ n) x = n / x :=
   simpa using logDeriv_zpow x (-1)
 
 @[to_fun logDeriv_fun_comp]
-theorem logDeriv_comp {f : 𝕜' → 𝕜'} {g : 𝕜 → 𝕜'} {x : 𝕜} (hf : DifferentiableAt 𝕜' f (g x))
-    (hg : DifferentiableAt 𝕜 g x) : logDeriv (f ∘ g) x = logDeriv f (g x) * deriv g x := by
+theorem logDeriv_comp
+    {f : 𝕜' → 𝕜'} {g : 𝕜 → 𝕜'} {x : 𝕜}
+    (hf : DifferentiableAt 𝕜' f (g x)) (hg : DifferentiableAt 𝕜 g x)
+    : logDeriv (f ∘ g) x = logDeriv f (g x) * deriv g x := by
   simp only [logDeriv, Pi.div_apply, deriv_comp _ hf hg, comp_apply]
   ring
 
-@[simp] theorem logDeriv_neg (f : 𝕜 → 𝕜') : logDeriv (fun x ↦ -f x) = logDeriv f := by
+@[simp]
+theorem logDeriv_neg (f : 𝕜 → 𝕜') : logDeriv (fun x ↦ - f x) = logDeriv f := by
   funext; simp [logDeriv_apply, neg_div_neg_eq]
 
-@[simp] theorem logDeriv_comp_neg (f : 𝕜 → 𝕜') (x : 𝕜) :
-  logDeriv (fun x ↦ f (-x)) x = -logDeriv f (-x) := by
+@[simp]
+theorem logDeriv_comp_neg (f : 𝕜 → 𝕜') (x : 𝕜)
+    : logDeriv (fun x ↦ f (-x)) x = - logDeriv f (-x) := by
   simp [logDeriv_apply, deriv_comp_neg, field]
 
 lemma logDeriv_eqOn_iff [IsRCLikeNormedField 𝕜] {f g : 𝕜 → 𝕜'} {s : Set 𝕜}
@@ -178,14 +185,14 @@ lemma logDeriv_eqOn_iff [IsRCLikeNormedField 𝕜] {f g : 𝕜 → 𝕜'} {s : S
       simp [logDeriv_apply, hz.deriv hs2 hx, hz hx, deriv_const_smul _
         (hg.differentiableAt (hs2.mem_nhds hx)), mul_div_mul_left (deriv g x) (g x) hz0]
 
-
-/-- At a simple zero of an analytic function, the logarithmic residue
-`(w - x) * logDeriv f w` tends to 1. -/
-theorem AnalyticAt.tendsto_mul_logDeriv_simple_zero [CompleteSpace 𝕜]
-    {f : 𝕜 → 𝕜} {x : 𝕜}
-    (hf : AnalyticAt 𝕜 f x) (hfx : f x = 0) (hf' : deriv f x ≠ 0) :
-    Filter.Tendsto (fun w => (w - x) * logDeriv f w)
-      (𝓝[≠] x) (𝓝 1) := by
+/--
+At a simple zero of an analytic function, the logarithmic residue
+`(w - x) * logDeriv f w` tends to 1.
+-/
+theorem AnalyticAt.tendsto_mul_logDeriv_simple_zero
+    [CompleteSpace 𝕜]
+    {f : 𝕜 → 𝕜} {x : 𝕜} (hf : AnalyticAt 𝕜 f x) (hfx : f x = 0) (hf' : deriv f x ≠ 0)
+    : Filter.Tendsto (fun w => (w - x) * logDeriv f w) (𝓝[≠] x) (𝓝 1) := by
   have h_slope := hasDerivAt_iff_tendsto_slope.mp hf.differentiableAt.hasDerivAt
   rw [← div_self hf']
   convert hf.deriv.continuousAt.tendsto.mono_left nhdsWithin_le_nhds |>.div h_slope hf'

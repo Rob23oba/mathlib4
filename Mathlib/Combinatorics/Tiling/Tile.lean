@@ -62,7 +62,6 @@ be used with the theory here.
   conjecture*][GreenfeldTao2024]
 -/
 
-
 @[expose] public section
 
 namespace DiscreteTiling
@@ -73,13 +72,18 @@ open scoped Pointwise
 variable {G X ιₚ : Type*} [Group G] [MulAction G X]
 
 variable (G X) in
-/-- A `Prototile G X` describes a tile in `X`, copies of which under elements of `G` may be used in
+/--
+A `Prototile G X` describes a tile in `X`, copies of which under elements of `G` may be used in
 tilings. Two copies related by an element of `symmetries` are considered the same; two copies not so
-related, even if they have the same points, are considered distinct. -/
-@[ext] structure Prototile where
-  /-- The points in the prototile. Use the coercion to `Set X`, or `∈` on the `Prototile`, rather
-      than using `carrier` directly. The coercion cannot use `SetLike` because it does not satisfy
-      `coe_injective`. -/
+related, even if they have the same points, are considered distinct.
+-/
+@[ext]
+structure Prototile where
+  /--
+  The points in the prototile. Use the coercion to `Set X`, or `∈` on the `Prototile`, rather
+  than using `carrier` directly. The coercion cannot use `SetLike` because it does not satisfy
+  `coe_injective`.
+  -/
   carrier : Set X
   /-- The group elements considered to be symmetries of the prototile. -/
   symmetries : Subgroup (MulAction.stabilizer G carrier)
@@ -104,12 +108,17 @@ lemma coe_mk (c s) : (⟨c, s⟩ : Prototile G X) = c := rfl
 end Prototile
 
 variable (G X ιₚ) in
-/-- A `Protoset G X ιₚ` is an indexed family of `Prototile G X`. This is a separate definition
+/--
+A `Protoset G X ιₚ` is an indexed family of `Prototile G X`. This is a separate definition
 rather than just using plain functions to facilitate defining associated API that can be used with
-dot notation. -/
-@[ext] structure Protoset where
-  /-- The tiles in the protoset. Use the coercion to a function rather than using `tiles`
-      directly. -/
+dot notation.
+-/
+@[ext]
+structure Protoset where
+  /--
+  The tiles in the protoset. Use the coercion to a function rather than using `tiles`
+  directly.
+  -/
   tiles : ιₚ → Prototile G X
 
 namespace Protoset
@@ -136,10 +145,13 @@ end Protoset
 variable {ps : Protoset G X ιₚ}
 
 variable (ps) in
-/-- A `PlacedTile ps` is an image of a tile in the protoset `p` under an element of the group `G`.
+/--
+A `PlacedTile ps` is an image of a tile in the protoset `p` under an element of the group `G`.
 This is represented using a quotient so that images under group elements differing only by a
-symmetry of the tile are equal. -/
-@[ext] structure PlacedTile where
+symmetry of the tile are equal.
+-/
+@[ext]
+structure PlacedTile where
   /-- The index of the tile in the protoset. -/
   index : ιₚ
   /-- The group elements under which this tile is an image. -/
@@ -191,10 +203,14 @@ lemma ext_iff_of_preimage {pt₁ pt₂ : PlacedTile ps} :
     · exact heq_of_eq (Set.singleton_eq_singleton_iff.1
         ((Set.preimage_eq_preimage Quotient.mk''_surjective).1 hq))
 
-/-- Coercion from a `PlacedTile` to a set of points. Use the coercion rather than using `coeSet`
-directly. -/
-@[coe] def coeSet (pt : PlacedTile ps) : Set X :=
-  Quotient.liftOn' pt.groupElts (fun g ↦ g • (ps pt.index : Set X))
+/--
+Coercion from a `PlacedTile` to a set of points. Use the coercion rather than using `coeSet`
+directly.
+-/
+@[coe]
+def coeSet (pt : PlacedTile ps) : Set X :=
+  Quotient.liftOn' pt.groupElts
+    (fun g ↦ g • (ps pt.index : Set X))
     fun a b r ↦ by
       rw [QuotientGroup.leftRel_eq] at r
       rw [eq_comm, ← inv_smul_eq_iff, smul_smul, ← MulAction.mem_stabilizer_iff]
@@ -235,11 +251,13 @@ lemma coe_finite_iff {pt : PlacedTile ps} :
   coe_finite_iff
 
 instance : SMul G (PlacedTile ps) where
-  smul g pt := Quotient.liftOn' pt.groupElts (fun h ↦ ⟨pt.index, g * h⟩)
-    fun a b r ↦ by
-      rw [QuotientGroup.leftRel_eq] at r
-      refine PlacedTile.ext rfl ?_
-      simpa [QuotientGroup.eq, ← mul_assoc] using r
+  smul g pt :=
+    Quotient.liftOn' pt.groupElts
+      (fun h ↦ ⟨pt.index, g * h⟩)
+      fun a b r ↦ by
+        rw [QuotientGroup.leftRel_eq] at r
+        refine PlacedTile.ext rfl ?_
+        simpa [QuotientGroup.eq, ← mul_assoc] using r
 
 @[simp] lemma smul_mk_mk (g h : G) (i : ιₚ) : g • (⟨i, ⟦h⟧⟩ : PlacedTile ps) = ⟨i, g * h⟩ := rfl
 

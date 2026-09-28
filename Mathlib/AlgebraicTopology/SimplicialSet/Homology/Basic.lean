@@ -55,11 +55,11 @@ alias _root_.AlgebraicTopology.SSet.singularChainComplexFunctor :=
 
 set_option backward.defeqAttrib.useBackward true in
 attribute [local simp] SSet.chainComplexFunctor in
-attribute [local simp←] _root_.SSet.yonedaEquiv_symm_comp in
+attribute [local simp ←] _root_.SSet.yonedaEquiv_symm_comp in
 /-- The adjunction `Hom(Cⁿ(-, X), F) ≃ Hom(X, F(Δ[n]))` for `R : C` and `F : SSet ⥤ C`. -/
-noncomputable def chainComplexFunctorAdjunction (n : ℕ) :
-    (Functor.postcompose₂.obj (HomologicalComplex.eval _ _ n)).obj
-      (SSet.chainComplexFunctor C) ⊣ (evaluation _ _).obj Δ[n] where
+noncomputable def chainComplexFunctorAdjunction (n : ℕ)
+    : (Functor.postcompose₂.obj (HomologicalComplex.eval _ _ n)).obj (SSet.chainComplexFunctor C)
+      ⊣ (evaluation _ _).obj Δ[n] where
   unit.app R := Sigma.ι (fun _ : Δ[n] _⦋n⦌ ↦ R) (SSet.stdSimplex.objEquiv (n := ⦋n⦌).symm (𝟙 ⦋n⦌))
   counit.app F := { app S := Sigma.desc fun α ↦ F.map (SSet.yonedaEquiv.symm α) }
   right_triangle_components F := by dsimp; simp
@@ -70,21 +70,26 @@ alias _root_.SSet.singularChainComplexFunctorAdjunction :=
 
 variable {C} (X Y Z : SSet.{w}) (f : X ⟶ Y) (g : Y ⟶ Z) (R : C)
 
-/-- The (simplicial) chain complex of a simplicial set `X` with
+/--
+The (simplicial) chain complex of a simplicial set `X` with
 coefficients in `R : C`. Its homology is the simplicial homology
-of `X`. -/
-noncomputable abbrev chainComplex : ChainComplex C ℕ :=
-  ((SSet.chainComplexFunctor C).obj R).obj X
+of `X`.
+-/
+noncomputable abbrev chainComplex : ChainComplex C ℕ := ((SSet.chainComplexFunctor C).obj R).obj X
 
 variable {X Y} in
-/-- The morphism of simplicial chain complexes induces by a morphism
-of simplicial sets. -/
+/--
+The morphism of simplicial chain complexes induces by a morphism
+of simplicial sets.
+-/
 noncomputable abbrev chainComplexMap : X.chainComplex R ⟶ Y.chainComplex R :=
   ((SSet.chainComplexFunctor C).obj R).map f
 
 variable {R} in
-/-- The inclusion `R ⟶ (X.chainComplex R).X n` of the summand
-corresponding to a `n`-simplex `x : X _⦋n⦌`. -/
+/--
+The inclusion `R ⟶ (X.chainComplex R).X n` of the summand
+corresponding to a `n`-simplex `x : X _⦋n⦌`.
+-/
 noncomputable def ιChainComplex {n : ℕ} (x : X _⦋n⦌) : R ⟶ (X.chainComplex R).X n :=
   Sigma.ι (fun (_ : X _⦋n⦌) ↦ R) x
 
@@ -104,14 +109,18 @@ lemma ι_chainComplexMap_f {n : ℕ} (x : X _⦋n⦌) :
     chainComplex, chainComplexFunctor]
   simp
 
-/-- The colimit cofan which defines the simplicial `n`-chains
-`(X.chainComplex R).X n`. -/
+/--
+The colimit cofan which defines the simplicial `n`-chains
+`(X.chainComplex R).X n`.
+-/
 noncomputable def chainComplexXCofan (n : ℕ) : Cofan (fun (_ : X _⦋n⦌) ↦ R) :=
   Cofan.mk _ X.ιChainComplex
 
-/-- Simplicial `n`-chains `(X.chainComplex R).X n` of a simplicial set `X`
+/--
+Simplicial `n`-chains `(X.chainComplex R).X n` of a simplicial set `X`
 with coefficients in `R` identify to a coproduct of copies of `R`
-indexed by `X _⦋n⦌`. -/
+indexed by `X _⦋n⦌`.
+-/
 noncomputable def isColimitChainComplexXCofan (n : ℕ) : IsColimit (X.chainComplexXCofan R n) :=
   coproductIsCoproduct _
 
@@ -130,13 +139,17 @@ lemma isZero_chainComplex [X.HasDimensionLT 0] :
 
 variable [CategoryWithHomology C]
 
-/-- The simplicial homology with coefficients in `R : C` in degree `n`
-of a simplicial set `X`. -/
+/--
+The simplicial homology with coefficients in `R : C` in degree `n`
+of a simplicial set `X`.
+-/
 protected noncomputable abbrev homology (n : ℕ) : C := (X.chainComplex R).homology n
 
 variable {X Y} in
-/-- The morphism in simplicial homology that is induced by a morphism
-of simplicial sets. -/
+/--
+The morphism in simplicial homology that is induced by a morphism
+of simplicial sets.
+-/
 protected noncomputable abbrev homologyMap (n : ℕ) : X.homology R n ⟶ Y.homology R n :=
   HomologicalComplex.homologyMap (chainComplexMap f R) n
 

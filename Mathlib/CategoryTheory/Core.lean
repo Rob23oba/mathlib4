@@ -34,16 +34,20 @@ open CategoryTheory.Functor
 universe v₁ v₂ v₃ v₄ u₁ u₂ u₃ u₄
 
 -- morphism levels before object levels. See note [category theory universes].
-/-- The core of a category C is the groupoid whose morphisms are all the
-isomorphisms of C. -/
+/--
+The core of a category C is the groupoid whose morphisms are all the
+isomorphisms of C.
+-/
 structure Core (C : Type u₁) where
   /-- The object of the base category underlying an object in `Core C`. -/
   of : C
 
 variable {C : Type u₁} [Category.{v₁} C]
 
-/-- The hom-type between two objects of `Core C`.
-It is defined as a one-field structure to prevent defeq abuses. -/
+/--
+The hom-type between two objects of `Core C`.
+It is defined as a one-field structure to prevent defeq abuses.
+-/
 @[ext]
 structure CoreHom (X Y : Core C) where
   /-- The isomorphism of objects of `C` underlying a morphism in `Core C`. -/
@@ -70,15 +74,13 @@ def inclusion : Core C ⥤ C where
   map f := f.iso.hom
 
 @[ext]
-theorem hom_ext {X Y : Core C} {f g : X ⟶ Y} (h : f.iso.hom = g.iso.hom) :
-    f = g := by
+theorem hom_ext {X Y : Core C} {f g : X ⟶ Y} (h : f.iso.hom = g.iso.hom) : f = g := by
   apply CoreHom.ext
   exact Iso.ext h
 
 /-- Construct an isomorphism in `Core C` from an isomorphism in `C`. -/
 @[simps! hom_iso inv_iso]
-def isoMk {x y : Core C} (e : x.of ≅ y.of) : x ≅ y :=
-  Groupoid.isoEquivHom _ _ |>.symm (.mk e)
+def isoMk {x y : Core C} (e : x.of ≅ y.of) : x ≅ y := Groupoid.isoEquivHom _ _ |>.symm (.mk e)
 
 variable (C)
 
@@ -94,12 +96,12 @@ def functorToCore (F : G ⥤ C) : G ⥤ Core C where
   obj X := .mk <| F.obj X
   map f := .mk { hom := F.map f, inv := F.map (Groupoid.inv f) }
 
-/-- We can functorially associate to any functor from a groupoid to the core of a category `C`,
+/--
+We can functorially associate to any functor from a groupoid to the core of a category `C`,
 a functor from the groupoid to `C`, simply by composing with the embedding `Core C ⥤ C`.
 -/
 @[simps!]
-def forgetFunctorToCore : (G ⥤ Core C) ⥤ G ⥤ C :=
-  (whiskeringRight _ _ _).obj (inclusion C)
+def forgetFunctorToCore : (G ⥤ Core C) ⥤ G ⥤ C := (whiskeringRight _ _ _).obj (inclusion C)
 
 end Core
 
@@ -110,20 +112,20 @@ namespace Functor
 variable {D : Type u₂} [Category.{v₂} D]
 
 /-- A functor `C ⥤ D` induces a functor `Core C ⥤ Core D`. -/
-@[simps!]
-def core (F : C ⥤ D) : Core C ⥤ Core D := Core.functorToCore (Core.inclusion _ ⋙ F)
+@[simps!] def core (F : C ⥤ D) : Core C ⥤ Core D := Core.functorToCore (Core.inclusion _ ⋙ F)
 
 variable (C) in
 /-- The core of the identity functor is the identity functor on the cores. -/
-@[simps!]
-def coreId : (𝟭 C).core ≅ 𝟭 (Core C) := Iso.refl _
+@[simps!] def coreId : (𝟭 C).core ≅ 𝟭 (Core C) := Iso.refl _
 
 /-- The core of the composition of F and G is the composition of the cores. -/
 @[simps!]
-def coreComp {E : Type u₃} [Category.{v₃} E] (F : C ⥤ D) (G : D ⥤ E) :
-    (F ⋙ G).core ≅ F.core ⋙ G.core := Iso.refl _
+def coreComp {E : Type u₃} [Category.{v₃} E] (F : C ⥤ D) (G : D ⥤ E)
+    : (F ⋙ G).core ≅ F.core ⋙ G.core :=
+  Iso.refl _
 
-/-- The natural isomorphism
+/--
+The natural isomorphism
 ```
                   F.core
             Core C ⥤ Core D
@@ -136,8 +138,7 @@ thought of as pseudonaturality of `inclusion`,
 when viewing `Core` as a pseudofunctor.
 -/
 @[simps!]
-def coreCompInclusionIso (F : C ⥤ D) :
-    F.core ⋙ Core.inclusion D ≅ Core.inclusion C ⋙ F :=
+def coreCompInclusionIso (F : C ⥤ D) : F.core ⋙ Core.inclusion D ≅ Core.inclusion C ⋙ F :=
   Iso.refl _
 
 lemma core_comp_inclusion (F : C ⥤ D) :
@@ -154,8 +155,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 /-- A natural isomorphism of functors induces a natural isomorphism between their cores. -/
 @[simps!]
 def core {F G : C ⥤ D} (α : F ≅ G) : F.core ≅ G.core :=
-  NatIso.ofComponents
-    (fun x ↦ Groupoid.isoEquivHom _ _ |>.symm <| .mk <| α.app x.of)
+  NatIso.ofComponents (fun x ↦ Groupoid.isoEquivHom _ _ |>.symm <| .mk <| α.app x.of)
 
 @[simp]
 lemma coreComp {F G H : C ⥤ D} (α : F ≅ G) (β : G ≅ H) : (α ≪≫ β).core = α.core ≪≫ β.core := rfl
@@ -204,8 +204,8 @@ variable {G : Type u₂} [Groupoid.{v₂} G]
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The functor `functorToCore (F ⋙ H)` factors through `functorToCore H`. -/
-def functorToCoreCompLeftIso {G' : Type u₃} [Groupoid.{v₃} G'] (H : G ⥤ C) (F : G' ⥤ G) :
-    functorToCore (F ⋙ H) ≅ F ⋙ functorToCore H :=
+def functorToCoreCompLeftIso {G' : Type u₃} [Groupoid.{v₃} G'] (H : G ⥤ C) (F : G' ⥤ G)
+    : functorToCore (F ⋙ H) ≅ F ⋙ functorToCore H :=
   NatIso.ofComponents (fun _ ↦ Iso.refl _)
 
 lemma functorToCore_comp_left {G' : Type u₃} [Groupoid.{v₃} G'] (H : G ⥤ C) (F : G' ⥤ G) :
@@ -213,8 +213,8 @@ lemma functorToCore_comp_left {G' : Type u₃} [Groupoid.{v₃} G'] (H : G ⥤ C
   Functor.ext_of_iso (functorToCoreCompLeftIso H F) (by cat_disch)
 
 /-- The functor `functorToCore (H ⋙ F)` factors through `functorToCore H`. -/
-def functorToCoreCompRightIso {C' : Type u₄} [Category.{v₄} C'] (H : G ⥤ C) (F : C ⥤ C') :
-    functorToCore (H ⋙ F) ≅ functorToCore H ⋙ F.core :=
+def functorToCoreCompRightIso {C' : Type u₄} [Category.{v₄} C'] (H : G ⥤ C) (F : C ⥤ C')
+    : functorToCore (H ⋙ F) ≅ functorToCore H ⋙ F.core :=
   Iso.refl _
 
 lemma functorToCore_comp_right {C' : Type u₄} [Category.{v₄} C'] (H : G ⥤ C) (F : C ⥤ C') :
@@ -230,8 +230,7 @@ theorem inclusion_comp_functorToCore : inclusion G ⋙ functorToCore (𝟭 G) = 
   Functor.ext_of_iso inclusionCompFunctorToCoreIso (by cat_disch)
 
 /-- The functor `functorToCore (inclusion C)` is isomorphic to the identity on `Core C`. -/
-def functorToCoreInclusionIso : functorToCore (inclusion C) ≅ 𝟭 (Core C) :=
-  Iso.refl _
+def functorToCoreInclusionIso : functorToCore (inclusion C) ≅ 𝟭 (Core C) := Iso.refl _
 
 theorem functorToCore_inclusion : functorToCore (inclusion C) = 𝟭 (Core C) :=
   Functor.ext_of_iso functorToCoreInclusionIso (by cat_disch)
@@ -255,8 +254,10 @@ def core (E : C ≌ D) : Core C ≌ Core D where
 end Equivalence
 
 variable (C) in
-/-- Taking the core of a functor is functorial if we discard non-invertible natural
-transformations. -/
+/--
+Taking the core of a functor is functorial if we discard non-invertible natural
+transformations.
+-/
 @[simps!]
 def coreFunctor : Core (C ⥤ D) ⥤ Core C ⥤ Core D where
   obj F := F.of.core
@@ -264,11 +265,11 @@ def coreFunctor : Core (C ⥤ D) ⥤ Core C ⥤ Core D where
 
 end
 
-/-- `ofEquivFunctor m` lifts a type-level `EquivFunctor`
+/--
+`ofEquivFunctor m` lifts a type-level `EquivFunctor`
 to a categorical functor `Core (Type u₁) ⥤ Core (Type u₂)`.
 -/
-def ofEquivFunctor (m : Type u₁ → Type u₂) [EquivFunctor m] :
-    Core (Type u₁) ⥤ Core (Type u₂) where
+def ofEquivFunctor (m : Type u₁ → Type u₂) [EquivFunctor m] : Core (Type u₁) ⥤ Core (Type u₂) where
   obj x := .mk <| m x.of
   map f := .mk (EquivFunctor.mapEquiv m f.iso.toEquiv).toIso
   map_id α := by ext x; congrm $(EquivFunctor.map_refl' _) x

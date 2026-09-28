@@ -10,7 +10,6 @@ public import Mathlib.Topology.UnitInterval
 public import Mathlib.Topology.Compactification.StoneCech
 public import Mathlib.Topology.Order.Lattice
 public import Mathlib.Analysis.Real.Cardinality
-
 import Mathlib.Topology.Algebra.Indicator
 
 /-!
@@ -64,12 +63,14 @@ open Set Topology Filter unitInterval
 
 variable {X : Type u} [TopologicalSpace X]
 
-/-- A space is completely regular if points can be separated from closed sets via
-  continuous functions to the unit interval. -/
+/--
+A space is completely regular if points can be separated from closed sets via
+continuous functions to the unit interval.
+-/
 @[mk_iff]
 class CompletelyRegularSpace (X : Type u) [TopologicalSpace X] : Prop where
-  completely_regular : ∀ (x : X), ∀ K : Set X, IsClosed K → x ∉ K →
-    ∃ f : X → I, Continuous f ∧ f x = 0 ∧ EqOn f 1 K
+  completely_regular
+    : ∀ (x : X), ∀ K : Set X, IsClosed K → x ∉ K → ∃ f : X → I, Continuous f ∧ f x = 0 ∧ EqOn f 1 K
 
 lemma completelyRegularSpace_iff_isOpen : CompletelyRegularSpace X ↔
     ∀ (x : X), ∀ K : Set X, IsOpen K → x ∈ K →
@@ -83,8 +84,7 @@ lemma CompletelyRegularSpace.completely_regular_isOpen [CompletelyRegularSpace X
       ∃ f : X → I, Continuous f ∧ f x = 0 ∧ EqOn f 1 Kᶜ :=
   completelyRegularSpace_iff_isOpen.mp inferInstance
 
-instance CompletelyRegularSpace.instRegularSpace [CompletelyRegularSpace X] :
-    RegularSpace X := by
+instance CompletelyRegularSpace.instRegularSpace [CompletelyRegularSpace X] : RegularSpace X := by
   rw [regularSpace_iff]
   intro s a hs ha
   obtain ⟨f, cf, hf, hhf⟩ := CompletelyRegularSpace.completely_regular a s hs ha
@@ -92,8 +92,8 @@ instance CompletelyRegularSpace.instRegularSpace [CompletelyRegularSpace X] :
   apply Disjoint.mono (cf.tendsto_nhdsSet_nhds hhf) cf.continuousAt
   exact disjoint_nhds_nhds.mpr (hf.symm ▸ zero_ne_one).symm
 
-instance NormalSpace.instCompletelyRegularSpace [NormalSpace X] [R0Space X] :
-    CompletelyRegularSpace X := by
+instance NormalSpace.instCompletelyRegularSpace [NormalSpace X] [R0Space X]
+    : CompletelyRegularSpace X := by
   rw [completelyRegularSpace_iff]
   intro x K hK hx
   have cx : IsClosed (closure {x}) := isClosed_closure
@@ -157,15 +157,18 @@ lemma completelyRegularSpace_inf {X : Type*} {t₁ t₂ : TopologicalSpace X}
     @CompletelyRegularSpace X (t₁ ⊓ t₂) := by
   rw [inf_eq_iInf]; apply completelyRegularSpace_iInf; simp [*]
 
-instance {ι : Type*} {X : ι → Type*} [t : Π (i : ι), TopologicalSpace (X i)]
-    [ht : Π (i : ι), CompletelyRegularSpace (X i)] : CompletelyRegularSpace (Π i, X i) :=
+instance
+    {ι : Type*} {X : ι → Type*}
+    [t : Π (i : ι), TopologicalSpace (X i)] [ht : Π (i : ι), CompletelyRegularSpace (X i)]
+    : CompletelyRegularSpace (Π i, X i) :=
   completelyRegularSpace_iInf (fun i => completelyRegularSpace_induced (ht i) _)
 
-instance {X Y : Type*} [tX : TopologicalSpace X] [tY : TopologicalSpace Y]
-    [htX : CompletelyRegularSpace X] [htY : CompletelyRegularSpace Y] :
-    CompletelyRegularSpace (X × Y) :=
-  completelyRegularSpace_inf
-    (completelyRegularSpace_induced htX _) ((completelyRegularSpace_induced htY _))
+instance
+    {X Y : Type*} [tX : TopologicalSpace X] [tY : TopologicalSpace Y]
+    [htX : CompletelyRegularSpace X] [htY : CompletelyRegularSpace Y]
+    : CompletelyRegularSpace (X × Y) :=
+  completelyRegularSpace_inf (completelyRegularSpace_induced htX _)
+    ((completelyRegularSpace_induced htY _))
 
 lemma isInducing_stoneCechUnit [CompletelyRegularSpace X] :
     IsInducing (stoneCechUnit : X → StoneCech X) := by
@@ -195,8 +198,8 @@ lemma completelyRegularSpace_iff_isInducing_stoneCechUnit :
   mpr hs := hs.completelyRegularSpace
 
 theorem CompletelyRegularSpace.of_isTopologicalBasis_clopens
-    (h : TopologicalSpace.IsTopologicalBasis {s : Set X | IsClopen s}) :
-    CompletelyRegularSpace X where
+    (h : TopologicalSpace.IsTopologicalBasis {s : Set X | IsClopen s})
+    : CompletelyRegularSpace X where
   completely_regular x K hK hx := by
     obtain ⟨s, hs, hx, hsK⟩ := h.exists_subset_of_mem_open hx hK.isOpen_compl
     refine ⟨sᶜ.indicator 1, ?_, by simpa, fun x hx ↦ indicator_of_mem ?_ _⟩
@@ -205,8 +208,8 @@ theorem CompletelyRegularSpace.of_isTopologicalBasis_clopens
 
 open TopologicalSpace Cardinal in
 theorem CompletelyRegularSpace.isTopologicalBasis_clopens_of_cardinalMk_lt_continuum
-    [CompletelyRegularSpace X] (hX : Cardinal.mk X < continuum) :
-    IsTopologicalBasis {s : Set X | IsClopen s} := by
+    [CompletelyRegularSpace X] (hX : Cardinal.mk X < continuum)
+    : IsTopologicalBasis {s : Set X | IsClopen s} := by
   refine isTopologicalBasis_of_isOpen_of_nhds (fun x s ↦ IsClopen.isOpen s) (fun x s hxs hs ↦ ?_)
   choose f hf using completely_regular_isOpen x s hs hxs
   obtain ⟨hfc, hf₀, hf₁⟩ := hf
@@ -215,12 +218,12 @@ theorem CompletelyRegularSpace.isTopologicalBasis_clopens_of_cardinalMk_lt_conti
     simpa [R] using mk_range_le_lift.trans_lt (lift_strictMono hX)
   obtain ⟨r, hr⟩ : ∃ r : I, r ∈ Rᶜ := compl_nonempty_of_mk_lt_mk (by simpa using hR)
   have hr' : ∀ (x : X), f x ≠ r := by simpa [R] using hr
-  have hrclopen : f ⁻¹' Iio r = f ⁻¹' Iic r := by
-    ext; simp [le_iff_lt_or_eq, hr']
+  have hrclopen : f ⁻¹' Iio r = f ⁻¹' Iic r := by ext; simp [le_iff_lt_or_eq, hr']
   refine ⟨f ⁻¹' Iio r, ⟨hrclopen ▸ isClosed_Iic.preimage hfc, isOpen_Iio.preimage hfc⟩, ?_, ?_⟩
   · simp [hf₀, hrclopen]
   · refine preimage_subset_iff.mpr (fun x ↦ ?_)
-    contrapose; intro hxs
+    contrapose
+    intro hxs
     simpa [hf₁ hxs] using le_one'
 
 /-- A T₃.₅ space is a completely regular space that is also T₀. -/
@@ -238,11 +241,15 @@ lemma Topology.IsEmbedding.t35Space
 
 instance {p : X → Prop} [T35Space X] : T35Space (Subtype p) where
 
-instance {ι : Type*} {X : ι → Type*} [t : Π (i : ι), TopologicalSpace (X i)]
-    [ht : Π (i : ι), T35Space (X i)] : T35Space (Π i, X i) where
+instance
+  {ι : Type*} {X : ι → Type*}
+  [t : Π (i : ι), TopologicalSpace (X i)] [ht : Π (i : ι), T35Space (X i)]
+  : T35Space (Π i, X i) where
 
-instance {X Y : Type*} [tX : TopologicalSpace X] [tY : TopologicalSpace Y]
-    [htX : T35Space X] [htY : T35Space Y] : T35Space (X × Y) where
+instance
+  {X Y : Type*}
+  [tX : TopologicalSpace X] [tY : TopologicalSpace Y] [htX : T35Space X] [htY : T35Space Y]
+  : T35Space (X × Y) where
 
 lemma separatesPoints_continuous_of_t35Space [T35Space X] :
     SeparatesPoints {f : X → ℝ | Continuous f} := by

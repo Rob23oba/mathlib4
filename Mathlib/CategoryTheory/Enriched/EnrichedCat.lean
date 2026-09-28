@@ -24,7 +24,6 @@ set_option backward.defeqAttrib.useBackward true
 
 @[expose] public section
 
-
 universe w v u u₁ u₂ u₃
 
 namespace CategoryTheory
@@ -36,58 +35,58 @@ def EnrichedCat := Bundled (EnrichedCategory.{w, v, u} V)
 
 namespace EnrichedCat
 
-instance : CoeSort (EnrichedCat V) (Type u) :=
-  ⟨Bundled.α⟩
+instance : CoeSort (EnrichedCat V) (Type u) := ⟨Bundled.α⟩
 
-instance str (C : EnrichedCat.{w, v, u} V) : EnrichedCategory.{w, v, u} V C :=
-  Bundled.str C
+instance str (C : EnrichedCat.{w, v, u} V) : EnrichedCategory.{w, v, u} V C := Bundled.str C
 
 /-- Construct a bundled `EnrichedCat` from the underlying type and the typeclass. -/
-def of (C : Type u) [EnrichedCategory.{w} V C] : EnrichedCat.{w, v, u} V :=
-  Bundled.of C
+def of (C : Type u) [EnrichedCategory.{w} V C] : EnrichedCat.{w, v, u} V := Bundled.of C
 
-variable {V} {C : Type u} [EnrichedCategory V C] {D : Type u₁} [EnrichedCategory V D]
-  {E : Type u₂} [EnrichedCategory V E] {E' : Type u₃} [EnrichedCategory V E']
+variable
+  {V} {C : Type u} [EnrichedCategory V C]
+  {D : Type u₁} [EnrichedCategory V D]
+  {E : Type u₂} [EnrichedCategory V E]
+  {E' : Type u₃} [EnrichedCategory V E']
 
 /-- Whisker a `V`-enriched natural transformation on the left. -/
 @[simps!]
-def whiskerLeft
-    (F : EnrichedFunctor V C D) {G H : EnrichedFunctor V D E} (α : G ⟶ H) :
-    F.comp V G ⟶ F.comp V H :=
+def whiskerLeft (F : EnrichedFunctor V C D) {G H : EnrichedFunctor V D E} (α : G ⟶ H)
+    : F.comp V G ⟶ F.comp V H :=
   ⟨(F.forgetComp G).hom ≫ F.forget.whiskerLeft α.out ≫ (F.forgetComp H).inv⟩
 
 /-- Whisker a `V`-enriched natural transformation on the right. -/
 @[simps!]
-def whiskerRight
-    {F G : EnrichedFunctor V C D} (α : F ⟶ G) (H : EnrichedFunctor V D E) :
-    F.comp V H ⟶ G.comp V H :=
+def whiskerRight {F G : EnrichedFunctor V C D} (α : F ⟶ G) (H : EnrichedFunctor V D E)
+    : F.comp V H ⟶ G.comp V H :=
   ⟨(F.forgetComp H).hom ≫ Functor.whiskerRight α.out H.forget ≫ (G.forgetComp H).inv⟩
 
 /-- Composing the `V`-enriched identity functor with any functor is isomorphic to that functor. -/
 @[simps!]
 def leftUnitor (F : EnrichedFunctor V C D) : (EnrichedFunctor.id V _).comp V F ≅ F :=
-  EnrichedFunctor.isoMk <| (EnrichedFunctor.id V C).forgetComp F ≪≫
-    Functor.isoWhiskerRight (EnrichedFunctor.forgetId V C) _ ≪≫ Functor.leftUnitor F.forget
+  EnrichedFunctor.isoMk <|
+    (EnrichedFunctor.id V C).forgetComp F
+      ≪≫ Functor.isoWhiskerRight (EnrichedFunctor.forgetId V C) _ ≪≫ Functor.leftUnitor F.forget
 
-/-- Composing any `V`-enriched functor with the identity functor is isomorphic to the former
-functor. -/
+/--
+Composing any `V`-enriched functor with the identity functor is isomorphic to the former
+functor.
+-/
 @[simps!]
-def rightUnitor (F : EnrichedFunctor V C D) :
-    EnrichedFunctor.comp V F (EnrichedFunctor.id V _) ≅ F :=
-  EnrichedFunctor.isoMk <| F.forgetComp _ ≪≫
-    Functor.isoWhiskerLeft _ (EnrichedFunctor.forgetId V D) ≪≫ Functor.rightUnitor F.forget
+def rightUnitor (F : EnrichedFunctor V C D)
+    : EnrichedFunctor.comp V F (EnrichedFunctor.id V _) ≅ F :=
+  EnrichedFunctor.isoMk <|
+    F.forgetComp _ ≪≫ Functor.isoWhiskerLeft _ (EnrichedFunctor.forgetId V D)
+      ≪≫ Functor.rightUnitor F.forget
 
 /-- Composition of `V`-enriched functors is associative up to isomorphism. -/
 @[simps!]
-def associator (F : EnrichedFunctor V C D) (G : EnrichedFunctor V D E)
-    (H : EnrichedFunctor V E E') :
-    EnrichedFunctor.comp V (EnrichedFunctor.comp V F G) H ≅
-    EnrichedFunctor.comp V F (EnrichedFunctor.comp V G H) :=
-  EnrichedFunctor.isoMk <| (F.comp V G).forgetComp H ≪≫
-    Functor.isoWhiskerRight (F.forgetComp G) _ ≪≫
-    Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerLeft _ (G.forgetComp H).symm ≪≫
-    (F.forgetComp _).symm
+def associator (F : EnrichedFunctor V C D) (G : EnrichedFunctor V D E) (H : EnrichedFunctor V E E')
+    : EnrichedFunctor.comp V (EnrichedFunctor.comp V F G) H
+      ≅ EnrichedFunctor.comp V F (EnrichedFunctor.comp V G H) :=
+  EnrichedFunctor.isoMk <|
+    (F.comp V G).forgetComp H ≪≫ Functor.isoWhiskerRight (F.forgetComp G) _
+      ≪≫ Functor.associator _ _ _ ≪≫ Functor.isoWhiskerLeft _ (G.forgetComp H).symm
+      ≪≫ (F.forgetComp _).symm
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in

@@ -9,7 +9,6 @@ public import Mathlib.MeasureTheory.Measure.CharacteristicFunction.Basic
 public import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 public import Mathlib.MeasureTheory.Measure.Tight
 public import Mathlib.MeasureTheory.Function.ConvergenceInDistribution
-
 import Mathlib.MeasureTheory.Measure.CharacteristicFunction.TaylorExpansion
 import Mathlib.MeasureTheory.Measure.IntegralCharFun
 import Mathlib.MeasureTheory.Measure.Prokhorov
@@ -38,7 +37,8 @@ open scoped Topology RealInnerProductSpace ENNReal
 
 namespace MeasureTheory
 
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
   [MeasurableSpace E] [BorelSpace E]
 
 /-- If the characteristic functions of a sequence of measures `μ : ℕ → Measure E` converge pointwise
@@ -211,18 +211,21 @@ lemma ProbabilityMeasure.tendsto_of_tendsto_charFun
     exact fun v hv ↦ DFunLike.ne_iff.mpr ⟨v, inner_self_ne_zero.mpr hv⟩
   · exact fun g ↦ tendsto_charPoly_of_tendsto_charFun h
 
-/-- The **Lévy convergence theorem**: the weak convergence of probability measures is equivalent
-to the pointwise convergence of their characteristic functions. -/
-theorem ProbabilityMeasure.tendsto_iff_tendsto_charFun :
-    Tendsto μ atTop (𝓝 μ₀) ↔
-      ∀ t : E, Tendsto (fun n ↦ charFun (μ n) t) atTop (𝓝 (charFun μ₀ t)) := by
+/--
+The **Lévy convergence theorem**: the weak convergence of probability measures is equivalent
+to the pointwise convergence of their characteristic functions.
+-/
+theorem ProbabilityMeasure.tendsto_iff_tendsto_charFun
+    : Tendsto μ atTop (𝓝 μ₀)
+      ↔ ∀ t : E, Tendsto (fun n ↦ charFun (μ n) t) atTop (𝓝 (charFun μ₀ t)) := by
   refine ⟨fun h t ↦ ?_, tendsto_of_tendsto_charFun⟩
   rw [ProbabilityMeasure.tendsto_iff_forall_integral_rclike_tendsto ℂ] at h
   simp_rw [charFun_eq_integral_innerProbChar]
   exact h (innerProbChar t)
 
-variable {Ω' : Type*} {Ω : ℕ → Type*} {m : ∀ n, MeasurableSpace (Ω n)}
-  {P : (n : ℕ) → Measure (Ω n)} [∀ n, IsProbabilityMeasure (P n)]
+variable
+  {Ω' : Type*} {Ω : ℕ → Type*} {m : ∀ n, MeasurableSpace (Ω n)} {P : (n : ℕ) → Measure (Ω n)}
+  [∀ n, IsProbabilityMeasure (P n)]
   {m' : MeasurableSpace Ω'} {P' : Measure Ω'} [IsProbabilityMeasure P']
   {X : (n : ℕ) → Ω n → E} {X' : Ω' → E}
 

@@ -32,17 +32,19 @@ variable {J C : Type*} [Category* J] [Category* C] (F : J ⥤ C)
 
 namespace Functor
 
-/-- A functor `F : J ⥤ C` is eventually constant to `j : J` if
+/--
+A functor `F : J ⥤ C` is eventually constant to `j : J` if
 for any map `f : i ⟶ j`, the induced morphism `F.map f` is an isomorphism.
-If `J` is cofiltered, this implies `F` has a limit. -/
-def IsEventuallyConstantTo (j : J) : Prop :=
-  ∀ ⦃i : J⦄ (f : i ⟶ j), IsIso (F.map f)
+If `J` is cofiltered, this implies `F` has a limit.
+-/
+def IsEventuallyConstantTo (j : J) : Prop := ∀ ⦃i : J⦄ (f : i ⟶ j), IsIso (F.map f)
 
-/-- A functor `F : J ⥤ C` is eventually constant from `i : J` if
+/--
+A functor `F : J ⥤ C` is eventually constant from `i : J` if
 for any map `f : i ⟶ j`, the induced morphism `F.map f` is an isomorphism.
-If `J` is filtered, this implies `F` has a colimit. -/
-def IsEventuallyConstantFrom (i : J) : Prop :=
-  ∀ ⦃j : J⦄ (f : i ⟶ j), IsIso (F.map f)
+If `J` is filtered, this implies `F` has a colimit.
+-/
+def IsEventuallyConstantFrom (i : J) : Prop := ∀ ⦃j : J⦄ (f : i ⟶ j), IsIso (F.map f)
 
 namespace IsEventuallyConstantTo
 
@@ -62,8 +64,10 @@ section
 
 variable {i j : J} (φ : i ⟶ j) (hφ : Nonempty (j ⟶ i₀))
 
-/-- The isomorphism `F.obj i ≅ F.obj j` induced by `φ : i ⟶ j`,
-when `h : F.IsEventuallyConstantTo i₀` and there exists a map `j ⟶ i₀`. -/
+/--
+The isomorphism `F.obj i ≅ F.obj j` induced by `φ : i ⟶ j`,
+when `h : F.IsEventuallyConstantTo i₀` and there exists a map `j ⟶ i₀`.
+-/
 @[simps! hom]
 noncomputable def isoMap : F.obj i ≅ F.obj j :=
   have := h.isIso_map φ hφ.some
@@ -101,20 +105,23 @@ lemma coneπApp_eq_id : h.coneπApp i₀ = 𝟙 _ := by
   rw [h.coneπApp_eq i₀ i₀ (𝟙 _) (𝟙 _), h.isoMap_inv_hom_id]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `h : F.IsEventuallyConstantTo i₀`, this is the (limit) cone for `F` whose
-point is `F.obj i₀`. -/
+/--
+Given `h : F.IsEventuallyConstantTo i₀`, this is the (limit) cone for `F` whose
+point is `F.obj i₀`.
+-/
 @[simps]
 noncomputable def cone : Cone F where
   pt := F.obj i₀
-  π :=
-    { app := h.coneπApp
-      naturality := fun j j' φ ↦ by
-        dsimp
-        rw [id_comp]
-        let i := IsCofiltered.min i₀ j
-        let α : i ⟶ i₀ := IsCofiltered.minToLeft _ _
-        let β : i ⟶ j := IsCofiltered.minToRight _ _
-        rw [h.coneπApp_eq j _ α β, assoc, h.coneπApp_eq j' _ α (β ≫ φ), map_comp] }
+  π := {
+    app := h.coneπApp
+    naturality := fun j j' φ ↦ by
+      dsimp
+      rw [id_comp]
+      let i := IsCofiltered.min i₀ j
+      let α : i ⟶ i₀ := IsCofiltered.minToLeft _ _
+      let β : i ⟶ j := IsCofiltered.minToRight _ _
+      rw [h.coneπApp_eq j _ α β, assoc, h.coneπApp_eq j' _ α (β ≫ φ), map_comp]
+  }
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -123,8 +130,10 @@ noncomputable def isLimitCone : IsLimit h.cone where
   lift s := s.π.app i₀
   fac s j := by
     dsimp [coneπApp]
-    rw [← s.w (IsCofiltered.minToLeft i₀ j), ← s.w (IsCofiltered.minToRight i₀ j), assoc,
-      isoMap_hom_inv_id_assoc]
+    rw [
+      ← s.w (IsCofiltered.minToLeft i₀ j), ← s.w (IsCofiltered.minToRight i₀ j), assoc,
+      isoMap_hom_inv_id_assoc
+    ]
   uniq s m hm := by simp only [← hm i₀, cone_π_app, coneπApp_eq_id, cone_pt, comp_id]
 
 lemma hasLimit : HasLimit F := ⟨_, h.isLimitCone⟩
@@ -143,8 +152,10 @@ lemma isIso_π_of_isLimit' {c : Cone F} (hc : IsLimit c) (j : J) (π : j ⟶ i�
   (h.precomp π).isIso_π_of_isLimit hc
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given a cone `c` on a cofiltered diagram `F` which `IsEventuallyConstantTo i₀`, such that
-`c.π.app i₀` is an isomorphism, `c` a limit cone. -/
+/--
+Given a cone `c` on a cofiltered diagram `F` which `IsEventuallyConstantTo i₀`, such that
+`c.π.app i₀` is an isomorphism, `c` a limit cone.
+-/
 noncomputable def isLimitOfIsIso (c : Cone F) [IsIso (c.π.app i₀)] : IsLimit c :=
   IsLimit.ofIsoLimit h.isLimitCone (by
     refine Cone.ext (asIso (c.π.app i₀)).symm (fun j ↦ ?_)
@@ -174,8 +185,10 @@ section
 
 variable {i j : J} (φ : i ⟶ j) (hφ : Nonempty (i₀ ⟶ i))
 
-/-- The isomorphism `F.obj i ≅ F.obj j` induced by `φ : i ⟶ j`,
-when `h : F.IsEventuallyConstantFrom i₀` and there exists a map `i₀ ⟶ i`. -/
+/--
+The isomorphism `F.obj i ≅ F.obj j` induced by `φ : i ⟶ j`,
+when `h : F.IsEventuallyConstantFrom i₀` and there exists a map `i₀ ⟶ i`.
+-/
 @[simps! hom]
 noncomputable def isoMap : F.obj i ≅ F.obj j :=
   have := h.isIso_map φ hφ.some
@@ -212,20 +225,23 @@ lemma coconeιApp_eq_id : h.coconeιApp i₀ = 𝟙 _ := by
   rw [h.coconeιApp_eq i₀ i₀ (𝟙 _) (𝟙 _), h.isoMap_hom_inv_id]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `h : F.IsEventuallyConstantFrom i₀`, this is the (limit) cocone for `F` whose
-point is `F.obj i₀`. -/
+/--
+Given `h : F.IsEventuallyConstantFrom i₀`, this is the (limit) cocone for `F` whose
+point is `F.obj i₀`.
+-/
 @[simps]
 noncomputable def cocone : Cocone F where
   pt := F.obj i₀
-  ι :=
-    { app := h.coconeιApp
-      naturality := fun j j' φ ↦ by
-        dsimp
-        rw [comp_id]
-        let i := IsFiltered.max i₀ j'
-        let α : i₀ ⟶ i := IsFiltered.leftToMax _ _
-        let β : j' ⟶ i := IsFiltered.rightToMax _ _
-        rw [h.coconeιApp_eq j' _ β α, h.coconeιApp_eq j _ (φ ≫ β) α, map_comp, assoc] }
+  ι := {
+    app := h.coconeιApp
+    naturality := fun j j' φ ↦ by
+      dsimp
+      rw [comp_id]
+      let i := IsFiltered.max i₀ j'
+      let α : i₀ ⟶ i := IsFiltered.leftToMax _ _
+      let β : j' ⟶ i := IsFiltered.rightToMax _ _
+      rw [h.coconeιApp_eq j' _ β α, h.coconeιApp_eq j _ (φ ≫ β) α, map_comp, assoc]
+  }
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -234,8 +250,10 @@ noncomputable def isColimitCocone : IsColimit h.cocone where
   desc s := s.ι.app i₀
   fac s j := by
     dsimp [coconeιApp]
-    rw [← s.w (IsFiltered.rightToMax i₀ j), ← s.w (IsFiltered.leftToMax i₀ j), assoc,
-      isoMap_inv_hom_id_assoc]
+    rw [
+      ← s.w (IsFiltered.rightToMax i₀ j), ← s.w (IsFiltered.leftToMax i₀ j), assoc,
+      isoMap_inv_hom_id_assoc
+    ]
   uniq s m hm := by simp only [← hm i₀, cocone_ι_app, coconeιApp_eq_id, id_comp]
 
 lemma hasColimit : HasColimit F := ⟨_, h.isColimitCocone⟩
@@ -254,8 +272,10 @@ lemma isIso_ι_of_isColimit' {c : Cocone F} (hc : IsColimit c) (j : J) (ι : i�
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Given a cocone `c` on a filtered diagram `F` which `IsEventuallyConstantFrom i₀`, such that
-`c.π.app i₀` is an isomorphism, `c` a colimit cocone. -/
+/--
+Given a cocone `c` on a filtered diagram `F` which `IsEventuallyConstantFrom i₀`, such that
+`c.π.app i₀` is an isomorphism, `c` a colimit cocone.
+-/
 noncomputable def isColimitOfIsIso (c : Cocone F) [IsIso (c.ι.app i₀)] : IsColimit c :=
   IsColimit.ofIsoColimit h.isColimitCocone (by
     refine Cocone.ext (asIso (c.ι.app i₀)) (fun j ↦ ?_)
@@ -271,8 +291,10 @@ end Functor
 
 namespace IsCofiltered
 
-/-- A functor `F : J ⥤ C` from a cofiltered category is eventually constant if there
-exists `j : J`, such that for any `f : i ⟶ j`, the induced map `F.map f` is an isomorphism. -/
+/--
+A functor `F : J ⥤ C` from a cofiltered category is eventually constant if there
+exists `j : J`, such that for any `f : i ⟶ j`, the induced map `F.map f` is an isomorphism.
+-/
 class IsEventuallyConstant : Prop where
   exists_isEventuallyConstantTo : ∃ (j : J), F.IsEventuallyConstantTo j
 
@@ -284,8 +306,10 @@ end IsCofiltered
 
 namespace IsFiltered
 
-/-- A functor `F : J ⥤ C` from a filtered category is eventually constant if there
-exists `i : J`, such that for any `f : i ⟶ j`, the induced map `F.map f` is an isomorphism. -/
+/--
+A functor `F : J ⥤ C` from a filtered category is eventually constant if there
+exists `i : J`, such that for any `f : i ⟶ j`, the induced map `F.map f` is an isomorphism.
+-/
 class IsEventuallyConstant : Prop where
   exists_isEventuallyConstantFrom : ∃ (i : J), F.IsEventuallyConstantFrom i
 

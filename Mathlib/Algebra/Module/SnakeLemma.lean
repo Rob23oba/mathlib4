@@ -48,18 +48,25 @@ such that `f₂` is surjective with a (set-theoretic) section `σ`, `g₁` is in
 (set-theoretic) retraction `ρ`, and that `ι₃` is injective and `π₁` is surjective.
 -/
 
-variable {R : Type*} [CommRing R] {M₁ M₂ M₃ N₁ N₂ N₃ : Type*}
+variable
+  {R : Type*} [CommRing R]
+  {M₁ M₂ M₃ N₁ N₂ N₃ : Type*}
   [AddCommGroup M₁] [Module R M₁] [AddCommGroup M₂] [Module R M₂] [AddCommGroup M₃] [Module R M₃]
   [AddCommGroup N₁] [Module R N₁] [AddCommGroup N₂] [Module R N₂] [AddCommGroup N₃] [Module R N₃]
-  (i₁ : M₁ →ₗ[R] N₁) (i₂ : M₂ →ₗ[R] N₂) (i₃ : M₃ →ₗ[R] N₃)
+  (i₁ : M₁ →ₗ[R] N₁)
+  (i₂ : M₂ →ₗ[R] N₂)
+  (i₃ : M₃ →ₗ[R] N₃)
   (f₁ : M₁ →ₗ[R] M₂) (f₂ : M₂ →ₗ[R] M₃) (hf : Exact f₁ f₂)
   (g₁ : N₁ →ₗ[R] N₂) (g₂ : N₂ →ₗ[R] N₃) (hg : Exact g₁ g₂)
   (h₁ : g₁.comp i₁ = i₂.comp f₁) (h₂ : g₂.comp i₂ = i₃.comp f₂)
-  (σ : M₃ → M₂) (hσ : f₂ ∘ σ = id) (ρ : N₂ → N₁) (hρ : ρ ∘ g₁ = id)
+  (σ : M₃ → M₂) (hσ : f₂ ∘ σ = id)
+  (ρ : N₂ → N₁) (hρ : ρ ∘ g₁ = id)
   {K₂ K₃ C₁ C₂ : Type*} [AddCommGroup K₂] [Module R K₂] [AddCommGroup K₃] [Module R K₃]
   [AddCommGroup C₁] [Module R C₁] [AddCommGroup C₂] [Module R C₂]
-  (ι₂ : K₂ →ₗ[R] M₂) (hι₂ : Exact ι₂ i₂) (ι₃ : K₃ →ₗ[R] M₃) (hι₃ : Exact ι₃ i₃)
-  (π₁ : N₁ →ₗ[R] C₁) (hπ₁ : Exact i₁ π₁) (π₂ : N₂ →ₗ[R] C₂) (hπ₂ : Exact i₂ π₂)
+  (ι₂ : K₂ →ₗ[R] M₂) (hι₂ : Exact ι₂ i₂)
+  (ι₃ : K₃ →ₗ[R] M₃) (hι₃ : Exact ι₃ i₃)
+  (π₁ : N₁ →ₗ[R] C₁) (hπ₁ : Exact i₁ π₁)
+  (π₂ : N₂ →ₗ[R] C₂) (hπ₂ : Exact i₂ π₂)
 
 include hg hρ h₂ hσ hι₃ in
 lemma SnakeLemma.δ_aux (x : K₃) : g₁ (ρ (i₂ (σ (ι₃ x)))) = i₂ (σ (ι₃ x)) := by
@@ -111,15 +118,17 @@ that does not require an explicit section and retraction.
 def SnakeLemma.δ : K₃ →ₗ[R] C₁ :=
   haveI H₁ : ∀ x, f₂ (σ x) = x := congr_fun hσ
   haveI H₂ := δ_aux i₂ i₃ f₂ g₁ g₂ hg h₂ σ hσ ρ hρ ι₃ hι₃
-  { toFun := fun x ↦ π₁ (ρ (i₂ (σ (ι₃ x))))
+  {
+    toFun := fun x ↦ π₁ (ρ (i₂ (σ (ι₃ x))))
     map_add' := fun x y ↦ by
       rw [← map_add]
       exact eq_of_eq i₁ i₂ f₁ f₂ hf g₁ h₁ ρ hρ ι₃ π₁ hπ₁ (x + y) _ (H₁ _) _ (H₂ _)
         (σ (ι₃ x) + σ (ι₃ y)) (by simp only [map_add, H₁]) _ (by simp only [map_add, H₂])
     map_smul' := fun r x ↦ by
       simp only [← map_smul, RingHom.id_apply]
-      apply eq_of_eq i₁ i₂ f₁ f₂ hf g₁ h₁ ρ hρ ι₃ π₁ hπ₁ (r • x) _ (H₁ _) _ (H₂ _)
-        (r • σ (ι₃ x)) (by simp only [map_smul, H₁]) _ (by simp only [map_smul, H₂]) }
+      apply eq_of_eq i₁ i₂ f₁ f₂ hf g₁ h₁ ρ hρ ι₃ π₁ hπ₁ (r • x) _ (H₁ _) _ (H₂ _) (r • σ (ι₃ x))
+        (by simp only [map_smul, H₁]) _ (by simp only [map_smul, H₂])
+  }
 
 lemma SnakeLemma.δ_eq (x : K₃) (y) (hy : f₂ y = ι₃ x) (z) (hz : g₁ z = i₂ y) :
     δ i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ σ hσ ρ hρ ι₃ hι₃ π₁ hπ₁ x = π₁ z :=

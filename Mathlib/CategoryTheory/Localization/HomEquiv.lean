@@ -29,25 +29,28 @@ namespace CategoryTheory
 
 open Category
 
-variable {C C₁ C₂ C₃ D₁ D₂ D₃ : Type*} [Category* C]
-  [Category* C₁] [Category* C₂] [Category* C₃]
+variable
+  {C C₁ C₂ C₃ D₁ D₂ D₃ : Type*} [Category* C] [Category* C₁] [Category* C₂] [Category* C₃]
   [Category* D₁] [Category* D₂] [Category* D₃]
 
 namespace LocalizerMorphism
 
-variable {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂} {W₃ : MorphismProperty C₃}
+variable
+  {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂} {W₃ : MorphismProperty C₃}
   (Φ : LocalizerMorphism W₁ W₂) (Ψ : LocalizerMorphism W₂ W₃)
   (L₁ : C₁ ⥤ D₁) [L₁.IsLocalization W₁]
   (L₂ : C₂ ⥤ D₂) [L₂.IsLocalization W₂]
   (L₃ : C₃ ⥤ D₃) [L₃.IsLocalization W₃]
   {X Y Z : C₁}
 
-/-- If `Φ : LocalizerMorphism W₁ W₂` is a morphism of localizers, `L₁` and `L₂`
+/--
+If `Φ : LocalizerMorphism W₁ W₂` is a morphism of localizers, `L₁` and `L₂`
 are localization functors for `W₁` and `W₂`, then this is the induced map
 `(L₁.obj X ⟶ L₁.obj Y) ⟶ (L₂.obj (Φ.functor.obj X) ⟶ L₂.obj (Φ.functor.obj Y))`
-for all objects `X` and `Y`. -/
-noncomputable def homMap (f : L₁.obj X ⟶ L₁.obj Y) :
-    L₂.obj (Φ.functor.obj X) ⟶ L₂.obj (Φ.functor.obj Y) :=
+for all objects `X` and `Y`.
+-/
+noncomputable def homMap (f : L₁.obj X ⟶ L₁.obj Y)
+    : L₂.obj (Φ.functor.obj X) ⟶ L₂.obj (Φ.functor.obj Y) :=
   Iso.homCongr ((CatCommSq.iso _ _ _ _).symm.app _) ((CatCommSq.iso _ _ _ _).symm.app _)
     ((Φ.localizedFunctor L₁ L₂).map f)
 
@@ -107,16 +110,19 @@ end LocalizerMorphism
 
 namespace Localization
 
-variable (W : MorphismProperty C) (L₁ : C ⥤ D₁) [L₁.IsLocalization W]
-  (L₂ : C ⥤ D₂) [L₂.IsLocalization W] (L₃ : C ⥤ D₃) [L₃.IsLocalization W]
+variable
+  (W : MorphismProperty C) (L₁ : C ⥤ D₁) [L₁.IsLocalization W]
+  (L₂ : C ⥤ D₂) [L₂.IsLocalization W]
+  (L₃ : C ⥤ D₃) [L₃.IsLocalization W]
   {X Y Z : C}
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Bijection between types of morphisms in two localized categories
-for the same class of morphisms `W`. -/
+/--
+Bijection between types of morphisms in two localized categories
+for the same class of morphisms `W`.
+-/
 @[simps -isSimp apply]
-noncomputable def homEquiv :
-    (L₁.obj X ⟶ L₁.obj Y) ≃ (L₂.obj X ⟶ L₂.obj Y) where
+noncomputable def homEquiv : (L₁.obj X ⟶ L₁.obj Y) ≃ (L₂.obj X ⟶ L₂.obj Y) where
   toFun := (LocalizerMorphism.id W).homMap L₁ L₂
   invFun := (LocalizerMorphism.id W).homMap L₂ L₁
   left_inv f := by

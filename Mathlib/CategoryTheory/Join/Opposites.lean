@@ -27,22 +27,29 @@ variable (C : Type u₁) (D : Type u₂) [Category.{v₁} C] [Category.{v₂} D]
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The equivalence `(C ⋆ D)ᵒᵖ ≌ Dᵒᵖ ⋆ Cᵒᵖ` induced by `Join.opEquivFunctor` and
-`Join.opEquivInverse`. -/
+/--
+The equivalence `(C ⋆ D)ᵒᵖ ≌ Dᵒᵖ ⋆ Cᵒᵖ` induced by `Join.opEquivFunctor` and
+`Join.opEquivInverse`.
+-/
 def opEquiv : (C ⋆ D)ᵒᵖ ≌ Dᵒᵖ ⋆ Cᵒᵖ where
-  functor := Functor.leftOp <|
-    Join.mkFunctor (inclRight _ _).rightOp (inclLeft _ _).rightOp { app _ := (edge _ _).op }
+  functor :=
+    Functor.leftOp <|
+      Join.mkFunctor (inclRight _ _).rightOp (inclLeft _ _).rightOp { app _ := (edge _ _).op }
   inverse := Join.mkFunctor (inclRight _ _).op (inclLeft _ _).op { app _ := (edge _ _).op }
-  unitIso := NatIso.ofComponents
-    (fun
-      | op (left _) => Iso.refl _
-      | op (right _) => Iso.refl _)
-    (@fun
-      | op (left _), op (left _), _ => by cat_disch
-      | op (right _), op (left _), _ => by cat_disch
-      | op (right _), op (right _), _ => by cat_disch)
-  counitIso := NatIso.ofComponents
-    (fun
+  unitIso :=
+    NatIso.ofComponents
+      (fun
+        | op (left _) => Iso.refl _
+        | op (right _) => Iso.refl _)
+      (@fun
+        | op (left _), op (left _), _ => by
+          cat_disch
+        | op (right _), op (left _), _ => by
+          cat_disch
+        | op (right _), op (right _), _ => by
+          cat_disch)
+  counitIso :=
+    NatIso.ofComponents (fun
       | left _ => Iso.refl _
       | right _ => Iso.refl _)
   functor_unitIso_comp
@@ -80,14 +87,14 @@ lemma opEquiv_functor_map_op_edge (c : C) (d : D) :
 
 /-- Characterize (up to a rightOp) the action of the left inclusion on `Join.opEquivFunctor`. -/
 @[simps!]
-def InclLeftCompRightOpOpEquivFunctor :
-    inclLeft C D ⋙ (opEquiv C D).functor.rightOp ≅ (inclRight _ _).rightOp :=
+def InclLeftCompRightOpOpEquivFunctor
+    : inclLeft C D ⋙ (opEquiv C D).functor.rightOp ≅ (inclRight _ _).rightOp :=
   isoWhiskerLeft _ (leftOpRightOpIso _) ≪≫ mkFunctorLeft _ _ _
 
 /-- Characterize (up to a rightOp) the action of the right inclusion on `Join.opEquivFunctor`. -/
 @[simps!]
-def InclRightCompRightOpOpEquivFunctor :
-    inclRight C D ⋙ (opEquiv C D).functor.rightOp ≅ (inclLeft _ _).rightOp :=
+def InclRightCompRightOpOpEquivFunctor
+    : inclRight C D ⋙ (opEquiv C D).functor.rightOp ≅ (inclLeft _ _).rightOp :=
   isoWhiskerLeft _ (leftOpRightOpIso _) ≪≫ mkFunctorRight _ _ _
 
 variable {D} in
@@ -121,13 +128,13 @@ lemma opEquiv_inverse_map_edge_op (c : C) (d : D) :
   rfl
 
 /-- Characterize `Join.opEquivInverse` with respect to the left inclusion -/
-def inclLeftCompOpEquivInverse :
-    Join.inclLeft Dᵒᵖ Cᵒᵖ ⋙ (opEquiv C D).inverse ≅ (inclRight _ _).op :=
+def inclLeftCompOpEquivInverse
+    : Join.inclLeft (Dᵒᵖ) Cᵒᵖ ⋙ (opEquiv C D).inverse ≅ (inclRight _ _).op :=
   Join.mkFunctorLeft _ _ _
 
 /-- Characterize `Join.opEquivInverse` with respect to the right inclusion -/
-def inclRightCompOpEquivInverse :
-    Join.inclRight Dᵒᵖ Cᵒᵖ ⋙ (opEquiv C D).inverse ≅ (inclLeft _ _).op :=
+def inclRightCompOpEquivInverse
+    : Join.inclRight (Dᵒᵖ) Cᵒᵖ ⋙ (opEquiv C D).inverse ≅ (inclLeft _ _).op :=
   Join.mkFunctorRight _ _ _
 
 variable {D} in

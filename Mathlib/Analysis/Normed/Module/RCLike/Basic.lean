@@ -32,7 +32,6 @@ This file exists mainly to avoid importing `RCLike` in the main normed space the
 
 public section
 
-
 open Metric
 
 variable {𝕜 : Type*} [RCLike 𝕜] {E : Type*} [NormedAddCommGroup E]
@@ -48,17 +47,18 @@ theorem norm_smul_inv_norm {x : E} (hx : x ≠ 0) : ‖(‖x‖⁻¹ : 𝕜) •
   simp [field, norm_smul]
 
 /-- Lemma to normalize a vector in a normed space `E` over either `ℂ` or `ℝ` to length `r`. -/
-theorem norm_smul_inv_norm' {r : ℝ} (r_nonneg : 0 ≤ r) {x : E} (hx : x ≠ 0) :
-    ‖((r : 𝕜) * (‖x‖ : 𝕜)⁻¹) • x‖ = r := by
+theorem norm_smul_inv_norm' {r : ℝ} (r_nonneg : 0 ≤ r) {x : E} (hx : x ≠ 0)
+    : ‖((r : 𝕜) * (‖x‖ : 𝕜)⁻¹) • x‖ = r := by
   have : ‖x‖ ≠ 0 := by simp [hx]
   simp [field, norm_smul, r_nonneg, rclike_simps]
 
-theorem ContinuousLinearEquiv.coord_norm' {x : E} (h : x ≠ 0) :
-    ‖(‖x‖ : 𝕜) • ContinuousLinearEquiv.coord 𝕜 x h‖ = 1 := by
+theorem ContinuousLinearEquiv.coord_norm' {x : E} (h : x ≠ 0)
+    : ‖(‖x‖ : 𝕜) • ContinuousLinearEquiv.coord 𝕜 x h‖ = 1 := by
   simp only [norm_smul, RCLike.norm_coe_norm, coord_norm, mul_inv_cancel₀ (mt norm_eq_zero.mp h)]
 
-theorem LinearMap.bound_of_sphere_bound {r : ℝ} (r_pos : 0 < r) (c : ℝ) (f : E →ₗ[𝕜] 𝕜)
-    (h : ∀ z ∈ sphere (0 : E) r, ‖f z‖ ≤ c) (z : E) : ‖f z‖ ≤ c / r * ‖z‖ := by
+theorem LinearMap.bound_of_sphere_bound
+    {r : ℝ} (r_pos : 0 < r) (c : ℝ) (f : E →ₗ[𝕜] 𝕜) (h : ∀ z ∈ sphere (0 : E) r, ‖f z‖ ≤ c) (z : E)
+    : ‖f z‖ ≤ c / r * ‖z‖ := by
   by_cases z_zero : z = 0
   · rw [z_zero]
     simp only [map_zero, norm_zero, mul_zero]
@@ -73,25 +73,32 @@ theorem LinearMap.bound_of_sphere_bound {r : ℝ} (r_pos : 0 < r) (c : ℝ) (f :
     rw [hz₁, map_smul, smul_eq_mul]
     rw [← mul_assoc, ← mul_assoc, div_mul_cancel₀ _ r_ne_zero, mul_inv_cancel₀, one_mul]
     simp only [z_zero, RCLike.ofReal_eq_zero, norm_eq_zero, Ne, not_false_iff]
-  rw [eq, norm_mul, norm_div, RCLike.norm_coe_norm, RCLike.norm_of_nonneg r_pos.le,
-    div_mul_eq_mul_div, div_mul_eq_mul_div, mul_comm]
+  rw [
+    eq, norm_mul, norm_div, RCLike.norm_coe_norm, RCLike.norm_of_nonneg r_pos.le,
+    div_mul_eq_mul_div, div_mul_eq_mul_div, mul_comm
+  ]
   apply div_le_div₀ _ _ r_pos rfl.ge
   · exact mul_nonneg ((norm_nonneg _).trans norm_f_z₁) (norm_nonneg z)
   apply mul_le_mul norm_f_z₁ rfl.le (norm_nonneg z) ((norm_nonneg _).trans norm_f_z₁)
 
-/-- `LinearMap.bound_of_ball_bound` is a version of this over arbitrary nontrivially normed fields.
-It produces a less precise bound so we keep both versions. -/
-theorem LinearMap.bound_of_ball_bound' {r : ℝ} (r_pos : 0 < r) (c : ℝ) (f : E →ₗ[𝕜] 𝕜)
-    (h : ∀ z ∈ closedBall (0 : E) r, ‖f z‖ ≤ c) (z : E) : ‖f z‖ ≤ c / r * ‖z‖ :=
+/--
+`LinearMap.bound_of_ball_bound` is a version of this over arbitrary nontrivially normed fields.
+It produces a less precise bound so we keep both versions.
+-/
+theorem LinearMap.bound_of_ball_bound'
+    {r : ℝ} (r_pos : 0 < r)
+    (c : ℝ) (f : E →ₗ[𝕜] 𝕜) (h : ∀ z ∈ closedBall (0 : E) r, ‖f z‖ ≤ c)
+    (z : E)
+    : ‖f z‖ ≤ c / r * ‖z‖ :=
   f.bound_of_sphere_bound r_pos c (fun z hz => h z hz.le) z
 
-theorem ContinuousLinearMap.opNorm_bound_of_ball_bound {r : ℝ} (r_pos : 0 < r) (c : ℝ)
-    (f : StrongDual 𝕜 E) (h : ∀ z ∈ closedBall (0 : E) r, ‖f z‖ ≤ c) : ‖f‖ ≤ c / r := by
+theorem ContinuousLinearMap.opNorm_bound_of_ball_bound
+    {r : ℝ} (r_pos : 0 < r) (c : ℝ) (f : StrongDual 𝕜 E) (h : ∀ z ∈ closedBall (0 : E) r, ‖f z‖ ≤ c)
+    : ‖f‖ ≤ c / r := by
   apply ContinuousLinearMap.opNorm_le_bound
   · apply div_nonneg _ r_pos.le
-    exact
-      (norm_nonneg _).trans
-        (h 0 (by simp only [norm_zero, mem_closedBall, dist_zero_left, r_pos.le]))
+    exact (norm_nonneg _).trans
+      (h 0 (by simp only [norm_zero, mem_closedBall, dist_zero_left, r_pos.le]))
   apply LinearMap.bound_of_ball_bound' r_pos
   exact fun z hz => h z hz
 
@@ -113,7 +120,7 @@ lemma antilipschitz_of_bound_of_norm_one {𝓕 E F : Type*}
 
 variable (𝕜)
 include 𝕜 in
-theorem NormedSpace.sphere_nonempty_rclike [Nontrivial E] {r : ℝ} (hr : 0 ≤ r) :
-    Nonempty (sphere (0 : E) r) :=
+theorem NormedSpace.sphere_nonempty_rclike [Nontrivial E] {r : ℝ} (hr : 0 ≤ r)
+    : Nonempty (sphere (0 : E) r) :=
   letI : NormedSpace ℝ E := NormedSpace.restrictScalars ℝ 𝕜 E
   (NormedSpace.sphere_nonempty.mpr hr).coe_sort

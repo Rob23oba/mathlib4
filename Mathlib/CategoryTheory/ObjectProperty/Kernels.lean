@@ -36,8 +36,8 @@ variable (W : MorphismProperty C)
 
 /-- The property of objects that are kernels of morphisms satisfying `W`. -/
 inductive kernels : ObjectProperty C
-  | of_isLimit {X₁ X₂ : C} (f : X₁ ⟶ X₂) (k : KernelFork f) (hk : IsLimit k)
-    (hf : W f) : kernels k.pt
+  | of_isLimit {X₁ X₂ : C} (f : X₁ ⟶ X₂) (k : KernelFork f) (hk : IsLimit k) (hf : W f)
+    : kernels k.pt
 
 lemma nonempty_kernels {X₁ X₂ : C} (f : X₁ ⟶ X₂) (hf : W f) [HasKernel f] :
     W.kernels.Nonempty :=
@@ -52,8 +52,8 @@ instance : W.kernels.IsClosedUnderIsomorphisms where
 
 /-- The property of objects that are cokernels of morphisms satisfying `W`. -/
 inductive cokernels : ObjectProperty C
-  | of_isColimit {X₁ X₂ : C} (f : X₁ ⟶ X₂) (k : CokernelCofork f) (hk : IsColimit k)
-    (hf : W f) : cokernels k.pt
+  | of_isColimit {X₁ X₂ : C} (f : X₁ ⟶ X₂) (k : CokernelCofork f) (hk : IsColimit k) (hf : W f)
+    : cokernels k.pt
 
 lemma nonempty_cokernels {X₁ X₂ : C} (f : X₁ ⟶ X₂) (hf : W f) [HasCokernel f] :
     W.cokernels.Nonempty :=
@@ -71,8 +71,10 @@ namespace ObjectProperty
 
 variable (P : ObjectProperty C)
 
-/-- A property of objects satisfies `P.IsClosedUnderKernels` if whenever `X` and `Y`
-satisfy `P`, all kernels of morphisms from `X` to `Y` satisfy `P`. -/
+/--
+A property of objects satisfies `P.IsClosedUnderKernels` if whenever `X` and `Y`
+satisfy `P`, all kernels of morphisms from `X` to `Y` satisfy `P`.
+-/
 @[mk_iff]
 class IsClosedUnderKernels : Prop where
   kernels_le : (MorphismProperty.ofObjectProperty P P).kernels ≤ P
@@ -96,11 +98,14 @@ lemma hasLimit_parallelPair_comp_ι {X Y : P.FullSubcategory} (f : X ⟶ Y) [Has
   hasLimit_of_iso (F := parallelPair f.hom 0) (Iso.symm (diagramIsoParallelPair _))
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If an object property `P` is closed under kernels, then `P.ι` creates kernels.
-In particular, this implies `P.ι` preserves kernels. -/
+/--
+If an object property `P` is closed under kernels, then `P.ι` creates kernels.
+In particular, this implies `P.ι` preserves kernels.
+-/
 @[reducible]
-noncomputable def createsKernels [P.IsClosedUnderKernels] {X Y : P.FullSubcategory}
-    (f : X ⟶ Y) [HasKernel f.hom] : CreatesLimit (parallelPair f 0) P.ι := by
+noncomputable def createsKernels
+    [P.IsClosedUnderKernels] {X Y : P.FullSubcategory} (f : X ⟶ Y) [HasKernel f.hom]
+    : CreatesLimit (parallelPair f 0) P.ι := by
   fapply createsLimitFullSubcategoryInclusion'
   · exact (Cone.postcompose (Iso.symm (diagramIsoParallelPair _)).hom).obj
       (Fork.ofι (kernel.ι f.hom) (by simp))
@@ -119,8 +124,10 @@ instance [P.IsClosedUnderKernels] [HasKernels C] : HasKernels P.FullSubcategory 
     letI := P.hasLimit_parallelPair_comp_ι f
     hasLimit_of_created _ P.ι
 
-/-- A property of objects satisfies `P.IsClosedUnderCokernels` if whenever `X` and `Y`
-satisfy `P`, all kernels of morphisms from `X` to `Y` satisfy `P`. -/
+/--
+A property of objects satisfies `P.IsClosedUnderCokernels` if whenever `X` and `Y`
+satisfy `P`, all kernels of morphisms from `X` to `Y` satisfy `P`.
+-/
 @[mk_iff]
 class IsClosedUnderCokernels : Prop where
   cokernels_le : (MorphismProperty.ofObjectProperty P P).cokernels ≤ P
@@ -144,11 +151,14 @@ lemma hasColimit_parallelPair_comp_ι {X Y : P.FullSubcategory} (f : X ⟶ Y) [H
   hasColimit_of_iso (F := parallelPair f.hom 0) (diagramIsoParallelPair _)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If an object property `P` is closed under cokernels, then `P.ι` creates cokernels.
-In particular, this implies `P.ι` preserves cokernels. -/
+/--
+If an object property `P` is closed under cokernels, then `P.ι` creates cokernels.
+In particular, this implies `P.ι` preserves cokernels.
+-/
 @[reducible]
-noncomputable def createsCokernels [P.IsClosedUnderCokernels] {X Y : P.FullSubcategory}
-    (f : X ⟶ Y) [HasCokernel f.hom] : CreatesColimit (parallelPair f 0) P.ι := by
+noncomputable def createsCokernels
+    [P.IsClosedUnderCokernels] {X Y : P.FullSubcategory} (f : X ⟶ Y) [HasCokernel f.hom]
+    : CreatesColimit (parallelPair f 0) P.ι := by
   fapply createsColimitFullSubcategoryInclusion'
   · exact (Cocone.precompose (diagramIsoParallelPair _).hom).obj
       (Cofork.ofπ (cokernel.π f.hom) (by simp))

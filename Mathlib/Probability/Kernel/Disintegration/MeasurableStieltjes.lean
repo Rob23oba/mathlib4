@@ -70,8 +70,10 @@ section IsMeasurableRatCDF
 
 variable {f : α → ℚ → ℝ}
 
-/-- `a : α` is a Stieltjes point for `f : α → ℚ → ℝ` if `f a` is monotone with limit 0 at -∞
-and 1 at +∞ and satisfies a continuity property. -/
+/--
+`a : α` is a Stieltjes point for `f : α → ℚ → ℝ` if `f a` is monotone with limit 0 at -∞
+and 1 at +∞ and satisfies a continuity property.
+-/
 structure IsRatStieltjesPoint (f : α → ℚ → ℝ) (a : α) : Prop where
   mono : Monotone (f a)
   tendsto_atTop_one : Tendsto (f a) atTop (𝓝 1)
@@ -124,7 +126,8 @@ lemma IsRatStieltjesPoint.ite {f g : α → ℚ → ℝ} {a : α} (p : α → Pr
 
 variable [MeasurableSpace α]
 
-/-- A function `f : α → ℚ → ℝ` is a (kernel) rational cumulative distribution function if it is
+/--
+A function `f : α → ℚ → ℝ` is a (kernel) rational cumulative distribution function if it is
 measurable in the first argument and if `f a` satisfies a list of properties for all `a : α`:
 monotonicity between 0 at -∞ and 1 at +∞ and a form of continuity.
 
@@ -159,9 +162,11 @@ end IsMeasurableRatCDF
 
 section DefaultRatCDF
 
-/-- A function with the property `IsMeasurableRatCDF`.
+/--
+A function with the property `IsMeasurableRatCDF`.
 Used in a piecewise construction to convert a function which only satisfies the properties
-defining `IsMeasurableRatCDF` on some set into a true `IsMeasurableRatCDF`. -/
+defining `IsMeasurableRatCDF` on some set into a true `IsMeasurableRatCDF`.
+-/
 def defaultRatCDF (q : ℚ) := if q < 0 then (0 : ℝ) else 1
 
 lemma monotone_defaultRatCDF : Monotone defaultRatCDF := by
@@ -235,13 +240,14 @@ section ToRatCDF
 variable {f : α → ℚ → ℝ}
 
 open scoped Classical in
-/-- Turn a function `f : α → ℚ → ℝ` into another with the property `IsRatStieltjesPoint f a`
+/--
+Turn a function `f : α → ℚ → ℝ` into another with the property `IsRatStieltjesPoint f a`
 everywhere. At `a` that does not satisfy that property, `f a` is replaced by an arbitrary suitable
 function.
 Mainly useful when `f` satisfies the property `IsRatStieltjesPoint f a` almost everywhere with
-respect to some measure. -/
-noncomputable
-def toRatCDF (f : α → ℚ → ℝ) : α → ℚ → ℝ := fun a ↦
+respect to some measure.
+-/
+noncomputable def toRatCDF (f : α → ℚ → ℝ) : α → ℚ → ℝ := fun a ↦
   if IsRatStieltjesPoint f a then f a else defaultRatCDF
 
 lemma toRatCDF_of_isRatStieltjesPoint {a : α} (h : IsRatStieltjesPoint f a) (q : ℚ) :
@@ -339,8 +345,10 @@ lemma IsMeasurableRatCDF.continuousWithinAt_stieltjesFunctionAux_Ici (a : α) (x
   congr!
   rw [stieltjesFunctionAux_def]
 
-/-- Extend a function `f : α → ℚ → ℝ` with property `IsMeasurableRatCDF` from `ℚ` to `ℝ`,
-to a function `α → StieltjesFunction ℝ`. -/
+/--
+Extend a function `f : α → ℚ → ℝ` with property `IsMeasurableRatCDF` from `ℚ` to `ℝ`,
+to a function `α → StieltjesFunction ℝ`.
+-/
 noncomputable def IsMeasurableRatCDF.stieltjesFunction (a : α) : StieltjesFunction ℝ where
   toFun := stieltjesFunctionAux f a
   mono' := monotone_stieltjesFunctionAux hf a
@@ -420,8 +428,8 @@ lemma IsMeasurableRatCDF.measure_stieltjesFunction_univ (a : α) :
   exact StieltjesFunction.measure_univ _ (tendsto_stieltjesFunction_atBot hf a)
     (tendsto_stieltjesFunction_atTop hf a)
 
-instance IsMeasurableRatCDF.instIsProbabilityMeasure_stieltjesFunction (a : α) :
-    IsProbabilityMeasure (hf.stieltjesFunction a).measure :=
+instance IsMeasurableRatCDF.instIsProbabilityMeasure_stieltjesFunction (a : α)
+    : IsProbabilityMeasure (hf.stieltjesFunction a).measure :=
   ⟨measure_stieltjesFunction_univ hf a⟩
 
 lemma IsMeasurableRatCDF.measurable_measure_stieltjesFunction :
@@ -437,10 +445,12 @@ section stieltjesOfMeasurableRat
 
 variable {f : α → ℚ → ℝ} [MeasurableSpace α]
 
-/-- Turn a measurable function `f : α → ℚ → ℝ` into a measurable function `α → StieltjesFunction ℝ`.
-Composition of `toRatCDF` and `IsMeasurableRatCDF.stieltjesFunction`. -/
-noncomputable
-def stieltjesOfMeasurableRat (f : α → ℚ → ℝ) (hf : Measurable f) : α → StieltjesFunction ℝ :=
+/--
+Turn a measurable function `f : α → ℚ → ℝ` into a measurable function `α → StieltjesFunction ℝ`.
+Composition of `toRatCDF` and `IsMeasurableRatCDF.stieltjesFunction`.
+-/
+noncomputable def stieltjesOfMeasurableRat (f : α → ℚ → ℝ) (hf : Measurable f)
+    : α → StieltjesFunction ℝ :=
   (isMeasurableRatCDF_toRatCDF hf).stieltjesFunction
 
 lemma stieltjesOfMeasurableRat_eq (hf : Measurable f) (a : α) (r : ℚ) :
@@ -490,9 +500,8 @@ lemma measure_stieltjesOfMeasurableRat_univ (hf : Measurable f) (a : α) :
     (stieltjesOfMeasurableRat f hf a).measure univ = 1 :=
   IsMeasurableRatCDF.measure_stieltjesFunction_univ _ _
 
-instance instIsProbabilityMeasure_stieltjesOfMeasurableRat
-    (hf : Measurable f) (a : α) :
-    IsProbabilityMeasure (stieltjesOfMeasurableRat f hf a).measure :=
+instance instIsProbabilityMeasure_stieltjesOfMeasurableRat (hf : Measurable f) (a : α)
+    : IsProbabilityMeasure (stieltjesOfMeasurableRat f hf a).measure :=
   IsMeasurableRatCDF.instIsProbabilityMeasure_stieltjesFunction _ _
 
 lemma measurable_measure_stieltjesOfMeasurableRat (hf : Measurable f) :

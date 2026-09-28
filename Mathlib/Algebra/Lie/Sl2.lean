@@ -30,14 +30,17 @@ about `sl₂`.
 
 @[expose] public section
 
-variable (R L M : Type*) [CommRing R] [LieRing L] [LieAlgebra R L]
-  [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
+variable
+  (R L M : Type*) [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
+  [LieRingModule L M] [LieModule R L M]
 
 open LieModule Module Set
 
 variable {L} in
-/-- An `sl₂` triple within a Lie ring `L` is a triple of elements `h`, `e`, `f` obeying relations
-which ensure that the Lie subalgebra they generate is equivalent to `sl₂`. -/
+/--
+An `sl₂` triple within a Lie ring `L` is a triple of elements `h`, `e`, `f` obeying relations
+which ensure that the Lie subalgebra they generate is equivalent to `sl₂`.
+-/
 structure IsSl2Triple (h e f : L) : Prop where
   h_ne_zero : h ≠ 0
   lie_e_f : ⁅e, f⁆ = h
@@ -76,9 +79,11 @@ lemma f_ne_zero (t : IsSl2Triple h e f) : f ≠ 0 := by
 
 variable {R}
 
-/-- Given a representation of a Lie algebra with distinguished `sl₂` triple, a vector is said to be
+/--
+Given a representation of a Lie algebra with distinguished `sl₂` triple, a vector is said to be
 primitive if it is a simultaneous eigenvector for the action of both `h` and `e`, and the eigenvalue
-for `e` is zero. -/
+for `e` is zero.
+-/
 structure HasPrimitiveVectorWith (t : IsSl2Triple h e f) (m : M) (μ : R) : Prop where
   ne_zero : m ≠ 0
   lie_h : ⁅h, m⁆ = μ • m
@@ -99,24 +104,29 @@ lemma HasPrimitiveVectorWith.mk' [IsAddTorsionFree M] (t : IsSl2Triple h e f) (m
 variable (R) in
 open Submodule in
 /-- The subalgebra associated to an `sl₂` triple. -/
-def toLieSubalgebra (t : IsSl2Triple h e f) :
-    LieSubalgebra R L where
+def toLieSubalgebra (t : IsSl2Triple h e f) : LieSubalgebra R L where
   __ := span R {e, f, h}
   lie_mem' {x y} hx hy := by
     simp only [carrier_eq_coe, SetLike.mem_coe] at hx hy ⊢
     induction hx using span_induction with
-    | zero => simp
-    | add u v hu hv hu' hv' => simpa only [add_lie] using add_mem hu' hv'
-    | smul t u hu hu' => simpa only [smul_lie] using smul_mem _ t hu'
+    | zero =>
+      simp
+    | add u v hu hv hu' hv' =>
+      simpa only [add_lie] using add_mem hu' hv'
+    | smul t u hu hu' =>
+      simpa only [smul_lie] using smul_mem _ t hu'
     | mem u hu =>
       induction hy using span_induction with
-      | zero => simp
-      | add u v hu hv hu' hv' => simpa only [lie_add] using add_mem hu' hv'
-      | smul t u hv hv' => simpa only [lie_smul] using smul_mem _ t hv'
+      | zero =>
+        simp
+      | add u v hu hv hu' hv' =>
+        simpa only [lie_add] using add_mem hu' hv'
+      | smul t u hv hv' =>
+        simpa only [lie_smul] using smul_mem _ t hv'
       | mem v hv =>
         push _ ∈ _ at hu hv
-        rcases hu with rfl | rfl | rfl <;>
-        rcases hv with rfl | rfl | rfl <;> (try simp only [lie_self, zero_mem])
+        rcases hu with rfl | rfl | rfl <;> rcases hv with rfl | rfl | rfl
+          <;> (try simp only [lie_self, zero_mem])
         · rw [t.lie_e_f]
           apply subset_span
           simp
@@ -247,8 +257,9 @@ lemma lie_h_pow_toEnd_e (t : IsSl2Triple h e f)
 
 section CharZero
 
-variable [IsDomain R] [CharZero R]
-  [Nontrivial M] [IsTorsionFree R M] [Module.Finite R M] [IsTriangularizable R L M]
+variable
+  [IsDomain R] [CharZero R] [Nontrivial M] [IsTorsionFree R M] [Module.Finite R M]
+  [IsTriangularizable R L M]
   (t : IsSl2Triple h e f)
 
 lemma exists_hasPrimitiveVectorWith :

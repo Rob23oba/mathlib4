@@ -62,8 +62,10 @@ namespace Finset
 
 /-- The class of additive types with an antidiagonal. -/
 class HasAntidiagonal (A : Type*) [Add A] where
-  /-- The antidiagonal of an element `n` is the finset of pairs `(i, j)` such that
-  `i + j = n`. -/
+  /--
+  The antidiagonal of an element `n` is the finset of pairs `(i, j)` such that
+  `i + j = n`.
+  -/
   antidiagonal : A → Finset (A × A)
   /-- A pair belongs to `antidiagonal n` iff the sum of its components is equal to `n`. -/
   mem_antidiagonal {n} {a} : a ∈ antidiagonal n ↔ a.fst + a.snd = n
@@ -74,8 +76,10 @@ attribute [simp] mem_antidiagonal
 
 /-- The class of multiplicative types with a mulAntidiagonal. -/
 class HasMulAntidiagonal (A : Type*) [Mul A] where
-  /-- The mulAntidiagonal of an element `n` is the finset of pairs `(i, j)` such that
-  `i * j = n`. -/
+  /--
+  The mulAntidiagonal of an element `n` is the finset of pairs `(i, j)` such that
+  `i * j = n`.
+  -/
   mulAntidiagonal : A → Finset (A × A)
   /-- A pair belongs to `mulAntidiagonal n` iff the product of its components is equal to `n`. -/
   mem_mulAntidiagonal {n} {a} : a ∈ mulAntidiagonal n ↔ a.fst * a.snd = n
@@ -111,42 +115,46 @@ lemma congr (A : Type*) [Mul A] [H1 : HasMulAntidiagonal A] [H2 : HasMulAntidiag
     H1.mulAntidiagonal = H2.mulAntidiagonal := by congr!; subsingleton
 
 @[to_additive]
-theorem swap_mem_mulAntidiagonal [CommMagma A] [HasMulAntidiagonal A] {n : A} {xy : A × A} :
-    xy.swap ∈ mulAntidiagonal n ↔ xy ∈ mulAntidiagonal n := by
+theorem swap_mem_mulAntidiagonal [CommMagma A] [HasMulAntidiagonal A] {n : A} {xy : A × A}
+    : xy.swap ∈ mulAntidiagonal n ↔ xy ∈ mulAntidiagonal n := by
   simp [mul_comm]
 
 @[to_additive (attr := simp) map_prodComm_antidiagonal]
-theorem map_prodComm_mulAntidiagonal [CommMagma A] [HasMulAntidiagonal A] {n : A} :
-    (mulAntidiagonal n).map (Equiv.prodComm A A) = mulAntidiagonal n :=
+theorem map_prodComm_mulAntidiagonal [CommMagma A] [HasMulAntidiagonal A] {n : A}
+    : (mulAntidiagonal n).map (Equiv.prodComm A A) = mulAntidiagonal n :=
   Finset.ext fun ⟨a, b⟩ => by simp [mul_comm]
 
 /-- See also `Finset.map_prodComm_mulAntidiagonal`. -/
 @[to_additive (attr := simp)]
-theorem map_swap_mulAntidiagonal [CommMagma A] [HasMulAntidiagonal A] {n : A} :
-    (mulAntidiagonal n).map ⟨Prod.swap, Prod.swap_injective⟩ = mulAntidiagonal n :=
+theorem map_swap_mulAntidiagonal [CommMagma A] [HasMulAntidiagonal A] {n : A}
+    : (mulAntidiagonal n).map ⟨Prod.swap, Prod.swap_injective⟩ = mulAntidiagonal n :=
   map_prodComm_mulAntidiagonal
 
 section CancelMonoid
 
 variable [CancelMonoid A] [HasMulAntidiagonal A] {p q : A × A} {n : A}
 
-/-- A point in the mulAntidiagonal is determined by its first coordinate.
+/--
+A point in the mulAntidiagonal is determined by its first coordinate.
 
-See also `Finset.mulAntidiagonal_congr'`. -/
+See also `Finset.mulAntidiagonal_congr'`.
+-/
 @[to_additive
-/-- A point in the antidiagonal is determined by its first coordinate.
+  /-- A point in the antidiagonal is determined by its first coordinate.
 
 See also `Finset.antidiagonal_congr'`. -/]
-theorem mulAntidiagonal_congr (hp : p ∈ mulAntidiagonal n) (hq : q ∈ mulAntidiagonal n) :
-    p = q ↔ p.1 = q.1 := by
+theorem mulAntidiagonal_congr (hp : p ∈ mulAntidiagonal n) (hq : q ∈ mulAntidiagonal n)
+    : p = q ↔ p.1 = q.1 := by
   refine ⟨congr_arg Prod.fst, fun h ↦ Prod.ext h ((mul_right_inj q.fst).mp ?_)⟩
   rw [mem_mulAntidiagonal] at hp hq
   rw [hq, ← h, hp]
 
-/-- A point in the mulAntidiagonal is determined by its first co-ordinate (subtype version of
-`Finset.mulAntidiagonal_congr`). This lemma is used by the `ext` tactic. -/
+/--
+A point in the mulAntidiagonal is determined by its first co-ordinate (subtype version of
+`Finset.mulAntidiagonal_congr`). This lemma is used by the `ext` tactic.
+-/
 @[to_additive (attr := ext)
-/-- A point in the antidiagonal is determined by its first co-ordinate (subtype version of
+  /-- A point in the antidiagonal is determined by its first co-ordinate (subtype version of
 `Finset.antidiagonal_congr`). This lemma is used by the `ext` tactic. -/]
 theorem mulAntidiagonal_subtype_ext {p q : mulAntidiagonal n} (h : p.val.1 = q.val.1) : p = q :=
   Subtype.ext ((mulAntidiagonal_congr p.prop q.prop).mpr h)
@@ -201,12 +209,14 @@ variable [AddCommMonoid A] [PartialOrder A] [CanonicallyOrderedAdd A] [Sub A] [O
 variable [AddLeftReflectLE A]
 variable [HasAntidiagonal A]
 
-theorem filter_fst_eq_antidiagonal (n m : A) [DecidablePred (· = m)] [Decidable (m ≤ n)] :
-    {x ∈ antidiagonal n | x.fst = m} = if m ≤ n then {(m, n - m)} else ∅ := by
+theorem filter_fst_eq_antidiagonal (n m : A) [DecidablePred (· = m)] [Decidable (m ≤ n)]
+    : {x ∈ antidiagonal n | x.fst = m} = if m ≤ n then {(m, n - m)} else ∅ := by
   ext ⟨a, b⟩
   suffices a = m → (a + b = n ↔ m ≤ n ∧ b = n - m) by
-    rw [mem_filter, mem_antidiagonal, apply_ite (fun n ↦ (a, b) ∈ n), mem_singleton,
-      Prod.mk_inj, ite_prop_iff_or]
+    rw [
+      mem_filter, mem_antidiagonal, apply_ite (fun n ↦ (a, b) ∈ n), mem_singleton, Prod.mk_inj,
+      ite_prop_iff_or
+    ]
     simpa [← and_assoc, @and_right_comm _ (a = _), and_congr_left_iff]
   rintro rfl
   constructor
@@ -215,8 +225,8 @@ theorem filter_fst_eq_antidiagonal (n m : A) [DecidablePred (· = m)] [Decidable
   · rintro ⟨h, rfl⟩
     exact add_tsub_cancel_of_le h
 
-theorem filter_snd_eq_antidiagonal (n m : A) [DecidablePred (· = m)] [Decidable (m ≤ n)] :
-    {x ∈ antidiagonal n | x.snd = m} = if m ≤ n then {(n - m, m)} else ∅ := by
+theorem filter_snd_eq_antidiagonal (n m : A) [DecidablePred (· = m)] [Decidable (m ≤ n)]
+    : {x ∈ antidiagonal n | x.snd = m} = if m ≤ n then {(n - m, m)} else ∅ := by
   rw [← map_swap_antidiagonal, filter_map]
   simp [filter_fst_eq_antidiagonal, apply_ite (Finset.map _)]
 
@@ -226,13 +236,15 @@ end HasAntidiagonal
 
 namespace HasMulAntidiagonal
 
-/-- The disjoint union of mulAntidiagonals `Σ (n : A), mulAntidiagonal n` is equivalent to the
-  product `A × A`. This is such an equivalence, obtained by mapping `(n, (k, l))` to `(k, l)`. -/
+/--
+The disjoint union of mulAntidiagonals `Σ (n : A), mulAntidiagonal n` is equivalent to the
+product `A × A`. This is such an equivalence, obtained by mapping `(n, (k, l))` to `(k, l)`.
+-/
 @[to_additive (attr := simps) sigmaAntidiagonalEquivProd
-/-- The disjoint union of antidiagonals `Σ (n : A), antidiagonal n` is equivalent to the
+  /-- The disjoint union of antidiagonals `Σ (n : A), antidiagonal n` is equivalent to the
   product `A × A`. This is such an equivalence, obtained by mapping `(n, (k, l))` to `(k, l)`. -/]
-def sigmaMulAntidiagonalEquivProd [Mul A] [HasMulAntidiagonal A] :
-    (Σ n : A, mulAntidiagonal n) ≃ A × A where
+def sigmaMulAntidiagonalEquivProd [Mul A] [HasMulAntidiagonal A]
+    : (Σ n : A, mulAntidiagonal n) ≃ A × A where
   toFun x := x.2
   invFun x := ⟨x.1 * x.2, x, mem_mulAntidiagonal.mpr rfl⟩
   left_inv := by
@@ -242,16 +254,18 @@ def sigmaMulAntidiagonalEquivProd [Mul A] [HasMulAntidiagonal A] :
 
 section
 
-variable {A : Type*}
-  [CommMagma A] [PartialOrder A] [CanonicallyOrderedMul A]
-  [LocallyFiniteOrderBot A] [DecidableEq A]
+variable
+  {A : Type*}
+  [CommMagma A] [PartialOrder A] [CanonicallyOrderedMul A] [LocallyFiniteOrderBot A] [DecidableEq A]
 
-/-- In a canonically ordered multiplicative type, the mulAntidiagonal can be constructed by
+/--
+In a canonically ordered multiplicative type, the mulAntidiagonal can be constructed by
 filtering.
 
-Note that this is not an instance, as for sometimes a more efficient algorithm is available. -/
+Note that this is not an instance, as for sometimes a more efficient algorithm is available.
+-/
 @[to_additive
-/-- In a canonically ordered additive type, the antidiagonal can be construct by filtering.
+  /-- In a canonically ordered additive type, the antidiagonal can be construct by filtering.
 
 Note that this is not an instance, as for some times a more efficient algorithm is available. -/]
 abbrev mulAntidiagonalOfLocallyFinite : HasMulAntidiagonal A where
@@ -272,7 +286,7 @@ variable {A : Type*} [Add A] [HasAntidiagonal A]
 set_option backward.isDefEq.respectTransparency.types false in
 instance : HasMulAntidiagonal (Multiplicative A) where
   mulAntidiagonal a :=
-    (antidiagonal (toAdd a)).map ⟨fun p ↦ (ofAdd p.1 , ofAdd p.2), fun _ _ h ↦ by aesop⟩
+    (antidiagonal (toAdd a)).map ⟨fun p ↦ (ofAdd p.1, ofAdd p.2), fun _ _ h ↦ by aesop⟩
   mem_mulAntidiagonal {a p} := by aesop
 
 lemma mem_mulAntidiagonal_ofAdd_iff_toAdd_mem_antidiagonal {a : A}

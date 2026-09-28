@@ -26,8 +26,8 @@ noncomputable def natUnionInftyEmbedding : C(OnePoint ℕ, ℝ) where
   toFun
     | ∞ => 0
     | OnePoint.some n => 1 / (n + 1 : ℝ)
-  continuous_toFun := OnePoint.continuous_iff_from_nat _ |>.mpr
-    tendsto_one_div_add_atTop_nhds_zero_nat
+  continuous_toFun :=
+    OnePoint.continuous_iff_from_nat _ |>.mpr tendsto_one_div_add_atTop_nhds_zero_nat
 
 /--
 The continuous map from `ℕ∪{∞}` to `ℝ` sending `n` to `1/(n+1)` and `∞` to `0` is a closed
@@ -52,8 +52,7 @@ instance : MetrizableSpace (OnePoint ℕ) := isClosedEmbedding_natUnionInftyEmbe
 /-- The one point compactification of the natural numbers as a light profinite set. -/
 abbrev NatUnionInfty : LightProfinite := of (OnePoint ℕ)
 
-@[inherit_doc]
-scoped notation "ℕ∪{∞}" => NatUnionInfty
+@[inherit_doc] scoped notation "ℕ∪{∞}" => NatUnionInfty
 
 instance : Countable ℕ∪{∞} := (inferInstance : Countable <| Option _)
 

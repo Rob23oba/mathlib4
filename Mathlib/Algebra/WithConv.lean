@@ -21,14 +21,18 @@ This is given for any type `A` so that we can have `WithConv (A →ₗ[R] B)`,
 
 @[expose] public section
 
-/-- A type synonym for the convolutive product of linear maps and intrinsic star.
+/--
+A type synonym for the convolutive product of linear maps and intrinsic star.
 
 The instances for the convolutive product and intrinsic star are only available with this type.
 
-Use `WithConv.linearEquiv` to coerce into this type. -/
+Use `WithConv.linearEquiv` to coerce into this type.
+-/
 structure WithConv A where
-  /-- Converts an element of `A` to `WithConv A`. -/ toConv ::
-  /-- Converts an element of `WithConv A` back to `A`. -/ ofConv : A
+  /-- Converts an element of `A` to `WithConv A`. -/
+  toConv ::
+  /-- Converts an element of `WithConv A` back to `A`. -/
+  ofConv : A
 
 namespace WithConv
 
@@ -57,10 +61,11 @@ lemma toConv_injective : Function.Injective (@toConv A) :=
 lemma ofConv_bijective : Function.Bijective (@ofConv A) := ⟨ofConv_injective, ofConv_surjective⟩
 lemma toConv_bijective : Function.Bijective (@toConv A) := ⟨toConv_injective, toConv_surjective⟩
 
-instance [CoeFun A (fun _ ↦ B → C)] : CoeFun (WithConv A) (fun _ ↦ B → C) where coe f := ⇑f.ofConv
+instance [CoeFun A (fun _ ↦ B → C)] : CoeFun (WithConv A) (fun _ ↦ B → C) where
+  coe f := ⇑f.ofConv
 
-@[ext] protected theorem ext {x y : WithConv A}
-    (h : x.ofConv = y.ofConv) : x = y := ofConv_injective h
+@[ext]
+protected theorem ext {x y : WithConv A} (h : x.ofConv = y.ofConv) : x = y := ofConv_injective h
 
 variable (A) in
 /-- `WithConv.ofConv` and `WithConv.toConv` as an equivalence. -/
@@ -80,7 +85,8 @@ instance [AddMonoid A] : AddMonoid (WithConv A) := (WithConv.equiv A).addMonoid
 instance [AddCommMonoid A] : AddCommMonoid (WithConv A) := (WithConv.equiv A).addCommMonoid
 instance [AddGroup A] : AddGroup (WithConv A) := (WithConv.equiv A).addGroup
 instance [AddCommGroup A] : AddCommGroup (WithConv A) := (WithConv.equiv A).addCommGroup
-@[to_additive] instance [Monoid R] [MulAction R A] : MulAction R (WithConv A) :=
+@[to_additive]
+instance [Monoid R] [MulAction R A] : MulAction R (WithConv A) :=
   fast_instance% (WithConv.equiv A).mulAction R
 
 /-- Lift an equivalence between `A` and `B` to `WithConv A` and `WithConv B`. -/
@@ -120,7 +126,8 @@ variable [AddMonoid A]
 
 variable (A) in
 /-- The additive equivalence between `WithConv A` and `A`. -/
-@[simps!] protected def addEquiv : WithConv A ≃+ A where
+@[simps!]
+protected def addEquiv : WithConv A ≃+ A where
   __ := WithConv.equiv A
   map_add' := by simp
 
@@ -174,8 +181,10 @@ def congrLinearEquiv (f : A ≃ₗ[R] B) : WithConv A ≃ₗ[R] WithConv B :=
     (congrLinearEquiv f).symm = congrLinearEquiv f.symm := rfl
 lemma symm_congrLinearEquiv_apply (f : A ≃ₗ[R] B) (x : WithConv B) :
     (congrLinearEquiv f).symm x = toConv (f.symm x.ofConv) := by simp
-@[simp] theorem toEquiv_congrLinearEquiv (f : A ≃ₗ[R] B) :
-    (congrLinearEquiv f).toEquiv = WithConv.congr f.toEquiv := rfl
+@[simp]
+theorem toEquiv_congrLinearEquiv (f : A ≃ₗ[R] B)
+    : (congrLinearEquiv f).toEquiv = WithConv.congr f.toEquiv :=
+  rfl
 
 end
 

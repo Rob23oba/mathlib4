@@ -34,34 +34,48 @@ open Function
 
 variable {A B : Type*} [CommSemiring A] [CommSemiring B] (I : Ideal A) (J : Ideal B)
 
-/-- Given a divided power algebra `(B, J, δ)` and an injective ring morphism `f : A →+* B`, if `I`
+/--
+Given a divided power algebra `(B, J, δ)` and an injective ring morphism `f : A →+* B`, if `I`
 is an `A`-ideal such that `I.map f = J` and such that for all `n : ℕ`, `x ∈ I`, the preimage of
-`hJ.dpow n (f x)` under `f` belongs to `I`, this is the induced divided power structure on `I`. -/
-noncomputable def DividedPowers.ofInjective (f : A →+* B) (hf : Injective f)
-    (hJ : DividedPowers J) (hIJ : I.map f = J)
-    (hmem : ∀ (n : ℕ) {x : A} (_ : x ∈ I), ∃ (y : A) (_ : n ≠ 0 → y ∈ I), f y = hJ.dpow n (f x)) :
-    DividedPowers I where
-  dpow n x := open scoped Classical in if hx : x ∈ I then Exists.choose (hmem n hx) else 0
+`hJ.dpow n (f x)` under `f` belongs to `I`, this is the induced divided power structure on `I`.
+-/
+noncomputable def DividedPowers.ofInjective
+    (f : A →+* B) (hf : Injective f)
+    (hJ : DividedPowers J)
+    (hIJ : I.map f = J)
+    (hmem : ∀ (n : ℕ) {x : A} (_ : x ∈ I), ∃ (y : A) (_ : n ≠ 0 → y ∈ I), f y = hJ.dpow n (f x))
+    : DividedPowers I where
+  dpow n x :=
+    open scoped Classical in
+    if hx : x ∈ I then Exists.choose (hmem n hx) else 0
   dpow_null hx := by simp [dite_eq_right hx]
   dpow_zero {x} hx := by
     simp only [dite_eq_left hx, ← hf.eq_iff, (Exists.choose_spec (hmem 0 hx)).2, map_one]
     rw [hJ.dpow_zero (hIJ ▸ Ideal.mem_map_of_mem f hx)]
   dpow_one hx := by
-    simpa only [dite_eq_left hx, ← hf.eq_iff, (Exists.choose_spec (_ : ∃ a, ∃ _, f a = _)).2]
-      using hJ.dpow_one (hIJ ▸ Ideal.mem_map_of_mem f hx)
+    simpa only [dite_eq_left hx, ← hf.eq_iff, (Exists.choose_spec (_ : ∃ a, ∃ _, f a = _)).2] using
+      hJ.dpow_one (hIJ ▸ Ideal.mem_map_of_mem f hx)
   dpow_mem {n x} hn hx := by
     simpa only [dite_eq_left hx] using (Exists.choose_spec (hmem n hx)).1 hn
   dpow_add {n x y} hx hy := by
     have hxy : x + y ∈ I := Ideal.add_mem _ hx hy
-    simpa only [dite_eq_left hxy, dite_eq_left hx, dite_eq_left hy, ← hf.eq_iff, map_sum, map_mul,
-      (Exists.choose_spec (_ : ∃ a, ∃ _, f a = _)).2, map_add]
+    simpa only [
+        dite_eq_left hxy, dite_eq_left hx, dite_eq_left hy, ← hf.eq_iff, map_sum, map_mul,
+        (Exists.choose_spec (_ : ∃ a, ∃ _, f a = _)).2, map_add
+      ]
       using hJ.dpow_add (hIJ ▸ I.mem_map_of_mem f hx) (hIJ ▸ I.mem_map_of_mem f hy)
   dpow_mul {n a x} hx := by
     have hax : a * x ∈ I := Ideal.mul_mem_left _ _ hx
-    simpa only [(Exists.choose_spec (_ : ∃ a, ∃ _, f a = _)).2, dite_eq_left hax, dite_eq_left hx,
-    ← hf.eq_iff, map_mul, map_pow] using hJ.dpow_mul (hIJ ▸ I.mem_map_of_mem f hx)
-  mul_dpow hx := by simpa only [dite_eq_left hx, ← hf.eq_iff, (Exists.choose_spec (hmem _ hx)).2,
-    map_mul, map_natCast] using hJ.mul_dpow (hIJ ▸ I.mem_map_of_mem f hx)
+    simpa only [
+        (Exists.choose_spec (_ : ∃ a, ∃ _, f a = _)).2, dite_eq_left hax, dite_eq_left hx,
+        ← hf.eq_iff, map_mul, map_pow
+      ]
+      using hJ.dpow_mul (hIJ ▸ I.mem_map_of_mem f hx)
+  mul_dpow hx := by
+    simpa only [
+        dite_eq_left hx, ← hf.eq_iff, (Exists.choose_spec (hmem _ hx)).2, map_mul, map_natCast
+      ]
+      using hJ.mul_dpow (hIJ ▸ I.mem_map_of_mem f hx)
   dpow_comp {n m x} hm hx := by
     simp only [dite_eq_left hx, ← hf.eq_iff, map_mul, map_natCast]
     -- the condition for the other `dite_eq_left` is a bit messy so we use `rw` to
@@ -123,8 +137,8 @@ private lemma dpow'_int (n : ℕ) {x : ℤ_[p]} (hx : x ∈ Ideal.span {(p : ℤ
     · simp
 
 set_option backward.privateInPublic true in
-private theorem dpow'_mem {n : ℕ} {x : ℤ_[p]} (hm : n ≠ 0) (hx : x ∈ Ideal.span {↑p}) :
-    ⟨dpow' p n x, dpow'_int p n hx⟩ ∈ Ideal.span {(p : ℤ_[p])} := by
+private theorem dpow'_mem {n : ℕ} {x : ℤ_[p]} (hm : n ≠ 0) (hx : x ∈ Ideal.span {↑p})
+    : ⟨dpow' p n x, dpow'_int p n hx⟩ ∈ Ideal.span {(p : ℤ_[p])} := by
   have hiff := PadicInt.norm_le_pow_iff_mem_span_pow ⟨dpow' p n x, dpow'_int p n hx⟩ 1
   rw [pow_one] at hiff
   rw [← hiff]
@@ -134,20 +148,28 @@ private theorem dpow'_mem {n : ℕ} {x : ℤ_[p]} (hm : n ≠ 0) (hx : x ∈ Ide
 set_option backward.isDefEq.respectTransparency false in
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- The family `ℕ → Ideal.span {(p : ℤ_[p])} → ℤ_[p]` given by `dpow n x = x ^ n / n!` is a
-  divided power structure on the `ℤ_[p]`-ideal `(p)`. -/
+/--
+The family `ℕ → Ideal.span {(p : ℤ_[p])} → ℤ_[p]` given by `dpow n x = x ^ n / n!` is a
+divided power structure on the `ℤ_[p]`-ideal `(p)`.
+-/
 noncomputable def dividedPowers : DividedPowers (Ideal.span {(p : ℤ_[p])}) := by
   classical
-  refine ofInjective (Ideal.span {(p : ℤ_[p])}) (⊤)
-    PadicInt.Coe.ringHom ((Set.injective_codRestrict Subtype.property).mp fun ⦃a₁ a₂⦄ a ↦ a)
+  refine ofInjective (Ideal.span {(p : ℤ_[p])}) (⊤) PadicInt.Coe.ringHom
+    ((Set.injective_codRestrict Subtype.property).mp fun ⦃a₁ a₂⦄ a ↦ a)
     (RatAlgebra.dividedPowers (⊤ : Ideal ℚ_[p])) ?_ ?_
   · rw [Ideal.map_span, Set.image_singleton, map_natCast]
     simp only [Ideal.span_singleton_eq_top, isUnit_iff_ne_zero, ne_eq, cast_eq_zero]
     exact Nat.Prime.ne_zero hp.elim
   · intro n x hx
-    exact ⟨⟨dpow' p n x, dpow'_int p n hx⟩, fun hn ↦ dpow'_mem p hn hx, by
-      simp [dpow', inverse_eq_inv', Coe.ringHom_apply, RatAlgebra.dpow_apply,
-        Submodule.mem_top, ↓reduceIte]⟩
+    exact ⟨
+      ⟨dpow' p n x, dpow'_int p n hx⟩,
+      fun hn ↦ dpow'_mem p hn hx,
+      by
+        simp [
+          dpow', inverse_eq_inv', Coe.ringHom_apply, RatAlgebra.dpow_apply, Submodule.mem_top,
+          ↓ reduceIte
+        ]
+    ⟩
 
 open Function
 

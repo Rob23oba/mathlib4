@@ -38,8 +38,9 @@ open TensorProduct MvPolynomial
 
 namespace Algebra.Generators
 
-variable {R S T ι : Type*} [CommRing R] [CommRing S] [Algebra R S]
-  [CommRing T] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
+variable
+  {R S T ι : Type*} [CommRing R] [CommRing S] [Algebra R S] [CommRing T] [Algebra R T] [Algebra S T]
+  [IsScalarTower R S T]
 variable (g : S) [IsLocalization.Away g T] (P : Generators R S ι)
 
 lemma comp_localizationAway_ker (P : Generators R S ι) (f : P.Ring)
@@ -57,11 +58,13 @@ lemma comp_localizationAway_ker (P : Generators R S ι) (f : P.Ring)
   simp
 
 variable (T) in
-/-- If `R[X] → S` generates `S`, `T` is the localization of `S` away from `g` and
+/--
+If `R[X] → S` generates `S`, `T` is the localization of `S` away from `g` and
 `f` is a pre-image of `g` in `R[X]`, this is the `R`-algebra map `R[X,Y] →ₐ[R] (R[X]/I²)[1/f]`
-defined via mapping `Y` to `1/f`. -/
-noncomputable
-def compLocalizationAwayAlgHom : ((Generators.localizationAway T g).comp P).Ring →ₐ[R]
+defined via mapping `Y` to `1/f`.
+-/
+noncomputable def compLocalizationAwayAlgHom
+    : ((Generators.localizationAway T g).comp P).Ring →ₐ[R]
       Localization.Away (Ideal.Quotient.mk (P.ker ^ 2) (P.σ g)) :=
   aeval (R := R) (S₁ := Localization.Away _)
     (Sum.elim
@@ -161,9 +164,9 @@ of relative dimension one over `S`, `K/K²` is free of rank one generated
 by the image of `g * X - 1`.
 This is the section `K/K² → J/J²` defined by sending the image of `g * X - 1` to `x : J/J²`.
 -/
-noncomputable def cotangentCompAwaySec (x : ((localizationAway T g).comp P).toExtension.Cotangent) :
-    (localizationAway T g).toExtension.Cotangent →ₗ[T]
-      ((localizationAway T g).comp P).toExtension.Cotangent :=
+noncomputable def cotangentCompAwaySec (x : ((localizationAway T g).comp P).toExtension.Cotangent)
+    : (localizationAway T g).toExtension.Cotangent →ₗ[T]
+        ((localizationAway T g).comp P).toExtension.Cotangent :=
   (basisCotangentAway T g).constr T fun _ ↦ x
 
 variable (x : ((localizationAway T g).comp P).toExtension.Cotangent)
@@ -173,9 +176,10 @@ lemma cotangentCompAwaySec_apply :
     cotangentCompAwaySec g P x (cMulXSubOneCotangent T g) = x := by
   rw [← basisCotangentAway_apply _ (), cotangentCompAwaySec, Module.Basis.constr_basis]
 
-variable {x}
-  (hx : Extension.Cotangent.map ((localizationAway T g).ofComp P).toExtensionHom x =
-    cMulXSubOneCotangent T g)
+variable
+  {x}
+  (hx : Extension.Cotangent.map ((localizationAway T g).ofComp P).toExtensionHom x
+    = cMulXSubOneCotangent T g)
 
 include hx in
 /-- The section `cotangentCompAwaySec` is indeed a section of the canonical map `J/J² → K/K²`. -/
@@ -196,10 +200,9 @@ Denote by `J` the kernel of the induced `R[X, Y] → T`. Then
 This is the splitting characterised by `x ↦ (0, g * X - 1)`.
 -/
 @[stacks 08JZ "(1)"]
-noncomputable
-def cotangentCompLocalizationAwayEquiv :
-    ((localizationAway T g).comp P).toExtension.Cotangent ≃ₗ[T]
-      T ⊗[S] P.toExtension.Cotangent × (Generators.localizationAway T g).toExtension.Cotangent :=
+noncomputable def cotangentCompLocalizationAwayEquiv
+    : ((localizationAway T g).comp P).toExtension.Cotangent ≃ₗ[T]
+        T ⊗[S] P.toExtension.Cotangent × (Generators.localizationAway T g).toExtension.Cotangent :=
   ((Cotangent.exact (localizationAway g (S := T)) P).splitSurjectiveEquiv
     (liftBaseChange_injective_of_isLocalizationAway _ P)
     ⟨cotangentCompAwaySec g P x, map_comp_cotangentCompAwaySec g P hx⟩).1

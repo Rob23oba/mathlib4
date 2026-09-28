@@ -41,12 +41,14 @@ namespace II
 
 variable {n m : ℕ}
 
-/-- Auxiliary definition for `map'`. Given `f : Fin (n + 1) →o Fin (m + 1)` and
+/--
+Auxiliary definition for `map'`. Given `f : Fin (n + 1) →o Fin (m + 1)` and
 `x : Fin (m + 2)`, `map' f x` shall be the smallest element in
-this `finset f x : Finset (Fin (n + 2))`. -/
+this `finset f x : Finset (Fin (n + 2))`.
+-/
 def finset (f : Fin (n + 1) →o Fin (m + 1)) (x : Fin (m + 2)) : Finset (Fin (n + 2)) :=
-  Finset.univ.filter (fun i ↦ i = Fin.last _ ∨
-    ∃ (h : i ≠ Fin.last _), x ≤ (f (i.castPred h)).castSucc)
+  Finset.univ.filter (fun i ↦
+    i = Fin.last _ ∨ ∃ (h : i ≠ Fin.last _), x ≤ (f (i.castPred h)).castSucc)
 
 lemma mem_finset_iff (f : Fin (n + 1) →o Fin (m + 1)) (x : Fin (m + 2)) (i : Fin (n + 2)) :
     i ∈ finset f x ↔ i = Fin.last _ ∨
@@ -68,8 +70,10 @@ lemma nonempty_finset (f : Fin (n + 1) →o Fin (m + 1)) (x : Fin (m + 2)) :
     (finset f x).Nonempty :=
   ⟨Fin.last _, by simp [mem_finset_iff]⟩
 
-/-- Auxiliary definition for the definition of the action of the
-functor `SimplexCategory.II` on morphisms. -/
+/--
+Auxiliary definition for the definition of the action of the
+functor `SimplexCategory.II` on morphisms.
+-/
 def map' (f : Fin (n + 1) →o Fin (m + 1)) (x : Fin (m + 2)) : Fin (n + 2) :=
   (finset f x).min' (nonempty_finset f x)
 
@@ -218,22 +222,24 @@ lemma monotone_map' (f : Fin (n + 1) →o Fin (m + 1)) :
 
 end II
 
-/-- The functor `SimplexCategory ⥤ SimplexCategoryᵒᵖ` (i.e. a cosimplicial
+/--
+The functor `SimplexCategory ⥤ SimplexCategoryᵒᵖ` (i.e. a cosimplicial
 object in `SimplexCategoryᵒᵖ`) which sends `⦋n⦌` to the object in `SimplexCategoryᵒᵖ`
 that is associated to the linearly ordered type `⦋n + 1⦌` (which could be
-identified to the ordered type `⦋n⦌ →o ⦋1⦌`). -/
+identified to the ordered type `⦋n⦌ →o ⦋1⦌`).
+-/
 @[simps obj]
 def II : CosimplicialObject SimplexCategoryᵒᵖ where
   obj n := op ⦋n.len + 1⦌
-  map f := op (Hom.mk
-    { toFun := II.map' f.toOrderHom
-      monotone' := II.monotone_map' _ })
-  map_id n := Quiver.Hom.unop_inj (by
-    ext x : 3
-    exact II.map'_id x)
-  map_comp {m n p} f g := Quiver.Hom.unop_inj (by
-    ext x : 3
-    exact (II.map'_map' _ _ _).symm)
+  map f := op (Hom.mk { toFun := II.map' f.toOrderHom, monotone' := II.monotone_map' _ })
+  map_id n :=
+    Quiver.Hom.unop_inj (by
+      ext x : 3
+      exact II.map'_id x)
+  map_comp {m n p} f g :=
+    Quiver.Hom.unop_inj (by
+      ext x : 3
+      exact (II.map'_map' _ _ _).symm)
 
 @[simp]
 lemma II_δ {n : ℕ} (i : Fin (n + 2)) :

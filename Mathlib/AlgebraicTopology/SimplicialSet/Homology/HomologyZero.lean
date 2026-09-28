@@ -32,11 +32,12 @@ namespace SSet
 
 variable (X : SSet) (R : C)
 
-/-- Given a simplicial set `X`, this is the morphism from
+/--
+Given a simplicial set `X`, this is the morphism from
 `0`-chains with coefficients in `R` to coproduct of copies
-of `R` indexed by `π₀ X`. -/
-noncomputable def π₀.fromChainComplexXZero :
-    (X.chainComplex R).X 0 ⟶ ∐ (fun (_ : π₀ X) ↦ R) :=
+of `R` indexed by `π₀ X`.
+-/
+noncomputable def π₀.fromChainComplexXZero : (X.chainComplex R).X 0 ⟶ ∐ (fun (_ : π₀ X) ↦ R) :=
   (sigmaConst.obj _).map (↾π₀.mk)
 
 @[reassoc (attr := simp)]
@@ -55,27 +56,29 @@ lemma π₀.d_fromChainComplexXZero (n : ℕ) :
     simp [π₀.sound (Edge.mk' x)]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given a simplicial set `X`, the cokernel of the differential `d 1 0`
+/--
+Given a simplicial set `X`, the cokernel of the differential `d 1 0`
 of the chain complex of `X` with coefficients in `R` identifies
-to the coproduct of copies of `R` indexed by `π₀ X`. -/
-noncomputable def isColimitCokernelCoforkChainComplexDOneZero :
-    IsColimit (CokernelCofork.ofπ _ (π₀.d_fromChainComplexXZero X R 1)) := by
+to the coproduct of copies of `R` indexed by `π₀ X`.
+-/
+noncomputable def isColimitCokernelCoforkChainComplexDOneZero
+    : IsColimit (CokernelCofork.ofπ _ (π₀.d_fromChainComplexXZero X R 1)) := by
   refine (IsColimit.equivOfNatIsoOfIso ?_ _ _ ?_).1
-    (Preadditive.isColimitCokernelCoforkOfCofork
-      ((isColimitMapCoconeCoforkEquiv _ _).1
-        (isColimitOfPreserves (sigmaConst.obj R) X.isColimitCoforkπ₀)))
-  · refine parallelPair.ext (-Iso.refl _) (Iso.refl _) ?_ (by simp)
+    (Preadditive.isColimitCokernelCoforkOfCofork ((isColimitMapCoconeCoforkEquiv _ _).1
+      (isColimitOfPreserves (sigmaConst.obj R) X.isColimitCoforkπ₀)))
+  · refine parallelPair.ext (- Iso.refl _) (Iso.refl _) ?_ (by simp)
     simp [chainComplex, SSet.chainComplexFunctor, sub_eq_neg_add]
   · refine Cofork.ext (Iso.refl _) ?_
     ext
     simp [chainComplex, SSet.chainComplexFunctor, π₀.fromChainComplexXZero]
 
-/-- A homology data saying that the singular homology in degree `0`
+/--
+A homology data saying that the singular homology in degree `0`
 of a simplicial set with coefficients in `R` identify to a coproduct
-of copies of `X` indexed by `π₀ X`. -/
+of copies of `X` indexed by `π₀ X`.
+-/
 @[simps! left_K left_H right_Q right_H]
-noncomputable def homologyData₀ :
-    ((X.chainComplex R).sc' 1 0 0).HomologyData :=
+noncomputable def homologyData₀ : ((X.chainComplex R).sc' 1 0 0).HomologyData :=
   ShortComplex.HomologyData.ofIsColimitCokernelCofork _ (by cat_disch) _
     (isColimitCokernelCoforkChainComplexDOneZero X R)
 
@@ -97,12 +100,13 @@ lemma homologyData₀_left_liftK {T : C} (f : T ⟶ (X.chainComplex R).X 0) :
 
 variable [CategoryWithHomology C]
 
-/-- The homology of a simplicial set in degree `0` with coefficients
-in `R` identifies to a coproduct of copies of `R` indexed by `π₀ X`. -/
-noncomputable def homology₀Iso :
-    X.homology R 0 ≅ ∐ (fun (_ : π₀ X) ↦ R) :=
-  ShortComplex.homologyMapIso (HomologicalComplex.isoSc' _ 1 0 0 (by simp) (by simp)) ≪≫
-    (X.homologyData₀ R).left.homologyIso
+/--
+The homology of a simplicial set in degree `0` with coefficients
+in `R` identifies to a coproduct of copies of `R` indexed by `π₀ X`.
+-/
+noncomputable def homology₀Iso : X.homology R 0 ≅ ∐ (fun (_ : π₀ X) ↦ R) :=
+  ShortComplex.homologyMapIso (HomologicalComplex.isoSc' _ 1 0 0 (by simp) (by simp))
+    ≪≫ (X.homologyData₀ R).left.homologyIso
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

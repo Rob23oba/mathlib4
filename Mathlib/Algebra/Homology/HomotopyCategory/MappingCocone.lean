@@ -25,13 +25,14 @@ namespace CochainComplex
 
 open HomComplex
 
-variable {C : Type*} [Category* C] [Preadditive C]
-  {K L : CochainComplex C ℤ} (φ : K ⟶ L)
+variable {C : Type*} [Category* C] [Preadditive C] {K L : CochainComplex C ℤ} (φ : K ⟶ L)
 
-/-- The mapping cocone of a morphism `φ : K ⟶ L` of cochain complexes: it is
-`(mappingCone φ)⟦(-1 : ℤ)⟧`. -/
-noncomputable def mappingCocone [HasHomotopyCofiber φ] :
-    CochainComplex C ℤ := (mappingCone φ)⟦(-1 : ℤ)⟧
+/--
+The mapping cocone of a morphism `φ : K ⟶ L` of cochain complexes: it is
+`(mappingCone φ)⟦(-1 : ℤ)⟧`.
+-/
+noncomputable def mappingCocone [HasHomotopyCofiber φ] : CochainComplex C ℤ :=
+  (mappingCone φ)⟦(-1 : ℤ)⟧
 
 namespace mappingCocone
 
@@ -102,8 +103,7 @@ lemma id_X (p q : ℤ) (hpq : p + -1 = q) :
 
 section
 
-variable {M : CochainComplex C ℤ} {n m : ℤ}
-  (α : Cochain K M m) (β : Cochain L M n) (h : m + 1 = n)
+variable {M : CochainComplex C ℤ} {n m : ℤ} (α : Cochain K M m) (β : Cochain L M n) (h : m + 1 = n)
 
 /-- Constructor for cochains from `mappingCocone`. -/
 noncomputable def descCochain : Cochain (mappingCocone φ) M m :=
@@ -166,21 +166,22 @@ end
 
 /-- Constructor for cocycles from `mappingCocone`. -/
 @[simps]
-noncomputable def descCocycle {M : CochainComplex C ℤ} {n m : ℤ}
-    (α : Cochain K M m) (β : Cocycle L M n) (h : m + 1 = n)
-    (hαβ : δ m n α + m.negOnePow • (Cochain.ofHom φ).comp β.1 (zero_add n) = 0) :
-    Cocycle (mappingCocone φ) M m :=
-  ⟨descCochain φ α β h, by
-    simp [Cocycle.mem_iff _ n h, δ_descCochain _ _ _ h (n + 1) (by lia), hαβ]⟩
+noncomputable def descCocycle
+    {M : CochainComplex C ℤ} {n m : ℤ} (α : Cochain K M m) (β : Cocycle L M n) (h : m + 1 = n)
+    (hαβ : δ m n α + m.negOnePow • (Cochain.ofHom φ).comp β.1 (zero_add n) = 0)
+    : Cocycle (mappingCocone φ) M m := ⟨
+  descCochain φ α β h,
+  by simp [Cocycle.mem_iff _ n h, δ_descCochain _ _ _ h (n + 1) (by lia), hαβ]
+⟩
 
 section
 
-variable {M : CochainComplex C ℤ} (α : Cochain K M 0) (β : Cocycle L M 1)
+variable
+  {M : CochainComplex C ℤ} (α : Cochain K M 0) (β : Cocycle L M 1)
   (hαβ : δ 0 1 α + (Cochain.ofHom φ).comp β.1 (zero_add 1) = 0)
 
 /-- Constructor for morphisms from `mappingCocone`. -/
-noncomputable def desc : mappingCocone φ ⟶ M :=
-  (descCocycle φ α β (zero_add 1) (by simpa)).homOf
+noncomputable def desc : mappingCocone φ ⟶ M := (descCocycle φ α β (zero_add 1) (by simpa)).homOf
 
 @[simp]
 lemma ofHom_desc :
@@ -201,8 +202,7 @@ end
 
 section
 
-variable {M : CochainComplex C ℤ} {n m : ℤ}
-  (α : Cochain M K n) (β : Cochain M L m) (h : m + 1 = n)
+variable {M : CochainComplex C ℤ} {n m : ℤ} (α : Cochain M K n) (β : Cochain M L m) (h : m + 1 = n)
 
 /-- Constructor for cochains to `mappingCocone`. -/
 noncomputable def liftCochain : Cochain M (mappingCocone φ) n :=
@@ -262,17 +262,17 @@ end
 
 /-- Constructor for cocycles to `mappingCocone`. -/
 @[simps]
-noncomputable def liftCocycle {M : CochainComplex C ℤ} {n m : ℤ}
-    (α : Cocycle M K n) (β : Cochain M L m) (h : m + 1 = n)
-    (hαβ : δ m n β + α.1.comp (Cochain.ofHom φ) (add_zero n) = 0) :
-    Cocycle M (mappingCocone φ) n :=
-  ⟨liftCochain φ α β h,
-    by simp [Cocycle.mem_iff _ _ rfl, δ_liftCochain _ _ _ _ _ rfl, hαβ]⟩
+noncomputable def liftCocycle
+    {M : CochainComplex C ℤ} {n m : ℤ} (α : Cocycle M K n) (β : Cochain M L m) (h : m + 1 = n)
+    (hαβ : δ m n β + α.1.comp (Cochain.ofHom φ) (add_zero n) = 0)
+    : Cocycle M (mappingCocone φ) n :=
+  ⟨liftCochain φ α β h, by simp [Cocycle.mem_iff _ _ rfl, δ_liftCochain _ _ _ _ _ rfl, hαβ]⟩
 
 section
 
-variable {M : CochainComplex C ℤ} (α : M ⟶ K) (β : Cochain M L (-1))
-  (hαβ : δ (-1) 0 β + Cochain.ofHom (α ≫ φ) = 0)
+variable
+  {M : CochainComplex C ℤ}
+  (α : M ⟶ K) (β : Cochain M L (-1)) (hαβ : δ (-1) 0 β + Cochain.ofHom (α ≫ φ) = 0)
 
 /-- Constructor for morphisms to `mappingCocone`. -/
 noncomputable def lift : M ⟶ mappingCocone φ :=
@@ -306,8 +306,10 @@ section
 
 variable [HasBinaryBiproducts C]
 
-/-- Given a morphism `φ : K ⟶ L` of cochain complexes, this is the triangle
-`mappingCocone φ ⟶ K ⟶ L ⟶ ...`. -/
+/--
+Given a morphism `φ : K ⟶ L` of cochain complexes, this is the triangle
+`mappingCocone φ ⟶ K ⟶ L ⟶ ...`.
+-/
 @[simps! obj₁ obj₂ obj₃ mor₁ mor₂]
 noncomputable def triangle : Triangle (CochainComplex C ℤ) :=
   Triangle.mk (fst φ) φ
@@ -315,18 +317,20 @@ noncomputable def triangle : Triangle (CochainComplex C ℤ) :=
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Rotating the triangle `mappingCocone.triangle φ` gives a triangle that is
-isomorphic to `mappingCone.triangle φ`. -/
-noncomputable def rotateTriangleIso :
-    (triangle φ).rotate ≅ mappingCone.triangle φ := by
+/--
+Rotating the triangle `mappingCocone.triangle φ` gives a triangle that is
+isomorphic to `mappingCone.triangle φ`.
+-/
+noncomputable def rotateTriangleIso : (triangle φ).rotate ≅ mappingCone.triangle φ := by
   refine Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _)
-    ((shiftFunctorCompIsoId _ (-1 : ℤ) 1 (by lia)).app _)
-    (by simp) (by simp [triangle]) ?_
+    ((shiftFunctorCompIsoId _ (-1 : ℤ) 1 (by lia)).app _) (by simp) (by simp [triangle]) ?_
   dsimp
   ext n
-  simp [fst, mappingCone.triangle, Cochain.leftShift_v _ _ _ _ _ _ _ _ rfl,
-    Cochain.rightShift_v _ _ _ _ _ _ _ _ rfl,
-    shiftFunctorCompIsoId, shiftFunctorAdd'_inv_app_f', shiftFunctorZero_hom_app_f]
+  simp [
+    fst, mappingCone.triangle, Cochain.leftShift_v _ _ _ _ _ _ _ _ rfl,
+    Cochain.rightShift_v _ _ _ _ _ _ _ _ rfl, shiftFunctorCompIsoId, shiftFunctorAdd'_inv_app_f',
+    shiftFunctorZero_hom_app_f
+  ]
 
 end
 

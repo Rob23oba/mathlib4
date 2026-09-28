@@ -68,9 +68,7 @@ namespace AkraBazziRecurrence
 variable {α : Type*} [Fintype α] {T : ℕ → ℝ} {g : ℝ → ℝ} {a b : α → ℝ} {r : α → ℕ → ℕ}
 variable [Nonempty α] (R : AkraBazziRecurrence T g a b r)
 
-
 local notation "ε" => smoothingFn
-
 
 /-!
 ### Technical lemmas
@@ -651,7 +649,8 @@ lemma smoothingFn_mul_asympBound_isBigO_T :
 
 /-- The **Akra-Bazzi theorem**: `T ∈ O(n^p (1 + ∑_u^n g(u) / u^{p+1}))` -/
 theorem isBigO_asympBound : T =O[atTop] asympBound g a b := by
-  calc T
+  calc
+    T
     _ =O[atTop] (fun n => (1 - ε n) * asympBound g a b n) := by
       exact R.T_isBigO_smoothingFn_mul_asympBound
     _ =O[atTop] (fun n => 1 * asympBound g a b n) := by
@@ -663,12 +662,15 @@ theorem isBigO_asympBound : T =O[atTop] asympBound g a b := by
 
 /-- The **Akra-Bazzi theorem**: `T ∈ Ω(n^p (1 + ∑_u^n g(u) / u^{p+1}))` -/
 theorem isBigO_symm_asympBound : asympBound g a b =O[atTop] T := by
-  calc asympBound g a b
+  calc
+    asympBound g a b
     _ = (fun n => 1 * asympBound g a b n) := by simp
     _ ~[atTop] (fun n => (1 + ε n) * asympBound g a b n) := by
       refine IsEquivalent.mul (IsEquivalent.symm ?_) IsEquivalent.refl
-      rw [Function.const_def, isEquivalent_const_iff_tendsto one_ne_zero,
-        ← Function.comp_def (fun n => 1 + ε n) Nat.cast]
+      rw [
+        Function.const_def, isEquivalent_const_iff_tendsto one_ne_zero,
+        ← Function.comp_def (fun n => 1 + ε n) Nat.cast
+      ]
       exact Tendsto.comp isEquivalent_one_add_smoothingFn_one.tendsto_const
         tendsto_natCast_atTop_atTop
     _ =O[atTop] T := R.smoothingFn_mul_asympBound_isBigO_T

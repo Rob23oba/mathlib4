@@ -28,12 +28,12 @@ open Set
 variable {𝕜 E F G : Type*}
 
 section LinearOrderedCommRing
-variable [CommRing 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
-  [CommRing E] [LinearOrder E] [IsStrictOrderedRing E]
-  [AddCommGroup F] [LinearOrder F] [IsOrderedAddMonoid F]
-  [AddCommGroup G] [Module 𝕜 G]
-  [Module 𝕜 E] [Module 𝕜 F] [Module E F] [IsScalarTower 𝕜 E F] [SMulCommClass 𝕜 E F]
-  [IsOrderedModule 𝕜 F] [IsStrictOrderedModule E F] {s : Set G} {f : G → E} {g : G → F}
+variable
+  [CommRing 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [CommRing E] [LinearOrder E]
+  [IsStrictOrderedRing E] [AddCommGroup F] [LinearOrder F] [IsOrderedAddMonoid F] [AddCommGroup G]
+  [Module 𝕜 G] [Module 𝕜 E] [Module 𝕜 F] [Module E F] [IsScalarTower 𝕜 E F] [SMulCommClass 𝕜 E F]
+  [IsOrderedModule 𝕜 F] [IsStrictOrderedModule E F]
+  {s : Set G} {f : G → E} {g : G → F}
 
 lemma ConvexOn.smul' (hf : ConvexOn 𝕜 s f) (hg : ConvexOn 𝕜 s g) (hf₀ : ∀ ⦃x⦄, x ∈ s → 0 ≤ f x)
     (hg₀ : ∀ ⦃x⦄, x ∈ s → 0 ≤ g x) (hfg : MonovaryOn f g s) : ConvexOn 𝕜 s (f • g) := by

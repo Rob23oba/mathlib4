@@ -79,19 +79,24 @@ end SchwarzTransform
 
 section BorelCaratheodory
 
-/-- **Borel-Carathéodory theorem** for functions vanishing at the origin.
+/--
+**Borel-Carathéodory theorem** for functions vanishing at the origin.
 
 If `f` is analytic on the open ball `‖z‖ < R`, satisfies `(f z).re ≤ M` for all such `z`,
-and `f 0 = 0`, then `‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖)` for all `‖z‖ < R`. -/
-public theorem borelCaratheodory_zero (hM : 0 < M) (hf : DifferentiableOn ℂ f (ball 0 R))
-    (hf₁ : Set.MapsTo f (ball 0 R) {z | z.re ≤ M}) (hR : 0 < R) (hz : z ∈ ball 0 R)
-    (hf₂ : f 0 = 0) : ‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖) := by
+and `f 0 = 0`, then `‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖)` for all `‖z‖ < R`.
+-/
+public theorem borelCaratheodory_zero
+    (hM : 0 < M) (hf : DifferentiableOn ℂ f (ball 0 R))
+    (hf₁ : Set.MapsTo f (ball 0 R) {z | z.re ≤ M}) (hR : 0 < R) (hz : z ∈ ball 0 R) (hf₂ : f 0 = 0)
+    : ‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖) := by
   set w := f z / (2 * M - f z)
   have hzR : ‖z‖ < R := mem_ball_zero_iff.mp hz
-  have hwR := by simpa only [dist_zero_right, div_one, mul_comm (1 / R), mul_one_div]
-    using schwarz_applied hM hf hf₁ hz hf₂
+  have hwR := by
+    simpa only [dist_zero_right, div_one, mul_comm (1 / R), mul_one_div] using
+      schwarz_applied hM hf hf₁ hz hf₂
   have h_denom : 2 * M - f z ≠ 0 := sub_ne_zero_of_ne (fun h => by simpa [← h, hM] using hf₁ hz)
-  calc ‖f z‖
+  calc
+    ‖f z‖
     _ = ‖2 * M * w / (1 + w)‖ := by rw [eq_mul_div_one_add_of_eq_div_sub hM.ne' h_denom rfl]
     _ ≤ 2 * M * ‖w‖ / (1 - ‖w‖) := by
       simp only [norm_div, norm_mul, norm_ofNat, norm_real, Real.norm_eq_abs, abs_of_pos hM]
@@ -102,21 +107,28 @@ public theorem borelCaratheodory_zero (hM : 0 < M) (hf : DifferentiableOn ℂ f 
     _ ≤ 2 * M * (‖z‖ / R / (1 - ‖z‖ / R)) := by gcongr; simpa [div_lt_one hR]
     _ = 2 * M * ‖z‖ / (R - ‖z‖) := by field_simp
 
-/-- **Borel-Carathéodory theorem**.
+/--
+**Borel-Carathéodory theorem**.
 
 If `f` is analytic on the open ball `‖z‖ < R` and satisfies `(f z).re ≤ M` for all such `z`,
-then `‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖) + ‖f 0‖ * (R + ‖z‖) / (R - ‖z‖)` for all `‖z‖ < R`. -/
-public theorem borelCaratheodory (hM : 0 < M) (hf : DifferentiableOn ℂ f (ball 0 R))
-    (hf₁ : Set.MapsTo f (ball 0 R) {z | z.re ≤ M}) (hR : 0 < R) (hz : z ∈ ball 0 R) :
-    ‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖) + ‖f 0‖ * (R + ‖z‖) / (R - ‖z‖) := by
+then `‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖) + ‖f 0‖ * (R + ‖z‖) / (R - ‖z‖)` for all `‖z‖ < R`.
+-/
+public theorem borelCaratheodory
+    (hM : 0 < M) (hf : DifferentiableOn ℂ f (ball 0 R))
+    (hf₁ : Set.MapsTo f (ball 0 R) {z | z.re ≤ M}) (hR : 0 < R) (hz : z ∈ ball 0 R)
+    : ‖f z‖ ≤ 2 * M * ‖z‖ / (R - ‖z‖) + ‖f 0‖ * (R + ‖z‖) / (R - ‖z‖) := by
   have hfz : ‖f z - f 0‖ ≤ 2 * (M + ‖f 0‖) * ‖z‖ / (R - ‖z‖) := by
     apply borelCaratheodory_zero (by positivity) (by fun_prop) ?_ hR hz (by simp)
     intro x hx
     simp only [Set.mem_ofPred_eq, sub_re]
-    calc (f x).re - (f 0).re ≤ M - (f 0).re := by gcongr; exact hf₁ hx
+    calc
+      (f x).re - (f 0).re
+        ≤ M - (f 0).re := by gcongr; exact hf₁ hx
       _ ≤ M + ‖f 0‖ := by linarith [neg_le_abs (f 0).re, abs_re_le_norm (f 0)]
   have h_denom_ne : R - ‖z‖ ≠ 0 := by linarith [mem_ball_zero_iff.mp hz]
-  calc ‖f z‖ ≤ ‖f z - f 0‖ + ‖f 0‖ := norm_le_norm_sub_add _ _
+  calc
+    ‖f z‖
+      ≤ ‖f z - f 0‖ + ‖f 0‖ := norm_le_norm_sub_add _ _
     _ ≤ 2 * (M + ‖f 0‖) * ‖z‖ / (R - ‖z‖) + ‖f 0‖ := by gcongr
     _ = 2 * M * ‖z‖ / (R - ‖z‖) + ‖f 0‖ * (R + ‖z‖) / (R - ‖z‖) := by field_simp; ring
 

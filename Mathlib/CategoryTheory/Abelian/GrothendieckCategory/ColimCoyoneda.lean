@@ -40,7 +40,8 @@ attribute [local instance] IsFiltered.isConnected
 
 namespace IsGrothendieckAbelian
 
-variable {C : Type u} [Category.{v} C] [Abelian C] [IsGrothendieckAbelian.{w} C]
+variable
+  {C : Type u} [Category.{v} C] [Abelian C] [IsGrothendieckAbelian.{w} C]
   {X : C} {J : Type w} [SmallCategory J]
 
 namespace IsPresentable
@@ -67,8 +68,10 @@ which implies that `y ≫ Y.map φ = 0` (see the lemma `injectivity₀`).
 -/
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The natural transformation `X ⟶ Y.obj t.right` for `t : Under j₀`
-that is induced by `y : X ⟶ Y.obj j₀`. -/
+/--
+The natural transformation `X ⟶ Y.obj t.right` for `t : Under j₀`
+that is induced by `y : X ⟶ Y.obj j₀`.
+-/
 @[simps]
 def g : (Functor.const _).obj X ⟶ Under.forget j₀ ⋙ Y where
   app t := y ≫ Y.map t.hom
@@ -76,8 +79,10 @@ def g : (Functor.const _).obj X ⟶ Under.forget j₀ ⋙ Y where
     dsimp
     simp only [Category.id_comp, Category.assoc, ← Functor.map_comp, Under.w]
 
-/-- The obvious morphism `colimit (kernel (g y)) ⟶ X` (which is an epimorphism
-if `J` is filtered, see `epi_f`). -/
+/--
+The obvious morphism `colimit (kernel (g y)) ⟶ X` (which is an epimorphism
+if `J` is filtered, see `epi_f`).
+-/
 noncomputable def f : colimit (kernel (g y)) ⟶ X :=
   IsColimit.map (colimit.isColimit _) (constCocone _ X) (kernel.ι _)
 
@@ -100,8 +105,10 @@ lemma epi_f [IsFiltered J] : Epi (f y) := by
     (fun _ ↦ by simpa using! hy.symm)).epi_f rfl
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The kernel of `g y` gives a family of subobjects of `X` indexed by `Under j₀`, and
-we consider it as a functor `Under j₀ ⥤ MonoOver X`. -/
+/--
+The kernel of `g y` gives a family of subobjects of `X` indexed by `Under j₀`, and
+we consider it as a functor `Under j₀ ⥤ MonoOver X`.
+-/
 @[simps]
 noncomputable def F : Under j₀ ⥤ MonoOver X where
   obj j := MonoOver.mk ((kernel.ι (g y)).app j)
@@ -111,7 +118,8 @@ end injectivity₀
 
 section
 
-variable {κ : Cardinal.{w}} [hκ : Fact κ.IsRegular] [IsCardinalFiltered J κ]
+variable
+  {κ : Cardinal.{w}} [hκ : Fact κ.IsRegular] [IsCardinalFiltered J κ]
   (hXκ : HasCardinalLT (Subobject X) κ)
 
 include hXκ hc
@@ -158,20 +166,23 @@ we deduce that `z` factors as `X ⟶ Y.obj j ⟶ c.pt` for some `j`
 -/
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The functor `J ⥤ MonoOver X` which sends `j : J` to the inverse image by `z : X ⟶ c.pt`
+/--
+The functor `J ⥤ MonoOver X` which sends `j : J` to the inverse image by `z : X ⟶ c.pt`
 of the subobject `Y.obj j` of `c.pt`; it is defined here as the object in `MonoOver X`
 corresponding to the monomorphism
-`(pullback.snd c.ι ((Functor.const _).map z)).app j`. -/
+`(pullback.snd c.ι ((Functor.const _).map z)).app j`.
+-/
 @[simps]
 noncomputable def F [Mono c.ι] : J ⥤ MonoOver X where
   obj j := MonoOver.mk ((pullback.snd c.ι ((Functor.const _).map z)).app j)
   map {j j'} f := MonoOver.homMk ((pullback c.ι ((Functor.const _).map z)).map f)
 
-/-- The canonical map `colimit (pullback c.ι ((Functor.const J).map z)) ⟶ X`,
-which is an isomorphism when `J` is filtered, see `isIso_f`. -/
+/--
+The canonical map `colimit (pullback c.ι ((Functor.const J).map z)) ⟶ X`,
+which is an isomorphism when `J` is filtered, see `isIso_f`.
+-/
 noncomputable def f : colimit (pullback c.ι ((Functor.const J).map z)) ⟶ X :=
-  colimit.desc _ (Cocone.mk X
-    { app j := (pullback.snd c.ι ((Functor.const _).map z)).app j })
+  colimit.desc _ (Cocone.mk X { app j := (pullback.snd c.ι ((Functor.const _).map z)).app j })
 
 lemma hf (j : J) :
     colimit.ι (pullback c.ι ((Functor.const J).map z)) j ≫ f z =

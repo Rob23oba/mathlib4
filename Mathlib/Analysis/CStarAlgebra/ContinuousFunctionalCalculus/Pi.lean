@@ -25,14 +25,13 @@ public section
 
 section nonunital_pi
 
-variable {ι R S : Type*} {A : ι → Type*} [CommSemiring R] [Nontrivial R] [StarRing R]
-  [MetricSpace R]
-  [IsTopologicalSemiring R] [ContinuousStar R] [CommRing S] [Algebra R S]
-  [∀ i, NonUnitalRing (A i)] [∀ i, Module S (A i)] [∀ i, Module R (A i)]
-  [∀ i, IsScalarTower R S (A i)] [∀ i, SMulCommClass R (A i) (A i)]
-  [∀ i, IsScalarTower R (A i) (A i)]
-  [∀ i, StarRing (A i)] [∀ i, TopologicalSpace (A i)] {p : (∀ i, A i) → Prop}
-  {q : (i : ι) → A i → Prop}
+variable
+  {ι R S : Type*} {A : ι → Type*}
+  [CommSemiring R] [Nontrivial R] [StarRing R] [MetricSpace R] [IsTopologicalSemiring R]
+  [ContinuousStar R] [CommRing S] [Algebra R S] [∀ i, NonUnitalRing (A i)] [∀ i, Module S (A i)]
+  [∀ i, Module R (A i)] [∀ i, IsScalarTower R S (A i)] [∀ i, SMulCommClass R (A i) (A i)]
+  [∀ i, IsScalarTower R (A i) (A i)] [∀ i, StarRing (A i)] [∀ i, TopologicalSpace (A i)]
+  {p : (∀ i, A i) → Prop} {q : (i : ι) → A i → Prop}
   [NonUnitalContinuousFunctionalCalculus R (∀ i, A i) p]
   [∀ i, NonUnitalContinuousFunctionalCalculus R (A i) (q i)]
   [∀ i, ContinuousMapZero.UniqueHom R (A i)]
@@ -53,16 +52,15 @@ end nonunital_pi
 
 section nonunital_prod
 
-variable {A B R S : Type*} [CommSemiring R] [CommRing S] [Nontrivial R] [StarRing R]
-  [MetricSpace R] [IsTopologicalSemiring R] [ContinuousStar R] [Algebra R S] [NonUnitalRing A]
-  [NonUnitalRing B] [Module S A] [Module R A] [Module R B] [Module S B]
-  [SMulCommClass R A A] [SMulCommClass R B B] [IsScalarTower R A A] [IsScalarTower R B B]
-  [StarRing A] [StarRing B] [TopologicalSpace A] [TopologicalSpace B]
-  [IsScalarTower R S A] [IsScalarTower R S B]
+variable
+  {A B R S : Type*} [CommSemiring R] [CommRing S] [Nontrivial R] [StarRing R] [MetricSpace R]
+  [IsTopologicalSemiring R] [ContinuousStar R] [Algebra R S] [NonUnitalRing A] [NonUnitalRing B]
+  [Module S A] [Module R A] [Module R B] [Module S B] [SMulCommClass R A A] [SMulCommClass R B B]
+  [IsScalarTower R A A] [IsScalarTower R B B] [StarRing A] [StarRing B] [TopologicalSpace A]
+  [TopologicalSpace B] [IsScalarTower R S A] [IsScalarTower R S B]
   {pab : A × B → Prop} {pa : A → Prop} {pb : B → Prop}
   [NonUnitalContinuousFunctionalCalculus R (A × B) pab]
-  [NonUnitalContinuousFunctionalCalculus R A pa]
-  [NonUnitalContinuousFunctionalCalculus R B pb]
+  [NonUnitalContinuousFunctionalCalculus R A pa] [NonUnitalContinuousFunctionalCalculus R B pb]
   [ContinuousMapZero.UniqueHom R A] [ContinuousMapZero.UniqueHom R B]
 
 include S in
@@ -86,15 +84,13 @@ end nonunital_prod
 
 section unital_pi
 
-variable {ι R S : Type*} {A : ι → Type*} [CommSemiring R] [StarRing R] [MetricSpace R]
-  [IsTopologicalSemiring R] [ContinuousStar R] [CommRing S] [Algebra R S]
-  [∀ i, Ring (A i)] [∀ i, Algebra S (A i)] [∀ i, Algebra R (A i)] [∀ i, IsScalarTower R S (A i)]
-  [hinst : IsScalarTower R S (∀ i, A i)]
-  [∀ i, StarRing (A i)] [∀ i, TopologicalSpace (A i)] {p : (∀ i, A i) → Prop}
-  {q : (i : ι) → A i → Prop}
-  [ContinuousFunctionalCalculus R (∀ i, A i) p]
-  [∀ i, ContinuousFunctionalCalculus R (A i) (q i)]
-  [∀ i, ContinuousMap.UniqueHom R (A i)]
+variable
+  {ι R S : Type*} {A : ι → Type*} [CommSemiring R] [StarRing R] [MetricSpace R]
+  [IsTopologicalSemiring R] [ContinuousStar R] [CommRing S] [Algebra R S] [∀ i, Ring (A i)]
+  [∀ i, Algebra S (A i)] [∀ i, Algebra R (A i)] [∀ i, IsScalarTower R S (A i)]
+  [hinst : IsScalarTower R S (∀ i, A i)] [∀ i, StarRing (A i)] [∀ i, TopologicalSpace (A i)]
+  {p : (∀ i, A i) → Prop} {q : (i : ι) → A i → Prop} [ContinuousFunctionalCalculus R (∀ i, A i) p]
+  [∀ i, ContinuousFunctionalCalculus R (A i) (q i)] [∀ i, ContinuousMap.UniqueHom R (A i)]
 
 include S in
 lemma cfc_map_pi (f : R → R) (a : ∀ i, A i)
@@ -109,15 +105,14 @@ end unital_pi
 
 section unital_prod
 
-variable {A B R S : Type*} [CommSemiring R] [StarRing R] [MetricSpace R]
-  [IsTopologicalSemiring R] [ContinuousStar R] [CommRing S] [Algebra R S]
-  [Ring A] [Ring B] [Algebra S A] [Algebra S B] [Algebra R A] [Algebra R B]
-  [IsScalarTower R S A] [IsScalarTower R S B]
-  [StarRing A] [StarRing B] [TopologicalSpace A] [TopologicalSpace B] {pab : A × B → Prop}
-  {pa : A → Prop} {pb : B → Prop}
-  [ContinuousFunctionalCalculus R (A × B) pab]
-  [ContinuousFunctionalCalculus R A pa] [ContinuousFunctionalCalculus R B pb]
-  [ContinuousMap.UniqueHom R A] [ContinuousMap.UniqueHom R B]
+variable
+  {A B R S : Type*} [CommSemiring R] [StarRing R] [MetricSpace R] [IsTopologicalSemiring R]
+  [ContinuousStar R] [CommRing S] [Algebra R S] [Ring A] [Ring B] [Algebra S A] [Algebra S B]
+  [Algebra R A] [Algebra R B] [IsScalarTower R S A] [IsScalarTower R S B] [StarRing A] [StarRing B]
+  [TopologicalSpace A] [TopologicalSpace B]
+  {pab : A × B → Prop} {pa : A → Prop} {pb : B → Prop}
+  [ContinuousFunctionalCalculus R (A × B) pab] [ContinuousFunctionalCalculus R A pa]
+  [ContinuousFunctionalCalculus R B pb] [ContinuousMap.UniqueHom R A] [ContinuousMap.UniqueHom R B]
 
 include S in
 lemma cfc_map_prod (f : R → R) (a : A) (b : B)

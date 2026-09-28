@@ -50,14 +50,14 @@ section Defs
 
 variable (M : Type*) {α : Type*} [Bornology M] [SMul M α]
 
-/-- A set `s` absorbs another set `t` if `t` is contained in all scalings of `s`
-by all but a bounded set of elements. -/
-def Absorbs (s t : Set α) : Prop :=
-  ∀ᶠ a in cobounded M, t ⊆ a • s
+/--
+A set `s` absorbs another set `t` if `t` is contained in all scalings of `s`
+by all but a bounded set of elements.
+-/
+def Absorbs (s t : Set α) : Prop := ∀ᶠ a in cobounded M, t ⊆ a • s
 
 /-- A set is *absorbent* if it absorbs every singleton. -/
-def Absorbent (s : Set α) : Prop :=
-  ∀ x, Absorbs M s {x}
+def Absorbent (s : Set α) : Prop := ∀ x, Absorbs M s {x}
 
 end Defs
 
@@ -136,7 +136,8 @@ end Absorbs
 
 section GroupWithZero
 
-variable {G₀ α : Type*} [GroupWithZero G₀] [Bornology G₀] [MulAction G₀ α]
+variable
+  {G₀ α : Type*} [GroupWithZero G₀] [Bornology G₀] [MulAction G₀ α]
   {s t u : Set α} {S : Set (Set α)}
 
 @[simp]
@@ -230,9 +231,10 @@ theorem absorbs_finite (hs : Absorbent M s) (ht : t.Finite) : Absorbs M s t := b
 
 end SMul
 
-theorem vadd_absorbs {M E : Type*} [Bornology M] [AddZeroClass E] [DistribSMul M E]
-    {s₁ s₂ t : Set E} {x : E} (h₁ : Absorbent M s₁) (h₂ : Absorbs M s₂ t) :
-    Absorbs M (s₁ + s₂) (x +ᵥ t) := by
+theorem vadd_absorbs
+    {M E : Type*} [Bornology M] [AddZeroClass E] [DistribSMul M E]
+    {s₁ s₂ t : Set E} {x : E} (h₁ : Absorbent M s₁) (h₂ : Absorbs M s₂ t)
+    : Absorbs M (s₁ + s₂) (x +ᵥ t) := by
   rw [← singleton_vadd]; exact (h₁ x).add h₂
 
 end Absorbent
@@ -254,8 +256,9 @@ lemma Absorbent.zero_mem [NeBot (cobounded G₀)] [AddMonoid E] [DistribMulActio
 end GroupWithZero
 
 protected theorem Absorbs.restrict_scalars
-    {M N α : Type*} [Monoid N] [SMul M N] [SMul M α] [MulAction N α]
-    [IsScalarTower M N α] [Bornology M] [Bornology N] {s t : Set α} (h : Absorbs N s t)
-    (hbdd : Tendsto (· • 1 : M → N) (cobounded M) (cobounded N)) :
-    Absorbs M s t :=
+    {M N α : Type*} [Monoid N] [SMul M N] [SMul M α] [MulAction N α] [IsScalarTower M N α]
+    [Bornology M] [Bornology N]
+    {s t : Set α} (h : Absorbs N s t)
+    (hbdd : Tendsto (· • 1 : M → N) (cobounded M) (cobounded N))
+    : Absorbs M s t :=
   (hbdd.eventually h).mono <| fun x hx ↦ by rwa [smul_one_smul N x s] at hx

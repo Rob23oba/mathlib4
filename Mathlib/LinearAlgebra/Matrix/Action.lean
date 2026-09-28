@@ -56,7 +56,7 @@ end mulVec
 
 section vecMul
 
-instance : Module (Matrix n n R)ᵐᵒᵖ (n → R) where
+instance : Module ((Matrix n n R)ᵐᵒᵖ) (n → R) where
   smul A v := v ᵥ* A.unop
   one_smul := Matrix.vecMul_one
   mul_smul _ _ _ := (vecMul_vecMul _ _ _).symm
@@ -67,13 +67,13 @@ instance : Module (Matrix n n R)ᵐᵒᵖ (n → R) where
 
 @[simp] lemma op_smul_eq_vecMul (A : (Matrix n n R)ᵐᵒᵖ) (v : n → R) : A • v = v ᵥ* A.unop := rfl
 
-instance [DistribSMul S R] [IsScalarTower S R R] : SMulCommClass (Matrix n n R)ᵐᵒᵖ S (n → R) where
+instance [DistribSMul S R] [IsScalarTower S R R] : SMulCommClass ((Matrix n n R)ᵐᵒᵖ) S (n → R) where
   smul_comm A s v := smul_vecMul s v A.unop
 
-instance [DistribSMul S R] [IsScalarTower S R R] : SMulCommClass S (Matrix n n R)ᵐᵒᵖ (n → R) where
+instance [DistribSMul S R] [IsScalarTower S R R] : SMulCommClass S ((Matrix n n R)ᵐᵒᵖ) (n → R) where
   smul_comm s A v := (smul_vecMul s v A.unop).symm
 
-instance [DistribSMul S R] [SMulCommClass S R R] : IsScalarTower S (Matrix n n R)ᵐᵒᵖ (n → R) where
+instance [DistribSMul S R] [SMulCommClass S R R] : IsScalarTower S ((Matrix n n R)ᵐᵒᵖ) (n → R) where
   smul_assoc s A v := vecMul_smul v s A.unop
 
 end vecMul

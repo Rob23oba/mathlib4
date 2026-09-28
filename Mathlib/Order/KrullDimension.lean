@@ -11,7 +11,6 @@ public import Mathlib.Data.ENat.Lattice
 public import Mathlib.Order.Atoms
 public import Mathlib.Order.RelSeries
 public import Mathlib.Tactic.FinCases
-
 import Mathlib.Data.Nat.Cast.Order.Basic
 
 /-!
@@ -77,8 +76,7 @@ series of `α` ordered by `<`. If there is no series `a₀ < a₁ < ... < aₙ` 
 dimension is defined to be negative infinity; if the length of all series `a₀ < a₁ < ... < aₙ` is
 unbounded, its Krull dimension is defined to be positive infinity.
 -/
-noncomputable def krullDim (α : Type*) [Preorder α] : WithBot ℕ∞ :=
-  ⨆ (p : LTSeries α), p.length
+noncomputable def krullDim (α : Type*) [Preorder α] : WithBot ℕ∞ := ⨆ (p : LTSeries α), p.length
 
 /--
 The **height** of an element `a` in a preorder `α` is the supremum of the rightmost index of all
@@ -617,8 +615,7 @@ theorem krullDim_ne_bot_iff : krullDim α ≠ ⊥ ↔ Nonempty α := by
 theorem bot_lt_krullDim_iff : ⊥ < krullDim α ↔ Nonempty α := by
   rw [bot_lt_iff_ne_bot, krullDim_ne_bot_iff]
 
-theorem bot_lt_krullDim [Nonempty α] : ⊥ < krullDim α :=
-  bot_lt_krullDim_iff.mpr ‹_›
+theorem bot_lt_krullDim [Nonempty α] : ⊥ < krullDim α := bot_lt_krullDim_iff.mpr ‹_›
 
 lemma krullDim_nonpos_iff_forall_isMax : krullDim α ≤ 0 ↔ ∀ x : α, IsMax x := by
   simp only [krullDim, iSup_le_iff, isMax_iff_forall_not_lt]
@@ -1064,7 +1061,6 @@ lemma coheight_zero_of_coheight_one_of_strictMono
   rw [h] at this
   have h₁ : coheight (x : WithTop α) = 1 := le_antisymm this (by simp)
   simpa using h₁
-
 
 @[simp] lemma coheight_coe_withBot (x : α) : coheight (x : WithBot α) = coheight x := by
   have := height_coe_withTop (OrderDual.toDual x)

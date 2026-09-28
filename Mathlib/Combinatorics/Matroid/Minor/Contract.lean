@@ -54,10 +54,12 @@ section Contract
 
 variable {C C₁ C₂ : Set α}
 
-/-- The contraction `M ／ C` is the matroid on `M.E \ C` in which a set `I ⊆ M.E \ C` is independent
+/--
+The contraction `M ／ C` is the matroid on `M.E \ C` in which a set `I ⊆ M.E \ C` is independent
 if and only if `I ∪ J` is independent, where `J` is an arbitrarily chosen basis for `C`.
 It is also equal by definition to `(M✶ ＼ C)✶`; see `Matroid.IsBasis.contract_indep_iff` for
-a proof that its independent sets are the claimed ones. -/
+a proof that its independent sets are the claimed ones.
+-/
 def contract (M : Matroid α) (C : Set α) : Matroid α := (M✶ ＼ C)✶
 
 /-- `M ／ C` refers to the contraction of a set `C` from the matroid `M`. -/
@@ -352,11 +354,14 @@ instance contract_finitary [Finitary M] : Finitary (M ／ C) := by
   suffices (M ／ J).Finitary by
     rw [hJ.contract_eq_contract_delete]
     infer_instance
-  exact ⟨fun I hI ↦ hJ.indep.contract_indep_iff.2  ⟨disjoint_left.2 fun e heI ↦
-    ((hI {e} (by simpa) (by simp)).subset_ground rfl).2,
-    indep_of_forall_finite_subset_indep _ fun K hK hKfin ↦
-      (hJ.indep.contract_indep_iff.1 <| hI (K ∩ I)
-      inter_subset_right (hKfin.inter_of_left _)).2.subset (by tauto_set)⟩⟩
+  exact ⟨fun I hI ↦
+    hJ.indep.contract_indep_iff.2 ⟨
+      disjoint_left.2 fun e heI ↦ ((hI {e} (by simpa) (by simp)).subset_ground rfl).2,
+      indep_of_forall_finite_subset_indep _ fun K hK hKfin ↦
+        (hJ.indep.contract_indep_iff.1 <|
+            hI (K ∩ I) inter_subset_right (hKfin.inter_of_left _)).2.subset
+          (by tauto_set)
+    ⟩⟩
 
 /-! ### Loops and Coloops -/
 

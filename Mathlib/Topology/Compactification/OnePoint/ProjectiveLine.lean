@@ -56,8 +56,8 @@ instance : Module (Matrix (Fin 2) (Fin 2) R) (R × R) :=
   (LinearEquiv.finTwoArrow R R).symm.toAddEquiv.module _
 
 @[deprecated "use Fin 2 → R instead" (since := "2026-04-19")]
-instance {S} [DistribSMul S R] [SMulCommClass R S R] :
-    SMulCommClass (Matrix (Fin 2) (Fin 2) R) S (R × R) :=
+instance {S} [DistribSMul S R] [SMulCommClass R S R]
+    : SMulCommClass (Matrix (Fin 2) (Fin 2) R) S (R × R) :=
   (LinearEquiv.finTwoArrow R R).symm.smulCommClass _ _
 
 @[deprecated "use Fin 2 → R instead" (since := "2026-04-19")]
@@ -79,26 +79,32 @@ section DivisionRing
 
 variable (K : Type*) [DivisionRing K] [DecidableEq K]
 
-/-- The one-point compactification of a division ring `K` is equivalent to
-the projectivization `ℙ K (Fin 2 → K)`. -/
+/--
+The one-point compactification of a division ring `K` is equivalent to
+the projectivization `ℙ K (Fin 2 → K)`.
+-/
 def equivProjectivization : OnePoint K ≃ ℙ K (Fin 2 → K) where
-  toFun p := p.elim (mk K ![1, 0] (by simp)) (fun t ↦ mk K ![t, 1] (by simp))
+  toFun p := p.elim (mk K (![1, 0]) (by simp)) (fun t ↦ mk K (![t, 1]) (by simp))
   invFun p := by
     refine Projectivization.lift
-      (fun u : {v : Fin 2 → K // v ≠ 0} ↦ if u.1 1 = 0 then ∞ else ((u.1 1)⁻¹ * u.1 0)) ?_ p
+      (fun u : {v : Fin 2 → K // v ≠ 0} ↦ if u.1 1 = 0 then ∞ else ((u.1 1)⁻¹ * u.1 0))
+      ?_ p
     rintro ⟨-, hv⟩ ⟨w, hw⟩ t rfl
     have ht : t ≠ 0 := by rintro rfl; simp at hv
     by_cases h₀ : w 1 = 0 <;> simp [h₀, ht, mul_assoc]
   left_inv p := by cases p <;> simp
   right_inv p := by
-    induction p using ind with | h w hw =>
-    by_cases h₀ : w 1 = 0 <;> simp only [mk_eq_mk_iff', h₀, Projectivization.lift_mk, ite_true,
-        ite_false, OnePoint.elim_infty, OnePoint.elim_some]
-    · have : w 0 ≠ 0 := fun h ↦ hw <| funext <| by simp_all
-      use (w 0)⁻¹
-      ext i
-      fin_cases i <;> simp_all
-    · exact ⟨(w 1)⁻¹, funext <| by simp [inv_mul_cancel₀ h₀]⟩
+    induction p using ind with
+    | h w hw =>
+      by_cases h₀ : w 1 = 0 <;> simp only [
+        mk_eq_mk_iff', h₀, Projectivization.lift_mk, ite_true, ite_false, OnePoint.elim_infty,
+        OnePoint.elim_some
+      ]
+      · have : w 0 ≠ 0 := fun h ↦ hw <| funext <| by simp_all
+        use (w 0)⁻¹
+        ext i
+        fin_cases i <;> simp_all
+      · exact ⟨(w 1)⁻¹, funext <| by simp [inv_mul_cancel₀ h₀]⟩
 
 @[simp]
 lemma equivProjectivization_apply_infinity :
@@ -121,8 +127,10 @@ section Field
 
 variable {K : Type*} [Field K] [DecidableEq K]
 
-/-- For a field `K`, the group `GL(2, K)` acts on `OnePoint K`, via the canonical identification
-with the `ℙ¹(K)` (which is given explicitly by Möbius transformations). -/
+/--
+For a field `K`, the group `GL(2, K)` acts on `OnePoint K`, via the canonical identification
+with the `ℙ¹(K)` (which is given explicitly by Möbius transformations).
+-/
 instance instGLAction : MulAction (GL (Fin 2) K) (OnePoint K) :=
   (equivProjectivization K).mulAction (GL (Fin 2) K)
 

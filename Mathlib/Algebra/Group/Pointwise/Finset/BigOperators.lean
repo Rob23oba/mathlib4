@@ -39,8 +39,8 @@ section CommMonoid
 variable [CommMonoid α]
 
 @[to_additive (attr := simp, norm_cast)]
-theorem coe_prod [DecidableEq α] (s : Finset ι) (f : ι → Finset α) :
-    ↑(∏ i ∈ s, f i) = ∏ i ∈ s, (f i : Set α) :=
+theorem coe_prod [DecidableEq α] (s : Finset ι) (f : ι → Finset α)
+    : ↑(∏ i ∈ s, f i) = ∏ i ∈ s, (f i : Set α) :=
   map_prod (coeMonoidHom : Finset α →* Set α) _ _
 
 variable [DecidableEq ι]

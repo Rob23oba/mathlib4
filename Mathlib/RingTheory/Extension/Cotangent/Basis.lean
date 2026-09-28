@@ -35,11 +35,13 @@ noncomputable section
 
 namespace PresentationOfFreeCotangent
 
-variable {ι : Type*} (P : Generators R S ι) {σ : Type*}
-  (b : Module.Basis σ S P.toExtension.Cotangent)
+variable
+  {ι : Type*} (P : Generators R S ι) {σ : Type*} (b : Module.Basis σ S P.toExtension.Cotangent)
 
-/-- An auxiliary structure containing the data to construct the presentation in
-`Generators.exists_presentation_of_free`. -/
+/--
+An auxiliary structure containing the data to construct the presentation in
+`Generators.exists_presentation_of_free`.
+-/
 structure Aux where
   /-- A section of the projection `I → I/I²`. -/
   f : P.toExtension.Cotangent → P.toExtension.ker
@@ -54,19 +56,24 @@ namespace Aux
 variable {P} {b}
 variable (D : Aux P b)
 
-/-- `T = R[X₁, ..., Xₙ] / (b₁, ..., bᵣ)` where the `bᵢ` are lifts of the basis elements
-of `I/I²` in `I`. -/
-abbrev T :=
-  MvPolynomial ι R ⧸ (Ideal.span <| Set.range <| Subtype.val ∘ D.f ∘ b)
+/--
+`T = R[X₁, ..., Xₙ] / (b₁, ..., bᵣ)` where the `bᵢ` are lifts of the basis elements
+of `I/I²` in `I`.
+-/
+abbrev T := MvPolynomial ι R ⧸ (Ideal.span <| Set.range <| Subtype.val ∘ D.f ∘ b)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The map `R[X₁, ..., Xₙ] → S` factors via `T`, because the `bᵢ` are in `I`. -/
-def hom : D.T →ₐ[R] S := Ideal.Quotient.liftₐ _ (aeval P.val) <| by
-  simp_rw [← RingHom.mem_ker, ← IsConcreteLE.le_iff, Ideal.span_le, Set.range_subset_iff]
-  intro i
-  simpa only [Generators.toExtension_Ring, Generators.toExtension_commRing, Function.comp_apply,
-    SetLike.mem_coe, RingHom.mem_ker, ← P.algebraMap_apply] using (D.f _).property
+def hom : D.T →ₐ[R] S :=
+  Ideal.Quotient.liftₐ _ (aeval P.val) <| by
+    simp_rw [← RingHom.mem_ker, ← IsConcreteLE.le_iff, Ideal.span_le, Set.range_subset_iff]
+    intro i
+    simpa only [
+        Generators.toExtension_Ring, Generators.toExtension_commRing, Function.comp_apply,
+        SetLike.mem_coe, RingHom.mem_ker, ← P.algebraMap_apply
+      ]
+      using (D.f _).property
 
 instance : Algebra D.T S := D.hom.toAlgebra
 
@@ -98,15 +105,24 @@ instance : IsLocalization.Away D.gbar S := by
     exact D.hgmem
 
 open scoped Classical in
-/-- The "naive" presentation of `T = R[X₁, ..., Xₙ] / (b₁, ..., bᵣ)` over `R`.
-We make sure the section `T → R[X₁, ..., Xₙ]` maps `-1` to `-1` and `0` to `0`. -/
+/--
+The "naive" presentation of `T = R[X₁, ..., Xₙ] / (b₁, ..., bᵣ)` over `R`.
+We make sure the section `T → R[X₁, ..., Xₙ]` maps `-1` to `-1` and `0` to `0`.
+-/
 def presLeft : Presentation R D.T ι σ :=
-  .naive (fun x ↦ if x = 0 then 0 else if x = -1 then -1 else
-      Function.surjInv Ideal.Quotient.mk_surjective x) fun x ↦ by
-    split_ifs
-    · next h => subst h; rfl
-    · next h => subst h; rfl
-    · simp [Function.surjInv_eq]
+  .naive
+    (fun x ↦
+      if x = 0 then
+        0
+      else if x = -1 then
+        -1
+      else
+        Function.surjInv Ideal.Quotient.mk_surjective x)
+    fun x ↦ by
+      split_ifs
+      · next h => subst h; rfl
+      · next h => subst h; rfl
+      · simp [Function.surjInv_eq]
 
 /-- The `i`-th generator of the kernel `(b₁, ..., bᵣ)` of the naive presentation of `T`. -/
 def kerGen (i : σ) : D.presLeft.toExtension.ker :=
@@ -166,16 +182,20 @@ lemma span_range_mk_kerGen : Submodule.span D.T
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The linear isomorphism `S ⊗[T] J/J² ≃ₗ[S] I/I²`. -/
-def tensorCotangentEquiv :
-    S ⊗[D.T] D.presLeft.toExtension.Cotangent ≃ₗ[S] P.toExtension.Cotangent := by
+def tensorCotangentEquiv
+    : S ⊗[D.T] D.presLeft.toExtension.Cotangent ≃ₗ[S] P.toExtension.Cotangent := by
   refine LinearEquiv.ofLinearMap D.tensorCotangentHom D.tensorCotangentInv ?_ ?_
   · refine b.ext fun i ↦ ?_
-    simpa only [LinearMap.coe_comp, Function.comp_apply, tensorCotangentInv_apply,
-      tensorCotangentHom_tmul] using! D.hf (b i)
+    simpa only [
+        LinearMap.coe_comp, Function.comp_apply, tensorCotangentInv_apply, tensorCotangentHom_tmul
+      ]
+      using! D.hf (b i)
   · ext : 2
     refine LinearMap.ext_on_range D.span_range_mk_kerGen fun i ↦ ?_
-    simp [-toExtension_commRing, -toExtension_Ring, -toExtension_algebra₂, tensorCotangentHom_tmul,
-      kerGen, D.hf]
+    simp [
+      -toExtension_commRing, -toExtension_Ring, -toExtension_algebra₂, tensorCotangentHom_tmul,
+      kerGen, D.hf
+    ]
 
 set_option backward.isDefEq.respectTransparency false in
 lemma tensorCotangentEquiv_symm_apply (i : σ) :
@@ -184,14 +204,14 @@ lemma tensorCotangentEquiv_symm_apply (i : σ) :
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The canonical presentation of `S` as the localization of `T` away from `g`. -/
-def presRight : Presentation D.T S Unit Unit :=
-  Presentation.localizationAway S D.gbar
+def presRight : Presentation D.T S Unit Unit := Presentation.localizationAway S D.gbar
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The presentation of `S` over `R` obtained from composing the naive presentation of
-`T = R[X₁, ..., Xₙ]/(b₁, ..., bᵣ)` with the presentation of the localization away from `g`. -/
-def pres : Presentation R S (Unit ⊕ ι) (Unit ⊕ σ) :=
-  D.presRight.comp D.presLeft
+/--
+The presentation of `S` over `R` obtained from composing the naive presentation of
+`T = R[X₁, ..., Xₙ]/(b₁, ..., bᵣ)` with the presentation of the localization away from `g`.
+-/
+def pres : Presentation R S (Unit ⊕ ι) (Unit ⊕ σ) := D.presRight.comp D.presLeft
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -212,12 +232,15 @@ lemma map_ofComp_mk [Nontrivial S] :
     simp
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The cotangent space of the constructed presentation is isomorphic
-to `(g X - 1)/(g X - 1)² × S ⊗[T] J/J²`. -/
-def cotangentEquivProd [Nontrivial S] : D.pres.toExtension.Cotangent ≃ₗ[S]
-    D.presRight.toExtension.Cotangent × S ⊗[D.T] D.presLeft.toExtension.Cotangent :=
-  (D.presLeft.cotangentCompLocalizationAwayEquiv (T := S) D.gbar D.map_ofComp_mk) ≪≫ₗ
-    LinearEquiv.prodComm _ _ _
+/--
+The cotangent space of the constructed presentation is isomorphic
+to `(g X - 1)/(g X - 1)² × S ⊗[T] J/J²`.
+-/
+def cotangentEquivProd [Nontrivial S]
+    : D.pres.toExtension.Cotangent ≃ₗ[S]
+      D.presRight.toExtension.Cotangent × S ⊗[D.T] D.presLeft.toExtension.Cotangent :=
+  (D.presLeft.cotangentCompLocalizationAwayEquiv (T := S) D.gbar D.map_ofComp_mk)
+    ≪≫ₗ LinearEquiv.prodComm _ _ _
 
 set_option backward.isDefEq.respectTransparency false in
 lemma cotangentEquivProd_symm_apply [Nontrivial S] (x : D.presRight.toExtension.Cotangent)

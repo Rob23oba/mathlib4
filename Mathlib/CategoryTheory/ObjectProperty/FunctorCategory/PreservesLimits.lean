@@ -24,14 +24,15 @@ namespace CategoryTheory
 
 open Limits
 
-variable {J C : Type*} (K K' : Type*)
-  [Category* K] [Category* K'] [Category* J] [Category* C]
+variable {J C : Type*} (K K' : Type*) [Category* K] [Category* K'] [Category* J] [Category* C]
 
 namespace ObjectProperty
 
 variable {K} in
-/-- The property of objects in the functor category `J ⥤ C`
-which preserves the limit of a functor `F : K ⥤ J`. -/
+/--
+The property of objects in the functor category `J ⥤ C`
+which preserves the limit of a functor `F : K ⥤ J`.
+-/
 abbrev preservesLimit (F : K ⥤ J) : ObjectProperty (J ⥤ C) := PreservesLimit F
 
 @[simp]
@@ -49,8 +50,10 @@ instance (F : K ⥤ J) : (preservesLimit (C := C) F).IsClosedUnderIsomorphisms w
   of_iso e _ := preservesLimit_of_natIso _ e
 
 variable {K} in
-/-- The property of objects in the functor category `J ⥤ C`
-which preserves the colimit of a functor `F : K ⥤ J`. -/
+/--
+The property of objects in the functor category `J ⥤ C`
+which preserves the colimit of a functor `F : K ⥤ J`.
+-/
 abbrev preservesColimit (F : K ⥤ J) : ObjectProperty (J ⥤ C) := PreservesColimit F
 
 @[simp]
@@ -67,8 +70,10 @@ lemma congr_preservesColimit {F F' : K ⥤ J} (e : F ≅ F') :
 instance (F : K ⥤ J) : (preservesColimit (C := C) F).IsClosedUnderIsomorphisms where
   of_iso e _ := preservesColimit_of_natIso _ e
 
-/-- The property of objects in the functor category `J ⥤ C`
-which preserves limits of shape `K`. -/
+/--
+The property of objects in the functor category `J ⥤ C`
+which preserves limits of shape `K`.
+-/
 abbrev preservesLimitsOfShape : ObjectProperty (J ⥤ C) := PreservesLimitsOfShape K
 
 @[simp]
@@ -94,8 +99,10 @@ instance : (preservesLimitsOfShape (J := J) (C := C) K).IsClosedUnderIsomorphism
   rw [preservesLimitsOfShape_eq_iSup]
   infer_instance
 
-/-- The property of objects in the functor category `J ⥤ C`
-which preserves colimits of shape `K`. -/
+/--
+The property of objects in the functor category `J ⥤ C`
+which preserves colimits of shape `K`.
+-/
 abbrev preservesColimitsOfShape : ObjectProperty (J ⥤ C) := PreservesColimitsOfShape K
 
 @[simp]
@@ -121,8 +128,10 @@ instance : (preservesColimitsOfShape (J := J) (C := C) K).IsClosedUnderIsomorphi
   rw [preservesColimitsOfShape_eq_iSup]
   infer_instance
 
-/-- The property of objects in the functor category `J ⥤ C`
-which preserves finite limits. -/
+/--
+The property of objects in the functor category `J ⥤ C`
+which preserves finite limits.
+-/
 abbrev preservesFiniteLimits : ObjectProperty (J ⥤ C) := PreservesFiniteLimits
 
 @[simp]
@@ -132,8 +141,10 @@ lemma preservesFiniteLimits_iff (F : J ⥤ C) :
 instance : (preservesFiniteLimits (J := J) (C := C)).IsClosedUnderIsomorphisms where
   of_iso e _ := preservesFiniteLimits_of_natIso e
 
-/-- The property of objects in the functor category `J ⥤ C`
-which preserves finite colimits. -/
+/--
+The property of objects in the functor category `J ⥤ C`
+which preserves finite colimits.
+-/
 abbrev preservesFiniteColimits : ObjectProperty (J ⥤ C) := PreservesFiniteColimits
 
 instance : (preservesFiniteColimits (J := J) (C := C)).IsClosedUnderIsomorphisms where
@@ -144,24 +155,22 @@ lemma preservesFiniteColimits_iff (F : J ⥤ C) :
     preservesFiniteColimits F ↔ PreservesFiniteColimits F := Iff.rfl
 
 set_option backward.defeqAttrib.useBackward true in
-instance [HasColimitsOfShape K' C]
-    [PreservesLimitsOfShape K (colim (J := K') (C := C))] :
-    (preservesLimitsOfShape K : ObjectProperty (J ⥤ C)).IsClosedUnderColimitsOfShape K' where
+instance [HasColimitsOfShape K' C] [PreservesLimitsOfShape K (colim (J := K') (C := C))]
+    : (preservesLimitsOfShape K : ObjectProperty (J ⥤ C)).IsClosedUnderColimitsOfShape K' where
   colimitsOfShape_le := by
     rintro G ⟨h⟩
     have := h.prop_diag_obj
     have : PreservesLimitsOfShape K h.diag.flip := ⟨fun {F} ↦ ⟨fun {c} hc ↦
-      ⟨evaluationJointlyReflectsLimits _
-        (fun k' ↦ isLimitOfPreserves (h.diag.obj k') hc)⟩⟩⟩
+      ⟨evaluationJointlyReflectsLimits _ (fun k' ↦ isLimitOfPreserves (h.diag.obj k') hc)⟩⟩⟩
     let e : h.diag.flip ⋙ colim ≅ G :=
-      NatIso.ofComponents
-        (fun j ↦ (colimit.isColimit (h.diag.flip.obj j)).coconePointUniqueUpToIso
+      NatIso.ofComponents (fun j ↦
+        (colimit.isColimit (h.diag.flip.obj j)).coconePointUniqueUpToIso
           (isColimitOfPreserves ((evaluation _ _).obj j) h.isColimit))
     exact preservesLimitsOfShape_of_natIso e
 
-instance [HasColimitsOfShape K' C] [HasExactColimitsOfShape K' C] :
-    ObjectProperty.IsClosedUnderColimitsOfShape
-      (preservesFiniteLimits : ObjectProperty (J ⥤ C)) K' where
+instance [HasColimitsOfShape K' C] [HasExactColimitsOfShape K' C]
+    : ObjectProperty.IsClosedUnderColimitsOfShape (preservesFiniteLimits : ObjectProperty (J ⥤ C))
+      K' where
   colimitsOfShape_le := by
     rintro G ⟨h⟩
     have := h.prop_diag_obj

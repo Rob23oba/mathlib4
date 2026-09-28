@@ -41,9 +41,11 @@ namespace SSet
 variable {X Y : SSet.{u}}
 
 variable (X) in
-/-- A simplicial set `X` is nonsingular if for any
+/--
+A simplicial set `X` is nonsingular if for any
 nondegenerate simplex `x` (of dimension `n`), the corresponding
-morphism `Δ[n] ⟶ X` is a monomorphism. -/
+morphism `Δ[n] ⟶ X` is a monomorphism.
+-/
 @[kerodon 02MG]
 class Nonsingular where
   mono {n : ℕ} (x : X.nonDegenerate n) : Mono (yonedaEquiv.symm x.val)
@@ -67,8 +69,7 @@ lemma Nonsingular.of_mono (f : X ⟶ Y) [Mono f] [Y.Nonsingular] :
 lemma Nonsingular.of_iso (e : X ≅ Y) [X.Nonsingular] : Y.Nonsingular :=
   .of_mono e.inv
 
-instance (A : X.Subcomplex) [X.Nonsingular] : (A : SSet).Nonsingular :=
-  .of_mono A.ι
+instance (A : X.Subcomplex) [X.Nonsingular] : (A : SSet).Nonsingular := .of_mono A.ι
 
 @[kerodon 02MT]
 instance (T : Type*) [PartialOrder T] : (nerve T).Nonsingular where
@@ -83,8 +84,7 @@ instance (T : Type*) [PartialOrder T] : (nerve T).Nonsingular where
 instance (n : SimplexCategory) : (stdSimplex.{u}.obj n).Nonsingular :=
   Nonsingular.of_iso (stdSimplex.isoNerve _).symm
 
-instance (n m : SimplexCategory) :
-    (stdSimplex.{u}.obj n ⊗ stdSimplex.obj m).Nonsingular :=
+instance (n m : SimplexCategory) : (stdSimplex.{u}.obj n ⊗ stdSimplex.obj m).Nonsingular :=
   Nonsingular.of_iso (prodStdSimplex.isoNerve _ _).symm
 
 @[kerodon 02MH]
@@ -123,12 +123,13 @@ lemma Nonsingular.isIso_toOfSimplex [X.Nonsingular]
   rw [Subcomplex.isIso_toOfSimplex_iff]
   exact Nonsingular.mono' x hx
 
-/-- If `x : X _⦋n⦌` is a nondegenerate simplex of a nonsingular simplicial set,
-this is the isomorphism `Δ[n] ≅ Subcomplex.ofSimplex x` induced by `x`. -/
+/--
+If `x : X _⦋n⦌` is a nondegenerate simplex of a nonsingular simplicial set,
+this is the isomorphism `Δ[n] ≅ Subcomplex.ofSimplex x` induced by `x`.
+-/
 @[expose, simps! hom]
-noncomputable def Nonsingular.iso
-    [X.Nonsingular] {n : ℕ} (x : X _⦋n⦌) (hx : x ∈ X.nonDegenerate n) :
-    Δ[n] ≅ Subcomplex.ofSimplex x :=
+noncomputable def Nonsingular.iso [X.Nonsingular] {n : ℕ} (x : X _⦋n⦌) (hx : x ∈ X.nonDegenerate n)
+    : Δ[n] ≅ Subcomplex.ofSimplex x :=
   letI := Nonsingular.isIso_toOfSimplex x hx
   asIso (Subcomplex.toOfSimplex x)
 
@@ -144,14 +145,14 @@ lemma existsUnique_of_le :
     exact ⟨f, inferInstance, hf⟩) (fun f₁ f₂ ⟨_, hf₁⟩ ⟨_, hf₂⟩ ↦ by
     exact Nonsingular.injective_map _ y.nonDegenerate (by rw [hf₁, hf₂]))
 
-/-- Given an inequality `x ≤ y` between nondegenerate simplices of a
+/--
+Given an inequality `x ≤ y` between nondegenerate simplices of a
 nonsingular simplicial set `X`, this is the corresponding morphism
-`⦋x.dim⦌ ⟶ ⦋y.dim⦌` in the simplex category. -/
-noncomputable def monoOfLE : ⦋x.dim⦌ ⟶ ⦋y.dim⦌ :=
-  (existsUnique_of_le h).exists.choose
+`⦋x.dim⦌ ⟶ ⦋y.dim⦌` in the simplex category.
+-/
+noncomputable def monoOfLE : ⦋x.dim⦌ ⟶ ⦋y.dim⦌ := (existsUnique_of_le h).exists.choose
 
-instance : Mono (monoOfLE h) :=
-  (existsUnique_of_le h).exists.choose_spec.1
+instance : Mono (monoOfLE h) := (existsUnique_of_le h).exists.choose_spec.1
 
 @[simp]
 lemma map_monoOfLE : X.map (monoOfLE h).op y.simplex = x.simplex :=

@@ -120,5 +120,4 @@ public lemma convexOn_ringInverse_algebraMap_add {t : ℝ} (ht : 0 < t) :
     Function.const_apply, image_add_right, preimage_add_const_Ici, sub_neg_eq_add, zero_add, addl]
   exact fun x hx  => IsStrictlyPositive.of_le (by grind) hx
 
-
 end CStarAlgebra

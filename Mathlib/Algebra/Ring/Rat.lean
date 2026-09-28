@@ -38,23 +38,27 @@ instance commRing : CommRing ℚ where
   natCast n := Int.cast n
   natCast_zero := rfl
   natCast_succ n := by
-    simp only [intCast_eq_divInt, divInt_add_divInt _ _ Int.one_ne_zero Int.one_ne_zero,
-      ← divInt_one_one, Int.natCast_add, Int.natCast_one, mul_one]
+    simp only [
+      intCast_eq_divInt, divInt_add_divInt _ _ Int.one_ne_zero Int.one_ne_zero, ← divInt_one_one,
+      Int.natCast_add, Int.natCast_one, mul_one
+    ]
 
-instance commGroupWithZero : CommGroupWithZero ℚ :=
-  { exists_pair_ne := ⟨0, 1, Rat.zero_ne_one⟩
-    inv_zero := Rat.inv_zero
-    mul_inv_cancel := Rat.mul_inv_cancel
-    mul_zero := mul_zero
-    zero_mul := zero_mul
-    zpow z q := q ^ z
-    zpow_zero' := Rat.zpow_zero
-    zpow_succ' _ _ := by rw [Rat.zpow_natCast, Rat.zpow_natCast, Rat.pow_succ] }
+instance commGroupWithZero : CommGroupWithZero ℚ := {
+  exists_pair_ne := ⟨0, 1, Rat.zero_ne_one⟩
+  inv_zero := Rat.inv_zero
+  mul_inv_cancel := Rat.mul_inv_cancel
+  mul_zero := mul_zero
+  zero_mul := zero_mul
+  zpow z q := q ^ z
+  zpow_zero' := Rat.zpow_zero
+  zpow_succ' _ _ := by rw [Rat.zpow_natCast, Rat.zpow_natCast, Rat.pow_succ]
+}
 
 instance isDomain : IsDomain ℚ := NoZeroDivisors.to_isDomain _
 /-- The characteristic of `ℚ` is 0. -/
 @[stacks 09FS "Second part."]
-instance instCharZero : CharZero ℚ where cast_injective a b hab := by simpa using congr(num $hab)
+instance instCharZero : CharZero ℚ where
+  cast_injective a b hab := by simpa using congr(num $hab)
 
 /-!
 ### Extra instances to short-circuit type class resolution

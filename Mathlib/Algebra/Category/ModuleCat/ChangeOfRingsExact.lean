@@ -39,13 +39,15 @@ lemma ModuleCat.restrictScalars_map_exact (S : ShortComplex (ModuleCat.{v} R')) 
   exact h
 
 instance : Limits.PreservesFiniteLimits (ModuleCat.restrictScalars.{v} f) := by
-  have := ((CategoryTheory.Functor.exact_tfae (ModuleCat.restrictScalars.{v} f)).out 2 4).mp
-    (ModuleCat.restrictScalars_map_exact f)
+  have :=
+    ((CategoryTheory.Functor.exact_tfae (ModuleCat.restrictScalars.{v} f)).out 2 4).mp
+      (ModuleCat.restrictScalars_map_exact f)
   exact this.1
 
 instance : Limits.PreservesFiniteColimits (ModuleCat.restrictScalars.{v} f) := by
-  have := ((CategoryTheory.Functor.exact_tfae (ModuleCat.restrictScalars.{v} f)).out 2 4).mp
-    (ModuleCat.restrictScalars_map_exact f)
+  have :=
+    ((CategoryTheory.Functor.exact_tfae (ModuleCat.restrictScalars.{v} f)).out 2 4).mp
+      (ModuleCat.restrictScalars_map_exact f)
   exact this.2
 
 end

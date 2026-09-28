@@ -27,8 +27,10 @@ variable {C : Type*} [Category* C] (J : GrothendieckTopology C) {A : Type*} [Cat
 
 namespace GrothendieckTopology
 
-/-- The class of morphisms of presheaves which become isomorphisms after sheafification.
-(See `GrothendieckTopology.W_iff`.) -/
+/--
+The class of morphisms of presheaves which become isomorphisms after sheafification.
+(See `GrothendieckTopology.W_iff`.)
+-/
 abbrev W : MorphismProperty (Cᵒᵖ ⥤ A) := ObjectProperty.isLocal (Presheaf.IsSheaf J)
 
 variable (A) in

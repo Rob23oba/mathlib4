@@ -44,8 +44,10 @@ open Filter Function Module Nat FormalMultilinearSeries Set
 
 open scoped Topology
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {E : Type*} [NormedAddCommGroup E]
-  [NormedSpace 𝕜 E] {s : E} {p : FormalMultilinearSeries 𝕜 𝕜 E} {f g : 𝕜 → E} {n : ℕ} {z z₀ : 𝕜}
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  {s : E} {p : FormalMultilinearSeries 𝕜 𝕜 E} {f g : 𝕜 → E} {n : ℕ} {z z₀ : 𝕜}
 
 namespace HasSum
 
@@ -54,8 +56,9 @@ variable {a : ℕ → E}
 theorem hasSum_at_zero (a : ℕ → E) : HasSum (fun n => (0 : 𝕜) ^ n • a n) (a 0) := by
   convert! hasSum_single (α := E) 0 fun b h ↦ _ <;> simp [*]
 
-theorem exists_hasSum_smul_of_apply_eq_zero (hs : HasSum (fun m => z ^ m • a m) s)
-    (ha : ∀ k < n, a k = 0) : ∃ t : E, z ^ n • t = s ∧ HasSum (fun m => z ^ m • a (m + n)) t := by
+theorem exists_hasSum_smul_of_apply_eq_zero
+    (hs : HasSum (fun m => z ^ m • a m) s) (ha : ∀ k < n, a k = 0)
+    : ∃ t : E, z ^ n • t = s ∧ HasSum (fun m => z ^ m • a (m + n)) t := by
   obtain rfl | hn := n.eq_zero_or_pos
   · simpa
   by_cases h : z = 0
@@ -75,8 +78,8 @@ end HasSum
 
 namespace HasFPowerSeriesAt
 
-theorem has_fpower_series_dslope_fslope (hp : HasFPowerSeriesAt f p z₀) :
-    HasFPowerSeriesAt (dslope f z₀) p.fslope z₀ := by
+theorem has_fpower_series_dslope_fslope (hp : HasFPowerSeriesAt f p z₀)
+    : HasFPowerSeriesAt (dslope f z₀) p.fslope z₀ := by
   have hpd : deriv f z₀ = p.coeff 1 := hp.deriv
   have hp0 : p.coeff 0 = f z₀ := hp.coeff_zero 1
   simp only [hasFPowerSeriesAt_iff, coeff_fslope] at hp ⊢
@@ -88,22 +91,24 @@ theorem has_fpower_series_dslope_fslope (hp : HasFPowerSeriesAt f p z₀) :
       simpa [dslope, slope, h, smul_smul, hxx] using this
     simpa [hp0] using ((hasSum_nat_add_iff' 1).mpr hx).const_smul x⁻¹
 
-theorem has_fpower_series_iterate_dslope_fslope (n : ℕ) (hp : HasFPowerSeriesAt f p z₀) :
-    HasFPowerSeriesAt ((swap dslope z₀)^[n] f) (fslope^[n] p) z₀ := by
+theorem has_fpower_series_iterate_dslope_fslope (n : ℕ) (hp : HasFPowerSeriesAt f p z₀)
+    : HasFPowerSeriesAt ((swap dslope z₀)^[n] f) (fslope^[n] p) z₀ := by
   induction n generalizing f p with
   | zero => exact hp
   | succ n ih => simpa using ih (has_fpower_series_dslope_fslope hp)
 
-theorem iterate_dslope_fslope_ne_zero (hp : HasFPowerSeriesAt f p z₀) (h : p ≠ 0) :
-    (swap dslope z₀)^[p.order] f z₀ ≠ 0 := by
+theorem iterate_dslope_fslope_ne_zero (hp : HasFPowerSeriesAt f p z₀) (h : p ≠ 0)
+    : (swap dslope z₀)^[p.order] f z₀ ≠ 0 := by
   rw [← coeff_zero (has_fpower_series_iterate_dslope_fslope p.order hp) 1]
   simpa [coeff_eq_zero] using apply_order_ne_zero h
 
-theorem eq_pow_order_mul_iterate_dslope (hp : HasFPowerSeriesAt f p z₀) (z : 𝕜) :
-    f z = (z - z₀) ^ p.order • (swap dslope z₀)^[p.order] f z := by
+theorem eq_pow_order_mul_iterate_dslope (hp : HasFPowerSeriesAt f p z₀) (z : 𝕜)
+    : f z = (z - z₀) ^ p.order • (swap dslope z₀)^[p.order] f z := by
   refine (pow_sub_smul_iterate_dslope_of_zero _ (fun k hk ↦ ?_) z).symm
-  rw [← (has_fpower_series_iterate_dslope_fslope k hp).coeff_zero 1, ← coeff, coeff_iterate_fslope,
-    zero_add, coeff, p.apply_eq_zero_of_lt_order hk, _root_.zero_apply]
+  rw [
+    ← (has_fpower_series_iterate_dslope_fslope k hp).coeff_zero 1, ← coeff, coeff_iterate_fslope,
+    zero_add, coeff, p.apply_eq_zero_of_lt_order hk, _root_.zero_apply
+  ]
 
 theorem locally_ne_zero (hp : HasFPowerSeriesAt f p z₀) (h : p ≠ 0) : ∀ᶠ z in 𝓝[≠] z₀, f z ≠ 0 := by
   rw [eventually_nhdsWithin_iff]
@@ -119,27 +124,30 @@ end HasFPowerSeriesAt
 
 namespace AnalyticAt
 
-/-- The *principle of isolated zeros* for an analytic function, local version: if a function is
+/--
+The *principle of isolated zeros* for an analytic function, local version: if a function is
 analytic at `z₀`, then either it is identically zero in a neighborhood of `z₀`, or it does not
-vanish in a punctured neighborhood of `z₀`. -/
-theorem eventually_eq_zero_or_eventually_ne_zero (hf : AnalyticAt 𝕜 f z₀) :
-    (∀ᶠ z in 𝓝 z₀, f z = 0) ∨ ∀ᶠ z in 𝓝[≠] z₀, f z ≠ 0 := by
+vanish in a punctured neighborhood of `z₀`.
+-/
+theorem eventually_eq_zero_or_eventually_ne_zero (hf : AnalyticAt 𝕜 f z₀)
+    : (∀ᶠ z in 𝓝 z₀, f z = 0) ∨ ∀ᶠ z in 𝓝[≠] z₀, f z ≠ 0 := by
   rcases hf with ⟨p, hp⟩
   by_cases h : p = 0
   · exact Or.inl (HasFPowerSeriesAt.eventually_eq_zero (by rwa [h] at hp))
   · exact Or.inr (hp.locally_ne_zero h)
 
-theorem eventually_eq_or_eventually_ne (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀) :
-    (∀ᶠ z in 𝓝 z₀, f z = g z) ∨ ∀ᶠ z in 𝓝[≠] z₀, f z ≠ g z := by
+theorem eventually_eq_or_eventually_ne (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀)
+    : (∀ᶠ z in 𝓝 z₀, f z = g z) ∨ ∀ᶠ z in 𝓝[≠] z₀, f z ≠ g z := by
   simpa [sub_eq_zero] using (hf.sub hg).eventually_eq_zero_or_eventually_ne_zero
 
-theorem frequently_zero_iff_eventually_zero {f : 𝕜 → E} {w : 𝕜} (hf : AnalyticAt 𝕜 f w) :
-    (∃ᶠ z in 𝓝[≠] w, f z = 0) ↔ ∀ᶠ z in 𝓝 w, f z = 0 :=
-  ⟨hf.eventually_eq_zero_or_eventually_ne_zero.resolve_right, fun h =>
-    (h.filter_mono nhdsWithin_le_nhds).frequently⟩
+theorem frequently_zero_iff_eventually_zero {f : 𝕜 → E} {w : 𝕜} (hf : AnalyticAt 𝕜 f w)
+    : (∃ᶠ z in 𝓝[≠] w, f z = 0) ↔ ∀ᶠ z in 𝓝 w, f z = 0 := ⟨
+  hf.eventually_eq_zero_or_eventually_ne_zero.resolve_right,
+  fun h => (h.filter_mono nhdsWithin_le_nhds).frequently
+⟩
 
-theorem frequently_eq_iff_eventually_eq (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀) :
-    (∃ᶠ z in 𝓝[≠] z₀, f z = g z) ↔ ∀ᶠ z in 𝓝 z₀, f z = g z := by
+theorem frequently_eq_iff_eventually_eq (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀)
+    : (∃ᶠ z in 𝓝[≠] z₀, f z = g z) ↔ ∀ᶠ z in 𝓝 z₀, f z = g z := by
   simpa [sub_eq_zero] using frequently_zero_iff_eventually_zero (hf.sub hg)
 
 /-- For a function `f` on `𝕜`, and `z₀ ∈ 𝕜`, there exists at most one `n` such that on a punctured
@@ -179,12 +187,15 @@ lemma unique_eventuallyEq_pow_smul_nonzero {m n : ℕ}
     (let ⟨g, h₁, h₂, h₃⟩ := hm; ⟨g, h₁, h₂, h₃.filter_mono nhdsWithin_le_nhds⟩)
     (let ⟨g, h₁, h₂, h₃⟩ := hn; ⟨g, h₁, h₂, h₃.filter_mono nhdsWithin_le_nhds⟩)
 
-/-- If `f` is analytic at `z₀`, then exactly one of the following two possibilities occurs: either
+/--
+If `f` is analytic at `z₀`, then exactly one of the following two possibilities occurs: either
 `f` vanishes identically near `z₀`, or locally around `z₀` it has the form `z ↦ (z - z₀) ^ n • g z`
-for some `n` and some `g` which is analytic and non-vanishing at `z₀`. -/
-theorem exists_eventuallyEq_pow_smul_nonzero_iff (hf : AnalyticAt 𝕜 f z₀) :
-    (∃ (n : ℕ), ∃ (g : 𝕜 → E), AnalyticAt 𝕜 g z₀ ∧ g z₀ ≠ 0 ∧
-    ∀ᶠ z in 𝓝 z₀, f z = (z - z₀) ^ n • g z) ↔ (¬∀ᶠ z in 𝓝 z₀, f z = 0) := by
+for some `n` and some `g` which is analytic and non-vanishing at `z₀`.
+-/
+theorem exists_eventuallyEq_pow_smul_nonzero_iff (hf : AnalyticAt 𝕜 f z₀)
+    : (∃ (n : ℕ), ∃ (g : 𝕜 → E),
+        AnalyticAt 𝕜 g z₀ ∧ g z₀ ≠ 0 ∧ ∀ᶠ z in 𝓝 z₀, f z = (z - z₀) ^ n • g z)
+      ↔ (¬ ∀ᶠ z in 𝓝 z₀, f z = 0) := by
   constructor
   · rintro ⟨n, g, hg_an, hg_ne, hg_eq⟩
     contrapose hg_ne
@@ -196,9 +207,13 @@ theorem exists_eventuallyEq_pow_smul_nonzero_iff (hf : AnalyticAt 𝕜 f z₀) :
     exact pow_ne_zero _ (sub_ne_zero.mpr hz)
   · intro hf_ne
     rcases hf with ⟨p, hp⟩
-    exact ⟨p.order, _, ⟨_, hp.has_fpower_series_iterate_dslope_fslope p.order⟩,
+    exact ⟨
+      p.order,
+      _,
+      ⟨_, hp.has_fpower_series_iterate_dslope_fslope p.order⟩,
       hp.iterate_dslope_fslope_ne_zero (hf_ne.imp hp.locally_zero_iff.mpr),
-      .of_forall hp.eq_pow_order_mul_iterate_dslope⟩
+      .of_forall hp.eq_pow_order_mul_iterate_dslope
+    ⟩
 
 end AnalyticAt
 
@@ -206,60 +221,79 @@ namespace AnalyticOnNhd
 
 variable {U : Set 𝕜}
 
-/-- The *principle of isolated zeros* for an analytic function, global version: if a function is
+/--
+The *principle of isolated zeros* for an analytic function, global version: if a function is
 analytic on a connected set `U` and vanishes in arbitrary neighborhoods of a point `z₀ ∈ U`, then
 it is identically zero in `U`.
 For higher-dimensional versions requiring that the function vanishes in a neighborhood of `z₀`,
-see `AnalyticOnNhd.eqOn_zero_of_preconnected_of_eventuallyEq_zero`. -/
-theorem eqOn_zero_of_preconnected_of_frequently_eq_zero (hf : AnalyticOnNhd 𝕜 f U)
-    (hU : IsPreconnected U) (h₀ : z₀ ∈ U) (hfw : ∃ᶠ z in 𝓝[≠] z₀, f z = 0) : EqOn f 0 U :=
+see `AnalyticOnNhd.eqOn_zero_of_preconnected_of_eventuallyEq_zero`.
+-/
+theorem eqOn_zero_of_preconnected_of_frequently_eq_zero
+    (hf : AnalyticOnNhd 𝕜 f U) (hU : IsPreconnected U) (h₀ : z₀ ∈ U)
+    (hfw : ∃ᶠ z in 𝓝[≠] z₀, f z = 0)
+    : EqOn f 0 U :=
   hf.eqOn_zero_of_preconnected_of_eventuallyEq_zero hU h₀
     ((hf z₀ h₀).frequently_zero_iff_eventually_zero.1 hfw)
 
-theorem eqOn_zero_or_eventually_ne_zero_of_preconnected (hf : AnalyticOnNhd 𝕜 f U)
-    (hU : IsPreconnected U) : EqOn f 0 U ∨ ∀ᶠ x in codiscreteWithin U, f x ≠ 0 := by
-  simp only [or_iff_not_imp_right, ne_eq, eventually_iff, mem_codiscreteWithin,
-    disjoint_principal_right, not_forall]
+theorem eqOn_zero_or_eventually_ne_zero_of_preconnected
+    (hf : AnalyticOnNhd 𝕜 f U) (hU : IsPreconnected U)
+    : EqOn f 0 U ∨ ∀ᶠ x in codiscreteWithin U, f x ≠ 0 := by
+  simp only [
+    or_iff_not_imp_right, ne_eq, eventually_iff, mem_codiscreteWithin, disjoint_principal_right,
+    not_forall
+  ]
   rintro ⟨x, hx, hx2⟩
   refine hf.eqOn_zero_of_preconnected_of_frequently_eq_zero hU hx fun nh ↦ hx2 ?_
   filter_upwards [nh] with a ha
   simp_all
 
-theorem eqOn_zero_of_preconnected_of_mem_closure (hf : AnalyticOnNhd 𝕜 f U) (hU : IsPreconnected U)
-    (h₀ : z₀ ∈ U) (hfz₀ : z₀ ∈ closure ({z | f z = 0} \ {z₀})) : EqOn f 0 U :=
+theorem eqOn_zero_of_preconnected_of_mem_closure
+    (hf : AnalyticOnNhd 𝕜 f U) (hU : IsPreconnected U) (h₀ : z₀ ∈ U)
+    (hfz₀ : z₀ ∈ closure ({z | f z = 0} \ {z₀}))
+    : EqOn f 0 U :=
   hf.eqOn_zero_of_preconnected_of_frequently_eq_zero hU h₀
     (mem_closure_ne_iff_frequently_within.mp hfz₀)
 
-/-- The *identity principle* for analytic functions, global version: if two functions are
+/--
+The *identity principle* for analytic functions, global version: if two functions are
 analytic on a connected set `U` and coincide at points which accumulate to a point `z₀ ∈ U`, then
 they coincide globally in `U`.
 For higher-dimensional versions requiring that the functions coincide in a neighborhood of `z₀`,
-see `AnalyticOnNhd.eqOn_of_preconnected_of_eventuallyEq`. -/
-theorem eqOn_of_preconnected_of_frequently_eq (hf : AnalyticOnNhd 𝕜 f U) (hg : AnalyticOnNhd 𝕜 g U)
-    (hU : IsPreconnected U) (h₀ : z₀ ∈ U) (hfg : ∃ᶠ z in 𝓝[≠] z₀, f z = g z) : EqOn f g U := by
+see `AnalyticOnNhd.eqOn_of_preconnected_of_eventuallyEq`.
+-/
+theorem eqOn_of_preconnected_of_frequently_eq
+    (hf : AnalyticOnNhd 𝕜 f U) (hg : AnalyticOnNhd 𝕜 g U) (hU : IsPreconnected U) (h₀ : z₀ ∈ U)
+    (hfg : ∃ᶠ z in 𝓝[≠] z₀, f z = g z)
+    : EqOn f g U := by
   have hfg' : ∃ᶠ z in 𝓝[≠] z₀, (f - g) z = 0 :=
     hfg.mono fun z h => by rw [Pi.sub_apply, h, sub_self]
   simpa [sub_eq_zero] using! fun z hz =>
     (hf.sub hg).eqOn_zero_of_preconnected_of_frequently_eq_zero hU h₀ hfg' hz
 
-theorem eqOn_or_eventually_ne_of_preconnected (hf : AnalyticOnNhd 𝕜 f U) (hg : AnalyticOnNhd 𝕜 g U)
-    (hU : IsPreconnected U) : EqOn f g U ∨ ∀ᶠ x in codiscreteWithin U, f x ≠ g x :=
+theorem eqOn_or_eventually_ne_of_preconnected
+    (hf : AnalyticOnNhd 𝕜 f U) (hg : AnalyticOnNhd 𝕜 g U) (hU : IsPreconnected U)
+    : EqOn f g U ∨ ∀ᶠ x in codiscreteWithin U, f x ≠ g x :=
   (eqOn_zero_or_eventually_ne_zero_of_preconnected (hf.sub hg) hU).imp
     (fun h _ hx ↦ eq_of_sub_eq_zero (h hx))
     (by simp only [Pi.sub_apply, ne_eq, sub_eq_zero, imp_self])
 
-theorem eqOn_of_preconnected_of_mem_closure (hf : AnalyticOnNhd 𝕜 f U) (hg : AnalyticOnNhd 𝕜 g U)
-    (hU : IsPreconnected U) (h₀ : z₀ ∈ U) (hfg : z₀ ∈ closure ({z | f z = g z} \ {z₀})) :
-    EqOn f g U :=
+theorem eqOn_of_preconnected_of_mem_closure
+    (hf : AnalyticOnNhd 𝕜 f U) (hg : AnalyticOnNhd 𝕜 g U) (hU : IsPreconnected U) (h₀ : z₀ ∈ U)
+    (hfg : z₀ ∈ closure ({z | f z = g z} \ {z₀}))
+    : EqOn f g U :=
   hf.eqOn_of_preconnected_of_frequently_eq hg hU h₀ (mem_closure_ne_iff_frequently_within.mp hfg)
 
-/-- The *identity principle* for analytic functions, global version: if two functions on a normed
+/--
+The *identity principle* for analytic functions, global version: if two functions on a normed
 field `𝕜` are analytic everywhere and coincide at points which accumulate to a point `z₀`, then
 they coincide globally.
 For higher-dimensional versions requiring that the functions coincide in a neighborhood of `z₀`,
-see `AnalyticOnNhd.eq_of_eventuallyEq`. -/
-theorem eq_of_frequently_eq [ConnectedSpace 𝕜] (hf : AnalyticOnNhd 𝕜 f univ)
-    (hg : AnalyticOnNhd 𝕜 g univ) (hfg : ∃ᶠ z in 𝓝[≠] z₀, f z = g z) : f = g :=
+see `AnalyticOnNhd.eq_of_eventuallyEq`.
+-/
+theorem eq_of_frequently_eq
+    [ConnectedSpace 𝕜]
+    (hf : AnalyticOnNhd 𝕜 f univ) (hg : AnalyticOnNhd 𝕜 g univ) (hfg : ∃ᶠ z in 𝓝[≠] z₀, f z = g z)
+    : f = g :=
   funext fun x =>
     eqOn_of_preconnected_of_frequently_eq hf hg isPreconnected_univ (mem_univ z₀) hfg (mem_univ x)
 
@@ -268,7 +302,8 @@ section Mul
 ### Vanishing of products of analytic functions
 -/
 
-variable {A : Type*} [NormedRing A] [IsDomain A] [NormedAlgebra 𝕜 A]
+variable
+  {A : Type*} [NormedRing A] [IsDomain A] [NormedAlgebra 𝕜 A]
   {B : Type*} [NormedAddCommGroup B] [NormedSpace 𝕜 B] [Module A B]
 
 /-- If `f, g` are analytic on a neighbourhood of the preconnected open set `U`, and `f • g = 0`
@@ -311,11 +346,14 @@ end AnalyticOnNhd
 
 section PreimgCodiscrete
 
-/-- Preimages of codiscrete sets, local version: if `f` is analytic at `x` and not locally constant,
-then the preimage of any punctured neighbourhood of `f x` is a punctured neighbourhood of `x`. -/
-theorem AnalyticAt.preimage_of_nhdsNE {x : 𝕜} {f : 𝕜 → E} {s : Set E} (hfx : AnalyticAt 𝕜 f x)
-    (h₂f : ¬EventuallyConst f (𝓝 x)) (hs : s ∈ 𝓝[≠] f x) :
-    f ⁻¹' s ∈ 𝓝[≠] x := by
+/--
+Preimages of codiscrete sets, local version: if `f` is analytic at `x` and not locally constant,
+then the preimage of any punctured neighbourhood of `f x` is a punctured neighbourhood of `x`.
+-/
+theorem AnalyticAt.preimage_of_nhdsNE
+    {x : 𝕜} {f : 𝕜 → E} {s : Set E}
+    (hfx : AnalyticAt 𝕜 f x) (h₂f : ¬ EventuallyConst f (𝓝 x)) (hs : s ∈ 𝓝[≠] f x)
+    : f ⁻¹' s ∈ 𝓝[≠] x := by
   have : ∀ᶠ (z : 𝕜) in 𝓝 x, f z ∈ insert (f x) s := by
     filter_upwards [hfx.continuousAt.preimage_mem_nhds (insert_mem_nhds_iff.2 hs)]
     tauto
@@ -329,12 +367,15 @@ theorem AnalyticAt.preimage_of_nhdsNE {x : 𝕜} {f : 𝕜 → E} {s : Set E} (h
   rw [Set.mem_insert_iff] at h₂z
   tauto
 
-/-- Preimages of codiscrete sets, local filter version: if `f` is analytic at `x` and not locally
+/--
+Preimages of codiscrete sets, local filter version: if `f` is analytic at `x` and not locally
 constant, then the push-forward of the punctured neighbourhood filter `𝓝[≠] x` is less than or
-equal to the punctured neighbourhood filter `𝓝[≠] f x`. -/
-theorem AnalyticAt.map_nhdsNE {x : 𝕜} {f : 𝕜 → E} (hfx : AnalyticAt 𝕜 f x)
-    (h₂f : ¬EventuallyConst f (𝓝 x)) :
-    (𝓝[≠] x).map f ≤ (𝓝[≠] f x) := fun _ hs ↦ mem_map.1 (preimage_of_nhdsNE hfx h₂f hs)
+equal to the punctured neighbourhood filter `𝓝[≠] f x`.
+-/
+theorem AnalyticAt.map_nhdsNE
+    {x : 𝕜} {f : 𝕜 → E} (hfx : AnalyticAt 𝕜 f x) (h₂f : ¬ EventuallyConst f (𝓝 x))
+    : (𝓝[≠] x).map f ≤ (𝓝[≠] f x) := fun _ hs ↦
+  mem_map.1 (preimage_of_nhdsNE hfx h₂f hs)
 
 /--
 Preimages of codiscrete sets: if `f` is analytic on a neighbourhood of `U` and not locally constant,
@@ -343,24 +384,25 @@ then the preimage of any subset codiscrete within `f '' U` is codiscrete within 
 See `AnalyticOnNhd.preimage_zero_mem_codiscreteWithin` for the special case that `s` is the
 complement of zero. Applications might want to use the theorem `Filter.codiscreteWithin_mono`.
 -/
-theorem AnalyticOnNhd.preimage_mem_codiscreteWithin {U : Set 𝕜} {s : Set E} {f : 𝕜 → E}
-    (hfU : AnalyticOnNhd 𝕜 f U) (h₂f : ∀ x ∈ U, ¬EventuallyConst f (𝓝 x))
-    (hs : s ∈ codiscreteWithin (f '' U)) :
-    f ⁻¹' s ∈ codiscreteWithin U := by
+theorem AnalyticOnNhd.preimage_mem_codiscreteWithin
+    {U : Set 𝕜} {s : Set E} {f : 𝕜 → E} (hfU : AnalyticOnNhd 𝕜 f U)
+    (h₂f : ∀ x ∈ U, ¬ EventuallyConst f (𝓝 x)) (hs : s ∈ codiscreteWithin (f '' U))
+    : f ⁻¹' s ∈ codiscreteWithin U := by
   simp_rw [mem_codiscreteWithin, disjoint_principal_right, Set.compl_sdiff] at *
   intro x hx
   apply mem_of_superset ((hfU x hx).preimage_of_nhdsNE (h₂f x hx) (hs (f x) (by tauto)))
   grind
 
-/-- Preimages of codiscrete sets, filter version: if `f` is analytic on a neighbourhood of `U` and
+/--
+Preimages of codiscrete sets, filter version: if `f` is analytic on a neighbourhood of `U` and
 not locally constant, then the push-forward of the filter of sets codiscrete within `U` is less
 than or equal to the filter of sets codiscrete within `f '' U`.
 
 Applications might want to use the theorem `Filter.codiscreteWithin_mono`.
 -/
-theorem AnalyticOnNhd.map_codiscreteWithin {U : Set 𝕜} {f : 𝕜 → E}
-    (hfU : AnalyticOnNhd 𝕜 f U) (h₂f : ∀ x ∈ U, ¬EventuallyConst f (𝓝 x)) :
-    map f (codiscreteWithin U) ≤ (codiscreteWithin (f '' U)) :=
-  fun _ hs ↦ mem_map.1 (preimage_mem_codiscreteWithin hfU h₂f hs)
+theorem AnalyticOnNhd.map_codiscreteWithin
+    {U : Set 𝕜} {f : 𝕜 → E} (hfU : AnalyticOnNhd 𝕜 f U) (h₂f : ∀ x ∈ U, ¬ EventuallyConst f (𝓝 x))
+    : map f (codiscreteWithin U) ≤ (codiscreteWithin (f '' U)) := fun _ hs ↦
+  mem_map.1 (preimage_mem_codiscreteWithin hfU h₂f hs)
 
 end PreimgCodiscrete

@@ -72,8 +72,7 @@ lemma untop₀_add [AddZeroClass α] {a b : WithTop α} (ha : a ≠ ⊤) (hb : b
 lemma untop₀_natCast [AddMonoidWithOne α] (n : ℕ) : untop₀ (n : WithTop α) = n := rfl
 
 @[simp]
-theorem untop₀_one {α : Type*} [AddMonoidWithOne α] :
-    (1 : WithTop α).untop₀ = 1 := by
+theorem untop₀_one {α : Type*} [AddMonoidWithOne α] : (1 : WithTop α).untop₀ = 1 := by
   convert WithTop.untop₀_natCast 1
   all_goals exact Nat.cast_one.symm
 
@@ -109,15 +108,15 @@ theorem le_of_untop₀_le_untop₀ (ha : a ≠ ⊤) (h : a.untop₀ ≤ b.untop�
   lift b to α using hb
   simp_all
 
-@[simp, gcongr] theorem untop₀_le_untop₀ (hb : b ≠ ⊤) (h : a ≤ b) : a.untop₀ ≤ b.untop₀ := by
+@[simp, gcongr]
+theorem untop₀_le_untop₀ (hb : b ≠ ⊤) (h : a ≤ b) : a.untop₀ ≤ b.untop₀ := by
   lift b to α using hb
   by_cases ha : a = ⊤
   · simp_all
   lift a to α using ha
   simp_all
 
-theorem untop₀_le_untop₀_iff (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
-    a.untop₀ ≤ b.untop₀ ↔ a ≤ b := by
+theorem untop₀_le_untop₀_iff (ha : a ≠ ⊤) (hb : b ≠ ⊤) : a.untop₀ ≤ b.untop₀ ↔ a ≤ b := by
   lift a to α using ha
   lift b to α using hb
   simp
@@ -128,8 +127,8 @@ section LinearOrderedAddCommGroup
 
 variable [AddCommGroup α] [LinearOrder α] {a b : WithTop α}
 
-@[simp] theorem untop₀_max (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
-    (max a b).untop₀ = max a.untop₀ b.untop₀ := by
+@[simp]
+theorem untop₀_max (ha : a ≠ ⊤) (hb : b ≠ ⊤) : (max a b).untop₀ = max a.untop₀ b.untop₀ := by
   lift a to α using ha
   lift b to α using hb
   simp only [untop₀_coe]
@@ -138,8 +137,8 @@ variable [AddCommGroup α] [LinearOrder α] {a b : WithTop α}
   rw [not_le] at h
   simp [max_eq_left h.le, max_eq_left (coe_lt_coe.mpr h).le]
 
-@[simp] theorem untop₀_min (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
-    (min a b).untop₀ = min a.untop₀ b.untop₀ := by
+@[simp]
+theorem untop₀_min (ha : a ≠ ⊤) (hb : b ≠ ⊤) : (min a b).untop₀ = min a.untop₀ b.untop₀ := by
   lift a to α using ha
   lift b to α using hb
   norm_cast

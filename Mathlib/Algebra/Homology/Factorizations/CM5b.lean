@@ -27,15 +27,17 @@ open CategoryTheory Limits Abelian
 
 namespace CochainComplex
 
-variable {C : Type*} [Category* C] [Abelian C] [EnoughInjectives C]
-  {K L : CochainComplex C ℤ} (f : K ⟶ L)
+variable
+  {C : Type*} [Category* C] [Abelian C] [EnoughInjectives C] {K L : CochainComplex C ℤ} (f : K ⟶ L)
 
 namespace cm5b
 
 variable (K L) in
-/-- Given a cochain complex `K`, this is a cochain complex `I K` with
+/--
+Given a cochain complex `K`, this is a cochain complex `I K` with
 zero differentials which in degree `n` consists of the injective
-object `Injective.under (K.X n)`. -/
+object `Injective.under (K.X n)`.
+-/
 @[simps]
 noncomputable def I : CochainComplex C ℤ where
   X n := Injective.under (K.X n)
@@ -51,8 +53,8 @@ instance (n : ℤ) [K.IsStrictlyGE n] : (I K).IsStrictlyGE n := by
   intro i hi
   exact Injective.isZero_under _ (K.isZero_of_isStrictlyGE n i hi)
 
-instance (n : ℤ) [K.IsStrictlyGE (n + 1)] [L.IsStrictlyGE n] :
-    (mappingCone (𝟙 (I K)) ⊞ L).IsStrictlyGE n := by
+instance (n : ℤ) [K.IsStrictlyGE (n + 1)] [L.IsStrictlyGE n]
+    : (mappingCone (𝟙 (I K)) ⊞ L).IsStrictlyGE n := by
   rw [isStrictlyGE_iff]
   intro i hi
   refine IsZero.of_iso ?_ ((HomologicalComplex.eval C (ComplexShape.up ℤ) i).mapBiprod _ _)
@@ -65,15 +67,20 @@ variable (K L) in
 noncomputable abbrev p : mappingCone (𝟙 (I K)) ⊞ L ⟶ L := biprod.snd
 
 set_option backward.isDefEq.respectTransparency false in
-/-- A lift of a morphism `f : K ⟶ L` between bounded below cochain complexes
-as a monomorphism `K ⟶ mappingCone (𝟙 (I K)) ⊞ L`. -/
+/--
+A lift of a morphism `f : K ⟶ L` between bounded below cochain complexes
+as a monomorphism `K ⟶ mappingCone (𝟙 (I K)) ⊞ L`.
+-/
 noncomputable def i : K ⟶ mappingCone (𝟙 (I K)) ⊞ L :=
-  biprod.lift (mappingCone.lift _
-    (HomComplex.Cocycle.mk (HomComplex.Cochain.mk (fun p q _ => K.d p q ≫ Injective.ι _)) 2
-      (by lia) (by
-        ext p q hpq
-        simp [HomComplex.δ_v 1 2 (by lia) _ p q hpq (p + 1) (p + 1) (by lia) rfl]))
-    (HomComplex.Cochain.ofHoms (fun n => Injective.ι _)) (by cat_disch)) f
+  biprod.lift
+    (mappingCone.lift _
+      (HomComplex.Cocycle.mk (HomComplex.Cochain.mk (fun p q _ => K.d p q ≫ Injective.ι _)) 2
+        (by lia)
+        (by
+          ext p q hpq
+          simp [HomComplex.δ_v 1 2 (by lia) _ p q hpq (p + 1) (p + 1) (by lia) rfl]))
+      (HomComplex.Cochain.ofHoms (fun n => Injective.ι _)) (by cat_disch))
+    f
 
 set_option backward.isDefEq.respectTransparency false in
 @[reassoc]
@@ -113,8 +120,8 @@ noncomputable def homotopyEquiv : HomotopyEquiv (mappingCone (𝟙 (I K)) ⊞ L)
   homotopyHomInvId :=
     let h₀ : Homotopy (𝟙 (mappingCone (𝟙 (I K)))) 0 :=
       mappingCone.liftHomotopy _ _ _ (mappingCone.snd _) 0 (by simp) (by simp)
-    let h₁ := (h₀.compRight
-      (biprod.inl : _ ⟶ mappingCone (𝟙 (I K)) ⊞ L)).compLeft
+    let h₁ :=
+      (h₀.compRight (biprod.inl : _ ⟶ mappingCone (𝟙 (I K)) ⊞ L)).compLeft
         (biprod.fst : mappingCone (𝟙 (I K)) ⊞ L ⟶ _)
     let h₂ := Homotopy.add h₁ (Homotopy.refl (biprod.snd ≫ biprod.inr))
     (Homotopy.ofEq (by simp [p])).trans (h₂.symm.trans (Homotopy.ofEq (by simp)))

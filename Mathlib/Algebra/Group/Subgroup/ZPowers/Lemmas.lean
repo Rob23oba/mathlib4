@@ -11,7 +11,6 @@ public import Mathlib.Algebra.Group.Subgroup.ZPowers.Basic
 public import Mathlib.Basic.Countable.Defs
 public import Mathlib.Data.Finset.Lattice.Fold
 public import Mathlib.Data.Int.Cast.Lemmas
-
 import Mathlib.Algebra.EuclideanDomain.Int
 import Mathlib.Algebra.Group.Subgroup.Finsupp
 import Mathlib.RingTheory.PrincipalIdealDomain
@@ -46,9 +45,7 @@ end Subgroup
 
 namespace AddSubgroup
 
-@[simp]
-theorem range_zmultiplesHom (a : A) : (zmultiplesHom A a).range = zmultiples a :=
-  rfl
+@[simp] theorem range_zmultiplesHom (a : A) : (zmultiplesHom A a).range = zmultiples a := rfl
 
 section Ring
 

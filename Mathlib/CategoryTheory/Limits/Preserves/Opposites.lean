@@ -18,7 +18,6 @@ preserve certain (co)limits and vice versa.
 
 public section
 
-
 universe w w' v₁ v₂ u₁ u₂
 
 noncomputable section

@@ -22,7 +22,6 @@ understood to entail having a bottom and a top element.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory
@@ -36,8 +35,7 @@ add_decl_doc BddLat.toLat
 
 namespace BddLat
 
-instance : CoeSort BddLat Type* :=
-  ⟨fun X => X.toLat⟩
+instance : CoeSort BddLat Type* := ⟨fun X => X.toLat⟩
 
 attribute [instance] BddLat.isBoundedOrder
 
@@ -50,8 +48,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab BddLat.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-theorem coe_of (α : Type*) [Lattice α] [BoundedOrder α] : ↥(of α) = α :=
-  rfl
+theorem coe_of (α : Type*) [Lattice α] [BoundedOrder α] : ↥(of α) = α := rfl
 
 /-- The type of morphisms in `BddLat`. -/
 @[ext]
@@ -60,8 +57,7 @@ structure Hom (X Y : BddLat.{u}) where
   /-- The underlying `BoundedLatticeHom`. -/
   hom' : BoundedLatticeHom X Y
 
-instance : Inhabited BddLat :=
-  ⟨of PUnit⟩
+instance : Inhabited BddLat := ⟨of PUnit⟩
 
 instance : LargeCategory.{u} BddLat where
   Hom := Hom
@@ -73,18 +69,18 @@ instance : ConcreteCategory BddLat (BoundedLatticeHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `BddLat` back into a `BoundedLatticeHom`. -/
-abbrev Hom.hom {X Y : BddLat.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := BddLat) f
+abbrev Hom.hom {X Y : BddLat.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := BddLat) f
 
 /-- Typecheck a `BoundedLatticeHom` as a morphism in `BddLat`. -/
-abbrev ofHom {X Y : Type u} [Lattice X] [BoundedOrder X] [Lattice Y] [BoundedOrder Y]
-    (f : BoundedLatticeHom X Y) : of X ⟶ of Y :=
+abbrev ofHom
+    {X Y : Type u} [Lattice X] [BoundedOrder X] [Lattice Y] [BoundedOrder Y]
+    (f : BoundedLatticeHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := BddLat) f
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : BddLat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : BddLat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -127,41 +123,34 @@ instance hasForgetToSemilatInf : HasForget₂ BddLat SemilatInfCat where
   forget₂.obj X := ↧X
   forget₂.map f := f.hom.toInfTopHom
 
-@[simp]
-theorem coe_forget_to_bddOrd (X : BddLat) : ↥((forget₂ BddLat BddOrd).obj X) = ↥X :=
-  rfl
+@[simp] theorem coe_forget_to_bddOrd (X : BddLat) : ↥((forget₂ BddLat BddOrd).obj X) = ↥X := rfl
+
+@[simp] theorem coe_forget_to_lat (X : BddLat) : ↥((forget₂ BddLat Lat).obj X) = ↥X := rfl
 
 @[simp]
-theorem coe_forget_to_lat (X : BddLat) : ↥((forget₂ BddLat Lat).obj X) = ↥X :=
-  rfl
+theorem coe_forget_to_semilatSup (X : BddLat) : ↥((forget₂ BddLat SemilatSupCat).obj X) = ↥X := rfl
 
 @[simp]
-theorem coe_forget_to_semilatSup (X : BddLat) :
-    ↥((forget₂ BddLat SemilatSupCat).obj X) = ↥X :=
+theorem coe_forget_to_semilatInf (X : BddLat) : ↥((forget₂ BddLat SemilatInfCat).obj X) = ↥X := rfl
+
+theorem forget_lat_partOrd_eq_forget_bddOrd_partOrd
+    : forget₂ BddLat Lat ⋙ forget₂ Lat PartOrd = forget₂ BddLat BddOrd ⋙ forget₂ BddOrd PartOrd :=
   rfl
 
-@[simp]
-theorem coe_forget_to_semilatInf (X : BddLat) :
-    ↥((forget₂ BddLat SemilatInfCat).obj X) = ↥X :=
+theorem forget_semilatSup_partOrd_eq_forget_bddOrd_partOrd
+    : forget₂ BddLat SemilatSupCat ⋙ forget₂ SemilatSupCat PartOrd
+      = forget₂ BddLat BddOrd ⋙ forget₂ BddOrd PartOrd :=
   rfl
 
-theorem forget_lat_partOrd_eq_forget_bddOrd_partOrd :
-    forget₂ BddLat Lat ⋙ forget₂ Lat PartOrd =
-      forget₂ BddLat BddOrd ⋙ forget₂ BddOrd PartOrd :=
+theorem forget_semilatInf_partOrd_eq_forget_bddOrd_partOrd
+    : forget₂ BddLat SemilatInfCat ⋙ forget₂ SemilatInfCat PartOrd
+      = forget₂ BddLat BddOrd ⋙ forget₂ BddOrd PartOrd :=
   rfl
 
-theorem forget_semilatSup_partOrd_eq_forget_bddOrd_partOrd :
-    forget₂ BddLat SemilatSupCat ⋙ forget₂ SemilatSupCat PartOrd =
-      forget₂ BddLat BddOrd ⋙ forget₂ BddOrd PartOrd :=
-  rfl
-
-theorem forget_semilatInf_partOrd_eq_forget_bddOrd_partOrd :
-    forget₂ BddLat SemilatInfCat ⋙ forget₂ SemilatInfCat PartOrd =
-      forget₂ BddLat BddOrd ⋙ forget₂ BddOrd PartOrd :=
-  rfl
-
-/-- Constructs an equivalence between bounded lattices from an order isomorphism
-between them. -/
+/--
+Constructs an equivalence between bounded lattices from an order isomorphism
+between them.
+-/
 @[simps]
 def Iso.mk {α β : BddLat.{u}} (e : α ≃o β) : α ≅ β where
   hom := ofHom e
@@ -185,23 +174,22 @@ def dualEquiv : BddLat ≌ BddLat where
 
 end BddLat
 
-theorem bddLat_dual_comp_forget_to_bddOrd :
-    BddLat.dual ⋙ forget₂ BddLat BddOrd =
-    forget₂ BddLat BddOrd ⋙ BddOrd.dual :=
+theorem bddLat_dual_comp_forget_to_bddOrd
+    : BddLat.dual ⋙ forget₂ BddLat BddOrd = forget₂ BddLat BddOrd ⋙ BddOrd.dual :=
   rfl
 
-theorem bddLat_dual_comp_forget_to_lat :
-    BddLat.dual ⋙ forget₂ BddLat Lat = forget₂ BddLat Lat ⋙ Lat.dual :=
+theorem bddLat_dual_comp_forget_to_lat
+    : BddLat.dual ⋙ forget₂ BddLat Lat = forget₂ BddLat Lat ⋙ Lat.dual :=
   rfl
 
-theorem bddLat_dual_comp_forget_to_semilatSupCat :
-    BddLat.dual ⋙ forget₂ BddLat SemilatSupCat =
-    forget₂ BddLat SemilatInfCat ⋙ SemilatInfCat.dual :=
+theorem bddLat_dual_comp_forget_to_semilatSupCat
+    : BddLat.dual ⋙ forget₂ BddLat SemilatSupCat
+      = forget₂ BddLat SemilatInfCat ⋙ SemilatInfCat.dual :=
   rfl
 
-theorem bddLat_dual_comp_forget_to_semilatInfCat :
-    BddLat.dual ⋙ forget₂ BddLat SemilatInfCat =
-    forget₂ BddLat SemilatSupCat ⋙ SemilatSupCat.dual :=
+theorem bddLat_dual_comp_forget_to_semilatInfCat
+    : BddLat.dual ⋙ forget₂ BddLat SemilatInfCat
+      = forget₂ BddLat SemilatSupCat ⋙ SemilatSupCat.dual :=
   rfl
 
 /-- The functor that adds a bottom and a top element to a lattice. This is the free functor. -/
@@ -209,32 +197,38 @@ def latToBddLat : Lat.{u} ⥤ BddLat where
   obj X := ↧(WithTop <| WithBot X)
   map f := BddLat.ofHom <| LatticeHom.withTopWithBot f.hom
 
-/-- `latToBddLat` is left adjoint to the forgetful functor, meaning it is the free
-functor from `Lat` to `BddLat`. -/
+/--
+`latToBddLat` is left adjoint to the forgetful functor, meaning it is the free
+functor from `Lat` to `BddLat`.
+-/
 def latToBddLatForgetAdjunction : latToBddLat.{u} ⊣ forget₂ BddLat Lat :=
-  Adjunction.mkOfHomEquiv
-    { homEquiv X _ :=
-        { toFun f := Lat.ofHom
-            { toFun := f ∘ some ∘ some
-              map_sup' := fun a b => congr(f $(by rfl)).trans (f.hom.map_sup' _ _)
-              map_inf' := fun a b => congr(f $(by rfl)).trans (f.hom.map_inf' _ _) }
-          invFun f := BddLat.ofHom <| LatticeHom.withTopWithBot' f.hom
-          left_inv := fun f =>
-            BddLat.ext fun a =>
-              match a with
-              | none => f.hom.map_top'.symm
-              | some none => f.hom.map_bot'.symm
-              | some (some _) => rfl }
-      homEquiv_naturality_left_symm := fun _ _ =>
+  Adjunction.mkOfHomEquiv {
+    homEquiv X _ := {
+      toFun f :=
+        Lat.ofHom {
+          toFun := f ∘ some ∘ some
+          map_sup' := fun a b => congr(f $(by rfl)).trans (f.hom.map_sup' _ _)
+          map_inf' := fun a b => congr(f $(by rfl)).trans (f.hom.map_inf' _ _)
+        }
+      invFun f := BddLat.ofHom <| LatticeHom.withTopWithBot' f.hom
+      left_inv := fun f =>
         BddLat.ext fun a =>
           match a with
-          | none => rfl
-          | some none => rfl
+          | none => f.hom.map_top'.symm
+          | some none => f.hom.map_bot'.symm
           | some (some _) => rfl
-      homEquiv_naturality_right := fun _ _ => Lat.ext fun _ => rfl }
+    }
+    homEquiv_naturality_left_symm := fun _ _ =>
+      BddLat.ext fun a =>
+        match a with
+        | none => rfl
+        | some none => rfl
+        | some (some _) => rfl
+    homEquiv_naturality_right := fun _ _ => Lat.ext fun _ => rfl
+  }
 
 /-- `latToBddLat` and `OrderDual` commute. -/
-def latToBddLatCompDualIsoDualCompLatToBddLat :
-    latToBddLat.{u} ⋙ BddLat.dual ≅ Lat.dual ⋙ latToBddLat :=
+def latToBddLatCompDualIsoDualCompLatToBddLat
+    : latToBddLat.{u} ⋙ BddLat.dual ≅ Lat.dual ⋙ latToBddLat :=
   Adjunction.leftAdjointUniq (latToBddLatForgetAdjunction.comp BddLat.dualEquiv.toAdjunction)
     (Lat.dualEquiv.toAdjunction.comp latToBddLatForgetAdjunction)

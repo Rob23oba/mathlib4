@@ -24,8 +24,10 @@ namespace AlgebraicGeometry
 
 variable (W : MorphismProperty Scheme.{u})
 
-/-- The source (Zariski-)local closure of `P` is satisfied if there exists
-an open cover of the source on which `P` is satisfied. -/
+/--
+The source (Zariski-)local closure of `P` is satisfied if there exists
+an open cover of the source on which `P` is satisfied.
+-/
 def sourceLocalClosure (P : MorphismProperty Scheme.{u}) : MorphismProperty Scheme.{u} :=
   fun X _ f ↦ ∃ (𝒰 : Scheme.Cover.{u} (Scheme.precoverage W) X), ∀ (i : 𝒰.I₀), P (𝒰.f i ≫ f)
 
@@ -33,10 +35,12 @@ namespace sourceLocalClosure
 
 variable {W} {P Q : MorphismProperty Scheme.{u}} {X Y : Scheme.{u}}
 
-/-- A choice of open cover on which `P` is satisfied if `f` satisfies the source local closure
-of `P`. -/
-noncomputable def cover {f : X ⟶ Y} (hf : sourceLocalClosure W P f) :
-    Scheme.Cover.{u} (Scheme.precoverage W) X :=
+/--
+A choice of open cover on which `P` is satisfied if `f` satisfies the source local closure
+of `P`.
+-/
+noncomputable def cover {f : X ⟶ Y} (hf : sourceLocalClosure W P f)
+    : Scheme.Cover.{u} (Scheme.precoverage W) X :=
   hf.choose
 
 lemma property_coverMap_comp {f : X ⟶ Y} (hf : sourceLocalClosure W P f) (i : hf.cover.I₀) :
@@ -61,8 +65,8 @@ variable [W.IsStableUnderBaseChange] [Scheme.IsJointlySurjectivePreserving W]
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-instance [P.RespectsLeft Q] [Q.IsStableUnderBaseChange] :
-    (sourceLocalClosure W P).RespectsLeft Q := by
+instance [P.RespectsLeft Q] [Q.IsStableUnderBaseChange]
+    : (sourceLocalClosure W P).RespectsLeft Q := by
   refine ⟨fun {X Y} Z f hf g ⟨𝒰, hg⟩ ↦ ⟨𝒰.pullback₁ f, fun i ↦ ?_⟩⟩
   simpa [pullback.condition_assoc] using
     RespectsLeft.precomp (Q := Q) _ (Q.pullback_snd _ _ hf) _ (hg i)
@@ -76,8 +80,8 @@ instance [P.RespectsIso] : (sourceLocalClosure W P).RespectsIso where
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-instance [P.RespectsIso] [P.RespectsLeft @IsOpenImmersion] :
-    IsZariskiLocalAtSource (sourceLocalClosure IsOpenImmersion P) := by
+instance [P.RespectsIso] [P.RespectsLeft @IsOpenImmersion]
+    : IsZariskiLocalAtSource (sourceLocalClosure IsOpenImmersion P) := by
   refine .mk_of_iff_of_zeroHypercover fun f 𝒰 ↦ ?_
   refine ⟨fun ⟨𝒱, h⟩ ↦ fun i ↦ ⟨𝒱.pullback₁ (𝒰.f i), fun j ↦ ?_⟩, fun h ↦ ?_⟩
   · simpa [pullback.condition_assoc] using
@@ -92,21 +96,21 @@ instance [P.IsStableUnderBaseChange] : (sourceLocalClosure W P).IsStableUnderBas
   simpa [← pullbackLeftPullbackSndIso_hom_fst, P.cancel_left_of_respectsIso] using
     P.pullback_fst _ _ (hg i)
 
-instance [W.ContainsIdentities] [P.ContainsIdentities] :
-    (sourceLocalClosure W P).ContainsIdentities :=
+instance [W.ContainsIdentities] [P.ContainsIdentities]
+    : (sourceLocalClosure W P).ContainsIdentities :=
   ⟨fun X ↦ ⟨X.coverOfIsIso (𝟙 X), fun _ ↦ P.id_mem _⟩⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-instance [W.IsStableUnderComposition] [P.IsStableUnderBaseChange] [P.IsStableUnderComposition] :
-    (sourceLocalClosure W P).IsStableUnderComposition := by
+instance [W.IsStableUnderComposition] [P.IsStableUnderBaseChange] [P.IsStableUnderComposition]
+    : (sourceLocalClosure W P).IsStableUnderComposition := by
   refine ⟨fun {X Y Z} f g ⟨𝒰, hf⟩ ⟨𝒱, hg⟩ ↦ ?_⟩
   refine ⟨𝒰.bind fun i ↦ (𝒱.pullback₁ (𝒰.f i ≫ f)), fun ⟨l, r⟩ ↦ ?_⟩
   simpa [← pullbackRightPullbackFstIso_inv_snd_fst_assoc, pullback.condition_assoc] using
     P.comp_mem _ _ (P.pullback_snd _ _ (hf _)) (hg r)
 
-instance [W.IsMultiplicative] [P.IsStableUnderBaseChange] [P.IsMultiplicative] :
-    (sourceLocalClosure W P).IsMultiplicative where
+instance [W.IsMultiplicative] [P.IsStableUnderBaseChange] [P.IsMultiplicative]
+  : (sourceLocalClosure W P).IsMultiplicative where
 
 end sourceLocalClosure
 

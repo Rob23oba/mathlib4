@@ -31,16 +31,21 @@ namespace ModN
 instance : Module (ZMod n) (ModN G n) := QuotientAddGroup.zmodModule (by simp)
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The universal property of `ModN G n` in terms of monoids: Monoid homomorphisms from `ModN G n`
-are the same as monoid homomorphisms from `G` whose values are `n`-torsion. -/
+/--
+The universal property of `ModN G n` in terms of monoids: Monoid homomorphisms from `ModN G n`
+are the same as monoid homomorphisms from `G` whose values are `n`-torsion.
+-/
 protected def liftEquiv [AddMonoid M] : (ModN G n →+ M) ≃ {φ : G →+ M // ∀ g, n • φ g = 0} where
-  toFun f := ⟨f.comp (QuotientAddGroup.mk' _), fun g ↦ by
-    let Gn : AddSubgroup G := (LinearMap.range (LinearMap.lsmul ℤ G n)).toAddSubgroup
-    suffices n • g ∈ (QuotientAddGroup.mk' Gn).ker by
-      simp only [AddMonoidHom.coe_comp, comp_apply, ← map_nsmul]
-      change f (QuotientAddGroup.mk' Gn (n • g)) = 0 -- Can we avoid `change`?
-      rw [this, map_zero]
-    simp [QuotientAddGroup.ker_mk', Gn]⟩
+  toFun f := ⟨
+    f.comp (QuotientAddGroup.mk' _),
+    fun g ↦ by
+      let Gn : AddSubgroup G := (LinearMap.range (LinearMap.lsmul ℤ G n)).toAddSubgroup
+      suffices n • g ∈ (QuotientAddGroup.mk' Gn).ker by
+        simp only [AddMonoidHom.coe_comp, comp_apply, ← map_nsmul]
+        change f (QuotientAddGroup.mk' Gn (n • g)) = 0 -- Can we avoid `change`?
+        rw [this, map_zero]
+      simp [QuotientAddGroup.ker_mk', Gn]
+  ⟩
   invFun φ := QuotientAddGroup.lift _ φ <| by rintro - ⟨g, rfl⟩; simpa using φ.property g
   left_inv f := by
     ext x
@@ -48,10 +53,12 @@ protected def liftEquiv [AddMonoid M] : (ModN G n →+ M) ≃ {φ : G →+ M // 
     rfl -- Should `simp` suffice here?
   right_inv φ := by aesop
 
-/-- The universal property of `ModN G n` in terms of `ZMod n`-modules: `ZMod n`-linear maps from
-`ModN G n` are the same as monoid homomorphisms from `G` whose values are `n`-torsion. -/
-protected def liftEquiv' [AddCommGroup H] [Module (ZMod n) H] :
-    (ModN G n →ₗ[ZMod n] H) ≃ {φ : G →+ H // ∀ g, n • φ g = 0} :=
+/--
+The universal property of `ModN G n` in terms of `ZMod n`-modules: `ZMod n`-linear maps from
+`ModN G n` are the same as monoid homomorphisms from `G` whose values are `n`-torsion.
+-/
+protected def liftEquiv' [AddCommGroup H] [Module (ZMod n) H]
+    : (ModN G n →ₗ[ZMod n] H) ≃ {φ : G →+ H // ∀ g, n • φ g = 0} :=
   (AddMonoidHom.toZModLinearMapEquiv n).symm.toEquiv.trans ModN.liftEquiv
 
 variable (n) in
@@ -60,8 +67,10 @@ def mkQ : G →+ ModN G n := (LinearMap.range (LinearMap.lsmul ℤ G n)).mkQ
 
 variable [NeZero n]
 
-/-- Given a free module `G` over `ℤ`, construct the corresponding basis
-of `G / ⟨n⟩` over `ℤ / nℤ`. -/
+/--
+Given a free module `G` over `ℤ`, construct the corresponding basis
+of `G / ⟨n⟩` over `ℤ / nℤ`.
+-/
 noncomputable def basis {ι : Type*} (b : Basis ι ℤ G) : Basis ι (ZMod n) (ModN G n) := by
   set nG := LinearMap.range (LinearMap.lsmul ℤ G n)
   set H := G ⧸ nG
@@ -74,8 +83,10 @@ noncomputable def basis {ι : Type*} (b : Basis ι ℤ G) : Basis ι (ZMod n) (M
     simp [mod, f]
   let g : H →ₗ[ℤ] (ι →₀ ZMod n) := nG.liftQ (mod.comp f) hker
   refine ⟨.ofBijective (g.toAddMonoidHom.toZModLinearMap n) ⟨?_, ?_⟩⟩
-  · rw [AddMonoidHom.coe_toZModLinearMap, LinearMap.toAddMonoidHom_coe, injective_iff_map_eq_zero,
-      nG.mkQ_surjective.forall]
+  · rw [
+      AddMonoidHom.coe_toZModLinearMap, LinearMap.toAddMonoidHom_coe, injective_iff_map_eq_zero,
+      nG.mkQ_surjective.forall
+    ]
     intro x hx
     simp only [Submodule.mkQ_apply, g] at hx
     rw [Submodule.liftQ_apply] at hx

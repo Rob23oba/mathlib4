@@ -23,14 +23,12 @@ In this file, we show that `ℕ` is both an archimedean `succOrder` and an archi
 
 public section
 
-
 open Function Order
 
 namespace Nat
 variable {m n : ℕ}
 
-instance instSuccOrder : SuccOrder ℕ :=
-  SuccOrder.ofSuccLeIff succ Nat.succ_le_iff
+instance instSuccOrder : SuccOrder ℕ := SuccOrder.ofSuccLeIff succ Nat.succ_le_iff
 
 instance instSuccAddOrder : SuccAddOrder ℕ := ⟨fun _ => rfl⟩
 
@@ -48,19 +46,15 @@ instance instPredOrder : PredOrder ℕ where
 
 instance instPredSubOrder : PredSubOrder ℕ := ⟨fun _ => rfl⟩
 
-@[simp]
-theorem succ_eq_succ : Order.succ = succ :=
-  rfl
+@[simp] theorem succ_eq_succ : Order.succ = succ := rfl
 
-@[simp]
-theorem pred_eq_pred : Order.pred = pred :=
-  rfl
+@[simp] theorem pred_eq_pred : Order.pred = pred := rfl
 
-protected theorem succ_iterate (a : ℕ) : ∀ n, succ^[n] a = a + n :=
-  Order.succ_iterate a
+protected theorem succ_iterate (a : ℕ) : ∀ n, succ^[n] a = a + n := Order.succ_iterate a
 
 protected theorem pred_iterate (a : ℕ) : ∀ n, pred^[n] a = a - n
-  | 0 => rfl
+  | 0 =>
+    rfl
   | n + 1 => by
     rw [Function.iterate_succ', sub_succ]
     exact congr_arg _ (Nat.pred_iterate a n)
@@ -82,13 +76,12 @@ lemma forall_ne_zero_iff (P : ℕ → Prop) :
 
 end Nat
 
-@[simp] theorem Fin.covBy_iff {n : ℕ} {a b : Fin n} : a ⋖ b ↔ (a : ℕ) ⋖ b :=
+@[simp]
+theorem Fin.covBy_iff {n : ℕ} {a b : Fin n} : a ⋖ b ↔ (a : ℕ) ⋖ b :=
   and_congr_right' ⟨fun h c ha hb ↦ @h ⟨c, hb.trans b.prop⟩ ha hb, fun h _c hc ↦ h hc⟩
 
 alias ⟨CovBy.coe_fin, _⟩ := Fin.covBy_iff
 
-@[simp]
-theorem withBotSucc_zero : WithBot.succ 0 = 1 := rfl
+@[simp] theorem withBotSucc_zero : WithBot.succ 0 = 1 := rfl
 
-@[simp]
-theorem withBotSucc_one : WithBot.succ 1 = 2 := rfl
+@[simp] theorem withBotSucc_one : WithBot.succ 1 = 2 := rfl

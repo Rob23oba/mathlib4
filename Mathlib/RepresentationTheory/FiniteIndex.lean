@@ -35,15 +35,22 @@ namespace Rep
 
 open CategoryTheory Finsupp TensorProduct Representation
 
-variable {k : Type u} {G : Type v} [CommRing k] [Group G] {S : Subgroup G}
-  [DecidableRel (QuotientGroup.rightRel S)] (A : Rep.{w} k S)
+variable
+  {k : Type u} {G : Type v} [CommRing k] [Group G]
+  {S : Subgroup G} [DecidableRel (QuotientGroup.rightRel S)]
+  (A : Rep.{w} k S)
 
-/-- Let `S ≤ G` be a subgroup and `(A, ρ)` a `k`-linear `S`-representation. Then given `g : G` and
+/--
+Let `S ≤ G` be a subgroup and `(A, ρ)` a `k`-linear `S`-representation. Then given `g : G` and
 `a : A`, this is the function `G → A` sending `sg` to `ρ(s)(a)` for all `s : S` and everything else
-to 0. -/
+to 0.
+-/
 noncomputable def indToCoindAux (g : G) : A →ₗ[k] (G → A) :=
-  LinearMap.pi (fun g₁ => if h : (QuotientGroup.rightRel S).r g₁ g then
-    A.ρ ⟨g₁ * g⁻¹, by rcases h with ⟨s, rfl⟩; exact mul_inv_cancel_right s.1 g ▸ s.2⟩ else 0)
+  LinearMap.pi (fun g₁ =>
+    if h : (QuotientGroup.rightRel S).r g₁ g then
+      A.ρ ⟨g₁ * g⁻¹, by rcases h with ⟨s, rfl⟩; exact mul_inv_cancel_right s.1 g ▸ s.2⟩
+    else
+      0)
 
 variable {A}
 
@@ -101,32 +108,41 @@ lemma indToCoindAux_comm {A B : Rep k S} (f : A ⟶ B) (g₁ g₂ : G) (a : A) :
 
 set_option backward.isDefEq.respectTransparency.types false in
 variable (A) in
-/-- Let `S ≤ G` be a subgroup and `A` a `k`-linear `S`-representation. This is the `k`-linear map
-`Ind_S^G(A) →ₗ[k] Coind_S^G(A)` sending `(⟦g ⊗ₜ[k] a⟧, sg) ↦ ρ(s)(a)`. -/
-noncomputable abbrev indToCoind :
-    ind S.subtype A →ₗ[k] coind S.subtype A :=
-  Representation.Coinvariants.lift _ (TensorProduct.lift <| (linearCombination _ fun g =>
-    LinearMap.codRestrict _ (indToCoindAux A g) fun _ _ _ => by simp) ∘ₗ
-    (MonoidAlgebra.coeffLinearEquiv k).toLinearMap) fun _ => by ext; simp
+/--
+Let `S ≤ G` be a subgroup and `A` a `k`-linear `S`-representation. This is the `k`-linear map
+`Ind_S^G(A) →ₗ[k] Coind_S^G(A)` sending `(⟦g ⊗ₜ[k] a⟧, sg) ↦ ρ(s)(a)`.
+-/
+noncomputable abbrev indToCoind : ind S.subtype A →ₗ[k] coind S.subtype A :=
+  Representation.Coinvariants.lift _
+    (TensorProduct.lift <|
+      (linearCombination _ fun g =>
+          LinearMap.codRestrict _ (indToCoindAux A g) fun _ _ _ => by simp)
+        ∘ₗ (MonoidAlgebra.coeffLinearEquiv k).toLinearMap)
+    fun _ => by ext; simp
 
 variable [S.FiniteIndex]
 
 attribute [local instance] Subgroup.fintypeQuotientOfFiniteIndex
 
 variable (A) in
-/-- Let `S ≤ G` be a finite index subgroup, `g₁, ..., gₙ` a set of right coset representatives of
+/--
+Let `S ≤ G` be a finite index subgroup, `g₁, ..., gₙ` a set of right coset representatives of
 `S`, and `A` a `k`-linear `S`-representation. This is the `k`-linear map
-`Coind_S^G(A) →ₗ[k] Ind_S^G(A)` sending `f : G → A` to `∑ᵢ ⟦gᵢ ⊗ₜ[k] f(gᵢ)⟧` for `1 ≤ i ≤ n`. -/
+`Coind_S^G(A) →ₗ[k] Ind_S^G(A)` sending `f : G → A` to `∑ᵢ ⟦gᵢ ⊗ₜ[k] f(gᵢ)⟧` for `1 ≤ i ≤ n`.
+-/
 @[simps]
 noncomputable def coindToInd : coind S.subtype A →ₗ[k] ind S.subtype A where
-  toFun f := ∑ g : Quotient (QuotientGroup.rightRel S), Quotient.liftOn g (fun g =>
-    IndV.mk S.subtype _ g (f.1 g)) fun g₁ g₂ ⟨s, (hs : _ * _ = _)⟩ =>
-      (Submodule.Quotient.eq _).2 <| Coinvariants.mem_ker_of_eq s
-        (.single g₂ 1 ⊗ₜ[k] f.1 g₂) _ <| by have := f.2 s g₂; simp_all
-  map_add' _ _ := by simpa [← Finset.sum_add_distrib, TensorProduct.tmul_add] using
+  toFun f :=
+    ∑ g : Quotient (QuotientGroup.rightRel S), Quotient.liftOn g (fun g =>
+      IndV.mk S.subtype _ g (f.1 g)) fun g₁ g₂ ⟨s, (hs : _ * _ = _)⟩ =>
+        (Submodule.Quotient.eq _).2 <| Coinvariants.mem_ker_of_eq s
+          (.single g₂ 1 ⊗ₜ[k] f.1 g₂) _ <| by have := f.2 s g₂; simp_all
+  map_add' _ _ := by
+    simpa [← Finset.sum_add_distrib, TensorProduct.tmul_add] using
       Finset.sum_congr rfl fun z _ => Quotient.inductionOn z fun _ => by simp
-  map_smul' _ _ := by simpa [Finset.smul_sum] using Finset.sum_congr rfl fun z _ =>
-    Quotient.inductionOn z fun _ => by simp
+  map_smul' _ _ := by
+    simpa [Finset.smul_sum] using
+      Finset.sum_congr rfl fun z _ => Quotient.inductionOn z fun _ => by simp
 
 omit [DecidableRel (QuotientGroup.rightRel S)] in
 lemma coindToInd_of_support_subset_orbit (g : G) (f : coind S.subtype A)
@@ -170,40 +186,48 @@ lemma indToCoind_coindToInd : A.coindToInd ∘ₗ A.indToCoind = LinearMap.id :=
     simpa using indToCoindAux_of_not_rel g x a hx
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Let `S ≤ G` be a finite index subgroup, `g₁, ..., gₙ` a set of right coset representatives of
+/--
+Let `S ≤ G` be a finite index subgroup, `g₁, ..., gₙ` a set of right coset representatives of
 `S`, and `A` a `k`-linear `S`-representation. This is an isomorphism `Ind_S^G(A) ≅ Coind_S^G(A)`.
 The forward map sends `(⟦g ⊗ₜ[k] a⟧, sg) ↦ ρ(s)(a)`, and the inverse sends `f : G → A` to
-`∑ᵢ ⟦gᵢ ⊗ₜ[k] f(gᵢ)⟧` for `1 ≤ i ≤ n`. -/
+`∑ᵢ ⟦gᵢ ⊗ₜ[k] f(gᵢ)⟧` for `1 ≤ i ≤ n`.
+-/
 @[simps! hom_hom_toLinearMap inv_hom_toLinearMap]
-noncomputable def indCoindIso (A : Rep.{max w u} k S) :
-    ind S.subtype A ≅ coind S.subtype A :=
-  mkIso (.mk (.ofLinearMap (indToCoind A) (coindToInd A)
-    (coindToInd_indToCoind A) (indToCoind_coindToInd A)) <| fun g ↦ by ext; simp)
+noncomputable def indCoindIso (A : Rep.{max w u} k S) : ind S.subtype A ≅ coind S.subtype A :=
+  mkIso (.mk (.ofLinearMap (indToCoind A) (coindToInd A) (coindToInd_indToCoind A)
+      (indToCoind_coindToInd A)) <|
+    fun g ↦ by ext; simp)
 
 variable (k S)
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given a finite index subgroup `S ≤ G`, this is a natural isomorphism between the `Ind_S^G` and
-`Coind_G^S` functors `Rep k S ⥤ Rep k G`. -/
+/--
+Given a finite index subgroup `S ≤ G`, this is a natural isomorphism between the `Ind_S^G` and
+`Coind_G^S` functors `Rep k S ⥤ Rep k G`.
+-/
 @[implicit_reducible, simps! hom_app inv_app]
-noncomputable def indCoindNatIso :
-    indFunctor k S.subtype ≅ coindFunctor.{max w u} k S.subtype :=
-  NatIso.ofComponents (fun (A : Rep k S) => indCoindIso A) fun f => by
-    simp only [indFunctor_obj, coindFunctor_obj];
-    ext g1 x g2
-    simp [indToCoind, indMap, indToCoindAux_comm]
+noncomputable def indCoindNatIso : indFunctor k S.subtype ≅ coindFunctor.{max w u} k S.subtype :=
+  NatIso.ofComponents
+    (fun (A : Rep k S) => indCoindIso A)
+    fun f => by
+      simp only [indFunctor_obj, coindFunctor_obj]
+      ext g1 x g2
+      simp [indToCoind, indMap, indToCoindAux_comm]
 
-/-- Given a finite index subgroup `S ≤ G`, `Ind_S^G` is right adjoint to the restriction functor
-`Res k G ⥤ Res k S`, since it is naturally isomorphic to `Coind_S^G`. -/
-noncomputable def resIndAdjunction :
-    resFunctor.{max w u v} S.subtype ⊣ indFunctor.{max w u v} k S.subtype :=
+/--
+Given a finite index subgroup `S ≤ G`, `Ind_S^G` is right adjoint to the restriction functor
+`Res k G ⥤ Res k S`, since it is naturally isomorphic to `Coind_S^G`.
+-/
+noncomputable def resIndAdjunction
+    : resFunctor.{max w u v} S.subtype ⊣ indFunctor.{max w u v} k S.subtype :=
   (resCoindAdjunction.{max w u v} k S.subtype).ofNatIsoRight (indCoindNatIso.{max w u v} k S).symm
 
 omit [DecidableRel (QuotientGroup.rightRel S)] in
 @[instance] -- Note: we must use `@[instance] theorem` here due to [lean4#5595](https://github.com/leanprover/lean4/issues/5595).
-theorem instIsRightAdjointSubtypeMemSubgroupIndFunctorSubtype :
-    (indFunctor.{max w u v} k S.subtype).IsRightAdjoint :=
-  open scoped Classical in (resIndAdjunction k S).isRightAdjoint
+theorem instIsRightAdjointSubtypeMemSubgroupIndFunctorSubtype
+    : (indFunctor.{max w u v} k S.subtype).IsRightAdjoint :=
+  open scoped Classical in
+  (resIndAdjunction k S).isRightAdjoint
 
 variable {k S}
 
@@ -234,17 +258,20 @@ lemma resIndAdjunction_homEquiv_symm_apply (A : Rep.{max w u v} k S)
   rfl
 
 variable (k S) in
-/-- Given a finite index subgroup `S ≤ G`, `Coind_S^G` is left adjoint to the restriction functor
-`Res k G ⥤ Res k S`, since it is naturally isomorphic to `Ind_S^G`. -/
-noncomputable def coindResAdjunction :
-    coindFunctor k S.subtype ⊣ resFunctor.{max w u v} S.subtype :=
+/--
+Given a finite index subgroup `S ≤ G`, `Coind_S^G` is left adjoint to the restriction functor
+`Res k G ⥤ Res k S`, since it is naturally isomorphic to `Ind_S^G`.
+-/
+noncomputable def coindResAdjunction
+    : coindFunctor k S.subtype ⊣ resFunctor.{max w u v} S.subtype :=
   (indResAdjunction k S.subtype).ofNatIsoLeft (indCoindNatIso.{max w u v} k S)
 
 omit [DecidableRel (QuotientGroup.rightRel S)] in
 @[instance] -- Note: we must use `@[instance] theorem` here due to [lean4#5595](https://github.com/leanprover/lean4/issues/5595).
-theorem instIsLeftAdjointSubtypeMemSubgroupCoindFunctorSubtype :
-    (coindFunctor.{max w u v} k S.subtype).IsLeftAdjoint :=
-  open scoped Classical in (coindResAdjunction k S).isLeftAdjoint
+theorem instIsLeftAdjointSubtypeMemSubgroupCoindFunctorSubtype
+    : (coindFunctor.{max w u v} k S.subtype).IsLeftAdjoint :=
+  open scoped Classical in
+  (coindResAdjunction k S).isLeftAdjoint
 
 @[simp]
 lemma coindResAdjunction_counit_app (B : Rep.{max w u v} k G) :

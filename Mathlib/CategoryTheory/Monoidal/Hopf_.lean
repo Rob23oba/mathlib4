@@ -47,7 +47,6 @@ namespace HopfObj
 
 attribute [reassoc (attr := simp)] antipode_left antipode_right
 
-
 end HopfObj
 
 variable (C)
@@ -73,8 +72,7 @@ def toBimon (A : Hopf C) : Bimon C := .mk' A.X
 Morphisms of Hopf monoids are just morphisms of the underlying bimonoids.
 In fact they automatically intertwine the antipodes, proved below.
 -/
-instance : Category (Hopf C) :=
-  inferInstanceAs <| Category (InducedCategory (Bimon C) Hopf.toBimon)
+instance : Category (Hopf C) := inferInstanceAs <| Category (InducedCategory (Bimon C) Hopf.toBimon)
 
 end Hopf
 
@@ -84,14 +82,12 @@ variable {C}
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- Morphisms of Hopf monoids intertwine the antipodes. -/
-theorem hom_antipode {A B : C} [HopfObj A] [HopfObj B] (f : A ⟶ B) [IsBimonHom f] :
-    f ≫ 𝒮 = 𝒮 ≫ f := by
+theorem hom_antipode {A B : C} [HopfObj A] [HopfObj B] (f : A ⟶ B) [IsBimonHom f]
+    : f ≫ 𝒮 = 𝒮 ≫ f := by
   -- We show these elements are equal by exhibiting an element in the convolution algebra
   -- between `A` (as a comonoid) and `B` (as a monoid),
   -- such that the LHS is a left inverse, and the RHS is a right inverse.
-  apply left_inv_eq_right_inv
-    (M := Conv A B)
-    (a := f)
+  apply left_inv_eq_right_inv (M := Conv A B) (a := f)
   · rw [Conv.mul_eq, Conv.one_eq]
     simp only [comp_whiskerRight, Category.assoc]
     slice_lhs 3 4 =>
@@ -123,9 +119,12 @@ theorem one_antipode (A : C) [HopfObj A] : η[A] ≫ 𝒮[A] = η[A] := by
   conv at this =>
     rhs
     rw [antipode_left]
-  rw [Bimon.one_comul_assoc, tensorHom_def_assoc, unitors_inv_equal,
-    ← rightUnitor_inv_naturality_assoc, whisker_exchange_assoc, ← rightUnitor_inv_naturality_assoc,
-    rightUnitor_inv_naturality_assoc] at this
+  rw [
+      Bimon.one_comul_assoc, tensorHom_def_assoc, unitors_inv_equal,
+      ← rightUnitor_inv_naturality_assoc, whisker_exchange_assoc,
+      ← rightUnitor_inv_naturality_assoc, rightUnitor_inv_naturality_assoc
+    ]
+    at this
   simpa
 
 @[reassoc (attr := simp)]
@@ -141,18 +140,10 @@ theorem antipode_counit (A : C) [HopfObj A] : 𝒮[A] ≫ ε[A] = ε[A] := by
 ## The antipode is an antihomomorphism with respect to both the monoid and comonoid structures.
 -/
 
-theorem antipode_comul₁ (A : C) [HopfObj A] :
-    Δ[A] ≫
-      𝒮[A] ▷ A ≫
-      Δ[A] ▷ A ≫
-      (α_ A A A).hom ≫
-      A ◁ A ◁ Δ[A] ≫
-      A ◁ (α_ A A A).inv ≫
-      A ◁ (β_ A A).hom ▷ A ≫
-      A ◁ (α_ A A A).hom ≫
-      (α_ A A (A ⊗ A)).inv ≫
-      (μ[A] ⊗ₘ μ[A]) =
-    ε[A] ≫ (λ_ (𝟙_ C)).inv ≫ (η[A] ⊗ₘ η[A]) := by
+theorem antipode_comul₁ (A : C) [HopfObj A]
+    : Δ[A] ≫ 𝒮[A] ▷ A ≫ Δ[A] ▷ A ≫ (α_ A A A).hom ≫ A ◁ A ◁ Δ[A] ≫ A ◁ (α_ A A A).inv
+        ≫ A ◁ (β_ A A).hom ▷ A ≫ A ◁ (α_ A A A).hom ≫ (α_ A A (A ⊗ A)).inv ≫ (μ[A] ⊗ₘ μ[A])
+      = ε[A] ≫ (λ_ (𝟙_ C)).inv ≫ (η[A] ⊗ₘ η[A]) := by
   slice_lhs 3 5 =>
     rw [← associator_naturality_right, ← Category.assoc, ← tensorHom_def]
   slice_lhs 3 9 =>
@@ -188,19 +179,11 @@ the right multiplication down across the strand,
 reassociate the comultiplications,
 then use `antipode_right` then `antipode_left` to simplify.
 -/
-theorem antipode_comul₂ (A : C) [HopfObj A] :
-    Δ[A] ≫
-      Δ[A] ▷ A ≫
-      (α_ A A A).hom ≫
-      A ◁ A ◁ Δ[A] ≫
-      A ◁ A ◁ (β_ A A).hom ≫
-      A ◁ A ◁ (𝒮[A] ⊗ₘ 𝒮[A]) ≫
-      A ◁ (α_ A A A).inv ≫
-      A ◁ (β_ A A).hom ▷ A ≫
-      A ◁ (α_ A A A).hom ≫
-      (α_ A A (A ⊗ A)).inv ≫
-      (μ[A] ⊗ₘ μ[A]) =
-    ε[A] ≫ (λ_ (𝟙_ C)).inv ≫ (η[A] ⊗ₘ η[A]) := by
+theorem antipode_comul₂ (A : C) [HopfObj A]
+    : Δ[A] ≫ Δ[A] ▷ A ≫ (α_ A A A).hom ≫ A ◁ A ◁ Δ[A] ≫ A ◁ A ◁ (β_ A A).hom
+        ≫ A ◁ A ◁ (𝒮[A] ⊗ₘ 𝒮[A]) ≫ A ◁ (α_ A A A).inv ≫ A ◁ (β_ A A).hom ▷ A ≫ A ◁ (α_ A A A).hom
+        ≫ (α_ A A (A ⊗ A)).inv ≫ (μ[A] ⊗ₘ μ[A])
+      = ε[A] ≫ (λ_ (𝟙_ C)).inv ≫ (η[A] ⊗ₘ η[A]) := by
   -- We should write a version of `slice_lhs` that zooms through whiskerings.
   slice_lhs 6 6 =>
     simp only [tensorHom_def', whiskerLeft_comp]
@@ -248,46 +231,41 @@ theorem antipode_comul₂ (A : C) [HopfObj A] :
     simp only [whiskerLeft_comp]
   slice_lhs 5 7 =>
     rw [associator_inv_naturality_right_assoc, whisker_exchange]
-  simp only [braiding_tensorUnit_left,
-    whiskerLeft_comp, whiskerLeft_rightUnitor_inv,
-    whiskerRight_id, whiskerLeft_rightUnitor, Category.assoc, Iso.hom_inv_id_assoc,
-    Iso.inv_hom_id_assoc, whiskerLeft_inv_hom_assoc, antipode_right_assoc]
+  simp only [
+    braiding_tensorUnit_left, whiskerLeft_comp, whiskerLeft_rightUnitor_inv, whiskerRight_id,
+    whiskerLeft_rightUnitor, Category.assoc, Iso.hom_inv_id_assoc, Iso.inv_hom_id_assoc,
+    whiskerLeft_inv_hom_assoc, antipode_right_assoc
+  ]
   rw [rightUnitor_inv_naturality_assoc, tensorHom_def]
   monoidal
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem antipode_comul (A : C) [HopfObj A] :
-    𝒮[A] ≫ Δ[A] = Δ[A] ≫ (β_ _ _).hom ≫ (𝒮[A] ⊗ₘ 𝒮[A]) := by
+theorem antipode_comul (A : C) [HopfObj A]
+    : 𝒮[A] ≫ Δ[A] = Δ[A] ≫ (β_ _ _).hom ≫ (𝒮[A] ⊗ₘ 𝒮[A]) := by
   -- Again, it is a "left inverse equals right inverse" argument in the convolution monoid.
-  apply left_inv_eq_right_inv
-    (M := Conv A (A ⊗ A))
-    (a := Δ[A])
+  apply left_inv_eq_right_inv (M := Conv A (A ⊗ A)) (a := Δ[A])
   · rw [Conv.mul_eq, Conv.one_eq]
-    simp only [comp_whiskerRight, tensor_whiskerLeft, MonObj.tensorObj.mul_def, Category.assoc,
-      MonObj.tensorObj.one_def]
+    simp only [
+      comp_whiskerRight, tensor_whiskerLeft, MonObj.tensorObj.mul_def, Category.assoc,
+      MonObj.tensorObj.one_def
+    ]
     simp only [tensorμ]
     simp only [Category.assoc, Iso.inv_hom_id_assoc]
     exact antipode_comul₁ A
   · rw [Conv.mul_eq, Conv.one_eq]
-    simp only [whiskerLeft_comp, tensor_whiskerLeft, Category.assoc, Iso.inv_hom_id_assoc,
-      MonObj.tensorObj.mul_def, MonObj.tensorObj.one_def]
+    simp only [
+      whiskerLeft_comp, tensor_whiskerLeft, Category.assoc, Iso.inv_hom_id_assoc,
+      MonObj.tensorObj.mul_def, MonObj.tensorObj.one_def
+    ]
     simp only [tensorμ]
     simp only [Category.assoc, Iso.inv_hom_id_assoc]
     exact antipode_comul₂ A
 
-theorem mul_antipode₁ (A : C) [HopfObj A] :
-    (Δ[A] ⊗ₘ Δ[A]) ≫
-      (α_ A A (A ⊗ A)).hom ≫
-      A ◁ (α_ A A A).inv ≫
-      A ◁ (β_ A A).hom ▷ A ≫
-      (α_ A (A ⊗ A) A).inv ≫
-      (α_ A A A).inv ▷ A ≫
-      μ[A] ▷ A ▷ A ≫
-      𝒮[A] ▷ A ▷ A ≫
-      (α_ A A A).hom ≫
-      A ◁ μ[A] ≫
-      μ[A] =
-    (ε[A] ⊗ₘ ε[A]) ≫ (λ_ (𝟙_ C)).hom ≫ η[A] := by
+theorem mul_antipode₁ (A : C) [HopfObj A]
+    : (Δ[A] ⊗ₘ Δ[A]) ≫ (α_ A A (A ⊗ A)).hom ≫ A ◁ (α_ A A A).inv ≫ A ◁ (β_ A A).hom ▷ A
+        ≫ (α_ A (A ⊗ A) A).inv ≫ (α_ A A A).inv ▷ A ≫ μ[A] ▷ A ▷ A ≫ 𝒮[A] ▷ A ▷ A ≫ (α_ A A A).hom
+        ≫ A ◁ μ[A] ≫ μ[A]
+      = (ε[A] ⊗ₘ ε[A]) ≫ (λ_ (𝟙_ C)).hom ≫ η[A] := by
   slice_lhs 8 9 =>
     rw [associator_naturality_left]
   slice_lhs 9 10 =>
@@ -297,7 +275,6 @@ theorem mul_antipode₁ (A : C) [HopfObj A] :
   slice_lhs 8 9 =>
     rw [← tensorHom_def]
   simp
-
 
 /--
 Auxiliary calculation for `mul_antipode`.
@@ -322,19 +299,11 @@ We move the leftmost multiplication up, so we can reassociate.
 We then move the rightmost comultiplication under the strand,
 and simplify using `antipode_right`.
 -/
-theorem mul_antipode₂ (A : C) [HopfObj A] :
-    (Δ[A] ⊗ₘ Δ[A]) ≫
-      (α_ A A (A ⊗ A)).hom ≫
-      A ◁ (α_ A A A).inv ≫
-      A ◁ (β_ A A).hom ▷ A ≫
-      (α_ A (A ⊗ A) A).inv ≫
-      (α_ A A A).inv ▷ A ≫
-      μ[A] ▷ A ▷ A ≫
-      (α_ A A A).hom ≫
-      A ◁ (β_ A A).hom ≫
-      A ◁ (𝒮[A] ⊗ₘ 𝒮[A]) ≫
-      A ◁ μ[A] ≫ μ[A] =
-    (ε[A] ⊗ₘ ε[A]) ≫ (λ_ (𝟙_ C)).hom ≫ η[A] := by
+theorem mul_antipode₂ (A : C) [HopfObj A]
+    : (Δ[A] ⊗ₘ Δ[A]) ≫ (α_ A A (A ⊗ A)).hom ≫ A ◁ (α_ A A A).inv ≫ A ◁ (β_ A A).hom ▷ A
+        ≫ (α_ A (A ⊗ A) A).inv ≫ (α_ A A A).inv ▷ A ≫ μ[A] ▷ A ▷ A ≫ (α_ A A A).hom
+        ≫ A ◁ (β_ A A).hom ≫ A ◁ (𝒮[A] ⊗ₘ 𝒮[A]) ≫ A ◁ μ[A] ≫ μ[A]
+      = (ε[A] ⊗ₘ ε[A]) ≫ (λ_ (𝟙_ C)).hom ≫ η[A] := by
   slice_lhs 7 8 =>
     rw [associator_naturality_left]
   slice_lhs 8 9 =>
@@ -359,8 +328,10 @@ theorem mul_antipode₂ (A : C) [HopfObj A] :
     simp only [← whiskerLeft_comp]
     rw [← BraidedCategory.hexagon_forward]
     simp only [whiskerLeft_comp]
-  simp only [tensor_whiskerLeft, Category.assoc, Iso.inv_hom_id_assoc, pentagon_inv_inv_hom_inv_inv,
-    whisker_assoc, MonObj.mul_assoc, whiskerLeft_inv_hom_assoc]
+  simp only [
+    tensor_whiskerLeft, Category.assoc, Iso.inv_hom_id_assoc, pentagon_inv_inv_hom_inv_inv,
+    whisker_assoc, MonObj.mul_assoc, whiskerLeft_inv_hom_assoc
+  ]
   slice_lhs 3 4 =>
     simp only [← whiskerLeft_comp]
     rw [BraidedCategory.braiding_naturality_right]
@@ -417,38 +388,34 @@ theorem mul_antipode₂ (A : C) [HopfObj A] :
   monoidal
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem mul_antipode (A : C) [HopfObj A] :
-    μ[A] ≫ 𝒮[A] = (𝒮[A] ⊗ₘ 𝒮[A]) ≫ (β_ _ _).hom ≫ μ[A] := by
+theorem mul_antipode (A : C) [HopfObj A] : μ[A] ≫ 𝒮[A] = (𝒮[A] ⊗ₘ 𝒮[A]) ≫ (β_ _ _).hom ≫ μ[A] := by
   -- Again, it is a "left inverse equals right inverse" argument in the convolution monoid.
-  apply left_inv_eq_right_inv
-    (M := Conv (A ⊗ A) A)
-    (a := μ[A])
+  apply left_inv_eq_right_inv (M := Conv (A ⊗ A) A) (a := μ[A])
   · -- Unfold the algebra structure in the convolution monoid,
     -- then `simp?, simp only [tensor_μ], simp?`.
     rw [Conv.mul_eq, Conv.one_eq]
-    simp only [Comon.tensorObj_comul, whiskerRight_tensor, comp_whiskerRight, Category.assoc,
-      Comon.tensorObj_counit]
+    simp only [
+      Comon.tensorObj_comul, whiskerRight_tensor, comp_whiskerRight, Category.assoc,
+      Comon.tensorObj_counit
+    ]
     simp only [tensorμ]
     simp only [Category.assoc, pentagon_hom_inv_inv_inv_inv_assoc]
     exact mul_antipode₁ A
   · rw [Conv.mul_eq, Conv.one_eq]
-    simp only [Comon.tensorObj_comul, whiskerRight_tensor,
-      BraidedCategory.braiding_naturality_assoc, whiskerLeft_comp, Category.assoc,
-      Comon.tensorObj_counit]
+    simp only [
+      Comon.tensorObj_comul, whiskerRight_tensor, BraidedCategory.braiding_naturality_assoc,
+      whiskerLeft_comp, Category.assoc, Comon.tensorObj_counit
+    ]
     simp only [tensorμ]
     simp only [Category.assoc, pentagon_hom_inv_inv_inv_inv_assoc]
     exact mul_antipode₂ A
 
 set_option backward.isDefEq.respectTransparency.types false in
-/--
-In a commutative Hopf algebra, the antipode squares to the identity.
--/
-theorem antipode_antipode (A : C) [HopfObj A] (comm : (β_ _ _).hom ≫ μ[A] = μ[A]) :
-    𝒮[A] ≫ 𝒮[A] = 𝟙 A := by
+/-- In a commutative Hopf algebra, the antipode squares to the identity. -/
+theorem antipode_antipode (A : C) [HopfObj A] (comm : (β_ _ _).hom ≫ μ[A] = μ[A])
+    : 𝒮[A] ≫ 𝒮[A] = 𝟙 A := by
   -- Again, it is a "left inverse equals right inverse" argument in the convolution monoid.
-  apply left_inv_eq_right_inv
-    (M := Conv A A)
-    (a := 𝒮[A])
+  apply left_inv_eq_right_inv (M := Conv A A) (a := 𝒮[A])
   · -- Unfold the algebra structure in the convolution monoid,
     -- then `simp?`.
     rw [Conv.mul_eq, Conv.one_eq]

@@ -42,8 +42,10 @@ variable {α : Type*} [AddCommGroup α] {n : ℕ} {a b : α}
 namespace AddChar
 variable (n : ℕ) [NeZero n]
 
-/-- Indexing of the complex characters of `ZMod n`. `AddChar.zmod n x` is the character sending `y`
-to `e ^ (2 * π * i * x * y / n)`. -/
+/--
+Indexing of the complex characters of `ZMod n`. `AddChar.zmod n x` is the character sending `y`
+to `e ^ (2 * π * i * x * y / n)`.
+-/
 def zmod (x : ZMod n) : AddChar (ZMod n) Circle :=
   AddChar.compAddMonoidHom ⟨AddCircle.toCircle, AddCircle.toCircle_zero, AddCircle.toCircle_add⟩ <|
     ZMod.toAddCircle.comp <| .mulLeft x
@@ -77,8 +79,9 @@ def zmodHom : AddChar (ZMod n) (AddChar (ZMod n) Circle) where
   map_add_eq_mul' := by simp
 
 /-- Character on a product of `ZMod`s given by `x ↦ ∏ i, e ^ (2 * π * I * x i * y / n)`. -/
-private def mkZModAux {ι : Type*} [DecidableEq ι] (n : ι → ℕ) [∀ i, NeZero (n i)]
-    (u : ∀ i, ZMod (n i)) : AddChar (⨁ i, ZMod (n i)) Circle :=
+private def mkZModAux
+    {ι : Type*} [DecidableEq ι] (n : ι → ℕ) [∀ i, NeZero (n i)] (u : ∀ i, ZMod (n i))
+    : AddChar (⨁ i, ZMod (n i)) Circle :=
   AddChar.directSum fun i ↦ zmod (n i) (u i)
 
 private lemma mkZModAux_injective {ι : Type*} [DecidableEq ι] {n : ι → ℕ} [∀ i, NeZero (n i)] :
@@ -86,14 +89,17 @@ private lemma mkZModAux_injective {ι : Type*} [DecidableEq ι] {n : ι → ℕ}
   AddChar.directSum_injective.comp fun f g h ↦ by simpa [funext_iff] using h
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The circle-valued characters of a finite abelian group are the same as its complex-valued
-characters. -/
+/--
+The circle-valued characters of a finite abelian group are the same as its complex-valued
+characters.
+-/
 def circleEquivComplex [Finite α] : AddChar α Circle ≃+ AddChar α ℂ where
   toFun ψ := toMonoidHomEquiv.symm <| coeHom.comp ψ.toMonoidHom
-  invFun ψ :=
-    { toFun := fun a ↦ (⟨ψ a, mem_sphere_zero_iff_norm.2 <| ψ.norm_apply _⟩ : Circle)
-      map_zero_eq_one' := by simp [Circle]
-      map_add_eq_mul' := fun a b ↦ by ext : 1; simp [map_add_eq_mul] }
+  invFun ψ := {
+    toFun := fun a ↦ (⟨ψ a, mem_sphere_zero_iff_norm.2 <| ψ.norm_apply _⟩ : Circle)
+    map_zero_eq_one' := by simp [Circle]
+    map_add_eq_mul' := fun a b ↦ by ext : 1; simp [map_add_eq_mul]
+  }
   left_inv ψ := by ext : 1; simp
   right_inv ψ := by ext : 1; simp
   map_add' ψ χ := rfl

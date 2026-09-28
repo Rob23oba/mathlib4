@@ -12,7 +12,6 @@ public import Mathlib.Analysis.Normed.MulAction
 public import Mathlib.Order.Filter.AtTopBot.Interval
 public import Mathlib.Topology.Algebra.InfiniteSum.Defs
 
-
 /-!
 # Sums over symmetric integer intervals
 
@@ -36,27 +35,35 @@ section IntervalFilters
 
 variable (G : Type*) [Neg G] [Preorder G] [LocallyFiniteOrder G]
 
-/-- The SummationFilter on a locally finite order `G` corresponding to the symmetric
-intervals `Icc (-N) N`· -/
+/--
+The SummationFilter on a locally finite order `G` corresponding to the symmetric
+intervals `Icc (-N) N`·
+-/
 @[simps]
 def symmetricIcc : SummationFilter G where
   filter := atTop.map (fun g ↦ Icc (-g) g)
 
-/-- The SummationFilter on a locally finite order `G` corresponding to the symmetric
+/--
+The SummationFilter on a locally finite order `G` corresponding to the symmetric
 intervals `Ioo (-N) N`· Note that for `G = ℤ` this coincides with
-`symmetricIcc` so one should use that. See `symmetricIcc_eq_symmetricIoo_int`. -/
+`symmetricIcc` so one should use that. See `symmetricIcc_eq_symmetricIoo_int`.
+-/
 @[simps]
 def symmetricIoo : SummationFilter G where
   filter := atTop.map (fun g ↦ Ioo (-g) g)
 
-/-- The SummationFilter on a locally finite order `G` corresponding to the symmetric
-intervals `Ico (-N) N`· -/
+/--
+The SummationFilter on a locally finite order `G` corresponding to the symmetric
+intervals `Ico (-N) N`·
+-/
 @[simps]
 def symmetricIco : SummationFilter G where
   filter := atTop.map (fun N ↦ Ico (-N) N)
 
-/-- The SummationFilter on a locally finite order `G` corresponding to the symmetric
-intervals `Ioc (-N) N`· -/
+/--
+The SummationFilter on a locally finite order `G` corresponding to the symmetric
+intervals `Ioc (-N) N`·
+-/
 @[simps]
 def symmetricIoc : SummationFilter G where
   filter := atTop.map (fun N ↦ Ioc (-N) N)

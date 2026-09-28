@@ -23,11 +23,9 @@ bounded.
 
 @[expose] public section
 
-
 universe u v
 
 open CategoryTheory
-
 
 /-- The category of finite partial orders with monotone functions. -/
 structure FinPartOrd extends PartOrd where
@@ -35,11 +33,9 @@ structure FinPartOrd extends PartOrd where
 
 namespace FinPartOrd
 
-instance : CoeSort FinPartOrd Type* :=
-  ⟨fun X => X.toPartOrd⟩
+instance : CoeSort FinPartOrd Type* := ⟨fun X => X.toPartOrd⟩
 
-instance (X : FinPartOrd) : PartialOrder X :=
-  X.toPartOrd.str
+instance (X : FinPartOrd) : PartialOrder X := X.toPartOrd.str
 
 attribute [instance] FinPartOrd.isFintype
 
@@ -52,8 +48,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab FinPartOrd.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-instance : Inhabited FinPartOrd :=
-  ⟨of PUnit⟩
+instance : Inhabited FinPartOrd := ⟨of PUnit⟩
 
 instance largeCategory : LargeCategory FinPartOrd :=
   inferInstanceAs <| Category (InducedCategory _ toPartOrd)
@@ -69,8 +64,8 @@ instance hasForgetToFintype : HasForget₂ FinPartOrd FintypeCat where
   forget₂.map f := FintypeCat.homMk f.hom
 
 /-- Typecheck a `OrderHom` as a morphism in `FinPartOrd`. -/
-abbrev ofHom {X Y : Type u} [PartialOrder X] [Fintype X] [PartialOrder Y] [Fintype Y] (f : X →o Y) :
-    of X ⟶ of Y :=
+abbrev ofHom {X Y : Type u} [PartialOrder X] [Fintype X] [PartialOrder Y] [Fintype Y] (f : X →o Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := FinPartOrd) f
 
 @[simp]
@@ -123,6 +118,6 @@ def dualEquiv : FinPartOrd ≌ FinPartOrd where
 
 end FinPartOrd
 
-theorem FinPartOrd_dual_comp_forget_to_partOrd :
-    FinPartOrd.dual ⋙ forget₂ FinPartOrd PartOrd =
-      forget₂ FinPartOrd PartOrd ⋙ PartOrd.dual := rfl
+theorem FinPartOrd_dual_comp_forget_to_partOrd
+    : FinPartOrd.dual ⋙ forget₂ FinPartOrd PartOrd = forget₂ FinPartOrd PartOrd ⋙ PartOrd.dual :=
+  rfl

@@ -232,24 +232,26 @@ lemma exists_norm_sub_smul_one_eq_zero (x : F) :
 variable (F) [Nontrivial F]
 
 open Algebra in
-/-- A version of the **Gelfand-Mazur Theorem**.
+/--
+A version of the **Gelfand-Mazur Theorem**.
 
 If `F` is a nontrivial normed `ℂ`-algebra with multiplicative norm, then we obtain a
-`ℂ`-algebra equivalence with `ℂ`. -/
-noncomputable
-def algEquivOfNormMul : ℂ ≃ₐ[ℂ] F :=
+`ℂ`-algebra equivalence with `ℂ`.
+-/
+noncomputable def algEquivOfNormMul : ℂ ≃ₐ[ℂ] F :=
   .ofBijective (ofId ℂ F) <| by
     refine ⟨FaithfulSMul.algebraMap_injective ℂ F, fun x ↦ ?_⟩
     obtain ⟨z, hz⟩ := exists_norm_sub_smul_one_eq_zero x
     refine ⟨z, ?_⟩
     rwa [norm_eq_zero, sub_eq_zero, eq_comm, ← ofId_apply] at hz
 
-/-- A version of the **Gelfand-Mazur Theorem** for nontrivial normed `ℂ`-algebras `F`
-with multiplicative norm: any such `F` is isomorphic to `ℂ` as a `ℂ`-algebra. -/
+/--
+A version of the **Gelfand-Mazur Theorem** for nontrivial normed `ℂ`-algebras `F`
+with multiplicative norm: any such `F` is isomorphic to `ℂ` as a `ℂ`-algebra.
+-/
 theorem nonempty_algEquiv : Nonempty (ℂ ≃ₐ[ℂ] F) := ⟨algEquivOfNormMul F⟩
 
 end Complex
-
 
 /-!
 ### The real case
@@ -259,8 +261,10 @@ namespace Real
 
 variable {F : Type*} [NormedRing F] [NormedAlgebra ℝ F]
 
-/-- A (private) abbreviation introduced for conciseness below.
-We will show that for every `x : F`, `φ x` takes the value zero. -/
+/--
+A (private) abbreviation introduced for conciseness below.
+We will show that for every `x : F`, `φ x` takes the value zero.
+-/
 private noncomputable abbrev φ (x : F) (u : ℝ × ℝ) : F := x ^ 2 - u.1 • x + algebraMap ℝ F u.2
 
 private lemma continuous_φ (x : F) : Continuous (φ x) := by fun_prop
@@ -399,12 +403,14 @@ lemma exists_isMonicOfDegree_two_and_aeval_eq_zero (x : F) :
   simp only [norm_φ_eq_norm_φ_of_isMinOn h (norm_ne_zero_iff.mpr H)] at this
   exact Filter.not_tendsto_const_atTop _ _ this
 
-/-- A version of the **Gelfand-Mazur Theorem** over `ℝ`.
+/--
+A version of the **Gelfand-Mazur Theorem** over `ℝ`.
 
 If a field `F` is a normed `ℝ`-algebra, then `F` is isomorphic as an `ℝ`-algebra
-either to `ℝ` or to `ℂ`. -/
-theorem nonempty_algEquiv_or (F : Type*) [NormedField F] [NormedAlgebra ℝ F] :
-    Nonempty (F ≃ₐ[ℝ] ℝ) ∨ Nonempty (F ≃ₐ[ℝ] ℂ) := by
+either to `ℝ` or to `ℂ`.
+-/
+theorem nonempty_algEquiv_or (F : Type*) [NormedField F] [NormedAlgebra ℝ F]
+    : Nonempty (F ≃ₐ[ℝ] ℝ) ∨ Nonempty (F ≃ₐ[ℝ] ℂ) := by
   have : Algebra.IsAlgebraic ℝ F := by
     refine ⟨fun x ↦ ?_⟩
     obtain ⟨f, hf, hfx⟩ := exists_isMonicOfDegree_two_and_aeval_eq_zero x

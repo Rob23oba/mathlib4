@@ -31,7 +31,8 @@ variable {ι α β : Type*}
 section OrderedCommGroup
 
 section
-variable [CommGroup α] [Preorder α] [IsOrderedMonoid α] [PartialOrder β]
+variable
+  [CommGroup α] [Preorder α] [IsOrderedMonoid α] [PartialOrder β]
   {s : Set ι} {f f₁ f₂ : ι → α} {g : ι → β}
 
 @[to_additive (attr := simp)]
@@ -91,7 +92,8 @@ lemma Antivary.div_left (h₁ : Antivary f₁ g) (h₂ : Monovary f₂ g) : Anti
 end
 
 section
-variable [PartialOrder α] [CommGroup β] [PartialOrder β] [IsOrderedMonoid β]
+variable
+  [PartialOrder α] [CommGroup β] [PartialOrder β] [IsOrderedMonoid β]
   {s : Set ι} {f : ι → α} {g : ι → β}
 
 @[to_additive (attr := simp)]
@@ -110,8 +112,9 @@ lemma antivaryOn_inv_right : AntivaryOn f g⁻¹ s ↔ MonovaryOn f g s := by
 end
 
 section
-variable [CommGroup α] [PartialOrder α] [IsOrderedMonoid α]
-  [CommGroup β] [PartialOrder β] [IsOrderedMonoid β]
+variable
+  [CommGroup α] [PartialOrder α] [IsOrderedMonoid α] [CommGroup β] [PartialOrder β]
+  [IsOrderedMonoid β]
   {s : Set ι} {f : ι → α} {g : ι → β}
 
 @[to_additive] lemma monovaryOn_inv : MonovaryOn f⁻¹ g⁻¹ s ↔ MonovaryOn f g s := by simp
@@ -138,8 +141,9 @@ end
 end OrderedCommGroup
 
 section LinearOrderedCommGroup
-variable [Preorder α] [CommGroup β] [LinearOrder β] [IsOrderedMonoid β] {s : Set ι} {f : ι → α}
-  {g g₁ g₂ : ι → β}
+variable
+  [Preorder α] [CommGroup β] [LinearOrder β] [IsOrderedMonoid β]
+  {s : Set ι} {f : ι → α} {g g₁ g₂ : ι → β}
 
 @[to_additive] lemma MonovaryOn.mul_right (h₁ : MonovaryOn f g₁ s) (h₂ : MonovaryOn f g₂ s) :
     MonovaryOn f (g₁ * g₂) s :=
@@ -188,7 +192,8 @@ variable [Preorder α] [CommGroup β] [LinearOrder β] [IsOrderedMonoid β] {s :
 end LinearOrderedCommGroup
 
 section OrderedSemiring
-variable [Semiring α] [PartialOrder α] [IsOrderedRing α] [PartialOrder β]
+variable
+  [Semiring α] [PartialOrder α] [IsOrderedRing α] [PartialOrder β]
   {s : Set ι} {f f₁ f₂ : ι → α} {g : ι → β}
 
 lemma MonovaryOn.mul_left₀ (hf₁ : ∀ i ∈ s, 0 ≤ f₁ i) (hf₂ : ∀ i ∈ s, 0 ≤ f₂ i)
@@ -222,7 +227,8 @@ lemma Antivary.pow_left₀ (hf : 0 ≤ f) (hfg : Antivary f g) (n : ℕ) : Antiv
 end OrderedSemiring
 
 section LinearOrderedSemiring
-variable [LinearOrder α] [Semiring β] [LinearOrder β] [IsStrictOrderedRing β]
+variable
+  [LinearOrder α] [Semiring β] [LinearOrder β] [IsStrictOrderedRing β]
   {s : Set ι} {f : ι → α} {g g₁ g₂ : ι → β}
 
 lemma MonovaryOn.mul_right₀ (hg₁ : ∀ i ∈ s, 0 ≤ g₁ i) (hg₂ : ∀ i ∈ s, 0 ≤ g₂ i)
@@ -256,7 +262,8 @@ end LinearOrderedSemiring
 section LinearOrderedSemifield
 
 section
-variable [Semifield α] [LinearOrder α] [IsStrictOrderedRing α] [LinearOrder β]
+variable
+  [Semifield α] [LinearOrder α] [IsStrictOrderedRing α] [LinearOrder β]
   {s : Set ι} {f f₁ f₂ : ι → α} {g : ι → β}
 
 @[simp]
@@ -292,7 +299,8 @@ lemma Antivary.div_left₀ (hf₁ : 0 ≤ f₁) (hf₂ : StrongLT 0 f₂) (h₁ 
 end
 
 section
-variable [LinearOrder α] [Semifield β] [LinearOrder β] [IsStrictOrderedRing β]
+variable
+  [LinearOrder α] [Semifield β] [LinearOrder β] [IsStrictOrderedRing β]
   {s : Set ι} {f : ι → α} {g g₁ g₂ : ι → β}
 
 @[simp]
@@ -326,8 +334,9 @@ lemma Antivary.div_right₀ (hg₁ : 0 ≤ g₁) (hg₂ : StrongLT 0 g₂) (h₁
 end
 
 section
-variable [Semifield α] [LinearOrder α] [IsStrictOrderedRing α]
-  [Semifield β] [LinearOrder β] [IsStrictOrderedRing β]
+variable
+  [Semifield α] [LinearOrder α] [IsStrictOrderedRing α] [Semifield β] [LinearOrder β]
+  [IsStrictOrderedRing β]
   {s : Set ι} {f : ι → α} {g : ι → β}
 
 lemma monovaryOn_inv₀ (hf : ∀ i ∈ s, 0 < f i) (hg : ∀ i ∈ s, 0 < g i) :
@@ -362,9 +371,10 @@ end LinearOrderedSemifield
 /-! ### Rearrangement inequality characterisation -/
 
 section LinearOrderedAddCommGroup
-variable [Ring α] [LinearOrder α] [IsStrictOrderedRing α]
-  [AddCommGroup β] [LinearOrder β] [IsOrderedAddMonoid β] [Module α β]
-  [IsStrictOrderedModule α β] {f : ι → α} {g : ι → β} {s : Set ι}
+variable
+  [Ring α] [LinearOrder α] [IsStrictOrderedRing α] [AddCommGroup β] [LinearOrder β]
+  [IsOrderedAddMonoid β] [Module α β] [IsStrictOrderedModule α β]
+  {f : ι → α} {g : ι → β} {s : Set ι}
 
 lemma monovaryOn_iff_forall_smul_nonneg :
     MonovaryOn f g s ↔ ∀ ⦃i⦄, i ∈ s → ∀ ⦃j⦄, j ∈ s → 0 ≤ (f j - f i) • (g j - g i) := by

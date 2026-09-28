@@ -47,18 +47,18 @@ instance instMulAction [Monoid M] [MulAction M α] : MulAction M αᵐᵒᵖ whe
   mul_smul _ _ _ := unop_injective <| mul_smul _ _ _
 
 @[to_additive]
-instance instIsScalarTower [SMul M N] [SMul M α] [SMul N α] [IsScalarTower M N α] :
-    IsScalarTower M N αᵐᵒᵖ where
+instance instIsScalarTower [SMul M N] [SMul M α] [SMul N α] [IsScalarTower M N α]
+    : IsScalarTower M N αᵐᵒᵖ where
   smul_assoc _ _ _ := unop_injective <| smul_assoc _ _ _
 
 @[to_additive]
-instance instSMulCommClass [SMul M α] [SMul N α] [SMulCommClass M N α] :
-    SMulCommClass M N αᵐᵒᵖ where
+instance instSMulCommClass [SMul M α] [SMul N α] [SMulCommClass M N α]
+    : SMulCommClass M N αᵐᵒᵖ where
   smul_comm _ _ _ := unop_injective <| smul_comm _ _ _
 
 @[to_additive]
-instance instIsCentralScalar [SMul M α] [SMul Mᵐᵒᵖ α] [IsCentralScalar M α] :
-    IsCentralScalar M αᵐᵒᵖ where
+instance instIsCentralScalar [SMul M α] [SMul Mᵐᵒᵖ α] [IsCentralScalar M α]
+    : IsCentralScalar M αᵐᵒᵖ where
   op_smul_eq_smul _ _ := unop_injective <| op_smul_eq_smul _ _
 
 @[to_additive]
@@ -163,13 +163,13 @@ instance Monoid.toOppositeMulAction [Monoid α] : MulAction αᵐᵒᵖ α where
   mul_smul _ _ _ := (mul_assoc _ _ _).symm
 
 @[to_additive]
-instance IsScalarTower.opposite_mid {M N} [Mul N] [SMul M N] [SMulCommClass M N N] :
-    IsScalarTower M Nᵐᵒᵖ N where
+instance IsScalarTower.opposite_mid {M N} [Mul N] [SMul M N] [SMulCommClass M N N]
+    : IsScalarTower M Nᵐᵒᵖ N where
   smul_assoc _ _ _ := mul_smul_comm _ _ _
 
 @[to_additive]
-instance SMulCommClass.opposite_mid {M N} [Mul N] [SMul M N] [IsScalarTower M N N] :
-    SMulCommClass M Nᵐᵒᵖ N where
+instance SMulCommClass.opposite_mid {M N} [Mul N] [SMul M N] [IsScalarTower M N N]
+    : SMulCommClass M Nᵐᵒᵖ N where
   smul_comm x y z := by
     induction y using MulOpposite.rec'
     simp only [smul_mul_assoc, MulOpposite.smul_eq_mul_unop]

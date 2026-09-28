@@ -24,16 +24,17 @@ namespace SSet.Subcomplex.Pairing
 
 variable {X : SSet.{u}} {A : X.Subcomplex} (P : A.Pairing)
 
-/-- If `P` is a pairing for a subcomplex `A` of a simplicial set `X`,
-this is the corresponding pairing of `A.op`. -/
+/--
+If `P` is a pairing for a subcomplex `A` of a simplicial set `X`,
+this is the corresponding pairing of `A.op`.
+-/
 @[implicit_reducible, simps I II]
 def op : A.op.Pairing where
   I := Subcomplex.N.opEquiv ⁻¹' P.I
   II := Subcomplex.N.opEquiv ⁻¹' P.II
   inter := by simp [← Set.preimage_inter, P.inter]
   union := by simp [← Set.preimage_union, P.union]
-  p := (N.opEquiv.subtypeEquiv (by simp)).trans
-    (P.p.trans (N.opEquiv.symm.subtypeEquiv (by simp)))
+  p := (N.opEquiv.subtypeEquiv (by simp)).trans (P.p.trans (N.opEquiv.symm.subtypeEquiv (by simp)))
 
 @[simp]
 lemma op_p (x : P.II) :

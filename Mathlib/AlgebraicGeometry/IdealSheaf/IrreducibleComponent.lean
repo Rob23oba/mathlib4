@@ -39,11 +39,13 @@ namespace AlgebraicGeometry.Scheme
 variable (X : Scheme.{u}) (Z : Set X) (hZ : Z ∈ irreducibleComponents X) [IsNoetherian X]
 
 /-- The complement of the irreducible components unequal to `Z` of a Noetherian scheme. -/
-def irreducibleComponentOpen : Opens X :=
-  ⟨(⋃₀ (irreducibleComponents X \ {Z}))ᶜ, by
+def irreducibleComponentOpen : Opens X := ⟨
+  (⋃₀(irreducibleComponents X \ {Z}))ᶜ,
+  by
     rw [Set.sUnion_eq_biUnion, isOpen_compl_iff]
     exact TopologicalSpace.NoetherianSpace.finite_irreducibleComponents.sdiff.isClosed_biUnion
-      fun W hW ↦ isClosed_of_mem_irreducibleComponents W hW.1⟩
+      fun W hW ↦ isClosed_of_mem_irreducibleComponents W hW.1
+⟩
 
 /-- The ideal sheaf data associated to an irreducible component of a Noetherian scheme. -/
 def irreducibleComponentIdeal : X.IdealSheafData where
@@ -54,14 +56,13 @@ def irreducibleComponentIdeal : X.IdealSheafData where
     exact (closure_sUnion_irreducibleComponents_sdiff_singleton
       TopologicalSpace.NoetherianSpace.finite_irreducibleComponents Z hZ).symm
 
-theorem irreducibleComponentIdeal_def :
-    irreducibleComponentIdeal X Z hZ = (irreducibleComponentOpen X Z).ι.ker := by
+theorem irreducibleComponentIdeal_def
+    : irreducibleComponentIdeal X Z hZ = (irreducibleComponentOpen X Z).ι.ker := by
   ext
   rfl
 
 /-- The subscheme structure on an irreducible component of a Noetherian scheme. -/
-noncomputable def irreducibleComponent : Scheme :=
-  (X.irreducibleComponentIdeal Z hZ).subscheme
+noncomputable def irreducibleComponent : Scheme := (X.irreducibleComponentIdeal Z hZ).subscheme
 
 /-- The inclusion from an irreducible component of a Noetherian scheme. -/
 noncomputable def irreducibleComponentι : X.irreducibleComponent Z hZ ⟶ X :=
@@ -74,12 +75,11 @@ lemma irreducibleComponentι_apply (x : X.irreducibleComponent Z hZ) :
 instance : IsClosedImmersion (X.irreducibleComponentι Z hZ) :=
   inferInstanceAs (IsClosedImmersion (X.irreducibleComponentIdeal Z hZ).subschemeι)
 
-instance : IrreducibleSpace (X.irreducibleComponent Z hZ) :=
-  Subtype.irreducibleSpace hZ.1
+instance : IrreducibleSpace (X.irreducibleComponent Z hZ) := Subtype.irreducibleSpace hZ.1
 
 include hZ in
-theorem irreducibleComponentOpen_eq_top [IrreducibleSpace X] :
-    irreducibleComponentOpen X Z = ⊤ := by
+theorem irreducibleComponentOpen_eq_top [IrreducibleSpace X]
+    : irreducibleComponentOpen X Z = ⊤ := by
   rw [irreducibleComponents_eq_singleton, Set.mem_singleton_iff] at hZ
   simp [irreducibleComponentOpen, irreducibleComponents_eq_singleton, hZ]
 
@@ -88,8 +88,10 @@ instance [IrreducibleSpace X] : CategoryTheory.IsIso (X.irreducibleComponentι Z
   have : CategoryTheory.IsIso (irreducibleComponentOpen X Z).ι := by
     rw [irreducibleComponentOpen_eq_top X Z hZ]
     exact X.topIso.isIso_hom
-  rw [irreducibleComponentι, isIso_subschemeι_iff_eq_bot, irreducibleComponentIdeal_def,
-    irreducibleComponentOpen_eq_top X Z hZ]
+  rw [
+    irreducibleComponentι, isIso_subschemeι_iff_eq_bot, irreducibleComponentIdeal_def,
+    irreducibleComponentOpen_eq_top X Z hZ
+  ]
   exact X.topIso.hom.ker_eq_bot_of_isIso
 
 end AlgebraicGeometry.Scheme

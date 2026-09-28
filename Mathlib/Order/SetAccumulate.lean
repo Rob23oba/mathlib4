@@ -27,11 +27,9 @@ variable {α β : Type*} {s : α → Set β}
 namespace Set
 
 /-- `accumulate s` is the union of `s y` for `y ≤ x`. -/
-def accumulate [LE α] (s : α → Set β) (x : α) : Set β :=
-  ⋃ y ≤ x, s y
+def accumulate [LE α] (s : α → Set β) (x : α) : Set β := ⋃ y ≤ x, s y
 
-theorem accumulate_def [LE α] {x : α} : accumulate s x = ⋃ y ≤ x, s y :=
-  rfl
+theorem accumulate_def [LE α] {x : α} : accumulate s x = ⋃ y ≤ x, s y := rfl
 
 theorem accumulate_eq_biInter_lt {s : ℕ → Set β} {n : ℕ} : accumulate s n = ⋃ k < n + 1, s k := by
   simp_rw [Nat.lt_add_one_iff, accumulate]
@@ -49,8 +47,8 @@ theorem monotone_accumulate [Preorder α] : Monotone (accumulate s) := fun _ _ h
   biUnion_subset_biUnion_left fun _ hz => le_trans hz hxy
 
 @[gcongr]
-theorem accumulate_subset_accumulate [Preorder α] {x y} (h : x ≤ y) :
-    accumulate s x ⊆ accumulate s y :=
+theorem accumulate_subset_accumulate [Preorder α] {x y} (h : x ≤ y)
+    : accumulate s x ⊆ accumulate s y :=
   monotone_accumulate h
 
 @[simp]
@@ -76,16 +74,17 @@ lemma accumulate_zero_nat (s : ℕ → Set β) : accumulate s 0 = s 0 := by
   simp [accumulate_def]
 
 open Function in
-theorem disjoint_accumulate [Preorder α] (hs : Pairwise (Disjoint on s)) {i j : α} (hij : i < j) :
-    Disjoint (accumulate s i) (s j) := by
+theorem disjoint_accumulate [Preorder α] (hs : Pairwise (Disjoint on s)) {i j : α} (hij : i < j)
+    : Disjoint (accumulate s i) (s j) := by
   apply disjoint_left.2 (fun x hx ↦ ?_)
   simp only [accumulate, mem_iUnion, exists_prop] at hx
   rcases hx with ⟨k, hk, hx⟩
   exact disjoint_left.1 (hs (hk.trans_lt hij).ne) hx
 
 @[simp]
-theorem accumulate_succ (u : ℕ → Set α) (n : ℕ) :
-    accumulate u (n + 1) = accumulate u n ∪ u (n + 1) := biUnion_le_succ u n
+theorem accumulate_succ (u : ℕ → Set α) (n : ℕ)
+    : accumulate u (n + 1) = accumulate u n ∪ u (n + 1) :=
+  biUnion_le_succ u n
 
 lemma partialSups_eq_accumulate (f : ℕ → Set α) :
     partialSups f = accumulate f := by

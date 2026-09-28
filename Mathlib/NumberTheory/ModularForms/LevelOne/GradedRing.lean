@@ -58,31 +58,38 @@ private lemma E₄CubeSubE₆SqForm_qExpansion_coeff_one :
     E_qExpansion_coeff_zero _ ⟨3, rfl⟩]
 
 /-- The modular discriminant equals `(E₄³ - E₆²) / 1728`. -/
-theorem discriminant_eq_E₄_cube_sub_E₆_sq (z : ℍ) :
-    discriminant z = (E₄ z ^ 3 - E₆ z ^ 2) / 1728 := by
+theorem discriminant_eq_E₄_cube_sub_E₆_sq (z : ℍ)
+    : discriminant z = (E₄ z ^ 3 - E₆ z ^ 2) / 1728 := by
   obtain ⟨g, hg⟩ := E₄CubeSubE₆SqForm_isCuspForm
   obtain ⟨c, hc⟩ := CuspForm.exists_smul_discriminant_of_weight_eq_twelve g
   have hgE : (g : ℍ → ℂ) = E₄CubeSubE₆SqForm := congrArg DFunLike.coe hg
   have hc_eq : c = 1728 := by
     have hcΔ : (c • CuspForm.discriminant : ℍ → ℂ) = g := congrArg DFunLike.coe hc
-    have hgΔ := ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL c
-      CuspForm.discriminant
+    have hgΔ := ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL c CuspForm.discriminant
     rw [hcΔ, hgE] at hgΔ
-    simpa [PowerSeries.coeff_smul, discriminant_qExpansion_coeff_one,
-      E₄CubeSubE₆SqForm_qExpansion_coeff_one] using congr($(hgΔ).coeff 1).symm
+    simpa [
+        PowerSeries.coeff_smul, discriminant_qExpansion_coeff_one,
+        E₄CubeSubE₆SqForm_qExpansion_coeff_one
+      ]
+      using congr($(hgΔ).coeff 1).symm
   have h1728 : (1728 : ℂ) * discriminant z = E₄ z ^ 3 - E₆ z ^ 2 := by
-    rw [← hc_eq, show c * discriminant z = (c • CuspForm.discriminant) z from rfl, hc,
-      congr($hgE z), E₄CubeSubE₆SqForm_apply]
+    rw [
+      ← hc_eq, show c * discriminant z = (c • CuspForm.discriminant) z from rfl, hc, congr($hgE z),
+      E₄CubeSubE₆SqForm_apply
+    ]
   linear_combination h1728 / 1728
 
-/-- The modular discriminant equals `(E₄³ - E₆²) / 1728` in the graded ring
-`⨁ k, ModularForm 𝒮ℒ k`. -/
-theorem discriminant_eq_E₄_cube_sub_E₆_sq_graded :
-    DirectSum.of (ModularForm 𝒮ℒ) 12 CuspForm.discriminant =
-      (1 / 1728 : ℂ) • (.of (ModularForm 𝒮ℒ) 4 E₄ ^ 3 - .of (ModularForm 𝒮ℒ) 6 E₆ ^ 2) := by
+/--
+The modular discriminant equals `(E₄³ - E₆²) / 1728` in the graded ring
+`⨁ k, ModularForm 𝒮ℒ k`.
+-/
+theorem discriminant_eq_E₄_cube_sub_E₆_sq_graded
+    : DirectSum.of (ModularForm 𝒮ℒ) 12 CuspForm.discriminant
+      = (1 / 1728 : ℂ) • (.of (ModularForm 𝒮ℒ) 4 E₄ ^ 3 - .of (ModularForm 𝒮ℒ) 6 E₆ ^ 2) := by
   simp only [ModularForm.directSum_of_pow]
-  change DirectSum.of (ModularForm 𝒮ℒ) 12 CuspForm.discriminant = (1 / 1728 : ℂ) •
-    (DirectSum.of (ModularForm 𝒮ℒ) 12 (E₄.pow 3) - DirectSum.of (ModularForm 𝒮ℒ) 12 (E₆.pow 2))
+  change DirectSum.of (ModularForm 𝒮ℒ) 12 CuspForm.discriminant
+    = (1 / 1728 : ℂ)
+      • (DirectSum.of (ModularForm 𝒮ℒ) 12 (E₄.pow 3) - DirectSum.of (ModularForm 𝒮ℒ) 12 (E₆.pow 2))
   rw [← map_sub (DirectSum.of (ModularForm 𝒮ℒ) 12), ← DirectSum.of_smul]
   congr 1
   ext z

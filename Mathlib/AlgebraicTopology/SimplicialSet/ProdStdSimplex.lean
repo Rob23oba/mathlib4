@@ -39,18 +39,18 @@ namespace prodStdSimplex
 
 variable {p q : ℕ}
 
-/-- `n`-simplices in `Δ[p] ⊗ Δ[q]` identify to order preserving maps
-`Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)`. -/
-def objEquiv {n : ℕ} :
-    (Δ[p] : SSet.{u}) _⦋n⦌ ⊗ Δ[q]  _⦋n⦌ ≃ (Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)) where
-  toFun := fun ⟨x, y⟩ ↦ OrderHom.prod
-      (stdSimplex.objEquiv x).toOrderHom
-      (stdSimplex.objEquiv y).toOrderHom
-  invFun f :=
-    ⟨stdSimplex.objEquiv.symm
-      (SimplexCategory.Hom.mk (OrderHom.fst.comp f)),
-      stdSimplex.objEquiv.symm
-      (SimplexCategory.Hom.mk (OrderHom.snd.comp f))⟩
+/--
+`n`-simplices in `Δ[p] ⊗ Δ[q]` identify to order preserving maps
+`Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)`.
+-/
+def objEquiv {n : ℕ}
+    : (Δ[p] : SSet.{u}) _⦋n⦌ ⊗ Δ[q]  _⦋n⦌ ≃ (Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)) where
+  toFun := fun ⟨x, y⟩ ↦
+    OrderHom.prod (stdSimplex.objEquiv x).toOrderHom (stdSimplex.objEquiv y).toOrderHom
+  invFun f := ⟨
+    stdSimplex.objEquiv.symm (SimplexCategory.Hom.mk (OrderHom.fst.comp f)),
+    stdSimplex.objEquiv.symm (SimplexCategory.Hom.mk (OrderHom.snd.comp f))
+  ⟩
   left_inv := fun ⟨x, y⟩ ↦ by simp
 
 @[simp]
@@ -80,12 +80,16 @@ lemma objEquiv_δ_apply {n : ℕ} (x : (Δ[p] : SSet.{u}) _⦋n + 1⦌ ⊗ Δ[q]
     dsimp% objEquiv ((Δ[p] ⊗ Δ[q]).δ i x) j = objEquiv x (i.succAbove j) := rfl
 
 variable (p q) in
-/-- The binary product `Δ[p] ⊗ Δ[q]` identifies to the nerve
-of `ULift (Fin (p + 1) × Fin (q + 1))`. -/
+/--
+The binary product `Δ[p] ⊗ Δ[q]` identifies to the nerve
+of `ULift (Fin (p + 1) × Fin (q + 1))`.
+-/
 def isoNerve : Δ[p] ⊗ Δ[q] ≅ nerve (ULift.{u} (Fin (p + 1) × Fin (q + 1))) :=
-  NatIso.ofComponents (fun ⟨⟨d⟩⟩ ↦ Equiv.toIso (objEquiv.trans
-      { toFun f := (ULift.orderIso.symm.monotone.comp f.monotone).functor
-        invFun s := ULift.orderIso.toOrderEmbedding.toOrderHom.comp ⟨_, s.monotone⟩ }))
+  NatIso.ofComponents (fun ⟨⟨d⟩⟩ ↦
+    Equiv.toIso (objEquiv.trans {
+      toFun f := (ULift.orderIso.symm.monotone.comp f.monotone).functor
+      invFun s := ULift.orderIso.toOrderEmbedding.toOrderHom.comp ⟨_, s.monotone⟩
+    }))
 
 lemma nonDegenerate_iff_injective_objEquiv {n : ℕ} (z : (Δ[p] ⊗ Δ[q] : SSet.{u}) _⦋n⦌) :
     z ∈ (Δ[p] ⊗ Δ[q]).nonDegenerate n ↔ Function.Injective (objEquiv z) := by
@@ -118,12 +122,14 @@ lemma ofSimplex_le_ofSimplex_iff
     range_isoNerve_hom_app_obj]
   exact ⟨Set.preimage_mono (f := ULift.up), Set.preimage_mono⟩
 
-/-- Given a `n`-simplex `x` in `Δ[p] ⊗ Δ[q]`, this is the order preserving
+/--
+Given a `n`-simplex `x` in `Δ[p] ⊗ Δ[q]`, this is the order preserving
 map `Fin (n + 1) →o Fin (m + 1)` (with `p + q = m`) which corresponds to the
-sum of the two components of `objEquiv x : Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)`. -/
+sum of the two components of `objEquiv x : Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)`.
+-/
 @[simps coe]
-def orderHomOfSimplex {n : ℕ} (x : (Δ[p] ⊗ Δ[q] : SSet.{u}) _⦋n⦌) {m : ℕ} (hm : p + q = m) :
-    Fin (n + 1) →o Fin (m + 1) where
+def orderHomOfSimplex {n : ℕ} (x : (Δ[p] ⊗ Δ[q] : SSet.{u}) _⦋n⦌) {m : ℕ} (hm : p + q = m)
+    : Fin (n + 1) →o Fin (m + 1) where
   toFun i := ⟨(x.1 i : ℕ) + x.2 i, by lia⟩
   monotone' i j h := by
     dsimp
@@ -154,15 +160,16 @@ instance : (Δ[p] ⊗ Δ[q] : SSet.{u}).HasDimensionLE (p + q) where
     ext x
     simp only [Set.top_eq_univ, Set.mem_univ, iff_true]
     by_contra hx
-    rw [← mem_nonDegenerate_iff_notMem_degenerate,
-      nonDegenerate_iff_strictMono_objEquiv,
-      ← strictMono_orderHomOfSimplex_iff _ rfl] at hx
+    rw [
+        ← mem_nonDegenerate_iff_notMem_degenerate, nonDegenerate_iff_strictMono_objEquiv,
+        ← strictMono_orderHomOfSimplex_iff _ rfl
+      ]
+      at hx
     replace hx := Fintype.card_le_of_injective _ hx.injective
     simp only [Fintype.card_fin, add_le_add_iff_right] at hx
     lia
 
-instance : (Δ[p] ⊗ Δ[q] : SSet.{u}).Finite :=
-  finite_of_hasDimensionLT _ (p + q + 1) inferInstance
+instance : (Δ[p] ⊗ Δ[q] : SSet.{u}).Finite := finite_of_hasDimensionLT _ (p + q + 1) inferInstance
 
 lemma le_orderHomOfSimplex {n : ℕ} (x : (Δ[p] ⊗ Δ[q] : SSet.{u}).nonDegenerate n) {m : ℕ}
     (hm : p + q = m) (i : Fin (n + 1)) : i.1 ≤ orderHomOfSimplex x.1 hm i := by

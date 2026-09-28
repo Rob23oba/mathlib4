@@ -65,9 +65,12 @@ alias ⟨IsGroupLikeElem.of_unitsInv, IsGroupLikeElem.unitsInv⟩ := isGroupLike
 
 namespace GroupLike
 
-instance : One (GroupLike R A) where one := ⟨1, .one⟩
-instance : Mul (GroupLike R A) where mul a b := ⟨a * b, a.2.mul b.2⟩
-instance : Pow (GroupLike R A) ℕ where pow a n := ⟨a ^ n, a.2.pow⟩
+instance : One (GroupLike R A) where
+  one := ⟨1, .one⟩
+instance : Mul (GroupLike R A) where
+  mul a b := ⟨a * b, a.2.mul b.2⟩
+instance : Pow (GroupLike R A) ℕ where
+  pow a n := ⟨a ^ n, a.2.pow⟩
 
 @[simp] lemma val_one : (1 : GroupLike R A) = (1 : A) := rfl
 @[simp] lemma val_mul (a b : GroupLike R A) : ↑(a * b) = (a * b : A) := rfl
@@ -77,7 +80,8 @@ instance : Monoid (GroupLike R A) := val_injective.monoid val val_one val_mul va
 
 variable (R A) in
 /-- `GroupLike.val` as a monoid hom. -/
-@[simps] def valMonoidHom : GroupLike R A →* A where
+@[simps]
+def valMonoidHom : GroupLike R A →* A where
   toFun := val
   map_one' := val_one
   map_mul' := val_mul

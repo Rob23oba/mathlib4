@@ -63,10 +63,14 @@ Note 1: `A` is marked as an `outParam` here. In practice this should not cause i
 `R` and `A` are fixed, where typically `A` is the fraction field of `R`.
 
 Note 2: In the case `R = ℤ` and `A = K` a field, there is also `IsZLattice` where the finitely
-generated condition is replaced by having the discrete topology. -/
-class IsLattice (A : outParam Type*) [CommRing A] [Algebra R A]
-    {V : Type*} [AddCommMonoid V] [Module R V] [Module A V] [IsScalarTower R A V]
-    [IsScalarTower R A V] (M : Submodule R V) : Prop where
+generated condition is replaced by having the discrete topology.
+-/
+class IsLattice
+    (A : outParam Type*) [CommRing A] [Algebra R A]
+    {V : Type*}
+    [AddCommMonoid V] [Module R V] [Module A V] [IsScalarTower R A V] [IsScalarTower R A V]
+    (M : Submodule R V)
+    : Prop where
   fg : M.FG
   span_eq_top : Submodule.span A (M : Set V) = ⊤
 
@@ -104,8 +108,7 @@ lemma of_le_of_isLattice_of_fg {M N : Submodule R V} (hle : M ≤ N) [IsLattice 
     le_trans (by rw [IsLattice.span_eq_top]) (Submodule.span_mono hle)⟩
 
 /-- The supremum of two lattices is a lattice. -/
-instance sup (M N : Submodule R V) [IsLattice A M] [IsLattice A N] :
-    IsLattice A (M ⊔ N) :=
+instance sup (M N : Submodule R V) [IsLattice A M] [IsLattice A N] : IsLattice A (M ⊔ N) :=
   of_le_of_isLattice_of_fg A le_sup_left (Submodule.FG.sup IsLattice.fg IsLattice.fg)
 
 end
@@ -135,9 +138,9 @@ lemma _root_.Submodule.span_range_eq_top_of_injective_of_rank_le {M N : Type u} 
 variable (K) {V : Type*} [AddCommGroup V] [Module K V] [Module R V] [IsScalarTower R K V]
 
 /-- Any basis of an `R`-lattice in `V` defines a `K`-basis of `V`. -/
-noncomputable def _root_.Module.Basis.extendOfIsLattice [IsFractionRing R K] {κ : Type*}
-    {M : Submodule R V} [IsLattice K M] (b : Basis κ R M) :
-    Basis κ K V :=
+noncomputable def _root_.Module.Basis.extendOfIsLattice
+    [IsFractionRing R K] {κ : Type*} {M : Submodule R V} [IsLattice K M] (b : Basis κ R M)
+    : Basis κ K V :=
   have hli : LinearIndependent K (fun i ↦ (b i).val) := by
     rw [← LinearIndependent.iff_fractionRing (R := R), linearIndependent_iff']
     intro s g hs
@@ -167,9 +170,11 @@ lemma of_rank_le [Module.Finite K V] [IsFractionRing R K] {M : Submodule R V}
 
 variable [IsPrincipalIdealRing R]
 
-/-- Any lattice over a PID is a free `R`-module.
+/--
+Any lattice over a PID is a free `R`-module.
 Note that under our conditions, `Module.IsTorsionFree R K` simply says that `algebraMap R K` is
-injective. -/
+injective.
+-/
 instance free [Module.IsTorsionFree R K] (M : Submodule R V) [IsLattice K M] : Module.Free R M := by
   have := Module.IsTorsionFree.trans_faithfulSMul R K V
   -- any torsion free finite module over a PID is free
@@ -193,8 +198,9 @@ lemma finrank_of_pi {ι : Type*} [Fintype ι] [IsFractionRing R K] (M : Submodul
   Module.finrank_eq_of_rank_eq (IsLattice.rank_of_pi K M)
 
 /-- The intersection of two lattices is a lattice. -/
-instance inf [Module.Finite K V] [IsFractionRing R K] (M N : Submodule R V)
-    [IsLattice K M] [IsLattice K N] : IsLattice K (M ⊓ N) where
+instance inf
+    [Module.Finite K V] [IsFractionRing R K] (M N : Submodule R V) [IsLattice K M] [IsLattice K N]
+    : IsLattice K (M ⊓ N) where
   fg := by
     have : IsNoetherian R ↥(M ⊓ N) := isNoetherian_of_le inf_le_left
     rw [← Module.Finite.iff_fg]

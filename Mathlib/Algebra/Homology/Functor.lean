@@ -26,7 +26,6 @@ In fact there is an equivalence of categories
 
 @[expose] public section
 
-
 universe v u
 
 open CategoryTheory Limits
@@ -39,22 +38,20 @@ variable [HasZeroMorphisms V] {ι : Type*} {c : ComplexShape ι}
 
 /-- A complex of functors gives a functor to complexes. -/
 @[simps]
-def asFunctor (C : HomologicalComplex (T ⥤ V) c) :
-    T ⥤ HomologicalComplex V c where
-  obj t :=
-    { X := fun i => (C.X i).obj t
-      d := fun i j => (C.d i j).app t
-      d_comp_d' := fun i j k _ _ => by
-        have := C.d_comp_d i j k
-        rw [NatTrans.ext_iff, funext_iff] at this
-        exact this t
-      shape := fun i j h => by
-        have := C.shape _ _ h
-        rw [NatTrans.ext_iff, funext_iff] at this
-        exact this t }
-  map h :=
-    { f := fun i => (C.X i).map h
-      comm' := fun _ _ _ => NatTrans.naturality _ _ }
+def asFunctor (C : HomologicalComplex (T ⥤ V) c) : T ⥤ HomologicalComplex V c where
+  obj t := {
+    X := fun i => (C.X i).obj t
+    d := fun i j => (C.d i j).app t
+    d_comp_d' := fun i j k _ _ => by
+      have := C.d_comp_d i j k
+      rw [NatTrans.ext_iff, funext_iff] at this
+      exact this t
+    shape := fun i j h => by
+      have := C.shape _ _ h
+      rw [NatTrans.ext_iff, funext_iff] at this
+      exact this t
+  }
+  map h := { f := fun i => (C.X i).map h, comm' := fun _ _ _ => NatTrans.naturality _ _ }
   map_id t := by
     ext i
     dsimp
@@ -67,16 +64,15 @@ def asFunctor (C : HomologicalComplex (T ⥤ V) c) :
 -- TODO in fact, this is an equivalence of categories.
 /-- The functorial version of `HomologicalComplex.asFunctor`. -/
 @[simps]
-def complexOfFunctorsToFunctorToComplex :
-    HomologicalComplex (T ⥤ V) c ⥤ T ⥤ HomologicalComplex V c where
+def complexOfFunctorsToFunctorToComplex
+    : HomologicalComplex (T ⥤ V) c ⥤ T ⥤ HomologicalComplex V c where
   obj C := C.asFunctor
-  map f :=
-    { app := fun t =>
-        { f := fun i => (f.f i).app t
-          comm' i j _ := congr($(f.comm i j).app t) }
-      naturality := fun t t' g => by
-        ext i
-        exact (f.f i).naturality g }
+  map f := {
+    app := fun t => { f := fun i => (f.f i).app t, comm' i j _ := congr($(f.comm i j).app t) }
+    naturality := fun t t' g => by
+      ext i
+      exact (f.f i).naturality g
+  }
 
 end HomologicalComplex
 
@@ -98,8 +94,8 @@ end CategoryTheory.ShortComplex
 
 namespace HomologicalComplex
 
-variable [Abelian V] {ι : Type*} {c : ComplexShape ι} {K₁ K₂ : HomologicalComplex (T ⥤ V) c}
-  (f : K₁ ⟶ K₂)
+variable
+  [Abelian V] {ι : Type*} {c : ComplexShape ι} {K₁ K₂ : HomologicalComplex (T ⥤ V) c} (f : K₁ ⟶ K₂)
 
 lemma quasiIsoAt_iff_evaluation (i : ι) :
     QuasiIsoAt f i ↔ ∀ (t : T),

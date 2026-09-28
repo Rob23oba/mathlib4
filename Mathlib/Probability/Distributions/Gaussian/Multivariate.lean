@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Matrix.Order
 public import Mathlib.Analysis.Matrix.MeasurableSpace
 public import Mathlib.Probability.Distributions.Gaussian.CharFun
-
 import Mathlib.Probability.Distributions.Gaussian.Fernique
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Measurable
 
@@ -39,7 +38,6 @@ multivariate Gaussian distribution
 
 @[expose] public section
 
-
 open MeasureTheory Matrix WithLp Module Complex
 open scoped RealInnerProductSpace MatrixOrder Matrix.Norms.L2Operator
 
@@ -51,18 +49,20 @@ section stdGaussian
 
 /-! ### Standard Gaussian measure over a Euclidean space -/
 
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
-  [MeasurableSpace E]
+variable
+  {E : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E] [MeasurableSpace E]
 
 variable (E) in
-/-- Standard Gaussian distribution on a finite-dimensional real inner product space `E`.
+/--
+Standard Gaussian distribution on a finite-dimensional real inner product space `E`.
 This is the random vector whose coordinates in an orthonormal basis are independent standard
 Gaussian.
 
 The definition uses `stdOrthonormalBasis ℝ E` but does not actually depend on the
-basis, see `stdGaussian_eq_map_pi_orthonormalBasis`. -/
-noncomputable
-def stdGaussian : Measure E :=
+basis, see `stdGaussian_eq_map_pi_orthonormalBasis`.
+-/
+noncomputable def stdGaussian : Measure E :=
   (Measure.pi (fun _ : Fin (Module.finrank ℝ E) ↦ gaussianReal 0 1)).map
     (fun x ↦ ∑ i, x i • stdOrthonormalBasis ℝ E i)
 
@@ -105,8 +105,8 @@ lemma charFun_stdGaussian (t : E) :
     ← ofReal_sum, (stdOrthonormalBasis ℝ E).sum_sq_inner_right, neg_div]
 
 instance isGaussian_stdGaussian : IsGaussian (stdGaussian E) := by
-  refine isGaussian_iff_gaussian_charFun.2 ⟨0, innerSL ℝ,
-    LinearMap.BilinForm.isPosSemidef_iff.2 isPosSemidef_inner, ?_⟩
+  refine isGaussian_iff_gaussian_charFun.2
+    ⟨0, innerSL ℝ, LinearMap.BilinForm.isPosSemidef_iff.2 isPosSemidef_inner, ?_⟩
   simp [charFun_stdGaussian, neg_div, innerSL_apply_apply ℝ]
 
 @[simp]
@@ -158,13 +158,14 @@ section multivariateGaussian
 
 variable [DecidableEq ι]
 
-/-- Multivariate Gaussian measure on `EuclideanSpace ℝ ι` with mean `μ` and covariance
+/--
+Multivariate Gaussian measure on `EuclideanSpace ℝ ι` with mean `μ` and covariance
 matrix `S`. This only makes sense when `S` is positive semidefinite,
 as then `CFC.sqrt S * CFC.sqrt S = S`. Otherwise `CFC.sqrt S = 0`, and
-`multivariateGaussian μ S = Measure.dirac μ` (see `multivariateGaussian_of_not_posSemidef`). -/
-noncomputable
-def multivariateGaussian (μ : EuclideanSpace ℝ ι) (S : Matrix ι ι ℝ) :
-    Measure (EuclideanSpace ℝ ι) :=
+`multivariateGaussian μ S = Measure.dirac μ` (see `multivariateGaussian_of_not_posSemidef`).
+-/
+noncomputable def multivariateGaussian (μ : EuclideanSpace ℝ ι) (S : Matrix ι ι ℝ)
+    : Measure (EuclideanSpace ℝ ι) :=
   (stdGaussian (EuclideanSpace ℝ ι)).map (fun x ↦ μ + toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt S) x)
 
 lemma multivariateGaussian_of_not_posSemidef (μ : EuclideanSpace ℝ ι) {S : Matrix ι ι ℝ}
@@ -182,8 +183,10 @@ lemma multivariateGaussian_zero_one :
 variable {μ : EuclideanSpace ℝ ι} {S : Matrix ι ι ℝ}
 
 instance isGaussian_multivariateGaussian : IsGaussian (multivariateGaussian μ S) := by
-  have h : (fun x ↦ μ + (toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt S)) x) =
-    (fun x ↦ μ + x) ∘ ((toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt S))) := rfl
+  have h
+      : (fun x ↦ μ + (toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt S)) x)
+        = (fun x ↦ μ + x) ∘ ((toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt S))) :=
+    rfl
   simp only [multivariateGaussian]
   rw [h, ← Measure.map_map (measurable_const_add μ) (by fun_prop)]
   infer_instance

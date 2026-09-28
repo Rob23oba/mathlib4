@@ -79,13 +79,15 @@ section Semiring
 
 /-! ### Flatness over a semiring -/
 
-variable {R : Type u} {M : Type v} {N P Q : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]
+variable
+  {R : Type u} {M : Type v} {N P Q : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]
   [AddCommMonoid N] [Module R N] [AddCommMonoid P] [Module R P] [AddCommMonoid Q] [Module R Q]
 
-theorem _root_.LinearMap.rTensor_injective_of_fg {f : N →ₗ[R] P}
+theorem _root_.LinearMap.rTensor_injective_of_fg
+    {f : N →ₗ[R] P}
     (h : ∀ (N' : Submodule R N) (P' : Submodule R P),
-      N'.FG → P'.FG → ∀ h : N' ≤ P'.comap f, Function.Injective ((f.restrict h).rTensor M)) :
-    Function.Injective (f.rTensor M) := fun x y eq ↦ by
+      N'.FG → P'.FG → ∀ h : N' ≤ P'.comap f, Function.Injective ((f.restrict h).rTensor M))
+    : Function.Injective (f.rTensor M) := fun x y eq ↦ by
   have ⟨N', Nfg, sub⟩ := Submodule.exists_fg_le_subset_range_rTensor_subtype {x, y} (by simp)
   obtain ⟨x, rfl⟩ := sub (.inl rfl)
   obtain ⟨y, rfl⟩ := sub (.inr rfl)
@@ -104,21 +106,24 @@ lemma _root_.LinearMap.rTensor_injective_iff_subtype {f : N →ₗ[R] P} (hf : F
   rfl
 
 variable (R M) in
-/-- An `R`-module `M` is flat if for every finitely generated submodule `N` of every
+/--
+An `R`-module `M` is flat if for every finitely generated submodule `N` of every
 finitely generated `R`-module `P` in the same universe as `R`,
 the canonical map `N ⊗ M → P ⊗ M` is injective. This implies the same is true for
 arbitrary `R`-modules `N` and `P` and injective linear maps `N →ₗ[R] P`, see
 `Flat.rTensor_preserves_injective_linearMap`. To show a module over a ring `R` is flat, it
-suffices to consider the case `P = R`, see `Flat.iff_rTensor_injective`. -/
-@[mk_iff] class Flat : Prop where
-  out ⦃P : Type u⦄ [AddCommMonoid P] [Module R P] [Module.Finite R P] (N : Submodule R P) : N.FG →
-    Function.Injective (N.subtype.rTensor M)
+suffices to consider the case `P = R`, see `Flat.iff_rTensor_injective`.
+-/
+@[mk_iff]
+class Flat : Prop where
+  out ⦃P : Type u⦄ [AddCommMonoid P] [Module R P] [Module.Finite R P] (N : Submodule R P)
+    : N.FG → Function.Injective (N.subtype.rTensor M)
 
 namespace Flat
 
 /-- If `M` is a flat module, then `f ⊗ 𝟙 M` is injective for all injective linear maps `f`. -/
-theorem rTensor_preserves_injective_linearMap [Flat R M] (f : N →ₗ[R] P)
-    (hf : Function.Injective f) : Function.Injective (f.rTensor M) := by
+theorem rTensor_preserves_injective_linearMap [Flat R M] (f : N →ₗ[R] P) (hf : Function.Injective f)
+    : Function.Injective (f.rTensor M) := by
   refine rTensor_injective_of_fg fun N P Nfg Pfg le ↦ ?_
   rw [← Finite.iff_fg] at Nfg Pfg
   have := Finite.small R P
@@ -128,8 +133,8 @@ theorem rTensor_preserves_injective_linearMap [Flat R M] (f : N →ₗ[R] P)
   exact (flat_iff R M).mp ‹_› _ (Finite.iff_fg.mp inferInstance)
 
 /-- If `M` is a flat module, then `𝟙 M ⊗ f` is injective for all injective linear maps `f`. -/
-theorem lTensor_preserves_injective_linearMap [Flat R M] (f : N →ₗ[R] P)
-    (hf : Function.Injective f) : Function.Injective (f.lTensor M) :=
+theorem lTensor_preserves_injective_linearMap [Flat R M] (f : N →ₗ[R] P) (hf : Function.Injective f)
+    : Function.Injective (f.lTensor M) :=
   (f.lTensor_inj_iff_rTensor_inj M).2 (rTensor_preserves_injective_linearMap f hf)
 
 /-- `M` is flat if and only if `f ⊗ 𝟙 M` is injective whenever `f` is an injective linear map
@@ -159,14 +164,17 @@ lemma iff_lTensor_injectiveₛ : Flat R M ↔ ∀ ⦃P : Type u⦄ [AddCommMonoi
     (N : Submodule R P), Function.Injective (N.subtype.lTensor M) := by
   simp_rw [iff_rTensor_injectiveₛ, LinearMap.lTensor_inj_iff_rTensor_inj]
 
-instance instSubalgebraToSubmodule {S : Type v} [Semiring S] [Algebra R S]
-    (A : Subalgebra R S) [Flat R A] : Flat R A.toSubmodule := ‹Flat R A›
+instance instSubalgebraToSubmodule
+    {S : Type v} [Semiring S] [Algebra R S] (A : Subalgebra R S) [Flat R A]
+    : Flat R A.toSubmodule :=
+  ‹Flat R A›
 
 instance self : Flat R R where
   out _ _ _ _ I _ := by
     rw [← (TensorProduct.rid R I).symm.injective_comp, ← (TensorProduct.rid R _).comp_injective]
     convert! Subtype.coe_injective using 1
-    ext; simp
+    ext
+    simp
 
 /-- A retract of a flat `R`-module is flat. -/
 lemma of_retract [f : Flat R M] (i : N →ₗ[R] M) (r : M →ₗ[R] N) (h : r.comp i = LinearMap.id) :
@@ -186,8 +194,7 @@ lemma of_linearEquiv [Flat R M] (e : N ≃ₗ[R] M) : Flat R N :=
 lemma equiv_iff (e : M ≃ₗ[R] N) : Flat R M ↔ Flat R N :=
   ⟨fun _ ↦ of_linearEquiv e.symm, fun _ ↦ of_linearEquiv e⟩
 
-instance ulift [Flat R M] : Flat R (ULift.{v'} M) :=
-  of_linearEquiv ULift.moduleEquiv
+instance ulift [Flat R M] : Flat R (ULift.{v'} M) := of_linearEquiv ULift.moduleEquiv
 
 -- Making this an instance causes an infinite sequence `M → ULift M → ULift (ULift M) → ...`.
 lemma of_ulift [Flat R (ULift.{v'} M)] : Flat R M :=
@@ -222,7 +229,8 @@ end DirectSum
 
 /-- Free `R`-modules over discrete types are flat. -/
 instance finsupp (ι : Type v) : Flat R (ι →₀ R) := by
-  classical exact of_linearEquiv (finsuppLEquivDirectSum R R ι)
+  classical
+  exact of_linearEquiv (finsuppLEquivDirectSum R R ι)
 
 instance of_projective [Projective R M] : Flat R M :=
   have ⟨e, he⟩ := Module.projective_def'.mp ‹_›
@@ -230,15 +238,15 @@ instance of_projective [Projective R M] : Flat R M :=
 
 instance of_free [Free R M] : Flat R M := inferInstance
 
-instance {S} [CommSemiring S] [Algebra R S] [Module S M] [IsScalarTower R S M]
-    [Flat S M] [Flat R N] : Flat S (M ⊗[R] N) :=
+instance {S} [CommSemiring S] [Algebra R S] [Module S M] [IsScalarTower R S M] [Flat S M] [Flat R N]
+    : Flat S (M ⊗[R] N) :=
   iff_rTensor_injectiveₛ.mpr fun P _ _ I ↦ by
     let := RestrictScalars.moduleOrig R S P
     change Submodule S (RestrictScalars R S P) at I
     change Function.Injective (rTensor _ I.subtype)
     simpa [AlgebraTensorModule.rTensor_tensor] using!
       rTensor_preserves_injective_linearMap (.restrictScalars R <| I.subtype.rTensor M)
-      (rTensor_preserves_injective_linearMap _ I.injective_subtype)
+        (rTensor_preserves_injective_linearMap _ I.injective_subtype)
 
 example [Flat R M] [Flat R N] : Flat R (M ⊗[R] N) := inferInstance
 
@@ -246,10 +254,10 @@ section Algebra
 
 variable {S : Type*} [Semiring S] [Algebra R S]
 
-theorem linearIndependent_one_tmul [Flat R S] {ι} {v : ι → M}
-    (hv : LinearIndependent R v) : LinearIndependent S ((1 : S) ⊗ₜ[R] v ·) := by
-  classical rw [LinearIndependent, ← LinearMap.coe_restrictScalars R,
-    Finsupp.linearCombination_one_tmul]
+theorem linearIndependent_one_tmul [Flat R S] {ι} {v : ι → M} (hv : LinearIndependent R v)
+    : LinearIndependent S ((1 : S) ⊗ₜ[R] v ·) := by
+  classical
+    rw [LinearIndependent, ← LinearMap.coe_restrictScalars R, Finsupp.linearCombination_one_tmul]
   simpa using lTensor_preserves_injective_linearMap _ hv
 
 variable (R S M)
@@ -352,47 +360,73 @@ lemma rTensor_exact [Flat R M] ⦃N N' N'' : Type*⦄
       simpa [ι, -Subtype.val_injective] using Subtype.val_injective) (map_zero _)
   exact _root_.rTensor_exact M (fun x ↦ by simp [π]) Quotient.mk''_surjective
 
-/-- `M` is flat if and only if `M ⊗ -` is an exact functor. See
-  `Module.Flat.iff_lTensor_exact` to specialize the universe of `N, N', N''` to `Type (max u v)`. -/
-theorem iff_lTensor_exact' [Small.{v'} R] : Flat R M ↔
-    ∀ ⦃N N' N'' : Type v'⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N'']
-      [Module R N] [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
+/--
+`M` is flat if and only if `M ⊗ -` is an exact functor. See
+`Module.Flat.iff_lTensor_exact` to specialize the universe of `N, N', N''` to `Type (max u v)`.
+-/
+theorem iff_lTensor_exact' [Small.{v'} R]
+    : Flat R M
+      ↔ ∀ ⦃N N' N'' : Type v'⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N''] [Module R N]
+          [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
         Function.Exact f g → Function.Exact (f.lTensor M) (g.lTensor M) := by
-  refine ⟨fun _ ↦ lTensor_exact _, fun H ↦ iff_lTensor_preserves_injective_linearMap'.mpr
-    fun N' N'' _ _ _ _ L hL ↦ LinearMap.ker_eq_bot |>.mp <| eq_bot_iff |>.mpr
-      fun x (hx : _ = 0) ↦ ?_⟩
-  simpa [Eq.comm] using @H PUnit N' N'' _ _ _ _ _ _ 0 L (fun x ↦ by
-    simp_rw [Set.mem_range, LinearMap.zero_apply, exists_const]
-    exact (L.map_eq_zero_iff hL).trans eq_comm) x |>.mp hx
+  refine ⟨
+    fun _ ↦ lTensor_exact _,
+    fun H ↦
+      iff_lTensor_preserves_injective_linearMap'.mpr fun N' N'' _ _ _ _ L hL ↦
+        LinearMap.ker_eq_bot |>.mp <| eq_bot_iff |>.mpr fun x (hx : _ = 0) ↦ ?_
+  ⟩
+  simpa [Eq.comm] using
+    @H PUnit N' N'' _ _ _ _ _ _ 0 L
+        (fun x ↦ by
+          simp_rw [Set.mem_range, LinearMap.zero_apply, exists_const]
+          exact (L.map_eq_zero_iff hL).trans eq_comm)
+        x
+      |>.mp hx
 
-/-- `M` is flat if and only if `M ⊗ -` is an exact functor.
-  See `Module.Flat.iff_lTensor_exact'` to generalize the universe of
-  `N, N', N''` to any universe that is higher than `R` and `M`. -/
-theorem iff_lTensor_exact : Flat R M ↔
-    ∀ ⦃N N' N'' : Type (max u v)⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N'']
-      [Module R N] [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
+/--
+`M` is flat if and only if `M ⊗ -` is an exact functor.
+See `Module.Flat.iff_lTensor_exact'` to generalize the universe of
+`N, N', N''` to any universe that is higher than `R` and `M`.
+-/
+theorem iff_lTensor_exact
+    : Flat R M
+      ↔ ∀ ⦃N N' N'' : Type (max u v)⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N'']
+          [Module R N] [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
         Function.Exact f g → Function.Exact (f.lTensor M) (g.lTensor M) :=
   iff_lTensor_exact'
 
-/-- `M` is flat if and only if `- ⊗ M` is an exact functor. See
-  `Module.Flat.iff_rTensor_exact` to specialize the universe of `N, N', N''` to `Type (max u v)`. -/
-theorem iff_rTensor_exact' [Small.{v'} R] : Flat R M ↔
-    ∀ ⦃N N' N'' : Type v'⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N'']
-      [Module R N] [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
+/--
+`M` is flat if and only if `- ⊗ M` is an exact functor. See
+`Module.Flat.iff_rTensor_exact` to specialize the universe of `N, N', N''` to `Type (max u v)`.
+-/
+theorem iff_rTensor_exact' [Small.{v'} R]
+    : Flat R M
+      ↔ ∀ ⦃N N' N'' : Type v'⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N''] [Module R N]
+          [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
         Function.Exact f g → Function.Exact (f.rTensor M) (g.rTensor M) := by
-  refine ⟨fun _ ↦ rTensor_exact _, fun H ↦ iff_rTensor_preserves_injective_linearMap'.mpr
-    fun N' N'' _ _ _ _ f hf ↦ LinearMap.ker_eq_bot |>.mp <| eq_bot_iff |>.mpr
-      fun x (hx : _ = 0) ↦ ?_⟩
-  simpa [Eq.comm] using @H PUnit N' N'' _ _ _ _ _ _ 0 f (fun x ↦ by
-    simp_rw [Set.mem_range, LinearMap.zero_apply, exists_const]
-    exact (f.map_eq_zero_iff hf).trans eq_comm) x |>.mp hx
+  refine ⟨
+    fun _ ↦ rTensor_exact _,
+    fun H ↦
+      iff_rTensor_preserves_injective_linearMap'.mpr fun N' N'' _ _ _ _ f hf ↦
+        LinearMap.ker_eq_bot |>.mp <| eq_bot_iff |>.mpr fun x (hx : _ = 0) ↦ ?_
+  ⟩
+  simpa [Eq.comm] using
+    @H PUnit N' N'' _ _ _ _ _ _ 0 f
+        (fun x ↦ by
+          simp_rw [Set.mem_range, LinearMap.zero_apply, exists_const]
+          exact (f.map_eq_zero_iff hf).trans eq_comm)
+        x
+      |>.mp hx
 
-/-- `M` is flat if and only if `- ⊗ M` is an exact functor.
-  See `Module.Flat.iff_rTensor_exact'` to generalize the universe of
-  `N, N', N''` to any universe that is higher than `R` and `M`. -/
-theorem iff_rTensor_exact : Flat R M ↔
-    ∀ ⦃N N' N'' : Type (max u v)⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N'']
-      [Module R N] [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
+/--
+`M` is flat if and only if `- ⊗ M` is an exact functor.
+See `Module.Flat.iff_rTensor_exact'` to generalize the universe of
+`N, N', N''` to any universe that is higher than `R` and `M`.
+-/
+theorem iff_rTensor_exact
+    : Flat R M
+      ↔ ∀ ⦃N N' N'' : Type (max u v)⦄ [AddCommGroup N] [AddCommGroup N'] [AddCommGroup N'']
+          [Module R N] [Module R N'] [Module R N''] ⦃f : N →ₗ[R] N'⦄ ⦃g : N' →ₗ[R] N''⦄,
         Function.Exact f g → Function.Exact (f.rTensor M) (g.rTensor M) :=
   iff_rTensor_exact'
 
@@ -402,24 +436,27 @@ end Module
 
 section Injective
 
-variable {R S A B : Type*} [CommSemiring R] [Semiring A] [Algebra R A] [Semiring B] [Algebra R B]
+variable
+  {R S A B : Type*} [CommSemiring R] [Semiring A] [Algebra R A] [Semiring B] [Algebra R B]
   [CommSemiring S] [Algebra S A] [SMulCommClass R S A]
 
 namespace Algebra.TensorProduct
 
-theorem includeLeft_injective [Module.Flat R A] (hb : Function.Injective (algebraMap R B)) :
-    Function.Injective (includeLeft : A →ₐ[S] A ⊗[R] B) := by
+theorem includeLeft_injective [Module.Flat R A] (hb : Function.Injective (algebraMap R B))
+    : Function.Injective (includeLeft : A →ₐ[S] A ⊗[R] B) := by
   convert!
     Module.Flat.lTensor_preserves_injective_linearMap (M := A) (Algebra.linearMap R B) hb |>.comp
       (_root_.TensorProduct.rid R A).symm.injective
-  ext; simp
+  ext
+  simp
 
-theorem includeRight_injective [Module.Flat R B] (ha : Function.Injective (algebraMap R A)) :
-    Function.Injective (includeRight : B →ₐ[R] A ⊗[R] B) := by
+theorem includeRight_injective [Module.Flat R B] (ha : Function.Injective (algebraMap R A))
+    : Function.Injective (includeRight : B →ₐ[R] A ⊗[R] B) := by
   convert!
     Module.Flat.rTensor_preserves_injective_linearMap (M := B) (Algebra.linearMap R A) ha |>.comp
       (_root_.TensorProduct.lid R B).symm.injective
-  ext; simp
+  ext
+  simp
 
 end Algebra.TensorProduct
 
@@ -437,9 +474,9 @@ noncomputable def toBaseChange.toLinearEquiv : A ⊗[R] ↥p ≃ₗ[A] baseChang
   .ofBijective (p.toBaseChange A) ⟨p.toBaseChange_injective A, p.toBaseChange_surjective A⟩
 
 @[simp]
-theorem toBaseChange.toLinearEquiv_symm_apply (a : A) (m : p) :
-    (toBaseChange.toLinearEquiv A p).symm
-      ⟨a ⊗ₜ[R] m, tmul_mem_baseChange_of_mem a m.2⟩ = a ⊗ₜ[R] m :=
+theorem toBaseChange.toLinearEquiv_symm_apply (a : A) (m : p)
+    : (toBaseChange.toLinearEquiv A p).symm ⟨a ⊗ₜ[R] m, tmul_mem_baseChange_of_mem a m.2⟩
+      = a ⊗ₜ[R] m :=
   (toBaseChange.toLinearEquiv A p).symm_apply_apply (a ⊗ₜ[R] m)
 
 end Submodule
@@ -454,19 +491,27 @@ namespace TensorProduct
 
 variable (M N : Type*) [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module R N]
 
-/-- If `M`, `N` are `R`-modules, there exists an injective `R`-linear map from `R` to `N`,
-and `M` is a nontrivial flat `R`-module, then `M ⊗[R] N` is nontrivial. -/
-theorem nontrivial_of_linearMap_injective_of_flat_left (f : R →ₗ[R] N) (h : Function.Injective f)
-    [Module.Flat R M] [Nontrivial M] : Nontrivial (M ⊗[R] N) :=
-  Module.Flat.lTensor_preserves_injective_linearMap (M := M) f h |>.comp
-    (TensorProduct.rid R M).symm.injective |>.nontrivial
+/--
+If `M`, `N` are `R`-modules, there exists an injective `R`-linear map from `R` to `N`,
+and `M` is a nontrivial flat `R`-module, then `M ⊗[R] N` is nontrivial.
+-/
+theorem nontrivial_of_linearMap_injective_of_flat_left
+    (f : R →ₗ[R] N) (h : Function.Injective f) [Module.Flat R M] [Nontrivial M]
+    : Nontrivial (M ⊗[R] N) :=
+  Module.Flat.lTensor_preserves_injective_linearMap (M := M) f h
+    |>.comp (TensorProduct.rid R M).symm.injective
+    |>.nontrivial
 
-/-- If `M`, `N` are `R`-modules, there exists an injective `R`-linear map from `R` to `M`,
-and `N` is a nontrivial flat `R`-module, then `M ⊗[R] N` is nontrivial. -/
-theorem nontrivial_of_linearMap_injective_of_flat_right (f : R →ₗ[R] M) (h : Function.Injective f)
-    [Module.Flat R N] [Nontrivial N] : Nontrivial (M ⊗[R] N) :=
-  Module.Flat.rTensor_preserves_injective_linearMap (M := N) f h |>.comp
-    (TensorProduct.lid R N).symm.injective |>.nontrivial
+/--
+If `M`, `N` are `R`-modules, there exists an injective `R`-linear map from `R` to `M`,
+and `N` is a nontrivial flat `R`-module, then `M ⊗[R] N` is nontrivial.
+-/
+theorem nontrivial_of_linearMap_injective_of_flat_right
+    (f : R →ₗ[R] M) (h : Function.Injective f) [Module.Flat R N] [Nontrivial N]
+    : Nontrivial (M ⊗[R] N) :=
+  Module.Flat.rTensor_preserves_injective_linearMap (M := N) f h
+    |>.comp (TensorProduct.lid R N).symm.injective
+    |>.nontrivial
 
 variable {R M N}
 variable {P Q : Type*} [AddCommMonoid P] [Module R P] [AddCommMonoid Q] [Module R Q]
@@ -542,16 +587,22 @@ nonrec lemma LinearIndepOn.tmul_of_flat_right [Module.Flat R N] (hv : LinearInde
 
 variable (p : Submodule R M) (q : Submodule R N)
 
-/-- If p and q are submodules of M and N respectively, and M and q are flat,
-then `p ⊗ q → M ⊗ N` is injective. -/
+/--
+If p and q are submodules of M and N respectively, and M and q are flat,
+then `p ⊗ q → M ⊗ N` is injective.
+-/
 theorem _root_.Module.Flat.tensorProduct_mapIncl_injective_of_right
-    [Module.Flat R M] [Module.Flat R q] : Function.Injective (mapIncl p q) :=
+    [Module.Flat R M] [Module.Flat R q]
+    : Function.Injective (mapIncl p q) :=
   TensorProduct.map_injective_of_flat_flat _ _ p.subtype_injective q.subtype_injective
 
-/-- If p and q are submodules of M and N respectively, and N and p are flat,
-then `p ⊗ q → M ⊗ N` is injective. -/
+/--
+If p and q are submodules of M and N respectively, and N and p are flat,
+then `p ⊗ q → M ⊗ N` is injective.
+-/
 theorem _root_.Module.Flat.tensorProduct_mapIncl_injective_of_left
-    [Module.Flat R p] [Module.Flat R N] : Function.Injective (mapIncl p q) :=
+    [Module.Flat R p] [Module.Flat R N]
+    : Function.Injective (mapIncl p q) :=
   TensorProduct.map_injective_of_flat_flat' _ _ p.subtype_injective q.subtype_injective
 
 end TensorProduct
@@ -560,16 +611,22 @@ namespace Algebra.TensorProduct
 
 variable (A B : Type*) [Semiring A] [Semiring B] [Algebra R A] [Algebra R B]
 
-/-- If `A`, `B` are `R`-algebras, `R` injects into `B`,
-and `A` is a nontrivial flat `R`-algebra, then `A ⊗[R] B` is nontrivial. -/
-theorem nontrivial_of_algebraMap_injective_of_flat_left (h : Function.Injective (algebraMap R B))
-    [Module.Flat R A] [Nontrivial A] : Nontrivial (A ⊗[R] B) :=
+/--
+If `A`, `B` are `R`-algebras, `R` injects into `B`,
+and `A` is a nontrivial flat `R`-algebra, then `A ⊗[R] B` is nontrivial.
+-/
+theorem nontrivial_of_algebraMap_injective_of_flat_left
+    (h : Function.Injective (algebraMap R B)) [Module.Flat R A] [Nontrivial A]
+    : Nontrivial (A ⊗[R] B) :=
   TensorProduct.nontrivial_of_linearMap_injective_of_flat_left R A B (Algebra.linearMap R B) h
 
-/-- If `A`, `B` are `R`-algebras, `R` injects into `A`,
-and `B` is a nontrivial flat `R`-algebra, then `A ⊗[R] B` is nontrivial. -/
-theorem nontrivial_of_algebraMap_injective_of_flat_right (h : Function.Injective (algebraMap R A))
-    [Module.Flat R B] [Nontrivial B] : Nontrivial (A ⊗[R] B) :=
+/--
+If `A`, `B` are `R`-algebras, `R` injects into `A`,
+and `B` is a nontrivial flat `R`-algebra, then `A ⊗[R] B` is nontrivial.
+-/
+theorem nontrivial_of_algebraMap_injective_of_flat_right
+    (h : Function.Injective (algebraMap R A)) [Module.Flat R B] [Nontrivial B]
+    : Nontrivial (A ⊗[R] B) :=
   TensorProduct.nontrivial_of_linearMap_injective_of_flat_right R A B (Algebra.linearMap R A) h
 
 end Algebra.TensorProduct
@@ -578,42 +635,54 @@ end Nontrivial
 
 namespace IsTensorProduct
 
-variable {R M N : Type*} [CommSemiring R] [AddCommMonoid M] [AddCommMonoid N]
-  [Module R M] [Module R N] {M₁ M₂ N₁ N₂ : Type*} [AddCommMonoid M₁] [AddCommMonoid M₂]
-  [Module R M₁] [Module R M₂] [AddCommMonoid N₁] [AddCommMonoid N₂] [Module R N₁] [Module R N₂]
+variable
+  {R M N : Type*} [CommSemiring R] [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module R N]
+  {M₁ M₂ N₁ N₂ : Type*} [AddCommMonoid M₁] [AddCommMonoid M₂] [Module R M₁] [Module R M₂]
+  [AddCommMonoid N₁] [AddCommMonoid N₂] [Module R N₁] [Module R N₂]
   {f : M₁ →ₗ[R] M₂ →ₗ[R] M} {g : N₁ →ₗ[R] N₂ →ₗ[R] N}
-  (hf : IsTensorProduct f) (hg : IsTensorProduct g) (i₁ : M₁ →ₗ[R] N₁) (i₂ : M₂ →ₗ[R] N₂)
+  (hf : IsTensorProduct f) (hg : IsTensorProduct g)
+  (i₁ : M₁ →ₗ[R] N₁) (i₂ : M₂ →ₗ[R] N₂)
 
-theorem map_id_injective_of_flat_left {g : M₁ →ₗ[R] N₂ →ₗ[R] N} (hg : IsTensorProduct g)
-    (i : M₂ →ₗ[R] N₂) (hi : Function.Injective i) [Module.Flat R M₁] :
-    Function.Injective (hf.map hg LinearMap.id i) := by
+theorem map_id_injective_of_flat_left
+    {g : M₁ →ₗ[R] N₂ →ₗ[R] N} (hg : IsTensorProduct g)
+    (i : M₂ →ₗ[R] N₂) (hi : Function.Injective i)
+    [Module.Flat R M₁]
+    : Function.Injective (hf.map hg LinearMap.id i) := by
   have h : hf.map hg LinearMap.id i = hg.equiv ∘ i.lTensor M₁ ∘ hf.equiv.symm :=
     funext fun x ↦ hf.inductionOn x (by simp) (fun _ _ hx hy ↦ by simp [hx, hy])
   simpa [h] using Module.Flat.lTensor_preserves_injective_linearMap i hi
 
-theorem map_id_injective_of_flat_right {g : N₁ →ₗ[R] M₂ →ₗ[R] N} (hg : IsTensorProduct g)
-    (i : M₁ →ₗ[R] N₁) (hi : Function.Injective i) [Module.Flat R M₂] :
-    Function.Injective (hf.map hg i LinearMap.id) := by
+theorem map_id_injective_of_flat_right
+    {g : N₁ →ₗ[R] M₂ →ₗ[R] N} (hg : IsTensorProduct g)
+    (i : M₁ →ₗ[R] N₁) (hi : Function.Injective i)
+    [Module.Flat R M₂]
+    : Function.Injective (hf.map hg i LinearMap.id) := by
   have h : hf.map hg i LinearMap.id = hg.equiv ∘ i.rTensor M₂ ∘ hf.equiv.symm :=
     funext fun x ↦ hf.inductionOn x (by simp) (fun _ _ hx hy ↦ by simp [hx, hy])
   simpa [h] using Module.Flat.rTensor_preserves_injective_linearMap i hi
 
-/-- If `M₂` and `N₁` are flat `R`-modules, `i₁ : M₁ →ₗ[R] N₁` and `i₂ : M₂ →ₗ[R] N₂` are injective
-  linear maps, then the linear map `i : M ≅ M₁ ⊗[R] M₂ →ₗ[R] N₁ ⊗[R] N₂ ≅ N` induced by `i₁`
-  and `i₂` is injective.
-  See `IsTensorProduct.map_injective_of_flat'` for different flatness conditions. -/
-theorem map_injective_of_flat_right_left (h₁ : Function.Injective i₁) (h₂ : Function.Injective i₂)
-    [Module.Flat R M₂] [Module.Flat R N₁] : Function.Injective (hf.map hg i₁ i₂) := by
+/--
+If `M₂` and `N₁` are flat `R`-modules, `i₁ : M₁ →ₗ[R] N₁` and `i₂ : M₂ →ₗ[R] N₂` are injective
+linear maps, then the linear map `i : M ≅ M₁ ⊗[R] M₂ →ₗ[R] N₁ ⊗[R] N₂ ≅ N` induced by `i₁`
+and `i₂` is injective.
+See `IsTensorProduct.map_injective_of_flat'` for different flatness conditions.
+-/
+theorem map_injective_of_flat_right_left
+    (h₁ : Function.Injective i₁) (h₂ : Function.Injective i₂) [Module.Flat R M₂] [Module.Flat R N₁]
+    : Function.Injective (hf.map hg i₁ i₂) := by
   have h : hf.map hg i₁ i₂ = hg.equiv ∘ TensorProduct.map i₁ i₂ ∘ hf.equiv.symm :=
     funext fun x ↦ hf.inductionOn x (by simp) (fun _ _ hx hy ↦ by simp [hx, hy])
   simpa [h] using map_injective_of_flat_flat i₁ i₂ h₁ h₂
 
-/-- If `M₁` and `N₂` are flat `R`-modules, `i₁ : M₁ →ₗ[R] N₁` and `i₂ : M₂ →ₗ[R] N₂` are injective
-  linear maps, then the linear map `i : M ≅ M₁ ⊗[R] M₂ →ₗ[R] N₁ ⊗[R] N₂ ≅ N` induced by `i₁`
-  and `i₂` is injective.
-  See `IsTensorProduct.map_injective_of_flat` for different flatness conditions. -/
-theorem map_injective_of_flat_left_right (h₁ : Function.Injective i₁) (h₂ : Function.Injective i₂)
-    [Module.Flat R M₁] [Module.Flat R N₂] : Function.Injective (hf.map hg i₁ i₂) := by
+/--
+If `M₁` and `N₂` are flat `R`-modules, `i₁ : M₁ →ₗ[R] N₁` and `i₂ : M₂ →ₗ[R] N₂` are injective
+linear maps, then the linear map `i : M ≅ M₁ ⊗[R] M₂ →ₗ[R] N₁ ⊗[R] N₂ ≅ N` induced by `i₁`
+and `i₂` is injective.
+See `IsTensorProduct.map_injective_of_flat` for different flatness conditions.
+-/
+theorem map_injective_of_flat_left_right
+    (h₁ : Function.Injective i₁) (h₂ : Function.Injective i₂) [Module.Flat R M₁] [Module.Flat R N₂]
+    : Function.Injective (hf.map hg i₁ i₂) := by
   have h : hf.map hg i₁ i₂ = hg.equiv ∘ TensorProduct.map i₁ i₂ ∘ hf.equiv.symm :=
     funext fun x ↦ hf.inductionOn x (by simp) (fun _ _ hx hy ↦ by simp [hx, hy])
   simpa [h] using map_injective_of_flat_flat' i₁ i₂ h₁ h₂
@@ -622,35 +691,39 @@ end IsTensorProduct
 
 section IsSMulRegular
 
-variable {R S M N : Type*} [CommSemiring R] [CommSemiring S] [Algebra R S] [Module.Flat R S]
+variable
+  {R S M N : Type*} [CommSemiring R] [CommSemiring S] [Algebra R S] [Module.Flat R S]
   [AddCommMonoid M] [Module R M] [AddCommMonoid N] [Module R N] [Module S N] [IsScalarTower R S N]
 
-theorem IsSMulRegular.of_flat_of_isBaseChange {f : M →ₗ[R] N} (hf : IsBaseChange S f) {x : R}
-    (reg : IsSMulRegular M x) : IsSMulRegular N (algebraMap R S x) := by
+theorem IsSMulRegular.of_flat_of_isBaseChange
+    {f : M →ₗ[R] N} (hf : IsBaseChange S f) {x : R} (reg : IsSMulRegular M x)
+    : IsSMulRegular N (algebraMap R S x) := by
   have h := hf.map_id_injective_of_flat_left hf (LinearMap.lsmul R M x) reg
   rwa [hf.map_id_lsmul_eq_lsmul_algebraMap] at h
 
-theorem IsSMulRegular.of_flat {x : R} (reg : IsSMulRegular R x) :
-    IsSMulRegular S (algebraMap R S x) :=
+theorem IsSMulRegular.of_flat {x : R} (reg : IsSMulRegular R x)
+    : IsSMulRegular S (algebraMap R S x) :=
   reg.of_flat_of_isBaseChange (IsBaseChange.linearMap R S)
 
 end IsSMulRegular
 
-/-- Let `R` be a commutative semiring, let `C` be a commutative `R`-algebra, and let `A` be an
-  `R`-algebra. If `C ⊗[R] B` is reduced for all finitely generated subalgebras `B` of `A`, then
-  `C ⊗[R] A` is also reduced. -/
-theorem IsReduced.tensorProduct_of_flat_of_forall_fg {R C A : Type*}
+/--
+Let `R` be a commutative semiring, let `C` be a commutative `R`-algebra, and let `A` be an
+`R`-algebra. If `C ⊗[R] B` is reduced for all finitely generated subalgebras `B` of `A`, then
+`C ⊗[R] A` is also reduced.
+-/
+theorem IsReduced.tensorProduct_of_flat_of_forall_fg
+    {R C A : Type*}
     [CommSemiring R] [CommSemiring C] [Semiring A] [Algebra R A] [Algebra R C] [Module.Flat R C]
-    (h : ∀ B : Subalgebra R A, B.FG → IsReduced (C ⊗[R] B)) :
-    IsReduced (C ⊗[R] A) := by
+    (h : ∀ B : Subalgebra R A, B.FG → IsReduced (C ⊗[R] B))
+    : IsReduced (C ⊗[R] A) := by
   by_contra h_contra
   obtain ⟨x, hx⟩ := exists_isNilpotent_of_not_isReduced h_contra
   obtain ⟨D, hD⟩ := exists_fg_and_mem_baseChange x
-  have h_inj : Function.Injective
-      (Algebra.TensorProduct.map (AlgHom.id C C) D.val) :=
+  have h_inj : Function.Injective (Algebra.TensorProduct.map (AlgHom.id C C) D.val) :=
     Module.Flat.lTensor_preserves_injective_linearMap _ Subtype.val_injective
   obtain ⟨z, rfl⟩ := hD.2
-  have h_notReduced : ¬IsReduced (C ⊗[R] D) := by
+  have h_notReduced : ¬ IsReduced (C ⊗[R] D) := by
     simp_rw [isReduced_iff, not_forall]
     exact ⟨z, (IsNilpotent.map_iff h_inj).mp hx.right, (by simpa [·] using hx.1)⟩
   tauto

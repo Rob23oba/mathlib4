@@ -86,8 +86,9 @@ lemma IsSemisimple.iSup_maxGenEigenspace_eq_top_iff (hf : f.IsSemisimple) :
 
 section AlgClosed
 
-variable {K V : Type*} [Field K] [IsAlgClosed K] [AddCommGroup V] [Module K V]
-  [FiniteDimensional K V] {f : End K V}
+variable
+  {K V : Type*} [Field K] [IsAlgClosed K] [AddCommGroup V] [Module K V] [FiniteDimensional K V]
+  {f : End K V}
 
 lemma IsSemisimple.iSup_eigenspace_eq_top (hf : f.IsSemisimple) :
     ⨆ μ : K, f.eigenspace μ = ⊤ := by

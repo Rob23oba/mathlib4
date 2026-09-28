@@ -35,8 +35,7 @@ open Limits
 variable {C : Type*} [Category* C] (P : ObjectProperty C)
 
 /-- The typeclass saying that `P : ObjectProperty C` is stable under binary products. -/
-abbrev IsClosedUnderBinaryProducts :=
-  P.IsClosedUnderLimitsOfShape (Discrete WalkingPair)
+abbrev IsClosedUnderBinaryProducts := P.IsClosedUnderLimitsOfShape (Discrete WalkingPair)
 
 lemma prop_of_isLimit_binaryFan [P.IsClosedUnderBinaryProducts] {X Y : C} {B : BinaryFan X Y}
     (hB : IsLimit B) (hX : P X) (hY : P Y) :
@@ -58,8 +57,8 @@ lemma prop_terminal [P.IsClosedUnderLimitsOfShape (Discrete.{0} PEmpty)] [HasTer
   P.prop_of_isTerminal _ terminalIsTerminal
 
 -- see Note [lower instance priority]
-instance (priority := 100) [P.IsClosedUnderLimitsOfShape (Discrete.{0} PEmpty)] [HasTerminal C] :
-    P.Nonempty :=
+instance (priority := 100) [P.IsClosedUnderLimitsOfShape (Discrete.{0} PEmpty)] [HasTerminal C]
+    : P.Nonempty :=
   nonempty_of_prop P.prop_terminal
 
 lemma IsClosedUnderBinaryProducts.closedUnderIsomorphisms [HasTerminal C]
@@ -83,8 +82,8 @@ lemma binaryProductsClosure_le_iff [HasTerminal C] {P Q : ObjectProperty C}
 
 /-- The typeclass saying that `P : ObjectProperty C` is stable under finite products. -/
 class IsClosedUnderFiniteProducts : Prop where
-  isClosedUnderLimitsOfShape (J : Type) [Finite J] :
-    P.IsClosedUnderLimitsOfShape (Discrete J) := by infer_instance
+  isClosedUnderLimitsOfShape (J : Type) [Finite J] : P.IsClosedUnderLimitsOfShape (Discrete J) := by
+    infer_instance
 
 variable {P} in
 /-- `IsClosedUnderFiniteProducts` may be checked at any universe. -/
@@ -95,15 +94,15 @@ lemma IsClosedUnderFiniteProducts.of_isClosedUnderLimitsOfShape
     rw [P.isClosedUnderLimitsOfShape_iff_of_equivalence (Discrete.equivalence (equivShrink.{w} _))]
     exact H _
 
-instance [P.IsClosedUnderFiniteProducts] (J : Type*) [Finite J] :
-    P.IsClosedUnderLimitsOfShape (Discrete J) := by
+instance [P.IsClosedUnderFiniteProducts] (J : Type*) [Finite J]
+    : P.IsClosedUnderLimitsOfShape (Discrete J) := by
   obtain ⟨n, ⟨e⟩⟩ := Finite.exists_equiv_fin J
   have : P.IsClosedUnderLimitsOfShape (Discrete (Fin n)) :=
     IsClosedUnderFiniteProducts.isClosedUnderLimitsOfShape _
   exact IsClosedUnderLimitsOfShape.of_equivalence (Discrete.equivalence e.symm)
 
-instance [HasFiniteProducts C] [P.IsClosedUnderFiniteProducts] :
-    HasFiniteProducts P.FullSubcategory where
+instance [HasFiniteProducts C] [P.IsClosedUnderFiniteProducts]
+    : HasFiniteProducts P.FullSubcategory where
   out _ := inferInstance
 
 lemma prop_of_isLimit_fan [P.IsClosedUnderFiniteProducts] {J : Type*} [Finite J] {f : J → C}
@@ -116,14 +115,15 @@ lemma prop_product [P.IsClosedUnderFiniteProducts] {J : Type*} [Finite J] {f : J
     P (∏ᶜ f) :=
   P.prop_of_isLimit_fan (limit.isLimit (Discrete.functor f)) h
 
-instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms] :
-    P.IsClosedUnderLimitsOfShape (Discrete.{0} PEmpty) where
+instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms]
+    : P.IsClosedUnderLimitsOfShape (Discrete.{0} PEmpty) where
   limitsOfShape_le := by
     rintro X ⟨p⟩
     obtain ⟨Z, hZ, hZ₂⟩ := P.exists_prop_of_containsZero
     have hX : IsTerminal X :=
       (IsLimit.equivOfNatIsoOfIso p.diag.uniqueFromEmpty _ _
-        (by exact Cone.ext (Iso.refl _) (by rintro ⟨⟨⟩⟩))).1 p.isLimit
+          (by exact Cone.ext (Iso.refl _) (by rintro ⟨⟨⟩⟩))).1
+        p.isLimit
     exact P.prop_of_isZero (IsZero.of_iso hZ
       (IsLimit.conePointUniqueUpToIso hX (IsZero.isTerminal hZ)))
 
@@ -138,8 +138,7 @@ lemma IsClosedUnderFiniteProducts.mk' [HasFiniteProducts C]
   exact ⟨fun J _ ↦ P.isClosedUnderLimitsOfShape_of_preservesLimitsOfShape_ι _⟩
 
 /-- The typeclass saying that `P : ObjectProperty C` is stable under binary coproducts. -/
-abbrev IsClosedUnderBinaryCoproducts :=
-  P.IsClosedUnderColimitsOfShape (Discrete WalkingPair)
+abbrev IsClosedUnderBinaryCoproducts := P.IsClosedUnderColimitsOfShape (Discrete WalkingPair)
 
 lemma prop_of_isColimit_binaryCofan [P.IsClosedUnderBinaryCoproducts] {X Y : C}
     {B : BinaryCofan X Y} (hB : IsColimit B) (hX : P X) (hY : P Y) :
@@ -161,8 +160,8 @@ lemma prop_initial [P.IsClosedUnderColimitsOfShape (Discrete.{0} PEmpty)] [HasIn
   P.prop_of_isInitial _ initialIsInitial
 
 -- see Note [lower instance priority]
-instance (priority := 100) [P.IsClosedUnderColimitsOfShape (Discrete.{0} PEmpty)] [HasInitial C] :
-    P.Nonempty :=
+instance (priority := 100) [P.IsClosedUnderColimitsOfShape (Discrete.{0} PEmpty)] [HasInitial C]
+    : P.Nonempty :=
   nonempty_of_prop P.prop_initial
 
 set_option backward.defeqAttrib.useBackward true in
@@ -187,8 +186,9 @@ lemma binaryCoproductsClosure_le_iff [HasInitial C] {P Q : ObjectProperty C}
 
 /-- The typeclass saying that `P : ObjectProperty C` is stable under finite coproducts. -/
 class IsClosedUnderFiniteCoproducts : Prop where
-  isClosedUnderColimitsOfShape (J : Type) [Finite J] :
-    P.IsClosedUnderColimitsOfShape (Discrete J) := by infer_instance
+  isClosedUnderColimitsOfShape (J : Type) [Finite J]
+      : P.IsClosedUnderColimitsOfShape (Discrete J) := by
+    infer_instance
 
 variable {P} in
 /-- `IsClosedUnderFiniteProducts` may be checked at any universe. -/
@@ -200,15 +200,15 @@ lemma IsClosedUnderFiniteCoproducts.of_isClosedUnderColimitsOfShape
       (Discrete.equivalence (equivShrink.{w} _))]
     exact H _
 
-instance [P.IsClosedUnderFiniteCoproducts] (J : Type*) [Finite J] :
-    P.IsClosedUnderColimitsOfShape (Discrete J) := by
+instance [P.IsClosedUnderFiniteCoproducts] (J : Type*) [Finite J]
+    : P.IsClosedUnderColimitsOfShape (Discrete J) := by
   obtain ⟨n, ⟨e⟩⟩ := Finite.exists_equiv_fin J
   have : P.IsClosedUnderColimitsOfShape (Discrete (Fin n)) :=
     IsClosedUnderFiniteCoproducts.isClosedUnderColimitsOfShape _
   exact IsClosedUnderColimitsOfShape.of_equivalence (Discrete.equivalence e.symm)
 
-instance [HasFiniteCoproducts C] [P.IsClosedUnderFiniteCoproducts] :
-    HasFiniteCoproducts P.FullSubcategory where
+instance [HasFiniteCoproducts C] [P.IsClosedUnderFiniteCoproducts]
+    : HasFiniteCoproducts P.FullSubcategory where
   out _ := inferInstance
 
 lemma prop_of_isColimit_cofan [P.IsClosedUnderFiniteCoproducts] {J : Type*} [Finite J] {f : J → C}
@@ -221,14 +221,15 @@ lemma prop_coproduct [P.IsClosedUnderFiniteCoproducts] {J : Type*} [Finite J] {f
     P (∐ f) :=
   P.prop_of_isColimit_cofan (colimit.isColimit (Discrete.functor f)) h
 
-instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms] :
-    P.IsClosedUnderColimitsOfShape (Discrete.{0} PEmpty) where
+instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms]
+    : P.IsClosedUnderColimitsOfShape (Discrete.{0} PEmpty) where
   colimitsOfShape_le := by
     rintro X ⟨p⟩
     obtain ⟨Z, hZ, hZ₂⟩ := P.exists_prop_of_containsZero
     have hX : IsInitial X :=
       (IsColimit.equivOfNatIsoOfIso p.diag.uniqueFromEmpty _ _
-        (by exact Cocone.ext (Iso.refl _) (by rintro ⟨⟨⟩⟩))).1 p.isColimit
+          (by exact Cocone.ext (Iso.refl _) (by rintro ⟨⟨⟩⟩))).1
+        p.isColimit
     exact P.prop_of_isZero (IsZero.of_iso hZ
       (IsColimit.coconePointUniqueUpToIso hX (IsZero.isInitial hZ)))
 

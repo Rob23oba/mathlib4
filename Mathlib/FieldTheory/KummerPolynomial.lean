@@ -75,54 +75,70 @@ lemma root_X_pow_sub_C_ne_zero_iff {n : ℕ} {a : K} (H : Irreducible (X ^ n - C
     (AdjoinRoot.root (X ^ n - C a)) ≠ 0 ↔ a ≠ 0 :=
   (root_X_pow_sub_C_eq_zero_iff H).not
 
-theorem pow_ne_of_irreducible_X_pow_sub_C {n : ℕ} {a : K}
-    (H : Irreducible (X ^ n - C a)) {m : ℕ} (hm : m ∣ n) (hm' : m ≠ 1) (b : K) : b ^ m ≠ a := by
-  have hn : n ≠ 0 := fun e ↦ not_irreducible_C
-    (1 - a) (by simpa only [e, pow_zero, ← C.map_one, ← map_sub] using H)
+theorem pow_ne_of_irreducible_X_pow_sub_C
+    {n : ℕ} {a : K} (H : Irreducible (X ^ n - C a)) {m : ℕ} (hm : m ∣ n) (hm' : m ≠ 1) (b : K)
+    : b ^ m ≠ a := by
+  have hn : n ≠ 0 := fun e ↦
+    not_irreducible_C (1 - a) (by simpa only [e, pow_zero, ← C.map_one, ← map_sub] using H)
   obtain ⟨k, rfl⟩ := hm
   rintro rfl
   obtain ⟨q, hq⟩ := sub_dvd_pow_sub_pow (X ^ k) (C b) m
   rw [mul_comm, pow_mul, map_pow, hq] at H
   have : degree q = 0 := by
-    simpa [isUnit_iff_degree_eq_zero, degree_X_pow_sub_C,
-      Nat.pos_iff_ne_zero, (mul_ne_zero_iff.mp hn).2] using H.2 rfl
+    simpa [
+        isUnit_iff_degree_eq_zero, degree_X_pow_sub_C, Nat.pos_iff_ne_zero,
+        (mul_ne_zero_iff.mp hn).2
+      ]
+      using H.2 rfl
   apply_fun degree at hq
-  simp only [this, ← pow_mul, mul_comm k m, degree_X_pow_sub_C, Nat.pos_iff_ne_zero.mpr hn,
-    Nat.pos_iff_ne_zero.mpr (mul_ne_zero_iff.mp hn).2, degree_mul, ← map_pow, add_zero,
-    Nat.cast_injective.eq_iff] at hq
+  simp only [
+      this, ← pow_mul, mul_comm k m, degree_X_pow_sub_C, Nat.pos_iff_ne_zero.mpr hn,
+      Nat.pos_iff_ne_zero.mpr (mul_ne_zero_iff.mp hn).2, degree_mul, ← map_pow, add_zero,
+      Nat.cast_injective.eq_iff
+    ]
+    at hq
   exact hm' ((mul_eq_right₀ (mul_ne_zero_iff.mp hn).2).mp hq)
 
-/-- Let `p` be a prime number. Let `K` be a field.
+/--
+Let `p` be a prime number. Let `K` be a field.
 Let `t ∈ K` be an element which does not have a `p`th root in `K`.
-Then the polynomial `x ^ p - t` is irreducible over `K`. -/
+Then the polynomial `x ^ p - t` is irreducible over `K`.
+-/
 @[stacks 09HF "We proved the result without the condition that `K` is char p in 09HF."]
-theorem X_pow_sub_C_irreducible_of_prime {p : ℕ} (hp : p.Prime) {a : K} (ha : ∀ b : K, b ^ p ≠ a) :
-    Irreducible (X ^ p - C a) := by
+theorem X_pow_sub_C_irreducible_of_prime {p : ℕ} (hp : p.Prime) {a : K} (ha : ∀ b : K, b ^ p ≠ a)
+    : Irreducible (X ^ p - C a) := by
   -- First of all, We may find an irreducible factor `g` of `X ^ p - C a`.
   have : ¬ IsUnit (X ^ p - C a) := by
     rw [Polynomial.isUnit_iff_degree_eq_zero, degree_X_pow_sub_C hp.pos, Nat.cast_eq_zero]
     exact hp.ne_zero
   have ⟨g, hg, hg'⟩ := WfDvdMonoid.exists_irreducible_factor this (X_pow_sub_C_ne_zero hp.pos a)
   -- It suffices to show that `deg g = p`.
-  suffices natDegree g = p from (associated_of_dvd_of_natDegree_le hg'
-    (X_pow_sub_C_ne_zero hp.pos a) (this.trans natDegree_X_pow_sub_C.symm).ge).irreducible hg
+  suffices natDegree g = p from
+    (associated_of_dvd_of_natDegree_le hg' (X_pow_sub_C_ne_zero hp.pos a)
+        (this.trans natDegree_X_pow_sub_C.symm).ge).irreducible
+      hg
   -- Suppose `deg g ≠ p`.
   by_contra h
   -- Let `r` be a root of `g`, then `N_K(r) ^ p = N_K(r ^ p) = N_K(a) = a ^ (deg g)`.
   have key : (Algebra.norm K (AdjoinRoot.root g)) ^ p = a ^ g.natDegree := by
     have := eval₂_eq_zero_of_dvd_of_eval₂_eq_zero _ _ hg' (AdjoinRoot.eval₂_root g)
     rw [eval₂_sub, eval₂_pow, eval₂_C, eval₂_X, sub_eq_zero] at this
-    rw [← map_pow, this, ← AdjoinRoot.algebraMap_eq, Algebra.norm_algebraMap,
-      (powerBasis hg.ne_zero).finrank, powerBasis_dim hg.ne_zero]
+    rw [
+      ← map_pow, this, ← AdjoinRoot.algebraMap_eq, Algebra.norm_algebraMap,
+      (powerBasis hg.ne_zero).finrank, powerBasis_dim hg.ne_zero
+    ]
   -- Since `a ^ (deg g)` is a `p`-power, and `p` is coprime to `deg g`, we conclude that `a` is
   -- also a `p`-power, contradicting the hypothesis
-  have : p.Coprime (natDegree g) := hp.coprime_iff_not_dvd.mpr (fun e ↦ h (((natDegree_le_of_dvd hg'
-    (X_pow_sub_C_ne_zero hp.pos a)).trans_eq natDegree_X_pow_sub_C).antisymm (Nat.le_of_dvd
-      (natDegree_pos_iff_degree_pos.mpr <| Polynomial.degree_pos_of_irreducible hg) e)))
+  have : p.Coprime (natDegree g) :=
+    hp.coprime_iff_not_dvd.mpr (fun e ↦
+      h (((natDegree_le_of_dvd hg' (X_pow_sub_C_ne_zero hp.pos a)).trans_eq
+          natDegree_X_pow_sub_C).antisymm
+        (Nat.le_of_dvd (natDegree_pos_iff_degree_pos.mpr <| Polynomial.degree_pos_of_irreducible hg)
+          e)))
   exact ha _ ((pow_mem_range_pow_of_coprime this.symm a).mp ⟨_, key⟩).choose_spec
 
-theorem X_pow_sub_C_irreducible_iff_of_prime {p : ℕ} (hp : p.Prime) {a : K} :
-    Irreducible (X ^ p - C a) ↔ ∀ b, b ^ p ≠ a :=
+theorem X_pow_sub_C_irreducible_iff_of_prime {p : ℕ} (hp : p.Prime) {a : K}
+    : Irreducible (X ^ p - C a) ↔ ∀ b, b ^ p ≠ a :=
   ⟨(pow_ne_of_irreducible_X_pow_sub_C · dvd_rfl hp.ne_one), X_pow_sub_C_irreducible_of_prime hp⟩
 
 end Irreducible

@@ -17,7 +17,6 @@ This defines `BddOrd`, the category of bounded orders.
 
 @[expose] public section
 
-
 universe u v
 
 open CategoryTheory
@@ -35,8 +34,7 @@ initialize_simps_projections BddOrd (carrier → coe, -str)
 
 namespace BddOrd
 
-instance : CoeSort BddOrd Type* :=
-  InducedCategory.hasCoeToSort toPartOrd
+instance : CoeSort BddOrd Type* := InducedCategory.hasCoeToSort toPartOrd
 
 /-- Construct a bundled `BddOrd` from the underlying type and typeclass. -/
 abbrev of (X : Type*) [PartialOrder X] [BoundedOrder X] : BddOrd where
@@ -64,18 +62,18 @@ instance : ConcreteCategory BddOrd (BoundedOrderHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `BddOrd` back into a `BoundedOrderHom`. -/
-abbrev Hom.hom {X Y : BddOrd.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := BddOrd) f
+abbrev Hom.hom {X Y : BddOrd.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := BddOrd) f
 
 /-- Typecheck a `BoundedOrderHom` as a morphism in `BddOrd`. -/
-abbrev ofHom {X Y : Type u} [PartialOrder X] [BoundedOrder X] [PartialOrder Y] [BoundedOrder Y]
-    (f : BoundedOrderHom X Y) : of X ⟶ of Y :=
+abbrev ofHom
+    {X Y : Type u} [PartialOrder X] [BoundedOrder X] [PartialOrder Y] [BoundedOrder Y]
+    (f : BoundedOrderHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := BddOrd) f
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : BddOrd.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : BddOrd.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -149,17 +147,14 @@ lemma inv_hom_apply {X Y : BddOrd} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x :
 lemma hom_inv_apply {X Y : BddOrd} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited BddOrd :=
-  ⟨of PUnit⟩
+instance : Inhabited BddOrd := ⟨of PUnit⟩
 
 instance hasForgetToPartOrd : HasForget₂ BddOrd PartOrd where
   forget₂.obj X := X.toPartOrd
   forget₂.map f := PartOrd.ofHom f.hom.toOrderHom
 
 instance hasForgetToBipointed : HasForget₂ BddOrd Bipointed where
-  forget₂ :=
-    { obj := fun X => ⟨X, ⊥, ⊤⟩
-      map := fun f => ⟨f, f.hom.map_bot', f.hom.map_top'⟩ }
+  forget₂ := { obj := fun X => ⟨X, ⊥, ⊤⟩, map := fun f => ⟨f, f.hom.map_bot', f.hom.map_top'⟩ }
   forget_comp := rfl
 
 /-- `OrderDual` as a functor. -/
@@ -186,12 +181,10 @@ def dualEquiv : BddOrd ≌ BddOrd where
 
 end BddOrd
 
-theorem bddOrd_dual_comp_forget_to_partOrd :
-    BddOrd.dual ⋙ forget₂ BddOrd PartOrd =
-    forget₂ BddOrd PartOrd ⋙ PartOrd.dual :=
+theorem bddOrd_dual_comp_forget_to_partOrd
+    : BddOrd.dual ⋙ forget₂ BddOrd PartOrd = forget₂ BddOrd PartOrd ⋙ PartOrd.dual :=
   rfl
 
-theorem bddOrd_dual_comp_forget_to_bipointed :
-    BddOrd.dual ⋙ forget₂ BddOrd Bipointed =
-    forget₂ BddOrd Bipointed ⋙ Bipointed.swap :=
+theorem bddOrd_dual_comp_forget_to_bipointed
+    : BddOrd.dual ⋙ forget₂ BddOrd Bipointed = forget₂ BddOrd Bipointed ⋙ Bipointed.swap :=
   rfl

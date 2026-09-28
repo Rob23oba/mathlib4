@@ -29,20 +29,27 @@ variable {X : β → Type*} [Fintype β] [∀ b, PseudoMetricSpace (X b)]
 
 /-- A finite product of pseudometric spaces is a pseudometric space, with the sup distance. -/
 instance pseudoMetricSpacePi : PseudoMetricSpace (∀ b, X b) := by
-  /- we construct the instance from the pseudoemetric space instance to avoid checking again that
-    the uniformity is the same as the product uniformity, but we register nevertheless a nice
-    formula for the distance -/
-  let i := PseudoEMetricSpace.toPseudoMetricSpaceOfDist
-    (fun f g : ∀ b, X b => ((sup univ fun b => nndist (f b) (g b) : ℝ≥0) : ℝ))
-    (fun f g => NNReal.zero_le_coe)
-    (fun f g => by simp [edist_pi_def])
+  /-
+  we construct the instance from the pseudoemetric space instance to avoid checking again that
+  the uniformity is the same as the product uniformity, but we register nevertheless a nice
+  formula for the distance
+  -/
+  let i :=
+    PseudoEMetricSpace.toPseudoMetricSpaceOfDist
+      (fun f g : ∀ b, X b => ((sup univ fun b => nndist (f b) (g b) : ℝ≥0) : ℝ))
+      (fun f g => NNReal.zero_le_coe)
+      (fun f g => by simp [edist_pi_def])
   refine i.replaceBornology fun s => ?_
-  simp only [isBounded_iff_eventually, ← forall_isBounded_image_eval_iff,
-    forall_mem_image, ← Filter.eventually_all, @dist_nndist (X _)]
+  simp only [
+    isBounded_iff_eventually, ← forall_isBounded_image_eval_iff, forall_mem_image,
+    ← Filter.eventually_all, @dist_nndist (X _)
+  ]
   refine eventually_congr ((eventually_ge_atTop 0).mono fun C hC ↦ ?_)
   lift C to ℝ≥0 using hC
-  refine ⟨fun H x hx y hy ↦ NNReal.coe_le_coe.2 <| Finset.sup_le fun b _ ↦ H b hx hy,
-    fun H b x hx y hy ↦ NNReal.coe_le_coe.2 ?_⟩
+  refine ⟨
+    fun H x hx y hy ↦ NNReal.coe_le_coe.2 <| Finset.sup_le fun b _ ↦ H b hx hy,
+    fun H b x hx y hy ↦ NNReal.coe_le_coe.2 ?_
+  ⟩
   exact Finset.sup_le_iff.1 (NNReal.coe_le_coe.1 <| H hx hy) b (Finset.mem_univ b)
 
 lemma nndist_pi_def (f g : ∀ b, X b) : nndist f g = sup univ fun b => nndist (f b) (g b) := rfl

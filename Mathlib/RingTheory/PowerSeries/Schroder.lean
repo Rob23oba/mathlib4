@@ -34,8 +34,7 @@ open Finset Nat
 namespace PowerSeries
 
 /-- The power series for large Schröder numbers -/
-def largeSchroderSeries : PowerSeries ℕ :=
-  PowerSeries.mk largeSchroder
+def largeSchroderSeries : PowerSeries ℕ := PowerSeries.mk largeSchroder
 
 @[simp]
 lemma coeff_largeSchroderSeries (n : ℕ) :
@@ -91,15 +90,17 @@ lemma coeff_X_mul_largeSchroderSeriesSeries_sq (n : ℕ) (hn : 0 < n) :
     sum_range_succ]
   grind [largeSchroder_zero]
 
-theorem largeSchroderSeries_eq_one_add_X_mul_largeSchroderSeries_add_X_mul_largeSchroderSeries_sq :
-    largeSchroderSeries = 1 + X * largeSchroderSeries + X * largeSchroderSeries ^ 2 := by
+theorem largeSchroderSeries_eq_one_add_X_mul_largeSchroderSeries_add_X_mul_largeSchroderSeries_sq
+    : largeSchroderSeries = 1 + X * largeSchroderSeries + X * largeSchroderSeries ^ 2 := by
   ext n
   by_cases hn : n = 0
   · aesop
   · have hn' : 0 < n := by omega
-    simp only [coeff_largeSchroderSeries, map_add, coeff_one, hn, ↓reduceIte, zero_add]
-    rw [coeff_X_mul_largeSchroderSeriesSeries_sq _ hn', coeff_X_mul_largeSchroderSeries _ hn',
-      show n = n - 1 + 1 by omega, largeSchroder_succ (n - 1)]
+    simp only [coeff_largeSchroderSeries, map_add, coeff_one, hn, ↓ reduceIte, zero_add]
+    rw [
+      coeff_X_mul_largeSchroderSeriesSeries_sq _ hn', coeff_X_mul_largeSchroderSeries _ hn',
+      show n = n - 1 + 1 by omega, largeSchroder_succ (n - 1)
+    ]
     simp only [add_tsub_cancel_right, Nat.add_left_cancel_iff]
     rw [Iic_eq_Icc, Nat.bot_eq_zero, ← range_succ_eq_Icc_zero]
 

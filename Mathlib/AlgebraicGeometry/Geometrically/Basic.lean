@@ -41,11 +41,13 @@ open CategoryTheory Limits CommRingCat
 
 namespace AlgebraicGeometry
 
-/-- A morphism of schemes `f : X ⟶ Y` is geometrically `P` if for any field `K` and
-morphism `Spec K ⟶ Y`, the base change `X ×[Y] Spec K` satisfies `P`. -/
-def geometrically (P : ObjectProperty Scheme.{u}) : MorphismProperty Scheme.{u} :=
-  fun X Y f ↦ ∀ ⦃K : Type u⦄ [Field K] (y : Spec (.of K) ⟶ Y)
-    ⦃Z : Scheme.{u}⦄ (fst : Z ⟶ X) (snd : Z ⟶ Spec (.of K)),
+/--
+A morphism of schemes `f : X ⟶ Y` is geometrically `P` if for any field `K` and
+morphism `Spec K ⟶ Y`, the base change `X ×[Y] Spec K` satisfies `P`.
+-/
+def geometrically (P : ObjectProperty Scheme.{u}) : MorphismProperty Scheme.{u} := fun X Y f ↦
+  ∀ ⦃K : Type u⦄ [Field K] (y : Spec (.of K) ⟶ Y) ⦃Z : Scheme.{u}⦄ (fst : Z ⟶ X)
+      (snd : Z ⟶ Spec (.of K)),
     IsPullback fst snd f y → P Z
 
 lemma geometrically_eq_universally (P : ObjectProperty Scheme.{u}) :

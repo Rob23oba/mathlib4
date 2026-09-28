@@ -24,17 +24,15 @@ namespace CategoryTheory.Functor
 
 open Limits Pretriangulated
 
-variable {C D H : Type*} [Category* C] [Category* D] [Category* H]
-  (F' : H ⥤ D) {F : C ⥤ D} {L : C ⥤ H}
-  [HasShift C ℤ] [HasShift D ℤ] [HasShift H ℤ]
-  [HasZeroObject C] [HasZeroObject D] [HasZeroObject H]
-  [Preadditive C] [Preadditive D] [Preadditive H]
-  [∀ (n : ℤ), (shiftFunctor C n).Additive]
-  [∀ (n : ℤ), (shiftFunctor D n).Additive]
-  [∀ (n : ℤ), (shiftFunctor H n).Additive]
-  [Pretriangulated C] [Pretriangulated D] [Pretriangulated H]
-  [F.CommShift ℤ] [L.CommShift ℤ] [F'.CommShift ℤ]
-  [F.IsTriangulated] [L.IsTriangulated]
+variable
+  {C D H : Type*} [Category* C] [Category* D] [Category* H]
+  (F' : H ⥤ D)
+  {F : C ⥤ D} {L : C ⥤ H}
+  [HasShift C ℤ] [HasShift D ℤ] [HasShift H ℤ] [HasZeroObject C] [HasZeroObject D] [HasZeroObject H]
+  [Preadditive C] [Preadditive D] [Preadditive H] [∀ (n : ℤ), (shiftFunctor C n).Additive]
+  [∀ (n : ℤ), (shiftFunctor D n).Additive] [∀ (n : ℤ), (shiftFunctor H n).Additive]
+  [Pretriangulated C] [Pretriangulated D] [Pretriangulated H] [F.CommShift ℤ] [L.CommShift ℤ]
+  [F'.CommShift ℤ] [F.IsTriangulated] [L.IsTriangulated]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

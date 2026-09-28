@@ -9,7 +9,6 @@ public import Mathlib.Algebra.Group.Action.Defs
 public import Mathlib.Algebra.Group.Pointwise.Finset.Scalar
 public import Mathlib.Algebra.Order.Monoid.Defs
 public import Mathlib.Data.Finset.Powerset
-
 import Mathlib.Algebra.Order.Group.Nat
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -32,8 +31,10 @@ open scoped Pointwise
 namespace Finset
 variable {M : Type*} [DecidableEq M] [AddCommMonoid M] {A : Finset M} {a : M}
 
-/-- The subset-sum of a finite set `A` in a commutative monoid is the set of all sums
-of subsets of `A`. -/
+/--
+The subset-sum of a finite set `A` in a commutative monoid is the set of all sums
+of subsets of `A`.
+-/
 def subsetSum (A : Finset M) : Finset M := A.powerset.image fun B ↦ B.sum id
 
 lemma mem_subsetSum_iff : a ∈ A.subsetSum ↔ ∃ B ⊆ A, ∑ b ∈ B, b = a := by simp [subsetSum]
@@ -92,10 +93,11 @@ lemma card_add_card_subsetSum_lt_card_subsetSum_insert_max (hA : ∀ x ∈ A, 0 
     _ ≤ #(insert a A).subsetSum := by grw [union_subset insert_subset vadd_subset]
 
 -- The proof follows Theorem 3 in [Nathanson1995].
-theorem card_succ_choose_two_lt_card_subsetSum_of_pos (A_pos : ∀ x ∈ A, 0 < x) :
-    (#A + 1).choose 2 < #A.subsetSum := by
+theorem card_succ_choose_two_lt_card_subsetSum_of_pos (A_pos : ∀ x ∈ A, 0 < x)
+    : (#A + 1).choose 2 < #A.subsetSum := by
   induction A using induction_on_max with
-  | empty => simp
+  | empty =>
+    simp
   | insert a A A_lt_a ih =>
     have A_pos' : ∀ x ∈ A, 0 < x := fun x hx => A_pos x (mem_insert_of_mem hx)
     grw [card_insert_of_notMem fun ha => (A_lt_a a ha).false, Nat.choose_succ_left _ _ (by lia),
@@ -103,13 +105,14 @@ theorem card_succ_choose_two_lt_card_subsetSum_of_pos (A_pos : ∀ x ∈ A, 0 < 
     exact card_add_card_subsetSum_lt_card_subsetSum_insert_max A_pos' A_lt_a <| A_pos a <|
       mem_insert_self a A
 
-theorem card_choose_two_lt_card_subsetSum_of_nonneg (A_pos : ∀ x ∈ A, 0 ≤ x) :
-    (#A).choose 2 < #A.subsetSum := by
-  calc (#A).choose 2
+theorem card_choose_two_lt_card_subsetSum_of_nonneg (A_pos : ∀ x ∈ A, 0 ≤ x)
+    : (#A).choose 2 < #A.subsetSum := by
+  calc
+    (#A).choose 2
     _ ≤ (#(A.erase 0) + 1).choose 2 := by grw [tsub_le_iff_right.1 pred_card_le_card_erase]
     _ < #(A.erase 0).subsetSum :=
-        card_succ_choose_two_lt_card_subsetSum_of_pos fun x hx =>
-          (A_pos x (mem_of_mem_erase hx)).lt_of_ne (ne_of_mem_erase hx).symm
+      card_succ_choose_two_lt_card_subsetSum_of_pos fun x hx =>
+        (A_pos x (mem_of_mem_erase hx)).lt_of_ne (ne_of_mem_erase hx).symm
     _ = #A.subsetSum := by rw [subsetSum_erase_zero]
 
 end Finset

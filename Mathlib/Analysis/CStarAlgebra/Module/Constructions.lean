@@ -104,7 +104,7 @@ variable [NormedAddCommGroup F] [Module ℂ F] [SMul A F]
 variable [CStarModule A E] [CStarModule A F]
 
 noncomputable instance : Norm C⋆ᵐᵒᵈ(A, E × F) where
-  norm x := √‖⟪x.1, x.1⟫_A + ⟪x.2, x.2⟫_A‖
+  norm x := √ ‖⟪x.1, x.1⟫_A + ⟪x.2, x.2⟫_A‖
 
 lemma prod_norm (x : C⋆ᵐᵒᵈ(A, E × F)) : ‖x‖ = √‖⟪x.1, x.1⟫_A + ⟪x.2, x.2⟫_A‖ := rfl
 
@@ -159,9 +159,11 @@ section Aux
 -- that those induced by the new norm are equal to the old ones.
 attribute [-instance] WithCStarModule.instUniformSpace WithCStarModule.instBornology
 
-/-- A normed additive commutative group structure on `C⋆ᵐᵒᵈ(A, E × F)` with the wrong topology,
+/--
+A normed additive commutative group structure on `C⋆ᵐᵒᵈ(A, E × F)` with the wrong topology,
 uniformity and bornology. This is only used to build the instance with the correct forgetful
-inheritance data. -/
+inheritance data.
+-/
 @[instance_reducible]
 noncomputable def normedAddCommGroupProdAux : NormedAddCommGroup C⋆ᵐᵒᵈ(A, E × F) :=
   NormedAddCommGroup.ofCore (CStarModule.normedSpaceCore A)
@@ -197,8 +199,7 @@ end Aux
 
 noncomputable instance : NormedAddCommGroup C⋆ᵐᵒᵈ(A, E × F) :=
   fast_instance% .ofCoreReplaceAll (normedSpaceCore A) ?_ ?_
-where finally
-  exacts [uniformity_prod_eq_aux, isBounded_prod_iff_aux]
+where finally exacts [uniformity_prod_eq_aux, isBounded_prod_iff_aux]
 
 noncomputable instance : NormedSpace ℂ C⋆ᵐᵒᵈ(A, E × F) := .ofCore (normedSpaceCore A)
 
@@ -215,7 +216,7 @@ variable [∀ i, NormedAddCommGroup (E i)] [∀ i, Module ℂ (E i)] [∀ i, SMu
 variable [∀ i, CStarModule A (E i)]
 
 noncomputable instance : Norm C⋆ᵐᵒᵈ(A, Π i, E i) where
-  norm x := √‖∑ i, ⟪x i, x i⟫_A‖
+  norm x := √ ‖∑ i, ⟪x i, x i⟫_A‖
 
 lemma pi_norm (x : C⋆ᵐᵒᵈ(A, Π i, E i)) : ‖x‖ = √‖∑ i, ⟪x i, x i⟫_A‖ := by
   with_reducible_and_instances rfl
@@ -289,9 +290,11 @@ section Aux
 -- that those induced by the new norm are equal to the old ones.
 attribute [-instance] WithCStarModule.instUniformSpace WithCStarModule.instBornology
 
-/-- A normed additive commutative group structure on `C⋆ᵐᵒᵈ(A, Π i, E i)` with the wrong topology,
+/--
+A normed additive commutative group structure on `C⋆ᵐᵒᵈ(A, Π i, E i)` with the wrong topology,
 uniformity and bornology. This is only used to build the instance with the correct forgetful
-inheritance data. -/
+inheritance data.
+-/
 @[instance_reducible]
 noncomputable def normedAddCommGroupPiAux : NormedAddCommGroup C⋆ᵐᵒᵈ(A, Π i, E i) :=
   NormedAddCommGroup.ofCore (CStarModule.normedSpaceCore A)
@@ -326,8 +329,7 @@ end Aux
 
 noncomputable instance : NormedAddCommGroup C⋆ᵐᵒᵈ(A, Π i, E i) :=
   fast_instance% .ofCoreReplaceAll (normedSpaceCore A) ?_ ?_
-where finally
-  exacts [uniformity_pi_eq_aux, isBounded_pi_iff_aux]
+where finally exacts [uniformity_pi_eq_aux, isBounded_pi_iff_aux]
 
 noncomputable instance : NormedSpace ℂ C⋆ᵐᵒᵈ(A, Π i, E i) := .ofCore (normedSpaceCore A)
 
@@ -343,12 +345,14 @@ variable {E : Type*}
 variable [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 
 open scoped InnerProductSpace in
-/-- Reinterpret an inner product space `E` over `ℂ` as a `CStarModule` over `ℂ`.
+/--
+Reinterpret an inner product space `E` over `ℂ` as a `CStarModule` over `ℂ`.
 
 Note: this instance requires `SMul ℂᵐᵒᵖ E` and `IsCentralScalar ℂ E` instances to exist on `E`,
 which is unlikely to occur in practice. However, in practice one could either add those instances
 to the type `E` in question, or else supply them to this instance manually, which is reason behind
-the naming of these two instance arguments. -/
+the naming of these two instance arguments.
+-/
 noncomputable instance instCStarModuleComplex : CStarModule ℂ E where
   inner x y := ⟪x, y⟫_ℂ
   inner_add_right := by simp [_root_.inner_add_right]
@@ -365,9 +369,11 @@ noncomputable instance instCStarModuleComplex : CStarModule ℂ E where
 -- Ensures that the two ways to obtain `CStarModule ℂᵐᵒᵖ ℂ` are definitionally equal.
 example : instCStarModule (A := ℂ) = instCStarModuleComplex := by with_reducible_and_instances rfl
 
-/-- Ensures that the two `Inner ℂ ℂ` instances are definitionally equal. Note that this cannot be at
+/--
+Ensures that the two `Inner ℂ ℂ` instances are definitionally equal. Note that this cannot be at
 reducible and instances transparency because the one from `InnerProductSpace` uses `StarRingEnd`
-whereas `WithCStarModule.instCStarModule.toInner` uses `star` since `A` may not be commutative. -/
+whereas `WithCStarModule.instCStarModule.toInner` uses `star` since `A` may not be commutative.
+-/
 example : (toInner : Inner ℂ ℂ) = WithCStarModule.instCStarModule.toInner := rfl
 
 end InnerProductSpace

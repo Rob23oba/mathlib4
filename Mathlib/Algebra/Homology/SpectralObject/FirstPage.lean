@@ -31,19 +31,21 @@ namespace Abelian
 
 namespace SpectralObject
 
-variable {C ι κ : Type*} [Category C] [Abelian C] [Preorder ι]
+variable
+  {C ι κ : Type*} [Category C] [Abelian C] [Preorder ι]
   (X : SpectralObject C ι)
-  {c : ℤ → ComplexShape κ} {r₀ : ℤ}
-  (data : SpectralSequenceDataCore ι c r₀)
+  {c : ℤ → ComplexShape κ} {r₀ : ℤ} (data : SpectralSequenceDataCore ι c r₀)
 
 namespace SpectralSequenceDataCore
 
-/-- Given `data : SpectralSequenceDataCore ι c r₀`, this is the property
+/--
+Given `data : SpectralSequenceDataCore ι c r₀`, this is the property
 that on the page `r₀`, indices `i₀` and `i₁` are equal,
 and indices `i₂` and `i₃` are equal. This condition allows
 to express the objects of the `r₀`th page of the spectral sequences
 obtained using a spectral object `X` indexed by `ι` and `data` as objects
-of the form `X.H`, see `SpectralObject.spectralSequenceFirstPageXIso`. -/
+of the form `X.H`, see `SpectralObject.spectralSequenceFirstPageXIso`.
+-/
 class HasFirstPageComputation : Prop where
   hi₀₁ (pq : κ) : data.i₀ r₀ pq = data.i₁ pq
   hi₂₃ (pq : κ) : data.i₂ pq = data.i₃ r₀ pq
@@ -69,20 +71,22 @@ end SpectralSequenceDataCore
 
 variable [data.HasFirstPageComputation] [X.HasSpectralSequence data]
 
-/-- If `data : SpectralSequenceDataCore ι c r₀` is such that
+/--
+If `data : SpectralSequenceDataCore ι c r₀` is such that
 `data.HasFirstPageComputation` holds, this is an isomorphism which
 allows to "compute" the objects on the `r₀`th page of the spectral sequence
 obtained from a spectral object `X` indexed by `ι` using data as objects
 of the form `X.H`. See also `spectralSequence_first_page_d_eq` for the relation
-between the differentials of the first page of the spectral sequence and `X.δ`. -/
-noncomputable def spectralSequenceFirstPageXIso (pq : κ)
-    (i₁ i₂ : ι) (hi₁ : i₁ = data.i₁ pq) (hi₂ : i₂ = data.i₂ pq)
-    (n : ℤ) (hn : n = data.deg pq) :
-    ((X.spectralSequence data).page r₀).X pq ≅
-      (X.H n).obj (mk₁ (homOfLE (data.le₁₂' pq hi₁ hi₂))) :=
-  X.spectralSequencePageXIso data _ (by rfl) _ _ _ _ _
-    (by rw [hi₁, ← data.hi₀₁]) hi₁ hi₂ (by rw [hi₂, data.hi₂₃]) _ _ _ hn ≪≫
-      X.EIsoH (homOfLE _) (n - 1) n (n + 1)
+between the differentials of the first page of the spectral sequence and `X.δ`.
+-/
+noncomputable def spectralSequenceFirstPageXIso
+    (pq : κ) (i₁ i₂ : ι) (hi₁ : i₁ = data.i₁ pq) (hi₂ : i₂ = data.i₂ pq)
+    (n : ℤ) (hn : n = data.deg pq)
+    : ((X.spectralSequence data).page r₀).X pq
+      ≅ (X.H n).obj (mk₁ (homOfLE (data.le₁₂' pq hi₁ hi₂))) :=
+  X.spectralSequencePageXIso data _ (by rfl) _ _ _ _ _ (by rw [hi₁, ← data.hi₀₁]) hi₁ hi₂
+      (by rw [hi₂, data.hi₂₃]) _ _ _ hn
+    ≪≫ X.EIsoH (homOfLE _) (n - 1) n (n + 1)
 
 @[reassoc]
 lemma spectralSequenceFirstPageXIso_hom (pq : κ)

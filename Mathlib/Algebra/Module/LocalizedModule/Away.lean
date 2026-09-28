@@ -17,8 +17,10 @@ public section
 
 namespace IsLocalizedModule.Away
 
-variable {R : Type*} [CommSemiring R] {M N : Type*} [AddCommMonoid M] [AddCommMonoid N]
-  [Module R M] [Module R N] {f : M →ₗ[R] N} {r : R}
+variable
+  {R : Type*} [CommSemiring R]
+  {M N : Type*} [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module R N]
+  {f : M →ₗ[R] N} {r : R}
 
 lemma mk (h₁ : IsUnit (algebraMap R (Module.End R N) r))
     (h₂ : ∀ (x : N), ∃ (n : ℕ) (y : M), r ^ n • x = f y)

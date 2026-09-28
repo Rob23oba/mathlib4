@@ -60,22 +60,26 @@ variable {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommG
 
 namespace RootPairing
 
-/-- A base of a root pairing.
+/--
+A base of a root pairing.
 
 For reduced root pairings this definition is equivalent to the usual definition appearing in the
 informal literature but not for non-reduced root pairings it is more restrictive. See the module
 doc string for further remarks.
 
-See also `RootPairing.Base.mk'`. -/
+See also `RootPairing.Base.mk'`.
+-/
 structure Base (P : RootPairing ι R M N) where
   /-- The indices of the simple roots / coroots. -/
   support : Finset ι
   linearIndepOn_root : LinearIndepOn R P.root support
   linearIndepOn_coroot : LinearIndepOn R P.coroot support
-  root_mem_or_neg_mem (i : ι) : P.root i ∈ AddSubmonoid.closure (P.root '' support) ∨
-                               -P.root i ∈ AddSubmonoid.closure (P.root '' support)
-  coroot_mem_or_neg_mem (i : ι) : P.coroot i ∈ AddSubmonoid.closure (P.coroot '' support) ∨
-                                 -P.coroot i ∈ AddSubmonoid.closure (P.coroot '' support)
+  root_mem_or_neg_mem (i : ι)
+    : P.root i ∈ AddSubmonoid.closure (P.root '' support)
+      ∨ - P.root i ∈ AddSubmonoid.closure (P.root '' support)
+  coroot_mem_or_neg_mem (i : ι)
+    : P.coroot i ∈ AddSubmonoid.closure (P.coroot '' support)
+      ∨ - P.coroot i ∈ AddSubmonoid.closure (P.coroot '' support)
 
 namespace Base
 
@@ -89,8 +93,8 @@ lemma support_nonempty [Nonempty ι] [NeZero (2 : R)] : b.support.Nonempty := by
   simpa [P.ne_zero default, contra] using b.root_mem_or_neg_mem default
 
 /-- Interchanging roots and coroots, one still has a base of a root pairing. -/
-@[simps] protected def flip :
-    P.flip.Base where
+@[simps]
+protected def flip : P.flip.Base where
   support := b.support
   linearIndepOn_root := b.linearIndepOn_coroot
   linearIndepOn_coroot := b.linearIndepOn_root
@@ -99,7 +103,8 @@ lemma support_nonempty [Nonempty ι] [NeZero (2 : R)] : b.support.Nonempty := by
 
 section Map
 
-variable {ι₂ M₂ N₂ : Type*} [AddCommGroup M₂] [Module R M₂] [AddCommGroup N₂] [Module R N₂]
+variable
+  {ι₂ M₂ N₂ : Type*} [AddCommGroup M₂] [Module R M₂] [AddCommGroup N₂] [Module R N₂]
   {P₂ : RootPairing ι₂ R M₂ N₂} (e : P.Equiv P₂)
 
 private lemma map_aux_pos [DecidableEq ι₂] (s : Finset ι) {f : ι → M} {f₂ : ι₂ → M₂}
@@ -121,9 +126,10 @@ private lemma map_aux_neg [DecidableEq ι₂] (s : Finset ι) {f : ι → M} {f�
   aesop
 
 /-- The push forward of a base along an equivalence. -/
-protected def map :
-    P₂.Base where
-  support := open scoped Classical in b.support.image e.indexEquiv
+protected def map : P₂.Base where
+  support :=
+    open scoped Classical in
+    b.support.image e.indexEquiv
   linearIndepOn_root := by
     have aux : P₂.root ∘ e.indexEquiv = e.weightEquiv ∘ P.root := e.root_weightMap.symm
     simp only [Finset.coe_image, ← linearIndepOn_equiv, aux]
@@ -154,8 +160,8 @@ protected def map :
   convert rfl
 
 /-- The natural bijection between support of a base and that of its push forward. -/
-@[simps!] def supportMapEquiv [DecidableEq ι₂] :
-    b.support ≃ (b.map e).support :=
+@[simps!]
+def supportMapEquiv [DecidableEq ι₂] : b.support ≃ (b.map e).support :=
   (e.indexEquiv.imageFinset b.support).trans <| Finset.equivOfEq (b.support_map_eq e).symm
 
 end Map
@@ -357,8 +363,7 @@ section RootSystem
 variable {P : RootPairing ι R M N} (b : P.Base) [P.IsRootSystem]
 
 /-- A base of a root system yields a basis of the root space. -/
-def toWeightBasis :
-    Basis b.support R M :=
+def toWeightBasis : Basis b.support R M :=
   Basis.mk b.linearIndepOn_root <| by
     change ⊤ ≤ span R (range <| P.root ∘ ((↑) : b.support → ι))
     simp [range_comp]
@@ -372,9 +377,7 @@ def toWeightBasis :
   simp [← LinearEquiv.eq_symm_apply]
 
 /-- A base of a root system yields a basis of the coroot space. -/
-def toCoweightBasis :
-    Basis b.support R N :=
-  Base.toWeightBasis (P := P.flip) b.flip
+def toCoweightBasis : Basis b.support R N := Base.toWeightBasis (P := P.flip) b.flip
 
 @[simp] lemma toCoweightBasis_apply (i : b.support) :
     b.toCoweightBasis i = P.coroot i :=
@@ -404,8 +407,7 @@ lemma linearIndependentInt [CharZero R] :
     b.linearIndepOn_root.restrict_scalars' ℤ
 
 /-- A base for a root system gives a `ℤ`-basis for the `ℤ`-span of the roots. -/
-def toWeightBasisInt [CharZero R] :
-    Basis b.support ℤ (P.rootSpan ℤ) :=
+def toWeightBasisInt [CharZero R] : Basis b.support ℤ (P.rootSpan ℤ) :=
   Basis.mk b.linearIndependentInt <| by
     have : (fun i : b.support ↦ P.rootSpanMem ℤ i) = P.rootSpanMem ℤ ∘ ((↑) : b.support → ι) := rfl
     simp [this, range_comp]
@@ -456,8 +458,7 @@ section PositiveRoots
 variable {P : RootPairing ι R M N} (b : P.Base) [CharZero R]
 
 /-- Given a base `α₁, α₂, …`, the height of a root `∑ zᵢαᵢ` relative to this base is `∑ zᵢ`. -/
-def height (i : ι) : ℤ :=
-  ∑ j ∈ b.support, (b.exists_root_eq_sum_int i).choose j
+def height (i : ι) : ℤ := ∑ j ∈ b.support, (b.exists_root_eq_sum_int i).choose j
 
 variable {b} in
 lemma height_eq_sum {i : ι} {f : ι → ℤ} (heq : P.root i = ∑ j ∈ b.support, f j • P.root j) :

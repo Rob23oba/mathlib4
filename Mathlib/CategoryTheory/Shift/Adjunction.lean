@@ -54,19 +54,23 @@ open Category
 
 namespace Adjunction
 
-variable {C D : Type*} [Category* C] [Category* D]
-  {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) {A : Type*} [AddMonoid A] [HasShift C A] [HasShift D A]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
+  {A : Type*} [AddMonoid A] [HasShift C A] [HasShift D A]
 
 namespace CommShift
 
-variable {a b : A} (e₁ : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a)
-    (e₁' : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a)
-    (f₁ : shiftFunctor C b ⋙ F ≅ F ⋙ shiftFunctor D b)
-    (e₂ : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a)
-    (e₂' : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a)
-    (f₂ : shiftFunctor D b ⋙ G ≅ G ⋙ shiftFunctor C b)
+variable
+  {a b : A} (e₁ : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a)
+  (e₁' : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a)
+  (f₁ : shiftFunctor C b ⋙ F ≅ F ⋙ shiftFunctor D b)
+  (e₂ : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a)
+  (e₂' : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a)
+  (f₂ : shiftFunctor D b ⋙ G ≅ G ⋙ shiftFunctor C b)
 
-/-- Given an adjunction `adj : F ⊣ G`, `a` in `A` and commutation isomorphisms
+/--
+Given an adjunction `adj : F ⊣ G`, `a` in `A` and commutation isomorphisms
 `e₁ : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a` and
 `e₂ : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a`, this expresses the compatibility of
 `e₁` and `e₂` with the unit of the adjunction `adj`.
@@ -74,7 +78,8 @@ variable {a b : A} (e₁ : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a)
 abbrev CompatibilityUnit :=
   ∀ (X : C), (adj.unit.app X)⟦a⟧' = adj.unit.app (X⟦a⟧) ≫ G.map (e₁.hom.app X) ≫ e₂.hom.app _
 
-/-- Given an adjunction `adj : F ⊣ G`, `a` in `A` and commutation isomorphisms
+/--
+Given an adjunction `adj : F ⊣ G`, `a` in `A` and commutation isomorphisms
 `e₁ : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a` and
 `e₂ : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a`, this expresses the compatibility of
 `e₁` and `e₂` with the counit of the adjunction `adj`.
@@ -237,7 +242,6 @@ lemma commShiftIso_inv_app_counit_app [adj.CommShift A] (a : A) (Y : D) :
 
 namespace CommShift
 
-
 set_option backward.defeqAttrib.useBackward true in
 /-- Constructor for `Adjunction.CommShift`. -/
 lemma mk' (_ : NatTrans.CommShift adj.unit A) :
@@ -250,20 +254,20 @@ lemma mk' (_ : NatTrans.CommShift adj.unit A) :
     refine (compatibilityCounit_of_compatibilityUnit adj _ _ (fun X ↦ ?_) _).symm
     simpa [Functor.commShiftIso_comp_hom_app] using NatTrans.shift_app_comm adj.unit a X⟩
 
-/-- The identity adjunction is compatible with the trivial `CommShift` structure on the
+/--
+The identity adjunction is compatible with the trivial `CommShift` structure on the
 identity functor.
 -/
 instance instId : (Adjunction.id (C := C)).CommShift A where
-  commShift_counit :=
-    inferInstanceAs (NatTrans.CommShift (𝟭 C).leftUnitor.hom A)
-  commShift_unit :=
-    inferInstanceAs (NatTrans.CommShift (𝟭 C).leftUnitor.inv A)
+  commShift_counit := inferInstanceAs (NatTrans.CommShift (𝟭 C).leftUnitor.hom A)
+  commShift_unit := inferInstanceAs (NatTrans.CommShift (𝟭 C).leftUnitor.inv A)
 
-variable {E : Type*} [Category* E] {F' : D ⥤ E} {G' : E ⥤ D} (adj' : F' ⊣ G')
+variable
+  {E : Type*} [Category* E]
+  {F' : D ⥤ E} {G' : E ⥤ D} (adj' : F' ⊣ G')
   [HasShift E A] [F'.CommShift A] [G'.CommShift A] [adj.CommShift A] [adj'.CommShift A]
 
-/-- Compatibility of `Adjunction.Commshift` with the composition of adjunctions.
--/
+/-- Compatibility of `Adjunction.Commshift` with the composition of adjunctions. -/
 instance instComp : (adj.comp adj').CommShift A where
   commShift_counit := by
     rw [comp_counit]
@@ -301,8 +305,10 @@ end Adjunction
 
 namespace Adjunction
 
-variable {C D : Type*} [Category* C] [Category* D]
-  {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) {A : Type*} [AddGroup A] [HasShift C A] [HasShift D A]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
+  {A : Type*} [AddGroup A] [HasShift C A] [HasShift D A]
 
 namespace RightAdjointCommShift
 
@@ -311,7 +317,8 @@ variable (a b : A) (h : b + a = 0) [F.CommShift A]
 /-- Auxiliary definition for `iso`. -/
 noncomputable def iso' : shiftFunctor D a ⋙ G ≅ G ⋙ shiftFunctor C a :=
   (conjugateIsoEquiv (Adjunction.comp adj (shiftEquiv' D b a h).toAdjunction)
-    (Adjunction.comp (shiftEquiv' C b a h).toAdjunction adj)).toFun (F.commShiftIso b)
+      (Adjunction.comp (shiftEquiv' C b a h).toAdjunction adj)).toFun
+    (F.commShiftIso b)
 
 /--
 Given an adjunction `F ⊣ G` and a `CommShift` structure on `F`, these are the candidate
@@ -396,8 +403,8 @@ noncomputable def rightAdjointCommShift [F.CommShift A] : G.CommShift A where
     refine CommShift.compatibilityUnit_unique_right adj (F.commShiftIso (a + b)) _ _
       (compatibilityUnit_iso adj (a + b)) ?_
     rw [F.commShiftIso_add]
-    exact CommShift.compatibilityUnit_isoAdd adj _ _ _ _
-      (compatibilityUnit_iso adj a) (compatibilityUnit_iso adj b)
+    exact CommShift.compatibilityUnit_isoAdd adj _ _ _ _ (compatibilityUnit_iso adj a)
+      (compatibilityUnit_iso adj b)
 
 set_option backward.defeqAttrib.useBackward true in
 lemma commShift_of_leftAdjoint [F.CommShift A] :
@@ -417,7 +424,8 @@ variable {A} (a b : A) (h : a + b = 0) [G.CommShift A]
 /-- Auxiliary definition for `iso`. -/
 noncomputable def iso' : shiftFunctor C a ⋙ F ≅ F ⋙ shiftFunctor D a :=
   (conjugateIsoEquiv (Adjunction.comp adj (shiftEquiv' D a b h).toAdjunction)
-    (Adjunction.comp (shiftEquiv' C a b h).toAdjunction adj)).invFun (G.commShiftIso b)
+      (Adjunction.comp (shiftEquiv' C a b h).toAdjunction adj)).invFun
+    (G.commShiftIso b)
 
 /--
 Given an adjunction `F ⊣ G` and a `CommShift` structure on `G`, these are the candidate
@@ -484,8 +492,8 @@ noncomputable def leftAdjointCommShift [G.CommShift A] : F.CommShift A where
     refine CommShift.compatibilityUnit_unique_left adj _ _ (G.commShiftIso (a + b))
       (compatibilityUnit_iso adj (a + b)) ?_
     rw [G.commShiftIso_add]
-    exact CommShift.compatibilityUnit_isoAdd adj _ _ _ _
-      (compatibilityUnit_iso adj a) (compatibilityUnit_iso adj b)
+    exact CommShift.compatibilityUnit_isoAdd adj _ _ _ _ (compatibilityUnit_iso adj a)
+      (compatibilityUnit_iso adj b)
 
 set_option backward.defeqAttrib.useBackward true in
 lemma commShift_of_rightAdjoint [G.CommShift A] :
@@ -534,28 +542,16 @@ lemma mk' (h : NatTrans.CommShift E.unitIso.hom A) :
   commShift_unit := h
   commShift_counit := (Adjunction.CommShift.mk' E.toAdjunction A h).commShift_counit
 
-/--
-The forward functor of the identity equivalence is compatible with shifts.
--/
-instance : (Equivalence.refl (C := C)).functor.CommShift A :=
-  inferInstanceAs <| (𝟭 C).CommShift A
+/-- The forward functor of the identity equivalence is compatible with shifts. -/
+instance : (Equivalence.refl (C := C)).functor.CommShift A := inferInstanceAs <| (𝟭 C).CommShift A
 
-/--
-The inverse functor of the identity equivalence is compatible with shifts.
--/
-instance : (Equivalence.refl (C := C)).inverse.CommShift A :=
-  inferInstanceAs <| (𝟭 C).CommShift A
+/-- The inverse functor of the identity equivalence is compatible with shifts. -/
+instance : (Equivalence.refl (C := C)).inverse.CommShift A := inferInstanceAs <| (𝟭 C).CommShift A
 
+/-- The identity equivalence is compatible with shifts. -/
+instance : (Equivalence.refl (C := C)).CommShift A := inferInstanceAs <| Adjunction.id.CommShift A
 
-/--
-The identity equivalence is compatible with shifts.
--/
-instance : (Equivalence.refl (C := C)).CommShift A :=
-  inferInstanceAs <| Adjunction.id.CommShift A
-
-/--
-If an equivalence `E : C ≌ D` is compatible with shifts, so is `E.symm`.
--/
+/-- If an equivalence `E : C ≌ D` is compatible with shifts, so is `E.symm`. -/
 instance [E.CommShift A] : E.symm.CommShift A :=
   mk' E.symm A (inferInstanceAs (NatTrans.CommShift E.counitIso.inv A))
 
@@ -565,8 +561,9 @@ lemma mk'' (h : NatTrans.CommShift E.counitIso.hom A) :
   have := mk' E.symm A (inferInstanceAs (NatTrans.CommShift E.counitIso.inv A))
   inferInstanceAs (E.symm.symm.CommShift A)
 
-variable {F : Type*} [Category* F] [HasShift F A] {E' : D ≌ F} [E.CommShift A]
-    [E'.functor.CommShift A] [E'.inverse.CommShift A] [E'.CommShift A]
+variable
+  {F : Type*} [Category* F] [HasShift F A]
+  {E' : D ≌ F} [E.CommShift A] [E'.functor.CommShift A] [E'.inverse.CommShift A] [E'.CommShift A]
 
 set_option backward.defeqAttrib.useBackward true in
 /--
@@ -586,9 +583,7 @@ instance : (E.trans E').inverse.CommShift A := by
   dsimp
   infer_instance
 
-/--
-If equivalences `E : C ≌ D` and `E' : D ≌ F` are compatible with shifts, so is `E.trans E'`.
--/
+/-- If equivalences `E : C ≌ D` and `E' : D ≌ F` are compatible with shifts, so is `E.trans E'`. -/
 instance : (E.trans E').CommShift A :=
   inferInstanceAs ((E.toAdjunction.comp E'.toAdjunction).CommShift A)
 

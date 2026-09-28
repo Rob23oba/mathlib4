@@ -35,9 +35,11 @@ section DotProduct
 
 /-- Orthogonality on the projective plane. -/
 def orthogonal : ℙ F (m → F) → ℙ F (m → F) → Prop :=
-  Quotient.lift₂ (fun v w ↦ v.1 ⬝ᵥ w.1 = 0) (fun _ _ _ _ ⟨_, h1⟩ ⟨_, h2⟩ ↦ by
-    simp_rw [← h1, ← h2, dotProduct_smul, smul_dotProduct, smul_smul,
-      smul_eq_zero_iff_eq])
+  Quotient.lift₂
+    (fun v w ↦ v.1 ⬝ᵥ w.1 = 0)
+    (fun _ _ _ _ ⟨_, h1⟩ ⟨_, h2⟩ ↦ by
+      simp_rw [← h1, ← h2, dotProduct_smul, smul_dotProduct, smul_smul,
+        smul_eq_zero_iff_eq])
 
 lemma orthogonal_mk {v w : m → F} (hv : v ≠ 0) (hw : w ≠ 0) :
     orthogonal (mk F v hv) (mk F w hw) ↔ v ⬝ᵥ w = 0 :=
@@ -70,7 +72,8 @@ variable [DecidableEq F]
 
 /-- Cross product on the projective plane. -/
 def cross : ℙ F (Fin 3 → F) → ℙ F (Fin 3 → F) → ℙ F (Fin 3 → F) :=
-  Quotient.map₂ (fun v w ↦ if h : crossProduct v.1 w.1 = 0 then v else ⟨crossProduct v.1 w.1, h⟩)
+  Quotient.map₂
+    (fun v w ↦ if h : crossProduct v.1 w.1 = 0 then v else ⟨crossProduct v.1 w.1, h⟩)
     (fun _ _ ⟨a, ha⟩ _ _ ⟨b, hb⟩ ↦ by
       simp_rw [← ha, ← hb, LinearMap.map_smul_of_tower, LinearMap.smul_apply, smul_smul,
         mul_comm b a, smul_eq_zero_iff_eq]
@@ -112,19 +115,17 @@ lemma cross_comm (v w : ℙ F (Fin 3 → F)) : cross v w = cross w v := by
     rw [cross_mk_of_ne hv hw h, cross_mk_of_ne hw hv h.symm, mk_eq_mk_iff_crossProduct_eq_zero,
       ← cross_anticomm v w, map_neg, _root_.cross_self, neg_zero]
 
-theorem cross_orthogonal_left {v w : ℙ F (Fin 3 → F)} (h : v ≠ w) :
-    (cross v w).orthogonal v := by
-  induction v with | h v hv =>
-  induction w with | h w hw =>
-  rw [cross_mk_of_ne hv hw h, orthogonal_mk, dotProduct_comm, dot_self_cross]
+theorem cross_orthogonal_left {v w : ℙ F (Fin 3 → F)} (h : v ≠ w) : (cross v w).orthogonal v := by
+  induction v with
+  | h v hv =>
+    induction w with
+    | h w hw => rw [cross_mk_of_ne hv hw h, orthogonal_mk, dotProduct_comm, dot_self_cross]
 
-theorem cross_orthogonal_right {v w : ℙ F (Fin 3 → F)} (h : v ≠ w) :
-    (cross v w).orthogonal w := by
+theorem cross_orthogonal_right {v w : ℙ F (Fin 3 → F)} (h : v ≠ w) : (cross v w).orthogonal w := by
   rw [cross_comm]
   exact cross_orthogonal_left h.symm
 
-theorem orthogonal_cross_left {v w : ℙ F (Fin 3 → F)} (h : v ≠ w) :
-    v.orthogonal (cross v w) := by
+theorem orthogonal_cross_left {v w : ℙ F (Fin 3 → F)} (h : v ≠ w) : v.orthogonal (cross v w) := by
   rw [orthogonal_comm]
   exact cross_orthogonal_left h
 

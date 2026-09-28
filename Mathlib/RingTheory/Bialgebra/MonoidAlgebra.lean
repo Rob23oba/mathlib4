@@ -62,23 +62,29 @@ instance instBialgebra : Bialgebra R A[M] where
   counit_one := by simp only [one_def, counit_single, Bialgebra.counit_one]
   mul_compr₂_counit := by ext; simp
   comul_one := by
-    simp only [one_def, comul_single, Bialgebra.comul_one, Algebra.TensorProduct.one_def,
-      TensorProduct.map_tmul, lsingle_apply]
+    simp only [
+      one_def, comul_single, Bialgebra.comul_one, Algebra.TensorProduct.one_def,
+      TensorProduct.map_tmul, lsingle_apply
+    ]
   mul_compr₂_comul := by
     ext a b c d
-    simp only [Function.comp_apply, LinearMap.coe_comp, LinearMap.compr₂_apply,
-      LinearMap.mul_apply', single_mul_single, comul_single, Bialgebra.comul_mul,
-      ← (Coalgebra.Repr.arbitrary R b).eq, ← (Coalgebra.Repr.arbitrary R d).eq, Finset.sum_mul_sum,
-      Algebra.TensorProduct.tmul_mul_tmul, map_sum, TensorProduct.map_tmul, lsingle_apply,
-      LinearMap.compl₁₂_apply, LinearMap.coe_sum, Finset.sum_apply,
-      Finset.sum_comm (s := (Coalgebra.Repr.arbitrary R b).index)]
+    simp only [
+      Function.comp_apply, LinearMap.coe_comp, LinearMap.compr₂_apply, LinearMap.mul_apply',
+      single_mul_single, comul_single, Bialgebra.comul_mul, ← (Coalgebra.Repr.arbitrary R b).eq,
+      ← (Coalgebra.Repr.arbitrary R d).eq, Finset.sum_mul_sum, Algebra.TensorProduct.tmul_mul_tmul,
+      map_sum, TensorProduct.map_tmul, lsingle_apply, LinearMap.compl₁₂_apply, LinearMap.coe_sum,
+      Finset.sum_apply, Finset.sum_comm (s := (Coalgebra.Repr.arbitrary R b).index)
+    ]
 
 -- TODO: Generalise to `A[M] →ₐc[R] A[N]` under `Bialgebra R A`
 variable (R) in
-/-- If `f : M → N` is a monoid hom, then `MonoidAlgebra.mapDomain f` is a bialgebra hom between
-their monoid algebras. -/
-@[expose, to_additive (attr := simps!) (dont_translate := R)
-/-- If `f : M → N` is an additive monoid hom, then `MonoidAlgebra.mapDomain f` is a bialgebra hom
+/--
+If `f : M → N` is a monoid hom, then `MonoidAlgebra.mapDomain f` is a bialgebra hom between
+their monoid algebras.
+-/
+@[expose,
+  to_additive (attr := simps!) (dont_translate := R)
+    /-- If `f : M → N` is an additive monoid hom, then `MonoidAlgebra.mapDomain f` is a bialgebra hom
 between their additive monoid algebras. -/]
 def mapDomainBialgHom (f : M →* N) : R[M] →ₐc[R] R[N] :=
   .ofAlgHom (mapDomainAlgHom R R f) (by ext; simp) (by ext; simp)
@@ -131,8 +137,9 @@ lemma counit_domCongr (e : M ≃* N) (x : A[M]) : counit (R := R) (domCongr R A 
 variable (R A) in
 -- TODO: Make `BialgEquiv.toCoalgEquiv` the simp normal form so that this can be simp
 /-- Isomorphic monoids have isomorphic monoid algebras. -/
-@[expose, to_additive (attr := simps! -isSimp) (dont_translate := R A)
-/-- Isomorphic monoids have isomorphic monoid algebras. -/]
+@[expose,
+  to_additive (attr := simps! -isSimp) (dont_translate := R A)
+    /-- Isomorphic monoids have isomorphic monoid algebras. -/]
 def domCongrBialgEquiv (e : M ≃* N) : A[M] ≃ₐc[R] A[N] :=
   .ofAlgEquiv (domCongr R A e) (by ext <;> simp) <| by
     ext a
@@ -141,8 +148,9 @@ def domCongrBialgEquiv (e : M ≃* N) : A[M] ≃ₐc[R] A[N] :=
 
 variable (M) in
 /-- The trivial monoid algebra is isomorphic to the base ring. -/
-@[expose, to_additive (dont_translate := R)
-/-- The trivial monoid algebra is isomorphic to the base ring. -/]
+@[expose,
+  to_additive (dont_translate := R)
+    /-- The trivial monoid algebra is isomorphic to the base ring. -/]
 def bialgEquivOfSubsingleton [Subsingleton M] : R[M] ≃ₐc[R] R where
   __ := counitBialgHom ..
   invFun := algebraMap _ _
@@ -162,8 +170,10 @@ def liftGroupLikeBialgHom : R[GroupLike R A] →ₐc[R] A :=
     (by ext; simp) (by ext; simp)
 
 variable (R A M) in
-/-- The bialgebra equivalence between `MonoidAlgebra` and `AddMonoidAlgebra` in terms of
-`Additive`. -/
+/--
+The bialgebra equivalence between `MonoidAlgebra` and `AddMonoidAlgebra` in terms of
+`Additive`.
+-/
 -- TODO: Make `BialgEquiv.toCoalgEquiv` the simp normal form so that this can be simp
 @[expose, simps! -isSimp]
 def toAdditiveBialgEquiv : A[M] ≃ₐc[R] AddMonoidAlgebra A (Additive M) :=
@@ -267,12 +277,14 @@ private lemma single_mapDomainOfBialgHomFun_one (f : R[G] →ₐc[R] R[H]) (g : 
     single (mapDomainOfBialgHomFun f g) 1 = f (single g 1) :=
   (isGroupLikeElem_iff_mem_range_single_one.1 <| (isGroupLikeElem_single_one g).map f).choose_spec
 
-/-- A bialgebra homomorphism `R[G] → R[H]` between group algebras over a domain `R` comes from a
+/--
+A bialgebra homomorphism `R[G] → R[H]` between group algebras over a domain `R` comes from a
 group hom `G → H`.
 
-See `MonoidAlgebra.mapDomainBialgHom` for the forward map. -/
+See `MonoidAlgebra.mapDomainBialgHom` for the forward map.
+-/
 @[to_additive (dont_translate := R)
-/-- A bialgebra homomorphism `R[G] → R[H]` between group algebras over a domain `R` comes from a
+  /-- A bialgebra homomorphism `R[G] → R[H]` between group algebras over a domain `R` comes from a
 group hom `G → H`.
 
 See `MonoidAlgebra.mapDomainBialgHom` for the forward map. -/]
@@ -316,10 +328,13 @@ lemma mapDomainOfBialgHom_comp (f : R[H] →ₐc[R] R[I]) (g : R[G] →ₐc[R] R
     mapDomainBialgHom_comp, mapDomainBialgHom_mapDomainOfBialgHom,
     mapDomainBialgHom_mapDomainOfBialgHom]
 
-/-- The equivalence between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group algebras
-over a domain. -/
-@[expose, to_additive (attr := simps)
-/-- The equivalence between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group algebras
+/--
+The equivalence between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group algebras
+over a domain.
+-/
+@[expose,
+  to_additive (attr := simps)
+    /-- The equivalence between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group algebras
 over a domain. -/]
 def mapDomainBialgHomEquiv : (G →* H) ≃ (R[G] →ₐc[R] R[H]) where
   toFun := mapDomainBialgHom R
@@ -332,8 +347,10 @@ end Group
 section CommGroup
 variable [CommGroup G] [CommGroup H]
 
-/-- The group isomorphism between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group
-algebras over a domain. -/
+/--
+The group isomorphism between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group
+algebras over a domain.
+-/
 @[expose, simps!]
 def mapDomainBialgHomMulEquiv : (G →* H) ≃* WithConv (R[G] →ₐc[R] R[H]) where
   toEquiv := mapDomainBialgHomEquiv.trans (WithConv.equiv _).symm
@@ -360,8 +377,10 @@ lemma bialgHom_ext' ⦃φ₁ φ₂ : A[M] →ₐc[R] B⦄
 lemma isGroupLikeElem_of (m : M) : IsGroupLikeElem R (of A M m) := isGroupLikeElem_single_one ..
 
 variable (R A M) in
-/-- The bialgebra equivalence between `AddMonoidAlgebra` and `MonoidAlgebra` in terms of
-`Multiplicative`. -/
+/--
+The bialgebra equivalence between `AddMonoidAlgebra` and `MonoidAlgebra` in terms of
+`Multiplicative`.
+-/
 -- TODO: Make `BialgEquiv.toCoalgEquiv` the simp normal form so that this can be simp
 @[expose, simps! -isSimp]
 def toMultiplicativeBialgEquiv : A[M] ≃ₐc[R] MonoidAlgebra A (Multiplicative M) :=
@@ -419,8 +438,10 @@ end AddZeroClass
 section AddCommGroup
 variable [AddCommGroup G] [AddCommGroup H]
 
-/-- The group isomorphism between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group
-algebras over a domain. -/
+/--
+The group isomorphism between group homs `G → H` and bialgebra homs `R[G] → R[H]` of group
+algebras over a domain.
+-/
 def mapDomainBialgHomAddEquiv : (G →+ H) ≃+ Additive (WithConv <| R[G] →ₐc[R] R[H]) where
   toEquiv := mapDomainBialgHomEquiv.trans <| (WithConv.equiv _).symm.trans Additive.ofMul
   map_add' f g := by simp
@@ -435,15 +456,13 @@ open AddMonoidAlgebra
 
 variable {R : Type*} [CommSemiring R] {A : Type*} [Semiring A] [Bialgebra R A]
 
-instance instBialgebra : Bialgebra R A[T;T⁻¹] :=
-  inferInstanceAs <| Bialgebra R A[ℤ]
+instance instBialgebra : Bialgebra R A[T;T⁻¹] := inferInstanceAs <| Bialgebra R A[ℤ]
 
 @[simp]
 theorem comul_T (n : ℤ) : comul (T n : A[T;T⁻¹]) = T n ⊗ₜ[R] T n := by simp [T, -single_eq_C_mul_T]
 
 @[simp]
-theorem counit_T (n : ℤ) :
-    Coalgebra.counit (R := R) (T n : A[T;T⁻¹]) = 1 := by
+theorem counit_T (n : ℤ) : Coalgebra.counit (R := R) (T n : A[T;T⁻¹]) = 1 := by
   simp [T, -single_eq_C_mul_T]
 
 end LaurentPolynomial

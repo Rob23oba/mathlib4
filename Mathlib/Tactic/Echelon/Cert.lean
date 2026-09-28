@@ -5,7 +5,7 @@ Authors: Rao Xiaojia
 -/
 module
 
-public import Mathlib.LinearAlgebra.Matrix.Echelon.Decomposition  -- shake: keep (Qq dependency)
+public import Mathlib.LinearAlgebra.Matrix.Echelon.Decomposition -- shake: keep (Qq dependency)
 public import Mathlib.Tactic.Echelon.Core
 public import Mathlib.Util.Qq
 public meta import Mathlib.Tactic.Echelon.Core
@@ -39,22 +39,24 @@ open Lean Meta Qq
 namespace Mathlib.Tactic.Echelon
 
 /-- Build the numeral of `i` in `Fin $n`. -/
-def mkFinNumeral (n : ℕ) (i : ℕ) : MetaM Q(Fin $n) :=
-  mkNumeral q(Fin $n) i
+def mkFinNumeral (n : ℕ) (i : ℕ) : MetaM Q(Fin $n) := mkNumeral (q(Fin $n)) i
 
 /-- Build the matrix literal of the row-major entries `rows`. -/
-def mkMatrixLit {u : Level} (α : Q(Type u)) (m n : Nat) (rows : Array (Array Expr)) :
-    Q(Matrix (Fin $m) (Fin $n) $α) :=
+def mkMatrixLit {u : Level} (α : Q(Type u)) (m n : Nat) (rows : Array (Array Expr))
+    : Q(Matrix (Fin $m) (Fin $n) $α) :=
   Matrix.mkLiteralQ (α := α) (m := m) (n := n) (.of fun i j => (rows[i]!)[j]!)
 
-/-- Build the pivot literal `![↑c₀, …, ⊤, …] : Fin m → WithTop (Fin n)`, sending the
-first rows to their pivot columns and the remaining rows to `⊤`. -/
+/--
+Build the pivot literal `![↑c₀, …, ⊤, …] : Fin m → WithTop (Fin n)`, sending the
+first rows to their pivot columns and the remaining rows to `⊤`.
+-/
 def mkPivotLit (m n : Nat) (pivots : Array Nat) : MetaM Q(Fin $m → WithTop (Fin $n)) := do
-  let entries : Array Q(WithTop (Fin $n)) ← Array.ofFnM (n := m) fun i => do
-    if hi : i < pivots.size then
-      return q(WithTop.some $(← mkFinNumeral n pivots[i]))
-    else
-      return q(⊤ : WithTop (Fin $n))
+  let entries : Array Q(WithTop (Fin $n)) ←
+    Array.ofFnM (n := m) fun i => do
+      if hi : i < pivots.size then
+        return q(WithTop.some $(← mkFinNumeral n pivots[i]))
+      else
+        return q(⊤ : WithTop (Fin $n))
   return PiFin.mkLiteralQ (α := q(WithTop (Fin $n))) (n := m) fun i => entries[i]!
 
 /-- Build the permutation `σ = swap a₀ b₀ * swap a₁ b₁ * ⋯` from the recorded swaps. -/
@@ -64,22 +66,26 @@ def mkPerm (m : Nat) (swaps : Array (Nat × Nat)) : MetaM Q(Equiv.Perm (Fin $m))
     acc := q((Equiv.swap $(← mkFinNumeral m a) $(← mkFinNumeral m b)).trans $acc)
   return acc
 
-/-- Check that equality with zero in `α` reduces to a verdict in the kernel, as the
+/--
+Check that equality with zero in `α` reduces to a verdict in the kernel, as the
 certificate conditions will be decided by kernel reduction. This needs to be changed when
-the cert-checking tactic is updated. -/
+the cert-checking tactic is updated.
+-/
 def checkKernelDecide {u : Level} (α : Q(Type u)) : MetaM Unit := do
   have _cr : Q(CommRing $α) := ← synthInstanceQ q(CommRing $α)
   -- `Decidable` of the single equality rather than `DecidableEq`: a ring where equality
   -- is only decidable against zero should pass
-  let some _inst ← synthInstanceQ? q(Decidable (((1 : ℤ) : $α) = 0)) |
-    throwError "equality with zero in the element type is not decidable{indentExpr α}"
+  let some _inst ← synthInstanceQ? q(Decidable (((1 : ℤ) : $α) = 0))
+    | throwError "equality with zero in the element type is not decidable{indentExpr α}"
   -- check if the equality reduced to a concrete false
   let d := q(decide (((1 : ℤ) : $α) = 0))
   unless (Kernel.whnf (← getEnv) (← getLCtx) d).toOption.any (·.isConstOf ``Bool.false) do
     throwError "equality in the element type does not reduce in the kernel{indentExpr α}"
 
-/-- Prove the certificate condition `c` by a kernel-checked `decide`, with `name` naming
-the condition in errors. -/
+/--
+Prove the certificate condition `c` by a kernel-checked `decide`, with `name` naming
+the condition in errors.
+-/
 def certifyCondition (name : String) (c : Q(Prop)) : MetaM Q($c) := do
   let d ← mkDecide c
   let .ok r := Kernel.whnf (← getEnv) (← getLCtx) d
@@ -88,11 +94,15 @@ def certifyCondition (name : String) (c : Q(Prop)) : MetaM Q($c) := do
     throwError "cannot verify the rank certificate: {name} failed"
   mkDecideProofQ c
 
-/-- Build the `Echelon.Decomposition` certificate of `A` from the decomposition data and
-`entries`, the parsed entries of `A`. -/
-def mkCertificate {u : Level} {m n : ℕ} {α : Q(Type u)} (_cr : Q(CommRing $α))
-    (A : Q(Matrix (Fin $m) (Fin $n) $α)) (entries : Array (Array Expr))
-    (data : BareissData Expr) : MetaM Q(Echelon.Decomposition $A) := do
+/--
+Build the `Echelon.Decomposition` certificate of `A` from the decomposition data and
+`entries`, the parsed entries of `A`.
+-/
+def mkCertificate
+    {u : Level} {m n : ℕ} {α : Q(Type u)}
+    (_cr : Q(CommRing $α)) (A : Q(Matrix (Fin $m) (Fin $n) $α))
+    (entries : Array (Array Expr)) (data : BareissData Expr)
+    : MetaM Q(Echelon.Decomposition $A) := do
   have L := mkMatrixLit α m m data.L
   have U := mkMatrixLit α m n data.U
   -- the row of `A_σ = A.submatrix σ id` at position `i` is the row of `A` at `σ i`

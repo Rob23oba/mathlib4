@@ -27,16 +27,20 @@ respectively.
 open Function Set
 
 namespace Subgroup
-variable {G H : Type*} [Group G] [Group H] {I : Subgroup (G × H)}
+variable
+  {G H : Type*} [Group G] [Group H]
+  {I : Subgroup (G × H)}
   (hI₁ : Surjective (Prod.fst ∘ I.subtype)) (hI₂ : Surjective (Prod.snd ∘ I.subtype))
 
 variable (I) in
-/-- For `I` a subgroup of `G × H`, `I.goursatFst` is the kernel of the projection map `I → H`,
+/--
+For `I` a subgroup of `G × H`, `I.goursatFst` is the kernel of the projection map `I → H`,
 considered as a subgroup of `G`.
 
-This is the first subgroup appearing in Goursat's lemma. See `Subgroup.goursat`. -/
+This is the first subgroup appearing in Goursat's lemma. See `Subgroup.goursat`.
+-/
 @[to_additive
-/-- For `I` a subgroup of `G × H`, `I.goursatFst` is the kernel of the projection map `I → H`,
+  /-- For `I` a subgroup of `G × H`, `I.goursatFst` is the kernel of the projection map `I → H`,
 considered as a subgroup of `G`.
 
 This is the first subgroup appearing in Goursat's lemma. See `AddSubgroup.goursat`. -/]
@@ -44,12 +48,14 @@ def goursatFst : Subgroup G :=
   ((MonoidHom.snd G H).comp I.subtype).ker.map ((MonoidHom.fst G H).comp I.subtype)
 
 variable (I) in
-/-- For `I` a subgroup of `G × H`, `I.goursatSnd` is the kernel of the projection map `I → G`,
+/--
+For `I` a subgroup of `G × H`, `I.goursatSnd` is the kernel of the projection map `I → G`,
 considered as a subgroup of `H`.
 
-This is the second subgroup appearing in Goursat's lemma. See `Subgroup.goursat`. -/
+This is the second subgroup appearing in Goursat's lemma. See `Subgroup.goursat`.
+-/
 @[to_additive
-/-- For `I` a subgroup of `G × H`, `I.goursatSnd` is the kernel of the projection map `I → G`,
+  /-- For `I` a subgroup of `G × H`, `I.goursatSnd` is the kernel of the projection map `I → G`,
 considered as a subgroup of `H`.
 
 This is the second subgroup appearing in Goursat's lemma. See `AddSubgroup.goursat`. -/]

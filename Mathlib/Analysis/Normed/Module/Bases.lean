@@ -102,8 +102,9 @@ See `SchauderBasis` for the classical `ℕ`-indexed case with conditional conver
 and `UnconditionalSchauderBasis` for the unconditional case.
 -/
 @[ext]
-structure GeneralSchauderBasis (β : Type*) (𝕜 : Type*)
-    (X : Type*) [NontriviallyNormedField 𝕜] [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+structure GeneralSchauderBasis
+    (β : Type*)
+    (𝕜 : Type*) (X : Type*) [NontriviallyNormedField 𝕜] [NormedAddCommGroup X] [NormedSpace 𝕜 X]
     (L : SummationFilter β) where
   /-- The basis vectors. -/
   basis : β → X
@@ -118,8 +119,8 @@ variable {β : Type*}
 variable {L : SummationFilter β}
 
 /-- A classical Schauder basis indexed by `ℕ` with conditional convergence. -/
-abbrev SchauderBasis (𝕜 : Type*) (X : Type*) [NontriviallyNormedField 𝕜]
-    [NormedAddCommGroup X] [NormedSpace 𝕜 X] :=
+abbrev SchauderBasis
+    (𝕜 : Type*) (X : Type*) [NontriviallyNormedField 𝕜] [NormedAddCommGroup X] [NormedSpace 𝕜 X] :=
   GeneralSchauderBasis ℕ 𝕜 X (SummationFilter.conditional ℕ)
 
 /--
@@ -134,7 +135,8 @@ set, convergence is necessarily unconditional.
 This structure generalizes the classical Schauder basis by replacing sequential
 convergence with summability over the directed set of finite subsets.
 -/
-abbrev UnconditionalSchauderBasis (β : Type*)
+abbrev UnconditionalSchauderBasis
+    (β : Type*)
     (𝕜 : Type*) (X : Type*) [NontriviallyNormedField 𝕜] [NormedAddCommGroup X] [NormedSpace 𝕜 X] :=
   GeneralSchauderBasis β 𝕜 X (SummationFilter.unconditional β)
 
@@ -150,15 +152,14 @@ variable (b : GeneralSchauderBasis β 𝕜 X L)
 theorem linearIndependent : LinearIndependent 𝕜 b := by
   classical
   refine linearIndependent_iff.mpr (fun l hl ↦ l.ext ?_)
-  simpa [l.linearCombination_apply, Finsupp.sum, b.ortho, Pi.single_apply] using
-    fun i ↦ congr(b.coord i $hl)
+  simpa [l.linearCombination_apply, Finsupp.sum, b.ortho, Pi.single_apply] using fun i ↦
+    congr(b.coord i $hl)
 
 /-- Projection onto a finite set of basis vectors. -/
 def proj (A : Finset β) : X →L[𝕜] X := ∑ i ∈ A, (b.coord i).smulRight (b i)
 
 /-- The projection on the empty set is the zero map. -/
-@[simp]
-theorem proj_empty : b.proj ∅ = 0 := by simp [proj]
+@[simp] theorem proj_empty : b.proj ∅ = 0 := by simp [proj]
 
 /-- The action of the projection on a vector `x`. -/
 @[simp]
@@ -167,8 +168,8 @@ theorem proj_apply (A : Finset β) (x : X) : b.proj A x = ∑ i ∈ A, b.coord i
 
 open scoped Classical in
 /-- The action of the projection on a basis element `e i`. -/
-theorem proj_apply_basis_mem (A : Finset β) (i : β) :
-    b.proj A (b i) = if i ∈ A then b i else 0 := by
+theorem proj_apply_basis_mem (A : Finset β) (i : β)
+    : b.proj A (b i) = if i ∈ A then b i else 0 := by
   simp [b.ortho, Pi.single_apply]
 
 /-- The projections `b.proj A x` converge to `x` along the summation filter. -/
@@ -176,13 +177,12 @@ theorem tendsto_proj (x : X) : Tendsto (fun A ↦ b.proj A x) L.filter (𝓝 x) 
   simpa using! b.expansion x
 
 /-- The range of the projection is the span of the basis elements in `A`. -/
-theorem range_proj_eq_span (A : Finset β) :
-    (b.proj A).toLinearMap.range = Submodule.span 𝕜 (b '' A) := by
+theorem range_proj_eq_span (A : Finset β)
+    : (b.proj A).toLinearMap.range = Submodule.span 𝕜 (b '' A) := by
   apply le_antisymm
   · rintro _ ⟨x, rfl⟩
     rw [ContinuousLinearMap.coe_coe, proj_apply]
-    exact Submodule.sum_mem _ fun i hi ↦
-      Submodule.smul_mem _ _ (Submodule.subset_span ⟨i, hi, rfl⟩)
+    exact Submodule.sum_mem _ fun i hi ↦ Submodule.smul_mem _ _ (Submodule.subset_span ⟨i, hi, rfl⟩)
   · rw [Submodule.span_le]
     rintro _ ⟨i, hi, rfl⟩
     use b i
@@ -191,15 +191,17 @@ theorem range_proj_eq_span (A : Finset β) :
 open scoped Classical in
 /-- Composition of projections: `proj A (proj B x) = proj (A ∩ B) x`. -/
 theorem proj_comp (A B : Finset β) (x : X) : b.proj A (b.proj B x) = b.proj (A ∩ B) x := by
-  simp only [proj_apply, map_sum, map_smul, b.ortho, Pi.single_apply, ite_smul, one_smul, zero_smul,
-    Finset.sum_ite_eq', smul_ite, smul_zero, Finset.sum_ite_mem]
+  simp only [
+    proj_apply, map_sum, map_smul, b.ortho, Pi.single_apply, ite_smul, one_smul, zero_smul,
+    Finset.sum_ite_eq', smul_ite, smul_zero, Finset.sum_ite_mem
+  ]
   congr 1
   ext _
   simp [and_comm]
 
 /-- The dimension of the range of the projection `proj A` equals the cardinality of `A`. -/
-theorem finrank_range_proj (A : Finset β) :
-    Module.finrank 𝕜 (b.proj A).toLinearMap.range = A.card := by
+theorem finrank_range_proj (A : Finset β)
+    : Module.finrank 𝕜 (b.proj A).toLinearMap.range = A.card := by
   rw [range_proj_eq_span, Set.image_eq_range, finrank_span_eq_card]
   · exact Fintype.card_coe A
   · exact b.linearIndependent.comp (fun i : A ↦ i.val) Subtype.val_injective
@@ -229,8 +231,10 @@ theorem exists_norm_proj_le [CompleteSpace X] : ∃ C : ℝ, ∀ A : Finset β, 
   intro A
   have hdecomp : b.proj A x = b.proj (A ∩ A₀) x + b.proj (A \ A₀) x := by
     simp only [GeneralSchauderBasis.proj_apply]
-    rw [← Finset.sum_union (Finset.disjoint_sdiff_inter A A₀).symm,
-      Finset.union_comm, Finset.sdiff_union_inter]
+    rw [
+      ← Finset.sum_union (Finset.disjoint_sdiff_inter A A₀).symm, Finset.union_comm,
+      Finset.sdiff_union_inter
+    ]
   rw [hdecomp]
   -- -- The projection on the tail (A \ A₀) at `x` is bounded by 1
   have htail : ‖b.proj (A \ A₀) x‖ < 1 := by
@@ -238,17 +242,19 @@ theorem exists_norm_proj_le [CompleteSpace X] : ∃ C : ℝ, ∀ A : Finset β, 
     exact hA₀ (A \ A₀) Finset.sdiff_disjoint
   apply (norm_add_le _ _).trans (add_le_add _ htail.le)
   -- The projection on (A ∩ A₀) at `x` is bounded by the `sup'`.
-  exact Finset.le_sup' id <| Finset.mem_image_of_mem (fun B ↦ ‖b.proj B x‖)
-      (Finset.mem_powerset.2 Finset.inter_subset_right)
+  exact Finset.le_sup' id <|
+    Finset.mem_image_of_mem (fun B ↦ ‖b.proj B x‖) (Finset.mem_powerset.2 Finset.inter_subset_right)
 
-/-- The basis constant for unconditional bases (supremum over all finite sets) as `nnnorm`.
-    It requires completeness to guarantee that the supremum is finite,
-    see lemma `bddAbove_range_nnnorm_proj` below. -/
+/--
+The basis constant for unconditional bases (supremum over all finite sets) as `nnnorm`.
+It requires completeness to guarantee that the supremum is finite,
+see lemma `bddAbove_range_nnnorm_proj` below.
+-/
 noncomputable def nnnormProjBound : ℝ≥0 := ⨆ A : Finset β, ‖b.proj A‖₊
 
 /-- The projection norms are bounded above in a complete space. -/
-theorem bddAbove_range_nnnorm_proj [CompleteSpace X] :
-    BddAbove (Set.range (fun A : Finset β ↦ ‖b.proj A‖₊)) := by
+theorem bddAbove_range_nnnorm_proj [CompleteSpace X]
+    : BddAbove (Set.range (fun A : Finset β ↦ ‖b.proj A‖₊)) := by
   obtain ⟨C, hC⟩ := b.exists_norm_proj_le
   have hCpos : 0 ≤ C := by simpa [GeneralSchauderBasis.proj_empty] using hC ∅
   refine ⟨C.toNNReal, ?_⟩
@@ -257,13 +263,13 @@ theorem bddAbove_range_nnnorm_proj [CompleteSpace X] :
   exact hC A
 
 /-- The `nnnorm` of any projection is bounded by the basis constant. -/
-theorem nnnorm_proj_le_nnnormProjBound [CompleteSpace X] (A : Finset β) :
-    ‖b.proj A‖₊ ≤ b.nnnormProjBound :=
+theorem nnnorm_proj_le_nnnormProjBound [CompleteSpace X] (A : Finset β)
+    : ‖b.proj A‖₊ ≤ b.nnnormProjBound :=
   le_ciSup (bddAbove_range_nnnorm_proj b) A
 
 /-- The norm of any projection is bounded by the basis constant. -/
-theorem norm_proj_le_nnnormProjBound [CompleteSpace X] (A : Finset β) :
-    ‖b.proj A‖ ≤ b.nnnormProjBound :=
+theorem norm_proj_le_nnnormProjBound [CompleteSpace X] (A : Finset β)
+    : ‖b.proj A‖ ≤ b.nnnormProjBound :=
   mod_cast b.nnnorm_proj_le_nnnormProjBound A
 
 end UnconditionalSchauderBasis
@@ -274,8 +280,10 @@ namespace SchauderBasis
 
 variable (b : SchauderBasis 𝕜 X)
 
-/-- The `n`-th projection `P_n = b.proj (Finset.range n)`, given by:
-    `P_n x = ∑ i ∈ Finset.range n, b.coord i x • b i` -/
+/--
+The `n`-th projection `P_n = b.proj (Finset.range n)`, given by:
+`P_n x = ∑ i ∈ Finset.range n, b.coord i x • b i`
+-/
 def proj (n : ℕ) : X →L[𝕜] X := GeneralSchauderBasis.proj b (Finset.range n)
 
 /-- The projection at `0` is the zero map. -/
@@ -293,13 +301,12 @@ theorem proj_apply_basis_mem (n i : ℕ) : b.proj n (b i) = if i < n then b i el
   simp
 
 /-- The range of the projection is the span of the first `n` basis elements. -/
-theorem range_proj_eq_span (n : ℕ) :
-    (b.proj n).toLinearMap.range = Submodule.span 𝕜 (b '' ↑(Finset.range n)) := by
+theorem range_proj_eq_span (n : ℕ)
+    : (b.proj n).toLinearMap.range = Submodule.span 𝕜 (b '' ↑(Finset.range n)) := by
   rw [proj, GeneralSchauderBasis.range_proj_eq_span]
 
 /-- The dimension of the range of the projection `P n` is `n`. -/
-theorem finrank_range_proj (n : ℕ) :
-    Module.finrank 𝕜 (b.proj n).toLinearMap.range = n := by
+theorem finrank_range_proj (n : ℕ) : Module.finrank 𝕜 (b.proj n).toLinearMap.range = n := by
   rw [proj, GeneralSchauderBasis.finrank_range_proj, Finset.card_range]
 
 /-- The projections converge pointwise to the identity map. -/
@@ -319,8 +326,9 @@ theorem proj_comp (n m : ℕ) (x : X) : b.proj n (b.proj m x) = b.proj (min n m)
 theorem exists_norm_proj_le [CompleteSpace X] : ∃ C : ℝ, ∀ n : ℕ, ‖b.proj n‖ ≤ C := by
   apply banach_steinhaus
   intro x
-  obtain ⟨M, hM⟩ := isBounded_iff_forall_norm_le.mp
-    (Metric.isBounded_range_of_tendsto (fun n ↦ b.proj n x) (tendsto_proj b x))
+  obtain ⟨M, hM⟩ :=
+    isBounded_iff_forall_norm_le.mp
+      (Metric.isBounded_range_of_tendsto (fun n ↦ b.proj n x) (tendsto_proj b x))
   exact ⟨M, Set.forall_mem_range.mp hM⟩
 
 /-- The basis constant for Schauder bases (supremum over projections) as `enorm`. -/
@@ -330,14 +338,16 @@ noncomputable def enormProjBound : ℝ≥0∞ := ⨆ n, ‖b.proj n‖ₑ
 theorem enorm_proj_le_enormProjBound (n : ℕ) : ‖b.proj n‖ₑ ≤ b.enormProjBound :=
   le_iSup (fun i ↦ ‖b.proj i‖ₑ) n
 
-/-- The basis constant for Schauder bases (supremum over projections) as `nnnorm`.
-    Requires completeness to guarantee the supremum is finite,
-    see lemma `bddAbove_range_nnnorm_proj` below. -/
+/--
+The basis constant for Schauder bases (supremum over projections) as `nnnorm`.
+Requires completeness to guarantee the supremum is finite,
+see lemma `bddAbove_range_nnnorm_proj` below.
+-/
 noncomputable def nnnormProjBound : ℝ≥0 := ⨆ n, ‖b.proj n‖₊
 
 /-- The projection norms are bounded above in a complete space. -/
-theorem bddAbove_range_nnnorm_proj [CompleteSpace X] :
-    BddAbove (Set.range (fun n : ℕ ↦ ‖b.proj n‖₊)) := by
+theorem bddAbove_range_nnnorm_proj [CompleteSpace X]
+    : BddAbove (Set.range (fun n : ℕ ↦ ‖b.proj n‖₊)) := by
   obtain ⟨C, hC⟩ := b.exists_norm_proj_le
   have hCpos : 0 ≤ C := by simpa [proj_zero] using hC 0
   refine ⟨C.toNNReal, ?_⟩
@@ -346,13 +356,12 @@ theorem bddAbove_range_nnnorm_proj [CompleteSpace X] :
   exact hC n
 
 /-- The `nnnorm` of any projection is bounded by the basis constant. -/
-theorem nnnorm_proj_le_nnnormProjBound [CompleteSpace X] (n : ℕ) :
-    ‖b.proj n‖₊ ≤ b.nnnormProjBound :=
+theorem nnnorm_proj_le_nnnormProjBound [CompleteSpace X] (n : ℕ)
+    : ‖b.proj n‖₊ ≤ b.nnnormProjBound :=
   le_ciSup (bddAbove_range_nnnorm_proj b) n
 
 /-- The norm of any projection is bounded by the basis constant. -/
-theorem norm_proj_le_nnnormProjBound [CompleteSpace X] (n : ℕ) :
-    ‖b.proj n‖ ≤ b.nnnormProjBound :=
+theorem norm_proj_le_nnnormProjBound [CompleteSpace X] (n : ℕ) : ‖b.proj n‖ ≤ b.nnnormProjBound :=
   mod_cast b.nnnorm_proj_le_nnnormProjBound n
 
 /-!
@@ -424,7 +433,8 @@ lemma finrank_range_succSub_eq_one {P : ℕ → X →L[𝕜] X}
   exact Nat.add_right_cancel h_dim.symm
 
 variable (𝕜 X) in
-/-- Data for constructing a Schauder basis from a sequence of finite-rank projections.
+/--
+Data for constructing a Schauder basis from a sequence of finite-rank projections.
 
 Given a sequence of continuous linear maps `P n : X →L[𝕜] X` satisfying:
 * `P 0 = 0` and `finrank(range(P n)) = n`,
@@ -435,7 +445,8 @@ the differences `succSub P n = P (n+1) - P n` are rank-one operators
 (see `finrank_range_succSub_eq_one`). Choosing a nonzero vector `e n` in the range of each
 `succSub P n` yields a Schauder basis for `X`.
 
-Use `RankOneDecomposition.basis` to construct the `SchauderBasis` from this data. -/
+Use `RankOneDecomposition.basis` to construct the `SchauderBasis` from this data.
+-/
 structure RankOneDecomposition where
   /-- The sequence of finite-rank projections. -/
   P : ℕ → X →L[𝕜] X
@@ -472,8 +483,7 @@ lemma exists_coeff (n : ℕ) (x : X) :
   exact Submodule.mem_span_singleton.mp (hspan.symm ▸ LinearMap.mem_range_self S x)
 
 /-- The coefficient functional value for the basis construction. -/
-def basisCoeff (n : ℕ) (x : X) : 𝕜 :=
-  Classical.choose (exists_coeff D n x)
+def basisCoeff (n : ℕ) (x : X) : 𝕜 := Classical.choose (exists_coeff D n x)
 
 /-- The coefficient satisfies `basisCoeff D n x • D.e n = (succSub D.P n) x`. -/
 @[simp]
@@ -486,32 +496,42 @@ def basis : SchauderBasis 𝕜 X :=
   let coeff := basisCoeff D
   have hcoeff : ∀ n x, (succSub D.P n) x = coeff n x • D.e n := fun n x ↦
     (basisCoeff_spec D n x).symm
-  { basis := D.e
-    coord := fun n ↦ LinearMap.mkContinuous
-      { toFun := coeff n
-        map_add' := fun x y ↦ smul_left_injective 𝕜 (D.e_ne_zero n) <| by
-          simp only [add_smul, ← hcoeff, map_add]
-        map_smul' := fun c x ↦ smul_left_injective 𝕜 (D.e_ne_zero n) <| by
-          dsimp only [RingHom.id_apply]
-          rw [smul_eq_mul, ← smul_smul, ← hcoeff, ← hcoeff, map_smul] }
-      (‖succSub D.P n‖ / ‖D.e n‖)
-      (fun x ↦ by
-        rw [div_mul_eq_mul_div, le_div_iff₀ (norm_pos_iff.mpr (D.e_ne_zero n))]
-        calc ‖coeff n x‖ * ‖D.e n‖ = ‖coeff n x • D.e n‖ := (norm_smul _ _).symm
-          _ = ‖(succSub D.P n) x‖ := by rw [hcoeff]
-          _ ≤ ‖succSub D.P n‖ * ‖x‖ := ContinuousLinearMap.le_opNorm _ _)
-    ortho := fun i j ↦ smul_left_injective 𝕜 (D.e_ne_zero i) <| by
-      obtain ⟨x, hx⟩ : ∃ x, (succSub D.P j) x = D.e j := D.e_mem_range j
-      simp only [mkContinuous_apply, LinearMap.coe_mk, AddHom.coe_mk]
-      rw [← hcoeff, ← hx, succSub_ortho D.proj_comp, hx]
-      simp only [Pi.single_apply]
-      split_ifs with h <;> simp [h]
+  {
+    basis := D.e
+    coord := fun n ↦
+      LinearMap.mkContinuous
+        {
+          toFun := coeff n
+          map_add' := fun x y ↦
+            smul_left_injective 𝕜 (D.e_ne_zero n) <| by simp only [add_smul, ← hcoeff, map_add]
+          map_smul' := fun c x ↦
+            smul_left_injective 𝕜 (D.e_ne_zero n) <| by
+              dsimp only [RingHom.id_apply]
+              rw [smul_eq_mul, ← smul_smul, ← hcoeff, ← hcoeff, map_smul]
+        }
+        (‖succSub D.P n‖ / ‖D.e n‖)
+        (fun x ↦ by
+          rw [div_mul_eq_mul_div, le_div_iff₀ (norm_pos_iff.mpr (D.e_ne_zero n))]
+          calc
+            ‖coeff n x‖ * ‖D.e n‖
+              = ‖coeff n x • D.e n‖ := (norm_smul _ _).symm
+            _ = ‖(succSub D.P n) x‖ := by rw [hcoeff]
+            _ ≤ ‖succSub D.P n‖ * ‖x‖ := ContinuousLinearMap.le_opNorm _ _)
+    ortho := fun i j ↦
+      smul_left_injective 𝕜 (D.e_ne_zero i) <| by
+        obtain ⟨x, hx⟩ : ∃ x, (succSub D.P j) x = D.e j := D.e_mem_range j
+        simp only [mkContinuous_apply, LinearMap.coe_mk, AddHom.coe_mk]
+        rw [← hcoeff, ← hx, succSub_ortho D.proj_comp, hx]
+        simp only [Pi.single_apply]
+        split_ifs with h <;> simp [h]
     expansion := fun x ↦ by
       rw [HasSum, SummationFilter.conditional_filter_eq_map_range, tendsto_map'_iff]
       exact (D.proj_tendsto x).congr fun n ↦ by
-        simp only [Function.comp, LinearMap.coe_mk, AddHom.coe_mk,
-                   LinearMap.mkContinuous_apply, ← hcoeff]
-        rw [← _root_.sum_apply, sum_succSub D.P D.proj_zero] }
+        simp only [
+          Function.comp, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.mkContinuous_apply, ← hcoeff
+        ]
+        rw [← _root_.sum_apply, sum_succSub D.P D.proj_zero]
+  }
 
 /-- The projections of the constructed basis correspond to the input data `D.P`. -/
 @[simp]
@@ -524,9 +544,7 @@ theorem basis_proj : (basis D).proj = D.P := by
   rw [basisCoeff_spec]
 
 /-- The sequence of the constructed basis corresponds to the input data `D.e`. -/
-@[simp]
-theorem basis_coe : ⇑(basis D) = D.e :=
-  rfl
+@[simp] theorem basis_coe : ⇑(basis D) = D.e := rfl
 
 end RankOneDecomposition
 

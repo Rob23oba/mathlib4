@@ -70,9 +70,7 @@ We set `LSeries.term f s 0 = 0`, and for positive `n`, `LSeries.term f s n = f n
 namespace LSeries
 
 /-- The `n`th term of the L-series of `f` evaluated at `s`. We set it to zero when `n = 0`. -/
-noncomputable
-def term (f : ℕ → ℂ) (s : ℂ) (n : ℕ) : ℂ :=
-  if n = 0 then 0 else f n / n ^ s
+noncomputable def term (f : ℕ → ℂ) (s : ℂ) (n : ℕ) : ℂ := if n = 0 then 0 else f n / n ^ s
 
 lemma term_def (f : ℕ → ℂ) (s : ℂ) (n : ℕ) :
     term f s n = if n = 0 then 0 else f n / n ^ s :=
@@ -158,11 +156,11 @@ to `a : ℂ`.
 
 open LSeries
 
-/-- The value of the L-series of the sequence `f` at the point `s`
-if it converges absolutely there, and `0` otherwise. -/
-noncomputable
-def LSeries (f : ℕ → ℂ) (s : ℂ) : ℂ :=
-  ∑' n, term f s n
+/--
+The value of the L-series of the sequence `f` at the point `s`
+if it converges absolutely there, and `0` otherwise.
+-/
+noncomputable def LSeries (f : ℕ → ℂ) (s : ℂ) : ℂ := ∑' n, term f s n
 
 /-- Congruence for `LSeries` with the evaluation variable `s`. -/
 lemma LSeries_congr {f g : ℕ → ℂ} (h : ∀ {n}, n ≠ 0 → f n = g n) (s : ℂ) :
@@ -175,8 +173,7 @@ lemma LSeries_def₀ {f : ℕ → ℂ} (hf : f 0 = 0) (s : ℂ) :
   simp [LSeries, LSeries.term_def₀ hf, cpow_neg, div_eq_mul_inv]
 
 /-- `LSeriesSummable f s` indicates that the L-series of `f` converges absolutely at `s`. -/
-def LSeriesSummable (f : ℕ → ℂ) (s : ℂ) : Prop :=
-  Summable (term f s)
+def LSeriesSummable (f : ℕ → ℂ) (s : ℂ) : Prop := Summable (term f s)
 
 lemma LSeriesSummable_congr {f g : ℕ → ℂ} (s : ℂ) (h : ∀ {n}, n ≠ 0 → f n = g n) :
     LSeriesSummable f s ↔ LSeriesSummable g s :=
@@ -204,18 +201,19 @@ lemma LSeriesSummable_congr' {f g : ℕ → ℂ} (s : ℂ) (h : f =ᶠ[atTop] g)
     LSeriesSummable f s ↔ LSeriesSummable g s :=
   ⟨fun H ↦ H.congr' s h, fun H ↦ H.congr' s h.symm⟩
 
-theorem LSeries.eq_zero_of_not_LSeriesSummable (f : ℕ → ℂ) (s : ℂ) :
-    ¬ LSeriesSummable f s → LSeries f s = 0 :=
+theorem LSeries.eq_zero_of_not_LSeriesSummable (f : ℕ → ℂ) (s : ℂ)
+    : ¬ LSeriesSummable f s → LSeries f s = 0 :=
   tsum_eq_zero_of_not_summable
 
 @[simp]
 theorem LSeriesSummable_zero {s : ℂ} : LSeriesSummable 0 s := by
   simp [LSeriesSummable, funext (term_def 0 s), summable_zero]
 
-/-- This states that the L-series of the sequence `f` converges absolutely at `s` and that
-the value there is `a`. -/
-def LSeriesHasSum (f : ℕ → ℂ) (s a : ℂ) : Prop :=
-  HasSum (term f s) a
+/--
+This states that the L-series of the sequence `f` converges absolutely at `s` and that
+the value there is `a`.
+-/
+def LSeriesHasSum (f : ℕ → ℂ) (s a : ℂ) : Prop := HasSum (term f s) a
 
 lemma LSeriesHasSum.LSeriesSummable {f : ℕ → ℂ} {s a : ℂ}
     (h : LSeriesHasSum f s a) : LSeriesSummable f s :=
@@ -242,13 +240,12 @@ lemma LSeriesSummable.of_re_le_re {f : ℕ → ℂ} {s s' : ℂ} (h : s.re ≤ s
   rw [LSeriesSummable, ← summable_norm_iff] at hf ⊢
   exact hf.of_nonneg_of_le (fun _ ↦ norm_nonneg _) (norm_term_le_of_re_le_re f h)
 
-theorem LSeriesSummable_iff_of_re_eq_re {f : ℕ → ℂ} {s s' : ℂ} (h : s.re = s'.re) :
-    LSeriesSummable f s ↔ LSeriesSummable f s' :=
+theorem LSeriesSummable_iff_of_re_eq_re {f : ℕ → ℂ} {s s' : ℂ} (h : s.re = s'.re)
+    : LSeriesSummable f s ↔ LSeriesSummable f s' :=
   ⟨fun H ↦ H.of_re_le_re h.le, fun H ↦ H.of_re_le_re h.symm.le⟩
 
 /-- The indicator function of `{1} ⊆ ℕ` with values in `ℂ`. -/
-def LSeries.delta (n : ℕ) : ℂ :=
-  if n = 1 then 1 else 0
+def LSeries.delta (n : ℕ) : ℂ := if n = 1 then 1 else 0
 
 /-!
 ### Notation
@@ -312,7 +309,6 @@ lemma LSeries_delta : LSeries δ = 1 := by
   simp [LSeries, LSeries.term_delta]
 
 end delta
-
 
 /-!
 ### Criteria for and consequences of summability of L-series
@@ -390,13 +386,13 @@ lemma LSeriesSummable_of_isBigO_rpow {f : ℕ → ℂ} {x : ℝ} {s : ℂ} (hs :
     exact mem_image.mpr ⟨n, mem_range.mpr hn, rfl⟩
 
 /-- If `f` is bounded, then its `LSeries` is summable at `s` when `re s > 1`. -/
-theorem LSeriesSummable_of_bounded_of_one_lt_re {f : ℕ → ℂ} {m : ℝ}
-    (h : ∀ n ≠ 0, ‖f n‖ ≤ m) {s : ℂ} (hs : 1 < s.re) :
-    LSeriesSummable f s :=
+theorem LSeriesSummable_of_bounded_of_one_lt_re
+    {f : ℕ → ℂ} {m : ℝ} (h : ∀ n ≠ 0, ‖f n‖ ≤ m) {s : ℂ} (hs : 1 < s.re)
+    : LSeriesSummable f s :=
   LSeriesSummable_of_le_const_mul_rpow hs ⟨m, fun n hn ↦ by simp [h n hn]⟩
 
 /-- If `f` is bounded, then its `LSeries` is summable at `s : ℝ` when `s > 1`. -/
-theorem LSeriesSummable_of_bounded_of_one_lt_real {f : ℕ → ℂ} {m : ℝ}
-    (h : ∀ n ≠ 0, ‖f n‖ ≤ m) {s : ℝ} (hs : 1 < s) :
-    LSeriesSummable f s :=
+theorem LSeriesSummable_of_bounded_of_one_lt_real
+    {f : ℕ → ℂ} {m : ℝ} (h : ∀ n ≠ 0, ‖f n‖ ≤ m) {s : ℝ} (hs : 1 < s)
+    : LSeriesSummable f s :=
   LSeriesSummable_of_bounded_of_one_lt_re h <| by simp [hs]

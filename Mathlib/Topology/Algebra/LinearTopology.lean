@@ -85,11 +85,13 @@ namespace IsLinearTopology
 
 section Module
 
-variable {R R' M : Type*} [Ring R] [Ring R'] [AddCommGroup M] [Module R M] [Module R' M]
+variable
+  {R R' M : Type*} [Ring R] [Ring R'] [AddCommGroup M] [Module R M] [Module R' M]
   [SMulCommClass R R' M] [TopologicalSpace M]
 
 variable (R M) in
-/-- Consider a (left-)module `M` over a ring `R`. A topology on `M` is *`R`-linear*
+/--
+Consider a (left-)module `M` over a ring `R`. A topology on `M` is *`R`-linear*
 if the open sub-`R`-modules of `M` form a basis of neighborhoods of zero.
 
 Typically one would also that the topology is invariant by translation (`ContinuousConstVAdd M M`),
@@ -97,10 +99,13 @@ or equivalently that `M` is a topological group, but we do not assume it for the
 
 In particular, we say that a topology on the ring `R` is *linear* if it is both
 `R`-linear and `Rᵐᵒᵖ`-linear for the obvious module structures. To spell this in Lean,
-simply use `[IsLinearTopology R R] [IsLinearTopology Rᵐᵒᵖ R]`. -/
+simply use `[IsLinearTopology R R] [IsLinearTopology Rᵐᵒᵖ R]`.
+-/
 class _root_.IsLinearTopology where
-  hasBasis_submodule' : (𝓝 (0 : M)).HasBasis
-    (fun N : Submodule R M ↦ (N : Set M) ∈ 𝓝 0) (fun N : Submodule R M ↦ (N : Set M))
+  hasBasis_submodule'
+    : (𝓝 (0 : M)).HasBasis
+      (fun N : Submodule R M ↦ (N : Set M) ∈ 𝓝 0)
+      (fun N : Submodule R M ↦ (N : Set M))
 
 variable (R) in
 lemma hasBasis_submodule [IsLinearTopology R M] : (𝓝 (0 : M)).HasBasis
@@ -147,14 +152,18 @@ lemma mk_of_hasBasis {ι : Sort*} {S : Type*} [SetLike S M]
     IsLinearTopology R M :=
   mk_of_hasBasis' R h fun _ ↦ SMulMemClass.smul_mem
 
-theorem _root_.isLinearTopology_iff_hasBasis_submodule :
-    IsLinearTopology R M ↔ (𝓝 0).HasBasis
-      (fun N : Submodule R M ↦ (N : Set M) ∈ 𝓝 0) (fun N : Submodule R M ↦ (N : Set M)) :=
+theorem _root_.isLinearTopology_iff_hasBasis_submodule
+    : IsLinearTopology R M
+      ↔ (𝓝 0).HasBasis
+        (fun N : Submodule R M ↦ (N : Set M) ∈ 𝓝 0)
+        (fun N : Submodule R M ↦ (N : Set M)) :=
   ⟨fun _ ↦ hasBasis_submodule R, fun h ↦ .mk_of_hasBasis R h⟩
 
-theorem _root_.isLinearTopology_iff_hasBasis_open_submodule [ContinuousAdd M] :
-    IsLinearTopology R M ↔ (𝓝 0).HasBasis
-      (fun N : Submodule R M ↦ IsOpen (N : Set M)) (fun N : Submodule R M ↦ (N : Set M)) :=
+theorem _root_.isLinearTopology_iff_hasBasis_open_submodule [ContinuousAdd M]
+    : IsLinearTopology R M
+      ↔ (𝓝 0).HasBasis
+        (fun N : Submodule R M ↦ IsOpen (N : Set M))
+        (fun N : Submodule R M ↦ (N : Set M)) :=
   ⟨fun _ ↦ hasBasis_open_submodule R, fun h ↦ .mk_of_hasBasis R h⟩
 
 /-- The discrete topology on any `R`-module is `R`-linear. -/
@@ -243,26 +252,31 @@ lemma hasBasis_open_subbimodule [ContinuousAdd M] [IsLinearTopology R M] [IsLine
 -- Even though `R` can be recovered from `a`, the nature of this lemma means that `a` will
 -- often be left for Lean to infer, so making `R` explicit is useful in practice.
 variable (R) in
-/-- If `M` is a linearly topologized `R`-module and `i ↦ m i` tends to zero,
-then `i ↦ a i • m i` still tends to zero for any family `a : ι → R`. -/
-theorem tendsto_smul_zero [IsLinearTopology R M] {ι : Type*} {f : Filter ι}
-    (a : ι → R) (m : ι → M) (ha : Tendsto m f (𝓝 0)) :
-    Tendsto (a • m) f (𝓝 0) := by
+/--
+If `M` is a linearly topologized `R`-module and `i ↦ m i` tends to zero,
+then `i ↦ a i • m i` still tends to zero for any family `a : ι → R`.
+-/
+theorem tendsto_smul_zero
+    [IsLinearTopology R M]
+    {ι : Type*} {f : Filter ι} (a : ι → R) (m : ι → M) (ha : Tendsto m f (𝓝 0))
+    : Tendsto (a • m) f (𝓝 0) := by
   rw [hasBasis_submodule R |>.tendsto_right_iff] at ha ⊢
   intro I hI
   filter_upwards [ha I hI] with i ai_mem
   exact I.smul_mem _ ai_mem
 
 variable (R) in
-/-- If the left and right actions of `R` on `M` coincide, then a topology is `Rᵐᵒᵖ`-linear
-if and only if it is `R`-linear. -/
-theorem _root_.IsCentralScalar.isLinearTopology_iff [Module Rᵐᵒᵖ M] [IsCentralScalar R M] :
-    IsLinearTopology Rᵐᵒᵖ M ↔ IsLinearTopology R M := by
+/--
+If the left and right actions of `R` on `M` coincide, then a topology is `Rᵐᵒᵖ`-linear
+if and only if it is `R`-linear.
+-/
+theorem _root_.IsCentralScalar.isLinearTopology_iff [Module Rᵐᵒᵖ M] [IsCentralScalar R M]
+    : IsLinearTopology Rᵐᵒᵖ M ↔ IsLinearTopology R M := by
   constructor <;> intro H
-  · exact mk_of_hasBasis' R (IsLinearTopology.hasBasis_submodule Rᵐᵒᵖ)
-      fun S r m hm ↦ op_smul_eq_smul r m ▸ S.smul_mem _ hm
-  · exact mk_of_hasBasis' Rᵐᵒᵖ (IsLinearTopology.hasBasis_submodule R)
-      fun S r m hm ↦ unop_smul_eq_smul r m ▸ S.smul_mem _ hm
+  · exact mk_of_hasBasis' R (IsLinearTopology.hasBasis_submodule Rᵐᵒᵖ) fun S r m hm ↦
+      op_smul_eq_smul r m ▸ S.smul_mem _ hm
+  · exact mk_of_hasBasis' Rᵐᵒᵖ (IsLinearTopology.hasBasis_submodule R) fun S r m hm ↦
+      unop_smul_eq_smul r m ▸ S.smul_mem _ hm
 
 end Module
 
@@ -270,26 +284,26 @@ section Ring
 
 variable {R : Type*} [Ring R] [TopologicalSpace R]
 
-theorem hasBasis_ideal [IsLinearTopology R R] :
-    (𝓝 0).HasBasis (fun I : Ideal R ↦ (I : Set R) ∈ 𝓝 0) (fun I : Ideal R ↦ (I : Set R)) :=
+theorem hasBasis_ideal [IsLinearTopology R R]
+    : (𝓝 0).HasBasis (fun I : Ideal R ↦ (I : Set R) ∈ 𝓝 0) (fun I : Ideal R ↦ (I : Set R)) :=
   hasBasis_submodule R
 
-theorem hasBasis_open_ideal [ContinuousAdd R] [IsLinearTopology R R] :
-    (𝓝 0).HasBasis (fun I : Ideal R ↦ IsOpen (I : Set R)) (fun I : Ideal R ↦ (I : Set R)) :=
+theorem hasBasis_open_ideal [ContinuousAdd R] [IsLinearTopology R R]
+    : (𝓝 0).HasBasis (fun I : Ideal R ↦ IsOpen (I : Set R)) (fun I : Ideal R ↦ (I : Set R)) :=
   hasBasis_open_submodule R
 
-theorem _root_.isLinearTopology_iff_hasBasis_ideal :
-    IsLinearTopology R R ↔ (𝓝 0).HasBasis
-      (fun I : Ideal R ↦ (I : Set R) ∈ 𝓝 0) (fun I : Ideal R ↦ (I : Set R)) :=
+theorem _root_.isLinearTopology_iff_hasBasis_ideal
+    : IsLinearTopology R R
+      ↔ (𝓝 0).HasBasis (fun I : Ideal R ↦ (I : Set R) ∈ 𝓝 0) (fun I : Ideal R ↦ (I : Set R)) :=
   isLinearTopology_iff_hasBasis_submodule
 
-theorem _root_.isLinearTopology_iff_hasBasis_open_ideal [IsTopologicalRing R] :
-    IsLinearTopology R R ↔ (𝓝 0).HasBasis
-      (fun I : Ideal R ↦ IsOpen (I : Set R)) (fun I : Ideal R ↦ (I : Set R)) :=
+theorem _root_.isLinearTopology_iff_hasBasis_open_ideal [IsTopologicalRing R]
+    : IsLinearTopology R R
+      ↔ (𝓝 0).HasBasis (fun I : Ideal R ↦ IsOpen (I : Set R)) (fun I : Ideal R ↦ (I : Set R)) :=
   isLinearTopology_iff_hasBasis_open_submodule
 
-theorem hasBasis_right_ideal [IsLinearTopology Rᵐᵒᵖ R] :
-    (𝓝 0).HasBasis (fun I : Submodule Rᵐᵒᵖ R ↦ (I : Set R) ∈ 𝓝 0) (fun I ↦ (I : Set R)) :=
+theorem hasBasis_right_ideal [IsLinearTopology Rᵐᵒᵖ R]
+    : (𝓝 0).HasBasis (fun I : Submodule Rᵐᵒᵖ R ↦ (I : Set R) ∈ 𝓝 0) (fun I ↦ (I : Set R)) :=
   hasBasis_submodule Rᵐᵒᵖ
 
 open Set Pointwise in
@@ -315,29 +329,38 @@ lemma hasBasis_open_twoSidedIdeal [ContinuousAdd R]
     (fun I ↦ ⟨I.asIdeal.toAddSubgroup.isOpen_of_mem_nhds, fun hI ↦ hI.mem_nhds (zero_mem I)⟩)
     (fun _ _ ↦ rfl)
 
-theorem _root_.isLinearTopology_iff_hasBasis_twoSidedIdeal :
-    IsLinearTopology R R ∧ IsLinearTopology Rᵐᵒᵖ R ↔
-      (𝓝 0).HasBasis
-        (fun I : TwoSidedIdeal R ↦ (I : Set R) ∈ 𝓝 0) (fun I : TwoSidedIdeal R ↦ (I : Set R)) :=
-  ⟨fun ⟨_, _⟩ ↦ hasBasis_twoSidedIdeal, fun h ↦
-    ⟨.mk_of_hasBasis' R h fun I r x hx ↦ I.mul_mem_left r x hx,
-      .mk_of_hasBasis' Rᵐᵒᵖ h fun I r x hx ↦ I.mul_mem_right x r.unop hx⟩⟩
+theorem _root_.isLinearTopology_iff_hasBasis_twoSidedIdeal
+    : IsLinearTopology R R ∧ IsLinearTopology Rᵐᵒᵖ R
+      ↔ (𝓝 0).HasBasis
+        (fun I : TwoSidedIdeal R ↦ (I : Set R) ∈ 𝓝 0)
+        (fun I : TwoSidedIdeal R ↦ (I : Set R)) := ⟨
+  fun ⟨_, _⟩ ↦ hasBasis_twoSidedIdeal,
+  fun h ↦ ⟨
+    .mk_of_hasBasis' R h fun I r x hx ↦ I.mul_mem_left r x hx,
+    .mk_of_hasBasis' Rᵐᵒᵖ h fun I r x hx ↦ I.mul_mem_right x r.unop hx
+  ⟩
+⟩
 
-theorem _root_.isLinearTopology_iff_hasBasis_open_twoSidedIdeal [ContinuousAdd R] :
-    IsLinearTopology R R ∧ IsLinearTopology Rᵐᵒᵖ R ↔ (𝓝 0).HasBasis
-      (fun I : TwoSidedIdeal R ↦ IsOpen (I : Set R)) (fun I : TwoSidedIdeal R ↦ (I : Set R)) :=
-  ⟨fun ⟨_, _⟩ ↦ hasBasis_open_twoSidedIdeal, fun h ↦
-    ⟨.mk_of_hasBasis' R h fun I r x hx ↦ I.mul_mem_left r x hx,
-      .mk_of_hasBasis' Rᵐᵒᵖ h fun I r x hx ↦ I.mul_mem_right x r.unop hx⟩⟩
+theorem _root_.isLinearTopology_iff_hasBasis_open_twoSidedIdeal [ContinuousAdd R]
+    : IsLinearTopology R R ∧ IsLinearTopology Rᵐᵒᵖ R
+      ↔ (𝓝 0).HasBasis
+        (fun I : TwoSidedIdeal R ↦ IsOpen (I : Set R))
+        (fun I : TwoSidedIdeal R ↦ (I : Set R)) := ⟨
+  fun ⟨_, _⟩ ↦ hasBasis_open_twoSidedIdeal,
+  fun h ↦ ⟨
+    .mk_of_hasBasis' R h fun I r x hx ↦ I.mul_mem_left r x hx,
+    .mk_of_hasBasis' Rᵐᵒᵖ h fun I r x hx ↦ I.mul_mem_right x r.unop hx
+  ⟩
+⟩
 
-theorem tendsto_mul_zero_of_left [IsLinearTopology Rᵐᵒᵖ R] {ι : Type*} {f : Filter ι}
-    (a b : ι → R) (ha : Tendsto a f (𝓝 0)) :
-    Tendsto (a * b) f (𝓝 0) :=
+theorem tendsto_mul_zero_of_left
+    [IsLinearTopology Rᵐᵒᵖ R] {ι : Type*} {f : Filter ι} (a b : ι → R) (ha : Tendsto a f (𝓝 0))
+    : Tendsto (a * b) f (𝓝 0) :=
   tendsto_smul_zero (R := Rᵐᵒᵖ) _ _ ha
 
-theorem tendsto_mul_zero_of_right [IsLinearTopology R R] {ι : Type*} {f : Filter ι}
-    (a b : ι → R) (hb : Tendsto b f (𝓝 0)) :
-    Tendsto (a * b) f (𝓝 0) :=
+theorem tendsto_mul_zero_of_right
+    [IsLinearTopology R R] {ι : Type*} {f : Filter ι} (a b : ι → R) (hb : Tendsto b f (𝓝 0))
+    : Tendsto (a * b) f (𝓝 0) :=
   tendsto_smul_zero (R := R) _ _ hb
 
 end Ring
@@ -347,8 +370,7 @@ section CommRing
 variable {R : Type*} [CommRing R] [TopologicalSpace R]
 
 /-- If `R` is commutative and left-linearly topologized, it is also right-linearly topologized. -/
-instance (priority := 100) [IsLinearTopology R R] :
-    IsLinearTopology Rᵐᵒᵖ R := by
+instance (priority := 100) [IsLinearTopology R R] : IsLinearTopology Rᵐᵒᵖ R := by
   rwa [IsCentralScalar.isLinearTopology_iff]
 
 end CommRing

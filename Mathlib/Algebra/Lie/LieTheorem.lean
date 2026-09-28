@@ -146,11 +146,14 @@ private lemma weightSpaceOfIsLieTower_aux (z : L) (v : V) (hv : v ∈ weightSpac
   exact nontrivial_of_ne ⟨v, hvU⟩ 0 <| by simp [hv']
 
 variable (R V) in
-/-- The weight space of `V` with respect to `χ : A → R`, a priori a Lie submodule for `A`, is also a
-Lie submodule for `L`. -/
-def weightSpaceOfIsLieTower (χ : A → R) : LieSubmodule R L V :=
-  { toSubmodule := weightSpace V χ
-    lie_mem {z v} hv := private weightSpaceOfIsLieTower_aux χ z v hv }
+/--
+The weight space of `V` with respect to `χ : A → R`, a priori a Lie submodule for `A`, is also a
+Lie submodule for `L`.
+-/
+def weightSpaceOfIsLieTower (χ : A → R) : LieSubmodule R L V := {
+  toSubmodule := weightSpace V χ
+  lie_mem {z v} hv := private weightSpaceOfIsLieTower_aux χ z v hv
+}
 
 end
 
@@ -164,15 +167,16 @@ variable [CharZero k] [Module.Finite k V]
 
 set_option linter.style.whitespace false in -- manual alignment is not recognised
 open Submodule in
-theorem exists_nontrivial_weightSpace_of_lieIdeal [LieModule.IsTriangularizable k L V]
-    (A : LieIdeal k L) (hA : IsCoatom A.toSubmodule)
-    (χ₀ : Module.Dual k A) [Nontrivial (weightSpace V χ₀)] :
-    ∃ (χ : Module.Dual k L), Nontrivial (weightSpace V χ) := by
+theorem exists_nontrivial_weightSpace_of_lieIdeal
+    [LieModule.IsTriangularizable k L V]
+    (A : LieIdeal k L) (hA : IsCoatom A.toSubmodule) (χ₀ : Module.Dual k A)
+    [Nontrivial (weightSpace V χ₀)]
+    : ∃ (χ : Module.Dual k L), Nontrivial (weightSpace V χ) := by
   obtain ⟨z, -, hz⟩ := IsConcreteLE.exists_of_lt (hA.lt_top)
   let e : (k ∙ z) ≃ₗ[k] k := (LinearEquiv.toSpanNonzeroSingleton k L z <| by aesop).symm
   have he : ∀ x, e x • z = x := by simp [e]
   have hA : IsCompl A.toSubmodule (k ∙ z) := isCompl_span_singleton_of_isCoatom_of_notMem hA hz
-  let π₁ : L →ₗ[k] A       := A.toSubmodule.projectionOnto (k ∙ z) hA
+  let π₁ : L →ₗ[k] A := A.toSubmodule.projectionOnto (k ∙ z) hA
   let π₂ : L →ₗ[k] (k ∙ z) := (k ∙ z).projectionOnto ↑A hA.symm
   set W : LieSubmodule k L V := weightSpaceOfIsLieTower k V χ₀
   obtain ⟨c, hc⟩ : ∃ c, (toEnd k _ W z).HasEigenvalue c := by
@@ -188,14 +192,15 @@ theorem exists_nontrivial_weightSpace_of_lieIdeal [LieModule.IsTriangularizable 
     intro x
     have hπ : (π₁ x : L) + π₂ x = x := projection_add_projection_eq_self hA x
     suffices ⁅projection _ _ hA.symm x, v⁆ = (c • e (π₂ x)) • v by
-      calc ⁅x, v⁆
+      calc
+        ⁅x, v⁆
           = ⁅π₁ x, v⁆ + ⁅projection _ _ hA.symm x, v⁆ := congr(⁅$hπ.symm, v⁆) ▸ add_lie _ _ _
-        _ = χ₀ (π₁ x) • v + (c • e (π₂ x)) • v    := by rw [hv' (π₁ x), this]
+        _ = χ₀ (π₁ x) • v + (c • e (π₂ x)) • v := by rw [hv' (π₁ x), this]
         _ = _ := by simp [add_smul]
-    calc ⁅projection _ _ hA.symm x, v⁆
-        = e (π₂ x) • ↑(c • ⟨v, hv⟩ : W) := by
-          rw [projection_apply, ← he, smul_lie, ← hvc.apply_eq_smul]; rfl
-      _ = (c • e (π₂ x)) • v            := by rw [smul_assoc, smul_comm]; rfl
+    calc
+      ⁅projection _ _ hA.symm x, v⁆ = e (π₂ x) • ↑(c • ⟨v, hv⟩ : W) := by
+        rw [projection_apply, ← he, smul_lie, ← hvc.apply_eq_smul]; rfl
+      _ = (c • e (π₂ x)) • v := by rw [smul_assoc, smul_comm]; rfl
   · simpa [ne_eq, LieSubmodule.mk_eq_zero] using hvc.right
 
 variable (k L V)
@@ -229,16 +234,19 @@ decreasing_by
 
 attribute [local instance 100] LieRing.ofAssociativeRing
 
-/-- **Lie's theorem**: Lie modules of solvable Lie algebras over fields of characteristic 0
+/--
+**Lie's theorem**: Lie modules of solvable Lie algebras over fields of characteristic 0
 have a common eigenvector for the action of all elements of the Lie algebra.
 
 See `LieModule.exists_nontrivial_weightSpace_of_isNilpotent` for the variant that
-assumes that `L` is nilpotent and drops the condition that `k` is of characteristic zero. -/
+assumes that `L` is nilpotent and drops the condition that `k` is of characteristic zero.
+-/
 theorem exists_nontrivial_weightSpace_of_isSolvable
-    [IsSolvable L] [LieModule.IsTriangularizable k L V] :
-    ∃ χ : Module.Dual k L, Nontrivial (weightSpace V χ) := by
+    [IsSolvable L] [LieModule.IsTriangularizable k L V]
+    : ∃ χ : Module.Dual k L, Nontrivial (weightSpace V χ) := by
   let imL := (toEnd k L V).range
-  let toEndo : L →ₗ[k] imL := LinearMap.codRestrict imL.toSubmodule (toEnd k L V)
+  let toEndo : L →ₗ[k] imL :=
+    LinearMap.codRestrict imL.toSubmodule (toEnd k L V)
       (fun x ↦ LinearMap.mem_range.mpr ⟨x, rfl⟩ : ∀ x : L, (toEnd k L V) x ∈ imL)
   have ⟨χ, h⟩ := exists_forall_lie_eq_smul_of_isSolvable_of_finite k V imL
   use χ.comp toEndo

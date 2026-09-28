@@ -35,12 +35,14 @@ open CategoryTheory MorphismProperty Limits
 
 namespace AlgebraicGeometry
 
-/-- A morphism of schemes `f : X ⟶ Y` is étale if for each affine `U ⊆ Y` and
-`V ⊆ f ⁻¹' U`, The induced map `Γ(Y, U) ⟶ Γ(X, V)` is étale. -/
+/--
+A morphism of schemes `f : X ⟶ Y` is étale if for each affine `U ⊆ Y` and
+`V ⊆ f ⁻¹' U`, The induced map `Γ(Y, U) ⟶ Γ(X, V)` is étale.
+-/
 @[mk_iff]
 class Etale {X Y : Scheme.{u}} (f : X ⟶ Y) : Prop where
-  etale_appLE (f) :
-    ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
+  etale_appLE (f)
+    : ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
       (f.appLE U V e).hom.Etale
 
 alias Scheme.Hom.etale_appLE := Etale.etale_appLE
@@ -49,8 +51,10 @@ namespace Etale
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
-/-- The property of scheme morphisms `Etale` is associated with the ring
-homomorphism property `Etale`. -/
+/--
+The property of scheme morphisms `Etale` is associated with the ring
+homomorphism property `Etale`.
+-/
 instance : HasRingHomProperty @Etale RingHom.Etale where
   isLocal_ringHomProperty := RingHom.Etale.propertyIsLocal
   eq_affineLocally' := by
@@ -64,8 +68,7 @@ instance : MorphismProperty.IsMultiplicative @Etale :=
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The composition of étale morphisms is étale. -/
-instance etale_comp {Z : Scheme.{u}} (g : Y ⟶ Z) [Etale f] [Etale g] :
-    Etale (f ≫ g) :=
+instance etale_comp {Z : Scheme.{u}} (g : Y ⟶ Z) [Etale f] [Etale g] : Etale (f ≫ g) :=
   MorphismProperty.comp_mem _ f g ‹Etale f› ‹Etale g›
 
 /-- Etale is stable under base change. -/
@@ -77,21 +80,18 @@ instance (priority := 900) [IsOpenImmersion f] : Etale f :=
   HasRingHomProperty.of_isOpenImmersion RingHom.Etale.containsIdentities
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [Etale g] :
-    Etale (pullback.fst f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [Etale g] : Etale (pullback.fst f g) :=
   MorphismProperty.pullback_fst f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [Etale f] :
-    Etale (pullback.snd f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [Etale f] : Etale (pullback.snd f g) :=
   MorphismProperty.pullback_snd f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance (f : X ⟶ Y) (V : Y.Opens) [Etale f] : Etale (f ∣_ V) :=
   IsZariskiLocalAtTarget.restrict ‹_› V
 
-instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [Etale f] :
-    Etale (f.resLE V U e) := by
+instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [Etale f] : Etale (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
 
 lemma eq_smoothOfRelativeDimension_zero : @Etale = @SmoothOfRelativeDimension 0 := by
@@ -106,20 +106,18 @@ lemma eq_smoothOfRelativeDimension_zero : @Etale = @SmoothOfRelativeDimension 0 
 lemma iff_smoothOfRelativeDimension_zero : Etale f ↔ SmoothOfRelativeDimension 0 f := by
   rw [eq_smoothOfRelativeDimension_zero]
 
-instance [Etale f] : SmoothOfRelativeDimension 0 f := by
-  rwa [← iff_smoothOfRelativeDimension_zero]
+instance [Etale f] : SmoothOfRelativeDimension 0 f := by rwa [← iff_smoothOfRelativeDimension_zero]
 
-instance (priority := low) [Etale f] : Smooth f :=
-  SmoothOfRelativeDimension.smooth 0 f
+instance (priority := low) [Etale f] : Smooth f := SmoothOfRelativeDimension.smooth 0 f
 
 open RingHom in
 instance (priority := 900) [Etale f] : FormallyUnramified f where
-  formallyUnramified_appLE {_} hU {_} hV e :=
-    (f.etale_appLE hU hV e).formallyUnramified
+  formallyUnramified_appLE {_} hU {_} hV e := (f.etale_appLE hU hV e).formallyUnramified
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance : MorphismProperty.HasOfPostcompProperty
-    @Etale (@LocallyOfFiniteType ⊓ @FormallyUnramified) := by
+instance
+    : MorphismProperty.HasOfPostcompProperty @Etale
+      (@LocallyOfFiniteType ⊓ @FormallyUnramified) := by
   rw [MorphismProperty.hasOfPostcompProperty_iff_le_diagonal]
   intro X Y f ⟨hft, hfu⟩
   exact inferInstanceAs <| Etale (pullback.diagonal f)
@@ -165,8 +163,7 @@ instance {X : Scheme.{u}} {Z Y : X.Etale} (f : Z ⟶ Y) : Etale f.left := by
   exact Etale.of_comp f.left Y.hom
 
 /-- The forgetful functor from schemes étale over `X` to schemes over `X`. -/
-def Etale.forget : X.Etale ⥤ Over X :=
-  MorphismProperty.Over.forget @Etale ⊤ X
+def Etale.forget : X.Etale ⥤ Over X := MorphismProperty.Over.forget @Etale ⊤ X
 
 /-- The forgetful functor from schemes étale over `X` to schemes over `X` is fully faithful. -/
 def Etale.forgetFullyFaithful : (Etale.forget X).FullyFaithful :=
@@ -174,15 +171,15 @@ def Etale.forgetFullyFaithful : (Etale.forget X).FullyFaithful :=
 
 -- Note: using `deriving Functor.Full/Faithful` in the declaration of `Etale.forget`
 -- would "succeed", but it seems it would fail to create the next two instances
-instance : (Etale.forget X).Full :=
-  (Etale.forgetFullyFaithful X).full
+instance : (Etale.forget X).Full := (Etale.forgetFullyFaithful X).full
 
-instance : (Etale.forget X).Faithful :=
-  (Etale.forgetFullyFaithful X).faithful
+instance : (Etale.forget X).Faithful := (Etale.forgetFullyFaithful X).faithful
 
 variable {X} in
-/-- Constructor for objects in the étale site of a scheme `X`: it takes
-an étale morphism `f : Y ⟶ X` as an input. -/
+/--
+Constructor for objects in the étale site of a scheme `X`: it takes
+an étale morphism `f : Y ⟶ X` as an input.
+-/
 abbrev Etale.mk {Y : Scheme.{u}} (f : Y ⟶ X) [Etale f] : X.Etale :=
   MorphismProperty.Over.mk _ f inferInstance
 
@@ -203,10 +200,11 @@ instance (Y : X.Etale) : Etale (Y.left ↘ X) := Y.prop
 
 /-- Induction principle for the objects of the small étale site of a scheme. -/
 @[elab_as_elim, cases_eliminator, induction_eliminator]
-def Etale.rec {motive : X.Etale → Sort*}
+def Etale.rec
+    {motive : X.Etale → Sort*}
     (mk : ∀ (Y : Scheme.{u}) (f : Y ⟶ X) (_ : Etale f), motive (Etale.mk f))
-    (T : X.Etale) :
-    motive T :=
+    (T : X.Etale)
+    : motive T :=
   mk _ _ T.prop
 
 set_option backward.isDefEq.respectTransparency.types false in

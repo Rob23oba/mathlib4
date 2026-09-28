@@ -45,8 +45,7 @@ section concatFn
 
 variable {S : Finset (List α)} {r : ℕ}
 
-private def concatFn (w : Fin r → S) : List α :=
-  (List.ofFn (fun i => (w i).val)).flatten
+private def concatFn (w : Fin r → S) : List α := (List.ofFn (fun i => (w i).val)).flatten
 
 private lemma concatFn_length {w : Fin r → S} :
     (concatFn w).length = ∑ i : Fin r, (w i).val.length := by
@@ -140,18 +139,18 @@ private lemma kraft_mcmillan_inequality_aux {S : Finset (List α)} [Fintype α] 
 
 open Filter
 
-/-- **Kraft-McMillan Inequality**: If `S` is a finite uniquely decodable code,
-then `Σ D^{-|w|} ≤ 1`. -/
+/--
+**Kraft-McMillan Inequality**: If `S` is a finite uniquely decodable code,
+then `Σ D^{-|w|} ≤ 1`.
+-/
 public theorem IsUniquelyDecodable.finsetSum_one_div_card_pow_length_le_one
-    {S : Finset (List α)} [Fintype α] [Nonempty α]
-    (h : IsUniquelyDecodable (S : Set (List α))) :
-    ∑ w ∈ S, (1 / Fintype.card α : ℝ) ^ w.length ≤ 1 := by
+    {S : Finset (List α)} [Fintype α] [Nonempty α] (h : IsUniquelyDecodable (S : Set (List α)))
+    : ∑ w ∈ S, (1 / Fintype.card α : ℝ) ^ w.length ≤ 1 := by
   have h_kraft := kraft_mcmillan_inequality_aux h
   contrapose! h_kraft
   let K := ∑ w ∈ S, (1 / (Fintype.card α : ℝ)) ^ w.length
   let maxLen : ℕ := S.sup List.length
-  have hAbs : |1 / K| < 1 := by
-    grw [abs_of_pos (by positivity), div_lt_one] <;> grind
+  have hAbs : |1 / K| < 1 := by grw [abs_of_pos (by positivity), div_lt_one] <;> grind
   have : Tendsto (fun r : ℕ => r * maxLen / K ^ r) atTop (nhds 0) := by
     simpa [mul_left_comm, mul_div_assoc] using!
       (tendsto_self_mul_const_pow_of_abs_lt_one hAbs).const_mul (maxLen : ℝ)

@@ -57,19 +57,21 @@ namespace MeasureTheory
 
 namespace Measure
 
-theorem withDensity_rnDeriv_eq (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] (h : μ ≪ ν) :
-    ν.withDensity (rnDeriv μ ν) = μ := by
+theorem withDensity_rnDeriv_eq (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] (h : μ ≪ ν)
+    : ν.withDensity (rnDeriv μ ν) = μ := by
   suffices μ.singularPart ν = 0 by
     conv_rhs => rw [haveLebesgueDecomposition_add μ ν, this, zero_add]
   exact (singularPart_eq_zero μ ν).mpr h
 
 variable {μ ν : Measure α}
 
-/-- **The Radon-Nikodym theorem**: Given two measures `μ` and `ν`, if
+/--
+**The Radon-Nikodym theorem**: Given two measures `μ` and `ν`, if
 `HaveLebesgueDecomposition μ ν`, then `μ` is absolutely continuous to `ν` if and only if
-`ν.withDensity (rnDeriv μ ν) = μ`. -/
-theorem absolutelyContinuous_iff_withDensity_rnDeriv_eq
-    [HaveLebesgueDecomposition μ ν] : μ ≪ ν ↔ ν.withDensity (rnDeriv μ ν) = μ :=
+`ν.withDensity (rnDeriv μ ν) = μ`.
+-/
+theorem absolutelyContinuous_iff_withDensity_rnDeriv_eq [HaveLebesgueDecomposition μ ν]
+    : μ ≪ ν ↔ ν.withDensity (rnDeriv μ ν) = μ :=
   ⟨withDensity_rnDeriv_eq μ ν, fun h => h ▸ withDensity_absolutelyContinuous _ _⟩
 
 lemma rnDeriv_pos [HaveLebesgueDecomposition μ ν] (hμν : μ ≪ ν) :
@@ -563,8 +565,9 @@ open Measure
 
 variable {α : Type*} {m : MeasurableSpace α} {μ ν : Measure α}
 
-theorem lintegral_rnDeriv_mul [HaveLebesgueDecomposition μ ν] (hμν : μ ≪ ν) {f : α → ℝ≥0∞}
-    (hf : AEMeasurable f ν) : ∫⁻ x, μ.rnDeriv ν x * f x ∂ν = ∫⁻ x, f x ∂μ := by
+theorem lintegral_rnDeriv_mul
+    [HaveLebesgueDecomposition μ ν] (hμν : μ ≪ ν) {f : α → ℝ≥0∞} (hf : AEMeasurable f ν)
+    : ∫⁻ x, μ.rnDeriv ν x * f x ∂ν = ∫⁻ x, f x ∂μ := by
   nth_rw 2 [← withDensity_rnDeriv_eq μ ν hμν]
   rw [lintegral_withDensity_eq_lintegral_mul₀ (measurable_rnDeriv μ ν).aemeasurable hf]
   simp only [Pi.mul_apply]
@@ -576,23 +579,29 @@ lemma setLIntegral_rnDeriv_mul [HaveLebesgueDecomposition μ ν] (hμν : μ ≪
   rw [setLIntegral_withDensity_eq_lintegral_mul₀ (measurable_rnDeriv μ ν).aemeasurable hf hs]
   simp only [Pi.mul_apply]
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [HaveLebesgueDecomposition μ ν]
-  [SigmaFinite μ] {f : α → E}
+variable
+  {E : Type*}
+  [NormedAddCommGroup E] [NormedSpace ℝ E] [HaveLebesgueDecomposition μ ν] [SigmaFinite μ]
+  {f : α → E}
 
-theorem integrable_rnDeriv_smul_iff (hμν : μ ≪ ν) :
-    Integrable (fun x ↦ (μ.rnDeriv ν x).toReal • f x) ν ↔ Integrable f μ := by
+theorem integrable_rnDeriv_smul_iff (hμν : μ ≪ ν)
+    : Integrable (fun x ↦ (μ.rnDeriv ν x).toReal • f x) ν ↔ Integrable f μ := by
   nth_rw 2 [← withDensity_rnDeriv_eq μ ν hμν]
-  rw [← integrable_withDensity_iff_integrable_smul' (E := E)
-    (measurable_rnDeriv μ ν) (rnDeriv_lt_top μ ν)]
+  rw [
+    ← integrable_withDensity_iff_integrable_smul' (E := E) (measurable_rnDeriv μ ν)
+      (rnDeriv_lt_top μ ν)
+  ]
 
 lemma integrable_toReal_rnDeriv_mul_iff (hμν : μ ≪ ν) {f : α → ℝ} :
     Integrable (fun x ↦ (μ.rnDeriv ν x).toReal * f x) ν ↔ Integrable f μ :=
   integrable_rnDeriv_smul_iff hμν
 
-theorem integral_rnDeriv_smul (hμν : μ ≪ ν) :
-    ∫ x, (μ.rnDeriv ν x).toReal • f x ∂ν = ∫ x, f x ∂μ := by
-  rw [← integral_withDensity_eq_integral_toReal_smul (measurable_rnDeriv _ _) (rnDeriv_lt_top _ _),
-    withDensity_rnDeriv_eq _ _ hμν]
+theorem integral_rnDeriv_smul (hμν : μ ≪ ν)
+    : ∫ x, (μ.rnDeriv ν x).toReal • f x ∂ν = ∫ x, f x ∂μ := by
+  rw [
+    ← integral_withDensity_eq_integral_toReal_smul (measurable_rnDeriv _ _) (rnDeriv_lt_top _ _),
+    withDensity_rnDeriv_eq _ _ hμν
+  ]
 
 lemma integral_toReal_rnDeriv_mul (hμν : μ ≪ ν) {f : α → ℝ} :
     ∫ x, (μ.rnDeriv ν x).toReal * f x ∂ν = ∫ x, f x ∂μ := integral_rnDeriv_smul hμν
@@ -631,42 +640,60 @@ section Conv
 
 open Measure
 
-variable {G : Type*} [Group G] {mG : MeasurableSpace G} [MeasurableMul₂ G] [MeasurableInv G]
+variable
+  {G : Type*} [Group G]
+  {mG : MeasurableSpace G} [MeasurableMul₂ G] [MeasurableInv G]
   {μ : Measure G} [IsMulLeftInvariant μ]
 
 @[to_additive]
-theorem mconv_eq_withDensity_mlconvolution_rnDeriv [SFinite μ] {ν₁ ν₂ : Measure G}
-    [ν₁.HaveLebesgueDecomposition μ] [ν₂.HaveLebesgueDecomposition μ]
-    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ) :
-    ν₁ ∗ₘ ν₂ = μ.withDensity (ν₁.rnDeriv μ ⋆ₘₗ[μ] ν₂.rnDeriv μ) := by
-  rw [← mconv_withDensity_eq_mlconvolution (by fun_prop) (by fun_prop),
-    withDensity_rnDeriv_eq _ _ hν₁, withDensity_rnDeriv_eq _ _ hν₂]
+theorem mconv_eq_withDensity_mlconvolution_rnDeriv
+    [SFinite μ]
+    {ν₁ ν₂ : Measure G} [ν₁.HaveLebesgueDecomposition μ] [ν₂.HaveLebesgueDecomposition μ]
+    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ)
+    : ν₁ ∗ₘ ν₂ = μ.withDensity (ν₁.rnDeriv μ ⋆ₘₗ[μ] ν₂.rnDeriv μ) := by
+  rw [
+    ← mconv_withDensity_eq_mlconvolution (by fun_prop) (by fun_prop),
+    withDensity_rnDeriv_eq _ _ hν₁, withDensity_rnDeriv_eq _ _ hν₂
+  ]
 
 @[to_additive]
-theorem HaveLebesgueDecomposition.mconv [SFinite μ] {ν₁ ν₂ : Measure G}
-    [ν₁.HaveLebesgueDecomposition μ] [ν₂.HaveLebesgueDecomposition μ]
-    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ) : (ν₁ ∗ₘ ν₂).HaveLebesgueDecomposition μ :=
-  ⟨⟨0, (ν₁.rnDeriv μ) ⋆ₘₗ[μ] (ν₂.rnDeriv μ)⟩, by fun_prop, by simp,
-    by simpa using mconv_eq_withDensity_mlconvolution_rnDeriv hν₁ hν₂⟩
+theorem HaveLebesgueDecomposition.mconv
+    [SFinite μ]
+    {ν₁ ν₂ : Measure G} [ν₁.HaveLebesgueDecomposition μ] [ν₂.HaveLebesgueDecomposition μ]
+    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ)
+    : (ν₁ ∗ₘ ν₂).HaveLebesgueDecomposition μ := ⟨
+  ⟨0, (ν₁.rnDeriv μ) ⋆ₘₗ[μ] (ν₂.rnDeriv μ)⟩,
+  by fun_prop,
+  by simp,
+  by simpa using mconv_eq_withDensity_mlconvolution_rnDeriv hν₁ hν₂
+⟩
 
 @[to_additive]
-theorem rnDeriv_mconv [SFinite μ] {ν₁ ν₂ : Measure G} [IsFiniteMeasure ν₁] [IsFiniteMeasure ν₂]
-    [ν₁.HaveLebesgueDecomposition μ] [ν₂.HaveLebesgueDecomposition μ]
-    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ) :
-    (ν₁ ∗ₘ ν₂).rnDeriv μ =ᵐ[μ] (ν₁.rnDeriv μ) ⋆ₘₗ[μ] (ν₂.rnDeriv μ) := by
+theorem rnDeriv_mconv
+    [SFinite μ]
+    {ν₁ ν₂ : Measure G} [IsFiniteMeasure ν₁] [IsFiniteMeasure ν₂] [ν₁.HaveLebesgueDecomposition μ]
+    [ν₂.HaveLebesgueDecomposition μ]
+    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ)
+    : (ν₁ ∗ₘ ν₂).rnDeriv μ =ᵐ[μ] (ν₁.rnDeriv μ) ⋆ₘₗ[μ] (ν₂.rnDeriv μ) := by
   have := HaveLebesgueDecomposition.mconv hν₁ hν₂
-  rw [← withDensity_eq_iff (by fun_prop) (by fun_prop),
+  rw [
+    ← withDensity_eq_iff (by fun_prop) (by fun_prop),
     withDensity_rnDeriv_eq _ _ (mconv_absolutelyContinuous hν₂),
-    mconv_eq_withDensity_mlconvolution_rnDeriv hν₁ hν₂]
+    mconv_eq_withDensity_mlconvolution_rnDeriv hν₁ hν₂
+  ]
   exact (lintegral_rnDeriv_lt_top (ν₁ ∗ₘ ν₂) μ).ne
 
 @[to_additive]
-theorem rnDeriv_mconv' [SigmaFinite μ] {ν₁ ν₂ : Measure G} [SigmaFinite ν₁] [SigmaFinite ν₂]
-    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ) :
-    (ν₁ ∗ₘ ν₂).rnDeriv μ =ᵐ[μ] (ν₁.rnDeriv μ) ⋆ₘₗ[μ] (ν₂.rnDeriv μ) := by
-  rw [← withDensity_eq_iff_of_sigmaFinite (by fun_prop) (by fun_prop),
+theorem rnDeriv_mconv'
+    [SigmaFinite μ]
+    {ν₁ ν₂ : Measure G} [SigmaFinite ν₁] [SigmaFinite ν₂]
+    (hν₁ : ν₁ ≪ μ) (hν₂ : ν₂ ≪ μ)
+    : (ν₁ ∗ₘ ν₂).rnDeriv μ =ᵐ[μ] (ν₁.rnDeriv μ) ⋆ₘₗ[μ] (ν₂.rnDeriv μ) := by
+  rw [
+    ← withDensity_eq_iff_of_sigmaFinite (by fun_prop) (by fun_prop),
     ← mconv_eq_withDensity_mlconvolution_rnDeriv hν₁ hν₂,
-    withDensity_rnDeriv_eq _ _ (mconv_absolutelyContinuous hν₂)]
+    withDensity_rnDeriv_eq _ _ (mconv_absolutelyContinuous hν₂)
+  ]
 
 end Conv
 

@@ -7,7 +7,6 @@ module
 
 public meta import Mathlib.Basic.Logic.Basic
 public meta import Plausible.Testable
-
 public import Mathlib.Tactic.Basic
 public import Plausible.Gen
 public import Plausible.Testable

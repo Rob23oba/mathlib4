@@ -34,13 +34,14 @@ open CategoryTheory Category Limits
 
 namespace HomologicalComplex
 
-variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'}
-  {C : Type*} [Category* C]
+variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'} {C : Type*} [Category* C]
 
 section
 
-variable [HasZeroMorphisms C] (K L : HomologicalComplex C c') (φ : K ⟶ L) (e : c.Embedding c')
-  [e.IsTruncLE] [∀ i', K.HasHomology i'] [∀ i', L.HasHomology i']
+variable
+  [HasZeroMorphisms C]
+  (K L : HomologicalComplex C c') (φ : K ⟶ L)
+  (e : c.Embedding c') [e.IsTruncLE] [∀ i', K.HasHomology i'] [∀ i', L.HasHomology i']
 
 namespace truncLE'
 
@@ -134,8 +135,8 @@ lemma shortComplexTruncLE_shortExact_δ_eq_zero (i' j' : ι') (hij' : c'.Rel i' 
   · apply ((K.truncLE e).exactAt_of_isSupported e j'
       (by simpa using hj)).isZero_homology.eq_of_tgt
 
-instance epi_homologyMap_shortComplexTruncLE_g (i' : ι') :
-    Epi (homologyMap (K.shortComplexTruncLE e).g i') := by
+instance epi_homologyMap_shortComplexTruncLE_g (i' : ι')
+    : Epi (homologyMap (K.shortComplexTruncLE e).g i') := by
   by_cases hi' : ∃ j', c'.Rel i' j'
   · obtain ⟨j', hj'⟩ := hi'
     exact ((K.shortComplexTruncLE_shortExact e).homology_exact₃ i' j' hj').epi_f (by simp)

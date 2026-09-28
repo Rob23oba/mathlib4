@@ -24,7 +24,8 @@ namespace CategoryTheory
 
 open Limits Pretriangulated
 
-variable {C : Type*} [Category* C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
+variable
+  {C : Type*} [Category* C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
   [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
 namespace Triangulated
@@ -33,8 +34,10 @@ namespace TStructure
 
 variable (t : TStructure C)
 
-/-- Given a t-structure `t` on a pretriangulated category `C` and `n : ℤ`, this
-is the `≤ n`-truncation functor. See also the natural transformation `truncLEι`. -/
+/--
+Given a t-structure `t` on a pretriangulated category `C` and `n : ℤ`, this
+is the `≤ n`-truncation functor. See also the natural transformation `truncLEι`.
+-/
 noncomputable def truncLE (n : ℤ) : C ⥤ C := t.truncLT (n + 1)
 
 instance (n : ℤ) : (t.truncLE n).Additive := by
@@ -45,11 +48,12 @@ lemma isLE_truncLE_obj (X : C) (a b : ℤ) (hn : a ≤ b := by lia) :
     t.IsLE ((t.truncLE a).obj X) b :=
   t.isLE_truncLT_obj ..
 
-instance (n : ℤ) (X : C) : t.IsLE ((t.truncLE n).obj X) n :=
-  t.isLE_truncLE_obj ..
+instance (n : ℤ) (X : C) : t.IsLE ((t.truncLE n).obj X) n := t.isLE_truncLE_obj ..
 
-/-- Given a t-structure `t` on a pretriangulated category `C` and `n : ℤ`, this
-is the `> n`-truncation functor. See also the natural transformation `truncGTπ`. -/
+/--
+Given a t-structure `t` on a pretriangulated category `C` and `n : ℤ`, this
+is the `> n`-truncation functor. See also the natural transformation `truncGTπ`.
+-/
 noncomputable def truncGT (n : ℤ) : C ⥤ C := t.truncGE (n + 1)
 
 instance (n : ℤ) : (t.truncGT n).Additive := by
@@ -60,24 +64,22 @@ lemma isGE_truncGT_obj (X : C) (a b : ℤ) (hn : b ≤ a + 1 := by lia) :
     t.IsGE ((t.truncGT a).obj X) b :=
   t.isGE_truncGE_obj ..
 
-instance (n : ℤ) (X : C) : t.IsGE ((t.truncGT n).obj X) (n + 1) :=
-  t.isGE_truncGT_obj ..
+instance (n : ℤ) (X : C) : t.IsGE ((t.truncGT n).obj X) (n + 1) := t.isGE_truncGT_obj ..
 
-instance (n : ℤ) (X : C) : t.IsGE ((t.truncGT (n - 1)).obj X) n :=
-  t.isGE_truncGT_obj ..
+instance (n : ℤ) (X : C) : t.IsGE ((t.truncGT (n - 1)).obj X) n := t.isGE_truncGT_obj ..
 
 /-- The isomorphism `t.truncLE a ≅ t.truncLT b` when `a + 1 = b`. -/
-noncomputable def truncLEIsoTruncLT (a b : ℤ) (h : a + 1 = b) :
-    t.truncLE a ≅ t.truncLT b :=
+noncomputable def truncLEIsoTruncLT (a b : ℤ) (h : a + 1 = b) : t.truncLE a ≅ t.truncLT b :=
   eqToIso (by rw [← h]; rfl)
 
 /-- The isomorphism `t.truncGT a ≅ t.truncGE b` when `a + 1 = b`. -/
-noncomputable def truncGTIsoTruncGE (a b : ℤ) (h : a + 1 = b) :
-    t.truncGT a ≅ t.truncGE b :=
+noncomputable def truncGTIsoTruncGE (a b : ℤ) (h : a + 1 = b) : t.truncGT a ≅ t.truncGE b :=
   eqToIso (by rw [← h]; rfl)
 
-/-- The natural transformation `t.truncLE n ⟶ 𝟭 C` when `t` is a t-structure
-on a category `C` and `n : ℤ`. -/
+/--
+The natural transformation `t.truncLE n ⟶ 𝟭 C` when `t` is a t-structure
+on a category `C` and `n : ℤ`.
+-/
 noncomputable def truncLEι (n : ℤ) : t.truncLE n ⟶ 𝟭 C := t.truncLTι (n + 1)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -109,8 +111,7 @@ lemma truncLEIsoTruncLT_inv_ι_app (a b : ℤ) (h : a + 1 = b) (X : C) :
   congr_app (t.truncLEIsoTruncLT_inv_ι a b h) X
 
 /-- The natural transformation `t.truncLE a ⟶ t.truncLE b` when `a ≤ b`. -/
-noncomputable def natTransTruncLEOfLE (a b : ℤ) (h : a ≤ b) :
-    t.truncLE a ⟶ t.truncLE b :=
+noncomputable def natTransTruncLEOfLE (a b : ℤ) (h : a ≤ b) : t.truncLE a ⟶ t.truncLE b :=
   t.natTransTruncLTOfLE (a + 1) (b + 1) (by lia)
 
 @[reassoc (attr := simp)]
@@ -144,8 +145,10 @@ lemma natTransTruncLEOfLE_trans_app (a b c : ℤ) (hab : a ≤ b) (hbc : b ≤ c
       (t.natTransTruncLEOfLE a c (hab.trans hbc)).app X :=
   congr_app (t.natTransTruncLEOfLE_trans a b c hab hbc) X
 
-/-- The natural transformation `𝟭 C ⟶ t.truncGT n` when `t` is a t-structure
-on a category `C` and `n : ℤ`. -/
+/--
+The natural transformation `𝟭 C ⟶ t.truncGT n` when `t` is a t-structure
+on a category `C` and `n : ℤ`.
+-/
 noncomputable def truncGTπ (n : ℤ) : 𝟭 C ⟶ t.truncGT n := t.truncGEπ (n + 1)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -176,59 +179,73 @@ lemma π_truncGTIsoTruncGE_inv_ι_app (a b : ℤ) (h : a + 1 = b) (X : C) :
     (t.truncGEπ b).app X ≫ (t.truncGTIsoTruncGE a b h).inv.app X = (t.truncGTπ a).app X :=
   congr_app (t.π_truncGTIsoTruncGE_inv a b h) X
 
-/-- The connecting homomorphism `(t.truncGE b).obj X ⟶ ((t.truncLE a).obj X)⟦1⟧`
-when `a + 1 = b`, as a natural transformation. -/
-noncomputable def truncGEδLE (a b : ℤ) (h : a + 1 = b) :
-    t.truncGE b ⟶ t.truncLE a ⋙ shiftFunctor C (1 : ℤ) :=
+/--
+The connecting homomorphism `(t.truncGE b).obj X ⟶ ((t.truncLE a).obj X)⟦1⟧`
+when `a + 1 = b`, as a natural transformation.
+-/
+noncomputable def truncGEδLE (a b : ℤ) (h : a + 1 = b)
+    : t.truncGE b ⟶ t.truncLE a ⋙ shiftFunctor C (1 : ℤ) :=
   t.truncGEδLT b ≫ Functor.whiskerRight (t.truncLEIsoTruncLT a b h).inv (shiftFunctor C (1 : ℤ))
 
-/-- The distinguished triangle `(t.truncLE a).obj A ⟶ A ⟶ (t.truncGE b).obj A ⟶ ...`
+/--
+The distinguished triangle `(t.truncLE a).obj A ⟶ A ⟶ (t.truncGE b).obj A ⟶ ...`
 as a functor `C ⥤ Triangle C` when `t` is a `t`-structure on a pretriangulated
-category `C` and `a + 1 = b`. -/
+category `C` and `a + 1 = b`.
+-/
 @[simps!]
 noncomputable def triangleLEGE (a b : ℤ) (h : a + 1 = b) : C ⥤ Triangle C :=
   Triangle.functorMk (t.truncLEι a) (t.truncGEπ b) (t.truncGEδLE a b h)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The natural isomorphism of triangles `t.triangleLEGE a b h ≅ t.triangleLTGE b`
-when `a + 1 = b`. -/
-noncomputable def triangleLEGEIsoTriangleLTGE (a b : ℤ) (h : a + 1 = b) :
-    t.triangleLEGE a b h ≅ t.triangleLTGE b := by
+/--
+The natural isomorphism of triangles `t.triangleLEGE a b h ≅ t.triangleLTGE b`
+when `a + 1 = b`.
+-/
+noncomputable def triangleLEGEIsoTriangleLTGE (a b : ℤ) (h : a + 1 = b)
+    : t.triangleLEGE a b h ≅ t.triangleLTGE b := by
   refine Triangle.functorIsoMk _ _ (t.truncLEIsoTruncLT a b h) (Iso.refl _) (Iso.refl _) ?_ ?_ ?_
   · cat_disch
   · cat_disch
   · ext
     dsimp [truncGEδLE]
-    simp only [Category.assoc, Category.id_comp, ← Functor.map_comp,
-      Iso.inv_hom_id_app, Functor.map_id, Category.comp_id]
+    simp only [
+      Category.assoc, Category.id_comp, ← Functor.map_comp, Iso.inv_hom_id_app, Functor.map_id,
+      Category.comp_id
+    ]
 
 lemma triangleLEGE_distinguished (a b : ℤ) (h : a + 1 = b) (X : C) :
     (t.triangleLEGE a b h).obj X ∈ distTriang C :=
   isomorphic_distinguished _ (t.triangleLTGE_distinguished b X) _
     ((t.triangleLEGEIsoTriangleLTGE a b h).app X)
 
-/-- The connecting homomorphism `(t.truncGT n).obj X ⟶ ((t.truncLE n).obj X)⟦1⟧`
-for `n : ℤ`, as a natural transformation. -/
-noncomputable def truncGTδLE (n : ℤ) :
-    t.truncGT n ⟶ t.truncLE n ⋙ shiftFunctor C (1 : ℤ) :=
+/--
+The connecting homomorphism `(t.truncGT n).obj X ⟶ ((t.truncLE n).obj X)⟦1⟧`
+for `n : ℤ`, as a natural transformation.
+-/
+noncomputable def truncGTδLE (n : ℤ) : t.truncGT n ⟶ t.truncLE n ⋙ shiftFunctor C (1 : ℤ) :=
   (t.truncGTIsoTruncGE n (n + 1) rfl).hom ≫ t.truncGEδLE n (n + 1) (by lia)
 
-/-- The distinguished triangle `(t.truncLE n).obj A ⟶ A ⟶ (t.truncGT n).obj A ⟶ ...`
+/--
+The distinguished triangle `(t.truncLE n).obj A ⟶ A ⟶ (t.truncGT n).obj A ⟶ ...`
 as a functor `C ⥤ Triangle C` when `t` is a t-structure on a pretriangulated
-category `C` and `n : ℤ`. -/
+category `C` and `n : ℤ`.
+-/
 @[simps!]
 noncomputable def triangleLEGT (n : ℤ) : C ⥤ Triangle C :=
   Triangle.functorMk (t.truncLEι n) (t.truncGTπ n) (t.truncGTδLE n)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The natural isomorphism `t.triangleLEGT a ≅ t.triangleLEGE a b h`
-when `a + 1 = b`. -/
-noncomputable def triangleLEGTIsoTriangleLEGE (a b : ℤ) (h : a + 1 = b) :
-    t.triangleLEGT a ≅ t.triangleLEGE a b h :=
-  Triangle.functorIsoMk _ _ (Iso.refl _) (Iso.refl _) (t.truncGTIsoTruncGE a b h)
-    (by cat_disch) (by cat_disch) (by
+/--
+The natural isomorphism `t.triangleLEGT a ≅ t.triangleLEGE a b h`
+when `a + 1 = b`.
+-/
+noncomputable def triangleLEGTIsoTriangleLEGE (a b : ℤ) (h : a + 1 = b)
+    : t.triangleLEGT a ≅ t.triangleLEGE a b h :=
+  Triangle.functorIsoMk _ _ (Iso.refl _) (Iso.refl _) (t.truncGTIsoTruncGE a b h) (by cat_disch)
+    (by cat_disch)
+    (by
       ext
       dsimp [truncGTδLE]
       subst h
@@ -287,8 +304,7 @@ lemma liftTruncLE_aux :
     (t.zero_of_isLE_of_isGE _ n (n + 1) (by lia) inferInstance (by dsimp; infer_instance))
 
 /-- Constructor for morphisms to `(t.truncLE n).obj Y`. -/
-noncomputable def liftTruncLE :
-    X ⟶ (t.truncLE n).obj Y := (t.liftTruncLE_aux f n).choose
+noncomputable def liftTruncLE : X ⟶ (t.truncLE n).obj Y := (t.liftTruncLE_aux f n).choose
 
 @[reassoc (attr := simp)]
 lemma liftTruncLE_ι :
@@ -309,9 +325,7 @@ lemma descTruncGT_aux :
     (t.zero_of_isLE_of_isGE _ n₀ n₁ (by lia) (by dsimp; infer_instance) inferInstance)
 
 /-- Constructor for morphisms from `(t.truncGT n₀).obj Y`. -/
-noncomputable def descTruncGT :
-    (t.truncGT n₀).obj X ⟶ Y :=
-  (t.descTruncGT_aux f n₀ n₁ h).choose
+noncomputable def descTruncGT : (t.truncGT n₀).obj X ⟶ Y := (t.descTruncGT_aux f n₀ n₁ h).choose
 
 @[reassoc (attr := simp)]
 lemma π_descTruncGT :
@@ -348,12 +362,11 @@ noncomputable abbrev truncLEGE (a b : ℤ) : C ⥤ C := t.truncGE a ⋙ t.truncL
 noncomputable abbrev truncGELE (a b : ℤ) : C ⥤ C := t.truncLE b ⋙ t.truncGE a
 
 set_option backward.defeqAttrib.useBackward true in
-instance (X : C) (a b : ℤ) : t.IsGE ((t.truncGELE a b).obj X) a := by
-  dsimp; infer_instance
+instance (X : C) (a b : ℤ) : t.IsGE ((t.truncGELE a b).obj X) a := by dsimp; infer_instance
 
 /-- The natural isomorphism `t.truncGELE a b ≅ t.truncGELT a b'` when `b + 1 = b'`. -/
-noncomputable def truncGELEIsoTruncGELT (a b b' : ℤ) (hb' : b + 1 = b') :
-    t.truncGELE a b ≅ t.truncGELT a b' :=
+noncomputable def truncGELEIsoTruncGELT (a b b' : ℤ) (hb' : b + 1 = b')
+    : t.truncGELE a b ≅ t.truncGELT a b' :=
   Functor.isoWhiskerRight (t.truncLEIsoTruncLT b b' hb') _
 
 section
@@ -371,22 +384,17 @@ lemma isIso₂_truncGT_map_of_isLE (T : Triangle C) (hT : T ∈ distTriang C)
     IsIso ((t.truncGT n₀).map T.mor₂) :=
   t.isIso₂_truncGE_map_of_isLE _ hT _ _ rfl h₁
 
-instance (X : C) (a b : ℤ) [t.IsGE X a] :
-    t.IsGE ((t.truncLE b).obj X) a := by
+instance (X : C) (a b : ℤ) [t.IsGE X a] : t.IsGE ((t.truncLE b).obj X) a := by
   dsimp [truncLE]; infer_instance
 
-instance (X : C) (a b : ℤ) [t.IsLE X b] :
-    t.IsLE ((t.truncGT a).obj X) b := by
+instance (X : C) (a b : ℤ) [t.IsLE X b] : t.IsLE ((t.truncGT a).obj X) b := by
   dsimp [truncGT]; infer_instance
 
-instance (X : C) (a b : ℤ) [t.IsGE X a] :
-    t.IsGE ((t.truncLE b).obj X) a := by
+instance (X : C) (a b : ℤ) [t.IsGE X a] : t.IsGE ((t.truncLE b).obj X) a := by
   dsimp [truncLE]; infer_instance
 
 set_option backward.defeqAttrib.useBackward true in
-instance (X : C) (a b : ℤ) :
-    t.IsLE ((t.truncGELE a b).obj X) b := by
-  dsimp; infer_instance
+instance (X : C) (a b : ℤ) : t.IsLE ((t.truncGELE a b).obj X) b := by dsimp; infer_instance
 
 lemma isIso_truncLE_map_truncLEι_app (a b : ℤ) (h : a ≤ b) (X : C) :
     IsIso ((t.truncLE a).map ((t.truncLEι b).app X)) :=

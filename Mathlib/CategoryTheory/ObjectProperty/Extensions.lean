@@ -35,12 +35,14 @@ section
 
 variable [HasZeroMorphisms C]
 
-/-- Given `P : ObjectProperty C`, we say that `P` is closed under extensions
+/--
+Given `P : ObjectProperty C`, we say that `P` is closed under extensions
 if whenever `0 ⟶ X₁ ⟶ X₂ ⟶ X₃ ⟶ 0` is a short exact short complex,
-then `P X₁` and `P X₃` implies `P X₂`. -/
+then `P X₁` and `P X₃` implies `P X₂`.
+-/
 class IsClosedUnderExtensions : Prop where
-  prop_X₂_of_shortExact {S : ShortComplex C} (hS : S.ShortExact)
-      (h₁ : P S.X₁) (h₃ : P S.X₃) : P S.X₂
+  prop_X₂_of_shortExact {S : ShortComplex C} (hS : S.ShortExact) (h₁ : P S.X₁) (h₃ : P S.X₃)
+    : P S.X₂
 
 lemma prop_X₂_of_shortExact [P.IsClosedUnderExtensions]
     {S : ShortComplex C} (hS : S.ShortExact)
@@ -51,13 +53,13 @@ instance : (⊤ : ObjectProperty C).IsClosedUnderExtensions where
   prop_X₂_of_shortExact := by simp
 
 instance : IsClosedUnderExtensions (IsZero (C := C)) where
-  prop_X₂_of_shortExact hS h₁ h₃ :=
-    hS.exact.isZero_of_both_isZero h₁ h₃
+  prop_X₂_of_shortExact hS h₁ h₃ := hS.exact.isZero_of_both_isZero h₁ h₃
 
-instance [P.IsClosedUnderExtensions] (F : D ⥤ C)
-    [HasZeroMorphisms D] [F.PreservesZeroMorphisms]
-    [PreservesFiniteLimits F] [PreservesFiniteColimits F] :
-    (P.inverseImage F).IsClosedUnderExtensions where
+instance
+    [P.IsClosedUnderExtensions]
+    (F : D ⥤ C) [HasZeroMorphisms D] [F.PreservesZeroMorphisms] [PreservesFiniteLimits F]
+    [PreservesFiniteColimits F]
+    : (P.inverseImage F).IsClosedUnderExtensions where
   prop_X₂_of_shortExact hS h₁ h₃ := by
     have := hS.mono_f
     have := hS.epi_g

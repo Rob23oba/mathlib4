@@ -32,16 +32,21 @@ variable {C : Type*} [Category* C] [HasPullbacks C]
 /-- A choice of finite products of `Over X` given by `Limits.pullback`. -/
 abbrev cartesianMonoidalCategory (X : C) : CartesianMonoidalCategory (Over X) :=
   .ofChosenFiniteProducts
-    ⟨asEmptyCone (Over.mk (𝟙 X)), IsTerminal.ofUniqueHom (fun Y ↦ Over.homMk Y.hom)
-      fun Y m ↦ Over.OverMorphism.ext (by simpa using m.w)⟩
-    fun Y Z ↦ ⟨pullbackConeEquivBinaryFan.functor.obj (pullback.cone Y.hom Z.hom),
-    (pullback.isLimit _ _).pullbackConeEquivBinaryFanFunctor⟩
+    ⟨
+      asEmptyCone (Over.mk (𝟙 X)),
+      IsTerminal.ofUniqueHom
+        (fun Y ↦ Over.homMk Y.hom)
+        fun Y m ↦ Over.OverMorphism.ext (by simpa using m.w)
+    ⟩
+    fun Y Z ↦ ⟨
+      pullbackConeEquivBinaryFan.functor.obj (pullback.cone Y.hom Z.hom),
+      (pullback.isLimit _ _).pullbackConeEquivBinaryFanFunctor
+    ⟩
 
 attribute [local instance] cartesianMonoidalCategory
 
 /-- `Over X` is braided w.r.t. the Cartesian monoidal structure given by `Limits.pullback`. -/
-abbrev braidedCategory (X : C) : BraidedCategory (Over X) :=
-  .ofCartesianMonoidalCategory
+abbrev braidedCategory (X : C) : BraidedCategory (Over X) := .ofCartesianMonoidalCategory
 
 attribute [local instance] braidedCategory
 
@@ -295,8 +300,8 @@ abbrev monObjMkPullbackSnd [MonObj (Over.mk f)] : MonObj (Over.mk <| pullback.sn
 
 attribute [local instance] monObjMkPullbackSnd
 
-instance isCommMonObj_mk_pullbackSnd [MonObj (Over.mk f)] [IsCommMonObj (Over.mk f)] :
-    IsCommMonObj (Over.mk <| pullback.snd f g) :=
+instance isCommMonObj_mk_pullbackSnd [MonObj (Over.mk f)] [IsCommMonObj (Over.mk f)]
+    : IsCommMonObj (Over.mk <| pullback.snd f g) :=
   ((Over.pullback g).mapCommMon.obj <| .mk <| .mk f).comm
 
 /-- The pullback of a monoid object is a monoid object. -/
@@ -306,8 +311,8 @@ abbrev grpObjMkPullbackSnd [GrpObj (Over.mk f)] : GrpObj (Over.mk (pullback.snd 
 
 set_option backward.defeqAttrib.useBackward true in
 attribute [local simp] monObjMkPullbackSnd_one in
-instance isMonHom_pullbackFst_id_right [MonObj (Over.mk f)] :
-    IsMonHom <| Over.homMk (U := Over.mk <| pullback.snd f (𝟙 X)) (V := Over.mk f)
+instance isMonHom_pullbackFst_id_right [MonObj (Over.mk f)]
+    : IsMonHom <| Over.homMk (U := Over.mk <| pullback.snd f (𝟙 X)) (V := Over.mk f)
       (pullback.fst f (𝟙 X)) (pullback.condition.trans <| by simp) where
   mul_hom := by
     ext

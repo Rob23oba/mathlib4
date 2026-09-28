@@ -28,23 +28,31 @@ open Category Limits
 
 variable {C : Type*} [Category C] {I : Type*} {D : I → Type*} [∀ i, Category (D i)]
 
-/-- A family of functors jointly reflects isomorphisms if for every morphism `f : X ⟶ Y`
-such that the image of `f` under all `F i` is an isomorphism, then `f` is an isomorphism. -/
+/--
+A family of functors jointly reflects isomorphisms if for every morphism `f : X ⟶ Y`
+such that the image of `f` under all `F i` is an isomorphism, then `f` is an isomorphism.
+-/
 structure JointlyReflectIsomorphisms (F : ∀ i, C ⥤ D i) : Prop where
   isIso {X Y : C} (f : X ⟶ Y) [∀ i, IsIso ((F i).map f)] : IsIso f
 
-/-- A family of functors jointly reflects monomorphisms if for every morphism `f : X ⟶ Y`
-such that the image of `f` under all `F i` is an monomorphism, then `f` is an monomorphism. -/
+/--
+A family of functors jointly reflects monomorphisms if for every morphism `f : X ⟶ Y`
+such that the image of `f` under all `F i` is an monomorphism, then `f` is an monomorphism.
+-/
 structure JointlyReflectMonomorphisms (F : ∀ i, C ⥤ D i) : Prop where
   mono {X Y : C} (f : X ⟶ Y) [∀ i, Mono ((F i).map f)] : Mono f
 
-/-- A family of functors jointly reflects epimorphisms if for every morphism `f : X ⟶ Y`
-such that the image of `f` under all `F i` is an epimorphism, then `f` is an epimorphism. -/
+/--
+A family of functors jointly reflects epimorphisms if for every morphism `f : X ⟶ Y`
+such that the image of `f` under all `F i` is an epimorphism, then `f` is an epimorphism.
+-/
 structure JointlyReflectEpimorphisms (F : ∀ i, C ⥤ D i) : Prop where
   epi {X Y : C} (f : X ⟶ Y) [∀ i, Epi ((F i).map f)] : Epi f
 
-/-- A family of functors is jointly faithful if whenever two morphisms `f : X ⟶ Y`
-and `g : X ⟶ Y` become equal after applying all functors `F i`, then `f = g`. -/
+/--
+A family of functors is jointly faithful if whenever two morphisms `f : X ⟶ Y`
+and `g : X ⟶ Y` become equal after applying all functors `F i`, then `f = g`.
+-/
 structure JointlyFaithful (F : ∀ i, C ⥤ D i) : Prop where
   map_injective {X Y : C} {f g : X ⟶ Y} (h : ∀ i, (F i).map f = (F i).map g) : f = g
 

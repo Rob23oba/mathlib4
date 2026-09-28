@@ -49,17 +49,20 @@ lie character, eigenvalue, eigenspace, weight, weight vector, root, root vector
 
 @[expose] public section
 
-variable {K R L M : Type*} [CommRing R] [LieRing L] [LieAlgebra R L]
-  [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
+variable
+  {K R L M : Type*} [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
+  [LieRingModule L M] [LieModule R L M]
 
 namespace LieModule
 
 open Set Function TensorProduct LieModule
 
 variable (M) in
-/-- If `M` is a representation of a Lie algebra `L` and `χ : L → R` is a family of scalars,
+/--
+If `M` is a representation of a Lie algebra `L` and `χ : L → R` is a family of scalars,
 then `weightSpace M χ` is the intersection of the `χ x`-eigenspaces
-of the action of `x` on `M` as `x` ranges over `L`. -/
+of the action of `x` on `M` as `x` ranges over `L`.
+-/
 def weightSpace (χ : L → R) : LieSubmodule R L M where
   __ := ⨅ x : L, (toEnd R L M x).eigenspace (χ x)
   lie_mem {x m} hm := by simp_all [smul_comm (χ x)]
@@ -73,25 +76,31 @@ section notation_genWeightSpaceOf
 local notation3 "𝕎("M", " χ", " x")" => (toEnd R L M x).maxGenEigenspace χ
 
 /-- See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). -/
-protected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)
-    [AddCommGroup M₁] [Module R M₁] [LieRingModule L M₁] [LieModule R L M₁] [AddCommGroup M₂]
-    [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂] [AddCommGroup M₃] [Module R M₃]
-    [LieRingModule L M₃] [LieModule R L M₃] (g : M₁ ⊗[R] M₂ →ₗ⁅R,L⁆ M₃) (χ₁ χ₂ : R) (x : L) :
-    LinearMap.range ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (mapIncl 𝕎(M₁, χ₁, x) 𝕎(M₂, χ₂, x))) ≤
-      𝕎(M₃, χ₁ + χ₂, x) := by
+protected theorem weight_vector_multiplication
+    (M₁ M₂ M₃ : Type*) [AddCommGroup M₁] [Module R M₁] [LieRingModule L M₁] [LieModule R L M₁]
+    [AddCommGroup M₂] [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂] [AddCommGroup M₃]
+    [Module R M₃] [LieRingModule L M₃] [LieModule R L M₃]
+    (g : M₁ ⊗[R] M₂ →ₗ⁅R,L⁆ M₃) (χ₁ χ₂ : R) (x : L)
+    : LinearMap.range ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (mapIncl (𝕎(M₁, χ₁, x)) 𝕎(M₂, χ₂, x)))
+      ≤ 𝕎(M₃, χ₁ + χ₂, x) := by
   -- Unpack the statement of the goal.
   intro m₃
-  simp only [TensorProduct.mapIncl, LinearMap.mem_range, LinearMap.coe_comp,
-    LieModuleHom.coe_toLinearMap, Function.comp_apply, exists_imp, Module.End.mem_maxGenEigenspace]
+  simp only [
+    TensorProduct.mapIncl, LinearMap.mem_range, LinearMap.coe_comp, LieModuleHom.coe_toLinearMap,
+    Function.comp_apply, exists_imp, Module.End.mem_maxGenEigenspace
+  ]
   rintro t rfl
   -- Set up some notation.
   let F : Module.End R M₃ := toEnd R L M₃ x - (χ₁ + χ₂) • ↑1
   -- The goal is linear in `t` so use induction to reduce to the case that `t` is a pure tensor.
   refine t.inductionOn ?_ ?_
   swap
-  · rintro t₁ t₂ ⟨k₁, hk₁⟩ ⟨k₂, hk₂⟩; use max k₁ k₂
-    simp only [map_add, Module.End.pow_map_zero_of_le (le_max_left k₁ k₂) hk₁,
-      Module.End.pow_map_zero_of_le (le_max_right k₁ k₂) hk₂, add_zero]
+  · rintro t₁ t₂ ⟨k₁, hk₁⟩ ⟨k₂, hk₂⟩
+    use max k₁ k₂
+    simp only [
+      map_add, Module.End.pow_map_zero_of_le (le_max_left k₁ k₂) hk₁,
+      Module.End.pow_map_zero_of_le (le_max_right k₁ k₂) hk₂, add_zero
+    ]
   -- Now the main argument: pure tensors.
   rintro ⟨m₁, hm₁⟩ ⟨m₂, hm₂⟩
   change ∃ k, (F ^ k) ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃) (m₁ ⊗ₜ m₂)) = (0 : M₃)
@@ -100,17 +109,20 @@ protected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)
   let f₂ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₂ x - χ₂ • ↑1).lTensor M₁
   have h_comm_square : F ∘ₗ ↑g = (g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (f₁ + f₂) := by
     ext m₁ m₂
-    simp only [f₁, f₂, F, ← g.map_lie x (m₁ ⊗ₜ m₂), add_smul, sub_tmul, tmul_sub, smul_tmul,
-      lie_tmul_right, tmul_smul, toEnd_apply_apply, map_smul, Module.End.one_apply,
-      LieModuleHom.coe_toLinearMap, LinearMap.smul_apply, Function.comp_apply, LinearMap.coe_comp,
-      LinearMap.rTensor_tmul, map_add, LinearMap.add_apply, map_sub, LinearMap.sub_apply,
-      LinearMap.lTensor_tmul, AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars]
+    simp only [
+      f₁, f₂, F, ← g.map_lie x (m₁ ⊗ₜ m₂), add_smul, sub_tmul, tmul_sub, smul_tmul, lie_tmul_right,
+      tmul_smul, toEnd_apply_apply, map_smul, Module.End.one_apply, LieModuleHom.coe_toLinearMap,
+      LinearMap.smul_apply, Function.comp_apply, LinearMap.coe_comp, LinearMap.rTensor_tmul,
+      map_add, LinearMap.add_apply, map_sub, LinearMap.sub_apply, LinearMap.lTensor_tmul,
+      AlgebraTensorModule.curry_apply, TensorProduct.curry_apply, LinearMap.coe_restrictScalars
+    ]
     abel
   rsuffices ⟨k, hk⟩ : ∃ k : ℕ, ((f₁ + f₂) ^ k) (m₁ ⊗ₜ m₂) = 0
   · use k
-    rw [← LinearMap.comp_apply, Module.End.commute_pow_left_of_commute h_comm_square,
-      LinearMap.comp_apply, hk, map_zero]
+    rw [
+      ← LinearMap.comp_apply, Module.End.commute_pow_left_of_commute h_comm_square,
+      LinearMap.comp_apply, hk, map_zero
+    ]
   -- Unpack the information we have about `m₁`, `m₂`.
   simp only [Module.End.mem_maxGenEigenspace] at hm₁ hm₂
   obtain ⟨k₁, hk₁⟩ := hm₁
@@ -123,9 +135,11 @@ protected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)
   use k₁ + k₂ - 1
   have hf_comm : Commute f₁ f₂ := by
     ext m₁ m₂
-    simp only [f₁, f₂, Module.End.mul_apply, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,
+    simp only [
+      f₁, f₂, Module.End.mul_apply, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,
       AlgebraTensorModule.curry_apply, LinearMap.lTensor_tmul, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars]
+      LinearMap.coe_restrictScalars
+    ]
   rw [hf_comm.add_pow']
   simp only [Finset.sum_apply, LinearMap.coe_sum, LinearMap.smul_apply]
   -- The required sum is zero because each individual term is zero.
@@ -135,8 +149,9 @@ protected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)
   suffices (f₁ ^ i * f₂ ^ j) (m₁ ⊗ₜ m₂) = 0 by rw [this]; apply smul_zero
   -- Finish off with appropriate case analysis.
   rcases Nat.le_or_le_of_add_eq_add_pred (Finset.mem_antidiagonal.mp hij) with hi | hj
-  · rw [(hf_comm.pow_pow i j).eq, Module.End.mul_apply, Module.End.pow_map_zero_of_le hi hf₁,
-      map_zero]
+  · rw [
+      (hf_comm.pow_pow i j).eq, Module.End.mul_apply, Module.End.pow_map_zero_of_le hi hf₁, map_zero
+    ]
   · rw [Module.End.mul_apply, Module.End.pow_map_zero_of_le hj hf₂, map_zero]
 
 lemma lie_mem_maxGenEigenspace_toEnd
@@ -150,43 +165,49 @@ lemma lie_mem_maxGenEigenspace_toEnd
 
 variable (M)
 
-/-- If `M` is a representation of a nilpotent Lie algebra `L`, `χ` is a scalar, and `x : L`, then
+/--
+If `M` is a representation of a nilpotent Lie algebra `L`, `χ` is a scalar, and `x : L`, then
 `genWeightSpaceOf M χ x` is the maximal generalized `χ`-eigenspace of the action of `x` on `M`.
 
-It is a Lie submodule because `L` is nilpotent. -/
-def genWeightSpaceOf [LieRing.IsNilpotent L] (χ : R) (x : L) : LieSubmodule R L M :=
-  { 𝕎(M, χ, x) with
-    lie_mem := by
-      intro y m hm
-      simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
-        Submodule.mem_toAddSubmonoid] at hm ⊢
-      rw [← zero_add χ]
-      exact lie_mem_maxGenEigenspace_toEnd (by simp) hm }
+It is a Lie submodule because `L` is nilpotent.
+-/
+def genWeightSpaceOf [LieRing.IsNilpotent L] (χ : R) (x : L) : LieSubmodule R L M := {
+  𝕎(M, χ, x) with
+  lie_mem := by
+    intro y m hm
+    simp only [
+        AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup, Submodule.mem_toAddSubmonoid
+      ]
+      at hm ⊢
+    rw [← zero_add χ]
+    exact lie_mem_maxGenEigenspace_toEnd (by simp) hm
+}
 
 end notation_genWeightSpaceOf
 
 variable (M)
 variable [LieRing.IsNilpotent L]
 
-theorem mem_genWeightSpaceOf (χ : R) (x : L) (m : M) :
-    m ∈ genWeightSpaceOf M χ x ↔ ∃ k : ℕ, ((toEnd R L M x - χ • ↑1) ^ k) m = 0 := by
+theorem mem_genWeightSpaceOf (χ : R) (x : L) (m : M)
+    : m ∈ genWeightSpaceOf M χ x ↔ ∃ k : ℕ, ((toEnd R L M x - χ • ↑1) ^ k) m = 0 := by
   simp [genWeightSpaceOf]
 
-theorem coe_genWeightSpaceOf_zero (x : L) :
-    ↑(genWeightSpaceOf M (0 : R) x) = ⨆ k, LinearMap.ker (toEnd R L M x ^ k) := by
+theorem coe_genWeightSpaceOf_zero (x : L)
+    : ↑(genWeightSpaceOf M (0 : R) x) = ⨆ k, LinearMap.ker (toEnd R L M x ^ k) := by
   simp [genWeightSpaceOf, ← Module.End.iSup_genEigenspace_eq]
 
-/-- If `M` is a representation of a nilpotent Lie algebra `L`
+/--
+If `M` is a representation of a nilpotent Lie algebra `L`
 and `χ : L → R` is a family of scalars,
 then `genWeightSpace M χ` is the intersection of the maximal generalized `χ x`-eigenspaces
 of the action of `x` on `M` as `x` ranges over `L`.
 
-It is a Lie submodule because `L` is nilpotent. -/
-def genWeightSpace (χ : L → R) : LieSubmodule R L M :=
-  ⨅ x, genWeightSpaceOf M (χ x) x
+It is a Lie submodule because `L` is nilpotent.
+-/
+def genWeightSpace (χ : L → R) : LieSubmodule R L M := ⨅ x, genWeightSpaceOf M (χ x) x
 
-theorem mem_genWeightSpace (χ : L → R) (m : M) :
-    m ∈ genWeightSpace M χ ↔ ∀ x, ∃ k : ℕ, ((toEnd R L M x - χ x • ↑1) ^ k) m = 0 := by
+theorem mem_genWeightSpace (χ : L → R) (m : M)
+    : m ∈ genWeightSpace M χ ↔ ∀ x, ∃ k : ℕ, ((toEnd R L M x - χ x • ↑1) ^ k) m = 0 := by
   simp [genWeightSpace, mem_genWeightSpaceOf]
 
 lemma genWeightSpace_le_genWeightSpaceOf (x : L) (χ : L → R) :
@@ -202,8 +223,10 @@ lemma weightSpace_le_genWeightSpace (χ : L → R) :
   exact ((toEnd R L M x).genEigenspace (χ x)).monotone le_top
 
 variable (R L) in
-/-- A weight of a Lie module is a map `L → R` such that the corresponding weight space is
-non-trivial. -/
+/--
+A weight of a Lie module is a map `L → R` such that the corresponding weight space is
+non-trivial.
+-/
 structure Weight where
   /-- The family of eigenvalues corresponding to a weight. -/
   toFun : L → R
@@ -232,8 +255,7 @@ lemma exists_ne_zero (χ : Weight R L M) :
     ∃ x ∈ genWeightSpace M χ, x ≠ 0 := by
   simpa [LieSubmodule.eq_bot_iff] using χ.genWeightSpace_ne_bot
 
-instance [Subsingleton M] : IsEmpty (Weight R L M) :=
-  ⟨fun h ↦ h.2 (Subsingleton.elim _ _)⟩
+instance [Subsingleton M] : IsEmpty (Weight R L M) := ⟨fun h ↦ h.2 (Subsingleton.elim _ _)⟩
 
 instance [Nontrivial (genWeightSpace M (0 : L → R))] : Zero (Weight R L M) :=
   ⟨0, fun e ↦ not_nontrivial (⊥ : LieSubmodule R L M) (e ▸ ‹_›)⟩
@@ -244,10 +266,12 @@ instance [Nontrivial (genWeightSpace M (0 : L → R))] : IsZeroApply (Weight R L
 
 @[deprecated (since := "2026-07-27")] protected alias zero_apply := zero_apply
 
-/-- The proposition that a weight of a Lie module is zero.
+/--
+The proposition that a weight of a Lie module is zero.
 
 We make this definition because we cannot define a `Zero (Weight R L M)` instance since the weight
-space of the zero function can be trivial. -/
+space of the zero function can be trivial.
+-/
 def IsZero (χ : Weight R L M) := (χ : L → R) = 0
 
 @[simp] lemma IsZero.eq {χ : Weight R L M} (hχ : χ.IsZero) : (χ : L → R) = 0 := hχ
@@ -299,25 +323,25 @@ end Weight
 
 /-- See also the more useful form `LieModule.zero_genWeightSpace_eq_top_of_nilpotent`. -/
 @[simp]
-theorem zero_genWeightSpace_eq_top_of_nilpotent' [IsNilpotent L M] :
-    genWeightSpace M (0 : L → R) = ⊤ := by
+theorem zero_genWeightSpace_eq_top_of_nilpotent' [IsNilpotent L M]
+    : genWeightSpace M (0 : L → R) = ⊤ := by
   simp [genWeightSpace, genWeightSpaceOf]
 
-theorem coe_genWeightSpace_of_top (χ : L → R) :
-    (genWeightSpace M (χ ∘ (⊤ : LieSubalgebra R L).incl) : Submodule R M) = genWeightSpace M χ := by
+theorem coe_genWeightSpace_of_top (χ : L → R)
+    : (genWeightSpace M (χ ∘ (⊤ : LieSubalgebra R L).incl) : Submodule R M)
+      = genWeightSpace M χ := by
   ext m
   simp only [mem_genWeightSpace, LieSubmodule.mem_toSubmodule, Subtype.forall]
   apply forall_congr'
   simp
 
 @[simp]
-theorem zero_genWeightSpace_eq_top_of_nilpotent [IsNilpotent L M] :
-    genWeightSpace M (0 : (⊤ : LieSubalgebra R L) → R) = ⊤ := by
+theorem zero_genWeightSpace_eq_top_of_nilpotent [IsNilpotent L M]
+    : genWeightSpace M (0 : (⊤ : LieSubalgebra R L) → R) = ⊤ := by
   simp_all
 
-theorem exists_genWeightSpace_le_ker_of_isNoetherian [IsNoetherian R M] (χ : L → R) (x : L) :
-    ∃ k : ℕ,
-      genWeightSpace M χ ≤ ((toEnd R L M x - algebraMap R _ (χ x)) ^ k).ker := by
+theorem exists_genWeightSpace_le_ker_of_isNoetherian [IsNoetherian R M] (χ : L → R) (x : L)
+    : ∃ k : ℕ, genWeightSpace M χ ≤ ((toEnd R L M x - algebraMap R _ (χ x)) ^ k).ker := by
   use (toEnd R L M x).maxGenEigenspaceIndex (χ x)
   intro m hm
   replace hm : m ∈ (toEnd R L M x).maxGenEigenspace (χ x) :=
@@ -325,9 +349,8 @@ theorem exists_genWeightSpace_le_ker_of_isNoetherian [IsNoetherian R M] (χ : L 
   rwa [Module.End.maxGenEigenspace_eq, Module.End.genEigenspace_nat] at hm
 
 variable (R) in
-theorem exists_genWeightSpace_zero_le_ker_of_isNoetherian
-    [IsNoetherian R M] (x : L) :
-    ∃ k : ℕ, genWeightSpace M (0 : L → R) ≤ LinearMap.ker (toEnd R L M x ^ k) := by
+theorem exists_genWeightSpace_zero_le_ker_of_isNoetherian [IsNoetherian R M] (x : L)
+    : ∃ k : ℕ, genWeightSpace M (0 : L → R) ≤ LinearMap.ker (toEnd R L M x ^ k) := by
   simpa using exists_genWeightSpace_le_ker_of_isNoetherian M (0 : L → R) x
 
 lemma isNilpotent_toEnd_sub_algebraMap [IsNoetherian R M] (χ : L → R) (x : L) :
@@ -343,15 +366,16 @@ lemma isNilpotent_toEnd_sub_algebraMap [IsNoetherian R M] (χ : L → R) (x : L)
     ZeroMemClass.coe_eq_zero]
   exact ZeroMemClass.coe_eq_zero.mp (hk hm)
 
-/-- A (nilpotent) Lie algebra acts nilpotently on the zero weight space of a Noetherian Lie
-module. -/
-theorem isNilpotent_toEnd_genWeightSpace_zero [IsNoetherian R M] (x : L) :
-    _root_.IsNilpotent <| toEnd R L (genWeightSpace M (0 : L → R)) x := by
+/--
+A (nilpotent) Lie algebra acts nilpotently on the zero weight space of a Noetherian Lie
+module.
+-/
+theorem isNilpotent_toEnd_genWeightSpace_zero [IsNoetherian R M] (x : L)
+    : _root_.IsNilpotent <| toEnd R L (genWeightSpace M (0 : L → R)) x := by
   simpa using isNilpotent_toEnd_sub_algebraMap M (0 : L → R) x
 
 /-- By Engel's theorem, the zero weight space of a Noetherian Lie module is nilpotent. -/
-instance [IsNoetherian R M] :
-    IsNilpotent L (genWeightSpace M (0 : L → R)) :=
+instance [IsNoetherian R M] : IsNilpotent L (genWeightSpace M (0 : L → R)) :=
   isNilpotent_iff_forall'.mpr <| isNilpotent_toEnd_genWeightSpace_zero M
 
 variable (R L)
@@ -383,35 +407,43 @@ lemma iSup_ucs_eq_genWeightSpace_zero [IsNoetherian R M] :
 
 variable {L}
 
-/-- If `M` is a representation of a nilpotent Lie algebra `L`, and `x : L`, then
+/--
+If `M` is a representation of a nilpotent Lie algebra `L`, and `x : L`, then
 `posFittingCompOf R M x` is the infimum of the decreasing system
 `range φₓ ⊇ range φₓ² ⊇ range φₓ³ ⊇ ⋯` where `φₓ : End R M := toEnd R L M x`. We call this
 the "positive Fitting component" because with appropriate assumptions (e.g., `R` is a field and
 `M` is finite-dimensional) `φₓ` induces the so-called Fitting decomposition: `M = M₀ ⊕ M₁` where
 `M₀ = genWeightSpaceOf M 0 x` and `M₁ = posFittingCompOf R M x`.
 
-It is a Lie submodule because `L` is nilpotent. -/
-def posFittingCompOf (x : L) : LieSubmodule R L M :=
-  { toSubmodule := ⨅ k, LinearMap.range (toEnd R L M x ^ k)
-    lie_mem := by
-      set φ := toEnd R L M x
-      intro y m hm
-      simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
-        Submodule.mem_toAddSubmonoid, Submodule.mem_iInf, LinearMap.mem_range] at hm ⊢
-      intro k
-      obtain ⟨N, hN⟩ := LieAlgebra.nilpotent_ad_of_nilpotent_algebra R L
-      obtain ⟨m, rfl⟩ := hm (N + k)
-      let f₁ : Module.End R (L ⊗[R] M) := (LieAlgebra.ad R L x).rTensor M
-      let f₂ : Module.End R (L ⊗[R] M) := φ.lTensor L
-      replace hN : f₁ ^ N = 0 := by ext; simp [f₁, hN]
-      have h₁ : Commute f₁ f₂ := by ext; simp [f₁, f₂]
-      have h₂ : φ ∘ₗ toModuleHom R L M = toModuleHom R L M ∘ₗ (f₁ + f₂) := by ext; simp [φ, f₁, f₂]
-      obtain ⟨q, hq⟩ := h₁.add_pow_dvd_pow_of_pow_eq_zero_right (N + k).le_succ hN
-      use toModuleHom R L M (q (y ⊗ₜ m))
-      change (φ ^ k).comp ((toModuleHom R L M : L ⊗[R] M →ₗ[R] M)) _ = _
-      simp [φ, f₁, f₂, Module.End.commute_pow_left_of_commute h₂,
-        LinearMap.comp_apply (g := (f₁ + f₂) ^ k), ← LinearMap.comp_apply (g := q),
-        ← Module.End.mul_eq_comp, ← hq] }
+It is a Lie submodule because `L` is nilpotent.
+-/
+def posFittingCompOf (x : L) : LieSubmodule R L M := {
+  toSubmodule := ⨅ k, LinearMap.range (toEnd R L M x ^ k)
+  lie_mem := by
+    set φ := toEnd R L M x
+    intro y m hm
+    simp only [
+        AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup, Submodule.mem_toAddSubmonoid,
+        Submodule.mem_iInf, LinearMap.mem_range
+      ]
+      at hm ⊢
+    intro k
+    obtain ⟨N, hN⟩ := LieAlgebra.nilpotent_ad_of_nilpotent_algebra R L
+    obtain ⟨m, rfl⟩ := hm (N + k)
+    let f₁ : Module.End R (L ⊗[R] M) := (LieAlgebra.ad R L x).rTensor M
+    let f₂ : Module.End R (L ⊗[R] M) := φ.lTensor L
+    replace hN : f₁ ^ N = 0 := by ext; simp [f₁, hN]
+    have h₁ : Commute f₁ f₂ := by ext; simp [f₁, f₂]
+    have h₂ : φ ∘ₗ toModuleHom R L M = toModuleHom R L M ∘ₗ (f₁ + f₂) := by ext; simp [φ, f₁, f₂]
+    obtain ⟨q, hq⟩ := h₁.add_pow_dvd_pow_of_pow_eq_zero_right (N + k).le_succ hN
+    use toModuleHom R L M (q (y ⊗ₜ m))
+    change (φ ^ k).comp ((toModuleHom R L M : L ⊗[R] M →ₗ[R] M)) _ = _
+    simp [
+      φ, f₁, f₂, Module.End.commute_pow_left_of_commute h₂,
+      LinearMap.comp_apply (g := (f₁ + f₂) ^ k), ← LinearMap.comp_apply (g := q),
+      ← Module.End.mul_eq_comp, ← hq
+    ]
+}
 
 variable {M} in
 lemma mem_posFittingCompOf (x : L) (m : M) :
@@ -439,13 +471,14 @@ lemma mem_posFittingCompOf (x : L) (m : M) :
 
 variable (L)
 
-/-- If `M` is a representation of a nilpotent Lie algebra `L` with coefficients in `R`, then
+/--
+If `M` is a representation of a nilpotent Lie algebra `L` with coefficients in `R`, then
 `posFittingComp R L M` is the span of the positive Fitting components of the action of `x` on `M`,
 as `x` ranges over `L`.
 
-It is a Lie submodule because `L` is nilpotent. -/
-def posFittingComp : LieSubmodule R L M :=
-  ⨆ x, posFittingCompOf R M x
+It is a Lie submodule because `L` is nilpotent.
+-/
+def posFittingComp : LieSubmodule R L M := ⨆ x, posFittingCompOf R M x
 
 lemma mem_posFittingComp (m : M) :
     m ∈ posFittingComp R L M ↔ m ∈ ⨆ (x : L), posFittingCompOf R M x := by
@@ -492,7 +525,8 @@ section map_comap
 variable {R L M}
 variable
   {M₂ : Type*} [AddCommGroup M₂] [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂]
-  {χ : L → R} (f : M →ₗ⁅R,L⁆ M₂)
+  {χ : L → R}
+  (f : M →ₗ⁅R,L⁆ M₂)
 
 lemma map_posFittingComp_le :
     (posFittingComp R L M).map f ≤ posFittingComp R L M₂ := by
@@ -698,8 +732,10 @@ noncomputable instance Weight.instFintype [IsNoetherian R M] : Fintype (Weight R
 
 end IsTorsionFree
 
-/-- A Lie module `M` of a Lie algebra `L` is triangularizable if the endomorphism of `M` defined by
-any `x : L` is triangularizable. -/
+/--
+A Lie module `M` of a Lie algebra `L` is triangularizable if the endomorphism of `M` defined by
+any `x : L` is triangularizable.
+-/
 class IsTriangularizable : Prop where
   maxGenEigenspace_eq_top : ∀ x, ⨆ φ, (toEnd R L M x).maxGenEigenspace φ = ⊤
 

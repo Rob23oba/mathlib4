@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Computability.AkraBazzi.GrowsPolynomially
 public import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
-
 import Mathlib.Analysis.SpecialFunctions.Log.InvLog
 public import Mathlib.Analysis.Calculus.Deriv.Basic
 public import Mathlib.Tactic.Positivity
@@ -55,9 +54,12 @@ satisfies the recurrence relation
 with appropriate conditions on the various parameters.
 -/
 
-/-- An Akra-Bazzi recurrence is a function that satisfies the recurrence
-`T n = (∑ i, a i * T (r i n)) + g n`. -/
-structure AkraBazziRecurrence {α : Type*} [Fintype α] [Nonempty α]
+/--
+An Akra-Bazzi recurrence is a function that satisfies the recurrence
+`T n = (∑ i, a i * T (r i n)) + g n`.
+-/
+structure AkraBazziRecurrence
+    {α : Type*} [Fintype α] [Nonempty α]
     (T : ℕ → ℝ) (g : ℝ → ℝ) (a : α → ℝ) (b : α → ℝ) (r : α → ℕ → ℕ) where
   /-- Point below which the recurrence is in the base case -/
   n₀ : ℕ
@@ -89,12 +91,10 @@ section min_max
 variable {α : Type*} [Finite α] [Nonempty α]
 
 /-- Smallest `b i` -/
-noncomputable def min_bi (b : α → ℝ) : α :=
-  Classical.choose <| Finite.exists_min b
+noncomputable def min_bi (b : α → ℝ) : α := Classical.choose <| Finite.exists_min b
 
 /-- Largest `b i` -/
-noncomputable def max_bi (b : α → ℝ) : α :=
-  Classical.choose <| Finite.exists_max b
+noncomputable def max_bi (b : α → ℝ) : α := Classical.choose <| Finite.exists_max b
 
 @[aesop safe apply]
 lemma min_bi_le {b : α → ℝ} (i : α) : b (min_bi b) ≤ b i :=
@@ -269,9 +269,11 @@ This part of the file then proves several properties of this function that will 
 the proof.
 -/
 
-/-- The "smoothing function" is defined as `1 / log n`. This is defined as an `ℝ → ℝ` function
+/--
+The "smoothing function" is defined as `1 / log n`. This is defined as an `ℝ → ℝ` function
 as opposed to `ℕ → ℝ` since this is more convenient for the proof, where we need to e.g. take
-derivatives. -/
+derivatives.
+-/
 noncomputable def smoothingFn (n : ℝ) : ℝ := 1 / log n
 
 local notation "ε" => smoothingFn
@@ -549,18 +551,21 @@ exponent `p` refers to the one established in the previous section.
 Several properties of the sum transform are then proven.
 -/
 
-/-- The transformation that turns a function `g` into
-`n ^ p * ∑ u ∈ Finset.Ico n₀ n, g u / u ^ (p + 1)`. -/
+/--
+The transformation that turns a function `g` into
+`n ^ p * ∑ u ∈ Finset.Ico n₀ n, g u / u ^ (p + 1)`.
+-/
 noncomputable def sumTransform (p : ℝ) (g : ℝ → ℝ) (n₀ n : ℕ) :=
   n ^ p * ∑ u ∈ Finset.Ico n₀ n, g u / u ^ (p + 1)
 
 lemma sumTransform_def {p : ℝ} {g : ℝ → ℝ} {n₀ n : ℕ} :
     sumTransform p g n₀ n = n ^ p * ∑ u ∈ Finset.Ico n₀ n, g u / u ^ (p + 1) := rfl
 
-
 variable (g) (a) (b)
-/-- The asymptotic bound satisfied by an Akra-Bazzi recurrence, namely
-`n^p (1 + ∑_{u < n} g(u) / u^(p+1))`. -/
+/--
+The asymptotic bound satisfied by an Akra-Bazzi recurrence, namely
+`n^p (1 + ∑_{u < n} g(u) / u^(p+1))`.
+-/
 noncomputable def asympBound (n : ℕ) : ℝ := n ^ p a b + sumTransform (p a b) g 0 n
 
 lemma asympBound_def {α} [Fintype α] (a b : α → ℝ) {n : ℕ} :

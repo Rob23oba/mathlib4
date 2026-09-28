@@ -46,8 +46,10 @@ namespace Matroid
 
 section Delete
 
-/-- The deletion `M ＼ D` is the restriction of a matroid `M` to `M.E \ D`.
-Its independent sets are the `M`-independent subsets of `M.E \ D`. -/
+/--
+The deletion `M ＼ D` is the restriction of a matroid `M` to `M.E \ D`.
+Its independent sets are the `M`-independent subsets of `M.E \ D`.
+-/
 def delete (M : Matroid α) (D : Set α) : Matroid α := M ↾ (M.E \ D)
 
 /-- `M ＼ D` refers to the deletion of a set `D` from the matroid `M`. -/
@@ -255,11 +257,9 @@ lemma delete_isColoop_iff (M : Matroid α) (D : Set α) :
 instance delete_finitary (M : Matroid α) [Finitary M] (D : Set α) : Finitary (M ＼ D) :=
   inferInstanceAs <| Finitary (M ↾ (M.E \ D))
 
-instance delete_finite [M.Finite] : (M ＼ D).Finite :=
-  ⟨M.ground_finite.sdiff⟩
+instance delete_finite [M.Finite] : (M ＼ D).Finite := ⟨M.ground_finite.sdiff⟩
 
-instance delete_rankFinite [RankFinite M] : RankFinite (M ＼ D) :=
-  restrict_rankFinite _
+instance delete_rankFinite [RankFinite M] : RankFinite (M ＼ D) := restrict_rankFinite _
 
 end Delete
 

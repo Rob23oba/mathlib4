@@ -33,13 +33,14 @@ open scoped ENNReal
 
 namespace ProbabilityTheory
 
-variable {α β Ω : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+variable
+  {α β Ω : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   [MeasurableSpace Ω] [StandardBorelSpace Ω] [Nonempty Ω]
 
 section Lintegral
 
-variable [CountableOrCountablyGenerated α β] {κ : Kernel α (β × Ω)} [IsFiniteKernel κ]
-  {f : β × Ω → ℝ≥0∞}
+variable
+  [CountableOrCountablyGenerated α β] {κ : Kernel α (β × Ω)} [IsFiniteKernel κ] {f : β × Ω → ℝ≥0∞}
 
 lemma lintegral_condKernel_mem (a : α) {s : Set (β × Ω)} (hs : MeasurableSet s) :
     ∫⁻ x, Kernel.condKernel κ (a, x) (Prod.mk x ⁻¹' s) ∂(Kernel.fst κ a) = κ a s := by
@@ -81,7 +82,9 @@ end Lintegral
 
 section Integral
 
-variable [CountableOrCountablyGenerated α β] {κ : Kernel α (β × Ω)} [IsFiniteKernel κ]
+variable
+  [CountableOrCountablyGenerated α β]
+  {κ : Kernel α (β × Ω)} [IsFiniteKernel κ]
   {E : Type*} {f : β × Ω → E} [NormedAddCommGroup E] [NormedSpace ℝ E]
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.integral_kernel_condKernel (a : α)
@@ -123,13 +126,12 @@ end ProbabilityTheory
 
 namespace MeasureTheory.Measure
 
-variable {β Ω : Type*} {mβ : MeasurableSpace β}
-  [MeasurableSpace Ω] [StandardBorelSpace Ω] [Nonempty Ω]
+variable
+  {β Ω : Type*} {mβ : MeasurableSpace β} [MeasurableSpace Ω] [StandardBorelSpace Ω] [Nonempty Ω]
 
 section Lintegral
 
-variable {ρ : Measure (β × Ω)} [IsFiniteMeasure ρ]
-  {f : β × Ω → ℝ≥0∞}
+variable {ρ : Measure (β × Ω)} [IsFiniteMeasure ρ] {f : β × Ω → ℝ≥0∞}
 
 lemma lintegral_condKernel_mem {s : Set (β × Ω)} (hs : MeasurableSet s) :
     ∫⁻ x, ρ.condKernel x {y | (x, y) ∈ s} ∂ρ.fst = ρ s := by
@@ -172,7 +174,8 @@ end Lintegral
 
 section Integral
 
-variable {ρ : Measure (β × Ω)} [IsFiniteMeasure ρ]
+variable
+  {ρ : Measure (β × Ω)} [IsFiniteMeasure ρ]
   {E : Type*} {f : β × Ω → E} [NormedAddCommGroup E] [NormedSpace ℝ E]
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.integral_condKernel
@@ -216,40 +219,42 @@ We place these lemmas in the `MeasureTheory` namespace to enable dot notation. -
 
 open ProbabilityTheory
 
-variable {α Ω E F : Type*} {mα : MeasurableSpace α} [MeasurableSpace Ω]
-  [StandardBorelSpace Ω] [Nonempty Ω] [NormedAddCommGroup E] [NormedSpace ℝ E]
-  [NormedAddCommGroup F] {ρ : Measure (α × Ω)} [IsFiniteMeasure ρ]
+variable
+  {α Ω E F : Type*} {mα : MeasurableSpace α} [MeasurableSpace Ω] [StandardBorelSpace Ω] [Nonempty Ω]
+  [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F]
+  {ρ : Measure (α × Ω)} [IsFiniteMeasure ρ]
 
-theorem AEStronglyMeasurable.ae_integrable_condKernel_iff {f : α × Ω → F}
-    (hf : AEStronglyMeasurable f ρ) :
-    (∀ᵐ a ∂ρ.fst, Integrable (fun ω ↦ f (a, ω)) (ρ.condKernel a)) ∧
-      Integrable (fun a ↦ ∫ ω, ‖f (a, ω)‖ ∂ρ.condKernel a) ρ.fst ↔ Integrable f ρ := by
+theorem AEStronglyMeasurable.ae_integrable_condKernel_iff
+    {f : α × Ω → F} (hf : AEStronglyMeasurable f ρ)
+    : (∀ᵐ a ∂ρ.fst, Integrable (fun ω ↦ f (a, ω)) (ρ.condKernel a))
+        ∧ Integrable (fun a ↦ ∫ ω, ‖f (a, ω)‖ ∂ρ.condKernel a) ρ.fst
+      ↔ Integrable f ρ := by
   rw [← ρ.disintegrate ρ.condKernel] at hf
   conv_rhs => rw [← ρ.disintegrate ρ.condKernel]
   rw [Measure.integrable_compProd_iff hf]
 
-theorem Integrable.condKernel_ae {f : α × Ω → F} (hf_int : Integrable f ρ) :
-    ∀ᵐ a ∂ρ.fst, Integrable (fun ω ↦ f (a, ω)) (ρ.condKernel a) := by
+theorem Integrable.condKernel_ae {f : α × Ω → F} (hf_int : Integrable f ρ)
+    : ∀ᵐ a ∂ρ.fst, Integrable (fun ω ↦ f (a, ω)) (ρ.condKernel a) := by
   have hf_ae : AEStronglyMeasurable f ρ := hf_int.1
   rw [← hf_ae.ae_integrable_condKernel_iff] at hf_int
   exact hf_int.1
 
-theorem Integrable.integral_norm_condKernel {f : α × Ω → F} (hf_int : Integrable f ρ) :
-    Integrable (fun x ↦ ∫ y, ‖f (x, y)‖ ∂ρ.condKernel x) ρ.fst := by
+theorem Integrable.integral_norm_condKernel {f : α × Ω → F} (hf_int : Integrable f ρ)
+    : Integrable (fun x ↦ ∫ y, ‖f (x, y)‖ ∂ρ.condKernel x) ρ.fst := by
   have hf_ae : AEStronglyMeasurable f ρ := hf_int.1
   rw [← hf_ae.ae_integrable_condKernel_iff] at hf_int
   exact hf_int.2
 
-theorem Integrable.norm_integral_condKernel {f : α × Ω → E} (hf_int : Integrable f ρ) :
-    Integrable (fun x ↦ ‖∫ y, f (x, y) ∂ρ.condKernel x‖) ρ.fst := by
+theorem Integrable.norm_integral_condKernel {f : α × Ω → E} (hf_int : Integrable f ρ)
+    : Integrable (fun x ↦ ‖∫ y, f (x, y) ∂ρ.condKernel x‖) ρ.fst := by
   refine hf_int.integral_norm_condKernel.mono hf_int.1.integral_condKernel.norm ?_
   refine Filter.Eventually.of_forall fun x ↦ ?_
   rw [norm_norm]
   refine (norm_integral_le_integral_norm _).trans_eq (Real.norm_of_nonneg ?_).symm
   exact integral_nonneg_of_ae (Filter.Eventually.of_forall fun y ↦ norm_nonneg _)
 
-theorem Integrable.integral_condKernel {f : α × Ω → E} (hf_int : Integrable f ρ) :
-    Integrable (fun x ↦ ∫ y, f (x, y) ∂ρ.condKernel x) ρ.fst :=
+theorem Integrable.integral_condKernel {f : α × Ω → E} (hf_int : Integrable f ρ)
+    : Integrable (fun x ↦ ∫ y, f (x, y) ∂ρ.condKernel x) ρ.fst :=
   (integrable_norm_iff hf_int.1.integral_condKernel).mp hf_int.norm_integral_condKernel
 
 end MeasureTheory

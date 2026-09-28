@@ -26,10 +26,12 @@ namespace MonoidAlgebra
 section Semiring
 variable [Semiring R] [Semiring S] [Semiring T] {f : M → N} {a : M} {r : R}
 
-/-- Given a function `f : M → N` between magmas, return the corresponding map `R[M] → R[N]` obtained
-by summing the coefficients along each fiber of `f`. -/
+/--
+Given a function `f : M → N` between magmas, return the corresponding map `R[M] → R[N]` obtained
+by summing the coefficients along each fiber of `f`.
+-/
 @[to_additive (attr := simps)
-/-- Given a function `f : M → N` between magmas, return the corresponding map `R[M] → R[N]` obtained
+  /-- Given a function `f : M → N` between magmas, return the corresponding map `R[M] → R[N]` obtained
 by summing the coefficients along each fiber of `f`. -/]
 def mapDomain (f : M → N) (x : R[M]) : R[N] := .ofCoeff <| Finsupp.mapDomain f x.coeff
 
@@ -54,14 +56,16 @@ lemma mapDomain_injective (hf : Injective f) : Injective (mapDomain (R := R) f) 
   ofCoeff_injective.comp <| (Finsupp.mapDomain_injective hf).comp coeff_injective
 
 @[to_additive (dont_translate := R) (attr := simp) mapDomain_one]
-theorem mapDomain_one [One M] [One N] {F : Type*} [FunLike F M N] [OneHomClass F M N] (f : F) :
-    mapDomain f (1 : R[M]) = (1 : R[N]) := by
+theorem mapDomain_one [One M] [One N] {F : Type*} [FunLike F M N] [OneHomClass F M N] (f : F)
+    : mapDomain f (1 : R[M]) = (1 : R[N]) := by
   simp [one_def]
 
-/-- Given a map `f : R →+ S`, return the corresponding map `R[M] → S[M]` obtained by mapping
-each coefficient along `f`. -/
+/--
+Given a map `f : R →+ S`, return the corresponding map `R[M] → S[M]` obtained by mapping
+each coefficient along `f`.
+-/
 @[to_additive
-/-- Given a map `f : R →+ S`, return the corresponding map `R[M] → S[M]` obtained by mapping
+  /-- Given a map `f : R →+ S`, return the corresponding map `R[M] → S[M]` obtained by mapping
 each coefficient along `f`. -/]
 def map (f : R →+ S) (x : R[M]) : S[M] := .ofCoeff <| x.coeff.mapRange f f.map_zero
 
@@ -117,11 +121,13 @@ lemma map_surjective (f : R →+ S) (he : Surjective f) : Surjective (map (M := 
     ext; simp [ofCoeff_mapRange]
   simpa [this] using mapRange_surjective _ (map_zero f) he
 
-/-- Pullback the coefficients of an element of `R[N]` under an injective `f : M → N`.
+/--
+Pullback the coefficients of an element of `R[N]` under an injective `f : M → N`.
 
-Coefficients not in the range of `f` are dropped. -/
+Coefficients not in the range of `f` are dropped.
+-/
 @[to_additive
-/-- Pullback the coefficients of an element of `R[N]` under an injective `f : M → N`.
+  /-- Pullback the coefficients of an element of `R[N]` under an injective `f : M → N`.
 
 Coefficients not in the range of `f` are dropped. -/]
 def comapDomain (f : M → N) (hf : Injective f) (x : R[N]) : R[M] :=
@@ -167,10 +173,12 @@ lemma mapDomain_mul (f : F) (x y : R[M]) : mapDomain f (x * y) = mapDomain f x *
   simp [mul_def, mapDomain_sum, add_mul, mul_add, sum_mapDomain_index]
 
 variable (R) in
-/-- If `f : G → H` is a multiplicative homomorphism between two monoids, then
-`MonoidAlgebra.mapDomain f` is a ring homomorphism between their monoid algebras. -/
+/--
+If `f : G → H` is a multiplicative homomorphism between two monoids, then
+`MonoidAlgebra.mapDomain f` is a ring homomorphism between their monoid algebras.
+-/
 @[to_additive (attr := simps) /--
-If `f : G → H` is a multiplicative homomorphism between two additive monoids, then
+  If `f : G → H` is a multiplicative homomorphism between two additive monoids, then
 `AddMonoidAlgebra.mapDomain f` is a ring homomorphism between their additive monoid algebras. -/]
 def mapDomainNonUnitalRingHom (f : M →ₙ* N) : R[M] →ₙ+* R[N] where
   toFun := mapDomain f
@@ -188,11 +196,13 @@ lemma mapDomainNonUnitalRingHom_comp (f : N →ₙ* O) (g : M →ₙ* N) :
   ext; simp [Finsupp.mapDomain_fun_comp]
 
 variable (R) in
-/-- Equivalent monoids have additively isomorphic monoid algebras.
+/--
+Equivalent monoids have additively isomorphic monoid algebras.
 
-`MonoidAlgebra.mapDomain` as an `AddEquiv`. -/
+`MonoidAlgebra.mapDomain` as an `AddEquiv`.
+-/
 @[to_additive (dont_translate := R)
-/-- Equivalent additive monoids have additively isomorphic additive monoid algebras.
+  /-- Equivalent additive monoids have additively isomorphic additive monoid algebras.
 
 `AddMonoidAlgebra.mapDomain` as an `AddEquiv`. -/]
 def mapDomainAddEquiv (e : M ≃ N) : R[M] ≃+ R[N] where
@@ -222,11 +232,13 @@ lemma mapDomainAddEquiv_trans (e₁ : M ≃ N) (e₂ : N ≃ O) :
       (mapDomainAddEquiv R e₁).trans (mapDomainAddEquiv R e₂) := by ext; simp
 
 variable (M) in
-/-- Additively isomorphic rings have additively isomorphic monoid algebras.
+/--
+Additively isomorphic rings have additively isomorphic monoid algebras.
 
-`MonoidAlgebra.map` as an `AddEquiv`. -/
+`MonoidAlgebra.map` as an `AddEquiv`.
+-/
 @[to_additive (dont_translate := R S)
-/-- Additively isomorphic rings have additively isomorphic additive monoid algebras.
+  /-- Additively isomorphic rings have additively isomorphic additive monoid algebras.
 
 `AddMonoidAlgebra.map` as an `AddEquiv`. -/]
 def mapAddEquiv (e : R ≃+ S) : R[M] ≃+ S[M] where
@@ -277,10 +289,12 @@ end Mul
 variable [Monoid M] [Monoid N] [Monoid O]
 
 variable (R) in
-/-- If `f : G → H` is a multiplicative homomorphism between two monoids, then
-`MonoidAlgebra.mapDomain f` is a ring homomorphism between their monoid algebras. -/
+/--
+If `f : G → H` is a multiplicative homomorphism between two monoids, then
+`MonoidAlgebra.mapDomain f` is a ring homomorphism between their monoid algebras.
+-/
 @[to_additive (attr := simps) /--
-If `f : G → H` is a multiplicative homomorphism between two additive monoids, then
+  If `f : G → H` is a multiplicative homomorphism between two additive monoids, then
 `AddMonoidAlgebra.mapDomain f` is a ring homomorphism between their additive monoid algebras. -/]
 def mapDomainRingHom (f : M →* N) : R[M] →+* R[N] where
   toFun := mapDomain f
@@ -305,8 +319,8 @@ protected lemma map_one (f : R →+* S) : map f (1 : R[M]) = (1 : S[M]) := by ex
 variable (M) in
 /-- The ring homomorphism of monoid algebras induced by a homomorphism of the base rings. -/
 @[to_additive (dont_translate := R S)
-/-- The ring homomorphism of additive monoid algebras induced by a homomorphism of the base rings.
--/]
+  /-- The ring homomorphism of additive monoid algebras induced by a homomorphism of the base rings.
+  -/]
 noncomputable def mapRingHom (f : R →+* S) : R[M] →+* S[M] where
   toFun := .map f
   map_zero' := MonoidAlgebra.map_zero _
@@ -358,7 +372,7 @@ alias mapRangeRingHom_comp_mapDomainRingHom := mapRingHom_comp_mapDomainRingHom
 variable (R) in
 /-- Isomorphic monoids have isomorphic monoid algebras. -/
 @[to_additive (dont_translate := R)
-/-- Isomorphic monoids have isomorphic additive monoid algebras. -/]
+  /-- Isomorphic monoids have isomorphic additive monoid algebras. -/]
 def mapDomainRingEquiv (e : M ≃* N) : R[M] ≃+* R[N] :=
   .ofRingHom (MonoidAlgebra.mapDomainRingHom R e) (MonoidAlgebra.mapDomainRingHom R e.symm)
     (by apply MonoidAlgebra.ringHom_ext <;> simp) (by apply MonoidAlgebra.ringHom_ext <;> simp)
@@ -389,7 +403,7 @@ lemma mapDomainRingEquiv_trans (e₁ : M ≃* N) (e₂ : N ≃* O) :
 variable (M) in
 /-- Isomorphic rings have isomorphic monoid algebras. -/
 @[to_additive (dont_translate := R S)
-/-- Isomorphic rings have isomorphic additive monoid algebras. -/]
+  /-- Isomorphic rings have isomorphic additive monoid algebras. -/]
 def mapRingEquiv (e : R ≃+* S) : R[M] ≃+* S[M] :=
   .ofRingHom (MonoidAlgebra.mapRingHom M e) (MonoidAlgebra.mapRingHom M e.symm)
     (by apply MonoidAlgebra.ringHom_ext <;> simp) (by apply MonoidAlgebra.ringHom_ext <;> simp)
@@ -432,7 +446,7 @@ lemma mapRingEquiv_trans (e₁ : R ≃+* S) (e₂ : S ≃+* T) :
 
 /-- Nested monoid algebras can be taken in an arbitrary order. -/
 @[to_additive (dont_translate := R)
-/-- Nested additive monoid algebras can be taken in an arbitrary order. -/]
+  /-- Nested additive monoid algebras can be taken in an arbitrary order. -/]
 def commRingEquiv : R[M][N] ≃+* R[N][M] :=
   curryRingEquiv.symm.trans <| .trans (mapDomainRingEquiv _ <| .prodComm ..) curryRingEquiv
 
@@ -475,8 +489,10 @@ namespace AddMonoidAlgebra
 variable [Semiring R] [Add M]
 
 variable (R M) in
-/-- The equivalence between `AddMonoidAlgebra` and `MonoidAlgebra` in terms of
-`Multiplicative` -/
+/--
+The equivalence between `AddMonoidAlgebra` and `MonoidAlgebra` in terms of
+`Multiplicative`
+-/
 @[simps]
 def toMultiplicative : AddMonoidAlgebra R M ≃+* MonoidAlgebra R (Multiplicative M) where
   toFun x := .ofCoeff <| x.coeff.mapDomain .ofAdd
@@ -487,8 +503,10 @@ def toMultiplicative : AddMonoidAlgebra R M ≃+* MonoidAlgebra R (Multiplicativ
   map_mul' x y := by
     classical
     ext
-    simp [MonoidAlgebra.coeff_mul, coeff_mul, sum_mapDomain_index, add_mul, mul_add, ite_add_zero,
-      Multiplicative.ext_iff]
+    simp [
+      MonoidAlgebra.coeff_mul, coeff_mul, sum_mapDomain_index, add_mul, mul_add, ite_add_zero,
+      Multiplicative.ext_iff
+    ]
 
 @[simp]
 lemma toMultiplicative_single (m : M) (r : R) :
@@ -511,8 +529,10 @@ def toAdditive : MonoidAlgebra R M ≃+* AddMonoidAlgebra R (Additive M) where
   map_mul' x y := by
     classical
     ext
-    simp [coeff_mul, AddMonoidAlgebra.coeff_mul, sum_mapDomain_index, add_mul, mul_add,
-      ite_add_zero, Additive.ext_iff]
+    simp [
+      coeff_mul, AddMonoidAlgebra.coeff_mul, sum_mapDomain_index, add_mul, mul_add, ite_add_zero,
+      Additive.ext_iff
+    ]
 
 @[simp]
 lemma toAdditive_single (m : M) (r : R) : toAdditive R M (single m r) = .single (.ofMul m) r := by

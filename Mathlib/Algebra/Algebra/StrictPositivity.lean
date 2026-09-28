@@ -31,12 +31,13 @@ Thus, it is best to avoid unfolding the definition and only use the API provided
 
 @[expose] public section
 
-/-- An element of an ordered algebra is *strictly positive* if it is nonnegative and invertible.
+/--
+An element of an ordered algebra is *strictly positive* if it is nonnegative and invertible.
 
 NOTE: This definition will be generalized to the non-unital case in the future; do not unfold
-the definition and use the API provided instead to avoid breakage when the refactor happens. -/
-def IsStrictlyPositive {A : Type*} [LE A] [Monoid A] [Zero A] (a : A) : Prop :=
-  0 ≤ a ∧ IsUnit a
+the definition and use the API provided instead to avoid breakage when the refactor happens.
+-/
+def IsStrictlyPositive {A : Type*} [LE A] [Monoid A] [Zero A] (a : A) : Prop := 0 ≤ a ∧ IsUnit a
 
 variable {A : Type*}
 
@@ -97,15 +98,16 @@ lemma _root_.IsUnit.isStrictlyPositive_star_left_conjugate_iff {u a : A} (hu : I
   simpa using hu.star.isStrictlyPositive_star_right_conjugate_iff
 
 @[grind =]
-theorem _root_.IsUnit.isStrictlyPositive_iff_conjugate_of_isSelfAdjoint (a b : A) (hb : IsUnit b)
-    (hb₂ : IsSelfAdjoint b := by cfc_tac) :
-    IsStrictlyPositive (b * a * b) ↔ IsStrictlyPositive a := by
+theorem _root_.IsUnit.isStrictlyPositive_iff_conjugate_of_isSelfAdjoint
+    (a b : A) (hb : IsUnit b) (hb₂ : IsSelfAdjoint b := by cfc_tac)
+    : IsStrictlyPositive (b * a * b) ↔ IsStrictlyPositive a := by
   grind [hb.isStrictlyPositive_star_left_conjugate_iff]
 
 @[aesop safe apply]
-theorem conjugate_of_isUnit_of_isSelfAdjoint (a b : A) (hb : IsUnit b)
-    (hb₂ : IsSelfAdjoint b := by cfc_tac) (ha : IsStrictlyPositive a := by cfc_tac) :
-    IsStrictlyPositive (b * a * b) :=
+theorem conjugate_of_isUnit_of_isSelfAdjoint
+    (a b : A) (hb : IsUnit b)
+    (hb₂ : IsSelfAdjoint b := by cfc_tac) (ha : IsStrictlyPositive a := by cfc_tac)
+    : IsStrictlyPositive (b * a * b) :=
   (hb.isStrictlyPositive_iff_conjugate_of_isSelfAdjoint _ _ hb₂).mpr ha
 
 end StarOrderedRing

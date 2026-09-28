@@ -48,7 +48,8 @@ public section
 
 namespace Subgroup
 
-/-- A subgroup `H` of a group `G` satisfies `IsSubnormal` if
+/--
+A subgroup `H` of a group `G` satisfies `IsSubnormal` if
 * either `H = ⊤`;
 * or there is a subgroup `K` of `G` containing `H` and such that `H` is normal in `K` and
   `K` satisfies `IsSubnormal`.
@@ -64,12 +65,16 @@ See `isSubnormal_iff` for this characterisation.
 inductive IsSubnormal : Subgroup G → Prop where
   /-- The whole subgroup `G` is subnormal in itself. -/
   | top : IsSubnormal (⊤ : Subgroup G)
-  /-- A subgroup `H` is subnormal if there is a subnormal subgroup `K` containing `H` that is
-  subnormal itself and such that `H` is normal in `K`. -/
-  | step : ∀ H K, (h_le : H ≤ K) → (hSubn : IsSubnormal K) → (hN : (H.subgroupOf K).Normal) →
-    IsSubnormal H
+  /--
+  A subgroup `H` is subnormal if there is a subnormal subgroup `K` containing `H` that is
+  subnormal itself and such that `H` is normal in `K`.
+  -/
+  | step
+    : ∀ H K,
+      (h_le : H ≤ K) → (hSubn : IsSubnormal K) → (hN : (H.subgroupOf K).Normal) → IsSubnormal H
 
-/-- An additive subgroup `H` of an additive group `G` satisfies `IsSubnormal` if
+/--
+An additive subgroup `H` of an additive group `G` satisfies `IsSubnormal` if
 * either `H = ⊤`;
 * or there is an additive subgroup `K` of `G` containing `H` and such that `H` is normal in `K` and
   `K` satisfies `IsSubnormal`.
@@ -85,10 +90,13 @@ See `isSubnormal_iff` for this characterisation.
 inductive _root_.AddSubgroup.IsSubnormal {G : Type*} [AddGroup G] : AddSubgroup G → Prop where
   /-- The whole additive subgroup `G` is subnormal in itself. -/
   | top : IsSubnormal (⊤ : AddSubgroup G)
-  /-- An additive subgroup `H` is subnormal if there is a subnormal additive subgroup `K`
-  containing `H` that is subnormal itself and such that `H` is normal in `K`. -/
-  | step : ∀ H K, (h_le : H ≤ K) → (hSubn : IsSubnormal K) → (hN : (H.addSubgroupOf K).Normal) →
-    IsSubnormal H
+  /--
+  An additive subgroup `H` is subnormal if there is a subnormal additive subgroup `K`
+  containing `H` that is subnormal itself and such that `H` is normal in `K`.
+  -/
+  | step
+    : ∀ H K,
+      (h_le : H ≤ K) → (hSubn : IsSubnormal K) → (hN : (H.addSubgroupOf K).Normal) → IsSubnormal H
 
 attribute [simp] Subgroup.IsSubnormal.top
 

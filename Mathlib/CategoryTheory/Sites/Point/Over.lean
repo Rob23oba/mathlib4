@@ -30,22 +30,27 @@ namespace CategoryTheory
 
 open GrothendieckTopology
 
-variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-  [LocallySmall.{w} C] (Φ : Point.{w} J) {X : C} (x : Φ.fiber.obj X)
+variable
+  {C : Type u} [Category.{v} C]
+  {J : GrothendieckTopology C} [LocallySmall.{w} C]
+  (Φ : Point.{w} J)
+  {X : C} (x : Φ.fiber.obj X)
 
 namespace GrothendieckTopology.Point
 
-/-- Given a point `Φ` of a site `(C, J)`, an object `X : C`, and `x : Φ.fiber.obj X`,
+/--
+Given a point `Φ` of a site `(C, J)`, an object `X : C`, and `x : Φ.fiber.obj X`,
 this is the point of the site `(Over X, J.over X)` such that the fiber of
 an object of `Over X` corresponding to a morphism `f : Y ⟶ X` identifies
 to subtype of `Φ.fiber.obj Y` consisting of elements `y` such
-that `Φ.fiber.map f y = x`. -/
+that `Φ.fiber.map f y = x`.
+-/
 @[simps]
 def over : Point.{w} (J.over X) where
   fiber := FunctorToTypes.fromOverFunctor Φ.fiber x
   initiallySmall :=
-    initiallySmall_of_initial_of_initiallySmall
-      (FunctorToTypes.fromOverFunctorElementsEquivalence Φ.fiber x).inverse
+    initiallySmall_of_initial_of_initiallySmall (FunctorToTypes.fromOverFunctorElementsEquivalence
+      Φ.fiber x).inverse
   jointly_surjective := by
     rintro U R hR ⟨u, hu⟩
     obtain ⟨R, rfl⟩ := (Sieve.overEquiv _).symm.surjective R
@@ -84,10 +89,10 @@ end ObjectProperty
 
 namespace GrothendieckTopology
 
-instance [HasEnoughPoints.{w} J] [J.WEqualsLocallyBijective (Type w)]
-    [HasSheafify J (Type w)] (X : C)
-    [HasSheafify (J.over X) (Type w)] :
-    HasEnoughPoints.{w} (J.over X) := by
+instance
+    [HasEnoughPoints.{w} J] [J.WEqualsLocallyBijective (Type w)] [HasSheafify J (Type w)]
+    (X : C) [HasSheafify (J.over X) (Type w)]
+    : HasEnoughPoints.{w} (J.over X) := by
   obtain ⟨P, _, hP⟩ := HasEnoughPoints.exists_objectProperty J
   exact ⟨_, inferInstance, hP.over X⟩
 

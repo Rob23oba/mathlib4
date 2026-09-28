@@ -58,7 +58,6 @@ Some set instances do not appear here since they are consequences of others, for
 `Subtype.Finite` for subsets of a finite type.
 -/
 
-
 namespace Finite.Set
 
 instance finite_range (f : ι → α) [Finite ι] : Finite (range f) := by
@@ -66,8 +65,7 @@ instance finite_range (f : ι → α) [Finite ι] : Finite (range f) := by
   have := Fintype.ofFinite (PLift ι)
   infer_instance
 
-instance finite_replacement [Finite α] (f : α → β) :
-    Finite {f x | x : α} :=
+instance finite_replacement [Finite α] (f : α → β) : Finite {f x | x : α} :=
   Finite.Set.finite_range f
 
 end Finite.Set
@@ -83,14 +81,12 @@ The implementation of these constructors ideally should be no more than `Set.toF
 after possibly setting up some `Fintype` and classical `Decidable` instances.
 -/
 
-
 section SetFiniteConstructors
 
-theorem finite_range (f : ι → α) [Finite ι] : (range f).Finite :=
-  toFinite _
+theorem finite_range (f : ι → α) [Finite ι] : (range f).Finite := toFinite _
 
-theorem Finite.dependent_image {s : Set α} (hs : s.Finite) (F : ∀ i ∈ s, β) :
-    {y : β | ∃ x hx, F x hx = y}.Finite := by
+theorem Finite.dependent_image {s : Set α} (hs : s.Finite) (F : ∀ i ∈ s, β)
+    : {y : β | ∃ x hx, F x hx = y}.Finite := by
   have := hs.to_subtype
   simpa [range] using finite_range fun x : s => F x x.2
 

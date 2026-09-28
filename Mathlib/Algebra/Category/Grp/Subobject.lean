@@ -14,7 +14,6 @@ public import Mathlib.Algebra.Category.ModuleCat.Subobject
 
 public section
 
-
 open CategoryTheory
 
 universe u

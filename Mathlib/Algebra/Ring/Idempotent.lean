@@ -50,7 +50,8 @@ lemma _root_.isIdempotentElem_iff_one_sub_mul_self :
     IsIdempotentElem a ↔ (1 - a) * a = 0 := by
   rw [sub_mul, one_mul, sub_eq_zero, eq_comm, IsIdempotentElem]
 
-instance : Compl {a : R // IsIdempotentElem a} where compl a := ⟨1 - a, a.prop.one_sub⟩
+instance : Compl {a : R // IsIdempotentElem a} where
+  compl a := ⟨1 - a, a.prop.one_sub⟩
 
 @[simp] lemma coe_compl (a : {a : R // IsIdempotentElem a}) : ↑aᶜ = (1 : R) - ↑a := rfl
 
@@ -90,19 +91,23 @@ lemma add_sub_mul (hp : IsIdempotentElem a) (hq : IsIdempotentElem b) :
 end CommRing
 
 /-- `a + b` is idempotent when `a` and `b` anti-commute. -/
-theorem add [NonUnitalNonAssocSemiring R]
-    {a b : R} (ha : IsIdempotentElem a) (hb : IsIdempotentElem b)
-    (hab : a * b + b * a = 0) : IsIdempotentElem (a + b) := by
+theorem add
+    [NonUnitalNonAssocSemiring R]
+    {a b : R} (ha : IsIdempotentElem a) (hb : IsIdempotentElem b) (hab : a * b + b * a = 0)
+    : IsIdempotentElem (a + b) := by
   simp_rw [IsIdempotentElem, mul_add, add_mul, ha.eq, hb.eq, add_add_add_comm, ← add_assoc,
     add_assoc a, hab, zero_add]
 
 /-- `a + b` is idempotent if and only if `a` and `b` anti-commute. -/
-theorem add_iff [NonUnitalNonAssocSemiring R] [IsCancelAdd R]
-    {a b : R} (ha : IsIdempotentElem a) (hb : IsIdempotentElem b) :
-    IsIdempotentElem (a + b) ↔ a * b + b * a = 0 := by
+theorem add_iff
+    [NonUnitalNonAssocSemiring R] [IsCancelAdd R]
+    {a b : R} (ha : IsIdempotentElem a) (hb : IsIdempotentElem b)
+    : IsIdempotentElem (a + b) ↔ a * b + b * a = 0 := by
   refine ⟨fun h ↦ ?_, ha.add hb⟩
-  rw [← add_right_cancel_iff (a := b), add_assoc, ← add_left_cancel_iff (a := a),
-    ← add_assoc, add_add_add_comm]
+  rw [
+    ← add_right_cancel_iff (a := b), add_assoc, ← add_left_cancel_iff (a := a), ← add_assoc,
+    add_add_add_comm
+  ]
   simpa [add_mul, mul_add, ha.eq, hb.eq] using h.eq
 
 /-- `b - a` is idempotent when `a * b = a` and `b * a = a`. -/
@@ -111,8 +116,10 @@ lemma sub [NonUnitalNonAssocRing R] {a b : R} (ha : IsIdempotentElem a)
   simp_rw [IsIdempotentElem, sub_mul, mul_sub, hab, hba, ha.eq, hb.eq, sub_self, sub_zero]
 
 /-- If idempotent `a` and element `b` anti-commute, then their product is zero. -/
-theorem mul_eq_zero_of_anticommute {a b : R} [NonUnitalSemiring R] [IsAddTorsionFree R]
-    (ha : IsIdempotentElem a) (hab : a * b + b * a = 0) : a * b = 0 := by
+theorem mul_eq_zero_of_anticommute
+    {a b : R} [NonUnitalSemiring R] [IsAddTorsionFree R]
+    (ha : IsIdempotentElem a) (hab : a * b + b * a = 0)
+    : a * b = 0 := by
   have h : a * b * a = 0 := by
     rw [← nsmul_right_inj ((Nat.zero_ne_add_one 1).symm), nsmul_zero]
     have : a * (a * b + b * a) * a = 0 := by rw [hab, mul_zero, zero_mul]
@@ -129,9 +136,10 @@ lemma commute_of_anticommute {a b : R} [NonUnitalSemiring R] [IsAddTorsionFree R
   rw [this, zero_add] at hab
   rw [Commute, SemiconjBy, hab, this]
 
-theorem sub_iff [NonUnitalRing R] [IsAddTorsionFree R] {p q : R}
-    (hp : IsIdempotentElem p) (hq : IsIdempotentElem q) :
-    IsIdempotentElem (q - p) ↔ p * q = p ∧ q * p = p := by
+theorem sub_iff
+    [NonUnitalRing R] [IsAddTorsionFree R]
+    {p q : R} (hp : IsIdempotentElem p) (hq : IsIdempotentElem q)
+    : IsIdempotentElem (q - p) ↔ p * q = p ∧ q * p = p := by
   refine ⟨fun hqp ↦ ?_, fun ⟨h1, h2⟩ => hp.sub hq h1 h2⟩
   have h : p * (q - p) + (q - p) * p = 0 := hp.add_iff hqp |>.mp ((add_sub_cancel p q).symm ▸ hq)
   have hpq : Commute p q := by

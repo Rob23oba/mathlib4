@@ -39,7 +39,8 @@ variable {R S : Type*} (n : Type*) [CommRing R] [CommRing S] [Fintype n] [Decida
 variable (f : R →+* S)
 
 variable (R) in
-/-- The universal characteristic polynomial for `n × n`-matrices,
+/--
+The universal characteristic polynomial for `n × n`-matrices,
 is the characteristic polynomial of `Matrix.mvPolynomialX n n ℤ` with entries `Xᵢⱼ`.
 
 Its `i`-th coefficient is a homogeneous polynomial of degree `n - i`,
@@ -47,10 +48,9 @@ see `Matrix.charpoly.univ_coeff_isHomogeneous`.
 
 By evaluating the coefficients at the entries of a matrix `M`,
 one obtains the characteristic polynomial of `M`,
-see `Matrix.charpoly.univ_map_eval₂Hom`. -/
-noncomputable
-abbrev univ : Polynomial (MvPolynomial (n × n) R) :=
-  charpoly <| mvPolynomialX n n R
+see `Matrix.charpoly.univ_map_eval₂Hom`.
+-/
+noncomputable abbrev univ : Polynomial (MvPolynomial (n × n) R) := charpoly <| mvPolynomialX n n R
 
 open MvPolynomial RingHomClass in
 @[simp]

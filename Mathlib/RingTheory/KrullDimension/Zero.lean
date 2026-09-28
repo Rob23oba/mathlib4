@@ -65,13 +65,17 @@ lemma ringKrullDimZero_iff_ringKrullDim_eq_zero [Nontrivial R] :
     iff_self_and]
   exact fun _ ↦ ringKrullDim_nonneg_of_nontrivial
 
-/-- A quotient `R ⧸ I` has krull dimension at most zero if and only if all minimal primes over `I`
-are maximal. -/
+/--
+A quotient `R ⧸ I` has krull dimension at most zero if and only if all minimal primes over `I`
+are maximal.
+-/
 theorem Ideal.krullDimLE_zero_quotient_iff_forall_minimalPrimes_isMaximal
-    {R : Type*} [CommRing R] {I : Ideal R} :
-    Ring.KrullDimLE 0 (R ⧸ I) ↔ ∀ J ∈ I.minimalPrimes, J.IsMaximal := by
-  rw [Ring.krullDimLE_zero_iff_forall_minimalPrimes_isMaximal, minimalPrimes_eq_comap,
-    Set.forall_mem_image]
+    {R : Type*} [CommRing R] {I : Ideal R}
+    : Ring.KrullDimLE 0 (R ⧸ I) ↔ ∀ J ∈ I.minimalPrimes, J.IsMaximal := by
+  rw [
+    Ring.krullDimLE_zero_iff_forall_minimalPrimes_isMaximal, minimalPrimes_eq_comap,
+    Set.forall_mem_image
+  ]
   refine forall₂_congr fun J hJ ↦ ⟨fun h ↦ ?_, fun h ↦ ?_⟩
   · exact comap_isMaximal_of_surjective (Quotient.mk I) Quotient.mk_surjective
   · have := map_eq_top_or_isMaximal_of_surjective (Quotient.mk I) Quotient.mk_surjective h
@@ -116,14 +120,13 @@ lemma le_isUnit_iff_zero_notMem [IsLocalRing R]
     fun H x hx ↦ (this x).not_left.mp fun ⟨n, hn⟩ ↦ H (hn ▸ pow_mem hx n)⟩
 
 variable (R) in
-theorem Ring.KrullDimLE.existsUnique_isPrime [IsLocalRing R] :
-    ∃! I : Ideal R, I.IsPrime :=
+theorem Ring.KrullDimLE.existsUnique_isPrime [IsLocalRing R] : ∃! I : Ideal R, I.IsPrime :=
   ((Ring.krullDimLE_zero_and_isLocalRing_tfae R).out 1 2 rfl rfl).mp ⟨‹_›, ‹_›⟩
 
-theorem Ring.KrullDimLE.eq_maximalIdeal_of_isPrime [IsLocalRing R] (J : Ideal R) [J.IsPrime] :
-    J = IsLocalRing.maximalIdeal R :=
-  (((Ring.krullDimLE_zero_and_isLocalRing_tfae R).out 1 2 rfl rfl).mp ⟨‹_›, ‹_›⟩).unique
-    ‹_› inferInstance
+theorem Ring.KrullDimLE.eq_maximalIdeal_of_isPrime [IsLocalRing R] (J : Ideal R) [J.IsPrime]
+    : J = IsLocalRing.maximalIdeal R :=
+  (((Ring.krullDimLE_zero_and_isLocalRing_tfae R).out 1 2 rfl rfl).mp ⟨‹_›, ‹_›⟩).unique ‹_›
+    inferInstance
 
 lemma Ring.KrullDimLE.radical_eq_maximalIdeal [IsLocalRing R] (I : Ideal R) (hI : I ≠ ⊤) :
     I.radical = IsLocalRing.maximalIdeal R := by
@@ -134,34 +137,31 @@ lemma Ring.KrullDimLE.radical_eq_maximalIdeal [IsLocalRing R] (I : Ideal R) (hI 
     exact (Ring.KrullDimLE.eq_maximalIdeal_of_isPrime J).ge
 
 variable (R) in
-theorem Ring.KrullDimLE.subsingleton_primeSpectrum [IsLocalRing R] :
-    Subsingleton (PrimeSpectrum R) :=
-  ⟨fun x y ↦ PrimeSpectrum.ext <|
-    (eq_maximalIdeal_of_isPrime x.1).trans (eq_maximalIdeal_of_isPrime y.1).symm⟩
+theorem Ring.KrullDimLE.subsingleton_primeSpectrum [IsLocalRing R]
+    : Subsingleton (PrimeSpectrum R) := ⟨fun x y ↦
+  PrimeSpectrum.ext <| (eq_maximalIdeal_of_isPrime x.1).trans (eq_maximalIdeal_of_isPrime y.1).symm⟩
 
-theorem Ring.KrullDimLE.isNilpotent_iff_mem_maximalIdeal [IsLocalRing R] {x} :
-    IsNilpotent x ↔ x ∈ IsLocalRing.maximalIdeal R :=
+theorem Ring.KrullDimLE.isNilpotent_iff_mem_maximalIdeal [IsLocalRing R] {x}
+    : IsNilpotent x ↔ x ∈ IsLocalRing.maximalIdeal R :=
   ((Ring.krullDimLE_zero_and_isLocalRing_tfae R).out 1 3 rfl rfl).mp ⟨‹_›, ‹_›⟩ x
 
-theorem Ring.KrullDimLE.isNilpotent_iff_mem_nonunits [IsLocalRing R] {x} :
-    IsNilpotent x ↔ x ∈ nonunits R :=
+theorem Ring.KrullDimLE.isNilpotent_iff_mem_nonunits [IsLocalRing R] {x}
+    : IsNilpotent x ↔ x ∈ nonunits R :=
   isNilpotent_iff_mem_maximalIdeal
 
 variable (R) in
-theorem Ring.KrullDimLE.nilradical_eq_maximalIdeal [IsLocalRing R] :
-    nilradical R = IsLocalRing.maximalIdeal R :=
+theorem Ring.KrullDimLE.nilradical_eq_maximalIdeal [IsLocalRing R]
+    : nilradical R = IsLocalRing.maximalIdeal R :=
   Ideal.ext fun _ ↦ isNilpotent_iff_mem_maximalIdeal
 
 omit [Ring.KrullDimLE 0 R] in
 variable (R) in
-theorem IsLocalRing.of_isMaximal_nilradical [(nilradical R).IsMaximal] :
-    IsLocalRing R :=
+theorem IsLocalRing.of_isMaximal_nilradical [(nilradical R).IsMaximal] : IsLocalRing R :=
   (((Ring.krullDimLE_zero_and_isLocalRing_tfae R).out 4 1 rfl rfl).mp ‹_›).2
 
 omit [Ring.KrullDimLE 0 R] in
 variable (R) in
-theorem Ring.KrullDimLE.of_isMaximal_nilradical [(nilradical R).IsMaximal] :
-    Ring.KrullDimLE 0 R :=
+theorem Ring.KrullDimLE.of_isMaximal_nilradical [(nilradical R).IsMaximal] : Ring.KrullDimLE 0 R :=
   (((Ring.krullDimLE_zero_and_isLocalRing_tfae R).out 4 1 rfl rfl).mp ‹_›).1
 
 omit [Ring.KrullDimLE 0 R] in
@@ -175,9 +175,10 @@ lemma Ring.KrullDimLE.isField_of_isReduced [IsReduced R] [IsLocalRing R] : IsFie
   rw [IsLocalRing.isField_iff_maximalIdeal_eq, ← nilradical_eq_maximalIdeal,
     nilradical_eq_zero, Ideal.zero_eq_bot]
 
-instance PrimeSpectrum.unique_of_ringKrullDimLE_zero [IsLocalRing R] : Unique (PrimeSpectrum R) :=
-  ⟨⟨IsLocalRing.closedPoint _⟩,
-    fun _ ↦ PrimeSpectrum.ext (Ring.KrullDimLE.eq_maximalIdeal_of_isPrime _)⟩
+instance PrimeSpectrum.unique_of_ringKrullDimLE_zero [IsLocalRing R] : Unique (PrimeSpectrum R) := ⟨
+  ⟨IsLocalRing.closedPoint _⟩,
+  fun _ ↦ PrimeSpectrum.ext (Ring.KrullDimLE.eq_maximalIdeal_of_isPrime _)
+⟩
 
 lemma PrimeSpectrum.subsingleton_iff_isField_of_isReduced
     {R : Type*} [CommRing R] [IsReduced R] [Nontrivial R] :

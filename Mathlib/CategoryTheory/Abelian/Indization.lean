@@ -34,11 +34,12 @@ instance {X Y : Ind C} (f : X ⟶ Y) : IsIso (Abelian.coimageImageComparison f) 
   let i' := coimageImageComparisonFunctor.mapIso i
   dsimp only [coimageImageComparisonFunctor_obj, Arrow.mk_left, Arrow.mk_right, Arrow.mk_hom] at i'
   have := Iso.isIso_hom i'
-  rw [Arrow.isIso_iff_isIso_of_isIso i'.hom,
-    Arrow.isIso_iff_isIso_of_isIso (PreservesCoimageImageComparison.iso (Ind.lim I) ϕ).inv]
+  rw [
+    Arrow.isIso_iff_isIso_of_isIso i'.hom,
+    Arrow.isIso_iff_isIso_of_isIso (PreservesCoimageImageComparison.iso (Ind.lim I) ϕ).inv
+  ]
   infer_instance
 
-noncomputable instance : Abelian (Ind C) :=
-  .ofCoimageImageComparisonIsIso
+noncomputable instance : Abelian (Ind C) := .ofCoimageImageComparisonIsIso
 
 end CategoryTheory

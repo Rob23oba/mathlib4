@@ -69,12 +69,12 @@ lemma hasDimensionLE_prod
     (X₁ ⊗ X₂).HasDimensionLE n :=
   hasDimensionLT_prod X₁ X₂ (d₁ + 1) (d₂ + 1) (n + 1)
 
-instance (d₁ d₂ : ℕ) [X₁.HasDimensionLT d₁] [X₂.HasDimensionLT d₂] :
-    (X₁ ⊗ X₂).HasDimensionLT (d₁ + d₂) :=
+instance (d₁ d₂ : ℕ) [X₁.HasDimensionLT d₁] [X₂.HasDimensionLT d₂]
+    : (X₁ ⊗ X₂).HasDimensionLT (d₁ + d₂) :=
   hasDimensionLT_prod _ _ d₁ d₂ (d₁ + d₂)
 
-instance (d₁ d₂ : ℕ) [X₁.HasDimensionLE d₁] [X₂.HasDimensionLE d₂] :
-    (X₁ ⊗ X₂).HasDimensionLE (d₁ + d₂) :=
+instance (d₁ d₂ : ℕ) [X₁.HasDimensionLE d₁] [X₂.HasDimensionLE d₂]
+    : (X₁ ⊗ X₂).HasDimensionLE (d₁ + d₂) :=
   hasDimensionLE_prod _ _ d₁ d₂ (d₁ + d₂)
 
 instance [X₁.Finite] [X₂.Finite] : (X₁ ⊗ X₂).Finite := by
@@ -89,8 +89,7 @@ lemma finite_of_isPullback {t : X₁ ⟶ X₂} {l : X₁ ⟶ X₃} {r : X₂ ⟶
     ⟨fun _ _ h ↦ sq.hom_ext (by simpa using h =≫ fst _ _) (by simpa using h =≫ snd _ _)⟩
   finite_of_mono (lift t l)
 
-instance [X₂.Finite] [X₃.Finite] (r : X₂ ⟶ X₄) (b : X₃ ⟶ X₄) :
-    (pullback r b).Finite :=
+instance [X₂.Finite] [X₃.Finite] (r : X₂ ⟶ X₄) (b : X₃ ⟶ X₄) : (pullback r b).Finite :=
   finite_of_isPullback (IsPullback.of_hasPullback r b)
 
 end SSet

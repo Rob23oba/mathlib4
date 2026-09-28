@@ -23,9 +23,7 @@ open algebraMap Polynomial IntermediateField
 
 variable {R : Type*} [Field R] [Differential R] (a b : R)
 
-/--
-The logarithmic derivative of a is a′ / a.
--/
+/-- The logarithmic derivative of a is a′ / a. -/
 def logDeriv : R := a′ / a
 
 @[simp]
@@ -92,34 +90,39 @@ lemma _root_.algebraMap.coe_logDeriv {F K : Type*} [Field F] [Field K] [Differen
 
 variable {F : Type*} [Field F] [Differential F] [CharZero F]
 
-noncomputable instance (p : F[X]) [Fact (Irreducible p)] [Fact p.Monic] :
-    Differential (AdjoinRoot p) where
-  deriv := Derivation.liftOfSurjective (f := (AdjoinRoot.mk p).toIntAlgHom) AdjoinRoot.mk_surjective
-    (d := implicitDeriv <| AdjoinRoot.modByMonicHom Fact.out <|
-      - (aeval (AdjoinRoot.root p) (mapCoeffs p)) / (aeval (AdjoinRoot.root p) (derivative p))) (by
-      rintro x hx
-      simp_all only [RingHom.toIntAlgHom_apply, AdjoinRoot.mk_eq_zero]
-      obtain ⟨q, rfl⟩ := hx
-      simp only [Derivation.leibniz, smul_eq_mul]
-      apply dvd_add (dvd_mul_right ..)
-      apply dvd_mul_of_dvd_right
-      rw [← AdjoinRoot.mk_eq_zero]
-      unfold implicitDeriv
-      simp only [AdjoinRoot.aeval_eq, Derivation.coe_add, Derivation.coe_smul, Pi.add_apply,
-        Pi.smul_apply, Derivation.restrictScalars_apply, derivative'_apply, smul_eq_mul, map_add,
-        map_mul, AdjoinRoot.mk_leftInverse Fact.out _]
-      rw [div_mul_cancel₀, add_neg_cancel]
-      simp only [ne_eq, AdjoinRoot.mk_eq_zero]
-      have : 0 < p.natDegree := Irreducible.natDegree_pos (Fact.out)
-      apply not_dvd_of_natDegree_lt
-      · intro nh
-        simp_all
-      apply natDegree_derivative_lt
-      exact Nat.ne_zero_of_lt this)
+noncomputable instance (p : F[X]) [Fact (Irreducible p)] [Fact p.Monic]
+    : Differential (AdjoinRoot p) where
+  deriv :=
+    Derivation.liftOfSurjective (f := (AdjoinRoot.mk p).toIntAlgHom) AdjoinRoot.mk_surjective
+      (d :=
+        implicitDeriv <| AdjoinRoot.modByMonicHom Fact.out <|
+          -(aeval (AdjoinRoot.root p) (mapCoeffs p)) / (aeval (AdjoinRoot.root p) (derivative p)))
+      (by
+        rintro x hx
+        simp_all only [RingHom.toIntAlgHom_apply, AdjoinRoot.mk_eq_zero]
+        obtain ⟨q, rfl⟩ := hx
+        simp only [Derivation.leibniz, smul_eq_mul]
+        apply dvd_add (dvd_mul_right ..)
+        apply dvd_mul_of_dvd_right
+        rw [← AdjoinRoot.mk_eq_zero]
+        unfold implicitDeriv
+        simp only [
+          AdjoinRoot.aeval_eq, Derivation.coe_add, Derivation.coe_smul, Pi.add_apply, Pi.smul_apply,
+          Derivation.restrictScalars_apply, derivative'_apply, smul_eq_mul, map_add, map_mul,
+          AdjoinRoot.mk_leftInverse Fact.out _
+        ]
+        rw [div_mul_cancel₀, add_neg_cancel]
+        simp only [ne_eq, AdjoinRoot.mk_eq_zero]
+        have : 0 < p.natDegree := Irreducible.natDegree_pos (Fact.out)
+        apply not_dvd_of_natDegree_lt
+        · intro nh
+          simp_all
+        apply natDegree_derivative_lt
+        exact Nat.ne_zero_of_lt this)
 
 set_option backward.isDefEq.respectTransparency false in
-instance (p : F[X]) [Fact (Irreducible p)] [Fact p.Monic] :
-    DifferentialAlgebra F (AdjoinRoot p) where
+instance (p : F[X]) [Fact (Irreducible p)] [Fact p.Monic]
+    : DifferentialAlgebra F (AdjoinRoot p) where
   deriv_algebraMap a := by
     change (Derivation.liftOfSurjective _ _) ((AdjoinRoot.mk p).toIntAlgHom (C a)) = _
     rw [Derivation.liftOfSurjective_apply, implicitDeriv_C]
@@ -140,8 +143,9 @@ noncomputable def differentialFiniteDimensional [FiniteDimensional F K] : Differ
   have : Fact (Irreducible (minpoly F k)) :=
     ⟨minpoly.irreducible (IsAlgebraic.of_finite ..).isIntegral⟩
   Differential.equiv (IntermediateField.adjoinRootEquivAdjoin F
-    (IsAlgebraic.of_finite F k).isIntegral |>.trans (IntermediateField.equivOfEq h) |>.trans
-    IntermediateField.topEquiv).symm.toRingEquiv
+      (IsAlgebraic.of_finite F k).isIntegral
+    |>.trans (IntermediateField.equivOfEq h)
+    |>.trans IntermediateField.topEquiv).symm.toRingEquiv
 
 lemma differentialAlgebraFiniteDimensional [FiniteDimensional F K] :
     letI := differentialFiniteDimensional F K
@@ -158,10 +162,10 @@ A finite extension of a differential field has a unique derivation which agrees 
 base field.
 -/
 @[instance_reducible]
-noncomputable def uniqueDifferentialAlgebraFiniteDimensional [FiniteDimensional F K] :
-    Unique {_a : Differential K // DifferentialAlgebra F K} := by
+noncomputable def uniqueDifferentialAlgebraFiniteDimensional [FiniteDimensional F K]
+    : Unique {_a : Differential K // DifferentialAlgebra F K} := by
   let default : {_a : Differential K // DifferentialAlgebra F K} :=
-      ⟨differentialFiniteDimensional F K, differentialAlgebraFiniteDimensional⟩
+    ⟨differentialFiniteDimensional F K, differentialAlgebraFiniteDimensional⟩
   refine ⟨⟨default⟩, fun ⟨a, ha⟩ ↦ ?_⟩
   ext x
   apply_fun (aeval x (mapCoeffs (minpoly F x)) + aeval x (derivative (minpoly F x)) * ·)
@@ -171,8 +175,8 @@ noncomputable def uniqueDifferentialAlgebraFiniteDimensional [FiniteDimensional 
   · apply (add_right_injective _).comp
     apply mul_right_injective₀
     rw [ne_eq, ← minpoly.dvd_iff]
-    have : 0 < (minpoly F x).natDegree := Irreducible.natDegree_pos
-      (minpoly.irreducible (Algebra.IsIntegral.isIntegral _))
+    have : 0 < (minpoly F x).natDegree :=
+      Irreducible.natDegree_pos (minpoly.irreducible (Algebra.IsIntegral.isIntegral _))
     apply not_dvd_of_natDegree_lt
     · intro nh
       simp_all
@@ -182,11 +186,12 @@ noncomputable def uniqueDifferentialAlgebraFiniteDimensional [FiniteDimensional 
 noncomputable instance (B : IntermediateField F K) [FiniteDimensional F B] : Differential B :=
   differentialFiniteDimensional F B
 
-instance (B : IntermediateField F K) [FiniteDimensional F B] :
-    DifferentialAlgebra F B := differentialAlgebraFiniteDimensional
+instance (B : IntermediateField F K) [FiniteDimensional F B] : DifferentialAlgebra F B :=
+  differentialAlgebraFiniteDimensional
 
-instance [Differential K] [DifferentialAlgebra F K] (B : IntermediateField F K)
-    [FiniteDimensional F B] : DifferentialAlgebra B K where
+instance
+    [Differential K] [DifferentialAlgebra F K] (B : IntermediateField F K) [FiniteDimensional F B]
+    : DifferentialAlgebra B K where
   deriv_algebraMap a := by
     change (B.val a)′ = B.val a′
     rw [algHom_deriv']

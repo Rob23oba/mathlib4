@@ -27,8 +27,10 @@ open Function
 namespace Finset
 variable {ι : Type*} {π : ι → Sort*} (s : Finset ι) (f g : ∀ i, π i)
 
-/-- `s.piecewise f g` is the function equal to `f` on the finset `s`, and to `g` on its
-complement. -/
+/--
+`s.piecewise f g` is the function equal to `f` on the finset `s`, and to `g` on its
+complement.
+-/
 def piecewise [∀ j, Decidable (j ∈ s)] : ∀ i, π i := fun i ↦ if i ∈ s then f i else g i
 
 lemma piecewise_insert_self [DecidableEq ι] {j : ι} [∀ i, Decidable (i ∈ insert j s)] :

@@ -39,7 +39,8 @@ namespace CategoryTheory
 
 open Category Localization
 
-variable {C₁ C₂ : Type*} [Category* C₁] [Category* C₂]
+variable
+  {C₁ C₂ : Type*} [Category* C₁] [Category* C₂]
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
 
 namespace LocalizerMorphism
@@ -47,33 +48,41 @@ namespace IsRightDerivabilityStructure
 
 section
 
-variable (Φ : LocalizerMorphism W₁ W₂)
-  [∀ X₂, IsConnected (Φ.RightResolution X₂)]
-  [Φ.arrow.HasRightResolutions] [W₂.ContainsIdentities]
+variable
+  (Φ : LocalizerMorphism W₁ W₂)
+  [∀ X₂, IsConnected (Φ.RightResolution X₂)] [Φ.arrow.HasRightResolutions] [W₂.ContainsIdentities]
 
 namespace Constructor
 
-variable {D : Type*} [Category* D] (L : C₂ ⥤ D) [L.IsLocalization W₂]
+variable
+  {D : Type*} [Category* D]
+  (L : C₂ ⥤ D) [L.IsLocalization W₂]
   {X₂ : C₂} {X₃ : D} (y : L.obj X₂ ⟶ X₃)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `Φ : LocalizerMorphism W₁ W₂`, `L : C₂ ⥤ D` a localization functor for `W₂` and
+/--
+Given `Φ : LocalizerMorphism W₁ W₂`, `L : C₂ ⥤ D` a localization functor for `W₂` and
 a morphism `y : L.obj X₂ ⟶ X₃`, this is the functor which sends `R : Φ.RightResolution d` to
 `(isoOfHom L W₂ R.w R.hw).inv ≫ y` in the category `w.CostructuredArrowDownwards y`
-where `w` is `TwoSquare.mk Φ.functor (Φ.functor ⋙ L) L (𝟭 _) (Functor.rightUnitor _).inv`. -/
+where `w` is `TwoSquare.mk Φ.functor (Φ.functor ⋙ L) L (𝟭 _) (Functor.rightUnitor _).inv`.
+-/
 @[simps]
-noncomputable def fromRightResolution :
-    Φ.RightResolution X₂ ⥤ (TwoSquare.mk Φ.functor (Φ.functor ⋙ L) L (𝟭 _)
-      (Functor.rightUnitor _).inv).CostructuredArrowDownwards y where
-  obj R := CostructuredArrow.mk (Y := StructuredArrow.mk R.w)
-    (StructuredArrow.homMk ((isoOfHom L W₂ R.w R.hw).inv ≫ y))
-  map {R R'} φ := CostructuredArrow.homMk (StructuredArrow.homMk φ.f) (by
-    ext
-    dsimp
-    rw [← assoc, ← cancel_epi (isoOfHom L W₂ R.w R.hw).hom,
-      isoOfHom_hom, isoOfHom_hom_inv_id_assoc, assoc, ← L.map_comp_assoc,
-      φ.comm, isoOfHom_hom_inv_id_assoc])
+noncomputable def fromRightResolution
+    : Φ.RightResolution X₂ ⥤ (TwoSquare.mk Φ.functor (Φ.functor ⋙ L) L (𝟭 _)
+        (Functor.rightUnitor _).inv).CostructuredArrowDownwards
+      y where
+  obj R :=
+    CostructuredArrow.mk (Y := StructuredArrow.mk R.w)
+      (StructuredArrow.homMk ((isoOfHom L W₂ R.w R.hw).inv ≫ y))
+  map {R R'} φ :=
+    CostructuredArrow.homMk (StructuredArrow.homMk φ.f) (by
+      ext
+      dsimp
+      rw [
+        ← assoc, ← cancel_epi (isoOfHom L W₂ R.w R.hw).hom, isoOfHom_hom, isoOfHom_hom_inv_id_assoc,
+        assoc, ← L.map_comp_assoc, φ.comm, isoOfHom_hom_inv_id_assoc
+      ])
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

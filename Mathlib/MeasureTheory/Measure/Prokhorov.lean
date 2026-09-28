@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 public import Mathlib.MeasureTheory.Measure.Tight
-
 import Mathlib.MeasureTheory.Integral.Regular
 import Mathlib.MeasureTheory.Integral.RieszMarkovKakutani.Real
 import Mathlib.MeasureTheory.Measure.LevyProkhorovMetric
@@ -67,51 +66,55 @@ variable {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [T2Space E] [Borel
 set_option backward.isDefEq.respectTransparency.types false in
 variable (E) in
 /-- In a compact space, the set of finite measures with mass at most `C` is compact. -/
-theorem isCompact_setOfPred_finiteMeasure_le_of_compactSpace [CompactSpace E] (C : ℝ≥0) :
-    IsCompact {μ : FiniteMeasure E | μ.mass ≤ C} := by
-  /- To prove the compactness, we will show that any sequence has a converging subsequence, in
+theorem isCompact_setOfPred_finiteMeasure_le_of_compactSpace [CompactSpace E] (C : ℝ≥0)
+    : IsCompact {μ : FiniteMeasure E | μ.mass ≤ C} := by
+  /-
+  To prove the compactness, we will show that any sequence has a converging subsequence, in
   ultrafilters terms as things are not second countable. The integral against any bounded continuous
   function has a limit along the ultrafilter, by compactness of real intervals and the mass control.
   The limit is a monotone linear form. By the Riesz-Markov-Kakutani theorem, it comes from a
   measure. This measure is finite, of mass at most `C`. It provides the desired limit
-  for the ultrafilter. -/
+  for the ultrafilter.
+  -/
   apply isCompact_iff_ultrafilter_le_nhds'.2 (fun f hf ↦ ?_)
-  have L (g : C_c(E, ℝ)) :
-      ∃ x ∈ Icc (-C * ‖g.toBoundedContinuousFunction‖) (C * ‖g.toBoundedContinuousFunction‖),
-      Tendsto (fun (μ : FiniteMeasure E) ↦ ∫ x, g x ∂μ) f (𝓝 x) := by
+  have L (g : C_c(E, ℝ))
+      : ∃ x ∈ Icc (-C * ‖g.toBoundedContinuousFunction‖) (C * ‖g.toBoundedContinuousFunction‖),
+        Tendsto (fun (μ : FiniteMeasure E) ↦ ∫ x, g x ∂μ) f (𝓝 x) := by
     simp only [Tendsto, ← Ultrafilter.coe_map]
     apply IsCompact.ultrafilter_le_nhds' isCompact_Icc
     simp only [neg_mul, Ultrafilter.mem_map]
     filter_upwards [hf] with μ hμ
     simp only [mem_preimage, mem_Icc]
     refine ⟨?_, ?_⟩
-    · calc - (C * ‖g.toBoundedContinuousFunction‖)
-      _ ≤ ∫ (x : E), - ‖g.toBoundedContinuousFunction‖ ∂μ := by
-        simp only [integral_const, smul_eq_mul, mul_neg, neg_le_neg_iff]
-        gcongr
-        exact hμ
-      _ ≤ ∫ x, g x ∂μ := by
-        gcongr
-        · simp
-        · exact g.continuous.integrable_of_hasCompactSupport g.hasCompactSupport
-        · intro x
-          apply neg_le_of_abs_le
-          exact g.toBoundedContinuousFunction.norm_coe_le_norm x
-    · calc ∫ x, g x ∂μ
-      _ ≤ ∫ (x : E), ‖g.toBoundedContinuousFunction‖ ∂μ := by
-        gcongr
-        · exact g.continuous.integrable_of_hasCompactSupport g.hasCompactSupport
-        · simp
-        · intro x
-          apply le_of_abs_le
-          exact g.toBoundedContinuousFunction.norm_coe_le_norm x
-      _ ≤ C * ‖g.toBoundedContinuousFunction‖ := by
-        simp only [integral_const, smul_eq_mul]
-        gcongr
-        exact hμ
+    · calc
+        -(C * ‖g.toBoundedContinuousFunction‖)
+        _ ≤ ∫ (x : E), - ‖g.toBoundedContinuousFunction‖ ∂μ := by
+          simp only [integral_const, smul_eq_mul, mul_neg, neg_le_neg_iff]
+          gcongr
+          exact hμ
+        _ ≤ ∫ x, g x ∂μ := by
+          gcongr
+          · simp
+          · exact g.continuous.integrable_of_hasCompactSupport g.hasCompactSupport
+          · intro x
+            apply neg_le_of_abs_le
+            exact g.toBoundedContinuousFunction.norm_coe_le_norm x
+    · calc
+        ∫ x, g x ∂μ
+        _ ≤ ∫ (x : E), ‖g.toBoundedContinuousFunction‖ ∂μ := by
+          gcongr
+          · exact g.continuous.integrable_of_hasCompactSupport g.hasCompactSupport
+          · simp
+          · intro x
+            apply le_of_abs_le
+            exact g.toBoundedContinuousFunction.norm_coe_le_norm x
+        _ ≤ C * ‖g.toBoundedContinuousFunction‖ := by
+          simp only [integral_const, smul_eq_mul]
+          gcongr
+          exact hμ
   choose Λ h₀Λ hΛ using L
-  let Λ' : C_c(E, ℝ) →ₚ[ℝ] ℝ :=
-  { toFun := Λ
+  let Λ' : C_c(E, ℝ) →ₚ[ℝ] ℝ := {
+    toFun := Λ
     map_add' g g' := by
       have : Tendsto (fun (μ : FiniteMeasure E) ↦ ∫ x, g x + g' x ∂μ) f (𝓝 (Λ g + Λ g')) := by
         convert! (hΛ g).add (hΛ g')
@@ -128,14 +131,16 @@ theorem isCompact_setOfPred_finiteMeasure_le_of_compactSpace [CompactSpace E] (C
       apply le_of_tendsto_of_tendsto' (hΛ g) (hΛ g') (fun μ ↦ ?_)
       apply integral_mono _ _ hgg'
       · exact g.continuous.integrable_of_hasCompactSupport g.hasCompactSupport
-      · exact g'.continuous.integrable_of_hasCompactSupport g'.hasCompactSupport }
+      · exact g'.continuous.integrable_of_hasCompactSupport g'.hasCompactSupport
+  }
   let μlim := RealRMK.rieszMeasure Λ'
   have μlim_le : μlim univ ≤ ENNReal.ofReal C := by
-    let o : C_c(E, ℝ) :=
-    { toFun := 1
-      hasCompactSupport' := HasCompactSupport.of_compactSpace 1 }
-    have : μlim univ ≤ ENNReal.ofReal (Λ' o) := RealRMK.rieszMeasure_le_of_eq_one Λ'
-      (fun x ↦ by simp [o]) isCompact_univ (fun x ↦ by simp [o])
+    let o : C_c(E, ℝ) := { toFun := 1, hasCompactSupport' := HasCompactSupport.of_compactSpace 1 }
+    have : μlim univ ≤ ENNReal.ofReal (Λ' o) :=
+      RealRMK.rieszMeasure_le_of_eq_one Λ'
+        (fun x ↦ by simp [o])
+        isCompact_univ
+        (fun x ↦ by simp [o])
     apply this.trans
     gcongr
     apply le_of_tendsto (hΛ o)
@@ -147,9 +152,7 @@ theorem isCompact_setOfPred_finiteMeasure_le_of_compactSpace [CompactSpace E] (C
     exact ENNReal.toNNReal_mono (by simp) μlim_le
   change Tendsto id f (𝓝 μlim')
   apply FiniteMeasure.tendsto_of_forall_integral_tendsto (fun g ↦ ?_)
-  let g' : C_c(E, ℝ) :=
-  { toFun := g
-    hasCompactSupport' := HasCompactSupport.of_compactSpace _ }
+  let g' : C_c(E, ℝ) := { toFun := g, hasCompactSupport' := HasCompactSupport.of_compactSpace _ }
   convert! hΛ g'
   change ∫ (x : E), g' x ∂μlim' = Λ g'
   simp only [FiniteMeasure.toMeasure_mk, RealRMK.integral_rieszMeasure, μlim', μlim]
@@ -567,8 +570,10 @@ open ProbabilityMeasure
 
 namespace MeasureTheory
 
-variable {𝓧 : Type*} {m𝓧 : MeasurableSpace 𝓧} {μ : Measure 𝓧} [PseudoMetricSpace 𝓧]
-  [OpensMeasurableSpace 𝓧] [SecondCountableTopology 𝓧] {S : Set (ProbabilityMeasure 𝓧)}
+variable
+  {𝓧 : Type*} {m𝓧 : MeasurableSpace 𝓧} {μ : Measure 𝓧}
+  [PseudoMetricSpace 𝓧] [OpensMeasurableSpace 𝓧] [SecondCountableTopology 𝓧]
+  {S : Set (ProbabilityMeasure 𝓧)}
 
 lemma exists_measure_iUnion_gt_of_isCompact_closure
     (U : ℕ → Set 𝓧) (O : ∀ i, IsOpen (U i)) (Cov : ⋃ i, U i = univ) (hcomp : IsCompact (closure S))
@@ -629,10 +634,12 @@ lemma exists_measure_iUnion_gt_of_isCompact_closure
 
 variable [CompleteSpace 𝓧]
 
-/-- In a second countable complete metric space, a set of probability measures with compact closure
-is tight. -/
-theorem isTightMeasureSet_of_isCompact_closure (hcomp : IsCompact (closure S)) :
-    IsTightMeasureSet {((μ : ProbabilityMeasure 𝓧) : Measure 𝓧) | μ ∈ S} := by
+/--
+In a second countable complete metric space, a set of probability measures with compact closure
+is tight.
+-/
+theorem isTightMeasureSet_of_isCompact_closure (hcomp : IsCompact (closure S))
+    : IsTightMeasureSet {((μ : ProbabilityMeasure 𝓧) : Measure 𝓧) | μ ∈ S} := by
   rw [isTightMeasureSet_iff_exists_isCompact_measure_compl_le]
   rcases isEmpty_or_nonempty 𝓧 with hempty | hnonempty
   · rw [← univ_eq_empty_iff] at hempty
@@ -651,51 +658,55 @@ theorem isTightMeasureSet_of_isCompact_closure (hcomp : IsCompact (closure S)) :
     obtain ⟨μ', hμ', rfl⟩ := hμ
     rw [compl_empty, measure_univ]
     exact le_of_lt hεbound
-  have byclaim (m : ℕ) : ∃ k, ∀ μ ∈ S, 1 - (ε * 2 ^ (-m : ℤ) : ℝ≥0∞) <
-      μ (⋃ i ≤ k, ball (D i) (u m)) := by
+  have byclaim (m : ℕ)
+      : ∃ k, ∀ μ ∈ S, 1 - (ε * 2 ^ (-m : ℤ) : ℝ≥0∞) < μ (⋃ i ≤ k, ball (D i) (u m)) := by
     refine exists_measure_iUnion_gt_of_isCompact_closure
-      (fun i ↦ ball (D i) (u m)) (fun _ ↦ isOpen_ball) (hcov m) hcomp (ε * 2 ^ (-m : ℤ)) ?_ ?_
-    · simpa using ⟨εpos, (ENNReal.zpow_pos (by simp) (by simp) (-↑m))⟩
+      (fun i ↦ ball (D i) (u m))
+      (fun _ ↦ isOpen_ball)
+      (hcov m) hcomp (ε * 2 ^ (-m : ℤ)) ?_ ?_
+    · simpa using ⟨εpos, (ENNReal.zpow_pos (by simp) (by simp) (- ↑m))⟩
     · exact Left.mul_le_one hεbound <| zpow_le_one_of_nonpos (by linarith) (by simp)
   choose! km hbound using byclaim
   -- This is a set we can construct to show tightness
   let bigK := ⋂ m, ⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m))
-  have bigcalc (μ : ProbabilityMeasure 𝓧) (hs : μ ∈ S) : μ.toMeasure bigKᶜ ≤ ε := calc
-    μ.toMeasure bigKᶜ
-    _ = μ.toMeasure (⋃ m, (⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m)))ᶜ) := by simp [bigK]
-    _ ≤ ∑' m, μ.toMeasure (⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m)))ᶜ :=
-      measure_iUnion_le _
-    _ = ∑' m, (1 - μ.toMeasure (⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m)))) := by
-      congr! with m; rw [measure_compl (by measurability) (by simp)]; simp
-    _ ≤ (∑' (m : ℕ), (ε : ℝ≥0∞) * 2 ^ (-(m + 1) : ℤ)) := by
-      refine ENNReal.tsum_le_tsum fun m ↦ tsub_le_iff_tsub_le.mp ?_
-      replace hbound := (hbound (m + 1) μ hs).le
-      simp_all only [neg_add_rev, Int.reduceNeg, tsub_le_iff_right, Nat.cast_add, Nat.cast_one,
-          ← coe_ofNat, ← ProbabilityMeasure.ennreal_coeFn_eq_coeFn_toMeasure]
-      grw [hbound]
-      gcongr with i hi
-      grw [← subset_closure (s := ball (D i) (u m)), ball_subset_ball]
-      exact hu_anti.antitone (by grind)
-    _ = ε := by
-      rw [ENNReal.tsum_mul_left]
-      nth_rw 2 [← mul_one (a := ε)]
-      congr
-      ring_nf
-      exact tsum_two_zpow_neg_add_one
+  have bigcalc (μ : ProbabilityMeasure 𝓧) (hs : μ ∈ S) : μ.toMeasure bigKᶜ ≤ ε :=
+    calc
+      μ.toMeasure bigKᶜ
+      _ = μ.toMeasure (⋃ m, (⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m)))ᶜ) := by simp [bigK]
+      _ ≤ ∑' m, μ.toMeasure (⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m)))ᶜ := measure_iUnion_le _
+      _ = ∑' m, (1 - μ.toMeasure (⋃ (i ≤ km (m + 1)), closure (ball (D i) (u m)))) := by
+        congr! with m; rw [measure_compl (by measurability) (by simp)]; simp
+      _ ≤ (∑' (m : ℕ), (ε : ℝ≥0∞) * 2 ^ (-(m + 1) : ℤ)) := by
+        refine ENNReal.tsum_le_tsum fun m ↦ tsub_le_iff_tsub_le.mp ?_
+        replace hbound := (hbound (m + 1) μ hs).le
+        simp_all only [
+          neg_add_rev, Int.reduceNeg, tsub_le_iff_right, Nat.cast_add, Nat.cast_one, ← coe_ofNat,
+          ← ProbabilityMeasure.ennreal_coeFn_eq_coeFn_toMeasure
+        ]
+        grw [hbound]
+        gcongr with i hi
+        grw [← subset_closure (s := ball (D i) (u m)), ball_subset_ball]
+        exact hu_anti.antitone (by grind)
+      _ = ε := by
+        rw [ENNReal.tsum_mul_left]
+        nth_rw 2 [← mul_one (a := ε)]
+        congr
+        ring_nf
+        exact tsum_two_zpow_neg_add_one
   -- Final proof
   refine ⟨bigK, ?_, by simpa⟩
   -- Compactness first
   refine TotallyBounded.isCompact_of_isClosed ?_ ?_
-  --Totally bounded
+  -- Totally bounded
   · refine Metric.totallyBounded_iff.mpr fun δ δpos ↦ ?_
     have ⟨δ_inv, hδ_inv⟩ : ∃ x, u x < δ := (Tendsto.eventually_lt_const δpos hu).exists
     refine ⟨D '' .Iic (km (δ_inv + 1)), (Set.finite_Iic _).image _, ?_⟩
     -- t should be image under D of the set of numbers less than km of δ_inv
     simp only [mem_image, iUnion_exists, biUnion_and', iUnion_iUnion_eq_right, bigK]
     calc
-        ⋂ m, ⋃ i ≤ km (m + 1), closure (ball (D i) (u m))
-    _ ⊆ ⋃ i ≤ km (δ_inv + 1), closure (ball (D i) (u δ_inv)) := iInter_subset ..
-    _ ⊆ ⋃ i ≤ km (δ_inv + 1), ball (D i) δ := by
+      ⋂ m, ⋃ i ≤ km (m + 1), closure (ball (D i) (u m))
+      _ ⊆ ⋃ i ≤ km (δ_inv + 1), closure (ball (D i) (u δ_inv)) := iInter_subset ..
+      _ ⊆ ⋃ i ≤ km (δ_inv + 1), ball (D i) δ := by
         gcongr
         exact closure_ball_subset_closedBall.trans <| closedBall_subset_ball hδ_inv
   -- Closedness

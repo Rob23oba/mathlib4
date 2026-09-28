@@ -31,15 +31,15 @@ namespace CategoryTheory
 
 open Limits
 
-variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
-  {A : Type u'} [Category.{v'} A]
+variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C) {A : Type u'} [Category.{v'} A]
 
 namespace GrothendieckTopology
 
-/-- A family of objects `Y : I → C` "covers the final object"
-if for all `X : C`, the sieve `ofObjects Y X` is a covering sieve. -/
-def CoversTop {I : Type*} (Y : I → C) : Prop :=
-  ∀ (X : C), Sieve.ofObjects Y X ∈ J X
+/--
+A family of objects `Y : I → C` "covers the final object"
+if for all `X : C`, the sieve `ofObjects Y X` is a covering sieve.
+-/
+def CoversTop {I : Type*} (Y : I → C) : Prop := ∀ (X : C), Sieve.ofObjects Y X ∈ J X
 
 lemma coversTop_iff_of_isTerminal (X : C) (hX : IsTerminal X)
     {I : Type*} (Y : I → C) :
@@ -57,8 +57,10 @@ variable {J}
 variable {I : Type*} {Y : I → C} (hY : J.CoversTop Y)
 include hY
 
-/-- The cover of any object `W : C` attached to a family of objects `Y` that satisfy
-`J.CoversTop Y` -/
+/--
+The cover of any object `W : C` attached to a family of objects `Y` that satisfy
+`J.CoversTop Y`
+-/
 abbrev cover (W : C) : Cover J W := ⟨Sieve.ofObjects Y W, hY W⟩
 
 lemma ext (F : Sheaf J A) {c : Cone F.1} (hc : IsLimit c) {X : A} {f g : X ⟶ c.pt}
@@ -85,8 +87,10 @@ namespace Presheaf
 
 variable (F : Cᵒᵖ ⥤ Type w) {I : Type*} (Y : I → C)
 
-/-- A family of elements of a presheaf of types `F` indexed by a family of objects
-`Y : I → C` consists of the data of an element in `F.obj (Opposite.op (Y i))` for all `i`. -/
+/--
+A family of elements of a presheaf of types `F` indexed by a family of objects
+`Y : I → C` consists of the data of an element in `F.obj (Opposite.op (Y i))` for all `i`.
+-/
 def FamilyOfElementsOnObjects := ∀ (i : I), F.obj (Opposite.op (Y i))
 
 namespace FamilyOfElementsOnObjects
@@ -94,19 +98,22 @@ namespace FamilyOfElementsOnObjects
 variable {F Y}
 variable (x : FamilyOfElementsOnObjects F Y)
 
-/-- `x : FamilyOfElementsOnObjects F Y` is compatible if for any object `Z` such that
+/--
+`x : FamilyOfElementsOnObjects F Y` is compatible if for any object `Z` such that
 there exists a morphism `f : Z → Y i`, then the pullback of `x i` by `f` is independent
-of `f` and `i`. -/
+of `f` and `i`.
+-/
 def IsCompatible (x : FamilyOfElementsOnObjects F Y) : Prop :=
-  ∀ (Z : C) (i j : I) (f : Z ⟶ Y i) (g : Z ⟶ Y j),
-    F.map f.op (x i) = F.map g.op (x j)
+  ∀ (Z : C) (i j : I) (f : Z ⟶ Y i) (g : Z ⟶ Y j), F.map f.op (x i) = F.map g.op (x j)
 
-/-- A family of elements indexed by `Sieve.ofObjects Y X` that is induced by
+/--
+A family of elements indexed by `Sieve.ofObjects Y X` that is induced by
 `x : FamilyOfElementsOnObjects F Y`. See the equational lemma
-`IsCompatible.familyOfElements_apply` which holds under the assumption `x.IsCompatible`. -/
-noncomputable def familyOfElements (X : C) :
-    Presieve.FamilyOfElements F (Sieve.ofObjects Y X).arrows :=
-  fun _ _ hf => F.map hf.choose_spec.some.op (x _)
+`IsCompatible.familyOfElements_apply` which holds under the assumption `x.IsCompatible`.
+-/
+noncomputable def familyOfElements (X : C)
+    : Presieve.FamilyOfElements F (Sieve.ofObjects Y X).arrows := fun _ _ hf =>
+  F.map hf.choose_spec.some.op (x _)
 
 namespace IsCompatible
 
@@ -152,8 +159,10 @@ lemma existsUnique_section (hx : x.IsCompatible) (hY : J.CoversTop Y) (hF : IsSh
 
 variable (hx : x.IsCompatible) (hY : J.CoversTop Y) (hF : IsSheaf J F)
 
-/-- The section of a sheaf of types which lifts a compatible family of elements indexed
-by objects which cover the terminal object. -/
+/--
+The section of a sheaf of types which lifts a compatible family of elements indexed
+by objects which cover the terminal object.
+-/
 noncomputable def section_ : F.sections := (hx.existsUnique_section hY hF).choose
 
 @[simp]

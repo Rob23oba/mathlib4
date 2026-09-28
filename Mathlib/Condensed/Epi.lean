@@ -27,12 +27,13 @@ open CategoryTheory Sheaf Opposite Limits Condensed ConcreteCategory
 namespace Condensed
 
 variable (A : Type u') [Category.{v'} A] {FA : A → A → Type*} {CA : A → Type v'}
-variable [∀ X Y, FunLike (FA X Y) (CA X) (CA Y)] [ConcreteCategory.{v'} A FA]
+variable
+  [∀ X Y, FunLike (FA X Y) (CA X) (CA Y)] [ConcreteCategory.{v'} A FA]
   [HasFunctorialSurjectiveInjectiveFactorization A]
 
 variable {X Y : Condensed.{u} A} (f : X ⟶ Y)
 
-set_option Elab.async false in  -- TODO: universe levels from type are unified in proof
+set_option Elab.async false in -- TODO: universe levels from type are unified in proof
 variable
   [(coherentTopology CompHaus).WEqualsLocallyBijective A]
   [HasSheafify (coherentTopology CompHaus) A]
@@ -47,7 +48,7 @@ lemma epi_iff_locallySurjective_on_compHaus : Epi f ↔
     regularTopology.isLocallySurjective_iff]
   simp_rw [((CompHaus.effectiveEpi_tfae _).out 1 3 :)]
 
-set_option Elab.async false in  -- TODO: universe levels from type are unified in proof
+set_option Elab.async false in -- TODO: universe levels from type are unified in proof
 variable
   [PreservesFiniteProducts (CategoryTheory.forget A)]
   [∀ (X : CompHausᵒᵖ), HasLimitsOfShape (StructuredArrow X Stonean.toCompHaus.op) A]

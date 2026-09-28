@@ -33,22 +33,26 @@ section Semiring
 variable [Semiring R] [Semiring S]
 
 section AddCommMonoid
-variable [AddCommMonoid M] [Module R M] [Module S M] [AddCommMonoid N] [Module R N]
-  {r : R} {m m₁ m₂ : M}
+variable
+  [AddCommMonoid M] [Module R M] [Module S M] [AddCommMonoid N] [Module R N] {r : R} {m m₁ m₂ : M}
 
 variable (R M) in
-/-- An `R`-module `M` is torsion-free if scalar multiplication by an element `r : R` is injective if
+/--
+An `R`-module `M` is torsion-free if scalar multiplication by an element `r : R` is injective if
 multiplication (on `R`) by `r` is.
 
 For domains, this is equivalent to the usual condition of `r • m = 0 → r = 0 ∨ m = 0`.
-See `smul_eq_zero`. -/
+See `smul_eq_zero`.
+-/
 class Module.IsTorsionFree where
   isSMulRegular ⦃r : R⦄ : IsRegular r → IsSMulRegular M r
 
 alias IsRegular.isSMulRegular := IsTorsionFree.isSMulRegular
 
-instance : IsTorsionFree R R where isSMulRegular _r hr := hr.1
-instance : IsTorsionFree Rᵐᵒᵖ R where isSMulRegular _r hr := hr.unop.2
+instance : IsTorsionFree R R where
+  isSMulRegular _r hr := hr.1
+instance : IsTorsionFree Rᵐᵒᵖ R where
+  isSMulRegular _r hr := hr.unop.2
 
 /-- Pullback an `IsTorsionFree` instance along an injective function. -/
 lemma Function.Injective.moduleIsTorsionFree [IsTorsionFree R N] (f : M → N) (hf : f.Injective)
@@ -163,9 +167,7 @@ theorem isLeftRegular_natCast : IsLeftRegular (n : R) ↔ IsSMulRegular R n := b
 theorem isRightRegular_natCast : IsRightRegular (n : R) ↔ IsSMulRegular R n := by
   simp [IsRightRegular, IsSMulRegular, Nat.cast_comm]
 
-@[simp]
-theorem isRegular_natCast : IsRegular (n : R) ↔ IsSMulRegular R n := by
-  simp [isRegular_iff]
+@[simp] theorem isRegular_natCast : IsRegular (n : R) ↔ IsSMulRegular R n := by simp [isRegular_iff]
 
 end NonAssocSemiring
 
@@ -213,8 +215,7 @@ end Semiring
 section NonAssocRing
 variable [NonAssocRing R]
 
-theorem isSelfNeg_of_isSMulRegular_two (h : IsSMulRegular R 2) {a : R} :
-    IsSelfNeg a ↔ a = 0 :=
+theorem isSelfNeg_of_isSMulRegular_two (h : IsSMulRegular R 2) {a : R} : IsSelfNeg a ↔ a = 0 :=
   isSelfNeg_iff_two_nsmul_eq_zero.trans ⟨(h <| by simpa using ·), (by simp [·])⟩
 
 end NonAssocRing

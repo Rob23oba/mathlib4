@@ -107,14 +107,17 @@ end NonAssocSemiring
 section CommSemiring
 variable [CommSemiring R]
 
-/-- If `f = g = h` everywhere but at `i`, where `f i = g i + h i`, then the product of `f` over `s`
-  is the sum of the products of `g` and `h`. -/
-theorem prod_add_prod_eq {s : Finset ι} {i : ι} {f g h : ι → R} (hi : i ∈ s)
-    (h1 : g i + h i = f i) (h2 : ∀ j ∈ s, j ≠ i → g j = f j) (h3 : ∀ j ∈ s, j ≠ i → h j = f j) :
-    (∏ i ∈ s, g i) + ∏ i ∈ s, h i = ∏ i ∈ s, f i := by
+/--
+If `f = g = h` everywhere but at `i`, where `f i = g i + h i`, then the product of `f` over `s`
+is the sum of the products of `g` and `h`.
+-/
+theorem prod_add_prod_eq
+    {s : Finset ι} {i : ι} {f g h : ι → R} (hi : i ∈ s) (h1 : g i + h i = f i)
+    (h2 : ∀ j ∈ s, j ≠ i → g j = f j) (h3 : ∀ j ∈ s, j ≠ i → h j = f j)
+    : (∏ i ∈ s, g i) + ∏ i ∈ s, h i = ∏ i ∈ s, f i := by
   classical
-    simp_rw [prod_eq_mul_prod_sdiff_singleton_of_mem hi, ← h1, right_distrib]
-    congr 2 <;> apply prod_congr rfl <;> simpa
+  simp_rw [prod_eq_mul_prod_sdiff_singleton_of_mem hi, ← h1, right_distrib]
+  congr 2 <;> apply prod_congr rfl <;> simpa
 
 section DecidableEq
 variable [DecidableEq ι]
@@ -166,53 +169,61 @@ lemma sum_pow' (s : Finset κ) (f : κ → R) (n : ℕ) :
     (∑ a ∈ s, f a) ^ n = ∑ p ∈ piFinset fun _i : Fin n ↦ s, ∏ i, f (p i) := by
   convert! @prod_univ_sum (Fin n) _ _ _ _ _ (fun _i ↦ s) fun _i d ↦ f d; simp
 
-/-- The product of `f a + g a` over all of `s` is the sum over the powerset of `s` of the product of
-`f` over a subset `t` times the product of `g` over the complement of `t` -/
-theorem prod_add (f g : ι → R) (s : Finset ι) :
-    ∏ i ∈ s, (f i + g i) = ∑ t ∈ s.powerset, (∏ i ∈ t, f i) * ∏ i ∈ s \ t, g i := by
+/--
+The product of `f a + g a` over all of `s` is the sum over the powerset of `s` of the product of
+`f` over a subset `t` times the product of `g` over the complement of `t`
+-/
+theorem prod_add (f g : ι → R) (s : Finset ι)
+    : ∏ i ∈ s, (f i + g i) = ∑ t ∈ s.powerset, (∏ i ∈ t, f i) * ∏ i ∈ s \ t, g i := by
   classical
   calc
-    ∏ i ∈ s, (f i + g i) =
-        ∏ i ∈ s, ∑ p ∈ ({True, False} : Finset Prop), if p then f i else g i := by simp
+    ∏ i ∈ s, (f i + g i)
+      = ∏ i ∈ s, ∑ p ∈ ({True, False} : Finset Prop), if p then f i else g i := by simp
     _ = ∑ p ∈ (s.pi fun _ => {True, False} : Finset (∀ a ∈ s, Prop)),
-          ∏ a ∈ s.attach, if p a.1 a.2 then f a.1 else g a.1 := prod_sum _ _ _
+          ∏ a ∈ s.attach, if p a.1 a.2 then f a.1 else g a.1 :=
+      prod_sum _ _ _
     _ = ∑ t ∈ s.powerset, (∏ a ∈ t, f a) * ∏ a ∈ s \ t, g a :=
       sum_bij'
         (fun f _ ↦ {a ∈ s | ∃ h : a ∈ s, f a h})
         (fun t _ a _ => a ∈ t)
-        (by simp)
-        (by simp [Classical.em])
+        (by simp) (by simp [Classical.em])
         (by simp_rw [mem_filter, funext_iff, eq_iff_iff, mem_pi, mem_insert]; tauto)
         (by simp_rw [Finset.ext_iff, mem_filter, mem_powerset]; tauto)
         (fun a _ ↦ by
-          simp only [prod_ite, filter_attach', prod_map, Function.Embedding.coeFn_mk,
-            Subtype.map_coe, id_eq, prod_attach]
+          simp only [
+            prod_ite, filter_attach', prod_map, Function.Embedding.coeFn_mk, Subtype.map_coe, id_eq,
+            prod_attach
+          ]
           congr 2 with x
           simp only [mem_filter, mem_sdiff, not_and, not_exists, and_congr_right_iff]
           tauto)
 
 end DecidableEq
 
-theorem prod_one_add {f : ι → R} (s : Finset ι) :
-    ∏ i ∈ s, (1 + f i) = ∑ t ∈ s.powerset, ∏ i ∈ t, f i := by
-  classical simp only [add_comm (1 : R), prod_add, prod_const_one, mul_one]
+theorem prod_one_add {f : ι → R} (s : Finset ι)
+    : ∏ i ∈ s, (1 + f i) = ∑ t ∈ s.powerset, ∏ i ∈ t, f i := by
+  classical
+  simp only [add_comm (1 : R), prod_add, prod_const_one, mul_one]
 
-theorem prod_add_one {f : ι → R} (s : Finset ι) :
-    ∏ i ∈ s, (f i + 1) = ∑ t ∈ s.powerset, ∏ i ∈ t, f i := by
-  classical simp only [prod_add, prod_const_one, mul_one]
+theorem prod_add_one {f : ι → R} (s : Finset ι)
+    : ∏ i ∈ s, (f i + 1) = ∑ t ∈ s.powerset, ∏ i ∈ t, f i := by
+  classical
+  simp only [prod_add, prod_const_one, mul_one]
 
 /-- `∏ i, (f i + g i) = (∏ i, f i) + ∑ i, g i * (∏ j < i, f j + g j) * (∏ j > i, f j)`. -/
 @[to_dual prod_add_ordered']
-theorem prod_add_ordered [LinearOrder ι] (s : Finset ι) (f g : ι → R) :
-    ∏ i ∈ s, (f i + g i) =
-      (∏ i ∈ s, f i) +
-        ∑ i ∈ s, g i * (∏ j ∈ s with j < i, (f j + g j)) * ∏ j ∈ s with i < j, f j := by
+theorem prod_add_ordered [LinearOrder ι] (s : Finset ι) (f g : ι → R)
+    : ∏ i ∈ s, (f i + g i)
+      = (∏ i ∈ s, f i)
+        + ∑ i ∈ s, g i * (∏ j ∈ s with j < i, (f j + g j)) * ∏ j ∈ s with i < j, f j := by
   refine Finset.induction_on_max s (by simp) ?_
   clear s
   intro a s ha ihs
   have ha' : a ∉ s := fun ha' => lt_irrefl a (ha a ha')
-  rw [prod_insert ha', prod_insert ha', sum_insert ha', filter_insert, ite_eq_right (lt_irrefl a),
-    filter_true_of_mem ha, ihs, add_mul, mul_add, mul_add, add_assoc]
+  rw [
+    prod_insert ha', prod_insert ha', sum_insert ha', filter_insert, ite_eq_right (lt_irrefl a),
+    filter_true_of_mem ha, ihs, add_mul, mul_add, mul_add, add_assoc
+  ]
   congr 1
   rw [add_comm]
   congr 1
@@ -220,20 +231,24 @@ theorem prod_add_ordered [LinearOrder ι] (s : Finset ι) (f g : ι → R) :
     exact (forall_mem_insert _ _ _).2 ⟨lt_irrefl a, fun i hi => (ha i hi).not_gt⟩
   · rw [mul_sum]
     refine sum_congr rfl fun i hi => ?_
-    rw [filter_insert, ite_eq_right (ha i hi).not_gt, filter_insert, ite_eq_left (ha i hi),
-      prod_insert, mul_left_comm]
+    rw [
+      filter_insert, ite_eq_right (ha i hi).not_gt, filter_insert, ite_eq_left (ha i hi),
+      prod_insert, mul_left_comm
+    ]
     exact mt (fun ha => (mem_filter.1 ha).1) ha'
 
 @[to_dual prod_one_add_ordered']
-theorem prod_one_add_ordered [LinearOrder ι] (s : Finset ι) (f : ι → R) :
-    ∏ i ∈ s, (1 + f i) = 1 + ∑ i ∈ s, f i * ∏ j ∈ s with j < i, (1 + f j) := by
+theorem prod_one_add_ordered [LinearOrder ι] (s : Finset ι) (f : ι → R)
+    : ∏ i ∈ s, (1 + f i) = 1 + ∑ i ∈ s, f i * ∏ j ∈ s with j < i, (1 + f j) := by
   rw [prod_add_ordered]
   simp
 
-/-- Summing `a ^ #t * b ^ (n - #t)` over all finite subsets `t` of a finset `s`
-gives `(a + b) ^ #s`. -/
-theorem sum_pow_mul_eq_add_pow (a b : R) (s : Finset ι) :
-    (∑ t ∈ s.powerset, a ^ #t * b ^ (#s - #t)) = (a + b) ^ #s := by
+/--
+Summing `a ^ #t * b ^ (n - #t)` over all finite subsets `t` of a finset `s`
+gives `(a + b) ^ #s`.
+-/
+theorem sum_pow_mul_eq_add_pow (a b : R) (s : Finset ι)
+    : (∑ t ∈ s.powerset, a ^ #t * b ^ (#s - #t)) = (a + b) ^ #s := by
   classical
   rw [← prod_const, prod_add]
   refine Finset.sum_congr rfl fun t ht => ?_
@@ -272,16 +287,18 @@ lemma prod_sub_ordered [LinearOrder ι] (s : Finset ι) (f g : ι → R) :
   convert! prod_add_ordered s f fun i => -g i
   simp
 
-/-- `∏ i, (1 - f i) = 1 - ∑ i, f i * (∏ j < i, 1 - f j)`. This formula is useful in construction of
-a partition of unity from a collection of “bump” functions. -/
+/--
+`∏ i, (1 - f i) = 1 - ∑ i, f i * (∏ j < i, 1 - f j)`. This formula is useful in construction of
+a partition of unity from a collection of “bump” functions.
+-/
 @[to_dual prod_one_sub_ordered']
-theorem prod_one_sub_ordered [LinearOrder ι] (s : Finset ι) (f : ι → R) :
-    ∏ i ∈ s, (1 - f i) = 1 - ∑ i ∈ s, f i * ∏ j ∈ s with j < i, (1 - f j) := by
+theorem prod_one_sub_ordered [LinearOrder ι] (s : Finset ι) (f : ι → R)
+    : ∏ i ∈ s, (1 - f i) = 1 - ∑ i ∈ s, f i * ∏ j ∈ s with j < i, (1 - f j) := by
   rw [prod_sub_ordered]
   simp
 
-theorem prod_range_natCast_sub (n k : ℕ) :
-    ∏ i ∈ range k, (n - i : R) = (∏ i ∈ range k, (n - i) : ℕ) := by
+theorem prod_range_natCast_sub (n k : ℕ)
+    : ∏ i ∈ range k, (n - i : R) = (∏ i ∈ range k, (n - i) : ℕ) := by
   rw [prod_natCast]
   rcases le_or_gt k n with hkn | hnk
   · exact prod_congr rfl fun i hi => (Nat.cast_sub <| (mem_range.1 hi).le.trans hkn).symm

@@ -40,11 +40,11 @@ def Scheme.Hom.fiber (f : X ⟶ Y) (y : Y) : Scheme := pullback f (Y.fromSpecRes
 /-- `f.fiberι y : f.fiber y ⟶ X` is the embedding of the scheme-theoretic fiber into `X`. -/
 def Scheme.Hom.fiberι (f : X ⟶ Y) (y : Y) : f.fiber y ⟶ X := pullback.fst _ _
 
-instance (f : X ⟶ Y) (y : Y) : (f.fiber y).CanonicallyOver X where hom := f.fiberι y
+instance (f : X ⟶ Y) (y : Y) : (f.fiber y).CanonicallyOver X where
+  hom := f.fiberι y
 
 /-- The canonical map from the scheme-theoretic fiber to the residue field. -/
-def Scheme.Hom.fiberToSpecResidueField (f : X ⟶ Y) (y : Y) :
-    f.fiber y ⟶ Spec (Y.residueField y) :=
+def Scheme.Hom.fiberToSpecResidueField (f : X ⟶ Y) (y : Y) : f.fiber y ⟶ Spec (Y.residueField y) :=
   pullback.snd _ _
 
 @[reassoc]
@@ -53,8 +53,9 @@ lemma Scheme.Hom.fiber_fac (f : X ⟶ Y) (y : Y) :
   pullback.condition
 
 /-- The fiber of `f` at `y` is naturally a `κ(y)`-scheme. -/
-@[reducible] def Scheme.Hom.fiberOverSpecResidueField
-    (f : X ⟶ Y) (y : Y) : (f.fiber y).Over (Spec (Y.residueField y)) where
+@[reducible]
+def Scheme.Hom.fiberOverSpecResidueField (f : X ⟶ Y) (y : Y)
+    : (f.fiber y).Over (Spec (Y.residueField y)) where
   hom := f.fiberToSpecResidueField y
 
 lemma Scheme.Hom.fiberToSpecResidueField_apply (f : X ⟶ Y) (y : Y) (x : f.fiber y) :
@@ -73,17 +74,20 @@ lemma isPullback_fiberToSpecResidueField_of_isPullback {P X Y Z : Scheme.{u}} {f
   · simp [Scheme.Hom.fiberToSpecResidueField]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The morphism from the fiber of `Spec S ⟶ Spec R` at some prime `p` to `Spec κ(p)`
-is isomorphic to the map induced by `κ(p) ⟶ κ(p) ⊗[R] S`. -/
-noncomputable def Spec.fiberToSpecResidueFieldIso (R S : Type u) [CommRing R] [CommRing S]
-    [Algebra R S] (p : PrimeSpectrum R) :
-    Arrow.mk ((Spec.map (CommRingCat.ofHom <| algebraMap R S)).fiberToSpecResidueField p) ≅
-      Arrow.mk (Spec.map <| CommRingCat.ofHom <|
+/--
+The morphism from the fiber of `Spec S ⟶ Spec R` at some prime `p` to `Spec κ(p)`
+is isomorphic to the map induced by `κ(p) ⟶ κ(p) ⊗[R] S`.
+-/
+noncomputable def Spec.fiberToSpecResidueFieldIso
+    (R S : Type u) [CommRing R] [CommRing S] [Algebra R S] (p : PrimeSpectrum R)
+    : Arrow.mk ((Spec.map (CommRingCat.ofHom <| algebraMap R S)).fiberToSpecResidueField p)
+      ≅ Arrow.mk (Spec.map <| CommRingCat.ofHom <|
         algebraMap p.asIdeal.ResidueField (p.asIdeal.Fiber S)) := by
-  refine Arrow.isoMk' _ _
-    (pullbackSymmetry _ _ ≪≫ ?_ ≪≫ pullbackSpecIso R p.asIdeal.ResidueField S) ?_ ?_
+  refine Arrow.isoMk' _ _ (pullbackSymmetry _ _ ≪≫ ?_ ≪≫ pullbackSpecIso R p.asIdeal.ResidueField S)
+    ?_ ?_
   · refine pullback.congrHom
-      (Scheme.Spec.map_residueFieldIso_inv_eq_fromSpecResidueField (.of R) p).symm rfl ≪≫ ?_
+        (Scheme.Spec.map_residueFieldIso_inv_eq_fromSpecResidueField (.of R) p).symm rfl
+      ≪≫ ?_
     refine asIso <| pullback.map _ _ _ _ (Spec.map (Scheme.Spec.residueFieldIso (.of R) _).inv)
       (𝟙 _) (𝟙 _) (by simp) (by simp)
   · exact Scheme.Spec.mapIso (Scheme.Spec.residueFieldIso (.of R) _).symm.op
@@ -112,8 +116,7 @@ lemma Scheme.Hom.fiberι_fiberHomeo_symm (f : X ⟶ Y) (y : Y) (x : f ⁻¹' {y}
   congr($((f.fiberHomeo y).apply_symm_apply x).1)
 
 /-- A point `x` as a point in the fiber of `f` at `f x`. -/
-def Scheme.Hom.asFiber (f : X ⟶ Y) (x : X) : f.fiber (f x) :=
-    (f.fiberHomeo (f x)).symm ⟨x, rfl⟩
+def Scheme.Hom.asFiber (f : X ⟶ Y) (x : X) : f.fiber (f x) := (f.fiberHomeo (f x)).symm ⟨x, rfl⟩
 
 @[simp]
 lemma Scheme.Hom.fiberι_asFiber (f : X ⟶ Y) (x : X) : f.fiberι _ (f.asFiber x) = x :=
@@ -122,9 +125,9 @@ lemma Scheme.Hom.fiberι_asFiber (f : X ⟶ Y) (x : X) : f.fiberι _ (f.asFiber 
 set_option backward.isDefEq.respectTransparency.types false in
 instance (f : X ⟶ Y) [QuasiCompact f] (y : Y) : CompactSpace (f.fiber y) :=
   haveI : QuasiCompact (f.fiberToSpecResidueField y) :=
-      MorphismProperty.pullback_snd _ _ inferInstance
-  HasAffineProperty.iff_of_isAffine (P := @QuasiCompact)
-    (f := f.fiberToSpecResidueField y).mp inferInstance
+    MorphismProperty.pullback_snd _ _ inferInstance
+  HasAffineProperty.iff_of_isAffine (P := @QuasiCompact) (f := f.fiberToSpecResidueField y).mp
+    inferInstance
 
 lemma Scheme.Hom.isCompact_preimage_singleton (f : X ⟶ Y) [QuasiCompact f] (y : Y) :
     IsCompact (f ⁻¹' {y}) :=

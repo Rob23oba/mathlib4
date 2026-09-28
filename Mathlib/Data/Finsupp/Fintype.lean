@@ -28,7 +28,8 @@ instance Finsupp.infinite_of_left [Nontrivial α] [Infinite ι] : Infinite (ι �
   Infinite.of_injective _ <| Finsupp.single_left_injective hm
 
 instance Finsupp.infinite_of_right [Infinite α] [Nonempty ι] : Infinite (ι →₀ α) :=
-  Infinite.of_injective (fun i => Finsupp.single (Classical.arbitrary ι) i)
+  Infinite.of_injective
+    (fun i => Finsupp.single (Classical.arbitrary ι) i)
     (Finsupp.single_injective (Classical.arbitrary ι))
 
 variable (ι α) in

@@ -21,7 +21,6 @@ They are separate, and if someone would like to split this file in two that may 
 
 public section
 
-
 universe uM
 
 variable {M : Type uM}
@@ -55,9 +54,9 @@ instance instRing [AddCommGroup M] : Ring (AddMonoid.End M) :=
     intCast_ofNat := natCast_zsmul _,
     intCast_negSucc := negSucc_zsmul _ }
 
-example [AddCommGroup M] :
-    (AddMonoid.End.instRing (M := M)).toAddCommGroup.toAddGroup.toSubNegMonoid =
-    (AddMonoid.End.instRing (M := M)).toAddGroupWithOne.toAddGroup.toSubNegMonoid := by
+example [AddCommGroup M]
+    : (AddMonoid.End.instRing (M := M)).toAddCommGroup.toAddGroup.toSubNegMonoid
+      = (AddMonoid.End.instRing (M := M)).toAddGroupWithOne.toAddGroup.toSubNegMonoid := by
   with_reducible_and_instances rfl
 
 end AddMonoid.End

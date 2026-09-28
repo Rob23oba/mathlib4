@@ -30,17 +30,13 @@ assert_not_exists Field TwoSidedIdeal
 namespace SimpleGraph
 variable {V : Type*} {G : SimpleGraph V}
 
-/--
-The set of vertices that are connected to all other vertices.
--/
+/-- The set of vertices that are connected to all other vertices. -/
 def universalVerts (G : SimpleGraph V) : Set V := {v : V | G.IsUniversal v}
 
 lemma isClique_universalVerts (G : SimpleGraph V) : G.IsClique G.universalVerts :=
   fun _ hx _ _ hxy ↦ hx hxy
 
-/--
-The subgraph of `G` with the universal vertices removed.
--/
+/-- The subgraph of `G` with the universal vertices removed. -/
 @[simps!]
 def deleteUniversalVerts (G : SimpleGraph V) : Subgraph G :=
   (⊤ : Subgraph G).deleteVerts G.universalVerts

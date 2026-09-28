@@ -22,7 +22,6 @@ variable {α β γ ι κ : Type*}
 
 namespace Finset
 
-
 section Sup
 
 -- TODO: define with just `[Bot α]` where some lemmas hold without requiring `[OrderBot α]`
@@ -30,17 +29,18 @@ variable [SemilatticeSup α] [OrderBot α]
 
 /-- See also `Finset.product_biUnion`. -/
 @[to_dual inf_product_left]
-theorem sup_product_left (s : Finset β) (t : Finset γ) (f : β × γ → α) :
-    (s ×ˢ t).sup f = s.sup fun i => t.sup fun i' => f ⟨i, i'⟩ :=
+theorem sup_product_left (s : Finset β) (t : Finset γ) (f : β × γ → α)
+    : (s ×ˢ t).sup f = s.sup fun i => t.sup fun i' => f ⟨i, i'⟩ :=
   eq_of_forall_ge_iff fun a => by simp [@forall_comm _ γ]
 
 @[to_dual inf_product_right]
-theorem sup_product_right (s : Finset β) (t : Finset γ) (f : β × γ → α) :
-    (s ×ˢ t).sup f = t.sup fun i' => s.sup fun i => f ⟨i, i'⟩ := by
+theorem sup_product_right (s : Finset β) (t : Finset γ) (f : β × γ → α)
+    : (s ×ˢ t).sup f = t.sup fun i' => s.sup fun i => f ⟨i, i'⟩ := by
   rw [sup_product_left, Finset.sup_comm]
 
 section Prod
-variable {ι κ α β : Type*} [SemilatticeSup α] [SemilatticeSup β] [OrderBot α] [OrderBot β]
+variable
+  {ι κ α β : Type*} [SemilatticeSup α] [SemilatticeSup β] [OrderBot α] [OrderBot β]
   {s : Finset ι} {t : Finset κ}
 
 @[to_dual (attr := simp)]
@@ -63,8 +63,8 @@ variable [DistribLattice α]
 variable [OrderBot α] {s : Finset ι} {t : Finset κ} {f : ι → α} {g : κ → α}
 
 @[to_dual]
-theorem sup_inf_sup (s : Finset ι) (t : Finset κ) (f : ι → α) (g : κ → α) :
-    s.sup f ⊓ t.sup g = (s ×ˢ t).sup fun i => f i.1 ⊓ g i.2 := by
+theorem sup_inf_sup (s : Finset ι) (t : Finset κ) (f : ι → α) (g : κ → α)
+    : s.sup f ⊓ t.sup g = (s ×ˢ t).sup fun i => f i.1 ⊓ g i.2 := by
   simp_rw [Finset.sup_inf_distrib_right, Finset.sup_inf_distrib_left, sup_product_left]
 
 end DistribLattice
@@ -76,13 +76,13 @@ variable [SemilatticeSup α]
 variable {s : Finset β} (H : s.Nonempty) (f : β → α)
 
 @[to_dual inf'_product_left]
-theorem sup'_product_left {t : Finset γ} (h : (s ×ˢ t).Nonempty) (f : β × γ → α) :
-    (s ×ˢ t).sup' h f = s.sup' h.fst fun i => t.sup' h.snd fun i' => f ⟨i, i'⟩ :=
+theorem sup'_product_left {t : Finset γ} (h : (s ×ˢ t).Nonempty) (f : β × γ → α)
+    : (s ×ˢ t).sup' h f = s.sup' h.fst fun i => t.sup' h.snd fun i' => f ⟨i, i'⟩ :=
   eq_of_forall_ge_iff fun a => by simp [@forall_comm _ γ]
 
 @[to_dual inf'_product_right]
-theorem sup'_product_right {t : Finset γ} (h : (s ×ˢ t).Nonempty) (f : β × γ → α) :
-    (s ×ˢ t).sup' h f = t.sup' h.snd fun i' => s.sup' h.fst fun i => f ⟨i, i'⟩ := by
+theorem sup'_product_right {t : Finset γ} (h : (s ×ˢ t).Nonempty) (f : β × γ → α)
+    : (s ×ˢ t).sup' h f = t.sup' h.snd fun i' => s.sup' h.fst fun i => f ⟨i, i'⟩ := by
   rw [sup'_product_left, Finset.sup'_comm]
 
 section Prod
@@ -111,12 +111,14 @@ end Prod
 end Sup'
 
 section DistribLattice
-variable [DistribLattice α] {s : Finset ι} {t : Finset κ} (hs : s.Nonempty) (ht : t.Nonempty)
+variable
+  [DistribLattice α]
+  {s : Finset ι} {t : Finset κ} (hs : s.Nonempty) (ht : t.Nonempty)
   {f : ι → α} {g : κ → α}
 
 @[to_dual]
-theorem sup'_inf_sup' (f : ι → α) (g : κ → α) :
-    s.sup' hs f ⊓ t.sup' ht g = (s ×ˢ t).sup' (hs.product ht) fun i => f i.1 ⊓ g i.2 := by
+theorem sup'_inf_sup' (f : ι → α) (g : κ → α)
+    : s.sup' hs f ⊓ t.sup' ht g = (s ×ˢ t).sup' (hs.product ht) fun i => f i.1 ⊓ g i.2 := by
   simp_rw [Finset.sup'_inf_distrib_right, Finset.sup'_inf_distrib_left, sup'_product_left]
 
 end DistribLattice

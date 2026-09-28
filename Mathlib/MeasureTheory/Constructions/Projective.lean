@@ -37,14 +37,16 @@ open Set
 
 namespace MeasureTheory
 
-variable {ι : Type*} {α : ι → Type*} [∀ i, MeasurableSpace (α i)]
+variable
+  {ι : Type*} {α : ι → Type*} [∀ i, MeasurableSpace (α i)]
   {P : ∀ J : Finset ι, Measure (∀ j : J, α j)}
 
-/-- A family of measures indexed by finite sets of `ι` is projective if, for finite sets `J ⊆ I`,
-the projection from `∀ i : I, α i` to `∀ i : J, α i` maps `P I` to `P J`. -/
+/--
+A family of measures indexed by finite sets of `ι` is projective if, for finite sets `J ⊆ I`,
+the projection from `∀ i : I, α i` to `∀ i : J, α i` maps `P I` to `P J`.
+-/
 def IsProjectiveMeasureFamily (P : ∀ J : Finset ι, Measure (∀ j : J, α j)) : Prop :=
-  ∀ (I J : Finset ι) (hJI : J ⊆ I),
-    P J = (P I).map (Finset.restrict₂ hJI)
+  ∀ (I J : Finset ι) (hJI : J ⊆ I), P J = (P I).map (Finset.restrict₂ hJI)
 
 namespace IsProjectiveMeasureFamily
 
@@ -110,10 +112,12 @@ lemma congr_cylinder (hP : IsProjectiveMeasureFamily P)
 
 end IsProjectiveMeasureFamily
 
-/-- A measure `μ` is the projective limit of a family of measures indexed by finite sets of `ι` if
-for all `I : Finset ι`, the projection from `∀ i, α i` to `∀ i : I, α i` maps `μ` to `P I`. -/
-def IsProjectiveLimit (μ : Measure (∀ i, α i))
-    (P : ∀ J : Finset ι, Measure (∀ j : J, α j)) : Prop :=
+/--
+A measure `μ` is the projective limit of a family of measures indexed by finite sets of `ι` if
+for all `I : Finset ι`, the projection from `∀ i, α i` to `∀ i : I, α i` maps `μ` to `P I`.
+-/
+def IsProjectiveLimit (μ : Measure (∀ i, α i)) (P : ∀ J : Finset ι, Measure (∀ j : J, α j))
+    : Prop :=
   ∀ I : Finset ι, (μ.map I.restrict) = P I
 
 namespace IsProjectiveLimit
@@ -147,12 +151,14 @@ lemma measure_univ_unique (hμ : IsProjectiveLimit μ P) (hν : IsProjectiveLimi
   rw [hμ.measure_univ_eq (∅ : Finset ι), hν.measure_univ_eq (∅ : Finset ι)]
 
 /-- The projective limit of a family of finite measures is unique. -/
-theorem unique [∀ i, IsFiniteMeasure (P i)]
-    (hμ : IsProjectiveLimit μ P) (hν : IsProjectiveLimit ν P) :
-    μ = ν := by
+theorem unique
+    [∀ i, IsFiniteMeasure (P i)] (hμ : IsProjectiveLimit μ P) (hν : IsProjectiveLimit ν P)
+    : μ = ν := by
   have : IsFiniteMeasure μ := hμ.isFiniteMeasure
   refine ext_of_generate_finite (measurableCylinders α) generateFrom_measurableCylinders.symm
-    isPiSystem_measurableCylinders (fun s hs ↦ ?_) (hμ.measure_univ_unique hν)
+    isPiSystem_measurableCylinders
+    (fun s hs ↦ ?_)
+    (hμ.measure_univ_unique hν)
   obtain ⟨I, S, hS, rfl⟩ := (mem_measurableCylinders _).mp hs
   rw [hμ.measure_cylinder _ hS, hν.measure_cylinder _ hS]
 

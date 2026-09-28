@@ -24,21 +24,25 @@ universe w v u
 
 namespace CategoryTheory
 
-variable {C : Type u} [Category.{v} C] {F₁ F₂ : C ⥤ Type w} {A : Subfunctor F₁}
-  (f g : A.toFunctor ⟶ F₂)
+variable
+  {C : Type u} [Category.{v} C] {F₁ F₂ : C ⥤ Type w} {A : Subfunctor F₁} (f g : A.toFunctor ⟶ F₂)
 
 namespace Subfunctor
 
-/-- The equalizer of two morphisms of type-valued functors of types of the form
-`A.toFunctor ⟶ F₂` with `A : Subfunctor F₁`, as a subcomplex of `F₁`. -/
+/--
+The equalizer of two morphisms of type-valued functors of types of the form
+`A.toFunctor ⟶ F₂` with `A : Subfunctor F₁`, as a subcomplex of `F₁`.
+-/
 @[simps -isSimp]
 protected def equalizer : Subfunctor F₁ where
   obj U := Set.ofPred (fun x ↦ ∃ (hx : x ∈ A.obj _), f.app _ ⟨x, hx⟩ = g.app _ ⟨x, hx⟩)
   map φ x := by
     rintro ⟨hx, h⟩
-    exact ⟨A.map _ hx,
-      (NatTrans.naturality_apply f φ ⟨x, hx⟩).trans (Eq.trans (by rw [h])
-        (NatTrans.naturality_apply g φ ⟨x, hx⟩).symm)⟩
+    exact ⟨
+      A.map _ hx,
+      (NatTrans.naturality_apply f φ ⟨x, hx⟩).trans
+        (Eq.trans (by rw [h]) (NatTrans.naturality_apply g φ ⟨x, hx⟩).symm)
+    ⟩
 
 attribute [local simp] equalizer_obj
 
@@ -68,10 +72,11 @@ lemma equalizer_eq_iff :
   · intro h
     exact le_antisymm (equalizer_le f g) h
 
-/-- Given two morphisms `f` and `g` in `A.toFunctor ⟶ F₂`, this is the monomorphism
-of functors corresponding to the inclusion `Subfunctor.equalizer f g ≤ A`. -/
-def equalizer.ι : (Subfunctor.equalizer f g).toFunctor ⟶ A.toFunctor :=
-  homOfLe (equalizer_le f g)
+/--
+Given two morphisms `f` and `g` in `A.toFunctor ⟶ F₂`, this is the monomorphism
+of functors corresponding to the inclusion `Subfunctor.equalizer f g ≤ A`.
+-/
+def equalizer.ι : (Subfunctor.equalizer f g).toFunctor ⟶ A.toFunctor := homOfLe (equalizer_le f g)
 
 instance : Mono (equalizer.ι f g) := by
   dsimp [equalizer.ι]
@@ -84,14 +89,15 @@ lemma equalizer.ι_ι : equalizer.ι f g ≫ A.ι = (Subfunctor.equalizer f g).�
 lemma equalizer.condition : equalizer.ι f g ≫ f = equalizer.ι f g ≫ g := by
   simp [← range_le_equalizer_iff]
 
-/-- Given two morphisms `f` and `g` in `A.toFunctor ⟶ F₂`, if `φ : G ⟶ A.toFunctor`
+/--
+Given two morphisms `f` and `g` in `A.toFunctor ⟶ F₂`, if `φ : G ⟶ A.toFunctor`
 is such that `φ ≫ f = φ ≫ g`, then this is the lifted morphism
 `G ⟶ (Subfunctor.equalizer f g).toFunctor`. This is part of the universal
 property of the equalizer that is satisfied by
-the functor `(Subfunctor.equalizer f g).toFunctor`. -/
-def equalizer.lift {G : C ⥤ Type w} (φ : G ⟶ A.toFunctor)
-    (w : φ ≫ f = φ ≫ g) :
-    G ⟶ (Subfunctor.equalizer f g).toFunctor :=
+the functor `(Subfunctor.equalizer f g).toFunctor`.
+-/
+def equalizer.lift {G : C ⥤ Type w} (φ : G ⟶ A.toFunctor) (w : φ ≫ f = φ ≫ g)
+    : G ⟶ (Subfunctor.equalizer f g).toFunctor :=
   Subfunctor.lift (φ ≫ A.ι) (by simpa only [range_le_equalizer_iff] using w)
 
 @[reassoc (attr := simp)]
@@ -106,11 +112,12 @@ lemma equalizer.lift_ι {G : C ⥤ Type w} (φ : G ⟶ A.toFunctor)
     equalizer.lift f g φ w ≫ equalizer.ι f g = φ :=
   rfl
 
-/-- The (limit) fork which expresses `(Subfunctor.equalizer f g).toFunctor` as
-the equalizer of `f` and `g`. -/
+/--
+The (limit) fork which expresses `(Subfunctor.equalizer f g).toFunctor` as
+the equalizer of `f` and `g`.
+-/
 @[simps! pt]
-def equalizer.fork : Limits.Fork f g :=
-  Limits.Fork.ofι (equalizer.ι f g) (equalizer.condition f g)
+def equalizer.fork : Limits.Fork f g := Limits.Fork.ofι (equalizer.ι f g) (equalizer.condition f g)
 
 @[simp]
 lemma equalizer.fork_ι :

@@ -34,9 +34,11 @@ open scoped FinsetFamily
 namespace Finset
 variable {α : Type*} [DecidableEq α] {𝒜 ℬ : Finset (Finset α)} {s t : Finset α} {a : α}
 
-/-- A set family `𝒜` shatters a set `s` if all subsets of `s` can be obtained as the intersection
+/--
+A set family `𝒜` shatters a set `s` if all subsets of `s` can be obtained as the intersection
 of `s` and some element of the set family, and we denote this `𝒜.Shatters s`. We also say that `s`
-is *traced* by `𝒜`. -/
+is *traced* by `𝒜`.
+-/
 def Shatters (𝒜 : Finset (Finset α)) (s : Finset α) : Prop := ∀ ⦃t⦄, t ⊆ s → ∃ u ∈ 𝒜, s ∩ u = t
 
 instance : DecidablePred 𝒜.Shatters := fun _s ↦ decidableForallOfDecidableSubsets
@@ -76,8 +78,7 @@ lemma univ_shatters [Fintype α] : univ.Shatters s :=
   rw [shatters_iff, powerset_univ]; simp_rw [univ_inter, image_id']
 
 /-- The set family of sets that are shattered by `𝒜`. -/
-def shatterer (𝒜 : Finset (Finset α)) : Finset (Finset α) :=
-  {s ∈ 𝒜.biUnion powerset | 𝒜.Shatters s}
+def shatterer (𝒜 : Finset (Finset α)) : Finset (Finset α) := {s ∈ 𝒜.biUnion powerset | 𝒜.Shatters s}
 
 @[simp] lemma mem_shatterer : s ∈ 𝒜.shatterer ↔ 𝒜.Shatters s := by
   refine mem_filter.trans <| and_iff_right_of_imp fun h ↦ ?_

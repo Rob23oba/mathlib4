@@ -66,8 +66,10 @@ def rightTriple : Triple F G R where
   adj₁ := q.adj₂
   adj₂ := q.adj₃
 
-/-- The adjoint quadruple `R.op ⊣ G.op ⊣ F.op ⊣ L.op` dual to an
-adjoint quadruple `L ⊣ F ⊣ G ⊣ R`. -/
+/--
+The adjoint quadruple `R.op ⊣ G.op ⊣ F.op ⊣ L.op` dual to an
+adjoint quadruple `L ⊣ F ⊣ G ⊣ R`.
+-/
 @[simps]
 protected def op : Quadruple R.op G.op F.op L.op where
   adj₁ := q.adj₃.op

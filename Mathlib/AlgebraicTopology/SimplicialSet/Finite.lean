@@ -36,9 +36,11 @@ protected class Finite : Prop where
 attribute [instance] Finite.finite
 
 instance [X.Finite] (n : ℕ) : Finite (X.nonDegenerate n) :=
-  Finite.of_injective (fun x ↦ N.mk _ x.property) (fun x y h ↦ by
-    rw [N.ext_iff, S.ext_iff'] at h
-    aesop)
+  Finite.of_injective
+    (fun x ↦ N.mk _ x.property)
+    (fun x y h ↦ by
+      rw [N.ext_iff, S.ext_iff'] at h
+      aesop)
 
 lemma finite_of_hasDimensionLT (d : ℕ) [X.HasDimensionLT d]
     (h : ∀ (i : ℕ) (_ : i < d), Finite (X.nonDegenerate i)) :
@@ -75,9 +77,10 @@ lemma hasDimensionLT_of_finite [X.Finite] :
 
 instance [X.Finite] (n : SimplexCategoryᵒᵖ) : Finite (X.obj n) := by
   obtain ⟨n⟩ := n
-  induction n using SimplexCategory.rec with | _ n
-  let φ : (Σ (m : Fin (n + 1)) (f : ⦋n⦌ ⟶ ⦋m.1⦌),
-    X.nonDegenerate m.1) → X _⦋n⦌ := fun ⟨m, f, x⟩ ↦ X.map f.op x.1
+  induction n using SimplexCategory.rec with
+  | _ n
+  let φ : (Σ (m : Fin (n + 1)) (f : ⦋n⦌ ⟶ ⦋m.1⦌), X.nonDegenerate m.1) → X _⦋n⦌ := fun ⟨m, f, x⟩ ↦
+    X.map f.op x.1
   have hφ : Function.Surjective φ := fun x ↦ by
     obtain ⟨m, f, hf, y, rfl⟩ := X.exists_nonDegenerate x
     have := SimplexCategory.le_of_epi f
@@ -121,8 +124,7 @@ lemma finite_subcomplex_top_iff :
     SSet.Finite (⊤ : X.Subcomplex) ↔ X.Finite :=
   finite_iff_of_iso (Subcomplex.topIso X)
 
-instance finite_range {Y : SSet.{u}} (f : Y ⟶ X) [Y.Finite] :
-    SSet.Finite (Subcomplex.range f) :=
+instance finite_range {Y : SSet.{u}} (f : Y ⟶ X) [Y.Finite] : SSet.Finite (Subcomplex.range f) :=
   finite_of_epi (Subcomplex.toRange f)
 
 lemma finite_iSup_iff {X : SSet.{u}} {ι : Type*} [Finite ι]

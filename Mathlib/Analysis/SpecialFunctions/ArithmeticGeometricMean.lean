@@ -50,10 +50,12 @@ open Function Filter
 
 open scoped Topology
 
-/-- `agmSequences x y` is the sequence of (geometric, arithmetic) means
-converging to the arithmetic-geometric mean starting from `x` and `y`. -/
-noncomputable def agmSequences (x y : ℝ≥0) : ℕ → ℝ≥0 × ℝ≥0 :=
-  fun n ↦ (fun p ↦ (sqrt (p.1 * p.2), (p.1 + p.2) / 2))^[n + 1] (x, y)
+/--
+`agmSequences x y` is the sequence of (geometric, arithmetic) means
+converging to the arithmetic-geometric mean starting from `x` and `y`.
+-/
+noncomputable def agmSequences (x y : ℝ≥0) : ℕ → ℝ≥0 × ℝ≥0 := fun n ↦
+  (fun p ↦ (sqrt (p.1 * p.2), (p.1 + p.2) / 2))^[n + 1] (x, y)
 
 variable {x y : ℝ≥0} {n : ℕ}
 
@@ -161,8 +163,7 @@ lemma tendsto_dist_agmSequences_atTop_zero :
   exact (_root_.tendsto_pow_atTop_nhds_zero_of_lt_one (by simp) (by norm_num)).mul_const _
 
 /-- The arithmetic-geometric mean of two `NNReal`s, defined as the infimum of arithmetic means. -/
-noncomputable def agm (x y : ℝ≥0) : ℝ≥0 :=
-  ⨅ n, (agmSequences x y n).2
+noncomputable def agm (x y : ℝ≥0) : ℝ≥0 := ⨅ n, (agmSequences x y n).2
 
 lemma agm_comm : agm x y = agm y x := by
   unfold agm

@@ -43,7 +43,8 @@ lemma gromovProduct_eq : gromovProduct x y z = (dist x y + dist x z - dist y z) 
 lemma gromovProduct_comm : gromovProduct x y z = gromovProduct x z y := by
   grind [gromovProduct_eq, dist_comm]
 
-grind_pattern gromovProduct_comm => gromovProduct x y z where y =/= z
+grind_pattern gromovProduct_comm => gromovProduct x y z where
+  y =/= z
 
 @[grind! .]
 lemma gromovProduct_nonneg : 0 ≤ gromovProduct x y z := by

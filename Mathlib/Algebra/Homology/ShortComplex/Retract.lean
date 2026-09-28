@@ -21,9 +21,9 @@ open Limits
 
 namespace ShortComplex
 
-variable {C : Type*} [Category* C] [HasZeroMorphisms C]
-  {S₁ T₁ S₂ T₂ : ShortComplex C}
-  [S₁.HasHomology] [T₁.HasHomology] [S₂.HasHomology] [T₂.HasHomology]
+variable
+  {C : Type*} [Category* C] [HasZeroMorphisms C]
+  {S₁ T₁ S₂ T₂ : ShortComplex C} [S₁.HasHomology] [T₁.HasHomology] [S₂.HasHomology] [T₂.HasHomology]
   {f₁ : S₁ ⟶ T₁} {f₂ : S₂ ⟶ T₂}
 
 set_option backward.defeqAttrib.useBackward true in

@@ -64,8 +64,10 @@ section
 
 variable (G : Type*) [Group G] [∀ X, MulAction G (F.obj X)]
 
-/-- We say `G` acts naturally on the fibers of `F` if for every `f : X ⟶ Y`, the `G`-actions
-on `F.obj X` and `F.obj Y` are compatible with `F.map f`. -/
+/--
+We say `G` acts naturally on the fibers of `F` if for every `f : X ⟶ Y`, the `G`-actions
+on `F.obj X` and `F.obj Y` are compatible with `F.map f`.
+-/
 class IsNaturalSMul : Prop where
   naturality (g : G) {X Y : C} (f : X ⟶ Y) (x : F.obj X) : F.map f (g • x) = g • F.map f x
 
@@ -85,13 +87,16 @@ variable [IsNaturalSMul F G]
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- If `G` acts naturally on `F.obj X` for each `X : C`, this is the canonical
-group homomorphism into the automorphism group of `F`. -/
+/--
+If `G` acts naturally on `F.obj X` for each `X : C`, this is the canonical
+group homomorphism into the automorphism group of `F`.
+-/
 def toAut : G →* Aut F where
-  toFun g := NatIso.ofComponents (isoOnObj F g) <| by
-    intro X Y f
-    ext
-    exact (IsNaturalSMul.naturality _ _ _).symm
+  toFun g :=
+    NatIso.ofComponents (isoOnObj F g) <| by
+      intro X Y f
+      ext
+      exact (IsNaturalSMul.naturality _ _ _).symm
   map_one' := by
     ext
     dsimp [isoOnObj]
@@ -225,10 +230,12 @@ section
 variable [GaloisCategory C]
 variable (G : Type*) [Group G] [∀ (X : C), MulAction G (F.obj X)]
 
-/-- A compact, topological group `G` with a natural action on `F.obj X` for each `X : C`
+/--
+A compact, topological group `G` with a natural action on `F.obj X` for each `X : C`
 is a fundamental group of `F`, if `G` acts transitively on the fibers of Galois objects,
 the action on `F.obj X` is continuous for all `X : C` and the only trivially acting element of `G`
-is the identity. -/
+is the identity.
+-/
 class IsFundamentalGroup [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] : Prop
     extends IsNaturalSMul F G where
   transitive_of_isGalois (X : C) [IsGalois X] : MulAction.IsPretransitive G (F.obj X)
@@ -266,8 +273,10 @@ lemma toAut_bijective : Function.Bijective (toAut F G) where
 instance (X : C) [IsConnected X] : MulAction.IsPretransitive G (F.obj X) :=
   isPretransitive_of_surjective F G (toAut_bijective F G).surjective X
 
-/-- If `G` is the fundamental group for `F`, it is isomorphic to `Aut F` as groups and
-this isomorphism is also a homeomorphism (see `toAutMulEquiv_isHomeomorph`). -/
+/--
+If `G` is the fundamental group for `F`, it is isomorphic to `Aut F` as groups and
+this isomorphism is also a homeomorphism (see `toAutMulEquiv_isHomeomorph`).
+-/
 noncomputable def toAutMulEquiv : G ≃* Aut F :=
   MulEquiv.ofBijective (toAut F G) (toAut_bijective F G)
 

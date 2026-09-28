@@ -60,18 +60,25 @@ namespace Polynomial
 
 variable {K : Type*} [Field K] [DecidableEq K]
 
-/-- The Sturm sequence of `p` and `q`: the list `[p, q, -(p % q), …]` of successive negated
-remainders, ending at the last nonzero one. -/
+/--
+The Sturm sequence of `p` and `q`: the list `[p, q, -(p % q), …]` of successive negated
+remainders, ending at the last nonzero one.
+-/
 noncomputable def sturmSeq (p q : K[X]) : List K[X] :=
   if p = 0 then
     []
   else
     p :: (sturmSeq q (-p % q))
-  termination_by if p = 0 then 0 else if q = 0 then 1 else 2 + natDegree q
-  decreasing_by
-    have hdeg := fun (h : -p % q ≠ 0) (hq : q ≠ 0) =>
-      natDegree_lt_natDegree h (degree_mod_lt (-p) hq)
-    grind
+termination_by
+  if p = 0 then
+    0
+  else if q = 0 then
+    1
+  else
+    2 + natDegree q
+decreasing_by
+  have hdeg := fun (h : -p % q ≠ 0) (hq : q ≠ 0) => natDegree_lt_natDegree h (degree_mod_lt (-p) hq)
+  grind
 
 /-- The Sturm sequence of `0` and `q` is the empty sequence. -/
 @[simp]

@@ -34,19 +34,15 @@ variable {n : ℕ∞ω}
 
 namespace UpperHalfPlane
 
-noncomputable instance : ChartedSpace ℂ ℍ :=
-  isOpenEmbedding_coe.singletonChartedSpace
+noncomputable instance : ChartedSpace ℂ ℍ := isOpenEmbedding_coe.singletonChartedSpace
 
-instance : IsManifold 𝓘(ℂ) ω ℍ :=
-  isOpenEmbedding_coe.isManifold_singleton
+instance : IsManifold (𝓘(ℂ)) ω ℍ := isOpenEmbedding_coe.isManifold_singleton
 
 /-- The inclusion map `ℍ → ℂ` is a map of `C^n` manifolds. -/
-theorem contMDiff_coe : CMDiff n ((↑) : ℍ → ℂ) :=
-  fun _ => contMDiffAt_extChartAt
+theorem contMDiff_coe : CMDiff n ((↑) : ℍ → ℂ) := fun _ => contMDiffAt_extChartAt
 
 /-- The inclusion map `ℍ → ℂ` is a differentiable map of manifolds. -/
-theorem mdifferentiable_coe : MDiff ((↑) : ℍ → ℂ) :=
-  contMDiff_coe.mdifferentiable one_ne_zero
+theorem mdifferentiable_coe : MDiff ((↑) : ℍ → ℂ) := contMDiff_coe.mdifferentiable one_ne_zero
 
 lemma contMDiffAt_ofComplex {z : ℂ} (hz : 0 < z.im) : CMDiffAt n ofComplex z := by
   rw [contMDiffAt_iff]
@@ -214,17 +210,18 @@ lemma meromorphicOrderAt_comp_smul {f : ℍ → ℂ} {τ : ℍ} {g : GL (Fin 2) 
 
 end Complex
 
-
 section Real
 
-/-- `ℝ`-linear map from `ℂ` to itself, which we shall show is the real derivative of the
-`GL(2, ℝ)`-action on `ℍ`. -/
+/--
+`ℝ`-linear map from `ℂ` to itself, which we shall show is the real derivative of the
+`GL(2, ℝ)`-action on `ℍ`.
+-/
 noncomputable def smulFDeriv (g : GL (Fin 2) ℝ) (z : ℂ) : ℂ →L[ℝ] ℂ :=
   (σ g) ∘L (ContinuousLinearMap.toSpanSingleton ℂ (g.det.val / denom g z ^ 2)).restrictScalars ℝ
 
 @[simp]
-theorem smulFDeriv_J_mul (g : GL (Fin 2) ℝ) (z : ℂ) :
-    smulFDeriv (J * g) z = -Complex.conjCLE ∘L smulFDeriv g z := by
+theorem smulFDeriv_J_mul (g : GL (Fin 2) ℝ) (z : ℂ)
+    : smulFDeriv (J * g) z = - Complex.conjCLE ∘L smulFDeriv g z := by
   ext
   by_cases hg : 0 < g.val.det
   · simp [smulFDeriv, σ, hg, hg.not_gt, neg_div]

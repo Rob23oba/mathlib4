@@ -7,7 +7,6 @@ module
 
 public import Mathlib.CategoryTheory.ObjectProperty.Small
 public import Mathlib.CategoryTheory.Limits.Presentation
-
 import Mathlib.CategoryTheory.Adjunction.Limits
 
 /-!
@@ -39,15 +38,18 @@ namespace CategoryTheory.ObjectProperty
 
 open Limits
 
-variable {C D : Type*} [Category* C] [Category* D] (P : ObjectProperty C)
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (P : ObjectProperty C)
   (J : Type u') [Category.{v'} J]
   {J' : Type u''} [Category.{v''} J']
 
-/-- The property of objects that are *equal* to `limit F` for some
-functor `F : J ⥤ C` where all `F.obj j` satisfy `P`. -/
+/--
+The property of objects that are *equal* to `limit F` for some
+functor `F : J ⥤ C` where all `F.obj j` satisfy `P`.
+-/
 inductive strictLimitsOfShape : ObjectProperty C
-  | limit (F : J ⥤ C) [HasLimit F] (hF : ∀ j, P (F.obj j)) :
-    strictLimitsOfShape (limit F)
+  | limit (F : J ⥤ C) [HasLimit F] (hF : ∀ j, P (F.obj j)) : strictLimitsOfShape (limit F)
 
 variable {P} in
 lemma strictLimitsOfShape_monotone {Q : ObjectProperty C} (h : P ≤ Q) :
@@ -62,8 +64,10 @@ lemma strictLimitsOfShape_bot [Nonempty J] :
   rintro _ ⟨_, h⟩
   exact h (Classical.arbitrary J)
 
-/-- A structure expressing that `X : C` is the limit of a functor
-`diag : J ⥤ C` such that `P (diag.obj j)` holds for all `j`. -/
+/--
+A structure expressing that `X : C` is the limit of a functor
+`diag : J ⥤ C` such that `P (diag.obj j)` holds for all `j`.
+-/
 structure LimitOfShape (X : C) extends LimitPresentation J X where
   prop_diag_obj (j : J) : P (diag.obj j)
 
@@ -71,54 +75,61 @@ namespace LimitOfShape
 
 variable {P J}
 
-/-- If `F : J ⥤ C` is a functor that has a limit and is such that for all `j`,
+/--
+If `F : J ⥤ C` is a functor that has a limit and is such that for all `j`,
 `F.obj j` satisfies a property `P`, then this structure expresses that `limit F`
-is indeed a limit of objects satisfying `P`. -/
-noncomputable def limit (F : J ⥤ C) [HasLimit F] (hF : ∀ j, P (F.obj j)) :
-    P.LimitOfShape J (limit F) where
+is indeed a limit of objects satisfying `P`.
+-/
+noncomputable def limit (F : J ⥤ C) [HasLimit F] (hF : ∀ j, P (F.obj j))
+    : P.LimitOfShape J (limit F) where
   toLimitPresentation := .limit F
   prop_diag_obj := hF
 
-/-- If `X` is a limit indexed by `J` of objects satisfying a property `P`, then
-any object that is isomorphic to `X` also is. -/
+/--
+If `X` is a limit indexed by `J` of objects satisfying a property `P`, then
+any object that is isomorphic to `X` also is.
+-/
 @[simps toLimitPresentation]
-def ofIso {X : C} (h : P.LimitOfShape J X) {Y : C} (e : X ≅ Y) :
-    P.LimitOfShape J Y where
+def ofIso {X : C} (h : P.LimitOfShape J X) {Y : C} (e : X ≅ Y) : P.LimitOfShape J Y where
   toLimitPresentation := .ofIso h.toLimitPresentation e
   prop_diag_obj := h.prop_diag_obj
 
-/-- If `X` is a limit indexed by `J` of objects satisfying a property `P`,
-it is also a limit indexed by `J` of objects satisfying `Q` if `P ≤ Q`. -/
+/--
+If `X` is a limit indexed by `J` of objects satisfying a property `P`,
+it is also a limit indexed by `J` of objects satisfying `Q` if `P ≤ Q`.
+-/
 @[simps toLimitPresentation]
-def ofLE {X : C} (h : P.LimitOfShape J X) {Q : ObjectProperty C} (hPQ : P ≤ Q) :
-    Q.LimitOfShape J X where
+def ofLE {X : C} (h : P.LimitOfShape J X) {Q : ObjectProperty C} (hPQ : P ≤ Q)
+    : Q.LimitOfShape J X where
   toLimitPresentation := h.toLimitPresentation
   prop_diag_obj j := hPQ _ (h.prop_diag_obj j)
 
 /-- Change the index category for `ObjectProperty.LimitOfShape`. -/
 @[simps toLimitPresentation]
-noncomputable def reindex {X : C} (h : P.LimitOfShape J X) (G : J' ⥤ J) [G.Initial] :
-    P.LimitOfShape J' X where
+noncomputable def reindex {X : C} (h : P.LimitOfShape J X) (G : J' ⥤ J) [G.Initial]
+    : P.LimitOfShape J' X where
   toLimitPresentation := h.toLimitPresentation.reindex G
   prop_diag_obj _ := h.prop_diag_obj _
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `P : ObjectProperty C`, and a presentation `P.LimitOfShape J X`
-of an object `X : C`, this is the induced functor `J ⥤ StructuredArrow P.ι X`. -/
+/--
+Given `P : ObjectProperty C`, and a presentation `P.LimitOfShape J X`
+of an object `X : C`, this is the induced functor `J ⥤ StructuredArrow P.ι X`.
+-/
 @[simps]
-def toStructuredArrow
-    {X : C} (p : P.LimitOfShape J X) :
-    J ⥤ StructuredArrow X P.ι where
+def toStructuredArrow {X : C} (p : P.LimitOfShape J X) : J ⥤ StructuredArrow X P.ι where
   obj j := StructuredArrow.mk (Y := ⟨_, p.prop_diag_obj j⟩) (by exact p.π.app j)
-  map f := StructuredArrow.homMk (ObjectProperty.homMk (by exact p.diag.map f))
-    (by simpa using (p.π.naturality f).symm)
+  map f :=
+    StructuredArrow.homMk (ObjectProperty.homMk (by exact p.diag.map f))
+      (by simpa using (p.π.naturality f).symm)
 
 end LimitOfShape
 
-/-- The property of objects that are the point of a limit cone for a
-functor `F : J ⥤ C` where all objects `F.obj j` satisfy `P`. -/
-def limitsOfShape : ObjectProperty C :=
-  fun X ↦ Nonempty (P.LimitOfShape J X)
+/--
+The property of objects that are the point of a limit cone for a
+functor `F : J ⥤ C` where all objects `F.obj j` satisfy `P`.
+-/
+def limitsOfShape : ObjectProperty C := fun X ↦ Nonempty (P.LimitOfShape J X)
 
 variable {P J} in
 lemma LimitOfShape.limitsOfShape {X : C} (h : P.LimitOfShape J X) :
@@ -166,21 +177,24 @@ lemma limitsOfShape_isoClosure :
    ⟨{ toLimitPresentation := h.changeDiag (h.diag.isoCopyObj obj (fun j ↦ (h₂ j).some)).symm
       prop_diag_obj := h₁ }⟩
 
-instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} J] [LocallySmall.{w} J] :
-    ObjectProperty.Small.{w} (P.strictLimitsOfShape J) := by
+instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} J] [LocallySmall.{w} J]
+    : ObjectProperty.Small.{w} (P.strictLimitsOfShape J) := by
   refine small_of_surjective
-    (f := fun (F : { F : J ⥤ P.FullSubcategory // HasLimit (F ⋙ P.ι) }) ↦
-      (⟨_, letI := F.2; ⟨F.1 ⋙ P.ι, fun j ↦ (F.1.obj j).2⟩⟩)) ?_
+    (f := fun (F : {F : J ⥤ P.FullSubcategory // HasLimit (F ⋙ P.ι)}) ↦
+      (⟨_, letI := F.2; ⟨F.1 ⋙ P.ι, fun j ↦ (F.1.obj j).2⟩⟩))
+    ?_
   rintro ⟨_, ⟨F, hF⟩⟩
   exact ⟨⟨P.lift F hF, by assumption⟩, rfl⟩
 
-instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} J] [LocallySmall.{w} J] :
-    ObjectProperty.EssentiallySmall.{w} (P.limitsOfShape J) := by
+instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} J] [LocallySmall.{w} J]
+    : ObjectProperty.EssentiallySmall.{w} (P.limitsOfShape J) := by
   rw [← isoClosure_strictLimitsOfShape]
   infer_instance
 
-/-- A property of objects satisfies `P.IsClosedUnderLimitsOfShape J` if it
-is stable by limits of shape `J`. -/
+/--
+A property of objects satisfies `P.IsClosedUnderLimitsOfShape J` if it
+is stable by limits of shape `J`.
+-/
 @[mk_iff]
 class IsClosedUnderLimitsOfShape (P : ObjectProperty C) (J : Type u') [Category.{v'} J] where
   limitsOfShape_le (P J) : P.limitsOfShape J ≤ P
@@ -249,8 +263,8 @@ lemma IsClosedUnderLimitsOfShape.of_equivalence (e : J ≌ J')
   rwa [← P.isClosedUnderLimitsOfShape_iff_of_equivalence e]
 
 instance IsClosedUnderLimitsOfShape.inverseImage
-    (P : ObjectProperty D) (F : C ⥤ D) [P.IsClosedUnderLimitsOfShape J]
-    [PreservesLimitsOfShape J F] : (P.inverseImage F).IsClosedUnderLimitsOfShape J :=
+    (P : ObjectProperty D) (F : C ⥤ D) [P.IsClosedUnderLimitsOfShape J] [PreservesLimitsOfShape J F]
+    : (P.inverseImage F).IsClosedUnderLimitsOfShape J :=
   ⟨fun _ ⟨c, H⟩ ↦ ObjectProperty.LimitOfShape.prop (P := P) ⟨c.map F, H⟩⟩
 
 lemma isClosedUnderLimitsOfShape_inverseImage_iff (P : ObjectProperty D)

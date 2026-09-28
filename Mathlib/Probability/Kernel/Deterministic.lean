@@ -54,8 +54,10 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 
 namespace ProbabilityTheory
 
-/-- A kernel is deterministic if copying then applying the kernel to the two copies is the same
-as first applying the kernel then copying. -/
+/--
+A kernel is deterministic if copying then applying the kernel to the two copies is the same
+as first applying the kernel then copying.
+-/
 class IsDeterministic (κ : Kernel α β) : Prop where
   parallelComp_self_comp_copy' : (κ ∥ₖ κ) ∘ₖ Kernel.copy α = Kernel.copy β ∘ₖ κ
 
@@ -103,11 +105,13 @@ lemma isDeterministic_iff_isZeroOneMeasure (κ : Kernel α β) [IsFiniteKernel �
 instance (κ : Kernel α β) [IsFiniteKernel κ] [IsDeterministic κ] : ∀ a, IsZeroOneMeasure (κ a) :=
   (isDeterministic_iff_isZeroOneMeasure κ).mp ‹_›
 
-/-- in a standard Borel space, a deterministic Markov kernel is a Dirac kernel of one measurable
-function. -/
-theorem IsDeterministic.exists_eq_deterministic [StandardBorelSpace β] (κ : Kernel α β)
-    [IsMarkovKernel κ] [IsDeterministic κ] :
-    ∃ (f : α → β) (hf : Measurable f), κ = deterministic f hf := by
+/--
+in a standard Borel space, a deterministic Markov kernel is a Dirac kernel of one measurable
+function.
+-/
+theorem IsDeterministic.exists_eq_deterministic
+    [StandardBorelSpace β] (κ : Kernel α β) [IsMarkovKernel κ] [IsDeterministic κ]
+    : ∃ (f : α → β) (hf : Measurable f), κ = deterministic f hf := by
   choose f hf using fun a ↦ exists_eq_dirac (μ := κ a)
   refine ⟨f, ?_, ?_⟩
   · intro s hs
@@ -184,8 +188,11 @@ instance (κ : Kernel α β) [IsDeterministic κ] : IsSFiniteKernel κ := by
     let : IsFiniteKernel κ := ⟨⟨0, by simp, h⟩⟩
     exact hκ inferInstance
   have h := congr($(κ.parallelComp_self_comp_copy) a (univ ×ˢ univ))
-  simp only [parallelComp_of_not_isSFiniteKernel_left κ hκ, zero_comp, zero_apply,
-    copy_comp_apply_prod κ a .univ .univ, inter_self] at h
+  simp only [
+      parallelComp_of_not_isSFiniteKernel_left κ hκ, zero_comp, zero_apply,
+      copy_comp_apply_prod κ a .univ .univ, inter_self
+    ]
+    at h
   exact ha.ne h
 
 end ProbabilityTheory.Kernel

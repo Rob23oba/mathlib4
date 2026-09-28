@@ -179,8 +179,7 @@ lemma isOpen_freeLocus [Module.FinitePresentation R M] :
 
 variable (M) in
 /-- The rank of `M` at the stalk of `p` is the rank of `Mₚ` as a `Rₚ`-module. -/
-noncomputable
-def rankAtStalk (p : PrimeSpectrum R) : ℕ :=
+noncomputable def rankAtStalk (p : PrimeSpectrum R) : ℕ :=
   Module.finrank (Localization.AtPrime p.asIdeal) (LocalizedModule p.asIdeal.primeCompl M)
 
 lemma isLocallyConstant_rankAtStalk_freeLocus [Module.FinitePresentation R M] :

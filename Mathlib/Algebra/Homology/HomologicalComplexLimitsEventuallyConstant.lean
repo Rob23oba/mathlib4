@@ -24,13 +24,13 @@ public section
 
 open CategoryTheory Category Limits
 
-variable {C J ι : Type*} [Category C] [Category J]
-  {c : ComplexShape ι} [IsCofiltered J]
+variable {C J ι : Type*} [Category C] [Category J] {c : ComplexShape ι} [IsCofiltered J]
 
 namespace HomologicalComplex
 
-variable [HasZeroMorphisms C] (F : J ⥤ HomologicalComplex C c)
-  [∀ (j : ι), HasLimit (F ⋙ eval C c j)]
+variable
+  [HasZeroMorphisms C]
+  (F : J ⥤ HomologicalComplex C c) [∀ (j : ι), HasLimit (F ⋙ eval C c j)]
   {cF : Cone F} (hcF : IsLimit cF)
 
 include hcF

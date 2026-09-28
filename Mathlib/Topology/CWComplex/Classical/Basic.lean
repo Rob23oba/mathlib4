@@ -91,79 +91,106 @@ open Metric Set Function
 
 namespace Topology
 
-/-- A CW complex of a topological space `X` relative to another subspace `D` is the data of its
+/--
+A CW complex of a topological space `X` relative to another subspace `D` is the data of its
 *`n`-cells* `cell n i` for each `n : ℕ` along with *attaching maps* that satisfy a number of
 properties with the most important being closure-finiteness (`mapsTo`) and weak topology
 (`closed'`). Note that this definition requires `C` and `D` to be closed subspaces.
-If `C` is not closed choose `X` to be `C`. -/
+If `C` is not closed choose `X` to be `C`.
+-/
 class RelCWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) (D : outParam (Set X)) where
   /-- The indexing type of the cells of dimension `n`. -/
   cell (n : ℕ) : Type u
-  /-- The characteristic map of the `n`-cell given by the index `i`.
+  /--
+  The characteristic map of the `n`-cell given by the index `i`.
   This map is a bijection when restricting to `ball 0 1`, where we consider `(Fin n → ℝ)`
-  endowed with the maximum metric. -/
+  endowed with the maximum metric.
+  -/
   map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
-  /-- The source of every characteristic map of dimension `n` is
-  `(ball 0 1 : Set (Fin n → ℝ))`. -/
+  /--
+  The source of every characteristic map of dimension `n` is
+  `(ball 0 1 : Set (Fin n → ℝ))`.
+  -/
   source_eq (n : ℕ) (i : cell n) : (map n i).source = ball 0 1
   /-- The characteristic maps are continuous when restricting to `closedBall 0 1`. -/
   continuousOn (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
   /-- The inverse of the restriction to `ball 0 1` is continuous on the image. -/
   continuousOn_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
-  /-- The open cells are pairwise disjoint. Use `RelCWComplex.pairwiseDisjoint` or
-  `RelCWComplex.disjoint_openCell_of_ne` instead. -/
-  pairwiseDisjoint' :
-    (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  /--
+  The open cells are pairwise disjoint. Use `RelCWComplex.pairwiseDisjoint` or
+  `RelCWComplex.disjoint_openCell_of_ne` instead.
+  -/
+  pairwiseDisjoint'
+    : (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
   /-- All open cells are disjoint with the base. Use `RelCWComplex.disjointBase` instead. -/
   disjointBase' (n : ℕ) (i : cell n) : Disjoint (map n i '' ball 0 1) D
-  /-- The boundary of a cell is contained in the union of the base with a finite union of closed
+  /--
+  The boundary of a cell is contained in the union of the base with a finite union of closed
   cells of a lower dimension. Use `RelCWComplex.cellFrontier_subset_base_union_finite_closedCell`
-  instead. -/
-  mapsTo (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
-    MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
-  /-- A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
-  every closed cell and `D` is closed. Use `RelCWComplex.closed` instead. -/
-  closed' (A : Set X) (hAC : A ⊆ C) :
-    ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
+  instead.
+  -/
+  mapsTo (n : ℕ) (i : cell n)
+    : ∃ I : Π m, Finset (cell m),
+      MapsTo (map n i) (sphere 0 1) (D ∪ ⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  /--
+  A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
+  every closed cell and `D` is closed. Use `RelCWComplex.closed` instead.
+  -/
+  closed' (A : Set X) (hAC : A ⊆ C)
+    : ((∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) ∧ IsClosed (A ∩ D)) → IsClosed A
   /-- The base `D` is closed. -/
   isClosedBase : IsClosed D
   /-- The union of all closed cells equals `C`. Use `RelCWComplex.union` instead. -/
   union' : D ∪ ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
-/-- Characterizing when a subspace `C` of a topological space `X` is a CW complex. Note that this
-requires `C` to be closed. If `C` is not closed choose `X` to be `C`. -/
+/--
+Characterizing when a subspace `C` of a topological space `X` is a CW complex. Note that this
+requires `C` to be closed. If `C` is not closed choose `X` to be `C`.
+-/
 class CWComplex.{u} {X : Type u} [TopologicalSpace X] (C : Set X) where
   /-- The indexing type of the cells of dimension `n`. -/
   protected cell (n : ℕ) : Type u
-  /-- The characteristic map of the `n`-cell given by the index `i`.
+  /--
+  The characteristic map of the `n`-cell given by the index `i`.
   This map is a bijection when restricting to `ball 0 1`, where we consider `(Fin n → ℝ)`
-  endowed with the maximum metric. -/
+  endowed with the maximum metric.
+  -/
   protected map (n : ℕ) (i : cell n) : PartialEquiv (Fin n → ℝ) X
-  /-- The source of every characteristic map of dimension `n` is
-  `(ball 0 1 : Set (Fin n → ℝ))`. -/
+  /--
+  The source of every characteristic map of dimension `n` is
+  `(ball 0 1 : Set (Fin n → ℝ))`.
+  -/
   protected source_eq (n : ℕ) (i : cell n) : (map n i).source = ball 0 1
   /-- The characteristic maps are continuous when restricting to `closedBall 0 1`. -/
   protected continuousOn (n : ℕ) (i : cell n) : ContinuousOn (map n i) (closedBall 0 1)
   /-- The inverse of the restriction to `ball 0 1` is continuous on the image. -/
   protected continuousOn_symm (n : ℕ) (i : cell n) : ContinuousOn (map n i).symm (map n i).target
-  /-- The open cells are pairwise disjoint. Use `CWComplex.pairwiseDisjoint` or
-  `CWComplex.disjoint_openCell_of_ne` instead. -/
-  protected pairwiseDisjoint' :
-    (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
-  /-- The boundary of a cell is contained in a finite union of closed cells of a lower dimension.
-  Use `CWComplex.mapsTo` or `CWComplex.cellFrontier_subset_finite_closedCell` instead. -/
-  protected mapsTo' (n : ℕ) (i : cell n) : ∃ I : Π m, Finset (cell m),
-    MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
-  /-- A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
-  every closed cell is closed. Use `CWComplex.closed` instead. -/
-  protected closed' (A : Set X) (hAC : A ⊆ C) :
-    (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A
+  /--
+  The open cells are pairwise disjoint. Use `CWComplex.pairwiseDisjoint` or
+  `CWComplex.disjoint_openCell_of_ne` instead.
+  -/
+  protected pairwiseDisjoint'
+    : (univ : Set (Σ n, cell n)).PairwiseDisjoint (fun ni ↦ map ni.1 ni.2 '' ball 0 1)
+  /--
+  The boundary of a cell is contained in a finite union of closed cells of a lower dimension.
+  Use `CWComplex.mapsTo` or `CWComplex.cellFrontier_subset_finite_closedCell` instead.
+  -/
+  protected mapsTo' (n : ℕ) (i : cell n)
+    : ∃ I : Π m, Finset (cell m),
+      MapsTo (map n i) (sphere 0 1) (⋃ (m < n) (j ∈ I m), map m j '' closedBall 0 1)
+  /--
+  A CW complex has weak topology, i.e. a set `A` in `X` is closed iff its intersection with
+  every closed cell is closed. Use `CWComplex.closed` instead.
+  -/
+  protected closed' (A : Set X) (hAC : A ⊆ C)
+    : (∀ n j, IsClosed (A ∩ map n j '' closedBall 0 1)) → IsClosed A
   /-- The union of all closed cells equals `C`. Use `CWComplex.union` instead. -/
   protected union' : ⋃ (n : ℕ) (j : cell n), map n j '' closedBall 0 1 = C
 
 @[simps -isSimp]
-instance (priority := high) CWComplex.instRelCWComplex {X : Type*} [TopologicalSpace X] (C : Set X)
-    [CWComplex C] : RelCWComplex C ∅ where
+instance (priority := high) CWComplex.instRelCWComplex
+    {X : Type*} [TopologicalSpace X] (C : Set X) [CWComplex C]
+    : RelCWComplex C ∅ where
   cell := CWComplex.cell C
   map := CWComplex.map
   source_eq := CWComplex.source_eq
@@ -178,8 +205,8 @@ instance (priority := high) CWComplex.instRelCWComplex {X : Type*} [TopologicalS
 
 /-- A relative CW complex with an empty base is an absolute CW complex. -/
 @[simps -isSimp, instance_reducible]
-def RelCWComplex.toCWComplex {X : Type*} [TopologicalSpace X] (C : Set X) [RelCWComplex C ∅] :
-    CWComplex C where
+def RelCWComplex.toCWComplex {X : Type*} [TopologicalSpace X] (C : Set X) [RelCWComplex C ∅]
+    : CWComplex C where
   cell := cell C
   map := map
   source_eq := source_eq
@@ -196,24 +223,30 @@ lemma RelCWComplex.toCWComplex_eq {X : Type*} [TopologicalSpace X] (C : Set X)
 
 variable {X : Type*} [t : TopologicalSpace X] {C D : Set X}
 
-/-- The open `n`-cell given by the index `i`. Use this instead of `map n i '' ball 0 1` whenever
-possible. -/
+/--
+The open `n`-cell given by the index `i`. Use this instead of `map n i '' ball 0 1` whenever
+possible.
+-/
 def RelCWComplex.openCell [RelCWComplex C D] (n : ℕ) (i : cell C n) : Set X := map n i '' ball 0 1
 
-/-- The closed `n`-cell given by the index `i`. Use this instead of `map n i '' closedBall 0 1`
-whenever possible. -/
+/--
+The closed `n`-cell given by the index `i`. Use this instead of `map n i '' closedBall 0 1`
+whenever possible.
+-/
 def RelCWComplex.closedCell [RelCWComplex C D] (n : ℕ) (i : cell C n) : Set X :=
   map n i '' closedBall 0 1
 
-/-- The boundary of the `n`-cell given by the index `i`. Use this instead of `map n i '' sphere 0 1`
-whenever possible. -/
+/--
+The boundary of the `n`-cell given by the index `i`. Use this instead of `map n i '' sphere 0 1`
+whenever possible.
+-/
 def RelCWComplex.cellFrontier [RelCWComplex C D] (n : ℕ) (i : cell C n) : Set X :=
   map n i '' sphere 0 1
 
 namespace CWComplex
 
-export RelCWComplex (cell map source_eq continuousOn continuousOn_symm isClosedBase openCell
-  closedCell cellFrontier)
+export RelCWComplex
+  (cell map source_eq continuousOn continuousOn_symm isClosedBase openCell closedCell cellFrontier)
 
 end CWComplex
 
@@ -654,8 +687,10 @@ section Subcomplex
 
 namespace RelCWComplex
 
-/-- A subcomplex is a closed subspace of a CW complex that is the union of open cells of the
-  CW complex. -/
+/--
+A subcomplex is a closed subspace of a CW complex that is the union of open cells of the
+CW complex.
+-/
 structure Subcomplex (C : Set X) {D : Set X} [RelCWComplex C D] where
   /-- The underlying set of the subcomplex. -/
   carrier : Set X
@@ -698,14 +733,18 @@ lemma ext {E F : Subcomplex C} (h : ∀ x, x ∈ E ↔ x ∈ F) : E = F :=
 lemma eq_iff (E F : Subcomplex C) : E = F ↔ (E : Set X) = F :=
   SetLike.coe_injective.eq_iff.symm
 
-/-- Copy of a `Subcomplex` with a new `carrier` equal to the old one. Useful to fix definitional
-equalities. -/
-protected def copy (E : Subcomplex C) (F : Set X) (hF : F = E) (J : (n : ℕ) → Set (cell C n))
-    (hJ : J = E.I) : Subcomplex C :=
-  { carrier := F
-    I := J
-    closed' := hF.symm ▸ E.closed'
-    union' := hF.symm ▸ hJ ▸ E.union' }
+/--
+Copy of a `Subcomplex` with a new `carrier` equal to the old one. Useful to fix definitional
+equalities.
+-/
+protected def copy
+    (E : Subcomplex C) (F : Set X) (hF : F = E) (J : (n : ℕ) → Set (cell C n)) (hJ : J = E.I)
+    : Subcomplex C := {
+  carrier := F
+  I := J
+  closed' := hF.symm ▸ E.closed'
+  union' := hF.symm ▸ hJ ▸ E.union'
+}
 
 @[simp, alias_in CWComplex.Subcomplex]
 lemma coe_copy (E : Subcomplex C) (F : Set X) (hF : F = E) (J : (n : ℕ) → Set (cell C n))
@@ -741,13 +780,19 @@ lemma CWComplex.Subcomplex.union {C : Set X} [CWComplex C] {E : Subcomplex C} :
   rw [empty_union] at this
   exact this
 
-/-- An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
-that for every cell of the subcomplex the corresponding closed cell is a subset of `E`. -/
+/--
+An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
+that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.
+-/
 @[simps -isSimp]
-def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D]
+def RelCWComplex.Subcomplex.mk'
+    [T2Space X]
+    (C : Set X)
+    {D : Set X} [RelCWComplex C D]
     (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
-    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C where
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E)
+    : Subcomplex C where
   carrier := E
   I := I
   closed' := by
@@ -773,33 +818,52 @@ def RelCWComplex.Subcomplex.mk' [T2Space X] (C : Set X) {D : Set X} [RelCWComple
       exact ⟨disjointBase n j |>.symm, fun _ _ ↦ disjoint_openCell_of_ne (by aesop)⟩
   union' := union
 
-/-- An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
-that for every cell of the subcomplex the corresponding closed cell is a subset of `E`. -/
+/--
+An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
+that for every cell of the subcomplex the corresponding closed cell is a subset of `E`.
+-/
 @[simps! -isSimp]
-def CWComplex.Subcomplex.mk' [T2Space X] (C : Set X) [CWComplex C] (E : Set X)
-    (I : Π n, Set (cell C n))
+def CWComplex.Subcomplex.mk'
+    [T2Space X]
+    (C : Set X) [CWComplex C]
+    (E : Set X) (I : Π n, Set (cell C n))
     (closedCell_subset : ∀ (n : ℕ) (i : I n), closedCell (C := C) n i ⊆ E)
-    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C :=
+    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E)
+    : Subcomplex C :=
   RelCWComplex.Subcomplex.mk' C E I closedCell_subset (by rw [empty_union]; exact union)
 
-/-- An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
-that `E` is a CW-complex. -/
+/--
+An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
+that `E` is a CW-complex.
+-/
 @[simps -isSimp]
-def RelCWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) {D : Set X} [RelCWComplex C D] (E : Set X)
-    (I : Π n, Set (cell C n)) [RelCWComplex E D]
-    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) : Subcomplex C where
+def RelCWComplex.Subcomplex.mk''
+    [T2Space X]
+    (C : Set X)
+    {D : Set X} [RelCWComplex C D]
+    (E : Set X)
+    (I : Π n, Set (cell C n))
+    [RelCWComplex E D]
+    (union : D ∪ ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E)
+    : Subcomplex C where
   carrier := E
   I := I
   closed' := isClosed
   union' := union
 
-/-- An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
-that `E` is a CW-complex. -/
+/--
+An alternative version of `Subcomplex.mk`: Instead of requiring that `E` is closed it requires
+that `E` is a CW-complex.
+-/
 @[simps -isSimp]
-def CWComplex.Subcomplex.mk'' [T2Space X] (C : Set X) [h : CWComplex C] (E : Set X)
-    (I : Π n, Set (cell C n)) [CWComplex E]
-    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E) :
-    Subcomplex C where
+def CWComplex.Subcomplex.mk''
+    [T2Space X]
+    (C : Set X) [h : CWComplex C]
+    (E : Set X)
+    (I : Π n, Set (cell C n))
+    [CWComplex E]
+    (union : ⋃ (n : ℕ) (j : I n), openCell (C := C) n j = E)
+    : Subcomplex C where
   carrier := E
   I := I
   closed' := RelCWComplex.isClosed
@@ -827,14 +891,16 @@ variable [T2Space X]
 
 namespace RelCWComplex
 
-/-- A non-standard definition of the `n`-skeleton of a CW complex for `n ∈ ℕ ∪ {∞}`.
+/--
+A non-standard definition of the `n`-skeleton of a CW complex for `n ∈ ℕ ∪ {∞}`.
 This allows the base case of induction to be about the base instead of being about the union of
 the base and some points.
 The standard `skeleton` is defined in terms of `skeletonLT`. `skeletonLT` is preferred
-in statements. You should then derive the statement about `skeleton`. -/
+in statements. You should then derive the statement about `skeleton`.
+-/
 @[simps! (attr := alias_in CWComplex) -isSimp, irreducible]
 def skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
-    Subcomplex.mk' _ (D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j)
+  Subcomplex.mk' _ (D ∪ ⋃ (m : ℕ) (_ : m < n) (j : cell C m), closedCell m j)
     (fun l ↦ {x : cell C l | l < n})
     (by
       intro l ⟨i, hi⟩
@@ -848,8 +914,10 @@ def skeletonLT (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomp
       rw [iUnion_subtype, iUnion_comm]
       rfl)
 
-/-- The `n`-skeleton of a CW complex, for `n ∈ ℕ ∪ {∞}`. For statements use `skeletonLT` instead
-and then derive the statement about `skeleton`. -/
+/--
+The `n`-skeleton of a CW complex, for `n ∈ ℕ ∪ {∞}`. For statements use `skeletonLT` instead
+and then derive the statement about `skeleton`.
+-/
 abbrev skeleton (C : Set X) {D : Set X} [RelCWComplex C D] (n : ℕ∞) : Subcomplex C :=
   skeletonLT C (n + 1)
 
@@ -1079,29 +1147,35 @@ set_option backward.isDefEq.respectTransparency.types false in
 /-- A closed discrete subset of a space is a CW complex. -/
 @[reducible, simps -isSimp]
 def CWComplex.OfDiscreteClosed (hD : IsDiscrete D) (Dc : IsClosed D) : CWComplex D where
-  cell n := match n with
+  cell n :=
+    match n with
     | 0 => D
     | (_ + 1) => PEmpty
-  map n i := match n with
-    | 0 => PartialEquiv.single ![] i
+  map n i :=
+    match n with
+    | 0 => PartialEquiv.single (![]) i
     | (_ + 1) => i.elim
-  source_eq n i := match n with
+  source_eq n i :=
+    match n with
     | 0 => by simp [ball, Matrix.empty_eq, eq_univ_iff_forall]
     | (_ + 1) => i.elim
-  continuousOn n i := match n with
+  continuousOn n i :=
+    match n with
     | 0 => continuousOn_const
     | (_ + 1) => i.elim
-  continuousOn_symm n i := match n with
+  continuousOn_symm n i :=
+    match n with
     | 0 => continuousOn_const
     | (_ + 1) => i.elim
   pairwiseDisjoint' := by
     simp_rw [PairwiseDisjoint, Set.Pairwise, Function.onFun]
-    rintro ⟨_|n, j⟩ _ ⟨_|m, i⟩ _ ne
+    rintro ⟨_ | n, j⟩ _ ⟨_ | m, i⟩ _ ne
     · simp_all [Subtype.coe_injective.ne]
     · exact i.elim
     · tauto
     · exact i.elim
-  mapsTo' n i := match n with
+  mapsTo' n i :=
+    match n with
     | 0 => by simp [Matrix.zero_empty, sphere_eq_empty_of_subsingleton]
     | (_ + 1) => i.elim
   closed' A AD _ := isClosed_of_subset_discrete_closed AD hD Dc
@@ -1113,8 +1187,8 @@ def CWComplex.OfDiscreteClosed (hD : IsDiscrete D) (Dc : IsClosed D) : CWComplex
     simpa [-Matrix.zero_empty]
 
 /-- A discrete space is a CW complex. -/
-instance CWComplex.ofDiscreteTopology {X : Type*} [TopologicalSpace X] [DiscreteTopology X] :
-    CWComplex (univ : Set X) :=
+instance CWComplex.ofDiscreteTopology {X : Type*} [TopologicalSpace X] [DiscreteTopology X]
+    : CWComplex (univ : Set X) :=
   CWComplex.OfDiscreteClosed IsDiscrete.univ isClosed_univ
 
 end Topology

@@ -40,9 +40,9 @@ noncomputable section
 
 open FaithfulSMul Function Set Submodule
 
-variable {ι R S M N : Type*} [CommRing S] [LinearOrder S]
-  [CommRing R] [Algebra S R]
-  [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  {ι R S M N : Type*} [CommRing S] [LinearOrder S] [CommRing R] [Algebra S R] [AddCommGroup M]
+  [Module R M] [AddCommGroup N] [Module R N]
 
 namespace RootPairing
 
@@ -90,8 +90,10 @@ lemma apply_root_root_zero_iff [IsDomain R] [NeZero (2 : R)] :
 end InvariantForm
 
 variable (S) in
-/-- Given a root pairing, this is an invariant symmetric bilinear form satisfying a positivity
-condition. -/
+/--
+Given a root pairing, this is an invariant symmetric bilinear form satisfying a positivity
+condition.
+-/
 structure RootPositiveForm (P : RootPairing ι R M N) [P.IsValuedIn S] where
   /-- The bilinear form bundled inside a `RootPositiveForm`. -/
   form : LinearMap.BilinForm R M
@@ -100,7 +102,9 @@ structure RootPositiveForm (P : RootPairing ι R M N) [P.IsValuedIn S] where
   exists_eq (i j : ι) : ∃ s, algebraMap S R s = form (P.root i) (P.root j)
   exists_pos_eq (i : ι) : ∃ s > 0, algebraMap S R s = form (P.root i) (P.root i)
 
-variable {P : RootPairing ι R M N} [P.IsValuedIn S] (B : P.RootPositiveForm S) (i j : ι)
+variable
+  {P : RootPairing ι R M N} [P.IsValuedIn S]
+  (B : P.RootPositiveForm S) (i j : ι)
   [FaithfulSMul S R] [Module S M] [IsScalarTower S R M]
 
 namespace RootPositiveForm
@@ -111,9 +115,11 @@ lemma form_apply_root_ne_zero (i : ι) :
   obtain ⟨s, hs, hs'⟩ := B.exists_pos_eq i
   simpa [← hs'] using hs.ne'
 
-/-- Forgetting the positivity condition, we may regard a `RootPositiveForm` as an `InvariantForm`.
+/--
+Forgetting the positivity condition, we may regard a `RootPositiveForm` as an `InvariantForm`.
 -/
-@[simps] def toInvariantForm : InvariantForm P where
+@[simps]
+def toInvariantForm : InvariantForm P where
   form := B.form
   symm := B.symm
   ne_zero := B.form_apply_root_ne_zero
@@ -124,20 +130,20 @@ lemma two_mul_apply_root_root :
     2 * B.form (P.root i) (P.root j) = P.pairing i j * B.form (P.root j) (P.root j) :=
   B.toInvariantForm.two_mul_apply_root_root i j
 
-/-- Given a root-positive form associated to a root pairing with coefficients in `R` but taking
-values in `S`, this is the associated `S`-bilinear form on the `S`-span of the roots. -/
-def posForm :
-    LinearMap.BilinForm S (span S (range P.root)) :=
+/--
+Given a root-positive form associated to a root pairing with coefficients in `R` but taking
+values in `S`, this is the associated `S`-bilinear form on the `S`-span of the roots.
+-/
+def posForm : LinearMap.BilinForm S (span S (range P.root)) :=
   LinearMap.restrictScalarsRange₂ (span S (range P.root)).subtype (span S (range P.root)).subtype
-  (Algebra.linearMap S R) (FaithfulSMul.algebraMap_injective S R) B.form
-  (fun ⟨x, hx⟩ ⟨y, hy⟩ ↦ by
-    apply LinearMap.BilinMap.apply_apply_mem_of_mem_span
-      (s := range P.root) (t := range P.root)
-      (B := (LinearMap.restrictScalarsₗ S R _ _ _).comp (B.form.restrictScalars S))
-    · rintro - ⟨i, rfl⟩ - ⟨j, rfl⟩
-      simpa using B.exists_eq i j
-    · simpa
-    · simpa)
+    (Algebra.linearMap S R) (FaithfulSMul.algebraMap_injective S R) B.form
+    (fun ⟨x, hx⟩ ⟨y, hy⟩ ↦ by
+      apply LinearMap.BilinMap.apply_apply_mem_of_mem_span (s := range P.root) (t := range P.root)
+        (B := (LinearMap.restrictScalarsₗ S R _ _ _).comp (B.form.restrictScalars S))
+      · rintro - ⟨i, rfl⟩ - ⟨j, rfl⟩
+        simpa using B.exists_eq i j
+      · simpa
+      · simpa)
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp] lemma algebraMap_posForm {x y : span S (range P.root)} :
@@ -168,8 +174,7 @@ lemma isSymm_posForm :
     simpa using B.symm.eq x y
 
 /-- The length of the `i`-th root w.r.t. a root-positive form taking values in `S`. -/
-def rootLength (i : ι) : S :=
-  B.posForm (P.rootSpanMem S i) (P.rootSpanMem S i)
+def rootLength (i : ι) : S := B.posForm (P.rootSpanMem S i) (P.rootSpanMem S i)
 
 lemma rootLength_pos (i : ι) : 0 < B.rootLength i := by
   simpa using! B.zero_lt_posForm_apply_root i

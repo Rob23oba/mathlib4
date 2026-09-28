@@ -34,8 +34,11 @@ namespace AlgebraicGeometry
 -- We refrain from considering diagrams in the over category since inverse limits in the over
 -- category is isomorphic to limits in `Scheme`. Instead we use `D ⟶ (Functor.const I).obj S` to
 -- say that the diagram is over the base scheme `S`.
-variable {I : Type u} [Category.{u} I] {S X : Scheme.{u}} (D : I ⥤ Scheme.{u})
-  (t : D ⟶ (Functor.const I).obj S) (f : X ⟶ S) (c : Cone D) (hc : IsLimit c)
+variable
+  {I : Type u} [Category.{u} I]
+  {S X : Scheme.{u}} (D : I ⥤ Scheme.{u}) (t : D ⟶ (Functor.const I).obj S)
+  (f : X ⟶ S)
+  (c : Cone D) (hc : IsLimit c)
 
 set_option backward.isDefEq.respectTransparency false in
 include hc in
@@ -195,42 +198,48 @@ lemma exists_map_eq_top
 attribute [local simp] Scheme.Hom.resLE_comp_resLE
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given a diagram `{ Dᵢ }` of schemes and an open `U ⊆ Dᵢ`,
-this is the diagram of `{ Dⱼᵢ⁻¹ U }_{j ≤ i}`. -/
-@[simps] noncomputable
-def opensDiagram (i : I) (U : (D.obj i).Opens) : Over i ⥤ Scheme where
+/--
+Given a diagram `{ Dᵢ }` of schemes and an open `U ⊆ Dᵢ`,
+this is the diagram of `{ Dⱼᵢ⁻¹ U }_{j ≤ i}`.
+-/
+@[simps]
+noncomputable def opensDiagram (i : I) (U : (D.obj i).Opens) : Over i ⥤ Scheme where
   obj j := D.map j.hom ⁻¹ᵁ U
-  map {j k} f := (D.map f.left).resLE _ _
-    (by rw [← Scheme.Hom.comp_preimage, ← D.map_comp, Over.w f])
+  map {j k} f :=
+    (D.map f.left).resLE _ _ (by rw [← Scheme.Hom.comp_preimage, ← D.map_comp, Over.w f])
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The map `Dⱼᵢ⁻¹ U ⟶ Dᵢ` from the restricted diagram to the original diagram. -/
-@[simps] noncomputable
-def opensDiagramι (i : I) (U : (D.obj i).Opens) : opensDiagram D i U ⟶ Over.forget _ ⋙ D where
+@[simps]
+noncomputable def opensDiagramι (i : I) (U : (D.obj i).Opens)
+    : opensDiagram D i U ⟶ Over.forget _ ⋙ D where
   app j := Scheme.Opens.ι _
 
 set_option backward.isDefEq.respectTransparency false in
-instance (i : I) (U : (D.obj i).Opens) (j : Over i) :
-    IsOpenImmersion ((opensDiagramι D i U).app j) := by
+instance (i : I) (U : (D.obj i).Opens) (j : Over i)
+    : IsOpenImmersion ((opensDiagramι D i U).app j) := by
   delta opensDiagramι; infer_instance
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Given a diagram `{ Dᵢ }` of schemes and an open `U ⊆ Dᵢ`,
+/--
+Given a diagram `{ Dᵢ }` of schemes and an open `U ⊆ Dᵢ`,
 the preimage of `U ⊆ Dᵢ` under the map `lim Dᵢ ⟶ Dᵢ` is the limit of `{ Dⱼᵢ⁻¹ U }_{j ≤ i}`.
-This is the underlying cone, and it is limiting as witnessed by `isLimitOpensCone` below. -/
-@[simps] noncomputable
-def opensCone (i : I) (U : (D.obj i).Opens) : Cone (opensDiagram D i U) where
+This is the underlying cone, and it is limiting as witnessed by `isLimitOpensCone` below.
+-/
+@[simps]
+noncomputable def opensCone (i : I) (U : (D.obj i).Opens) : Cone (opensDiagram D i U) where
   pt := c.π.app i ⁻¹ᵁ U
   π.app j := (c.π.app j.left).resLE _ _ (by rw [← Scheme.Hom.comp_preimage, c.w])
 
 attribute [local instance] CategoryTheory.isConnected_of_hasTerminal
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Given a diagram `{ Dᵢ }_{i ∈ I}` of schemes and an open `U ⊆ Dᵢ`,
-the preimage of `U ⊆ Dᵢ` under the map `lim Dᵢ ⟶ Dᵢ` is the limit of `{ Dⱼᵢ⁻¹ U }_{j ≤ i}`. -/
-noncomputable
-def isLimitOpensCone [IsCofiltered I] (i : I) (U : (D.obj i).Opens) :
-    IsLimit (opensCone D c i U) :=
+/--
+Given a diagram `{ Dᵢ }_{i ∈ I}` of schemes and an open `U ⊆ Dᵢ`,
+the preimage of `U ⊆ Dᵢ` under the map `lim Dᵢ ⟶ Dᵢ` is the limit of `{ Dⱼᵢ⁻¹ U }_{j ≤ i}`.
+-/
+noncomputable def isLimitOpensCone [IsCofiltered I] (i : I) (U : (D.obj i).Opens)
+    : IsLimit (opensCone D c i U) :=
   isLimitOfIsPullbackOfIsConnected (opensDiagramι D i U) _ _
     (by exact { hom := (c.π.app i ⁻¹ᵁ U).ι })
     (fun j ↦ IsOpenImmersion.isPullback _ _ _ _ (by simp) (by simp [← Scheme.Hom.comp_preimage]))
@@ -238,9 +247,11 @@ def isLimitOpensCone [IsCofiltered I] (i : I) (U : (D.obj i).Opens) :
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-instance [∀ {i j} (f : i ⟶ j), IsAffineHom (D.map f)] {i : I}
-    (U : (D.obj i).Opens) {j k : Over i} (f : j ⟶ k) :
-    IsAffineHom ((opensDiagram D i U).map f) := by
+instance
+    [∀ {i j} (f : i ⟶ j), IsAffineHom (D.map f)]
+    {i : I} (U : (D.obj i).Opens)
+    {j k : Over i} (f : j ⟶ k)
+    : IsAffineHom ((opensDiagram D i U).map f) := by
   refine ⟨fun V hV ↦ ?_⟩
   convert!
     ((hV.image_of_isOpenImmersion (D.map k.hom ⁻¹ᵁ U).ι).preimage
@@ -458,9 +469,11 @@ private nonrec lemma Scheme.exists_hom_hom_comp_eq_comp_of_isAffine_of_locallyOf
       simp only [← Scheme.Spec_map, ← liftedLimitMapsToOriginal_hom_π, Category.assoc, hab]))
   exact ⟨k.unop, hik.unop, hjk.unop, by simpa [← Spec.map_comp, Spec.map_inj] using! H⟩
 
-/-- (Implementation)
+/--
+(Implementation)
 An auxiliary structure used to prove `Scheme.exists_hom_hom_comp_eq_comp_of_locallyOfFiniteType`.
-See the section docstring. -/
+See the section docstring.
+-/
 structure ExistsHomHomCompEqCompAux where
   /-- (Implementation) The limit cone. See the section docstring. -/
   c : Cone D
@@ -510,19 +523,22 @@ lemma exists_index : ∃ (i' : I) (hii' : i' ⟶ A.i),
       A.c.π.app A.i ≫ pullback.lift A.a A.b (A.ha.symm.trans A.hb) := by ext <;> simp [hab]
   simp [← Scheme.Hom.comp_apply, -Scheme.Hom.comp_base, H]
 
-/-- (Implementation)
+/--
+(Implementation)
 The index `i'` such that `a` and `b` restricted onto `i'` maps into the diagonal components.
-See the section docstring. -/
+See the section docstring.
+-/
 def i' : I := A.exists_index.choose
 
 /-- (Implementation) The map from `i'` to `i`. See the section docstring. -/
 def hii' : A.i' ⟶ A.i := A.exists_index.choose_spec.choose
 
-/-- (Implementation)
+/--
+(Implementation)
 The map sending `x` to `(a x, b x)`, which should fall in the diagonal component.
-See the section docstring. -/
-def g : D.obj A.i' ⟶ pullback f f :=
-  (D.map A.hii' ≫ pullback.lift A.a A.b (A.ha.symm.trans A.hb))
+See the section docstring.
+-/
+def g : D.obj A.i' ⟶ pullback f f := (D.map A.hii' ≫ pullback.lift A.a A.b (A.ha.symm.trans A.hb))
 
 set_option backward.isDefEq.respectTransparency false in
 omit [LocallyOfFiniteType f] in
@@ -532,24 +548,25 @@ lemma range_g_subset :
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- (Implementation)
+/--
+(Implementation)
 The covering of `D(i')` by the pullback of the diagonal components of `X ×ₛ X`.
-See the section docstring. -/
+See the section docstring.
+-/
 noncomputable def 𝒰D₀ : Scheme.OpenCover.{u} (D.obj A.i') :=
   Scheme.Cover.mkOfCovers (Σ i : A.𝒰S.I₀, (A.𝒰X i).I₀) _
     (fun i ↦ ((Scheme.Pullback.diagonalCover f A.𝒰S A.𝒰X).pullback₁ A.g).f ⟨i.1, i.2, i.2⟩)
-    (fun x ↦ by simpa [← Set.mem_range, Scheme.Pullback.range_fst,
-        Scheme.Pullback.diagonalCoverDiagonalRange] using A.range_g_subset ⟨x, rfl⟩)
+    (fun x ↦ by
+      simpa [← Set.mem_range, Scheme.Pullback.range_fst, Scheme.Pullback.diagonalCoverDiagonalRange]
+        using A.range_g_subset ⟨x, rfl⟩)
 
 /-- (Implementation) An affine open cover refining `𝒰D₀`. See the section docstring. -/
-noncomputable def 𝒰D : Scheme.OpenCover.{u} (D.obj A.i') :=
-  A.𝒰D₀.bind fun _ ↦ Scheme.affineCover _
+noncomputable def 𝒰D : Scheme.OpenCover.{u} (D.obj A.i') := A.𝒰D₀.bind fun _ ↦ Scheme.affineCover _
 
 attribute [-simp] cast_eq eq_mpr_eq_cast
 
 /-- (Implementation) The diagram restricted to `Over i'`. See the section docstring. -/
-def D' (j : A.𝒰D.I₀) : Over A.i' ⥤ Scheme :=
-  Over.post D ⋙ Over.pullback (A.𝒰D.f j) ⋙ Over.forget _
+def D' (j : A.𝒰D.I₀) : Over A.i' ⥤ Scheme := Over.post D ⋙ Over.pullback (A.𝒰D.f j) ⋙ Over.forget _
 
 /-- (Implementation) The limit cone restricted to `Over i'`. See the section docstring. -/
 def c' (j : A.𝒰D.I₀) : Cone (A.D' j) :=
@@ -557,9 +574,11 @@ def c' (j : A.𝒰D.I₀) : Cone (A.D' j) :=
 
 attribute [local instance] IsCofiltered.isConnected
 
-/-- (Implementation)
+/--
+(Implementation)
 The limit cone restricted to `Over i'` is still a limit because the diagram is cofiltered.
-See the section docstring. -/
+See the section docstring.
+-/
 def hc' (j : A.𝒰D.I₀) : IsLimit (A.c' j) :=
   isLimitOfPreserves (Over.pullback (A.𝒰D.f j) ⋙ Over.forget _) (Over.isLimitConePost _ A.hc)
 
@@ -962,9 +981,10 @@ lemma nonempty_isColimit_Γ_mapCocone [∀ {i j} (f : i ⟶ j), IsAffineHom (D.m
   · exact fun i s t e ↦ ⟨_, Quiver.Hom.op _,
       (exists_app_map_eq_map_of_isLimit _ _ hc isCompact_univ s t e).choose_spec.choose_spec⟩
 
-instance [∀ {i j} (f : i ⟶ j), IsAffineHom (D.map f)]
-    [∀ i, CompactSpace (D.obj i)] [∀ i, QuasiSeparatedSpace (D.obj i)] :
-    PreservesLimit D Scheme.Γ.rightOp :=
+instance
+    [∀ {i j} (f : i ⟶ j), IsAffineHom (D.map f)] [∀ i, CompactSpace (D.obj i)]
+    [∀ i, QuasiSeparatedSpace (D.obj i)]
+    : PreservesLimit D Scheme.Γ.rightOp :=
   have : PreservesColimit D.op Scheme.Γ := ⟨fun hc ↦ nonempty_isColimit_Γ_mapCocone D _ hc.unop⟩
   preservesLimit_rightOp _ _
 
@@ -1330,31 +1350,33 @@ lemma Scheme.exists_π_app_comp_eq_of_locallyOfFinitePresentation
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- `Hom_S(-, X)` sends a cofiltered limit of qcqs `S`-schemes with affine transition maps
-to a filtered colimit if `X` is locally of finite presentation over `X`. -/
-instance Scheme.preservesColimit_yoneda (D : I ⥤ Over S) [IsCofiltered I]
-    [∀ {i j} (f : i ⟶ j), IsAffineHom (D.map f).left]
+/--
+`Hom_S(-, X)` sends a cofiltered limit of qcqs `S`-schemes with affine transition maps
+to a filtered colimit if `X` is locally of finite presentation over `X`.
+-/
+instance Scheme.preservesColimit_yoneda
+    (D : I ⥤ Over S) [IsCofiltered I] [∀ {i j} (f : i ⟶ j), IsAffineHom (D.map f).left]
     [∀ (i : I), CompactSpace (D.obj i).left] [∀ (i : I), QuasiSeparatedSpace (D.obj i).left]
-    (X : Over S) [LocallyOfFinitePresentation X.hom] :
-    PreservesColimit D.op (yoneda.obj X) where
+    (X : Over S) [LocallyOfFinitePresentation X.hom]
+    : PreservesColimit D.op (yoneda.obj X) where
   preserves {c hc} := by
     rw [Limits.Types.isColimit_iff_coconeTypesIsColimit]
     have (i : I) : CompactSpace ((D ⋙ Over.forget S).obj i) := by dsimp; infer_instance
     have (i : I) : QuasiSeparatedSpace ((D ⋙ Over.forget S).obj i) := by dsimp; infer_instance
-    have {i j : I} (f : i ⟶ j) : IsAffineHom ((D ⋙ Over.forget S).map f) := by
-      dsimp; infer_instance
+    have {i j : I} (f : i ⟶ j) : IsAffineHom ((D ⋙ Over.forget S).map f) := by dsimp; infer_instance
     refine ⟨⟨?_, ?_⟩⟩
     · rw [Functor.CoconeTypes.descColimitType_injective_iff_of_isFiltered']
       intro k g₁ g₂ hg
-      obtain ⟨k, hik, heq⟩ := Scheme.exists_hom_comp_eq_comp_of_locallyOfFiniteType
-        (D ⋙ Over.forget _) (.mk (fun _ ↦ (D.obj _).hom)) X.hom _ (isLimitOfPreserves _ hc.unop)
-        g₁.left g₂.left (Over.w g₁).symm (Over.w g₂).symm congr($(hg).left)
+      obtain ⟨k, hik, heq⟩ :=
+        Scheme.exists_hom_comp_eq_comp_of_locallyOfFiniteType (D ⋙ Over.forget _)
+          (.mk (fun _ ↦ (D.obj _).hom)) X.hom _ (isLimitOfPreserves _ hc.unop) g₁.left g₂.left
+          (Over.w g₁).symm (Over.w g₂).symm congr($(hg).left)
       use .op k, hik.op
       cat_disch
     · intro g
-      obtain ⟨k, u, h, h'⟩ := Scheme.exists_π_app_comp_eq_of_locallyOfFinitePresentation
-        (D ⋙ Over.forget _) (.mk (fun _ ↦ (D.obj _).hom)) X.hom _ (isLimitOfPreserves _ hc.unop)
-        g.left (by ext; simp)
+      obtain ⟨k, u, h, h'⟩ :=
+        Scheme.exists_π_app_comp_eq_of_locallyOfFinitePresentation (D ⋙ Over.forget _)
+          (.mk (fun _ ↦ (D.obj _).hom)) X.hom _ (isLimitOfPreserves _ hc.unop) g.left (by ext; simp)
       use Functor.ιColimitType _ (.op k) (Over.homMk u)
       cat_disch
 

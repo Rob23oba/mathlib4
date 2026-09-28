@@ -23,11 +23,14 @@ public section
 
 namespace Subgroup
 
-variable {G : Type*} [CommGroup G] [LinearOrder G] [IsOrderedMonoid G]
-  [TopologicalSpace G] [OrderTopology G]
+variable
+  {G : Type*}
+  [CommGroup G] [LinearOrder G] [IsOrderedMonoid G] [TopologicalSpace G] [OrderTopology G]
 
-/-- In a linearly ordered group with the order topology, the powers of a single element form a
-discrete subgroup. -/
+/--
+In a linearly ordered group with the order topology, the powers of a single element form a
+discrete subgroup.
+-/
 @[to_additive /-- In a linearly ordered additive group with the order topology, the multiples of a
 single element form a discrete subgroup. -/]
 instance instDiscreteTopologyZMultiples (g : G) : DiscreteTopology (zpowers g) := by

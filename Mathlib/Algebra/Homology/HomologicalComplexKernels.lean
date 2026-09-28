@@ -18,8 +18,9 @@ open CategoryTheory Limits
 
 namespace HomologicalComplex
 
-variable {ι C : Type*} [Category* C] [HasZeroMorphisms C] {c : ComplexShape ι}
-  {K L : HomologicalComplex C c} (f : K ⟶ L)
+variable
+  {ι C : Type*} [Category* C] [HasZeroMorphisms C]
+  {c : ComplexShape ι} {K L : HomologicalComplex C c} (f : K ⟶ L)
 
 lemma hasKernel_of_hasKernel_f [∀ i, HasKernel (f.f i)] : HasKernel f :=
   have (i : ι) : HasLimit (parallelPair f 0 ⋙ eval C c i) :=

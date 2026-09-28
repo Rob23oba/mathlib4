@@ -146,10 +146,12 @@ lemma multicoequalizerDiagram (i : Fin (n + 1)) :
     congr
     aesop
 
-/-- The horn is a multicoequalizer of all `1`-codimensional faces of the
-standard simplex but one along suitable `2`-codimensional faces. -/
-noncomputable def isColimit (i : Fin (n + 1)) :
-    IsColimit ((multicoequalizerDiagram i).multicofork.toLinearOrder.map
+/--
+The horn is a multicoequalizer of all `1`-codimensional faces of the
+standard simplex but one along suitable `2`-codimensional faces.
+-/
+noncomputable def isColimit (i : Fin (n + 1))
+    : IsColimit ((multicoequalizerDiagram i).multicofork.toLinearOrder.map
       Subcomplex.toSSetFunctor) :=
   (multicoequalizerDiagram i).isColimit'
 
@@ -163,15 +165,19 @@ lemma hom_ext' {i : Fin (n + 2)} {f g : (Λ[n + 1, i] : SSet) ⟶ X}
   simpa only [faceSingletonComplIso_inv_ι_assoc] using!
     (stdSimplex.faceSingletonComplIso j).inv ≫= h j hj
 
-/-- Let `i : Fin (n + 2)`. This is the condition that a family of morphisms
-`Δ[n] ⟶ X` for `j ≠ i` are the "faces" of a morphism  `Λ[n + 1, i] ⟶ X`. -/
-protected def IsCompatible
-    {i : Fin (n + 2)} (f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X) : Prop :=
+/--
+Let `i : Fin (n + 2)`. This is the condition that a family of morphisms
+`Δ[n] ⟶ X` for `j ≠ i` are the "faces" of a morphism  `Λ[n + 1, i] ⟶ X`.
+-/
+protected def IsCompatible {i : Fin (n + 2)} (f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X)
+    : Prop :=
   match n with
-  | 0 => True
-  | n + 1 => ∀ (j k : Fin (n + 3)) (hj : j ≠ i) (hk : k ≠ i) (hjk : j < k),
-      stdSimplex.δ (k.pred (Fin.ne_zero_of_lt hjk)) ≫ f j hj =
-      stdSimplex.δ (j.castPred (Fin.ne_last_of_lt hjk)) ≫ f k hk
+  | 0 =>
+    True
+  | n + 1 =>
+    ∀ (j k : Fin (n + 3)) (hj : j ≠ i) (hk : k ≠ i) (hjk : j < k),
+      stdSimplex.δ (k.pred (Fin.ne_zero_of_lt hjk)) ≫ f j hj
+        = stdSimplex.δ (j.castPred (Fin.ne_last_of_lt hjk)) ≫ f k hk
 
 @[simp]
 lemma isCompatible_zero_iff_true {i : Fin 2} (f : ∀ (j : Fin 2) (_ : j ≠ i), Δ[0] ⟶ X) :
@@ -213,8 +219,8 @@ set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 open stdSimplex in
 /-- Auxiliary definition for `horn.IsCompatible.desc`. -/
-private def multicofork (hf : horn.IsCompatible f) :
-    Multicofork ((multicoequalizerDiagram i).multispanIndex.toLinearOrder.map
+private def multicofork (hf : horn.IsCompatible f)
+    : Multicofork ((multicoequalizerDiagram i).multispanIndex.toLinearOrder.map
       (Subcomplex.toSSetFunctor)) :=
   Multicofork.ofπ _ X (fun ⟨j, hj⟩ ↦ (stdSimplex.faceSingletonComplIso j).inv ≫ f j hj) (by
     obtain _ | n := n
@@ -223,9 +229,11 @@ private def multicofork (hf : horn.IsCompatible f) :
     · rintro ⟨⟨⟨a, ha⟩, ⟨b, hb⟩⟩, hab : a < b⟩
       simp only [Set.mem_compl_iff, Set.mem_singleton_iff] at ha hb
       dsimp
-      rw [homOfLE_faceSingletonComplIso_inv_eq_facePairComplIso_inv_δ_pred_assoc _ _ hab,
+      rw [
+        homOfLE_faceSingletonComplIso_inv_eq_facePairComplIso_inv_δ_pred_assoc _ _ hab,
         homOfLE_faceSingletonComplIso_inv_eq_facePairComplIso_inv_δ_castPred_assoc _ _ hab,
-        hf.δ_pred_comp ..])
+        hf.δ_pred_comp ..
+      ])
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_desc (hf : horn.IsCompatible f) :
@@ -235,8 +243,10 @@ lemma exists_desc (hf : horn.IsCompatible f) :
     rw [← cancel_epi (stdSimplex.faceSingletonComplIso j).inv]
     simpa using! (horn.isColimit.{u} i).fac hf.multicofork (.right ⟨j, hj⟩)⟩
 
-/-- Let `i : Fin (n + 2)`. Given a compatible family of morphisms `Δ[n] ⟶ X` for `j ≠ i`,
-this is the glued morphism `Λ[n + 1, i] ⟶ X`. -/
+/--
+Let `i : Fin (n + 2)`. Given a compatible family of morphisms `Δ[n] ⟶ X` for `j ≠ i`,
+this is the glued morphism `Λ[n + 1, i] ⟶ X`.
+-/
 @[no_expose]
 noncomputable def desc (hf : horn.IsCompatible f) : (Λ[n + 1, i] : SSet) ⟶ X :=
   hf.exists_desc.choose
@@ -261,8 +271,8 @@ abbrev ι₂ : Δ[2] ⟶ Λ[3, 1] := horn.ι.{u} 1 2 (by simp)
 /-- The inclusion `Δ[2] ⟶ Λ[3, 1]` which avoids `3`. -/
 abbrev ι₃ : Δ[2] ⟶ Λ[3, 1] := horn.ι.{u} 1 3 (by simp)
 
-variable {X : SSet.{u}} (f₀ f₂ f₃ : Δ[2] ⟶ X)
-  (h₁₂ : stdSimplex.δ 2 ≫ f₀ = stdSimplex.δ 0 ≫ f₃)
+variable
+  {X : SSet.{u}} (f₀ f₂ f₃ : Δ[2] ⟶ X) (h₁₂ : stdSimplex.δ 2 ≫ f₀ = stdSimplex.δ 0 ≫ f₃)
   (h₁₃ : stdSimplex.δ 1 ≫ f₀ = stdSimplex.δ 0 ≫ f₂)
   (h₂₃ : stdSimplex.δ 2 ≫ f₂ = stdSimplex.δ 2 ≫ f₃)
 
@@ -270,26 +280,32 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- Auxiliary definition for `desc`. -/
 @[simps! pt]
-def desc.multicofork :
-    Multicofork ((horn.multicoequalizerDiagram (1 : Fin 4)).multispanIndex.toLinearOrder.map
+def desc.multicofork
+    : Multicofork ((horn.multicoequalizerDiagram (1 : Fin 4)).multispanIndex.toLinearOrder.map
       Subcomplex.toSSetFunctor) :=
-  Multicofork.ofπ _ X (fun ⟨(i : Fin 4), hi⟩ ↦ match i with
-    | 0 => (stdSimplex.faceSingletonComplIso 0).inv ≫ f₀
-    | 1 => False.elim (by simp at hi)
-    | 2 => (stdSimplex.faceSingletonComplIso 2).inv ≫ f₂
-    | 3 => (stdSimplex.faceSingletonComplIso 3).inv ≫ f₃) (fun x ↦ by
+  Multicofork.ofπ _ X
+    (fun ⟨(i : Fin 4), hi⟩ ↦
+      match i with
+      | 0 => (stdSimplex.faceSingletonComplIso 0).inv ≫ f₀
+      | 1 => False.elim (by simp at hi)
+      | 2 => (stdSimplex.faceSingletonComplIso 2).inv ≫ f₂
+      | 3 => (stdSimplex.faceSingletonComplIso 3).inv ≫ f₃)
+    (fun x ↦ by
       dsimp at x ⊢
       fin_cases x
-      · simp only [← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 1 3 (by simp)).hom,
-          ← Category.assoc]
+      · simp only [
+          ← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 1 3 (by simp)).hom, ← Category.assoc
+        ]
         convert! h₁₃ <;> decide
       · dsimp
-        simp only [← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 1 2 (by simp)).hom,
-          ← Category.assoc]
+        simp only [
+          ← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 1 2 (by simp)).hom, ← Category.assoc
+        ]
         convert! h₁₂ <;> decide
       · dsimp
-        simp only [← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 0 1 (by simp)).hom,
-          ← Category.assoc]
+        simp only [
+          ← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 0 1 (by simp)).hom, ← Category.assoc
+        ]
         convert! h₂₃ <;> decide)
 
 @[simp, reassoc]
@@ -307,8 +323,10 @@ lemma desc.multicofork_π_three :
   (desc.multicofork f₀ f₂ f₃ h₁₂ h₁₃ h₂₃).π ⟨3, by simp⟩ =
     (stdSimplex.faceSingletonComplIso 3).inv ≫ f₃ := rfl
 
-/-- The morphism `Λ[3, 1] ⟶ X` which is obtained by gluing three
-morphisms `Δ[2] ⟶ X`. -/
+/--
+The morphism `Λ[3, 1] ⟶ X` which is obtained by gluing three
+morphisms `Δ[2] ⟶ X`.
+-/
 noncomputable def desc : (Λ[3, 1] : SSet) ⟶ X :=
   (horn.isColimit (n := 3) 1).desc (desc.multicofork f₀ f₂ f₃ h₁₂ h₁₃ h₂₃)
 
@@ -348,8 +366,8 @@ abbrev ι₁ : Δ[2] ⟶ Λ[3, 2] := horn.ι.{u} 2 1 (by simp)
 /-- The inclusion `Δ[2] ⟶ Λ[3, 2]` which avoids `3`. -/
 abbrev ι₃ : Δ[2] ⟶ Λ[3, 2] := horn.ι.{u} 2 3 (by simp)
 
-variable {X : SSet.{u}} (f₀ f₁ f₃ : Δ[2] ⟶ X)
-  (h₀₂ : stdSimplex.δ 2 ≫ f₁ = stdSimplex.δ 1 ≫ f₃)
+variable
+  {X : SSet.{u}} (f₀ f₁ f₃ : Δ[2] ⟶ X) (h₀₂ : stdSimplex.δ 2 ≫ f₁ = stdSimplex.δ 1 ≫ f₃)
   (h₁₂ : stdSimplex.δ 2 ≫ f₀ = stdSimplex.δ 0 ≫ f₃)
   (h₂₃ : stdSimplex.δ 0 ≫ f₀ = stdSimplex.δ 0 ≫ f₁)
 
@@ -357,27 +375,33 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- Auxiliary definition for `desc`. -/
 @[simps! pt]
-def desc.multicofork :
-    Multicofork ((horn.multicoequalizerDiagram (2 : Fin 4)).multispanIndex.toLinearOrder.map
+def desc.multicofork
+    : Multicofork ((horn.multicoequalizerDiagram (2 : Fin 4)).multispanIndex.toLinearOrder.map
       Subcomplex.toSSetFunctor) :=
-  Multicofork.ofπ _ X (fun ⟨(i : Fin 4), hi⟩ ↦ match i with
-    | 0 => (stdSimplex.faceSingletonComplIso 0).inv ≫ f₀
-    | 1 => (stdSimplex.faceSingletonComplIso 1).inv ≫ f₁
-    | 2 => False.elim (by simp at hi)
-    | 3 => (stdSimplex.faceSingletonComplIso 3).inv ≫ f₃) (fun x ↦ by
+  Multicofork.ofπ _ X
+    (fun ⟨(i : Fin 4), hi⟩ ↦
+      match i with
+      | 0 => (stdSimplex.faceSingletonComplIso 0).inv ≫ f₀
+      | 1 => (stdSimplex.faceSingletonComplIso 1).inv ≫ f₁
+      | 2 => False.elim (by simp at hi)
+      | 3 => (stdSimplex.faceSingletonComplIso 3).inv ≫ f₃)
+    (fun x ↦ by
       dsimp at x ⊢
       fin_cases x
       · dsimp
-        simp only [← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 2 3 (by simp)).hom,
-          ← Category.assoc]
+        simp only [
+          ← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 2 3 (by simp)).hom, ← Category.assoc
+        ]
         convert! h₂₃ <;> decide
       · dsimp
-        simp only [← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 1 2 (by simp)).hom,
-          ← Category.assoc]
+        simp only [
+          ← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 1 2 (by simp)).hom, ← Category.assoc
+        ]
         convert! h₁₂ <;> decide
       · dsimp
-        simp only [← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 0 2 (by simp)).hom,
-          ← Category.assoc]
+        simp only [
+          ← cancel_epi (stdSimplex.facePairIso.{u} (n := 3) 0 2 (by simp)).hom, ← Category.assoc
+        ]
         convert! h₀₂ <;> decide)
 
 @[simp, reassoc]
@@ -395,8 +419,10 @@ lemma desc.multicofork_π_three :
   (desc.multicofork f₀ f₁ f₃ h₀₂ h₁₂ h₂₃).π ⟨3, by simp⟩ =
     (stdSimplex.faceSingletonComplIso 3).inv ≫ f₃ := rfl
 
-/-- The morphism `Λ[3, 2] ⟶ X` which is obtained by gluing three
-morphisms `Δ[2] ⟶ X`. -/
+/--
+The morphism `Λ[3, 2] ⟶ X` which is obtained by gluing three
+morphisms `Δ[2] ⟶ X`.
+-/
 noncomputable def desc : (Λ[3, 2] : SSet) ⟶ X :=
   (horn.isColimit (n := 3) 2).desc (desc.multicofork f₀ f₁ f₃ h₀₂ h₁₂ h₂₃)
 

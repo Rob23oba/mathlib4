@@ -26,8 +26,10 @@ namespace TopCat
 
 variable {X Y Z : TopCat.{u}}
 
-/-- A homotopy between morphisms in `TopCat` is a homotopy between
-the corresponding continuous maps. -/
+/--
+A homotopy between morphisms in `TopCat` is a homotopy between
+the corresponding continuous maps.
+-/
 abbrev Homotopy (f g : X ⟶ Y) := ContinuousMap.Homotopy f.hom g.hom
 
 namespace Homotopy
@@ -39,8 +41,7 @@ def h (H : Homotopy f₀ f₁) : X ⊗ I ⟶ Y :=
   (β_ _ _).hom ≫ ofHom (H.toContinuousMap.comp (ContinuousMap.prodMap I.homeomorph (.id _)))
 
 -- simps generates the wrong apply lemma
-@[simp]
-theorem h_hom_apply (p : ↑(X ⊗ I)) : F.h p = F (I.homeomorph p.2, p.1) := rfl
+@[simp] theorem h_hom_apply (p : ↑(X ⊗ I)) : F.h p = F (I.homeomorph p.2, p.1) := rfl
 
 @[reassoc (attr := simp)]
 lemma ι₀_h : ι₀ ≫ F.h = f₀ := by
@@ -69,8 +70,9 @@ noncomputable abbrev trans := ContinuousMap.Homotopy.trans F G
 
 /-- The homotopy between compositions of morphisms in `TopCat`. -/
 @[simps!]
-abbrev comp {f₀ f₁ : X ⟶ Y} {g₀ g₁ : Y ⟶ Z} (G : Homotopy g₀ g₁) (F : Homotopy f₀ f₁) :
-    Homotopy (f₀ ≫ g₀) (f₁ ≫ g₁) := ContinuousMap.Homotopy.comp G F
+abbrev comp {f₀ f₁ : X ⟶ Y} {g₀ g₁ : Y ⟶ Z} (G : Homotopy g₀ g₁) (F : Homotopy f₀ f₁)
+    : Homotopy (f₀ ≫ g₀) (f₁ ≫ g₁) :=
+  ContinuousMap.Homotopy.comp G F
 
 attribute [nolint simpNF] comp_apply
 

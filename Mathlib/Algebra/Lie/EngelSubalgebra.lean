@@ -36,32 +36,37 @@ and minimal ones are nilpotent (TODO), hence Cartan subalgebras.
 
 open LieAlgebra
 
-variable {R L M : Type*} [CommRing R] [LieRing L] [LieAlgebra R L]
-  [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
+variable
+  {R L M : Type*} [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
+  [LieRingModule L M] [LieModule R L M]
 
 namespace LieSubalgebra
 
 variable (R)
 
-/-- The Engel subalgebra `Engel R x` consists of
+/--
+The Engel subalgebra `Engel R x` consists of
 all `y : L` such that `(ad R L x)^n` kills `y` for some `n`.
 
 Engel subalgebras are self-normalizing (`LieSubalgebra.normalizer_engel`),
-and minimal ones are nilpotent, hence Cartan subalgebras. -/
+and minimal ones are nilpotent, hence Cartan subalgebras.
+-/
 @[simps!]
-def engel (x : L) : LieSubalgebra R L :=
-  { (ad R L x).maxGenEigenspace 0 with
-    lie_mem' := by
-      simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
-        Submodule.mem_toAddSubmonoid, Module.End.mem_maxGenEigenspace, zero_smul,
-        sub_zero, forall_exists_index]
-      intro y z m hm n hn
-      refine ⟨m + n, ?_⟩
-      rw [ad_pow_lie]
-      apply Finset.sum_eq_zero
-      intro ij hij
-      obtain (h | h) : m ≤ ij.1 ∨ n ≤ ij.2 := by rw [Finset.mem_antidiagonal] at hij; lia
-      all_goals simp [Module.End.pow_map_zero_of_le h, hm, hn] }
+def engel (x : L) : LieSubalgebra R L := {
+  (ad R L x).maxGenEigenspace 0 with
+  lie_mem' := by
+    simp only [
+      AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup, Submodule.mem_toAddSubmonoid,
+      Module.End.mem_maxGenEigenspace, zero_smul, sub_zero, forall_exists_index
+    ]
+    intro y z m hm n hn
+    refine ⟨m + n, ?_⟩
+    rw [ad_pow_lie]
+    apply Finset.sum_eq_zero
+    intro ij hij
+    obtain (h | h) : m ≤ ij.1 ∨ n ≤ ij.2 := by rw [Finset.mem_antidiagonal] at hij; lia
+    all_goals simp [Module.End.pow_map_zero_of_le h, hm, hn]
+}
 
 lemma mem_engel_iff (x y : L) :
     y ∈ engel R x ↔ ∃ n : ℕ, ((ad R L x) ^ n) y = 0 :=

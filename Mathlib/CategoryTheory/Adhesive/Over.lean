@@ -23,13 +23,12 @@ open Limits
 variable {C : Type*} [Category* C]
 
 /-- Slices of adhesive categories are adhesive. See [adhesive2004], Proposition 8 (ii). -/
-instance adhesive_over [Adhesive C] [HasPullbacks C] [HasPushouts C] (B : C) :
-    Adhesive (Over B) :=
+instance adhesive_over [Adhesive C] [HasPullbacks C] [HasPushouts C] (B : C) : Adhesive (Over B) :=
   adhesive_of_preserves_and_reflects_isomorphism (Over.forget B)
 
 /-- Coslices of adhesive categories are adhesive. See [adhesive2004], Proposition 8 (ii). -/
-instance adhesive_under [Adhesive C] [HasPullbacks C] [HasPushouts C] (B : C) :
-    Adhesive (Under B) :=
+instance adhesive_under [Adhesive C] [HasPullbacks C] [HasPushouts C] (B : C)
+    : Adhesive (Under B) :=
   adhesive_of_preserves_and_reflects_isomorphism (Under.forget B)
 
 end CategoryTheory

@@ -31,9 +31,11 @@ namespace CategoryTheory.ObjectProperty
 
 variable {C : Type u} [Category.{v} C] (P : ObjectProperty C) (κ : Cardinal.{w})
 
-/-- Given `P : ObjectProperty C` and `κ : Cardinal.{w}`, this is the closure
+/--
+Given `P : ObjectProperty C` and `κ : Cardinal.{w}`, this is the closure
 of `P` under colimits of shape given by categories `J` such that
-`Arrow J` is of cardinality `< κ`. -/
+`Arrow J` is of cardinality `< κ`.
+-/
 def colimitsCardinalClosure : ObjectProperty C :=
   P.colimitsClosure (SmallCategoryCardinalLT.categoryFamily κ)
 
@@ -44,13 +46,13 @@ instance : (P.colimitsCardinalClosure κ).IsClosedUnderIsomorphisms := by
   dsimp [colimitsCardinalClosure]
   infer_instance
 
-instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] :
-    ObjectProperty.EssentiallySmall.{w} (P.colimitsCardinalClosure κ) := by
+instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C]
+    : ObjectProperty.EssentiallySmall.{w} (P.colimitsCardinalClosure κ) := by
   dsimp [colimitsCardinalClosure]
   infer_instance
 
-instance (S : SmallCategoryCardinalLT κ) :
-    (P.colimitsCardinalClosure κ).IsClosedUnderColimitsOfShape
+instance (S : SmallCategoryCardinalLT κ)
+    : (P.colimitsCardinalClosure κ).IsClosedUnderColimitsOfShape
       (SmallCategoryCardinalLT.categoryFamily κ S) := by
   dsimp [colimitsCardinalClosure]
   infer_instance
@@ -73,13 +75,15 @@ section
 
 open Limits
 
-instance isStableUnderRetracts_colimitsCardinalClosure [Fact κ.IsRegular] :
-    (P.colimitsCardinalClosure κ).IsStableUnderRetracts := by
-  have := P.isClosedUnderColimitsOfShape_colimitsCardinalClosure κ
-    WalkingParallelPair (HasCardinalLT.of_le (by
-      simp only [hasCardinalLT_aleph0_iff]
-      infer_instance)
-    (Cardinal.IsRegular.aleph0_le Fact.out))
+instance isStableUnderRetracts_colimitsCardinalClosure [Fact κ.IsRegular]
+    : (P.colimitsCardinalClosure κ).IsStableUnderRetracts := by
+  have :=
+    P.isClosedUnderColimitsOfShape_colimitsCardinalClosure κ WalkingParallelPair
+      (HasCardinalLT.of_le
+        (by
+          simp only [hasCardinalLT_aleph0_iff]
+          infer_instance)
+        (Cardinal.IsRegular.aleph0_le Fact.out))
   infer_instance
 
 end

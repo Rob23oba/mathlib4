@@ -23,15 +23,19 @@ open Finset QuadraticMap
 
 namespace QuadraticMap
 
-variable {R M M' P : Type*} [AddCommGroup M] [AddCommGroup M'] [AddCommGroup P]
-  [CommRing R] [Module R M] [Module R M'] [Module R P] (Q : QuadraticMap R M P)
+variable
+  {R M M' P : Type*} [AddCommGroup M] [AddCommGroup M'] [AddCommGroup P] [CommRing R] [Module R M]
+  [Module R M'] [Module R P]
+  (Q : QuadraticMap R M P)
 
-/-- The radical of a quadratic form `Q` on `M`.
+/--
+The radical of a quadratic form `Q` on `M`.
 
 This is the largest submodule `N` such that `Q` lifts to a quadratic form on `M ⧸ N`; see
 `Submodule.le_radical_iff` for this characterization.
 
-See also [elman-karpenko-merkurjev-2008], Chapter II, §7. -/
+See also [elman-karpenko-merkurjev-2008], Chapter II, §7.
+-/
 def radical : Submodule R M where
   carrier := {x : M | Q x = 0 ∧ QuadraticMap.polarBilin Q x = 0}
   zero_mem' := by simp
@@ -39,8 +43,11 @@ def radical : Submodule R M where
   add_mem' := fun {x y} hx hy ↦ by
     refine ⟨?_, by simp [hx.2, hy.2]⟩
     have := congr($(hx.2) y)
-    simp only [QuadraticMap.polarBilin_apply_apply, QuadraticMap.polar,
-      LinearMap.zero_apply, sub_sub, sub_eq_zero] at this
+    simp only [
+        QuadraticMap.polarBilin_apply_apply, QuadraticMap.polar, LinearMap.zero_apply, sub_sub,
+        sub_eq_zero
+      ]
+      at this
     rw [this, hx.1, hy.1, zero_add]
 
 variable {Q}
@@ -74,7 +81,8 @@ variable (Q) in
 /-- Lift a quadratic map on `M` to `M ⧸ N`, where `N` is contained in the radical. -/
 protected def lift (N : Submodule R M) (hN : N ≤ Q.radical) : QuadraticMap R (M ⧸ N) P := by
   refine QuadraticMap.mk (Quotient.lift Q <| by exact lift_aux hN)
-    (fun a m ↦ m.inductionOn (Q.map_smul a)) ?_
+    (fun a m ↦ m.inductionOn (Q.map_smul a))
+    ?_
   use Q.polarBilin.liftQ₂ N N (fun n hn ↦ (hN hn).2) (fun n hn ↦ ?_)
   · simp only [Submodule.Quotient.forall]
     exact QuadraticMap.map_add Q -- remarkably, this works

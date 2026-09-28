@@ -25,15 +25,14 @@ Actually provide the `Order.Frame (ClosedSubmodule R M)` instance.
 
 open Function TopologicalSpace
 
-variable {ι : Sort*} {R M N O : Type*} [Semiring R]
-  [AddCommMonoid M] [TopologicalSpace M] [Module R M]
-  [AddCommMonoid N] [TopologicalSpace N] [Module R N]
-  [AddCommMonoid O] [TopologicalSpace O] [Module R O]
+variable
+  {ι : Sort*} {R M N O : Type*}
+  [Semiring R] [AddCommMonoid M] [TopologicalSpace M] [Module R M] [AddCommMonoid N]
+  [TopologicalSpace N] [Module R N] [AddCommMonoid O] [TopologicalSpace O] [Module R O]
 
 variable (R M) in
 /-- The type of closed submodules of a topological module. -/
-@[ext]
-structure ClosedSubmodule extends Submodule R M, Closeds M where
+@[ext] structure ClosedSubmodule extends Submodule R M, Closeds M where
 
 namespace ClosedSubmodule
 variable {s t : ClosedSubmodule R M} {x : M}
@@ -213,11 +212,13 @@ variable [ContinuousAdd N] [ContinuousConstSMul R N] {f : M →L[R] N}
 lemma closure_toSubmodule_eq {s : ClosedSubmodule R N} : s.toSubmodule.closure = s := by
   ext x; simp
 
-/-- The closure of the image of a closed submodule under a continuous linear map is a closed
+/--
+The closure of the image of a closed submodule under a continuous linear map is a closed
 submodule.
 
 `ClosedSubmodule.map f` is left-adjoint to `ClosedSubmodule.comap f`.
-See `ClosedSubmodule.gc_map_comap`. -/
+See `ClosedSubmodule.gc_map_comap`.
+-/
 def map (f : M →L[R] N) (s : ClosedSubmodule R M) : ClosedSubmodule R N :=
   (s.toSubmodule.map (f : M →ₗ[R] N)).closure
 
@@ -307,10 +308,12 @@ namespace ClosedSubmodule
 
 variable (f : M ≃L[R] N)
 
-/-- A continuous equivalence `f` between modules `M` and `N` on `R` induces an equivalence between
+/--
+A continuous equivalence `f` between modules `M` and `N` on `R` induces an equivalence between
 closed submodules in `M` and those in `N` through `map f`.
 The definition does not use `ClosedSubmodule.map` because that has additional `ContinuousAdd` and
-`ContinuousConstSMul` type-class assumptions. -/
+`ContinuousConstSMul` type-class assumptions.
+-/
 def mapEquiv : ClosedSubmodule R M ≃ ClosedSubmodule R N where
   toFun s := ⟨s.toSubmodule.map f.toLinearMap, by simpa using s.isClosed⟩
   invFun t := ⟨t.toSubmodule.map f.symm.toLinearMap, by simpa using t.isClosed⟩
@@ -374,8 +377,10 @@ end ClosedSubmodule
 
 section CompleteSpace
 
-instance {𝕜 H : Type*} [Semiring 𝕜] [AddCommMonoid H] [UniformSpace H] [Module 𝕜 H]
-    [CompleteSpace H] (K : ClosedSubmodule 𝕜 H) : CompleteSpace K := by
+instance
+    {𝕜 H : Type*} [Semiring 𝕜] [AddCommMonoid H] [UniformSpace H] [Module 𝕜 H] [CompleteSpace H]
+    (K : ClosedSubmodule 𝕜 H)
+    : CompleteSpace K := by
   apply IsComplete.completeSpace_coe
   rw [← ClosedSubmodule.carrier_eq_coe]
   exact K.isClosed'.isComplete

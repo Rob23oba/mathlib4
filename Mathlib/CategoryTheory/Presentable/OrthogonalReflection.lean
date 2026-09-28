@@ -105,13 +105,15 @@ namespace OrthogonalReflection
 
 variable (Z : C)
 
-/-- Given `W : MorphismProperty C` and `Z : C`, this is the index type
+/--
+Given `W : MorphismProperty C` and `Z : C`, this is the index type
 parametrising the data of a morphism `f : X ⟶ Y` satisfying `W`
-and a morphism `X ⟶ Z`. -/
+and a morphism `X ⟶ Z`.
+-/
 def D₁ : Type _ := Σ (f : W.toSet), f.1.left ⟶ Z
 
-instance [MorphismProperty.IsSmall.{w} W] [LocallySmall.{w} C] :
-    Small.{w} (D₁ (W := W) (Z := Z)) := by
+instance [MorphismProperty.IsSmall.{w} W] [LocallySmall.{w} C]
+    : Small.{w} (D₁ (W := W) (Z := Z)) := by
   dsimp [D₁]
   infer_instance
 
@@ -122,29 +124,34 @@ lemma D₁.hasCoproductsOfShape [MorphismProperty.IsSmall.{w} W]
     (Discrete.equivalence (equivShrink.{w} _).symm)
 
 variable {W Z} in
-/-- If `d : D₁ W Z` corresponds to the data of `f : X ⟶ Y` satisfying `W` and
-of a morphism `X ⟶ Z`, this is the object `X`. -/
+/--
+If `d : D₁ W Z` corresponds to the data of `f : X ⟶ Y` satisfying `W` and
+of a morphism `X ⟶ Z`, this is the object `X`.
+-/
 def D₁.obj₁ (d : D₁ W Z) : C := d.1.1.left
 
 variable {W Z} in
-/-- If `d : D₁ W Z` corresponds to the data of `f : X ⟶ Y` satisfying `W` and
-of a morphism `X ⟶ Z`, this is the object `Y`. -/
+/--
+If `d : D₁ W Z` corresponds to the data of `f : X ⟶ Y` satisfying `W` and
+of a morphism `X ⟶ Z`, this is the object `Y`.
+-/
 def D₁.obj₂ (d : D₁ W Z) : C := d.1.1.right
 
 section
 
 variable [HasCoproduct (D₁.obj₁ (W := W) (Z := Z))]
 
-/-- Considering all diagrams consisting of a morphism `f : X ⟶ Y` satisfying `W`
+/--
+Considering all diagrams consisting of a morphism `f : X ⟶ Y` satisfying `W`
 and of a morphism `d : X ⟶ Z`, this is the morphism from the coproduct of
-all these `X` objects to `Z` given by these morphisms `d`. -/
-noncomputable abbrev D₁.l : ∐ (obj₁ (W := W) (Z := Z)) ⟶ Z :=
-  Sigma.desc (fun d ↦ d.2)
+all these `X` objects to `Z` given by these morphisms `d`.
+-/
+noncomputable abbrev D₁.l : ∐ (obj₁ (W := W) (Z := Z)) ⟶ Z := Sigma.desc (fun d ↦ d.2)
 
 variable {W Z} in
 /-- The inclusion of a summand in `∐ obj₁`. -/
-noncomputable abbrev D₁.ιLeft {X Y : C} (f : X ⟶ Y) (hf : W f) (g : X ⟶ Z) :
-    X ⟶ ∐ obj₁ (W := W) (Z := Z) :=
+noncomputable abbrev D₁.ιLeft {X Y : C} (f : X ⟶ Y) (hf : W f) (g : X ⟶ Z)
+    : X ⟶ ∐ obj₁ (W := W) (Z := Z) :=
   Sigma.ι (obj₁ (W := W) (Z := Z)) ⟨⟨Arrow.mk f, hf⟩, g⟩
 
 variable {W Z} in
@@ -155,15 +162,17 @@ lemma D₁.ιLeft_comp_l {X Y : C} (f : X ⟶ Y) (hf : W f) (g : X ⟶ Z) :
 
 variable [HasCoproduct (D₁.obj₂ (W := W) (Z := Z))]
 
-/-- The coproduct of all the morphisms `f` indexed by all diagrams
-consisting of a morphism `f : X ⟶ Y` satisfying `W` and of a morphism `d : X ⟶ Z`. -/
+/--
+The coproduct of all the morphisms `f` indexed by all diagrams
+consisting of a morphism `f : X ⟶ Y` satisfying `W` and of a morphism `d : X ⟶ Z`.
+-/
 noncomputable abbrev D₁.t : ∐ (obj₁ (W := W) (Z := Z)) ⟶ ∐ (obj₂ (W := W) (Z := Z)) :=
   Limits.Sigma.map (fun d ↦ d.1.1.hom)
 
 variable {W Z} in
 /-- The inclusion of a summand in `∐ obj₂`. -/
-noncomputable abbrev D₁.ιRight {X Y : C} (f : X ⟶ Y) (hf : W f) (g : X ⟶ Z) :
-    Y ⟶ ∐ (obj₂ (W := W) (Z := Z)) :=
+noncomputable abbrev D₁.ιRight {X Y : C} (f : X ⟶ Y) (hf : W f) (g : X ⟶ Z)
+    : Y ⟶ ∐ (obj₂ (W := W) (Z := Z)) :=
   Sigma.ι (obj₂ (W := W) (Z := Z)) ⟨⟨Arrow.mk f, hf⟩, g⟩
 
 set_option backward.isDefEq.respectTransparency false in -- Needed below
@@ -181,7 +190,8 @@ lemma D₁.ιLeft_comp_t {X Y : C} (f : X ⟶ Y) (hf : W f) (g : X ⟶ Z) :
 
 variable [HasPushouts C]
 
-/-- The intermediate object in the definition of the morphism `toSucc W Z : Z ⟶ succ W Z`.
+/--
+The intermediate object in the definition of the morphism `toSucc W Z : Z ⟶ succ W Z`.
 It is the pushout of the following square:
 ```lean
 ∐ D₁.obj₁ ⟶ ∐ D₁.obj₂
@@ -197,14 +207,18 @@ noncomputable abbrev step := pushout (D₁.t W Z) (D₁.l W Z)
 /-- The canonical map from `Z` to the pushout of `D₁.t W Z` and `D₁.l W Z`. -/
 noncomputable abbrev toStep : Z ⟶ step W Z := pushout.inr _ _
 
-/-- The index type parametrising the data of two morphisms `g₁ g₂ : Y ⟶ step W Z`, and
-a map `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`. -/
+/--
+The index type parametrising the data of two morphisms `g₁ g₂ : Y ⟶ step W Z`, and
+a map `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`.
+-/
 def D₂ : Type _ :=
   Σ (f : W.toSet),
-    { pq : (f.1.right ⟶ step W Z) × (f.1.right ⟶ step W Z) // f.1.hom ≫ pq.1 = f.1.hom ≫ pq.2 }
+    {pq : (f.1.right ⟶ step W Z) × (f.1.right ⟶ step W Z) // f.1.hom ≫ pq.1 = f.1.hom ≫ pq.2}
 
-/-- The shape of the multicoequalizer of all pairs of morphisms `g₁ g₂ : Y ⟶ step W Z` with
-a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`. -/
+/--
+The shape of the multicoequalizer of all pairs of morphisms `g₁ g₂ : Y ⟶ step W Z` with
+a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`.
+-/
 @[simps]
 def D₂.multispanShape : MultispanShape where
   L := D₂ W Z
@@ -230,8 +244,10 @@ lemma D₂.hasColimitsOfShape [HasColimitsOfSize.{w, w} C] :
 
 end
 
-/-- The diagram of the multicoequalizer of all pair of morphisms `g₁ g₂ : Y ⟶ step W Z` with
-a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`. -/
+/--
+The diagram of the multicoequalizer of all pair of morphisms `g₁ g₂ : Y ⟶ step W Z` with
+a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`.
+-/
 @[simps]
 noncomputable def D₂.multispanIndex : MultispanIndex (multispanShape W Z) C where
   left d := d.1.1.right
@@ -241,12 +257,16 @@ noncomputable def D₂.multispanIndex : MultispanIndex (multispanShape W Z) C wh
 
 variable [HasMulticoequalizer (D₂.multispanIndex W Z)]
 
-/-- The object `succ W Z` is the multicoequalizer of all pairs of morphisms
-`g₁ g₂ : Y ⟶ step W Z` with a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`. -/
+/--
+The object `succ W Z` is the multicoequalizer of all pairs of morphisms
+`g₁ g₂ : Y ⟶ step W Z` with a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`.
+-/
 noncomputable abbrev succ := multicoequalizer (D₂.multispanIndex W Z)
 
-/-- The projection from `Z` to the multicoequalizer of all morphisms `g₁ g₂ : Y ⟶ step W Z` with
-a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`. -/
+/--
+The projection from `Z` to the multicoequalizer of all morphisms `g₁ g₂ : Y ⟶ step W Z` with
+a `f : X ⟶ Y` satisfying `W` such that `f ≫ g₁ = f ≫ g₂`.
+-/
 noncomputable abbrev fromStep : step W Z ⟶ succ W Z :=
   Multicoequalizer.π (D₂.multispanIndex W Z) .unit
 
@@ -322,10 +342,9 @@ end
 
 open SmallObject
 
-variable [HasPushouts C]
-  [∀ Z, HasCoproduct (D₁.obj₁ (W := W) (Z := Z))]
-  [∀ Z, HasCoproduct (D₁.obj₂ (W := W) (Z := Z))]
-  [∀ Z, HasMulticoequalizer (D₂.multispanIndex W Z)]
+variable
+  [HasPushouts C] [∀ Z, HasCoproduct (D₁.obj₁ (W := W) (Z := Z))]
+  [∀ Z, HasCoproduct (D₁.obj₂ (W := W) (Z := Z))] [∀ Z, HasMulticoequalizer (D₂.multispanIndex W Z)]
 
 /-- The successor structure of the orthogonal-reflection construction. -/
 noncomputable def succStruct (Z₀ : C) : SuccStruct C where
@@ -333,28 +352,31 @@ noncomputable def succStruct (Z₀ : C) : SuccStruct C where
   succ Z := succ W Z
   toSucc Z := toSucc W Z
 
-variable (κ : Cardinal.{w}) [OrderBot κ.ord.ToType]
-  [HasIterationOfShape κ.ord.ToType C]
+variable (κ : Cardinal.{w}) [OrderBot κ.ord.ToType] [HasIterationOfShape κ.ord.ToType C]
 
 /-- The transfinite iteration of `succStruct W Z` to the power `κ.ord.ToType`. -/
 noncomputable def reflectionObj : C := (succStruct W Z).iteration κ.ord.ToType
 
-/-- The map which shall exhibit `reflectionObj W Z κ` as the image of `Z` by
-the left adjoint of the inclusion of `W.isLocal`, see `corepresentableBy`. -/
-noncomputable def reflection : Z ⟶ reflectionObj W Z κ :=
-  (succStruct W Z).ιIteration κ.ord.ToType
+/--
+The map which shall exhibit `reflectionObj W Z κ` as the image of `Z` by
+the left adjoint of the inclusion of `W.isLocal`, see `corepresentableBy`.
+-/
+noncomputable def reflection : Z ⟶ reflectionObj W Z κ := (succStruct W Z).ιIteration κ.ord.ToType
 
-/-- The morphism `reflection W Z κ : Z ⟶ reflectionObj W Z κ` is a transfinite
-compositions of morphisms in `LeftBousfield.W W.isLocal`. -/
-noncomputable def transfiniteCompositionOfShapeReflection :
-    W.isLocal.isLocal.TransfiniteCompositionOfShape κ.ord.ToType
-      (reflection W Z κ) :=
+/--
+The morphism `reflection W Z κ : Z ⟶ reflectionObj W Z κ` is a transfinite
+compositions of morphisms in `LeftBousfield.W W.isLocal`.
+-/
+noncomputable def transfiniteCompositionOfShapeReflection
+    : W.isLocal.isLocal.TransfiniteCompositionOfShape κ.ord.ToType (reflection W Z κ) :=
   ((succStruct W Z).transfiniteCompositionOfShapeιIteration κ.ord.ToType).ofLE (by
     rintro Z₀ _ _ ⟨_⟩
     exact isLocal_isLocal_toSucc W Z₀)
 
-/-- The functor `κ.ord.ToType ⥤ C` that is the diagram of the
-transfinite composition `transfiniteCompositionOfShapeReflection`. -/
+/--
+The functor `κ.ord.ToType ⥤ C` that is the diagram of the
+transfinite composition `transfiniteCompositionOfShapeReflection`.
+-/
 noncomputable abbrev iteration : κ.ord.ToType ⥤ C :=
   (transfiniteCompositionOfShapeReflection W Z κ).F
 
@@ -362,13 +384,15 @@ section
 
 variable [Fact κ.IsRegular]
 
-/-- `(iteration W Z κ).obj (Order.succ j)` identifies to the image of
-`(iteration W Z κ).obj j` by `succ`. -/
-noncomputable def iterationObjSuccIso (j : κ.ord.ToType) :
-  (iteration W Z κ).obj (Order.succ j) ≅ succ W ((iteration W Z κ).obj j) :=
-    (succStruct W Z).iterationFunctorObjSuccIso j (by
-      have := Cardinal.noMaxOrder (Fact.elim inferInstance : κ.IsRegular).aleph0_le
-      exact not_isMax j)
+/--
+`(iteration W Z κ).obj (Order.succ j)` identifies to the image of
+`(iteration W Z κ).obj j` by `succ`.
+-/
+noncomputable def iterationObjSuccIso (j : κ.ord.ToType)
+    : (iteration W Z κ).obj (Order.succ j) ≅ succ W ((iteration W Z κ).obj j) :=
+  (succStruct W Z).iterationFunctorObjSuccIso j (by
+    have := Cardinal.noMaxOrder (Fact.elim inferInstance : κ.IsRegular).aleph0_le
+    exact not_isMax j)
 
 @[reassoc]
 lemma iteration_map_succ (j : κ.ord.ToType) :
@@ -399,7 +423,8 @@ lemma isLocal_isLocal_reflection :
   W.isLocal.isLocal.transfiniteCompositionsOfShape_le κ.ord.ToType _
     ⟨transfiniteCompositionOfShapeReflection W Z κ⟩
 
-variable {W} {κ} [Fact κ.IsRegular]
+variable
+  {W} {κ} [Fact κ.IsRegular]
   (hW : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), W f → IsCardinalPresentable X κ ∧ IsCardinalPresentable Y κ)
 
 include hW
@@ -432,11 +457,12 @@ lemma isLocal_reflectionObj :
     obtain ⟨g', hg'⟩ := iteration_map_succ_surjectivity f hf g
     exact ⟨g' ≫ H.incl.app (Order.succ j), by simp [reassoc_of% hg']⟩
 
-/-- The morphism `reflection W Z κ : Z ⟶ reflectionObj W Z κ` exhibits `reflectionObj W Z κ`
-as the image of `Z` by the left adjoint of the inclusion `W.isLocal.ι`. -/
-noncomputable def corepresentableBy :
-  (W.isLocal.ι ⋙ coyoneda.obj (op Z)).CorepresentableBy
-    ⟨_, isLocal_reflectionObj Z hW⟩ where
+/--
+The morphism `reflection W Z κ : Z ⟶ reflectionObj W Z κ` exhibits `reflectionObj W Z κ`
+as the image of `Z` by the left adjoint of the inclusion `W.isLocal.ι`.
+-/
+noncomputable def corepresentableBy
+    : (W.isLocal.ι ⋙ coyoneda.obj (op Z)).CorepresentableBy ⟨_, isLocal_reflectionObj Z hW⟩ where
   homEquiv {A} :=
     (ObjectProperty.fullyFaithfulι _).homEquiv.trans
       (Equiv.ofBijective _ (isLocal_isLocal_reflection W Z κ _ A.2))

@@ -23,18 +23,17 @@ open TensorProduct LinearMap
 
 namespace DirectSum
 
-variable {ι R M S : Type*}
-  [CommSemiring R] [AddCommMonoid M] [Module R M]
-  (ℳ : ι → Submodule R M)
+variable {ι R M S : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M] (ℳ : ι → Submodule R M)
 
 section BaseChange
 
 variable [DecidableEq ι] [Decomposition ℳ] [CommSemiring S] [Algebra R S]
 
 instance Decomposition.baseChange : Decomposition fun i ↦ (ℳ i).baseChange S := by
-  refine .ofLinearMap _ (lmap (ℳ · |>.toBaseChange S) ∘ₗ
-    (directSumRight R S S fun i ↦ ℳ i).toLinearMap ∘ₗ
-    ((decomposeLinearEquiv ℳ).baseChange R S)) ?_ ?_
+  refine .ofLinearMap _
+    (lmap (ℳ · |>.toBaseChange S) ∘ₗ (directSumRight R S S fun i ↦ ℳ i).toLinearMap
+      ∘ₗ ((decomposeLinearEquiv ℳ).baseChange R S))
+    ?_ ?_
   · simp_rw [← comp_assoc]
     rw [← LinearEquiv.eq_comp_toLinearMap_symm]
     ext
@@ -45,9 +44,10 @@ instance Decomposition.baseChange : Decomposition fun i ↦ (ℳ i).baseChange S
     simp
 
 theorem toBaseChange_injective (i : ι) : Function.Injective ((ℳ i).toBaseChange S) := fun x y h ↦ by
-  have := (Function.Bijective.of_comp_iff (lmap (ℳ · |>.toBaseChange S))
-    (by rw [← LinearEquiv.coe_trans]; exact LinearEquiv.bijective _)).1
-    (decompose (M := S ⊗[R] M) fun i ↦ (ℳ i).baseChange S).bijective
+  have :=
+    (Function.Bijective.of_comp_iff (lmap (ℳ · |>.toBaseChange S))
+        (by rw [← LinearEquiv.coe_trans]; exact LinearEquiv.bijective _)).1
+      (decompose (M := S ⊗[R] M) fun i ↦ (ℳ i).baseChange S).bijective
   refine of_injective (β := fun i ↦ S ⊗[R] ℳ i) i <| this.injective ?_
   simpa using congr(of (fun i ↦ (ℳ i).baseChange S) i $h)
 
@@ -61,8 +61,7 @@ section TensorModule
 variable (N : Type*) [AddCommMonoid N] [Module R N]
 
 /-- The submodule of a tensor product corresponding to a decomposition on the left. -/
-def decomposeTensor (i : ι) : Submodule R (M ⊗[R] N) :=
-  ((ℳ i).subtype.rTensor N).range
+def decomposeTensor (i : ι) : Submodule R (M ⊗[R] N) := ((ℳ i).subtype.rTensor N).range
 
 lemma decomposeTensor_apply {i : ι} :
     decomposeTensor ℳ N i = ((ℳ i).subtype.rTensor N).range :=
@@ -77,8 +76,7 @@ lemma subtype_rTensor_injective (i : ι) :
     (by ext; simp)
 
 /-- The linear isomorphism to the submodule from the tensor product with a summand. -/
-noncomputable def decomposeTensorEquiv (i : ι) :
-    (ℳ i) ⊗[R] N ≃ₗ[R] decomposeTensor ℳ N i :=
+noncomputable def decomposeTensorEquiv (i : ι) : (ℳ i) ⊗[R] N ≃ₗ[R] decomposeTensor ℳ N i :=
   LinearEquiv.ofInjective ((ℳ i).subtype.rTensor N) (subtype_rTensor_injective ℳ N i)
 
 lemma decomposeTensorEquiv_apply {i : ι} (x : (ℳ i) ⊗[R] N) :
@@ -120,10 +118,11 @@ lemma coe_decomposeTensor_apply (x : (⨁ i, decomposeTensor ℳ N i)) :
 
 /-- The decomposition of a tensor product induced by a decomposition of the left module. -/
 @[reducible]
-noncomputable def tensorDecomposition (N : Type*) [AddCommGroup N] [Module R N] :
-    DirectSum.Decomposition (decomposeTensor ℳ N) where
-  decompose' x := (DirectSum.congrLinearEquiv <| decomposeTensorEquiv ℳ N)
-    (directSumLeft R R (fun i ↦ ℳ i) N <| (DirectSum.decomposeLinearEquiv ℳ).rTensor N x)
+noncomputable def tensorDecomposition (N : Type*) [AddCommGroup N] [Module R N]
+    : DirectSum.Decomposition (decomposeTensor ℳ N) where
+  decompose' x :=
+    (DirectSum.congrLinearEquiv <| decomposeTensorEquiv ℳ N) (directSumLeft R R (fun i ↦ ℳ i) N <|
+      (DirectSum.decomposeLinearEquiv ℳ).rTensor N x)
   left_inv x := by simp [coe_decomposeTensor_apply ℳ N _, ← LinearEquiv.symm_rTensor]
   right_inv x := by simp [coe_decomposeTensor_apply ℳ N _, ← LinearEquiv.symm_rTensor]
 
@@ -137,13 +136,13 @@ theorem baseChange (hm : IsInternal ℳ) : IsInternal fun i ↦ (ℳ i).baseChan
   haveI := hm.chooseDecomposition
   Decomposition.isInternal _
 
-theorem toBaseChange_bijective (hm : IsInternal ℳ) (i : ι) :
-    Function.Bijective ((ℳ i).toBaseChange S) :=
+theorem toBaseChange_bijective (hm : IsInternal ℳ) (i : ι)
+    : Function.Bijective ((ℳ i).toBaseChange S) :=
   haveI := hm.chooseDecomposition
   DirectSum.toBaseChange_bijective ℳ i
 
-theorem toBaseChange_injective (hm : IsInternal ℳ) (i : ι) :
-    Function.Injective ((ℳ i).toBaseChange S) :=
+theorem toBaseChange_injective (hm : IsInternal ℳ) (i : ι)
+    : Function.Injective ((ℳ i).toBaseChange S) :=
   (toBaseChange_bijective ℳ hm i).injective
 
 end IsInternal

@@ -31,8 +31,7 @@ namespace Ideal
 variable {R S : Type*} [CommSemiring R] [CommSemiring S]
 
 /-- A proper ideal `I` is primary as a submodule. -/
-abbrev IsPrimary (I : Ideal R) : Prop :=
-  Submodule.IsPrimary I
+abbrev IsPrimary (I : Ideal R) : Prop := Submodule.IsPrimary I
 
 /-- A proper ideal `I` is primary iff `xy ∈ I` implies `x ∈ I` or `y ∈ radical I`. -/
 lemma isPrimary_iff {I : Ideal R} :
@@ -42,29 +41,31 @@ lemma isPrimary_iff {I : Ideal R} :
     ← Submodule.ideal_span_singleton_smul, smul_eq_mul, mul_top, span_singleton_le_iff_mem]
 
 theorem IsPrime.isPrimary {I : Ideal R} (hi : IsPrime I) : I.IsPrimary :=
-  isPrimary_iff.mpr
-  ⟨hi.1, fun {_ _} hxy => (hi.mem_or_mem hxy).imp id fun hyi => le_radical hyi⟩
+  isPrimary_iff.mpr ⟨hi.1, fun {_ _} hxy => (hi.mem_or_mem hxy).imp id fun hyi => le_radical hyi⟩
 
 theorem isPrime_radical {I : Ideal R} (hi : I.IsPrimary) : IsPrime (radical I) :=
   I.colon_univ ▸ hi.isPrime_radical_colon
 
-theorem isPrimary_of_isMaximal_radical {I : Ideal R} (hi : IsMaximal (radical I)) :
-    I.IsPrimary := by
+theorem isPrimary_of_isMaximal_radical {I : Ideal R} (hi : IsMaximal (radical I))
+    : I.IsPrimary := by
   rw [isPrimary_iff]
   constructor
   · rintro rfl
     exact (radical_top R ▸ hi).ne_top rfl
   · intro x y hxy
     by_cases h : I + span {y} = ⊤
-    · rw [← span_singleton_le_iff_mem, ← mul_top (span {x}), ← h, mul_add,
-        span_singleton_mul_span_singleton, add_le_iff, span_singleton_le_iff_mem]
+    · rw [
+        ← span_singleton_le_iff_mem, ← mul_top (span {x}), ← h, mul_add,
+        span_singleton_mul_span_singleton, add_le_iff, span_singleton_le_iff_mem
+      ]
       exact Or.inl ⟨mul_le_right, hxy⟩
     · obtain ⟨m, hm, hy⟩ := exists_le_maximal (I + span {y}) h
       rw [add_le_iff, span_singleton_le_iff_mem, ← hm.isPrime.radical_le_iff] at hy
       exact Or.inr (hi.eq_of_le hm.ne_top hy.1 ▸ hy.2)
 
-theorem IsPrimary.inf {I J : Ideal R} (hi : I.IsPrimary) (hj : J.IsPrimary)
-    (hij : radical I = radical J) : (I ⊓ J).IsPrimary :=
+theorem IsPrimary.inf
+    {I J : Ideal R} (hi : I.IsPrimary) (hj : J.IsPrimary) (hij : radical I = radical J)
+    : (I ⊓ J).IsPrimary :=
   Submodule.IsPrimary.inf hi hj (by simpa)
 
 lemma isPrimary_finsetInf {ι} {s : Finset ι} {f : ι → Ideal R} {i : ι} (hi : i ∈ s)

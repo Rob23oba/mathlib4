@@ -72,19 +72,21 @@ theorem le_sin_mul {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1) : x ≤ sin (π / 2 
 
 theorem mul_lt_sin {x : ℝ} (hx : 0 < x) (hx' : x < π / 2) : 2 / π * x < sin x := by
   rw [← inv_div]
-  simpa [-inv_div, mul_inv_cancel_left₀ pi_div_two_pos.ne'] using @lt_sin_mul ((π / 2)⁻¹ * x)
-    (mul_pos (inv_pos.2 pi_div_two_pos) hx) (by rwa [← div_eq_inv_mul, div_lt_one pi_div_two_pos])
+  simpa [-inv_div, mul_inv_cancel_left₀ pi_div_two_pos.ne'] using
+    @lt_sin_mul ((π / 2)⁻¹ * x) (mul_pos (inv_pos.2 pi_div_two_pos) hx)
+      (by rwa [← div_eq_inv_mul, div_lt_one pi_div_two_pos])
 
-/-- One half of **Jordan's inequality**.
+/--
+One half of **Jordan's inequality**.
 
 In the range `[0, π / 2]`, we have a linear lower bound on `sin`. The other half is given by
 `Real.sin_le`.
 -/
 theorem mul_le_sin {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ π / 2) : 2 / π * x ≤ sin x := by
   rw [← inv_div]
-  simpa [-inv_div, mul_inv_cancel_left₀ pi_div_two_pos.ne'] using @le_sin_mul ((π / 2)⁻¹ * x)
-    (mul_nonneg (inv_nonneg.2 pi_div_two_pos.le) hx)
-    (by rwa [← div_eq_inv_mul, div_le_one pi_div_two_pos])
+  simpa [-inv_div, mul_inv_cancel_left₀ pi_div_two_pos.ne'] using
+    @le_sin_mul ((π / 2)⁻¹ * x) (mul_nonneg (inv_nonneg.2 pi_div_two_pos.le) hx)
+      (by rwa [← div_eq_inv_mul, div_le_one pi_div_two_pos])
 
 /-- Half of **Jordan's inequality** for negative values. -/
 lemma sin_le_mul (hx : -(π / 2) ≤ x) (hx₀ : x ≤ 0) : sin x ≤ 2 / π * x := by
@@ -144,9 +146,11 @@ lemma cos_le_one_sub_mul_cos_sq (hx : |x| ≤ π) : cos x ≤ 1 - 2 / π ^ 2 * x
   ring_nf at this ⊢
   linarith
 
-/-- For 0 < x we have x - x ^ 3 / 6 < sin x.
+/--
+For 0 < x we have x - x ^ 3 / 6 < sin x.
 
-This inequality is tight, in that the constant 6 is best possible. -/
+This inequality is tight, in that the constant 6 is best possible.
+-/
 theorem sin_gt_sub_cube {x : ℝ} (hx : 0 < x) : x - x ^ 3 / 6 < Real.sin x := by
   let f (t : ℝ) : ℝ := Real.sin t - (t - t ^ 3 / 6)
   have hderiv (t : ℝ) : deriv f t = cos t - 1 + t ^ 2 / 2 := by
@@ -158,9 +162,11 @@ theorem sin_gt_sub_cube {x : ℝ} (hx : 0 < x) : x - x ^ 3 / 6 < Real.sin x := b
   have h0 : f 0 < f x := hmono (by simp) hx.le hx
   grind [Real.sin_zero]
 
-/-- For 0 ≤ x we have x - x ^ 3 / 6 ≤ sin x.
+/--
+For 0 ≤ x we have x - x ^ 3 / 6 ≤ sin x.
 
-This inequality is tight, in that the constant 6 is best possible. -/
+This inequality is tight, in that the constant 6 is best possible.
+-/
 theorem sin_ge_sub_cube {x : ℝ} (hx : 0 ≤ x) : x - x ^ 3 / 6 ≤ Real.sin x := by
   obtain rfl | hx := hx.eq_or_lt
   · simp
@@ -173,14 +179,16 @@ theorem abs_sub_sin_le (x : ℝ) : |x - Real.sin x| ≤ |x| ^ 3 / 6 := by
   · grind [Real.sin_le, abs_of_nonneg, sin_ge_sub_cube]
 
 /-- The derivative of `tan x - x` is `1/(cos x)^2 - 1` away from the zeroes of cos. -/
-theorem deriv_tan_sub_id (x : ℝ) (h : cos x ≠ 0) :
-    deriv (fun y : ℝ => tan y - y) x = 1 / cos x ^ 2 - 1 :=
+theorem deriv_tan_sub_id (x : ℝ) (h : cos x ≠ 0)
+    : deriv (fun y : ℝ => tan y - y) x = 1 / cos x ^ 2 - 1 :=
   HasDerivAt.deriv <| by simpa using! (hasDerivAt_tan h).add (hasDerivAt_id x).neg
 
-/-- For all `0 < x < π/2` we have `x < tan x`.
+/--
+For all `0 < x < π/2` we have `x < tan x`.
 
 This is proved by checking that the function `tan x - x` vanishes
-at zero and has non-negative derivative. -/
+at zero and has non-negative derivative.
+-/
 theorem lt_tan {x : ℝ} (h1 : 0 < x) (h2 : x < π / 2) : x < tan x := by
   let U := Ico 0 (π / 2)
   have intU : interior U = Ioo 0 (π / 2) := interior_Ico
@@ -217,10 +225,12 @@ theorem le_tan {x : ℝ} (h1 : 0 ≤ x) (h2 : x < π / 2) : x ≤ tan x := by
   · rw [tan_zero]
   · exact le_of_lt (lt_tan h1' h2)
 
-/-- For `0 < x` we have `arctan x < x`.
+/--
+For `0 < x` we have `arctan x < x`.
 
 This is `lt_tan` reflected in the diagonal: `tan` lies above the identity on `(0, π / 2)`, hence
-its inverse lies below it. -/
+its inverse lies below it.
+-/
 theorem arctan_lt_self (h : 0 < x) : arctan x < x := by
   simpa using lt_tan (arctan_pos.2 h) (arctan_lt_pi_div_two x)
 
@@ -229,20 +239,18 @@ theorem arctan_le_self (h : 0 ≤ x) : arctan x ≤ x := by
   · simp
   · exact (arctan_lt_self h).le
 
-theorem self_lt_arctan (h : x < 0) : x < arctan x := by
-  simpa using arctan_lt_self <| neg_pos.2 h
+theorem self_lt_arctan (h : x < 0) : x < arctan x := by simpa using arctan_lt_self <| neg_pos.2 h
 
-theorem self_le_arctan (h : x ≤ 0) : x ≤ arctan x := by
-  simpa using arctan_le_self <| neg_nonneg.2 h
+theorem self_le_arctan (h : x ≤ 0) : x ≤ arctan x := by simpa using arctan_le_self <| neg_nonneg.2 h
 
 theorem abs_arctan_lt_abs (h : x ≠ 0) : |arctan x| < |x| := by
   grind [arctan_lt_self, self_lt_arctan, arctan_pos, arctan_lt_zero]
 
-theorem abs_arctan_le_abs : |arctan x| ≤ |x| := by
-  grind [abs_arctan_lt_abs, arctan_zero]
+theorem abs_arctan_le_abs : |arctan x| ≤ |x| := by grind [abs_arctan_lt_abs, arctan_zero]
 
-theorem cos_lt_one_div_sqrt_sq_add_one {x : ℝ} (hx1 : -(3 * π / 2) ≤ x) (hx2 : x ≤ 3 * π / 2)
-    (hx3 : x ≠ 0) : cos x < (1 / √(x ^ 2 + 1) : ℝ) := by
+theorem cos_lt_one_div_sqrt_sq_add_one
+    {x : ℝ} (hx1 : -(3 * π / 2) ≤ x) (hx2 : x ≤ 3 * π / 2) (hx3 : x ≠ 0)
+    : cos x < (1 / √(x ^ 2 + 1) : ℝ) := by
   suffices ∀ {y : ℝ}, 0 < y → y ≤ 3 * π / 2 → cos y < 1 / √(y ^ 2 + 1) by
     rcases lt_or_lt_iff_ne.mpr hx3.symm with ⟨h⟩
     · exact this h hx2
@@ -254,18 +262,20 @@ theorem cos_lt_one_div_sqrt_sq_add_one {x : ℝ} (hx1 : -(3 * π / 2) ≤ x) (hx
   rcases lt_or_ge y (π / 2) with (hy2' | hy1')
   · -- Main case : `0 < y < π / 2`
     have hy4 : 0 < cos y := cos_pos_of_mem_Ioo ⟨by linarith, hy2'⟩
-    rw [← abs_of_nonneg (cos_nonneg_of_mem_Icc ⟨by linarith, hy2'.le⟩), ←
-      abs_of_nonneg (one_div_nonneg.mpr (sqrt_nonneg _)), ← sq_lt_sq, div_pow, one_pow,
+    rw [
+      ← abs_of_nonneg (cos_nonneg_of_mem_Icc ⟨by linarith, hy2'.le⟩),
+      ← abs_of_nonneg (one_div_nonneg.mpr (sqrt_nonneg _)), ← sq_lt_sq, div_pow, one_pow,
       sq_sqrt hy3.le, lt_one_div (pow_pos hy4 _) hy3, ← inv_one_add_tan_sq hy4.ne', one_div,
       inv_inv, add_comm, add_lt_add_iff_left, sq_lt_sq, abs_of_pos hy1,
-      abs_of_nonneg (tan_nonneg_of_nonneg_of_le_pi_div_two hy1.le hy2'.le)]
+      abs_of_nonneg (tan_nonneg_of_nonneg_of_le_pi_div_two hy1.le hy2'.le)
+    ]
     exact Real.lt_tan hy1 hy2'
   · -- Easy case : `π / 2 ≤ y ≤ 3 * π / 2`
     refine lt_of_le_of_lt ?_ (one_div_pos.mpr <| sqrt_pos_of_pos hy3)
     exact cos_nonpos_of_pi_div_two_le_of_le hy1' (by linarith [pi_pos])
 
-theorem cos_le_one_div_sqrt_sq_add_one {x : ℝ} (hx1 : -(3 * π / 2) ≤ x) (hx2 : x ≤ 3 * π / 2) :
-    cos x ≤ (1 : ℝ) / √(x ^ 2 + 1) := by
+theorem cos_le_one_div_sqrt_sq_add_one {x : ℝ} (hx1 : -(3 * π / 2) ≤ x) (hx2 : x ≤ 3 * π / 2)
+    : cos x ≤ (1 : ℝ) / √(x ^ 2 + 1) := by
   rcases eq_or_ne x 0 with (rfl | hx3)
   · simp
   · exact (cos_lt_one_div_sqrt_sq_add_one hx1 hx2 hx3).le

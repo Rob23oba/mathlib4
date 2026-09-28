@@ -34,19 +34,20 @@ namespace AlgebraicGeometry.Scheme
 The pretopology on the category of schemes defined by covering families where the components
 satisfy `P`.
 -/
-def pretopology (P : MorphismProperty Scheme.{u}) [P.IsStableUnderBaseChange]
-    [P.IsMultiplicative] : Pretopology Scheme.{u} :=
+def pretopology (P : MorphismProperty Scheme.{u}) [P.IsStableUnderBaseChange] [P.IsMultiplicative]
+    : Pretopology Scheme.{u} :=
   (precoverage P).toPretopology
 
-/-- The Grothendieck topology on the category of schemes induced by the pretopology defined by
-`P`-covers. -/
-abbrev grothendieckTopology (P : MorphismProperty Scheme.{u}) :
-    GrothendieckTopology Scheme.{u} :=
+/--
+The Grothendieck topology on the category of schemes induced by the pretopology defined by
+`P`-covers.
+-/
+abbrev grothendieckTopology (P : MorphismProperty Scheme.{u}) : GrothendieckTopology Scheme.{u} :=
   (precoverage P).toGrothendieck
 
 instance : jointlySurjectivePrecoverage.IsStableUnderBaseChange :=
-  isStableUnderBaseChange_comap_jointlySurjectivePrecoverage _
-    fun f g _ ↦ pullbackComparison_forget_surjective f g
+  isStableUnderBaseChange_comap_jointlySurjectivePrecoverage _ fun f g _ ↦
+    pullbackComparison_forget_surjective f g
 
 /-- The pretopology on the category of schemes defined by jointly surjective families. -/
 def jointlySurjectivePretopology : Pretopology Scheme.{u} :=
@@ -90,19 +91,24 @@ alias ⟨exists_cover_of_mem_grothendieckTopology, _⟩ := mem_grothendieckTopol
 
 section
 
-/-- The jointly surjective topology on `Scheme` is defined by the same condition as the jointly
-surjective pretopology. -/
+/--
+The jointly surjective topology on `Scheme` is defined by the same condition as the jointly
+surjective pretopology.
+-/
 def jointlySurjectiveTopology : GrothendieckTopology Scheme.{u} :=
-  jointlySurjectivePretopology.toGrothendieck.copy
-    (fun X ↦ {s | ↑s ∈ jointlySurjectivePretopology X}) <|
-    funext fun _ ↦ Set.ext fun s ↦
-      ⟨fun ⟨_, hp, hps⟩ x ↦ let ⟨Y, u, hu, hmem⟩ := hp x;
-        ⟨Y, u, Presieve.map_monotone hps _ _ hu, hmem⟩,
-      fun hs ↦ ⟨s, hs, le_rfl⟩⟩
+  jointlySurjectivePretopology.toGrothendieck.copy (fun X ↦
+      {s | ↑s ∈ jointlySurjectivePretopology X}) <|
+    funext fun _ ↦
+      Set.ext fun s ↦ ⟨
+        fun ⟨_, hp, hps⟩ x ↦
+          let ⟨Y, u, hu, hmem⟩ := hp x
+          ⟨Y, u, Presieve.map_monotone hps _ _ hu, hmem⟩,
+        fun hs ↦ ⟨s, hs, le_rfl⟩
+      ⟩
 
 theorem mem_jointlySurjectiveTopology_iff_jointlySurjectivePretopology
-    {X : Scheme.{u}} {s : Sieve X} :
-    s ∈ jointlySurjectiveTopology X ↔ ↑s ∈ jointlySurjectivePretopology X :=
+    {X : Scheme.{u}} {s : Sieve X}
+    : s ∈ jointlySurjectiveTopology X ↔ ↑s ∈ jointlySurjectivePretopology X :=
   Iff.rfl
 
 lemma jointlySurjectiveTopology_eq_toGrothendieck_jointlySurjectivePretopology :
@@ -137,8 +143,8 @@ lemma grothendieckTopology_monotone (hPQ : P ≤ Q) :
     grothendieckTopology P ≤ grothendieckTopology Q :=
   Precoverage.toGrothendieck_mono (precoverage_mono hPQ)
 
-variable [P.IsMultiplicative] [P.IsStableUnderBaseChange]
-  [Q.IsMultiplicative] [Q.IsStableUnderBaseChange]
+variable
+  [P.IsMultiplicative] [P.IsStableUnderBaseChange] [Q.IsMultiplicative] [Q.IsStableUnderBaseChange]
 
 lemma pretopology_monotone (hPQ : P ≤ Q) : pretopology P ≤ pretopology Q :=
   precoverage_mono hPQ

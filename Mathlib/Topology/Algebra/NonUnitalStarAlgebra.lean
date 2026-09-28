@@ -34,58 +34,70 @@ variable {R A B : Type*} [CommSemiring R] [TopologicalSpace A] [Star A]
 variable [NonUnitalSemiring A] [Module R A] [ContinuousStar A]
 variable [ContinuousConstSMul R A]
 
-instance instIsTopologicalSemiring [IsTopologicalSemiring A] (s : NonUnitalStarSubalgebra R A) :
-    IsTopologicalSemiring s :=
+instance instIsTopologicalSemiring [IsTopologicalSemiring A] (s : NonUnitalStarSubalgebra R A)
+    : IsTopologicalSemiring s :=
   s.toNonUnitalSubalgebra.instIsTopologicalSemiring
 
-instance instIsSemitopologicalSemiring [IsSemitopologicalSemiring A]
-    (s : NonUnitalStarSubalgebra R A) : IsSemitopologicalSemiring s :=
+instance instIsSemitopologicalSemiring
+    [IsSemitopologicalSemiring A] (s : NonUnitalStarSubalgebra R A)
+    : IsSemitopologicalSemiring s :=
   s.toNonUnitalSubalgebra.instIsSemitopologicalSemiring
 
 variable [IsSemitopologicalSemiring A]
 
-/-- The (topological) closure of a non-unital star subalgebra of a non-unital topological star
-algebra is itself a non-unital star subalgebra. -/
-def topologicalClosure (s : NonUnitalStarSubalgebra R A) : NonUnitalStarSubalgebra R A :=
-  { s.toNonUnitalSubalgebra.topologicalClosure with
-    star_mem' := fun h ↦ map_mem_closure continuous_star h fun _ ↦ star_mem
-    carrier := _root_.closure (s : Set A) }
+/--
+The (topological) closure of a non-unital star subalgebra of a non-unital topological star
+algebra is itself a non-unital star subalgebra.
+-/
+def topologicalClosure (s : NonUnitalStarSubalgebra R A) : NonUnitalStarSubalgebra R A := {
+  s.toNonUnitalSubalgebra.topologicalClosure with
+  star_mem' := fun h ↦ map_mem_closure continuous_star h fun _ ↦ star_mem
+  carrier := _root_.closure (s : Set A)
+}
 
 theorem le_topologicalClosure (s : NonUnitalStarSubalgebra R A) : s ≤ s.topologicalClosure :=
   subset_closure
 
-theorem isClosed_topologicalClosure (s : NonUnitalStarSubalgebra R A) :
-    IsClosed (s.topologicalClosure : Set A) := isClosed_closure
+theorem isClosed_topologicalClosure (s : NonUnitalStarSubalgebra R A)
+    : IsClosed (s.topologicalClosure : Set A) :=
+  isClosed_closure
 
-theorem topologicalClosure_minimal (s : NonUnitalStarSubalgebra R A)
-    {t : NonUnitalStarSubalgebra R A} (h : s ≤ t) (ht : IsClosed (t : Set A)) :
-    s.topologicalClosure ≤ t :=
+theorem topologicalClosure_minimal
+    (s : NonUnitalStarSubalgebra R A)
+    {t : NonUnitalStarSubalgebra R A} (h : s ≤ t) (ht : IsClosed (t : Set A))
+    : s.topologicalClosure ≤ t :=
   closure_minimal h ht
 
 @[gcongr]
-theorem topologicalClosure_mono {s t : NonUnitalStarSubalgebra R A} (h : s ≤ t) :
-    s.topologicalClosure ≤ t.topologicalClosure :=
+theorem topologicalClosure_mono {s t : NonUnitalStarSubalgebra R A} (h : s ≤ t)
+    : s.topologicalClosure ≤ t.topologicalClosure :=
   closure_mono h
 
-instance isMulCommutative_topologicalClosure [T2Space A] (s : NonUnitalStarSubalgebra R A)
-    [IsMulCommutative s] : IsMulCommutative s.topologicalClosure :=
+instance isMulCommutative_topologicalClosure
+    [T2Space A] (s : NonUnitalStarSubalgebra R A) [IsMulCommutative s]
+    : IsMulCommutative s.topologicalClosure :=
   s.toNonUnitalSubalgebra.isMulCommutative_topologicalClosure
 
 open scoped IsMulCommutative in
-/-- If a non-unital star subalgebra of a non-unital topological star algebra is commutative, then
+/--
+If a non-unital star subalgebra of a non-unital topological star algebra is commutative, then
 so is its topological closure.
 
-See note [reducible non-instances] -/
+See note [reducible non-instances]
+-/
 @[deprecated isMulCommutative_topologicalClosure +typeChanged (since := "2026-07-29")]
-abbrev nonUnitalCommSemiringTopologicalClosure [T2Space A] (s : NonUnitalStarSubalgebra R A)
-    (hs : ∀ x y : s, x * y = y * x) : NonUnitalCommSemiring s.topologicalClosure :=
+abbrev nonUnitalCommSemiringTopologicalClosure
+    [T2Space A] (s : NonUnitalStarSubalgebra R A) (hs : ∀ x y : s, x * y = y * x)
+    : NonUnitalCommSemiring s.topologicalClosure :=
   fast_instance%
   have : IsMulCommutative s := ⟨⟨hs⟩⟩
   inferInstance
 
-variable [TopologicalSpace B] [Star B] [NonUnitalSemiring B] [Module R B]
-    [IsSemitopologicalSemiring B] [ContinuousConstSMul R B] [ContinuousStar B]
-    (s : NonUnitalStarSubalgebra R A) {φ : A →⋆ₙₐ[R] B}
+variable
+  [TopologicalSpace B] [Star B] [NonUnitalSemiring B] [Module R B] [IsSemitopologicalSemiring B]
+  [ContinuousConstSMul R B] [ContinuousStar B]
+  (s : NonUnitalStarSubalgebra R A)
+  {φ : A →⋆ₙₐ[R] B}
 
 lemma map_topologicalClosure_le (hφ : Continuous φ) :
     map φ s.topologicalClosure ≤ (map φ s).topologicalClosure :=
@@ -116,24 +128,27 @@ variable {R A : Type*} [CommRing R] [TopologicalSpace A]
 variable [NonUnitalRing A] [Module R A] [Star A] [ContinuousStar A]
 variable [ContinuousConstSMul R A]
 
-instance instIsTopologicalRing [IsTopologicalRing A] (s : NonUnitalStarSubalgebra R A) :
-    IsTopologicalRing s :=
+instance instIsTopologicalRing [IsTopologicalRing A] (s : NonUnitalStarSubalgebra R A)
+    : IsTopologicalRing s :=
   s.toNonUnitalSubring.instIsTopologicalRing
 
-instance instIsSemitopologicalRing [IsSemitopologicalRing A] (s : NonUnitalStarSubalgebra R A) :
-    IsSemitopologicalRing s :=
+instance instIsSemitopologicalRing [IsSemitopologicalRing A] (s : NonUnitalStarSubalgebra R A)
+    : IsSemitopologicalRing s :=
   s.toNonUnitalSubring.instIsSemitopologicalRing
 
 variable [IsSemitopologicalRing A]
 
 open scoped IsMulCommutative in
-/-- If a non-unital star subalgebra of a non-unital topological star algebra is commutative, then
+/--
+If a non-unital star subalgebra of a non-unital topological star algebra is commutative, then
 so is its topological closure.
 
-See note [reducible non-instances]. -/
+See note [reducible non-instances].
+-/
 @[deprecated isMulCommutative_topologicalClosure +typeChanged (since := "2026-07-29")]
-abbrev nonUnitalCommRingTopologicalClosure [T2Space A] (s : NonUnitalStarSubalgebra R A)
-    (hs : ∀ x y : s, x * y = y * x) : NonUnitalCommRing s.topologicalClosure :=
+abbrev nonUnitalCommRingTopologicalClosure
+    [T2Space A] (s : NonUnitalStarSubalgebra R A) (hs : ∀ x y : s, x * y = y * x)
+    : NonUnitalCommRing s.topologicalClosure :=
   have : IsMulCommutative s := ⟨⟨hs⟩⟩
   inferInstance
 
@@ -151,8 +166,7 @@ variable [TopologicalSpace A] [IsSemitopologicalSemiring A] [ContinuousConstSMul
 variable [ContinuousStar A]
 
 /-- The topological closure of the non-unital star subalgebra generated by a single element. -/
-def elemental (x : A) : NonUnitalStarSubalgebra R A :=
-  adjoin R {x} |>.topologicalClosure
+def elemental (x : A) : NonUnitalStarSubalgebra R A := adjoin R {x} |>.topologicalClosure
 
 namespace elemental
 
@@ -165,26 +179,26 @@ theorem star_self_mem (x : A) : star x ∈ elemental R x :=
   le_topologicalClosure _ <| star_self_mem_adjoin_singleton R x
 
 variable {R} in
-theorem le_of_mem {x : A} {s : NonUnitalStarSubalgebra R A} (hs : IsClosed (s : Set A))
-    (hx : x ∈ s) : elemental R x ≤ s :=
+theorem le_of_mem {x : A} {s : NonUnitalStarSubalgebra R A} (hs : IsClosed (s : Set A)) (hx : x ∈ s)
+    : elemental R x ≤ s :=
   topologicalClosure_minimal _ (adjoin_le <| by simpa using hx) hs
 
 variable {R} in
-theorem le_iff_mem {x : A} {s : NonUnitalStarSubalgebra R A} (hs : IsClosed (s : Set A)) :
-    elemental R x ≤ s ↔ x ∈ s :=
+theorem le_iff_mem {x : A} {s : NonUnitalStarSubalgebra R A} (hs : IsClosed (s : Set A))
+    : elemental R x ≤ s ↔ x ∈ s :=
   ⟨fun h ↦ h (self_mem R x), fun h ↦ le_of_mem hs h⟩
 
-theorem isClosed (x : A) : IsClosed (elemental R x : Set A) :=
-  isClosed_topologicalClosure _
+theorem isClosed (x : A) : IsClosed (elemental R x : Set A) := isClosed_topologicalClosure _
 
-instance isMulCommutative [T2Space A] (x : A) [IsStarNormal x] :
-    IsMulCommutative (elemental R x) :=
+instance isMulCommutative [T2Space A] (x : A) [IsStarNormal x] : IsMulCommutative (elemental R x) :=
   isMulCommutative_topologicalClosure _
 
-instance {A : Type*} [UniformSpace A] [CompleteSpace A] [NonUnitalSemiring A] [StarRing A]
+instance
+    {A : Type*} [UniformSpace A] [CompleteSpace A] [NonUnitalSemiring A] [StarRing A]
     [IsSemitopologicalSemiring A] [ContinuousStar A] [Module R A] [IsScalarTower R A A]
-    [SMulCommClass R A A] [StarModule R A] [ContinuousConstSMul R A] (x : A) :
-    CompleteSpace (elemental R x) :=
+    [SMulCommClass R A A] [StarModule R A] [ContinuousConstSMul R A]
+    (x : A)
+    : CompleteSpace (elemental R x) :=
   isClosed_closure.completeSpace_coe
 
 /-- The coercion from an elemental algebra to the full algebra is a `IsClosedEmbedding`. -/

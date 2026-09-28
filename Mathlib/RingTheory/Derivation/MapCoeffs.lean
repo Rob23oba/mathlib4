@@ -27,22 +27,24 @@ open Polynomial Module
 
 namespace Derivation
 
-variable {R A M : Type*} [CommRing R] [CommRing A] [Algebra R A] [AddCommGroup M]
-  [Module A M] [Module R M] (d : Derivation R A M)
+variable
+  {R A M : Type*} [CommRing R] [CommRing A] [Algebra R A] [AddCommGroup M] [Module A M] [Module R M]
+  (d : Derivation R A M)
 
 set_option backward.defeqAttrib.useBackward true in
 /--
 The `R`-derivation from `A[X]` to `M[X]` which applies the derivative to each
 of the coefficients.
 -/
-def mapCoeffs : Derivation R A[X] (PolynomialModule A M) where
-  __ := (PolynomialModule.map A d.toLinearMap).comp
-    PolynomialModule.equivPolynomial.symm.toLinearMap
+def mapCoeffs : Derivation R (A[X]) (PolynomialModule A M) where
+  __ :=
+    (PolynomialModule.map A d.toLinearMap).comp PolynomialModule.equivPolynomial.symm.toLinearMap
   map_one_eq_zero' := by simp
   leibniz' p q := by
     dsimp
     induction p using Polynomial.induction_on' with
-    | add => simp only [add_mul, map_add, add_smul, smul_add, add_add_add_comm, *]
+    | add =>
+      simp only [add_mul, map_add, add_smul, smul_add, add_add_add_comm, *]
     | monomial n a =>
       induction q using Polynomial.induction_on' with
       | add => simp only [mul_add, map_add, add_smul, smul_add, add_add_add_comm, *]
@@ -64,29 +66,34 @@ lemma mapCoeffs_X : d.mapCoeffs (X : A[X]) = 0 := by
 lemma mapCoeffs_C (x : A) :
     d.mapCoeffs (C x) = .single A 0 (d x) := by simp [← monomial_zero_left]
 
-variable {B M' : Type*} [CommRing B] [Algebra R B] [Algebra A B]
-    [AddCommGroup M'] [Module B M'] [Module R M'] [Module A M']
+variable
+  {B M' : Type*} [CommRing B] [Algebra R B] [Algebra A B] [AddCommGroup M'] [Module B M']
+  [Module R M'] [Module A M']
 
-theorem apply_aeval_eq' (d' : Derivation R B M') (f : M →ₗ[A] M')
-    (h : ∀ a, f (d a) = d' (algebraMap A B a)) (x : B) (p : A[X]) :
-    d' (aeval x p) = PolynomialModule.eval x (PolynomialModule.map B f (d.mapCoeffs p)) +
-      aeval x (derivative p) • d' x := by
+theorem apply_aeval_eq'
+    (d' : Derivation R B M') (f : M →ₗ[A] M') (h : ∀ a, f (d a) = d' (algebraMap A B a))
+    (x : B) (p : A[X])
+    : d' (aeval x p)
+      = PolynomialModule.eval x (PolynomialModule.map B f (d.mapCoeffs p))
+        + aeval x (derivative p) • d' x := by
   induction p using Polynomial.induction_on' with
-  | add => simp_all only [map_add, add_smul]; abel
+  | add =>
+    simp_all only [map_add, add_smul]; abel
   | monomial =>
-    simp only [aeval_monomial, leibniz, leibniz_pow, mapCoeffs_monomial,
-      PolynomialModule.map_single, PolynomialModule.eval_single, derivative_monomial, map_mul,
-      _root_.map_natCast, h]
+    simp only [
+      aeval_monomial, leibniz, leibniz_pow, mapCoeffs_monomial, PolynomialModule.map_single,
+      PolynomialModule.eval_single, derivative_monomial, map_mul, _root_.map_natCast, h
+    ]
     rw [add_comm, ← smul_smul, ← smul_smul, Nat.cast_smul_eq_nsmul]
 
-theorem apply_aeval_eq [IsScalarTower R A B] [IsScalarTower A B M'] (d : Derivation R B M')
-    (x : B) (p : A[X]) :
-    d (aeval x p) =
-      (((d.compAlgebraMap A).mapCoeffs p).map B .id).eval x + aeval x (derivative p) • d x :=
+theorem apply_aeval_eq
+    [IsScalarTower R A B] [IsScalarTower A B M'] (d : Derivation R B M') (x : B) (p : A[X])
+    : d (aeval x p)
+      = (((d.compAlgebraMap A).mapCoeffs p).map B .id).eval x + aeval x (derivative p) • d x :=
   apply_aeval_eq' (d.compAlgebraMap A) d LinearMap.id (fun _a ↦ rfl) x p
 
-theorem apply_eval_eq (x : A) (p : A[X]) :
-    d (eval x p) = PolynomialModule.eval x (d.mapCoeffs p) + eval x (derivative p) • d x := by
+theorem apply_eval_eq (x : A) (p : A[X])
+    : d (eval x p) = PolynomialModule.eval x (d.mapCoeffs p) + eval x (derivative p) • d x := by
   convert! apply_aeval_eq d x p
   ext
   rfl
@@ -97,10 +104,8 @@ namespace Differential
 
 variable {A : Type*} [CommRing A] [Differential A]
 
-/--
-A specialization of `Derivation.mapCoeffs` for the case of a differential ring.
--/
-def mapCoeffs : Derivation ℤ A[X] A[X] :=
+/-- A specialization of `Derivation.mapCoeffs` for the case of a differential ring. -/
+def mapCoeffs : Derivation ℤ (A[X]) A[X] :=
   PolynomialModule.equivPolynomialSelf.compDer Differential.deriv.mapCoeffs
 
 @[simp]
@@ -122,8 +127,8 @@ lemma mapCoeffs_C (x : A) :
 
 variable {R : Type*} [CommRing R] [Differential R] [Algebra A R] [DifferentialAlgebra A R]
 
-theorem deriv_aeval_eq (x : R) (p : A[X]) :
-    (aeval x p)′ = aeval x (mapCoeffs p) + aeval x (derivative p) * x′ := by
+theorem deriv_aeval_eq (x : R) (p : A[X])
+    : (aeval x p)′ = aeval x (mapCoeffs p) + aeval x (derivative p) * x′ := by
   convert! Derivation.apply_aeval_eq' Differential.deriv _ (Algebra.linearMap A R) ..
   · simp [mapCoeffs]
   · simp [deriv_algebraMap]
@@ -132,8 +137,7 @@ theorem deriv_aeval_eq (x : R) (p : A[X]) :
 The unique derivation which can be made to a `DifferentialAlgebra` on `A[X]` with
 `X′ = v`.
 -/
-def implicitDeriv (v : A[X]) :
-    Derivation ℤ A[X] A[X] :=
+def implicitDeriv (v : A[X]) : Derivation ℤ (A[X]) A[X] :=
   mapCoeffs + v • derivative'.restrictScalars ℤ
 
 @[simp]

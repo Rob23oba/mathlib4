@@ -24,8 +24,9 @@ open CategoryTheory
 
 namespace PresheafOfModules
 
-variable {C : Type u₁} [Category.{v₁} C] {R : Cᵒᵖ ⥤ RingCat.{u}}
-  {M₁ M₂ : PresheafOfModules.{v} R} {f : M₁ ⟶ M₂}
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  {R : Cᵒᵖ ⥤ RingCat.{u}} {M₁ M₂ : PresheafOfModules.{v} R} {f : M₁ ⟶ M₂}
 
 lemma epi_of_surjective (hf : ∀ ⦃X : Cᵒᵖ⦄, Function.Surjective (f.app X)) : Epi f where
   left_cancellation g₁ g₂ hg := by
@@ -40,11 +41,9 @@ lemma mono_of_injective (hf : ∀ ⦃X : Cᵒᵖ⦄, Function.Injective (f.app X
 
 variable (f)
 
-instance [Epi f] (X : Cᵒᵖ) : Epi (f.app X) :=
-  inferInstanceAs (Epi ((evaluation R X).map f))
+instance [Epi f] (X : Cᵒᵖ) : Epi (f.app X) := inferInstanceAs (Epi ((evaluation R X).map f))
 
-instance [Mono f] (X : Cᵒᵖ) : Mono (f.app X) :=
-  inferInstanceAs (Mono ((evaluation R X).map f))
+instance [Mono f] (X : Cᵒᵖ) : Mono (f.app X) := inferInstanceAs (Mono ((evaluation R X).map f))
 
 lemma surjective_of_epi [Epi f] (X : Cᵒᵖ) :
     Function.Surjective (f.app X) := by

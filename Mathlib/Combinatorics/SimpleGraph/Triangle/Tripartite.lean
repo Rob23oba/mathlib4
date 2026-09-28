@@ -41,22 +41,25 @@ This construction shows up unrelatedly twice in the theory of Roth numbers:
 
 open Finset Function Sum3
 
-variable {α β γ 𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
-  {t : Finset (α × β × γ)}
+variable
+  {α β γ 𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] {t : Finset (α × β × γ)}
 
 namespace SimpleGraph
 namespace TripartiteFromTriangles
 
-/-- The underlying relation of the tripartite-from-triangles graph.
+/--
+The underlying relation of the tripartite-from-triangles graph.
 
-Two vertices are related iff there exists a triangle index containing them both. -/
-@[mk_iff] inductive Rel (t : Finset (α × β × γ)) : α ⊕ β ⊕ γ → α ⊕ β ⊕ γ → Prop
-| in₀₁ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₀ a) (in₁ b)
-| in₁₀ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₁ b) (in₀ a)
-| in₀₂ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₀ a) (in₂ c)
-| in₂₀ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₂ c) (in₀ a)
-| in₁₂ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₁ b) (in₂ c)
-| in₂₁ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₂ c) (in₁ b)
+Two vertices are related iff there exists a triangle index containing them both.
+-/
+@[mk_iff]
+inductive Rel (t : Finset (α × β × γ)) : α ⊕ β ⊕ γ → α ⊕ β ⊕ γ → Prop
+  | in₀₁ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₀ a) (in₁ b)
+  | in₁₀ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₁ b) (in₀ a)
+  | in₀₂ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₀ a) (in₂ c)
+  | in₂₀ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₂ c) (in₀ a)
+  | in₁₂ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₁ b) (in₂ c)
+  | in₂₁ ⦃a b c⦄ : (a, b, c) ∈ t → Rel t (in₂ c) (in₁ b)
 
 open Rel
 
@@ -66,8 +69,10 @@ instance rel_irrefl : Std.Irrefl (Rel t) where
 instance rel_symm : Std.Symm (Rel t) where
   symm x y h := by cases h <;> constructor <;> assumption
 
-/-- The tripartite-from-triangles graph. Two vertices are related iff there exists a triangle index
-containing them both. -/
+/--
+The tripartite-from-triangles graph. Two vertices are related iff there exists a triangle index
+containing them both.
+-/
 def graph (t : Finset (α × β × γ)) : SimpleGraph (α ⊕ β ⊕ γ) where
   Adj := Rel t
   symm := inferInstance
@@ -129,28 +134,40 @@ class ExplicitDisjoint (t : Finset (α × β × γ)) : Prop where
   inj₁ : ∀ ⦃a b c b'⦄, (a, b, c) ∈ t → (a, b', c) ∈ t → b = b'
   inj₂ : ∀ ⦃a b c c'⦄, (a, b, c) ∈ t → (a, b, c') ∈ t → c = c'
 
-/-- Predicate on the triangle indices for there to be no accidental triangle.
+/--
+Predicate on the triangle indices for there to be no accidental triangle.
 
 Note that we cheat a bit, since the exact translation of this informal description would have
 `(a', b', c') ∈ t` as a conclusion rather than `a = a' ∨ b = b' ∨ c = c'`. Those conditions are
-equivalent when the explicit triangles are edge-disjoint (which is the case we care about). -/
+equivalent when the explicit triangles are edge-disjoint (which is the case we care about).
+-/
 class NoAccidental (t : Finset (α × β × γ)) : Prop where
-  eq_or_eq_or_eq : ∀ ⦃a a' b b' c c'⦄, (a', b, c) ∈ t → (a, b', c) ∈ t → (a, b, c') ∈ t →
-    a = a' ∨ b = b' ∨ c = c'
+  eq_or_eq_or_eq
+    : ∀ ⦃a a' b b' c c'⦄,
+      (a', b, c) ∈ t → (a, b', c) ∈ t → (a, b, c') ∈ t → a = a' ∨ b = b' ∨ c = c'
 
 section DecidableEq
 variable [DecidableEq α] [DecidableEq β] [DecidableEq γ]
 
 instance graph.instDecidableRelAdj : DecidableRel (graph t).Adj
-  | in₀ _a, in₀ _a' => Decidable.isFalse not_in₀₀
-  | in₀ _a, in₁ _b' => decidable_of_iff' _ in₀₁_iff'
-  | in₀ _a, in₂ _c' => decidable_of_iff' _ in₀₂_iff'
-  | in₁ _b, in₀ _a' => decidable_of_iff' _ in₁₀_iff'
-  | in₁ _b, in₁ _b' => Decidable.isFalse not_in₁₁
-  | in₁ _b, in₂ _b' => decidable_of_iff' _ in₁₂_iff'
-  | in₂ _c, in₀ _a' => decidable_of_iff' _ in₂₀_iff'
-  | in₂ _c, in₁ _b' => decidable_of_iff' _ in₂₁_iff'
-  | in₂ _c, in₂ _b' => Decidable.isFalse not_in₂₂
+  | in₀ _a, in₀ _a' =>
+    Decidable.isFalse not_in₀₀
+  | in₀ _a, in₁ _b' =>
+    decidable_of_iff' _ in₀₁_iff'
+  | in₀ _a, in₂ _c' =>
+    decidable_of_iff' _ in₀₂_iff'
+  | in₁ _b, in₀ _a' =>
+    decidable_of_iff' _ in₁₀_iff'
+  | in₁ _b, in₁ _b' =>
+    Decidable.isFalse not_in₁₁
+  | in₁ _b, in₂ _b' =>
+    decidable_of_iff' _ in₁₂_iff'
+  | in₂ _c, in₀ _a' =>
+    decidable_of_iff' _ in₂₀_iff'
+  | in₂ _c, in₁ _b' =>
+    decidable_of_iff' _ in₂₁_iff'
+  | in₂ _c, in₂ _b' =>
+    Decidable.isFalse not_in₂₂
 
 /-- This lemma reorders the elements of a triangle in the tripartite graph. It turns a triangle
 `{x, y, z}` into a triangle `{a, b, c}` where `a : α `, `b : β`, `c : γ`. -/
@@ -163,11 +180,16 @@ lemma graph_triple ⦃x y z⦄ :
       ?_, ?_, ?_⟩ <;> constructor <;> assumption
 
 /-- The map that turns a triangle index into an explicit triangle. -/
-@[simps] def toTriangle : α × β × γ ↪ Finset (α ⊕ β ⊕ γ) where
+@[simps]
+def toTriangle : α × β × γ ↪ Finset (α ⊕ β ⊕ γ) where
   toFun x := {in₀ x.1, in₁ x.2.1, in₂ x.2.2}
-  inj' := fun ⟨a, b, c⟩ ⟨a', b', c'⟩ ↦ by simpa only [Finset.Subset.antisymm_iff, Finset.subset_iff,
-    mem_insert, mem_singleton, forall_eq_or_imp, forall_eq, Prod.mk_inj, or_false, false_or,
-    in₀, in₁, in₂, Sum.inl.inj_iff, Sum.inr.inj_iff, reduceCtorEq] using And.left
+  inj' := fun ⟨a, b, c⟩ ⟨a', b', c'⟩ ↦ by
+    simpa only [
+        Finset.Subset.antisymm_iff, Finset.subset_iff, mem_insert, mem_singleton, forall_eq_or_imp,
+        forall_eq, Prod.mk_inj, or_false, false_or, in₀, in₁, in₂, Sum.inl.inj_iff, Sum.inr.inj_iff,
+        reduceCtorEq
+      ]
+      using And.left
 
 lemma toTriangle_is3Clique (hx : x ∈ t) : (graph t).IsNClique 3 (toTriangle x) := by
   simp only [toTriangle_apply, is3Clique_triple_iff, in₀₁_iff, in₀₂_iff, in₁₂_iff]

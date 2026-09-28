@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Probability.Distributions.Poisson.Basic
 public import Mathlib.Probability.Distributions.Binomial
-
 import Mathlib.Analysis.SpecialFunctions.Choose
 
 /-!
@@ -67,9 +66,10 @@ lemma tendsto_choose_mul_pow_atTop (hr : Tendsto (fun n => n * p n) atTop (𝓝 
 **Poisson limit Theorem**: If `n * p n → r` as `n → ∞`. Then
 `(n.choose k) * (p n)^k * (1 - p n)^(n - k) → exp (-r) * r^k / k!`.
 -/
-theorem tendsto_choose_mul_pow_of_tendsto_mul_atTop (hr : Tendsto (fun n => n * p n) atTop (𝓝 r)) :
-    Tendsto (fun n => n.choose k * (p n) ^ k * (1 - p n) ^ (n - k))
-    atTop (𝓝 (Real.exp (-r) * (r ^ k) / k.factorial)) := by
+theorem tendsto_choose_mul_pow_of_tendsto_mul_atTop (hr : Tendsto (fun n => n * p n) atTop (𝓝 r))
+    : Tendsto
+      (fun n => n.choose k * (p n) ^ k * (1 - p n) ^ (n - k))
+      atTop (𝓝 (Real.exp (-r) * (r ^ k) / k.factorial)) := by
   rw [mul_div_assoc, mul_comm]
   refine (tendsto_choose_mul_pow_atTop k hr).mul ?_
   have hp_lt_half : ∀ᶠ n in atTop, p n < 1 / 2 :=

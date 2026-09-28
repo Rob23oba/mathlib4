@@ -55,29 +55,35 @@ lemma one_comp {M₀ N₀ G₀ : Type*}
 
 variable (G₀ H₀ : Type*) [GroupWithZero G₀] [GroupWithZero H₀]
 
-/-- Given groups with zero `G₀`, `H₀`, the natural inclusion ordered homomorphism from
+/--
+Given groups with zero `G₀`, `H₀`, the natural inclusion ordered homomorphism from
 `G₀` to `WithZero (G₀ˣ × H₀ˣ)`, which is the group with zero that can be identified
-as their product. -/
+as their product.
+-/
 def inl [DecidablePred fun x : G₀ ↦ x = 0] : G₀ →*₀ WithZero (G₀ˣ × H₀ˣ) :=
   (WithZero.map' (.inl _ _)).comp (WithZero.withZeroUnitsEquiv (G := G₀).symm)
 
-/-- Given groups with zero `G₀`, `H₀`, the natural inclusion ordered homomorphism from
+/--
+Given groups with zero `G₀`, `H₀`, the natural inclusion ordered homomorphism from
 `H₀` to `WithZero (G₀ˣ × H₀ˣ)`, which is the group with zero that can be identified
-as their product. -/
+as their product.
+-/
 def inr [DecidablePred fun x : H₀ ↦ x = 0] : H₀ →*₀ WithZero (G₀ˣ × H₀ˣ) :=
   (WithZero.map' (.inr _ _)).comp (WithZero.withZeroUnitsEquiv (G := H₀).symm)
 
-/-- Given groups with zero `G₀`, `H₀`, the natural projection homomorphism from
+/--
+Given groups with zero `G₀`, `H₀`, the natural projection homomorphism from
 `WithZero (G₀ˣ × H₀ˣ)` to `G₀`, which is the group with zero that can be identified
-as their product. -/
-def fst : WithZero (G₀ˣ × H₀ˣ) →*₀ G₀ :=
-  WithZero.lift' ((Units.coeHom _).comp (.fst ..))
+as their product.
+-/
+def fst : WithZero (G₀ˣ × H₀ˣ) →*₀ G₀ := WithZero.lift' ((Units.coeHom _).comp (.fst ..))
 
-/-- Given groups with zero `G₀`, `H₀`, the natural projection homomorphism from
+/--
+Given groups with zero `G₀`, `H₀`, the natural projection homomorphism from
 `WithZero (G₀ˣ × H₀ˣ)` to `H₀`, which is the group with zero that can be identified
-as their product. -/
-def snd : WithZero (G₀ˣ × H₀ˣ) →*₀ H₀ :=
-  WithZero.lift' ((Units.coeHom _).comp (.snd ..))
+as their product.
+-/
+def snd : WithZero (G₀ˣ × H₀ˣ) →*₀ H₀ := WithZero.lift' ((Units.coeHom _).comp (.snd ..))
 
 variable {G₀ H₀}
 
@@ -95,47 +101,41 @@ lemma inr_apply_unit [DecidablePred fun x : H₀ ↦ x = 0] (x : H₀ˣ) :
 @[simp] lemma snd_apply_coe (x : G₀ˣ × H₀ˣ) : snd G₀ H₀ x = x.snd := by rfl
 
 @[simp]
-theorem fst_inl [DecidablePred fun x : G₀ ↦ x = 0] (x : G₀) :
-    fst _ H₀ (inl _ _ x) = x := by
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x <;>
-  simp [WithZero.withZeroUnitsEquiv, fst, inl]
+theorem fst_inl [DecidablePred fun x : G₀ ↦ x = 0] (x : G₀) : fst _ H₀ (inl _ _ x) = x := by
+  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x
+    <;> simp [WithZero.withZeroUnitsEquiv, fst, inl]
 
 @[simp]
-theorem fst_comp_inl [DecidablePred fun x : G₀ ↦ x = 0] :
-    (fst ..).comp (inl G₀ H₀) = .id _ :=
+theorem fst_comp_inl [DecidablePred fun x : G₀ ↦ x = 0] : (fst ..).comp (inl G₀ H₀) = .id _ :=
   ext fun _ ↦ fst_inl _
 
 @[simp]
-theorem snd_comp_inl [DecidablePred fun x : G₀ ↦ x = 0] :
-    (snd ..).comp (inl G₀ H₀) = 1 := by
+theorem snd_comp_inl [DecidablePred fun x : G₀ ↦ x = 0] : (snd ..).comp (inl G₀ H₀) = 1 := by
   ext x
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x <;>
-  simp_all [WithZero.withZeroUnitsEquiv, snd, inl]
+  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x
+    <;> simp_all [WithZero.withZeroUnitsEquiv, snd, inl]
 
-theorem snd_inl_apply_of_ne_zero [DecidablePred fun x : G₀ ↦ x = 0] {x : G₀} (hx : x ≠ 0) :
-    snd _ _ (inl _ H₀ x) = 1 := by
+theorem snd_inl_apply_of_ne_zero [DecidablePred fun x : G₀ ↦ x = 0] {x : G₀} (hx : x ≠ 0)
+    : snd _ _ (inl _ H₀ x) = 1 := by
   rw [← comp_apply, snd_comp_inl, one_apply_of_ne_zero hx]
 
 @[simp]
-theorem fst_comp_inr [DecidablePred fun x : H₀ ↦ x = 0] :
-    (fst ..).comp (inr G₀ H₀) = 1 := by
+theorem fst_comp_inr [DecidablePred fun x : H₀ ↦ x = 0] : (fst ..).comp (inr G₀ H₀) = 1 := by
   ext x
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x <;>
-  simp_all [WithZero.withZeroUnitsEquiv, fst, inr]
+  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x
+    <;> simp_all [WithZero.withZeroUnitsEquiv, fst, inr]
 
-theorem fst_inr_apply_of_ne_zero [DecidablePred fun x : H₀ ↦ x = 0] {x : H₀} (hx : x ≠ 0) :
-    fst _ _ (inr G₀ _ x) = 1 := by
+theorem fst_inr_apply_of_ne_zero [DecidablePred fun x : H₀ ↦ x = 0] {x : H₀} (hx : x ≠ 0)
+    : fst _ _ (inr G₀ _ x) = 1 := by
   rw [← comp_apply, fst_comp_inr, one_apply_of_ne_zero hx]
 
 @[simp]
-theorem snd_inr [DecidablePred fun x : H₀ ↦ x = 0] (x : H₀) :
-    snd _ _ (inr G₀ _ x) = x := by
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x <;>
-  simp [WithZero.withZeroUnitsEquiv, snd, inr]
+theorem snd_inr [DecidablePred fun x : H₀ ↦ x = 0] (x : H₀) : snd _ _ (inr G₀ _ x) = x := by
+  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x
+    <;> simp [WithZero.withZeroUnitsEquiv, snd, inr]
 
 @[simp]
-theorem snd_comp_inr [DecidablePred fun x : H₀ ↦ x = 0] :
-    (snd ..).comp (inr G₀ H₀) = .id _ :=
+theorem snd_comp_inr [DecidablePred fun x : H₀ ↦ x = 0] : (snd ..).comp (inr G₀ H₀) = .id _ :=
   ext fun _ ↦ snd_inr _
 
 lemma inl_injective [DecidablePred fun x : G₀ ↦ x = 0] :
@@ -156,13 +156,12 @@ lemma snd_surjective : Function.Surjective (snd G₀ H₀) := by
 
 variable [DecidablePred fun x : G₀ ↦ x = 0] [DecidablePred fun x : H₀ ↦ x = 0]
 
-theorem inl_mul_inr_eq_mk_of_unit (m : G₀ˣ) (n : H₀ˣ) :
-    (inl G₀ H₀ m * inr G₀ H₀ n) = (m, n) := by
+theorem inl_mul_inr_eq_mk_of_unit (m : G₀ˣ) (n : H₀ˣ) : (inl G₀ H₀ m * inr G₀ H₀ n) = (m, n) := by
   simp [inl, WithZero.withZeroUnitsEquiv, inr, ← WithZero.coe_mul]
 
 theorem commute_inl_inr (m : G₀) (n : H₀) : Commute (inl G₀ H₀ m) (inr G₀ H₀ n) := by
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit m <;>
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit n <;>
-  simp [inl, inr, WithZero.withZeroUnitsEquiv, commute_iff_eq, ← WithZero.coe_mul]
+  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit m
+    <;> obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit n
+    <;> simp [inl, inr, WithZero.withZeroUnitsEquiv, commute_iff_eq, ← WithZero.coe_mul]
 
 end MonoidWithZeroHom

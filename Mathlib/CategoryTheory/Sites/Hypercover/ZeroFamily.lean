@@ -38,18 +38,18 @@ structure PreZeroHypercoverFamily where
   property ⦃X : C⦄ : ObjectProperty (PreZeroHypercover.{max u v} X)
   iff_shrink {X : C} {E : PreZeroHypercover.{max u v} X} : property E ↔ property E.shrink
 
-instance : CoeFun (PreZeroHypercoverFamily C)
-    fun _ ↦ ⦃X : C⦄ → (E : PreZeroHypercover.{max u v} X) → Prop where
+instance
+    : CoeFun (PreZeroHypercoverFamily C) fun _ ↦
+      ⦃X : C⦄ → (E : PreZeroHypercover.{max u v} X) → Prop where
   coe P := P.property
 
 /-- The induced condition on presieves in `C`, given by a pre-`0`-hypercover family. -/
-inductive PreZeroHypercoverFamily.presieve (P : PreZeroHypercoverFamily C) {X : C} :
-    Presieve X → Prop where
+inductive PreZeroHypercoverFamily.presieve (P : PreZeroHypercoverFamily C) {X : C}
+    : Presieve X → Prop where
   | mk (E : PreZeroHypercover.{max u v} X) : P E → presieve P E.presieve₀
 
 /-- The associated precoverage to a pre-`0`-hypercover family. -/
-def PreZeroHypercoverFamily.precoverage (P : PreZeroHypercoverFamily C) :
-    Precoverage C where
+def PreZeroHypercoverFamily.precoverage (P : PreZeroHypercoverFamily C) : Precoverage C where
   coverings _ := {R | P.presieve R}
 
 lemma PreZeroHypercoverFamily.mem_precoverage_iff {P : PreZeroHypercoverFamily C} {X : C}
@@ -69,16 +69,16 @@ lemma PreZeroHypercover.presieve₀_mem_precoverage_iff {P : PreZeroHypercoverFa
 
 /-- The associated pre-`0`-hypercover family to a precoverage. -/
 @[simps]
-def Precoverage.preZeroHypercoverFamily (K : Precoverage C) :
-    PreZeroHypercoverFamily C where
+def Precoverage.preZeroHypercoverFamily (K : Precoverage C) : PreZeroHypercoverFamily C where
   property X E := E.presieve₀ ∈ K X
   iff_shrink {X} E := by simp
 
 variable (C) in
-/-- Giving a precoverage on a category is the same as giving a predicate
-on every pre-`0`-hypercover that is stable under deduplication. -/
-def Precoverage.equivPreZeroHypercoverFamily :
-    Precoverage C ≃ PreZeroHypercoverFamily C where
+/--
+Giving a precoverage on a category is the same as giving a predicate
+on every pre-`0`-hypercover that is stable under deduplication.
+-/
+def Precoverage.equivPreZeroHypercoverFamily : Precoverage C ≃ PreZeroHypercoverFamily C where
   toFun K := K.preZeroHypercoverFamily
   invFun P := P.precoverage
   left_inv K := by

@@ -40,19 +40,20 @@ class IsSchemeTheoreticallyDominant (f : X ⟶ Y) : Prop where
 
 alias Scheme.Hom.ker_eq_bot := IsSchemeTheoreticallyDominant.ker_eq_bot
 
-instance (priority := low) [IsIso f] : IsSchemeTheoreticallyDominant f :=
-  ⟨by simp⟩
+instance (priority := low) [IsIso f] : IsSchemeTheoreticallyDominant f := ⟨by simp⟩
 
-instance (priority := low) [IsSchemeTheoreticallyDominant f] [QuasiCompact f] :
-    IsDominant f := by
-  rw [isDominant_iff, DenseRange, dense_iff_closure_eq, ← Scheme.Hom.support_ker,
-    f.ker_eq_bot, Scheme.IdealSheafData.support_bot, TopologicalSpace.Closeds.coe_top]
+instance (priority := low) [IsSchemeTheoreticallyDominant f] [QuasiCompact f] : IsDominant f := by
+  rw [
+    isDominant_iff, DenseRange, dense_iff_closure_eq, ← Scheme.Hom.support_ker, f.ker_eq_bot,
+    Scheme.IdealSheafData.support_bot, TopologicalSpace.Closeds.coe_top
+  ]
 
-instance (f : X ⟶ Y) (g : Y ⟶ Z) [IsSchemeTheoreticallyDominant f]
-    [IsSchemeTheoreticallyDominant g] :
-    IsSchemeTheoreticallyDominant (f ≫ g) := by
-  rw [isSchemeTheoreticallyDominant_iff, Scheme.Hom.ker_comp, f.ker_eq_bot,
-    Scheme.IdealSheafData.map_bot, g.ker_eq_bot]
+instance (f : X ⟶ Y) (g : Y ⟶ Z) [IsSchemeTheoreticallyDominant f] [IsSchemeTheoreticallyDominant g]
+    : IsSchemeTheoreticallyDominant (f ≫ g) := by
+  rw [
+    isSchemeTheoreticallyDominant_iff, Scheme.Hom.ker_comp, f.ker_eq_bot,
+    Scheme.IdealSheafData.map_bot, g.ker_eq_bot
+  ]
 
 instance : IsMultiplicative @IsSchemeTheoreticallyDominant where
   id_mem _ := inferInstance
@@ -90,20 +91,24 @@ lemma IsSchemeTheoreticallyDominant.isReduced (f : X ⟶ Y) [IsSchemeTheoretical
     [QuasiCompact f] [IsReduced X] : IsReduced Y :=
   ⟨fun _ ↦ isReduced_of_injective _ (f.app_injective _)⟩
 
-instance IsSchemeTheoreticallyDominant.pullbackSnd (f : X ⟶ S) (g : Y ⟶ S)
-    [IsSchemeTheoreticallyDominant f] [QuasiCompact f] [Flat g] :
-    IsSchemeTheoreticallyDominant (pullback.snd f g) := by
+instance IsSchemeTheoreticallyDominant.pullbackSnd
+    (f : X ⟶ S) (g : Y ⟶ S) [IsSchemeTheoreticallyDominant f] [QuasiCompact f] [Flat g]
+    : IsSchemeTheoreticallyDominant (pullback.snd f g) := by
   rw [isSchemeTheoreticallyDominant_iff]
-  let h𝒰 := Y.isBasis_affineOpens.isOpenCover_mem_and_le
-    (S.isBasis_affineOpens.isOpenCover.comap g.base.hom)
+  let h𝒰 :=
+    Y.isBasis_affineOpens.isOpenCover_mem_and_le (S.isBasis_affineOpens.isOpenCover.comap
+      g.base.hom)
   refine Scheme.IdealSheafData.ext_of_iSup_eq_top (fun U ↦ ⟨_, by exact U.2.1⟩) h𝒰 ?_
   rintro ⟨⟨V, ⟨U, hU⟩⟩, hV, hVU : V ≤ g ⁻¹ᵁ U⟩
   simp only [Scheme.Hom.ker_apply, Scheme.IdealSheafData.ideal_bot, Pi.bot_apply, ← le_bot_iff]
   intro x hx
-  have := mono_pushoutSection_of_isCompact_of_flat_right
-    (.of_hasPullback f g) (UY := pullback.snd f g ⁻¹ᵁ V) hVU le_rfl (by
-      grw [← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage, right_eq_inf,
-        hVU]) hU hV (f.isCompact_preimage hU.isCompact)
+  have :=
+    mono_pushoutSection_of_isCompact_of_flat_right (.of_hasPullback f g)
+      (UY := pullback.snd f g ⁻¹ᵁ V) hVU le_rfl
+      (by
+        grw [← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage, right_eq_inf,
+          hVU])
+      hU hV (f.isCompact_preimage hU.isCompact)
   rw [@ConcreteCategory.mono_iff_injective_of_preservesPullback] at this
   refine CommRingCat.inr_injective_of_flat (f.appLE U (f ⁻¹ᵁ U) le_rfl) (g.appLE U V hVU)
     (by simpa [Scheme.Hom.appLE] using f.app_injective U) (g.flat_appLE hU hV hVU) ?_
@@ -117,9 +122,9 @@ lemma IsSchemeTheoreticallyDominant.of_isPullback {f : X ⟶ S} {g : Y ⟶ S}
   rw [← H.isoPullback_hom_snd]
   infer_instance
 
-instance IsSchemeTheoreticallyDominant.pullbackFst (f : X ⟶ S) (g : Y ⟶ S)
-    [IsSchemeTheoreticallyDominant g] [QuasiCompact g] [Flat f] :
-    IsSchemeTheoreticallyDominant (pullback.fst f g) :=
+instance IsSchemeTheoreticallyDominant.pullbackFst
+    (f : X ⟶ S) (g : Y ⟶ S) [IsSchemeTheoreticallyDominant g] [QuasiCompact g] [Flat f]
+    : IsSchemeTheoreticallyDominant (pullback.fst f g) :=
   .of_isPullback (.flip <| .of_hasPullback _ _)
 
 end AlgebraicGeometry

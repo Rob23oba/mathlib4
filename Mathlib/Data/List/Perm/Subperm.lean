@@ -56,13 +56,12 @@ lemma subperm_cons_self : l <+~ a :: l := ⟨l, Perm.refl _, sublist_cons_self _
 
 protected alias ⟨subperm.of_cons, subperm.cons⟩ := subperm_cons
 
-theorem Subperm.append {l₁ l₂ r₁ r₂ : List α} :
-    l₁ <+~ l₂ → r₁ <+~ r₂ → (l₁ ++ r₁) <+~ (l₂ ++ r₂)
+theorem Subperm.append {l₁ l₂ r₁ r₂ : List α} : l₁ <+~ l₂ → r₁ <+~ r₂ → (l₁ ++ r₁) <+~ (l₂ ++ r₂)
   | ⟨l, hl_perm, hl_sub⟩, ⟨r, hr_perm, hr_sub⟩ =>
     ⟨l ++ r, hl_perm.append hr_perm, hl_sub.append hr_sub⟩
 
-theorem map_subperm_map_iff {α β} {l₁ l₂ : List α} {f : α → β} (hf : Function.Injective f) :
-    (l₁.map f) <+~ (l₂.map f) ↔ l₁ <+~ l₂ where
+theorem map_subperm_map_iff {α β} {l₁ l₂ : List α} {f : α → β} (hf : Function.Injective f)
+    : (l₁.map f) <+~ (l₂.map f) ↔ l₁ <+~ l₂ where
   mpr a := by
     obtain ⟨l, hl_perm, hl_sub⟩ := a
     exact ⟨l.map f, hl_perm.map f, hl_sub.map f⟩
@@ -77,7 +76,6 @@ theorem map_subperm_map_iff {α β} {l₁ l₂ : List α} {f : α → β} (hf : 
 
 alias ⟨_, Subperm.map⟩ := map_subperm_map_iff
 
-protected theorem Nodup.subperm (d : Nodup l₁) (H : l₁ ⊆ l₂) : l₁ <+~ l₂ :=
-  subperm_of_subset d H
+protected theorem Nodup.subperm (d : Nodup l₁) (H : l₁ ⊆ l₂) : l₁ <+~ l₂ := subperm_of_subset d H
 
 end List

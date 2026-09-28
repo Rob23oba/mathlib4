@@ -35,18 +35,20 @@ namespace SSet
 
 namespace modelCategoryQuillen
 
-/-- The generating cofibrations: this is the family of morphisms in `SSet`
-which consists of boundary inclusions `∂Δ[n].ι : ∂Δ[n] ⟶ Δ[n]`. -/
-def I : MorphismProperty SSet.{u} :=
-  .ofHoms (fun n ↦ ∂Δ[n].ι)
+/--
+The generating cofibrations: this is the family of morphisms in `SSet`
+which consists of boundary inclusions `∂Δ[n].ι : ∂Δ[n] ⟶ Δ[n]`.
+-/
+def I : MorphismProperty SSet.{u} := .ofHoms (fun n ↦ ∂Δ[n].ι)
 
 lemma boundary_ι_mem_I (n : ℕ) :
     I (boundary.{u} n).ι := by constructor
 
-/-- The generating trivial cofibrations: this is the family of morphisms in `SSet`
-which consists of horn inclusions `Λ[n, i].ι : Λ[n, i] ⟶ Δ[n]` (for positive `n`). -/
-def J : MorphismProperty SSet.{u} :=
-  ⨆ n, .ofHoms (fun (i : Fin (n + 2)) ↦ Λ[n + 1, i].ι)
+/--
+The generating trivial cofibrations: this is the family of morphisms in `SSet`
+which consists of horn inclusions `Λ[n, i].ι : Λ[n, i] ⟶ Δ[n]` (for positive `n`).
+-/
+def J : MorphismProperty SSet.{u} := ⨆ n, .ofHoms (fun (i : Fin (n + 2)) ↦ Λ[n + 1, i].ι)
 
 lemma horn_ι_mem_J (n : ℕ) [NeZero n] (i : Fin (n + 1)) :
     J (horn.{u} n i).ι := by
@@ -65,14 +67,18 @@ lemma J_le_monomorphisms : J.{u} ≤ monomorphisms _ := by
   obtain ⟨n, ⟨i⟩⟩ := h
   exact monomorphisms.infer_property _
 
-/-- The cofibrations for the Quillen model category structure (TODO)
-on `SSet` are monomorphisms. -/
+/--
+The cofibrations for the Quillen model category structure (TODO)
+on `SSet` are monomorphisms.
+-/
 scoped instance : CategoryWithCofibrations SSet.{u} where
   cofibrations := .monomorphisms _
 
-/-- The fibrations for the Quillen model category structure (TODO)
+/--
+The fibrations for the Quillen model category structure (TODO)
 on `SSet` are the morphisms which have the right lifting property
-with respect to horn inclusions. -/
+with respect to horn inclusions.
+-/
 scoped instance : CategoryWithFibrations SSet.{u} where
   fibrations := J.rlp
 
@@ -96,8 +102,8 @@ instance mono_of_cofibration [Cofibration f] : Mono f := by rwa [← cofibration
 
 lemma cofibration_of_mono [Mono f] : Cofibration f := by rwa [cofibration_iff]
 
-instance [hf : Fibration f] {n : ℕ} (i : Fin (n + 2)) :
-    HasLiftingProperty (horn (n + 1) i).ι f := by
+instance [hf : Fibration f] {n : ℕ} (i : Fin (n + 2))
+    : HasLiftingProperty (horn (n + 1) i).ι f := by
   rw [fibration_iff] at hf
   exact hf _ (horn_ι_mem_J _ _)
 
@@ -137,11 +143,11 @@ namespace horn.IsCompatible
 
 open modelCategoryQuillen
 
-variable {X : SSet.{u}} {n : ℕ}
-  {i : Fin (n + 2)} {f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X}
-  (hf : horn.IsCompatible f) {Y : SSet.{u}} (p : X ⟶ Y) [Fibration p]
-  (b : Δ[n + 1] ⟶ Y)
-  (comm : ∀ (j : Fin (n + 2)) (hj : j ≠ i), f j hj ≫ p = stdSimplex.δ j ≫ b)
+variable
+  {X : SSet.{u}} {n : ℕ} {i : Fin (n + 2)} {f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X}
+  (hf : horn.IsCompatible f)
+  {Y : SSet.{u}} (p : X ⟶ Y) [Fibration p]
+  (b : Δ[n + 1] ⟶ Y) (comm : ∀ (j : Fin (n + 2)) (hj : j ≠ i), f j hj ≫ p = stdSimplex.δ j ≫ b)
 
 include hf comm in
 lemma exists_lift :
@@ -152,12 +158,13 @@ lemma exists_lift :
     ⟨horn.hom_ext' (fun j hj ↦ by simpa using comm j hj)⟩
   exact ⟨sq.lift, fun j hj ↦ by simp [← ι_ι_assoc i j hj], by simp⟩
 
-/-- If `f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X` is a compatible family
+/--
+If `f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X` is a compatible family
 of morphisms (which defines a morphism `Λ[n + 1, i] ⟶ X`), `p : X ⟶ Y` a Kan fibration
 and `b : Δ[n + 1] ⟶ Y` such that for all `j ≠ i`, `f j _ ≫ p = stdSimplex.δ j ≫ b`,
-then this is a lifting `Δ[n + 1] ⟶ X`. -/
-@[no_expose]
-noncomputable def lift : Δ[n + 1] ⟶ X := (hf.exists_lift p b comm).choose
+then this is a lifting `Δ[n + 1] ⟶ X`.
+-/
+@[no_expose] noncomputable def lift : Δ[n + 1] ⟶ X := (hf.exists_lift p b comm).choose
 
 @[reassoc]
 lemma δ_lift (j : Fin (n + 2)) (hj : j ≠ i := by grind) :

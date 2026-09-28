@@ -33,8 +33,10 @@ but we don't have the corresponding typeclass.
 open Filter Set MeasureTheory
 open scoped Pointwise
 
-variable (G : Type*) {α : Type*} [Group G] [MulAction G α]
-  {_ : MeasurableSpace α} (μ : Measure α) [SMulInvariantMeasure G α μ]
+variable
+  (G : Type*)
+  {α : Type*} [Group G] [MulAction G α] {_ : MeasurableSpace α}
+  (μ : Measure α) [SMulInvariantMeasure G α μ]
 
 namespace MulAction
 
@@ -84,8 +86,8 @@ variable {x y : G} {s : Set α}
 namespace MeasureTheory
 
 @[to_additive]
-theorem smul_ae_eq_self_of_mem_zpowers (hs : (x • s : Set α) =ᵐ[μ] s)
-    (hy : y ∈ Subgroup.zpowers x) : (y • s : Set α) =ᵐ[μ] s := by
+theorem smul_ae_eq_self_of_mem_zpowers (hs : (x • s : Set α) =ᵐ[μ] s) (hy : y ∈ Subgroup.zpowers x)
+    : (y • s : Set α) =ᵐ[μ] s := by
   rw [← MulAction.mem_aestabilizer, ← Subgroup.zpowers_le] at hs
   exact hs hy
 

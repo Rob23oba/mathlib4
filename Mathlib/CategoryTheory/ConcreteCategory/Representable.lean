@@ -21,9 +21,11 @@ namespace CategoryTheory.Functor.RepresentableBy
 
 open Opposite
 
-variable {C D : Type*} [Category* C] [Category* D] {F : Cᵒᵖ ⥤ D}
-    {CD : D → Type*} {FD : D → D → Type*} [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)]
-    [ConcreteCategory D FD] {Y : C} (α : (F ⋙ forget D).RepresentableBy Y)
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  {F : Cᵒᵖ ⥤ D} {CD : D → Type*} {FD : D → D → Type*}
+  [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory D FD]
+  {Y : C} (α : (F ⋙ forget D).RepresentableBy Y)
 
 /-- The natural bijection `(X ⟶ Y) ≃ F.obj (op X)`. -/
 def homEquiv' {X : C} : (X ⟶ Y) ≃ ToType (F.obj (op X)) := α.homEquiv

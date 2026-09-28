@@ -41,7 +41,6 @@ Let `Semiring R`, `Algebra R S` and `Module R N`.
 
 @[expose] public section
 
-
 universe u v
 
 noncomputable section
@@ -62,8 +61,10 @@ section Algebra
 
 variable [CommSemiring N] [Algebra R N]
 
-/-- The algebra morphism from a tensor product of a polynomial algebra
-  by an algebra to a polynomial algebra -/
+/--
+The algebra morphism from a tensor product of a polynomial algebra
+by an algebra to a polynomial algebra
+-/
 noncomputable def rTensorAlgEquiv : S ⊗[R] MvPolynomial σ N ≃ₐ[S] MvPolynomial σ (S ⊗[R] N) :=
   AddMonoidAlgebra.rTensorEquivAlgEquiv R ..
 
@@ -83,19 +84,22 @@ lemma coeff_rTensorAlgEquiv_monomial_tmul [DecidableEq σ] (e : σ →₀ ℕ) (
 lemma rTensorAlgEquiv_apply (x : N ⊗[R] MvPolynomial σ S) :
     rTensorAlgEquiv x = rTensorAlgHom x := rfl
 
-/-- The tensor product of the polynomial algebra by an algebra
-  is algebraically equivalent to a polynomial algebra with
-  coefficients in that algebra -/
+/--
+The tensor product of the polynomial algebra by an algebra
+is algebraically equivalent to a polynomial algebra with
+coefficients in that algebra
+-/
 noncomputable def scalarRTensorAlgEquiv : N ⊗[R] MvPolynomial σ R ≃ₐ[N] MvPolynomial σ N :=
   AddMonoidAlgebra.scalarTensorEquiv R N
 
 variable (R)
 variable (A : Type*) [CommSemiring A] [Algebra R A]
 
-/-- Tensoring `MvPolynomial σ R` on the left by an `R`-algebra `A` is algebraically
-equivalent to `MvPolynomial σ A`. -/
-noncomputable def algebraTensorAlgEquiv :
-    A ⊗[R] MvPolynomial σ R ≃ₐ[A] MvPolynomial σ A :=
+/--
+Tensoring `MvPolynomial σ R` on the left by an `R`-algebra `A` is algebraically
+equivalent to `MvPolynomial σ A`.
+-/
+noncomputable def algebraTensorAlgEquiv : A ⊗[R] MvPolynomial σ R ≃ₐ[A] MvPolynomial σ A :=
   AddMonoidAlgebra.scalarTensorEquiv ..
 
 @[simp]
@@ -136,8 +140,7 @@ lemma aeval_one_tmul (f : σ → S) (p : MvPolynomial σ R) :
 
 variable (S σ ι) in
 /-- `S[X] ⊗[R] R[Y] ≃ S[X, Y]` -/
-def tensorEquivSum :
-    MvPolynomial σ S ⊗[R] MvPolynomial ι R ≃ₐ[S] MvPolynomial (σ ⊕ ι) S :=
+def tensorEquivSum : MvPolynomial σ S ⊗[R] MvPolynomial ι R ≃ₐ[S] MvPolynomial (σ ⊕ ι) S :=
   ((algebraTensorAlgEquiv _ _).restrictScalars _).trans
     ((sumAlgEquiv _ _ _).symm.trans (renameEquiv _ (.sumComm ι σ)))
 

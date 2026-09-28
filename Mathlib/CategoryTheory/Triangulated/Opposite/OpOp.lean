@@ -33,15 +33,17 @@ namespace Opposite
 namespace OpOpCommShift
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The isomorphism expressing the commutation of the functor `opOp C : C ⥤ Cᵒᵖᵒᵖ`
-with the shift by `n : ℤ`. -/
-def iso (n : ℤ) :
-    shiftFunctor C n ⋙ opOp C ≅ opOp C ⋙ shiftFunctor Cᵒᵖᵒᵖ n :=
+/--
+The isomorphism expressing the commutation of the functor `opOp C : C ⥤ Cᵒᵖᵒᵖ`
+with the shift by `n : ℤ`.
+-/
+def iso (n : ℤ) : shiftFunctor C n ⋙ opOp C ≅ opOp C ⋙ shiftFunctor (Cᵒᵖᵒᵖ) n :=
   NatIso.ofComponents
-    (fun X ↦ ((shiftFunctorOpIso C (-n) n (neg_add_cancel n)).app (op X)).op ≪≫
-      (shiftFunctorOpIso Cᵒᵖ n (-n) (add_neg_cancel n)).symm.app (op (op X)))
-    (fun f ↦ Quiver.Hom.unop_inj (by
-      simp [shiftFunctor_op_map _ n (-n), shiftFunctor_op_map _ (-n) n]))
+    (fun X ↦
+      ((shiftFunctorOpIso C (-n) n (neg_add_cancel n)).app (op X)).op
+        ≪≫ (shiftFunctorOpIso (Cᵒᵖ) n (-n) (add_neg_cancel n)).symm.app (op (op X)))
+    (fun f ↦
+      Quiver.Hom.unop_inj (by simp [shiftFunctor_op_map _ n (-n), shiftFunctor_op_map _ (-n) n]))
 
 variable {C}
 
@@ -66,15 +68,17 @@ end OpOpCommShift
 namespace UnopUnopCommShift
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The isomorphism expressing the commutation of the functor `unopUnop C : Cᵒᵖᵒᵖ ⥤ C`
-with the shift by `n : ℤ`. -/
-def iso (n : ℤ) :
-    shiftFunctor Cᵒᵖᵒᵖ n ⋙ unopUnop C ≅ unopUnop C ⋙ shiftFunctor C n :=
+/--
+The isomorphism expressing the commutation of the functor `unopUnop C : Cᵒᵖᵒᵖ ⥤ C`
+with the shift by `n : ℤ`.
+-/
+def iso (n : ℤ) : shiftFunctor (Cᵒᵖᵒᵖ) n ⋙ unopUnop C ≅ unopUnop C ⋙ shiftFunctor C n :=
   NatIso.ofComponents
-    (fun X ↦ ((shiftFunctorOpIso Cᵒᵖ n (-n) (add_neg_cancel n)).app X).unop.unop ≪≫
-      ((shiftFunctorOpIso C (-n) n (neg_add_cancel n)).symm.app X.unop).unop)
-    (fun {X Y} f ↦ Quiver.Hom.op_inj (by
-      simp [shiftFunctor_op_map _ n (-n), shiftFunctor_op_map _ (-n) n]))
+    (fun X ↦
+      ((shiftFunctorOpIso (Cᵒᵖ) n (-n) (add_neg_cancel n)).app X).unop.unop
+        ≪≫ ((shiftFunctorOpIso C (-n) n (neg_add_cancel n)).symm.app X.unop).unop)
+    (fun {X Y} f ↦
+      Quiver.Hom.op_inj (by simp [shiftFunctor_op_map _ n (-n), shiftFunctor_op_map _ (-n) n]))
 
 variable {C}
 
@@ -102,17 +106,17 @@ instance : (opOp C).CommShift ℤ where
   commShiftIso := iso _
   commShiftIso_zero := by
     ext X
-    simp [iso_hom_app X 0 0, shiftFunctorZero_op_inv_app,
-      shiftFunctorZero_op_hom_app]
+    simp [iso_hom_app X 0 0, shiftFunctorZero_op_inv_app, shiftFunctorZero_op_hom_app]
   commShiftIso_add p q := by
     ext X
-    simp [← shiftFunctorAdd'_eq_shiftFunctorAdd, ← unop_comp_assoc, ← Functor.map_comp,
-      fun X n ↦ iso_hom_app X n (-n) (add_neg_cancel n),
-      shiftFunctor_op_map _ q (-q),
-      shiftFunctorAdd'_op_inv_app _ p q (p + q) rfl (-p) (-q) (-(p + q))
-        (add_neg_cancel p) (add_neg_cancel q) (add_neg_cancel (p + q)),
-      shiftFunctorAdd'_op_hom_app _ (-p) (-q) (-(p + q)) (by lia) p q (p + q)
-        (neg_add_cancel p) (neg_add_cancel q) (neg_add_cancel (p + q))]
+    simp [
+      ← shiftFunctorAdd'_eq_shiftFunctorAdd, ← unop_comp_assoc, ← Functor.map_comp,
+      fun X n ↦ iso_hom_app X n (-n) (add_neg_cancel n), shiftFunctor_op_map _ q (-q),
+      shiftFunctorAdd'_op_inv_app _ p q (p + q) rfl (-p) (-q) (-(p + q)) (add_neg_cancel p)
+        (add_neg_cancel q) (add_neg_cancel (p + q)),
+      shiftFunctorAdd'_op_hom_app _ (-p) (-q) (-(p + q)) (by lia) p q (p + q) (neg_add_cancel p)
+        (neg_add_cancel q) (neg_add_cancel (p + q))
+    ]
 
 set_option backward.defeqAttrib.useBackward true in
 open UnopUnopCommShift in
@@ -120,18 +124,18 @@ instance : (unopUnop C).CommShift ℤ where
   commShiftIso := iso _
   commShiftIso_zero := by
     ext X
-    simp [iso_hom_app _ 0 0, shiftFunctorZero_op_inv_app,
-      shiftFunctorZero_op_hom_app]
+    simp [iso_hom_app _ 0 0, shiftFunctorZero_op_inv_app, shiftFunctorZero_op_hom_app]
   commShiftIso_add p q := by
     ext X
-    simp only [Functor.CommShift.isoAdd_hom_app, op_comp,
-      ← shiftFunctorAdd'_eq_shiftFunctorAdd, Functor.map_comp,
-      fun X n ↦ iso_hom_app X n (-n) (add_neg_cancel n),
-      shiftFunctorAdd'_op_hom_app _ p q (p + q) rfl (-p) (-q) (-(p + q))
-        (add_neg_cancel p) (add_neg_cancel q) (add_neg_cancel (p + q)),
-      shiftFunctorAdd'_op_inv_app _ (-p) (-q) (-(p + q)) (by lia) p q (p + q)
-        (neg_add_cancel p) (neg_add_cancel q) (neg_add_cancel (p + q)),
-      shiftFunctor_op_map _ (-q) q, shiftFunctor_op_map _ q (-q)]
+    simp only [
+      Functor.CommShift.isoAdd_hom_app, op_comp, ← shiftFunctorAdd'_eq_shiftFunctorAdd,
+      Functor.map_comp, fun X n ↦ iso_hom_app X n (-n) (add_neg_cancel n),
+      shiftFunctorAdd'_op_hom_app _ p q (p + q) rfl (-p) (-q) (-(p + q)) (add_neg_cancel p)
+        (add_neg_cancel q) (add_neg_cancel (p + q)),
+      shiftFunctorAdd'_op_inv_app _ (-p) (-q) (-(p + q)) (by lia) p q (p + q) (neg_add_cancel p)
+        (neg_add_cancel q) (neg_add_cancel (p + q)),
+      shiftFunctor_op_map _ (-q) q, shiftFunctor_op_map _ q (-q)
+    ]
     simp [← Functor.map_comp_assoc, ← unop_comp, ← unop_comp_assoc]
 
 end Opposite
@@ -166,39 +170,39 @@ lemma commShiftIso_unopUnop_inv_app (X : Cᵒᵖᵒᵖ) (n m : ℤ) (hnm : n + m
         ((shiftFunctorOpIso Cᵒᵖ n m hnm).inv.app X).unop.unop :=
   UnopUnopCommShift.iso_inv_app ..
 
-instance : (opOpEquivalence C).functor.CommShift ℤ :=
-  inferInstanceAs ((unopUnop C).CommShift ℤ)
+instance : (opOpEquivalence C).functor.CommShift ℤ := inferInstanceAs ((unopUnop C).CommShift ℤ)
 
-instance : (opOpEquivalence C).inverse.CommShift ℤ :=
-  inferInstanceAs ((opOp C).CommShift ℤ)
+instance : (opOpEquivalence C).inverse.CommShift ℤ := inferInstanceAs ((opOp C).CommShift ℤ)
 
 set_option backward.defeqAttrib.useBackward true in
 instance : (opOpEquivalence C).CommShift ℤ :=
-  Equivalence.CommShift.mk'' _ _
-    { shift_comm n := by
-        ext X
-        simp [Functor.commShiftIso_comp_hom_app,
-          commShiftIso_opOp_hom_app _ n (-n),
-          commShiftIso_unopUnop_hom_app _ n (-n),
-          ← unop_comp_assoc] }
+  Equivalence.CommShift.mk'' _ _ {
+    shift_comm n := by
+      ext X
+      simp [
+        Functor.commShiftIso_comp_hom_app, commShiftIso_opOp_hom_app _ n (-n),
+        commShiftIso_unopUnop_hom_app _ n (-n), ← unop_comp_assoc
+      ]
+  }
 
-variable [Preadditive C] [HasZeroObject C] [∀ (n : ℤ), (shiftFunctor C n).Additive]
-  [Pretriangulated C]
+variable
+  [Preadditive C] [HasZeroObject C] [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
 set_option backward.defeqAttrib.useBackward true in
 instance : (opOp C).IsTriangulated where
   map_distinguished T hT := by
     refine isomorphic_distinguished _ (op_distinguished _ (op_distinguished _ hT)) _
       (Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _) (Iso.refl _) (by simp) (by simp)
-      (Quiver.Hom.unop_inj ?_))
+        (Quiver.Hom.unop_inj ?_))
     have := (shiftFunctorCompIsoId C (-1) 1 (neg_add_cancel 1)).inv.naturality T.mor₃
     dsimp at this ⊢
-    simp only [shiftFunctor_op_map _ 1 (-1), Functor.op_obj,
-      unop_id, shiftFunctor_op_map _ (-1) 1,
+    simp only [
+      shiftFunctor_op_map _ 1 (-1), Functor.op_obj, unop_id, shiftFunctor_op_map _ (-1) 1,
       commShiftIso_opOp_hom_app _ 1 (-1),
-      opShiftFunctorEquivalence_counitIso_inv_app _ 1 (-1) (add_neg_cancel 1),
-      unop_comp, Quiver.Hom.unop_op, Category.assoc, ← op_comp, Iso.inv_hom_id_app_assoc,
-      shiftFunctorCompIsoId_op_hom_app, Iso.unop_hom_inv_id_app_assoc, ← Functor.map_comp]
+      opShiftFunctorEquivalence_counitIso_inv_app _ 1 (-1) (add_neg_cancel 1), unop_comp,
+      Quiver.Hom.unop_op, Category.assoc, ← op_comp, Iso.inv_hom_id_app_assoc,
+      shiftFunctorCompIsoId_op_hom_app, Iso.unop_hom_inv_id_app_assoc, ← Functor.map_comp
+    ]
     simp [Functor.map_comp, shift_shiftFunctorCompIsoId_hom_app, ← reassoc_of% this]
 
 instance : (opOpEquivalence C).IsTriangulated :=

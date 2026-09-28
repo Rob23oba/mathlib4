@@ -43,18 +43,22 @@ variable (D : Type*) [Category* D]
 set_option backward.defeqAttrib.useBackward true in
 /-- The constant presheaf functor is left adjoint to evaluation at a terminal object. -/
 @[simps! unit_app counit_app_app]
-noncomputable def constantPresheafAdj {T : C} (hT : IsTerminal T) :
-    Functor.const Cᵒᵖ ⊣ (evaluation Cᵒᵖ D).obj (op T) where
+noncomputable def constantPresheafAdj {T : C} (hT : IsTerminal T)
+    : Functor.const Cᵒᵖ ⊣ (evaluation (Cᵒᵖ) D).obj (op T) where
   unit := (Functor.constCompEvaluationObj D (op T)).hom
   counit := {
     app := fun F => {
       app := fun ⟨X⟩ => F.map (IsTerminal.from hT X).op
       naturality := fun _ _ _ => by
-        simp only [Functor.comp_obj, Functor.const_obj_obj, Functor.id_obj, Functor.const_obj_map,
-          Category.id_comp, ← Functor.map_comp]
+        simp only [
+          Functor.comp_obj, Functor.const_obj_obj, Functor.id_obj, Functor.const_obj_map,
+          Category.id_comp, ← Functor.map_comp
+        ]
         congr
-        simp }
-    naturality := by intros; ext; simp /- Note: `aesop` works but is kind of slow -/ }
+        simp
+    }
+    naturality := by intros; ext; simp /- Note: `aesop` works but is kind of slow -/
+  }
 
 variable [HasWeakSheafify J D]
 
@@ -66,17 +70,15 @@ noncomputable def constantSheaf : D ⥤ Sheaf J D := Functor.const Cᵒᵖ ⋙ (
 
 /-- The constant sheaf functor is left adjoint to evaluation at a terminal object. -/
 @[simps! counit_app]
-noncomputable def constantSheafAdj {T : C} (hT : IsTerminal T) :
-    constantSheaf J D ⊣ (sheafSections J D).obj (op T) :=
+noncomputable def constantSheafAdj {T : C} (hT : IsTerminal T)
+    : constantSheaf J D ⊣ (sheafSections J D).obj (op T) :=
   (constantPresheafAdj D hT).comp (sheafificationAdjunction J D)
 
 variable {D}
 
 namespace Sheaf
 
-/--
-A sheaf is constant if it is in the essential image of the constant sheaf functor.
--/
+/-- A sheaf is constant if it is in the essential image of the constant sheaf functor. -/
 class IsConstant (F : Sheaf J D) : Prop where
   mem_essImage : (constantSheaf J D).essImage F
 
@@ -100,9 +102,11 @@ lemma isConstant_of_isIso_counit_app (F : Sheaf J D) [HasTerminal C]
     [IsIso <| (constantSheafAdj J D terminalIsTerminal).counit.app F] : IsConstant J F where
   mem_essImage := ⟨_, ⟨asIso <| (constantSheafAdj J D terminalIsTerminal).counit.app F⟩⟩
 
-instance [(constantSheaf J D).Faithful] [(constantSheaf J D).Full] (F : Sheaf J D)
-    [IsConstant J F] {T : C} (hT : IsTerminal T) :
-    IsIso ((constantSheafAdj J D hT).counit.app F) := by
+instance
+    [(constantSheaf J D).Faithful] [(constantSheaf J D).Full]
+    (F : Sheaf J D) [IsConstant J F]
+    {T : C} (hT : IsTerminal T)
+    : IsIso ((constantSheafAdj J D hT).counit.app F) := by
   rw [isIso_counit_app_iff_mem_essImage]
   exact F.mem_essImage_of_isConstant
 
@@ -128,8 +132,9 @@ end Sheaf
 
 section Equivalence
 variable {C' : Type*} [Category* C'] (K : GrothendieckTopology C') [HasWeakSheafify K D]
-variable (G : C ⥤ C') [∀ (X : (C')ᵒᵖ), HasLimitsOfShape (StructuredArrow X G.op) D]
-  [G.IsDenseSubsite J K] {T : C} (hT : IsTerminal T) (hT' : IsTerminal (G.obj T))
+variable
+  (G : C ⥤ C') [∀ (X : (C')ᵒᵖ), HasLimitsOfShape (StructuredArrow X G.op) D] [G.IsDenseSubsite J K]
+  {T : C} (hT : IsTerminal T) (hT' : IsTerminal (G.obj T))
 
 open IsDenseSubsite
 
@@ -138,8 +143,8 @@ variable (D) in
 The constant sheaf functor commutes up to isomorphism the equivalence of sheaf categories induced
 by a dense subsite.
 -/
-noncomputable def equivCommuteConstant :
-    constantSheaf J D ⋙ (sheafEquiv J K G D).functor ≅ constantSheaf K D :=
+noncomputable def equivCommuteConstant
+    : constantSheaf J D ⋙ (sheafEquiv J K G D).functor ≅ constantSheaf K D :=
   ((constantSheafAdj J D hT).comp (sheafEquiv J K G D).toAdjunction).leftAdjointUniq
     (constantSheafAdj K D hT')
 
@@ -148,13 +153,15 @@ variable (D) in
 The constant sheaf functor commutes up to isomorphism the inverse equivalence of sheaf categories
 induced by a dense subsite.
 -/
-noncomputable def equivCommuteConstant' :
-    constantSheaf J D ≅ constantSheaf K D ⋙ (sheafEquiv J K G D).inverse :=
-  isoWhiskerLeft (constantSheaf J D) (sheafEquiv J K G D).unitIso ≪≫
-    isoWhiskerRight (equivCommuteConstant J D K G hT hT') (sheafEquiv J K G D).inverse
+noncomputable def equivCommuteConstant'
+    : constantSheaf J D ≅ constantSheaf K D ⋙ (sheafEquiv J K G D).inverse :=
+  isoWhiskerLeft (constantSheaf J D) (sheafEquiv J K G D).unitIso
+    ≪≫ isoWhiskerRight (equivCommuteConstant J D K G hT hT') (sheafEquiv J K G D).inverse
 
-/- TODO: find suitable assumptions for proving generalizations of `equivCommuteConstant` and
-`equivCommuteConstant'` above, to commute `constantSheaf` with pullback/pushforward of sheaves. -/
+/-
+TODO: find suitable assumptions for proving generalizations of `equivCommuteConstant` and
+`equivCommuteConstant'` above, to commute `constantSheaf` with pullback/pushforward of sheaves.
+-/
 
 include hT hT' in
 /--
@@ -173,18 +180,20 @@ end Equivalence
 
 section Forget
 
-variable {B : Type*} [Category* B] (U : D ⥤ B) [HasWeakSheafify J B]
-  [J.PreservesSheafification U] [J.HasSheafCompose U] (F : Sheaf J D)
+variable
+  {B : Type*} [Category* B]
+  (U : D ⥤ B) [HasWeakSheafify J B] [J.PreservesSheafification U] [J.HasSheafCompose U]
+  (F : Sheaf J D)
 
 /--
 The constant sheaf functor commutes with `sheafCompose J U` up to isomorphism, provided that `U`
 preserves sheafification.
 -/
-noncomputable def constantCommuteCompose :
-    constantSheaf J D ⋙ sheafCompose J U ≅ U ⋙ constantSheaf J B :=
+noncomputable def constantCommuteCompose
+    : constantSheaf J D ⋙ sheafCompose J U ≅ U ⋙ constantSheaf J B :=
   (isoWhiskerLeft (const Cᵒᵖ)
-    (sheafComposeNatIso J U (sheafificationAdjunction J D) (sheafificationAdjunction J B)).symm) ≪≫
-      isoWhiskerRight (compConstIso _ _).symm _
+      (sheafComposeNatIso J U (sheafificationAdjunction J D) (sheafificationAdjunction J B)).symm)
+    ≪≫ isoWhiskerRight (compConstIso _ _).symm _
 
 lemma constantCommuteCompose_hom_app_hom (X : D) : ((constantCommuteCompose J U).hom.app X).hom =
     (sheafifyComposeIso J U ((const Cᵒᵖ).obj X)).inv ≫ sheafifyMap J (constComp Cᵒᵖ X U).hom := rfl
@@ -220,10 +229,13 @@ lemma Sheaf.isConstant_of_forget [constantSheaf J D |>.Faithful] [constantSheaf 
 
 instance [h : F.IsConstant J] : ((sheafCompose J U).obj F).IsConstant J := by
   obtain ⟨Y, ⟨i⟩⟩ := h
-  exact ⟨U.obj Y, ⟨(fullyFaithfulSheafToPresheaf _ _).preimageIso
-    (((sheafifyComposeIso J U ((const Cᵒᵖ).obj Y)).symm ≪≫
-      (presheafToSheaf J B ⋙ sheafToPresheaf J B).mapIso (constComp Cᵒᵖ Y U)).symm ≪≫
-        (sheafToPresheaf _ _).mapIso ((sheafCompose J U).mapIso i))⟩⟩
+  exact ⟨
+    U.obj Y,
+    ⟨(fullyFaithfulSheafToPresheaf _ _).preimageIso
+      (((sheafifyComposeIso J U ((const Cᵒᵖ).obj Y)).symm
+          ≪≫ (presheafToSheaf J B ⋙ sheafToPresheaf J B).mapIso (constComp (Cᵒᵖ) Y U)).symm
+        ≪≫ (sheafToPresheaf _ _).mapIso ((sheafCompose J U).mapIso i))⟩
+  ⟩
 
 lemma Sheaf.isConstant_iff_forget [constantSheaf J D |>.Faithful] [constantSheaf J D |>.Full]
     [constantSheaf J B |>.Faithful] [constantSheaf J B |>.Full]

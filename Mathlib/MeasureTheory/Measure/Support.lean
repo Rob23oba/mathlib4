@@ -53,16 +53,18 @@ open scoped Topology ENNReal
 
 variable {X : Type*} [TopologicalSpace X] [MeasurableSpace X]
 
-/-- A point `x` is in the support of `μ` if any open neighborhood of `x` has positive measure.
+/--
+A point `x` is in the support of `μ` if any open neighborhood of `x` has positive measure.
 We provide the definition in terms of the filter-theoretic equivalent
-`∃ᶠ u in (𝓝 x).smallSets, 0 < μ u`. -/
+`∃ᶠ u in (𝓝 x).smallSets, 0 < μ u`.
+-/
 protected def support (μ : Measure X) : Set X := {x : X | ∃ᶠ u in (𝓝 x).smallSets, 0 < μ u}
 
 variable {μ : Measure X}
 
-theorem _root_.Filter.HasBasis.mem_measureSupport {ι : Sort*} {p : ι → Prop}
-    {s : ι → Set X} {x : X} (hl : (𝓝 x).HasBasis p s) :
-    x ∈ μ.support ↔ ∀ (i : ι), p i → 0 < μ (s i) :=
+theorem _root_.Filter.HasBasis.mem_measureSupport
+    {ι : Sort*} {p : ι → Prop} {s : ι → Set X} {x : X} (hl : (𝓝 x).HasBasis p s)
+    : x ∈ μ.support ↔ ∀ (i : ι), p i → 0 < μ (s i) :=
   hl.frequently_smallSets pos_mono
 
 /-- A point `x` is in the support of measure `μ` iff any neighborhood of `x` contains a
@@ -90,9 +92,9 @@ have measure zero. -/
 lemma notMem_support_iff {x : X} : x ∉ μ.support ↔ ∀ᶠ u in (𝓝 x).smallSets, μ u = 0 := by
   simp [mem_support_iff]
 
-theorem _root_.Filter.HasBasis.notMem_measureSupport {ι : Sort*} {p : ι → Prop}
-    {s : ι → Set X} {x : X} (hl : (𝓝 x).HasBasis p s) :
-    x ∉ μ.support ↔ ∃ i, p i ∧ μ (s i) = 0 := by
+theorem _root_.Filter.HasBasis.notMem_measureSupport
+    {ι : Sort*} {p : ι → Prop} {s : ι → Set X} {x : X} (hl : (𝓝 x).HasBasis p s)
+    : x ∉ μ.support ↔ ∃ i, p i ∧ μ (s i) = 0 := by
   simp [hl.mem_measureSupport]
 
 @[simp]

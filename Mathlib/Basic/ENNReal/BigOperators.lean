@@ -52,25 +52,26 @@ lemma ofNNReal_finsuppProd (f : ι →₀ M) (g : ι → M → ℝ≥0) :
     f.prod g = f.prod (fun i m ↦ ofNNReal (g i m)) := map_finsuppProd ofNNRealHom ..
 
 @[simp]
-theorem toNNReal_prod (s : Finset ι) (f : ι → ℝ≥0∞) :
-    (∏ i ∈ s, f i).toNNReal = ∏ i ∈ s, (f i).toNNReal :=
+theorem toNNReal_prod (s : Finset ι) (f : ι → ℝ≥0∞)
+    : (∏ i ∈ s, f i).toNNReal = ∏ i ∈ s, (f i).toNNReal :=
   map_prod toNNRealHom _ _
 
 @[simp]
-theorem toReal_prod (s : Finset ι) (f : ι → ℝ≥0∞) :
-    (∏ i ∈ s, f i).toReal = ∏ i ∈ s, (f i).toReal :=
+theorem toReal_prod (s : Finset ι) (f : ι → ℝ≥0∞) : (∏ i ∈ s, f i).toReal = ∏ i ∈ s, (f i).toReal :=
   map_prod toRealHom _ _
 
-theorem ofReal_prod_of_nonneg {α : Type*} {s : Finset α} {f : α → ℝ} (hf : ∀ i, i ∈ s → 0 ≤ f i) :
-    ENNReal.ofReal (∏ i ∈ s, f i) = ∏ i ∈ s, ENNReal.ofReal (f i) := by
+theorem ofReal_prod_of_nonneg {α : Type*} {s : Finset α} {f : α → ℝ} (hf : ∀ i, i ∈ s → 0 ≤ f i)
+    : ENNReal.ofReal (∏ i ∈ s, f i) = ∏ i ∈ s, ENNReal.ofReal (f i) := by
   simp_rw [ENNReal.ofReal, ← ofNNReal_finsetProd, coe_inj]
   exact Real.toNNReal_prod_of_nonneg hf
 
-theorem iInf_sum {ι α : Type*} {f : ι → α → ℝ≥0∞} {s : Finset α} [Nonempty ι]
-    (h : ∀ (t : Finset α) (i j : ι), ∃ k, ∀ a ∈ t, f k a ≤ f i a ∧ f k a ≤ f j a) :
-    ⨅ i, ∑ a ∈ s, f i a = ∑ a ∈ s, ⨅ i, f i a := by
+theorem iInf_sum
+    {ι α : Type*} {f : ι → α → ℝ≥0∞} {s : Finset α} [Nonempty ι]
+    (h : ∀ (t : Finset α) (i j : ι), ∃ k, ∀ a ∈ t, f k a ≤ f i a ∧ f k a ≤ f j a)
+    : ⨅ i, ∑ a ∈ s, f i a = ∑ a ∈ s, ⨅ i, f i a := by
   induction s using Finset.cons_induction_on with
-  | empty => simp only [Finset.sum_empty, ciInf_const]
+  | empty =>
+    simp only [Finset.sum_empty, ciInf_const]
   | cons a s ha ih =>
     simp only [Finset.sum_cons, ← ih]
     refine (iInf_add_iInf fun i j => ?_).symm
@@ -101,40 +102,46 @@ lemma sum_ne_top : ∑ a ∈ s, f a ≠ ∞ ↔ ∀ a ∈ s, f a ≠ ∞ := With
 /-- A sum is finite iff all summands are finite. -/
 @[simp] lemma sum_lt_top : ∑ a ∈ s, f a < ∞ ↔ ∀ a ∈ s, f a < ∞ := WithTop.sum_lt_top
 
-theorem lt_top_of_sum_ne_top {s : Finset α} {f : α → ℝ≥0∞} (h : ∑ x ∈ s, f x ≠ ∞) {a : α}
-    (ha : a ∈ s) : f a < ∞ :=
+theorem lt_top_of_sum_ne_top
+    {s : Finset α} {f : α → ℝ≥0∞} (h : ∑ x ∈ s, f x ≠ ∞) {a : α} (ha : a ∈ s)
+    : f a < ∞ :=
   sum_lt_top.1 h.lt_top a ha
 
-/-- Seeing `ℝ≥0∞` as `ℝ≥0` does not change their sum, unless one of the `ℝ≥0∞` is
-infinity -/
-theorem toNNReal_sum {s : Finset α} {f : α → ℝ≥0∞} (hf : ∀ a ∈ s, f a ≠ ∞) :
-    ENNReal.toNNReal (∑ a ∈ s, f a) = ∑ a ∈ s, ENNReal.toNNReal (f a) := by
+/--
+Seeing `ℝ≥0∞` as `ℝ≥0` does not change their sum, unless one of the `ℝ≥0∞` is
+infinity
+-/
+theorem toNNReal_sum {s : Finset α} {f : α → ℝ≥0∞} (hf : ∀ a ∈ s, f a ≠ ∞)
+    : ENNReal.toNNReal (∑ a ∈ s, f a) = ∑ a ∈ s, ENNReal.toNNReal (f a) := by
   rw [← coe_inj, coe_toNNReal, ofNNReal_finsetSum, sum_congr rfl]
   · intro x hx
     exact (coe_toNNReal (hf x hx)).symm
   · exact sum_ne_top.2 hf
 
 /-- seeing `ℝ≥0∞` as `Real` does not change their sum, unless one of the `ℝ≥0∞` is infinity -/
-theorem toReal_sum {s : Finset α} {f : α → ℝ≥0∞} (hf : ∀ a ∈ s, f a ≠ ∞) :
-    ENNReal.toReal (∑ a ∈ s, f a) = ∑ a ∈ s, ENNReal.toReal (f a) := by
+theorem toReal_sum {s : Finset α} {f : α → ℝ≥0∞} (hf : ∀ a ∈ s, f a ≠ ∞)
+    : ENNReal.toReal (∑ a ∈ s, f a) = ∑ a ∈ s, ENNReal.toReal (f a) := by
   rw [ENNReal.toReal, toNNReal_sum hf, NNReal.coe_sum]
   rfl
 
-theorem ofReal_sum_of_nonneg {s : Finset α} {f : α → ℝ} (hf : ∀ i, i ∈ s → 0 ≤ f i) :
-    ENNReal.ofReal (∑ i ∈ s, f i) = ∑ i ∈ s, ENNReal.ofReal (f i) := by
+theorem ofReal_sum_of_nonneg {s : Finset α} {f : α → ℝ} (hf : ∀ i, i ∈ s → 0 ≤ f i)
+    : ENNReal.ofReal (∑ i ∈ s, f i) = ∑ i ∈ s, ENNReal.ofReal (f i) := by
   simp_rw [ENNReal.ofReal, ← ofNNReal_finsetSum, coe_inj]
   exact Real.toNNReal_sum_of_nonneg hf
 
-theorem sum_lt_sum_of_nonempty {s : Finset α} (hs : s.Nonempty) {f g : α → ℝ≥0∞}
-    (Hlt : ∀ i ∈ s, f i < g i) : ∑ i ∈ s, f i < ∑ i ∈ s, g i := by
+theorem sum_lt_sum_of_nonempty
+    {s : Finset α} (hs : s.Nonempty) {f g : α → ℝ≥0∞} (Hlt : ∀ i ∈ s, f i < g i)
+    : ∑ i ∈ s, f i < ∑ i ∈ s, g i := by
   induction hs using Finset.Nonempty.cons_induction with
-  | singleton => simp [Hlt _ (Finset.mem_singleton_self _)]
+  | singleton =>
+    simp [Hlt _ (Finset.mem_singleton_self _)]
   | cons _ _ _ _ ih =>
     simp only [Finset.sum_cons, forall_mem_cons] at Hlt ⊢
     exact ENNReal.add_lt_add Hlt.1 (ih Hlt.2)
 
-theorem exists_le_of_sum_le {s : Finset α} (hs : s.Nonempty) {f g : α → ℝ≥0∞}
-    (Hle : ∑ i ∈ s, f i ≤ ∑ i ∈ s, g i) : ∃ i ∈ s, f i ≤ g i := by
+theorem exists_le_of_sum_le
+    {s : Finset α} (hs : s.Nonempty) {f g : α → ℝ≥0∞} (Hle : ∑ i ∈ s, f i ≤ ∑ i ∈ s, g i)
+    : ∃ i ∈ s, f i ≤ g i := by
   contrapose! Hle
   apply ENNReal.sum_lt_sum_of_nonempty hs Hle
 

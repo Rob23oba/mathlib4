@@ -41,8 +41,10 @@ section Semiring
 variable [Semiring A] [Bialgebra R A] {a : A}
 
 variable (R) in
-/-- A primitive element of a bialgebra is a `(1, 1)`-skew-primitive element, i.e. an element `a`
-such that `ε a = 0` and `Δ a = 1 ⊗ₜ a + a ⊗ₜ 1`. -/
+/--
+A primitive element of a bialgebra is a `(1, 1)`-skew-primitive element, i.e. an element `a`
+such that `ε a = 0` and `Δ a = 1 ⊗ₜ a + a ⊗ₜ 1`.
+-/
 abbrev IsPrimitiveElem (a : A) : Prop := IsSkewPrimitiveElem R 1 1 a
 
 lemma IsPrimitiveElem.ne_one [Nontrivial R] (ha : IsPrimitiveElem R a) : a ≠ 1 :=

@@ -6,7 +6,6 @@ Authors: Violeta Hernández Palacios
 module
 
 public import Mathlib.Order.Concept
-
 import Mathlib.Order.UpperLower.CompleteLattice
 
 /-!
@@ -40,7 +39,8 @@ open Concept Set
 variable {α β : Type*}
 
 variable (α) in
-/-- The **Dedekind-MacNeille completion** of a partial order is the smallest complete lattice that
+/--
+The **Dedekind-MacNeille completion** of a partial order is the smallest complete lattice that
 contains it. We define here the type of Dedekind cuts of `α` as the `Concept` lattice of the `≤`
 relation of `α`.
 
@@ -48,7 +48,8 @@ For `A : DedekindCut α`, the sets `A.left` and `A.right` are related by
 `upperBounds A.left = A.right` and `lowerBounds A.right = A.left`.
 
 The theorem `DedekindCut.principalEmbedding_trans_factorEmbedding` proves that if `α` is a partial
-order and `β` is a complete lattice, any embedding `α ↪o β` factors through `DedekindCut α`. -/
+order and `β` is a complete lattice, any embedding `α ↪o β` factors through `DedekindCut α`.
+-/
 abbrev DedekindCut [Preorder α] := Concept α α (· ≤ ·)
 
 namespace DedekindCut
@@ -69,37 +70,36 @@ abbrev right (A : DedekindCut α) : Set α := A.intent
 theorem ext' {A B : DedekindCut α} (h : A.right = B.right) : A = B := Concept.ext' h
 
 @[simp]
-theorem upperBounds_left (A : DedekindCut α) : upperBounds A.left = A.right :=
-  A.upperPolar_extent
+theorem upperBounds_left (A : DedekindCut α) : upperBounds A.left = A.right := A.upperPolar_extent
 
 @[simp]
-theorem lowerBounds_right (A : DedekindCut α) : lowerBounds A.right = A.left :=
-  A.lowerPolar_intent
+theorem lowerBounds_right (A : DedekindCut α) : lowerBounds A.right = A.left := A.lowerPolar_intent
 
-theorem image_left_subset_lowerBounds {f : α → β} (hf : Monotone f)
-    (A : DedekindCut α) : f '' A.left ⊆ lowerBounds (f '' A.right) := by
+theorem image_left_subset_lowerBounds {f : α → β} (hf : Monotone f) (A : DedekindCut α)
+    : f '' A.left ⊆ lowerBounds (f '' A.right) := by
   rintro _ ⟨x, hx, rfl⟩ _ ⟨y, hy, rfl⟩
   exact hf <| rel_extent_intent hx hy
 
-theorem image_right_subset_upperBounds {f : α → β} (hf : Monotone f)
-    (A : DedekindCut α) : f '' A.right ⊆ upperBounds (f '' A.left) := by
+theorem image_right_subset_upperBounds {f : α → β} (hf : Monotone f) (A : DedekindCut α)
+    : f '' A.right ⊆ upperBounds (f '' A.left) := by
   rintro _ ⟨x, hx, rfl⟩ _ ⟨y, hy, rfl⟩
   exact hf <| rel_extent_intent hy hx
 
-/-- Convert an element into its Dedekind cut (`Iic a`, `Ici a`). This map is order-preserving,
-though it is injective only on partial orders. -/
+/--
+Convert an element into its Dedekind cut (`Iic a`, `Ici a`). This map is order-preserving,
+though it is injective only on partial orders.
+-/
 def principal (a : α) : DedekindCut α :=
   (Concept.ofObject _ a).copy (Iic a) (Ici a)
-    (by ext; simpa [mem_lowerPolar_iff] using! forall_ge_iff_le.symm)
-    (by ext; simp)
+    (by ext; simpa [mem_lowerPolar_iff] using! forall_ge_iff_le.symm) (by ext; simp)
 
 @[simp] theorem left_principal (a : α) : (principal a).left = Iic a := rfl
 @[simp] theorem right_principal (a : α) : (principal a).right = Ici a := rfl
 
-@[simp] theorem ofObject_eq_principal (a : α) : ofObject (· ≤ ·) a = principal a :=
-  (copy_eq ..).symm
-@[simp] theorem ofAttribute_eq_principal (a : α) : ofAttribute (· ≤ ·) a = principal a := by
-  ext; simp
+@[simp]
+theorem ofObject_eq_principal (a : α) : ofObject (· ≤ ·) a = principal a := (copy_eq ..).symm
+@[simp]
+theorem ofAttribute_eq_principal (a : α) : ofAttribute (· ≤ ·) a = principal a := by ext; simp
 
 @[simp]
 theorem principal_le_principal {a b : α} : principal a ≤ principal b ↔ a ≤ b := by
@@ -120,8 +120,7 @@ lemma le_principal_iff {a : α} {c : DedekindCut α} :
   exact ⟨fun h ↦ h self_mem_Ici, fun h _y hy ↦ mem_intent_of_intent_rel hy h⟩
 
 /-- We can never have a computable decidable instance, for the same reason we can't on `Set α`. -/
-noncomputable instance : DecidableLE (DedekindCut α) :=
-  Classical.decRel _
+noncomputable instance : DecidableLE (DedekindCut α) := Classical.decRel _
 
 end Preorder
 
@@ -129,8 +128,7 @@ section PartialOrder
 variable [PartialOrder α]
 
 @[simp]
-theorem principal_inj {a b : α} : principal a = principal b ↔ a = b := by
-  simp [le_antisymm_iff]
+theorem principal_inj {a b : α} : principal a = principal b ↔ a = b := by simp [le_antisymm_iff]
 
 /-- `DedekindCut.principal` as an `OrderEmbedding`. -/
 @[simps! apply]
@@ -157,11 +155,13 @@ theorem principal_sInf_right (A : DedekindCut α) : principal (sInf A.right) = A
   ext
   rw [left_principal, mem_Iic, le_sInf_iff, ← lowerBounds_right, mem_lowerBounds]
 
-/-- Any order embedding `β ↪o α` into a complete lattice `α` factors through `DedekindCut β`.
+/--
+Any order embedding `β ↪o α` into a complete lattice `α` factors through `DedekindCut β`.
 
 This map is defined so that `factorEmbedding f A = sSup (f '' A.left)`. Although the construction
 `factorEmbedding f A = sInf (f '' A.right)` would also work, these do **not** in general give equal
-embeddings. -/
+embeddings.
+-/
 def factorEmbedding (f : β ↪o α) : DedekindCut β ↪o α :=
   .ofMapLEIff (fun A ↦ sSup (f '' A.left)) <| by
     refine fun A B ↦ ⟨fun h x hx ↦ ?_, fun h ↦ sSup_le_sSup (image_mono h)⟩
@@ -171,8 +171,8 @@ def factorEmbedding (f : β ↪o α) : DedekindCut β ↪o α :=
     rw [← f.le_iff_le]
     exact h _ (image_right_subset_upperBounds f.monotone _ (mem_image_of_mem _ hy)) hx
 
-theorem factorEmbedding_apply (f : β ↪o α) (A : DedekindCut β) :
-    factorEmbedding f A = sSup (f '' A.left) :=
+theorem factorEmbedding_apply (f : β ↪o α) (A : DedekindCut β)
+    : factorEmbedding f A = sSup (f '' A.left) :=
   rfl
 
 @[simp]
@@ -183,18 +183,22 @@ theorem factorEmbedding_principal (f : β ↪o α) (x : β) : factorEmbedding f 
   refine fun y hy ↦ hy ?_
   simp
 
-/-- The Dedekind-MacNeille completion of a partial order is the smallest complete lattice containing
-it, in the sense that any embedding into any complete lattice factors through it. -/
-theorem principalEmbedding_trans_factorEmbedding (f : β ↪o α) :
-    principalEmbedding.trans (factorEmbedding f) = f := by
+/--
+The Dedekind-MacNeille completion of a partial order is the smallest complete lattice containing
+it, in the sense that any embedding into any complete lattice factors through it.
+-/
+theorem principalEmbedding_trans_factorEmbedding (f : β ↪o α)
+    : principalEmbedding.trans (factorEmbedding f) = f := by
   ext; simp
 
-/-- `DedekindCut.principal` as an `OrderIso`.
+/--
+`DedekindCut.principal` as an `OrderIso`.
 
 This provides the second half of the **fundamental theorem of concept lattices**: every complete
 lattice is isomorphic to a concept lattice (its own Dedekind completion).
 
-See `Concept.instCompleteLattice` for the first half. -/
+See `Concept.instCompleteLattice` for the first half.
+-/
 @[simps! apply]
 def principalIso : α ≃o DedekindCut α where
   invFun := factorEmbedding (OrderIso.refl α)
@@ -220,15 +224,13 @@ noncomputable instance : LinearOrder (DedekindCut α) where
   toDecidableLE := inferInstance
 
 /-- Use `DedekindCut.lt_iff_exists'` for a version with `<` and `≤` swapped -/
-theorem lt_iff_exists {a b : DedekindCut α} :
-    a < b ↔ ∃ c, a < principal c ∧ principal c ≤ b := by
+theorem lt_iff_exists {a b : DedekindCut α} : a < b ↔ ∃ c, a < principal c ∧ principal c ≤ b := by
   refine ⟨fun h ↦ ?_, fun ⟨c, hca, hcb⟩ ↦ hca.trans_le hcb⟩
   rw [← extent_ssubset_extent_iff, Set.ssubset_iff_exists] at h
   simpa [← not_le, principal_le_iff, and_comm] using h.2
 
 /-- Variant of `DedekindCut.lt_iff_exists` with `<` and `≤` swapped -/
-theorem lt_iff_exists' {a b : DedekindCut α} :
-    a < b ↔ ∃ c, a ≤ principal c ∧ principal c < b := by
+theorem lt_iff_exists' {a b : DedekindCut α} : a < b ↔ ∃ c, a ≤ principal c ∧ principal c < b := by
   refine ⟨fun h ↦ ?_, fun ⟨c, hca, hcb⟩ ↦ lt_of_le_of_lt hca hcb⟩
   rw [← intent_ssubset_intent_iff, Set.ssubset_iff_exists] at h
   simpa [← not_le, le_principal_iff] using h.2
@@ -246,15 +248,13 @@ instance [DenselyOrdered α] : DenselyOrdered (DedekindCut α) where
     obtain ⟨u, _, _⟩ := DenselyOrdered.dense d c hdc
     exact ⟨principal u, had.trans_lt (by simpa), hcb.trans_lt' (by simpa)⟩
 
-theorem principal_lt_iff {a : α} {c : DedekindCut α} :
-    principal a < c ↔ ∃ b ∈ c.left, a < b := by
+theorem principal_lt_iff {a : α} {c : DedekindCut α} : principal a < c ↔ ∃ b ∈ c.left, a < b := by
   rw [← not_le, le_principal_iff]
   rw [not_iff_comm, not_exists, ← le_principal_iff]
   simp_rw [← not_le, not_and, not_not]
   rfl
 
-theorem lt_principal_iff {a : α} {c : DedekindCut α} :
-    c < principal a ↔ ∃ b ∈ c.right, b < a := by
+theorem lt_principal_iff {a : α} {c : DedekindCut α} : c < principal a ↔ ∃ b ∈ c.right, b < a := by
   rw [← not_le, principal_le_iff]
   rw [not_iff_comm, not_exists, ← principal_le_iff]
   rw [← intent_subset_intent_iff]

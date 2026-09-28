@@ -134,9 +134,11 @@ lemma of_isField (hR : IsField R) (f : R →+* S) : f.Flat := by
 section
 
 variable [Algebra R S]
-variable (A : Type*) {B C D : Type*} [CommRing A] [Algebra R A] [Algebra S A]
-  [IsScalarTower R S A] [CommRing B] [Algebra R B] [CommRing C] [Algebra R C] [Algebra S C]
-  [IsScalarTower R S C] [CommRing D] [Algebra R D]
+variable
+  (A : Type*)
+  {B C D : Type*}
+  [CommRing A] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [CommRing B] [Algebra R B]
+  [CommRing C] [Algebra R C] [Algebra S C] [IsScalarTower R S C] [CommRing D] [Algebra R D]
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 lemma lTensor {f : B →ₐ[R] D} (hf : f.Flat) :
@@ -225,8 +227,7 @@ open CategoryTheory
 namespace CommRingCat
 
 /-- The morphism property of flat ring maps. -/
-def flat : MorphismProperty CommRingCat.{u} :=
-  RingHom.toMorphismProperty fun f ↦ f.Flat
+def flat : MorphismProperty CommRingCat.{u} := RingHom.toMorphismProperty fun f ↦ f.Flat
 
 @[simp]
 lemma flat_iff {R S : CommRingCat.{u}} (f : R ⟶ S) :

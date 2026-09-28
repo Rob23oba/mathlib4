@@ -28,8 +28,10 @@ open Complex Function Metric Real
 
 open scoped ComplexConjugate
 
-/-- The exponential map $θ ↦ c + R e^{θi}$. The range of this map is the circle in `ℂ` with center
-`c` and radius `|R|`. -/
+/--
+The exponential map $θ ↦ c + R e^{θi}$. The range of this map is the circle in `ℂ` with center
+`c` and radius `|R|`.
+-/
 def circleMap (c : ℂ) (R : ℝ) : ℝ → ℂ := fun θ => c + R * exp (θ * I)
 
 @[simp]
@@ -38,42 +40,44 @@ theorem circleMap_sub_center (c : ℂ) (R : ℝ) (θ : ℝ) : circleMap c R θ -
 
 theorem circleMap_zero (R θ : ℝ) : circleMap 0 R θ = R * exp (θ * I) := zero_add _
 
-@[simp]
-theorem norm_circleMap_zero (R : ℝ) (θ : ℝ) : ‖circleMap 0 R θ‖ = |R| := by simp [circleMap]
+@[simp] theorem norm_circleMap_zero (R : ℝ) (θ : ℝ) : ‖circleMap 0 R θ‖ = |R| := by simp [circleMap]
 
 theorem circleMap_notMem_ball (c : ℂ) (R : ℝ) (θ : ℝ) : circleMap c R θ ∉ ball c R := by
   simp [Complex.dist_eq, le_abs_self]
 
-theorem circleMap_ne_mem_ball {c : ℂ} {R : ℝ} {w : ℂ} (hw : w ∈ ball c R) (θ : ℝ) :
-    circleMap c R θ ≠ w :=
+theorem circleMap_ne_mem_ball {c : ℂ} {R : ℝ} {w : ℂ} (hw : w ∈ ball c R) (θ : ℝ)
+    : circleMap c R θ ≠ w :=
   (ne_of_mem_of_not_mem hw (circleMap_notMem_ball _ _ _)).symm
 
 theorem circleMap_mem_sphere' (c : ℂ) (R : ℝ) (θ : ℝ) : circleMap c R θ ∈ sphere c |R| := by simp
 
-theorem circleMap_mem_sphere (c : ℂ) {R : ℝ} (hR : 0 ≤ R) (θ : ℝ) :
-    circleMap c R θ ∈ sphere c R := by
+theorem circleMap_mem_sphere (c : ℂ) {R : ℝ} (hR : 0 ≤ R) (θ : ℝ)
+    : circleMap c R θ ∈ sphere c R := by
   simpa only [abs_of_nonneg hR] using circleMap_mem_sphere' c R θ
 
-theorem circleMap_mem_closedBall (c : ℂ) {R : ℝ} (hR : 0 ≤ R) (θ : ℝ) :
-    circleMap c R θ ∈ closedBall c R :=
+theorem circleMap_mem_closedBall (c : ℂ) {R : ℝ} (hR : 0 ≤ R) (θ : ℝ)
+    : circleMap c R θ ∈ closedBall c R :=
   sphere_subset_closedBall (circleMap_mem_sphere c hR θ)
 
-theorem norm_circleMap_sub_le (c : ℂ) (R : ℝ) (θ : ℝ) (x : ℂ) :
-    ‖circleMap c R θ - x‖ ≤ |R| + dist c x := by
+theorem norm_circleMap_sub_le (c : ℂ) (R : ℝ) (θ : ℝ) (x : ℂ)
+    : ‖circleMap c R θ - x‖ ≤ |R| + dist c x := by
   rw [← dist_eq_norm, ← mem_sphere.1 (circleMap_mem_sphere' c R θ)]
   exact dist_triangle _ _ _
 
-/-- If `w` does not lie on the circle `sphere c |R|`, there is a radius `d > 0` such that all
-points of `ball w d` keep distance at least `d` from every point `circleMap c R θ` of the circle. -/
-theorem exists_ball_forall_le_norm_circleMap_sub {R : ℝ} {c w : ℂ} (hw : w ∉ sphere c |R|) :
-    ∃ d > 0, ∀ x ∈ ball w d, ∀ θ : ℝ, d ≤ ‖circleMap c R θ - x‖ := by
-  have hd₀ : 0 < abs (dist w c - |R|) :=
-    abs_pos.2 (sub_ne_zero.2 fun h ↦ hw (mem_sphere.2 h))
+/--
+If `w` does not lie on the circle `sphere c |R|`, there is a radius `d > 0` such that all
+points of `ball w d` keep distance at least `d` from every point `circleMap c R θ` of the circle.
+-/
+theorem exists_ball_forall_le_norm_circleMap_sub {R : ℝ} {c w : ℂ} (hw : w ∉ sphere c |R|)
+    : ∃ d > 0, ∀ x ∈ ball w d, ∀ θ : ℝ, d ≤ ‖circleMap c R θ - x‖ := by
+  have hd₀ : 0 < abs (dist w c - |R|) := abs_pos.2 (sub_ne_zero.2 fun h ↦ hw (mem_sphere.2 h))
   refine ⟨abs (dist w c - |R|) / 2, by positivity, fun x hx θ ↦ ?_⟩
   rw [mem_ball] at hx
   have h₁ : dist (circleMap c R θ) c = |R| := mem_sphere.1 (circleMap_mem_sphere' c R θ)
   have h₂ : abs (dist w c - |R|) ≤ dist (circleMap c R θ) w := by
-    calc abs (dist w c - |R|) = |dist (circleMap c R θ) c - dist w c| := by rw [h₁, abs_sub_comm]
+    calc
+      abs (dist w c - |R|)
+        = |dist (circleMap c R θ) c - dist w c| := by rw [h₁, abs_sub_comm]
       _ ≤ dist (circleMap c R θ) w := abs_dist_sub_le _ _ _
   have h₃ := dist_triangle (circleMap c R θ) x w
   rw [← dist_eq_norm]
@@ -136,13 +140,13 @@ lemma circleMap_neg_pi_div_two (c : ℂ) (R : ℝ) : circleMap c R (-π / 2) = c
 theorem periodic_circleMap (c : ℂ) (R : ℝ) : Periodic (circleMap c R) (2 * π) := fun θ => by
   simp [circleMap, add_mul, exp_periodic _]
 
-theorem Set.Countable.preimage_circleMap {s : Set ℂ} (hs : s.Countable) (c : ℂ) {R : ℝ}
-    (hR : R ≠ 0) : (circleMap c R ⁻¹' s).Countable :=
-  show (((↑) : ℝ → ℂ) ⁻¹' ((· * I) ⁻¹'
-      (exp ⁻¹' ((R * ·) ⁻¹' ((c + ·) ⁻¹' s))))).Countable from
-    (((hs.preimage (add_right_injective _)).preimage <|
-      mul_right_injective₀ <| ofReal_ne_zero.2 hR).preimage_cexp.preimage <|
-        mul_left_injective₀ I_ne_zero).preimage ofReal_injective
+theorem Set.Countable.preimage_circleMap {s : Set ℂ} (hs : s.Countable) (c : ℂ) {R : ℝ} (hR : R ≠ 0)
+    : (circleMap c R ⁻¹' s).Countable :=
+  show (((↑) : ℝ → ℂ) ⁻¹' ((· * I) ⁻¹' (exp ⁻¹' ((R * ·) ⁻¹' ((c + ·) ⁻¹' s))))).Countable from
+    (((hs.preimage (add_right_injective _)).preimage <| mul_right_injective₀ <|
+          ofReal_ne_zero.2 hR).preimage_cexp.preimage <|
+        mul_left_injective₀ I_ne_zero).preimage
+      ofReal_injective
 
 lemma circleMap_eq_circleMap_iff {a b R : ℝ} (c : ℂ) (h_R : R ≠ 0) :
     circleMap c R a = circleMap c R b ↔ ∃ (n : ℤ), a * I = b * I + n * (2 * π * I) := by
@@ -165,16 +169,16 @@ lemma eq_of_circleMap_eq {a b R : ℝ} {c : ℂ} (h_R : R ≠ 0) (h_dist : |a - 
 
 open scoped Interval in
 /-- `circleMap` is injective on `Ι a b` if the distance between `a` and `b` is at most `2π`. -/
-theorem injOn_circleMap_of_abs_sub_le {a b R : ℝ} {c : ℂ} (h_R : R ≠ 0) (_ : |a - b| ≤ 2 * π) :
-    (Ι a b).InjOn (circleMap c R) := by
+theorem injOn_circleMap_of_abs_sub_le {a b R : ℝ} {c : ℂ} (h_R : R ≠ 0) (_ : |a - b| ≤ 2 * π)
+    : (Ι a b).InjOn (circleMap c R) := by
   rintro _ ⟨_, _⟩ _ ⟨_, _⟩ h
   apply eq_of_circleMap_eq h_R _ h
   rw [abs_lt]
   constructor <;> linarith [max_sub_min_eq_abs' a b]
 
 /-- `circleMap` is injective on `Ico a b` if the distance between `a` and `b` is at most `2π`. -/
-theorem injOn_circleMap_of_abs_sub_le' {a b R : ℝ} {c : ℂ} (h_R : R ≠ 0) (_ : b - a ≤ 2 * π) :
-    (Set.Ico a b).InjOn (circleMap c R) := by
+theorem injOn_circleMap_of_abs_sub_le' {a b R : ℝ} {c : ℂ} (h_R : R ≠ 0) (_ : b - a ≤ 2 * π)
+    : (Set.Ico a b).InjOn (circleMap c R) := by
   rintro _ ⟨_, _⟩ _ ⟨_, _⟩ h
   apply eq_of_circleMap_eq h_R _ h
   rw [abs_lt]

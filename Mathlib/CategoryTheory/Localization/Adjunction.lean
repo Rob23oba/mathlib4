@@ -31,16 +31,16 @@ open Localization Category CategoryTheory.Functor
 
 namespace Adjunction
 
-variable {C₁ C₂ D₁ D₂ : Type*} [Category* C₁] [Category* C₂] [Category* D₁] [Category* D₂]
+variable
+  {C₁ C₂ D₁ D₂ : Type*} [Category* C₁] [Category* C₂] [Category* D₁] [Category* D₂]
   {G : C₁ ⥤ C₂} {F : C₂ ⥤ C₁} (adj : G ⊣ F)
 
 section
 
-variable (L₁ : C₁ ⥤ D₁) (W₁ : MorphismProperty C₁) [L₁.IsLocalization W₁]
+variable
+  (L₁ : C₁ ⥤ D₁) (W₁ : MorphismProperty C₁) [L₁.IsLocalization W₁]
   (L₂ : C₂ ⥤ D₂) (W₂ : MorphismProperty C₂) [L₂.IsLocalization W₂]
-  (G' : D₁ ⥤ D₂) (F' : D₂ ⥤ D₁)
-  [CatCommSq G L₁ L₂ G'] [CatCommSq F L₂ L₁ F']
-
+  (G' : D₁ ⥤ D₂) (F' : D₂ ⥤ D₁) [CatCommSq G L₁ L₂ G'] [CatCommSq F L₂ L₁ F']
 
 namespace Localization
 
@@ -80,39 +80,48 @@ lemma η_app (X₂ : C₂) :
 
 end Localization
 
-/-- If `adj : G ⊣ F` is an adjunction between two categories `C₁` and `C₂` that
+/--
+If `adj : G ⊣ F` is an adjunction between two categories `C₁` and `C₂` that
 are equipped with localization functors `L₁ : C₁ ⥤ D₁` and `L₂ : C₂ ⥤ D₂` with
 respect to `W₁ : MorphismProperty C₁` and `W₂ : MorphismProperty C₂`, and that
 the functors `F : C₂ ⥤ C₁` and `G : C₁ ⥤ C₂` induce functors `F' : D₂ ⥤ D₁`
 and `G' : D₁ ⥤ D₂` on the localized categories, then the adjunction `adj`
-induces an adjunction `G' ⊣ F'`. -/
+induces an adjunction `G' ⊣ F'`.
+-/
 noncomputable def localization : G' ⊣ F' :=
-  Adjunction.mkOfUnitCounit
-    { unit := Localization.ε adj L₁ W₁ L₂ G' F'
-      counit := Localization.η adj L₁ L₂ W₂ G' F'
-      left_triangle := by
-        apply natTrans_ext L₁ W₁
-        intro X₁
-        have eq := adj.left_triangle_components X₁
-        rw [NatTrans.comp_app, NatTrans.comp_app, whiskerRight_app, Localization.ε_app,
-          Functor.associator_hom_app, id_comp, whiskerLeft_app, G'.map_comp, G'.map_comp,
-          assoc, assoc]
-        erw [(Localization.η adj L₁ L₂ W₂ G' F').naturality, Localization.η_app,
-          assoc, assoc, ← G'.map_comp_assoc, ← G'.map_comp_assoc, assoc, Iso.hom_inv_id_app,
-          comp_id, (CatCommSq.iso G L₁ L₂ G').inv.naturality_assoc, ← L₂.map_comp_assoc, eq,
-          L₂.map_id, id_comp, Iso.inv_hom_id_app]
-        rfl
-      right_triangle := by
-        apply natTrans_ext L₂ W₂
-        intro X₂
-        have eq := adj.right_triangle_components X₂
-        rw [NatTrans.comp_app, NatTrans.comp_app, whiskerLeft_app, whiskerRight_app,
-          Localization.η_app, Functor.associator_inv_app, id_comp, F'.map_comp, F'.map_comp]
-        erw [← (Localization.ε _ _ _ _ _ _).naturality_assoc, Localization.ε_app,
-          assoc, assoc, ← F'.map_comp_assoc, Iso.hom_inv_id_app, F'.map_id, id_comp,
-          ← NatTrans.naturality, ← L₁.map_comp_assoc, eq, L₁.map_id, id_comp,
-          Iso.inv_hom_id_app]
-        rfl }
+  Adjunction.mkOfUnitCounit {
+    unit := Localization.ε adj L₁ W₁ L₂ G' F'
+    counit := Localization.η adj L₁ L₂ W₂ G' F'
+    left_triangle := by
+      apply natTrans_ext L₁ W₁
+      intro X₁
+      have eq := adj.left_triangle_components X₁
+      rw [
+        NatTrans.comp_app, NatTrans.comp_app, whiskerRight_app, Localization.ε_app,
+        Functor.associator_hom_app, id_comp, whiskerLeft_app, G'.map_comp, G'.map_comp, assoc, assoc
+      ]
+      erw [
+        (Localization.η adj L₁ L₂ W₂ G' F').naturality, Localization.η_app, assoc, assoc,
+        ← G'.map_comp_assoc, ← G'.map_comp_assoc, assoc, Iso.hom_inv_id_app, comp_id,
+        (CatCommSq.iso G L₁ L₂ G').inv.naturality_assoc, ← L₂.map_comp_assoc, eq, L₂.map_id,
+        id_comp, Iso.inv_hom_id_app
+      ]
+      rfl
+    right_triangle := by
+      apply natTrans_ext L₂ W₂
+      intro X₂
+      have eq := adj.right_triangle_components X₂
+      rw [
+        NatTrans.comp_app, NatTrans.comp_app, whiskerLeft_app, whiskerRight_app, Localization.η_app,
+        Functor.associator_inv_app, id_comp, F'.map_comp, F'.map_comp
+      ]
+      erw [
+        ← (Localization.ε _ _ _ _ _ _).naturality_assoc, Localization.ε_app, assoc, assoc,
+        ← F'.map_comp_assoc, Iso.hom_inv_id_app, F'.map_id, id_comp, ← NatTrans.naturality,
+        ← L₁.map_comp_assoc, eq, L₁.map_id, id_comp, Iso.inv_hom_id_app
+      ]
+      rfl
+  }
 
 @[simp]
 lemma localization_unit_app (X₁ : C₁) :

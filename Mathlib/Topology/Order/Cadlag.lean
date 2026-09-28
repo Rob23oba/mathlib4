@@ -28,13 +28,14 @@ section Basic
 
 variable [Preorder X] [TopologicalSpace Y]
 
-/- TODO: Cannot tag this with `fun_prop` because it fails when tagging a lemma
-because of `to_dual`. -/
+/-
+TODO: Cannot tag this with `fun_prop` because it fails when tagging a lemma
+because of `to_dual`.
+-/
 /-- A function `f` is *right-continuous* if for any `a`, `f x → f a` when `x → a` and `x > a`. -/
 @[to_dual /-- A function `f` is *left-continuous* if for any `a`, `f x → f a` when `x → a`
 and `x < a`. -/]
-def IsRightContinuous (f : X → Y) :=
-  ∀ a, ContinuousWithinAt f (Set.Ioi a) a
+def IsRightContinuous (f : X → Y) := ∀ a, ContinuousWithinAt f (Set.Ioi a) a
 
 @[to_dual]
 lemma Continuous.isRightContinuous (hf : Continuous f) :

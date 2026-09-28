@@ -33,16 +33,18 @@ open scoped Cardinal Pointwise Topology
 variable {𝕜 V P : Type*}
 
 section AddTorsor
-variable [Field 𝕜] [LinearOrder 𝕜] [IsOrderedRing 𝕜]
-  [AddCommGroup V] [Module 𝕜 V] [AddTorsor V P]
+variable
+  [Field 𝕜] [LinearOrder 𝕜] [IsOrderedRing 𝕜] [AddCommGroup V] [Module 𝕜 V] [AddTorsor V P]
   {s t : Set P} {x y z : P}
 
 omit [IsOrderedRing 𝕜] in
 variable (𝕜) in
-/-- Two points are visible to each other through a set if no point of that set lies strictly
+/--
+Two points are visible to each other through a set if no point of that set lies strictly
 between them.
 
-By convention, a point `x` sees itself through any set `s`, even when `x ∈ s`. -/
+By convention, a point `x` sees itself through any set `s`, even when `x ∈ s`.
+-/
 def IsVisible (s : Set P) (x y : P) : Prop := ∀ ⦃z⦄, z ∈ s → ¬ Sbtw 𝕜 x z y
 
 @[simp, refl]
@@ -65,8 +67,9 @@ lemma isVisible_iff_lineMap (hxy : x ≠ y) :
 end AddTorsor
 
 section Module
-variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
-  [AddCommGroup V] [Module 𝕜 V] {s : Set V} {x y z : V}
+variable
+  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [AddCommGroup V] [Module 𝕜 V]
+  {s : Set V} {x y z : V}
 
 /-- If a point `x` sees a convex combination of points of a set `s` through `convexHull ℝ s ∌ x`,
 then it sees all terms of that combination.
@@ -116,7 +119,8 @@ lemma IsVisible.of_convexHull_of_pos {ι : Type*} {t : Finset ι} {a : ι → V}
     · exact fun j hj ↦ subset_convexHull _ _ <| ha _ <| erase_subset _ _ hj
   · exact lt_add_of_pos_left _ <| by positivity
 
-variable [TopologicalSpace 𝕜] [OrderTopology 𝕜] [TopologicalSpace V] [IsTopologicalAddGroup V]
+variable
+  [TopologicalSpace 𝕜] [OrderTopology 𝕜] [TopologicalSpace V] [IsTopologicalAddGroup V]
   [ContinuousSMul 𝕜 V]
 
 /-- One cannot see any point in the interior of a set. -/

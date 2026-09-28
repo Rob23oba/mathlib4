@@ -36,14 +36,14 @@ the Kolmogorov extension theorem.
 
 @[expose] public section
 
-
 open Finset
 
 open scoped ENNReal
 
 namespace MeasureTheory
 
-variable {ι : Type*} {α : ι → Type*} {mα : ∀ i, MeasurableSpace (α i)}
+variable
+  {ι : Type*} {α : ι → Type*} {mα : ∀ i, MeasurableSpace (α i)}
   {P : ∀ J : Finset ι, Measure (Π j : J, α j)} {s t : Set (Π i, α i)} {I : Finset ι}
   {S : Set (Π i : I, α i)}
 
@@ -65,13 +65,18 @@ end MeasurableCylinders
 section ProjectiveFamilyFun
 
 open scoped Classical in
-/-- For `P` a family of measures, with `P J` a measure on `Π j : J, α j`, we define a function
+/--
+For `P` a family of measures, with `P J` a measure on `Π j : J, α j`, we define a function
 `projectiveFamilyFun P s` by setting it to `P I S` if `s = cylinder I S` for a measurable `S` and
-to 0 if `s` is not a measurable cylinder. -/
-noncomputable def projectiveFamilyFun (P : ∀ J : Finset ι, Measure (Π j : J, α j))
-    (s : Set (Π i, α i)) : ℝ≥0∞ :=
-  if hs : s ∈ measurableCylinders α
-    then P (measurableCylinders.finset hs) (measurableCylinders.set hs) else 0
+to 0 if `s` is not a measurable cylinder.
+-/
+noncomputable def projectiveFamilyFun
+    (P : ∀ J : Finset ι, Measure (Π j : J, α j)) (s : Set (Π i, α i))
+    : ℝ≥0∞ :=
+  if hs : s ∈ measurableCylinders α then
+    P (measurableCylinders.finset hs) (measurableCylinders.set hs)
+  else
+    0
 
 lemma projectiveFamilyFun_congr (hP : IsProjectiveMeasureFamily P)
     (hs : s ∈ measurableCylinders α) (hs_eq : s = cylinder I S) (hS : MeasurableSet S) :
@@ -111,11 +116,13 @@ end ProjectiveFamilyFun
 
 section ProjectiveFamilyContent
 
-/-- For `P` a projective family of measures, we define an additive content on the measurable
+/--
+For `P` a projective family of measures, we define an additive content on the measurable
 cylinders, by setting `projectiveFamilyContent s = P I S` for `s = cylinder I S`, where `I` is
-a finite set of indices and `S` is a measurable set in `Π i : I, α i`. -/
-noncomputable def projectiveFamilyContent (hP : IsProjectiveMeasureFamily P) :
-    AddContent ℝ≥0∞ (measurableCylinders α) :=
+a finite set of indices and `S` is a measurable set in `Π i : I, α i`.
+-/
+noncomputable def projectiveFamilyContent (hP : IsProjectiveMeasureFamily P)
+    : AddContent ℝ≥0∞ (measurableCylinders α) :=
   isSetRing_measurableCylinders.addContent_of_union (projectiveFamilyFun P)
     (projectiveFamilyFun_empty hP) (projectiveFamilyFun_union hP)
 

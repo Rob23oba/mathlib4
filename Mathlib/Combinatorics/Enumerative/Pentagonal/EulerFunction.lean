@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.Normed.Ring.Basic
 public import Mathlib.Combinatorics.Enumerative.Pentagonal.PowerSeries
-
 import Mathlib.Analysis.SpecialFunctions.Log.Summable
 import Mathlib.Combinatorics.Enumerative.Pentagonal.Ring
 
@@ -82,26 +81,28 @@ end Pentagonal
 
 public section
 
-/-- The Euler function $\phi(x) = \sum_{k=-\infty}^{\infty}(-1)^k x^{k (3k - 1) / 2}$, defined
+/--
+The Euler function $\phi(x) = \sum_{k=-\infty}^{\infty}(-1)^k x^{k (3k - 1) / 2}$, defined
 as a power series with the same coefficients as `PowerSeries.pentagonalSeries`. See
-`eulerFunction_eq_tsum_pentagonal` for the expression using pentagonal numbers. -/
+`eulerFunction_eq_tsum_pentagonal` for the expression using pentagonal numbers.
+-/
 noncomputable def eulerFunction (x : R) : R :=
   ∑' n, (PowerSeries.pentagonalSeries R).coeff n * x ^ n
 
 omit [NormOneClass R] in
-theorem eulerFunction_def (x : R) :
-    eulerFunction x = ∑' n, (PowerSeries.pentagonalSeries R).coeff n * x ^ n := by
+theorem eulerFunction_def (x : R)
+    : eulerFunction x = ∑' n, (PowerSeries.pentagonalSeries R).coeff n * x ^ n := by
   rfl
 
 omit [NormOneClass R] in
-theorem eulerFunction_eq_tsum_pentagonal (x : R) :
-    eulerFunction x = ∑' k, k.negOnePow * x ^ pentagonal k := by
+theorem eulerFunction_eq_tsum_pentagonal (x : R)
+    : eulerFunction x = ∑' k, k.negOnePow * x ^ pentagonal k := by
   simp [eulerFunction, PowerSeries.coeff_pentagonalSeries_mul_eq_extend, pentagonal_injective]
 
 variable [CompleteSpace R]
 
-theorem hasSum_eulerFunction_pentagonalSeries {x : R} (hx : ‖x‖ < 1) :
-    HasSum (fun n ↦ (PowerSeries.pentagonalSeries R).coeff n * x ^ n) (eulerFunction x) := by
+theorem hasSum_eulerFunction_pentagonalSeries {x : R} (hx : ‖x‖ < 1)
+    : HasSum (fun n ↦ (PowerSeries.pentagonalSeries R).coeff n * x ^ n) (eulerFunction x) := by
   refine (Summable.hasSum_iff ?_).mpr rfl
   refine (summable_geometric_of_lt_one (norm_nonneg x) hx).of_norm_bounded fun n ↦ ?_
   by_cases hn : n ∈ Set.range pentagonal
@@ -111,13 +112,14 @@ theorem hasSum_eulerFunction_pentagonalSeries {x : R} (hx : ‖x‖ < 1) :
     simp
   · simp [PowerSeries.coeff_pentagonalSeries_eq_zero R hn]
 
-theorem hasSum_eulerFunction_pentagonal {x : R} (hx : ‖x‖ < 1) :
-    HasSum (fun k ↦ k.negOnePow * x ^ pentagonal k) (eulerFunction x) := by
+theorem hasSum_eulerFunction_pentagonal {x : R} (hx : ‖x‖ < 1)
+    : HasSum (fun k ↦ k.negOnePow * x ^ pentagonal k) (eulerFunction x) := by
   simpa [pentagonal_injective, PowerSeries.coeff_pentagonalSeries_mul_eq_extend] using
     hasSum_eulerFunction_pentagonalSeries hx
 
-theorem hasSum_eulerFunction_pentagonal_pair {x : R} (hx : ‖x‖ < 1) :
-    HasSum (fun k : ℕ ↦ (-1) ^ k * (x ^ pentagonal (-k) - x ^ pentagonal (k + 1)))
+theorem hasSum_eulerFunction_pentagonal_pair {x : R} (hx : ‖x‖ < 1)
+    : HasSum
+      (fun k : ℕ ↦ (-1) ^ k * (x ^ pentagonal (-k) - x ^ pentagonal (k + 1)))
       (eulerFunction x) := by
   have h := hasSum_eulerFunction_pentagonal hx
   rw [← neg_injective.hasSum_iff (by simp [neg_involutive.surjective.range_eq])] at h
@@ -125,14 +127,16 @@ theorem hasSum_eulerFunction_pentagonal_pair {x : R} (hx : ‖x‖ < 1) :
   simp [-Int.coe_negOnePow, Int.negOnePow_add, Int.coe_negOnePow_natCast]
   ring
 
-theorem eulerFunction_eq_tsum_pentagonal_pair {x : R} (hx : ‖x‖ < 1) :
-    eulerFunction x = ∑' k : ℕ, (-1) ^ k * (x ^ pentagonal (-k) - x ^ pentagonal (k + 1)) :=
+theorem eulerFunction_eq_tsum_pentagonal_pair {x : R} (hx : ‖x‖ < 1)
+    : eulerFunction x = ∑' k : ℕ, (-1) ^ k * (x ^ pentagonal (-k) - x ^ pentagonal (k + 1)) :=
   (hasSum_eulerFunction_pentagonal_pair hx).tsum_eq.symm
 
-/-- **Pentagonal number theorem** for Euler function, expressed as an infinite product.
-See `eulerFunction_eq_tsum_pentagonal` that expresses `eulerFunction` as an infinite sum. -/
-theorem eulerFunction_eq_tprod {x : R} (hx : ‖x‖ < 1) :
-    eulerFunction x = ∏' n : ℕ, (1 - x ^ (n + 1)) := by
+/--
+**Pentagonal number theorem** for Euler function, expressed as an infinite product.
+See `eulerFunction_eq_tsum_pentagonal` that expresses `eulerFunction` as an infinite sum.
+-/
+theorem eulerFunction_eq_tprod {x : R} (hx : ‖x‖ < 1)
+    : eulerFunction x = ∏' n : ℕ, (1 - x ^ (n + 1)) := by
   rw [eulerFunction_eq_tsum_pentagonal_pair hx]
   refine (Pentagonal.tprod_one_sub_pow ?_ ?_ ?_ ?_ ?_).symm
   · exact tendsto_pow_atTop_nhds_zero_of_norm_lt_one hx
@@ -146,9 +150,11 @@ theorem eulerFunction_eq_tprod {x : R} (hx : ‖x‖ < 1) :
       exact fun k ↦ ⟨k, fun n hn ↦ hn.trans (by grind)⟩
     · exact isBoundedUnder_of ⟨_, fun k ↦ Pentagonal.tsum_pow_mul_prod_bound k hx⟩
 
-/-- **Pentagonal number theorem** for Euler function, expressed as an infinite product.
-See `hasSum_eulerFunction_pentagonal` that expresses `eulerFunction` as an infinite sum. -/
-theorem hasProd_eulerFunction {x : R} (hx : ‖x‖ < 1) :
-    HasProd (fun n ↦ 1 - x ^ (n + 1)) (eulerFunction x) := by
+/--
+**Pentagonal number theorem** for Euler function, expressed as an infinite product.
+See `hasSum_eulerFunction_pentagonal` that expresses `eulerFunction` as an infinite sum.
+-/
+theorem hasProd_eulerFunction {x : R} (hx : ‖x‖ < 1)
+    : HasProd (fun n ↦ 1 - x ^ (n + 1)) (eulerFunction x) := by
   refine (Multipliable.hasProd_iff ?_).mpr (eulerFunction_eq_tprod hx).symm
   simpa using Pentagonal.multipliable_one_sub_pow_add 0 hx

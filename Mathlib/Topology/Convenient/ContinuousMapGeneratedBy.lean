@@ -27,18 +27,21 @@ universe v v' t u
 
 open Topology
 
-variable {ι : Type t} {X : ι → Type u} [∀ i, TopologicalSpace (X i)]
-  {Y : Type v} [TopologicalSpace Y] {Z : Type v'} [TopologicalSpace Z]
+variable
+  {ι : Type t} {X : ι → Type u} [∀ i, TopologicalSpace (X i)]
+  {Y : Type v} [TopologicalSpace Y]
+  {Z : Type v'} [TopologicalSpace Z]
 
 namespace Topology
 
 variable (X) in
-/-- Given a family `X i` of topological space, this is a predicate
+/--
+Given a family `X i` of topological space, this is a predicate
 on maps `g : Y → Z` between topological spaces saying that for any
 continuous map `f : X i → Y`, the composition `g ∘ f` is continuous.
-We say that `g` is `X`-continuous. -/
-def ContinuousGeneratedBy (g : Y → Z) : Prop :=
-  ∀ ⦃i : ι⦄ (f : C(X i, Y)), Continuous (g ∘ f)
+We say that `g` is `X`-continuous.
+-/
+def ContinuousGeneratedBy (g : Y → Z) : Prop := ∀ ⦃i : ι⦄ (f : C(X i, Y)), Continuous (g ∘ f)
 
 lemma continuousGeneratedBy_def (g : Y → Z) :
     ContinuousGeneratedBy X g ↔
@@ -52,13 +55,15 @@ lemma continuousGeneratedBy_iff (g : Y → Z) :
     WithGeneratedByTopology.continuous_from_iff]
   rfl
 
-/-- A `X`-continuous map `g : Y → Z` induces a continuous map
-between the types `Y` and `Z` equipped with the `X`-generated topology. -/
-def ContinuousGeneratedBy.continuousMap {g : Y → Z}
-    (hg : ContinuousGeneratedBy X g) :
-    C(WithGeneratedByTopology X Y, WithGeneratedByTopology X Z) :=
-  ⟨WithGeneratedByTopology.equiv.symm ∘ g ∘ WithGeneratedByTopology.equiv, by
-    rwa [← continuousGeneratedBy_iff]⟩
+/--
+A `X`-continuous map `g : Y → Z` induces a continuous map
+between the types `Y` and `Z` equipped with the `X`-generated topology.
+-/
+def ContinuousGeneratedBy.continuousMap {g : Y → Z} (hg : ContinuousGeneratedBy X g)
+    : C(WithGeneratedByTopology X Y, WithGeneratedByTopology X Z) := ⟨
+  WithGeneratedByTopology.equiv.symm ∘ g ∘ WithGeneratedByTopology.equiv,
+  by rwa [← continuousGeneratedBy_iff]
+⟩
 
 @[simp]
 lemma ContinuousGeneratedBy.continuousMap_coe {g : Y → Z}
@@ -112,9 +117,8 @@ def ContinuousMapGeneratedBy.id : ContinuousMapGeneratedBy X Y Y where
 def ContinuousMapGeneratedBy.comp
     {Z : Type*} [TopologicalSpace Z]
     {T : Type*} [TopologicalSpace T]
-    (g : ContinuousMapGeneratedBy X Y Z)
-    (f : ContinuousMapGeneratedBy X T Y) :
-    ContinuousMapGeneratedBy X T Z where
+    (g : ContinuousMapGeneratedBy X Y Z) (f : ContinuousMapGeneratedBy X T Y)
+    : ContinuousMapGeneratedBy X T Z where
   toFun := g.toFun.comp f.toFun
   prop := g.prop.comp f.prop
 
@@ -122,10 +126,12 @@ namespace WithGeneratedByTopology
 
 variable (X Y)
 
-/-- The identity `WithGeneratedByTopology.equiv.symm : Y → WithGeneratedByTopology X Y`
-as a `X`-continuous map. -/
-def equivSymmAsContinuousMapGeneratedBy :
-    ContinuousMapGeneratedBy X Y (WithGeneratedByTopology X Y) where
+/--
+The identity `WithGeneratedByTopology.equiv.symm : Y → WithGeneratedByTopology X Y`
+as a `X`-continuous map.
+-/
+def equivSymmAsContinuousMapGeneratedBy
+    : ContinuousMapGeneratedBy X Y (WithGeneratedByTopology X Y) where
   toFun := equiv.symm
   prop := by
     rw [continuousGeneratedBy_def]
@@ -137,10 +143,12 @@ def equivSymmAsContinuousMapGeneratedBy :
 lemma equivSymmAsContinuousMapGeneratedBy_coe :
     ⇑(equivSymmAsContinuousMapGeneratedBy X Y) = equiv.symm := rfl
 
-/-- The identity `WithGeneratedByTopology.equiv : WithGeneratedByTopology X Y → Y`
-as a `X`-continuous map. -/
-def equivAsContinuousMapGeneratedBy :
-    ContinuousMapGeneratedBy X (WithGeneratedByTopology X Y) Y where
+/--
+The identity `WithGeneratedByTopology.equiv : WithGeneratedByTopology X Y → Y`
+as a `X`-continuous map.
+-/
+def equivAsContinuousMapGeneratedBy
+    : ContinuousMapGeneratedBy X (WithGeneratedByTopology X Y) Y where
   toFun := equiv
   prop := continuous_equiv.continuousGeneratedBy
 

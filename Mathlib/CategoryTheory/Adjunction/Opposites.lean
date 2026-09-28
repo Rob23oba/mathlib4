@@ -21,7 +21,6 @@ adjunction, opposite, uniqueness
 
 @[expose] public section
 
-
 open CategoryTheory
 
 universe v₁ v₂ u₁ u₂
@@ -84,13 +83,14 @@ lemma rightOp_eq {F : Cᵒᵖ ⥤ D} {G : Dᵒᵖ ⥤ C} (a : F.rightOp ⊣ G) :
   ext X; simp [Equivalence.unit]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `F` and `F'` are both adjoint to `G`, there is a natural isomorphism
+/--
+If `F` and `F'` are both adjoint to `G`, there is a natural isomorphism
 `F.op ⋙ coyoneda ≅ F'.op ⋙ coyoneda`.
 We use this in combination with `fullyFaithfulCancelRight` to show left adjoints are unique.
 -/
 @[deprecated "No replacement" (since := "2026-04-11")]
-def leftAdjointsCoyonedaEquiv {F F' : C ⥤ D} {G : D ⥤ C} (adj1 : F ⊣ G) (adj2 : F' ⊣ G) :
-    F.op ⋙ coyoneda ≅ F'.op ⋙ coyoneda :=
+def leftAdjointsCoyonedaEquiv {F F' : C ⥤ D} {G : D ⥤ C} (adj1 : F ⊣ G) (adj2 : F' ⊣ G)
+    : F.op ⋙ coyoneda ≅ F'.op ⋙ coyoneda :=
   NatIso.ofComponents fun X =>
     NatIso.ofComponents fun Y =>
       ((adj1.homEquiv X.unop Y).trans (adj2.homEquiv X.unop Y).symm).toIso

@@ -36,8 +36,9 @@ structure CommBialgCat where
   [bialgebra : Bialgebra R carrier]
 
 namespace CommBialgCat
-variable {A B C : CommBialgCat.{v} R} {X Y Z : Type v} [CommRing X] [Bialgebra R X]
-  [CommRing Y] [Bialgebra R Y] [CommRing Z] [Bialgebra R Z]
+variable
+  {A B C : CommBialgCat.{v} R} {X Y Z : Type v}
+  [CommRing X] [Bialgebra R X] [CommRing Y] [Bialgebra R Y] [CommRing Z] [Bialgebra R Z]
 
 attribute [instance] commRing bialgebra
 
@@ -48,9 +49,11 @@ instance : CoeSort (CommBialgCat R) (Type v) := ⟨carrier⟩
 attribute [coe] CommBialgCat.carrier
 
 variable (R) in
-/-- Turn an unbundled `R`-bialgebra into the corresponding object in the category of `R`-bialgebras.
+/--
+Turn an unbundled `R`-bialgebra into the corresponding object in the category of `R`-bialgebras.
 
-This is the preferred way to construct a term of `CommBialgCat R`. -/
+This is the preferred way to construct a term of `CommBialgCat R`.
+-/
 abbrev of (X : Type v) [CommRing X] [Bialgebra R X] : CommBialgCat.{v} R := ⟨X⟩
 
 open Lean.PrettyPrinter.Delaborator in
@@ -81,8 +84,10 @@ instance : ConcreteCategory (CommBialgCat.{v} R) (· →ₐc[R] ·) where
 abbrev Hom.hom (f : Hom A B) : A →ₐc[R] B := ConcreteCategory.hom (C := CommBialgCat R) f
 
 /-- Typecheck a `BialgHom` as a morphism in `CommBialgCat R`. -/
-abbrev ofHom {X Y : Type v} {_ : CommRing X} {_ : CommRing Y} {_ : Bialgebra R X}
-    {_ : Bialgebra R Y} (f : X →ₐc[R] Y) : of R X ⟶ of R Y :=
+abbrev ofHom
+    {X Y : Type v} {_ : CommRing X} {_ : CommRing Y} {_ : Bialgebra R X} {_ : Bialgebra R Y}
+    (f : X →ₐc[R] Y)
+    : of R X ⟶ of R Y :=
   ConcreteCategory.ofHom (C := CommBialgCat R) f
 
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
@@ -138,8 +143,10 @@ instance hasForgetToCommAlgCat : HasForget₂ (CommBialgCat.{v} R) (CommAlgCat.{
     (forget₂ (CommBialgCat.{v} R) (CommAlgCat.{v} R)).map f =
       CommAlgCat.ofHom f.hom.toAlgHom := rfl
 
-/-- Forgetting to the underlying type and then building the bundled object returns the original
-bialgebra. -/
+/--
+Forgetting to the underlying type and then building the bundled object returns the original
+bialgebra.
+-/
 @[simps]
 def ofIsoSelf (M : CommBialgCat.{v} R) : of R M ≅ M where
   hom := 𝟙 M
@@ -147,11 +154,15 @@ def ofIsoSelf (M : CommBialgCat.{v} R) : of R M ≅ M where
 
 @[deprecated (since := "2026-06-09")] alias ofSelfIso := ofIsoSelf
 
-/-- Build an isomorphism in the category `CommBialgCat R` from a `BialgEquiv` between
-`Bialgebra`s. -/
+/--
+Build an isomorphism in the category `CommBialgCat R` from a `BialgEquiv` between
+`Bialgebra`s.
+-/
 @[simps]
-def isoMk {X Y : Type v} {_ : CommRing X} {_ : CommRing Y} {_ : Bialgebra R X}
-    {_ : Bialgebra R Y} (e : X ≃ₐc[R] Y) : of R X ≅ of R Y where
+def isoMk
+    {X Y : Type v} {_ : CommRing X} {_ : CommRing Y} {_ : Bialgebra R X} {_ : Bialgebra R Y}
+    (e : X ≃ₐc[R] Y)
+    : of R X ≅ of R Y where
   hom := ofHom (e : X →ₐc[R] Y)
   inv := ofHom (e.symm : Y →ₐc[R] X)
 
@@ -182,8 +193,8 @@ end CommBialgCat
 
 attribute [local ext] Quiver.Hom.unop_inj
 
-instance CommAlgCat.monObjOpOf {A : Type u} [CommRing A] [Bialgebra R A] :
-    MonObj (op <| CommAlgCat.of R A) where
+instance CommAlgCat.monObjOpOf {A : Type u} [CommRing A] [Bialgebra R A]
+    : MonObj (op <| CommAlgCat.of R A) where
   one := (CommAlgCat.ofHom <| counitAlgHom R A).op
   mul := (CommAlgCat.ofHom <| comulAlgHom R A).op
   one_mul := by ext; exact Coalgebra.rTensor_counit_comul _
@@ -198,31 +209,32 @@ lemma CommAlgCat.one_op_of_unop_hom {A : Type u} [CommRing A] [Bialgebra R A] :
 lemma CommAlgCat.mul_op_of_unop_hom {A : Type u} [CommRing A] [Bialgebra R A] :
     μ[op <| CommAlgCat.of R A].unop.hom = comulAlgHom R A := rfl
 
-instance {A : Type u} [CommRing A] [Bialgebra R A] [IsCocomm R A] :
-    IsCommMonObj (Opposite.op <| CommAlgCat.of R A) where
+instance {A : Type u} [CommRing A] [Bialgebra R A] [IsCocomm R A]
+    : IsCommMonObj (Opposite.op <| CommAlgCat.of R A) where
   mul_comm := by ext; exact comm_comul R _
 
-instance {A B : Type u} [CommRing A] [Bialgebra R A] [CommRing B] [Bialgebra R B]
-    (f : A →ₐc[R] B) : IsMonHom (CommAlgCat.ofHom f.toAlgHom).op where
+instance {A B : Type u} [CommRing A] [Bialgebra R A] [CommRing B] [Bialgebra R B] (f : A →ₐc[R] B)
+  : IsMonHom (CommAlgCat.ofHom f.toAlgHom).op where
 
 instance (A : (CommAlgCat R)ᵒᵖ) [MonObj A] : Bialgebra R A.unop :=
-  .ofAlgHom μ[A].unop.hom η[A].unop.hom
-    congr(($((MonObj.mul_assoc_flip A).symm)).unop.hom)
-    congr(($(MonObj.one_mul A)).unop.hom)
-    congr(($(MonObj.mul_one A)).unop.hom)
+  .ofAlgHom μ[A].unop.hom η[A].unop.hom (congr(($((MonObj.mul_assoc_flip A).symm)).unop.hom))
+    (congr(($(MonObj.one_mul A)).unop.hom)) congr(($(MonObj.mul_one A)).unop.hom)
 
 variable (R) in
-/-- Commutative bialgebras over a commutative ring `R` are the same thing as comonoid
-`R`-algebras. -/
+/--
+Commutative bialgebras over a commutative ring `R` are the same thing as comonoid
+`R`-algebras.
+-/
 @[simps! functor_obj_unop_X inverse_obj unitIso_hom_app
   unitIso_inv_app counitIso_hom_app counitIso_inv_app]
 def commBialgCatEquivComonCommAlgCat : CommBialgCat R ≌ (Mon (CommAlgCat R)ᵒᵖ)ᵒᵖ where
   functor.obj A := .op <| .mk <| .op <| .of R A
   functor.map {A B} f := .op <| .mk' <| .op <| CommAlgCat.ofHom f.hom.toAlgHom
   inverse.obj A := .of R A.unop.X.unop
-  inverse.map {A B} f := CommBialgCat.ofHom <| .ofAlgHom f.unop.hom.unop.hom
-    congr(($(IsMonHom.one_hom (f := f.unop.hom))).unop.hom)
-    congr(($((IsMonHom.mul_hom (f := f.unop.hom)).symm)).unop.hom)
+  inverse.map {A B} f :=
+    CommBialgCat.ofHom <|
+      .ofAlgHom f.unop.hom.unop.hom (congr(($(IsMonHom.one_hom (f := f.unop.hom))).unop.hom))
+        congr(($((IsMonHom.mul_hom (f := f.unop.hom)).symm)).unop.hom)
   unitIso.hom := 𝟙 _
   unitIso.inv := 𝟙 _
   counitIso.hom := 𝟙 _
@@ -239,6 +251,6 @@ lemma commBialgCatEquivComonCommAlgCat_inverse_map_unop_hom
   ((commBialgCatEquivComonCommAlgCat R).inverse.map f).hom.toAlgHom =
     f.unop.hom.unop.hom := rfl
 
-instance {A : CommBialgCat.{u} R} [IsCocomm R A] :
-    IsCommMonObj ((commBialgCatEquivComonCommAlgCat R).functor.obj A).unop.X :=
+instance {A : CommBialgCat.{u} R} [IsCocomm R A]
+    : IsCommMonObj ((commBialgCatEquivComonCommAlgCat R).functor.obj A).unop.X :=
   inferInstanceAs <| IsCommMonObj <| op <| CommAlgCat.of R A

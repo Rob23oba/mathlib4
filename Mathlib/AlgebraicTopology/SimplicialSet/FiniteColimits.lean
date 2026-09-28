@@ -21,7 +21,8 @@ open CategoryTheory Limits
 
 namespace SSet
 
-variable {J : Type*} [Category J] [HasColimitsOfShape J (Type u)]
+variable
+  {J : Type*} [Category J] [HasColimitsOfShape J (Type u)]
   {F : J ⥤ SSet.{u}} {c : Cocone F} (hc : IsColimit c)
 
 section
@@ -59,14 +60,12 @@ instance : (⊥_ SSet.{u}).Finite := by
   apply finite_of_isColimit (initialIsInitial (C := SSet.{u}))
   rintro ⟨⟨⟩⟩
 
-instance (X Y : SSet.{u}) [X.Finite] [Y.Finite] :
-    (X ⨿ Y).Finite := by
+instance (X Y : SSet.{u}) [X.Finite] [Y.Finite] : (X ⨿ Y).Finite := by
   apply finite_of_isColimit (coprodIsCoprod X Y)
   rintro ⟨_ | _⟩ <;> dsimp <;> infer_instance
 
-instance {ι : Type v} [Finite ι] (X : ι → SSet.{u}) [HasCoproduct X]
-    [∀ j, (X j).Finite] :
-    (∐ X).Finite := by
+instance {ι : Type v} [Finite ι] (X : ι → SSet.{u}) [HasCoproduct X] [∀ j, (X j).Finite]
+    : (∐ X).Finite := by
   have : HasColimitsOfShape (Discrete ι) (Type u) := by
     obtain ⟨n, ⟨e⟩⟩ := Finite.exists_equiv_fin ι
     exact hasColimitsOfShape_of_equivalence (Discrete.equivalence e.symm)

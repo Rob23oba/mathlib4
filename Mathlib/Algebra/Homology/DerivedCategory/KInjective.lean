@@ -62,7 +62,9 @@ end IsKInjective
 
 namespace HomComplex.CohomologyClass
 
-variable (K L : CochainComplex C ℤ) (n : ℤ)
+variable
+  (K L : CochainComplex C ℤ)
+  (n : ℤ)
   [HasSmallLocalizedShiftedHom.{w} (HomologicalComplex.quasiIso C (.up ℤ)) ℤ K L]
 
 lemma bijective_toSmallShiftedHom_of_isKInjective [L.IsKInjective] :
@@ -78,13 +80,14 @@ lemma bijective_toSmallShiftedHom_of_isKInjective [L.IsKInjective] :
   simp [toHom_mk, ShiftedHom.map]
 
 variable {K L n} in
-/-- When `L` is a K-injective cochain complex, cohomology classes
+/--
+When `L` is a K-injective cochain complex, cohomology classes
 in `CohomologyClass K L n` identify to elements in a type `SmallShiftedHom` relatively
-to quasi-isomorphisms. -/
+to quasi-isomorphisms.
+-/
 @[simps! -isSimp]
-noncomputable def equivOfIsKInjective [L.IsKInjective] :
-    CohomologyClass K L n ≃
-      SmallShiftedHom.{w} (HomologicalComplex.quasiIso C (.up ℤ)) K L n :=
+noncomputable def equivOfIsKInjective [L.IsKInjective]
+    : CohomologyClass K L n ≃ SmallShiftedHom.{w} (HomologicalComplex.quasiIso C (.up ℤ)) K L n :=
   Equiv.ofBijective _ (bijective_toSmallShiftedHom_of_isKInjective _ _ _)
 
 end HomComplex.CohomologyClass

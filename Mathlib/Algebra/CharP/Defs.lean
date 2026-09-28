@@ -32,7 +32,8 @@ namespace CharP
 section AddMonoidWithOne
 variable [AddMonoidWithOne R] (p : ℕ)
 
-/-- The generator of the kernel of the unique homomorphism ℕ → R for a semiring R.
+/--
+The generator of the kernel of the unique homomorphism ℕ → R for a semiring R.
 
 *Warning*: for a semiring `R`, `CharP R 0` and `CharZero R` need not coincide.
 * `CharP R 0` asks that only `0 : ℕ` maps to `0 : R` under the map `ℕ → R`;
@@ -162,8 +163,7 @@ lemma spec : ∀ x : ℕ, (x : R) = 0 ↔ ringChar R ∣ x := by
 lemma eq (p : ℕ) [C : CharP R p] : ringChar R = p :=
   ((Classical.choose_spec (CharP.existsUnique R)).2 p C).symm
 
-instance (priority := low) charP : CharP R (ringChar R) :=
-  ⟨spec R⟩
+instance (priority := low) charP : CharP R (ringChar R) := ⟨spec R⟩
 
 variable {R}
 

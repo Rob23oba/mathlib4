@@ -44,8 +44,8 @@ lemma lintegral_le_edist_mul (f : X →ᵇ ℝ≥0) (μ : Measure X) :
     (∫⁻ x, f x ∂μ) ≤ edist 0 f * (μ Set.univ) :=
   le_trans (lintegral_mono (fun x ↦ ENNReal.coe_le_coe.mpr (f.apply_le_nndist_zero x))) (by simp)
 
-theorem measurable_coe_ennreal_comp [OpensMeasurableSpace X] (f : X →ᵇ ℝ≥0) :
-    Measurable fun x ↦ (f x : ℝ≥0∞) :=
+theorem measurable_coe_ennreal_comp [OpensMeasurableSpace X] (f : X →ᵇ ℝ≥0)
+    : Measurable fun x ↦ (f x : ℝ≥0∞) :=
   measurable_coe_nnreal_ennreal.comp f.continuous.measurable
 
 variable (μ : Measure X) [IsFiniteMeasure μ]
@@ -56,25 +56,29 @@ theorem lintegral_lt_top_of_nnreal (f : X →ᵇ ℝ≥0) : ∫⁻ x, f x ∂μ 
   have key := BoundedContinuousFunction.NNReal.upper_bound f x
   rwa [ENNReal.coe_le_coe]
 
-theorem integrable_of_nnreal [OpensMeasurableSpace X] (f : X →ᵇ ℝ≥0) :
-    Integrable (((↑) : ℝ≥0 → ℝ) ∘ ⇑f) μ := by
+theorem integrable_of_nnreal [OpensMeasurableSpace X] (f : X →ᵇ ℝ≥0)
+    : Integrable (((↑) : ℝ≥0 → ℝ) ∘ ⇑f) μ := by
   refine ⟨(NNReal.continuous_coe.comp f.continuous).measurable.aestronglyMeasurable, ?_⟩
   simp only [hasFiniteIntegral_iff_enorm, Function.comp_apply, NNReal.enorm_eq]
   exact lintegral_lt_top_of_nnreal _ f
 
-theorem integral_eq_integral_nnrealPart_sub [OpensMeasurableSpace X] (f : X →ᵇ ℝ) :
-    ∫ x, f x ∂μ = (∫ x, (f.nnrealPart x : ℝ) ∂μ) - ∫ x, ((-f).nnrealPart x : ℝ) ∂μ := by
-  simp only [f.self_eq_nnrealPart_sub_nnrealPart_neg, Pi.sub_apply, integral_sub,
-             integrable_of_nnreal]
+theorem integral_eq_integral_nnrealPart_sub [OpensMeasurableSpace X] (f : X →ᵇ ℝ)
+    : ∫ x, f x ∂μ = (∫ x, (f.nnrealPart x : ℝ) ∂μ) - ∫ x, ((-f).nnrealPart x : ℝ) ∂μ := by
+  simp only [
+    f.self_eq_nnrealPart_sub_nnrealPart_neg, Pi.sub_apply, integral_sub, integrable_of_nnreal
+  ]
   simp only [Function.comp_apply]
 
-theorem lintegral_of_real_lt_top (f : X →ᵇ ℝ) :
-    ∫⁻ x, ENNReal.ofReal (f x) ∂μ < ∞ := lintegral_lt_top_of_nnreal _ f.nnrealPart
+theorem lintegral_of_real_lt_top (f : X →ᵇ ℝ) : ∫⁻ x, ENNReal.ofReal (f x) ∂μ < ∞ :=
+  lintegral_lt_top_of_nnreal _ f.nnrealPart
 
-theorem toReal_lintegral_coe_eq_integral [OpensMeasurableSpace X] (f : X →ᵇ ℝ≥0) (μ : Measure X) :
-    (∫⁻ x, (f x : ℝ≥0∞) ∂μ).toReal = ∫ x, (f x : ℝ) ∂μ := by
-  rw [integral_eq_lintegral_of_nonneg_ae _ (by simpa [Function.comp_apply] using!
-        (NNReal.continuous_coe.comp f.continuous).measurable.aestronglyMeasurable)]
+theorem toReal_lintegral_coe_eq_integral [OpensMeasurableSpace X] (f : X →ᵇ ℝ≥0) (μ : Measure X)
+    : (∫⁻ x, (f x : ℝ≥0∞) ∂μ).toReal = ∫ x, (f x : ℝ) ∂μ := by
+  rw [
+    integral_eq_lintegral_of_nonneg_ae _ (by
+      simpa [Function.comp_apply] using!
+        (NNReal.continuous_coe.comp f.continuous).measurable.aestronglyMeasurable)
+  ]
   · simp only [ENNReal.ofReal_coe_nnreal]
   · exact Eventually.of_forall (by simp)
 
@@ -195,6 +199,6 @@ lemma tendsto_integral_of_forall_integral_le_liminf_integral {ι : Type*} {L : F
   · exact bdd_above
   · exact bdd_below
 
-end tendsto_integral --section
+end tendsto_integral -- section
 
 end BoundedContinuousFunction

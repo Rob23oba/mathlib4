@@ -36,8 +36,10 @@ namespace Cat
 
 variable (C : Type u) [Category.{v} C]
 
-/-- A category `C` induces a functor from `Cat` to itself defined
-by forming the category of functors out of `C`. -/
+/--
+A category `C` induces a functor from `Cat` to itself defined
+by forming the category of functors out of `C`.
+-/
 @[simps]
 def exp : Cat ⥤ Cat where
   obj D := ↧(C ⥤ D)
@@ -47,8 +49,8 @@ end Cat
 
 section
 
-variable {C : Type u₂} [Category.{v₂} C] {D : Type u₃}
-  [Category.{v₃} D] {E : Type u₄} [Category.{v₄} E]
+variable
+  {C : Type u₂} [Category.{v₂} C] {D : Type u₃} [Category.{v₃} D] {E : Type u₄} [Category.{v₄} E]
 
 /-- The isomorphism of categories of bifunctors given by currying. -/
 @[simps!]
@@ -69,11 +71,14 @@ variable (C : Type u) [Category.{u} C]
 
 instance closed : Closed (Cat.of C) where
   rightAdj := exp C
-  adj := Adjunction.mkOfHomEquiv
-    { homEquiv _ _ := Equiv.trans (Cat.Hom.equivFunctor _ _) (curryingFlipEquiv.symm.trans
-        (Functor.equivCatHom _ _))
+  adj :=
+    Adjunction.mkOfHomEquiv {
+      homEquiv _ _ :=
+        Equiv.trans (Cat.Hom.equivFunctor _ _)
+          (curryingFlipEquiv.symm.trans (Functor.equivCatHom _ _))
       homEquiv_naturality_left_symm _ _ := rfl
-      homEquiv_naturality_right _ _ := rfl }
+      homEquiv_naturality_right _ _ := rfl
+    }
 
 instance cartesianClosed : MonoidalClosed Cat.{u, u} where
   closed C := closed C

@@ -34,8 +34,10 @@ namespace AlgebraicGeometry
 
 variable {X Y Z S : Scheme} (f : X ⟶ S) (g : Y ⟶ S)
 
-/-- We say that a morphism `f : X ⟶ Y` is geometrically connected if for all `Spec K ⟶ Y` with `K`
-a field, `X ×[Y] Spec K` is connected. -/
+/--
+We say that a morphism `f : X ⟶ Y` is geometrically connected if for all `Spec K ⟶ Y` with `K`
+a field, `X ×[Y] Spec K` is connected.
+-/
 @[mk_iff]
 class GeometricallyConnected (f : X ⟶ Y) : Prop where
   geometrically_connectedSpace : geometrically (ConnectedSpace ·) f
@@ -59,8 +61,8 @@ instance (V : S.Opens) [GeometricallyConnected f] : GeometricallyConnected (f �
   MorphismProperty.of_isPullback (isPullback_morphismRestrict ..).flip ‹_›
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (s : S) [GeometricallyConnected f] :
-    GeometricallyConnected (f.fiberToSpecResidueField s) :=
+instance (s : S) [GeometricallyConnected f]
+    : GeometricallyConnected (f.fiberToSpecResidueField s) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 instance (s : S) [GeometricallyConnected f] : ConnectedSpace (f.fiber s) :=
@@ -80,12 +82,14 @@ lemma Scheme.Hom.isConnected_preimage [GeometricallyConnected f] (hf : IsOpenMap
     ?_ hs' hs
   exact (hf.isQuotientMap f.continuous f.surjective).isCoinducing
 
-/-- If `f : X ⟶ S` is geometrically connected and open,
-then `f` induces a homeomorphism between the connected components of `X` and `S`. -/
+/--
+If `f : X ⟶ S` is geometrically connected and open,
+then `f` induces a homeomorphism between the connected components of `X` and `S`.
+-/
 @[simps! apply]
-noncomputable
-def Scheme.Hom.connectedComponentsHomeomorph [GeometricallyConnected f] (hf : IsOpenMap f) :
-    ConnectedComponents X ≃ₜ ConnectedComponents S :=
+noncomputable def Scheme.Hom.connectedComponentsHomeomorph
+    [GeometricallyConnected f] (hf : IsOpenMap f)
+    : ConnectedComponents X ≃ₜ ConnectedComponents S :=
   (hf.isQuotientMap f.continuous f.surjective).isCoinducing.connectedComponentsHomeomorph
     f.isConnected_preimage_singleton
 
@@ -100,12 +104,12 @@ lemma GeometricallyConnected.connectedSpace_of_subsingleton
   have : ConnectedSpace S := ⟨‹_›⟩
   GeometricallyConnected.connectedSpace (f := f) fun _ _ ↦ isOpen_discrete _
 
-instance [GeometricallyConnected f] [UniversallyOpen f] [ConnectedSpace Y] :
-    ConnectedSpace ↥(pullback f g) :=
+instance [GeometricallyConnected f] [UniversallyOpen f] [ConnectedSpace Y]
+    : ConnectedSpace ↥(pullback f g) :=
   GeometricallyConnected.connectedSpace (pullback.snd _ _) (pullback.snd f g).isOpenMap
 
-instance [GeometricallyConnected g] [UniversallyOpen g] [ConnectedSpace X] :
-    ConnectedSpace ↥(pullback f g) :=
+instance [GeometricallyConnected g] [UniversallyOpen g] [ConnectedSpace X]
+    : ConnectedSpace ↥(pullback f g) :=
   GeometricallyConnected.connectedSpace (pullback.fst _ _) (pullback.fst f g).isOpenMap
 
 lemma GeometricallyConnected.iff_geometricallyConnected_fiber :

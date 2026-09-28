@@ -26,42 +26,31 @@ namespace PLift
 
 variable {α : Sort u} {β : Sort v} {f : α → β}
 
-instance [Nonempty α] : Nonempty (PLift α) :=
-  Equiv.plift.nonempty
+instance [Nonempty α] : Nonempty (PLift α) := Equiv.plift.nonempty
 
-instance [Unique α] : Unique (PLift α) :=
-  Equiv.plift.unique
+instance [Unique α] : Unique (PLift α) := Equiv.plift.unique
 
-instance [DecidableEq α] : DecidableEq (PLift α) :=
-  Equiv.plift.decidableEq
+instance [DecidableEq α] : DecidableEq (PLift α) := Equiv.plift.decidableEq
 
-instance [IsEmpty α] : IsEmpty (PLift α) :=
-  Equiv.plift.isEmpty
+instance [IsEmpty α] : IsEmpty (PLift α) := Equiv.plift.isEmpty
 
-theorem up_injective : Injective (@up α) :=
-  Equiv.plift.symm.injective
+theorem up_injective : Injective (@up α) := Equiv.plift.symm.injective
 
-theorem up_surjective : Surjective (@up α) :=
-  Equiv.plift.symm.surjective
+theorem up_surjective : Surjective (@up α) := Equiv.plift.symm.surjective
 
-theorem up_bijective : Bijective (@up α) :=
-  Equiv.plift.symm.bijective
+theorem up_bijective : Bijective (@up α) := Equiv.plift.symm.bijective
 
 theorem up_inj {x y : α} : up x = up y ↔ x = y := by simp
 
-theorem down_surjective : Surjective (@down α) :=
-  Equiv.plift.surjective
+theorem down_surjective : Surjective (@down α) := Equiv.plift.surjective
 
-theorem down_bijective : Bijective (@down α) :=
-  Equiv.plift.bijective
+theorem down_bijective : Bijective (@down α) := Equiv.plift.bijective
 
 -- This is not a good simp lemma, as its discrimination tree key is just an arrow.
-theorem «forall» {p : PLift α → Prop} : (∀ x, p x) ↔ ∀ x : α, p (PLift.up x) :=
-  up_surjective.forall
+theorem «forall» {p : PLift α → Prop} : (∀ x, p x) ↔ ∀ x : α, p (PLift.up x) := up_surjective.forall
 
 @[simp]
-theorem «exists» {p : PLift α → Prop} : (∃ x, p x) ↔ ∃ x : α, p (PLift.up x) :=
-  up_surjective.exists
+theorem «exists» {p : PLift α → Prop} : (∃ x, p x) ↔ ∃ x : α, p (PLift.up x) := up_surjective.exists
 
 @[simp] lemma map_injective : Injective (PLift.map f) ↔ Injective f :=
   (Injective.of_comp_iff' _ down_bijective).trans <| up_injective.of_comp_iff _
@@ -78,42 +67,31 @@ namespace ULift
 
 variable {α : Type u} {β : Type v} {f : α → β}
 
-instance [Nonempty α] : Nonempty (ULift α) :=
-  Equiv.ulift.nonempty
+instance [Nonempty α] : Nonempty (ULift α) := Equiv.ulift.nonempty
 
-instance [Unique α] : Unique (ULift α) :=
-  Equiv.ulift.unique
+instance [Unique α] : Unique (ULift α) := Equiv.ulift.unique
 
-instance [DecidableEq α] : DecidableEq (ULift α) :=
-  Equiv.ulift.decidableEq
+instance [DecidableEq α] : DecidableEq (ULift α) := Equiv.ulift.decidableEq
 
-instance [IsEmpty α] : IsEmpty (ULift α) :=
-  Equiv.ulift.isEmpty
+instance [IsEmpty α] : IsEmpty (ULift α) := Equiv.ulift.isEmpty
 
-theorem up_injective : Injective (@up α) :=
-  Equiv.ulift.symm.injective
+theorem up_injective : Injective (@up α) := Equiv.ulift.symm.injective
 
-theorem up_surjective : Surjective (@up α) :=
-  Equiv.ulift.symm.surjective
+theorem up_surjective : Surjective (@up α) := Equiv.ulift.symm.surjective
 
-theorem up_bijective : Bijective (@up α) :=
-  Equiv.ulift.symm.bijective
+theorem up_bijective : Bijective (@up α) := Equiv.ulift.symm.bijective
 
 theorem up_inj {x y : α} : up x = up y ↔ x = y := by simp
 
-theorem down_surjective : Surjective (@down α) :=
-  Equiv.ulift.surjective
+theorem down_surjective : Surjective (@down α) := Equiv.ulift.surjective
 
-theorem down_bijective : Bijective (@down α) :=
-  Equiv.ulift.bijective
+theorem down_bijective : Bijective (@down α) := Equiv.ulift.bijective
 
 @[simp]
-theorem «forall» {p : ULift α → Prop} : (∀ x, p x) ↔ ∀ x : α, p (ULift.up x) :=
-  up_surjective.forall
+theorem «forall» {p : ULift α → Prop} : (∀ x, p x) ↔ ∀ x : α, p (ULift.up x) := up_surjective.forall
 
 @[simp]
-theorem «exists» {p : ULift α → Prop} : (∃ x, p x) ↔ ∃ x : α, p (ULift.up x) :=
-  up_surjective.exists
+theorem «exists» {p : ULift α → Prop} : (∃ x, p x) ↔ ∃ x : α, p (ULift.up x) := up_surjective.exists
 
 @[simp] lemma map_injective : Injective (ULift.map f : ULift.{u'} α → ULift.{v'} β) ↔ Injective f :=
   (Injective.of_comp_iff' _ down_bijective).trans <| up_injective.of_comp_iff _

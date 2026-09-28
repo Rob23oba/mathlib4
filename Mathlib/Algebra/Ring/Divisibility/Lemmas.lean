@@ -125,14 +125,11 @@ section misc
 variable [Ring R] [LinearOrder R] {x y : R}
 
 @[simp]
-theorem associated_abs_left_iff :
-    Associated |x| y ↔ Associated x y := by
-  obtain h | h := abs_choice x <;>
-  simp [h]
+theorem associated_abs_left_iff : Associated (|x|) y ↔ Associated x y := by
+  obtain h | h := abs_choice x <;> simp [h]
 
 @[simp]
-theorem associated_abs_right_iff :
-    Associated x |y| ↔ Associated x y := by
+theorem associated_abs_right_iff : Associated x |y| ↔ Associated x y := by
   rw [Associated.comm, associated_abs_left_iff, Associated.comm]
 
 alias ⟨_, Associated.abs_left⟩ := associated_abs_left_iff

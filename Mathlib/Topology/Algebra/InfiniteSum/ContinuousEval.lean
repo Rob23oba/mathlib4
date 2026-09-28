@@ -6,7 +6,6 @@ Authors: Weiyi Wang
 module
 
 public import Mathlib.Topology.Algebra.InfiniteSum.Basic
-
 import Mathlib.Data.FunLike.Group
 public import Mathlib.Topology.Hom.ContinuousEvalConst
 
@@ -19,9 +18,10 @@ to e.g. `ContinuousLinearMap`.
 
 public section
 
-variable {α β γ F : Type*} [TopologicalSpace β] [CommMonoid β]
-  [FunLike F α β] [TopologicalSpace F] [CommMonoid F] [ContinuousEvalConst F α β]
-  [IsMulApply F α β] [IsOneApply F α β] {f : γ → F} {g : F} {L : SummationFilter γ}
+variable
+  {α β γ F : Type*} [TopologicalSpace β] [CommMonoid β] [FunLike F α β] [TopologicalSpace F]
+  [CommMonoid F] [ContinuousEvalConst F α β] [IsMulApply F α β] [IsOneApply F α β]
+  {f : γ → F} {g : F} {L : SummationFilter γ}
 
 /-- See also `Pi.hasProd` for bare pi type. -/
 @[to_additive /-- See also `Pi.hasSum` for bare pi type. -/]
@@ -35,6 +35,6 @@ theorem multipliable_apply (hf : Multipliable f L) (x : α) : Multipliable (f ·
 
 /-- See also `Pi.tprod_apply` for bare pi type. -/
 @[to_additive /-- See also `Pi.tsum_apply` for bare pi type. -/]
-theorem tprod_apply [T2Space β] [L.NeBot] (hf : Multipliable f L) (x : α) :
-    (∏'[L] n, f n) x = ∏'[L] n, f n x :=
+theorem tprod_apply [T2Space β] [L.NeBot] (hf : Multipliable f L) (x : α)
+    : (∏'[L] n, f n) x = ∏'[L] n, f n x :=
   hf.map_tprod ((Pi.evalMonoidHom _ x).comp (FunLike.coeMonoidHom F α β)) (continuous_eval_const x)

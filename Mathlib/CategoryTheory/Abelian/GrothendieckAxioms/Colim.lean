@@ -90,23 +90,28 @@ lemma IsColimit.mono_ι_app_of_isFiltered
 
 section
 
-variable [HasColimitsOfShape J C] [HasExactColimitsOfShape J C] [HasZeroMorphisms C]
+variable
+  [HasColimitsOfShape J C] [HasExactColimitsOfShape J C] [HasZeroMorphisms C]
   (S : ShortComplex (J ⥤ C)) (hS : S.Exact)
-  {c₁ : Cocone S.X₁} (hc₁ : IsColimit c₁) (c₂ : Cocone S.X₂) (hc₂ : IsColimit c₂)
+  {c₁ : Cocone S.X₁} (hc₁ : IsColimit c₁)
+  (c₂ : Cocone S.X₂) (hc₂ : IsColimit c₂)
   (c₃ : Cocone S.X₃) (hc₃ : IsColimit c₃)
-  (f : c₁.pt ⟶ c₂.pt) (g : c₂.pt ⟶ c₃.pt)
-  (hf : ∀ j, c₁.ι.app j ≫ f = S.f.app j ≫ c₂.ι.app j)
+  (f : c₁.pt ⟶ c₂.pt) (g : c₂.pt ⟶ c₃.pt) (hf : ∀ j, c₁.ι.app j ≫ f = S.f.app j ≫ c₂.ι.app j)
   (hg : ∀ j, c₂.ι.app j ≫ g = S.g.app j ≫ c₃.ι.app j)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `S : ShortComplex (J ⥤ C)` and (colimit) cocones for `S.X₁`, `S.X₂`,
+/--
+Given `S : ShortComplex (J ⥤ C)` and (colimit) cocones for `S.X₁`, `S.X₂`,
 `S.X₃` equipped with suitable data, this is the induced
-short complex `c₁.pt ⟶ c₂.pt ⟶ c₃.pt`. -/
+short complex `c₁.pt ⟶ c₂.pt ⟶ c₃.pt`.
+-/
 @[simps]
 def colim.mapShortComplex : ShortComplex C :=
-  ShortComplex.mk f g (hc₁.hom_ext (fun j ↦ by
-    rw [reassoc_of% (hf j), hg j, comp_zero, ← NatTrans.comp_app_assoc, S.zero,
-      zero_app, zero_comp]))
+  ShortComplex.mk f g
+    (hc₁.hom_ext (fun j ↦ by
+      rw [
+        reassoc_of% (hf j), hg j, comp_zero, ← NatTrans.comp_app_assoc, S.zero, zero_app, zero_comp
+      ]))
 
 variable {S c₂ c₃}
 
@@ -146,18 +151,18 @@ open MorphismProperty
 
 variable (J C) in
 instance isStableUnderColimitsOfShape_monomorphisms
-    [HasColimitsOfShape J C] [(colim : (J ⥤ C) ⥤ C).PreservesMonomorphisms] :
-    (monomorphisms C).IsStableUnderColimitsOfShape J where
+    [HasColimitsOfShape J C] [(colim : (J ⥤ C) ⥤ C).PreservesMonomorphisms]
+    : (monomorphisms C).IsStableUnderColimitsOfShape J where
   condition X₁ X₂ c₁ c₂ hc₁ hc₂ f hf φ hφ := by
     have (j : J) : Mono (f.app j) := hf _
     have := NatTrans.mono_of_mono_app f
     apply colim.map_mono' f hc₁ hc₂ φ (by simp [hφ])
 
-instance [HasCoproducts.{u'} C] [AB4OfSize.{u'} C] :
-    IsStableUnderCoproducts.{u'} (monomorphisms C) where
+instance [HasCoproducts.{u'} C] [AB4OfSize.{u'} C]
+  : IsStableUnderCoproducts.{u'} (monomorphisms C) where
 
-instance [HasFilteredColimitsOfSize.{v', u'} C] [AB5OfSize.{v', u'} C] :
-    IsStableUnderFilteredColimits.{v', u'} (monomorphisms C) where
+instance [HasFilteredColimitsOfSize.{v', u'} C] [AB5OfSize.{v', u'} C]
+    : IsStableUnderFilteredColimits.{v', u'} (monomorphisms C) where
   isStableUnderColimitsOfShape J _ _ := by infer_instance
 
 end MorphismProperty

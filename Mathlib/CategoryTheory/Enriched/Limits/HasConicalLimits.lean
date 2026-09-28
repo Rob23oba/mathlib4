@@ -50,9 +50,7 @@ variable (V : outParam <| Type u') [Category.{v'} V] [MonoidalCategory V]
 variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
 variable {C} in
-/--
-`HasConicalLimit F` represents the mere existence of a conical limit for `F`.
--/
+/-- `HasConicalLimit F` represents the mere existence of a conical limit for `F`. -/
 class HasConicalLimit (F : J ⥤ C) : Prop extends HasLimit F where
   preservesLimit_eCoyoneda (X : C) : PreservesLimit F (eCoyoneda V X) := by infer_instance
 
@@ -83,8 +81,10 @@ class HasConicalLimitsOfSize : Prop where
 
 attribute [instance] HasConicalLimitsOfSize.hasConicalLimitsOfShape
 
-/-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
-hom-sets. -/
+/--
+`C` has all (small) conical limits if it has limits of every shape that is as big as its
+hom-sets.
+-/
 abbrev HasConicalLimits : Prop := HasConicalLimitsOfSize.{v, v} V C
 
 end Definitions
@@ -104,8 +104,8 @@ lemma HasConicalLimit.of_iso {F G : J ⥤ C} [HasConicalLimit V F] (e : F ≅ G)
   toHasLimit := hasLimit_of_iso e
   preservesLimit_eCoyoneda X := preservesLimit_of_iso_diagram (eCoyoneda V X) e
 
-instance HasConicalLimit.of_equiv (F : J ⥤ C) [HasConicalLimit V F]
-    (G : J' ⥤ J) [G.IsEquivalence] : HasConicalLimit V (G ⋙ F) where
+instance HasConicalLimit.of_equiv (F : J ⥤ C) [HasConicalLimit V F] (G : J' ⥤ J) [G.IsEquivalence]
+  : HasConicalLimit V (G ⋙ F) where
 
 /-- If a `G ⋙ F` has a limit, and `G` is an equivalence, we can construct a limit of `F`. -/
 lemma HasConicalLimit.of_equiv_comp (F : J ⥤ C) (G : J' ⥤ J) [G.IsEquivalence]
@@ -117,8 +117,8 @@ variable (C)
 
 variable (J) in
 /-- existence of conical limits (of shape) implies existence of limits (of shape) -/
-instance HasConicalLimitsOfShape.hasLimitsOfShape [HasConicalLimitsOfShape J V C] :
-    HasLimitsOfShape J C where
+instance HasConicalLimitsOfShape.hasLimitsOfShape [HasConicalLimitsOfShape J V C]
+  : HasLimitsOfShape J C where
 
 /-- We can transport conical limits of shape `J'` along an equivalence `J' ≌ J`. -/
 lemma HasConicalLimitsOfShape.of_equiv [HasConicalLimitsOfShape J' V C]
@@ -126,8 +126,8 @@ lemma HasConicalLimitsOfShape.of_equiv [HasConicalLimitsOfShape J' V C]
   hasConicalLimit F := HasConicalLimit.of_equiv_comp V F G
 
 /-- existence of conical limits (of size) implies existence of limits (of size) -/
-instance HasConicalLimitsOfSize.hasLimitsOfSize [HasConicalLimitsOfSize.{v₁, u₁} V C] :
-    HasLimitsOfSize.{v₁, u₁} C where
+instance HasConicalLimitsOfSize.hasLimitsOfSize [HasConicalLimitsOfSize.{v₁, u₁} V C]
+  : HasLimitsOfSize.{v₁, u₁} C where
 
 /-- ensure existence of (small) conical limits implies existence of (small) limits -/
 example [HasConicalLimits V C] : HasLimits C := inferInstance

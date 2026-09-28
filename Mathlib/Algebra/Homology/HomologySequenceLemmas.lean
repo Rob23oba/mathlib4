@@ -32,21 +32,24 @@ for `φ.τ₁` and `φ.τ₂` shall also be obtained (TODO).
 
 open CategoryTheory ComposableArrows Abelian
 
-variable {C ι : Type*} [Category* C] [Abelian C] {c : ComplexShape ι}
-  {S S₁ S₂ : ShortComplex (HomologicalComplex C c)} (φ : S₁ ⟶ S₂)
-  (hS₁ : S₁.ShortExact) (hS₂ : S₂.ShortExact)
+variable
+  {C ι : Type*} [Category* C] [Abelian C]
+  {c : ComplexShape ι} {S S₁ S₂ : ShortComplex (HomologicalComplex C c)}
+  (φ : S₁ ⟶ S₂) (hS₁ : S₁.ShortExact) (hS₂ : S₂.ShortExact)
 
 namespace HomologicalComplex
 
 namespace HomologySequence
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The morphism `snakeInput hS₁ i j hij ⟶ snakeInput hS₂ i j hij` induced by
+/--
+The morphism `snakeInput hS₁ i j hij ⟶ snakeInput hS₂ i j hij` induced by
 a morphism `φ : S₁ ⟶ S₂` of short complexes of homological complexes, that
-are short exact (`hS₁ : S₁.ShortExact` and `hS₂ : S₁.ShortExact`). -/
+are short exact (`hS₁ : S₁.ShortExact` and `hS₂ : S₁.ShortExact`).
+-/
 @[simps]
-noncomputable def mapSnakeInput (i j : ι) (hij : c.Rel i j) :
-    snakeInput hS₁ i j hij ⟶ snakeInput hS₂ i j hij where
+noncomputable def mapSnakeInput (i j : ι) (hij : c.Rel i j)
+    : snakeInput hS₁ i j hij ⟶ snakeInput hS₂ i j hij where
   f₀ := (homologyFunctor C c i).mapShortComplex.map φ
   f₁ := (opcyclesFunctor C c i).mapShortComplex.map φ
   f₂ := (cyclesFunctor C c j).mapShortComplex.map φ
@@ -69,13 +72,15 @@ lemma composableArrows₂_exact (hS₁ : S₁.ShortExact) (i : ι) :
     (composableArrows₂ S₁ i).Exact :=
   (hS₁.homology_exact₂ i).exact_toComposableArrows
 
-/-- The (exact) sequence
+/--
+The (exact) sequence
 `H_i(S.X₁) ⟶ H_i(S.X₂) ⟶ H_i(S.X₃) ⟶ H_j(S.X₁) ⟶ H_j(S.X₂) ⟶ H_j(S.X₃)` when `c.Rel i j`
-and `S` is a short exact short complex of homological complexes in an abelian category. -/
+and `S` is a short exact short complex of homological complexes in an abelian category.
+-/
 @[simp]
 noncomputable def composableArrows₅ (i j : ι) (hij : c.Rel i j) : ComposableArrows C 5 :=
-  mk₅ (homologyMap S₁.f i) (homologyMap S₁.g i) (hS₁.δ i j hij)
-    (homologyMap S₁.f j) (homologyMap S₁.g j)
+  mk₅ (homologyMap S₁.f i) (homologyMap S₁.g i) (hS₁.δ i j hij) (homologyMap S₁.f j)
+    (homologyMap S₁.g j)
 
 lemma composableArrows₅_exact (i j : ι) (hij : c.Rel i j) :
     (composableArrows₅ hS₁ i j hij).Exact :=
@@ -85,29 +90,32 @@ lemma composableArrows₅_exact (i j : ι) (hij : c.Rel i j) :
         (hS₁.homology_exact₂ j).exact_toComposableArrows))
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The map between the exact sequences `S₁.X₁.homology i ⟶ S₁.X₂.homology i ⟶ S₁.X₃.homology i`
-and `S₂.X₁.homology i ⟶ S₂.X₂.homology i ⟶ S₂.X₃.homology i` that is induced by `φ : S₁ ⟶ S₂`. -/
+/--
+The map between the exact sequences `S₁.X₁.homology i ⟶ S₁.X₂.homology i ⟶ S₁.X₃.homology i`
+and `S₂.X₁.homology i ⟶ S₂.X₂.homology i ⟶ S₂.X₃.homology i` that is induced by `φ : S₁ ⟶ S₂`.
+-/
 @[simp]
 noncomputable def mapComposableArrows₂ (i : ι) : composableArrows₂ S₁ i ⟶ composableArrows₂ S₂ i :=
-  homMk₂ (homologyMap φ.τ₁ i) (homologyMap φ.τ₂ i) (homologyMap φ.τ₃ i) (by
-    dsimp
-    simp only [← homologyMap_comp, φ.comm₁₂]) (by
-    dsimp [Precomp.map]
-    simp only [← homologyMap_comp, φ.comm₂₃])
+  homMk₂ (homologyMap φ.τ₁ i) (homologyMap φ.τ₂ i) (homologyMap φ.τ₃ i)
+    (by
+      dsimp
+      simp only [← homologyMap_comp, φ.comm₁₂])
+    (by
+      dsimp [Precomp.map]
+      simp only [← homologyMap_comp, φ.comm₂₃])
 
-/-- The map `composableArrows₅ hS₁ i j hij ⟶ composableArrows₅ hS₂ i j hij` of exact
+/--
+The map `composableArrows₅ hS₁ i j hij ⟶ composableArrows₅ hS₂ i j hij` of exact
 sequences induced by a morphism `φ : S₁ ⟶ S₂` between short exact short complexes of
-homological complexes. -/
+homological complexes.
+-/
 @[simp]
-noncomputable def mapComposableArrows₅ (i j : ι) (hij : c.Rel i j) :
-    composableArrows₅ hS₁ i j hij ⟶ composableArrows₅ hS₂ i j hij :=
-  homMk₅ (homologyMap φ.τ₁ i) (homologyMap φ.τ₂ i) (homologyMap φ.τ₃ i)
-    (homologyMap φ.τ₁ j) (homologyMap φ.τ₂ j) (homologyMap φ.τ₃ j)
-    (naturality' (mapComposableArrows₂ φ i) 0 1)
-    (naturality' (mapComposableArrows₂ φ i) 1 2)
-    (δ_naturality φ hS₁ hS₂ i j hij)
-    (naturality' (mapComposableArrows₂ φ j) 0 1)
-    (naturality' (mapComposableArrows₂ φ j) 1 2)
+noncomputable def mapComposableArrows₅ (i j : ι) (hij : c.Rel i j)
+    : composableArrows₅ hS₁ i j hij ⟶ composableArrows₅ hS₂ i j hij :=
+  homMk₅ (homologyMap φ.τ₁ i) (homologyMap φ.τ₂ i) (homologyMap φ.τ₃ i) (homologyMap φ.τ₁ j)
+    (homologyMap φ.τ₂ j) (homologyMap φ.τ₃ j) (naturality' (mapComposableArrows₂ φ i) 0 1)
+    (naturality' (mapComposableArrows₂ φ i) 1 2) (δ_naturality φ hS₁ hS₂ i j hij)
+    (naturality' (mapComposableArrows₂ φ j) 0 1) (naturality' (mapComposableArrows₂ φ j) 1 2)
 
 include hS₁ hS₂
 

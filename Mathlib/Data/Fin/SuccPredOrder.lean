@@ -19,11 +19,11 @@ to a specific `Fin` instance.
 
 public section
 
-
 namespace Fin
 
 instance : ∀ {n : ℕ}, SuccOrder (Fin n)
-  | 0 => by constructor <;> intro a <;> exact elim0 a
+  | 0 => by
+    constructor <;> intro a <;> exact elim0 a
   | n + 1 =>
     SuccOrder.ofCore (Fin.lastCases (Fin.last n) Fin.succ)
       (fun {i} hi j ↦ by
@@ -50,10 +50,10 @@ lemma orderSucc_castSucc {n : ℕ} (i : Fin n) :
   simp [orderSucc_apply]
 
 instance : ∀ {n : ℕ}, PredOrder (Fin n)
-  | 0 => by constructor <;> first | intro a; exact elim0 a
+  | 0 => by
+    constructor <;> first | intro a; exact elim0 a
   | n + 1 =>
-    PredOrder.ofCore
-      (Fin.cases 0 Fin.castSucc)
+    PredOrder.ofCore (Fin.cases 0 Fin.castSucc)
       (fun {i} hi j ↦ by
         obtain ⟨i, rfl⟩ := Fin.eq_succ_of_ne_zero (by simpa using! hi)
         simp [le_castSucc_iff])

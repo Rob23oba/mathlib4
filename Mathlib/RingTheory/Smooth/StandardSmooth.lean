@@ -97,8 +97,9 @@ An `R`-algebra `S` is called standard smooth of relative dimension `n`, if there
 a submersive presentation of dimension `n`.
 -/
 class IsStandardSmoothOfRelativeDimension : Prop where
-  out : ∃ (ι σ : Type) (_ : Finite σ) (_ : Finite ι) (P : SubmersivePresentation R S ι σ),
-    P.dimension = n
+  out
+    : ∃ (ι σ : Type) (_ : Finite σ) (_ : Finite ι) (P : SubmersivePresentation R S ι σ),
+      P.dimension = n
 
 variable {R S ι σ n} in
 lemma SubmersivePresentation.isStandardSmoothOfRelativeDimension [Finite ι]
@@ -122,8 +123,7 @@ lemma IsStandardSmoothOfRelativeDimension.of_algebraMap_bijective
     SubmersivePresentation.ofBijectiveAlgebraMap h, Presentation.ofBijectiveAlgebraMap_dimension h⟩
 
 variable (R) in
-instance IsStandardSmoothOfRelativeDimension.id :
-    IsStandardSmoothOfRelativeDimension 0 R R :=
+instance IsStandardSmoothOfRelativeDimension.id : IsStandardSmoothOfRelativeDimension 0 R R :=
   IsStandardSmoothOfRelativeDimension.of_algebraMap_bijective Function.bijective_id
 
 variable (R) in
@@ -134,19 +134,20 @@ lemma IsStandardSmoothOfRelativeDimension.mvPolynomial [Finite ι] :
   (SubmersivePresentation.mvPolynomial.{0} R ι).isStandardSmoothOfRelativeDimension
     (Presentation.dimension_mvPolynomial)
 
-/-- The polynomial algebra `MvPolynomial (Fin n) R` is standard smooth over `R` of relative
-dimension `n`. -/
-instance IsStandardSmoothOfRelativeDimension.mvPolynomial_fin {n : ℕ} :
-    IsStandardSmoothOfRelativeDimension n R (MvPolynomial (Fin n) R) := by
+/--
+The polynomial algebra `MvPolynomial (Fin n) R` is standard smooth over `R` of relative
+dimension `n`.
+-/
+instance IsStandardSmoothOfRelativeDimension.mvPolynomial_fin {n : ℕ}
+    : IsStandardSmoothOfRelativeDimension n R (MvPolynomial (Fin n) R) := by
   simpa using IsStandardSmoothOfRelativeDimension.mvPolynomial R (Fin n)
 
 /-- The polynomial algebra `MvPolynomial ι R` is standard smooth over `R` when `ι` is finite. -/
-instance IsStandardSmooth.mvPolynomial [Finite ι] :
-    IsStandardSmooth R (MvPolynomial ι R) :=
-  IsStandardSmoothOfRelativeDimension.mvPolynomial R ι|>.isStandardSmooth
+instance IsStandardSmooth.mvPolynomial [Finite ι] : IsStandardSmooth R (MvPolynomial ι R) :=
+  IsStandardSmoothOfRelativeDimension.mvPolynomial R ι |>.isStandardSmooth
 
-instance (priority := 100) IsStandardSmooth.finitePresentation [IsStandardSmooth R S] :
-    FinitePresentation R S := by
+instance (priority := 100) IsStandardSmooth.finitePresentation [IsStandardSmooth R S]
+    : FinitePresentation R S := by
   obtain ⟨_, _, _, _, ⟨P⟩⟩ := ‹IsStandardSmooth R S›
   exact P.finitePresentation_of_isFinite
 
@@ -196,15 +197,13 @@ section BaseChange
 
 variable (T) [CommRing T] [Algebra R T]
 
-instance IsStandardSmooth.baseChange [IsStandardSmooth R S] :
-    IsStandardSmooth T (T ⊗[R] S) where
+instance IsStandardSmooth.baseChange [IsStandardSmooth R S] : IsStandardSmooth T (T ⊗[R] S) where
   out := by
     obtain ⟨ι, σ, _, _, ⟨P⟩⟩ := ‹IsStandardSmooth R S›
     exact ⟨ι, σ, _, inferInstance, ⟨P.baseChange T⟩⟩
 
-instance IsStandardSmoothOfRelativeDimension.baseChange
-    [IsStandardSmoothOfRelativeDimension n R S] :
-    IsStandardSmoothOfRelativeDimension n T (T ⊗[R] S) where
+instance IsStandardSmoothOfRelativeDimension.baseChange [IsStandardSmoothOfRelativeDimension n R S]
+    : IsStandardSmoothOfRelativeDimension n T (T ⊗[R] S) where
   out := by
     obtain ⟨_, _, _, _, P, hP⟩ := ‹IsStandardSmoothOfRelativeDimension n R S›
     exact ⟨_, _, _, inferInstance, P.baseChange T, hP⟩

@@ -40,8 +40,8 @@ variable {α ε : Type u} {m : Type u → Type v} (x : ExceptT ε m α)
 attribute [simp] run_bind
 
 @[simp]
-theorem run_monadLift {n} [Monad m] [MonadLiftT n m] (x : n α) :
-    (monadLift x : ExceptT ε m α).run = Except.ok <$> (monadLift x : m α) :=
+theorem run_monadLift {n} [Monad m] [MonadLiftT n m] (x : n α)
+    : (monadLift x : ExceptT ε m α).run = Except.ok <$> (monadLift x : m α) :=
   rfl
 
 end ExceptT

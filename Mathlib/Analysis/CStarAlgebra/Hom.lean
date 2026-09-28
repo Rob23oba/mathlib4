@@ -65,14 +65,14 @@ lemma IsSelfAdjoint.map_quasispectrum_real {F A B : Type*}
 
 section OrderEmbedding
 
-variable {F A B : Type*}
-    [NonUnitalCStarAlgebra A] [PartialOrder A] [StarOrderedRing A]
-    [NonUnitalCStarAlgebra B] [PartialOrder B] [StarOrderedRing B]
-    [FunLike F A B] [NonUnitalAlgHomClass F ℂ A B] [StarHomClass F A B]
+variable
+  {F A B : Type*} [NonUnitalCStarAlgebra A] [PartialOrder A] [StarOrderedRing A]
+  [NonUnitalCStarAlgebra B] [PartialOrder B] [StarOrderedRing B] [FunLike F A B]
+  [NonUnitalAlgHomClass F ℂ A B] [StarHomClass F A B]
 
 /-- A non-unital star monomorphism between C⋆-algebras is an order embedding. -/
-def NonUnitalStarAlgHom.toOrderEmbedding (φ : A →⋆ₙₐ[ℂ] B) (hφ : Function.Injective φ) :
-    A ↪o B where
+def NonUnitalStarAlgHom.toOrderEmbedding (φ : A →⋆ₙₐ[ℂ] B) (hφ : Function.Injective φ)
+    : A ↪o B where
   toFun := φ
   inj' := hφ
   map_rel_iff' {a b} := by

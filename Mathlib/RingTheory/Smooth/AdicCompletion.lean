@@ -22,8 +22,10 @@ universe u v
 
 namespace Algebra.FormallySmooth
 
-variable {R A : Type*} [CommRing R] [CommRing A] [Algebra R A]
-  {S : Type*} [CommRing S] [Algebra R S] (I : Ideal S) (f : A →ₐ[R] S ⧸ I)
+variable
+  {R A : Type*} [CommRing R] [CommRing A] [Algebra R A]
+  {S : Type*} [CommRing S] [Algebra R S]
+  (I : Ideal S) (f : A →ₐ[R] S ⧸ I)
 
 open RingHom
 
@@ -37,14 +39,15 @@ noncomputable def liftAdicCompletionAux : (m : ℕ) → A →ₐ[R] S ⧸ (I ^ m
   | 0 =>
     haveI : Subsingleton (S ⧸ I ^ 0) := by simp
     default
-  | 1 => (Ideal.quotientEquivAlgOfEq R (show I = I ^ 1 by simp)).toAlgHom.comp f
+  | 1 =>
+    (Ideal.quotientEquivAlgOfEq R (show I = I ^ 1 by simp)).toAlgHom.comp f
   | m + 2 =>
     letI T := S ⧸ I ^ (m + 1 + 1)
     letI J : Ideal T := (I ^ (m + 1)).map (Ideal.Quotient.mkₐ R (I ^ (m + 1 + 1)))
     letI q : A →ₐ[R] T ⧸ J :=
       (DoubleQuot.quotQuotEquivQuotOfLEₐ R
-        (Ideal.pow_le_pow_right (I := I) (m + 1).le_succ)).symm.toAlgHom.comp
-      (liftAdicCompletionAux (m + 1))
+          (Ideal.pow_le_pow_right (I := I) (m + 1).le_succ)).symm.toAlgHom.comp
+        (liftAdicCompletionAux (m + 1))
     haveI : J ^ (m + 1 + 1) = 0 := by
       rw [← Ideal.map_pow, Submodule.zero_eq_bot, ← pow_mul]
       exact eq_bot_mono (Ideal.map_mono <| Ideal.pow_le_pow_right (by simp))

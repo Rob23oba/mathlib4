@@ -40,8 +40,10 @@ namespace Nat
 ### `s`-factored numbers
 -/
 
-/-- `factoredNumbers s`, for a finite set `s` of natural numbers, is the set of positive natural
-numbers all of whose prime factors are in `s`. -/
+/--
+`factoredNumbers s`, for a finite set `s` of natural numbers, is the set of positive natural
+numbers all of whose prime factors are in `s`.
+-/
 def factoredNumbers (s : Finset ℕ) : Set ℕ := {m | m ≠ 0 ∧ ∀ p ∈ primeFactorsList m, p ∈ s}
 
 lemma mem_factoredNumbers {s : Finset ℕ} {m : ℕ} :
@@ -191,26 +193,32 @@ lemma factoredNumbers.map_prime_pow_mul {F : Type*} [Mul F] {f : ℕ → F}
 
 set_option backward.isDefEq.respectTransparency false in
 open List Perm in
-/-- We establish the bijection from `ℕ × factoredNumbers s` to `factoredNumbers (s ∪ {p})`
+/--
+We establish the bijection from `ℕ × factoredNumbers s` to `factoredNumbers (s ∪ {p})`
 given by `(e, n) ↦ p^e * n` when `p ∉ s` is a prime. See `Nat.factoredNumbers_insert` for
-when `p` is not prime. -/
-def equivProdNatFactoredNumbers {s : Finset ℕ} {p : ℕ} (hp : p.Prime) (hs : p ∉ s) :
-    ℕ × factoredNumbers s ≃ factoredNumbers (insert p s) where
+when `p` is not prime.
+-/
+def equivProdNatFactoredNumbers {s : Finset ℕ} {p : ℕ} (hp : p.Prime) (hs : p ∉ s)
+    : ℕ × factoredNumbers s ≃ factoredNumbers (insert p s) where
   toFun := fun ⟨e, n⟩ ↦ ⟨p ^ e * n, pow_mul_mem_factoredNumbers hp e n.2⟩
-  invFun := fun ⟨m, _⟩  ↦ (m.factorization p,
-                            ⟨(m.primeFactorsList.filter (· ∈ s)).prod, prod_mem_factoredNumbers ..⟩)
+  invFun := fun ⟨m, _⟩ ↦
+    (m.factorization p, ⟨(m.primeFactorsList.filter (· ∈ s)).prod, prod_mem_factoredNumbers ..⟩)
   left_inv := by
     rintro ⟨e, m, hm₀, hm⟩
     have hpm : ¬ p ∣ m := by grind [mem_primeFactorsList]
     simp only [Prod.mk.injEq, Subtype.mk.injEq]
     constructor
-    · rw [factorization_mul (pow_ne_zero e hp.ne_zero) hm₀, Finsupp.add_apply,
-        factorization_pow_self hp, factorization_eq_zero_of_not_dvd hpm, add_zero]
+    · rw [
+        factorization_mul (pow_ne_zero e hp.ne_zero) hm₀, Finsupp.add_apply,
+        factorization_pow_self hp, factorization_eq_zero_of_not_dvd hpm, add_zero
+      ]
     · conv_rhs => rw [← prod_primeFactorsList hm₀]
       refine prod_eq <|
         (filter _ <| perm_primeFactorsList_mul (pow_ne_zero e hp.ne_zero) hm₀).trans ?_
-      rw [filter_append, hp.primeFactorsList_pow, filter_eq_nil_iff.mpr <| by grind, nil_append,
-        filter_eq_self.mpr <| by grind]
+      rw [
+        filter_append, hp.primeFactorsList_pow, filter_eq_nil_iff.mpr <| by grind, nil_append,
+        filter_eq_self.mpr <| by grind
+      ]
   right_inv := by
     rintro ⟨m, hm₀, hm⟩
     rw [Subtype.mk.injEq, ← primeFactorsList_count_eq, ← prod_replicate, ← prod_append]
@@ -231,13 +239,14 @@ lemma equivProdNatFactoredNumbers_apply' {s : Finset ℕ} {p : ℕ} (hp : p.Prim
     (x : ℕ × factoredNumbers s) :
     equivProdNatFactoredNumbers hp hs x = p ^ x.1 * x.2 := rfl
 
-
 /-!
 ### `n`-smooth numbers
 -/
 
-/-- `smoothNumbers n` is the set of *`n`-smooth positive natural numbers*, i.e., the
-positive natural numbers all of whose prime factors are less than `n`. -/
+/--
+`smoothNumbers n` is the set of *`n`-smooth positive natural numbers*, i.e., the
+positive natural numbers all of whose prime factors are less than `n`.
+-/
 def smoothNumbers (n : ℕ) : Set ℕ := {m | m ≠ 0 ∧ ∀ p ∈ primeFactorsList m, p < n}
 
 lemma mem_smoothNumbers {n m : ℕ} : m ∈ smoothNumbers n ↔ m ≠ 0 ∧ ∀ p ∈ primeFactorsList m, p < n :=
@@ -304,8 +313,9 @@ lemma smoothNumbers_zero : smoothNumbers 0 = {1} := by
   simp only [smoothNumbers_eq_factoredNumbers, Finset.range_zero, factoredNumbers_empty]
 
 /-- The product of two `n`-smooth numbers is an `n`-smooth number. -/
-theorem mul_mem_smoothNumbers {m₁ m₂ n : ℕ}
-    (hm1 : m₁ ∈ n.smoothNumbers) (hm2 : m₂ ∈ n.smoothNumbers) : m₁ * m₂ ∈ n.smoothNumbers := by
+theorem mul_mem_smoothNumbers
+    {m₁ m₂ n : ℕ} (hm1 : m₁ ∈ n.smoothNumbers) (hm2 : m₂ ∈ n.smoothNumbers)
+    : m₁ * m₂ ∈ n.smoothNumbers := by
   rw [smoothNumbers_eq_factoredNumbers] at hm1 hm2 ⊢
   exact mul_mem_factoredNumbers hm1 hm2
 
@@ -362,13 +372,15 @@ lemma map_prime_pow_mul {F : Type*} [Mul F] {f : ℕ → F}
   hmul <| Coprime.pow_left _ <| hp.smoothNumbers_coprime <| Subtype.mem m
 
 open List Perm Equiv in
-/-- We establish the bijection from `ℕ × smoothNumbers p` to `smoothNumbers (p+1)`
+/--
+We establish the bijection from `ℕ × smoothNumbers p` to `smoothNumbers (p+1)`
 given by `(e, n) ↦ p^e * n` when `p` is a prime. See `Nat.smoothNumbers_succ` for
-when `p` is not prime. -/
-def equivProdNatSmoothNumbers {p : ℕ} (hp : p.Prime) :
-    ℕ × smoothNumbers p ≃ smoothNumbers (p + 1) :=
+when `p` is not prime.
+-/
+def equivProdNatSmoothNumbers {p : ℕ} (hp : p.Prime)
+    : ℕ × smoothNumbers p ≃ smoothNumbers (p + 1) :=
   ((prodCongrRight fun _ ↦ Set.equivOfEq <| smoothNumbers_eq_factoredNumbers p).trans <|
-    equivProdNatFactoredNumbers hp Finset.notMem_range_self).trans <|
+      equivProdNatFactoredNumbers hp Finset.notMem_range_self).trans <|
     Set.equivOfEq <| (smoothNumbers_eq_factoredNumbers (p + 1)) ▸ Finset.range_add_one ▸ rfl
 
 @[simp]
@@ -379,7 +391,6 @@ lemma equivProdNatSmoothNumbers_apply {p e m : ℕ} (hp : p.Prime) (hm : m ∈ p
 lemma equivProdNatSmoothNumbers_apply' {p : ℕ} (hp : p.Prime) (x : ℕ × p.smoothNumbers) :
     equivProdNatSmoothNumbers hp x = p ^ x.1 * x.2 := rfl
 
-
 /-!
 ### Smooth and rough numbers up to a bound
 
@@ -388,8 +399,7 @@ and prove bounds for their sizes.
 -/
 
 /-- The `k`-smooth numbers up to and including `N` as a `Finset` -/
-def smoothNumbersUpTo (N k : ℕ) : Finset ℕ :=
-  {n ∈ Finset.range (N + 1) | n ∈ smoothNumbers k}
+def smoothNumbersUpTo (N k : ℕ) : Finset ℕ := {n ∈ Finset.range (N + 1) | n ∈ smoothNumbers k}
 
 lemma mem_smoothNumbersUpTo {N k n : ℕ} :
     n ∈ smoothNumbersUpTo N k ↔ n ≤ N ∧ n ∈ smoothNumbers k := by

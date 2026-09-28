@@ -28,8 +28,7 @@ open scoped Topology
 
 namespace Frullani
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : ℝ → E}
-         {a b c : ℝ} {L R : E}
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : ℝ → E} {a b c : ℝ} {L R : E}
 
 lemma intervalIntegrable_inv_smul (hf : LocallyIntegrableOn f (Ioi 0)) (ha : 0 < a)
     (hb : 0 < b) : IntervalIntegrable (fun x ↦ x⁻¹ • f x) volume a b := by
@@ -172,53 +171,62 @@ lemma tendsto_integral_inv_smul_atTop (hf : LocallyIntegrableOn f (Ioi 0)) (ha :
   rw [dist_eq_norm] at hdist
   exact le_of_lt hdist
 
-/-- **Frullani's integral**, limit form, for functions valued in a complete normed space.
+/--
+**Frullani's integral**, limit form, for functions valued in a complete normed space.
 If `f` is locally integrable on `(0, ∞)` with `f x → L` as `x → 0⁺` and `f x → R` as `x → +∞`,
 and `0 < a` and `0 < b`, then `∫ x in ε..r, x⁻¹ • (f (a * x) - f (b * x)) → log (b / a) • (L - R)`
-as `ε → 0⁺` and `r → +∞`. -/
-theorem tendsto_intervalIntegral (hf : LocallyIntegrableOn f (Ioi 0)) (ha : 0 < a) (hb : 0 < b)
-    (hL : Tendsto f (𝓝[>] 0) (𝓝 L)) (hR : Tendsto f atTop (𝓝 R)) :
-    Tendsto (fun p : ℝ × ℝ ↦ ∫ x in p.1..p.2, x⁻¹ • (f (a * x) - f (b * x)))
+as `ε → 0⁺` and `r → +∞`.
+-/
+theorem tendsto_intervalIntegral
+    (hf : LocallyIntegrableOn f (Ioi 0)) (ha : 0 < a) (hb : 0 < b) (hL : Tendsto f (𝓝[>] 0) (𝓝 L))
+    (hR : Tendsto f atTop (𝓝 R))
+    : Tendsto
+      (fun p : ℝ × ℝ ↦ ∫ x in p.1..p.2, x⁻¹ • (f (a * x) - f (b * x)))
       ((𝓝[>] 0) ×ˢ atTop) (𝓝 (log (b / a) • (L - R))) := by
   let u := fun x ↦ x⁻¹ • f x
   have hint {p q : ℝ} (hp : 0 < p) (hq : 0 < q) : IntervalIntegrable u volume p q :=
     intervalIntegrable_inv_smul hf hp hq
-  have hsplit {ε r : ℝ} (hε : 0 < ε) (hr : 0 < r) :
-      ∫ x in ε..r, x⁻¹ • (f (a * x) - f (b * x)) =
-      (∫ x in (a * ε)..(b * ε), u x) - ∫ x in (a * r)..(b * r), u x := by
-    calc ∫ x in ε..r, x⁻¹ • (f (a * x) - f (b * x))
+  have hsplit {ε r : ℝ} (hε : 0 < ε) (hr : 0 < r)
+      : ∫ x in ε..r, x⁻¹ • (f (a * x) - f (b * x))
+        = (∫ x in (a * ε)..(b * ε), u x) - ∫ x in (a * r)..(b * r), u x := by
+    calc
+      ∫ x in ε..r, x⁻¹ • (f (a * x) - f (b * x))
       _ = (∫ x in ε..r, x⁻¹ • f (a * x)) - ∫ x in ε..r, x⁻¹ • f (b * x) := by
         simp_rw [smul_sub]
         exact integral_sub (intervalIntegrable_inv_smul_comp_mul hf hε hr ha)
           (intervalIntegrable_inv_smul_comp_mul hf hε hr hb)
       _ = (∫ y in a * ε..a * r, u y) - ∫ y in b * ε..b * r, u y := by
         rw [integral_comp_mul_inv_smul ha.ne', integral_comp_mul_inv_smul hb.ne']
-      _ = _ := integral_interval_sub_interval_comm
-                 (hint (mul_pos ha hε) (mul_pos ha hr))
-                 (hint (mul_pos hb hε) (mul_pos hb hr))
-                 (hint (mul_pos ha hε) (mul_pos hb hε))
+      _ = _ :=
+        integral_interval_sub_interval_comm (hint (mul_pos ha hε) (mul_pos ha hr))
+          (hint (mul_pos hb hε) (mul_pos hb hr)) (hint (mul_pos ha hε) (mul_pos hb hε))
   have h_ev : (fun p : ℝ × ℝ ↦ ∫ x in p.1..p.2, x⁻¹ • (f (a * x) - f (b * x))) =ᶠ[(𝓝[>] 0) ×ˢ atTop]
       fun p ↦ (∫ x in (a * p.1)..(b * p.1), u x) - ∫ x in (a * p.2)..(b * p.2), u x := by
     filter_upwards [prod_mem_prod (eventually_nhdsWithin_of_forall fun _ h ↦ h)
       (eventually_atTop.2 ⟨1, fun _ h ↦ lt_of_lt_of_le one_pos h⟩)] with ⟨ε, r⟩ ⟨hε, hr⟩
     exact hsplit hε hr
-  rw [tendsto_congr' h_ev, show log (b / a) • (L - R) =
-    log (b / a) • L - log (b / a) • R from smul_sub _ _ _]
+  rw [
+    tendsto_congr' h_ev,
+    show log (b / a) • (L - R) = log (b / a) • L - log (b / a) • R from smul_sub _ _ _
+  ]
   exact ((tendsto_integral_inv_smul_nhdsWithin hf ha hb hL).comp tendsto_fst).sub
     ((tendsto_integral_inv_smul_atTop hf ha hb hR).comp tendsto_snd)
 
-/-- **Frullani's integral** for functions valued in a complete normed space.
+/--
+**Frullani's integral** for functions valued in a complete normed space.
 If `f` is locally integrable on `(0, ∞)` with `f x → L` as `x → 0⁺` and `f x → R` as `x → +∞`,
 `0 < a` and `0 < b`, and `x ↦ x⁻¹ • (f (a * x) - f (b * x))` is integrable on `(0, ∞)`, then
-`∫ x in Ioi 0, x⁻¹ • (f (a * x) - f (b * x)) = log (b / a) • (L - R)`. -/
-theorem integral_Ioi_eq (hf : LocallyIntegrableOn f (Ioi 0)) (ha : 0 < a) (hb : 0 < b)
-    (hL : Tendsto f (𝓝[>] 0) (𝓝 L)) (hR : Tendsto f atTop (𝓝 R))
-    (hint : IntegrableOn (fun x ↦ x⁻¹ • (f (a * x) - f (b * x))) (Ioi 0)) :
-    ∫ x in Ioi 0, x⁻¹ • (f (a * x) - f (b * x)) = log (b / a) • (L - R) := by
+`∫ x in Ioi 0, x⁻¹ • (f (a * x) - f (b * x)) = log (b / a) • (L - R)`.
+-/
+theorem integral_Ioi_eq
+    (hf : LocallyIntegrableOn f (Ioi 0)) (ha : 0 < a) (hb : 0 < b) (hL : Tendsto f (𝓝[>] 0) (𝓝 L))
+    (hR : Tendsto f atTop (𝓝 R))
+    (hint : IntegrableOn (fun x ↦ x⁻¹ • (f (a * x) - f (b * x))) (Ioi 0))
+    : ∫ x in Ioi 0, x⁻¹ • (f (a * x) - f (b * x)) = log (b / a) • (L - R) := by
   have h_lim := (tendsto_intervalIntegral hf ha hb hL hR).mono_left curry_le_prod
   set g := fun x ↦ x⁻¹ • (f (a * x) - f (b * x)) with hg
-  apply tendsto_nhds_unique
-    (hint.continuousWithinAt_Ici_primitive_Ioi.mono_left (nhdsWithin_mono 0 Ioi_subset_Ici_self))
+  apply tendsto_nhds_unique (hint.continuousWithinAt_Ici_primitive_Ioi.mono_left (nhdsWithin_mono 0
+    Ioi_subset_Ici_self))
   rw [tendsto_nhdsWithin_nhds]
   intro ε hε
   rw [Metric.tendsto_nhds] at h_lim

@@ -33,15 +33,19 @@ namespace CategoryTheory.CardinalDirectedPoset.SetCardinalLT
 
 variable (κ : Cardinal.{u}) (X : Type u)
 
-/-- The surjectivity of this map (see lemma `fromSigma_surjective`) says that
+/--
+The surjectivity of this map (see lemma `fromSigma_surjective`) says that
 if `X` is a type, then any subset of `X` that is of cardinality `< κ` can be obtained
-as the range of a map `κ'.ord.ToType → X` for some `κ' < κ`. -/
-def fromSigma (x : Σ (κ' : Set.Iio κ), κ'.val.ord.ToType → X) : SetCardinalLT κ X :=
-  ⟨Set.range x.2,
-    HasCardinalLT.of_surjective
-      (by simpa only [hasCardinalLT_iff_cardinal_mk_lt,
-        Cardinal.mk_toType, Cardinal.card_ord] using! x.1.prop) _
-      Set.rangeFactorization_surjective⟩
+as the range of a map `κ'.ord.ToType → X` for some `κ' < κ`.
+-/
+def fromSigma (x : Σ (κ' : Set.Iio κ), κ'.val.ord.ToType → X) : SetCardinalLT κ X := ⟨
+  Set.range x.2,
+  HasCardinalLT.of_surjective
+    (by
+      simpa only [hasCardinalLT_iff_cardinal_mk_lt, Cardinal.mk_toType, Cardinal.card_ord] using!
+        x.1.prop)
+    _ Set.rangeFactorization_surjective
+⟩
 
 /-- If `X` is a type, then any subset of `X` that is of cardinality `< κ` can
 be obtained as the range of a map `κ'.ord.ToType → X` for some `κ' < κ`. -/

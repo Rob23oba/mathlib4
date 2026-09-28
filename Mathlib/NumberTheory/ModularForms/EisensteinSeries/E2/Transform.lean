@@ -78,9 +78,17 @@ noncomputable section
 
 namespace EisensteinSeries
 
-/-- This is an auxiliary correction term for proving how E2 transforms. It allows us to work with
-nicer indexing sets for our infinite sums. The key is the `aux_identity` below. -/
-def δ (x : Fin 2 → ℤ) : ℂ := if x = ![0, 0] then 1 else if x = ![0, -1] then 2 else 0
+/--
+This is an auxiliary correction term for proving how E2 transforms. It allows us to work with
+nicer indexing sets for our infinite sums. The key is the `aux_identity` below.
+-/
+def δ (x : Fin 2 → ℤ) : ℂ :=
+  if x = ![0, 0] then
+    1
+  else if x = ![0, -1] then
+    2
+  else
+    0
 
 @[simp]
 lemma δ_eq : δ ![0, 0] = 1 := by simp [δ]
@@ -94,7 +102,7 @@ lemma δ_eventually_cofinite : δ =ᶠ[cofinite] 0 := by
 
 /-- This term gives an alternative infinite sum for G2 which is absolutely convergent. -/
 abbrev G2Term (z : ℍ) (m : Fin 2 → ℤ) : ℂ :=
-    (((m 0 : ℂ) * z + m 1) ^ 2 * (m 0 * z + m 1 + 1))⁻¹ + δ m
+  (((m 0 : ℂ) * z + m 1) ^ 2 * (m 0 * z + m 1 + 1))⁻¹ + δ m
 
 lemma G2Term_summable (z : ℍ) : Summable (G2Term z) := by
   have H : Summable fun m ↦ G2Term z m - δ m := by
@@ -104,7 +112,7 @@ lemma G2Term_summable (z : ℍ) : Summable (G2Term z) := by
       (isBigO_linear_add_const_vec z 0 0)).mul (isBigO_linear_add_const_vec z 0 0)
   exact H.congr_cofinite <| δ_eventually_cofinite.mp <| .of_forall <| by simp +contextual
 
---This is the version we use the most.
+-- This is the version we use the most.
 lemma G2Term_prod_summable (z : ℍ) : Summable (fun p : ℤ × ℤ ↦ G2Term z ![p.1, p.2]) := by
   apply (finTwoArrowEquiv _).symm.summable_iff.mpr (G2Term_summable z)
 
@@ -182,7 +190,6 @@ lemma tsum_G2Term_eq_tsum' (z : ℍ) : ∑' (m : Fin 2 → ℤ), G2Term z m =
   · have H := G2Term_summable z
     rw [← ((finTwoArrowEquiv _).trans (.prodComm ..)).symm.summable_iff] at H
     exact H.prod_factor
-
 
 public section
 

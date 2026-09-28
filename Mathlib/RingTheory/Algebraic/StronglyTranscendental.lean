@@ -28,7 +28,8 @@ open Polynomial
 variable {R S T : Type*} [CommRing R] [CommRing S] [Algebra R S] [CommRing T] [Algebra R T]
 
 variable (R) in
-/-- We say that `x : S` is strongly transcendental over `R` if
+/--
+We say that `x : S` is strongly transcendental over `R` if
 forall `u : S` and all `p : R[X]`, `p(x) * u = 0 → p * u = 0`.
 If `S` is a domain, and `R ⊆ S`, this is equivalent to the image of `x` in `Frac(S)` being
 transcendental over `R`. See `IsStronglyTranscendental.iff_of_isFractionRing`.

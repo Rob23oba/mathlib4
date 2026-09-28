@@ -83,9 +83,11 @@ lemma exists_of_isFiltered :
     (of_equivalence e) (finallySmall_of_final_of_finallySmall e.functor)
   exact ⟨D, inferInstance, inferInstance, F ⋙ e.inverse, inferInstance⟩
 
-/-- If `C` is a locally small filtered finally small category,
+/--
+If `C` is a locally small filtered finally small category,
 this is a small filtered category, equipped with a final functor to `C`
-(see `fromFilteredFinalModel`). -/
+(see `fromFilteredFinalModel`).
+-/
 def FilteredFinalModel : Type w := (exists_of_isFiltered.{w} C).choose
 
 noncomputable instance : Category (FilteredFinalModel.{w} C) :=
@@ -94,8 +96,10 @@ noncomputable instance : Category (FilteredFinalModel.{w} C) :=
 instance : IsFiltered (FilteredFinalModel.{w} C) :=
   (exists_of_isFiltered.{w} C).choose_spec.choose_spec.choose
 
-/-- If `C` is a locally small filtered finally small category,
-this is a final functor from a small filtered category. -/
+/--
+If `C` is a locally small filtered finally small category,
+this is a final functor from a small filtered category.
+-/
 noncomputable def fromFilteredFinalModel : FilteredFinalModel.{w} C ⥤ C :=
   (exists_of_isFiltered.{w} C).choose_spec.choose_spec.choose_spec.choose
 
@@ -121,9 +125,11 @@ lemma exists_of_isCofiltered :
   obtain ⟨D, _, _, F, _⟩ := FinallySmall.exists_of_isFiltered.{w} Cᵒᵖ
   exact ⟨Dᵒᵖ, inferInstance, inferInstance, F.leftOp, inferInstance⟩
 
-/-- If `C` is a locally small cofiltered initially small category,
+/--
+If `C` is a locally small cofiltered initially small category,
 this is a small cofiltered category, equipped with an initial functor to `C`
-(see `fromCofilteredInitialModel`). -/
+(see `fromCofilteredInitialModel`).
+-/
 def CofilteredInitialModel : Type w := (exists_of_isCofiltered.{w} C).choose
 
 noncomputable instance : Category (CofilteredInitialModel.{w} C) :=
@@ -132,8 +138,10 @@ noncomputable instance : Category (CofilteredInitialModel.{w} C) :=
 instance : IsCofiltered (CofilteredInitialModel.{w} C) :=
   (exists_of_isCofiltered.{w} C).choose_spec.choose_spec.choose
 
-/-- If `C` is a locally small cofiltered initially small category,
-this is an initial functor from a small cofiltered category. -/
+/--
+If `C` is a locally small cofiltered initially small category,
+this is an initial functor from a small cofiltered category.
+-/
 noncomputable def fromCofilteredInitialModel : CofilteredInitialModel.{w} C ⥤ C :=
   (exists_of_isCofiltered.{w} C).choose_spec.choose_spec.choose_spec.choose
 

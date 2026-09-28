@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Constructions.Projective
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
-
 import Mathlib.Probability.Distributions.Gaussian.Fernique
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 
@@ -44,7 +43,6 @@ Brownian motion, covariance matrix, projective family
 
 @[expose] public section
 
-
 open MeasureTheory NormedSpace Set WithLp
 open scoped ENNReal NNReal
 
@@ -52,8 +50,10 @@ namespace ProbabilityTheory.BrownianReal
 
 variable {I J : Finset ℝ≥0}
 
-/-- The covariance matrix of the finite dimensional distribution of the Brownian motion
-indexed by `I`. -/
+/--
+The covariance matrix of the finite dimensional distribution of the Brownian motion
+indexed by `I`.
+-/
 def covMatrix (I : Finset ℝ≥0) : Matrix I I ℝ := .of fun s t ↦ min s t
 
 @[simp]
@@ -72,12 +72,14 @@ lemma posSemidef_covMatrix (I : Finset ℝ≥0) :
   exact posSemidef_matrix_measure_inter (fun _ ↦ measurableSet_Icc)
     (fun _ ↦ isCompact_Icc.measure_ne_top)
 
-/-- Each `projectiveFamily I` is the centered Gaussian measure with covariance matrix given
+/--
+Each `projectiveFamily I` is the centered Gaussian measure with covariance matrix given
 by `covMatrix I s t := min s t`.
 
 Note that we build a measure over `I → ℝ` rather than `EuclideanSpace I ℝ`. This is because
 we want to extend this family to a measure over `ℝ≥0 → ℝ` through the Kolmogorov's extension
-theorem, which is phrased in this language. -/
+theorem, which is phrased in this language.
+-/
 noncomputable def projectiveFamily (I : Finset ℝ≥0) : Measure (I → ℝ) :=
   multivariateGaussian 0 (covMatrix I) |>.map (MeasurableEquiv.toLp 2 (I → ℝ)).symm
 
@@ -120,10 +122,11 @@ lemma variance_projectiveFamily (I : Finset ℝ≥0) (f : (I → ℝ) → ℝ) :
   rw [projectiveFamily, variance_map_equiv]
   rfl
 
-instance isGaussian_projectiveFamily (I : Finset ℝ≥0) :
-    IsGaussian (projectiveFamily I) := by
-  rw [projectiveFamily,
-    show ⇑(MeasurableEquiv.toLp 2 (I → ℝ)).symm = ⇑(EuclideanSpace.equiv I ℝ) from rfl]
+instance isGaussian_projectiveFamily (I : Finset ℝ≥0) : IsGaussian (projectiveFamily I) := by
+  rw [
+    projectiveFamily,
+    show ⇑(MeasurableEquiv.toLp 2 (I → ℝ)).symm = ⇑(EuclideanSpace.equiv I ℝ) from rfl
+  ]
   infer_instance
 
 @[simp]

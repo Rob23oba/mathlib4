@@ -57,8 +57,9 @@ variable {S : Type*} [CommRing S] {R' S' : Type*} [CommRing R'] [CommRing S']
 
 section
 
-variable [Algebra R S] [Algebra R R'] [Algebra R' S'] [Algebra S S']
-    [Algebra R S'] [IsScalarTower R S S'] [IsScalarTower R R' S']
+variable
+  [Algebra R S] [Algebra R R'] [Algebra R' S'] [Algebra S S'] [Algebra R S'] [IsScalarTower R S S']
+  [IsScalarTower R R' S']
 
 private lemma comap_ker_eq_sup_of_ker_eq_map (surjRS : Function.Surjective (algebraMap R S))
     (eqmap : RingHom.ker (algebraMap S S') = (RingHom.ker (algebraMap R R')).map (algebraMap R S)) :

@@ -29,9 +29,10 @@ the `Analysis/CStarAlgebra` folder.
 @[expose] public section
 
 /-- A positive linear map is a linear map that is also an order homomorphism. -/
-structure PositiveLinearMap (R E₁ E₂ : Type*) [Semiring R]
-    [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂] [PartialOrder E₂]
-    [Module R E₁] [Module R E₂] extends E₁ →ₗ[R] E₂, E₁ →o E₂
+structure PositiveLinearMap
+  (R E₁ E₂ : Type*) [Semiring R] [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂]
+  [PartialOrder E₂] [Module R E₁] [Module R E₂]
+  extends E₁ →ₗ[R] E₂, E₁ →o E₂
 
 /-- The `OrderHom` underlying a `PositiveLinearMap`. -/
 add_decl_doc PositiveLinearMap.toOrderHom
@@ -41,14 +42,13 @@ notation:25 E " →ₚ[" R:25 "] " F:0 => PositiveLinearMap R E F
 
 section PositiveLinearMapClass
 
-variable {F R E₁ E₂ : Type*} [Semiring R]
-  [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂] [PartialOrder E₂]
-  [Module R E₁] [Module R E₂] [FunLike F E₁ E₂] [LinearMapClass F R E₁ E₂]
-  [OrderHomClass F E₁ E₂]
+variable
+  {F R E₁ E₂ : Type*}
+  [Semiring R] [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂] [PartialOrder E₂]
+  [Module R E₁] [Module R E₂] [FunLike F E₁ E₂] [LinearMapClass F R E₁ E₂] [OrderHomClass F E₁ E₂]
 
 /-- Reinterpret an element of a type of positive linear maps as a positive linear map. -/
-def PositiveLinearMap.ofClass (f : F) : E₁ →ₚ[R] E₂ :=
-  { (f : E₁ →ₗ[R] E₂), (f : E₁ →o E₂) with }
+def PositiveLinearMap.ofClass (f : F) : E₁ →ₚ[R] E₂ := { (f : E₁ →ₗ[R] E₂), (f : E₁ →o E₂) with }
 
 @[deprecated (since := "2026-06-10")]
 alias PositiveLinearMapClass.toPositiveLinearMap := PositiveLinearMap.ofClass
@@ -67,12 +67,10 @@ namespace PositiveLinearMap
 
 section general
 
-variable {R E₁ E₂ E₃ E₄ : Type*} [Semiring R]
-    [AddCommMonoid E₁] [PartialOrder E₁]
-    [AddCommMonoid E₂] [PartialOrder E₂]
-    [AddCommMonoid E₃] [PartialOrder E₃]
-    [AddCommMonoid E₄] [PartialOrder E₄]
-    [Module R E₁] [Module R E₂] [Module R E₃] [Module R E₄]
+variable
+  {R E₁ E₂ E₃ E₄ : Type*} [Semiring R] [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂]
+  [PartialOrder E₂] [AddCommMonoid E₃] [PartialOrder E₃] [AddCommMonoid E₄] [PartialOrder E₄]
+  [Module R E₁] [Module R E₂] [Module R E₃] [Module R E₄]
 
 @[macro_inline]
 instance : FunLike (E₁ →ₚ[R] E₂) E₁ E₂ where
@@ -92,7 +90,8 @@ lemma ext {f g : E₁ →ₚ[R] E₂} (h : ∀ x, f x = g x) : f = g :=
 
 variable (R E₁) in
 /-- The identity as a positive linear map. -/
-@[simps! apply toLinearMap] protected def id : E₁ →ₚ[R] E₁ where
+@[simps! apply toLinearMap]
+protected def id : E₁ →ₚ[R] E₁ where
   __ := LinearMap.id
   __ := OrderHom.id
 
@@ -161,8 +160,9 @@ protected lemma zero_apply (x : E₁) : (0 : E₁ →ₚ[R] E₂) x = 0 := rfl
 variable [IsOrderedAddMonoid E₂]
 
 instance : Add (E₁ →ₚ[R] E₂) where
-  add f g := .mk (f.toLinearMap + g.toLinearMap) fun _ _ h ↦
-    add_le_add (OrderHomClass.mono f h) (OrderHomClass.mono g h)
+  add f g :=
+    .mk (f.toLinearMap + g.toLinearMap) fun _ _ h ↦
+      add_le_add (OrderHomClass.mono f h) (OrderHomClass.mono g h)
 
 @[simp]
 lemma toLinearMap_add (f g : E₁ →ₚ[R] E₂) :
@@ -175,10 +175,11 @@ instance : IsAddApply (E₁ →ₚ[R] E₂) E₁ E₂ where
 protected lemma add_apply (f g : E₁ →ₚ[R] E₂) (x : E₁) : (f + g) x = f x + g x := rfl
 
 instance : SMul ℕ (E₁ →ₚ[R] E₂) where
-  smul n f := .mk (n • f.toLinearMap) fun x y h ↦ by
-    induction n with
-    | zero => simp
-    | succ n ih => simpa [add_nsmul] using add_le_add ih (OrderHomClass.mono f h)
+  smul n f :=
+    .mk (n • f.toLinearMap) fun x y h ↦ by
+      induction n with
+      | zero => simp
+      | succ n ih => simpa [add_nsmul] using add_le_add ih (OrderHomClass.mono f h)
 
 @[simp]
 lemma toLinearMap_nsmul (f : E₁ →ₚ[R] E₂) (n : ℕ) :
@@ -196,20 +197,22 @@ end general
 
 section addgroup
 
-variable {R E₁ E₂ : Type*} [Semiring R]
-  [AddCommGroup E₁] [PartialOrder E₁] [IsOrderedAddMonoid E₁]
-  [AddCommGroup E₂] [PartialOrder E₂] [IsOrderedAddMonoid E₂]
-  [Module R E₁] [Module R E₂]
+variable
+  {R E₁ E₂ : Type*} [Semiring R] [AddCommGroup E₁] [PartialOrder E₁] [IsOrderedAddMonoid E₁]
+  [AddCommGroup E₂] [PartialOrder E₂] [IsOrderedAddMonoid E₂] [Module R E₁] [Module R E₂]
 
-/-- Define a positive map from a linear map that maps nonnegative elements to nonnegative
-elements -/
-def mk₀ (f : E₁ →ₗ[R] E₂) (hf : ∀ x, 0 ≤ x → 0 ≤ f x) : E₁ →ₚ[R] E₂ :=
-  { f with
-    monotone' := by
-      intro a b hab
-      rw [← sub_nonneg] at hab ⊢
-      have : 0 ≤ f (b - a) := hf _ hab
-      simpa using this }
+/--
+Define a positive map from a linear map that maps nonnegative elements to nonnegative
+elements
+-/
+def mk₀ (f : E₁ →ₗ[R] E₂) (hf : ∀ x, 0 ≤ x → 0 ≤ f x) : E₁ →ₚ[R] E₂ := {
+  f with
+  monotone' := by
+    intro a b hab
+    rw [← sub_nonneg] at hab ⊢
+    have : 0 ≤ f (b - a) := hf _ hab
+    simpa using this
+}
 
 end addgroup
 

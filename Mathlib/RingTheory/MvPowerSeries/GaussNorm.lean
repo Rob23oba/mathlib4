@@ -51,18 +51,20 @@ section Semiring
 
 variable [Semiring R]
 
-/-- Given a multivariate power series `f` in, a function `v : R → ℝ` and a tuple `c` of real
-  numbers, the Gauss norm is defined as the supremum of the set of all values of
-  `v (coeff t f) * ∏ i : t.support, c i` for all `t : σ →₀ ℕ`. -/
-noncomputable def gaussNorm : ℝ :=
-   ⨆ t : σ →₀ ℕ, v (coeff t f) * t.prod (c · ^ ·)
+/--
+Given a multivariate power series `f` in, a function `v : R → ℝ` and a tuple `c` of real
+numbers, the Gauss norm is defined as the supremum of the set of all values of
+`v (coeff t f) * ∏ i : t.support, c i` for all `t : σ →₀ ℕ`.
+-/
+noncomputable def gaussNorm : ℝ := ⨆ t : σ →₀ ℕ, v (coeff t f) * t.prod (c · ^ ·)
 
-/-- We say `f` HasGaussNorm if the values `v (coeff t f) * ∏ i : t.support, c i` is bounded above,
-  that is `gaussNorm f` is finite. -/
+/--
+We say `f` HasGaussNorm if the values `v (coeff t f) * ∏ i : t.support, c i` is bounded above,
+that is `gaussNorm f` is finite.
+-/
 abbrev HasGaussNorm := BddAbove (Set.range (fun (t : σ →₀ ℕ) ↦ (v (coeff t f) * t.prod (c · ^ ·))))
 
-@[simp]
-theorem gaussNorm_zero (vZero : v 0 = 0) : gaussNorm v c 0 = 0 := by simp [gaussNorm, vZero]
+@[simp] theorem gaussNorm_zero (vZero : v 0 = 0) : gaussNorm v c 0 = 0 := by simp [gaussNorm, vZero]
 
 lemma le_gaussNorm (hbd : HasGaussNorm v c f) (t : σ →₀ ℕ) :
     v (coeff t f) * t.prod (c · ^ ·) ≤ gaussNorm v c f := by
@@ -166,8 +168,7 @@ end Semiring
 variable [Ring R]
 
 /-- Predicate for when the gaussNorm is achieved by an index. -/
-abbrev AchievesGaussNorm (i : σ →₀ ℕ) : Prop :=
-  v (coeff i f) * i.prod (c · ^ ·) = gaussNorm v c f
+abbrev AchievesGaussNorm (i : σ →₀ ℕ) : Prop := v (coeff i f) * i.prod (c · ^ ·) = gaussNorm v c f
 
 lemma gaussNorm_neg (vNeg : ∀ x, v (-x) = v x) (f : MvPowerSeries σ R) :
     gaussNorm v c (-f) = gaussNorm v c f  := by

@@ -44,8 +44,7 @@ namespace PowerSeries
 variable [CommRing R] [BinomialRing R]
 
 /-- The power series for `(1 + X) ^ r`. -/
-def binomialSeries (A) [One A] [SMul R A] (r : R) : PowerSeries A :=
-  mk fun n => Ring.choose r n • 1
+def binomialSeries (A) [One A] [SMul R A] (r : R) : PowerSeries A := mk fun n => Ring.choose r n • 1
 
 @[simp]
 lemma binomialSeries_coeff [Semiring A] [SMul R A] (r : R) (n : ℕ) :

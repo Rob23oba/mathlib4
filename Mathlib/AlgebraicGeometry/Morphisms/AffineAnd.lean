@@ -36,10 +36,11 @@ section
 
 variable (Q : ∀ {R S : Type u} [CommRing R] [CommRing S], (R →+* S) → Prop)
 
-/-- This is the affine target morphism property where the source is affine and
-the induced map of rings on global sections satisfies `P`. -/
-def affineAnd : AffineTargetMorphismProperty :=
-  fun X _ f ↦ IsAffine X ∧ Q (f.appTop).hom
+/--
+This is the affine target morphism property where the source is affine and
+the induced map of rings on global sections satisfies `P`.
+-/
+def affineAnd : AffineTargetMorphismProperty := fun X _ f ↦ IsAffine X ∧ Q (f.appTop).hom
 
 @[simp]
 lemma affineAnd_apply {X Y : Scheme.{u}} (f : X ⟶ Y) [IsAffine Y] :

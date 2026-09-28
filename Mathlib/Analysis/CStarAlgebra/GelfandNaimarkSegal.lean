@@ -49,11 +49,13 @@ section PreGNS
 variable [NonUnitalRing A] [PartialOrder A] [Module ℂ A] (f : A →ₚ[ℂ] ℂ)
 
 set_option linter.unusedVariables false in
-/-- The Gelfand─Naimark─Segal (GNS) space constructed from a positive linear functional on a
+/--
+The Gelfand─Naimark─Segal (GNS) space constructed from a positive linear functional on a
 non-unital C⋆-algebra. This is a type synonym of `A`.
 
 This space is only a pre-inner product space. Its Hilbert space completion is
-`PositiveLinearMap.GNS`. -/
+`PositiveLinearMap.GNS`.
+-/
 @[nolint unusedArguments]
 def PreGNS (f : A →ₚ[ℂ] ℂ) := A
 
@@ -72,8 +74,9 @@ lemma toPreGNS_ofPreGNS (a : f.PreGNS) : f.toPreGNS (f.ofPreGNS a) = a := rfl
 @[simp]
 lemma ofPreGNS_toPreGNS (a : A) : f.ofPreGNS (f.toPreGNS a) = a := rfl
 
-variable [StarRing A] [StarOrderedRing A] [SelfAdjointDecompose A] [StarModule ℂ A]
-    [IsScalarTower ℂ A A] (f : A →ₚ[ℂ] ℂ)
+variable
+  [StarRing A] [StarOrderedRing A] [SelfAdjointDecompose A] [StarModule ℂ A] [IsScalarTower ℂ A A]
+  (f : A →ₚ[ℂ] ℂ)
 
 /--
 The (semi-)inner product space whose elements are the elements of `A`, but which has an
@@ -142,9 +145,7 @@ section NonUnital
 
 variable [NonUnitalCStarAlgebra A] [PartialOrder A] [StarOrderedRing A] (f : A →ₚ[ℂ] ℂ)
 
-/--
-The Hilbert space constructed from a positive linear functional on a C⋆-algebra.
--/
+/-- The Hilbert space constructed from a positive linear functional on a C⋆-algebra. -/
 abbrev GNS := UniformSpace.Completion f.PreGNS
 
 /--
@@ -157,18 +158,23 @@ This is the map that is lifted to the completion of `f.PreGNS` (i.e. `f.GNS`) in
 -/
 @[simps!]
 noncomputable def leftMulMapPreGNS (a : A) : f.PreGNS →L[ℂ] f.PreGNS :=
-  f.toPreGNS.toLinearMap ∘ₗ mul ℂ A a ∘ₗ f.ofPreGNS.toLinearMap |>.mkContinuous ‖a‖ fun x ↦ by
-    rw [← sq_le_sq₀ (by positivity) (by positivity), mul_pow, ← RCLike.ofReal_le_ofReal (K := ℂ),
-      RCLike.ofReal_pow, RCLike.ofReal_eq_complex_ofReal, preGNS_norm_sq]
-    have : star (f.ofPreGNS x) * star a * (a * f.ofPreGNS x) ≤
-        ‖a‖ ^ 2 • star (f.ofPreGNS x) * f.ofPreGNS x := by
-      rw [← mul_assoc, mul_assoc _ (star a), sq, ← CStarRing.norm_star_mul_self (x := a),
-        smul_mul_assoc]
-      exact CStarAlgebra.star_left_conjugate_le_norm_smul ..
-    calc
-      _ ≤ f (‖a‖ ^ 2 • star (f.ofPreGNS x) * f.ofPreGNS x) := by
-        simpa using OrderHomClass.mono f this
-      _ = _ := by simp [← Complex.coe_smul, preGNS_norm_sq, smul_mul_assoc]
+  f.toPreGNS.toLinearMap ∘ₗ mul ℂ A a ∘ₗ f.ofPreGNS.toLinearMap
+    |>.mkContinuous (‖a‖) fun x ↦ by
+      rw [
+        ← sq_le_sq₀ (by positivity) (by positivity), mul_pow, ← RCLike.ofReal_le_ofReal (K := ℂ),
+        RCLike.ofReal_pow, RCLike.ofReal_eq_complex_ofReal, preGNS_norm_sq
+      ]
+      have : star (f.ofPreGNS x) * star a * (a * f.ofPreGNS x)
+          ≤ ‖a‖ ^ 2 • star (f.ofPreGNS x) * f.ofPreGNS x := by
+        rw [
+          ← mul_assoc, mul_assoc _ (star a), sq, ← CStarRing.norm_star_mul_self (x := a),
+          smul_mul_assoc
+        ]
+        exact CStarAlgebra.star_left_conjugate_le_norm_smul ..
+      calc
+        _ ≤ f (‖a‖ ^ 2 • star (f.ofPreGNS x) * f.ofPreGNS x) := by
+          simpa using OrderHomClass.mono f this
+        _ = _ := by simp [← Complex.coe_smul, preGNS_norm_sq, smul_mul_assoc]
 
 @[simp]
 lemma leftMulMapPreGNS_mul_eq_comp (a b : A) :
@@ -201,16 +207,17 @@ noncomputable def gnsNonUnitalStarAlgHom : A →⋆ₙₐ[ℂ] (f.GNS →L[ℂ] 
   map_add' _ _ := by
     ext c
     induction c using induction_on with
-      | hp => apply isClosed_eq <;> fun_prop
-      | ih c => simp [add_mul, Completion.coe_add]
+    | hp => apply isClosed_eq <;> fun_prop
+    | ih c => simp [add_mul, Completion.coe_add]
   map_mul' _ _ := by
     ext c
     induction c using induction_on with
-      | hp => apply isClosed_eq <;> fun_prop
-      | ih c => simp
+    | hp => apply isClosed_eq <;> fun_prop
+    | ih c => simp
   map_star' a := by
     refine (eq_adjoint_iff (f.leftMulMapPreGNS (star a)).completion
-      (f.leftMulMapPreGNS a).completion).mpr ?_
+        (f.leftMulMapPreGNS a).completion).mpr
+      ?_
     intro x y
     induction x, y using induction_on₂ with
     | hp => apply isClosed_eq <;> fun_prop

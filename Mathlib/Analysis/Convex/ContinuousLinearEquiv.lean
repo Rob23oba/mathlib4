@@ -17,9 +17,8 @@ under a continuous linear equivalence is a strict convex set.
 
 public section
 
-variable {𝕜 E F : Type*}
-  [Field 𝕜] [PartialOrder 𝕜]
-  [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E]
+variable
+  {𝕜 E F : Type*} [Field 𝕜] [PartialOrder 𝕜] [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E]
   [AddCommGroup F] [Module 𝕜 F] [TopologicalSpace F]
 
 namespace ContinuousLinearEquiv

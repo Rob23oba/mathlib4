@@ -46,8 +46,10 @@ theorem Real.sInf_smul_of_nonneg (ha : 0 ≤ a) (s : Set ℝ) : sInf (a • s) =
     exact csInf_singleton 0
   by_cases h : BddBelow s
   · exact ((OrderIso.smulRight ha').map_csInf' hs h).symm
-  · rw [Real.sInf_of_not_bddBelow (mt (bddBelow_smul_iff_of_pos ha').1 h),
-        Real.sInf_of_not_bddBelow h, smul_zero]
+  · rw [
+      Real.sInf_of_not_bddBelow (mt (bddBelow_smul_iff_of_pos ha').1 h),
+      Real.sInf_of_not_bddBelow h, smul_zero
+    ]
 
 theorem Real.smul_iInf_of_nonneg (ha : 0 ≤ a) (f : ι → ℝ) : (a • ⨅ i, f i) = ⨅ i, a • f i :=
   (Real.sInf_smul_of_nonneg ha _).symm.trans congr(sInf $((range_comp ..).symm))
@@ -60,8 +62,10 @@ theorem Real.sSup_smul_of_nonneg (ha : 0 ≤ a) (s : Set ℝ) : sSup (a • s) =
     exact csSup_singleton 0
   by_cases h : BddAbove s
   · exact ((OrderIso.smulRight ha').map_csSup' hs h).symm
-  · rw [Real.sSup_of_not_bddAbove (mt (bddAbove_smul_iff_of_pos ha').1 h),
-        Real.sSup_of_not_bddAbove h, smul_zero]
+  · rw [
+      Real.sSup_of_not_bddAbove (mt (bddAbove_smul_iff_of_pos ha').1 h),
+      Real.sSup_of_not_bddAbove h, smul_zero
+    ]
 
 theorem Real.smul_iSup_of_nonneg (ha : 0 ≤ a) (f : ι → ℝ) : (a • ⨆ i, f i) = ⨆ i, a • f i :=
   (Real.sSup_smul_of_nonneg ha _).symm.trans congr(sSup $((range_comp ..).symm))
@@ -80,8 +84,10 @@ theorem Real.sInf_smul_of_nonpos (ha : a ≤ 0) (s : Set ℝ) : sInf (a • s) =
     exact csInf_singleton 0
   by_cases h : BddAbove s
   · exact ((OrderIso.smulRightDual ℝ ha').map_csSup' hs h).symm
-  · rw [Real.sInf_of_not_bddBelow (mt (bddBelow_smul_iff_of_neg ha').1 h),
-        Real.sSup_of_not_bddAbove h, smul_zero]
+  · rw [
+      Real.sInf_of_not_bddBelow (mt (bddBelow_smul_iff_of_neg ha').1 h),
+      Real.sSup_of_not_bddAbove h, smul_zero
+    ]
 
 theorem Real.smul_iSup_of_nonpos (ha : a ≤ 0) (f : ι → ℝ) : (a • ⨆ i, f i) = ⨅ i, a • f i :=
   (Real.sInf_smul_of_nonpos ha _).symm.trans congr(sInf $((range_comp ..).symm))
@@ -94,8 +100,10 @@ theorem Real.sSup_smul_of_nonpos (ha : a ≤ 0) (s : Set ℝ) : sSup (a • s) =
     exact csSup_singleton 0
   by_cases h : BddBelow s
   · exact ((OrderIso.smulRightDual ℝ ha').map_csInf' hs h).symm
-  · rw [Real.sSup_of_not_bddAbove (mt (bddAbove_smul_iff_of_neg ha').1 h),
-        Real.sInf_of_not_bddBelow h, smul_zero]
+  · rw [
+      Real.sSup_of_not_bddAbove (mt (bddAbove_smul_iff_of_neg ha').1 h),
+      Real.sInf_of_not_bddBelow h, smul_zero
+    ]
 
 theorem Real.smul_iInf_of_nonpos (ha : a ≤ 0) (f : ι → ℝ) : (a • ⨅ i, f i) = ⨆ i, a • f i :=
   (Real.sSup_smul_of_nonpos ha _).symm.trans congr(sSup $((range_comp ..).symm))
@@ -103,7 +111,6 @@ theorem Real.smul_iInf_of_nonpos (ha : a ≤ 0) (f : ι → ℝ) : (a • ⨅ i,
 end Module
 
 /-! ## Special cases for real multiplication -/
-
 
 section Mul
 

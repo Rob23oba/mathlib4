@@ -39,8 +39,8 @@ lemma Retract.isCardinalPresentable
         κ hc (h.r ≫ f₁) (h.r ≫ f₂) (by simp [hf])
       exact ⟨k, u, by simpa [← cancel_epi h.r] using hj⟩⟩⟩⟩
 
-instance (κ : Cardinal.{w}) [Fact κ.IsRegular] :
-    (isCardinalPresentable C κ).IsStableUnderRetracts where
+instance (κ : Cardinal.{w}) [Fact κ.IsRegular]
+    : (isCardinalPresentable C κ).IsStableUnderRetracts where
   of_retract {Y X} h hX := by
     rw [isCardinalPresentable_iff] at hX ⊢
     exact h.isCardinalPresentable κ

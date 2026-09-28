@@ -23,8 +23,9 @@ namespace CategoryTheory
 
 namespace Localization
 
-variable {C D : Type*} [Category* C] [Category* D] (L : C ⥤ D) (W : MorphismProperty C)
-  [L.IsLocalization W]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W]
 
 open ComposableArrows
 

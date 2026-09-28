@@ -42,11 +42,14 @@ namespace Algebra.Presentation
 
 open KaehlerDifferential
 
-variable {R : Type u} {S : Type v} {ι : Type w} {σ : Type t} [CommRing R] [CommRing S] [Algebra R S]
+variable
+  {R : Type u} {S : Type v} {ι : Type w} {σ : Type t} [CommRing R] [CommRing S] [Algebra R S]
   (pres : Algebra.Presentation R S ι σ)
 
-/-- The shape of the presentation by generators and relations of the `S`-module `Ω[S⁄R]`
-that is obtained from a presentation of `S` as an `R`-algebra. -/
+/--
+The shape of the presentation by generators and relations of the `S`-module `Ω[S⁄R]`
+that is obtained from a presentation of `S` as an `R`-algebra.
+-/
 @[simps G R]
 noncomputable def differentialsRelations : Module.Relations S where
   G := ι
@@ -160,15 +163,17 @@ end differentials
 
 set_option backward.isDefEq.respectTransparency false in
 open differentials in
-/-- The `S`-module `Ω[S⁄R]` contains an obvious solution to the system of linear
+/--
+The `S`-module `Ω[S⁄R]` contains an obvious solution to the system of linear
 equations `pres.differentialsRelations.Solution` when `pres` is a presentation
-of `S` as an `R`-algebra. -/
-noncomputable def differentialsSolution :
-    pres.differentialsRelations.Solution Ω[S⁄R] where
+of `S` as an `R`-algebra.
+-/
+noncomputable def differentialsSolution : pres.differentialsRelations.Solution Ω[S⁄R] where
   var g := D _ _ (pres.val g)
   linearCombination_var_relation r := by
-    simp only [LinearMap.coe_comp, LinearEquiv.coe_coe,
-      Function.comp_apply, ← comm₂₃', ← comm₁₂_single]
+    simp only [
+      LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply, ← comm₂₃', ← comm₁₂_single
+    ]
     apply DFunLike.congr_fun (Function.Exact.linearMap_comp_eq_zero
       (pres.toExtension.exact_cotangentComplex_toKaehler))
 
@@ -194,8 +199,10 @@ lemma differentialsSolution_isPresentation :
         (LinearEquiv.bijective _) (Equiv.refl _).injective).2
         pres.toExtension.exact_cotangentComplex_toKaehler)
 
-/-- The presentation of the `S`-module `Ω[S⁄R]` deduced from a presentation
-of `S` as an `R`-algebra. -/
+/--
+The presentation of the `S`-module `Ω[S⁄R]` deduced from a presentation
+of `S` as an `R`-algebra.
+-/
 noncomputable def differentials : Module.Presentation S Ω[S⁄R] where
   G := ι
   R := σ

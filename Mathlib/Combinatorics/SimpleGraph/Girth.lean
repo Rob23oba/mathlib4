@@ -23,7 +23,6 @@ variable {α β : Type*} {G : SimpleGraph α} {G' : SimpleGraph β}
 
 section egirth
 
-
 /--
 The extended girth of a simple graph is the length of its smallest cycle, or `∞` if the graph is
 acyclic.
@@ -79,10 +78,7 @@ theorem egirth_top (h : 3 ≤ ENat.card α) : egirth (⊤ : SimpleGraph α) = 3 
   obtain ⟨s, hcard⟩ := Cardinal.exists_finset_eq_card <| Cardinal.ofNat_le_toENat.mp h
   obtain ⟨x, y, z, hxy, hxz, hyz, -⟩ := s.card_eq_three.mp hcard.symm
   set w : Walk ⊤ x x := .cons hxy <| .cons hyz <| .cons hxz.symm .nil with hw
-  have : w.IsCycle :=
-    { edges_nodup := by aesop
-      ne_nil := by aesop
-      support_nodup := by aesop }
+  have : w.IsCycle := { edges_nodup := by aesop, ne_nil := by aesop, support_nodup := by aesop }
   grw [this.egirth_le_length]
   simp [hw]
 
@@ -113,13 +109,11 @@ end egirth
 
 section girth
 
-
 /--
 The girth of a simple graph is the length of its smallest cycle, or junk value `0` if the graph is
 acyclic.
 -/
-noncomputable def girth (G : SimpleGraph α) : ℕ :=
-  G.egirth.toNat
+noncomputable def girth (G : SimpleGraph α) : ℕ := G.egirth.toNat
 
 lemma Walk.IsCycle.girth_le_length {a} {w : G.Walk a a} (h : w.IsCycle) : G.girth ≤ w.length :=
   ENat.natCast_le_natCast.mp <| G.egirth.natCast_toNat_le_self.trans h.egirth_le_length

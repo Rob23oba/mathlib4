@@ -24,28 +24,23 @@ namespace CategoryTheory
 
 open Limits Category Pretriangulated
 
-variable {C₁ C₂ H D₂ : Type*}
-  [Category* C₁] [Category* C₂] [Category* H] [Category* D₂]
-  [HasZeroObject C₁] [HasShift C₁ ℤ] [Preadditive C₁]
-  [HasZeroObject C₂] [HasShift C₂ ℤ] [Preadditive C₂]
-  [HasZeroObject H] [HasShift H ℤ] [Preadditive H]
-  [HasZeroObject D₂] [HasShift D₂ ℤ] [Preadditive D₂]
-  [∀ (n : ℤ), (shiftFunctor C₁ n).Additive]
-  [∀ (n : ℤ), (shiftFunctor C₂ n).Additive]
-  [∀ (n : ℤ), (shiftFunctor H n).Additive]
-  [∀ (n : ℤ), (shiftFunctor D₂ n).Additive]
-  [Pretriangulated C₁] [Pretriangulated C₂]
-  [Pretriangulated H] [Pretriangulated D₂]
+variable
+  {C₁ C₂ H D₂ : Type*}
+  [Category* C₁] [Category* C₂] [Category* H] [Category* D₂] [HasZeroObject C₁] [HasShift C₁ ℤ]
+  [Preadditive C₁] [HasZeroObject C₂] [HasShift C₂ ℤ] [Preadditive C₂] [HasZeroObject H]
+  [HasShift H ℤ] [Preadditive H] [HasZeroObject D₂] [HasShift D₂ ℤ] [Preadditive D₂]
+  [∀ (n : ℤ), (shiftFunctor C₁ n).Additive] [∀ (n : ℤ), (shiftFunctor C₂ n).Additive]
+  [∀ (n : ℤ), (shiftFunctor H n).Additive] [∀ (n : ℤ), (shiftFunctor D₂ n).Additive]
+  [Pretriangulated C₁] [Pretriangulated C₂] [Pretriangulated H] [Pretriangulated D₂]
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
 
 namespace LocalizerMorphism.Derives
 
-variable {Φ : LocalizerMorphism W₁ W₂}
-  [Φ.functor.CommShift ℤ] [Φ.functor.IsTriangulated]
+variable
+  {Φ : LocalizerMorphism W₁ W₂} [Φ.functor.CommShift ℤ] [Φ.functor.IsTriangulated]
   {F : C₂ ⥤ H} [F.CommShift ℤ] [F.IsTriangulated]
   (hF : Φ.Derives F)
-  {L : C₂ ⥤ D₂} [L.IsLocalization W₂] [L.CommShift ℤ] [L.IsTriangulated]
-  [L.mapArrow.EssSurj]
+  {L : C₂ ⥤ D₂} [L.IsLocalization W₂] [L.CommShift ℤ] [L.IsTriangulated] [L.mapArrow.EssSurj]
 
 include hF in
 lemma isTriangulated_of_isRightDerivedFunctor

@@ -61,7 +61,8 @@ lemma convolveFunRight_apply_one (μ : D(G, R)) (f : C(G, R)) :
 We define `1 : D(G, R)` to be the Dirac measure at `1 : G` (since we are writing convolution as
 multiplication).
 -/
-instance : One D(G, R) where one := dirac R 1
+instance : One D(G, R) where
+  one := dirac R 1
 
 omit [ContinuousMul G] in
 lemma one_def : (1 : D(G, R)) = dirac R 1 := rfl
@@ -121,22 +122,21 @@ def diracHom : G →* D(G, R) where
 @[simp] lemma diracHom_apply (x : G) : diracHom x = dirac R x := (rfl)
 
 /-- Measures form a `R`-algebra. -/
-noncomputable instance : Algebra R D(G, R) := Algebra.ofModule
-  (by intros; ext; simp [mul_apply]) (by intros; ext; simp [mul_apply])
+noncomputable instance : Algebra R D(G, R) :=
+  Algebra.ofModule (by intros; ext; simp [mul_apply]) (by intros; ext; simp [mul_apply])
 
 /-- The canonical homomorphism from the monoid algebra `R[G]` to `D(G, R)`. -/
-def monoidAlgebraHom : MonoidAlgebra R G →ₐ[R] D(G, R) :=
-  MonoidAlgebra.lift R _ G diracHom
+def monoidAlgebraHom : MonoidAlgebra R G →ₐ[R] D(G, R) := MonoidAlgebra.lift R _ G diracHom
 
 @[simp] lemma monoidAlgebraHom_single (g : G) :
     monoidAlgebraHom (.single g 1) = dirac R g := by
   simp [monoidAlgebraHom]
 
 @[simps!]
-instance : SMul D(G, R) C(G, R) where
+instance : SMul (D(G, R)) C(G, R) where
   smul μ := μ.convolveFunRight
 
-instance : Module D(G, R) C(G, R) where
+instance : Module (D(G, R)) C(G, R) where
   one_smul := convolveFunRight_one
   smul_zero _ := map_zero _
   zero_smul f := by simp
@@ -166,14 +166,17 @@ order of the two integration variables. The Fubini theorem we use
 (`AbstractMeasure.prodMk_eq_prodMk'`) requires the space to be compact and separated.
 -/
 
-variable [CommMonoid G] [ContinuousMul G]
-  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] [T0Space R]
+variable
+  [CommMonoid G] [ContinuousMul G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+  [T0Space R]
 
 noncomputable instance : CommRing D(G, R) where
   mul_comm μ ν := by
     ext
-    simp [mul_apply, convolveFunRight, ContinuousMap.comp, Function.comp_def,
-      ← prodMk'_apply, prodMk'_flip μ ν, prodMk_eq_prodMk', mul_comm]
+    simp [
+      mul_apply, convolveFunRight, ContinuousMap.comp, Function.comp_def, ← prodMk'_apply,
+      prodMk'_flip μ ν, prodMk_eq_prodMk', mul_comm
+    ]
 
 end CommMonoid
 

@@ -45,10 +45,11 @@ variable [AddMonoid M]
 variable (M) in
 /-- Additive homomorphisms from `ℕ` are defined by the image of `1`. -/
 def multiplesHom : M ≃ (ℕ →+ M) where
-  toFun x :=
-  { toFun := fun n ↦ n • x
+  toFun x := {
+    toFun := fun n ↦ n • x
     map_zero' := zero_nsmul x
-    map_add' := fun _ _ ↦ add_nsmul _ _ _ }
+    map_add' := fun _ _ ↦ add_nsmul _ _ _
+  }
   invFun f := f 1
   left_inv := one_nsmul
   right_inv f := AddMonoidHom.ext_nat <| one_nsmul (f 1)
@@ -66,8 +67,10 @@ section Monoid
 variable [Monoid M]
 
 variable (M) in
-/-- Monoid homomorphisms from `Multiplicative ℕ` are defined by the image
-of `Multiplicative.ofAdd 1`. -/
+/--
+Monoid homomorphisms from `Multiplicative ℕ` are defined by the image
+of `Multiplicative.ofAdd 1`.
+-/
 def powersHom : M ≃ (Multiplicative ℕ →* M) :=
   Additive.ofMul.trans <| (multiplesHom _).trans AddMonoidHom.toMultiplicativeLeft
 

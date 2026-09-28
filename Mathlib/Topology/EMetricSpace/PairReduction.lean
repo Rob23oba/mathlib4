@@ -105,7 +105,8 @@ taking supremums completes the proof (see `iSup_edist_pairSet`).
 
 open scoped ENNReal NNReal Finset
 
-variable {T : Type*} [TopologicalSpace T] [WeakPseudoEMetricSpace T]
+variable
+  {T : Type*} [TopologicalSpace T] [WeakPseudoEMetricSpace T]
   {a c : ℝ≥0∞} {n : ℕ} {V J : Finset T} {t : T}
 
 namespace PairReduction
@@ -119,10 +120,11 @@ lemma exists_radius_le (t : T) (V : Finset T) (ha : 1 < a) (c : ℝ≥0∞) :
   exact ⟨max r 1, le_max_right r 1,
     le_trans (mod_cast Finset.card_filter_le V _) (hr (max r 1) (le_max_left r 1)).le⟩
 
-/-- The log-size radius of `t` in `V` is the smallest natural number n greater than zero such that
-`|{x ∈ V | d(t, x) ≤ nc}| ≤ aⁿ`. -/
-noncomputable
-def logSizeRadius (t : T) (V : Finset T) (a c : ℝ≥0∞) : ℕ :=
+/--
+The log-size radius of `t` in `V` is the smallest natural number n greater than zero such that
+`|{x ∈ V | d(t, x) ≤ nc}| ≤ aⁿ`.
+-/
+noncomputable def logSizeRadius (t : T) (V : Finset T) (a c : ℝ≥0∞) : ℕ :=
   if h : 1 < a then Nat.find (exists_radius_le t V h c) else 0
 
 lemma one_le_logSizeRadius (ha : 1 < a) :
@@ -153,42 +155,51 @@ lemma pow_logSizeRadius_le_card_le_logSizeRadius (ha : 1 < a) (ht : t ∈ V) :
 structure logSizeBallStruct (T : Type*) where
   /-- The underlying finite set of a `logSizeBallStruct` -/
   finset : Finset T
-  /-- The underlying point of a `logSizeBallStruct` (typically a point in the underlying finite
-  set) -/
+  /--
+  The underlying point of a `logSizeBallStruct` (typically a point in the underlying finite
+  set)
+  -/
   point : T
-  /-- The underlying radius of a `logSizeBallStruct` (typically the log-size radius of the
-  underlying point in the underlying finite set) -/
+  /--
+  The underlying radius of a `logSizeBallStruct` (typically the log-size radius of the
+  underlying point in the underlying finite set)
+  -/
   radius : ℕ
 
-/-- If `(V, t, r)` is a `logSizeBallStruct` then `logSizeBallStruct.smallBall`
-  is `{x ∈ V | d(t, x) ≤ (r - 1)c}`. -/
-noncomputable
-def logSizeBallStruct.smallBall (struct : logSizeBallStruct T) (c : ℝ≥0∞) :
-    Finset T :=
+/--
+If `(V, t, r)` is a `logSizeBallStruct` then `logSizeBallStruct.smallBall`
+is `{x ∈ V | d(t, x) ≤ (r - 1)c}`.
+-/
+noncomputable def logSizeBallStruct.smallBall (struct : logSizeBallStruct T) (c : ℝ≥0∞)
+    : Finset T :=
   struct.finset.filter fun x ↦ edist struct.point x ≤ (struct.radius - 1) * c
 
-/-- If `(V, t, r)` is a `logSizeBallStruct` then `logSizeBallStruct.ball`
-  is `{x ∈ V | d(t, x) ≤ rc}`. -/
-noncomputable
-def logSizeBallStruct.ball (struct : logSizeBallStruct T) (c : ℝ≥0∞) :
-    Finset T :=
+/--
+If `(V, t, r)` is a `logSizeBallStruct` then `logSizeBallStruct.ball`
+is `{x ∈ V | d(t, x) ≤ rc}`.
+-/
+noncomputable def logSizeBallStruct.ball (struct : logSizeBallStruct T) (c : ℝ≥0∞) : Finset T :=
   struct.finset.filter fun x ↦ edist struct.point x ≤ struct.radius * c
 
 variable [DecidableEq T]
 
-/-- We recursively define a log-size ball sequence `(Vᵢ, tᵢ, rᵢ)` by
-  * `V₀ = J`, `t₀` is chosen arbitrarily in `J`, `r₀` is the log-size radius of `t₀` in `V₀`
-  * `Vᵢ₊₁ = Vᵢ \ {x ∈ V | d(t, x) ≤ (rᵢ - 1)c}`, `tᵢ₊₁` is chosen arbitrarily in `Vᵢ₊₁`, `rᵢ₊₁` is
-    the log-size radius of `tᵢ₊₁` in `Vᵢ₊₁`. -/
-noncomputable
-def logSizeBallSeq (J : Finset T) (hJ : J.Nonempty) (a c : ℝ≥0∞) : ℕ → logSizeBallStruct T
-  | 0 => { finset := J, point := hJ.choose, radius := logSizeRadius hJ.choose J a c }
+/--
+We recursively define a log-size ball sequence `(Vᵢ, tᵢ, rᵢ)` by
+* `V₀ = J`, `t₀` is chosen arbitrarily in `J`, `r₀` is the log-size radius of `t₀` in `V₀`
+* `Vᵢ₊₁ = Vᵢ \ {x ∈ V | d(t, x) ≤ (rᵢ - 1)c}`, `tᵢ₊₁` is chosen arbitrarily in `Vᵢ₊₁`, `rᵢ₊₁` is
+  the log-size radius of `tᵢ₊₁` in `Vᵢ₊₁`.
+-/
+noncomputable def logSizeBallSeq (J : Finset T) (hJ : J.Nonempty) (a c : ℝ≥0∞)
+    : ℕ → logSizeBallStruct T
+  | 0 => {
+    finset := J
+    point := hJ.choose
+    radius := logSizeRadius hJ.choose J a c
+  }
   | n + 1 =>
     let V' := (logSizeBallSeq J hJ a c n).finset \ ((logSizeBallSeq J hJ a c n).smallBall c)
     let t' := if hV' : V'.Nonempty then hV'.choose else (logSizeBallSeq J hJ a c n).point
-    { finset := V',
-      point := t',
-      radius := logSizeRadius t' V' a c }
+    { finset := V', point := t', radius := logSizeRadius t' V' a c }
 
 lemma finset_logSizeBallSeq_zero (hJ : J.Nonempty) :
     (logSizeBallSeq J hJ a c 0).finset = J := rfl
@@ -306,17 +317,18 @@ lemma disjoint_smallBall_logSizeBallSeq (hJ : J.Nonempty) {i j : ℕ} (hij : i �
   · exact (Finset.filter_subset _ _).trans (antitone_logSizeBallSeq_add_one_subset hJ h)
   simp [finset_logSizeBallSeq_add_one, Finset.disjoint_sdiff]
 
-/-- Given a log-size ball sequence `(Vᵢ, tᵢ, rᵢ)`, we define the pair set sequence by
-`Kᵢ = {tᵢ} × {x ∈ Vᵢ | dist(tᵢ, x) ≤ rᵢc}`. -/
-noncomputable
-def pairSetSeq (J : Finset T) (a c : ℝ≥0∞) (n : ℕ) : Finset (T × T) :=
+/--
+Given a log-size ball sequence `(Vᵢ, tᵢ, rᵢ)`, we define the pair set sequence by
+`Kᵢ = {tᵢ} × {x ∈ Vᵢ | dist(tᵢ, x) ≤ rᵢc}`.
+-/
+noncomputable def pairSetSeq (J : Finset T) (a c : ℝ≥0∞) (n : ℕ) : Finset (T × T) :=
   if hJ : J.Nonempty then
     Finset.product {(logSizeBallSeq J hJ a c n).point} ((logSizeBallSeq J hJ a c n).ball c)
-  else ∅
+  else
+    ∅
 
 /-- Given the pair set sequence Kᵢ we define the pair set `K` by `K = ⋃ i, Kᵢ`. -/
-noncomputable
-def pairSet (J : Finset T) (a c : ℝ≥0∞) : Finset (T × T) :=
+noncomputable def pairSet (J : Finset T) (a c : ℝ≥0∞) : Finset (T × T) :=
   Finset.biUnion (Finset.range #J) (pairSetSeq J a c)
 
 lemma pairSet_empty_eq_empty (a c : ℝ≥0∞) : pairSet (∅ : Finset T) a c = ∅ := rfl
@@ -468,21 +480,21 @@ lemma iSup_edist_pairSet {E : Type*} [TopologicalSpace E] [WeakPseudoEMetricSpac
 end PairReduction
 
 open PairReduction in
-/-- **Pair Reduction**: Given pseudometric spaces `T` and `E`, `c ≥ 0`, and a finite subset `J` of
+/--
+**Pair Reduction**: Given pseudometric spaces `T` and `E`, `c ≥ 0`, and a finite subset `J` of
 `T` such that `|J| ≤ aⁿ` for some `a ≥ 0` and `n : ℕ`, `pair_reduction` states that there exists a
 set `K ⊆ J²` such that for any function `f : T → E`:
 1. `|K| ≤ a|J|`
 2. `∀ (s, t) ∈ K, d(s, t) ≤ cn`
 3. `sup_{s, t ∈ J : d(s, t) ≤ c} d(f(s), f(t)) ≤ 2 sup_{(s, t) ∈ K} d(f(s), f(t))`
 -/
-theorem EMetric.pair_reduction (hJ_card : #J ≤ a ^ n) (c : ℝ≥0∞) (E : Type*) [TopologicalSpace E]
-      [WeakPseudoEMetricSpace E] :
-    ∃ K : Finset (T × T), K ⊆ J ×ˢ J
-      ∧ #K ≤ a * #J
-      ∧ (∀ s t, (s, t) ∈ K → edist s t ≤ n * c)
-      ∧ (∀ f : T → E,
-        ⨆ (s : J) (t : { t : J // edist s t ≤ c}), edist (f s) (f t)
-        ≤ 2 * ⨆ p : K, edist (f p.1.1) (f p.1.2)) := by
+theorem EMetric.pair_reduction
+    (hJ_card : #J ≤ a ^ n) (c : ℝ≥0∞) (E : Type*) [TopologicalSpace E] [WeakPseudoEMetricSpace E]
+    : ∃ K : Finset (T × T),
+      K ⊆ J ×ˢ J ∧ #K ≤ a * #J ∧ (∀ s t, (s, t) ∈ K → edist s t ≤ n * c)
+        ∧ (∀ f : T → E,
+          ⨆ (s : J) (t : { t : J // edist s t ≤ c}), edist (f s) (f t)
+            ≤ 2 * ⨆ p : K, edist (f p.1.1) (f p.1.2)) := by
   classical
   rcases le_or_gt a 1 with ha1 | ha1
   · rcases isEmpty_or_nonempty J with hJ | hJ
@@ -497,5 +509,10 @@ theorem EMetric.pair_reduction (hJ_card : #J ≤ a ^ n) (c : ℝ≥0∞) (E : Ty
         exact ENNReal.pow_le_pow_left ha1
       · rwa [Finset.one_le_card, ← Finset.nonempty_coe_sort]
     simp_all
-  · exact ⟨pairSet J a c, pairSet_subset, card_pairSet_le ha1,
-      fun _ _ ↦ edist_le_of_mem_pairSet ha1 hJ_card, iSup_edist_pairSet ha1⟩
+  · exact ⟨
+      pairSet J a c,
+      pairSet_subset,
+      card_pairSet_le ha1,
+      fun _ _ ↦ edist_le_of_mem_pairSet ha1 hJ_card,
+      iSup_edist_pairSet ha1
+    ⟩

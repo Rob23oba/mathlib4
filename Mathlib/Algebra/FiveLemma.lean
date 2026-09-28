@@ -48,13 +48,13 @@ variable [Group M₁] [Group M₂] [Group M₃] [Group M₄] [Group M₅]
 variable [Group N₁] [Group N₂] [Group N₃] [Group N₄] [Group N₅]
 variable (f₁ : M₁ →* M₂) (f₂ : M₂ →* M₃) (f₃ : M₃ →* M₄) (f₄ : M₄ →* M₅)
 variable (g₁ : N₁ →* N₂) (g₂ : N₂ →* N₃) (g₃ : N₃ →* N₄) (g₄ : N₄ →* N₅)
-variable (i₁ : M₁ →* N₁) (i₂ : M₂ →* N₂) (i₃ : M₃ →* N₃) (i₄ : M₄ →* N₄)
-  (i₅ : M₅ →* N₅)
-variable (hc₁ : g₁.comp i₁ = i₂.comp f₁) (hc₂ : g₂.comp i₂ = i₃.comp f₂)
-  (hc₃ : g₃.comp i₃ = i₄.comp f₃) (hc₄ : g₄.comp i₄ = i₅.comp f₄)
-variable (hf₁ : Function.MulExact f₁ f₂) (hf₂ : Function.MulExact f₂ f₃)
-  (hf₃ : Function.MulExact f₃ f₄) (hg₁ : Function.MulExact g₁ g₂)
-  (hg₂ : Function.MulExact g₂ g₃) (hg₃ : Function.MulExact g₃ g₄)
+variable (i₁ : M₁ →* N₁) (i₂ : M₂ →* N₂) (i₃ : M₃ →* N₃) (i₄ : M₄ →* N₄) (i₅ : M₅ →* N₅)
+variable
+  (hc₁ : g₁.comp i₁ = i₂.comp f₁) (hc₂ : g₂.comp i₂ = i₃.comp f₂) (hc₃ : g₃.comp i₃ = i₄.comp f₃)
+  (hc₄ : g₄.comp i₄ = i₅.comp f₄)
+variable
+  (hf₁ : Function.MulExact f₁ f₂) (hf₂ : Function.MulExact f₂ f₃) (hf₃ : Function.MulExact f₃ f₄)
+  (hg₁ : Function.MulExact g₁ g₂) (hg₂ : Function.MulExact g₂ g₃) (hg₃ : Function.MulExact g₃ g₄)
 
 include hf₂ hg₁ hg₂ hc₁ hc₂ hc₃ in
 /-- One four lemma in terms of groups. For a diagram explaining the variables,
@@ -174,10 +174,11 @@ variable [AddCommGroup N₁] [AddCommGroup N₂] [AddCommGroup N₃] [AddCommGro
 variable [Module R N₁] [Module R N₂] [Module R N₃] [Module R N₄] [Module R N₅]
 variable (f₁ : M₁ →ₗ[R] M₂) (f₂ : M₂ →ₗ[R] M₃) (f₃ : M₃ →ₗ[R] M₄) (f₄ : M₄ →ₗ[R] M₅)
 variable (g₁ : N₁ →ₗ[R] N₂) (g₂ : N₂ →ₗ[R] N₃) (g₃ : N₃ →ₗ[R] N₄) (g₄ : N₄ →ₗ[R] N₅)
-variable (i₁ : M₁ →ₗ[R] N₁) (i₂ : M₂ →ₗ[R] N₂) (i₃ : M₃ →ₗ[R] N₃) (i₄ : M₄ →ₗ[R] N₄)
-  (i₅ : M₅ →ₗ[R] N₅)
-variable (hc₁ : g₁.comp i₁ = i₂.comp f₁) (hc₂ : g₂.comp i₂ = i₃.comp f₂)
-  (hc₃ : g₃.comp i₃ = i₄.comp f₃) (hc₄ : g₄.comp i₄ = i₅.comp f₄)
+variable
+  (i₁ : M₁ →ₗ[R] N₁) (i₂ : M₂ →ₗ[R] N₂) (i₃ : M₃ →ₗ[R] N₃) (i₄ : M₄ →ₗ[R] N₄) (i₅ : M₅ →ₗ[R] N₅)
+variable
+  (hc₁ : g₁.comp i₁ = i₂.comp f₁) (hc₂ : g₂.comp i₂ = i₃.comp f₂) (hc₃ : g₃.comp i₃ = i₄.comp f₃)
+  (hc₄ : g₄.comp i₄ = i₅.comp f₄)
 variable (hf₁ : Function.Exact f₁ f₂) (hf₂ : Function.Exact f₂ f₃) (hf₃ : Function.Exact f₃ f₄)
 variable (hg₁ : Function.Exact g₁ g₂) (hg₂ : Function.Exact g₂ g₃) (hg₃ : Function.Exact g₃ g₄)
 

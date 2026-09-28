@@ -60,11 +60,13 @@ namespace FunctorToTypes
 
 variable (F : C ⥤ Type w) {X : C} (x : F.obj X)
 
-/-- Given a functor `F : C ⥤ Type w`, an object `X : C` and `x : F.obj X`,
+/--
+Given a functor `F : C ⥤ Type w`, an object `X : C` and `x : F.obj X`,
 this is the subfunctor of the functor `Over.forget X ⋙ F : Over X ⥤ Type w`
 which sends an object of `Over X` corresponding to a morphism `f : Y ⟶ X`
 to the subset of `F.obj Y` consisting of those elements `y : F.obj Y`
-such that `F.map f y = x`. -/
+such that `F.map f y = x`.
+-/
 @[implicit_reducible]
 def fromOverSubfunctor : Subfunctor (Over.forget X ⋙ F) where
   obj U := F.map U.hom ⁻¹' {x}
@@ -74,24 +76,25 @@ def fromOverSubfunctor : Subfunctor (Over.forget X ⋙ F) where
 lemma mem_fromOverSubfunctor_iff {U : Over X} (u : F.obj U.left) :
     u ∈ (fromOverSubfunctor F x).obj U ↔ F.map U.hom u = x := Iff.rfl
 
-/-- Given a functor `F : C ⥤ Type w`, an object `X : C` and `x : F.obj X`,
+/--
+Given a functor `F : C ⥤ Type w`, an object `X : C` and `x : F.obj X`,
 this is the functor `Over X ⥤ Type w` which sends an object of `Over X`
 corresponding to a morphism `f : Y ⟶ X` to the subtype of `F.obj Y`
-consisting of those elements `y : F.obj Y` such that `F.map f y = x`. -/
+consisting of those elements `y : F.obj Y` such that `F.map f y = x`.
+-/
 abbrev fromOverFunctor : Over X ⥤ Type w := (fromOverSubfunctor F x).toFunctor
 
 open Functor.Elements in
-/-- Given a functor `F : C ⥤ Type w`, an object `X : C` and `x : F.obj X`,
+/--
+Given a functor `F : C ⥤ Type w`, an object `X : C` and `x : F.obj X`,
 this is the equivalence between the category of elements of `fromOverFunctor F x`
-with the `Over` category of `x` considered as an object of `F.Elements`. -/
-def fromOverFunctorElementsEquivalence :
-    (fromOverFunctor F x).Elements ≌ Over (F.elementsMk X x) where
-  functor.obj u :=
-    Over.mk (homMk (x := F.elementsMk u.obj.left u.val.1) u.obj.hom u.val.2)
-  functor.map f :=
-    Over.homMk (homMk f.hom.left (Subtype.ext_iff.1 f.map_val))
-  inverse.obj u :=
-    Functor.elementsMk _ (Over.mk u.hom.1) ⟨u.left.val, u.hom.2⟩
+with the `Over` category of `x` considered as an object of `F.Elements`.
+-/
+def fromOverFunctorElementsEquivalence
+    : (fromOverFunctor F x).Elements ≌ Over (F.elementsMk X x) where
+  functor.obj u := Over.mk (homMk (x := F.elementsMk u.obj.left u.val.1) u.obj.hom u.val.2)
+  functor.map f := Over.homMk (homMk f.hom.left (Subtype.ext_iff.1 f.map_val))
+  inverse.obj u := Functor.elementsMk _ (Over.mk u.hom.1) ⟨u.left.val, u.hom.2⟩
   inverse.map f := homMk (Over.homMk f.left.hom (congr_arg Hom.hom (Over.w f)))
   unitIso := Iso.refl _
   counitIso := Iso.refl _

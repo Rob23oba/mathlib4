@@ -36,22 +36,20 @@ variable {M : Type*} [Nonempty M] [L.Structure M] [M ⊨ T]
 namespace Theory
 
 /-- `φ ⟹[T] ψ` indicates that `φ` implies `ψ` in models of `T`. -/
-protected def Imp (T : L.Theory) (φ ψ : L.BoundedFormula α n) : Prop :=
-  T ⊨ᵇ φ.imp ψ
+protected def Imp (T : L.Theory) (φ ψ : L.BoundedFormula α n) : Prop := T ⊨ᵇ φ.imp ψ
 
 @[inherit_doc FirstOrder.Language.Theory.Imp]
 scoped[FirstOrder] notation:51 φ:50 " ⟹[" T "] " ψ:51 => Language.Theory.Imp T φ ψ
 
 namespace Imp
 
-@[refl]
-protected theorem refl (φ : L.BoundedFormula α n) : φ ⟹[T] φ := fun _ _ _ => id
+@[refl] protected theorem refl (φ : L.BoundedFormula α n) : φ ⟹[T] φ := fun _ _ _ => id
 
 instance : @Std.Refl (L.BoundedFormula α n) T.Imp := ⟨Imp.refl⟩
 
 @[trans]
-protected theorem trans {φ ψ θ : L.BoundedFormula α n} (h1 : φ ⟹[T] ψ) (h2 : ψ ⟹[T] θ) :
-    φ ⟹[T] θ := fun M v xs => (h2 M v xs) ∘ (h1 M v xs)
+protected theorem trans {φ ψ θ : L.BoundedFormula α n} (h1 : φ ⟹[T] ψ) (h2 : ψ ⟹[T] θ) : φ ⟹[T] θ :=
+  fun M v xs => (h2 M v xs) ∘ (h1 M v xs)
 
 instance : IsTrans (L.BoundedFormula α n) T.Imp := ⟨fun _ _ _ => Imp.trans⟩
 
@@ -103,95 +101,89 @@ lemma imp_inf_iff {φ ψ θ : L.BoundedFormula α n} :
 
 end Imp
 
-/-- Two (bounded) formulas are semantically equivalent over a theory `T` when they have the same
+/--
+Two (bounded) formulas are semantically equivalent over a theory `T` when they have the same
 interpretation in every model of `T`. (This is also known as logical equivalence, which also has a
-proof-theoretic definition.) -/
-protected def Iff (T : L.Theory) (φ ψ : L.BoundedFormula α n) : Prop :=
-  T ⊨ᵇ φ.iff ψ
+proof-theoretic definition.)
+-/
+protected def Iff (T : L.Theory) (φ ψ : L.BoundedFormula α n) : Prop := T ⊨ᵇ φ.iff ψ
 
 @[inherit_doc FirstOrder.Language.Theory.Iff]
 scoped[FirstOrder]
 notation:51 φ:50 " ⇔[" T "] " ψ:51 => Language.Theory.Iff T φ ψ
 
-theorem iff_iff_imp_and_imp {φ ψ : L.BoundedFormula α n} :
-    (φ ⇔[T] ψ) ↔ (φ ⟹[T] ψ) ∧ (ψ ⟹[T] φ) := by
-  simp only [Theory.Imp, ModelsBoundedFormula, BoundedFormula.realize_imp, ← forall_and,
-    Theory.Iff, BoundedFormula.realize_iff, iff_iff_implies_and_implies]
+theorem iff_iff_imp_and_imp {φ ψ : L.BoundedFormula α n}
+    : (φ ⇔[T] ψ) ↔ (φ ⟹[T] ψ) ∧ (ψ ⟹[T] φ) := by
+  simp only [
+    Theory.Imp, ModelsBoundedFormula, BoundedFormula.realize_imp, ← forall_and, Theory.Iff,
+    BoundedFormula.realize_iff, iff_iff_implies_and_implies
+  ]
 
-theorem imp_antisymm {φ ψ : L.BoundedFormula α n} (h₁ : φ ⟹[T] ψ) (h₂ : ψ ⟹[T] φ) :
-    φ ⇔[T] ψ :=
+theorem imp_antisymm {φ ψ : L.BoundedFormula α n} (h₁ : φ ⟹[T] ψ) (h₂ : ψ ⟹[T] φ) : φ ⇔[T] ψ :=
   iff_iff_imp_and_imp.2 ⟨h₁, h₂⟩
 
 namespace Iff
 
-protected theorem mp {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) :
-    φ ⟹[T] ψ := (iff_iff_imp_and_imp.1 h).1
+protected theorem mp {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) : φ ⟹[T] ψ :=
+  (iff_iff_imp_and_imp.1 h).1
 
-protected theorem mpr {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) :
-    ψ ⟹[T] φ := (iff_iff_imp_and_imp.1 h).2
+protected theorem mpr {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) : ψ ⟹[T] φ :=
+  (iff_iff_imp_and_imp.1 h).2
 
 @[refl]
-protected theorem refl (φ : L.BoundedFormula α n) : φ ⇔[T] φ :=
-  fun M v xs => by rw [BoundedFormula.realize_iff]
+protected theorem refl (φ : L.BoundedFormula α n) : φ ⇔[T] φ := fun M v xs => by
+  rw [BoundedFormula.realize_iff]
 
-instance : @Std.Refl (L.BoundedFormula α n) T.Iff :=
-  ⟨Iff.refl⟩
+instance : @Std.Refl (L.BoundedFormula α n) T.Iff := ⟨Iff.refl⟩
 
 @[symm]
-protected theorem symm {φ ψ : L.BoundedFormula α n}
-    (h : φ ⇔[T] ψ) : ψ ⇔[T] φ := fun M v xs => by
+protected theorem symm {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) : ψ ⇔[T] φ := fun M v xs => by
   rw [BoundedFormula.realize_iff, Iff.comm, ← BoundedFormula.realize_iff]
   exact h M v xs
 
-instance : Std.Symm (α := L.BoundedFormula α n) T.Iff :=
-  ⟨fun _ _ => Iff.symm⟩
+instance : Std.Symm (α := L.BoundedFormula α n) T.Iff := ⟨fun _ _ => Iff.symm⟩
 
 @[trans]
-protected theorem trans {φ ψ θ : L.BoundedFormula α n}
-    (h1 : φ ⇔[T] ψ) (h2 : ψ ⇔[T] θ) :
-    φ ⇔[T] θ := fun M v xs => by
+protected theorem trans {φ ψ θ : L.BoundedFormula α n} (h1 : φ ⇔[T] ψ) (h2 : ψ ⇔[T] θ)
+    : φ ⇔[T] θ := fun M v xs => by
   have h1' := h1 M v xs
   have h2' := h2 M v xs
   rw [BoundedFormula.realize_iff] at *
   exact ⟨h2'.1 ∘ h1'.1, h1'.2 ∘ h2'.2⟩
 
-instance : IsTrans (L.BoundedFormula α n) T.Iff :=
-  ⟨fun _ _ _ => Iff.trans⟩
+instance : IsTrans (L.BoundedFormula α n) T.Iff := ⟨fun _ _ _ => Iff.trans⟩
 
-theorem realize_bd_iff {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ)
-    {v : α → M} {xs : Fin n → M} : φ.Realize v xs ↔ ψ.Realize v xs :=
+theorem realize_bd_iff {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) {v : α → M} {xs : Fin n → M}
+    : φ.Realize v xs ↔ ψ.Realize v xs :=
   BoundedFormula.realize_iff.1 (h.realize_boundedFormula M)
 
-theorem realize_iff {φ ψ : L.Formula α} {M : Type*} [Nonempty M]
-    [L.Structure M] [M ⊨ T] (h : φ ⇔[T] ψ) {v : α → M} :
-    φ.Realize v ↔ ψ.Realize v :=
+theorem realize_iff
+    {φ ψ : L.Formula α} {M : Type*} [Nonempty M] [L.Structure M] [M ⊨ T] (h : φ ⇔[T] ψ) {v : α → M}
+    : φ.Realize v ↔ ψ.Realize v :=
   h.realize_bd_iff
 
-theorem models_sentence_iff {φ ψ : L.Sentence} {M : Type*} [Nonempty M]
-    [L.Structure M] [M ⊨ T] (h : φ ⇔[T] ψ) :
-    M ⊨ φ ↔ M ⊨ ψ :=
+theorem models_sentence_iff
+    {φ ψ : L.Sentence} {M : Type*} [Nonempty M] [L.Structure M] [M ⊨ T] (h : φ ⇔[T] ψ)
+    : M ⊨ φ ↔ M ⊨ ψ :=
   h.realize_iff
 
-protected theorem all {φ ψ : L.BoundedFormula α (n + 1)}
-    (h : φ ⇔[T] ψ) : φ.all ⇔[T] ψ.all := by
+protected theorem all {φ ψ : L.BoundedFormula α (n + 1)} (h : φ ⇔[T] ψ) : φ.all ⇔[T] ψ.all := by
   simp_rw [Theory.Iff, ModelsBoundedFormula, BoundedFormula.realize_iff,
     BoundedFormula.realize_all]
   exact fun M v xs => forall_congr' fun a => h.realize_bd_iff
 
-protected theorem ex {φ ψ : L.BoundedFormula α (n + 1)} (h : φ ⇔[T] ψ) :
-    φ.ex ⇔[T] ψ.ex := by
+protected theorem ex {φ ψ : L.BoundedFormula α (n + 1)} (h : φ ⇔[T] ψ) : φ.ex ⇔[T] ψ.ex := by
   simp_rw [Theory.Iff, ModelsBoundedFormula, BoundedFormula.realize_iff,
     BoundedFormula.realize_ex]
   exact fun M v xs => exists_congr fun a => h.realize_bd_iff
 
-protected theorem not {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) :
-    φ.not ⇔[T] ψ.not := by
+protected theorem not {φ ψ : L.BoundedFormula α n} (h : φ ⇔[T] ψ) : φ.not ⇔[T] ψ.not := by
   simp_rw [Theory.Iff, ModelsBoundedFormula, BoundedFormula.realize_iff,
     BoundedFormula.realize_not]
   exact fun M v xs => not_congr h.realize_bd_iff
 
-protected theorem imp {φ ψ φ' ψ' : L.BoundedFormula α n} (h : φ ⇔[T] ψ) (h' : φ' ⇔[T] ψ') :
-    (φ.imp φ') ⇔[T] (ψ.imp ψ') := by
+protected theorem imp {φ ψ φ' ψ' : L.BoundedFormula α n} (h : φ ⇔[T] ψ) (h' : φ' ⇔[T] ψ')
+    : (φ.imp φ') ⇔[T] (ψ.imp ψ') := by
   simp_rw [Theory.Iff, ModelsBoundedFormula, BoundedFormula.realize_iff,
     BoundedFormula.realize_imp]
   exact fun M v xs => imp_congr h.realize_bd_iff h'.realize_bd_iff
@@ -210,26 +202,24 @@ namespace BoundedFormula
 
 variable (φ ψ : L.BoundedFormula α n)
 
-theorem iff_not_not : φ ⇔[T] φ.not.not := fun M v xs => by
+theorem iff_not_not : φ ⇔[T] φ.not.not := fun M v xs => by simp
+
+theorem imp_iff_not_sup : (φ.imp ψ) ⇔[T] (φ.not ⊔ ψ) := fun M v xs => by simp [imp_iff_not_or]
+
+theorem sup_iff_not_inf_not : (φ ⊔ ψ) ⇔[T] (φ.not ⊓ ψ.not).not := fun M v xs => by
+  simp [imp_iff_not_or]
+
+theorem inf_iff_not_sup_not : (φ ⊓ ψ) ⇔[T] (φ.not ⊔ ψ.not).not := fun M v xs => by simp
+
+theorem all_iff_not_ex_not (φ : L.BoundedFormula α (n + 1))
+    : φ.all ⇔[T] φ.not.ex.not := fun M v xs => by
   simp
 
-theorem imp_iff_not_sup : (φ.imp ψ) ⇔[T] (φ.not ⊔ ψ) :=
-  fun M v xs => by simp [imp_iff_not_or]
+theorem ex_iff_not_all_not (φ : L.BoundedFormula α (n + 1))
+    : φ.ex ⇔[T] φ.not.all.not := fun M v xs => by
+  simp
 
-theorem sup_iff_not_inf_not : (φ ⊔ ψ) ⇔[T] (φ.not ⊓ ψ.not).not :=
-  fun M v xs => by simp [imp_iff_not_or]
-
-theorem inf_iff_not_sup_not : (φ ⊓ ψ) ⇔[T] (φ.not ⊔ ψ.not).not :=
-  fun M v xs => by simp
-
-theorem all_iff_not_ex_not (φ : L.BoundedFormula α (n + 1)) :
-    φ.all ⇔[T] φ.not.ex.not := fun M v xs => by simp
-
-theorem ex_iff_not_all_not (φ : L.BoundedFormula α (n + 1)) :
-    φ.ex ⇔[T] φ.not.all.not := fun M v xs => by simp
-
-theorem iff_all_liftAt : φ ⇔[T] (φ.liftAt 1 n).all :=
-  fun M v xs => by
+theorem iff_all_liftAt : φ ⇔[T] (φ.liftAt 1 n).all := fun M v xs => by
   rw [realize_iff, realize_all_liftAt_one_self]
 
 lemma inf_not_iff_bot :
@@ -246,11 +236,9 @@ namespace Formula
 
 variable (φ ψ : L.Formula α)
 
-theorem iff_not_not : φ ⇔[T] φ.not.not :=
-  BoundedFormula.iff_not_not φ
+theorem iff_not_not : φ ⇔[T] φ.not.not := BoundedFormula.iff_not_not φ
 
-theorem imp_iff_not_sup : (φ.imp ψ) ⇔[T] (φ.not ⊔ ψ) :=
-  BoundedFormula.imp_iff_not_sup φ ψ
+theorem imp_iff_not_sup : (φ.imp ψ) ⇔[T] (φ.not ⊔ ψ) := BoundedFormula.imp_iff_not_sup φ ψ
 
 theorem sup_iff_not_inf_not : (φ ⊔ ψ) ⇔[T] (φ.not ⊓ ψ.not).not :=
   BoundedFormula.sup_iff_not_inf_not φ ψ

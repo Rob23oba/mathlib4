@@ -98,39 +98,34 @@ section Quantity
 /-! ### Standard quantities -/
 
 /-- The `b₂` coefficient of a Weierstrass curve. -/
-def b₂ : R :=
-  W.a₁ ^ 2 + 4 * W.a₂
+def b₂ : R := W.a₁ ^ 2 + 4 * W.a₂
 
 /-- The `b₄` coefficient of a Weierstrass curve. -/
-def b₄ : R :=
-  2 * W.a₄ + W.a₁ * W.a₃
+def b₄ : R := 2 * W.a₄ + W.a₁ * W.a₃
 
 /-- The `b₆` coefficient of a Weierstrass curve. -/
-def b₆ : R :=
-  W.a₃ ^ 2 + 4 * W.a₆
+def b₆ : R := W.a₃ ^ 2 + 4 * W.a₆
 
 /-- The `b₈` coefficient of a Weierstrass curve. -/
-def b₈ : R :=
-  W.a₁ ^ 2 * W.a₆ + 4 * W.a₂ * W.a₆ - W.a₁ * W.a₃ * W.a₄ + W.a₂ * W.a₃ ^ 2 - W.a₄ ^ 2
+def b₈ : R := W.a₁ ^ 2 * W.a₆ + 4 * W.a₂ * W.a₆ - W.a₁ * W.a₃ * W.a₄ + W.a₂ * W.a₃ ^ 2 - W.a₄ ^ 2
 
 lemma b_relation : 4 * W.b₈ = W.b₂ * W.b₆ - W.b₄ ^ 2 := by
   simp only [b₂, b₄, b₆, b₈]
   ring1
 
 /-- The `c₄` coefficient of a Weierstrass curve. -/
-def c₄ : R :=
-  W.b₂ ^ 2 - 24 * W.b₄
+def c₄ : R := W.b₂ ^ 2 - 24 * W.b₄
 
 /-- The `c₆` coefficient of a Weierstrass curve. -/
-def c₆ : R :=
-  -W.b₂ ^ 3 + 36 * W.b₂ * W.b₄ - 216 * W.b₆
+def c₆ : R := - W.b₂ ^ 3 + 36 * W.b₂ * W.b₄ - 216 * W.b₆
 
-/-- The discriminant `Δ` of a Weierstrass curve. If `R` is a field, then this polynomial vanishes
+/--
+The discriminant `Δ` of a Weierstrass curve. If `R` is a field, then this polynomial vanishes
 if and only if the cubic curve cut out by this equation is singular. Sometimes only defined up to
 sign in the literature; we choose the sign used by the LMFDB. For more discussion, see
-[the LMFDB page on discriminants](https://www.lmfdb.org/knowledge/show/ec.discriminant). -/
-def Δ : R :=
-  -W.b₂ ^ 2 * W.b₈ - 8 * W.b₄ ^ 3 - 27 * W.b₆ ^ 2 + 9 * W.b₂ * W.b₄ * W.b₆
+[the LMFDB page on discriminants](https://www.lmfdb.org/knowledge/show/ec.discriminant).
+-/
+def Δ : R := - W.b₂ ^ 2 * W.b₈ - 8 * W.b₄ ^ 3 - 27 * W.b₆ ^ 2 + 9 * W.b₂ * W.b₄ * W.b₆
 
 lemma c_relation : 1728 * W.Δ = W.c₄ ^ 3 - W.c₆ ^ 2 := by
   simp only [b₂, b₄, b₆, b₈, c₄, c₆, Δ]
@@ -227,14 +222,11 @@ section BaseChange
 variable {A : Type v} [CommRing A] (f : R →+* A)
 
 /-- The Weierstrass curve mapped over a ring homomorphism `f : R →+* A`. -/
-@[simps]
-def map : WeierstrassCurve A :=
-  ⟨f W.a₁, f W.a₂, f W.a₃, f W.a₄, f W.a₆⟩
+@[simps] def map : WeierstrassCurve A := ⟨f W.a₁, f W.a₂, f W.a₃, f W.a₄, f W.a₆⟩
 
 variable (A) in
 /-- The Weierstrass curve base changed to an algebra `A` over `R`. -/
-def baseChange [Algebra R A] : WeierstrassCurve A :=
-  W.map <| algebraMap R A
+def baseChange [Algebra R A] : WeierstrassCurve A := W.map <| algebraMap R A
 
 /-- The notation `\textf` for `WeierstrassCurve.baseChange W A`. -/
 scoped notation:max (priority := low) W:max "⁄" A:max => baseChange W A
@@ -299,11 +291,12 @@ section TorsionPolynomial
 
 /-! ### 2-torsion polynomials -/
 
-/-- A cubic polynomial whose discriminant is a multiple of the Weierstrass curve discriminant. If
+/--
+A cubic polynomial whose discriminant is a multiple of the Weierstrass curve discriminant. If
 `W` is an elliptic curve over a field `R` of characteristic different from 2, then its roots over a
-splitting field of `R` are precisely the `X`-coordinates of the non-zero 2-torsion points of `W`. -/
-def twoTorsionPolynomial : Cubic R :=
-  ⟨4, W.b₂, 2 * W.b₄, W.b₆⟩
+splitting field of `R` are precisely the `X`-coordinates of the non-zero 2-torsion points of `W`.
+-/
+def twoTorsionPolynomial : Cubic R := ⟨4, W.b₂, 2 * W.b₄, W.b₆⟩
 
 lemma eval_toPoly_twoTorsionPolynomial (x : R) :
     W.twoTorsionPolynomial.toPoly.eval x = 4 * x ^ 3 + W.b₂ * x ^ 2 + 2 * W.b₄ * x + W.b₆ := by
@@ -360,9 +353,11 @@ end TorsionPolynomial
 /-! ## Elliptic curves -/
 
 -- TODO: change to `protected abbrev IsElliptic := IsUnit W.Δ` once https://github.com/leanprover-community/mathlib4/issues/17458 is merged
-/-- `WeierstrassCurve.IsElliptic` is a typeclass which asserts that a Weierstrass curve is an
+/--
+`WeierstrassCurve.IsElliptic` is a typeclass which asserts that a Weierstrass curve is an
 elliptic curve: that its discriminant is a unit. Note that this definition is only mathematically
-accurate for certain rings whose Picard group has trivial 12-torsion, such as a field or a PID. -/
+accurate for certain rings whose Picard group has trivial 12-torsion, such as a field or a PID.
+-/
 @[mk_iff]
 protected class IsElliptic : Prop where
   isUnit : IsUnit W.Δ
@@ -371,11 +366,12 @@ variable [W.IsElliptic]
 
 lemma isUnit_Δ : IsUnit W.Δ := IsElliptic.isUnit
 
-/-- The discriminant `Δ'` of an elliptic curve over `R`, which is given as a unit in `R`.
+/--
+The discriminant `Δ'` of an elliptic curve over `R`, which is given as a unit in `R`.
 Note that to prove two equal elliptic curves have the same `Δ'`, you need to use `simp_rw`,
-as `rw` cannot transfer instance `WeierstrassCurve.IsElliptic` automatically. -/
-noncomputable def Δ' : Rˣ :=
-  W.isUnit_Δ.unit
+as `rw` cannot transfer instance `WeierstrassCurve.IsElliptic` automatically.
+-/
+noncomputable def Δ' : Rˣ := W.isUnit_Δ.unit
 
 /-- The discriminant `Δ'` of an elliptic curve is equal to the
 discriminant `Δ` of it as a Weierstrass curve. -/
@@ -383,11 +379,12 @@ discriminant `Δ` of it as a Weierstrass curve. -/
 lemma coe_Δ' : W.Δ' = W.Δ :=
   rfl
 
-/-- The j-invariant `j` of an elliptic curve, which is invariant under isomorphisms over `R`.
+/--
+The j-invariant `j` of an elliptic curve, which is invariant under isomorphisms over `R`.
 Note that to prove two equal elliptic curves have the same `j`, you need to use `simp_rw`,
-as `rw` cannot transfer instance `WeierstrassCurve.IsElliptic` automatically. -/
-noncomputable def j : R :=
-  W.Δ'⁻¹ * W.c₄ ^ 3
+as `rw` cannot transfer instance `WeierstrassCurve.IsElliptic` automatically.
+-/
+noncomputable def j : R := W.Δ'⁻¹ * W.c₄ ^ 3
 
 /-- A variant of `WeierstrassCurve.j_eq_zero_iff` without assuming a reduced ring. -/
 lemma j_eq_zero_iff' : W.j = 0 ↔ W.c₄ ^ 3 = 0 := by
@@ -399,8 +396,8 @@ lemma j_eq_zero (h : W.c₄ = 0) : W.j = 0 := by
 lemma j_eq_zero_iff [IsReduced R] : W.j = 0 ↔ W.c₄ = 0 := by
   rw [j_eq_zero_iff', pow_eq_zero_iff three_ne_zero]
 
-theorem j_eq {K : Type*} [Field K] (W : WeierstrassCurve K) [W.IsElliptic] :
-    W.j = W.Δ⁻¹ * W.c₄ ^ 3 := by
+theorem j_eq {K : Type*} [Field K] (W : WeierstrassCurve K) [W.IsElliptic]
+    : W.j = W.Δ⁻¹ * W.c₄ ^ 3 := by
   rw [WeierstrassCurve.j, Units.val_inv_eq_inv_val, WeierstrassCurve.coe_Δ']
 
 section CharTwo
@@ -453,8 +450,7 @@ section BaseChange
 
 variable {A : Type v} [CommRing A] (f : R →+* A)
 
-instance : (W.map f).IsElliptic := by
-  simp only [isElliptic_iff, map_Δ, W.isUnit_Δ.map]
+instance : (W.map f).IsElliptic := by simp only [isElliptic_iff, map_Δ, W.isUnit_Δ.map]
 
 set_option linter.docPrime false in
 lemma coe_map_Δ' : (W.map f).Δ' = f W.Δ' := by

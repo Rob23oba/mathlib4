@@ -17,8 +17,7 @@ public section
 namespace PNat
 open Nat
 
-instance instSuccOrder : SuccOrder ℕ+ :=
-  .ofSuccLeIff (· + 1) Iff.rfl
+instance instSuccOrder : SuccOrder ℕ+ := .ofSuccLeIff (· + 1) Iff.rfl
 
 instance instSuccAddOrder : SuccAddOrder ℕ+ where
   succ_eq_add_one _ := rfl

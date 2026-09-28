@@ -8,7 +8,7 @@ module
 public meta import Lean.Elab.InfoTree.Util
 -- Import this linter explicitly to ensure that
 -- this file has a valid copyright header and module docstring.
-public meta import Mathlib.Tactic.Linter.Header  -- shake: keep
+public meta import Mathlib.Tactic.Linter.Header -- shake: keep
 public import Batteries.Tactic.Unreachable
 public import Lean.Parser.Syntax
 public import Mathlib.Tactic.Linter.UnusedTacticExtension
@@ -116,8 +116,7 @@ initialize ignoreTacticKindsRef : IO.Ref NameHashSet ←
 
 /-- Is this a syntax kind that contains intentionally unused tactic subterms? -/
 public def isIgnoreTacticKind (ignoreTacticKinds : NameHashSet) (k : SyntaxNodeKind) : Bool :=
-  k matches .str _ "quot" ||
-  ignoreTacticKinds.contains k
+  k matches .str _ "quot" || ignoreTacticKinds.contains k
 
 /--
 Adds a new syntax kind whose children will be ignored by the `unusedTactic` linter.
@@ -127,73 +126,88 @@ public def addIgnoreTacticKind (kind : SyntaxNodeKind) : IO Unit :=
   ignoreTacticKindsRef.modify (·.insert kind)
 
 /-- Accumulates the set of tactic syntaxes that should be evaluated at least once. -/
-@[specialize] partial def getTactics (ignoreTacticKinds : NameHashSet)
-    (isTacKind : SyntaxNodeKind → Bool) (stx : Syntax) : M Unit := do
+@[specialize]
+partial def getTactics
+    (ignoreTacticKinds : NameHashSet) (isTacKind : SyntaxNodeKind → Bool) (stx : Syntax)
+    : M Unit := do
   if let .node _ k args := stx then
-    if !isIgnoreTacticKind ignoreTacticKinds k then
+    if ! isIgnoreTacticKind ignoreTacticKinds k then
       args.forM (getTactics ignoreTacticKinds isTacKind)
     if isTacKind k then
       if let some r := stx.getRange? true then
         modify fun m => m.insert r stx
 
-/-- `getNames mctx` extracts the names of all the local declarations implied by the
-`MetavarContext` `mctx`. -/
+/--
+`getNames mctx` extracts the names of all the local declarations implied by the
+`MetavarContext` `mctx`.
+-/
 def getNames (mctx : MetavarContext) : List Name :=
   let lcts := mctx.decls.toList.map (MetavarDecl.lctx ∘ Prod.snd)
   let locDecls := (lcts.map (PersistentArray.toList ∘ LocalContext.decls)).flatten.reduceOption
   locDecls.map LocalDecl.userName
 
-/-- Search for tactic executions in the info tree and remove the syntax of the tactics that
-changed something. -/
-partial def eraseUsedTactics (exceptions : Std.HashSet SyntaxNodeKind)
-    (trees : PersistentArray InfoTree) : M Unit :=
-  let ranges := trees.foldl (init := #[]) <| InfoTree.foldInfo fun _ i ranges => Id.run do
-    let .ofTacticInfo i := i | return ranges
-    let stx := i.stx
-    let some r := stx.getRange? true | return ranges
-    let kind := stx.getKind
-    -- if the tactic is allowed to not change the goals
-    if exceptions.contains kind then
-      return ranges.push r
-    -- if the goals have changed
-    if i.goalsAfter != i.goalsBefore then
-      return ranges.push r
-    -- bespoke check for `swap_var`: the only change that it does is
-    -- in the usernames of local declarations, so we check the names before and after
-    if (kind == `Mathlib.Tactic.«tacticSwap_var__,,») &&
-            (getNames i.mctxBefore != getNames i.mctxAfter) then
-      return ranges.push r
-    return ranges
+/--
+Search for tactic executions in the info tree and remove the syntax of the tactics that
+changed something.
+-/
+partial def eraseUsedTactics
+    (exceptions : Std.HashSet SyntaxNodeKind) (trees : PersistentArray InfoTree)
+    : M Unit :=
+  let ranges :=
+    trees.foldl (init := #[]) <| InfoTree.foldInfo fun _ i ranges => Id.run do
+      let .ofTacticInfo i := i
+        | return ranges
+      let stx := i.stx
+      let some r := stx.getRange? true
+        | return ranges
+      let kind := stx.getKind
+      -- if the tactic is allowed to not change the goals
+      if exceptions.contains kind then
+        return ranges.push r
+      -- if the goals have changed
+      if i.goalsAfter != i.goalsBefore then
+        return ranges.push r
+      -- bespoke check for `swap_var`: the only change that it does is
+      -- in the usernames of local declarations, so we check the names before and after
+      if (kind == `Mathlib.Tactic.«tacticSwap_var__,,»)
+        && (getNames i.mctxBefore != getNames i.mctxAfter)
+      then
+        return ranges.push r
+      return ranges
   for r in ranges do
     modify (·.erase r)
 
 /-- The main entry point to the unused tactic linter. -/
-def unusedTacticLinter : Linter where run := withSetOptionIn fun stx => do
-  unless getLinterValue linter.unusedTactic (← getLinterOptions) && (← getInfoState).enabled do
-    return
-  if (← get).messages.hasErrors then
-    return
-  let env ← getEnv
-  let cats := (Parser.parserExtension.getState env).categories
-  -- These lookups may fail when the linter is run in a fresh, empty environment
-  let some tactics := Parser.ParserCategory.kinds <$> cats.find? `tactic
-    | return
-  let some convs := Parser.ParserCategory.kinds <$> cats.find? `conv
-    | return
-  let trees ← getInfoTrees
-  let exceptions := (← allowedRef.get).union <| allowedUnusedTacticExt.getState env
-  let go : M Unit := do
-    getTactics (← ignoreTacticKindsRef.get) (fun k => tactics.contains k || convs.contains k) stx
-    eraseUsedTactics exceptions trees
-  let (_, map) ← go.run {}
-  let unused := map.toArray
-  let key (r : Lean.Syntax.Range) := (r.start.byteIdx, (-r.stop.byteIdx : Int))
-  let mut last : Lean.Syntax.Range := ⟨0, 0⟩
-  for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unused.qsort (key ·.1 < key ·.1) do
-    if stx.getKind ∈ [``Batteries.Tactic.unreachable, ``Batteries.Tactic.unreachableConv] then
-      continue
-    if last.start ≤ r.start && r.stop ≤ last.stop then continue
-    Linter.logLint linter.unusedTactic stx m!"Unused tactic linter: `{stx}` does nothing"
-    last := r
+def unusedTacticLinter : Linter where
+  run :=
+    withSetOptionIn fun stx => do
+      unless getLinterValue linter.unusedTactic (← getLinterOptions) && (← getInfoState).enabled do
+        return
+      if (← get).messages.hasErrors then
+        return
+      let env ← getEnv
+      let cats := (Parser.parserExtension.getState env).categories
+      -- These lookups may fail when the linter is run in a fresh, empty environment
+      let some tactics := Parser.ParserCategory.kinds <$> cats.find? `tactic
+        | return
+      let some convs := Parser.ParserCategory.kinds <$> cats.find? `conv
+        | return
+      let trees ← getInfoTrees
+      let exceptions := (← allowedRef.get).union <| allowedUnusedTacticExt.getState env
+      let go : M Unit := do
+        getTactics (← ignoreTacticKindsRef.get)
+          (fun k => tactics.contains k || convs.contains k)
+          stx
+        eraseUsedTactics exceptions trees
+      let (_, map) ← go.run {}
+      let unused := map.toArray
+      let key (r : Lean.Syntax.Range) := (r.start.byteIdx, (-r.stop.byteIdx : Int))
+      let mut last : Lean.Syntax.Range := ⟨0, 0⟩
+      for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unused.qsort (key ·.1 < key ·.1) do
+        if stx.getKind ∈ [``Batteries.Tactic.unreachable, ``Batteries.Tactic.unreachableConv] then
+          continue
+        if last.start ≤ r.start && r.stop ≤ last.stop then continue
+        Linter.logLint linter.unusedTactic stx m!"Unused tactic linter: `{stx}` does nothing"
+        last := r
 
 initialize addLinter unusedTacticLinter

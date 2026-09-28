@@ -79,13 +79,13 @@ lemma map_π_liftedConeElement (i : I) :
 @[implicit_reducible, simps]
 noncomputable def liftedCone : Cone F where
   pt := .mk (liftedConeElement F)
-  π :=
-    { app := fun i => ⟨limit.π (F ⋙ π A) i, by simp⟩
-      naturality := fun i i' f => by ext; simpa using! (limit.w _ _).symm }
+  π := {
+    app := fun i => ⟨limit.π (F ⋙ π A) i, by simp⟩
+    naturality := fun i i' f => by ext; simpa using! (limit.w _ _).symm
+  }
 
 /-- (implementation) The constructed limit cone is a lift of the limit cone in `C`. -/
-noncomputable def isValidLift : (π A).mapCone (liftedCone F) ≅ limit.cone (F ⋙ π A) :=
-  Iso.refl _
+noncomputable def isValidLift : (π A).mapCone (liftedCone F) ≅ limit.cone (F ⋙ π A) := Iso.refl _
 
 /-- (implementation) The constructed limit cone is a limit cone. -/
 noncomputable def isLimit : IsLimit (liftedCone F) where
@@ -122,43 +122,49 @@ end Initial
 
 end
 
-
-/-- An initial object in the category `F.Elements` of a covariant functor defines a
-corepresentation for that functor. -/
-def corepresentableByOfIsInitial {F : C ⥤ Type w} {E : Elements F} (he : IsInitial E) :
-    CorepresentableBy F E.obj where
-  homEquiv :=
-    { toFun f := F.map f E.val
-      invFun y := (he.to (.mk y)).hom
-      left_inv f := congr_arg Hom.hom (he.hom_ext (he.to (.mk (F.map f E.val))) ⟨f, rfl⟩)
-      right_inv y := (he.to (.mk y)).map_val }
+/--
+An initial object in the category `F.Elements` of a covariant functor defines a
+corepresentation for that functor.
+-/
+def corepresentableByOfIsInitial {F : C ⥤ Type w} {E : Elements F} (he : IsInitial E)
+    : CorepresentableBy F E.obj where
+  homEquiv := {
+    toFun f := F.map f E.val
+    invFun y := (he.to (.mk y)).hom
+    left_inv f := congr_arg Hom.hom (he.hom_ext (he.to (.mk (F.map f E.val))) ⟨f, rfl⟩)
+    right_inv y := (he.to (.mk y)).map_val
+  }
 
 lemma isCorepresentable_of_hasInitial (F : C ⥤ Type w) [HasInitial (Elements F)] :
     IsCorepresentable F where
   has_corepresentation := ⟨_, ⟨corepresentableByOfIsInitial initialIsInitial⟩⟩
 
-theorem hasInitial_iff_isCorepresentable (F : C ⥤ Type w) :
-    HasInitial (Elements F) ↔ IsCorepresentable F where
+theorem hasInitial_iff_isCorepresentable (F : C ⥤ Type w)
+    : HasInitial (Elements F) ↔ IsCorepresentable F where
   mp _ := isCorepresentable_of_hasInitial F
   mpr _ := inferInstance
 
-/-- An initial object in the category `F.Elements` of a contravariant functor defines a
-representation for that functor. -/
-def representableByOfIsInitial {F : Cᵒᵖ ⥤ Type w} {E : Elements F} (he : IsInitial E) :
-    RepresentableBy F (E.obj.unop) where
-  homEquiv :=
-    { toFun f := F.map f.op E.val
-      invFun y := (he.to (.mk y)).hom.unop
-      left_inv f := Quiver.Hom.op_inj
-        (congr_arg Hom.hom (he.hom_ext (he.to (.mk (F.map f.op E.val))) (homMk f.op)))
-      right_inv y := (he.to (.mk y)).map_val }
+/--
+An initial object in the category `F.Elements` of a contravariant functor defines a
+representation for that functor.
+-/
+def representableByOfIsInitial {F : Cᵒᵖ ⥤ Type w} {E : Elements F} (he : IsInitial E)
+    : RepresentableBy F (E.obj.unop) where
+  homEquiv := {
+    toFun f := F.map f.op E.val
+    invFun y := (he.to (.mk y)).hom.unop
+    left_inv f :=
+      Quiver.Hom.op_inj (congr_arg Hom.hom
+        (he.hom_ext (he.to (.mk (F.map f.op E.val))) (homMk f.op)))
+    right_inv y := (he.to (.mk y)).map_val
+  }
 
 lemma isRepresentable_of_hasInitial (F : Cᵒᵖ ⥤ Type w) [HasInitial (Elements F)] :
     IsRepresentable F where
   has_representation := ⟨_, ⟨(representableByOfIsInitial initialIsInitial)⟩⟩
 
-theorem hasInitial_iff_isRepresentable (F : Cᵒᵖ ⥤ Type w) :
-    HasInitial (Elements F) ↔ IsRepresentable F where
+theorem hasInitial_iff_isRepresentable (F : Cᵒᵖ ⥤ Type w)
+    : HasInitial (Elements F) ↔ IsRepresentable F where
   mp _ := isRepresentable_of_hasInitial F
   mpr _ := inferInstance
 

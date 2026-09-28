@@ -163,10 +163,14 @@ lemma isClosed_iff [TopologicalSpace α] [IsLower α] (hT : ∀ p ∈ T, InfPrim
 abbrev kernel (S : Set T) := sInf (Subtype.val '' S)
 
 open OrderDual in
-/-- The pair of maps `kernel` and `hull` form an antitone Galois connection between the
-subsets of `T` and `α`. -/
-theorem gc : GaloisConnection (α := Set T) (β := αᵒᵈ)
-    (fun S => toDual (kernel S)) (fun a => hull T (ofDual a)) := fun S a => by
+/--
+The pair of maps `kernel` and `hull` form an antitone Galois connection between the
+subsets of `T` and `α`.
+-/
+theorem gc
+    : GaloisConnection (α := Set T) (β := αᵒᵈ)
+      (fun S => toDual (kernel S))
+      (fun a => hull T (ofDual a)) := fun S a => by
   simp [Set.subset_def]
 
 lemma gc_closureOperator (S : Set T) : gc.closureOperator S = hull T (kernel S) := by
@@ -175,19 +179,19 @@ lemma gc_closureOperator (S : Set T) : gc.closureOperator S = hull T (kernel S) 
 
 variable (T)
 
-/-- `T` order generates `α` if, for every `a` in `α`, there exists a subset of `T` such that `a` is
-the `kernel` of `S`. -/
+/--
+`T` order generates `α` if, for every `a` in `α`, there exists a subset of `T` such that `a` is
+the `kernel` of `S`.
+-/
 def OrderGenerates := ∀ (a : α), ∃ (S : Set T), a = kernel S
 
 variable {T}
 
 set_option backward.isDefEq.respectTransparency false in
-/--
-When `T` is order generating, the `kernel` and the `hull` form a Galois insertion
--/
-def gi (hG : OrderGenerates T) : GaloisInsertion (α := Set T) (β := αᵒᵈ)
-    (OrderDual.toDual ∘ kernel)
-    (hull T ∘ OrderDual.ofDual) :=
+/-- When `T` is order generating, the `kernel` and the `hull` form a Galois insertion -/
+def gi (hG : OrderGenerates T)
+    : GaloisInsertion (α := Set T) (β := αᵒᵈ) (OrderDual.toDual ∘ kernel)
+      (hull T ∘ OrderDual.ofDual) :=
   gc.toGaloisInsertion fun a ↦ by
     obtain ⟨S, rfl⟩ := hG a
     rw [OrderDual.le_toDual, kernel, kernel]

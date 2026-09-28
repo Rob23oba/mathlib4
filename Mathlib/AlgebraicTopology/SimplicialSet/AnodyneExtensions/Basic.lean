@@ -64,17 +64,18 @@ namespace SSet
 open MorphismProperty
 
 open modelCategoryQuillen in
-/-- In the category of simplicial sets, an anodyne extension is a morphism
+/--
+In the category of simplicial sets, an anodyne extension is a morphism
 that has the left lifting property with respect to fibrations, where
 a fibration is a morphism that has the right lifting property with respect
 to horn inclusions. We do not introduce a typeclass for anodyne extensions
 because when the Quillen model structure is fully upstreamed (TODO @joelriou),
 the assumption `anodyneExtensions f` can be spelled as
-`[Cofibration f] [WeakEquivalence f]`. -/
+`[Cofibration f] [WeakEquivalence f]`.
+-/
 def anodyneExtensions : MorphismProperty SSet.{u} := (fibrations _).llp
-deriving IsMultiplicative, RespectsIso, IsStableUnderCobaseChange,
-  IsStableUnderRetracts, IsStableUnderTransfiniteComposition,
-  IsStableUnderCoproducts
+deriving IsMultiplicative, RespectsIso, IsStableUnderCobaseChange, IsStableUnderRetracts,
+  IsStableUnderTransfiniteComposition, IsStableUnderCoproducts
 
 lemma anodyneExtensions.of_isIso {X Y : SSet.{u}} (f : X ⟶ Y) [IsIso f] :
     anodyneExtensions f :=
@@ -89,15 +90,14 @@ lemma anodyneExtensions.horn_ι {n : ℕ} [NeZero n] (i : Fin (n + 1)) :
   rw [anodyneExtensions_eq_llp_rlp]
   exact le_llp_rlp _ _ (modelCategoryQuillen.horn_ι_mem_J n i)
 
-attribute [local instance] Cardinal.fact_isRegular_aleph0
-  Cardinal.orderBotAleph0OrdToType
+attribute [local instance] Cardinal.fact_isRegular_aleph0 Cardinal.orderBotAleph0OrdToType
 
-instance (n : ℕ) : MorphismProperty.IsSmall.{u}
-    (MorphismProperty.ofHoms.{u} (fun (i : Fin (n + 2)) ↦ Λ[n + 1, i].ι)) :=
+instance (n : ℕ)
+    : MorphismProperty.IsSmall.{u} (MorphismProperty.ofHoms.{u} (fun (i : Fin (n + 2)) ↦
+      Λ[n + 1, i].ι)) :=
   isSmall_ofHoms ..
 
-instance : MorphismProperty.IsSmall.{u} modelCategoryQuillen.J.{u} :=
-  isSmall_iSup ..
+instance : MorphismProperty.IsSmall.{u} modelCategoryQuillen.J.{u} := isSmall_iSup ..
 
 instance : IsCardinalForSmallObjectArgument modelCategoryQuillen.J.{u} Cardinal.aleph0.{u} where
   preservesColimit {A B X Y} i hi f hf := by
@@ -121,14 +121,16 @@ lemma anodyneExtensions_eq_retracts_transfiniteCompositionsOfShape :
   rw [anodyneExtensions_eq_llp_rlp,
     SmallObject.llp_rlp_of_isCardinalForSmallObjectArgument_aleph0]
 
-/-- In the category of simplicial sets, a strong anodyne extension is a morphism
+/--
+In the category of simplicial sets, a strong anodyne extension is a morphism
 which belongs to the closure of horn inclusions by pushouts, coproducts,
 transfinite compositions (but not by retracts). We define this class here
 by saying that `f : X ⟶ Y` is a strong anodyne extension if `f` is a monomorphism
 and there exists a regular pairing (in the sense of Moss) for the subcomplex
-`Subcomplex.range f` of `Y`. -/
-def strongAnodyneExtensions : MorphismProperty SSet.{u} :=
-  fun _ _ f ↦ Mono f ∧ ∃ (P : (Subcomplex.range f).Pairing), P.IsRegular
+`Subcomplex.range f` of `Y`.
+-/
+def strongAnodyneExtensions : MorphismProperty SSet.{u} := fun _ _ f ↦
+  Mono f ∧ ∃ (P : (Subcomplex.range f).Pairing), P.IsRegular
 
 lemma strongAnodyneExtensions.mono {X Y : SSet.{u}} {f : X ⟶ Y}
     (hf : strongAnodyneExtensions f) : Mono f := hf.1
@@ -166,8 +168,7 @@ instance : strongAnodyneExtensions.{u}.RespectsIso where
   precomp e _ f hf := by
     obtain ⟨_, P, hP⟩ := hf
     refine ⟨inferInstance, P.ofIso (Iso.refl _) ?_, inferInstance⟩
-    simp [Subcomplex.range_comp, Subcomplex.range_eq_top e,
-      Subcomplex.image_top]
+    simp [Subcomplex.range_comp, Subcomplex.range_eq_top e, Subcomplex.image_top]
   postcomp e _ f hf := by
     obtain ⟨_, P, hP⟩ := hf
     refine ⟨inferInstance, P.ofIso (asIso e).symm ?_, inferInstance⟩

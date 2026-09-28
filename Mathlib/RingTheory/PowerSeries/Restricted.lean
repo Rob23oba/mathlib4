@@ -26,8 +26,7 @@ open scoped Topology Pointwise
 variable {R : Type*} [NormedRing R] (c : ℝ) (f : PowerSeries R)
 
 /-- Predicate for when `f` is a restricted power series. -/
-abbrev IsRestricted :=
-  MvPowerSeries.IsRestricted (σ := Unit) (fun _ ↦ c) f
+abbrev IsRestricted := MvPowerSeries.IsRestricted (σ := Unit) (fun _ ↦ c) f
 
 private lemma isRestricted_comp_uniqueEquiv :
     (fun (t : Unit →₀ ℕ) ↦ ‖MvPowerSeries.coeff t f‖ * t.prod (fun _ x ↦ c ^ x)) =
@@ -85,7 +84,6 @@ def addSubgroup (c : ℝ) : AddSubgroup (PowerSeries R) :=
 variable [IsUltrametricDist R]
 
 /-- Restricted power series as an subring of `PowerSeries R`. -/
-def subring (c : ℝ) :  Subring (PowerSeries R) :=
-  MvPowerSeries.IsRestricted.subring (fun _ ↦ c)
+def subring (c : ℝ) : Subring (PowerSeries R) := MvPowerSeries.IsRestricted.subring (fun _ ↦ c)
 
 end PowerSeries.IsRestricted

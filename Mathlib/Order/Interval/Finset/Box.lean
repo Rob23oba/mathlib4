@@ -69,9 +69,10 @@ open Finset
 /-! ### Product of locally finite ordered rings -/
 
 namespace Prod
-variable {α β : Type*} [Ring α] [PartialOrder α] [IsOrderedRing α]
-  [Ring β] [PartialOrder β] [IsOrderedRing β] [LocallyFiniteOrder α] [LocallyFiniteOrder β]
-  [DecidableEq α] [DecidableEq β] [DecidableLE (α × β)]
+variable
+  {α β : Type*} [Ring α] [PartialOrder α] [IsOrderedRing α] [Ring β] [PartialOrder β]
+  [IsOrderedRing β] [LocallyFiniteOrder α] [LocallyFiniteOrder β] [DecidableEq α] [DecidableEq β]
+  [DecidableLE (α × β)]
 
 @[simp] lemma card_box_succ (n : ℕ) :
     #(box (n + 1) : Finset (α × β)) =

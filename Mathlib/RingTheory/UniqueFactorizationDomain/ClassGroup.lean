@@ -78,53 +78,54 @@ lemma isPrincipal_of_exists_mul_ne_zero_isPrincipal
   rw [← mem_span_singleton, span, ← hJK, normalize_apply]
   exact mul_mem_mul (J.mul_mem_right _ hb) (hTK hc)
 
-/-- In a GCD domain, an integral ideal that is invertible as a fractional ideal is principal.
+/--
+In a GCD domain, an integral ideal that is invertible as a fractional ideal is principal.
 
-Public API note: see `ClassGroup.isPrincipal_of_isUnit_coeIdeal`. -/
-private theorem isPrincipal_of_isUnit_fractionalIdeal (I : Ideal R)
-    (hI : IsUnit (I : FractionalIdeal R⁰ (FractionRing R))) :
-    I.IsPrincipal := by
-  obtain ⟨a, K, ha0, h⟩ := exists_eq_spanSingleton_mul (I : FractionalIdeal R⁰ (FractionRing R))⁻¹
+Public API note: see `ClassGroup.isPrincipal_of_isUnit_coeIdeal`.
+-/
+private theorem isPrincipal_of_isUnit_fractionalIdeal
+    (I : Ideal R) (hI : IsUnit (I : FractionalIdeal (R⁰) (FractionRing R)))
+    : I.IsPrincipal := by
+  obtain ⟨a, K, ha0, h⟩ := exists_eq_spanSingleton_mul (I : FractionalIdeal (R⁰) (FractionRing R))⁻¹
   have hIK : I * K = Ideal.span ({a} : Set R) :=
     (coeIdeal_inj (K := FractionRing R)).mp <| by
       rw [coeIdeal_mul, coeIdeal_span_singleton]
       rw [← mul_inv_cancel_iff_isUnit] at hI
-      have ha0' := spanSingleton_mul_inv (R₁ := R) (FractionRing R)
-        (IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors
-          (mem_nonZeroDivisors_iff_ne_zero.mpr ha0))
+      have ha0' :=
+        spanSingleton_mul_inv (R₁ := R) (FractionRing R)
+          (IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors (mem_nonZeroDivisors_iff_ne_zero.mpr
+            ha0))
       replace h :=
-        congrArg
-          (fun t =>
-            spanSingleton R⁰ ((algebraMap R (FractionRing R)) a) * I * t)
-          h.symm
+        congrArg (fun t => spanSingleton (R⁰) ((algebraMap R (FractionRing R)) a) * I * t) h.symm
       rwa [mul_mul_mul_comm, ← spanSingleton_inv, ha0', one_mul, mul_assoc, hI, mul_one] at h
   refine isPrincipal_of_exists_mul_ne_zero_isPrincipal (J := I) ?_
   refine ⟨K, ?_, ?_⟩
   · simp [hIK, ha0]
   · simpa [hIK] using (inferInstance : (Ideal.span {a}).IsPrincipal)
 
-/-- In a GCD domain, every invertible fractional ideal is principal.
+/--
+In a GCD domain, every invertible fractional ideal is principal.
 
-Public API note: see `ClassGroup.isPrincipal_coeSubmodule_of_isUnit`. -/
-private theorem isPrincipal_fractionalIdeal_of_isUnit
-    (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
-    (I : Submodule R (FractionRing R)).IsPrincipal := by
-  let J : Ideal R := (I : FractionalIdeal R⁰ (FractionRing R)).num
-  have hJunit : IsUnit (J : FractionalIdeal R⁰ (FractionRing R)) :=
+Public API note: see `ClassGroup.isPrincipal_coeSubmodule_of_isUnit`.
+-/
+private theorem isPrincipal_fractionalIdeal_of_isUnit (I : (FractionalIdeal (R⁰) (FractionRing R))ˣ)
+    : (I : Submodule R (FractionRing R)).IsPrincipal := by
+  let J : Ideal R := (I : FractionalIdeal (R⁰) (FractionRing R)).num
+  have hJunit : IsUnit (J : FractionalIdeal (R⁰) (FractionRing R)) :=
     FractionalIdeal.isUnit_num.mpr ⟨I, rfl⟩
   have hJprin : J.IsPrincipal := isPrincipal_of_isUnit_fractionalIdeal J hJunit
-  exact isPrincipal_of_isPrincipal_num
-    (I : FractionalIdeal R⁰ (FractionRing R)) hJprin
+  exact isPrincipal_of_isPrincipal_num (I : FractionalIdeal (R⁰) (FractionRing R)) hJprin
 
-/-- The ideal class group of a GCD domain is trivial.
-This includes unique factorization domains. -/
+/--
+The ideal class group of a GCD domain is trivial.
+This includes unique factorization domains.
+-/
 instance subsingleton_classGroup : Subsingleton (ClassGroup R) := by
   refine subsingleton_of_forall_eq 1 ?_
   intro x
   refine ClassGroup.induction (FractionRing R) ?_ x
   intro I
-  exact ClassGroup.mk_eq_one_iff.mpr
-    (isPrincipal_fractionalIdeal_of_isUnit I)
+  exact ClassGroup.mk_eq_one_iff.mpr (isPrincipal_fractionalIdeal_of_isUnit I)
 
 end IsGCDMonoid
 

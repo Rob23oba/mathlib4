@@ -31,8 +31,7 @@ variable [IsIntegral X] [IsLocallyNoetherian X]
 /--
 Order of vanishing on a locally Noetherian integral scheme as a monoid with zero hom to `ℤᵐ⁰`.
 -/
-noncomputable
-def ordHom (z : X) (hz : coheight z = 1) : X.functionField →*₀ ℤᵐ⁰ :=
+noncomputable def ordHom (z : X) (hz : coheight z = 1) : X.functionField →*₀ ℤᵐ⁰ :=
   haveI : Ring.KrullDimLE 1 (X.presheaf.stalk z) := krullDimLE_of_coheight_le hz.le
   Ring.ordFrac (X.presheaf.stalk z)
 
@@ -48,11 +47,11 @@ The order of vanishing of an element of the function field of a locally Noetheri
 at a point. This has a junk value of `0` if `f = 0` or if `coheight z ≠ 1`.
 -/
 @[no_expose]
-noncomputable
-def ord (f : X.functionField) (z : X) : ℤ :=
-  if hz : coheight z = 1
-  then Multiplicative.toAdd <| (X.ordHom z hz f).unzeroD 1
-  else 0
+noncomputable def ord (f : X.functionField) (z : X) : ℤ :=
+  if hz : coheight z = 1 then
+    Multiplicative.toAdd <| (X.ordHom z hz f).unzeroD 1
+  else
+    0
 
 lemma ord_eq_ordHom_of_coheight_eq_one {z : X} (hz : coheight z = 1) (f : X.functionField) :
     ord f z = Multiplicative.toAdd ((X.ordHom z hz f).unzeroD 1) := dite_eq_left hz

@@ -190,13 +190,15 @@ section CommGroup
 
 variable {M ι : Type*} [SeminormedCommGroup M] [IsUltrametricDist M]
 
-/-- A commutative group with an ultrametric group seminorm is nonarchimedean (as a topological
-group, i.e. every neighborhood of 1 contains an open subgroup). -/
+/--
+A commutative group with an ultrametric group seminorm is nonarchimedean (as a topological
+group, i.e. every neighborhood of 1 contains an open subgroup).
+-/
 @[to_additive /-- A commutative additive group with an ultrametric group seminorm is nonarchimedean
 (as a topological group, i.e. every neighborhood of 0 contains an open subgroup). -/]
 instance nonarchimedeanGroup : NonarchimedeanGroup M where
-  is_nonarchimedean := by simpa only [Metric.mem_nhds_iff]
-    using fun U ⟨ε, hεp, hεU⟩ ↦ ⟨ball_openSubgroup M hεp, hεU⟩
+  is_nonarchimedean := by
+    simpa only [Metric.mem_nhds_iff] using fun U ⟨ε, hεp, hεU⟩ ↦ ⟨ball_openSubgroup M hεp, hεU⟩
 
 /-- Nonarchimedean norm of a product is less than or equal the norm of any term in the product.
 This version is phrased using `Finset.sup'` and `Finset.Nonempty` due to `Finset.sup`
@@ -264,8 +266,8 @@ Given a function `f : ι → M` and a nonempty finite set `t ⊆ ι`, we can alw
 -/
 @[to_additive /-- Given a function `f : ι → M` and a nonempty finite set `t ⊆ ι`, we can always find
 `i ∈ t` such that `‖∑ j ∈ t, f j‖ ≤ ‖f i‖`. -/]
-theorem exists_norm_finsetProd_le_of_nonempty {t : Finset ι} (ht : t.Nonempty) (f : ι → M) :
-    ∃ i ∈ t, ‖∏ j ∈ t, f j‖ ≤ ‖f i‖ :=
+theorem exists_norm_finsetProd_le_of_nonempty {t : Finset ι} (ht : t.Nonempty) (f : ι → M)
+    : ∃ i ∈ t, ‖∏ j ∈ t, f j‖ ≤ ‖f i‖ :=
   match t.exists_mem_eq_sup' ht (‖f ·‖) with
   | ⟨j, hj, hj'⟩ => ⟨j, hj, (ht.norm_prod_le_sup'_norm f).trans (le_of_eq hj')⟩
 
@@ -281,8 +283,8 @@ if `t` is nonempty, such that `‖∏ j ∈ t, f j‖ ≤ ‖f i‖`.
 -/
 @[to_additive /-- Given a function `f : ι → M` and a finite set `t ⊆ ι`, we can always find `i : ι`,
 belonging to `t` if `t` is nonempty, such that `‖∑ j ∈ t, f j‖ ≤ ‖f i‖`. -/]
-theorem exists_norm_finsetProd_le (t : Finset ι) [Nonempty ι] (f : ι → M) :
-    ∃ i : ι, (t.Nonempty → i ∈ t) ∧ ‖∏ j ∈ t, f j‖ ≤ ‖f i‖ := by
+theorem exists_norm_finsetProd_le (t : Finset ι) [Nonempty ι] (f : ι → M)
+    : ∃ i : ι, (t.Nonempty → i ∈ t) ∧ ‖∏ j ∈ t, f j‖ ≤ ‖f i‖ := by
   rcases t.eq_empty_or_nonempty with rfl | ht
   · simp
   exact (fun ⟨i, h, h'⟩ => ⟨i, fun _ ↦ h, h'⟩) <| exists_norm_finsetProd_le_of_nonempty ht f
@@ -298,23 +300,24 @@ to `t` if `t` is nonempty, such that `‖(s.map f).prod‖ ≤ ‖f i‖`.
 -/
 @[to_additive /-- Given a function `f : ι → M` and a multiset `t : Multiset ι`, we can always find
 `i : ι`, belonging to `t` if `t` is nonempty, such that `‖(s.map f).sum‖ ≤ ‖f i‖`. -/]
-theorem exists_norm_multiset_prod_le (s : Multiset ι) [Nonempty ι] {f : ι → M} :
-    ∃ i : ι, (s ≠ 0 → i ∈ s) ∧ ‖(s.map f).prod‖ ≤ ‖f i‖ := by
+theorem exists_norm_multiset_prod_le (s : Multiset ι) [Nonempty ι] {f : ι → M}
+    : ∃ i : ι, (s ≠ 0 → i ∈ s) ∧ ‖(s.map f).prod‖ ≤ ‖f i‖ := by
   inhabit ι
   induction s using Multiset.induction_on with
-  | empty => simp
+  | empty =>
+    simp
   | cons a t hM =>
-      obtain ⟨M, hMs, hM⟩ := hM
-      by_cases! hMa : ‖f M‖ ≤ ‖f a‖
-      · refine ⟨a, by simp, ?_⟩
-        · rw [Multiset.map_cons, Multiset.prod_cons]
-          exact le_trans (norm_mul_le_max _ _) (max_le (le_refl _) (le_trans hM hMa))
-      · rcases eq_or_ne t 0 with rfl | ht
-        · exact ⟨a, by simp, by simp⟩
-        · refine ⟨M, ?_, ?_⟩
-          · simp [hMs ht]
-          rw [Multiset.map_cons, Multiset.prod_cons]
-          exact le_trans (norm_mul_le_max _ _) (max_le hMa.le hM)
+    obtain ⟨M, hMs, hM⟩ := hM
+    by_cases! hMa : ‖f M‖ ≤ ‖f a‖
+    · refine ⟨a, by simp, ?_⟩
+      · rw [Multiset.map_cons, Multiset.prod_cons]
+        exact le_trans (norm_mul_le_max _ _) (max_le (le_refl _) (le_trans hM hMa))
+    · rcases eq_or_ne t 0 with rfl | ht
+      · exact ⟨a, by simp, by simp⟩
+      · refine ⟨M, ?_, ?_⟩
+        · simp [hMs ht]
+        rw [Multiset.map_cons, Multiset.prod_cons]
+        exact le_trans (norm_mul_le_max _ _) (max_le hMa.le hM)
 
 @[to_additive]
 lemma norm_tprod_le (f : ι → M) : ‖∏' i, f i‖ ≤ ⨆ i, ‖f i‖ := by

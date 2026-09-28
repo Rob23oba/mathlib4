@@ -30,8 +30,7 @@ section ZeroOne
 variable [Zero R] [One R]
 
 /-- The elementary matrix scaling row `i` by `c`. -/
-def rowScale (i : m) (c : R) : Matrix m m R :=
-  Matrix.diagonal (Pi.mulSingle i c)
+def rowScale (i : m) (c : R) : Matrix m m R := Matrix.diagonal (Pi.mulSingle i c)
 
 @[simp]
 lemma rowScale_one (i : m) :
@@ -98,8 +97,7 @@ lemma map_rowScale {S : Type*} [CommRing S] (f : R →+* S) (i : m) (c : Rˣ) :
 def transvection (i j : m) (h : i ≠ j) (c : R) : GL m R where
   val := Matrix.transvection i j c
   inv := Matrix.transvection i j (-c)
-  val_inv := by
-    simpa using Matrix.transvection_mul_transvection_same (i := i) (j := j) h c (-c)
+  val_inv := by simpa using Matrix.transvection_mul_transvection_same (i := i) (j := j) h c (-c)
   inv_val := by
     simpa [add_comm] using Matrix.transvection_mul_transvection_same (i := i) (j := j) h (-c) c
 
@@ -108,8 +106,7 @@ end GeneralLinearGroup
 section RowEquivalent
 
 /-- Row-equivalence via the left action of `GL m R` on `Matrix m n R`. -/
-abbrev RowEquivalent (A B : Matrix m n R) : Prop :=
-  B ∈ MulAction.orbit (GL m R) A
+abbrev RowEquivalent (A B : Matrix m n R) : Prop := B ∈ MulAction.orbit (GL m R) A
 
 lemma rowEquivalent_iff_associated_op_op {A B : Matrix m m R} :
     RowEquivalent A B ↔ Associated (MulOpposite.op A) (MulOpposite.op B) := by

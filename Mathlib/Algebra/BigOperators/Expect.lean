@@ -13,7 +13,6 @@ public import Mathlib.Algebra.Module.Pi
 public import Mathlib.Data.Finset.Density
 public import Mathlib.Data.Fintype.BigOperators
 public import Mathlib.Algebra.Group.Pointwise.Finset.Basic
-
 import Mathlib.Algebra.BigOperators.Group.Finset.Indicator
 
 /-!
@@ -74,7 +73,8 @@ open Batteries.ExtendedBinder Lean Meta
 
 These support destructuring, for example `𝔼 ⟨i, j⟩ ∈ s ×ˢ t, f i j`.
 
-Notation: `"𝔼" bigOpBinders* ("with" term)? "," term` -/
+Notation: `"𝔼" bigOpBinders* ("with" term)? "," term`
+-/
 scoped syntax (name := bigexpect) "𝔼 " bigOpBinders ("with " term)? ", " term:67 : term
 
 scoped macro_rules (kind := bigexpect)
@@ -89,26 +89,29 @@ scoped macro_rules (kind := bigexpect)
 open Lean Meta Parser.Term PrettyPrinter.Delaborator SubExpr
 open Batteries.ExtendedBinder
 
-/-- Delaborator for `Finset.expect`. The `pp.funBinderTypes` option controls whether
-to show the domain type when the expect is over `Finset.univ`. -/
-@[scoped app_delab Finset.expect] meta def delabFinsetExpect : Delab :=
+/--
+Delaborator for `Finset.expect`. The `pp.funBinderTypes` option controls whether
+to show the domain type when the expect is over `Finset.univ`.
+-/
+@[scoped app_delab Finset.expect]
+meta def delabFinsetExpect : Delab :=
   whenPPOption getPPNotation <| withOverApp 6 do
-  let #[_, _, _, _, s, f] := (← getExpr).getAppArgs | failure
-  guard f.isLambda
-  let ppDomain ← getPPOption getPPFunBinderTypes
-  let (i, body) ← withAppArg <| withBindingBodyUnusedName fun i => do
-    return (i, ← delab)
-  if s.isAppOfArity ``Finset.univ 2 then
-    let binder ←
-      if ppDomain then
-        let ty ← withNaryArg 0 delab
-        `(bigOpBinder| $(.mk i):ident : $ty)
-      else
-        `(bigOpBinder| $(.mk i):ident)
-    `(𝔼 $binder:bigOpBinder, $body)
-  else
-    let ss ← withNaryArg 4 delab
-    `(𝔼 $(.mk i):ident ∈ $ss, $body)
+    let #[_, _, _, _, s, f] := (← getExpr).getAppArgs
+      | failure
+    guard f.isLambda
+    let ppDomain ← getPPOption getPPFunBinderTypes
+    let (i, body) ← withAppArg <| withBindingBodyUnusedName fun i => do return (i, ← delab)
+    if s.isAppOfArity ``Finset.univ 2 then
+      let binder ←
+        if ppDomain then
+          let ty ← withNaryArg 0 delab
+          `(bigOpBinder| $(.mk i):ident : $ty)
+        else
+          `(bigOpBinder| $(.mk i):ident)
+      `(𝔼 $binder:bigOpBinder, $body)
+    else
+      let ss ← withNaryArg 4 delab
+      `(𝔼 $(.mk i):ident ∈ $ss, $body)
 
 end BigOperators
 
@@ -116,8 +119,9 @@ open scoped BigOperators
 
 namespace Finset
 section AddCommMonoid
-variable [AddCommMonoid M] [Module ℚ≥0 M] [AddCommMonoid N] [Module ℚ≥0 N] {s t : Finset ι}
-  {f g : ι → M} {p q : ι → Prop} [DecidablePred p] [DecidablePred q]
+variable
+  [AddCommMonoid M] [Module ℚ≥0 M] [AddCommMonoid N] [Module ℚ≥0 N]
+  {s t : Finset ι} {f g : ι → M} {p q : ι → Prop} [DecidablePred p] [DecidablePred q]
 
 lemma expect_univ [Fintype ι] : 𝔼 i, f i = (∑ i, f i) /ℚ Fintype.card ι := by
   rw [expect, card_univ]

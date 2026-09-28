@@ -28,16 +28,21 @@ namespace CategoryTheory.ObjectProperty
 
 open Limits
 
-variable {C : Type u} [Category.{v} C] (P : ObjectProperty C)
+variable
+  {C : Type u} [Category.{v} C]
+  (P : ObjectProperty C)
   {α : Type t} (J : α → Type u') [∀ a, Category.{v'} (J a)]
 
-/-- The closure of a property of objects of a category under limits of
-shape `J a` for a family of categories `J`. -/
+/--
+The closure of a property of objects of a category under limits of
+shape `J a` for a family of categories `J`.
+-/
 inductive limitsClosure : ObjectProperty C
   | of_mem (X : C) (hX : P X) : limitsClosure X
   | of_isoClosure {X Y : C} (e : X ≅ Y) (hX : limitsClosure X) : limitsClosure Y
-  | of_limitPresentation {X : C} {a : α} (pres : LimitPresentation (J a) X)
-      (h : ∀ j, limitsClosure (pres.diag.obj j)) : limitsClosure X
+  | of_limitPresentation
+    {X : C} {a : α} (pres : LimitPresentation (J a) X) (h : ∀ j, limitsClosure (pres.diag.obj j))
+    : limitsClosure X
 
 @[simp]
 lemma le_limitsClosure : P ≤ P.limitsClosure J :=
@@ -88,19 +93,22 @@ lemma limitsClosure_isoClosure :
   rw [isoClosure_le_iff]
   exact le_limitsClosure P J
 
-/-- The closure of a property of objects of a category under limits of
-shape `J` for a category `J`. -/
+/--
+The closure of a property of objects of a category under limits of
+shape `J` for a category `J`.
+-/
 abbrev limitClosure (J : Type*) [Category* J] : ObjectProperty C :=
   P.limitsClosure (fun (_ : Unit) ↦ J)
 
 instance (J : Type*) [Category* J] : (P.limitClosure J).IsClosedUnderLimitsOfShape J :=
   P.instIsClosedUnderLimitsOfShapeLimitsClosure _ ()
 
-/-- Given `P : ObjectProperty C` and a family of categories `J : α → Type _`,
+/--
+Given `P : ObjectProperty C` and a family of categories `J : α → Type _`,
 this property of objects contains `P` and all objects that are equal to `lim F`
-for some functor `F : J a ⥤ C` such that `F.obj j` satisfies `P` for any `j`. -/
-def strictLimitsClosureStep : ObjectProperty C :=
-  P ⊔ (⨆ (a : α), P.strictLimitsOfShape (J a))
+for some functor `F : J a ⥤ C` such that `F.obj j` satisfies `P` for any `j`.
+-/
+def strictLimitsClosureStep : ObjectProperty C := P ⊔ (⨆ (a : α), P.strictLimitsOfShape (J a))
 
 @[simp]
 lemma le_strictLimitsClosureStep : P ≤ P.strictLimitsClosureStep J := le_sup_left
@@ -121,8 +129,10 @@ section
 
 variable {β : Type w'} [LinearOrder β] [OrderBot β] [SuccOrder β] [WellFoundedLT β]
 
-/-- Given `P : ObjectProperty C`, a family of categories `J a`, this
-is the transfinite iteration of `Q ↦ Q.strictLimitsClosureStep J`. -/
+/--
+Given `P : ObjectProperty C`, a family of categories `J a`, this
+is the transfinite iteration of `Q ↦ Q.strictLimitsClosureStep J`.
+-/
 abbrev strictLimitsClosureIter (b : β) : ObjectProperty C :=
   transfiniteIterate (φ := fun Q ↦ Q.strictLimitsClosureStep J) b P
 
@@ -152,12 +162,14 @@ lemma strictLimitsClosureIter_le_limitsClosure (b : β) :
     exact hb' _ hc
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} α]
-    [∀ a, Small.{w} (J a)] [∀ a, LocallySmall.{w} (J a)] (b : β)
-    [hb₀ : Small.{w} (Set.Iio b)] :
-    ObjectProperty.Small.{w} (P.strictLimitsClosureIter J b) := by
+instance
+    [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} α] [∀ a, Small.{w} (J a)]
+    [∀ a, LocallySmall.{w} (J a)]
+    (b : β) [hb₀ : Small.{w} (Set.Iio b)]
+    : ObjectProperty.Small.{w} (P.strictLimitsClosureIter J b) := by
   have H {b c : β} (hbc : b ≤ c) [Small.{w} (Set.Iio c)] : Small.{w} (Set.Iio b) :=
-    small_of_injective (f := fun x ↦ (⟨x.1, lt_of_lt_of_le x.2 hbc⟩ : Set.Iio c))
+    small_of_injective
+      (f := fun x ↦ (⟨x.1, lt_of_lt_of_le x.2 hbc⟩ : Set.Iio c))
       (fun _ _ _ ↦ by aesop)
   induction b using SuccOrder.limitRecOn generalizing hb₀ with
   | isMin b hb =>
@@ -166,13 +178,12 @@ instance [ObjectProperty.Small.{w} P] [LocallySmall.{w} C] [Small.{w} α]
     infer_instance
   | succ b hb hb' =>
     have := H (Order.le_succ b)
-    rw [strictLimitsClosureIter, transfiniteIterate_succ _ _ _ hb,
-      strictLimitsClosureStep]
+    rw [strictLimitsClosureIter, transfiniteIterate_succ _ _ _ hb, strictLimitsClosureStep]
     infer_instance
   | isSuccLimit b hb hb' =>
     simp only [transfiniteIterate_limit _ _ _ hb]
     have (c : Set.Iio b) : ObjectProperty.Small.{w}
-      (transfiniteIterate (fun Q ↦ Q.strictLimitsClosureStep J) c.1 P) := by
+        (transfiniteIterate (fun Q ↦ Q.strictLimitsClosureStep J) c.1 P) := by
       have := H c.2.le
       exact hb' c.1 c.2
     infer_instance
@@ -241,9 +252,10 @@ lemma isEssentiallySmall_limitsClosure
 
 end
 
-instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] [Small.{w} α]
-    [∀ a, Small.{w} (J a)] [∀ a, LocallySmall.{w} (J a)] :
-    ObjectProperty.EssentiallySmall.{w} (P.limitsClosure J) := by
+instance
+    [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] [Small.{w} α]
+    [∀ a, Small.{w} (J a)] [∀ a, LocallySmall.{w} (J a)]
+    : ObjectProperty.EssentiallySmall.{w} (P.limitsClosure J) := by
   obtain ⟨κ, h₁, h₂⟩ := HasCardinalLT.exists_regular_cardinal_forall J
   have : Fact κ.IsRegular := ⟨h₁⟩
   exact isEssentiallySmall_limitsClosure P J κ h₂

@@ -9,7 +9,6 @@ public import Mathlib.Algebra.Order.WithTop.Untop0
 public import Mathlib.Analysis.SpecialFunctions.Integrability.PosLog
 public import Mathlib.MeasureTheory.Integral.CircleAverage
 
-
 /-!
 # The Proximity Function of Value Distribution Theory
 
@@ -32,9 +31,7 @@ open Filter Metric Real Set
 
 namespace ValueDistribution
 
-variable
-  {E : Type*} [NormedAddCommGroup E]
-  {f g : ℂ → E} {a : WithTop E} {a₀ : E}
+variable {E : Type*} [NormedAddCommGroup E] {f g : ℂ → E} {a : WithTop E} {a₀ : E}
 
 open Real
 
@@ -122,31 +119,26 @@ theorem proximity_inv {f : ℂ → ℂ} : proximity f⁻¹ ⊤ = proximity f 0 :
 For complex-valued `f`, the difference between `proximity f ⊤` and `proximity f⁻¹ ⊤` is the circle
 average of `log ‖f ·‖`.
 -/
-theorem proximity_sub_proximity_inv_eq_circleAverage {f : ℂ → ℂ} (h₁f : Meromorphic f) :
-    proximity f ⊤ - proximity f⁻¹ ⊤ = circleAverage (log ‖f ·‖) 0 := by
+theorem proximity_sub_proximity_inv_eq_circleAverage {f : ℂ → ℂ} (h₁f : Meromorphic f)
+    : proximity f ⊤ - proximity f⁻¹ ⊤ = circleAverage (log ‖f ·‖) 0 := by
   ext R
-  simp only [proximity, ↓reduceDIte, Pi.inv_apply, norm_inv, Pi.sub_apply]
+  simp only [proximity, ↓ reduceDIte, Pi.inv_apply, norm_inv, Pi.sub_apply]
   rw [← circleAverage_sub]
   · simp_rw [← posLog_sub_posLog_inv, Pi.sub_def]
   · apply h₁f.meromorphicOn.circleIntegrable_posLog_norm
   · simp_rw [← norm_inv]
     apply h₁f.inv.meromorphicOn.circleIntegrable_posLog_norm
 
-/--
-The proximity function is even.
--/
+/-- The proximity function is even. -/
 theorem proximity_even : (proximity f a).Even := by
   intro r
   by_cases h : a = ⊤ <;> simp [proximity, h]
 
-/--
-The proximity function is non-negative.
--/
-theorem proximity_nonneg {a : WithTop E} :
-    0 ≤ proximity f a := by
-  by_cases h : a = ⊤ <;>
-  · intro r
-    simpa [proximity, h] using circleAverage_nonneg_of_nonneg (fun x _ ↦ posLog_nonneg)
+/-- The proximity function is non-negative. -/
+theorem proximity_nonneg {a : WithTop E} : 0 ≤ proximity f a := by
+  by_cases h : a = ⊤
+    <;> · intro r
+          simpa [proximity, h] using circleAverage_nonneg_of_nonneg (fun x _ ↦ posLog_nonneg)
 
 /--
 The proximity function of a constant function `c` for the value `⊤` is the constant function
@@ -157,11 +149,9 @@ The proximity function of a constant function `c` for the value `⊤` is the con
   ext r
   simp [proximity, circleAverage_const]
 
-/--
-If `f` is continuous, then so is its proximitiy function at `⊤`.
--/
-@[fun_prop] theorem continuous_proximity_top (hf : Continuous f) :
-    Continuous (proximity f ⊤) := by
+/-- If `f` is continuous, then so is its proximitiy function at `⊤`. -/
+@[fun_prop]
+theorem continuous_proximity_top (hf : Continuous f) : Continuous (proximity f ⊤) := by
   simp only [proximity, reduceDIte]
   fun_prop
 
@@ -173,15 +163,16 @@ If `f` is continuous, then so is its proximitiy function at `⊤`.
 The proximity function of a sum of functions at `⊤` is less than or equal to the sum of the
 proximity functions of the summand, plus `log` of the number of summands.
 -/
-theorem proximity_sum_top_le [NormedSpace ℂ E] {α : Type*} (s : Finset α) (f : α → ℂ → E)
-    (hf : ∀ a ∈ s, Meromorphic (f a)) :
-    proximity (∑ a ∈ s, f a) ⊤ ≤ ∑ a ∈ s, (proximity (f a) ⊤) + (fun _ ↦ log s.card) := by
+theorem proximity_sum_top_le
+    [NormedSpace ℂ E] {α : Type*} (s : Finset α) (f : α → ℂ → E) (hf : ∀ a ∈ s, Meromorphic (f a))
+    : proximity (∑ a ∈ s, f a) ⊤ ≤ ∑ a ∈ s, (proximity (f a) ⊤) + (fun _ ↦ log s.card) := by
   simp only [proximity_top, Finset.sum_apply]
   intro r
-  have h₂f : ∀ i ∈ s, CircleIntegrable (log⁺ ‖f i ·‖) 0 r :=
-    fun i hi ↦ MeromorphicOn.circleIntegrable_posLog_norm (fun x hx ↦ hf i hi x)
+  have h₂f : ∀ i ∈ s, CircleIntegrable (log⁺ ‖f i ·‖) 0 r := fun i hi ↦
+    MeromorphicOn.circleIntegrable_posLog_norm (fun x hx ↦ hf i hi x)
   simp only [Pi.add_apply, Finset.sum_apply]
-  calc circleAverage (log⁺ ‖∑ c ∈ s, f c ·‖) 0 r
+  calc
+    circleAverage (log⁺ ‖∑ c ∈ s, f c ·‖) 0 r
     _ ≤ circleAverage (∑ c ∈ s, log⁺ ‖f c ·‖ + log s.card) 0 r := by
       apply circleAverage_mono
       · apply (Meromorphic.fun_sum hf).meromorphicOn.circleIntegrable_posLog_norm
@@ -191,8 +182,10 @@ theorem proximity_sum_top_le [NormedSpace ℂ E] {α : Type*} (s : Finset α) (f
         apply posLog_norm_sum_le
     _ = ∑ c ∈ s, circleAverage (log⁺ ‖f c ·‖) 0 r + log s.card := by
       nth_rw 2 [← circleAverage_const (log s.card) 0 r]
-      rw [← circleAverage_sum h₂f, ← circleAverage_add (CircleIntegrable.sum s h₂f)
-        (circleIntegrable_const (log s.card) 0 r)]
+      rw [
+        ← circleAverage_sum h₂f,
+        ← circleAverage_add (CircleIntegrable.sum s h₂f) (circleIntegrable_const (log s.card) 0 r)
+      ]
       congr 1
       ext x
       simp
@@ -201,23 +194,21 @@ theorem proximity_sum_top_le [NormedSpace ℂ E] {α : Type*} (s : Finset α) (f
 The proximity function of `f + g` at `⊤` is less than or equal to the sum of the proximity functions
 of `f` and `g`, plus `log 2` (where `2` is the number of summands).
 -/
-theorem proximity_add_top_le [NormedSpace ℂ E] {f₁ f₂ : ℂ → E} (h₁f₁ : Meromorphic f₁)
-    (h₁f₂ : Meromorphic f₂) :
-    proximity (f₁ + f₂) ⊤ ≤ (proximity f₁ ⊤) + (proximity f₂ ⊤) + (fun _ ↦ log 2) := by
-  simpa using proximity_sum_top_le Finset.univ ![f₁, f₂]
-    (fun i ↦ by fin_cases i <;> aesop)
-
+theorem proximity_add_top_le
+    [NormedSpace ℂ E] {f₁ f₂ : ℂ → E} (h₁f₁ : Meromorphic f₁) (h₁f₂ : Meromorphic f₂)
+    : proximity (f₁ + f₂) ⊤ ≤ (proximity f₁ ⊤) + (proximity f₂ ⊤) + (fun _ ↦ log 2) := by
+  simpa using proximity_sum_top_le Finset.univ (![f₁, f₂]) (fun i ↦ by fin_cases i <;> aesop)
 
 /--
 The proximity function of `f • g` at `⊤` is less than or equal to the sum of the proximity functions
 of `f` and `g`, respectively.
 -/
-theorem proximity_smul_top_le [NormedSpace ℂ E] {f₁ : ℂ → ℂ} {f₂ : ℂ → E} (h₁f₁ : Meromorphic f₁)
-    (h₁f₂ : Meromorphic f₂) :
-    proximity (f₁ • f₂) ⊤ ≤ proximity f₁ ⊤ + proximity f₂ ⊤ := by
-  calc proximity (f₁ • f₂) ⊤
-    _ = circleAverage (fun x ↦ log⁺ (‖f₁ x‖ * ‖f₂ x‖)) 0 := by
-      simp [proximity, norm_smul]
+theorem proximity_smul_top_le
+    [NormedSpace ℂ E] {f₁ : ℂ → ℂ} {f₂ : ℂ → E} (h₁f₁ : Meromorphic f₁) (h₁f₂ : Meromorphic f₂)
+    : proximity (f₁ • f₂) ⊤ ≤ proximity f₁ ⊤ + proximity f₂ ⊤ := by
+  calc
+    proximity (f₁ • f₂) ⊤
+    _ = circleAverage (fun x ↦ log⁺ (‖f₁ x‖ * ‖f₂ x‖)) 0 := by simp [proximity, norm_smul]
     _ ≤ circleAverage (fun x ↦ log⁺ ‖f₁ x‖ + log⁺ ‖f₂ x‖) 0 := by
       intro r
       apply circleAverage_mono
@@ -240,30 +231,31 @@ theorem proximity_smul_top_le [NormedSpace ℂ E] {f₁ : ℂ → ℂ} {f₂ : �
 The proximity function of `f * g` at `⊤` is less than or equal to the sum of the proximity functions
 of `f` and `g`, respectively.
 -/
-theorem proximity_mul_top_le {f₁ f₂ : ℂ → ℂ} (h₁ : Meromorphic f₁) (h₂ : Meromorphic f₂) :
-    proximity (f₁ * f₂) ⊤ ≤ proximity f₁ ⊤ + proximity f₂ ⊤ := proximity_smul_top_le h₁ h₂
+theorem proximity_mul_top_le {f₁ f₂ : ℂ → ℂ} (h₁ : Meromorphic f₁) (h₂ : Meromorphic f₂)
+    : proximity (f₁ * f₂) ⊤ ≤ proximity f₁ ⊤ + proximity f₂ ⊤ :=
+  proximity_smul_top_le h₁ h₂
 
 /--
 The proximity function `f * g` at `0` is less than or equal to the sum of the proximity functions of
 `f` and `g`, respectively.
 -/
-theorem proximity_mul_zero_le {f₁ f₂ : ℂ → ℂ} (h₁f₁ : Meromorphic f₁) (h₁f₂ : Meromorphic f₂) :
-    proximity (f₁ * f₂) 0 ≤ (proximity f₁ 0) + (proximity f₂ 0) := by
-  calc proximity (f₁ * f₂) 0
+theorem proximity_mul_zero_le {f₁ f₂ : ℂ → ℂ} (h₁f₁ : Meromorphic f₁) (h₁f₂ : Meromorphic f₂)
+    : proximity (f₁ * f₂) 0 ≤ (proximity f₁ 0) + (proximity f₂ 0) := by
+  calc
+    proximity (f₁ * f₂) 0
     _ ≤ (proximity f₁⁻¹ ⊤) + (proximity f₂⁻¹ ⊤) := by
       rw [← proximity_inv, mul_inv]
       apply proximity_mul_top_le h₁f₁.inv h₁f₂.inv
-    _ = (proximity f₁ 0) + (proximity f₂ 0) := by
-      rw [proximity_inv, proximity_inv]
+    _ = (proximity f₁ 0) + (proximity f₂ 0) := by rw [proximity_inv, proximity_inv]
 
 /--
 Multiplying a meromorphic function by a nonzero constant `s` changes the proximity function (for the
 value `⊤`) at most by `log⁺ ‖s‖ + log⁺ ‖s⁻¹‖`.
 -/
-theorem proximity_top_sub_proximity_const_smul_top_le [NormedSpace ℂ E] {f : ℂ → E} {s : ℂ}
-    {r : ℝ} (hf : Meromorphic f) (hs : s ≠ 0) :
-    |proximity f ⊤ r - proximity (s • f) ⊤ r| ≤ log⁺ ‖s‖ + log⁺ ‖s⁻¹‖ := by
-  simp only [proximity, ↓reduceDIte, Pi.smul_apply, norm_inv]
+theorem proximity_top_sub_proximity_const_smul_top_le
+    [NormedSpace ℂ E] {f : ℂ → E} {s : ℂ} {r : ℝ} (hf : Meromorphic f) (hs : s ≠ 0)
+    : |proximity f ⊤ r - proximity (s • f) ⊤ r| ≤ log⁺ ‖s‖ + log⁺ ‖s⁻¹‖ := by
+  simp only [proximity, ↓ reduceDIte, Pi.smul_apply, norm_inv]
   rw [← circleAverage_sub (by fun_prop) (by fun_prop)]
   trans circleAverage |(log⁺ ‖f ·‖) - (log⁺ ‖s • f ·‖)| 0 r
   · apply abs_circleAverage_le_circleAverage_abs
@@ -279,9 +271,9 @@ theorem proximity_top_sub_proximity_const_smul_top_le [NormedSpace ℂ E] {f : �
 Multiplying a meromorphic function by a nonzero constant `s` changes the proximity function (for the
 value `⊤`) only by a bounded function.
 -/
-theorem isBigO_proximity_top_sub_proximity_const_smul_top [NormedSpace ℂ E] {f : ℂ → E}
-    {s : ℂ} (hf : Meromorphic f) (hs : s ≠ 0) :
-    (proximity f ⊤ - proximity (s • f) ⊤) =O[atTop] (1 : ℝ → ℝ) := by
+theorem isBigO_proximity_top_sub_proximity_const_smul_top
+    [NormedSpace ℂ E] {f : ℂ → E} {s : ℂ} (hf : Meromorphic f) (hs : s ≠ 0)
+    : (proximity f ⊤ - proximity (s • f) ⊤) =O[atTop] (1 : ℝ → ℝ) := by
   apply Asymptotics.isBigO_iff.2
   use log⁺ ‖s‖ + log⁺ ‖s⁻¹‖
   apply eventually_atTop.2
@@ -294,8 +286,8 @@ theorem isBigO_proximity_top_sub_proximity_const_smul_top [NormedSpace ℂ E] {f
 For natural numbers `n`, the proximity function of `f ^ n` at `⊤` equals `n` times the proximity
 function of `f` at `⊤`.
 -/
-@[simp] theorem proximity_pow_top {f : ℂ → ℂ} {n : ℕ} :
-    proximity (f ^ n) ⊤ = n • (proximity f ⊤) := by
+@[simp]
+theorem proximity_pow_top {f : ℂ → ℂ} {n : ℕ} : proximity (f ^ n) ⊤ = n • (proximity f ⊤) := by
   ext x
   simp [proximity, ← smul_eq_mul, circleAverage_fun_smul]
 
@@ -303,8 +295,8 @@ function of `f` at `⊤`.
 For natural numbers `n`, the proximity function of `f ^ n` at `0` equals `n` times the proximity
 function of `f` at `0`.
 -/
-@[simp] theorem proximity_pow_zero {f : ℂ → ℂ} {n : ℕ} :
-    proximity (f ^ n) 0 = n • (proximity f 0) := by
+@[simp]
+theorem proximity_pow_zero {f : ℂ → ℂ} {n : ℕ} : proximity (f ^ n) 0 = n • (proximity f 0) := by
   rw [← proximity_inv, ← proximity_inv, ← inv_pow, proximity_pow_top]
 
 end ValueDistribution

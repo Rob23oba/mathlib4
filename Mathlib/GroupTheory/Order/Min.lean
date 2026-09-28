@@ -31,8 +31,10 @@ namespace Monoid
 section Monoid
 variable (α) [Monoid α]
 
-/-- The minimum order of a non-identity element. Also the minimum size of a nontrivial subgroup, see
-`Monoid.le_minOrder_iff_forall_subgroup`. Returns `∞` if the monoid is torsion-free. -/
+/--
+The minimum order of a non-identity element. Also the minimum size of a nontrivial subgroup, see
+`Monoid.le_minOrder_iff_forall_subgroup`. Returns `∞` if the monoid is torsion-free.
+-/
 @[to_additive /-- The minimum order of a non-identity element. Also the minimum size of a nontrivial
 subgroup, see `AddMonoid.le_minOrder_iff_forall_addSubgroup`. Returns `∞` if the monoid is
 torsion-free. -/]

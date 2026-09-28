@@ -26,12 +26,14 @@ algebra. One can achieve the same effect by using a combination of `ContinuousLi
 
 @[expose] public section
 
-/-- A `PositiveContinuousLinearMap` is a linear map which is both an order homomorphism and
-continuous. This comes equipped with the notation `E₁ →P[R] E₂`. -/
-structure PositiveContinuousLinearMap (R E₁ E₂ : Type*) [Semiring R]
-    [AddCommMonoid E₁] [PartialOrder E₁] [TopologicalSpace E₁]
-    [AddCommMonoid E₂] [PartialOrder E₂] [TopologicalSpace E₂]
-    [Module R E₁] [Module R E₂] extends E₁ →ₚ[R] E₂, E₁ →L[R] E₂
+/--
+A `PositiveContinuousLinearMap` is a linear map which is both an order homomorphism and
+continuous. This comes equipped with the notation `E₁ →P[R] E₂`.
+-/
+structure PositiveContinuousLinearMap
+  (R E₁ E₂ : Type*) [Semiring R] [AddCommMonoid E₁] [PartialOrder E₁] [TopologicalSpace E₁]
+  [AddCommMonoid E₂] [PartialOrder E₂] [TopologicalSpace E₂] [Module R E₁] [Module R E₂]
+  extends E₁ →ₚ[R] E₂, E₁ →L[R] E₂
 
 /-- Notation for a `PositiveContinuousLinearMap`. -/
 notation:25 E " →P[" R:25 "] " F:0 => PositiveContinuousLinearMap R E F
@@ -45,9 +47,9 @@ namespace PositiveContinuousLinearMap
 
 section General
 
-variable {R E₁ E₂ E₃ E₄ : Type*} [Semiring R]
-  [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂] [PartialOrder E₂]
-  [Module R E₁] [Module R E₂] [TopologicalSpace E₁] [TopologicalSpace E₂]
+variable
+  {R E₁ E₂ E₃ E₄ : Type*} [Semiring R] [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂]
+  [PartialOrder E₂] [Module R E₁] [Module R E₂] [TopologicalSpace E₁] [TopologicalSpace E₂]
 
 @[macro_inline]
 instance : FunLike (E₁ →P[R] E₂) E₁ E₂ where
@@ -83,8 +85,10 @@ section ofClass
 
 variable {F : Type*} [FunLike F E₁ E₂] [ContinuousLinearMapClass F R E₁ E₂] [OrderHomClass F E₁ E₂]
 
-/-- Reinterpret an element of a type of positive continuous linear maps as
-a positive continuous linear map. -/
+/--
+Reinterpret an element of a type of positive continuous linear maps as
+a positive continuous linear map.
+-/
 def ofClass (f : F) : E₁ →P[R] E₂ where
   toPositiveLinearMap := .ofClass f
   cont := map_continuous f
@@ -140,7 +144,8 @@ instance : IsZeroApply (E₁ →P[R] E₂) E₁ E₂ where
 
 variable (R E₁) in
 /-- The identity as a positive continuous linear map. -/
-@[simps! apply toPositiveLinearMap] protected def id : E₁ →P[R] E₁ where
+@[simps! apply toPositiveLinearMap]
+protected def id : E₁ →P[R] E₁ where
   toPositiveLinearMap := .id R E₁
   cont := continuous_id
 
@@ -177,8 +182,9 @@ end Comp
 variable [IsOrderedAddMonoid E₂] [ContinuousAdd E₂]
 
 instance : Add (E₁ →P[R] E₂) where
-  add f g := .mk (f.toPositiveLinearMap + g.toPositiveLinearMap) <|
-    show Continuous (fun x ↦ f x + g x) by fun_prop
+  add f g :=
+    .mk (f.toPositiveLinearMap + g.toPositiveLinearMap) <|
+      show Continuous (fun x ↦ f x + g x) by fun_prop
 
 @[simp]
 lemma toPositiveLinearMap_add (f g : E₁ →P[R] E₂) :
@@ -193,8 +199,7 @@ lemma toContinuousLinearMap_add (f g : E₁ →P[R] E₂) :
 instance : IsAddApply (E₁ →P[R] E₂) E₁ E₂ where
 
 instance : SMul ℕ (E₁ →P[R] E₂) where
-  smul n f := .mk (n • f.toPositiveLinearMap) <|
-    show Continuous (fun x ↦ n • f x) by fun_prop
+  smul n f := .mk (n • f.toPositiveLinearMap) <| show Continuous (fun x ↦ n • f x) by fun_prop
 
 @[simp]
 lemma toPositiveLinearMap_nsmul (f : E₁ →P[R] E₂) (n : ℕ) :
@@ -214,13 +219,15 @@ end General
 
 section AddGroup
 
-variable {R E₁ E₂ : Type*} [Semiring R]
-  [AddCommGroup E₁] [PartialOrder E₁] [IsOrderedAddMonoid E₁] [TopologicalSpace E₁]
-  [AddCommGroup E₂] [PartialOrder E₂] [IsOrderedAddMonoid E₂] [TopologicalSpace E₂]
-  [Module R E₁] [Module R E₂]
+variable
+  {R E₁ E₂ : Type*} [Semiring R] [AddCommGroup E₁] [PartialOrder E₁] [IsOrderedAddMonoid E₁]
+  [TopologicalSpace E₁] [AddCommGroup E₂] [PartialOrder E₂] [IsOrderedAddMonoid E₂]
+  [TopologicalSpace E₂] [Module R E₁] [Module R E₂]
 
-/-- Define a positive continuous linear map from a continuous linear map that maps
-nonnegative elements to nonnegative elements -/
+/--
+Define a positive continuous linear map from a continuous linear map that maps
+nonnegative elements to nonnegative elements
+-/
 @[simps toPositiveLinearMap]
 def mk₀ (f : E₁ →L[R] E₂) (hf : ∀ x, 0 ≤ x → 0 ≤ f x) : E₁ →P[R] E₂ where
   toPositiveLinearMap := .mk₀ f.toLinearMap hf

@@ -55,12 +55,16 @@ lemma map_mul_ratCast {α : Type*} [DivisionRing α] [CharZero α] (A B : Matrix
 ## Denominator of a rational matrix
 -/
 
-/-- The denominator of a matrix of rationals (as a `Nat`, defined as the LCM of the denominators of
-the entries). -/
+/--
+The denominator of a matrix of rationals (as a `Nat`, defined as the LCM of the denominators of
+the entries).
+-/
 protected def den (A : Matrix m n ℚ) : ℕ := Finset.univ.lcm (fun P : m × n ↦ (A P.1 P.2).den)
 
-/-- The numerator of a matrix of rationals (a matrix of integers, defined so that
-`A.num / A.den = A`). -/
+/--
+The numerator of a matrix of rationals (a matrix of integers, defined so that
+`A.num / A.den = A`).
+-/
 protected def num (A : Matrix m n ℚ) : Matrix m n ℤ := ((A.den : ℚ) • A).map Rat.num
 
 lemma den_ne_zero (A : Matrix m n ℚ) : A.den ≠ 0 := by

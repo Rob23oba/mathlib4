@@ -58,7 +58,6 @@ properties of the mgf from those of the characteristic function).
 
 @[expose] public section
 
-
 open MeasureTheory Filter Real Complex
 
 open scoped MeasureTheory ProbabilityTheory ENNReal NNReal Topology
@@ -68,8 +67,7 @@ namespace ProbabilityTheory
 variable {Ω : Type*} {m : MeasurableSpace Ω} {X : Ω → ℝ} {μ : Measure Ω} {t u : ℝ} {z ε : ℂ}
 
 /-- Complex extension of the moment-generating function. -/
-noncomputable
-def complexMGF (X : Ω → ℝ) (μ : Measure Ω) (z : ℂ) : ℂ := ∫ ω, cexp (z * X ω) ∂μ
+noncomputable def complexMGF (X : Ω → ℝ) (μ : Measure Ω) (z : ℂ) : ℂ := ∫ ω, cexp (z * X ω) ∂μ
 
 lemma complexMGF_undef (hX : AEMeasurable X μ) (h : ¬ Integrable (fun ω ↦ rexp (z.re * X ω)) μ) :
     complexMGF X μ z = 0 := by
@@ -164,31 +162,37 @@ lemma hasDerivAt_integral_pow_mul_exp (hz : z.re ∈ interior (integrableExpSet 
     convert! hasDerivAt_exp_smul_const (X ω : ℂ) ε using 1
     rw [smul_eq_mul, mul_comm]
 
-/-- For all `z : ℂ` with `z.re ∈ interior (integrableExpSet X μ)`,
-`complexMGF X μ` is differentiable at `z` with derivative `μ[X * exp (z * X)]`. -/
-theorem hasDerivAt_complexMGF (hz : z.re ∈ interior (integrableExpSet X μ)) :
-    HasDerivAt (complexMGF X μ) μ[fun ω ↦ X ω * cexp (z * X ω)] z := by
+/--
+For all `z : ℂ` with `z.re ∈ interior (integrableExpSet X μ)`,
+`complexMGF X μ` is differentiable at `z` with derivative `μ[X * exp (z * X)]`.
+-/
+theorem hasDerivAt_complexMGF (hz : z.re ∈ interior (integrableExpSet X μ))
+    : HasDerivAt (complexMGF X μ) μ[fun ω ↦ X ω * cexp (z * X ω)] z := by
   convert! hasDerivAt_integral_pow_mul_exp hz 0
   · simp [complexMGF]
   · simp
 
-/-- `complexMGF X μ` is holomorphic on the vertical strip
-`{z | z.re ∈ interior (integrableExpSet X μ)}`. -/
-theorem differentiableOn_complexMGF :
-    DifferentiableOn ℂ (complexMGF X μ) {z | z.re ∈ interior (integrableExpSet X μ)} := by
+/--
+`complexMGF X μ` is holomorphic on the vertical strip
+`{z | z.re ∈ interior (integrableExpSet X μ)}`.
+-/
+theorem differentiableOn_complexMGF
+    : DifferentiableOn ℂ (complexMGF X μ) {z | z.re ∈ interior (integrableExpSet X μ)} := by
   intro z hz
   have h := hasDerivAt_complexMGF hz
   rw [hasDerivAt_iff_hasFDerivAt] at h
   exact h.hasFDerivWithinAt.differentiableWithinAt
 
-theorem analyticOnNhd_complexMGF :
-    AnalyticOnNhd ℂ (complexMGF X μ) {z | z.re ∈ interior (integrableExpSet X μ)} :=
+theorem analyticOnNhd_complexMGF
+    : AnalyticOnNhd ℂ (complexMGF X μ) {z | z.re ∈ interior (integrableExpSet X μ)} :=
   differentiableOn_complexMGF.analyticOnNhd (isOpen_interior.preimage Complex.continuous_re)
 
-/-- `complexMGF X μ` is analytic on the vertical strip
-  `{z | z.re ∈ interior (integrableExpSet X μ)}`. -/
-theorem analyticOn_complexMGF :
-    AnalyticOn ℂ (complexMGF X μ) {z | z.re ∈ interior (integrableExpSet X μ)} :=
+/--
+`complexMGF X μ` is analytic on the vertical strip
+`{z | z.re ∈ interior (integrableExpSet X μ)}`.
+-/
+theorem analyticOn_complexMGF
+    : AnalyticOn ℂ (complexMGF X μ) {z | z.re ∈ interior (integrableExpSet X μ)} :=
   analyticOnNhd_complexMGF.analyticOn
 
 /-- `complexMGF X μ` is analytic at any point `z` with `z.re ∈ interior (integrableExpSet X μ)`. -/
@@ -313,13 +317,15 @@ section ext
 
 variable {Ω' : Type*} {mΩ' : MeasurableSpace Ω'} {Y : Ω' → ℝ} {μ' : Measure Ω'}
 
-/-- If the complex moment-generating functions of two random variables `X` and `Y` with respect to
+/--
+If the complex moment-generating functions of two random variables `X` and `Y` with respect to
 the finite measures `μ`, `μ'`, respectively, coincide, then `μ.map X = μ'.map Y`. In other words,
-complex moment-generating functions separate the distributions of random variables. -/
-theorem _root_.MeasureTheory.Measure.ext_of_complexMGF_eq [IsFiniteMeasure μ]
-    [IsFiniteMeasure μ'] (hX : AEMeasurable X μ) (hY : AEMeasurable Y μ')
-    (h : complexMGF X μ = complexMGF Y μ') :
-    μ.map X = μ'.map Y := by
+complex moment-generating functions separate the distributions of random variables.
+-/
+theorem _root_.MeasureTheory.Measure.ext_of_complexMGF_eq
+    [IsFiniteMeasure μ] [IsFiniteMeasure μ']
+    (hX : AEMeasurable X μ) (hY : AEMeasurable Y μ') (h : complexMGF X μ = complexMGF Y μ')
+    : μ.map X = μ'.map Y := by
   have inner_ne_zero (x : ℝ) (h : x ≠ 0) : innerₗ ℝ x ≠ 0 :=
     DFunLike.ne_iff.mpr ⟨x, inner_self_ne_zero.mpr h⟩
   have h_cont : Continuous fun p : ℝ × ℝ ↦ innerₗ ℝ p.1 p.2 := continuous_inner
@@ -328,8 +334,10 @@ theorem _root_.MeasureTheory.Measure.ext_of_complexMGF_eq [IsFiniteMeasure μ]
   rw [funext_iff] at h
   specialize h (Multiplicative.toAdd w * I)
   simp_rw [complexMGF, mul_assoc, mul_comm I, ← mul_assoc] at h
-  simp only [BoundedContinuousFunction.char_apply, innerₗ_apply_apply,
-    RCLike.inner_apply, conj_trivial, probChar_apply, ofReal_mul]
+  simp only [
+    BoundedContinuousFunction.char_apply, innerₗ_apply_apply, RCLike.inner_apply, conj_trivial,
+    probChar_apply, ofReal_mul
+  ]
   rwa [integral_map hX (by fun_prop), integral_map hY (by fun_prop)]
 
 lemma _root_.MeasureTheory.Measure.ext_of_complexMGF_id_eq

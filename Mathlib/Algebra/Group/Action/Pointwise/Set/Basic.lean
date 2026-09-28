@@ -75,12 +75,10 @@ theorem iUnion_op_smul_set (s t : Set α) : ⋃ a ∈ t, MulOpposite.op a • s 
   iUnion_image_right _
 
 @[to_additive]
-theorem mul_subset_iff_left : s * t ⊆ u ↔ ∀ a ∈ s, a • t ⊆ u :=
-  image2_subset_iff_left
+theorem mul_subset_iff_left : s * t ⊆ u ↔ ∀ a ∈ s, a • t ⊆ u := image2_subset_iff_left
 
 @[to_additive]
-theorem mul_subset_iff_right : s * t ⊆ u ↔ ∀ b ∈ t, op b • s ⊆ u :=
-  image2_subset_iff_right
+theorem mul_subset_iff_right : s * t ⊆ u ↔ ∀ b ∈ t, op b • s ⊆ u := image2_subset_iff_right
 
 @[to_additive] lemma pair_mul (a b : α) (s : Set α) : {a, b} * s = a • s ∪ b • s := by
   rw [insert_eq, union_mul, singleton_mul, singleton_mul]; rfl
@@ -120,57 +118,58 @@ section IsLeftCancelSMul
 variable [SMul α β] [IsLeftCancelSMul α β] {s : Set α} {t : Set β}
 
 @[to_additive]
-theorem pairwiseDisjoint_smul_iff :
-    s.PairwiseDisjoint (· • t) ↔ (s ×ˢ t).InjOn fun p ↦ p.1 • p.2 :=
+theorem pairwiseDisjoint_smul_iff : s.PairwiseDisjoint (· • t) ↔ (s ×ˢ t).InjOn fun p ↦ p.1 • p.2 :=
   pairwiseDisjoint_image_right_iff fun a _ _ _ h ↦ IsLeftCancelSMul.left_cancel a _ _ h
 
 end IsLeftCancelSMul
 
 @[to_additive]
-instance smulCommClass_set [SMul α γ] [SMul β γ] [SMulCommClass α β γ] :
-    SMulCommClass α β (Set γ) :=
+instance smulCommClass_set [SMul α γ] [SMul β γ] [SMulCommClass α β γ]
+    : SMulCommClass α β (Set γ) :=
   ⟨fun _ _ ↦ Commute.set_image <| smul_comm _ _⟩
 
 @[to_additive]
-instance smulCommClass_set' [SMul α γ] [SMul β γ] [SMulCommClass α β γ] :
-    SMulCommClass α (Set β) (Set γ) :=
+instance smulCommClass_set' [SMul α γ] [SMul β γ] [SMulCommClass α β γ]
+    : SMulCommClass α (Set β) (Set γ) :=
   ⟨fun _ _ _ ↦ image_image2_distrib_right <| smul_comm _⟩
 
 @[to_additive]
-instance smulCommClass_set'' [SMul α γ] [SMul β γ] [SMulCommClass α β γ] :
-    SMulCommClass (Set α) β (Set γ) :=
+instance smulCommClass_set'' [SMul α γ] [SMul β γ] [SMulCommClass α β γ]
+    : SMulCommClass (Set α) β (Set γ) :=
   haveI := SMulCommClass.symm α β γ
   SMulCommClass.symm _ _ _
 
 @[to_additive]
-instance smulCommClass [SMul α γ] [SMul β γ] [SMulCommClass α β γ] :
-    SMulCommClass (Set α) (Set β) (Set γ) :=
+instance smulCommClass [SMul α γ] [SMul β γ] [SMulCommClass α β γ]
+    : SMulCommClass (Set α) (Set β) (Set γ) :=
   ⟨fun _ _ _ ↦ image2_left_comm smul_comm⟩
 
 @[to_additive]
-instance isScalarTower [SMul α β] [SMul α γ] [SMul β γ] [IsScalarTower α β γ] :
-    IsScalarTower α β (Set γ) where
+instance isScalarTower [SMul α β] [SMul α γ] [SMul β γ] [IsScalarTower α β γ]
+    : IsScalarTower α β (Set γ) where
   smul_assoc a b T := by simp only [← image_smul, image_image, smul_assoc]
 
 @[to_additive]
-instance isScalarTower' [SMul α β] [SMul α γ] [SMul β γ] [IsScalarTower α β γ] :
-    IsScalarTower α (Set β) (Set γ) :=
+instance isScalarTower' [SMul α β] [SMul α γ] [SMul β γ] [IsScalarTower α β γ]
+    : IsScalarTower α (Set β) (Set γ) :=
   ⟨fun _ _ _ ↦ image2_image_left_comm <| smul_assoc _⟩
 
 @[to_additive]
-instance isScalarTower'' [SMul α β] [SMul α γ] [SMul β γ] [IsScalarTower α β γ] :
-    IsScalarTower (Set α) (Set β) (Set γ) where
+instance isScalarTower'' [SMul α β] [SMul α γ] [SMul β γ] [IsScalarTower α β γ]
+    : IsScalarTower (Set α) (Set β) (Set γ) where
   smul_assoc _ _ _ := image2_assoc smul_assoc
 
 @[to_additive]
-instance isCentralScalar [SMul α β] [SMul αᵐᵒᵖ β] [IsCentralScalar α β] :
-    IsCentralScalar α (Set β) :=
+instance isCentralScalar [SMul α β] [SMul αᵐᵒᵖ β] [IsCentralScalar α β]
+    : IsCentralScalar α (Set β) :=
   ⟨fun _ S ↦ (congr_arg fun f ↦ f '' S) <| funext fun _ ↦ op_smul_eq_smul _ _⟩
 
-/-- A multiplicative action of a monoid `α` on a type `β` gives a multiplicative action of `Set α`
-on `Set β`. -/
+/--
+A multiplicative action of a monoid `α` on a type `β` gives a multiplicative action of `Set α`
+on `Set β`.
+-/
 @[to_additive (attr := instance_reducible)
-/-- An additive action of an additive monoid `α` on a type `β` gives an additive action of `Set α`
+  /-- An additive action of an additive monoid `α` on a type `β` gives an additive action of `Set α`
 on `Set β` -/]
 protected noncomputable def mulAction [Monoid α] [MulAction α β] : MulAction (Set α) (Set β) where
   mul_smul _ _ _ := image2_assoc mul_smul
@@ -178,7 +177,7 @@ protected noncomputable def mulAction [Monoid α] [MulAction α β] : MulAction 
 
 /-- A multiplicative action of a monoid on a type `β` gives a multiplicative action on `Set β`. -/
 @[to_additive (attr := instance_reducible)
-/-- An additive action of an additive monoid on a type `β` gives an additive action on `Set β`. -/]
+  /-- An additive action of an additive monoid on a type `β` gives an additive action on `Set β`. -/]
 protected def mulActionSet [Monoid α] [MulAction α β] : MulAction α (Set β) where
   mul_smul _ _ _ := by simp only [← image_smul, image_image, ← mul_smul]
   one_smul _ := by simp only [← image_smul, one_smul, image_id']
@@ -193,21 +192,23 @@ theorem _root_.IsSMulRegular.set (h : IsSMulRegular β a) : IsSMulRegular (Set �
   Set.image_injective.mpr h
 
 @[to_additive]
-theorem _root_.IsSMulRegular.smul_set_subset_smul_set_iff (h : IsSMulRegular β a) :
-    a • s ⊆ a • t ↔ s ⊆ t := image_subset_image_iff h
+theorem _root_.IsSMulRegular.smul_set_subset_smul_set_iff (h : IsSMulRegular β a)
+    : a • s ⊆ a • t ↔ s ⊆ t :=
+  image_subset_image_iff h
 
 @[to_additive]
-theorem _root_.IsSMulRegular.smul_set_inter (h : IsSMulRegular β a) :
-    a • (s ∩ t) = a • s ∩ a • t := image_inter h
+theorem _root_.IsSMulRegular.smul_set_inter (h : IsSMulRegular β a) : a • (s ∩ t) = a • s ∩ a • t :=
+  image_inter h
 
 @[to_additive]
-theorem _root_.IsSMulRegular.smul_set_sdiff (h : IsSMulRegular β a) :
-    a • (s \ t) = a • s \ a • t := image_sdiff h _ _
+theorem _root_.IsSMulRegular.smul_set_sdiff (h : IsSMulRegular β a) : a • (s \ t) = a • s \ a • t :=
+  image_sdiff h _ _
 
 open scoped symmDiff in
 @[to_additive]
-theorem _root_.IsSMulRegular.smul_set_symmDiff (h : IsSMulRegular β a) :
-    a • s ∆ t = (a • s) ∆ (a • t) := image_symmDiff h _ _
+theorem _root_.IsSMulRegular.smul_set_symmDiff (h : IsSMulRegular β a)
+    : a • s ∆ t = (a • s) ∆ (a • t) :=
+  image_symmDiff h _ _
 
 end SMul
 
@@ -223,12 +224,10 @@ theorem smul_set_subset_smul_set_iff : a • s ⊆ a • t ↔ s ⊆ t :=
   IsSMulRegular.smul_set_subset_smul_set_iff (.all a)
 
 @[to_additive]
-theorem smul_set_inter : a • (s ∩ t) = a • s ∩ a • t :=
-  IsSMulRegular.smul_set_inter (.all a)
+theorem smul_set_inter : a • (s ∩ t) = a • s ∩ a • t := IsSMulRegular.smul_set_inter (.all a)
 
 @[to_additive]
-theorem smul_set_sdiff : a • (s \ t) = a • s \ a • t :=
-  IsSMulRegular.smul_set_sdiff (.all a)
+theorem smul_set_sdiff : a • (s \ t) = a • s \ a • t := IsSMulRegular.smul_set_sdiff (.all a)
 
 open scoped symmDiff in
 @[to_additive]
@@ -273,12 +272,12 @@ theorem smul_set_subset_iff_subset_inv_smul_set : a • A ⊆ B ↔ A ⊆ a⁻¹
 
 @[to_additive]
 theorem subset_smul_set_iff : A ⊆ a • B ↔ a⁻¹ • A ⊆ B := by
-  refine (image_subset_iff.trans ?_).symm; congr! 1;
+  refine (image_subset_iff.trans ?_).symm
+  congr! 1
   exact ((MulAction.toPerm _).image_eq_preimage_symm _).symm
 
 @[to_additive]
-theorem smul_set_iInter {ι : Sort*}
-    (a : α) (t : ι → Set β) : (a • ⋂ i, t i) = ⋂ i, a • t i :=
+theorem smul_set_iInter {ι : Sort*} (a : α) (t : ι → Set β) : (a • ⋂ i, t i) = ⋂ i, a • t i :=
   image_iInter (MulAction.bijective a) t
 
 @[to_additive (attr := simp)]
@@ -286,8 +285,7 @@ theorem smul_set_univ : a • (univ : Set β) = univ :=
   image_univ_of_surjective <| MulAction.surjective a
 
 @[to_additive (attr := simp)]
-theorem smul_set_eq_univ : a • s = univ ↔ s = univ := by
-  rw [smul_eq_iff_eq_inv_smul, smul_set_univ]
+theorem smul_set_eq_univ : a • s = univ ↔ s = univ := by rw [smul_eq_iff_eq_inv_smul, smul_set_univ]
 
 @[to_additive (attr := simp)]
 theorem smul_univ {s : Set α} (hs : s.Nonempty) : s • (univ : Set β) = univ :=
@@ -299,8 +297,8 @@ theorem smul_set_compl : a • sᶜ = (a • s)ᶜ := by
   simp_rw [Set.compl_eq_univ_sdiff, smul_set_sdiff, smul_set_univ]
 
 @[to_additive]
-theorem smul_inter_nonempty_iff {s t : Set α} {x : α} :
-    (x • s ∩ t).Nonempty ↔ ∃ a b, (a ∈ t ∧ b ∈ s) ∧ a * b⁻¹ = x := by
+theorem smul_inter_nonempty_iff {s t : Set α} {x : α}
+    : (x • s ∩ t).Nonempty ↔ ∃ a b, (a ∈ t ∧ b ∈ s) ∧ a * b⁻¹ = x := by
   constructor
   · rintro ⟨a, h, ha⟩
     obtain ⟨b, hb, rfl⟩ := mem_smul_set.mp h
@@ -309,13 +307,13 @@ theorem smul_inter_nonempty_iff {s t : Set α} {x : α} :
     exact ⟨a, mem_inter (mem_smul_set.mpr ⟨b, hb, by simp⟩) ha⟩
 
 @[to_additive]
-theorem smul_inter_nonempty_iff' {s t : Set α} {x : α} :
-    (x • s ∩ t).Nonempty ↔ ∃ a b, (a ∈ t ∧ b ∈ s) ∧ a / b = x := by
+theorem smul_inter_nonempty_iff' {s t : Set α} {x : α}
+    : (x • s ∩ t).Nonempty ↔ ∃ a b, (a ∈ t ∧ b ∈ s) ∧ a / b = x := by
   simp_rw [smul_inter_nonempty_iff, div_eq_mul_inv]
 
 @[to_additive]
-theorem op_smul_inter_nonempty_iff {s t : Set α} {x : αᵐᵒᵖ} :
-    (x • s ∩ t).Nonempty ↔ ∃ a b, (a ∈ s ∧ b ∈ t) ∧ a⁻¹ * b = MulOpposite.unop x := by
+theorem op_smul_inter_nonempty_iff {s t : Set α} {x : αᵐᵒᵖ}
+    : (x • s ∩ t).Nonempty ↔ ∃ a b, (a ∈ s ∧ b ∈ t) ∧ a⁻¹ * b = MulOpposite.unop x := by
   constructor
   · rintro ⟨a, h, ha⟩
     obtain ⟨b, hb, rfl⟩ := mem_smul_set.mp h

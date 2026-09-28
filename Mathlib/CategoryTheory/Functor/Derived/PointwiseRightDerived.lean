@@ -33,23 +33,30 @@ open Category Limits
 
 namespace Functor
 
-variable {C : Type u₁} {D : Type u₂} {H : Type u₃}
-  [Category.{v₁} C] [Category.{v₂} D] [Category.{v₃} H]
-  (F' : D ⥤ H) (F : C ⥤ H) (L : C ⥤ D) (α : F ⟶ L ⋙ F') (W : MorphismProperty C)
+variable
+  {C : Type u₁} {D : Type u₂} {H : Type u₃} [Category.{v₁} C] [Category.{v₂} D] [Category.{v₃} H]
+  (F' : D ⥤ H) (F : C ⥤ H) (L : C ⥤ D) (α : F ⟶ L ⋙ F')
+  (W : MorphismProperty C)
 
-/-- Given `F : C ⥤ H`, `W : MorphismProperty C` and `X : C`, we say that `F` has a
+/--
+Given `F : C ⥤ H`, `W : MorphismProperty C` and `X : C`, we say that `F` has a
 pointwise right derived functor at `X` if `F` has a left Kan extension
 at `L.obj X` for any localization functor `L : C ⥤ D` for `W`. In the
 definition, this is stated for `L := W.Q`, see `hasPointwiseRightDerivedFunctorAt_iff`
-for the more general equivalence. -/
+for the more general equivalence.
+-/
 class HasPointwiseRightDerivedFunctorAt (X : C) : Prop where
-  /-- Use the more general `hasColimit` lemma instead, see also
-  `hasPointwiseRightDerivedFunctorAt_iff` -/
+  /--
+  Use the more general `hasColimit` lemma instead, see also
+  `hasPointwiseRightDerivedFunctorAt_iff`
+  -/
   hasColimit' : HasPointwiseLeftKanExtensionAt W.Q F (W.Q.obj X)
 
-/-- A functor `F : C ⥤ H` has a pointwise right derived functor with respect to
+/--
+A functor `F : C ⥤ H` has a pointwise right derived functor with respect to
 `W : MorphismProperty C` if it has a pointwise right derived functor at `X`
-for any `X : C`. -/
+for any `X : C`.
+-/
 abbrev HasPointwiseRightDerivedFunctor := ∀ (X : C), F.HasPointwiseRightDerivedFunctorAt W X
 
 lemma hasPointwiseRightDerivedFunctorAt_iff [L.IsLocalization W] (X : C) :
@@ -92,11 +99,13 @@ attribute [instance] hasRightDerivedFunctor_of_hasPointwiseRightDerivedFunctor
 
 variable {F L}
 
-/-- A right derived functor is a pointwise right derived functor when
-there exists a pointwise right derived functor. -/
+/--
+A right derived functor is a pointwise right derived functor when
+there exists a pointwise right derived functor.
+-/
 noncomputable def isPointwiseLeftKanExtensionOfHasPointwiseRightDerivedFunctor
-     [L.IsLocalization W] [F'.IsRightDerivedFunctor α W] :
-    (LeftExtension.mk _ α).IsPointwiseLeftKanExtension :=
+    [L.IsLocalization W] [F'.IsRightDerivedFunctor α W]
+    : (LeftExtension.mk _ α).IsPointwiseLeftKanExtension :=
   have := hasPointwiseLeftKanExtension_of_hasPointwiseRightDerivedFunctor F L
   have := IsRightDerivedFunctor.isLeftKanExtension F' α W
   isPointwiseLeftKanExtensionOfIsLeftKanExtension F' α
@@ -108,18 +117,23 @@ section
 variable {F L}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `L : C ⥤ D` is a localization functor for `W` and `e : F ≅ L ⋙ G` is an isomorphism,
+/--
+If `L : C ⥤ D` is a localization functor for `W` and `e : F ≅ L ⋙ G` is an isomorphism,
 then `e.hom` makes `G` a pointwise left Kan extension of `F` along `L` at `L.obj Y`
-for any `Y : C`. -/
+for any `Y : C`.
+-/
 def isPointwiseLeftKanExtensionAtOfIsoOfIsLocalization
-    {G : D ⥤ H} (e : F ≅ L ⋙ G) [L.IsLocalization W] (Y : C) :
-    (LeftExtension.mk _ e.hom).IsPointwiseLeftKanExtensionAt (L.obj Y) where
+    {G : D ⥤ H} (e : F ≅ L ⋙ G) [L.IsLocalization W] (Y : C)
+    : (LeftExtension.mk _ e.hom).IsPointwiseLeftKanExtensionAt (L.obj Y) where
   desc s := e.inv.app Y ≫ s.ι.app (CostructuredArrow.mk (𝟙 (L.obj Y)))
   fac s j := by
     refine Localization.induction_costructuredArrow L W _ (by simp)
-      (fun X₁ X₂ f φ hφ ↦ ?_) (fun X₁ X₂ w hw φ hφ ↦ ?_) j
-    · have eq := s.ι.naturality
-        (CostructuredArrow.homMk f : CostructuredArrow.mk (L.map f ≫ φ) ⟶ CostructuredArrow.mk φ)
+      (fun X₁ X₂ f φ hφ ↦ ?_)
+      (fun X₁ X₂ w hw φ hφ ↦ ?_)
+      j
+    · have eq :=
+        s.ι.naturality
+          (CostructuredArrow.homMk f : CostructuredArrow.mk (L.map f ≫ φ) ⟶ CostructuredArrow.mk φ)
       dsimp at eq hφ ⊢
       rw [comp_id] at eq
       rw [assoc] at hφ
@@ -129,36 +143,44 @@ def isPointwiseLeftKanExtensionAtOfIsoOfIsLocalization
         rw [← NatIso.naturality_2 e w]
         dsimp
         infer_instance
-      have eq := s.ι.naturality
-        (CostructuredArrow.homMk w : CostructuredArrow.mk φ ⟶ CostructuredArrow.mk
-          ((Localization.isoOfHom L W w hw).inv ≫ φ))
+      have eq :=
+        s.ι.naturality
+          (CostructuredArrow.homMk w
+            : CostructuredArrow.mk φ
+              ⟶ CostructuredArrow.mk ((Localization.isoOfHom L W w hw).inv ≫ φ))
       dsimp at eq hφ ⊢
       rw [comp_id] at eq
       rw [assoc] at hφ
-      rw [map_comp, assoc, assoc, ← cancel_epi (F.map w), eq, ← hφ,
-        NatTrans.naturality_assoc, comp_map, ← G.map_comp_assoc]
+      rw [
+        map_comp, assoc, assoc, ← cancel_epi (F.map w), eq, ← hφ, NatTrans.naturality_assoc,
+        comp_map, ← G.map_comp_assoc
+      ]
       simp
   uniq s m hm := by
     have := hm (CostructuredArrow.mk (𝟙 (L.obj Y)))
     dsimp at this m hm ⊢
     simp only [← this, map_id, comp_id, Iso.inv_hom_id_app_assoc]
 
-/-- If `L` is a localization functor for `W` and `e : F ≅ L ⋙ G` is an isomorphism,
-then `e.hom` makes `G` a pointwise left Kan extension of `F` along `L`. -/
+/--
+If `L` is a localization functor for `W` and `e : F ≅ L ⋙ G` is an isomorphism,
+then `e.hom` makes `G` a pointwise left Kan extension of `F` along `L`.
+-/
 noncomputable def isPointwiseLeftKanExtensionOfIsoOfIsLocalization
-    {G : D ⥤ H} (e : F ≅ L ⋙ G) [L.IsLocalization W] :
-    (LeftExtension.mk _ e.hom).IsPointwiseLeftKanExtension := fun Y ↦
+    {G : D ⥤ H} (e : F ≅ L ⋙ G) [L.IsLocalization W]
+    : (LeftExtension.mk _ e.hom).IsPointwiseLeftKanExtension := fun Y ↦
   have := Localization.essSurj L W
-  (LeftExtension.mk _ e.hom).isPointwiseLeftKanExtensionAtEquivOfIso'
-    (L.objObjPreimageIso Y) (isPointwiseLeftKanExtensionAtOfIsoOfIsLocalization W e _)
+  (LeftExtension.mk _ e.hom).isPointwiseLeftKanExtensionAtEquivOfIso' (L.objObjPreimageIso Y)
+    (isPointwiseLeftKanExtensionAtOfIsoOfIsLocalization W e _)
 
-/-- Let `L : C ⥤ D` be a localization functor for `W`, if an extension `E`
+/--
+Let `L : C ⥤ D` be a localization functor for `W`, if an extension `E`
 of `F : C ⥤ H` along `L` is such that the natural transformation
 `E.hom : F ⟶ L ⋙ E.right` is an isomorphism, then `E` is a pointwise
-left Kan extension. -/
+left Kan extension.
+-/
 noncomputable def LeftExtension.isPointwiseLeftKanExtensionOfIsIsoOfIsLocalization
-    (E : LeftExtension L F) [IsIso E.hom] [L.IsLocalization W] :
-    E.IsPointwiseLeftKanExtension :=
+    (E : LeftExtension L F) [IsIso E.hom] [L.IsLocalization W]
+    : E.IsPointwiseLeftKanExtension :=
   Functor.isPointwiseLeftKanExtensionOfIsoOfIsLocalization W (asIso E.hom)
 
 lemma hasPointwiseRightDerivedFunctor_of_inverts
@@ -175,8 +197,8 @@ lemma isRightDerivedFunctor_of_inverts
   isLeftKanExtension :=
     (isPointwiseLeftKanExtensionOfIsoOfIsLocalization W e.symm).isLeftKanExtension
 
-instance [L.IsLocalization W] (hF : W.IsInvertedBy F) :
-    (Localization.lift F hF L).IsRightDerivedFunctor (Localization.fac F hF L).inv W :=
+instance [L.IsLocalization W] (hF : W.IsInvertedBy F)
+    : (Localization.lift F hF L).IsRightDerivedFunctor (Localization.fac F hF L).inv W :=
   isRightDerivedFunctor_of_inverts W _ _
 
 variable {W} in

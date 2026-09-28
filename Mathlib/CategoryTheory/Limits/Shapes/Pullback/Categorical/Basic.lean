@@ -69,15 +69,17 @@ namespace CategoryTheory.Limits
 
 section
 
-variable {A : Type u₁} {B : Type u₂} {C : Type u₃}
-  [Category.{v₁} A] [Category.{v₂} B] [Category.{v₃} C]
+variable
+  {A : Type u₁} {B : Type u₂} {C : Type u₃} [Category.{v₁} A] [Category.{v₂} B] [Category.{v₃} C]
   (F : A ⥤ B) (G : C ⥤ B)
 
-/-- The `CategoricalPullback F G` is the category of triples
+/--
+The `CategoricalPullback F G` is the category of triples
 `(a : A, c : C, F a ≅ G c)`.
 Morphisms `(a, c, e) ⟶ (a', c', e')` are pairs of morphisms
 `(f₁ : a ⟶ a', f₂ : c ⟶ c')` compatible with the specified
-isomorphisms. -/
+isomorphisms.
+-/
 @[kerodon 032Z]
 structure CategoricalPullback where
   /-- the first component element -/
@@ -94,16 +96,20 @@ scoped notation:max L:max " ⊡ " R:max => CategoricalPullback L R
 
 variable {F G}
 
-/-- The Hom types for the categorical pullback are given by pairs of maps compatible with the
-structural isomorphisms. -/
+/--
+The Hom types for the categorical pullback are given by pairs of maps compatible with the
+structural isomorphisms.
+-/
 @[ext]
 structure Hom (x y : F ⊡ G) where
   /-- the first component of `f : Hom x y` is a morphism `x.fst ⟶ y.fst` -/
   fst : x.fst ⟶ y.fst
   /-- the second component of `f : Hom x y` is a morphism `x.snd ⟶ y.snd` -/
   snd : x.snd ⟶ y.snd
-  /-- the compatibility condition on `fst` and `snd` with respect to the structure
-  isomorphisms -/
+  /--
+  the compatibility condition on `fst` and `snd` with respect to the structure
+  isomorphisms
+  -/
   w : F.map fst ≫ y.iso.hom = x.iso.hom ≫ G.map snd := by cat_disch
 
 attribute [reassoc (attr := simp)] Hom.w
@@ -111,12 +117,8 @@ attribute [reassoc (attr := simp)] Hom.w
 @[simps! id_fst id_snd comp_fst comp_snd]
 instance : Category (CategoricalPullback F G) where
   Hom x y := CategoricalPullback.Hom x y
-  id x :=
-    { fst := 𝟙 x.fst
-      snd := 𝟙 x.snd }
-  comp f g :=
-    { fst := f.fst ≫ g.fst
-      snd := f.snd ≫ g.snd }
+  id x := { fst := 𝟙 x.fst, snd := 𝟙 x.snd }
+  comp f g := { fst := f.fst ≫ g.fst, snd := f.snd ≫ g.snd }
 
 attribute [reassoc] comp_fst comp_snd
 
@@ -128,8 +130,7 @@ lemma Hom.w' {x y : F ⊡ G} (f : x ⟶ y) :
 
 /-- Extensionality principle for morphisms in `CategoricalPullback F G`. -/
 @[ext]
-theorem hom_ext {x y : F ⊡ G} {f g : x ⟶ y}
-    (hₗ : f.fst = g.fst) (hᵣ : f.snd = g.snd) : f = g := by
+theorem hom_ext {x y : F ⊡ G} {f g : x ⟶ y} (hₗ : f.fst = g.fst) (hᵣ : f.snd = g.snd) : f = g := by
   apply Hom.ext <;> assumption
 
 section
@@ -157,10 +158,10 @@ instance catCommSq : CatCommSq (π₁ F G) (π₂ F G) F G where
 variable {F G} in
 /-- Constructor for isomorphisms in `CategoricalPullback F G`. -/
 @[simps!]
-def mkIso {x y : F ⊡ G}
-    (eₗ : x.fst ≅ y.fst) (eᵣ : x.snd ≅ y.snd)
-    (w : F.map eₗ.hom ≫ y.iso.hom = x.iso.hom ≫ G.map eᵣ.hom := by cat_disch) :
-    x ≅ y where
+def mkIso
+    {x y : F ⊡ G} (eₗ : x.fst ≅ y.fst) (eᵣ : x.snd ≅ y.snd)
+    (w : F.map eₗ.hom ≫ y.iso.hom = x.iso.hom ≫ G.map eᵣ.hom := by cat_disch)
+    : x ≅ y where
   hom := ⟨eₗ.hom, eᵣ.hom, w⟩
   inv := ⟨eₗ.inv, eᵣ.inv, by simpa using F.map eₗ.inv ≫= w.symm =≫ G.map eᵣ.inv⟩
 
@@ -168,11 +169,9 @@ section
 
 variable {x y : F ⊡ G} (f : x ⟶ y) [IsIso f]
 
-instance : IsIso f.fst :=
-  inferInstanceAs (IsIso ((π₁ _ _).mapIso (asIso f)).hom)
+instance : IsIso f.fst := inferInstanceAs (IsIso ((π₁ _ _).mapIso (asIso f)).hom)
 
-instance : IsIso f.snd :=
-  inferInstanceAs (IsIso ((π₂ _ _).mapIso (asIso f)).hom)
+instance : IsIso f.snd := inferInstanceAs (IsIso ((π₂ _ _).mapIso (asIso f)).hom)
 
 @[simp, push ←]
 lemma inv_fst : (inv f).fst = inv f.fst := by
@@ -202,13 +201,15 @@ open CategoryTheory.Functor
 variable (X : Type u₄) [Category.{v₄} X]
 
 variable (F G) in
-/-- The data of a categorical commutative square over a cospan `F, G` with cone point `X` is
+/--
+The data of a categorical commutative square over a cospan `F, G` with cone point `X` is
 that of a functor `T : X ⥤ A`, a functor `L : X ⥤ C`, and a `CatCommSq T L F G`.
 Note that this is *exactly* what an object of
 `((whiskeringRight X A B).obj F) ⊡ ((whiskeringRight X C B).obj G)` is,
 so `CatCommSqOver F G X` is in equivalent to
 `((whiskeringRight X A B).obj F) ⊡ ((whiskeringRight X C B).obj G)`,
-though it is defined separately for performance reasons. -/
+though it is defined separately for performance reasons.
+-/
 structure CatCommSqOver where
   /-- The first projection functor. -/
   fst : X ⥤ A
@@ -219,16 +220,20 @@ structure CatCommSqOver where
 
 namespace CatCommSqOver
 
-/-- The Hom types for the categorical commutative squares over X are given by pairs of natural
-transformations compatible with the structural isomorphisms. -/
+/--
+The Hom types for the categorical commutative squares over X are given by pairs of natural
+transformations compatible with the structural isomorphisms.
+-/
 @[ext]
 structure Hom (x y : CatCommSqOver F G X) where
   /-- the first component of `f : Hom x y` is a morphism `x.fst ⟶ y.fst` -/
   fst : x.fst ⟶ y.fst
   /-- the second component of `f : Hom x y` is a morphism `x.snd ⟶ y.snd` -/
   snd : x.snd ⟶ y.snd
-  /-- the compatibility condition on `fst` and `snd` with respect to the structure
-  isomorphisms -/
+  /--
+  the compatibility condition on `fst` and `snd` with respect to the structure
+  isomorphisms
+  -/
   w : whiskerRight fst F ≫ y.iso.hom = x.iso.hom ≫ whiskerRight snd G := by cat_disch
 
 attribute [reassoc (attr := simp)] Hom.w
@@ -236,12 +241,8 @@ attribute [reassoc (attr := simp)] Hom.w
 @[simps! id_fst_app id_snd_app comp_fst_app comp_snd_app]
 instance : Category (CatCommSqOver F G X) where
   Hom x y := CatCommSqOver.Hom X x y
-  id x :=
-    { fst := 𝟙 x.fst
-      snd := 𝟙 x.snd }
-  comp f g :=
-    { fst := f.fst ≫ g.fst
-      snd := f.snd ≫ g.snd }
+  id x := { fst := 𝟙 x.fst, snd := 𝟙 x.snd }
+  comp f g := { fst := f.fst ≫ g.fst, snd := f.snd ≫ g.snd }
 
 @[ext]
 lemma hom_ext {S S' : CatCommSqOver F G X} {f g : S ⟶ S'}
@@ -282,24 +283,28 @@ def sndFunctor : CatCommSqOver F G X ⥤ X ⥤ C where
 set_option backward.defeqAttrib.useBackward true in
 /-- The structure isomorphism of a `CatCommSqOver` as a natural transformation. -/
 @[simps!]
-def e :
-    fstFunctor F G X ⋙ (whiskeringRight X A B).obj F ≅
-    sndFunctor F G X ⋙ (whiskeringRight X C B).obj G :=
+def e
+    : fstFunctor F G X ⋙ (whiskeringRight X A B).obj F
+      ≅ sndFunctor F G X ⋙ (whiskeringRight X C B).obj G :=
   NatIso.ofComponents (fun S ↦ S.iso)
 
 set_option backward.defeqAttrib.useBackward true in
 variable {F G X} in
 /-- A constructor for isomorphisms in CatCommSqOver -/
 @[simps!]
-def mkIso {S S' : CatCommSqOver F G X}
-    (eₗ : S.fst ≅ S'.fst) (eᵣ : S.snd ≅ S'.snd)
-    (w : whiskerRight eₗ.hom F ≫ S'.iso.hom = S.iso.hom ≫ whiskerRight eᵣ.hom G := by cat_disch) :
-    S ≅ S' where
+def mkIso
+    {S S' : CatCommSqOver F G X} (eₗ : S.fst ≅ S'.fst) (eᵣ : S.snd ≅ S'.snd)
+    (w : whiskerRight eₗ.hom F ≫ S'.iso.hom = S.iso.hom ≫ whiskerRight eᵣ.hom G := by cat_disch)
+    : S ≅ S' where
   hom := ⟨eₗ.hom, eᵣ.hom, w⟩
-  inv := ⟨eₗ.inv, eᵣ.inv, by
-    ext t
-    simpa [← Functor.map_comp_assoc, ← Functor.map_comp] using
-      congr_app (whiskerRight eₗ.inv F ≫= w.symm =≫ whiskerRight eᵣ.inv G) t⟩
+  inv := ⟨
+    eₗ.inv,
+    eᵣ.inv,
+    by
+      ext t
+      simpa [← Functor.map_comp_assoc, ← Functor.map_comp] using
+        congr_app (whiskerRight eₗ.inv F ≫= w.symm =≫ whiskerRight eᵣ.inv G) t
+  ⟩
 
 end CatCommSqOver
 
@@ -313,82 +318,67 @@ set_option backward.defeqAttrib.useBackward true in
 /-- Interpret a functor to the categorical pullback as a `CatCommSqOver`. -/
 @[simps!]
 def toCatCommSqOver : (X ⥤ F ⊡ G) ⥤ CatCommSqOver F G X where
-  obj J :=
-    { fst := J ⋙ π₁ F G
-      snd := J ⋙ π₂ F G
-      iso :=
-        associator _ _ _ ≪≫
-          isoWhiskerLeft J (catCommSq F G).iso ≪≫
-          (associator _ _ _).symm }
-  map {J J'} F :=
-    { fst := whiskerRight F (π₁ _ _)
-      snd := whiskerRight F (π₂ _ _) }
+  obj J := {
+    fst := J ⋙ π₁ F G
+    snd := J ⋙ π₂ F G
+    iso := associator _ _ _ ≪≫ isoWhiskerLeft J (catCommSq F G).iso ≪≫ (associator _ _ _).symm
+  }
+  map {J J'} F := { fst := whiskerRight F (π₁ _ _), snd := whiskerRight F (π₂ _ _) }
   map_id := by intros; ext <;> simp
   map_comp := by intros; ext <;> simp
 
 /-- Interpret a `CatCommSqOver` as a functor to the categorical pullback. -/
 @[simps!]
-def CatCommSqOver.toFunctorToCategoricalPullback :
-    (CatCommSqOver F G X) ⥤ X ⥤ F ⊡ G where
-  obj S :=
-    { obj x :=
-        { fst := S.fst.obj x
-          snd := S.snd.obj x
-          iso := S.iso.app x }
-      map {x y} f :=
-        { fst := S.fst.map f
-          snd := S.snd.map f } }
-  map {S S'} φ :=
-    { app x :=
-        { fst := φ.fst.app x
-          snd := φ.snd.app x } }
+def CatCommSqOver.toFunctorToCategoricalPullback : (CatCommSqOver F G X) ⥤ X ⥤ F ⊡ G where
+  obj S := {
+    obj x := { fst := S.fst.obj x, snd := S.snd.obj x, iso := S.iso.app x }
+    map {x y} f := { fst := S.fst.map f, snd := S.snd.map f }
+  }
+  map {S S'} φ := { app x := { fst := φ.fst.app x, snd := φ.snd.app x } }
   map_id := by intros; ext <;> simp
   map_comp := by intros; ext <;> simp
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The universal property of categorical pullbacks, stated as an equivalence
+/--
+The universal property of categorical pullbacks, stated as an equivalence
 of categories between functors `X ⥤ (F ⊡ G)` and categorical commutative squares
-over X. -/
+over X.
+-/
 @[simps!]
 def functorEquiv : (X ⥤ F ⊡ G) ≌ CatCommSqOver F G X where
   functor := toCatCommSqOver F G X
   inverse := CatCommSqOver.toFunctorToCategoricalPullback F G X
   unitIso :=
     NatIso.ofComponents
-      (fun _ ↦ NatIso.ofComponents (fun _ ↦ CategoricalPullback.mkIso (.refl _) (.refl _)
-        (by simp))) (by intros; ext <;> simp)
+      (fun _ ↦
+        NatIso.ofComponents (fun _ ↦ CategoricalPullback.mkIso (.refl _) (.refl _) (by simp)))
+      (by intros; ext <;> simp)
   counitIso :=
-    NatIso.ofComponents
-      (fun _ ↦ CatCommSqOver.mkIso
-        (NatIso.ofComponents
-          (fun _ ↦ .refl _) (by intros; simp))
-        (NatIso.ofComponents
-          (fun _ ↦ .refl _) (by intros; simp))
-        (by ext; simp))
+    NatIso.ofComponents (fun _ ↦
+      CatCommSqOver.mkIso (NatIso.ofComponents (fun _ ↦ .refl _) (by intros; simp))
+        (NatIso.ofComponents (fun _ ↦ .refl _) (by intros; simp)) (by ext; simp))
   functor_unitIso_comp := by intros; ext <;> simp
 
 variable {F G X}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- A constructor for natural isomorphisms of functors `X ⥤ CategoricalPullback`: to
+/--
+A constructor for natural isomorphisms of functors `X ⥤ CategoricalPullback`: to
 construct such an isomorphism, it suffices to produce isomorphisms after whiskering with
-the projections, and compatible with the canonical 2-commutative square . -/
+the projections, and compatible with the canonical 2-commutative square .
+-/
 @[simps!]
-def mkNatIso {J K : X ⥤ F ⊡ G}
-    (e₁ : J ⋙ π₁ F G ≅ K ⋙ π₁ F G) (e₂ : J ⋙ π₂ F G ≅ K ⋙ π₂ F G)
-    (coh :
-      whiskerRight e₁.hom F ≫ (associator _ _ _).hom ≫
-        whiskerLeft K (CatCommSq.iso (π₁ F G) (π₂ F G) F G).hom ≫
-        (associator _ _ _).inv =
-      (associator _ _ _).hom ≫
-        whiskerLeft J (CatCommSq.iso (π₁ F G) (π₂ F G) F G).hom ≫
-        (associator _ _ _).inv ≫
-        whiskerRight e₂.hom G := by cat_disch) :
-    J ≅ K :=
+def mkNatIso
+    {J K : X ⥤ F ⊡ G} (e₁ : J ⋙ π₁ F G ≅ K ⋙ π₁ F G) (e₂ : J ⋙ π₂ F G ≅ K ⋙ π₂ F G)
+    (coh : whiskerRight e₁.hom F ≫ (associator _ _ _).hom
+          ≫ whiskerLeft K (CatCommSq.iso (π₁ F G) (π₂ F G) F G).hom ≫ (associator _ _ _).inv
+        = (associator _ _ _).hom ≫ whiskerLeft J (CatCommSq.iso (π₁ F G) (π₂ F G) F G).hom
+          ≫ (associator _ _ _).inv ≫ whiskerRight e₂.hom G := by
+      cat_disch)
+    : J ≅ K :=
   NatIso.ofComponents
-    (fun x ↦ CategoricalPullback.mkIso (e₁.app x) (e₂.app x)
-      (by simpa using congr($(coh).app x)))
+    (fun x ↦ CategoricalPullback.mkIso (e₁.app x) (e₂.app x) (by simpa using congr($(coh).app x)))
     (fun {_ _} f ↦ by
       ext
       · exact e₁.hom.naturality f
@@ -408,8 +398,7 @@ lemma natTrans_ext
 
 section
 
-variable {J K : X ⥤ F ⊡ G}
-    (e₁ : J ⋙ π₁ F G ≅ K ⋙ π₁ F G) (e₂ : J ⋙ π₂ F G ≅ K ⋙ π₂ F G)
+variable {J K : X ⥤ F ⊡ G} (e₁ : J ⋙ π₁ F G ≅ K ⋙ π₁ F G) (e₂ : J ⋙ π₂ F G ≅ K ⋙ π₂ F G)
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -461,82 +450,84 @@ open CategoryTheory.Functor
 
 section transform
 
-variable {A₁ : Type u₄} {B₁ : Type u₅} {C₁ : Type u₆}
+variable
+  {A₁ : Type u₄} {B₁ : Type u₅} {C₁ : Type u₆}
   [Category.{v₄} A₁] [Category.{v₅} B₁] [Category.{v₆} C₁]
   {F₁ : A₁ ⥤ B₁} {G₁ : C₁ ⥤ B₁}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Functorially transform a `CatCommSqOver F G X` by whiskering it with a
-`CatCospanTransform`. -/
+/--
+Functorially transform a `CatCommSqOver F G X` by whiskering it with a
+`CatCospanTransform`.
+-/
 @[simps!]
-def transform (X : Type u₇) [Category.{v₇} X] :
-    CatCospanTransform F G F₁ G₁ ⥤
-      CatCommSqOver F G X ⥤ CatCommSqOver F₁ G₁ X where
-  obj ψ :=
-    { obj S :=
-      { fst := S.fst ⋙ ψ.left
-        snd := S.snd ⋙ ψ.right
-        iso :=
-          (Functor.associator ..) ≪≫
-            isoWhiskerLeft S.fst ψ.squareLeft.iso.symm ≪≫
-            (Functor.associator ..).symm ≪≫
-            isoWhiskerRight S.iso ψ.base ≪≫
-            (Functor.associator ..) ≪≫
-            isoWhiskerLeft S.snd ψ.squareRight.iso ≪≫
-            (Functor.associator ..).symm }
-      map {x y} f :=
-        { fst := whiskerRight f.fst ψ.left
-          snd := whiskerRight f.snd ψ.right
-          w := by
-            ext x
-            simp [← Functor.map_comp_assoc] }
-      map_id := by intros; ext <;> simp
-      map_comp := by intros; ext <;> simp }
-  map {ψ ψ'} η :=
-    { app S :=
-      { fst.app y := η.left.app (S.fst.obj y)
-        fst.naturality {x y} f := by simp
-        snd.app y := η.right.app (S.snd.obj y)
-        snd.naturality {x y} f := by simp
-        w := by
-          ext t
-          have := ψ.squareLeft.iso.inv.app (S.fst.obj t) ≫=
-            η.left_coherence_app (S.fst.obj t)
-          simp only [Iso.inv_hom_id_app_assoc] at this
-          simp [this] } }
+def transform (X : Type u₇) [Category.{v₇} X]
+    : CatCospanTransform F G F₁ G₁ ⥤ CatCommSqOver F G X ⥤ CatCommSqOver F₁ G₁ X where
+  obj ψ := {
+    obj S := {
+      fst := S.fst ⋙ ψ.left
+      snd := S.snd ⋙ ψ.right
+      iso :=
+        (Functor.associator ..) ≪≫ isoWhiskerLeft S.fst ψ.squareLeft.iso.symm
+          ≪≫ (Functor.associator ..).symm ≪≫ isoWhiskerRight S.iso ψ.base ≪≫ (Functor.associator ..)
+          ≪≫ isoWhiskerLeft S.snd ψ.squareRight.iso ≪≫ (Functor.associator ..).symm
+    }
+    map {x y} f := {
+      fst := whiskerRight f.fst ψ.left
+      snd := whiskerRight f.snd ψ.right
+      w := by
+        ext x
+        simp [← Functor.map_comp_assoc]
+    }
+    map_id := by intros; ext <;> simp
+    map_comp := by intros; ext <;> simp
+  }
+  map {ψ ψ'} η := {
+    app S := {
+      fst.app y := η.left.app (S.fst.obj y)
+      fst.naturality {x y} f := by simp
+      snd.app y := η.right.app (S.snd.obj y)
+      snd.naturality {x y} f := by simp
+      w := by
+        ext t
+        have := ψ.squareLeft.iso.inv.app (S.fst.obj t) ≫= η.left_coherence_app (S.fst.obj t)
+        simp only [Iso.inv_hom_id_app_assoc] at this
+        simp [this]
+    }
+  }
   map_id := by intros; ext <;> simp
   map_comp := by intros; ext <;> simp
 
-variable {A₂ : Type u₇} {B₂ : Type u₈} {C₂ : Type u₉}
+variable
+  {A₂ : Type u₇} {B₂ : Type u₈} {C₂ : Type u₉}
   [Category.{v₇} A₂] [Category.{v₈} B₂] [Category.{v₉} C₂]
   {F₂ : A₂ ⥤ B₂} {G₂ : C₂ ⥤ B₂}
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The construction `CatCommSqOver.transform` respects vertical composition
-of `CatCospanTransform`s. -/
+/--
+The construction `CatCommSqOver.transform` respects vertical composition
+of `CatCospanTransform`s.
+-/
 @[simps!]
-def transformObjComp (X : Type u₁₀) [Category.{v₁₀} X]
-    (ψ : CatCospanTransform F G F₁ G₁) (ψ' : CatCospanTransform F₁ G₁ F₂ G₂) :
-    (transform X).obj (ψ.comp ψ') ≅ (transform X).obj ψ ⋙ (transform X).obj ψ' :=
-  NatIso.ofComponents (fun _ =>
-    CatCommSqOver.mkIso
-      (Functor.associator _ _ _).symm
-      (Functor.associator _ _ _).symm)
+def transformObjComp
+    (X : Type u₁₀) [Category.{v₁₀} X]
+    (ψ : CatCospanTransform F G F₁ G₁) (ψ' : CatCospanTransform F₁ G₁ F₂ G₂)
+    : (transform X).obj (ψ.comp ψ') ≅ (transform X).obj ψ ⋙ (transform X).obj ψ' :=
+  NatIso.ofComponents
+    (fun _ => CatCommSqOver.mkIso (Functor.associator _ _ _).symm (Functor.associator _ _ _).symm)
     (fun {x y} f ↦ by ext <;> simp)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The construction `CatCommSqOver.transform` respects the identity
-`CatCospanTransform`s. -/
+/--
+The construction `CatCommSqOver.transform` respects the identity
+`CatCospanTransform`s.
+-/
 @[simps!]
-def transformObjId (X : Type u₄) [Category.{v₄} X]
-    (F : A ⥤ B) (G : C ⥤ B) :
-    (transform X).obj (CatCospanTransform.id F G) ≅ 𝟭 _ :=
-  NatIso.ofComponents fun _ =>
-    CatCommSqOver.mkIso
-      (Functor.rightUnitor _)
-      (Functor.rightUnitor _)
+def transformObjId (X : Type u₄) [Category.{v₄} X] (F : A ⥤ B) (G : C ⥤ B)
+    : (transform X).obj (CatCospanTransform.id F G) ≅ 𝟭 _ :=
+  NatIso.ofComponents fun _ => CatCommSqOver.mkIso (Functor.rightUnitor _) (Functor.rightUnitor _)
 
 open scoped CatCospanTransform
 
@@ -604,33 +595,27 @@ section precompose
 variable (F G)
 
 variable
-    {X : Type u₄} {Y : Type u₅} {Z : Type u₆}
-    [Category.{v₄} X] [Category.{v₅} Y] [Category.{v₆} Z]
+  {X : Type u₄} {Y : Type u₅} {Z : Type u₆} [Category.{v₄} X] [Category.{v₅} Y] [Category.{v₆} Z]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- A functor `U : X ⥤ Y` (functorially) induces a functor
+/--
+A functor `U : X ⥤ Y` (functorially) induces a functor
 `CatCommSqOver F G Y ⥤ CatCommSqOver F G X` by whiskering left the underlying
-categorical commutative square by U. -/
+categorical commutative square by U.
+-/
 @[simps!]
-def precompose :
-    (X ⥤ Y) ⥤ CatCommSqOver F G Y ⥤ CatCommSqOver F G X where
-  obj U :=
-    { obj S :=
-        { fst := U ⋙ S.fst
-          snd := U ⋙ S.snd
-          iso :=
-            (Functor.associator _ _ _) ≪≫
-              isoWhiskerLeft U S.iso ≪≫
-              (Functor.associator _ _ _).symm }
-      map {S S'} φ :=
-        { fst := whiskerLeft U φ.fst
-          snd := whiskerLeft U φ.snd }
-      map_id := by intros; ext <;> simp
-      map_comp := by intros; ext <;> simp }
-  map {U V} α :=
-    { app x :=
-      { fst := whiskerRight α x.fst
-        snd := whiskerRight α x.snd } }
+def precompose : (X ⥤ Y) ⥤ CatCommSqOver F G Y ⥤ CatCommSqOver F G X where
+  obj U := {
+    obj S := {
+      fst := U ⋙ S.fst
+      snd := U ⋙ S.snd
+      iso := (Functor.associator _ _ _) ≪≫ isoWhiskerLeft U S.iso ≪≫ (Functor.associator _ _ _).symm
+    }
+    map {S S'} φ := { fst := whiskerLeft U φ.fst, snd := whiskerLeft U φ.snd }
+    map_id := by intros; ext <;> simp
+    map_comp := by intros; ext <;> simp
+  }
+  map {U V} α := { app x := { fst := whiskerRight α x.fst, snd := whiskerRight α x.snd } }
   map_id := by intros; ext <;> simp
   map_comp := by intros; ext <;> simp
 
@@ -639,22 +624,17 @@ set_option backward.defeqAttrib.useBackward true in
 variable (X) in
 /-- The construction `precompose` respects functor identities. -/
 @[simps!]
-def precomposeObjId :
-    (precompose F G).obj (𝟭 X) ≅ 𝟭 (CatCommSqOver F G X) :=
-  NatIso.ofComponents fun _ =>
-    CatCommSqOver.mkIso (Functor.leftUnitor _) (Functor.leftUnitor _)
+def precomposeObjId : (precompose F G).obj (𝟭 X) ≅ 𝟭 (CatCommSqOver F G X) :=
+  NatIso.ofComponents fun _ => CatCommSqOver.mkIso (Functor.leftUnitor _) (Functor.leftUnitor _)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- The construction `precompose` respects functor composition. -/
 @[simps!]
-def precomposeObjComp (U : X ⥤ Y) (V : Y ⥤ Z) :
-    (precompose F G).obj (U ⋙ V) ≅
-    (precompose F G).obj V ⋙ (precompose F G).obj U :=
+def precomposeObjComp (U : X ⥤ Y) (V : Y ⥤ Z)
+    : (precompose F G).obj (U ⋙ V) ≅ (precompose F G).obj V ⋙ (precompose F G).obj U :=
   NatIso.ofComponents fun _ =>
-    CatCommSqOver.mkIso
-      (Functor.associator _ _ _)
-      (Functor.associator _ _ _)
+    CatCommSqOver.mkIso (Functor.associator _ _ _) (Functor.associator _ _ _)
 
 set_option backward.defeqAttrib.useBackward true in
 lemma precompose_map_whiskerLeft (U : X ⥤ Y) {V W : Y ⥤ Z} (α : V ⟶ W) :
@@ -703,31 +683,32 @@ end precompose
 
 section compatibility
 
-variable {A₁ : Type u₄} {B₁ : Type u₅} {C₁ : Type u₆}
+variable
+  {A₁ : Type u₄} {B₁ : Type u₅} {C₁ : Type u₆}
   [Category.{v₄} A₁] [Category.{v₅} B₁] [Category.{v₆} C₁]
   {F₁ : A₁ ⥤ B₁} {G₁ : C₁ ⥤ B₁}
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The canonical compatibility square between (the object components of)
+/--
+The canonical compatibility square between (the object components of)
 `precompose` and `transform`.
 This is a "naturality square" if we think as `transform _|>.obj _` as the
 (app component of the) map component of a pseudofunctor from the bicategory of
 categorical cospans with value in pseudofunctors
 (its value on the categorical cospan `F, G` being the pseudofunctor
-`precompose F G|>.obj _`). -/
+`precompose F G|>.obj _`).
+-/
 @[simps!]
 instance precomposeObjTransformObjSquare
     {X : Type u₇} {Y : Type u₈} [Category.{v₇} X] [Category.{v₈} Y]
-    (ψ : CatCospanTransform F G F₁ G₁) (U : X ⥤ Y) :
-    CatCommSq
-      (precompose F G |>.obj U) (transform Y |>.obj ψ)
-      (transform X |>.obj ψ) (precompose F₁ G₁ |>.obj U) where
-  iso := NatIso.ofComponents (fun _ =>
-    CatCommSqOver.mkIso
-      (Functor.associator _ _ _)
-      (Functor.associator _ _ _))
-    (fun {x y} f ↦ by ext <;> simp)
+    (ψ : CatCospanTransform F G F₁ G₁) (U : X ⥤ Y)
+    : CatCommSq (precompose F G |>.obj U) (transform Y |>.obj ψ) (transform X |>.obj ψ)
+      (precompose F₁ G₁ |>.obj U) where
+  iso :=
+    NatIso.ofComponents
+      (fun _ => CatCommSqOver.mkIso (Functor.associator _ _ _) (Functor.associator _ _ _))
+      (fun {x y} f ↦ by ext <;> simp)
 
 -- Compare the next 3 lemmas with the components of a strong natural transform
 -- of pseudofunctors
@@ -777,24 +758,24 @@ lemma precomposeObjTransformObjSquare_iso_hom_comp
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The canonical compatibility square between (the object components of)
+/--
+The canonical compatibility square between (the object components of)
 `transform` and `precompose`.
 This is a "naturality square" if we think as `precompose` as the
 (app component of the) map component of a pseudofunctor from the opposite
 bicategory of categories to pseudofunctors of categorical cospans
-(its value on `X` being the pseudofunctor `transform X _`). -/
+(its value on `X` being the pseudofunctor `transform X _`).
+-/
 @[simps!]
 instance transformObjPrecomposeObjSquare
     {X : Type u₇} {Y : Type u₈} [Category.{v₇} X] [Category.{v₈} Y]
-    (U : X ⥤ Y) (ψ : CatCospanTransform F G F₁ G₁) :
-    CatCommSq
-      (transform Y |>.obj ψ) (precompose F G |>.obj U)
-      (precompose F₁ G₁ |>.obj U) (transform X |>.obj ψ) where
-  iso := NatIso.ofComponents (fun _ =>
-    CatCommSqOver.mkIso
-      (Functor.associator _ _ _).symm
-      (Functor.associator _ _ _).symm)
-    (fun {x y} f ↦ by ext <;> simp)
+    (U : X ⥤ Y) (ψ : CatCospanTransform F G F₁ G₁)
+    : CatCommSq (transform Y |>.obj ψ) (precompose F G |>.obj U) (precompose F₁ G₁ |>.obj U)
+      (transform X |>.obj ψ) where
+  iso :=
+    NatIso.ofComponents
+      (fun _ => CatCommSqOver.mkIso (Functor.associator _ _ _).symm (Functor.associator _ _ _).symm)
+      (fun {x y} f ↦ by ext <;> simp)
 
 -- Compare the next 3 lemmas with the components of a strong natural transform
 -- of pseudofunctors

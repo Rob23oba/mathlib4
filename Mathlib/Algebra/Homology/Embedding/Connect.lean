@@ -53,9 +53,11 @@ namespace CochainComplex
 variable {K K' K'' : ChainComplex C ℕ} {L L' L'' : CochainComplex C ℕ}
 
 variable (K L) in
-/-- Given `K : ChainComplex C ℕ` and `L : CochainComplex C ℕ`, this data
+/--
+Given `K : ChainComplex C ℕ` and `L : CochainComplex C ℕ`, this data
 allows to connect `K` and `L` in order to get a cochain complex indexed by `ℤ`,
-see `ConnectData.cochainComplex`. -/
+see `ConnectData.cochainComplex`.
+-/
 structure ConnectData where
   /-- the differential which connect `K` and `L` -/
   d₀ : K.X 0 ⟶ L.X 0
@@ -81,11 +83,16 @@ def X : ℤ → C
 
 /-- Auxiliary definition for `ConnectData.cochainComplex`. -/
 def d : ∀ (n m : ℤ), X K L n ⟶ X K L m
-  | .ofNat n, .ofNat m => L.d n m
-  | .negSucc n, .negSucc m => K.d n m
-  | .negSucc 0, .ofNat 0 => h.d₀
-  | .ofNat _, .negSucc _ => 0
-  | .negSucc _, .ofNat _ => 0
+  | .ofNat n, .ofNat m =>
+    L.d n m
+  | .negSucc n, .negSucc m =>
+    K.d n m
+  | .negSucc 0, .ofNat 0 =>
+    h.d₀
+  | .ofNat _, .negSucc _ =>
+    0
+  | .negSucc _, .ofNat _ =>
+    0
 
 @[simp] lemma d_ofNat (n m : ℕ) : h.d n m = L.d n m := rfl
 @[simp] lemma d_negSucc (n m : ℕ) : h.d (.negSucc n) (.negSucc m) = K.d n m := by simp [d]
@@ -129,9 +136,11 @@ lemma d_comp_d (n m p : ℤ) : h.d n m ≫ h.d m p = 0 := by
     obtain rfl : p = .negSucc n := by lia
     simp
 
-/-- Given `h : ConnectData K L` where `K : ChainComplex C ℕ` and `L : CochainComplex C ℕ`,
+/--
+Given `h : ConnectData K L` where `K : ChainComplex C ℕ` and `L : CochainComplex C ℕ`,
 this is the cochain complex indexed by `ℤ` obtained by connecting `K` and `L`:
-`... ⟶ K.X 2 ⟶ K.X 1 ⟶ K.X 0 ⟶ L.X 0 ⟶ L.X 1 ⟶ L.X 2 ⟶ ...`. -/
+`... ⟶ K.X 2 ⟶ K.X 1 ⟶ K.X 0 ⟶ L.X 0 ⟶ L.X 1 ⟶ L.X 2 ⟶ ...`.
+-/
 @[simps]
 def cochainComplex : CochainComplex C ℤ where
   X := X K L
@@ -143,54 +152,65 @@ open HomologicalComplex
 set_option backward.isDefEq.respectTransparency false in
 /-- If `h : ConnectData K L`, then `h.cochainComplex` identifies to `L` in degrees `≥ 0`. -/
 @[simps!]
-def restrictionGEIso :
-    h.cochainComplex.restriction (ComplexShape.embeddingUpIntGE 0) ≅ L :=
+def restrictionGEIso : h.cochainComplex.restriction (ComplexShape.embeddingUpIntGE 0) ≅ L :=
   Hom.isoOfComponents
-    (fun n ↦ h.cochainComplex.restrictionXIso (ComplexShape.embeddingUpIntGE 0)
-      (i := n) (i' := n) (by simp)) (by
-    rintro n _ rfl
-    rw [restriction_d_eq (e := (ComplexShape.embeddingUpIntGE 0)) _ (i' := n)
-      (j' := (n + 1 : ℕ)) (by simp) (by simp), cochainComplex_d, h.d_ofNat]
-    simp)
+    (fun n ↦
+      h.cochainComplex.restrictionXIso (ComplexShape.embeddingUpIntGE 0) (i := n) (i' := n)
+        (by simp))
+    (by
+      rintro n _ rfl
+      rw [
+        restriction_d_eq (e := (ComplexShape.embeddingUpIntGE 0)) _ (i' := n) (j' := (n + 1 : ℕ))
+          (by simp) (by simp),
+        cochainComplex_d, h.d_ofNat
+      ]
+      simp)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- If `h : ConnectData K L`, then `h.cochainComplex` identifies to `K` in degrees `≤ -1`. -/
 @[simps!]
-def restrictionLEIso :
-    h.cochainComplex.restriction (ComplexShape.embeddingUpIntLE (-1)) ≅ K :=
+def restrictionLEIso : h.cochainComplex.restriction (ComplexShape.embeddingUpIntLE (-1)) ≅ K :=
   Hom.isoOfComponents
-    (fun n ↦ h.cochainComplex.restrictionXIso (ComplexShape.embeddingUpIntLE (-1))
-        (i := n) (i' := .negSucc n) (by dsimp; lia)) (by
-    rintro _ n rfl
-    rw [restriction_d_eq (e := (ComplexShape.embeddingUpIntLE (-1))) _
-      (i' := Int.negSucc (n + 1)) (j' := Int.negSucc n) (by dsimp; lia) (by dsimp; lia),
-      cochainComplex_d, d_negSucc]
-    simp)
+    (fun n ↦
+      h.cochainComplex.restrictionXIso (ComplexShape.embeddingUpIntLE (-1)) (i := n)
+        (i' := .negSucc n) (by dsimp; lia))
+    (by
+      rintro _ n rfl
+      rw [
+        restriction_d_eq (e := (ComplexShape.embeddingUpIntLE (-1))) _ (i' := Int.negSucc (n + 1))
+          (j' := Int.negSucc n) (by dsimp; lia) (by dsimp; lia),
+        cochainComplex_d, d_negSucc
+      ]
+      simp)
 
-/-- Given `h : ConnectData K L` and `n : ℕ` non-zero, the homology
-of `h.cochainComplex` in degree `n` identifies to the homology of `L` in degree `n`. -/
-noncomputable def homologyIsoPos (n : ℕ) [NeZero n] (m : ℤ) (hm : m = n)
-    [h.cochainComplex.HasHomology m] [L.HasHomology n] :
-    h.cochainComplex.homology m ≅ L.homology n :=
+/--
+Given `h : ConnectData K L` and `n : ℕ` non-zero, the homology
+of `h.cochainComplex` in degree `n` identifies to the homology of `L` in degree `n`.
+-/
+noncomputable def homologyIsoPos
+    (n : ℕ) [NeZero n] (m : ℤ) (hm : m = n) [h.cochainComplex.HasHomology m] [L.HasHomology n]
+    : h.cochainComplex.homology m ≅ L.homology n :=
   have := hasHomology_of_iso h.restrictionGEIso.symm n
-  (h.cochainComplex.restrictionHomologyIso
-    (ComplexShape.embeddingUpIntGE 0) (n - 1) n (n + 1) (by cases n <;> simp) (by simp)
-      (i' := m - 1) (j' := m) (k' := m + 1) (by have := NeZero.ne n; cases n <;> simp <;> lia)
-      (by simp; lia) (by simp; lia) (by simp) (by simp)).symm ≪≫
-    HomologicalComplex.homologyMapIso h.restrictionGEIso n
+  (h.cochainComplex.restrictionHomologyIso (ComplexShape.embeddingUpIntGE 0) (n - 1) n (n + 1)
+      (by cases n <;> simp) (by simp) (i' := m - 1) (j' := m) (k' := m + 1)
+      (by have := NeZero.ne n; cases n <;> simp <;> lia) (by simp; lia) (by simp; lia) (by simp)
+      (by simp)).symm
+    ≪≫ HomologicalComplex.homologyMapIso h.restrictionGEIso n
 
-/-- Given `h : ConnectData K L` and `n : ℕ` non-zero, the homology
-of `h.cochainComplex` in degree `-(n + 1)` identifies to the homology of `K` in degree `n`. -/
-noncomputable def homologyIsoNeg (n : ℕ) [NeZero n] (m : ℤ) (hm : m = -(n + 1 : ℕ))
-    [h.cochainComplex.HasHomology m] [K.HasHomology n] :
-    h.cochainComplex.homology m ≅ K.homology n :=
+/--
+Given `h : ConnectData K L` and `n : ℕ` non-zero, the homology
+of `h.cochainComplex` in degree `-(n + 1)` identifies to the homology of `K` in degree `n`.
+-/
+noncomputable def homologyIsoNeg
+    (n : ℕ) [NeZero n]
+    (m : ℤ) (hm : m = -(n + 1 : ℕ)) [h.cochainComplex.HasHomology m] [K.HasHomology n]
+    : h.cochainComplex.homology m ≅ K.homology n :=
   have := hasHomology_of_iso h.restrictionLEIso.symm n
-  (h.cochainComplex.restrictionHomologyIso
-    (ComplexShape.embeddingUpIntLE (-1)) (n + 1) n (n - 1) (by simp) (by cases n <;> simp)
-      (i' := m - 1) (j' := m) (k' := m + 1) (by simp; lia) (by simp; lia)
-      (by have := NeZero.ne n; cases n <;> simp <;> lia) (by simp) (by simp)).symm ≪≫
-    HomologicalComplex.homologyMapIso h.restrictionLEIso n
+  (h.cochainComplex.restrictionHomologyIso (ComplexShape.embeddingUpIntLE (-1)) (n + 1) n (n - 1)
+      (by simp) (by cases n <;> simp) (i' := m - 1) (j' := m) (k' := m + 1) (by simp; lia)
+      (by simp; lia) (by have := NeZero.ne n; cases n <;> simp <;> lia) (by simp) (by simp)).symm
+    ≪≫ HomologicalComplex.homologyMapIso h.restrictionLEIso n
 
 variable
   (fK : K ⟶ K') (fL : L ⟶ L') (f_comm : fK.f 0 ≫ h'.d₀ = h.d₀ ≫ fL.f 0)
@@ -200,12 +220,15 @@ variable
 @[simps]
 protected def map : h.cochainComplex ⟶ h'.cochainComplex where
   f
-  | .ofNat n => fL.f n
-  | .negSucc n => fK.f n
+    | .ofNat n => fL.f n
+    | .negSucc n => fK.f n
   comm'
-  | .ofNat i, _, .refl _ => fL.comm _ _
-  | .negSucc 0, _, .refl _ => by simpa
-  | .negSucc (i + 1), _, .refl _ => fK.comm _ _
+    | .ofNat i, _, .refl _ =>
+      fL.comm _ _
+    | .negSucc 0, _, .refl _ => by
+      simpa
+    | .negSucc (i + 1), _, .refl _ =>
+      fK.comm _ _
 
 set_option backward.defeqAttrib.useBackward true in
 @[simp] lemma map_id : h.map h (𝟙 K) (𝟙 L) (by simp) = 𝟙 _ := by ext (m | _ | m) <;> simp; rfl

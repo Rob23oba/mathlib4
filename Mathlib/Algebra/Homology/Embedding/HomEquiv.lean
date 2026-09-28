@@ -30,23 +30,24 @@ open CategoryTheory Category Limits
 
 namespace ComplexShape
 
-variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'} (e : Embedding c c')
+variable
+  {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'} (e : Embedding c c')
   {C : Type*} [Category* C] [HasZeroMorphisms C] [HasZeroObject C]
 
 namespace Embedding
 
 open HomologicalComplex
 
-variable {K K' : HomologicalComplex C c'} {L L' : HomologicalComplex C c}
-  [e.IsRelIff]
+variable {K K' : HomologicalComplex C c'} {L L' : HomologicalComplex C c} [e.IsRelIff]
 
 section
 
-/-- The condition on a morphism `K.restriction e ⟶ L` which allows to
-extend it as a morphism `K ⟶ L.extend e`, see `Embedding.homEquiv`. -/
+/--
+The condition on a morphism `K.restriction e ⟶ L` which allows to
+extend it as a morphism `K ⟶ L.extend e`, see `Embedding.homEquiv`.
+-/
 def HasLift (φ : K.restriction e ⟶ L) : Prop :=
-  ∀ (j : ι) (_ : e.BoundaryGE j) (i' : ι')
-    (_ : c'.Rel i' (e.f j)), K.d i' _ ≫ φ.f j = 0
+  ∀ (j : ι) (_ : e.BoundaryGE j) (i' : ι') (_ : c'.Rel i' (e.f j)), K.d i' _ ≫ φ.f j = 0
 
 namespace liftExtend
 
@@ -58,9 +59,10 @@ open scoped Classical in
 /-- Auxiliary definition for `liftExtend`. -/
 noncomputable def f (i' : ι') : K.X i' ⟶ (L.extend e).X i' :=
   if hi' : ∃ i, e.f i = i' then
-    (K.restrictionXIso e hi'.choose_spec).inv ≫ φ.f hi'.choose ≫
-      (L.extendXIso e hi'.choose_spec).inv
-  else 0
+    (K.restrictionXIso e hi'.choose_spec).inv ≫ φ.f hi'.choose
+      ≫ (L.extendXIso e hi'.choose_spec).inv
+  else
+    0
 
 lemma f_eq {i' : ι'} {i : ι} (hi : e.f i = i') :
     f φ i' = (K.restrictionXIso e hi).inv ≫ φ.f i ≫ (L.extendXIso e hi).inv := by
@@ -101,10 +103,11 @@ end liftExtend
 
 variable (φ : K.restriction e ⟶ L) (hφ : e.HasLift φ)
 
-/-- The morphism  `K ⟶ L.extend e` given by a morphism `K.restriction e ⟶ L`
-which satisfy `e.HasLift φ`. -/
-noncomputable def liftExtend :
-    K ⟶ L.extend e where
+/--
+The morphism  `K ⟶ L.extend e` given by a morphism `K.restriction e ⟶ L`
+which satisfy `e.HasLift φ`.
+-/
+noncomputable def liftExtend : K ⟶ L.extend e where
   f i' := liftExtend.f φ i'
   comm' _ _ _ := liftExtend.comm φ hφ _ _
 
@@ -117,13 +120,13 @@ lemma liftExtend_f :
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `φ : K.restriction e ⟶ L` such that `hφ : e.HasLift φ`, this is
+/--
+Given `φ : K.restriction e ⟶ L` such that `hφ : e.HasLift φ`, this is
 the isomorphisms in the category of arrows between the maps
-`(e.liftExtend φ hφ).f i'` and `φ.f i` when `e.f i = i'`. -/
-noncomputable def liftExtendfArrowIso :
-    Arrow.mk ((e.liftExtend φ hφ).f i') ≅ Arrow.mk (φ.f i) :=
-  Arrow.isoMk (K.restrictionXIso e hi).symm (L.extendXIso e hi)
-    (by simp [e.liftExtend_f φ hφ hi])
+`(e.liftExtend φ hφ).f i'` and `φ.f i` when `e.f i = i'`.
+-/
+noncomputable def liftExtendfArrowIso : Arrow.mk ((e.liftExtend φ hφ).f i') ≅ Arrow.mk (φ.f i) :=
+  Arrow.isoMk (K.restrictionXIso e hi).symm (L.extendXIso e hi) (by simp [e.liftExtend_f φ hφ hi])
 
 lemma isIso_liftExtend_f_iff (hi : e.f i = i') :
     IsIso ((e.liftExtend φ hφ).f i') ↔ IsIso (φ.f i) :=
@@ -214,11 +217,12 @@ lemma homRestrict_comp_extendMap (ψ : K ⟶ L.extend e) (β : L ⟶ L') :
 
 variable (K L)
 
-/-- The bijection between `K ⟶ L.extend e` and the subtype of `K.restriction e ⟶ L`
-consisting of morphisms `φ` such that `e.HasLift φ`. -/
+/--
+The bijection between `K ⟶ L.extend e` and the subtype of `K.restriction e ⟶ L`
+consisting of morphisms `φ` such that `e.HasLift φ`.
+-/
 @[simps]
-noncomputable def homEquiv :
-    (K ⟶ L.extend e) ≃ { φ : K.restriction e ⟶ L // e.HasLift φ } where
+noncomputable def homEquiv : (K ⟶ L.extend e) ≃ {φ : K.restriction e ⟶ L // e.HasLift φ} where
   toFun ψ := ⟨e.homRestrict ψ, e.homRestrict_hasLift ψ⟩
   invFun φ := e.liftExtend φ.1 φ.2
   left_inv ψ := by simp

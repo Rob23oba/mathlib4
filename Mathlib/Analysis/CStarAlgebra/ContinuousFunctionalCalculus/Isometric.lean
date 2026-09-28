@@ -28,9 +28,10 @@ local notation "σₙ" => quasispectrum
 section Unital
 
 /-- An extension of the `ContinuousFunctionalCalculus` requiring that `cfcHom` is an isometry. -/
-class IsometricContinuousFunctionalCalculus (R A : Type*) (p : outParam (A → Prop))
-    [CommSemiring R] [StarRing R] [MetricSpace R] [IsTopologicalSemiring R] [ContinuousStar R]
-    [Ring A] [StarRing A] [MetricSpace A] [Algebra R A] : Prop
+class IsometricContinuousFunctionalCalculus
+    (R A : Type*) (p : outParam (A → Prop)) [CommSemiring R] [StarRing R] [MetricSpace R]
+    [IsTopologicalSemiring R] [ContinuousStar R] [Ring A] [StarRing A] [MetricSpace A] [Algebra R A]
+    : Prop
     extends ContinuousFunctionalCalculus R A p where
   isometric (a : A) (ha : p a) : Isometry (cfcHom ha (R := R))
 
@@ -38,9 +39,10 @@ section MetricSpace
 
 open scoped ContinuousFunctionalCalculus
 
-variable {R A : Type*} {p : A → Prop} [CommSemiring R] [StarRing R]
-  [MetricSpace R] [IsTopologicalSemiring R] [ContinuousStar R] [Ring A] [StarRing A]
-  [MetricSpace A] [Algebra R A] [IsometricContinuousFunctionalCalculus R A p]
+variable
+  {R A : Type*} {p : A → Prop}
+  [CommSemiring R] [StarRing R] [MetricSpace R] [IsTopologicalSemiring R] [ContinuousStar R]
+  [Ring A] [StarRing A] [MetricSpace A] [Algebra R A] [IsometricContinuousFunctionalCalculus R A p]
 
 lemma isometry_cfcHom (a : A) (ha : p a := by cfc_tac) :
     Isometry (cfcHom (show p a from ha) (R := R)) :=
@@ -194,9 +196,10 @@ variable [CompleteSpace R] [ContinuousMap.UniqueHom R A]
 
 set_option backward.isDefEq.respectTransparency.types false in
 open scoped ContinuousFunctionalCalculus in
-protected theorem isometric_cfc (f : C(S, R)) (halg : Isometry (algebraMap R S)) (h0 : p 0)
-    (h : ∀ a, p a ↔ q a ∧ SpectrumRestricts a f) :
-    IsometricContinuousFunctionalCalculus R A p where
+protected theorem isometric_cfc
+    (f : C(S, R))
+    (halg : Isometry (algebraMap R S)) (h0 : p 0) (h : ∀ a, p a ↔ q a ∧ SpectrumRestricts a f)
+    : IsometricContinuousFunctionalCalculus R A p where
   toContinuousFunctionalCalculus := SpectrumRestricts.cfc f halg.isClosedEmbedding h0 h
   isometric a ha := by
     obtain ⟨ha', haf⟩ := h a |>.mp ha
@@ -209,8 +212,9 @@ protected theorem isometric_cfc (f : C(S, R)) (halg : Isometry (algebraMap R S))
     · simpa [halg.dist_eq] using ContinuousMap.dist_apply_le_dist _
     · let x' : σ S a := Subtype.map (algebraMap R S) (fun _ ↦ spectrum.algebraMap_mem S) x
       apply le_of_eq_of_le ?_ <| ContinuousMap.dist_apply_le_dist x'
-      simp only [ContinuousMap.comp_apply, ContinuousMap.coe_mk, StarAlgHom.ofId_apply,
-        halg.dist_eq, x']
+      simp only [
+        ContinuousMap.comp_apply, ContinuousMap.coe_mk, StarAlgHom.ofId_apply, halg.dist_eq, x'
+      ]
       congr!
       all_goals ext; exact haf.left_inv _ |>.symm
 
@@ -222,12 +226,15 @@ end Unital
 
 section NonUnital
 
-/-- An extension of the `NonUnitalContinuousFunctionalCalculus` requiring that `cfcₙHom` is an
-isometry. -/
-class NonUnitalIsometricContinuousFunctionalCalculus (R A : Type*) (p : outParam (A → Prop))
-    [CommSemiring R] [Nontrivial R] [StarRing R] [MetricSpace R] [IsTopologicalSemiring R]
-    [ContinuousStar R] [NonUnitalRing A] [StarRing A] [MetricSpace A] [Module R A]
-    [IsScalarTower R A A] [SMulCommClass R A A] : Prop
+/--
+An extension of the `NonUnitalContinuousFunctionalCalculus` requiring that `cfcₙHom` is an
+isometry.
+-/
+class NonUnitalIsometricContinuousFunctionalCalculus
+    (R A : Type*) (p : outParam (A → Prop)) [CommSemiring R] [Nontrivial R] [StarRing R]
+    [MetricSpace R] [IsTopologicalSemiring R] [ContinuousStar R] [NonUnitalRing A] [StarRing A]
+    [MetricSpace A] [Module R A] [IsScalarTower R A A] [SMulCommClass R A A]
+    : Prop
     extends NonUnitalContinuousFunctionalCalculus R A p where
   isometric (a : A) (ha : p a) : Isometry (cfcₙHom ha (R := R))
 
@@ -366,8 +373,10 @@ lemma nnnorm_quasispectrum_le (a : A) ⦃x : 𝕜⦄ (hx : x ∈ σₙ 𝕜 a) (
     ‖x‖₊ ≤ ‖a‖₊ := by
   simpa only [cfcₙ_id 𝕜 a] using! nnnorm_apply_le_nnnorm_cfcₙ (id : 𝕜 → 𝕜) a hx
 
-/- Replace this with a version of `CFC.norm_pow` for `PNat` powers when we have those
-for general semigroups. -/
+/-
+Replace this with a version of `CFC.norm_pow` for `PNat` powers when we have those
+for general semigroups.
+-/
 variable (𝕜) in
 lemma _root_.norm_cfcₙ_pow (a : A) (n : ℕ) (hn : n ≠ 0) (ha : p a := by cfc_tac) :
     ‖cfcₙ (· ^ n : 𝕜 → 𝕜) a‖ = ‖a‖ ^ n := by
@@ -376,8 +385,10 @@ lemma _root_.norm_cfcₙ_pow (a : A) (n : ℕ) (hn : n ≠ 0) (ha : p a := by cf
   have ⟨⟨x, hx, hx'⟩, h₂⟩ := isGreatest_norm_quasispectrum (𝕜 := 𝕜) a ha
   simp only [← hx', ← norm_pow, norm_apply_le_norm_cfcₙ (· ^ n) a hx]
 
-/- Replace this with a version of `CFC.norm_pow` for `PNat` powers when we have those
-for general semigroups. -/
+/-
+Replace this with a version of `CFC.norm_pow` for `PNat` powers when we have those
+for general semigroups.
+-/
 include 𝕜 in
 variable (𝕜) in
 lemma _root_.CFC.norm_mul_self (a : A) (ha : p a := by cfc_tac) :
@@ -405,11 +416,12 @@ variable [CompleteSpace R] [ContinuousMapZero.UniqueHom R A]
 
 set_option backward.isDefEq.respectTransparency.types false in
 open scoped NonUnitalContinuousFunctionalCalculus in
-protected theorem isometric_cfc (f : C(S, R)) (halg : Isometry (algebraMap R S)) (h0 : p 0)
-    (h : ∀ a, p a ↔ q a ∧ QuasispectrumRestricts a f) :
-    NonUnitalIsometricContinuousFunctionalCalculus R A p where
-  toNonUnitalContinuousFunctionalCalculus := QuasispectrumRestricts.cfc f
-    halg.isClosedEmbedding h0 h
+protected theorem isometric_cfc
+    (f : C(S, R))
+    (halg : Isometry (algebraMap R S)) (h0 : p 0) (h : ∀ a, p a ↔ q a ∧ QuasispectrumRestricts a f)
+    : NonUnitalIsometricContinuousFunctionalCalculus R A p where
+  toNonUnitalContinuousFunctionalCalculus :=
+    QuasispectrumRestricts.cfc f halg.isClosedEmbedding h0 h
   isometric a ha := by
     obtain ⟨ha', haf⟩ := h a |>.mp ha
     have := QuasispectrumRestricts.cfc f halg.isClosedEmbedding h0 h
@@ -421,8 +433,10 @@ protected theorem isometric_cfc (f : C(S, R)) (halg : Isometry (algebraMap R S))
     · simpa [halg.dist_eq] using! ContinuousMap.dist_apply_le_dist _
     · let x' : σₙ S a := Subtype.map (algebraMap R S) (fun _ ↦ quasispectrum.algebraMap_mem S) x
       apply le_of_eq_of_le ?_ <| ContinuousMap.dist_apply_le_dist x'
-      simp only [ContinuousMapZero.comp_apply, ContinuousMapZero.coe_mk,
-        ContinuousMap.coe_mk, StarAlgHom.ofId_apply, halg.dist_eq, x']
+      simp only [
+        ContinuousMapZero.comp_apply, ContinuousMapZero.coe_mk, ContinuousMap.coe_mk,
+        StarAlgHom.ofId_apply, halg.dist_eq, x'
+      ]
       congr! 2
       all_goals ext; exact haf.left_inv _ |>.symm
 
@@ -447,8 +461,8 @@ variable [NormedAlgebra ℝ A] [IsometricContinuousFunctionalCalculus ℝ A IsSe
 variable [NonnegSpectrumClass ℝ A]
 
 open NNReal in
-instance Nonneg.instIsometricContinuousFunctionalCalculus :
-    IsometricContinuousFunctionalCalculus ℝ≥0 A (0 ≤ ·) :=
+instance Nonneg.instIsometricContinuousFunctionalCalculus
+    : IsometricContinuousFunctionalCalculus ℝ≥0 A (0 ≤ ·) :=
   SpectrumRestricts.isometric_cfc (q := IsSelfAdjoint) ContinuousMap.realToNNReal
     NNReal.isometry_coe le_rfl (fun _ ↦ nonneg_iff_isSelfAdjoint_and_quasispectrumRestricts)
 
@@ -462,8 +476,8 @@ variable [NonUnitalIsometricContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 variable [NonnegSpectrumClass ℝ A]
 
 open NNReal in
-instance Nonneg.instNonUnitalIsometricContinuousFunctionalCalculus :
-    NonUnitalIsometricContinuousFunctionalCalculus ℝ≥0 A (0 ≤ ·) :=
+instance Nonneg.instNonUnitalIsometricContinuousFunctionalCalculus
+    : NonUnitalIsometricContinuousFunctionalCalculus ℝ≥0 A (0 ≤ ·) :=
   QuasispectrumRestricts.isometric_cfc (q := IsSelfAdjoint) ContinuousMap.realToNNReal
     NNReal.isometry_coe le_rfl (fun _ ↦ nonneg_iff_isSelfAdjoint_and_quasispectrumRestricts)
 

@@ -65,8 +65,10 @@ variable {α : Type*} {s t x y z : α} {S : Set α}
 
 open Set
 
-/-- A `Partition` of an element `s` of a `CompleteLattice` is a collection of
-independent nontrivial elements whose supremum is `s`. -/
+/--
+A `Partition` of an element `s` of a `CompleteLattice` is a collection of
+independent nontrivial elements whose supremum is `s`.
+-/
 structure Partition [CompleteLattice α] (s : α) where
   /-- The collection of parts -/
   parts : Set α
@@ -151,8 +153,7 @@ lemma mem_copy_iff (hst : s = t) : x ∈ P.copy hst ↔ x ∈ P := Iff.rfl
 
 /-- The natural equivalence between the subtype of parts and the subtype of parts of a copy. -/
 @[simps!]
-def partscopyEquiv (P : Partition s) (hst : s = t) : ↥(P.copy hst) ≃ ↥P :=
-  Set.equivOfEq rfl
+def partscopyEquiv (P : Partition s) (hst : s = t) : ↥(P.copy hst) ≃ ↥P := Set.equivOfEq rfl
 
 /-- A constructor for `Partition s` that removes `⊥` from the set of parts. -/
 @[simps]
@@ -187,8 +188,10 @@ section Order
 
 variable [CompleteLattice α] {P Q : Partition s}
 
-/-- Partitions on `s` are ordered by refinement: `P ≤ Q` if every part of `P` is contained in a part
-of `Q`. -/
+/--
+Partitions on `s` are ordered by refinement: `P ≤ Q` if every part of `P` is contained in a part
+of `Q`.
+-/
 instance : PartialOrder (Partition s) where
   le P Q := ∀ ⦃x⦄, x ∈ P → ∃ y ∈ Q, x ≤ y
   lt := _
@@ -219,8 +222,10 @@ lemma existsUnique_of_mem_le (h : P ≤ Q) (hx : x ∈ P) : ∃! y ∈ Q, x ≤ 
   contrapose this
   exact le_bot_iff.mp (this hxz hxy)
 
-/-- The top partition of `s` is the partition with the single part `s`, or no parts if `s` is the
-bottom element. -/
+/--
+The top partition of `s` is the partition with the single part `s`, or no parts if `s` is the
+bottom element.
+-/
 instance instOrderTop : OrderTop (Partition s) where
   top := removeBot {s} (sSupIndep_singleton s) sSup_singleton
   le_top P x hxP := by simp [P.ne_bot_of_mem' hxP, P.le_of_mem hxP]
@@ -235,23 +240,27 @@ lemma top_def : (⊤ : Partition s) = removeBot {s} (sSupIndep_singleton s) sSup
 
 lemma parts_top_subset : ((⊤ : Partition s) : Set α) ⊆ {s} := by simp
 
-/-- When `α` is a frame, the meet `P ⊓ Q` of two partitions is the partition consisting of all
+/--
+When `α` is a frame, the meet `P ⊓ Q` of two partitions is the partition consisting of all
 non-bottom meets `p ⊓ q` for `p ∈ P` and `q ∈ Q`.
 
 Note that while finite meets of partitions can be constructed in this way, arbitrary meets generally
 do not exist: for example when `α` is the frame of open subsets of the Cantor space, `Partition α`
-has no bottom element. -/
+has no bottom element.
+-/
 instance instSemilatticeInf {α : Type*} [Order.Frame α] (s : α) : SemilatticeInf (Partition s) where
-  inf P Q := removeBot {a | ∃ p ∈ P, ∃ q ∈ Q, a = p ⊓ q} (by
-      rw [sSupIndep_iff_pairwiseDisjoint]
-      intro a ha a' ha' h
-      grind [Partition.eq_or_disjoint, Disjoint.inf_left, Disjoint.inf_left'])
-    (by
-      suffices sSup {a | ∃ p ∈ P, ∃ q ∈ Q, a = p ⊓ q} = sSup P ⊓ sSup Q by simpa
-      rw [sSup_inf_sSup]
-      refine le_antisymm ?_ ?_
-      · exact sSup_le fun a ⟨p, hp, q, hq, ha⟩ ↦ le_iSup₂_of_le (p, q) ⟨hp, hq⟩ <| by grind
-      · exact iSup₂_le fun (p, q) ⟨hp, hq⟩ ↦ le_sSup_of_le ⟨p, hp, q, hq, rfl⟩ (by simp))
+  inf P Q :=
+    removeBot ({a | ∃ p ∈ P, ∃ q ∈ Q, a = p ⊓ q})
+      (by
+        rw [sSupIndep_iff_pairwiseDisjoint]
+        intro a ha a' ha' h
+        grind [Partition.eq_or_disjoint, Disjoint.inf_left, Disjoint.inf_left'])
+      (by
+        suffices sSup {a | ∃ p ∈ P, ∃ q ∈ Q, a = p ⊓ q} = sSup P ⊓ sSup Q by simpa
+        rw [sSup_inf_sSup]
+        refine le_antisymm ?_ ?_
+        · exact sSup_le fun a ⟨p, hp, q, hq, ha⟩ ↦ le_iSup₂_of_le (p, q) ⟨hp, hq⟩ <| by grind
+        · exact iSup₂_le fun (p, q) ⟨hp, hq⟩ ↦ le_sSup_of_le ⟨p, hp, q, hq, rfl⟩ (by simp))
   inf_le_left P Q a ha := by
     obtain ⟨⟨p, hp, q, hq, rfl⟩, h⟩ := ha
     grind [inf_le_left]
@@ -323,10 +332,11 @@ end Set
 
 section Rel
 
-/-- Every partition of `s : Set α` induces a transitive, symmetric binary relation on `α`
-  whose equivalence classes are the parts of `P`. The relation is irreflexive outside `s`. -/
-def Rel (P : Partition s) (a b : α) : Prop :=
-  ∃ t ∈ P, a ∈ t ∧ b ∈ t
+/--
+Every partition of `s : Set α` induces a transitive, symmetric binary relation on `α`
+whose equivalence classes are the parts of `P`. The relation is irreflexive outside `s`.
+-/
+def Rel (P : Partition s) (a b : α) : Prop := ∃ t ∈ P, a ∈ t ∧ b ∈ t
 
 lemma rel_le_iff_le : P.Rel ≤ Q.Rel ↔ P ≤ Q := by
   refine ⟨fun h S hS ↦ ?_, fun h a b ⟨t, ht, ha, hb⟩ ↦ ?_⟩
@@ -377,8 +387,10 @@ end Rel
 
 section partOf
 
-/-- The part of a partition containing a given element. If the element is not in the
-underlying set, this is empty. -/
+/--
+The part of a partition containing a given element. If the element is not in the
+underlying set, this is empty.
+-/
 def partOf (P : Partition u) (a : α) : Set α := {b | P.Rel a b}
 
 lemma partOf_subset : P.partOf x ⊆ u := fun _ ⟨_, ht, _, hyt⟩ ↦ subset_of_mem ht hyt
@@ -433,10 +445,12 @@ See the module docstring for motivation (graph simplification, minors, and why w
 
 section IsRepFun
 
-/-- A predicate characterizing when a function `f : α → α` is a representative function for a
+/--
+A predicate characterizing when a function `f : α → α` is a representative function for a
 partition `P`. A representative function maps each element to a canonical representative in its
 equivalence class, is the identity outside the support, and maps related elements to the same
-representative. -/
+representative.
+-/
 structure IsRepFun {u : Set α} (P : Partition u) (f : α → α) : Prop where
   /-- The function is the identity outside the support. -/
   apply_of_notMem : ∀ ⦃a⦄, a ∉ u → f a = a

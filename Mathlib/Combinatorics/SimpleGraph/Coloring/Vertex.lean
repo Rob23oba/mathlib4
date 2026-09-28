@@ -68,7 +68,8 @@ universe u v
 namespace SimpleGraph
 
 variable {V : Type u} (G : SimpleGraph V) {n : ℕ}
-/-- An `α`-coloring of a simple graph `G` is a homomorphism of `G` into the complete graph on `α`.
+/--
+An `α`-coloring of a simple graph `G` is a homomorphism of `G` into the complete graph on `α`.
 This is also known as a proper coloring.
 -/
 abbrev Coloring (α : Type v) := G →g completeGraph α
@@ -76,26 +77,25 @@ abbrev Coloring (α : Type v) := G →g completeGraph α
 variable {G}
 variable {ι α β : Type*} (C : G.Coloring α)
 
-theorem Coloring.valid {v w : V} (h : G.Adj v w) : C v ≠ C w :=
-  C.map_rel h
+theorem Coloring.valid {v w : V} (h : G.Adj v w) : C v ≠ C w := C.map_rel h
 
 lemma Coloring.injective_comp_of_pairwise_adj (C : G.Coloring α) (f : ι → V)
     (hf : Pairwise fun i j ↦ G.Adj (f i) (f j)) : (C ∘ f).Injective :=
   Function.injective_iff_pairwise_ne.2 <| hf.mono fun _ _ ↦ C.valid
 
-/-- Construct a term of `SimpleGraph.Coloring` using a function that
+/--
+Construct a term of `SimpleGraph.Coloring` using a function that
 assigns vertices to colors and a proof that it is as proper coloring.
 
 (Note: this is a definitionally the constructor for `SimpleGraph.Hom`,
 but with a syntactically better proper coloring hypothesis.)
 -/
 @[match_pattern]
-def Coloring.mk (color : V → α) (valid : ∀ {v w : V}, G.Adj v w → color v ≠ color w) :
-    G.Coloring α :=
+def Coloring.mk (color : V → α) (valid : ∀ {v w : V}, G.Adj v w → color v ≠ color w)
+    : G.Coloring α :=
   ⟨color, @valid⟩
 
-/-- The color class of a given color.
--/
+/-- The color class of a given color. -/
 def Coloring.colorClass (c : α) : Set V := { v : V | C v = c }
 
 /-- The set containing all color classes. -/
@@ -106,26 +106,28 @@ theorem Coloring.mem_colorClass (v : V) : v ∈ C.colorClass (C v) := rfl
 theorem Coloring.colorClasses_isPartition : Setoid.IsPartition C.colorClasses :=
   Setoid.isPartition_classes (Setoid.ker C)
 
-theorem Coloring.mem_colorClasses {v : V} : C.colorClass (C v) ∈ C.colorClasses :=
-  ⟨v, rfl⟩
+theorem Coloring.mem_colorClasses {v : V} : C.colorClass (C v) ∈ C.colorClasses := ⟨v, rfl⟩
 
 theorem Coloring.colorClasses_finite [Finite α] : C.colorClasses.Finite :=
   Setoid.finite_classes_ker _
 
-theorem Coloring.card_colorClasses_le [Fintype α] [Fintype C.colorClasses] :
-    Fintype.card C.colorClasses ≤ Fintype.card α := by
+theorem Coloring.card_colorClasses_le [Fintype α] [Fintype C.colorClasses]
+    : Fintype.card C.colorClasses ≤ Fintype.card α := by
   simp only [colorClasses]
   convert! Setoid.card_classes_ker_le C
 
-theorem Coloring.not_adj_of_mem_colorClass {c : α} {v w : V} (hv : v ∈ C.colorClass c)
-    (hw : w ∈ C.colorClass c) : ¬G.Adj v w := fun h => C.valid h (Eq.trans hv (Eq.symm hw))
+theorem Coloring.not_adj_of_mem_colorClass
+    {c : α} {v w : V} (hv : v ∈ C.colorClass c) (hw : w ∈ C.colorClass c)
+    : ¬ G.Adj v w := fun h =>
+  C.valid h (Eq.trans hv (Eq.symm hw))
 
-theorem Coloring.isIndepSet_colorClass (c : α) : G.IsIndepSet <| C.colorClass c :=
-  fun _ hv _ hw _ ↦ C.not_adj_of_mem_colorClass hv hw
+theorem Coloring.isIndepSet_colorClass (c : α) : G.IsIndepSet <| C.colorClass c := fun _ hv _ hw _ ↦
+  C.not_adj_of_mem_colorClass hv hw
 
 /-- Coloring induced from a homomorphism to a colored graph. -/
-abbrev Coloring.comap {V' : Type*} {G' : SimpleGraph V'} {α : Type*} (C : G'.Coloring α)
-    (f : G →g G') : G.Coloring α :=
+abbrev Coloring.comap
+    {V' : Type*} {G' : SimpleGraph V'} {α : Type*} (C : G'.Coloring α) (f : G →g G')
+    : G.Coloring α :=
   C.comp f
 
 -- TODO make this computable
@@ -134,8 +136,7 @@ noncomputable instance [Fintype V] [Fintype α] : Fintype (Coloring G α) := by
   change Fintype (RelHom G.Adj (completeGraph α).Adj)
   apply Fintype.ofInjective _ RelHom.coe_fn_injective
 
-instance [DecidableEq α] {c : α} :
-    DecidablePred (· ∈ C.colorClass c) :=
+instance [DecidableEq α] {c : α} : DecidablePred (· ∈ C.colorClass c) :=
   inferInstanceAs <| DecidablePred (· ∈ { v | C v = c })
 
 instance [Nonempty <| G.Coloring α] [Nontrivial α] [Nonempty V] : Nontrivial <| G.Coloring α := by
@@ -180,14 +181,17 @@ theorem colorable_one_iff : G.Colorable 1 ↔ G = ⊥ := by
   refine ⟨fun ⟨C⟩ ↦ eq_bot_iff_forall_not_adj.mpr fun u v h ↦ ?_, fun h ↦ h ▸ ⟨0, by simp⟩⟩
   exact C.map_rel h <| Subsingleton.elim ..
 
-/-- A coloring of a graph `G` is a homomorphism from it to the mapped graph.
+/--
+A coloring of a graph `G` is a homomorphism from it to the mapped graph.
 This is `Hom.map` spelled using colorings. The mapped graph `G.map f` can be thought of as taking
-the original graph `G` and considering every color class (independent set) as a single vertex. -/
-abbrev Coloring.homMap {α : Type*} (f : G.Coloring α) : G →g G.map f :=
-  .map f G f.map_adj
+the original graph `G` and considering every color class (independent set) as a single vertex.
+-/
+abbrev Coloring.homMap {α : Type*} (f : G.Coloring α) : G →g G.map f := .map f G f.map_adj
 
-/-- If `G` is `n`-colorable, then mapping the vertices of `G` produces an `n`-colorable simple
-graph. -/
+/--
+If `G` is `n`-colorable, then mapping the vertices of `G` produces an `n`-colorable simple
+graph.
+-/
 theorem Colorable.map (f : V ↪ β) [NeZero n] (hc : G.Colorable n) : (G.map f).Colorable n := by
   obtain ⟨C⟩ := hc
   use extend f C (const β default)
@@ -205,10 +209,12 @@ variable (G) in
 def selfColoring : G.Coloring V := Coloring.mk id fun {_ _} => G.ne_of_adj
 
 variable (G) in
-/-- The chromatic number of a graph is the minimal number of colors needed to color it.
+/--
+The chromatic number of a graph is the minimal number of colors needed to color it.
 This is `⊤` (infinity) iff `G` isn't colorable with finitely many colors.
 
-If `G` is colorable, then `ENat.toNat G.chromaticNumber` is the `ℕ`-valued chromatic number. -/
+If `G` is colorable, then `ENat.toNat G.chromaticNumber` is the `ℕ`-valued chromatic number.
+-/
 noncomputable def chromaticNumber : ℕ∞ := ⨅ n ∈ Set.ofPred G.Colorable, (n : ℕ∞)
 
 lemma le_chromaticNumber_iff_colorable : n ≤ G.chromaticNumber ↔ ∀ m, G.Colorable m → n ≤ m := by
@@ -261,10 +267,13 @@ variable (G) in
     ⇑(G.recolorOfEquiv f) = (Embedding.completeGraph f).toHom.comp := rfl
 
 variable (G) in
-/-- There is a noncomputable embedding of `α`-colorings to `β`-colorings if
-`β` has at least as large a cardinality as `α`. -/
-noncomputable def recolorOfCardLE {α β : Type*} [Fintype α] [Fintype β]
-    (hn : Fintype.card α ≤ Fintype.card β) : G.Coloring α ↪ G.Coloring β :=
+/--
+There is a noncomputable embedding of `α`-colorings to `β`-colorings if
+`β` has at least as large a cardinality as `α`.
+-/
+noncomputable def recolorOfCardLE
+    {α β : Type*} [Fintype α] [Fintype β] (hn : Fintype.card α ≤ Fintype.card β)
+    : G.Coloring α ↪ G.Coloring β :=
   G.recolorOfEmbedding (Function.Embedding.nonempty_of_card_le hn).some
 
 variable (G) in
@@ -282,17 +291,19 @@ theorem colorable_of_fintype (G : SimpleGraph V) [Fintype V] : G.Colorable (Fint
   G.selfColoring.colorable
 
 /-- Noncomputably get a coloring from colorability. -/
-noncomputable def Colorable.toColoring [Fintype α] {n : ℕ} (hc : G.Colorable n)
-    (hn : n ≤ Fintype.card α) : G.Coloring α := by
+noncomputable def Colorable.toColoring
+    [Fintype α] {n : ℕ} (hc : G.Colorable n) (hn : n ≤ Fintype.card α)
+    : G.Coloring α := by
   rw [← Fintype.card_fin n] at hn
   exact G.recolorOfCardLE hn hc.some
 
-theorem Colorable.of_hom {V' : Type*} {G' : SimpleGraph V'} {n : ℕ} (f : G →g G')
-    (h : G'.Colorable n) : G.Colorable n :=
+theorem Colorable.of_hom
+    {V' : Type*} {G' : SimpleGraph V'} {n : ℕ} (f : G →g G') (h : G'.Colorable n)
+    : G.Colorable n :=
   ⟨h.some.comap f⟩
 
-theorem colorable_iff_exists_bdd_nat_coloring (n : ℕ) :
-    G.Colorable n ↔ ∃ C : G.Coloring ℕ, ∀ v, C v < n := by
+theorem colorable_iff_exists_bdd_nat_coloring (n : ℕ)
+    : G.Colorable n ↔ ∃ C : G.Coloring ℕ, ∀ v, C v < n := by
   constructor
   · rintro hc
     have C : G.Coloring (Fin n) := hc.toColoring (by simp)
@@ -307,20 +318,20 @@ theorem colorable_iff_exists_bdd_nat_coloring (n : ℕ) :
       simp only [Fin.mk_eq_mk, Ne]
       exact C.valid hvw
 
-theorem colorable_iff_forall_connectedComponent {n : ℕ} :
-    G.Colorable n ↔ ∀ c : G.ConnectedComponent, (c.toSimpleGraph).Colorable n :=
-  ⟨fun ⟨C⟩ _ ↦ ⟨fun v ↦ C v, fun h h1 ↦ C.valid h h1⟩,
-   fun h ↦ ⟨G.homOfConnectedComponents (fun c ↦ (h c).some)⟩⟩
+theorem colorable_iff_forall_connectedComponent {n : ℕ}
+    : G.Colorable n ↔ ∀ c : G.ConnectedComponent, (c.toSimpleGraph).Colorable n := ⟨
+  fun ⟨C⟩ _ ↦ ⟨fun v ↦ C v, fun h h1 ↦ C.valid h h1⟩,
+  fun h ↦ ⟨G.homOfConnectedComponents (fun c ↦ (h c).some)⟩
+⟩
 
 @[deprecated (since := "2026-07-12")]
 alias colorable_iff_forall_connectedComponents := colorable_iff_forall_connectedComponent
 
-theorem colorable_set_nonempty_of_colorable {n : ℕ} (hc : G.Colorable n) :
-    { n : ℕ | G.Colorable n }.Nonempty :=
+theorem colorable_set_nonempty_of_colorable {n : ℕ} (hc : G.Colorable n)
+    : { n : ℕ | G.Colorable n }.Nonempty :=
   ⟨n, hc⟩
 
-theorem chromaticNumber_bddBelow : BddBelow { n : ℕ | G.Colorable n } :=
-  ⟨0, fun _ _ => zero_le⟩
+theorem chromaticNumber_bddBelow : BddBelow { n : ℕ | G.Colorable n } := ⟨0, fun _ _ => zero_le⟩
 
 theorem Colorable.chromaticNumber_le {n : ℕ} (hc : G.Colorable n) : G.chromaticNumber ≤ n := by
   rw [hc.chromaticNumber_eq_sInf]
@@ -342,35 +353,39 @@ theorem chromaticNumber_le_iff_colorable {n : ℕ} : G.chromaticNumber ≤ n ↔
   rw [Set.mem_ofPred_eq] at this
   exact this.mono h
 
-/-- If the chromatic number of `G` is `n + 1`, then `G` is colorable in no fewer than `n + 1`
-colors. -/
-theorem chromaticNumber_eq_iff_colorable_not_colorable :
-    G.chromaticNumber = n + 1 ↔ G.Colorable (n + 1) ∧ ¬G.Colorable n := by
-  rw [eq_iff_le_not_lt, not_lt, ENat.add_one_le_iff (ENat.natCast_ne_top n), ← not_le,
-    chromaticNumber_le_iff_colorable, ← Nat.cast_add_one, chromaticNumber_le_iff_colorable]
+/--
+If the chromatic number of `G` is `n + 1`, then `G` is colorable in no fewer than `n + 1`
+colors.
+-/
+theorem chromaticNumber_eq_iff_colorable_not_colorable
+    : G.chromaticNumber = n + 1 ↔ G.Colorable (n + 1) ∧ ¬ G.Colorable n := by
+  rw [
+    eq_iff_le_not_lt, not_lt, ENat.add_one_le_iff (ENat.natCast_ne_top n), ← not_le,
+    chromaticNumber_le_iff_colorable, ← Nat.cast_add_one, chromaticNumber_le_iff_colorable
+  ]
 
-theorem colorable_chromaticNumber {m : ℕ} (hc : G.Colorable m) :
-    G.Colorable (ENat.toNat G.chromaticNumber) := by
+theorem colorable_chromaticNumber {m : ℕ} (hc : G.Colorable m)
+    : G.Colorable (ENat.toNat G.chromaticNumber) := by
   classical
   rw [hc.chromaticNumber_eq_sInf, Nat.sInf_def]
   · apply Nat.find_spec
   · exact colorable_set_nonempty_of_colorable hc
 
-theorem colorable_chromaticNumber_of_fintype (G : SimpleGraph V) [Finite V] :
-    G.Colorable (ENat.toNat G.chromaticNumber) := by
+theorem colorable_chromaticNumber_of_fintype (G : SimpleGraph V) [Finite V]
+    : G.Colorable (ENat.toNat G.chromaticNumber) := by
   cases nonempty_fintype V
   exact colorable_chromaticNumber G.colorable_of_fintype
 
-theorem chromaticNumber_le_one_of_subsingleton (G : SimpleGraph V) [Subsingleton V] :
-    G.chromaticNumber ≤ 1 := by
+theorem chromaticNumber_le_one_of_subsingleton (G : SimpleGraph V) [Subsingleton V]
+    : G.chromaticNumber ≤ 1 := by
   rw [← Nat.cast_one, chromaticNumber_le_iff_colorable]
   refine ⟨Coloring.mk (fun _ => 0) ?_⟩
   intro v w
   cases Subsingleton.elim v w
   simp
 
-theorem Colorable.chromaticNumber_pos [Nonempty V] {n : ℕ} (hc : G.Colorable n) :
-    0 < G.chromaticNumber := by
+theorem Colorable.chromaticNumber_pos [Nonempty V] {n : ℕ} (hc : G.Colorable n)
+    : 0 < G.chromaticNumber := by
   rw [hc.chromaticNumber_eq_sInf, Nat.cast_pos]
   apply le_csInf (colorable_set_nonempty_of_colorable hc)
   intro m hm
@@ -382,19 +397,19 @@ theorem Colorable.chromaticNumber_pos [Nonempty V] {n : ℕ} (hc : G.Colorable n
 
 @[deprecated (since := "2026-05-20")] alias chromaticNumber_pos := Colorable.chromaticNumber_pos
 
-theorem colorable_of_chromaticNumber_ne_top (h : G.chromaticNumber ≠ ⊤) :
-    G.Colorable (ENat.toNat G.chromaticNumber) := by
+theorem colorable_of_chromaticNumber_ne_top (h : G.chromaticNumber ≠ ⊤)
+    : G.Colorable (ENat.toNat G.chromaticNumber) := by
   rw [chromaticNumber_ne_top_iff_exists] at h
   obtain ⟨n, hn⟩ := h
   exact colorable_chromaticNumber hn
 
-theorem Colorable.mono_left {G' : SimpleGraph V} (h : G ≤ G') {n : ℕ} (hc : G'.Colorable n) :
-    G.Colorable n :=
+theorem Colorable.mono_left {G' : SimpleGraph V} (h : G ≤ G') {n : ℕ} (hc : G'.Colorable n)
+    : G.Colorable n :=
   ⟨hc.some.comp (.ofLE h)⟩
 
-theorem chromaticNumber_le_of_forall_imp {V' : Type*} {G' : SimpleGraph V'}
-    (h : ∀ n, G'.Colorable n → G.Colorable n) :
-    G.chromaticNumber ≤ G'.chromaticNumber := by
+theorem chromaticNumber_le_of_forall_imp
+    {V' : Type*} {G' : SimpleGraph V'} (h : ∀ n, G'.Colorable n → G.Colorable n)
+    : G.chromaticNumber ≤ G'.chromaticNumber := by
   rw [chromaticNumber, chromaticNumber]
   simp only [Set.mem_ofPred_eq, le_iInf_iff]
   intro m hc
@@ -402,12 +417,12 @@ theorem chromaticNumber_le_of_forall_imp {V' : Type*} {G' : SimpleGraph V'}
   rw [← chromaticNumber_le_iff_colorable] at this
   exact this
 
-theorem chromaticNumber_mono (G' : SimpleGraph V)
-    (h : G ≤ G') : G.chromaticNumber ≤ G'.chromaticNumber :=
+theorem chromaticNumber_mono (G' : SimpleGraph V) (h : G ≤ G')
+    : G.chromaticNumber ≤ G'.chromaticNumber :=
   chromaticNumber_le_of_forall_imp fun _ => Colorable.mono_left h
 
-theorem chromaticNumber_mono_of_hom {V' : Type*} {G' : SimpleGraph V'} (f : G →g G') :
-    G.chromaticNumber ≤ G'.chromaticNumber :=
+theorem chromaticNumber_mono_of_hom {V' : Type*} {G' : SimpleGraph V'} (f : G →g G')
+    : G.chromaticNumber ≤ G'.chromaticNumber :=
   chromaticNumber_le_of_forall_imp fun _ hc => hc.of_hom f
 
 lemma card_le_chromaticNumber_iff_forall_surjective [Fintype α] :
@@ -451,8 +466,8 @@ theorem chromaticNumber_top [Fintype V] : (⊤ : SimpleGraph V).chromaticNumber 
   exact Hom.injective_of_top_hom C
 
 @[simp]
-theorem chromaticNumber_top_eq_top_of_infinite (V : Type*) [Infinite V] :
-    (⊤ : SimpleGraph V).chromaticNumber = ⊤ := by
+theorem chromaticNumber_top_eq_top_of_infinite (V : Type*) [Infinite V]
+    : (⊤ : SimpleGraph V).chromaticNumber = ⊤ := by
   by_contra hc
   rw [← Ne, chromaticNumber_ne_top_iff_exists] at hc
   obtain ⟨n, ⟨hn⟩⟩ := hc
@@ -465,8 +480,8 @@ theorem chromaticNumber_top_eq_enat_card : (⊤ : SimpleGraph V).chromaticNumber
     simp
   · simp
 
-theorem eq_top_of_chromaticNumber_eq_card [Fintype V]
-    (h : G.chromaticNumber = Fintype.card V) : G = ⊤ := by
+theorem eq_top_of_chromaticNumber_eq_card [Fintype V] (h : G.chromaticNumber = Fintype.card V)
+    : G = ⊤ := by
   classical
   by_contra! hh
   have : G.chromaticNumber ≤ Fintype.card V - 1 := by
@@ -479,8 +494,7 @@ theorem eq_top_of_chromaticNumber_eq_card [Fintype V]
   have := Fintype.one_lt_card_iff_nontrivial.mpr <| SimpleGraph.nontrivial_iff.mp ⟨_, _, hh⟩
   grind
 
-theorem chromaticNumber_eq_card_iff [Fintype V] :
-    G.chromaticNumber = Fintype.card V ↔ G = ⊤ :=
+theorem chromaticNumber_eq_card_iff [Fintype V] : G.chromaticNumber = Fintype.card V ↔ G = ⊤ :=
   ⟨eq_top_of_chromaticNumber_eq_card, fun h ↦ h ▸ chromaticNumber_top⟩
 
 theorem chromaticNumber_le_card [Fintype V] : G.chromaticNumber ≤ Fintype.card V := by
@@ -496,17 +510,17 @@ theorem two_le_chromaticNumber_of_adj {u v : V} (hadj : G.Adj u v) : 2 ≤ G.chr
 theorem chromaticNumber_eq_zero_iff : G.chromaticNumber = 0 ↔ IsEmpty V :=
   nonpos_iff_eq_zero.symm.trans <| chromaticNumber_le_iff_colorable.trans colorable_zero_iff
 
-@[simp]
-theorem chromaticNumber_eq_zero_of_isEmpty [IsEmpty V] : G.chromaticNumber = 0 := by
-  simpa
+@[simp] theorem chromaticNumber_eq_zero_of_isEmpty [IsEmpty V] : G.chromaticNumber = 0 := by simpa
 
 @[deprecated chromaticNumber_eq_zero_iff +typeChanged (since := "2026-04-24")]
 alias ⟨isEmpty_of_chromaticNumber_eq_zero, _⟩ := chromaticNumber_eq_zero_iff
 
 theorem chromaticNumber_eq_one_iff : G.chromaticNumber = 1 ↔ G = ⊥ ∧ Nonempty V := by
-  rw [eq_iff_le_not_lt, Order.lt_one_iff_nonpos, ← not_isEmpty_iff, ← Nat.cast_one, ← Nat.cast_zero,
+  rw [
+    eq_iff_le_not_lt, Order.lt_one_iff_nonpos, ← not_isEmpty_iff, ← Nat.cast_one, ← Nat.cast_zero,
     chromaticNumber_le_iff_colorable, chromaticNumber_le_iff_colorable, colorable_one_iff,
-    colorable_zero_iff]
+    colorable_zero_iff
+  ]
 
 theorem two_le_chromaticNumber_iff_ne_bot : 2 ≤ G.chromaticNumber ↔ G ≠ ⊥ := by
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
@@ -517,18 +531,22 @@ theorem two_le_chromaticNumber_iff_ne_bot : 2 ≤ G.chromaticNumber ↔ G ≠ �
   · obtain ⟨_, _, h⟩ := ne_bot_iff_exists_adj.mp h
     exact two_le_chromaticNumber_of_adj h
 
-/-- The bicoloring of a complete bipartite graph using whether a vertex
-is on the left or on the right. -/
+/--
+The bicoloring of a complete bipartite graph using whether a vertex
+is on the left or on the right.
+-/
 def CompleteBipartiteGraph.bicoloring (V W : Type*) : (completeBipartiteGraph V W).Coloring Bool :=
-  Coloring.mk (fun v => v.isRight)
-    (by
-      intro v w
-      cases v <;> cases w <;> simp)
+  Coloring.mk (fun v => v.isRight) (by
+    intro v w
+    cases v <;> cases w <;> simp)
 
-theorem CompleteBipartiteGraph.chromaticNumber {V W : Type*} [Nonempty V] [Nonempty W] :
-    (completeBipartiteGraph V W).chromaticNumber = 2 := by
-  rw [← Nat.cast_two, chromaticNumber_eq_iff_forall_surjective
-    (by simpa using (CompleteBipartiteGraph.bicoloring V W).colorable)]
+theorem CompleteBipartiteGraph.chromaticNumber {V W : Type*} [Nonempty V] [Nonempty W]
+    : (completeBipartiteGraph V W).chromaticNumber = 2 := by
+  rw [
+    ← Nat.cast_two,
+    chromaticNumber_eq_iff_forall_surjective (by
+      simpa using (CompleteBipartiteGraph.bicoloring V W).colorable)
+  ]
   intro C b
   have v := Classical.arbitrary V
   have w := Classical.arbitrary W
@@ -541,30 +559,31 @@ theorem CompleteBipartiteGraph.chromaticNumber {V W : Type*} [Nonempty V] [Nonem
 
 /-! ### Cliques -/
 
-theorem IsClique.card_le_of_colorable {s : Finset V} (h : G.IsClique s) (hc : G.Colorable n) :
-    s.card ≤ n := by
+theorem IsClique.card_le_of_colorable {s : Finset V} (h : G.IsClique s) (hc : G.Colorable n)
+    : s.card ≤ n := by
   simpa using! hc.card_le_of_pairwise_adj (Subtype.val : s → V) <| by simpa [Pairwise] using! h
 
-theorem IsClique.card_le_of_coloring {s : Finset V} (h : G.IsClique s) [Fintype α]
-    (C : G.Coloring α) : s.card ≤ Fintype.card α := h.card_le_of_colorable C.colorable
+theorem IsClique.card_le_of_coloring
+    {s : Finset V} (h : G.IsClique s) [Fintype α] (C : G.Coloring α)
+    : s.card ≤ Fintype.card α :=
+  h.card_le_of_colorable C.colorable
 
-theorem IsClique.card_le_chromaticNumber {s : Finset V} (h : G.IsClique s) :
-    s.card ≤ G.chromaticNumber :=
+theorem IsClique.card_le_chromaticNumber {s : Finset V} (h : G.IsClique s)
+    : s.card ≤ G.chromaticNumber :=
   le_chromaticNumber_of_pairwise_adj (by simp) (Subtype.val : s → V) <| by simpa [Pairwise] using! h
 
 theorem cliqueNum_le_chromaticNumber : G.cliqueNum ≤ G.chromaticNumber := by
   have ⟨s, hs⟩ := G.exists_isNClique_cliqueNum
   exact hs.card_eq ▸ hs.isClique.card_le_chromaticNumber
 
-protected theorem Colorable.cliqueFree {n m : ℕ} (hc : G.Colorable n) (hm : n < m) :
-    G.CliqueFree m := by
+protected theorem Colorable.cliqueFree {n m : ℕ} (hc : G.Colorable n) (hm : n < m)
+    : G.CliqueFree m := by
   by_contra h
   simp only [CliqueFree, isNClique_iff, not_forall, Classical.not_not] at h
   obtain ⟨s, h, rfl⟩ := h
   exact Nat.lt_le_asymm hm (h.card_le_of_colorable hc)
 
-theorem cliqueFree_of_chromaticNumber_lt {n : ℕ} (hc : G.chromaticNumber < n) :
-    G.CliqueFree n := by
+theorem cliqueFree_of_chromaticNumber_lt {n : ℕ} (hc : G.chromaticNumber < n) : G.CliqueFree n := by
   have hne : G.chromaticNumber ≠ ⊤ := hc.ne_top
   obtain ⟨m, hc'⟩ := chromaticNumber_ne_top_iff_exists.mp hne
   have := colorable_chromaticNumber hc'
@@ -594,31 +613,31 @@ def coloring : (completeMultipartiteGraph V).Coloring ι := Coloring.mk (fun v �
 lemma colorable [Fintype ι] : (completeMultipartiteGraph V).Colorable (Fintype.card ι) :=
   (coloring V).colorable
 
-theorem chromaticNumber [Fintype ι] (f : ∀ (i : ι), V i) :
-    (completeMultipartiteGraph V).chromaticNumber = Fintype.card ι := by
+theorem chromaticNumber [Fintype ι] (f : ∀ (i : ι), V i)
+    : (completeMultipartiteGraph V).chromaticNumber = Fintype.card ι := by
   apply le_antisymm (colorable V).chromaticNumber_le
   by_contra! h
   exact not_cliqueFree_of_le_card V f le_rfl <| cliqueFree_of_chromaticNumber_lt h
 
-theorem colorable_of_cliqueFree (f : ∀ (i : ι), V i)
-    (hc : (completeMultipartiteGraph V).CliqueFree n) :
-    (completeMultipartiteGraph V).Colorable (n - 1) := by
+theorem colorable_of_cliqueFree
+    (f : ∀ (i : ι), V i) (hc : (completeMultipartiteGraph V).CliqueFree n)
+    : (completeMultipartiteGraph V).Colorable (n - 1) := by
   cases n with
-  | zero => exact absurd hc not_cliqueFree_zero
+  | zero =>
+    exact absurd hc not_cliqueFree_zero
   | succ n =>
-  have : Fintype ι := fintypeOfNotInfinite
-    fun hinf ↦ not_cliqueFree_of_infinite V f hc
-  apply (coloring V).colorable.mono
-  have := not_cliqueFree_of_le_card V f le_rfl
-  contrapose! this
-  exact hc.mono this
+    have : Fintype ι := fintypeOfNotInfinite fun hinf ↦ not_cliqueFree_of_infinite V f hc
+    apply (coloring V).colorable.mono
+    have := not_cliqueFree_of_le_card V f le_rfl
+    contrapose! this
+    exact hc.mono this
 
 end completeMultipartiteGraph
 
 variable {W : Type*} {H : SimpleGraph W}
 
 /-- If `H` is not `n`-colorable and `G` is `n`-colorable, then `G` is `H.Free`. -/
-theorem free_of_colorable (nhc : ¬H.Colorable n) (hc : G.Colorable n) : H.Free G := by
+theorem free_of_colorable (nhc : ¬ H.Colorable n) (hc : G.Colorable n) : H.Free G := by
   contrapose nhc with hc'
   exact hc.of_hom hc'.some.toHom
 

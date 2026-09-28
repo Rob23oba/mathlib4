@@ -19,7 +19,6 @@ corresponds to `BddDistLat`.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory
@@ -36,8 +35,7 @@ initialize_simps_projections DistLat (carrier → coe, -str)
 
 namespace DistLat
 
-instance : CoeSort DistLat.{u} (Type u) :=
-  ⟨DistLat.carrier⟩
+instance : CoeSort DistLat.{u} (Type u) := ⟨DistLat.carrier⟩
 
 attribute [coe] DistLat.carrier
 
@@ -66,18 +64,16 @@ instance : ConcreteCategory DistLat (LatticeHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `DistLat` back into a `LatticeHom`. -/
-abbrev Hom.hom {X Y : DistLat.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := DistLat) f
+abbrev Hom.hom {X Y : DistLat.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := DistLat) f
 
 /-- Typecheck a `LatticeHom` as a morphism in `DistLat`. -/
-abbrev ofHom {X Y : Type u} [DistribLattice X] [DistribLattice Y] (f : LatticeHom X Y) :
-    of X ⟶ of Y :=
+abbrev ofHom {X Y : Type u} [DistribLattice X] [DistribLattice Y] (f : LatticeHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := DistLat) f
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : DistLat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : DistLat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -153,7 +149,8 @@ instance hasForgetToLat : HasForget₂ DistLat Lat where
   forget₂.obj X := ↧X
   forget₂.map f := Lat.ofHom f.hom
 
-/-- Constructs an equivalence between distributive lattices from an order isomorphism between them.
+/--
+Constructs an equivalence between distributive lattices from an order isomorphism between them.
 -/
 @[simps]
 def Iso.mk {α β : DistLat.{u}} (e : α ≃o β) : α ≅ β where
@@ -176,6 +173,6 @@ def dualEquiv : DistLat ≌ DistLat where
 
 end DistLat
 
-theorem distLat_dual_comp_forget_to_Lat :
-    DistLat.dual ⋙ forget₂ DistLat Lat = forget₂ DistLat Lat ⋙ Lat.dual :=
+theorem distLat_dual_comp_forget_to_Lat
+    : DistLat.dual ⋙ forget₂ DistLat Lat = forget₂ DistLat Lat ⋙ Lat.dual :=
   rfl

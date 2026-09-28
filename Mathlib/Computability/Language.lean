@@ -52,7 +52,6 @@ with respect to other language operations.
 
 @[expose] public section
 
-
 open List Set
 
 open scoped Computability
@@ -62,8 +61,7 @@ universe v
 variable {α β γ : Type*}
 
 /-- A language is a set of strings over an alphabet. -/
-def Language (α) :=
-  Set (List α)
+def Language (α) := Set (List α)
 deriving CompleteAtomicBooleanAlgebra
 
 namespace Language
@@ -75,84 +73,66 @@ instance : Insert (List α) (Language α) := ⟨Set.insert⟩
 variable {l m : Language α} {a b x : List α}
 
 /-- Zero language has no elements. -/
-instance : Zero (Language α) :=
-  ⟨(∅ : Set _)⟩
+instance : Zero (Language α) := ⟨(∅ : Set _)⟩
 
 /-- `1 : Language α` contains only one element `[]`. -/
-instance : One (Language α) :=
-  ⟨{[]}⟩
+instance : One (Language α) := ⟨{[]}⟩
 
 instance : Inhabited (Language α) := ⟨(∅ : Set _)⟩
 
 /-- The sum of two languages is their union. -/
-instance : Add (Language α) :=
-  ⟨((· ∪ ·) : Set (List α) → Set (List α) → Set (List α))⟩
+instance : Add (Language α) := ⟨((· ∪ ·) : Set (List α) → Set (List α) → Set (List α))⟩
 
 /-- The subtraction of two languages is their difference. -/
 instance : Sub (Language α) where
   sub := SDiff.sdiff
 
-/-- The product of two languages `l` and `m` is the language made of the strings `x ++ y` where
-`x ∈ l` and `y ∈ m`. -/
-instance : Mul (Language α) :=
-  ⟨image2 (· ++ ·)⟩
+/--
+The product of two languages `l` and `m` is the language made of the strings `x ++ y` where
+`x ∈ l` and `y ∈ m`.
+-/
+instance : Mul (Language α) := ⟨image2 (· ++ ·)⟩
 
-theorem zero_def : (0 : Language α) = (∅ : Set _) :=
-  rfl
+theorem zero_def : (0 : Language α) = (∅ : Set _) := rfl
 
-theorem one_def : (1 : Language α) = ({[]} : Set (List α)) :=
-  rfl
+theorem one_def : (1 : Language α) = ({[]} : Set (List α)) := rfl
 
-theorem add_def (l m : Language α) : l + m = (l ∪ m : Set (List α)) :=
-  rfl
+theorem add_def (l m : Language α) : l + m = (l ∪ m : Set (List α)) := rfl
 
-theorem sub_def (l m : Language α) : l - m = (l \ m : Set (List α)) :=
-  rfl
+theorem sub_def (l m : Language α) : l - m = (l \ m : Set (List α)) := rfl
 
-theorem mul_def (l m : Language α) : l * m = image2 (· ++ ·) l m :=
-  rfl
+theorem mul_def (l m : Language α) : l * m = image2 (· ++ ·) l m := rfl
 
-/-- The Kleene star of a language `L` is the set of all strings which can be written by
-concatenating strings from `L`. -/
+/--
+The Kleene star of a language `L` is the set of all strings which can be written by
+concatenating strings from `L`.
+-/
 instance : KStar (Language α) := ⟨fun l ↦ {x | ∃ L : List (List α), x = L.flatten ∧ ∀ y ∈ L, y ∈ l}⟩
 
 lemma kstar_def (l : Language α) : l∗ = {x | ∃ L : List (List α), x = L.flatten ∧ ∀ y ∈ L, y ∈ l} :=
   rfl
 
-@[ext]
-theorem ext {l m : Language α} (h : ∀ (x : List α), x ∈ l ↔ x ∈ m) : l = m :=
-  Set.ext h
+@[ext] theorem ext {l m : Language α} (h : ∀ (x : List α), x ∈ l ↔ x ∈ m) : l = m := Set.ext h
 
-@[simp]
-theorem notMem_zero (x : List α) : x ∉ (0 : Language α) :=
-  id
+@[simp] theorem notMem_zero (x : List α) : x ∉ (0 : Language α) := id
 
-@[simp]
-theorem mem_one (x : List α) : x ∈ (1 : Language α) ↔ x = [] := by rfl
+@[simp] theorem mem_one (x : List α) : x ∈ (1 : Language α) ↔ x = [] := by rfl
 
-theorem nil_mem_one : [] ∈ (1 : Language α) :=
-  Set.mem_singleton _
+theorem nil_mem_one : [] ∈ (1 : Language α) := Set.mem_singleton _
 
-theorem mem_add (l m : Language α) (x : List α) : x ∈ l + m ↔ x ∈ l ∨ x ∈ m :=
-  Iff.rfl
+theorem mem_add (l m : Language α) (x : List α) : x ∈ l + m ↔ x ∈ l ∨ x ∈ m := Iff.rfl
 
-theorem mem_sub (l m : Language α) (x : List α) : x ∈ l - m ↔ x ∈ l ∧ x ∉ m :=
-  Iff.rfl
+theorem mem_sub (l m : Language α) (x : List α) : x ∈ l - m ↔ x ∈ l ∧ x ∉ m := Iff.rfl
 
-theorem mem_mul : x ∈ l * m ↔ ∃ a ∈ l, ∃ b ∈ m, a ++ b = x :=
-  mem_image2
+theorem mem_mul : x ∈ l * m ↔ ∃ a ∈ l, ∃ b ∈ m, a ++ b = x := mem_image2
 
-theorem append_mem_mul : a ∈ l → b ∈ m → a ++ b ∈ l * m :=
-  mem_image2_of_mem
+theorem append_mem_mul : a ∈ l → b ∈ m → a ++ b ∈ l * m := mem_image2_of_mem
 
-theorem mem_kstar : x ∈ l∗ ↔ ∃ L : List (List α), x = L.flatten ∧ ∀ y ∈ L, y ∈ l :=
-  Iff.rfl
+theorem mem_kstar : x ∈ l∗ ↔ ∃ L : List (List α), x = L.flatten ∧ ∀ y ∈ L, y ∈ l := Iff.rfl
 
-theorem join_mem_kstar {L : List (List α)} (h : ∀ y ∈ L, y ∈ l) : L.flatten ∈ l∗ :=
-  ⟨L, rfl, h⟩
+theorem join_mem_kstar {L : List (List α)} (h : ∀ y ∈ L, y ∈ l) : L.flatten ∈ l∗ := ⟨L, rfl, h⟩
 
-theorem nil_mem_kstar (l : Language α) : [] ∈ l∗ :=
-  ⟨[], rfl, fun _ h ↦ by contradiction⟩
+theorem nil_mem_kstar (l : Language α) : [] ∈ l∗ := ⟨[], rfl, fun _ h ↦ by contradiction⟩
 
 instance : OrderedSub (Language α) where
   tsub_le_iff_right _ _ _ := sdiff_le_iff'
@@ -175,9 +155,7 @@ instance instSemiring : Semiring (Language α) where
   right_distrib _ _ _ := image2_union_left
   nsmul := nsmulRec
 
-@[simp]
-theorem add_self (l : Language α) : l + l = l :=
-  sup_idem _
+@[simp] theorem add_self (l : Language α) : l + l = l := sup_idem _
 
 /-- Maps the alphabet of a language. -/
 def map (f : α → β) : Language α →+* Language β where
@@ -188,8 +166,7 @@ def map (f : α → β) : Language α →+* Language β where
   map_mul' _ _ := image_image2_distrib <| fun _ _ => map_append
 
 set_option backward.isDefEq.respectTransparency false in
-@[simp]
-theorem map_id (l : Language α) : map id l = l := by simp [map]
+@[simp] theorem map_id (l : Language α) : map id l = l := by simp [map]
 
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
@@ -207,12 +184,11 @@ lemma mem_kstar_iff_exists_nonempty {x : List α} :
   · rintro ⟨S, hx, h⟩
     exact ⟨S, hx, fun y hy ↦ (h y hy).1⟩
 
-theorem kstar_def_nonempty (l : Language α) :
-    l∗ = { x | ∃ S : List (List α), x = S.flatten ∧ ∀ y ∈ S, y ∈ l ∧ y ≠ [] } := by
+theorem kstar_def_nonempty (l : Language α)
+    : l∗ = { x | ∃ S : List (List α), x = S.flatten ∧ ∀ y ∈ S, y ∈ l ∧ y ≠ [] } := by
   ext x; apply mem_kstar_iff_exists_nonempty
 
-theorem le_iff (l m : Language α) : l ≤ m ↔ l + m = m :=
-  sup_eq_right.symm
+theorem le_iff (l m : Language α) : l ≤ m ↔ l + m = m := sup_eq_right.symm
 
 instance : MulLeftMono (Language α) where
   elim _ _ _ := image2_subset_left
@@ -223,34 +199,35 @@ instance : MulRightMono (Language α) where
 theorem mem_iSup {ι : Sort v} {l : ι → Language α} {x : List α} : (x ∈ ⨆ i, l i) ↔ ∃ i, x ∈ l i :=
   mem_iUnion
 
-theorem iSup_mul {ι : Sort v} (l : ι → Language α) (m : Language α) :
-    (⨆ i, l i) * m = ⨆ i, l i * m :=
+theorem iSup_mul {ι : Sort v} (l : ι → Language α) (m : Language α)
+    : (⨆ i, l i) * m = ⨆ i, l i * m :=
   image2_iUnion_left _ _ _
 
-theorem mul_iSup {ι : Sort v} (l : ι → Language α) (m : Language α) :
-    (m * ⨆ i, l i) = ⨆ i, m * l i :=
+theorem mul_iSup {ι : Sort v} (l : ι → Language α) (m : Language α)
+    : (m * ⨆ i, l i) = ⨆ i, m * l i :=
   image2_iUnion_right _ _ _
 
-theorem iSup_add {ι : Sort v} [Nonempty ι] (l : ι → Language α) (m : Language α) :
-    (⨆ i, l i) + m = ⨆ i, l i + m :=
+theorem iSup_add {ι : Sort v} [Nonempty ι] (l : ι → Language α) (m : Language α)
+    : (⨆ i, l i) + m = ⨆ i, l i + m :=
   iSup_sup
 
-theorem add_iSup {ι : Sort v} [Nonempty ι] (l : ι → Language α) (m : Language α) :
-    (m + ⨆ i, l i) = ⨆ i, m + l i :=
+theorem add_iSup {ι : Sort v} [Nonempty ι] (l : ι → Language α) (m : Language α)
+    : (m + ⨆ i, l i) = ⨆ i, m + l i :=
   sup_iSup
 
-theorem iSup_sub {ι : Sort v} (l : ι → Language α) (m : Language α) :
-    (⨆ i, l i) - m = ⨆ i, l i - m :=
+theorem iSup_sub {ι : Sort v} (l : ι → Language α) (m : Language α)
+    : (⨆ i, l i) - m = ⨆ i, l i - m :=
   iUnion_sdiff _ _
 
-theorem sub_iSup {ι : Sort v} [Nonempty ι] (l : ι → Language α) (m : Language α) :
-    (m - ⨆ i, l i) = ⨅ i, m - l i :=
+theorem sub_iSup {ι : Sort v} [Nonempty ι] (l : ι → Language α) (m : Language α)
+    : (m - ⨆ i, l i) = ⨅ i, m - l i :=
   sdiff_iUnion _ _
 
-theorem mem_pow {l : Language α} {x : List α} {n : ℕ} :
-    x ∈ l ^ n ↔ ∃ S : List (List α), x = S.flatten ∧ S.length = n ∧ ∀ y ∈ S, y ∈ l := by
+theorem mem_pow {l : Language α} {x : List α} {n : ℕ}
+    : x ∈ l ^ n ↔ ∃ S : List (List α), x = S.flatten ∧ S.length = n ∧ ∀ y ∈ S, y ∈ l := by
   induction n generalizing x with
-  | zero => simp
+  | zero =>
+    simp
   | succ n ihn =>
     simp only [pow_succ', mem_mul, ihn]
     constructor
@@ -306,7 +283,8 @@ theorem self_eq_mul_add_iff {l m n : Language α} (hm : [] ∉ m) : l = m * l + 
   mp h := by
     apply le_antisymm
     · intro x hx
-      induction hlen : x.length using Nat.strong_induction_on generalizing x with | _ _ ih
+      induction hlen : x.length using Nat.strong_induction_on generalizing x with
+      | _ _ ih
       subst hlen
       rw [h] at hx
       obtain hx | hx := hx
@@ -415,7 +393,6 @@ inductive Symbol (T N : Type*)
   | terminal (t : T) : Symbol T N
   /-- Nonterminal symbols (must not be present when the word being generated is finalized) -/
   | nonterminal (n : N) : Symbol T N
-deriving
-  DecidableEq, Repr, Fintype
+deriving DecidableEq, Repr, Fintype
 
 attribute [nolint docBlame] Symbol.proxyType Symbol.proxyTypeEquiv

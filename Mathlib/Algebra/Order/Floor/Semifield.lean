@@ -37,8 +37,7 @@ theorem floor_div_natCast (a : K) (n : ℕ) : ⌊a / n⌋₊ = ⌊a⌋₊ / n :=
   nth_rw 2 [← div_mul_cancel₀ (a := a) (b := ↑n) (by positivity)]
   rw [mul_cast_floor_div_cancel (Nat.ne_zero_of_lt hn)]
 
-theorem floor_div_ofNat (a : K) (n : ℕ) [n.AtLeastTwo] :
-    ⌊a / ofNat(n)⌋₊ = ⌊a⌋₊ / ofNat(n) :=
+theorem floor_div_ofNat (a : K) (n : ℕ) [n.AtLeastTwo] : ⌊a / ofNat(n)⌋₊ = ⌊a⌋₊ / ofNat(n) :=
   floor_div_natCast a n
 
 /-- Natural division is the floor of field division. -/
@@ -99,24 +98,31 @@ open Qq
 ### `norm_num` extension for `Nat.floor`
 -/
 
-theorem IsNat.natFloor {R : Type*} [Semiring R] [LinearOrder R] [IsStrictOrderedRing R]
-    [FloorSemiring R] (r : R) (m : ℕ) : IsNat r m → IsNat (⌊r⌋₊) m := by
+theorem IsNat.natFloor
+    {R : Type*} [Semiring R] [LinearOrder R] [IsStrictOrderedRing R] [FloorSemiring R]
+    (r : R) (m : ℕ)
+    : IsNat r m → IsNat (⌊r⌋₊) m := by
   rintro ⟨⟨⟩⟩
   exact ⟨by simp⟩
 
-theorem IsInt.natFloor {R : Type*} [Ring R] [LinearOrder R] [IsStrictOrderedRing R]
-    [FloorSemiring R] (r : R) (m : ℕ) : IsInt r (.negOfNat m) → IsNat (⌊r⌋₊) 0 := by
+theorem IsInt.natFloor
+    {R : Type*} [Ring R] [LinearOrder R] [IsStrictOrderedRing R] [FloorSemiring R] (r : R) (m : ℕ)
+    : IsInt r (.negOfNat m) → IsNat (⌊r⌋₊) 0 := by
   rintro ⟨⟨⟩⟩
   exact ⟨Nat.floor_of_nonpos <| by simp⟩
 
-theorem IsNNRat.natFloor {R : Type*} [Semifield R] [LinearOrder R] [IsStrictOrderedRing R]
-    [FloorSemiring R] (r : R) (n d : ℕ) (h : IsNNRat r n d) (res : ℕ) (hres : n / d = res) :
-    IsNat ⌊r⌋₊ res := by
+theorem IsNNRat.natFloor
+    {R : Type*} [Semifield R] [LinearOrder R] [IsStrictOrderedRing R] [FloorSemiring R]
+    (r : R) (n d : ℕ) (h : IsNNRat r n d)
+    (res : ℕ) (hres : n / d = res)
+    : IsNat (⌊r⌋₊) res := by
   constructor
   rw [← hres, h.to_eq rfl rfl, Nat.floor_div_eq_div, Nat.cast_id]
 
-theorem IsRat.natFloor {R : Type*} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
-    [FloorSemiring R] (r : R) (n d : ℕ) (h : IsRat r (Int.negOfNat n) d) : IsNat ⌊r⌋₊ 0 := by
+theorem IsRat.natFloor
+    {R : Type*} [Field R] [LinearOrder R] [IsStrictOrderedRing R] [FloorSemiring R]
+    (r : R) (n d : ℕ) (h : IsRat r (Int.negOfNat n) d)
+    : IsNat (⌊r⌋₊) 0 := by
   rcases h with ⟨hd, rfl⟩
   constructor
   rw [Nat.cast_zero, Nat.floor_eq_zero]
@@ -125,35 +131,38 @@ theorem IsRat.natFloor {R : Type*} [Field R] [LinearOrder R] [IsStrictOrderedRin
 open Lean in
 /-- `norm_num` extension for `Nat.floor` -/
 @[norm_num ⌊_⌋₊]
-meta def evalNatFloor : NormNumExt where eval {u αZ} e := do
-  match u, αZ, e with
-  | 0, ~q(ℕ), ~q(@Nat.floor $α $instSemiring $instPartialOrder $instFloorSemiring $x) =>
-    match ← derive x with
-    | .isBool .. => failure
-    | .isNat sα nb pb => do
-      let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
-      let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
-      assertInstancesCommute
-      return .isNat q(inferInstance) nb q(IsNat.natFloor $x _ $pb)
-    | .isNegNat sα nb pb => do
-      let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
-      let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
-      assertInstancesCommute
-      return .isNat q(inferInstance) (mkRawNatLit 0) q(IsInt.natFloor _ _ $pb)
-    | .isNNRat dα q n d h => do
-      let instSemifield ← synthInstanceQ q(Semifield $α)
-      let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
-      let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
-      assertInstancesCommute
-      have z : Q(ℕ) := mkRawNatLit (q.num.toNat / q.den)
-      haveI : $z =Q $n / $d := ⟨⟩
-      return .isNat q(inferInstance) z q(IsNNRat.natFloor _ $n $d $h $z rfl)
-    | .isNegNNRat _ q n d h => do
-      let instField ← synthInstanceQ q(Field $α)
-      let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
-      let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
-      assertInstancesCommute
-      return .isNat q(inferInstance) (mkRawNatLit 0) q(IsRat.natFloor $x $n $d $h)
-  | _, _, _ => failure
+meta def evalNatFloor : NormNumExt where
+  eval {u αZ} e := do
+    match u, αZ, e with
+    | 0, ~q(ℕ), ~q(@Nat.floor $α $instSemiring $instPartialOrder $instFloorSemiring $x) =>
+      match ← derive x with
+      | .isBool .. =>
+        failure
+      | .isNat sα nb pb => do
+        let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
+        let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
+        assertInstancesCommute
+        return .isNat (q(inferInstance)) nb q(IsNat.natFloor $x _ $pb)
+      | .isNegNat sα nb pb => do
+        let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
+        let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
+        assertInstancesCommute
+        return .isNat (q(inferInstance)) (mkRawNatLit 0) q(IsInt.natFloor _ _ $pb)
+      | .isNNRat dα q n d h => do
+        let instSemifield ← synthInstanceQ q(Semifield $α)
+        let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
+        let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
+        assertInstancesCommute
+        have z : Q(ℕ) := mkRawNatLit (q.num.toNat / q.den)
+        haveI : $z =Q $n / $d := ⟨⟩
+        return .isNat (q(inferInstance)) z q(IsNNRat.natFloor _ $n $d $h $z rfl)
+      | .isNegNNRat _ q n d h => do
+        let instField ← synthInstanceQ q(Field $α)
+        let instLinearOrder ← synthInstanceQ q(LinearOrder $α)
+        let instIsStrictOrderedRing ← synthInstanceQ q(IsStrictOrderedRing $α)
+        assertInstancesCommute
+        return .isNat (q(inferInstance)) (mkRawNatLit 0) q(IsRat.natFloor $x $n $d $h)
+    | _, _, _ =>
+      failure
 
 end Mathlib.Meta.NormNum

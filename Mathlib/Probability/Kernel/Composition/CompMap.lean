@@ -21,7 +21,6 @@ a deterministic kernel. See `deterministic_comp_eq_map` and `comp_deterministic_
 
 public section
 
-
 open MeasureTheory
 
 open scoped ENNReal
@@ -32,17 +31,16 @@ namespace Kernel
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
 
-
 variable {γ δ : Type*} {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ} {f : β → γ} {g : γ → α}
 
-theorem deterministic_comp_eq_map (hf : Measurable f) (κ : Kernel α β) :
-    deterministic f hf ∘ₖ κ = map κ f := by
+theorem deterministic_comp_eq_map (hf : Measurable f) (κ : Kernel α β)
+    : deterministic f hf ∘ₖ κ = map κ f := by
   ext a s hs
   simp_rw [map_apply' _ hf _ hs, comp_apply' _ _ _ hs, deterministic_apply' hf _ hs,
     lintegral_indicator_const_comp hf hs, one_mul]
 
-theorem comp_deterministic_eq_comap (κ : Kernel α β) (hg : Measurable g) :
-    κ ∘ₖ deterministic g hg = comap κ g hg := by
+theorem comp_deterministic_eq_comap (κ : Kernel α β) (hg : Measurable g)
+    : κ ∘ₖ deterministic g hg = comap κ g hg := by
   ext a s hs
   simp_rw [comap_apply' _ _ _ s, comp_apply' _ _ _ hs, deterministic_apply hg a,
     lintegral_dirac' _ (Kernel.measurable_coe κ hs)]

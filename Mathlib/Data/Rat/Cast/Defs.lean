@@ -118,27 +118,20 @@ theorem cast_intCast (n : ℤ) : ((n : ℚ) : α) = n :=
 theorem cast_natCast (n : ℕ) : ((n : ℚ) : α) = n := by
   rw [← Int.cast_natCast, cast_intCast, Int.cast_natCast]
 
-
 @[simp, norm_cast] lemma cast_ofNat (n : ℕ) [n.AtLeastTwo] :
     ((ofNat(n) : ℚ) : α) = (ofNat(n) : α) := by
   simp [cast_def]
 
-@[simp, norm_cast]
-theorem cast_zero : ((0 : ℚ) : α) = 0 :=
-  (cast_intCast _).trans Int.cast_zero
+@[simp, norm_cast] theorem cast_zero : ((0 : ℚ) : α) = 0 := (cast_intCast _).trans Int.cast_zero
 
-@[simp, norm_cast]
-theorem cast_one : ((1 : ℚ) : α) = 1 :=
-  (cast_intCast _).trans Int.cast_one
+@[simp, norm_cast] theorem cast_one : ((1 : ℚ) : α) = 1 := (cast_intCast _).trans Int.cast_one
 
 theorem cast_commute (r : ℚ) (a : α) : Commute (↑r) a := by
   simpa only [cast_def] using (r.1.cast_commute a).div_left (r.2.cast_commute a)
 
-theorem cast_comm (r : ℚ) (a : α) : (r : α) * a = a * r :=
-  (cast_commute r a).eq
+theorem cast_comm (r : ℚ) (a : α) : (r : α) * a = a * r := (cast_commute r a).eq
 
-theorem commute_cast (a : α) (r : ℚ) : Commute a r :=
-  (r.cast_commute a).symm
+theorem commute_cast (a : α) (r : ℚ) : Commute a r := (r.cast_commute a).symm
 
 @[norm_cast]
 lemma cast_divInt_of_ne_zero (a : ℤ) {b : ℤ} (b0 : (b : α) ≠ 0) : (a /. b : α) = a / b := by
@@ -214,8 +207,9 @@ lemma eq_nnratCast [DivisionSemiring α] [FunLike F ℚ≥0 α] [RingHomClass F 
     f q = q := by rw [← map_nnratCast f, NNRat.cast_id]
 
 @[simp]
-theorem map_ratCast [DivisionRing α] [DivisionRing β] [RingHomClass F α β] (f : F) (q : ℚ) :
-    f q = q := by rw [cast_def, map_div₀, map_intCast, map_natCast, cast_def]
+theorem map_ratCast [DivisionRing α] [DivisionRing β] [RingHomClass F α β] (f : F) (q : ℚ)
+    : f q = q := by
+  rw [cast_def, map_div₀, map_intCast, map_natCast, cast_def]
 
 @[simp] lemma eq_ratCast [DivisionRing α] [FunLike F ℚ α] [RingHomClass F ℚ α] (f : F) (q : ℚ) :
     f q = q := by rw [← map_ratCast f, Rat.cast_id]
@@ -256,39 +250,42 @@ variable [FunLike F ℚ M₀] [MonoidWithZeroHomClass F ℚ M₀] {f g : F}
 /-- If monoid with zero homs `f` and `g` from `ℚ` agree on the integers then they are equal. -/
 theorem ext_rat' (h : ∀ m : ℤ, f m = g m) : f = g :=
   (DFunLike.ext f g) fun r => by
-    rw [← r.num_div_den, div_eq_mul_inv, map_mul, map_mul, h, ← Int.cast_natCast,
-      eq_on_inv₀ f g]
+    rw [← r.num_div_den, div_eq_mul_inv, map_mul, map_mul, h, ← Int.cast_natCast, eq_on_inv₀ f g]
     apply h
 
-/-- If monoid with zero homs `f` and `g` from `ℚ` agree on the integers then they are equal.
+/--
+If monoid with zero homs `f` and `g` from `ℚ` agree on the integers then they are equal.
 
-See note [partially-applied ext lemmas] for why `comp` is used here. -/
+See note [partially-applied ext lemmas] for why `comp` is used here.
+-/
 @[ext]
-theorem ext_rat {f g : ℚ →*₀ M₀}
-    (h : f.comp (Int.castRingHom ℚ) = g.comp (Int.castRingHom ℚ : ℤ →*₀ ℚ)) : f = g :=
+theorem ext_rat
+    {f g : ℚ →*₀ M₀} (h : f.comp (Int.castRingHom ℚ) = g.comp (Int.castRingHom ℚ : ℤ →*₀ ℚ))
+    : f = g :=
   ext_rat' <| DFunLike.congr_fun h
 
-/-- If monoid with zero homs `f` and `g` from `ℚ` agree on the positive naturals and `-1` then
-they are equal. -/
-theorem ext_rat_on_pnat (same_on_neg_one : f (-1) = g (-1))
-    (same_on_pnat : ∀ n : ℕ, 0 < n → f n = g n) : f = g :=
-  ext_rat' <|
-    DFunLike.congr_fun <|
-      show
-        (.ofClass f : ℚ →*₀ M₀).comp (Int.castRingHom ℚ) =
-          (.ofClass g : ℚ →*₀ M₀).comp (Int.castRingHom ℚ)
-        from ext_int' (by simpa) (by simpa)
+/--
+If monoid with zero homs `f` and `g` from `ℚ` agree on the positive naturals and `-1` then
+they are equal.
+-/
+theorem ext_rat_on_pnat
+    (same_on_neg_one : f (-1) = g (-1)) (same_on_pnat : ∀ n : ℕ, 0 < n → f n = g n)
+    : f = g :=
+  ext_rat' <| DFunLike.congr_fun <| show (.ofClass f : ℚ →*₀ M₀).comp (Int.castRingHom ℚ)
+    = (.ofClass g : ℚ →*₀ M₀).comp (Int.castRingHom ℚ)
+    from ext_int' (by simpa) (by simpa)
 
 end Rat
 end MonoidWithZeroHomClass
 
-/-- Any two ring homomorphisms from `ℚ` to a semiring are equal. If the codomain is a division ring,
-then this lemma follows from `eq_ratCast`. -/
-theorem RingHom.ext_rat {R : Type*} [Semiring R] [FunLike F ℚ R] [RingHomClass F ℚ R] (f g : F) :
-    f = g :=
-  MonoidWithZeroHomClass.ext_rat' <|
-    RingHom.congr_fun <|
-      ((f : ℚ →+* R).comp (Int.castRingHom ℚ)).ext_int ((g : ℚ →+* R).comp (Int.castRingHom ℚ))
+/--
+Any two ring homomorphisms from `ℚ` to a semiring are equal. If the codomain is a division ring,
+then this lemma follows from `eq_ratCast`.
+-/
+theorem RingHom.ext_rat {R : Type*} [Semiring R] [FunLike F ℚ R] [RingHomClass F ℚ R] (f g : F)
+    : f = g :=
+  MonoidWithZeroHomClass.ext_rat' <| RingHom.congr_fun <|
+    ((f : ℚ →+* R).comp (Int.castRingHom ℚ)).ext_int ((g : ℚ →+* R).comp (Int.castRingHom ℚ))
 
 instance NNRat.subsingleton_ringHom {R : Type*} [Semiring R] : Subsingleton (ℚ≥0 →+* R) where
   allEq f g := MonoidWithZeroHomClass.ext_nnrat' <| by simp

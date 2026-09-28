@@ -21,11 +21,12 @@ public section
 
 namespace CategoryTheory.Limits
 
-variable {J C : Type*} [Category* J] [Category* C]
-  {FC : C → C → Type*} {CC : C → Type*}
-  [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
+variable
+  {J C : Type*} [Category* J] [Category* C]
+  {FC : C → C → Type*} {CC : C → Type*} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
   [ConcreteCategory C FC] [PreservesColimitsOfShape J (forget C)]
-  (F : J ⥤ C) [IsFilteredOrEmpty J]
+  (F : J ⥤ C)
+  [IsFilteredOrEmpty J]
 
 lemma IsColimit.eq_iff {t : Cocone F} (ht : IsColimit t) {i j : J} {xi : ToType <| F.obj i}
     {xj : ToType <| F.obj j} : t.ι.app i xi = t.ι.app j xj ↔ ∃ (k : _) (f : i ⟶ k) (g : j ⟶ k),

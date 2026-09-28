@@ -36,7 +36,6 @@ Similarly, given an isomorphism `f : M ≅ N` use `f.toLinearEquiv` and given a 
 
 @[expose] public section
 
-
 open CategoryTheory
 
 open CategoryTheory.Limits
@@ -47,12 +46,14 @@ universe v u
 
 variable (R : Type u) [Ring R]
 
-/-- The category of R-modules and their morphisms.
+/--
+The category of R-modules and their morphisms.
 
 Note that in the case of `R = ℤ`, we cannot
 impose here that the `ℤ`-multiplication field from the module structure is defeq to the one coming
 from the `isAddCommGroup` structure (contrary to what we do for all module structures in
-mathlib), which creates some difficulties down the road. -/
+mathlib), which creates some difficulties down the road.
+-/
 structure ModuleCat where
   _mkInternal ::
   /-- the underlying type of an object in `ModuleCat R` -/
@@ -66,15 +67,15 @@ attribute [instance 1100] ModuleCat.isModule
 
 namespace ModuleCat
 
-instance : CoeSort (ModuleCat.{v} R) (Type v) :=
-  ⟨ModuleCat.carrier⟩
+instance : CoeSort (ModuleCat.{v} R) (Type v) := ⟨ModuleCat.carrier⟩
 
 attribute [coe] ModuleCat.carrier
 
-/-- The object in the category of R-algebras associated to a type equipped with the appropriate
-typeclasses. This is the preferred way to construct a term of `ModuleCat R`. -/
-abbrev of (X : Type v) [AddCommGroup X] [Module R X] : ModuleCat.{v} R :=
-  ⟨X⟩
+/--
+The object in the category of R-algebras associated to a type equipped with the appropriate
+typeclasses. This is the preferred way to construct a term of `ModuleCat R`.
+-/
+abbrev of (X : Type v) [AddCommGroup X] [Module R X] : ModuleCat.{v} R := ⟨X⟩
 
 open Lean.PrettyPrinter.Delaborator in
 /-- This prints `ModuleCat.of R X` as `↧X`. -/
@@ -110,17 +111,16 @@ section
 variable {R}
 
 /-- Turn a morphism in `ModuleCat` back into a `LinearMap`. -/
-abbrev Hom.hom {A B : ModuleCat.{v} R} (f : Hom A B) :=
-  ConcreteCategory.hom (C := ModuleCat R) f
+abbrev Hom.hom {A B : ModuleCat.{v} R} (f : Hom A B) := ConcreteCategory.hom (C := ModuleCat R) f
 
 /-- Typecheck a `LinearMap` as a morphism in `ModuleCat`. -/
-abbrev ofHom {X Y : Type v} [AddCommGroup X] [Module R X] [AddCommGroup Y] [Module R Y]
-    (f : X →ₗ[R] Y) : of R X ⟶ of R Y :=
+abbrev ofHom
+    {X Y : Type v} [AddCommGroup X] [Module R X] [AddCommGroup Y] [Module R Y] (f : X →ₗ[R] Y)
+    : of R X ⟶ of R Y :=
   ConcreteCategory.ofHom (C := ModuleCat R) f
 
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (A B : ModuleCat.{v} R) (f : Hom A B) :=
-  f.hom
+def Hom.Simps.hom (A B : ModuleCat.{v} R) (f : Hom A B) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -194,24 +194,26 @@ def homEquiv {M N : ModuleCat.{v} R} : (M ⟶ N) ≃ (M →ₗ[R] N) where
   toFun := Hom.hom
   invFun := ofHom
 
-/-- The categorical equivalence between `ModuleCat` and `SemimoduleCat`.
+/--
+The categorical equivalence between `ModuleCat` and `SemimoduleCat`.
 
 In the inverse direction, data (such as the negation operation) is created which may lead to
-diamonds when applied to semi-modules that already have an existing additive group structure. -/
+diamonds when applied to semi-modules that already have an existing additive group structure.
+-/
 def equivalenceSemimoduleCat : ModuleCat.{v} R ≌ SemimoduleCat.{v} R where
-  functor :=
-  { obj M := ↧M
-    map f := SemimoduleCat.ofHom f.hom' }
-  inverse := letI := Module.addCommMonoidToAddCommGroup
-  { obj M := of R M
-    map {M N} f := ofHom f.hom }
+  functor := { obj M := ↧M, map f := SemimoduleCat.ofHom f.hom' }
+  inverse :=
+    letI := Module.addCommMonoidToAddCommGroup
+    { obj M := of R M, map {M N} f := ofHom f.hom }
   unitIso := NatIso.ofComponents fun _ ↦ { hom := ⟨.id⟩, inv := ⟨.id⟩ }
   counitIso := NatIso.ofComponents fun _ ↦ { hom := ⟨.id⟩, inv := ⟨.id⟩ }
 
 end
 
-/- Not a `@[simp]` lemma since it will rewrite the (co)domain of maps and cause
-definitional equality issues. -/
+/-
+Not a `@[simp]` lemma since it will rewrite the (co)domain of maps and cause
+definitional equality issues.
+-/
 lemma forget_obj {M : ModuleCat.{v} R} : (forget (ModuleCat.{v} R)).obj M = M := rfl
 
 @[deprecated ConcreteCategory.forget_map_eq_ofHom +typeChanged (since := "2026-03-02")]
@@ -220,42 +222,42 @@ lemma forget_map {M N : ModuleCat.{v} R} (f : M ⟶ N) :
   rfl
 
 instance hasForgetToAddCommGroup : HasForget₂ (ModuleCat R) AddCommGrpCat where
-  forget₂ :=
-    { obj := fun M => ↧M
-      map := fun f => AddCommGrpCat.ofHom f.hom.toAddMonoidHom }
+  forget₂ := { obj := fun M => ↧M, map := fun f => AddCommGrpCat.ofHom f.hom.toAddMonoidHom }
 
 @[simp]
-theorem forget₂_obj (X : ModuleCat R) :
-    (forget₂ (ModuleCat R) AddCommGrpCat).obj X = ↧X :=
-  rfl
+theorem forget₂_obj (X : ModuleCat R) : (forget₂ (ModuleCat R) AddCommGrpCat).obj X = ↧X := rfl
 
-theorem forget₂_obj_moduleCat_of (X : Type v) [AddCommGroup X] [Module R X] :
-    (forget₂ (ModuleCat R) AddCommGrpCat).obj (of R X) = ↧X :=
+theorem forget₂_obj_moduleCat_of (X : Type v) [AddCommGroup X] [Module R X]
+    : (forget₂ (ModuleCat R) AddCommGrpCat).obj (of R X) = ↧X :=
   rfl
 
 @[simp]
-theorem forget₂_map (X Y : ModuleCat R) (f : X ⟶ Y) :
-    (forget₂ (ModuleCat R) AddCommGrpCat).map f = AddCommGrpCat.ofHom f.hom :=
+theorem forget₂_map (X Y : ModuleCat R) (f : X ⟶ Y)
+    : (forget₂ (ModuleCat R) AddCommGrpCat).map f = AddCommGrpCat.ofHom f.hom :=
   rfl
 
-instance : Inhabited (ModuleCat R) :=
-  ⟨of R PUnit⟩
+instance : Inhabited (ModuleCat R) := ⟨of R PUnit⟩
 
 @[simp] theorem of_coe (X : ModuleCat R) : of R X = X := rfl
 
 variable {R}
 
 theorem isZero_of_subsingleton (M : ModuleCat R) [Subsingleton M] : IsZero M where
-  unique_to X := ⟨⟨⟨ofHom (0 : M →ₗ[R] X)⟩, fun f => by
-    ext x
-    rw [Subsingleton.elim x (0 : M)]
-    simp⟩⟩
-  unique_from X := ⟨⟨⟨ofHom (0 : X →ₗ[R] M)⟩, fun f => by
-    ext x
-    subsingleton⟩⟩
+  unique_to X := ⟨⟨
+    ⟨ofHom (0 : M →ₗ[R] X)⟩,
+    fun f => by
+      ext x
+      rw [Subsingleton.elim x (0 : M)]
+      simp
+  ⟩⟩
+  unique_from X := ⟨⟨
+    ⟨ofHom (0 : X →ₗ[R] M)⟩,
+    fun f => by
+      ext x
+      subsingleton
+  ⟩⟩
 
-instance : HasZeroObject (ModuleCat.{v} R) :=
-  ⟨⟨of R PUnit, isZero_of_subsingleton _⟩⟩
+instance : HasZeroObject (ModuleCat.{v} R) := ⟨⟨of R PUnit, isZero_of_subsingleton _⟩⟩
 
 end ModuleCat
 
@@ -271,8 +273,10 @@ section
 
 /-- Build an isomorphism in the category `Module R` from a `LinearEquiv` between `Module`s. -/
 @[simps]
-def LinearEquiv.toModuleIso {g₁ : AddCommGroup X₁} {g₂ : AddCommGroup X₂} {m₁ : Module R X₁}
-    {m₂ : Module R X₂} (e : X₁ ≃ₗ[R] X₂) : ModuleCat.of R X₁ ≅ ModuleCat.of R X₂ where
+def LinearEquiv.toModuleIso
+    {g₁ : AddCommGroup X₁} {g₂ : AddCommGroup X₂} {m₁ : Module R X₁} {m₂ : Module R X₂}
+    (e : X₁ ≃ₗ[R] X₂)
+    : ModuleCat.of R X₁ ≅ ModuleCat.of R X₂ where
   hom := ofHom (e : X₁ →ₗ[R] X₂)
   inv := ofHom (e.symm : X₂ →ₗ[R] X₁)
   hom_inv_id := by ext; apply e.left_inv
@@ -282,8 +286,7 @@ namespace CategoryTheory.Iso
 variable {X Y : ModuleCat R}
 
 /-- Build a `LinearEquiv` from an isomorphism in the category `ModuleCat R`. -/
-def toLinearEquiv (i : X ≅ Y) : X ≃ₗ[R] Y :=
-  .ofLinearMap i.hom.hom i.inv.hom (by aesop) (by aesop)
+def toLinearEquiv (i : X ≅ Y) : X ≃ₗ[R] Y := .ofLinearMap i.hom.hom i.inv.hom (by aesop) (by aesop)
 
 @[simp] lemma toLinearEquiv_apply (i : X ≅ Y) (x : X) : i.toLinearEquiv x = i.hom x := rfl
 @[simp] lemma toLinearEquiv_symm (i : X ≅ Y) : i.toLinearEquiv.symm = i.symm.toLinearEquiv := rfl
@@ -291,11 +294,14 @@ def toLinearEquiv (i : X ≅ Y) : X ≃ₗ[R] Y :=
 
 end CategoryTheory.Iso
 
-/-- linear equivalences between `Module`s are the same as (isomorphic to) isomorphisms
-in `ModuleCat` -/
+/--
+linear equivalences between `Module`s are the same as (isomorphic to) isomorphisms
+in `ModuleCat`
+-/
 @[simps]
-def linearEquivIsoModuleIso {X Y : Type u} [AddCommGroup X] [AddCommGroup Y] [Module R X]
-    [Module R Y] : (X ≃ₗ[R] Y) ≅ (ModuleCat.of R X ≅ ModuleCat.of R Y) where
+def linearEquivIsoModuleIso
+    {X Y : Type u} [AddCommGroup X] [AddCommGroup Y] [Module R X] [Module R Y]
+    : (X ≃ₗ[R] Y) ≅ (ModuleCat.of R X ≅ ModuleCat.of R Y) where
   hom := ↾fun e ↦ e.toModuleIso
   inv := ↾fun i ↦ i.toLinearEquiv
 
@@ -338,8 +344,12 @@ instance : SMul ℤ (M ⟶ N) where
 @[simp] lemma hom_zsmul (n : ℤ) (f : M ⟶ N) : (n • f).hom = n • f.hom := rfl
 
 instance : AddCommGroup (M ⟶ N) :=
-  Function.Injective.addCommGroup (Hom.hom) hom_injective
-    rfl (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl) (fun _ _ => rfl) (fun _ _ => rfl)
+  Function.Injective.addCommGroup (Hom.hom) hom_injective rfl
+    (fun _ _ => rfl)
+    (fun _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
+    (fun _ _ => rfl)
 
 @[simp] lemma hom_sum {ι : Type*} (f : ι → (M ⟶ N)) (s : Finset ι) :
     (∑ i ∈ s, f i).hom = ∑ i ∈ s, (f i).hom :=
@@ -348,14 +358,10 @@ instance : AddCommGroup (M ⟶ N) :=
 
 instance : Preadditive (ModuleCat.{v} R) where
 
-instance forget₂_addCommGrp_additive :
-    (forget₂ (ModuleCat.{v} R) AddCommGrpCat).Additive where
+instance forget₂_addCommGrp_additive : (forget₂ (ModuleCat.{v} R) AddCommGrpCat).Additive where
 
 /-- `ModuleCat.Hom.hom` bundled as an additive equivalence. -/
-@[simps!]
-def homAddEquiv : (M ⟶ N) ≃+ (M →ₗ[R] N) :=
-  { homEquiv with
-    map_add' := fun _ _ => rfl }
+@[simps!] def homAddEquiv : (M ⟶ N) ≃+ (M →ₗ[R] N) := { homEquiv with map_add' := fun _ _ => rfl }
 
 theorem subsingleton_of_isZero (h : IsZero M) : Subsingleton M := by
   refine subsingleton_of_forall_eq 0 (fun x ↦ ?_)
@@ -397,16 +403,12 @@ section Module
 variable {M N : ModuleCat.{v} R} {S : Type*} [Semiring S] [Module S N] [SMulCommClass R S N]
 
 instance Hom.instModule : Module S (M ⟶ N) :=
-  Function.Injective.module S
-    { toFun := Hom.hom, map_zero' := hom_zero, map_add' := hom_add }
-    hom_injective
-    (fun _ _ => rfl)
+  Function.Injective.module S { toFun := Hom.hom, map_zero' := hom_zero, map_add' := hom_add }
+    hom_injective (fun _ _ => rfl)
 
 /-- `ModuleCat.Hom.hom` bundled as a linear equivalence. -/
 @[simps]
-def homLinearEquiv : (M ⟶ N) ≃ₗ[S] (M →ₗ[R] N) :=
-  { homAddEquiv with
-    map_smul' := fun _ _ => rfl }
+def homLinearEquiv : (M ⟶ N) ≃ₗ[S] (M →ₗ[R] N) := { homAddEquiv with map_smul' := fun _ _ => rfl }
 
 end Module
 
@@ -420,9 +422,7 @@ variable {S₀ : Type u₀} [CommSemiring S₀] {S : Type u} [Ring S] [Algebra S
 
 variable {M N : ModuleCat.{v} S}
 
-/--
-Let `S` be an `S₀`-algebra. Then `S`-modules are modules over `S₀`.
--/
+/-- Let `S` be an `S₀`-algebra. Then `S`-modules are modules over `S₀`. -/
 scoped instance : Module S₀ M := Module.compHom _ (algebraMap S₀ S)
 
 scoped instance : IsScalarTower S₀ S M where
@@ -431,11 +431,9 @@ scoped instance : IsScalarTower S₀ S M where
 scoped instance : SMulCommClass S S₀ M where
   smul_comm s s₀ n :=
     show s • algebraMap S₀ S s₀ • n = algebraMap S₀ S s₀ • s • n by
-    rw [← smul_assoc, smul_eq_mul, ← Algebra.commutes, mul_smul]
+      rw [← smul_assoc, smul_eq_mul, ← Algebra.commutes, mul_smul]
 
-/--
-Let `S` be an `S₀`-algebra. Then the category of `S`-modules is `S₀`-linear.
--/
+/-- Let `S` be an `S₀`-algebra. Then the category of `S`-modules is `S₀`-linear. -/
 scoped instance instLinear : Linear S₀ (ModuleCat.{v} S) where
   smul_comp _ M N s₀ f g := by ext; simp
 
@@ -452,12 +450,12 @@ lemma lsmul_eq_smul_id (M : ModuleCat.{v} S) (s : S) :
 
 variable {X Y X' Y' : ModuleCat.{v} S}
 
-theorem Iso.homCongr_eq_arrowCongr (i : X ≅ X') (j : Y ≅ Y') (f : X ⟶ Y) :
-    Iso.homCongr i j f = ⟨LinearEquiv.arrowCongr i.toLinearEquiv j.toLinearEquiv f.hom⟩ :=
+theorem Iso.homCongr_eq_arrowCongr (i : X ≅ X') (j : Y ≅ Y') (f : X ⟶ Y)
+    : Iso.homCongr i j f = ⟨LinearEquiv.arrowCongr i.toLinearEquiv j.toLinearEquiv f.hom⟩ :=
   rfl
 
-theorem Iso.conj_eq_conj (i : X ≅ X') (f : End X) :
-    Iso.conj i f = ⟨LinearEquiv.conj i.toLinearEquiv f.hom⟩ :=
+theorem Iso.conj_eq_conj (i : X ≅ X') (f : End X)
+    : Iso.conj i f = ⟨LinearEquiv.conj i.toLinearEquiv f.hom⟩ :=
   rfl
 
 end
@@ -467,19 +465,24 @@ end
 variable (M N : ModuleCat.{v} R)
 
 /-- `ModuleCat.Hom.hom` as an isomorphism of rings. -/
-@[simps!] def endRingEquiv : End M ≃+* (M →ₗ[R] M) where
+@[simps!]
+def endRingEquiv : End M ≃+* (M →ₗ[R] M) where
   toFun := ModuleCat.Hom.hom
   invFun := ModuleCat.ofHom
   map_mul' _ _ := rfl
   map_add' _ _ := rfl
 
-/-- The scalar multiplication on an object of `ModuleCat R` considered as
-a morphism of rings from `R` to the endomorphisms of the underlying abelian group. -/
+/--
+The scalar multiplication on an object of `ModuleCat R` considered as
+a morphism of rings from `R` to the endomorphisms of the underlying abelian group.
+-/
 def smul : R →+* End ((forget₂ (ModuleCat R) AddCommGrpCat).obj M) where
-  toFun r := AddCommGrpCat.ofHom
-    { toFun := fun (m : M) => r • m
+  toFun r :=
+    AddCommGrpCat.ofHom {
+      toFun := fun (m : M) => r • m
       map_zero' := by rw [smul_zero]
-      map_add' := fun x y => by rw [smul_add] }
+      map_add' := fun x y => by rw [smul_add]
+    }
   map_one' := AddCommGrpCat.ext (fun x => by simp)
   map_zero' := AddCommGrpCat.ext (fun x => by simp)
   map_mul' r s := AddCommGrpCat.ext (fun (x : M) => (smul_smul r s x).symm)
@@ -492,20 +495,22 @@ lemma smul_naturality {M N : ModuleCat.{v} R} (f : M ⟶ N) (r : R) :
   exact (f.hom.map_smul r x).symm
 
 variable (R) in
-/-- The scalar multiplication on `ModuleCat R` considered as a morphism of rings
-to the endomorphisms of the forgetful functor to `AddCommGrpCat)`. -/
+/--
+The scalar multiplication on `ModuleCat R` considered as a morphism of rings
+to the endomorphisms of the forgetful functor to `AddCommGrpCat)`.
+-/
 @[simps]
 def smulNatTrans : R →+* End (forget₂ (ModuleCat R) AddCommGrpCat) where
-  toFun r :=
-    { app := fun M => M.smul r
-      naturality := fun _ _ _ => smul_naturality _ r }
+  toFun r := { app := fun M => M.smul r, naturality := fun _ _ _ => smul_naturality _ r }
   map_one' := by cat_disch
   map_zero' := by cat_disch
   map_mul' _ _ := by cat_disch
   map_add' _ _ := by cat_disch
 
-/-- Given `A : AddCommGrpCat` and a ring morphism `R →+* End A`, this is a type synonym
-for `A`, on which we shall define a structure of `R`-module. -/
+/--
+Given `A : AddCommGrpCat` and a ring morphism `R →+* End A`, this is a type synonym
+for `A`, on which we shall define a structure of `R`-module.
+-/
 @[nolint unusedArguments]
 def mkOfSMul' {A : AddCommGrpCat} (_ : R →+* End A) := A
 
@@ -513,8 +518,7 @@ section
 
 variable {A : AddCommGrpCat} (φ : R →+* End A)
 
-instance : AddCommGroup (mkOfSMul' φ) :=
-  inferInstanceAs <| AddCommGroup A
+instance : AddCommGroup (mkOfSMul' φ) := inferInstanceAs <| AddCommGroup A
 
 instance : SMul R (mkOfSMul' φ) := ⟨fun r (x : A) => (show A ⟶ A from φ r) x⟩
 
@@ -531,9 +535,11 @@ instance : Module R (mkOfSMul' φ) where
   add_smul _ _ _ := by simp; rfl
   zero_smul := by simp
 
-/-- Given `A : AddCommGrpCat` and a ring morphism `R →+* End A`, this is an object in
+/--
+Given `A : AddCommGrpCat` and a ring morphism `R →+* End A`, this is an object in
 `ModuleCat R`, whose underlying abelian group is `A` and whose scalar multiplication is
-given by `R`. -/
+given by `R`.
+-/
 abbrev mkOfSMul := ModuleCat.of R (mkOfSMul' φ)
 
 lemma mkOfSMul_smul (r : R) : (mkOfSMul φ).smul r = φ r := rfl
@@ -542,14 +548,16 @@ end
 
 section
 
-variable {M N}
-  (φ : (forget₂ (ModuleCat R) AddCommGrpCat).obj M ⟶
-      (forget₂ (ModuleCat R) AddCommGrpCat).obj N)
+variable
+  {M N}
+  (φ : (forget₂ (ModuleCat R) AddCommGrpCat).obj M ⟶ (forget₂ (ModuleCat R) AddCommGrpCat).obj N)
   (hφ : ∀ (r : R), φ ≫ N.smul r = M.smul r ≫ φ)
 
-/-- Constructor for morphisms in `ModuleCat R` which takes as inputs
+/--
+Constructor for morphisms in `ModuleCat R` which takes as inputs
 a morphism between the underlying objects in `AddCommGrpCat` and the compatibility
-with the scalar multiplication. -/
+with the scalar multiplication.
+-/
 @[simps]
 def homMk : M ⟶ N where
   hom'.toFun := φ
@@ -559,14 +567,18 @@ def homMk : M ⟶ N where
 lemma forget₂_map_homMk :
     (forget₂ (ModuleCat R) AddCommGrpCat).map (homMk φ hφ) = φ := rfl
 
-/-- Constructor for isomorphisms in `ModuleCat R` taking an isomorphism in `AddCommGrpCat`
-and a compatibility condition. -/
-def isoMk (φ : (forget₂ (ModuleCat R) Ab).obj M ≅ (forget₂ _ _).obj N)
-    (hφ : ∀ r, φ.hom ≫ N.smul r = M.smul r ≫ φ.hom) :
-    M ≅ N :=
-  LinearEquiv.toModuleIso
-    { __ := φ.addCommGroupIsoToAddEquiv
-      map_smul' r x := congr($(hφ r) x).symm }
+/--
+Constructor for isomorphisms in `ModuleCat R` taking an isomorphism in `AddCommGrpCat`
+and a compatibility condition.
+-/
+def isoMk
+    (φ : (forget₂ (ModuleCat R) Ab).obj M ≅ (forget₂ _ _).obj N)
+    (hφ : ∀ r, φ.hom ≫ N.smul r = M.smul r ≫ φ.hom)
+    : M ≅ N :=
+  LinearEquiv.toModuleIso {
+    __ := φ.addCommGroupIsoToAddEquiv
+    map_smul' r x := congr($(hφ r) x).symm
+  }
 
 @[simp]
 lemma isoMk_hom (φ : (forget₂ (ModuleCat R) Ab).obj M ≅ (forget₂ _ _).obj N)
@@ -590,9 +602,9 @@ end
 
 instance : (forget (ModuleCat.{v} R)).ReflectsIsomorphisms where
   reflects f _ :=
-    (inferInstance : IsIso ((LinearEquiv.mk f.hom
-      (asIso ((forget (ModuleCat R)).map f)).toEquiv.invFun
-      (Equiv.left_inv _) (Equiv.right_inv _)).toModuleIso).hom)
+    (inferInstance
+      : IsIso ((LinearEquiv.mk f.hom (asIso ((forget (ModuleCat R)).map f)).toEquiv.invFun
+        (Equiv.left_inv _) (Equiv.right_inv _)).toModuleIso).hom)
 
 instance : (forget₂ (ModuleCat.{v} R) AddCommGrpCat.{v}).ReflectsIsomorphisms where
   reflects f _ := by
@@ -611,8 +623,7 @@ namespace ModuleCat
 
 /-- Turn a bilinear map into a homomorphism. -/
 @[simps!]
-def ofHom₂ {M N P : ModuleCat.{u} R} (f : M →ₗ[R] N →ₗ[R] P) :
-    M ⟶ of R (N ⟶ P) :=
+def ofHom₂ {M N P : ModuleCat.{u} R} (f : M →ₗ[R] N →ₗ[R] P) : M ⟶ of R (N ⟶ P) :=
   ofHom <| homLinearEquiv.symm.toLinearMap ∘ₗ f
 
 /-- Turn a homomorphism into a bilinear map. -/
@@ -634,17 +645,24 @@ end Bilinear
 `@[simp]` lemmas for `LinearMap.comp` and categorical identities.
 -/
 
-@[simp] theorem LinearMap.comp_id_moduleCat
-    {R} [Ring R] {G : ModuleCat.{u} R} {H : Type u} [AddCommGroup H] [Module R H] (f : G →ₗ[R] H) :
-    f.comp (𝟙 G : G ⟶ G).hom = f := by simp
+@[simp]
+theorem LinearMap.comp_id_moduleCat
+    {R} [Ring R] {G : ModuleCat.{u} R} {H : Type u} [AddCommGroup H] [Module R H] (f : G →ₗ[R] H)
+    : f.comp (𝟙 G : G ⟶ G).hom = f := by
+  simp
 
-@[simp] theorem LinearMap.id_moduleCat_comp
-    {R} [Ring R] {G : Type u} [AddCommGroup G] [Module R G] {H : ModuleCat.{u} R} (f : G →ₗ[R] H) :
-    LinearMap.comp (𝟙 H : H ⟶ H).hom f = f := by simp
+@[simp]
+theorem LinearMap.id_moduleCat_comp
+    {R} [Ring R] {G : Type u} [AddCommGroup G] [Module R G] {H : ModuleCat.{u} R} (f : G →ₗ[R] H)
+    : LinearMap.comp (𝟙 H : H ⟶ H).hom f = f := by
+  simp
 
-instance {R S : Type*} [Ring R] [Ring S] (F : ModuleCat R ⥤ ModuleCat S) [F.Full] [F.Faithful]
-    (M : ModuleCat R) [h : Nontrivial M] : Nontrivial (F.obj M) := by
+instance
+    {R S : Type*} [Ring R] [Ring S]
+    (F : ModuleCat R ⥤ ModuleCat S) [F.Full] [F.Faithful]
+    (M : ModuleCat R) [h : Nontrivial M]
+    : Nontrivial (F.obj M) := by
   by_contra!
   exact ((not_iff_not.2 ModuleCat.isZero_iff_subsingleton).2 <|
-    not_subsingleton_iff_nontrivial.2 h) <| IsZero.of_full_of_faithful_of_isZero F _ <|
-    ModuleCat.isZero_of_subsingleton <| F.obj M
+      not_subsingleton_iff_nontrivial.2 h) <|
+    IsZero.of_full_of_faithful_of_isZero F _ <| ModuleCat.isZero_of_subsingleton <| F.obj M

@@ -70,8 +70,7 @@ theorem le_inv_mul_iff_le : 1 ≤ b⁻¹ * a ↔ b ≤ a := by
   rw [← mul_le_mul_iff_left b, mul_one, mul_inv_cancel_left]
 
 @[to_additive]
-theorem inv_mul_le_one_iff : a⁻¹ * b ≤ 1 ↔ b ≤ a :=
-  inv_mul_le_iff_le_mul.trans <| by rw [mul_one]
+theorem inv_mul_le_one_iff : a⁻¹ * b ≤ 1 ↔ b ≤ a := inv_mul_le_iff_le_mul.trans <| by rw [mul_one]
 
 end MulLeftMono
 
@@ -211,12 +210,10 @@ section MulLeftMono_MulRightMono
 variable [LE α] [MulLeftMono α] {a b c d : α}
 
 @[to_additive (attr := simp)]
-theorem div_le_self_iff (a : α) {b : α} : a / b ≤ a ↔ 1 ≤ b := by
-  simp [div_eq_mul_inv]
+theorem div_le_self_iff (a : α) {b : α} : a / b ≤ a ↔ 1 ≤ b := by simp [div_eq_mul_inv]
 
 @[to_additive (attr := simp)]
-theorem le_div_self_iff (a : α) {b : α} : a ≤ a / b ↔ b ≤ 1 := by
-  simp [div_eq_mul_inv]
+theorem le_div_self_iff (a : α) {b : α} : a ≤ a / b ↔ b ≤ 1 := by simp [div_eq_mul_inv]
 
 alias ⟨_, sub_le_self⟩ := sub_le_self_iff
 
@@ -231,8 +228,10 @@ alias ⟨le_of_neg_le_neg, _⟩ := neg_le_neg_iff
 
 @[to_additive]
 theorem mul_inv_le_inv_mul_iff : a * b⁻¹ ≤ d⁻¹ * c ↔ d * a ≤ c * b := by
-  rw [← mul_le_mul_iff_left d, ← mul_le_mul_iff_right b, mul_inv_cancel_left, mul_assoc,
-    inv_mul_cancel_right]
+  rw [
+    ← mul_le_mul_iff_left d, ← mul_le_mul_iff_right b, mul_inv_cancel_left, mul_assoc,
+    inv_mul_cancel_right
+  ]
 
 end MulLeftMono_MulRightMono
 
@@ -241,8 +240,7 @@ section MulLeftStrictMono_MulRightStrictMono
 variable [LT α] [MulLeftStrictMono α] {a b c d : α}
 
 @[to_additive (attr := simp)]
-theorem div_lt_self_iff (a : α) {b : α} : a / b < a ↔ 1 < b := by
-  simp [div_eq_mul_inv]
+theorem div_lt_self_iff (a : α) {b : α} : a / b < a ↔ 1 < b := by simp [div_eq_mul_inv]
 
 alias ⟨_, sub_lt_self⟩ := sub_lt_self_iff
 
@@ -269,8 +267,10 @@ attribute [to_additive neg_lt_of_neg_lt] inv_lt_of_inv_lt'
 
 @[to_additive]
 theorem mul_inv_lt_inv_mul_iff : a * b⁻¹ < d⁻¹ * c ↔ d * a < c * b := by
-  rw [← mul_lt_mul_iff_left d, ← mul_lt_mul_iff_right b, mul_inv_cancel_left, mul_assoc,
-    inv_mul_cancel_right]
+  rw [
+    ← mul_lt_mul_iff_left d, ← mul_lt_mul_iff_right b, mul_inv_cancel_left, mul_assoc,
+    inv_mul_cancel_right
+  ]
 
 end MulLeftStrictMono_MulRightStrictMono
 
@@ -283,14 +283,12 @@ section LeftLE
 variable [MulLeftMono α] {a : α}
 
 @[to_additive]
-theorem Left.inv_le_self (h : 1 ≤ a) : a⁻¹ ≤ a :=
-  le_trans (Left.inv_le_one_iff.mpr h) h
+theorem Left.inv_le_self (h : 1 ≤ a) : a⁻¹ ≤ a := le_trans (Left.inv_le_one_iff.mpr h) h
 
 alias neg_le_self := Left.neg_le_self
 
 @[to_additive]
-theorem Left.self_le_inv (h : a ≤ 1) : a ≤ a⁻¹ :=
-  le_trans h (Left.one_le_inv_iff.mpr h)
+theorem Left.self_le_inv (h : a ≤ 1) : a ≤ a⁻¹ := le_trans h (Left.one_le_inv_iff.mpr h)
 
 end LeftLE
 
@@ -298,15 +296,12 @@ section LeftLT
 
 variable [MulLeftStrictMono α] {a : α}
 
-@[to_additive]
-theorem Left.inv_lt_self (h : 1 < a) : a⁻¹ < a :=
-  (Left.inv_lt_one_iff.mpr h).trans h
+@[to_additive] theorem Left.inv_lt_self (h : 1 < a) : a⁻¹ < a := (Left.inv_lt_one_iff.mpr h).trans h
 
 alias neg_lt_self := Left.neg_lt_self
 
 @[to_additive]
-theorem Left.self_lt_inv (h : a < 1) : a < a⁻¹ :=
-  lt_trans h (Left.one_lt_inv_iff.mpr h)
+theorem Left.self_lt_inv (h : a < 1) : a < a⁻¹ := lt_trans h (Left.one_lt_inv_iff.mpr h)
 
 end LeftLT
 
@@ -315,12 +310,10 @@ section RightLE
 variable [MulRightMono α] {a : α}
 
 @[to_additive]
-theorem Right.inv_le_self (h : 1 ≤ a) : a⁻¹ ≤ a :=
-  le_trans (Right.inv_le_one_iff.mpr h) h
+theorem Right.inv_le_self (h : 1 ≤ a) : a⁻¹ ≤ a := le_trans (Right.inv_le_one_iff.mpr h) h
 
 @[to_additive]
-theorem Right.self_le_inv (h : a ≤ 1) : a ≤ a⁻¹ :=
-  le_trans h (Right.one_le_inv_iff.mpr h)
+theorem Right.self_le_inv (h : a ≤ 1) : a ≤ a⁻¹ := le_trans h (Right.one_le_inv_iff.mpr h)
 
 end RightLE
 
@@ -329,12 +322,10 @@ section RightLT
 variable [MulRightStrictMono α] {a : α}
 
 @[to_additive]
-theorem Right.inv_lt_self (h : 1 < a) : a⁻¹ < a :=
-  (Right.inv_lt_one_iff.mpr h).trans h
+theorem Right.inv_lt_self (h : 1 < a) : a⁻¹ < a := (Right.inv_lt_one_iff.mpr h).trans h
 
 @[to_additive]
-theorem Right.self_lt_inv (h : a < 1) : a < a⁻¹ :=
-  lt_trans h (Right.one_lt_inv_iff.mpr h)
+theorem Right.self_lt_inv (h : a < 1) : a < a⁻¹ := lt_trans h (Right.one_lt_inv_iff.mpr h)
 
 end RightLT
 
@@ -471,8 +462,7 @@ theorem div_le_div_iff_right (c : α) : a / c ≤ b / c ↔ a ≤ b := by
   simpa only [div_eq_mul_inv] using mul_le_mul_iff_right _
 
 @[to_additive (attr := gcongr) sub_le_sub_right]
-theorem div_le_div_right' (h : a ≤ b) (c : α) : a / c ≤ b / c :=
-  (div_le_div_iff_right c).2 h
+theorem div_le_div_right' (h : a ≤ b) (c : α) : a / c ≤ b / c := (div_le_div_iff_right c).2 h
 
 @[to_additive (attr := simp) sub_nonneg]
 theorem one_le_div' : 1 ≤ a / b ↔ b ≤ a := by
@@ -503,8 +493,8 @@ attribute [simp] div_le_iff_le_mul
 -- TODO: Should we get rid of `sub_le_iff_le_add` in favor of
 -- (a renamed version of) `tsub_le_iff_right`?
 -- see Note [lower instance priority]
-instance (priority := 100) AddGroup.toOrderedSub {α : Type*} [AddGroup α] [LE α]
-    [AddRightMono α] : OrderedSub α :=
+instance (priority := 100) AddGroup.toOrderedSub {α : Type*} [AddGroup α] [LE α] [AddRightMono α]
+    : OrderedSub α :=
   ⟨fun _ _ _ => sub_le_iff_le_add⟩
 
 end Right
@@ -515,12 +505,13 @@ variable [MulLeftMono α] [MulRightMono α] {a b c : α}
 
 @[to_additive]
 theorem div_le_div_iff_left (a : α) : a / b ≤ a / c ↔ c ≤ b := by
-  rw [div_eq_mul_inv, div_eq_mul_inv, ← mul_le_mul_iff_left a⁻¹, inv_mul_cancel_left,
-    inv_mul_cancel_left, inv_le_inv_iff]
+  rw [
+    div_eq_mul_inv, div_eq_mul_inv, ← mul_le_mul_iff_left a⁻¹, inv_mul_cancel_left,
+    inv_mul_cancel_left, inv_le_inv_iff
+  ]
 
 @[to_additive (attr := gcongr) sub_le_sub_left]
-theorem div_le_div_left' (h : a ≤ b) (c : α) : c / b ≤ c / a :=
-  (div_le_div_iff_left c).2 h
+theorem div_le_div_left' (h : a ≤ b) (c : α) : c / b ≤ c / a := (div_le_div_iff_left c).2 h
 
 end Left
 
@@ -534,8 +525,10 @@ section LE
 
 variable [LE α] [MulLeftMono α] {a b c d : α}
 
-/-- See also `div_le_div_iff` for a version that works for `LinearOrderedSemifield` with
-additional assumptions. -/
+/--
+See also `div_le_div_iff` for a version that works for `LinearOrderedSemifield` with
+additional assumptions.
+-/
 @[to_additive sub_le_sub_iff]
 theorem div_le_div_iff' : a / b ≤ c / d ↔ a * d ≤ c * b := by
   simpa only [div_eq_mul_inv] using mul_inv_le_mul_inv_iff'
@@ -558,12 +551,10 @@ theorem inv_le_div_iff_le_mul : b⁻¹ ≤ a / c ↔ c ≤ a * b :=
 theorem inv_le_div_iff_le_mul' : a⁻¹ ≤ b / c ↔ c ≤ a * b := by rw [inv_le_div_iff_le_mul, mul_comm]
 
 @[to_additive]
-theorem div_le_comm : a / b ≤ c ↔ a / c ≤ b :=
-  div_le_iff_le_mul'.trans div_le_iff_le_mul.symm
+theorem div_le_comm : a / b ≤ c ↔ a / c ≤ b := div_le_iff_le_mul'.trans div_le_iff_le_mul.symm
 
 @[to_additive]
-theorem le_div_comm : a ≤ b / c ↔ c ≤ b / a :=
-  le_div_iff_mul_le'.trans le_div_iff_mul_le.symm
+theorem le_div_comm : a ≤ b / c ↔ c ≤ b / a := le_div_iff_mul_le'.trans le_div_iff_mul_le.symm
 
 end LE
 
@@ -595,8 +586,7 @@ theorem div_lt_div_iff_right (c : α) : a / c < b / c ↔ a < b := by
   simpa only [div_eq_mul_inv] using mul_lt_mul_iff_right _
 
 @[to_additive (attr := gcongr) sub_lt_sub_right]
-theorem div_lt_div_right' (h : a < b) (c : α) : a / c < b / c :=
-  (div_lt_div_iff_right c).2 h
+theorem div_lt_div_right' (h : a < b) (c : α) : a / c < b / c := (div_lt_div_iff_right c).2 h
 
 @[to_additive (attr := simp) sub_pos]
 theorem one_lt_div' : 1 < a / b ↔ b < a := by
@@ -628,21 +618,21 @@ end Right
 
 section Left
 
-variable [MulLeftStrictMono α] [MulRightStrictMono α]
-  {a b c : α}
+variable [MulLeftStrictMono α] [MulRightStrictMono α] {a b c : α}
 
 @[to_additive (attr := simp)]
 theorem div_lt_div_iff_left (a : α) : a / b < a / c ↔ c < b := by
-  rw [div_eq_mul_inv, div_eq_mul_inv, ← mul_lt_mul_iff_left a⁻¹, inv_mul_cancel_left,
-    inv_mul_cancel_left, inv_lt_inv_iff]
+  rw [
+    div_eq_mul_inv, div_eq_mul_inv, ← mul_lt_mul_iff_left a⁻¹, inv_mul_cancel_left,
+    inv_mul_cancel_left, inv_lt_inv_iff
+  ]
 
 @[to_additive (attr := simp)]
 theorem inv_lt_div_iff_lt_mul : a⁻¹ < b / c ↔ c < a * b := by
   rw [div_eq_mul_inv, lt_mul_inv_iff_mul_lt, inv_mul_lt_iff_lt_mul]
 
 @[to_additive (attr := gcongr) sub_lt_sub_left]
-theorem div_lt_div_left' (h : a < b) (c : α) : c / b < c / a :=
-  (div_lt_div_iff_left c).2 h
+theorem div_lt_div_left' (h : a < b) (c : α) : c / b < c / a := (div_lt_div_iff_left c).2 h
 
 end Left
 
@@ -675,12 +665,10 @@ theorem inv_lt_div_iff_lt_mul' : b⁻¹ < a / c ↔ c < a * b :=
   lt_div_iff_mul_lt.trans inv_mul_lt_iff_lt_mul'
 
 @[to_additive]
-theorem div_lt_comm : a / b < c ↔ a / c < b :=
-  div_lt_iff_lt_mul'.trans div_lt_iff_lt_mul.symm
+theorem div_lt_comm : a / b < c ↔ a / c < b := div_lt_iff_lt_mul'.trans div_lt_iff_lt_mul.symm
 
 @[to_additive]
-theorem lt_div_comm : a < b / c ↔ c < b / a :=
-  lt_div_iff_mul_lt'.trans lt_div_iff_mul_lt.symm
+theorem lt_div_comm : a < b / c ↔ c < b / a := lt_div_iff_mul_lt'.trans lt_div_iff_mul_lt.symm
 
 end LT
 
@@ -709,8 +697,8 @@ section LinearOrder
 variable [Group α] [LinearOrder α]
 
 @[to_additive (attr := simp) cmp_sub_zero]
-theorem cmp_div_one' [MulRightMono α] (a b : α) :
-    cmp (a / b) 1 = cmp a b := by rw [← cmp_mul_right' _ _ b, one_mul, div_mul_cancel]
+theorem cmp_div_one' [MulRightMono α] (a b : α) : cmp (a / b) 1 = cmp a b := by
+  rw [← cmp_mul_right' _ _ b, one_mul, div_mul_cancel]
 
 variable [MulLeftMono α]
 
@@ -726,22 +714,24 @@ theorem le_of_forall_one_lt_lt_mul (h : ∀ ε : α, 1 < ε → a < b * ε) : a 
 theorem le_iff_forall_one_lt_lt_mul : a ≤ b ↔ ∀ ε, 1 < ε → a < b * ε :=
   ⟨fun h _ => lt_mul_of_le_of_one_lt h, le_of_forall_one_lt_lt_mul⟩
 
-/- I (DT) introduced this lemma to prove (the additive version `sub_le_sub_flip` of)
-`div_le_div_flip` below.  Now I wonder what is the point of either of these lemmas... -/
+/-
+I (DT) introduced this lemma to prove (the additive version `sub_le_sub_flip` of)
+`div_le_div_flip` below.  Now I wonder what is the point of either of these lemmas...
+-/
 @[to_additive]
-theorem div_le_inv_mul_iff [MulRightMono α] :
-    a / b ≤ a⁻¹ * b ↔ a ≤ b := by
+theorem div_le_inv_mul_iff [MulRightMono α] : a / b ≤ a⁻¹ * b ↔ a ≤ b := by
   rw [div_eq_mul_inv, mul_inv_le_inv_mul_iff]
-  exact
-    ⟨fun h => not_lt.mp fun k => not_lt.mpr h (mul_lt_mul_of_lt_of_lt k k), fun h =>
-      mul_le_mul' h h⟩
+  exact ⟨
+    fun h => not_lt.mp fun k => not_lt.mpr h (mul_lt_mul_of_lt_of_lt k k),
+    fun h => mul_le_mul' h h
+  ⟩
 
 -- What is the point of this lemma?  See comment about `div_le_inv_mul_iff` above.
 -- Note: we intentionally don't have `@[simp]` for the additive version,
 -- since the LHS simplifies with `tsub_le_iff_right`
 @[to_additive]
-theorem div_le_div_flip {α : Type*} [CommGroup α] [LinearOrder α]
-    [MulLeftMono α] {a b : α} : a / b ≤ b / a ↔ a ≤ b := by
+theorem div_le_div_flip {α : Type*} [CommGroup α] [LinearOrder α] [MulLeftMono α] {a b : α}
+    : a / b ≤ b / a ↔ a ≤ b := by
   rw [div_eq_mul_inv b, mul_comm]
   exact div_le_inv_mul_iff
 
@@ -751,8 +741,9 @@ end LinearOrder
 
 section
 
-variable {β : Type*} [Group α] [Preorder α] [MulLeftMono α]
-  [MulRightMono α] [Preorder β] {f : β → α} {s : Set β}
+variable
+  {β : Type*} [Group α] [Preorder α] [MulLeftMono α] [MulRightMono α] [Preorder β]
+  {f : β → α} {s : Set β}
 
 @[to_additive]
 theorem Monotone.inv (hf : Monotone f) : Antitone fun x => (f x)⁻¹ := fun _ _ hxy =>
@@ -774,8 +765,9 @@ end
 
 section
 
-variable {β : Type*} [Group α] [Preorder α] [MulLeftStrictMono α]
-  [MulRightStrictMono α] [Preorder β] {f : β → α} {s : Set β}
+variable
+  {β : Type*} [Group α] [Preorder α] [MulLeftStrictMono α] [MulRightStrictMono α] [Preorder β]
+  {f : β → α} {s : Set β}
 
 @[to_additive]
 theorem StrictMono.inv (hf : StrictMono f) : StrictAnti fun x => (f x)⁻¹ := fun _ _ hxy =>

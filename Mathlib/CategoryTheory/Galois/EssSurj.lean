@@ -55,15 +55,15 @@ variable [GaloisCategory C] [FiberFunctor F]
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
 
-private local instance fintypeQuotient (H : OpenSubgroup (G)) :
-    Fintype (G ⧸ (H : Subgroup (G))) :=
+private local instance fintypeQuotient (H : OpenSubgroup (G)) : Fintype (G ⧸ (H : Subgroup (G))) :=
   have : Finite (G ⧸ H.toSubgroup) := H.toSubgroup.quotient_finite_of_isOpen H.isOpen'
   Fintype.ofFinite _
 
 set_option backward.privateInPublic true in
-private local instance fintypeQuotientStabilizer {X : Type*} [MulAction G X]
-    [TopologicalSpace X] [ContinuousSMul G X] [DiscreteTopology X] (x : X) :
-    Fintype (G ⧸ (MulAction.stabilizer (G) x)) :=
+private local instance fintypeQuotientStabilizer
+    {X : Type*} [MulAction G X] [TopologicalSpace X] [ContinuousSMul G X] [DiscreteTopology X]
+    (x : X)
+    : Fintype (G ⧸ (MulAction.stabilizer (G) x)) :=
   fintypeQuotient ⟨MulAction.stabilizer (G) x, stabilizer_isOpen (G) x⟩
 
 /-- If `X` is a finite discrete `G`-set, it can be written as the finite disjoint union
@@ -103,10 +103,12 @@ lemma has_decomp_quotients (X : Action FintypeCat G)
 set_option backward.isDefEq.respectTransparency false in
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- If `X` is connected and `x` is in the fiber of `X`, `F.obj X` is isomorphic
-to the quotient of `Aut F` by the stabilizer of `x` as `Aut F`-sets. -/
-def fiberIsoQuotientStabilizer (X : C) [IsConnected X] (x : F.obj X) :
-    (functorToAction F).obj X ≅ Aut F ⧸ₐ MulAction.stabilizer (Aut F) x :=
+/--
+If `X` is connected and `x` is in the fiber of `X`, `F.obj X` is isomorphic
+to the quotient of `Aut F` by the stabilizer of `x` as `Aut F`-sets.
+-/
+def fiberIsoQuotientStabilizer (X : C) [IsConnected X] (x : F.obj X)
+    : (functorToAction F).obj X ≅ Aut F ⧸ₐ MulAction.stabilizer (Aut F) x :=
   haveI : IsConnected ((functorToAction F).obj X) := PreservesIsConnected.preserves
   letI : Fintype (Aut F ⧸ MulAction.stabilizer (Aut F) x) := fintypeQuotientStabilizer x
   FintypeCat.isoQuotientStabilizerOfIsConnected ((functorToAction F).obj X) x
@@ -115,11 +117,12 @@ section
 
 open Action.FintypeCat
 
-variable (V : OpenSubgroup (Aut F)) {U : OpenSubgroup (Aut F)}
-  (h : Subgroup.Normal U.toSubgroup) {A : C} (u : (functorToAction F).obj A ≅ Aut F ⧸ₐ U.toSubgroup)
+variable
+  (V : OpenSubgroup (Aut F))
+  {U : OpenSubgroup (Aut F)} (h : Subgroup.Normal U.toSubgroup)
+  {A : C} (u : (functorToAction F).obj A ≅ Aut F ⧸ₐ U.toSubgroup)
 
 /-
-
 ### Strategy outline
 
 Let `A` be an object of `C` with fiber `Aut F`-isomorphic to `Aut F ⧸ U` for an open normal
@@ -130,8 +133,8 @@ of this composed diagram is `Aut F ⧸ V`. Finally, we obtain `F.obj (A ⧸ V) �
 `Aut F`-sets.
 -/
 
-private def quotientToEndObjectHom :
-    V.toSubgroup ⧸ Subgroup.subgroupOf U.toSubgroup V.toSubgroup →* End A :=
+private def quotientToEndObjectHom
+    : V.toSubgroup ⧸ Subgroup.subgroupOf U.toSubgroup V.toSubgroup →* End A :=
   let ff : (functorToAction F).FullyFaithful := FullyFaithful.ofFullyFaithful (functorToAction F)
   let e : End A ≃* End (Aut F ⧸ₐ U.toSubgroup) := (ff.mulEquivEnd A).trans (Iso.conj u)
   e.symm.toMonoidHom.comp (quotientToEndHom V.toSubgroup U.toSubgroup)
@@ -152,49 +155,53 @@ variable {V} (hUinV : U ≤ V)
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 @[simps]
-private def coconeQuotientDiag :
-    Cocone (quotientDiag V h u ⋙ functorToAction F) where
+private def coconeQuotientDiag : Cocone (quotientDiag V h u ⋙ functorToAction F) where
   pt := Aut F ⧸ₐ V.toSubgroup
-  ι := SingleObj.natTrans (u.hom ≫ quotientToQuotientOfLE V.toSubgroup U.toSubgroup hUinV) <| by
-    intro (m : V ⧸ Subgroup.subgroupOf U V)
-    simp only [const_obj_obj, Functor.comp_map, const_obj_map, Category.comp_id]
-    rw [← cancel_epi (u.inv), Iso.inv_hom_id_assoc]
-    apply Action.hom_ext
-    ext (x : Aut F ⧸ U.toSubgroup)
-    induction m, x using Quotient.inductionOn₂ with | _ σ μ
-    suffices h : ⟦μ * σ⁻¹⟧ = ⟦μ⟧ by
-      simp only [quotientToQuotientOfLE_hom_mk, quotientDiag_map,
-        functorToAction_map_quotientToEndObjectHom V _ u]
-      simpa
-    apply Quotient.sound
-    apply (QuotientGroup.leftRel_apply).mpr
-    simp
+  ι :=
+    SingleObj.natTrans (u.hom ≫ quotientToQuotientOfLE V.toSubgroup U.toSubgroup hUinV) <| by
+      intro (m : V ⧸ Subgroup.subgroupOf U V)
+      simp only [const_obj_obj, Functor.comp_map, const_obj_map, Category.comp_id]
+      rw [← cancel_epi (u.inv), Iso.inv_hom_id_assoc]
+      apply Action.hom_ext
+      ext (x : Aut F ⧸ U.toSubgroup)
+      induction m, x using Quotient.inductionOn₂ with
+      | _ σ μ
+      suffices h : ⟦μ * σ⁻¹⟧ = ⟦μ⟧ by
+        simp only [
+          quotientToQuotientOfLE_hom_mk, quotientDiag_map,
+          functorToAction_map_quotientToEndObjectHom V _ u
+        ]
+        simpa
+      apply Quotient.sound
+      apply (QuotientGroup.leftRel_apply).mpr
+      simp
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 @[simps]
-private def coconeQuotientDiagDesc
-    (s : Cocone (quotientDiag V h u ⋙ functorToAction F)) :
-      (coconeQuotientDiag h u hUinV).pt ⟶ s.pt where
-  hom := FintypeCat.homMk
-    (Quotient.lift (fun σ ↦ (u.inv ≫ s.ι.app (SingleObj.star _)).hom ⟦σ⟧) <| fun σ τ hst ↦ by
-      let J' := quotientDiag V h u ⋙ functorToAction F
-      let m : End (SingleObj.star (V.toSubgroup ⧸ Subgroup.subgroupOf U V)) :=
-        ⟦⟨σ⁻¹ * τ, (QuotientGroup.leftRel_apply).mp hst⟩⟧
-      have h1 : J'.map m ≫ s.ι.app (SingleObj.star _) = s.ι.app (SingleObj.star _) :=
-        s.ι.naturality m
-      conv_rhs => rw [← h1]
-      have h2 : (J'.map m).hom (u.inv.hom ⟦τ⟧) = u.inv.hom ⟦σ⟧ := by
-        simp [J', functorToAction_map_quotientToEndObjectHom V h u m, ← comp_apply, m]
-      simp [← h2, J'])
+private def coconeQuotientDiagDesc (s : Cocone (quotientDiag V h u ⋙ functorToAction F))
+    : (coconeQuotientDiag h u hUinV).pt ⟶ s.pt where
+  hom :=
+    FintypeCat.homMk
+      (Quotient.lift (fun σ ↦ (u.inv ≫ s.ι.app (SingleObj.star _)).hom ⟦σ⟧) <| fun σ τ hst ↦ by
+        let J' := quotientDiag V h u ⋙ functorToAction F
+        let m : End (SingleObj.star (V.toSubgroup ⧸ Subgroup.subgroupOf U V)) :=
+          ⟦⟨σ⁻¹ * τ, (QuotientGroup.leftRel_apply).mp hst⟩⟧
+        have h1 : J'.map m ≫ s.ι.app (SingleObj.star _) = s.ι.app (SingleObj.star _) :=
+          s.ι.naturality m
+        conv_rhs => rw [← h1]
+        have h2 : (J'.map m).hom (u.inv.hom ⟦τ⟧) = u.inv.hom ⟦σ⟧ := by
+          simp [J', functorToAction_map_quotientToEndObjectHom V h u m, ← comp_apply, m]
+        simp [← h2, J'])
   comm g := by
     ext (x : Aut F ⧸ V.toSubgroup)
-    induction x using Quotient.inductionOn with | _ σ
+    induction x using Quotient.inductionOn with
+    | _ σ
     simp only [const_obj_obj]
-    change (((Aut F ⧸ₐ U.toSubgroup).ρ g ≫ u.inv.hom) ≫ (s.ι.app (SingleObj.star _)).hom) ⟦σ⟧ =
-      ((s.ι.app (SingleObj.star _)).hom ≫ s.pt.ρ g) (u.inv.hom ⟦σ⟧)
-    have : ((functorToAction F).obj A).ρ g ≫ (s.ι.app (SingleObj.star _)).hom =
-        (s.ι.app (SingleObj.star _)).hom ≫ s.pt.ρ g :=
+    change (((Aut F ⧸ₐ U.toSubgroup).ρ g ≫ u.inv.hom) ≫ (s.ι.app (SingleObj.star _)).hom) ⟦σ⟧
+      = ((s.ι.app (SingleObj.star _)).hom ≫ s.pt.ρ g) (u.inv.hom ⟦σ⟧)
+    have : ((functorToAction F).obj A).ρ g ≫ (s.ι.app (SingleObj.star _)).hom
+        = (s.ι.app (SingleObj.star _)).hom ≫ s.pt.ρ g :=
       (s.ι.app (SingleObj.star _)).comm g
     rw [← this, u.inv.comm g]
     rfl
@@ -202,8 +209,7 @@ private def coconeQuotientDiagDesc
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The constructed cocone `coconeQuotientDiag` on the diagram `quotientDiag` is colimiting. -/
-private def coconeQuotientDiagIsColimit :
-    IsColimit (coconeQuotientDiag h u hUinV) where
+private def coconeQuotientDiagIsColimit : IsColimit (coconeQuotientDiag h u hUinV) where
   desc := coconeQuotientDiagDesc h u hUinV
   fac s j := by
     apply (cancel_epi u.inv).mp
@@ -215,7 +221,8 @@ private def coconeQuotientDiagIsColimit :
   uniq s f hf := by
     apply Action.hom_ext
     ext (x : Aut F ⧸ V.toSubgroup)
-    induction x using Quotient.inductionOn with | _ σ
+    induction x using Quotient.inductionOn with
+    | _ σ
     simp [← hf (SingleObj.star _), ← ConcreteCategory.comp_apply]
 
 end
@@ -263,13 +270,14 @@ If `X` is a finite, discrete `Aut F`-set with continuous `Aut F`-action, then
 there exists `A : C` such that `F.obj A ≅ X` as `Aut F`-sets.
 -/
 @[stacks 0BN4 "Essential surjectivity part"]
-theorem exists_lift_of_continuous (X : Action FintypeCat (Aut F))
-    [TopologicalSpace X.V] [DiscreteTopology X.V] [ContinuousSMul (Aut F) X.V] :
-    ∃ A, Nonempty ((functorToAction F).obj A ≅ X) := by
+theorem exists_lift_of_continuous
+    (X : Action FintypeCat (Aut F))
+    [TopologicalSpace X.V] [DiscreteTopology X.V] [ContinuousSMul (Aut F) X.V]
+    : ∃ A, Nonempty ((functorToAction F).obj A ≅ X) := by
   obtain ⟨ι, hfin, f, ⟨u⟩⟩ := has_decomp_quotients X
   choose g gu using (fun i ↦ exists_lift_of_quotient_openSubgroup (f i))
-  exact ⟨∐ g, ⟨PreservesCoproduct.iso (functorToAction F) g ≪≫
-    Sigma.mapIso (fun i ↦ (gu i).some) ≪≫ u⟩⟩
+  exact
+    ⟨∐ g, ⟨PreservesCoproduct.iso (functorToAction F) g ≪≫ Sigma.mapIso (fun i ↦ (gu i).some) ≪≫ u⟩⟩
 
 end PreGaloisCategory
 

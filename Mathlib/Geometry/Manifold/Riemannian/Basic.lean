@@ -60,16 +60,17 @@ noncomputable section
 
 variable
   {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners ℝ E H} {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
 section
 
-variable [PseudoEMetricSpace M] [ChartedSpace H M]
-  [RiemannianBundle (fun (x : M) ↦ TangentSpace% x)]
+variable
+  [PseudoEMetricSpace M] [ChartedSpace H M] [RiemannianBundle (fun (x : M) ↦ TangentSpace% x)]
 
 variable (I M) in
-/-- Consider a manifold in which the tangent spaces are already endowed with an inner product, and
+/--
+Consider a manifold in which the tangent spaces are already endowed with an inner product, and
 the space is already endowed with an extended distance. We say that this is a Riemannian manifold
 if the distance is given by the infimum of the lengths of `C^1` paths, measured using the norm in
 the tangent spaces.
@@ -77,7 +78,8 @@ the tangent spaces.
 This is a `Prop`-valued typeclass, on top of existing data.
 
 If you need to *construct* a distance using a Riemannian structure,
-see `EMetricSpace.ofRiemannianMetric`. -/
+see `EMetricSpace.ofRiemannianMetric`.
+-/
 class IsRiemannianManifold : Prop where
   out (x y : M) : edist x y = riemannianEDist I x y
 
@@ -98,10 +100,12 @@ variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
 
 set_option backward.isDefEq.respectTransparency false in
 variable (F) in
-/-- The standard Riemannian metric on a vector space with an inner product, given by this inner
-product on each tangent space. -/
-noncomputable def riemannianMetricVectorSpace :
-    ContMDiffRiemannianMetric 𝓘(ℝ, F) ω F (fun (x : F) ↦ TangentSpace% x) where
+/--
+The standard Riemannian metric on a vector space with an inner product, given by this inner
+product on each tangent space.
+-/
+noncomputable def riemannianMetricVectorSpace
+    : ContMDiffRiemannianMetric (𝓘(ℝ, F)) ω F (fun (x : F) ↦ TangentSpace% x) where
   inner x := (innerSL ℝ (E := F) : F →L[ℝ] F →L[ℝ] ℝ)
   symm x v w := real_inner_comm _ _
   pos x v hv := real_inner_self_pos.2 hv
@@ -109,8 +113,10 @@ noncomputable def riemannianMetricVectorSpace :
     change IsVonNBounded ℝ {v : F | ⟪v, v⟫ < 1}
     have : Metric.ball (0 : F) 1 = {v : F | ⟪v, v⟫ < 1} := by
       ext v
-      simp only [Metric.mem_ball, dist_zero_right, norm_eq_sqrt_re_inner (𝕜 := ℝ),
-        RCLike.re_to_real, Set.mem_ofPred_eq]
+      simp only [
+        Metric.mem_ball, dist_zero_right, norm_eq_sqrt_re_inner (𝕜 := ℝ), RCLike.re_to_real,
+        Set.mem_ofPred_eq
+      ]
       conv_lhs => rw [show (1 : ℝ) = √1 by simp]
       rw [Real.sqrt_lt_sqrt_iff]
       exact real_inner_self_nonneg
@@ -153,23 +159,26 @@ lemma lintegral_fderiv_lineMap_eq_edist {x y : E} :
   exact fderivWithin_eq_fderiv (uniqueDiffOn_Icc zero_lt_one _ hz)
     (ContinuousAffineMap.differentiableAt _)
 
-/-- An inner product vector space is a Riemannian manifold, i.e., the distance between two points
-is the infimum of the lengths of paths between these points. -/
-instance : IsRiemannianManifold 𝓘(ℝ, F) F := by
+/--
+An inner product vector space is a Riemannian manifold, i.e., the distance between two points
+is the infimum of the lengths of paths between these points.
+-/
+instance : IsRiemannianManifold (𝓘(ℝ, F)) F := by
   refine ⟨fun x y ↦ le_antisymm ?_ ?_⟩
   · simp only [riemannianEDist, le_iInf_iff]
     intro γ hγ
     let e : ℝ → F := γ ∘ (projIcc 0 1 zero_le_one)
     have D : ContDiffOn ℝ 1 e (Icc 0 1) :=
       contMDiffOn_iff_contDiffOn.mp (hγ.comp_contMDiffOn contMDiffOn_projIcc)
-    rw [lintegral_norm_mfderiv_Icc_eq_pathELength_projIcc,
-      pathELength_eq_lintegral_mfderivWithin_Icc]
+    rw [
+      lintegral_norm_mfderiv_Icc_eq_pathELength_projIcc, pathELength_eq_lintegral_mfderivWithin_Icc
+    ]
     simp only [mfderivWithin_eq_fderivWithin, enorm_tangentSpace_vectorSpace]
     conv_lhs =>
       rw [edist_comm, edist_eq_enorm_sub, show x = e 0 by simp [e], show y = e 1 by simp [e]]
     exact (enorm_sub_le_lintegral_derivWithin_Icc_of_contDiffOn_Icc D zero_le_one).trans_eq rfl
   · let γ := ContinuousAffineMap.lineMap (R := ℝ) x y
-    have : riemannianEDist 𝓘(ℝ, F) x y ≤ pathELength 𝓘(ℝ, F) γ 0 1 := by
+    have : riemannianEDist (𝓘(ℝ, F)) x y ≤ pathELength (𝓘(ℝ, F)) γ 0 1 := by
       apply riemannianEDist_le_pathELength ?_ (by simp [γ, ContinuousAffineMap.coe_lineMap_eq])
         (by simp [γ, ContinuousAffineMap.coe_lineMap_eq]) zero_le_one
       rw [contMDiffOn_iff_contDiffOn]
@@ -210,26 +219,30 @@ the image of the neighborhood in the extended chart.
 open Manifold Metric
 open scoped NNReal
 
-variable [RiemannianBundle (fun (x : M) ↦ TangentSpace% x)]
-  [IsManifold I 1 M] [IsContinuousRiemannianBundle E (fun (x : M) ↦ TangentSpace% x)]
+variable
+  [RiemannianBundle (fun (x : M) ↦ TangentSpace% x)] [IsManifold I 1 M]
+  [IsContinuousRiemannianBundle E (fun (x : M) ↦ TangentSpace% x)]
 
-/-- Register on the tangent space to a normed vector space the same `NormedAddCommGroup` structure
+/--
+Register on the tangent space to a normed vector space the same `NormedAddCommGroup` structure
 as in the vector space.
 
 Should not be a global instance, as it does not coincide definitionally with the Riemannian
-structure for inner product spaces, but can be activated locally. -/
+structure for inner product spaces, but can be activated locally.
+-/
 @[instance_reducible]
-def normedAddCommGroupTangentSpaceVectorSpace (x : E) :
-    NormedAddCommGroup (TangentSpace% x) :=
+def normedAddCommGroupTangentSpaceVectorSpace (x : E) : NormedAddCommGroup (TangentSpace% x) :=
   inferInstanceAs (NormedAddCommGroup E)
 
 attribute [local instance] normedAddCommGroupTangentSpaceVectorSpace
 
-/-- Register on the tangent space to a normed vector space the same `NormedSpace` structure
+/--
+Register on the tangent space to a normed vector space the same `NormedSpace` structure
 as in the vector space.
 
 Should not be a global instance, as it does not coincide definitionally with the Riemannian
-structure for inner product spaces, but can be activated locally. -/
+structure for inner product spaces, but can be activated locally.
+-/
 @[instance_reducible]
 def normedSpaceTangentSpaceVectorSpace (x : E) : NormedSpace ℝ (TangentSpace% x) :=
   inferInstanceAs (NormedSpace ℝ E)
@@ -513,38 +526,47 @@ lemma setOfPred_riemannianEDist_lt_subset_nhds' [RegularSpace M] {x : M} {s : Se
 alias setOf_riemannianEDist_lt_subset_nhds' := setOfPred_riemannianEDist_lt_subset_nhds'
 
 variable (M) in
-/-- The pseudoemetric space structure associated to a Riemannian metric on a manifold. Designed
+/--
+The pseudoemetric space structure associated to a Riemannian metric on a manifold. Designed
 so that the topology is defeq to the original one.
 
 This should only be used when constructing data in specific situations. To develop the theory,
 one should rather assume that there is an already existing emetric space structure, which satisfies
-additionally the predicate `IsRiemannianManifold I M`. -/
-@[reducible] def PseudoEMetricSpace.ofRiemannianMetric [RegularSpace M] : PseudoEMetricSpace M :=
+additionally the predicate `IsRiemannianManifold I M`.
+-/
+@[reducible]
+def PseudoEMetricSpace.ofRiemannianMetric [RegularSpace M] : PseudoEMetricSpace M :=
   PseudoEMetricSpace.ofEDistOfTopology (riemannianEDist I (M := M))
     (fun _ ↦ riemannianEDist_self)
     (fun _ _ ↦ riemannianEDist_comm)
     (fun _ _ _ ↦ riemannianEDist_triangle)
-    (fun x ↦ (basis_sets (𝓝 x)).to_hasBasis'
-      (fun _ hs ↦ setOfPred_riemannianEDist_lt_subset_nhds' I hs)
-      (fun _ hc ↦ eventually_riemannianEDist_lt I x hc))
+    (fun x ↦
+      (basis_sets (𝓝 x)).to_hasBasis'
+        (fun _ hs ↦ setOfPred_riemannianEDist_lt_subset_nhds' I hs)
+        (fun _ hc ↦ eventually_riemannianEDist_lt I x hc))
 
-/-- Given a manifold with a Riemannian metric, consider the associated Riemannian distance. Then
+/--
+Given a manifold with a Riemannian metric, consider the associated Riemannian distance. Then
 by definition the distance is the infimum of the length of paths between the points, i.e., the
-manifold satisfies the `IsRiemannianManifold I M` predicate. -/
-instance [RegularSpace M] :
-    letI : PseudoEMetricSpace M := .ofRiemannianMetric I M
-    IsRiemannianManifold I M := by
+manifold satisfies the `IsRiemannianManifold I M` predicate.
+-/
+instance [RegularSpace M]
+    : letI : PseudoEMetricSpace M := .ofRiemannianMetric I M
+      IsRiemannianManifold I M := by
   let : PseudoEMetricSpace M := .ofRiemannianMetric I M
   exact ⟨fun x y ↦ rfl⟩
 
 variable (M) in
-/-- The emetric space structure associated to a Riemannian metric on a manifold. Designed
+/--
+The emetric space structure associated to a Riemannian metric on a manifold. Designed
 so that the topology is defeq to the original one.
 
 This should only be used when constructing data in specific situations. To develop the theory,
 one should rather assume that there is an already existing emetric space structure, which satisfies
-additionally the predicate `IsRiemannianManifold I M`. -/
-@[reducible] def EMetricSpace.ofRiemannianMetric [T3Space M] : EMetricSpace M :=
+additionally the predicate `IsRiemannianManifold I M`.
+-/
+@[reducible]
+def EMetricSpace.ofRiemannianMetric [T3Space M] : EMetricSpace M :=
   letI : PseudoEMetricSpace M := .ofRiemannianMetric I M
   EMetricSpace.ofT0PseudoEMetricSpace M
 

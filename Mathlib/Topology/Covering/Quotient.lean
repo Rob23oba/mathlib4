@@ -21,19 +21,23 @@ variable (G : Type*) [Group G] [MulAction G E]
 
 open Topology
 
-/-- A function from a topological space `E` with an action by a discrete group to another
+/--
+A function from a topological space `E` with an action by a discrete group to another
 topological space `X` is a quotient covering map if it is a quotient map, the action is
 continuous and transitive on fibers, and every point of `E` has a neighborhood whose translates
-by the group elements are pairwise disjoint. -/
+by the group elements are pairwise disjoint.
+-/
 structure IsAddQuotientCoveringMap (G) [AddGroup G] [AddAction G E] : Prop
     extends IsQuotientMap f, ContinuousConstVAdd G E where
   apply_eq_iff_mem_orbit {e₁ e₂} : f e₁ = f e₂ ↔ e₁ ∈ AddAction.orbit G e₂
   disjoint (e : E) : ∃ U ∈ 𝓝 e, ∀ g : G, ((g +ᵥ ·) '' U ∩ U).Nonempty → g = 0
 
-/-- A function from a topological space `E` with an action by a discrete group to another
+/--
+A function from a topological space `E` with an action by a discrete group to another
 topological space `X` is a quotient covering map if it is a quotient map, the action is
 continuous and transitive on fibers, and every point of `E` has a neighborhood whose translates
-by the group elements are pairwise disjoint. -/
+by the group elements are pairwise disjoint.
+-/
 @[mk_iff, to_additive]
 structure IsQuotientCoveringMap : Prop extends IsQuotientMap f, ContinuousConstSMul G E where
   apply_eq_iff_mem_orbit {e₁ e₂} : f e₁ = f e₂ ↔ e₁ ∈ MulAction.orbit G e₂
@@ -63,13 +67,16 @@ lemma IsQuotientCoveringMap.toAdditive (G) [Group G] [MulAction G E]
 
 namespace IsQuotientCoveringMap
 
-@[to_additive] theorem subgroup_congr (S S' : Subgroup G) (eq : S = S') :
-    IsQuotientCoveringMap f S ↔ IsQuotientCoveringMap f S' := by rw [eq]
+@[to_additive]
+theorem subgroup_congr (S S' : Subgroup G) (eq : S = S')
+    : IsQuotientCoveringMap f S ↔ IsQuotientCoveringMap f S' := by
+  rw [eq]
 
 variable {f G} (hf : IsQuotientCoveringMap f G)
 include hf
 
-@[to_additive] protected theorem map_smul (g : G) {e : E} : f (g • e) = f e :=
+@[to_additive]
+protected theorem map_smul (g : G) {e : E} : f (g • e) = f e :=
   hf.apply_eq_iff_mem_orbit.mpr ⟨g, rfl⟩
 
 /-- The group action on the domain of a quotient covering map is free. -/
@@ -77,19 +84,22 @@ include hf
 theorem isCancelSMul : IsCancelSMul G E where
   right_cancel' g g' e eq := by
     have ⟨U, heU, hU⟩ := hf.disjoint e
-    simpa [inv_mul_eq_one, eq_comm] using hU (g'⁻¹ * g)
-      ⟨e, ⟨e, mem_of_mem_nhds heU, by simpa [mul_smul, inv_smul_eq_iff]⟩, mem_of_mem_nhds heU⟩
+    simpa [inv_mul_eq_one, eq_comm] using
+      hU (g'⁻¹ * g)
+        ⟨e, ⟨e, mem_of_mem_nhds heU, by simpa [mul_smul, inv_smul_eq_iff]⟩, mem_of_mem_nhds heU⟩
 
-@[to_additive] theorem homeomorph_comp {Y} [TopologicalSpace Y]
-    (φ : X ≃ₜ Y) : IsQuotientCoveringMap (φ ∘ f) G where
+@[to_additive]
+theorem homeomorph_comp {Y} [TopologicalSpace Y] (φ : X ≃ₜ Y)
+    : IsQuotientCoveringMap (φ ∘ f) G where
   __ := φ.isQuotientMap.comp hf.toIsQuotientMap
   continuous_const_smul := hf.continuous_const_smul
   apply_eq_iff_mem_orbit := by simpa using @hf.apply_eq_iff_mem_orbit
   disjoint := hf.disjoint
 
 omit hf in
-@[to_additive (attr := simp)] theorem homeomorph_comp_iff {Y} [TopologicalSpace Y]
-    (φ : X ≃ₜ Y) : IsQuotientCoveringMap (φ ∘ f) G ↔ IsQuotientCoveringMap f G where
+@[to_additive (attr := simp)]
+theorem homeomorph_comp_iff {Y} [TopologicalSpace Y] (φ : X ≃ₜ Y)
+    : IsQuotientCoveringMap (φ ∘ f) G ↔ IsQuotientCoveringMap f G where
   mp h := by convert! h.homeomorph_comp φ.symm; ext; simp
   mpr h := h.homeomorph_comp φ
 
@@ -97,24 +107,29 @@ omit hf in
 @[to_additive /-- Fibers of a quotient covering map by an additive group G is a G-torsor. -/]
 noncomputable def fiberEquivGroup {x : X} (e : f ⁻¹' {x}) : f ⁻¹' {x} ≃ G :=
   have := hf.isCancelSMul
-  .symm <| .ofBijective (fun g ↦ ⟨g • e, (hf.map_smul g).trans e.2⟩)
-    ⟨fun _ _ eq ↦ IsCancelSMul.right_cancel _ _ e.1 congr($eq), fun e' ↦
-      have ⟨g, eq⟩ := hf.apply_eq_iff_mem_orbit.mp (e'.2.trans e.2.symm); ⟨g, Subtype.ext eq⟩⟩
+  .symm <| .ofBijective (fun g ↦ ⟨g • e, (hf.map_smul g).trans e.2⟩) ⟨
+    fun _ _ eq ↦ IsCancelSMul.right_cancel _ _ e.1 congr($eq),
+    fun e' ↦ have ⟨g, eq⟩ := hf.apply_eq_iff_mem_orbit.mp (e'.2.trans e.2.symm); ⟨g, Subtype.ext eq⟩
+  ⟩
 
-@[simp] theorem fiberEquivGroup_self {x : X} (e : f ⁻¹' {x}) : hf.fiberEquivGroup e e = 1 :=
+@[simp]
+theorem fiberEquivGroup_self {x : X} (e : f ⁻¹' {x}) : hf.fiberEquivGroup e e = 1 :=
   (Equiv.eq_symm_apply _).mp <| Subtype.ext (one_smul ..).symm
 
 set_option backward.isDefEq.respectTransparency.types false in
-@[simp] theorem fiberEquivGroup_eq_iff {x : X} (e e' : f ⁻¹' {x}) (g : G) :
-    hf.fiberEquivGroup e e' = g ↔ e' = g • (e : E) := by
+@[simp]
+theorem fiberEquivGroup_eq_iff {x : X} (e e' : f ⁻¹' {x}) (g : G)
+    : hf.fiberEquivGroup e e' = g ↔ e' = g • (e : E) := by
   rw [fiberEquivGroup, Equiv.symm_apply_eq, Equiv.ofBijective_apply, Subtype.mk.injEq]
 
-@[simp] theorem fiberEquivGroup_smul_self {x : X} (e : f ⁻¹' {x}) {e' : f ⁻¹' {x}} :
-    hf.fiberEquivGroup e e' • (e : E) = (e' : E) :=
+@[simp]
+theorem fiberEquivGroup_smul_self {x : X} (e : f ⁻¹' {x}) {e' : f ⁻¹' {x}}
+    : hf.fiberEquivGroup e e' • (e : E) = (e' : E) :=
   congr($((hf.fiberEquivGroup e).symm_apply_apply e'))
 
 /-- The action of `G` restricted to the fiber. -/
-@[implicit_reducible] def mulActionFiber (x : X) : MulAction G (f ⁻¹' {x}) :=
+@[implicit_reducible]
+def mulActionFiber (x : X) : MulAction G (f ⁻¹' {x}) :=
   SubMulAction.mulAction ⟨f ⁻¹' {x}, fun g _ h ↦ (hf.map_smul g).trans h⟩
 
 @[simp] lemma coe_mulActionFiber_smul (x : X) (g : G) (e : f ⁻¹' {x}) :
@@ -132,11 +147,11 @@ lemma mulActionFiber_isPretransitive (x : X) :
   exact ⟨g, Subtype.ext hg⟩
 
 /-- A quotient covering map `f` induces a permutation action on each fiber. -/
-@[simps!] def toPermFiber (x : X) : G →* Equiv.Perm (f ⁻¹' {x}) :=
-  (hf.mulActionFiber x).toPermHom
+@[simps!] def toPermFiber (x : X) : G →* Equiv.Perm (f ⁻¹' {x}) := (hf.mulActionFiber x).toPermHom
 
-theorem toPermFiber_ext (x : X) (e : f ⁻¹' {x}) {g g' : G}
-    (eq : hf.toPermFiber x g e = hf.toPermFiber x g' e) : g = g' :=
+theorem toPermFiber_ext
+    (x : X) (e : f ⁻¹' {x}) {g g' : G} (eq : hf.toPermFiber x g e = hf.toPermFiber x g' e)
+    : g = g' :=
   have := hf.isCancelSMul
   IsCancelSMul.right_cancel _ _ e.1 congr($eq)
 
@@ -164,31 +179,44 @@ variable [ContinuousConstSMul G E]
 variable {f G} (hf : IsQuotientMap f) (hfG : ∀ {e₁ e₂}, f e₁ = f e₂ ↔ e₁ ∈ MulAction.orbit G e₂)
 include hf hfG
 
-/-- If a group `G` acts on a space `E` and `U` is an open subset disjoint from all other
+/--
+If a group `G` acts on a space `E` and `U` is an open subset disjoint from all other
 `G`-translates of itself, and `p` is a quotient map by this action, then `p` admits a
-`Bundle.Trivialization` over the base set `p(U)`. -/
+`Bundle.Trivialization` over the base set `p(U)`.
+-/
 @[to_additive (attr := simps! source target baseSet)
-/-- If a group `G` acts on a space `E` and `U` is an open subset disjoint from all
+  /-- If a group `G` acts on a space `E` and `U` is an open subset disjoint from all
 other `G`-translates of itself, and `p` is a quotient map by this action, then `p` admits a
 `Bundle.Trivialization` over the base set `p(U)`. -/]
-noncomputable def trivializationOfSMulDisjoint [TopologicalSpace G] [DiscreteTopology G]
-    (U : Set E) (open_U : IsOpen U) (disjoint : ∀ g : G, ((g • ·) '' U ∩ U).Nonempty → g = 1) :
-    Trivialization G f := by
+noncomputable def trivializationOfSMulDisjoint
+    [TopologicalSpace G] [DiscreteTopology G]
+    (U : Set E) (open_U : IsOpen U) (disjoint : ∀ g : G, ((g • ·) '' U ∩ U).Nonempty → g = 1)
+    : Trivialization G f := by
   have pGE (g : G) e : f (g • e) = f e := hfG.mpr ⟨g, rfl⟩
   have preim_im : f ⁻¹' f '' U = ⋃ g : G, (g • ·) ⁻¹' U := by
-    ext e; refine ⟨fun ⟨e', heU, he⟩ ↦ ?_, ?_⟩
+    ext e
+    refine ⟨fun ⟨e', heU, he⟩ ↦ ?_, ?_⟩
     · obtain ⟨g, rfl⟩ := hfG.mp he; exact ⟨_, ⟨g, rfl⟩, heU⟩
     · intro ⟨_, ⟨g, rfl⟩, hg⟩; exact ⟨_, hg, pGE g e⟩
   have : Nonempty (X → E) := ⟨Function.surjInv hf.surjective⟩
-  refine IsOpen.trivializationDiscrete (fun g ↦ (g • ·) ⁻¹' U) (f '' U)
-    ?_ (fun g W hWU ↦ ⟨fun hoW ↦ (hoW.preimage hf.continuous).inter (open_U.preimage <|
-      continuous_const_smul g), fun isOpen ↦ hf.isOpen_preimage.mp ?_⟩) (fun g e₁ h₁ e₂ h₂ he ↦ ?_)
-    ?_ (fun {g₁ g₂} hne ↦ disjoint_iff_inf_le.mpr fun e ⟨h₁, h₂⟩ ↦ hne <|
-      mul_inv_eq_one.mp (disjoint _ ⟨_, ⟨_, h₂, ?_⟩, h₁⟩)) preim_im.subset
+  refine IsOpen.trivializationDiscrete
+    (fun g ↦ (g • ·) ⁻¹' U)
+    (f '' U) ?_
+    (fun g W hWU ↦ ⟨
+      fun hoW ↦ (hoW.preimage hf.continuous).inter (open_U.preimage <| continuous_const_smul g),
+      fun isOpen ↦ hf.isOpen_preimage.mp ?_
+    ⟩)
+    (fun g e₁ h₁ e₂ h₂ he ↦ ?_)
+    ?_
+    (fun {g₁ g₂} hne ↦
+      disjoint_iff_inf_le.mpr fun e ⟨h₁, h₂⟩ ↦
+        hne <| mul_inv_eq_one.mp (disjoint _ ⟨_, ⟨_, h₂, ?_⟩, h₁⟩))
+    preim_im.subset
   · rw [← hf.isOpen_preimage, preim_im]
     exact isOpen_iUnion fun g ↦ open_U.preimage (continuous_const_smul g)
   · convert! isOpen_iUnion fun g : G ↦ isOpen.preimage (continuous_const_smul g)
-    ext e; refine ⟨fun hW ↦ ?_, ?_⟩
+    ext e
+    refine ⟨fun hW ↦ ?_, ?_⟩
     · have ⟨e', he', hfe⟩ := hWU hW
       obtain ⟨g', rfl⟩ := hfG.mp hfe
       refine ⟨_, ⟨g⁻¹ * g', rfl⟩, ?_, ?_⟩
@@ -234,14 +262,14 @@ namespace IsQuotientCoveringMap
     · have ⟨U, hU, hGU⟩ := h.disjoint e
       exact ⟨U, hU, fun g hg ↦ by rw [hGU g hg, one_smul]⟩
 
-@[to_additive] theorem isOpenQuotientMap (h : IsQuotientCoveringMap f G) :
-    IsOpenQuotientMap f where
+@[to_additive]
+theorem isOpenQuotientMap (h : IsQuotientCoveringMap f G) : IsOpenQuotientMap f where
   surjective := h.surjective
   continuous := h.isCoveringMap.continuous
   isOpenMap := h.isCoveringMap.isOpenMap
 
-@[to_additive] theorem isLocalHomeomorph (h : IsQuotientCoveringMap f G) :
-    IsLocalHomeomorph f :=
+@[to_additive]
+theorem isLocalHomeomorph (h : IsQuotientCoveringMap f G) : IsLocalHomeomorph f :=
   h.isCoveringMap.isLocalHomeomorph
 
 end IsQuotientCoveringMap
@@ -253,8 +281,8 @@ include hf
 
 section ProperlyDiscontinuousSMul
 
-variable [ContinuousConstSMul G E] [ProperlyDiscontinuousSMul G E]
-  [LocallyCompactSpace E] [T2Space E]
+variable
+  [ContinuousConstSMul G E] [ProperlyDiscontinuousSMul G E] [LocallyCompactSpace E] [T2Space E]
 variable (hfG : ∀ {e₁ e₂}, f e₁ = f e₂ ↔ e₁ ∈ MulAction.orbit G e₂)
 include hfG
 
@@ -335,19 +363,32 @@ end Topology.IsQuotientMap
   isQuotientMap_quotient_mk'.isQuotientCoveringMap_of_subgroup S hS <| Quotient.eq''.trans <|
     QuotientGroup.leftRel_apply.trans <| by rw [mul_comm]
 
-@[to_additive] theorem isQuotientCoveringMap_iff_isCoveringMap_and :
-    IsQuotientCoveringMap f G ↔ IsCoveringMap f ∧ f.Surjective ∧ ContinuousConstSMul G E ∧
-      IsCancelSMul G E ∧ ∀ {e₁ e₂}, f e₁ = f e₂ ↔ e₁ ∈ MulAction.orbit G e₂ where
-  mp h := have := h.toContinuousConstSMul
+@[to_additive]
+theorem isQuotientCoveringMap_iff_isCoveringMap_and
+    : IsQuotientCoveringMap f G
+      ↔ IsCoveringMap f ∧ f.Surjective ∧ ContinuousConstSMul G E ∧ IsCancelSMul G E
+        ∧ ∀ {e₁ e₂}, f e₁ = f e₂ ↔ e₁ ∈ MulAction.orbit G e₂ where
+  mp h :=
+    have := h.toContinuousConstSMul
     ⟨h.isCoveringMap, h.surjective, this, h.isCancelSMul, h.apply_eq_iff_mem_orbit⟩
-  mpr h := (isQuotientCoveringMap_iff ..).mpr ⟨h.1.isQuotientMap h.2.1, h.2.2.1, h.2.2.2.2, fun e ↦
-    have ⟨_, U, heU, hU, hfU, H, hH⟩ := h.1 (f e)
-    ⟨Subtype.val '' Prod.snd ∘ H ⁻¹' {(H ⟨e, heU⟩).2}, (hfU.isOpenMap_subtype_val _ <|
-        (isOpen_discrete _).preimage <| by fun_prop).mem_nhds ⟨⟨e, heU⟩, rfl, rfl⟩, fun g ↦ by
-      rintro ⟨_, ⟨_, ⟨x, hx, rfl⟩, rfl⟩, y, hy, eq⟩
-      have := h.2.2.2.1
-      apply IsCancelSMul.right_cancel _ _ x.1
-      simp_rw [← eq, one_smul]
-      congrm $(H.injective <| Prod.ext (Subtype.ext ?_) <| hy.trans hx.symm)
-      simp_rw [hH]
-      exact h.2.2.2.2.mpr ⟨_, eq.symm⟩⟩⟩
+  mpr h :=
+    (isQuotientCoveringMap_iff ..).mpr ⟨
+      h.1.isQuotientMap h.2.1,
+      h.2.2.1,
+      h.2.2.2.2,
+      fun e ↦
+        have ⟨_, U, heU, hU, hfU, H, hH⟩ := h.1 (f e)
+        ⟨
+          Subtype.val '' Prod.snd ∘ H ⁻¹' {(H ⟨e, heU⟩).2},
+          (hfU.isOpenMap_subtype_val _ <| (isOpen_discrete _).preimage <| by fun_prop).mem_nhds
+            ⟨⟨e, heU⟩, rfl, rfl⟩,
+          fun g ↦ by
+            rintro ⟨_, ⟨_, ⟨x, hx, rfl⟩, rfl⟩, y, hy, eq⟩
+            have := h.2.2.2.1
+            apply IsCancelSMul.right_cancel _ _ x.1
+            simp_rw [← eq, one_smul]
+            congrm $(H.injective <| Prod.ext (Subtype.ext ?_) <| hy.trans hx.symm)
+            simp_rw [hH]
+            exact h.2.2.2.2.mpr ⟨_, eq.symm⟩
+        ⟩
+    ⟩

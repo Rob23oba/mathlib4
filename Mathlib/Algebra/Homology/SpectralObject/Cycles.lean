@@ -53,23 +53,23 @@ section
 
 variable {i j k : ι} (f : i ⟶ j) (g : j ⟶ k) (n : ℤ)
 
-/-- The kernel of `δ : H^n(g) ⟶ H^{n+1}(f)`. In the documentation,
-this may be shortened as `Z^n(f, g)` -/
+/--
+The kernel of `δ : H^n(g) ⟶ H^{n+1}(f)`. In the documentation,
+this may be shortened as `Z^n(f, g)`
+-/
 noncomputable def cycles : C := kernel (X.δ f g n (n + 1))
 
-/-- The cokernel of `δ : H^{n-1}(g) ⟶ H^n(g)`. In the documentation,
-this may be shortened as `opZ^n₁(f, g)`. -/
+/--
+The cokernel of `δ : H^{n-1}(g) ⟶ H^n(g)`. In the documentation,
+this may be shortened as `opZ^n₁(f, g)`.
+-/
 noncomputable def opcycles : C := cokernel (X.δ f g (n - 1) n)
 
 /-- The inclusion `Z^n(f, g) ⟶ H^n(g)` of the kernel of `δ`. -/
-noncomputable def iCycles :
-    X.cycles f g n ⟶ (X.H n).obj (mk₁ g) :=
-  kernel.ι _
+noncomputable def iCycles : X.cycles f g n ⟶ (X.H n).obj (mk₁ g) := kernel.ι _
 
 /-- The projection `H^n(f) ⟶ opZ^n(f, g)` to the cokernel of `δ`. -/
-noncomputable def pOpcycles :
-    (X.H n).obj (mk₁ f) ⟶ X.opcycles f g n :=
-  cokernel.π _
+noncomputable def pOpcycles : (X.H n).obj (mk₁ f) ⟶ X.opcycles f g n := cokernel.π _
 
 set_option backward.isDefEq.respectTransparency false in
 instance : Mono (X.iCycles f g n) := by
@@ -113,25 +113,21 @@ lemma δ_pOpcycles (hn₁ : n₀ + 1 = n₁ := by lia) :
 
 /-- The short complex which expresses `X.cycles` as the kernel of `X.δ`. -/
 @[simps]
-noncomputable def kernelSequenceCycles (hn₁ : n₀ + 1 = n₁ := by lia) :
-    ShortComplex C :=
+noncomputable def kernelSequenceCycles (hn₁ : n₀ + 1 = n₁ := by lia) : ShortComplex C :=
   ShortComplex.mk _ _ (X.iCycles_δ f g n₀ n₁ hn₁)
 
 /-- The short complex which expresses `X.opcycles` as the cokernel of `X.δ`. -/
 @[simps]
-noncomputable def cokernelSequenceOpcycles (hn₁ : n₀ + 1 = n₁ := by lia) :
-    ShortComplex C :=
+noncomputable def cokernelSequenceOpcycles (hn₁ : n₀ + 1 = n₁ := by lia) : ShortComplex C :=
   ShortComplex.mk _ _ (X.δ_pOpcycles f g n₀ n₁ hn₁)
 
 set_option backward.defeqAttrib.useBackward true in
-instance (hn₁ : n₀ + 1 = n₁) :
-    Mono (X.kernelSequenceCycles f g n₀ n₁ hn₁).f := by
+instance (hn₁ : n₀ + 1 = n₁) : Mono (X.kernelSequenceCycles f g n₀ n₁ hn₁).f := by
   dsimp
   infer_instance
 
 set_option backward.defeqAttrib.useBackward true in
-instance (hn₁ : n₀ + 1 = n₁) :
-    Epi (X.cokernelSequenceOpcycles f g n₀ n₁ hn₁).g := by
+instance (hn₁ : n₀ + 1 = n₁) : Epi (X.cokernelSequenceOpcycles f g n₀ n₁ hn₁).g := by
   dsimp
   infer_instance
 
@@ -147,13 +143,10 @@ lemma cokernelSequenceOpcycles_exact (hn₁ : n₀ + 1 = n₁ := by lia) :
 
 section
 
-variable (hn₁ : n₀ + 1 = n₁) {A : C} (x : A ⟶ (X.H n₀).obj (mk₁ g))
-    (hx : x ≫ X.δ f g n₀ n₁ hn₁ = 0)
+variable (hn₁ : n₀ + 1 = n₁) {A : C} (x : A ⟶ (X.H n₀).obj (mk₁ g)) (hx : x ≫ X.δ f g n₀ n₁ hn₁ = 0)
 
 /-- Constructor for morphisms to `X.cycles`. -/
-noncomputable def liftCycles :
-    A ⟶ X.cycles f g n₀ :=
-  kernel.lift _ x (by subst hn₁; exact hx)
+noncomputable def liftCycles : A ⟶ X.cycles f g n₀ := kernel.lift _ x (by subst hn₁; exact hx)
 
 @[reassoc (attr := simp)]
 lemma liftCycles_i : X.liftCycles f g n₀ n₁ hn₁ x hx ≫ X.iCycles f g n₀ = x := by
@@ -163,14 +156,12 @@ end
 
 section
 
-variable (hn₁ : n₀ + 1 = n₁) {A : C} (x : (X.H n₁).obj (mk₁ f) ⟶ A)
-    (hx : X.δ f g n₀ n₁ hn₁ ≫ x = 0)
+variable (hn₁ : n₀ + 1 = n₁) {A : C} (x : (X.H n₁).obj (mk₁ f) ⟶ A) (hx : X.δ f g n₀ n₁ hn₁ ≫ x = 0)
 
 /-- Constructor for morphisms from `X.opcycles`. -/
-noncomputable def descOpcycles :
-    X.opcycles f g n₁ ⟶ A :=
+noncomputable def descOpcycles : X.opcycles f g n₁ ⟶ A :=
   cokernel.desc _ x (by
-    obtain rfl : n₀ = n₁ -1 := by lia
+    obtain rfl : n₀ = n₁ - 1 := by lia
     exact hx)
 
 @[reassoc (attr := simp)]
@@ -183,21 +174,25 @@ end
 
 section
 
-variable {i j k : ι} (f : i ⟶ j) (g : j ⟶ k)
+variable
+  {i j k : ι} (f : i ⟶ j) (g : j ⟶ k)
   {i' j' k' : ι} (f' : i' ⟶ j') (g' : j' ⟶ k')
   {i'' j'' k'' : ι} (f'' : i'' ⟶ j'') (g'' : j'' ⟶ k'')
 
-/-- The functoriality of `X.cycles` with respect to morphisms in
-`ComposableArrows ι 2`. -/
-noncomputable def cyclesMap (α : mk₂ f g ⟶ mk₂ f' g') (n : ℤ) :
-    X.cycles f g n ⟶ X.cycles f' g' n :=
+/--
+The functoriality of `X.cycles` with respect to morphisms in
+`ComposableArrows ι 2`.
+-/
+noncomputable def cyclesMap (α : mk₂ f g ⟶ mk₂ f' g') (n : ℤ) : X.cycles f g n ⟶ X.cycles f' g' n :=
   X.liftCycles _ _ _ _ rfl
-    (X.iCycles f g n ≫ (X.H n).map (homMk₁ (α.app 1) (α.app 2)
-      (naturality' α 1 2))) (by
-      rw [Category.assoc, X.δ_naturality f g f' g'
-        (homMk₁ (α.app 0) (α.app 1) (naturality' α 0 1))
+    (X.iCycles f g n ≫ (X.H n).map (homMk₁ (α.app 1) (α.app 2) (naturality' α 1 2)))
+    (by
+      rw [
+        Category.assoc,
+        X.δ_naturality f g f' g' (homMk₁ (α.app 0) (α.app 1) (naturality' α 0 1))
           (homMk₁ (α.app 1) (α.app 2) (naturality' α 1 2)) n (n + 1),
-        iCycles_δ_assoc _ _ _ _ _, zero_comp])
+        iCycles_δ_assoc _ _ _ _ _, zero_comp
+      ])
 
 @[reassoc]
 lemma cyclesMap_i (α : mk₂ f g ⟶ mk₂ f' g') (β : mk₁ g ⟶ mk₁ g') (n : ℤ)
@@ -225,17 +220,21 @@ lemma cyclesMap_comp (α : mk₂ f g ⟶ mk₂ f' g') (α' : mk₂ f' g' ⟶ mk�
     ← Functor.map_comp]
   exact (X.cyclesMap_i _ _ _ _ _ _ _).symm
 
-/-- The functoriality of `X.opcycles` with respect to morphisms in
-`ComposableArrows ι 2`. -/
-noncomputable def opcyclesMap (α : mk₂ f g ⟶ mk₂ f' g') (n : ℤ) :
-    X.opcycles f g n ⟶ X.opcycles f' g' n :=
+/--
+The functoriality of `X.opcycles` with respect to morphisms in
+`ComposableArrows ι 2`.
+-/
+noncomputable def opcyclesMap (α : mk₂ f g ⟶ mk₂ f' g') (n : ℤ)
+    : X.opcycles f g n ⟶ X.opcycles f' g' n :=
   X.descOpcycles _ _ (n - 1) n (by lia)
-    ((X.H n).map (homMk₁ (by exact α.app 0) (by exact α.app 1)
-      (naturality' α 0 1)) ≫ X.pOpcycles f' g' n) (by
-      rw [← X.δ_naturality_assoc f g f' g'
-        (homMk₁ (α.app 0) (α.app 1) (naturality' α 0 1))
-        (homMk₁ (α.app 1) (α.app 2) (naturality' α 1 2)) _ _,
-        δ_pOpcycles _ _ _ _ _, comp_zero])
+    ((X.H n).map (homMk₁ (by exact α.app 0) (by exact α.app 1) (naturality' α 0 1))
+      ≫ X.pOpcycles f' g' n)
+    (by
+      rw [
+        ← X.δ_naturality_assoc f g f' g' (homMk₁ (α.app 0) (α.app 1) (naturality' α 0 1))
+          (homMk₁ (α.app 1) (α.app 2) (naturality' α 1 2)) _ _,
+        δ_pOpcycles _ _ _ _ _, comp_zero
+      ])
 
 @[reassoc]
 lemma p_opcyclesMap (α : mk₂ f g ⟶ mk₂ f' g') (β : mk₁ f ⟶ mk₁ f') (n : ℤ)
@@ -265,10 +264,12 @@ lemma opcyclesMap_comp (α : mk₂ f g ⟶ mk₂ f' g') (α' : mk₂ f' g' ⟶ m
 
 variable (fg : i ⟶ k) (h : f ≫ g = fg) (fg' : i' ⟶ k') (h' : f' ≫ g' = fg')
 
-/-- `X.cycles` also identifies to a cokernel. More precisely,
-`Z^n(f, g)` identifies to the cokernel of `H^n(f) ⟶ H^n(f ≫ g)` -/
-noncomputable def cokernelIsoCycles (n : ℤ) :
-    cokernel ((X.H n).map (twoδ₂Toδ₁ f g fg h)) ≅ X.cycles f g n :=
+/--
+`X.cycles` also identifies to a cokernel. More precisely,
+`Z^n(f, g)` identifies to the cokernel of `H^n(f) ⟶ H^n(f ≫ g)`
+-/
+noncomputable def cokernelIsoCycles (n : ℤ)
+    : cokernel ((X.H n).map (twoδ₂Toδ₁ f g fg h)) ≅ X.cycles f g n :=
   (X.composableArrows₅_exact f g fg h n (n + 1)).cokerIsoKer 0
 
 @[reassoc (attr := simp)]
@@ -277,10 +278,12 @@ lemma cokernelIsoCycles_hom_fac (n : ℤ) :
       X.iCycles f g n = (X.H n).map (twoδ₁Toδ₀ f g fg h) :=
   (X.composableArrows₅_exact f g fg h n (n + 1)).cokerIsoKer_hom_fac 0
 
-/-- `X.opcycles` also identifies to a kernel. More precisely,
-`opZ(f, g)` identifies to the kernel of `H^n(f ≫ g) ⟶ H^n(g)` -/
-noncomputable def opcyclesIsoKernel (n : ℤ) :
-    X.opcycles f g n ≅ kernel ((X.H n).map (twoδ₁Toδ₀ f g fg h)) :=
+/--
+`X.opcycles` also identifies to a kernel. More precisely,
+`opZ(f, g)` identifies to the kernel of `H^n(f ≫ g) ⟶ H^n(g)`
+-/
+noncomputable def opcyclesIsoKernel (n : ℤ)
+    : X.opcycles f g n ≅ kernel ((X.H n).map (twoδ₁Toδ₀ f g fg h)) :=
   (X.composableArrows₅_exact f g fg h (n - 1) n).cokerIsoKer 2
 
 @[reassoc (attr := simp)]
@@ -290,8 +293,7 @@ lemma opcyclesIsoKernel_hom_fac (n : ℤ) :
   (X.composableArrows₅_exact f g fg h (n - 1) n).cokerIsoKer_hom_fac 2
 
 /-- The map `H^n(fg) ⟶ H^n(g)` factors through `Z^n(f, g)`. -/
-noncomputable def toCycles (n : ℤ) :
-    (X.H n).obj (mk₁ fg) ⟶ X.cycles f g n :=
+noncomputable def toCycles (n : ℤ) : (X.H n).obj (mk₁ fg) ⟶ X.cycles f g n :=
   kernel.lift _ ((X.H n).map (twoδ₁Toδ₀ f g fg h)) (by simp)
 
 instance (n : ℤ) : Epi (X.toCycles f g fg h n) :=
@@ -320,8 +322,7 @@ lemma toCycles_cyclesMap (α : mk₂ f g ⟶ mk₂ f' g') (β : mk₁ fg ⟶ mk�
     rw [hβ₁, Category.comp_id, Category.id_comp]
 
 /-- The map `H^n(f) ⟶ H^n(f ≫ g)` factors through `opZ^n(f, g)`. -/
-noncomputable def fromOpcycles (n : ℤ) :
-    X.opcycles f g n ⟶ (X.H n).obj (mk₁ fg) :=
+noncomputable def fromOpcycles (n : ℤ) : X.opcycles f g n ⟶ (X.H n).obj (mk₁ fg) :=
   cokernel.desc _ ((X.H n).map (twoδ₂Toδ₁ f g fg h)) (by simp)
 
 instance (n : ℤ) : Mono (X.fromOpcycles f g fg h n) :=
@@ -360,14 +361,18 @@ lemma fromOpcycles_H_map_twoδ₁Toδ₀ (n : ℤ) :
     X.fromOpcycles f g fg h n ≫ (X.H n).map (twoδ₁Toδ₀ f g fg h) = 0 := by
   simp [← cancel_epi (X.pOpcycles f g n)]
 
-/-- The short complex expressing `Z^n(f, g)` as a cokernel of
-the map `H^n(f) ⟶ H^n(f ≫ g)`. -/
+/--
+The short complex expressing `Z^n(f, g)` as a cokernel of
+the map `H^n(f) ⟶ H^n(f ≫ g)`.
+-/
 @[simps]
 noncomputable def cokernelSequenceCycles (n : ℤ) : ShortComplex C :=
   ShortComplex.mk _ _ (X.H_map_twoδ₂Toδ₁_toCycles f g fg h n)
 
-/-- The short complex expressing `opZ^n(f, g)` as a kernel of
-the map `H^n(f ≫ g) ⟶ H^n(g)`. -/
+/--
+The short complex expressing `opZ^n(f, g)` as a kernel of
+the map `H^n(f ≫ g) ⟶ H^n(g)`.
+-/
 @[simps]
 noncomputable def kernelSequenceOpcycles (n : ℤ) : ShortComplex C :=
   ShortComplex.mk _ _ (X.fromOpcycles_H_map_twoδ₁Toδ₀ f g fg h n)
@@ -416,12 +421,11 @@ lemma isIso_fromOpcycles (n : ℤ) (hg : IsZero ((X.H n).obj (mk₁ g))) :
 
 section
 
-variable {A : C} {n : ℤ} (x : (X.H n).obj (mk₁ fg) ⟶ A)
-  (hx : (X.H n).map (twoδ₂Toδ₁ f g fg h) ≫ x = 0)
+variable
+  {A : C} {n : ℤ} (x : (X.H n).obj (mk₁ fg) ⟶ A) (hx : (X.H n).map (twoδ₂Toδ₁ f g fg h) ≫ x = 0)
 
 /-- Constructor for morphisms from `X.cycles`. -/
-noncomputable def descCycles :
-    X.cycles f g n ⟶ A :=
+noncomputable def descCycles : X.cycles f g n ⟶ A :=
   (X.cokernelSequenceCycles_exact f g fg h n).desc x hx
 
 @[reassoc (attr := simp)]
@@ -433,12 +437,11 @@ end
 
 section
 
-variable {A : C} {n : ℤ} (x : A ⟶ (X.H n).obj (mk₁ fg))
-  (hx : x ≫ (X.H n).map (twoδ₁Toδ₀ f g fg h) = 0)
+variable
+  {A : C} {n : ℤ} (x : A ⟶ (X.H n).obj (mk₁ fg)) (hx : x ≫ (X.H n).map (twoδ₁Toδ₀ f g fg h) = 0)
 
 /-- Constructor for morphisms to `X.opcycles`. -/
-noncomputable def liftOpcycles :
-    A ⟶ X.opcycles f g n :=
+noncomputable def liftOpcycles : A ⟶ X.opcycles f g n :=
   (X.kernelSequenceOpcycles_exact f g fg h n).lift x hx
 
 @[reassoc (attr := simp)]
@@ -452,13 +455,16 @@ end
 
 section
 
-variable {i j k l : ι} (f₁ : i ⟶ j) (f₂ : j ⟶ k) (f₃ : k ⟶ l)
-  (f₁₂ : i ⟶ k) (h₁₂ : f₁ ≫ f₂ = f₁₂) (f₂₃ : j ⟶ l) (h₂₃ : f₂ ≫ f₃ = f₂₃)
+variable
+  {i j k l : ι} (f₁ : i ⟶ j) (f₂ : j ⟶ k) (f₃ : k ⟶ l) (f₁₂ : i ⟶ k) (h₁₂ : f₁ ≫ f₂ = f₁₂)
+  (f₂₃ : j ⟶ l) (h₂₃ : f₂ ≫ f₃ = f₂₃)
   (n₀ n₁ : ℤ)
-/-- The morphism `H^{n₀}(f₃) ⟶ Z^{n₁}(f₁, f₂)` induced by `δ`
-when `f₁`, `f₂`, `f₃` are composable morphisms and `n₀ + 1 = n₁`. -/
-noncomputable def δToCycles (hn₁ : n₀ + 1 = n₁ := by lia) :
-    (X.H n₀).obj (mk₁ f₃) ⟶ X.cycles f₁ f₂ n₁ :=
+/--
+The morphism `H^{n₀}(f₃) ⟶ Z^{n₁}(f₁, f₂)` induced by `δ`
+when `f₁`, `f₂`, `f₃` are composable morphisms and `n₀ + 1 = n₁`.
+-/
+noncomputable def δToCycles (hn₁ : n₀ + 1 = n₁ := by lia)
+    : (X.H n₀).obj (mk₁ f₃) ⟶ X.cycles f₁ f₂ n₁ :=
   X.liftCycles f₁ f₂ _ _ rfl (X.δ f₂ f₃ n₀ n₁) (by simp)
 
 @[reassoc (attr := simp)]
@@ -476,10 +482,12 @@ lemma δ_toCycles (hn₁ : n₀ + 1 = n₁ := by lia) :
     ← X.δ_naturality f₁₂ f₃ f₂ f₃ (twoδ₁Toδ₀ f₁ f₂ f₁₂ h₁₂) (𝟙 _) n₀ n₁,
     Functor.map_id, Category.id_comp]
 
-/-- The morphism `opZ^{n₀}(f₂, f₃) ⟶ H^{n₁}(f₁)` induced by `δ`
-when `f₁`, `f₂`, `f₃` are composable morphisms and `n₀ + 1 = n₁`. -/
-noncomputable def δFromOpcycles (hn₁ : n₀ + 1 = n₁ := by lia) :
-    X.opcycles f₂ f₃ n₀ ⟶ (X.H n₁).obj (mk₁ f₁) :=
+/--
+The morphism `opZ^{n₀}(f₂, f₃) ⟶ H^{n₁}(f₁)` induced by `δ`
+when `f₁`, `f₂`, `f₃` are composable morphisms and `n₀ + 1 = n₁`.
+-/
+noncomputable def δFromOpcycles (hn₁ : n₀ + 1 = n₁ := by lia)
+    : X.opcycles f₂ f₃ n₀ ⟶ (X.H n₁).obj (mk₁ f₁) :=
   X.descOpcycles f₂ f₃ (n₀ - 1) n₀ (by lia) (X.δ f₁ f₂ n₀ n₁ hn₁) (by simp)
 
 @[reassoc (attr := simp)]

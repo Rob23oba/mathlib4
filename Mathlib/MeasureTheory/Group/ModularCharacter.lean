@@ -37,9 +37,11 @@ namespace Measure
 
 variable {G : Type*} [TopologicalSpace G] [Group G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
-/-- The modular character as a map is `g ↦ μ (· * g⁻¹) / μ`, where `μ` is a left Haar measure.
+/--
+The modular character as a map is `g ↦ μ (· * g⁻¹) / μ`, where `μ` is a left Haar measure.
 
-  See also `modularCharacter` that defines the map as a homomorphism. -/
+See also `modularCharacter` that defines the map as a homomorphism.
+-/
 @[to_additive /-- The additive modular character as a map is `g ↦ μ (· - g) / μ`, where `μ` is an
   left additive Haar measure. -/]
 noncomputable def modularCharacterFun (g : G) : ℝ≥0 :=
@@ -124,7 +126,8 @@ lemma modularCharacterFun_map_mul (g h : G) : modularCharacterFun (g * h) =
     _ = haarScalarFactor (map (· * (g * h)) ν) ν := by simp only [map_map mul_h_meas mul_g_meas,
       comp_mul_right, ← haarScalarFactor_eq_mul]
 
-/-- The modular character homomorphism. The underlying function is `modularCharacterFun`, which is
+/--
+The modular character homomorphism. The underlying function is `modularCharacterFun`, which is
 `g ↦ μ (· * g⁻¹) / μ`, where `μ` is a left Haar measure.
 -/
 noncomputable def modularCharacter : G →* ℝ≥0 where

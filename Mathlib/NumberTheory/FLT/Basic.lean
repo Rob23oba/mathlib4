@@ -55,12 +55,14 @@ def FermatLastTheoremWith (R : Type*) [Semiring R] (n : ℕ) : Prop :=
 /-- Statement of Fermat's Last Theorem over the naturals for a given exponent. -/
 def FermatLastTheoremFor (n : ℕ) : Prop := FermatLastTheoremWith ℕ n
 
-/-- Statement of Fermat's Last Theorem: `a ^ n + b ^ n = c ^ n` has no nontrivial natural solution
+/--
+Statement of Fermat's Last Theorem: `a ^ n + b ^ n = c ^ n` has no nontrivial natural solution
 when `n ≥ 3`.
 
 This is now a theorem of Wiles and Taylor--Wiles; see
 https://github.com/ImperialCollegeLondon/FLT for an ongoing Lean formalisation of
-a proof. -/
+a proof.
+-/
 def FermatLastTheorem : Prop := ∀ n ≥ 3, FermatLastTheoremFor n
 
 lemma fermatLastTheoremFor_zero : FermatLastTheoremFor 0 :=
@@ -164,8 +166,9 @@ exponent, allowing nonzero solutions of units and their common multiples.
    can be shown elementarily using Mason--Stothers theorem.
 -/
 def FermatLastTheoremWith' (R : Type*) [CommSemiring R] (n : ℕ) : Prop :=
-  ∀ a b c : R, a ≠ 0 → b ≠ 0 → c ≠ 0 → a ^ n + b ^ n = c ^ n →
-    ∃ d a' b' c', (a = a' * d ∧ b = b' * d ∧ c = c' * d) ∧ (IsUnit a' ∧ IsUnit b' ∧ IsUnit c')
+  ∀ a b c : R,
+    a ≠ 0 → b ≠ 0 → c ≠ 0 → a ^ n + b ^ n = c ^ n
+      → ∃ d a' b' c', (a = a' * d ∧ b = b' * d ∧ c = c' * d) ∧ (IsUnit a' ∧ IsUnit b' ∧ IsUnit c')
 
 lemma FermatLastTheoremWith.fermatLastTheoremWith' {R : Type*} [CommSemiring R] {n : ℕ}
     (h : FermatLastTheoremWith R n) : FermatLastTheoremWith' R n :=

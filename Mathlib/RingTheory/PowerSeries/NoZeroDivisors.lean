@@ -24,7 +24,6 @@ If `R` has `NoZeroDivisors`, then so does `R⟦X⟧`.
 
 public section
 
-
 variable {R : Type*}
 
 namespace PowerSeries
@@ -42,13 +41,14 @@ end NoZeroDivisors
 
 section IsDomain
 
-instance [Ring R] [IsDomain R] : IsDomain R⟦X⟧ :=
-  NoZeroDivisors.to_isDomain _
+instance [Ring R] [IsDomain R] : IsDomain R⟦X⟧ := NoZeroDivisors.to_isDomain _
 
 variable [CommRing R] [IsDomain R]
 
-/-- The ideal spanned by the variable in the power series ring
-over an integral domain is a prime ideal. -/
+/--
+The ideal spanned by the variable in the power series ring
+over an integral domain is a prime ideal.
+-/
 theorem span_X_isPrime : (Ideal.span ({X} : Set R⟦X⟧)).IsPrime := by
   suffices Ideal.span ({X} : Set R⟦X⟧) = RingHom.ker constantCoeff by
     rw [this]

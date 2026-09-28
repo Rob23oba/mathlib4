@@ -31,8 +31,10 @@ namespace ObjectProperty
 
 variable (P : ObjectProperty C)
 
-/-- Given `P : ObjectProperty C`, we say that `P` is closed under subobjects,
-if for any monomorphism `X ⟶ Y`, `P Y` implies `P X`. -/
+/--
+Given `P : ObjectProperty C`, we say that `P` is closed under subobjects,
+if for any monomorphism `X ⟶ Y`, `P Y` implies `P X`.
+-/
 class IsClosedUnderSubobjects : Prop where
   prop_of_mono {X Y : C} (f : X ⟶ Y) [Mono f] (hY : P Y) : P X
 
@@ -51,12 +53,11 @@ lemma prop_X₁_of_shortExact [HasZeroMorphisms C] {S : ShortComplex C} (hS : S.
   have := hS.mono_f
   exact P.prop_of_mono S.f h₂
 
-instance (F : D ⥤ C) [F.PreservesMonomorphisms] :
-    (P.inverseImage F).IsClosedUnderSubobjects where
+instance (F : D ⥤ C) [F.PreservesMonomorphisms] : (P.inverseImage F).IsClosedUnderSubobjects where
   prop_of_mono f _ h := P.prop_of_mono (F.map f) h
 
-instance {ι : Type*} (P : ι → ObjectProperty C) [∀ i, (P i).IsClosedUnderSubobjects] :
-    (⨆ i, P i).IsClosedUnderSubobjects where
+instance {ι : Type*} (P : ι → ObjectProperty C) [∀ i, (P i).IsClosedUnderSubobjects]
+    : (⨆ i, P i).IsClosedUnderSubobjects where
   prop_of_mono f _ h := by
     simp only [prop_iSup_iff] at h ⊢
     obtain ⟨i, hi⟩ := h
@@ -66,8 +67,10 @@ end
 
 section
 
-/-- Given `P : ObjectProperty C`, we say that `P` is closed under quotients,
-if for any epimorphism `X ⟶ Y`, `P X` implies `P Y`. -/
+/--
+Given `P : ObjectProperty C`, we say that `P` is closed under quotients,
+if for any epimorphism `X ⟶ Y`, `P X` implies `P Y`.
+-/
 class IsClosedUnderQuotients : Prop where
   prop_of_epi {X Y : C} (f : X ⟶ Y) [Epi f] (hX : P X) : P Y
 
@@ -84,12 +87,11 @@ lemma prop_X₃_of_shortExact [HasZeroMorphisms C] {S : ShortComplex C} (hS : S.
   have := hS.epi_g
   exact P.prop_of_epi S.g h₂
 
-instance (F : D ⥤ C) [F.PreservesEpimorphisms] :
-    (P.inverseImage F).IsClosedUnderQuotients where
+instance (F : D ⥤ C) [F.PreservesEpimorphisms] : (P.inverseImage F).IsClosedUnderQuotients where
   prop_of_epi f _ h := P.prop_of_epi (F.map f) h
 
-instance {ι : Type*} (P : ι → ObjectProperty C) [∀ i, (P i).IsClosedUnderQuotients] :
-    (⨆ i, P i).IsClosedUnderQuotients where
+instance {ι : Type*} (P : ι → ObjectProperty C) [∀ i, (P i).IsClosedUnderQuotients]
+    : (⨆ i, P i).IsClosedUnderQuotients where
   prop_of_epi f _ h := by
     simp only [prop_iSup_iff] at h ⊢
     obtain ⟨i, hi⟩ := h

@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 public import Mathlib.Topology.CompactOpen
-
 import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 import Mathlib.Analysis.Normed.Group.Basic
 
@@ -65,17 +64,18 @@ lemma ContinuousMap.iSup_comap_le_borel :
   simp_rw [iSup_le_iff, ← measurable_iff_comap_le]
   exact ContinuousMap.measurable_eval
 
-variable [SecondCountableTopology X] [SecondCountableTopology Y]
-  [LocallyCompactSpace X] [RegularSpace Y]
+variable
+  [SecondCountableTopology X] [SecondCountableTopology Y] [LocallyCompactSpace X] [RegularSpace Y]
 
 namespace ContinuousMap
 
-/-- The sigma-algebra over `C(X, Y)` is the coarsest that makes the maps `f ↦ f x` measurable
+/--
+The sigma-algebra over `C(X, Y)` is the coarsest that makes the maps `f ↦ f x` measurable
 for all `x : X`.
 
-The proof follows the one presented on <https://math.stackexchange.com/questions/4789531/when-does-the-borel-sigma-algebra-of-compact-convergence-coincide-with-the-pr>. -/
-theorem borel_eq_iSup_comap_eval :
-    borel C(X, Y) = ⨆ x : X, (borel Y).comap fun f ↦ f x := by
+The proof follows the one presented on <https://math.stackexchange.com/questions/4789531/when-does-the-borel-sigma-algebra-of-compact-convergence-coincide-with-the-pr>.
+-/
+theorem borel_eq_iSup_comap_eval : borel C(X, Y) = ⨆ x : X, (borel Y).comap fun f ↦ f x := by
   refine le_antisymm ?_ iSup_comap_le_borel
   -- Denote `M(K, U)` the set of functions `f` such that `Set.MapsTo f K U`. These form a
   -- basis for the compact-open topology when `K` is compact and `U` is open.
@@ -91,8 +91,7 @@ theorem borel_eq_iSup_comap_eval :
   -- of sets of `countableBasis Y`.
   let V := Set.sUnion '' {f : Set (Set Y) | f.Finite ∧ f ⊆ countableBasis Y}
   have hV : IsTopologicalBasis V := (isBasis_countableBasis Y).finite_sUnion
-  have cV : V.Countable :=
-    (Set.countable_ofPred_finite_subset (countable_countableBasis Y)).image _
+  have cV : V.Countable := (Set.countable_ofPred_finite_subset (countable_countableBasis Y)).image _
   -- Because `Y` is regular, we have `U = ⋃_{v ∈ V, closure v ⊆ U} v`.
   -- For any continuous `f` such that `f '' K ⊆ U`, because `K` is compact, `f '' K` is compact.
   -- Because the set `{v ∈ V, closure v ⊆ U}` is a directed set of open sets that covers `f '' K`,
@@ -101,18 +100,21 @@ theorem borel_eq_iSup_comap_eval :
     simp_rw [Set.mapsTo_iff_image_subset] at hf ⊢
     rw [hV.open_eq_sUnion_of_closure_subset hU] at hf
     obtain ⟨b, ⟨hb1, hb2⟩, hb3⟩ : ∃ b, (b ∈ V ∧ closure b ⊆ U) ∧ f '' K ⊆ b := by
-      refine (hK.image f.continuous).elim_directedOn_cover _
-        (fun v hv ↦ hV.isOpen hv.1) hf ?_ ?_
+      refine (hK.image f.continuous).elim_directedOn_cover _ (fun v hv ↦ hV.isOpen hv.1) hf ?_ ?_
       · rintro - ⟨⟨f, ⟨hf1, hf2⟩, rfl⟩, hf3⟩ - ⟨⟨g, ⟨hg1, hg2⟩, rfl⟩, hg3⟩
-        exact ⟨⋃₀ (f ∪ g), ⟨⟨f ∪ g, ⟨hf1.union hg1, by grind⟩, rfl⟩,
-          by simp_all [Set.sUnion_union]⟩, by grind, by grind⟩
+        exact ⟨
+          ⋃₀(f ∪ g),
+          ⟨⟨f ∪ g, ⟨hf1.union hg1, by grind⟩, rfl⟩, by simp_all [Set.sUnion_union]⟩,
+          by grind,
+          by grind
+        ⟩
       · obtain ⟨v, ⟨hv1, hv2⟩, hv3⟩ := hV.nhds_basis_closure x |>.mem_iff.1 <| hU.mem_nhds hx
         exact ⟨v, hv2, hv3⟩
     exact ⟨b, hb1, hb2, hb3.trans subset_closure⟩
   -- Therefore, we obtain that
   -- `M(K, U) = ⋃_{u ∈ V, closure u ⊆ U}, M(K, closure u)`.
-  have : {f : C(X, Y) | K.MapsTo f U} =
-      ⋃ u ∈ V, ⋃ (_ : closure u ⊆ U), {f : C(X, Y) | K.MapsTo f (closure u)} := by
+  have : {f : C(X, Y) | K.MapsTo f U}
+      = ⋃ u ∈ V, ⋃ (_ : closure u ⊆ U), {f : C(X, Y) | K.MapsTo f (closure u)} := by
     ext f
     simpa using ⟨by grind, fun ⟨u, hu1, hu2, hu3⟩ ↦ hu3.mono_right hu1⟩
   simp_rw [this]
@@ -170,8 +172,7 @@ def continuousMapToFun : C(X, Y) ≃ᵐ {f : X → Y // Continuous f} where
   invFun f := ⟨f.1, f.2⟩
   left_inv f := rfl
   right_inv f := rfl
-  measurable_toFun :=
-    .subtype_mk (.of_eval fun _ ↦ (continuous_eval_const _).measurable)
+  measurable_toFun := .subtype_mk (.of_eval fun _ ↦ (continuous_eval_const _).measurable)
   measurable_invFun :=
     ContinuousMap.measurable_iff_eval.2 fun x ↦ by simpa using measurable_subtype_coe.eval
 

@@ -23,27 +23,27 @@ namespace Pi
 variable {ι : Type*} [DecidableEq ι] {α : ι → Sort*}
 
 /-- Given `α : ι → Sort*`, `Pi.nil α` is the trivial dependent function out of the empty list. -/
-def nil (α : ι → Sort*) : (∀ i ∈ ([] : List ι), α i) :=
-  nofun
+def nil (α : ι → Sort*) : (∀ i ∈ ([] : List ι), α i) := nofun
 
 variable {i : ι} {l : List ι}
 
 /-- Given `f` a function whose domain is `i :: l`, get its value at `i`. -/
-def head (f : ∀ j ∈ i :: l, α j) : α i :=
-  f i mem_cons_self
+def head (f : ∀ j ∈ i :: l, α j) : α i := f i mem_cons_self
 
-/-- Given `f` a function whose domain is `i :: l`, produce a function whose domain
-is restricted to `l`. -/
-def tail (f : ∀ j ∈ i :: l, α j) : ∀ j ∈ l, α j :=
-  fun j hj ↦ f j (mem_cons_of_mem _ hj)
+/--
+Given `f` a function whose domain is `i :: l`, produce a function whose domain
+is restricted to `l`.
+-/
+def tail (f : ∀ j ∈ i :: l, α j) : ∀ j ∈ l, α j := fun j hj ↦ f j (mem_cons_of_mem _ hj)
 
 variable (i l)
 
-/-- Given `α : ι → Sort*`, a list `l` and a term `i`, as well as a term `a : α i` and a
+/--
+Given `α : ι → Sort*`, a list `l` and a term `i`, as well as a term `a : α i` and a
 function `f` such that `f j : α j` for all `j` in `l`, `Pi.cons a f` is a function `g` such
-that `g k : α k` for all `k` in `i :: l`. -/
-def cons (a : α i) (f : ∀ j ∈ l, α j) : ∀ j ∈ i :: l, α j :=
-  Multiset.Pi.cons (α := ι) l _ a f
+that `g k : α k` for all `k` in `i :: l`.
+-/
+def cons (a : α i) (f : ∀ j ∈ l, α j) : ∀ j ∈ i :: l, α j := Multiset.Pi.cons (α := ι) l _ a f
 
 variable {i l}
 
@@ -75,8 +75,10 @@ variable {ι : Type*} [DecidableEq ι] {α : ι → Type*}
 
 /-- `pi xs f` creates the list of functions `g` such that, for `x ∈ xs`, `g x ∈ f x` -/
 def pi : ∀ l : List ι, (∀ i, List (α i)) → List (∀ i, i ∈ l → α i)
-  | [], _ => [List.Pi.nil α]
-  | i :: l, fs => (fs i).flatMap (fun b ↦ (pi l fs).map (List.Pi.cons _ _ b))
+  | [], _ =>
+    [List.Pi.nil α]
+  | i :: l, fs =>
+    (fs i).flatMap (fun b ↦ (pi l fs).map (List.Pi.cons _ _ b))
 
 @[simp] lemma pi_nil (t : ∀ i, List (α i)) :
     pi [] t = [Pi.nil α] :=

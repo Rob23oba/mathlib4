@@ -45,9 +45,8 @@ namespace ProbabilityTheory
 section GaussianPDF
 
 /-- Probability density function of the Gaussian distribution with mean `μ` and variance `v`. -/
-noncomputable
-def gaussianPDFReal (μ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ :=
-  (√(2 * π * v))⁻¹ * rexp (-(x - μ) ^ 2 / (2 * v))
+noncomputable def gaussianPDFReal (μ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ :=
+  (√(2 * π * v))⁻¹ * rexp (- (x - μ) ^ 2 / (2 * v))
 
 lemma gaussianPDFReal_def (μ : ℝ) (v : ℝ≥0) :
     gaussianPDFReal μ v =
@@ -162,8 +161,8 @@ lemma gaussianPDFReal_mul {μ : ℝ} {v : ℝ≥0} {c : ℝ} (hc : c ≠ 0) (x :
   simp
 
 /-- The pdf of a Gaussian distribution on ℝ with mean `μ` and variance `v`. -/
-noncomputable
-def gaussianPDF (μ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ := ENNReal.ofReal (gaussianPDFReal μ v x)
+noncomputable def gaussianPDF (μ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
+  ENNReal.ofReal (gaussianPDFReal μ v x)
 
 lemma gaussianPDF_def (μ : ℝ) (v : ℝ≥0) :
     gaussianPDF μ v = fun x ↦ ENNReal.ofReal (gaussianPDFReal μ v x) := rfl
@@ -218,8 +217,7 @@ section GaussianReal
 
 /-- A Gaussian distribution on `ℝ` with mean `μ` and variance `v`. -/
 @[wikidata Q133871]
-noncomputable
-def gaussianReal (μ : ℝ) (v : ℝ≥0) : Measure ℝ :=
+noncomputable def gaussianReal (μ : ℝ) (v : ℝ≥0) : Measure ℝ :=
   if v = 0 then Measure.dirac μ else volume.withDensity (gaussianPDF μ v)
 
 lemma gaussianReal_of_var_ne_zero (μ : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
@@ -228,8 +226,8 @@ lemma gaussianReal_of_var_ne_zero (μ : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
 @[simp]
 lemma gaussianReal_zero_var (μ : ℝ) : gaussianReal μ 0 = Measure.dirac μ := ite_eq_left rfl
 
-instance instIsProbabilityMeasureGaussianReal (μ : ℝ) (v : ℝ≥0) :
-    IsProbabilityMeasure (gaussianReal μ v) where
+instance instIsProbabilityMeasureGaussianReal (μ : ℝ) (v : ℝ≥0)
+    : IsProbabilityMeasure (gaussianReal μ v) where
   measure_univ := by by_cases h : v = 0 <;> simp [gaussianReal_of_var_ne_zero, h]
 
 lemma nullSingletonClass_gaussianReal {μ : ℝ} {v : ℝ≥0} (h : v ≠ 0) :
@@ -437,13 +435,16 @@ variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {p : Measure Ω} {μ : ℝ} {v 
 
 -- see https://github.com/leanprover-community/mathlib4/issues/29041
 set_option linter.unusedSimpArgs false in
-/-- The complex moment-generating function of a Gaussian distribution with mean `μ` and variance `v`
-is given by `z ↦ exp (z * μ + v * z ^ 2 / 2)`. -/
-theorem complexMGF_id_gaussianReal (z : ℂ) :
-    complexMGF id (gaussianReal μ v) z = cexp (z * μ + v * z ^ 2 / 2) := by
+/--
+The complex moment-generating function of a Gaussian distribution with mean `μ` and variance `v`
+is given by `z ↦ exp (z * μ + v * z ^ 2 / 2)`.
+-/
+theorem complexMGF_id_gaussianReal (z : ℂ)
+    : complexMGF id (gaussianReal μ v) z = cexp (z * μ + v * z ^ 2 / 2) := by
   by_cases hv : v = 0
   · simp [complexMGF, hv]
-  calc ∫ x, cexp (z * x) ∂gaussianReal μ v
+  calc
+    ∫ x, cexp (z * x) ∂gaussianReal μ v
     _ = ∫ x, gaussianPDFReal μ v x * cexp (z * x) ∂ℙ := by
       simp_rw [integral_gaussianReal_eq_integral_smul hv, Complex.real_smul]
     _ = (√(2 * π * v))⁻¹
@@ -455,13 +456,15 @@ theorem complexMGF_id_gaussianReal (z : ℂ) :
       congr 1
       ring
     _ = (√(2 * π * v))⁻¹ * (π / - -(2 * v)⁻¹) ^ (1 / 2 : ℂ)
-        * cexp (-μ ^ 2 / (2 * v) - (z + μ / v) ^ 2 / (4 * -(2 * v)⁻¹)) := by
+        * cexp (- μ ^ 2 / (2 * v) - (z + μ / v) ^ 2 / (4 * -(2 * v)⁻¹)) := by
       rw [integral_cexp_quadratic (by simpa using pos_iff_ne_zero.mpr hv), ← mul_assoc]
-    _ = 1 * cexp (-μ ^ 2 / (2 * v) - (z + μ / v) ^ 2 / (4 * -(2 * v)⁻¹)) := by
+    _ = 1 * cexp (- μ ^ 2 / (2 * v) - (z + μ / v) ^ 2 / (4 * -(2 * v)⁻¹)) := by
       congr 1
-      simp only [field, sqrt_eq_rpow, one_div, ofReal_inv, NNReal.coe_inv, NNReal.coe_mul,
-        NNReal.coe_ofNat, ofReal_mul, ofReal_ofNat, neg_neg, div_inv_eq_mul,
-        ne_eq, ofReal_eq_zero, rpow_eq_zero, not_false_eq_true]
+      simp only [
+        field, sqrt_eq_rpow, one_div, ofReal_inv, NNReal.coe_inv, NNReal.coe_mul, NNReal.coe_ofNat,
+        ofReal_mul, ofReal_ofNat, neg_neg, div_inv_eq_mul, ne_eq, ofReal_eq_zero, rpow_eq_zero,
+        not_false_eq_true
+      ]
       rw [Complex.ofReal_cpow (by positivity)]
       push_cast
       ring_nf
@@ -472,32 +475,40 @@ theorem complexMGF_id_gaussianReal (z : ℂ) :
       simp [field]
       ring
 
-/-- The complex moment-generating function of a random variable with Gaussian distribution
-with mean `μ` and variance `v` is given by `z ↦ exp (z * μ + v * z ^ 2 / 2)`. -/
-theorem complexMGF_gaussianReal (hX : HasLaw X (gaussianReal μ v) p) (z : ℂ) :
-    complexMGF X p z = cexp (z * μ + v * z ^ 2 / 2) := by
+/--
+The complex moment-generating function of a random variable with Gaussian distribution
+with mean `μ` and variance `v` is given by `z ↦ exp (z * μ + v * z ^ 2 / 2)`.
+-/
+theorem complexMGF_gaussianReal (hX : HasLaw X (gaussianReal μ v) p) (z : ℂ)
+    : complexMGF X p z = cexp (z * μ + v * z ^ 2 / 2) := by
   rw [← complexMGF_id_map hX.aemeasurable, hX.map_eq, complexMGF_id_gaussianReal]
 
-/-- The characteristic function of a Gaussian distribution with mean `μ` and variance `v`
-is given by `t ↦ exp (t * μ - v * t ^ 2 / 2)`. -/
-theorem charFun_gaussianReal (t : ℝ) :
-    charFun (gaussianReal μ v) t = cexp (t * μ * I - v * t ^ 2 / 2) := by
+/--
+The characteristic function of a Gaussian distribution with mean `μ` and variance `v`
+is given by `t ↦ exp (t * μ - v * t ^ 2 / 2)`.
+-/
+theorem charFun_gaussianReal (t : ℝ)
+    : charFun (gaussianReal μ v) t = cexp (t * μ * I - v * t ^ 2 / 2) := by
   rw [← complexMGF_id_mul_I, complexMGF_id_gaussianReal]
   congr
   simp only [mul_pow, I_sq, mul_neg, mul_one, sub_eq_add_neg]
   ring_nf
 
-/-- The moment-generating function of a random variable with Gaussian distribution
-with mean `μ` and variance `v` is given by `t ↦ exp (μ * t + v * t ^ 2 / 2)`. -/
-theorem mgf_gaussianReal (hX : HasLaw X (gaussianReal μ v) p) (t : ℝ) :
-    mgf X p t = rexp (μ * t + v * t ^ 2 / 2) := by
+/--
+The moment-generating function of a random variable with Gaussian distribution
+with mean `μ` and variance `v` is given by `t ↦ exp (μ * t + v * t ^ 2 / 2)`.
+-/
+theorem mgf_gaussianReal (hX : HasLaw X (gaussianReal μ v) p) (t : ℝ)
+    : mgf X p t = rexp (μ * t + v * t ^ 2 / 2) := by
   suffices (mgf X p t : ℂ) = rexp (μ * t + ↑v * t ^ 2 / 2) from mod_cast this
-  rw [← mgf_id_map hX.aemeasurable, ← complexMGF_ofReal, hX.map_eq, complexMGF_id_gaussianReal,
-    mul_comm μ]
+  rw [
+    ← mgf_id_map hX.aemeasurable, ← complexMGF_ofReal, hX.map_eq, complexMGF_id_gaussianReal,
+    mul_comm μ
+  ]
   norm_cast
 
-theorem mgf_fun_id_gaussianReal :
-    mgf (fun x ↦ x) (gaussianReal μ v) = fun t ↦ rexp (μ * t + v * t ^ 2 / 2) := by
+theorem mgf_fun_id_gaussianReal
+    : mgf (fun x ↦ x) (gaussianReal μ v) = fun t ↦ rexp (μ * t + v * t ^ 2 / 2) := by
   ext t
   rw [mgf_gaussianReal]
   simp
@@ -505,10 +516,12 @@ theorem mgf_fun_id_gaussianReal :
 theorem mgf_id_gaussianReal : mgf id (gaussianReal μ v) = fun t ↦ rexp (μ * t + v * t ^ 2 / 2) :=
   mgf_fun_id_gaussianReal
 
-/-- The cumulant-generating function of a random variable with Gaussian distribution
-with mean `μ` and variance `v` is given by `t ↦ μ * t + v * t ^ 2 / 2`. -/
-theorem cgf_gaussianReal (hX : HasLaw X (gaussianReal μ v) p) (t : ℝ) :
-    cgf X p t = μ * t + v * t ^ 2 / 2 := by
+/--
+The cumulant-generating function of a random variable with Gaussian distribution
+with mean `μ` and variance `v` is given by `t ↦ μ * t + v * t ^ 2 / 2`.
+-/
+theorem cgf_gaussianReal (hX : HasLaw X (gaussianReal μ v) p) (t : ℝ)
+    : cgf X p t = μ * t + v * t ^ 2 / 2 := by
   rw [cgf, mgf_gaussianReal hX t, Real.log_exp]
 
 lemma integrable_exp_mul_gaussianReal (t : ℝ) :
@@ -648,8 +661,10 @@ lemma gaussianReal_conv_gaussianReal {m₁ m₂ : ℝ} {v₁ v₂ : ℝ≥0} :
   simp only [Complex.ofReal_add, NNReal.coe_add]
   ring_nf
 
-/- The sum of two real Gaussian variables with means `m₁, m₂` and variances `v₁, v₂` is a real
-Gaussian distribution with mean `m₁ + m₂` and variance `v_1 + v_2`. -/
+/-
+The sum of two real Gaussian variables with means `m₁, m₂` and variances `v₁, v₂` is a real
+Gaussian distribution with mean `m₁ + m₂` and variance `v_1 + v_2`.
+-/
 lemma gaussianReal_add_gaussianReal_of_indepFun {Ω} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
     {m₁ m₂ : ℝ} {v₁ v₂ : ℝ≥0} {X Y : Ω → ℝ} (hXY : IndepFun X Y P)
     (hX : HasLaw X (gaussianReal m₁ v₁) P) (hY : HasLaw Y (gaussianReal m₂ v₂) P) :

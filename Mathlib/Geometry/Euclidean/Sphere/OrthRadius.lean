@@ -24,7 +24,6 @@ This file defines the affine subspace orthogonal to the radius vector at a point
 
 @[expose] public section
 
-
 namespace EuclideanGeometry
 
 namespace Sphere
@@ -36,9 +35,11 @@ open scoped RealInnerProductSpace Affine
 variable {V P : Type*}
 variable [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P]
 
-/-- The affine subspace orthogonal to the radius vector of the sphere `s` at the point `p` (if
+/--
+The affine subspace orthogonal to the radius vector of the sphere `s` at the point `p` (if
 `p` lies in `s`, this is the tangent space; generally, this is the polar of the inversion of `p`
-in `s`). -/
+in `s`).
+-/
 noncomputable def orthRadius (s : Sphere P) (p : P) : AffineSubspace ℝ P :=
   .mk' p (ℝ ∙ (p -ᵥ s.center))ᗮ
 

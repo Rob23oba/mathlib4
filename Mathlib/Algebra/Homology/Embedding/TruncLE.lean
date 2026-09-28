@@ -25,31 +25,38 @@ In order to achieve this, we dualize the constructions from the file
 
 open CategoryTheory Limits ZeroObject Category
 
-variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'}
-  {C : Type*} [Category* C] [HasZeroMorphisms C]
+variable
+  {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'} {C : Type*}
+  [Category* C] [HasZeroMorphisms C]
 
 namespace HomologicalComplex
 
-variable (K L M : HomologicalComplex C c') (φ : K ⟶ L) (φ' : L ⟶ M)
-  (e : c.Embedding c') [e.IsTruncLE]
-  [∀ i', K.HasHomology i'] [∀ i', L.HasHomology i'] [∀ i', M.HasHomology i']
+variable
+  (K L M : HomologicalComplex C c') (φ : K ⟶ L) (φ' : L ⟶ M)
+  (e : c.Embedding c')
+  [e.IsTruncLE] [∀ i', K.HasHomology i'] [∀ i', L.HasHomology i'] [∀ i', M.HasHomology i']
 
-/-- The canonical truncation of a homological complex relative to an embedding
-of complex shapes `e` which satisfies `e.IsTruncLE`. -/
+/--
+The canonical truncation of a homological complex relative to an embedding
+of complex shapes `e` which satisfies `e.IsTruncLE`.
+-/
 noncomputable def truncLE' : HomologicalComplex C c := (K.op.truncGE' e.op).unop
 
-/-- The isomorphism `(K.truncLE' e).X i ≅ K.X i'` when `e.f i = i'`
-and `e.BoundaryLE i` does not hold. -/
-noncomputable def truncLE'XIso {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : ¬ e.BoundaryLE i) :
-    (K.truncLE' e).X i ≅ K.X i' :=
+/--
+The isomorphism `(K.truncLE' e).X i ≅ K.X i'` when `e.f i = i'`
+and `e.BoundaryLE i` does not hold.
+-/
+noncomputable def truncLE'XIso {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : ¬ e.BoundaryLE i)
+    : (K.truncLE' e).X i ≅ K.X i' :=
   (K.op.truncGE'XIso e.op hi' (by simpa)).symm.unop
 
-/-- The isomorphism `(K.truncLE' e).X i ≅ K.cycles i'` when `e.f i = i'`
-and `e.BoundaryLE i` holds. -/
-noncomputable def truncLE'XIsoCycles {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : e.BoundaryLE i) :
-    (K.truncLE' e).X i ≅ K.cycles i' :=
-  (K.op.truncGE'XIsoOpcycles e.op hi' (by simpa)).unop.symm ≪≫
-    (K.opcyclesOpIso i').unop.symm
+/--
+The isomorphism `(K.truncLE' e).X i ≅ K.cycles i'` when `e.f i = i'`
+and `e.BoundaryLE i` holds.
+-/
+noncomputable def truncLE'XIsoCycles {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : e.BoundaryLE i)
+    : (K.truncLE' e).X i ≅ K.cycles i' :=
+  (K.op.truncGE'XIsoOpcycles e.op hi' (by simpa)).unop.symm ≪≫ (K.opcyclesOpIso i').unop.symm
 
 lemma truncLE'_d_eq {i j : ι} (hij : c.Rel i j) {i' j' : ι'}
     (hi' : e.f i = i') (hj' : e.f j = j') (hj : ¬ e.BoundaryLE j) :
@@ -70,26 +77,31 @@ section
 
 variable [HasZeroObject C]
 
-/-- The canonical truncation of a homological complex relative to an embedding
-of complex shapes `e` which satisfies `e.IsTruncLE`. -/
+/--
+The canonical truncation of a homological complex relative to an embedding
+of complex shapes `e` which satisfies `e.IsTruncLE`.
+-/
 noncomputable def truncLE : HomologicalComplex C c' := (K.op.truncGE e.op).unop
 
 /-- The canonical isomorphism `K.truncLE e ≅ (K.truncLE' e).extend e`. -/
 noncomputable def truncLEIso : K.truncLE e ≅ (K.truncLE' e).extend e :=
   (unopFunctor C c'.symm).mapIso ((K.truncLE' e).extendOpIso e).symm.op
 
-/-- The isomorphism `(K.truncLE e).X i' ≅ K.X i'` when `e.f i = i'`
-and `e.BoundaryLE i` does not hold. -/
-noncomputable def truncLEXIso {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : ¬ e.BoundaryLE i) :
-    (K.truncLE e).X i' ≅ K.X i' :=
+/--
+The isomorphism `(K.truncLE e).X i' ≅ K.X i'` when `e.f i = i'`
+and `e.BoundaryLE i` does not hold.
+-/
+noncomputable def truncLEXIso {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : ¬ e.BoundaryLE i)
+    : (K.truncLE e).X i' ≅ K.X i' :=
   (K.op.truncGEXIso e.op hi' (by simpa)).unop.symm
 
-/-- The isomorphism `(K.truncLE e).X i' ≅ K.cycles i'` when `e.f i = i'`
-and `e.BoundaryLE i` holds. -/
-noncomputable def truncLEXIsoCycles {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : e.BoundaryLE i) :
-    (K.truncLE e).X i' ≅ K.cycles i' :=
-  (K.op.truncGEXIsoOpcycles e.op hi' (by simpa)).unop.symm ≪≫
-    (K.opcyclesOpIso i').unop.symm
+/--
+The isomorphism `(K.truncLE e).X i' ≅ K.cycles i'` when `e.f i = i'`
+and `e.BoundaryLE i` holds.
+-/
+noncomputable def truncLEXIsoCycles {i : ι} {i' : ι'} (hi' : e.f i = i') (hi : e.BoundaryLE i)
+    : (K.truncLE e).X i' ≅ K.cycles i' :=
+  (K.op.truncGEXIsoOpcycles e.op hi' (by simpa)).unop.symm ≪≫ (K.opcyclesOpIso i').unop.symm
 
 end
 
@@ -168,18 +180,18 @@ lemma truncLE'ToRestriction_naturality :
 instance (i : ι) : Mono ((K.truncLE'ToRestriction e).f i) :=
   inferInstanceAs (Mono ((K.op.restrictionToTruncGE' e.op).f i).unop)
 
-instance [K.IsStrictlySupported e] (i : ι) :
-    IsIso ((K.truncLE'ToRestriction e).f i) :=
+instance [K.IsStrictlySupported e] (i : ι) : IsIso ((K.truncLE'ToRestriction e).f i) :=
   inferInstanceAs (IsIso ((K.op.restrictionToTruncGE' e.op).f i).unop)
 
 section
 
 variable [HasZeroObject C]
 
-/-- The canonical morphism `K.truncLE e ⟶ K` when `e` is an embedding of complex
-shapes which satisfy `e.IsTruncLE`. -/
-noncomputable def ιTruncLE : K.truncLE e ⟶ K :=
-  (unopFunctor C c'.symm).map (K.op.πTruncGE e.op).op
+/--
+The canonical morphism `K.truncLE e ⟶ K` when `e` is an embedding of complex
+shapes which satisfy `e.IsTruncLE`.
+-/
+noncomputable def ιTruncLE : K.truncLE e ⟶ K := (unopFunctor C c'.symm).map (K.op.πTruncGE e.op).op
 
 instance (i' : ι') : Mono ((K.ιTruncLE e).f i') :=
   inferInstanceAs (Mono ((K.op.πTruncGE e.op).f i').unop)
@@ -197,8 +209,8 @@ lemma ιTruncLE_naturality :
   (unopFunctor C c'.symm).congr_map (congr_arg Quiver.Hom.op
     (πTruncGE_naturality ((opFunctor C c').map φ.op) e.op))
 
-instance {ι'' : Type*} {c'' : ComplexShape ι''} (e' : c''.Embedding c')
-    [K.IsStrictlySupported e'] : (K.truncLE e).IsStrictlySupported e' := by
+instance {ι'' : Type*} {c'' : ComplexShape ι''} (e' : c''.Embedding c') [K.IsStrictlySupported e']
+    : (K.truncLE e).IsStrictlySupported e' := by
   rw [← isStrictlySupported_op_iff]
   exact inferInstanceAs ((K.op.truncGE e.op).IsStrictlySupported e'.op)
 
@@ -215,31 +227,33 @@ end HomologicalComplex
 
 namespace ComplexShape.Embedding
 
-variable (e : Embedding c c') [e.IsTruncLE]
-    (C : Type*) [Category* C] [HasZeroMorphisms C] [HasZeroObject C] [CategoryWithHomology C]
+variable
+  (e : Embedding c c') [e.IsTruncLE]
+  (C : Type*) [Category* C] [HasZeroMorphisms C] [HasZeroObject C] [CategoryWithHomology C]
 
-/-- Given an embedding `e : Embedding c c'` of complex shapes which satisfy `e.IsTruncLE`,
+/--
+Given an embedding `e : Embedding c c'` of complex shapes which satisfy `e.IsTruncLE`,
 this is the (canonical) truncation functor
-`HomologicalComplex C c' ⥤ HomologicalComplex C c`. -/
+`HomologicalComplex C c' ⥤ HomologicalComplex C c`.
+-/
 @[simps]
-noncomputable def truncLE'Functor :
-    HomologicalComplex C c' ⥤ HomologicalComplex C c where
+noncomputable def truncLE'Functor : HomologicalComplex C c' ⥤ HomologicalComplex C c where
   obj K := K.truncLE' e
   map φ := HomologicalComplex.truncLE'Map φ e
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The natural transformation `K.truncGE' e ⟶ K.restriction e` for all `K`. -/
 @[simps]
-noncomputable def truncLE'ToRestrictionNatTrans :
-    e.truncLE'Functor C ⟶ e.restrictionFunctor C where
+noncomputable def truncLE'ToRestrictionNatTrans : e.truncLE'Functor C ⟶ e.restrictionFunctor C where
   app K := K.truncLE'ToRestriction e
 
-/-- Given an embedding `e : Embedding c c'` of complex shapes which satisfy `e.IsTruncLE`,
+/--
+Given an embedding `e : Embedding c c'` of complex shapes which satisfy `e.IsTruncLE`,
 this is the (canonical) truncation functor
-`HomologicalComplex C c' ⥤ HomologicalComplex C c'`. -/
+`HomologicalComplex C c' ⥤ HomologicalComplex C c'`.
+-/
 @[simps]
-noncomputable def truncLEFunctor :
-    HomologicalComplex C c' ⥤ HomologicalComplex C c' where
+noncomputable def truncLEFunctor : HomologicalComplex C c' ⥤ HomologicalComplex C c' where
   obj K := K.truncLE e
   map φ := HomologicalComplex.truncLEMap φ e
 

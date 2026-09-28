@@ -33,31 +33,31 @@ variable {s t : Set α}
 namespace Set
 
 @[simp]
-theorem disjoint_iUnion_left {ι : Sort*} {s : ι → Set α} :
-    Disjoint (⋃ i, s i) t ↔ ∀ i, Disjoint (s i) t :=
+theorem disjoint_iUnion_left {ι : Sort*} {s : ι → Set α}
+    : Disjoint (⋃ i, s i) t ↔ ∀ i, Disjoint (s i) t :=
   iSup_disjoint_iff
 
 @[simp]
-theorem disjoint_iUnion_right {ι : Sort*} {s : ι → Set α} :
-    Disjoint t (⋃ i, s i) ↔ ∀ i, Disjoint t (s i) :=
+theorem disjoint_iUnion_right {ι : Sort*} {s : ι → Set α}
+    : Disjoint t (⋃ i, s i) ↔ ∀ i, Disjoint t (s i) :=
   disjoint_iSup_iff
 
-theorem disjoint_iUnion₂_left {s : ∀ i, κ i → Set α} {t : Set α} :
-    Disjoint (⋃ (i) (j), s i j) t ↔ ∀ i j, Disjoint (s i j) t :=
+theorem disjoint_iUnion₂_left {s : ∀ i, κ i → Set α} {t : Set α}
+    : Disjoint (⋃ (i) (j), s i j) t ↔ ∀ i j, Disjoint (s i j) t :=
   iSup₂_disjoint_iff
 
-theorem disjoint_iUnion₂_right {s : Set α} {t : ∀ i, κ i → Set α} :
-    Disjoint s (⋃ (i) (j), t i j) ↔ ∀ i j, Disjoint s (t i j) :=
+theorem disjoint_iUnion₂_right {s : Set α} {t : ∀ i, κ i → Set α}
+    : Disjoint s (⋃ (i) (j), t i j) ↔ ∀ i j, Disjoint s (t i j) :=
   disjoint_iSup₂_iff
 
 @[simp]
-theorem disjoint_sUnion_left {S : Set (Set α)} {t : Set α} :
-    Disjoint (⋃₀ S) t ↔ ∀ s ∈ S, Disjoint s t :=
+theorem disjoint_sUnion_left {S : Set (Set α)} {t : Set α}
+    : Disjoint (⋃₀S) t ↔ ∀ s ∈ S, Disjoint s t :=
   sSup_disjoint_iff
 
 @[simp]
-theorem disjoint_sUnion_right {s : Set α} {S : Set (Set α)} :
-    Disjoint s (⋃₀ S) ↔ ∀ t ∈ S, Disjoint s t :=
+theorem disjoint_sUnion_right {s : Set α} {S : Set (Set α)}
+    : Disjoint s (⋃₀S) ↔ ∀ t ∈ S, Disjoint s t :=
   disjoint_sSup_iff
 
 lemma biUnion_compl_eq_of_pairwise_disjoint_of_iUnion_eq_univ {ι : Type*} {Es : ι → Set α}
@@ -84,10 +84,11 @@ namespace Set
 
 variable (t : α → Set β)
 
-/-- If `t` is an indexed family of sets, then there is a natural map from `Σ i, t i` to `⋃ i, t i`
-sending `⟨i, x⟩` to `x`. -/
-def sigmaToiUnion (x : Σ i, t i) : ⋃ i, t i :=
-  ⟨x.2, mem_iUnion.2 ⟨x.1, x.2.2⟩⟩
+/--
+If `t` is an indexed family of sets, then there is a natural map from `Σ i, t i` to `⋃ i, t i`
+sending `⟨i, x⟩` to `x`.
+-/
+def sigmaToiUnion (x : Σ i, t i) : ⋃ i, t i := ⟨x.2, mem_iUnion.2 ⟨x.1, x.2.2⟩⟩
 
 theorem sigmaToiUnion_surjective : Surjective (sigmaToiUnion t)
   | ⟨b, hb⟩ =>
@@ -95,8 +96,7 @@ theorem sigmaToiUnion_surjective : Surjective (sigmaToiUnion t)
     let ⟨a, hb⟩ := this
     ⟨⟨a, b, hb⟩, rfl⟩
 
-theorem sigmaToiUnion_injective (h : Pairwise (Disjoint on t)) :
-    Injective (sigmaToiUnion t)
+theorem sigmaToiUnion_injective (h : Pairwise (Disjoint on t)) : Injective (sigmaToiUnion t)
   | ⟨a₁, b₁, h₁⟩, ⟨a₂, b₂, h₂⟩, eq =>
     have b_eq : b₁ = b₂ := congr_arg Subtype.val eq
     have a_eq : a₁ = a₂ :=
@@ -105,22 +105,23 @@ theorem sigmaToiUnion_injective (h : Pairwise (Disjoint on t)) :
         (h ne).le_bot this
     Sigma.eq a_eq <| Subtype.ext <| by subst b_eq; subst a_eq; rfl
 
-theorem sigmaToiUnion_bijective (h : Pairwise (Disjoint on t)) :
-    Bijective (sigmaToiUnion t) :=
+theorem sigmaToiUnion_bijective (h : Pairwise (Disjoint on t)) : Bijective (sigmaToiUnion t) :=
   ⟨sigmaToiUnion_injective t h, sigmaToiUnion_surjective t⟩
 
-/-- Equivalence from the disjoint union of a family of sets forming a partition of `β`, to `β`
-itself. -/
-noncomputable def sigmaEquiv (s : α → Set β) (hs : ∀ b, ∃! i, b ∈ s i) :
-    (Σ i, s i) ≃ β where
-  toFun | ⟨_, b⟩ => b
+/--
+Equivalence from the disjoint union of a family of sets forming a partition of `β`, to `β`
+itself.
+-/
+noncomputable def sigmaEquiv (s : α → Set β) (hs : ∀ b, ∃! i, b ∈ s i) : (Σ i, s i) ≃ β where
+  toFun
+    | ⟨_, b⟩ => b
   invFun b := ⟨(hs b).choose, b, (hs b).choose_spec.1⟩
-  left_inv | ⟨i, b, hb⟩ => Sigma.subtype_ext ((hs b).choose_spec.2 i hb).symm rfl
+  left_inv
+    | ⟨i, b, hb⟩ => Sigma.subtype_ext ((hs b).choose_spec.2 i hb).symm rfl
 
 /-- Equivalence between a disjoint union and a dependent sum. -/
-noncomputable def unionEqSigmaOfDisjoint {t : α → Set β}
-    (h : Pairwise (Disjoint on t)) :
-    (⋃ i, t i) ≃ Σ i, t i :=
+noncomputable def unionEqSigmaOfDisjoint {t : α → Set β} (h : Pairwise (Disjoint on t))
+    : (⋃ i, t i) ≃ Σ i, t i :=
   (Equiv.ofBijective _ <| sigmaToiUnion_bijective t h).symm
 
 @[simp]

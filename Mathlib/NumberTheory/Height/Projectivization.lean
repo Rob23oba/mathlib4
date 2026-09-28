@@ -41,13 +41,17 @@ private lemma logHeight_aux (a b : { v : ι → K // v ≠ 0 }) (t : K) (h : a.v
 -- We do not expose the bodies of these definitions so that we can keep the "_aux" lemmas
 -- above private.
 
-/-- The multiplicative height of a point on a finite-dimensional projective space over `K`
-with a given basis. -/
+/--
+The multiplicative height of a point on a finite-dimensional projective space over `K`
+with a given basis.
+-/
 noncomputable def mulHeight (x : Projectivization K (ι → K)) : ℝ :=
   x.lift (fun r ↦ Height.mulHeight r.val) mulHeight_aux
 
-/-- The logarithmic height of a point on a finite-dimensional projective space over `K`
-with a given basis. -/
+/--
+The logarithmic height of a point on a finite-dimensional projective space over `K`
+with a given basis.
+-/
 noncomputable def logHeight (x : Projectivization K (ι → K)) : ℝ :=
   x.lift (fun r ↦ Height.logHeight r.val) logHeight_aux
 
@@ -83,22 +87,32 @@ open Lean.Meta Qq Projectivization
 
 /-- Extension for the `positivity` tactic: `Projectivization.mulHeight` is always positive. -/
 @[positivity Projectivization.mulHeight _]
-meta def evalProjMulHeight : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@mulHeight $K $KF $KA $ι $ιF $a) =>
-    assertInstancesCommute
-    pure (.positive q(mulHeight_pos $a))
-  | _, _, _ => throwError "not Projectivization.mulHeight"
+meta def evalProjMulHeight : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@mulHeight $K $KF $KA $ι $ιF $a) =>
+        assertInstancesCommute
+        pure (.positive q(mulHeight_pos $a))
+      | _, _, _ =>
+        throwError "not Projectivization.mulHeight"
 
 /-- Extension for the `positivity` tactic: `Projectivization.logHeight` is always nonnegative. -/
 @[positivity Projectivization.logHeight _]
-meta def evalProjLogHeight : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@logHeight $K $KF $KA $ι $ιF $a) =>
-    assertInstancesCommute
-    pure (.nonnegative q(logHeight_nonneg $a))
-  | _, _, _ => throwError "not Projectivization.logHeight"
+meta def evalProjLogHeight : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@logHeight $K $KF $KA $ι $ιF $a) =>
+        assertInstancesCommute
+        pure (.nonnegative q(logHeight_nonneg $a))
+      | _, _, _ =>
+        throwError "not Projectivization.logHeight"
 
 end Mathlib.Meta.Positivity

@@ -32,16 +32,17 @@ ideals here.
 
 @[expose] public section
 
-/- Since `Mathlib/LinearAlgebra/Quotient/Basic.lean` and
+/-
+Since `Mathlib/LinearAlgebra/Quotient/Basic.lean` and
 `Mathlib/RingTheory/Ideal/Quotient/Defs.lean` do not import each other, and the first file that
 imports both of them is `Mathlib/RingTheory/Ideal/Quotient/Operations.lean`, which has already
 established the first isomorphism theorem and Chinese remainder theorem, we put these pure technical
-lemmas that involves both `Submodule.mapQ` and `Ideal.Quotient.factor` in this file. -/
+lemmas that involves both `Submodule.mapQ` and `Ideal.Quotient.factor` in this file.
+-/
 
 open Ideal Quotient
 
-variable {R : Type*} [Ring R] {I J K : Ideal R}
-    {M : Type*} [AddCommGroup M] [Module R M]
+variable {R : Type*} [Ring R] {I J K : Ideal R} {M : Type*} [AddCommGroup M] [Module R M]
 
 lemma Ideal.Quotient.factor_ker (H : I ≤ J) [I.IsTwoSided] [J.IsTwoSided] :
     RingHom.ker (factor H) = J.map (Ideal.Quotient.mk I) := by
@@ -95,12 +96,12 @@ open Submodule
 section
 
 @[simp]
-theorem mapQ_eq_factor (h : I ≤ J) (x : R ⧸ I) :
-    mapQ I J LinearMap.id h x = factor h x := rfl
+theorem mapQ_eq_factor (h : I ≤ J) (x : R ⧸ I) : mapQ I J LinearMap.id h x = factor h x := rfl
 
 @[simp]
-theorem factor_eq_factor [I.IsTwoSided] [J.IsTwoSided] (h : I ≤ J) (x : R ⧸ I) :
-    Submodule.factor h x = Ideal.Quotient.factor h x := rfl
+theorem factor_eq_factor [I.IsTwoSided] [J.IsTwoSided] (h : I ≤ J) (x : R ⧸ I)
+    : Submodule.factor h x = Ideal.Quotient.factor h x :=
+  rfl
 
 end
 
@@ -117,13 +118,15 @@ To future contributors: Before adding lemmas related to `Submodule.factorPow`, p
 check whether it can be generalized to `Submodule.factor` and whether the
 corresponding (more general) lemma for `Submodule.factor` already exists.
 -/
-abbrev factorPow {m n : ℕ} (le : m ≤ n) :
-    M ⧸ (I ^ n • ⊤ : Submodule R M) →ₗ[R] M ⧸ (I ^ m • ⊤ : Submodule R M) :=
+abbrev factorPow {m n : ℕ} (le : m ≤ n)
+    : M ⧸ (I ^ n • ⊤ : Submodule R M) →ₗ[R] M ⧸ (I ^ m • ⊤ : Submodule R M) :=
   factor (smul_mono_left (Ideal.pow_le_pow_right le))
 
 /-- `factorPow` for `n = m + 1` -/
-abbrev factorPowSucc (m : ℕ) : M ⧸ (I ^ (m + 1) • ⊤ : Submodule R M) →ₗ[R]
-    M ⧸ (I ^ m • ⊤ : Submodule R M) := factorPow I M (Nat.le_succ m)
+abbrev factorPowSucc (m : ℕ)
+    : M ⧸ (I ^ (m + 1) • ⊤ : Submodule R M) →ₗ[R]
+      M ⧸ (I ^ m • ⊤ : Submodule R M) :=
+  factorPow I M (Nat.le_succ m)
 
 end Submodule
 
@@ -143,12 +146,10 @@ To future contributors: Before adding lemmas related to `Ideal.factorPow`, pleas
 check whether it can be generalized to `Ideal.factor` and whether the corresponding
 (more general) lemma for `Ideal.factor` already exists.
 -/
-abbrev factorPow {m n : ℕ} (le : n ≤ m) : R ⧸ I ^ m →+* R ⧸ I ^ n :=
-  factor (pow_le_pow_right le)
+abbrev factorPow {m n : ℕ} (le : n ≤ m) : R ⧸ I ^ m →+* R ⧸ I ^ n := factor (pow_le_pow_right le)
 
 /-- `factorPow` for `m = n + 1` -/
-abbrev factorPowSucc (n : ℕ) : R ⧸ I ^ (n + 1) →+* R ⧸ I ^ n :=
-  factorPow I (Nat.le_succ n)
+abbrev factorPowSucc (n : ℕ) : R ⧸ I ^ (n + 1) →+* R ⧸ I ^ n := factorPow I (Nat.le_succ n)
 
 end Quotient
 
@@ -188,31 +189,35 @@ variable {M : Type*} [AddCommGroup M] [Module R M] {a b c : ℕ}
 namespace Submodule
 
 variable (M) in
-/-- The canonical inclusion from `I ^ a • N ⧸ I ^ b • (I ^ a • N)` to `M ⧸ I ^ c • N`
-when `c = b + a`. -/
-def powSMulQuotInclusion (h : c = b + a) (N : Submodule R M) :
-    ↑(I ^ a • N) ⧸ (I ^ b • ⊤ : Submodule R ↑(I ^ a • N)) →ₗ[R] M ⧸ (I ^ c • N) :=
+/--
+The canonical inclusion from `I ^ a • N ⧸ I ^ b • (I ^ a • N)` to `M ⧸ I ^ c • N`
+when `c = b + a`.
+-/
+def powSMulQuotInclusion (h : c = b + a) (N : Submodule R M)
+    : ↑(I ^ a • N) ⧸ (I ^ b • ⊤ : Submodule R ↑(I ^ a • N)) →ₗ[R] M ⧸ (I ^ c • N) :=
   mapQ _ _ (I ^ a • N).subtype <| by simp [← map_le_iff_le_comap, h, pow_add, mul_smul]
 
 @[simp]
-theorem powSMulQuotInclusion_mk (h : c = b + a) (N : Submodule R M)
-    (x : ↑(I ^ a • N)) : powSMulQuotInclusion I M h N (Quotient.mk x) = Quotient.mk (x : M) := rfl
+theorem powSMulQuotInclusion_mk (h : c = b + a) (N : Submodule R M) (x : ↑(I ^ a • N))
+    : powSMulQuotInclusion I M h N (Quotient.mk x) = Quotient.mk (x : M) :=
+  rfl
 
-theorem powSMulQuotInclusion_injective {a b c : ℕ} (h : c = b + a) (N : Submodule R M) :
-    Function.Injective (powSMulQuotInclusion I M h N) := by
+theorem powSMulQuotInclusion_injective {a b c : ℕ} (h : c = b + a) (N : Submodule R M)
+    : Function.Injective (powSMulQuotInclusion I M h N) := by
   rw [← LinearMap.ker_eq_bot]
-  simp [powSMulQuotInclusion, mapQ, ← le_bot_iff, ker_liftQ, LinearMap.ker_comp, pow_add, mul_smul,
-    map_le_iff_le_comap, ← Submodule.map_le_map_iff_of_injective (I ^ a • N).subtype_injective, h]
+  simp [
+    powSMulQuotInclusion, mapQ, ← le_bot_iff, ker_liftQ, LinearMap.ker_comp, pow_add, mul_smul,
+    map_le_iff_le_comap, ← Submodule.map_le_map_iff_of_injective (I ^ a • N).subtype_injective, h
+  ]
 
-theorem factorPow_comp_powSMulQuotInclusion {d e : ℕ} (h : c = b + a) (h' : e = d + c) :
-    factorPow I M (show c ≤ e by lia) ∘ₗ
-      powSMulQuotInclusion I M (show e = (b + d) + a by lia) ⊤ =
-    powSMulQuotInclusion I M h ⊤ ∘ₗ
-      factorPow I ↥(I ^ a • ⊤ : Submodule R M) (b.le_add_right d) := by
+theorem factorPow_comp_powSMulQuotInclusion {d e : ℕ} (h : c = b + a) (h' : e = d + c)
+    : factorPow I M (show c ≤ e by lia) ∘ₗ powSMulQuotInclusion I M (show e = (b + d) + a by lia) ⊤
+      = powSMulQuotInclusion I M h ⊤
+        ∘ₗ factorPow I (↥(I ^ a • ⊤ : Submodule R M)) (b.le_add_right d) := by
   ext; rfl
 
-theorem range_powSMulQuotInclusion (h : c = b + a) (N : Submodule R M) :
-    (powSMulQuotInclusion I M h N).range = (I ^ a • N).map (mkQ (I ^ c • N)) := by
+theorem range_powSMulQuotInclusion (h : c = b + a) (N : Submodule R M)
+    : (powSMulQuotInclusion I M h N).range = (I ^ a • N).map (mkQ (I ^ c • N)) := by
   simp [powSMulQuotInclusion, mapQ, range_liftQ, LinearMap.range_comp]
 
 end Submodule

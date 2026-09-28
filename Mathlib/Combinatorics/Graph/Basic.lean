@@ -76,7 +76,8 @@ variable {α β : Type*} {x y z u v w : α} {e f : β}
 
 open Set
 
-/-- A multigraph with vertices of type `α` and edges of type `β`,
+/--
+A multigraph with vertices of type `α` and edges of type `β`,
 as described by vertex and edge sets `vertexSet : Set α` and `edgeSet : Set β`,
 and a predicate `IsLink` describing whether an edge `e : β` has vertices `x y : α` as its ends.
 
@@ -91,8 +92,10 @@ definitional equality reasons.
 structure Graph (α β : Type*) where
   /-- The vertex set. -/
   vertexSet : Set α
-  /-- The binary incidence predicate, stating that `x` and `y` are the ends of an edge `e`.
-  If `G.IsLink e x y` then we refer to `e` as `edge` and `x` and `y` as `left` and `right`. -/
+  /--
+  The binary incidence predicate, stating that `x` and `y` are the ends of an edge `e`.
+  If `G.IsLink e x y` then we refer to `e` as `edge` and `x` and `y` as `left` and `right`.
+  -/
   IsLink : β → α → α → Prop
   /-- The edge set. -/
   edgeSet : Set β := {e | ∃ x y, IsLink e x y}
@@ -186,9 +189,11 @@ lemma IsLink.isLink_iff_sym2_eq (h : G.IsLink e x y) {x' y' : α} :
 
 /-! ### Edge-vertex incidence -/
 
-/-- The unary incidence predicate of `G`. `G.Inc e x` means that the vertex `x`
+/--
+The unary incidence predicate of `G`. `G.Inc e x` means that the vertex `x`
 is one or both of the ends of the edge `e`.
-In the `Inc` namespace, we use `edge` and `vertex` to refer to `e` and `x`. -/
+In the `Inc` namespace, we use `edge` and `vertex` to refer to `e` and `x`.
+-/
 def Inc (G : Graph α β) (e : β) (x : α) : Prop := ∃ y, G.IsLink e x y
 
 -- Cannot be @[simp] because `x` cannot be inferred by `simp`.
@@ -230,8 +235,10 @@ lemma isLink_iff_inc : G.IsLink e x y ↔ G.Inc e x ∧ G.Inc e y ∧ ∀ z, G.I
     exact hy'.symm
   assumption
 
-/-- Given a proof that the edge `e` is incident with the vertex `x` in `G`,
-noncomputably find the other end of `e`. (If `e` is a loop, this is equal to `x` itself). -/
+/--
+Given a proof that the edge `e` is incident with the vertex `x` in `G`,
+noncomputably find the other end of `e`. (If `e` is a loop, this is equal to `x` itself).
+-/
 protected noncomputable def Inc.other (h : G.Inc e x) : α := h.choose
 
 @[simp]
@@ -277,9 +284,11 @@ lemma IsLoopAt.edge_mem (h : G.IsLoopAt e x) : e ∈ E(G) :=
 lemma IsLoopAt.vertex_mem (h : G.IsLoopAt e x) : x ∈ V(G) :=
   h.inc.vertex_mem
 
-/-- `G.IsNonloopAt e x` means that the vertex `x` is one but not both of the ends of the edge =`e`,
+/--
+`G.IsNonloopAt e x` means that the vertex `x` is one but not both of the ends of the edge =`e`,
 or equivalently that `e` is incident with `x` but not a loop at `x` -
-see `Graph.isNonloopAt_iff_inc_not_isLoopAt`. -/
+see `Graph.isNonloopAt_iff_inc_not_isLoopAt`.
+-/
 def IsNonloopAt (G : Graph α β) (e : β) (x : α) : Prop := ∃ y ≠ x, G.IsLink e x y
 
 lemma IsNonloopAt.inc (h : G.IsNonloopAt e x) : G.Inc e x :=
@@ -367,13 +376,18 @@ lemma ext_inc {G₁ G₂ : Graph α β} (hV : V(G₁) = V(G₂)) (h : ∀ e x, G
     G₁ = G₂ :=
   Graph.ext hV fun _ _ _ ↦ by simp_rw [isLink_iff_inc, h]
 
-/-- `Graph.copy` produces a graph equal to `G` but with provided definitional choices
+/--
+`Graph.copy` produces a graph equal to `G` but with provided definitional choices
 for `vertexSet`, `edgeSet`, and `IsLink`. This is mainly useful for improving
-definitional equalities while keeping the same underlying graph. -/
+definitional equalities while keeping the same underlying graph.
+-/
 @[simps -isSimp]
-def copy (G : Graph α β) {vertexSet : Set α} {edgeSet : Set β} {IsLink : β → α → α → Prop}
+def copy
+    (G : Graph α β)
+    {vertexSet : Set α} {edgeSet : Set β} {IsLink : β → α → α → Prop}
     (hvertexSet : V(G) = vertexSet) (hedgeSet : E(G) = edgeSet)
-    (hIsLink : ∀ e x y, G.IsLink e x y ↔ IsLink e x y) : Graph α β where
+    (hIsLink : ∀ e x y, G.IsLink e x y ↔ IsLink e x y)
+    : Graph α β where
   vertexSet := vertexSet
   edgeSet := edgeSet
   IsLink := IsLink
@@ -401,19 +415,14 @@ lemma copy_eq (G : Graph α β) {V : Set α} {E : Set β} {IsLink : β → α �
 /-- `G.incidenceSet x` is the set of edges incident to `x` in `G`. -/
 def incidenceSet (x : α) : Set β := {e | G.Inc e x}
 
-@[simp]
-theorem mem_incidenceSet (x : α) (e : β) : e ∈ G.incidenceSet x ↔ G.Inc e x :=
-  Iff.rfl
+@[simp] theorem mem_incidenceSet (x : α) (e : β) : e ∈ G.incidenceSet x ↔ G.Inc e x := Iff.rfl
 
-theorem incidenceSet_subset_edgeSet (x : α) : G.incidenceSet x ⊆ E(G) :=
-  fun _ ⟨_, hy⟩ ↦ hy.edge_mem
+theorem incidenceSet_subset_edgeSet (x : α) : G.incidenceSet x ⊆ E(G) := fun _ ⟨_, hy⟩ ↦ hy.edge_mem
 
 /-- `G.loopSet x` is the set of loops at `x` in `G`. -/
 def loopSet (x : α) : Set β := {e | G.IsLoopAt e x}
 
-@[simp]
-theorem mem_loopSet (x : α) (e : β) : e ∈ G.loopSet x ↔ G.IsLoopAt e x :=
-  Iff.rfl
+@[simp] theorem mem_loopSet (x : α) (e : β) : e ∈ G.loopSet x ↔ G.IsLoopAt e x := Iff.rfl
 
 /-- The loopSet is included in the incidenceSet. -/
 theorem loopSet_subset_incidenceSet (x : α) : G.loopSet x ⊆ G.incidenceSet x := fun _ he ↦ ⟨x, he⟩
@@ -481,8 +490,9 @@ def noEdge (vertexSet : Set α) (β : Type*) : Graph α β where
   eq_or_eq_of_isLink_of_isLink := by simp
   edge_mem_iff_exists_isLink := by simp
 
-theorem noEdge_isLink (vertexSet : Set α) (β : Type*) (e : β) (x y : α) :
-    (noEdge vertexSet β).IsLink e x y ↔ False := Iff.rfl
+theorem noEdge_isLink (vertexSet : Set α) (β : Type*) (e : β) (x y : α)
+    : (noEdge vertexSet β).IsLink e x y ↔ False :=
+  Iff.rfl
 
 variable {vertexSet : Set α} {edgeSet : Set β}
 
@@ -536,11 +546,12 @@ lemma banana_empty : banana u v ∅ = Graph.noEdge {u, v} β := by
 
 /-! ### Graphs with one vertex  -/
 
-/-- A graph with one vertex and loops at that vertex. This is an abbreviation for the special case
-  of `banana` where the two vertices are the same. Most lemmas about `bouquet` should instead be
-  proved using `banana` instead. -/
-abbrev bouquet (v : α) (edgeSet : Set β) : Graph α β :=
-  banana v v edgeSet
+/--
+A graph with one vertex and loops at that vertex. This is an abbreviation for the special case
+of `banana` where the two vertices are the same. Most lemmas about `bouquet` should instead be
+proved using `banana` instead.
+-/
+abbrev bouquet (v : α) (edgeSet : Set β) : Graph α β := banana v v edgeSet
 
 lemma vertexSet_bouquet (v : α) (edgeSet : Set β) : V(bouquet v edgeSet) = {v} := by simp
 

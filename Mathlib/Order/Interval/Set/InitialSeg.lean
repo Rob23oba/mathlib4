@@ -73,9 +73,12 @@ alias principalSegIioIicOfLE_toRelEmbedding := principalSegIioIicOfLE_apply
 
 end Set
 
-/-- If `f : α <i β` is a principal segment, this is the induced order
-isomorphism `α ≃o Iio f.top`. -/
+/--
+If `f : α <i β` is a principal segment, this is the induced order
+isomorphism `α ≃o Iio f.top`.
+-/
 @[simps! apply_coe]
-noncomputable def PrincipalSeg.orderIsoIio {α β : Type*} [PartialOrder α] [PartialOrder β]
-    (f : α <i β) : α ≃o Set.Iio f.top :=
+noncomputable def PrincipalSeg.orderIsoIio
+    {α β : Type*} [PartialOrder α] [PartialOrder β] (f : α <i β)
+    : α ≃o Set.Iio f.top :=
   .ofRelIsoLT f.subrelIso.symm

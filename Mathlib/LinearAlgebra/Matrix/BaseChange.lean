@@ -25,8 +25,10 @@ public section
 
 namespace Matrix
 
-variable {m n L : Type*} [Finite m] [Fintype n] [DecidableEq m] [Field L]
-  (e : m ≃ n) (K : Subfield L) {A : Matrix m n L} {B : Matrix n m L} (hAB : A * B = 1)
+variable
+  {m n L : Type*} [Finite m] [Fintype n] [DecidableEq m] [Field L]
+  (e : m ≃ n) (K : Subfield L)
+  {A : Matrix m n L} {B : Matrix n m L} (hAB : A * B = 1)
 
 include e hAB
 

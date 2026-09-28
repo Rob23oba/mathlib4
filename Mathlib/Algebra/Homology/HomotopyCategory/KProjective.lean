@@ -37,11 +37,12 @@ variable {C : Type*} [Category* C] [Abelian C]
 -- is acyclic, then `HomComplex K L` is acyclic. (The condition below
 -- is equivalent to the acyclicity of `HomComplex K L` in degree
 -- `0`, and the general case follows by shifting `L`.)
-/-- A cochain complex `K` is K-projective if any morphism `K ⟶ L`
-with `L` acyclic is homotopic to zero. -/
+/--
+A cochain complex `K` is K-projective if any morphism `K ⟶ L`
+with `L` acyclic is homotopic to zero.
+-/
 class IsKProjective (K : CochainComplex C ℤ) : Prop where
-  nonempty_homotopy_zero {L : CochainComplex C ℤ} (f : K ⟶ L) :
-    L.Acyclic → Nonempty (Homotopy f 0)
+  nonempty_homotopy_zero {L : CochainComplex C ℤ} (f : K ⟶ L) : L.Acyclic → Nonempty (Homotopy f 0)
 
 /-- A choice of homotopy to zero for a morphism from a
 K-projective cochain complex to an acyclic cochain complex. -/
@@ -86,8 +87,7 @@ lemma IsKProjective.leftOrthogonal (K : CochainComplex C ℤ) [K.IsKProjective] 
         ((HomotopyCategory.quotient _ _).obj K) := by
   rwa [← isKProjective_iff_leftOrthogonal]
 
-instance (K : CochainComplex C ℤ) [hK : K.IsKProjective] (n : ℤ) :
-    (K⟦n⟧).IsKProjective := by
+instance (K : CochainComplex C ℤ) [hK : K.IsKProjective] (n : ℤ) : (K⟦n⟧).IsKProjective := by
   rw [isKProjective_iff_leftOrthogonal] at hK ⊢
   exact ObjectProperty.prop_of_iso _
     (((HomotopyCategory.quotient C (.up ℤ)).commShiftIso n).symm.app K)
@@ -123,8 +123,8 @@ lemma isKProjective_of_projective (K : CochainComplex C ℤ) (d : ℤ)
     exact (K.isZero_of_isStrictlyLE d _ (by dsimp; lia)).op
   exact isKProjective_of_op (isKInjective_of_injective L (-d))
 
-instance (K : ChainComplex C ℕ) [∀ n, Projective (K.X n)] :
-    CochainComplex.IsKProjective (K.extend ComplexShape.embeddingDownNat) :=
+instance (K : ChainComplex C ℕ) [∀ n, Projective (K.X n)]
+    : CochainComplex.IsKProjective (K.extend ComplexShape.embeddingDownNat) :=
   CochainComplex.isKProjective_of_projective _ 0
 
 end CochainComplex

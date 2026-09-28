@@ -23,8 +23,10 @@ namespace AlgebraicGeometry
 
 variable {X Y : Scheme.{u}}
 
-/-- A local isomorphism of schemes is a morphism that is (Zariski-)source-locally an
-open immersion. -/
+/--
+A local isomorphism of schemes is a morphism that is (Zariski-)source-locally an
+open immersion.
+-/
 @[mk_iff]
 class IsLocalIso (f : X ⟶ Y) : Prop where
   exists_isOpenImmersion (x : X) : ∃ (U : X.Opens), x ∈ U ∧ IsOpenImmersion (U.ι ≫ f)

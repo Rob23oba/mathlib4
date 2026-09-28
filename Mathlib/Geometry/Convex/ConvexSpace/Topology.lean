@@ -28,9 +28,11 @@ variable (R : Type u) [PartialOrder R] [Ring R] [TopologicalSpace R]
 
 namespace Convexity.StdSimplex
 
-/-- The topology on `StdSimplex R ι` that is induced by the embedding
+/--
+The topology on `StdSimplex R ι` that is induced by the embedding
 `StdSimplex R ι → (ι → R)`. This is the correct topoplogy only when
-`ι` is finite, see `StdSimplex.isEmbedding_toFun_comp_weights`. -/
+`ι` is finite, see `StdSimplex.isEmbedding_toFun_comp_weights`.
+-/
 abbrev topologicalSpaceInduced (ι : Type*) : TopologicalSpace (StdSimplex R ι) :=
   .induced (fun t ↦ t.weights : StdSimplex R ι → ι → R) inferInstance
 
@@ -78,16 +80,17 @@ end topologicalSpaceInduced
 variable [IsStrictOrderedRing R] [IsTopologicalRing R]
 
 attribute [local instance] topologicalSpaceInduced in
-/-- This is the topology on `StdSimplex R M` when `M` is a possibly
+/--
+This is the topology on `StdSimplex R M` when `M` is a possibly
 infinite type. The lemma `StdSimplex.continuous_iff` shows that
 this topology is characterized by the fact that a map `f` from
 `StdSimplex R M` is continuous iff for any map `g : ι → M`
 with a finite `ι`, the composition `f ∘ map g : StdSimplex R ι → _`
 is continuous, where `StdSimplex R ι` is equipped with the
-topology that is induced by the embedding `StdSimplex R ι → (ι → R)`. -/
+topology that is induced by the embedding `StdSimplex R ι → (ι → R)`.
+-/
 @[no_expose]
-public noncomputable instance topologicalSpace (M : Type v) :
-    TopologicalSpace (StdSimplex R M) :=
+public noncomputable instance topologicalSpace (M : Type v) : TopologicalSpace (StdSimplex R M) :=
   ⨆ (ι : Type v) (_ : Finite ι) (f : ι → M), .coinduced (map f) inferInstance
 
 lemma topologicalSpace_eq (M : Type v) [Finite M] :

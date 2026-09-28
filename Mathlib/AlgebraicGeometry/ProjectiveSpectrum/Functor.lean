@@ -22,15 +22,17 @@ namespace AlgebraicGeometry
 
 section universe_polymorphic
 
-variable {A B C σ τ : Type*} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
-  [CommRing B] [SetLike τ B] [AddSubgroupClass τ B]
-  [CommRing C] {𝒜 : ℕ → σ} {ℬ : ℕ → τ} [GradedRing 𝒜] [GradedRing ℬ]
+variable
+  {A B C σ τ : Type*} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A] [CommRing B] [SetLike τ B]
+  [AddSubgroupClass τ B] [CommRing C]
+  {𝒜 : ℕ → σ} {ℬ : ℕ → τ} [GradedRing 𝒜] [GradedRing ℬ]
   (f : 𝒜 →+*ᵍ ℬ) (hf : ℬ₊ ≤ 𝒜₊.map f)
 
 namespace ProjectiveSpectrum
 
 /-- The underlying function of `Proj ℬ ⟶ Proj 𝒜` on the level of points. -/
-@[simps] def comapFun (p : ProjectiveSpectrum ℬ) : ProjectiveSpectrum 𝒜 where
+@[simps]
+def comapFun (p : ProjectiveSpectrum ℬ) : ProjectiveSpectrum 𝒜 where
   asHomogeneousIdeal := p.1.comap f
   isPrime := p.2.comap f
   not_irrelevant_le le := p.3 <| hf.trans <| map_le_of_le_comap _ le
@@ -48,12 +50,13 @@ namespace Proj
 
 open StructureSheaf
 
-variable (U : Opens (ProjectiveSpectrum 𝒜)) (V : Opens (ProjectiveSpectrum ℬ))
+variable
+  (U : Opens (ProjectiveSpectrum 𝒜)) (V : Opens (ProjectiveSpectrum ℬ))
   (hUV : V.1 ⊆ ProjectiveSpectrum.comap f hf ⁻¹' U.1)
 
 /-- The underlying function of `Proj ℬ ⟶ Proj 𝒜` on the level of structure sheaves. -/
-noncomputable def comapStructureSheafFun
-    (s : ∀ x : U, AtPrime 𝒜 x.1.1.1) (y : V) : AtPrime ℬ y.1.1.1 :=
+noncomputable def comapStructureSheafFun (s : ∀ x : U, AtPrime 𝒜 x.1.1.1) (y : V)
+    : AtPrime ℬ y.1.1.1 :=
   localRingHom f _ y.1.1.1 rfl <| s ⟨.comap f hf y.1, hUV y.2⟩
 
 set_option backward.isDefEq.respectTransparency false in
@@ -71,10 +74,12 @@ lemma isLocallyFraction_comapStructureSheafFun
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The underlying ring hom of `Proj ℬ ⟶ Proj 𝒜` on the level of structure sheaves. -/
-noncomputable def comapStructureSheaf :
-    (Proj.structureSheaf 𝒜).1.obj (.op U) →+* (Proj.structureSheaf ℬ).1.obj (.op V) where
-  toFun s := ⟨comapStructureSheafFun _ _ _ _ hUV s.1,
-      isLocallyFraction_comapStructureSheafFun _ _ _ _ hUV _ s.2⟩
+noncomputable def comapStructureSheaf
+    : (Proj.structureSheaf 𝒜).1.obj (.op U) →+* (Proj.structureSheaf ℬ).1.obj (.op V) where
+  toFun s := ⟨
+    comapStructureSheafFun _ _ _ _ hUV s.1,
+    isLocallyFraction_comapStructureSheafFun _ _ _ _ hUV _ s.2
+  ⟩
   map_one' := by ext; simp [comapStructureSheafFun]
   map_zero' := by ext; simp [comapStructureSheafFun]
   map_add' x y := by ext; simp [comapStructureSheafFun]
@@ -88,19 +93,20 @@ section universe_monomorphic
 
 namespace Proj
 
-variable {A B C σ τ ψ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
-  [CommRing B] [SetLike τ B] [AddSubgroupClass τ B]
-  [CommRing C] [SetLike ψ C] [AddSubgroupClass ψ C]
+variable
+  {A B C σ τ ψ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A] [CommRing B]
+  [SetLike τ B] [AddSubgroupClass τ B] [CommRing C] [SetLike ψ C] [AddSubgroupClass ψ C]
   {𝒜 : ℕ → σ} {ℬ : ℕ → τ} {𝒞 : ℕ → ψ} [GradedRing 𝒜] [GradedRing ℬ] [GradedRing 𝒞]
   (f : 𝒜 →+*ᵍ ℬ) (g : ℬ →+*ᵍ 𝒞) (hf : ℬ₊ ≤ 𝒜₊.map f) (hg : 𝒞₊ ≤ ℬ₊.map g)
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The underlying map of `Proj ℬ ⟶ Proj 𝒜` on the level of sheafed spaces. -/
-@[simps! (isSimp := false)] noncomputable def sheafedSpaceMap :
-    Proj.toSheafedSpace ℬ ⟶ Proj.toSheafedSpace 𝒜 where
-  hom :=
-    { base := TopCat.ofHom <| comap f hf
-      c := { app U := CommRingCat.ofHom <| comapStructureSheaf f hf _ _ Set.Subset.rfl } }
+@[simps! (isSimp := false)]
+noncomputable def sheafedSpaceMap : Proj.toSheafedSpace ℬ ⟶ Proj.toSheafedSpace 𝒜 where
+  hom := {
+    base := TopCat.ofHom <| comap f hf
+    c := { app U := CommRingCat.ofHom <| comapStructureSheaf f hf _ _ Set.Subset.rfl }
+  }
 
 lemma germ_map_sectionInBasicOpen {p : ProjectiveSpectrum ℬ}
     (c : NumDenSameDeg 𝒜 (p.comap f hf).1.toIdeal.primeCompl) :
@@ -120,20 +126,23 @@ set_option backward.isDefEq.respectTransparency.types false in
   rfl
 
 set_option backward.isDefEq.respectTransparency.types false in
-@[elementwise] theorem localRingHom_comp_stalkIso (p : ProjectiveSpectrum ℬ) :
-    (stalkIso 𝒜 (ProjectiveSpectrum.comap f hf p)).hom ≫
-      CommRingCat.ofHom (localRingHom f _ _ rfl) ≫
-        (stalkIso ℬ p).inv =
-      (sheafedSpaceMap f hf).hom.stalkMap p := by
+@[elementwise]
+theorem localRingHom_comp_stalkIso (p : ProjectiveSpectrum ℬ)
+    : (stalkIso 𝒜 (ProjectiveSpectrum.comap f hf p)).hom
+        ≫ CommRingCat.ofHom (localRingHom f _ _ rfl) ≫ (stalkIso ℬ p).inv
+      = (sheafedSpaceMap f hf).hom.stalkMap p := by
   rw [← Iso.eq_inv_comp, Iso.comp_inv_eq]
   ext : 1
-  simp only [CommRingCat.hom_ofHom, stalkIso, RingEquiv.toCommRingCatIso_inv,
-    RingEquiv.toCommRingCatIso_hom, CommRingCat.hom_comp]
+  simp only [
+    CommRingCat.hom_ofHom, stalkIso, RingEquiv.toCommRingCatIso_inv, RingEquiv.toCommRingCatIso_hom,
+    CommRingCat.hom_comp
+  ]
   ext x : 2
   obtain ⟨c, rfl⟩ := x.mk_surjective
   simp only [val_localRingHom, val_mk, RingHom.comp_apply]
-  simp only [GradedRingHom.toRingHom_eq_toRingHom, Localization.localRingHom_mk,
-    GradedRingHom.coe_toRingHom]
+  simp only [
+    GradedRingHom.toRingHom_eq_toRingHom, Localization.localRingHom_mk, GradedRingHom.coe_toRingHom
+  ]
   -- I sincerely apologise for your eyes.
   erw [stalkIso'_symm_mk]
   erw [PresheafedSpace.stalkMap_germ_apply]
@@ -145,22 +154,24 @@ set_option backward.isDefEq.respectTransparency false in
 /-- Functoriality of `Proj`. -/
 noncomputable def map : Proj ℬ ⟶ Proj 𝒜 where
   __ := (sheafedSpaceMap f hf).hom
-  prop p := .mk fun x hx ↦ by
-    rw [← localRingHom_comp_stalkIso] at hx
-    simp only [CommRingCat.hom_comp, CommRingCat.hom_ofHom, RingHom.coe_comp,
-      Function.comp_apply] at hx
-    have : IsLocalHom (stalkIso ℬ p).inv.hom := isLocalHom_of_isIso _
-    replace hx := (isUnit_map_iff _ _).mp hx
-    replace hx := IsLocalHom.map_nonunit _ hx
-    have : IsLocalHom (stalkIso 𝒜 (p.comap f hf)).hom.hom := isLocalHom_of_isIso _
-    exact (isUnit_map_iff _ _).mp hx
+  prop p :=
+    .mk fun x hx ↦ by
+      rw [← localRingHom_comp_stalkIso] at hx
+      simp only [CommRingCat.hom_comp, CommRingCat.hom_ofHom, RingHom.coe_comp, Function.comp_apply]
+        at hx
+      have : IsLocalHom (stalkIso ℬ p).inv.hom := isLocalHom_of_isIso _
+      replace hx := (isUnit_map_iff _ _).mp hx
+      replace hx := IsLocalHom.map_nonunit _ hx
+      have : IsLocalHom (stalkIso 𝒜 (p.comap f hf)).hom.hom := isLocalHom_of_isIso _
+      exact (isUnit_map_iff _ _).mp hx
 
-@[simp] theorem map_preimage_basicOpen (s : A) :
-    map f hf ⁻¹ᵁ basicOpen 𝒜 s = basicOpen ℬ (f s) := rfl
+@[simp]
+theorem map_preimage_basicOpen (s : A) : map f hf ⁻¹ᵁ basicOpen 𝒜 s = basicOpen ℬ (f s) := rfl
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem ι_comp_map (s : A) : (basicOpen ℬ (f s)).ι ≫ map f hf =
-    (map f hf).resLE _ _ le_rfl ≫ (basicOpen 𝒜 s).ι := by simp
+theorem ι_comp_map (s : A)
+    : (basicOpen ℬ (f s)).ι ≫ map f hf = (map f hf).resLE _ _ le_rfl ≫ (basicOpen 𝒜 s).ι := by
+  simp
 
 @[reassoc] lemma awayToSection_comp_appLE {i : ℕ} {s : A} (hs : s ∈ 𝒜 i) :
     awayToSection 𝒜 s ≫
@@ -186,28 +197,36 @@ Proj ℬ         ⟶ Proj 𝒜₁
 Spec A₂[f(s)⁻¹]₀ ⟶ Spec A₁[s⁻¹]₀
 ```
 -/
-@[reassoc] theorem awayι_comp_map {i : ℕ} (hi : 0 < i) (s : A) (hs : s ∈ 𝒜 i) :
-    awayι ℬ (f s) (f.2 hs) hi ≫ map f hf =
-    Spec.map (CommRingCat.ofHom (Away.map f s)) ≫ awayι 𝒜 s hs hi := by
+@[reassoc]
+theorem awayι_comp_map {i : ℕ} (hi : 0 < i) (s : A) (hs : s ∈ 𝒜 i)
+    : awayι ℬ (f s) (f.2 hs) hi ≫ map f hf
+      = Spec.map (CommRingCat.ofHom (Away.map f s)) ≫ awayι 𝒜 s hs hi := by
   rw [awayι, awayι, Category.assoc, ι_comp_map, ← Category.assoc, ← Category.assoc]
   congr 1
   rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv]
   refine ext_to_Spec <| (cancel_mono (basicOpen ℬ (f s)).topIso.hom).mp ?_
   simp [basicOpenIsoSpec_hom, basicOpenToSpec_app_top, awayToSection_comp_appLE _ _ hs]
 
-/-- Given a graded ring hom `f : 𝒜 →+*ᵍ ℬ` satisfying the hypothesis `ℬ₊ ≤ 𝒜₊.map f`, we obtain
-an affine open cover of `Proj ℬ` consisting of `D(f(s))` for `s ∈ A` positive degree. -/
-@[simps! I₀ f] noncomputable def mapAffineOpenCover : (Proj ℬ).AffineOpenCover :=
-  affineOpenCoverOfIrrelevantLESpan _ (fun s : (affineOpenCover 𝒜).I₀ ↦ f s.2) (fun s ↦ f.2 s.2.2)
-    (fun s ↦ s.1.2) <| (toIdeal_le_toIdeal_iff.mpr hf).trans <|
-    Ideal.map_le_of_le_comap <| (toIdeal_irrelevant_le _).mpr fun i hi x hx ↦
-    Ideal.subset_span ⟨⟨⟨i, hi⟩, ⟨x, hx⟩⟩, rfl⟩
+/--
+Given a graded ring hom `f : 𝒜 →+*ᵍ ℬ` satisfying the hypothesis `ℬ₊ ≤ 𝒜₊.map f`, we obtain
+an affine open cover of `Proj ℬ` consisting of `D(f(s))` for `s ∈ A` positive degree.
+-/
+@[simps! I₀ f]
+noncomputable def mapAffineOpenCover : (Proj ℬ).AffineOpenCover :=
+  affineOpenCoverOfIrrelevantLESpan _
+      (fun s : (affineOpenCover 𝒜).I₀ ↦ f s.2)
+      (fun s ↦ f.2 s.2.2)
+      (fun s ↦ s.1.2) <|
+    (toIdeal_le_toIdeal_iff.mpr hf).trans <| Ideal.map_le_of_le_comap <|
+      (toIdeal_irrelevant_le _).mpr fun i hi x hx ↦ Ideal.subset_span ⟨⟨⟨i, hi⟩, ⟨x, hx⟩⟩, rfl⟩
 
 set_option backward.isDefEq.respectTransparency false in
 theorem map_comp : map (g.comp f) (irrelevant_le_map_comp hf hg) = map g hg ≫ map f hf := by
   refine (mapAffineOpenCover _ <| irrelevant_le_map_comp hf hg).openCover.hom_ext _ _ fun s ↦ ?_
-  simp only [Scheme.AffineOpenCover.openCover_f, mapAffineOpenCover_f,
-    awayι_comp_map (g.comp f) _ s.1.2 _ s.2.2]
+  simp only [
+    Scheme.AffineOpenCover.openCover_f, mapAffineOpenCover_f,
+    awayι_comp_map (g.comp f) _ s.1.2 _ s.2.2
+  ]
   simp [awayι_comp_map_assoc _ _ _ _ (map_mem f s.2.2), awayι_comp_map _ _ _ _ s.2.2]
 
 set_option backward.isDefEq.respectTransparency false in

@@ -27,8 +27,8 @@ namespace Polynomial
 
 variable {R : Type*} [CommRing R] {a : R}
 
-theorem mem_span_C_X_sub_C_X_sub_C_iff_eval_eval_eq_zero {b : R[X]} {P : R[X][X]} :
-    P ∈ Ideal.span {C (X - C a), X - C b} ↔ (P.eval b).eval a = 0 := by
+theorem mem_span_C_X_sub_C_X_sub_C_iff_eval_eval_eq_zero {b : R[X]} {P : R[X][X]}
+    : P ∈ Ideal.span {C (X - C a), X - C b} ↔ (P.eval b).eval a = 0 := by
   rw [Ideal.mem_span_pair]
   constructor <;> intro h
   · rcases h with ⟨_, _, rfl⟩
@@ -42,8 +42,8 @@ theorem ker_evalRingHom (x : R) : RingHom.ker (evalRingHom x) = Ideal.span {X - 
   simp [Ideal.mem_span_singleton, dvd_iff_isRoot, RingHom.mem_ker]
 
 @[simp]
-theorem ker_modByMonicHom {q : R[X]} (hq : q.Monic) :
-    LinearMap.ker (Polynomial.modByMonicHom q) = (Ideal.span {q}).restrictScalars R :=
+theorem ker_modByMonicHom {q : R[X]} (hq : q.Monic)
+    : LinearMap.ker (Polynomial.modByMonicHom q) = (Ideal.span {q}).restrictScalars R :=
   Submodule.ext fun _ => (mem_ker_modByMonic hq).trans Ideal.mem_span_singleton.symm
 
 @[simp]

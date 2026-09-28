@@ -76,16 +76,17 @@ lemma ColimitOfShape.isCardinalPresentable {X : C} {J : Type w} [SmallCategory J
 variable {κ : Cardinal.{w}} [Fact κ.IsRegular]
 
 variable (P κ) in
-/-- The condition that `P : ObjectProperty C` consists of `κ`-presentable objects
+/--
+The condition that `P : ObjectProperty C` consists of `κ`-presentable objects
 and that any object of `C` is a `κ`-filtered colimit of objects satisfying `P`.
 (This notion is particularly relevant when `C` is locally `w`-small and `P` is
 essentially `w`-small, see `HasCardinalFilteredGenerators`, which appears in
-the definitions of locally presentable and accessible categories.) -/
+the definitions of locally presentable and accessible categories.)
+-/
 structure IsCardinalFilteredGenerator : Prop where
   le_isCardinalPresentable : P ≤ isCardinalPresentable C κ
-  exists_colimitsOfShape (X : C) :
-    ∃ (J : Type w) (_ : SmallCategory J) (_ : IsCardinalFiltered J κ),
-      P.colimitsOfShape J X
+  exists_colimitsOfShape (X : C)
+    : ∃ (J : Type w) (_ : SmallCategory J) (_ : IsCardinalFiltered J κ), P.colimitsOfShape J X
 
 namespace IsCardinalFilteredGenerator
 
@@ -164,13 +165,17 @@ end IsCardinalFilteredGenerator
 
 end ObjectProperty
 
-/-- The property that a category `C` and a regular cardinal `κ`
+/--
+The property that a category `C` and a regular cardinal `κ`
 satisfy `P.IsCardinalFilteredGenerators κ` for a suitable essentially
-small `P : ObjectProperty C`. -/
-class HasCardinalFilteredGenerator (C : Type u) [hC : Category.{v} C]
-    (κ : Cardinal.{w}) [hκ : Fact κ.IsRegular] : Prop extends LocallySmall.{w} C where
-  exists_generator (C κ) [hC] [hκ] :
-    ∃ (P : ObjectProperty C) (_ : ObjectProperty.EssentiallySmall.{w} P),
+small `P : ObjectProperty C`.
+-/
+class HasCardinalFilteredGenerator
+    (C : Type u) [hC : Category.{v} C] (κ : Cardinal.{w}) [hκ : Fact κ.IsRegular]
+    : Prop
+    extends LocallySmall.{w} C where
+  exists_generator (C κ) [hC] [hκ]
+    : ∃ (P : ObjectProperty C) (_ : ObjectProperty.EssentiallySmall.{w} P),
       P.IsCardinalFilteredGenerator κ
 
 lemma ObjectProperty.IsCardinalFilteredGenerator.hasCardinalFilteredGenerator
@@ -188,9 +193,10 @@ lemma HasCardinalFilteredGenerator.exists_small_generator (C : Type u) [Category
   obtain ⟨Q, _, h₁, h₂⟩ := ObjectProperty.EssentiallySmall.exists_small_le P
   exact ⟨Q, inferInstance, hP.of_le_isoClosure h₂ (h₁.trans hP.le_isCardinalPresentable)⟩
 
-instance (C : Type u) [Category.{v} C]
-    (κ : Cardinal.{w}) [Fact κ.IsRegular] [HasCardinalFilteredGenerator C κ] :
-    ObjectProperty.EssentiallySmall.{w} (isCardinalPresentable C κ) := by
+instance
+    (C : Type u) [Category.{v} C]
+    (κ : Cardinal.{w}) [Fact κ.IsRegular] [HasCardinalFilteredGenerator C κ]
+    : ObjectProperty.EssentiallySmall.{w} (isCardinalPresentable C κ) := by
   obtain ⟨P, _, hP⟩ := HasCardinalFilteredGenerator.exists_generator C κ
   exact hP.essentiallySmall_isPresentable
 

@@ -26,30 +26,37 @@ namespace GradedObject
 
 variable {J : Type*} {C : Type*} [Category* C] [HasInitial C] [DecidableEq J]
 
-/-- The functor which sends `X : C` to the graded object which is `X` in degree `j`
-and the initial object in other degrees. -/
+/--
+The functor which sends `X : C` to the graded object which is `X` in degree `j`
+and the initial object in other degrees.
+-/
 noncomputable def single (j : J) : C ⥤ GradedObject J C where
   obj X i := if i = j then X else ⊥_ C
   map {X₁ X₂} f i :=
-    if h : i = j then eqToHom (ite_eq_left h) ≫ f ≫ eqToHom (ite_eq_left h).symm
-    else eqToHom (by dsimp; rw [ite_eq_right h, ite_eq_right h])
+    if h : i = j then
+      eqToHom (ite_eq_left h) ≫ f ≫ eqToHom (ite_eq_left h).symm
+    else
+      eqToHom (by dsimp; rw [ite_eq_right h, ite_eq_right h])
 
 variable (J) in
-/-- The functor which sends `X : C` to the graded object which is `X` in degree `0`
-and the initial object in nonzero degrees. -/
+/--
+The functor which sends `X : C` to the graded object which is `X` in degree `0`
+and the initial object in nonzero degrees.
+-/
 noncomputable abbrev single₀ [Zero J] : C ⥤ GradedObject J C := single 0
 
 /-- The canonical isomorphism `(single j).obj X i ≅ X` when `i = j`. -/
-noncomputable def singleObjApplyIsoOfEq (j : J) (X : C) (i : J) (h : i = j) :
-    (single j).obj X i ≅ X := eqToIso (ite_eq_left h)
+noncomputable def singleObjApplyIsoOfEq (j : J) (X : C) (i : J) (h : i = j)
+    : (single j).obj X i ≅ X :=
+  eqToIso (ite_eq_left h)
 
 /-- The canonical isomorphism `(single j).obj X j ≅ X`. -/
-noncomputable abbrev singleObjApplyIso (j : J) (X : C) :
-    (single j).obj X j ≅ X := singleObjApplyIsoOfEq j X j rfl
+noncomputable abbrev singleObjApplyIso (j : J) (X : C) : (single j).obj X j ≅ X :=
+  singleObjApplyIsoOfEq j X j rfl
 
 /-- The object `(single j).obj X i` is initial when `i ≠ j`. -/
-noncomputable def isInitialSingleObjApply (j : J) (X : C) (i : J) (h : i ≠ j) :
-    IsInitial ((single j).obj X i) := by
+noncomputable def isInitialSingleObjApply (j : J) (X : C) (i : J) (h : i ≠ j)
+    : IsInitial ((single j).obj X i) := by
   dsimp [single]
   rw [ite_eq_right h]
   exact initialIsInitial
@@ -78,8 +85,10 @@ lemma single_map_singleObjApplyIso_hom (j : J) {X Y : C} (f : X ⟶ Y) :
 
 set_option backward.defeqAttrib.useBackward true in
 variable (C) in
-/-- The composition of the single functor `single j : C ⥤ GradedObject J C` and the
-evaluation functor `eval j` identifies to the identity functor. -/
+/--
+The composition of the single functor `single j : C ⥤ GradedObject J C` and the
+evaluation functor `eval j` identifies to the identity functor.
+-/
 @[simps!]
 noncomputable def singleCompEval (j : J) : single j ⋙ eval j ≅ 𝟭 C :=
   NatIso.ofComponents (singleObjApplyIso j) (by simp)

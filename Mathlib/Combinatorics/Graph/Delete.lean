@@ -41,8 +41,8 @@ def restrict (G : Graph α β) (E₀ : Set β) : Graph α β where
   IsLink e x y := e ∈ E₀ ∧ G.IsLink e x y
   isLink_symm e he := { symm x y h := ⟨h.1, h.2.symm⟩ }
   eq_or_eq_of_isLink_of_isLink _ _ _ _ _ h h' := h.2.left_eq_or_eq h'.2
-  edge_mem_iff_exists_isLink e := ⟨fun h ↦ by simp [G.exists_isLink_of_mem_edgeSet h.1, h.2],
-    fun ⟨x, y, h⟩ ↦ ⟨h.2.edge_mem, h.1⟩⟩
+  edge_mem_iff_exists_isLink e :=
+    ⟨fun h ↦ by simp [G.exists_isLink_of_mem_edgeSet h.1, h.2], fun ⟨x, y, h⟩ ↦ ⟨h.2.edge_mem, h.1⟩⟩
 
 @[simp]
 lemma restrict_le {E₀ : Set β} : G.restrict E₀ ≤ G where
@@ -93,15 +93,18 @@ lemma restrict_restrict (G : Graph α β) (F₁ F₂ : Set β) :
   simp only [edgeSet_restrict]
   rw [← inter_assoc, inter_comm _ F₂]
 
-/-- Delete a set `F` of edges from `G`. This is a special case of `restrict`,
-but we define it with `copy` so that the edge set is definitionally equal to `E(G) \ F`. -/
+/--
+Delete a set `F` of edges from `G`. This is a special case of `restrict`,
+but we define it with `copy` so that the edge set is definitionally equal to `E(G) \ F`.
+-/
 @[expose, simps! (attr := grind =)]
 def deleteEdges (G : Graph α β) (F : Set β) : Graph α β :=
   (G.restrict (E(G) \ F)).copy (edgeSet := E(G) \ F)
-  (IsLink := fun e x y ↦ G.IsLink e x y ∧ e ∉ F) rfl (by simp)
-  (fun e x y ↦ by
-    simp only [restrict_isLink, mem_sdiff, and_comm, and_congr_left_iff, and_iff_left_iff_imp]
-    exact fun h _ ↦ h.edge_mem)
+    (IsLink := fun e x y ↦ G.IsLink e x y ∧ e ∉ F)
+    rfl (by simp)
+    (fun e x y ↦ by
+      simp only [restrict_isLink, mem_sdiff, and_comm, and_congr_left_iff, and_iff_left_iff_imp]
+      exact fun h _ ↦ h.edge_mem)
 
 @[simp]
 lemma restrict_edgeSet_sdiff_eq_deleteEdges (G : Graph α β) (F : Set β) :
@@ -146,10 +149,12 @@ lemma deleteEdges_deleteEdges (G : Graph α β) (F₁ F₂ : Set β) :
   rw [← inter_comm, inter_comm F₁ᶜ, inter_assoc, inter_assoc, inter_self, inter_comm,
     inter_assoc, inter_comm, restrict_inter_edgeSet, inter_comm]
 
-/-- The subgraph of `G` induced by a set `X` of vertices.
+/--
+The subgraph of `G` induced by a set `X` of vertices.
 The edges are the edges of `G` with both ends in `X`.
 (`X` is not required to be a subset of `V(G)` for this definition to work,
-even though this is the standard use case) -/
+even though this is the standard use case)
+-/
 @[expose, simps! (attr := grind =) vertexSet isLink]
 protected def induce (G : Graph α β) (X : Set α) : Graph α β where
   vertexSet := X

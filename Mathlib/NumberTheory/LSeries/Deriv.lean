@@ -51,8 +51,10 @@ lemma LSeries.hasDerivAt_term (f : ℕ → ℂ) (n : ℕ) (s : ℂ) :
   exact HasDerivAt.const_mul (f n) (by simpa only [mul_comm, ← mul_neg_one (log n), ← mul_assoc]
     using (hasDerivAt_neg' s).const_cpow (Or.inl <| Nat.cast_ne_zero.mpr hn))
 
-/- This lemma proves two things at once, since their proofs are intertwined; we give separate
-non-private lemmas below that extract the two statements. -/
+/-
+This lemma proves two things at once, since their proofs are intertwined; we give separate
+non-private lemmas below that extract the two statements.
+-/
 private lemma LSeries.LSeriesSummable_logMul_and_hasDerivAt {f : ℕ → ℂ} {s : ℂ}
     (h : abscissaOfAbsConv f < s.re) :
     LSeriesSummable (logMul f) s ∧ HasDerivAt (LSeries f) (-LSeries (logMul f) s) s := by

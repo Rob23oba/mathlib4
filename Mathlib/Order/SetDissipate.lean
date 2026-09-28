@@ -23,8 +23,7 @@ variable {α β : Type*} {s : α → Set β}
 namespace Set
 
 /-- `dissipate s` is the intersection of `s y` for `y ≤ x`. -/
-def dissipate [LE α] (s : α → Set β) (x : α) : Set β :=
-  ⋂ y ≤ x, s y
+def dissipate [LE α] (s : α → Set β) (x : α) : Set β := ⋂ y ≤ x, s y
 
 theorem dissipate_def [LE α] {x : α} : dissipate s x = ⋂ y ≤ x, s y := rfl
 
@@ -42,17 +41,16 @@ theorem iInter_subset_dissipate [LE α] (x : α) : ⋂ i, s i ⊆ dissipate s x 
   simp only [dissipate, subset_iInter_iff]
   exact fun x h ↦ iInter_subset_of_subset x fun ⦃a⦄ a ↦ a
 
-theorem antitone_dissipate [Preorder α] : Antitone (dissipate s) :=
-  fun _ _ hab ↦ biInter_subset_biInter_left fun _ hz => le_trans hz hab
+theorem antitone_dissipate [Preorder α] : Antitone (dissipate s) := fun _ _ hab ↦
+  biInter_subset_biInter_left fun _ hz => le_trans hz hab
 
 @[gcongr]
-theorem dissipate_subset_dissipate [Preorder α] {x y} (h : y ≤ x) :
-    dissipate s x ⊆ dissipate s y :=
+theorem dissipate_subset_dissipate [Preorder α] {x y} (h : y ≤ x) : dissipate s x ⊆ dissipate s y :=
   antitone_dissipate h
 
 @[simp]
-theorem biInter_dissipate [Preorder α] {s : α → Set β} {x : α} :
-    ⋂ y, ⋂ (_ : y ≤ x), dissipate s y = dissipate s x := by
+theorem biInter_dissipate [Preorder α] {s : α → Set β} {x : α}
+    : ⋂ y, ⋂ (_ : y ≤ x), dissipate s y = dissipate s x := by
   apply Subset.antisymm
   · apply iInter_mono fun z y hy ↦ ?_
     simp only [mem_iInter, mem_dissipate] at *
@@ -75,8 +73,8 @@ lemma dissipate_zero_nat (s : ℕ → Set β) : dissipate s 0 = s 0 := by
   simp [dissipate_def]
 
 @[simp]
-theorem dissipate_succ (s : ℕ → Set α) (n : ℕ) :
-  dissipate s (n + 1) = (dissipate s n) ∩ s (n + 1) := by
+theorem dissipate_succ (s : ℕ → Set α) (n : ℕ)
+    : dissipate s (n + 1) = (dissipate s n) ∩ s (n + 1) := by
   ext x
   simp_all only [dissipate_def, mem_iInter, mem_inter_iff]
   grind

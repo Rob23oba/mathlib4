@@ -50,16 +50,20 @@ variable (C : Type u) [Category.{v} C]
 /-- A category `C` `IsSiftedOrEmpty` if the diagonal functor `C ⥤ C × C` is final. -/
 abbrev IsSiftedOrEmpty : Prop := Final (diag C)
 
-/-- A category `C` `IsSifted` if
+/--
+A category `C` `IsSifted` if
 1. the diagonal functor `C ⥤ C × C` is final.
-2. there exists some object. -/
+2. there exists some object.
+-/
 class IsSifted : Prop extends IsSiftedOrEmpty C where
   [nonempty : Nonempty C]
 
-/- This instance is scoped since
+/-
+This instance is scoped since
 - it applies unconditionally (which can be a performance drain),
 - infers a *very* generic typeclass,
-- and does so from a *very* specialised class. -/
+- and does so from a *very* specialised class.
+-/
 attribute [scoped instance] IsSifted.nonempty
 
 namespace IsSifted
@@ -86,45 +90,51 @@ lemma isSifted_iff_asSmallIsSifted : IsSifted C ↔ IsSifted (AsSmall.{w} C) whe
 
 /-- A sifted category is connected. -/
 instance [IsSifted C] : IsConnected C :=
-  isConnected_of_zigzag
-    (by intro c₁ c₂
-        have X : StructuredArrow (c₁, c₂) (diag C) :=
-          letI S : Final (diag C) := by infer_instance
-          Nonempty.some (S.out (c₁, c₂)).is_nonempty
-        use [X.right, c₂]
-        constructor
-        · constructor
-          · exact Zag.of_hom X.hom.fst
-          · simpa using Zag.of_inv X.hom.snd
-        · rfl)
+  isConnected_of_zigzag (by
+    intro c₁ c₂
+    have X : StructuredArrow (c₁, c₂) (diag C) :=
+      letI S : Final (diag C) := by infer_instance
+      Nonempty.some (S.out (c₁, c₂)).is_nonempty
+    use [X.right, c₂]
+    constructor
+    · constructor
+      · exact Zag.of_hom X.hom.fst
+      · simpa using Zag.of_inv X.hom.snd
+    · rfl)
 
 set_option backward.defeqAttrib.useBackward true in
 /-- A category with binary coproducts is sifted or empty. -/
 instance [HasBinaryCoproducts C] : IsSiftedOrEmpty C := by
-    constructor
-    rintro ⟨c₁, c₂⟩
-    have : _root_.Nonempty <| StructuredArrow (c₁, c₂) (diag C) :=
-      ⟨.mk ((coprod.inl : c₁ ⟶ c₁ ⨿ c₂), (coprod.inr : c₂ ⟶ c₁ ⨿ c₂))⟩
-    apply isConnected_of_zigzag
-    rintro ⟨_, c, f⟩ ⟨_, c', g⟩
-    dsimp only [const_obj_obj, diag_obj] at f g
-    use [.mk ((coprod.inl : c₁ ⟶ c₁ ⨿ c₂), (coprod.inr : c₂ ⟶ c₁ ⨿ c₂)), .mk (g.fst, g.snd)]
-    simp only [colimit.cocone_x, diag_obj, Prod.mk.eta, List.isChain_cons_cons,
-      List.isChain_singleton, and_true, ne_eq, reduceCtorEq, not_false_eq_true,
-      List.getLast_cons, List.cons_ne_self, List.getLast_singleton]
-    exact ⟨⟨Zag.of_inv <| StructuredArrow.homMk <| coprod.desc f.fst f.snd,
-      Zag.of_hom <| StructuredArrow.homMk <| coprod.desc g.fst g.snd⟩, rfl⟩
+  constructor
+  rintro ⟨c₁, c₂⟩
+  have : _root_.Nonempty <| StructuredArrow (c₁, c₂) (diag C) :=
+    ⟨.mk ((coprod.inl : c₁ ⟶ c₁ ⨿ c₂), (coprod.inr : c₂ ⟶ c₁ ⨿ c₂))⟩
+  apply isConnected_of_zigzag
+  rintro ⟨_, c, f⟩ ⟨_, c', g⟩
+  dsimp only [const_obj_obj, diag_obj] at f g
+  use [.mk ((coprod.inl : c₁ ⟶ c₁ ⨿ c₂), (coprod.inr : c₂ ⟶ c₁ ⨿ c₂)), .mk (g.fst, g.snd)]
+  simp only [
+    colimit.cocone_x, diag_obj, Prod.mk.eta, List.isChain_cons_cons, List.isChain_singleton,
+    and_true, ne_eq, reduceCtorEq, not_false_eq_true, List.getLast_cons, List.cons_ne_self,
+    List.getLast_singleton
+  ]
+  exact ⟨
+    ⟨
+      Zag.of_inv <| StructuredArrow.homMk <| coprod.desc f.fst f.snd,
+      Zag.of_hom <| StructuredArrow.homMk <| coprod.desc g.fst g.snd
+    ⟩,
+    rfl
+  ⟩
 
 /-- A nonempty category with binary coproducts is sifted. -/
-instance isSifted_of_hasBinaryCoproducts_and_nonempty [_root_.Nonempty C] [HasBinaryCoproducts C] :
-    IsSifted C where
+instance isSifted_of_hasBinaryCoproducts_and_nonempty [_root_.Nonempty C] [HasBinaryCoproducts C]
+  : IsSifted C where
 
 section Prod
 
 variable {D : Type u₁} [Category.{v₁} D]
 
-instance [IsSiftedOrEmpty C] [IsSiftedOrEmpty D] :
-    IsSiftedOrEmpty (C × D) :=
+instance [IsSiftedOrEmpty C] [IsSiftedOrEmpty D] : IsSiftedOrEmpty (C × D) :=
   let e : (C × C) × (D × D) ≌ (C × D) × (C × D) := prod.prodμ ..
   final_of_natIso (Iso.refl ((Functor.diag C).prod (Functor.diag D) ⋙ e.functor))
 
@@ -139,8 +149,11 @@ end
 
 section
 
-variable {C : Type u} [Category.{v} C] [IsSiftedOrEmpty C] {D : Type u₁} [Category.{v₁} D]
-  {D' : Type u₂} [Category.{v₂} D'] (F : C ⥤ D) (G : C ⥤ D')
+variable
+  {C : Type u} [Category.{v} C] [IsSiftedOrEmpty C]
+  {D : Type u₁} [Category.{v₁} D]
+  {D' : Type u₂} [Category.{v₂} D']
+  (F : C ⥤ D) (G : C ⥤ D')
 
 instance [F.Final] [G.Final] : (F.prod' G).Final :=
   show (diag C ⋙ F.prod G).Final from final_comp _ _
@@ -180,41 +193,45 @@ lemma factorization_prodComparison_colim :
 
 variable [IsSifted C]
 
-/-- If `C` is sifted, the canonical product comparison map for the `colim` functor
-`(C ⥤ Type) ⥤ Type` is an isomorphism. -/
+/--
+If `C` is sifted, the canonical product comparison map for the `colim` functor
+`(C ⥤ Type) ⥤ Type` is an isomorphism.
+-/
 instance : IsIso (CartesianMonoidalCategory.prodComparison colim X Y) := by
   rw [← factorization_prodComparison_colim]
   infer_instance
 
-instance colim_preservesLimits_pair_of_sSifted {X Y : C ⥤ Type u} :
-    PreservesLimit (pair X Y) colim :=
+instance colim_preservesLimits_pair_of_sSifted {X Y : C ⥤ Type u}
+    : PreservesLimit (pair X Y) colim :=
   preservesLimit_pair_of_isIso_prodComparison _ _ _
 
 /-- Sifted colimits commute with binary products -/
-instance colim_preservesBinaryProducts_of_isSifted :
-    PreservesLimitsOfShape (Discrete WalkingPair) (colim : (C ⥤ _) ⥤ Type u) := by
+instance colim_preservesBinaryProducts_of_isSifted
+    : PreservesLimitsOfShape (Discrete WalkingPair) (colim : (C ⥤ _) ⥤ Type u) := by
   constructor
   intro F
   apply preservesLimit_of_iso_diagram colim (diagramIsoPair F).symm
 
 /-- If `C` is sifted, the `colimit` functor `(C ⥤ Type) ⥤ Type` preserves terminal objects -/
-instance colim_preservesTerminal_of_isSifted :
-    PreservesLimit (Functor.empty.{0} (C ⥤ Type u)) colim := by
+instance colim_preservesTerminal_of_isSifted
+    : PreservesLimit (Functor.empty.{0} (C ⥤ Type u)) colim := by
   apply preservesTerminal_of_iso
   symm
   apply (_ : ⊤_ (Type u) ≅ PUnit.{u + 1}).trans
-  · apply_rules [(Types.colimitConstPUnitIsoPUnit C).symm.trans, HasColimit.isoOfNatIso,
-      IsTerminal.uniqueUpToIso _ terminalIsTerminal, evaluationJointlyReflectsLimits]
+  · apply_rules [
+      (Types.colimitConstPUnitIsoPUnit C).symm.trans, HasColimit.isoOfNatIso,
+      IsTerminal.uniqueUpToIso _ terminalIsTerminal, evaluationJointlyReflectsLimits
+    ]
     exact fun _ ↦ isLimitChangeEmptyCone _ Types.isTerminalPUnit _ <| Iso.refl _
   · exact Types.isTerminalEquivIsoPUnit (⊤_ (Type u)) |>.toFun terminalIsTerminal
 
-instance colim_preservesLimitsOfShape_pempty_of_isSifted :
-    PreservesLimitsOfShape (Discrete PEmpty.{1}) (colim : (C ⥤ _) ⥤ Type u) :=
+instance colim_preservesLimitsOfShape_pempty_of_isSifted
+    : PreservesLimitsOfShape (Discrete PEmpty.{1}) (colim : (C ⥤ _) ⥤ Type u) :=
   preservesLimitsOfShape_pempty_of_preservesTerminal _
 
 /-- If `C` is sifted, the `colim` functor `(C ⥤ Type) ⥤ Type` preserves finite products. -/
-instance colim_preservesFiniteProducts_of_isSifted :
-    PreservesFiniteProducts (colim : (C ⥤ _) ⥤ Type u) :=
+instance colim_preservesFiniteProducts_of_isSifted
+    : PreservesFiniteProducts (colim : (C ⥤ _) ⥤ Type u) :=
   PreservesFiniteProducts.of_preserves_binary_and_terminal colim
 
 end
@@ -225,20 +242,22 @@ variable (C)
 
 open Opposite in
 open scoped MonoidalCategory.ExternalProduct in
-/-- If the `colim` functor `(C ⥤ Type) ⥤ Type` preserves binary products, then `C` is sifted or
-empty. -/
+/--
+If the `colim` functor `(C ⥤ Type) ⥤ Type` preserves binary products, then `C` is sifted or
+empty.
+-/
 theorem isSiftedOrEmpty_of_colim_preservesBinaryProducts
-    [PreservesLimitsOfShape (Discrete WalkingPair) (colim : (C ⥤ Type u) ⥤ Type u)] :
-    IsSiftedOrEmpty C := by
+    [PreservesLimitsOfShape (Discrete WalkingPair) (colim : (C ⥤ Type u) ⥤ Type u)]
+    : IsSiftedOrEmpty C := by
   apply final_of_colimit_comp_coyoneda_iso_pUnit
   rintro ⟨c₁, c₂⟩
-  calc colimit <| diag C ⋙ coyoneda.obj (op (c₁, c₂))
+  calc
+    colimit <| diag C ⋙ coyoneda.obj (op (c₁, c₂))
     _ ≅ colimit <| _ ⋙ (coyoneda.obj _) ⊠ (coyoneda.obj _) :=
       HasColimit.isoOfNatIso <| isoWhiskerLeft _ <| .refl _
     _ ≅ colimit (_ ⊗ _) := HasColimit.isoOfNatIso <| .refl _
     _ ≅ (colimit _) ⊗ (colimit _) := CartesianMonoidalCategory.prodComparisonIso colim _ _
-    _ ≅ PUnit ⊗ PUnit :=
-      (Coyoneda.colimitCoyonedaIso _) ⊗ᵢ (Coyoneda.colimitCoyonedaIso _)
+    _ ≅ PUnit ⊗ PUnit := (Coyoneda.colimitCoyonedaIso _) ⊗ᵢ (Coyoneda.colimitCoyonedaIso _)
     _ ≅ PUnit := λ_ _
 
 lemma isSiftedOrEmpty_of_colim_preservesFiniteProducts
@@ -263,18 +282,21 @@ lemma nonempty_of_colim_preservesLimitsOfShapeFinZero
 
 /-- If the `colim` functor `(C ⥤ Type) ⥤ Type` preserves finite products, then `C` is sifted. -/
 theorem of_colim_preservesFiniteProducts
-    [h : PreservesFiniteProducts (colim : (C ⥤ Type u) ⥤ Type u)] :
-    IsSifted C := by
+    [h : PreservesFiniteProducts (colim : (C ⥤ Type u) ⥤ Type u)]
+    : IsSifted C := by
   have := isSiftedOrEmpty_of_colim_preservesFiniteProducts C
   have := nonempty_of_colim_preservesLimitsOfShapeFinZero C
   constructor
 
 variable {C}
 
-/-- Auxiliary version of `IsSifted.of_final_functor_from_sifted` where everything is a
-small category. -/
+/--
+Auxiliary version of `IsSifted.of_final_functor_from_sifted` where everything is a
+small category.
+-/
 theorem of_final_functor_from_sifted'
-    {D : Type u} [SmallCategory D] [IsSifted C] (F : C ⥤ D) [Final F] : IsSifted D := by
+    {D : Type u} [SmallCategory D] [IsSifted C] (F : C ⥤ D) [Final F]
+    : IsSifted D := by
   have : PreservesFiniteProducts (colim : (D ⥤ Type u) ⥤ _) :=
     ⟨fun n ↦ preservesLimitsOfShape_of_natIso (Final.colimIso F)⟩
   exact of_colim_preservesFiniteProducts D
@@ -288,8 +310,9 @@ end SmallCategory
 variable {C : Type u} [Category.{v} C]
 
 /-- A functor admitting a final functor from a sifted category is sifted. -/
-theorem IsSifted.of_final_functor_from_sifted {D : Type u₁} [Category.{v₁} D] [h₁ : IsSifted C]
-    (F : C ⥤ D) [Final F] : IsSifted D := by
+theorem IsSifted.of_final_functor_from_sifted
+    {D : Type u₁} [Category.{v₁} D] [h₁ : IsSifted C] (F : C ⥤ D) [Final F]
+    : IsSifted D := by
   rw [isSifted_iff_asSmallIsSifted] at h₁ ⊢
   exact of_final_functor_from_sifted' <|
     AsSmall.equiv.{_, _, max u₁ v₁}.inverse ⋙ F ⋙ AsSmall.equiv.{_, _, max u v}.functor

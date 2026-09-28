@@ -41,30 +41,32 @@ namespace CategoryTheory
 
 open CategoryTheory.Functor
 
-variable {C₁ C₂ H D₁ D₂ : Type*} [Category* C₁] [Category* C₂] [Category* H]
-  [Category* D₁] [Category* D₂]
+variable
+  {C₁ C₂ H D₁ D₂ : Type*} [Category* C₁] [Category* C₂] [Category* H] [Category* D₁] [Category* D₂]
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
 
 namespace LocalizerMorphism
 
-variable (Φ : LocalizerMorphism W₁ W₂) (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂)
-  [L₁.IsLocalization W₁] [L₂.IsLocalization W₂]
+variable
+  (Φ : LocalizerMorphism W₁ W₂)
+  (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) [L₁.IsLocalization W₁] [L₂.IsLocalization W₂]
   (F : C₂ ⥤ H) (F₁ : D₁ ⥤ H) (α₁ : L₁ ⋙ F₁ ⟶ Φ.functor ⋙ F)
   (F₂ : D₂ ⥤ H) (α₂ : L₂ ⋙ F₂ ⟶ F)
   [F₁.IsLeftDerivedFunctor α₁ W₁]
 
-/-- If `Φ` is a localizer morphism from `W₁ : MorphismProperty C₁` to
+/--
+If `Φ` is a localizer morphism from `W₁ : MorphismProperty C₁` to
 `W₂ : MorphismProperty C₂`, if `L₁ : C₁ ⥤ D₁` and `L₂ : C₂ ⥤ D₂` are
 localization functors for `W₁` and `W₂`, if `F : C₂ ⥤ H` is a functor,
 if `F₁ : D₁ ⥤ H` is a left derived functor of `Φ.functor ⋙ F`,
 and if `F₂ : D₂ ⥤ H` is a functor equipped with a
 natural transformation `α₂ : L₂ ⋙ F₂ ⟶ F`, this is the canonical
-morphism `Φ.localizedFunctor L₁ L₂ ⋙ F₂ ⟶ F₁`. -/
-noncomputable def leftDerivedFunctorComparison :
-    Φ.localizedFunctor L₁ L₂ ⋙ F₂ ⟶ F₁ :=
+morphism `Φ.localizedFunctor L₁ L₂ ⋙ F₂ ⟶ F₁`.
+-/
+noncomputable def leftDerivedFunctorComparison : Φ.localizedFunctor L₁ L₂ ⋙ F₂ ⟶ F₁ :=
   F₁.leftDerivedLift α₁ W₁ (Φ.localizedFunctor L₁ L₂ ⋙ F₂)
-    ((associator _ _ _).inv ≫ whiskerRight ((Φ.catCommSq L₁ L₂).iso).inv F₂ ≫
-      (associator _ _ _).hom ≫ whiskerLeft Φ.functor α₂)
+    ((associator _ _ _).inv ≫ whiskerRight ((Φ.catCommSq L₁ L₂).iso).inv F₂ ≫ (associator _ _ _).hom
+      ≫ whiskerLeft Φ.functor α₂)
 
 @[reassoc]
 lemma leftDerivedFunctorComparison_fac :
@@ -106,16 +108,16 @@ lemma hasPointwiseLeftDerivedFunctor_iff_of_isLeftDerivabilityStructure :
 
 section
 
-variable [(Φ.functor ⋙ F).HasPointwiseLeftDerivedFunctor W₁]
-  [F₂.IsLeftDerivedFunctor α₂ W₂]
+variable [(Φ.functor ⋙ F).HasPointwiseLeftDerivedFunctor W₁] [F₂.IsLeftDerivedFunctor α₂ W₂]
 
 instance : IsIso (Φ.leftDerivedFunctorComparison L₁ L₂ F F₁ α₁ F₂ α₂) := by
   have : F.HasPointwiseLeftDerivedFunctor W₂ := by
     rw [Φ.hasPointwiseLeftDerivedFunctor_iff_of_isLeftDerivabilityStructure]
     infer_instance
   dsimp only [leftDerivedFunctorComparison]
-  rw [← isLeftDerivedFunctor_iff_isIso_leftDerivedLift,
-    isLeftDerivedFunctor_iff_isRightKanExtension]
+  rw [
+    ← isLeftDerivedFunctor_iff_isIso_leftDerivedLift, isLeftDerivedFunctor_iff_isRightKanExtension
+  ]
   exact ((F₂.isPointwiseRightKanExtensionOfHasPointwiseLeftDerivedFunctor α₂ W₂).compTwoSquare
     ((Φ.catCommSq L₁ L₂).iso).inv).isRightKanExtension
 

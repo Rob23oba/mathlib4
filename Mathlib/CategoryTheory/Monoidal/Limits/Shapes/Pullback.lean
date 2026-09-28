@@ -32,9 +32,9 @@ variable {C : Type u} [Category.{v} C] [MonoidalCategory C]
 
 namespace IsPushout
 
-variable {Z X Y P W : C} {f : Z ⟶ X} {g : Z ⟶ Y}
-    {inl : X ⟶ P} {inr : Y ⟶ P} (hP : IsPushout f g inl inr)
-    {W : C} (h : X ⟶ W) (k : Y ⟶ W) (w : f ≫ h = g ≫ k)
+variable
+  {Z X Y P W : C} {f : Z ⟶ X} {g : Z ⟶ Y} {inl : X ⟶ P} {inr : Y ⟶ P} (hP : IsPushout f g inl inr)
+  {W : C} (h : X ⟶ W) (k : Y ⟶ W) (w : f ≫ h = g ≫ k)
 
 @[reassoc (attr := simp)]
 lemma whiskerLeft_inl_desc {Q : C} :
@@ -110,9 +110,7 @@ end IsPushout
 
 section Pushout
 
-variable [HasPushouts C]
-  {W X Y Z : C} {f : X ⟶ Y} {g : X ⟶ Z}
-  (h : Y ⟶ W) {Q : C}
+variable [HasPushouts C] {W X Y Z : C} {f : X ⟶ Y} {g : X ⟶ Z} (h : Y ⟶ W) {Q : C}
 
 @[reassoc]
 lemma Limits.pushout.whiskerLeft_condition :

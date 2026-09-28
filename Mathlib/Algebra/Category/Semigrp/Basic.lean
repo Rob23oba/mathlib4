@@ -32,7 +32,6 @@ This closely follows `Mathlib/Algebra/Category/MonCat/Basic.lean`.
 
 @[expose] public section
 
-
 universe u v
 
 open CategoryTheory
@@ -57,9 +56,7 @@ initialize_simps_projections MagmaCat (carrier → coe, -str)
 
 namespace MagmaCat
 
-@[to_additive]
-instance : CoeSort MagmaCat (Type u) :=
-  ⟨MagmaCat.carrier⟩
+@[to_additive] instance : CoeSort MagmaCat (Type u) := ⟨MagmaCat.carrier⟩
 
 attribute [coe] AddMagmaCat.carrier MagmaCat.carrier
 
@@ -112,8 +109,7 @@ instance : ConcreteCategory MagmaCat (· →ₙ* ·) where
 
 /-- Turn a morphism in `MagmaCat` back into a `MulHom`. -/
 @[to_additive /-- Turn a morphism in `AddMagmaCat` back into an `AddHom`. -/]
-abbrev Hom.hom {X Y : MagmaCat.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := MagmaCat) f
+abbrev Hom.hom {X Y : MagmaCat.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := MagmaCat) f
 
 /-- Typecheck a `MulHom` as a morphism in `MagmaCat`. -/
 @[to_additive /-- Typecheck an `AddHom` as a morphism in `AddMagmaCat`. -/]
@@ -122,8 +118,7 @@ abbrev ofHom {X Y : Type u} [Mul X] [Mul Y] (f : X →ₙ* Y) : of X ⟶ of Y :=
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : MagmaCat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : MagmaCat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 initialize_simps_projections AddMagmaCat.Hom (hom' → hom)
@@ -200,9 +195,7 @@ lemma mulEquiv_coe_eq {X Y : Type _} [Mul X] [Mul Y] (e : X ≃* Y) :
     (ofHom (e : X →ₙ* Y)).hom = ↑e :=
   rfl
 
-@[to_additive]
-instance : Inhabited MagmaCat :=
-  ⟨↧PEmpty⟩
+@[to_additive] instance : Inhabited MagmaCat := ⟨↧PEmpty⟩
 
 end MagmaCat
 
@@ -226,9 +219,7 @@ initialize_simps_projections Semigrp (carrier → coe, -str)
 
 namespace Semigrp
 
-@[to_additive]
-instance : CoeSort Semigrp (Type u) :=
-  ⟨Semigrp.carrier⟩
+@[to_additive] instance : CoeSort Semigrp (Type u) := ⟨Semigrp.carrier⟩
 
 attribute [coe] AddSemigrp.carrier Semigrp.carrier
 
@@ -281,8 +272,7 @@ instance : ConcreteCategory Semigrp (· →ₙ* ·) where
 
 /-- Turn a morphism in `Semigrp` back into a `MulHom`. -/
 @[to_additive /-- Turn a morphism in `AddSemigrp` back into an `AddHom`. -/]
-abbrev Hom.hom {X Y : Semigrp.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := Semigrp) f
+abbrev Hom.hom {X Y : Semigrp.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := Semigrp) f
 
 /-- Typecheck a `MulHom` as a morphism in `Semigrp`. -/
 @[to_additive /-- Typecheck an `AddHom` as a morphism in `AddSemigrp`. -/]
@@ -291,8 +281,7 @@ abbrev ofHom {X Y : Type u} [Semigroup X] [Semigroup Y] (f : X →ₙ* Y) : of X
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : Semigrp.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : Semigrp.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 initialize_simps_projections AddSemigrp.Hom (hom' → hom)
@@ -313,8 +302,7 @@ lemma ext {X Y : Semigrp} {f g : X ⟶ Y} (w : ∀ x : X, f x = g x) : f = g :=
 
 @[to_additive]
 -- This is not `simp` to avoid rewriting in types of terms.
-theorem coe_of (R : Type u) [Semigroup R] : ↑(Semigrp.of R) = R :=
-  rfl
+theorem coe_of (R : Type u) [Semigroup R] : ↑(Semigrp.of R) = R := rfl
 
 @[to_additive (attr := simp)]
 lemma hom_id {X : Semigrp} : (𝟙 X : X ⟶ X).hom = MulHom.id X := rfl
@@ -370,15 +358,11 @@ lemma mulEquiv_coe_eq {X Y : Type _} [Semigroup X] [Semigroup Y] (e : X ≃* Y) 
     (ofHom (e : X →ₙ* Y)).hom = ↑e :=
   rfl
 
-@[to_additive]
-instance : Inhabited Semigrp :=
-  ⟨↧PEmpty⟩
+@[to_additive] instance : Inhabited Semigrp := ⟨↧PEmpty⟩
 
 @[to_additive]
 instance hasForgetToMagmaCat : HasForget₂ Semigrp MagmaCat where
-  forget₂ :=
-    { obj R := ↧R
-      map f := MagmaCat.ofHom f.hom }
+  forget₂ := { obj R := ↧R, map f := MagmaCat.ofHom f.hom }
 
 end Semigrp
 
@@ -427,23 +411,27 @@ def semigrpIsoToMulEquiv {X Y : Semigrp} (i : X ≅ Y) : X ≃* Y :=
 
 end CategoryTheory.Iso
 
-/-- multiplicative equivalences between `Mul`s are the same as (isomorphic to) isomorphisms
-in `MagmaCat` -/
+/--
+multiplicative equivalences between `Mul`s are the same as (isomorphic to) isomorphisms
+in `MagmaCat`
+-/
 @[to_additive
     /-- additive equivalences between `Add`s are the same
     as (isomorphic to) isomorphisms in `AddMagmaCat` -/]
-def mulEquivIsoMagmaIso {X Y : Type u} [Mul X] [Mul Y] :
-    (X ≃* Y) ≅ (MagmaCat.of X ≅ MagmaCat.of Y) where
+def mulEquivIsoMagmaIso {X Y : Type u} [Mul X] [Mul Y]
+    : (X ≃* Y) ≅ (MagmaCat.of X ≅ MagmaCat.of Y) where
   hom := ↾fun e ↦ e.toMagmaCatIso
   inv := ↾fun i ↦ i.magmaCatIsoToMulEquiv
 
-/-- multiplicative equivalences between `Semigroup`s are the same as (isomorphic to) isomorphisms
-in `Semigroup` -/
+/--
+multiplicative equivalences between `Semigroup`s are the same as (isomorphic to) isomorphisms
+in `Semigroup`
+-/
 @[to_additive
   /-- additive equivalences between `AddSemigroup`s are
   the same as (isomorphic to) isomorphisms in `AddSemigroup` -/]
-def mulEquivIsoSemigrpIso {X Y : Type u} [Semigroup X] [Semigroup Y] :
-    (X ≃* Y) ≅ (Semigrp.of X ≅ Semigrp.of Y) where
+def mulEquivIsoSemigrpIso {X Y : Type u} [Semigroup X] [Semigroup Y]
+    : (X ≃* Y) ≅ (Semigrp.of X ≅ Semigrp.of Y) where
   hom := ↾fun e ↦ e.toSemigrpIso
   inv := ↾fun i ↦ i.semigrpIsoToMulEquiv
 

@@ -57,10 +57,12 @@ variable (C : Type*) [Category* C] [Abelian C]
 
 namespace ShortComplex
 
-/-- A snake input in an abelian category `C` consists of morphisms
+/--
+A snake input in an abelian category `C` consists of morphisms
 of short complexes `L₀ ⟶ L₁ ⟶ L₂ ⟶ L₃` (which should be visualized vertically) such
 that `L₀` and `L₃` are respectively the kernel and the cokernel of `L₁ ⟶ L₂`,
-`L₁` and `L₂` are exact, `L₁.g` is epi and `L₂.f` is mono. -/
+`L₁` and `L₂` are exact, `L₁.g` is epi and `L₂.f` is mono.
+-/
 structure SnakeInput where
   /-- the zeroth row -/
   L₀ : ShortComplex C
@@ -113,9 +115,11 @@ noncomputable def op : SnakeInput Cᵒᵖ where
   v₂₃ := opMap S.v₀₁
   w₀₂ := congr(opMap $S.w₁₃)
   w₁₃ := congr(opMap $S.w₀₂)
-  h₀ := isLimitForkMapOfIsLimit' (ShortComplex.opEquiv C).functor _
+  h₀ :=
+    isLimitForkMapOfIsLimit' (ShortComplex.opEquiv C).functor _
       (CokernelCofork.IsColimit.ofπOp _ _ S.h₃)
-  h₃ := isColimitCoforkMapOfIsColimit' (ShortComplex.opEquiv C).functor _
+  h₃ :=
+    isColimitCoforkMapOfIsColimit' (ShortComplex.opEquiv C).functor _
       (KernelFork.IsLimit.ofιOp _ _ S.h₀)
   L₁_exact := S.L₂_exact.op
   L₂_exact := S.L₁_exact.op
@@ -221,8 +225,10 @@ lemma L₀_exact : S.L₀.Exact := by
 
 lemma L₃_exact : S.L₃.Exact := S.op.L₀_exact.unop
 
-/-- The fiber product of `L₁.X₂` and `L₀.X₃` over `L₁.X₃`. This is an auxiliary
-object in the construction of the morphism `δ : L₀.X₃ ⟶ L₃.X₁`. -/
+/--
+The fiber product of `L₁.X₂` and `L₀.X₃` over `L₁.X₃`. This is an auxiliary
+object in the construction of the morphism `δ : L₀.X₃ ⟶ L₃.X₁`.
+-/
 noncomputable def P := pullback S.L₁.g S.v₀₁.τ₃
 
 /-- The canonical map `P ⟶ L₂.X₂`. -/
@@ -293,8 +299,7 @@ lemma snd_δ_inr : (pullback.snd _ _ : S.P ⟶ _) ≫ S.δ ≫ (pushout.inr _ _ 
   simp only [snd_δ_assoc, ← pushout.condition, φ₂, φ₁_L₂_f_assoc, assoc]
 
 /-- The canonical morphism `L₀.X₂ ⟶ P`. -/
-@[simp]
-noncomputable def L₀X₂ToP : S.L₀.X₂ ⟶ S.P := pullback.lift S.v₀₁.τ₂ S.L₀.g S.v₀₁.comm₂₃
+@[simp] noncomputable def L₀X₂ToP : S.L₀.X₂ ⟶ S.P := pullback.lift S.v₀₁.τ₂ S.L₀.g S.v₀₁.comm₂₃
 
 set_option backward.isDefEq.respectTransparency false in
 @[reassoc]
@@ -315,12 +320,10 @@ lemma δ_L₃_f : S.δ ≫ S.L₃.f = 0 := by
   simp [← cancel_epi S.L₀'.g, δ, S.v₂₃.comm₁₂, φ₂]
 
 /-- The short complex `L₀.X₂ ⟶ L₀.X₃ ⟶ L₃.X₁`. -/
-@[simps]
-noncomputable def L₁' : ShortComplex C := ShortComplex.mk _ _ S.L₀_g_δ
+@[simps] noncomputable def L₁' : ShortComplex C := ShortComplex.mk _ _ S.L₀_g_δ
 
 /-- The short complex `L₀.X₃ ⟶ L₃.X₁ ⟶ L₃.X₂`. -/
-@[simps]
-noncomputable def L₂' : ShortComplex C := ShortComplex.mk _ _ S.δ_L₃_f
+@[simps] noncomputable def L₂' : ShortComplex C := ShortComplex.mk _ _ S.δ_L₃_f
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -374,8 +377,10 @@ lemma L₂'_exact : S.L₂'.Exact := by
   rw [← exact_op_iff, exact_iff_of_iso S.L₂'OpIso]
   exact S.op.L₁'_exact
 
-/-- The diagram `S.L₀.X₁ ⟶ S.L₀.X₂ ⟶ S.L₀.X₃ ⟶ S.L₃.X₁ ⟶ S.L₃.X₂ ⟶ S.L₃.X₃` for any
-`S : SnakeInput C`. -/
+/--
+The diagram `S.L₀.X₁ ⟶ S.L₀.X₂ ⟶ S.L₀.X₃ ⟶ S.L₃.X₁ ⟶ S.L₃.X₂ ⟶ S.L₃.X₃` for any
+`S : SnakeInput C`.
+-/
 noncomputable abbrev composableArrows : ComposableArrows C 5 :=
   ComposableArrows.mk₅ S.L₀.f S.L₀.g S.δ S.L₃.f S.L₃.g
 
@@ -408,14 +413,15 @@ theorem isIso_δ (h₀ : IsZero S.L₀.X₂) (h₃ : IsZero S.L₃.X₂) : IsIso
   @Balanced.isIso_of_mono_of_epi _ _ _ _ _ S.δ (S.mono_δ h₀) (S.epi_δ h₃)
 
 /-- When `L₀₂` and `L₃₂` are trivial, `δ` defines an isomorphism `L₀₃ ≅ L₃₁`. -/
-noncomputable def δIso (h₀ : IsZero S.L₀.X₂) (h₃ : IsZero S.L₃.X₂) :
-    S.L₀.X₃ ≅ S.L₃.X₁ :=
+noncomputable def δIso (h₀ : IsZero S.L₀.X₂) (h₃ : IsZero S.L₃.X₂) : S.L₀.X₃ ≅ S.L₃.X₁ :=
   @asIso _ _ _ _ S.δ (SnakeInput.isIso_δ S h₀ h₃)
 
 variable (S₁ S₂ S₃ : SnakeInput C)
 
-/-- A morphism of snake inputs involve four morphisms of short complexes
-which make the obvious diagram commute. -/
+/--
+A morphism of snake inputs involve four morphisms of short complexes
+which make the obvious diagram commute.
+-/
 @[ext]
 structure Hom where
   /-- a morphism between the zeroth lines -/
@@ -504,12 +510,15 @@ def functorL₃ : SnakeInput C ⥤ ShortComplex C where
   obj S := S.L₃
   map f := f.f₃
 
-/-- The functor which sends `S : SnakeInput C` to the auxiliary object `S.P`,
-which is `pullback S.L₁.g S.v₀₁.τ₃`. -/
+/--
+The functor which sends `S : SnakeInput C` to the auxiliary object `S.P`,
+which is `pullback S.L₁.g S.v₀₁.τ₃`.
+-/
 @[simps]
 noncomputable def functorP : SnakeInput C ⥤ C where
   obj S := S.P
-  map f := pullback.map _ _ _ _ f.f₁.τ₂ f.f₀.τ₃ f.f₁.τ₃ f.f₁.comm₂₃.symm
+  map f :=
+    pullback.map _ _ _ _ f.f₁.τ₂ f.f₀.τ₃ f.f₁.τ₃ f.f₁.comm₂₃.symm
       congr(ShortComplex.Hom.τ₃ $f.comm₀₁.symm)
   map_id _ := by dsimp [P]; simp
   map_comp _ _ := by dsimp [P]; cat_disch
@@ -532,37 +541,46 @@ lemma naturality_δ (f : S₁ ⟶ S₂) : S₁.δ ≫ f.f₃.τ₁ = f.f₀.τ�
   rw [← cancel_epi (pullback.snd _ _ : S₁.P ⟶ _), S₁.snd_δ_assoc, ← comp_τ₁, ← f.comm₂₃,
     comp_τ₁, naturality_φ₁_assoc, ← S₂.snd_δ, functorP_map, pullback.lift_snd_assoc, assoc]
 
-/-- The functor which sends `S : SnakeInput C` to `S.L₁'` which is
-`S.L₀.X₂ ⟶ S.L₀.X₃ ⟶ S.L₃.X₁`. -/
+/--
+The functor which sends `S : SnakeInput C` to `S.L₁'` which is
+`S.L₀.X₂ ⟶ S.L₀.X₃ ⟶ S.L₃.X₁`.
+-/
 @[simps]
 noncomputable def functorL₁' : SnakeInput C ⥤ ShortComplex C where
   obj S := S.L₁'
-  map f :=
-    { τ₁ := f.f₀.τ₂
-      τ₂ := f.f₀.τ₃
-      τ₃ := f.f₃.τ₁
-      comm₁₂ := f.f₀.comm₂₃
-      comm₂₃ := (naturality_δ f).symm }
+  map f := {
+    τ₁ := f.f₀.τ₂
+    τ₂ := f.f₀.τ₃
+    τ₃ := f.f₃.τ₁
+    comm₁₂ := f.f₀.comm₂₃
+    comm₂₃ := (naturality_δ f).symm
+  }
 
-/-- The functor which sends `S : SnakeInput C` to `S.L₂'` which is
-`S.L₀.X₃ ⟶ S.L₃.X₁ ⟶ S.L₃.X₂`. -/
+/--
+The functor which sends `S : SnakeInput C` to `S.L₂'` which is
+`S.L₀.X₃ ⟶ S.L₃.X₁ ⟶ S.L₃.X₂`.
+-/
 @[simps]
 noncomputable def functorL₂' : SnakeInput C ⥤ ShortComplex C where
   obj S := S.L₂'
-  map f :=
-    { τ₁ := f.f₀.τ₃
-      τ₂ := f.f₃.τ₁
-      τ₃ := f.f₃.τ₂
-      comm₁₂ := (naturality_δ f).symm
-      comm₂₃ := f.f₃.comm₁₂ }
+  map f := {
+    τ₁ := f.f₀.τ₃
+    τ₂ := f.f₃.τ₁
+    τ₃ := f.f₃.τ₂
+    comm₁₂ := (naturality_δ f).symm
+    comm₂₃ := f.f₃.comm₁₂
+  }
 
-/-- The functor which maps `S : SnakeInput C` to the diagram
-`S.L₀.X₁ ⟶ S.L₀.X₂ ⟶ S.L₀.X₃ ⟶ S.L₃.X₁ ⟶ S.L₃.X₂ ⟶ S.L₃.X₃`. -/
+/--
+The functor which maps `S : SnakeInput C` to the diagram
+`S.L₀.X₁ ⟶ S.L₀.X₂ ⟶ S.L₀.X₃ ⟶ S.L₃.X₁ ⟶ S.L₃.X₂ ⟶ S.L₃.X₃`.
+-/
 @[simps]
 noncomputable def composableArrowsFunctor : SnakeInput C ⥤ ComposableArrows C 5 where
   obj S := S.composableArrows
-  map f := ComposableArrows.homMk₅ f.f₀.τ₁ f.f₀.τ₂ f.f₀.τ₃ f.f₃.τ₁ f.f₃.τ₂ f.f₃.τ₃
-    f.f₀.comm₁₂.symm f.f₀.comm₂₃.symm (naturality_δ f) f.f₃.comm₁₂.symm f.f₃.comm₂₃.symm
+  map f :=
+    ComposableArrows.homMk₅ f.f₀.τ₁ f.f₀.τ₂ f.f₀.τ₃ f.f₃.τ₁ f.f₃.τ₂ f.f₃.τ₃ f.f₀.comm₁₂.symm
+      f.f₀.comm₂₃.symm (naturality_δ f) f.f₃.comm₁₂.symm f.f₃.comm₂₃.symm
 
 end SnakeInput
 

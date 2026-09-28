@@ -29,16 +29,22 @@ namespace Ordinal
 
 variable {a b o : Ordinal}
 
-/-- A fundamental sequence for `o` is a strictly monotonic function `Iio o.cof.ord → Iio o` with
-cofinal range. We provide `a = o.cof.ord` explicitly to avoid type rewrites. -/
+/--
+A fundamental sequence for `o` is a strictly monotonic function `Iio o.cof.ord → Iio o` with
+cofinal range. We provide `a = o.cof.ord` explicitly to avoid type rewrites.
+-/
 structure IsFundamentalSeq (f : Iio a → Iio o) : Prop where
-  /-- This condition alongside the others is enough to conclude `o.cof.ord = a`, see
-  `IsFundamentalSeq.ord_cof`. -/
+  /--
+  This condition alongside the others is enough to conclude `o.cof.ord = a`, see
+  `IsFundamentalSeq.ord_cof`.
+  -/
   le_ord_cof : a ≤ o.cof.ord
   /-- A fundamental sequence is strictly monotonic. -/
   strictMono : StrictMono f
-  /-- A fundamental sequence for `o` has cofinal range, i.e. its least strict upper bound equals the
-  ordinal `o`. See `IsFundamentalSeq.iSup_add_one_eq` and `IsFundamentalSeq.iSup_eq`. -/
+  /--
+  A fundamental sequence for `o` has cofinal range, i.e. its least strict upper bound equals the
+  ordinal `o`. See `IsFundamentalSeq.iSup_add_one_eq` and `IsFundamentalSeq.iSup_eq`.
+  -/
   isCofinal_range : IsCofinal (range f)
 
 namespace IsFundamentalSeq
@@ -79,24 +85,27 @@ protected theorem zero (f : Iio 0 → Iio 0) : IsFundamentalSeq f where
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The length one sequence `(o)` is a fundamental sequence for `o + 1`. -/
-protected theorem add_one (o : Ordinal) :
-    @IsFundamentalSeq 1 (o + 1) fun _ ↦ ⟨o, lt_add_one o⟩ where
+protected theorem add_one (o : Ordinal)
+    : @IsFundamentalSeq 1 (o + 1) fun _ ↦ ⟨o, lt_add_one o⟩ where
   strictMono _ := by simp
   le_ord_cof := by simp
   isCofinal_range := by simp [IsTop]
 
-protected theorem comp (hf : IsFundamentalSeq f) (hg : IsFundamentalSeq g) :
-    IsFundamentalSeq (f ∘ g) where
+protected theorem comp (hf : IsFundamentalSeq f) (hg : IsFundamentalSeq g)
+    : IsFundamentalSeq (f ∘ g) where
   strictMono := hf.strictMono.comp hg.strictMono
   le_ord_cof := by rw [hf.ord_cof, ← hg.ord_cof]; exact a.ord_cof_le
   isCofinal_range := by
     rw [range_comp]
     exact hg.isCofinal_range.image hf.strictMono.monotone hf.isCofinal_range
 
-/-- If `f` is a fundamental sequence for a limit ordinal `o` and `g` is normal, then `g ∘ f` is a
-fundamental sequence for `g o`. -/
-theorem comp_isNormal {g : Ordinal → Ordinal} (hg : IsNormal g) (hf : IsFundamentalSeq f)
-    (ho : IsSuccLimit o) : IsFundamentalSeq fun i ↦ ⟨g (f i), hg.strictMono (f i).2⟩ where
+/--
+If `f` is a fundamental sequence for a limit ordinal `o` and `g` is normal, then `g ∘ f` is a
+fundamental sequence for `g o`.
+-/
+theorem comp_isNormal
+    {g : Ordinal → Ordinal} (hg : IsNormal g) (hf : IsFundamentalSeq f) (ho : IsSuccLimit o)
+    : IsFundamentalSeq fun i ↦ ⟨g (f i), hg.strictMono (f i).2⟩ where
   strictMono := hg.strictMono.comp hf.strictMono
   le_ord_cof := by rw [cof_map_of_isNormal hg ho, hf.ord_cof]
   isCofinal_range := by
@@ -114,16 +123,17 @@ theorem exists_isFundamentalSeq (ha : o.cof.ord = a) : ∃ f : Iio a → Iio o, 
   subst ha
   obtain ⟨s, hs, hs'⟩ := exists_ord_cof_eq o.ToType
   rw [cof_toType] at hs'
-  let g := (Set.orderIsoOfEq _ _ (congrArg _ hs'.symm)).trans <|
-    .ofRelIsoLT (enum (α := s) (· < ·))
+  let g := (Set.orderIsoOfEq _ _ (congrArg _ hs'.symm)).trans <| .ofRelIsoLT (enum (α := s) (· < ·))
   refine ⟨fun i ↦ g i, le_rfl, fun _ ↦ by simp, ?_⟩
   rw [range_comp', OrderIso.map_isCofinal_iff, range_comp', g.range_eq]
   simpa
 
 /-! ### Deprecated material -/
 
-/-- A fundamental sequence for `a` is an increasing sequence of length `o = cof a` that converges at
-    `a`. We provide `o` explicitly in order to avoid type rewrites. -/
+/--
+A fundamental sequence for `a` is an increasing sequence of length `o = cof a` that converges at
+`a`. We provide `o` explicitly in order to avoid type rewrites.
+-/
 @[deprecated IsFundamentalSeq +typeChanged (since := "2026-03-23")]
 def IsFundamentalSequence (a o : Ordinal.{u}) (f : ∀ b < o, Ordinal.{u}) : Prop :=
   o ≤ a.cof.ord ∧ (∀ {i j} (hi hj), i < j → f i hi < f j hj) ∧ blsub.{u, u} o f = a
@@ -139,17 +149,16 @@ protected theorem cof_eq (hf : IsFundamentalSequence a o f) : a.cof.ord = o :=
     exact (ord_le_ord.2 (cof_blsub_le f)).trans (ord_card_le o)
 
 @[deprecated IsFundamentalSeq.strictMono +typeChanged (since := "2026-03-23")]
-protected theorem strict_mono (hf : IsFundamentalSequence a o f) {i j} :
-    ∀ hi hj, i < j → f i hi < f j hj :=
+protected theorem strict_mono (hf : IsFundamentalSequence a o f) {i j}
+    : ∀ hi hj, i < j → f i hi < f j hj :=
   hf.2.1
 
 @[deprecated IsFundamentalSeq.iSup_add_one_eq +typeChanged (since := "2026-03-23")]
-theorem blsub_eq (hf : IsFundamentalSequence a o f) : blsub.{u, u} o f = a :=
-  hf.2.2
+theorem blsub_eq (hf : IsFundamentalSequence a o f) : blsub.{u, u} o f = a := hf.2.2
 
 @[deprecated IsFundamentalSeq +typeChanged (since := "2026-03-23")]
-theorem ord_cof (hf : IsFundamentalSequence a o f) :
-    IsFundamentalSequence a a.cof.ord fun i hi => f i (hi.trans_le (by rw [hf.cof_eq])) := by
+theorem ord_cof (hf : IsFundamentalSequence a o f)
+    : IsFundamentalSequence a a.cof.ord fun i hi => f i (hi.trans_le (by rw [hf.cof_eq])) := by
   have H := hf.cof_eq
   subst H
   exact hf
@@ -171,17 +180,18 @@ protected theorem succ : IsFundamentalSequence (succ o) 1 fun _ _ => o := by
     exact h.false.elim
 
 @[deprecated IsFundamentalSeq.strictMono +typeChanged (since := "2026-03-23")]
-protected theorem monotone (hf : IsFundamentalSequence a o f) {i j : Ordinal} (hi : i < o)
-    (hj : j < o) (hij : i ≤ j) : f i hi ≤ f j hj := by
+protected theorem monotone
+    (hf : IsFundamentalSequence a o f) {i j : Ordinal} (hi : i < o) (hj : j < o) (hij : i ≤ j)
+    : f i hi ≤ f j hj := by
   rcases lt_or_eq_of_le hij with (hij | rfl)
   · exact (hf.2.1 hi hj hij).le
   · rfl
 
 @[deprecated IsFundamentalSeq.comp +typeChanged (since := "2026-03-23")]
-theorem trans {a o o' : Ordinal.{u}} {f : ∀ b < o, Ordinal.{u}} (hf : IsFundamentalSequence a o f)
-    {g : ∀ b < o', Ordinal.{u}} (hg : IsFundamentalSequence o o' g) :
-    IsFundamentalSequence a o' fun i hi =>
-      f (g i hi) (by rw [← hg.2.2]; apply lt_blsub) := by
+theorem trans
+    {a o o' : Ordinal.{u}} {f : ∀ b < o, Ordinal.{u}} (hf : IsFundamentalSequence a o f)
+    {g : ∀ b < o', Ordinal.{u}} (hg : IsFundamentalSequence o o' g)
+    : IsFundamentalSequence a o' fun i hi => f (g i hi) (by rw [← hg.2.2]; apply lt_blsub) := by
   refine ⟨?_, @fun i j _ _ h => hf.2.1 _ _ (hg.2.1 _ _ h), ?_⟩
   · rw [hf.cof_eq]
     exact hg.1.trans (ord_cof_le o)
@@ -190,16 +200,18 @@ theorem trans {a o o' : Ordinal.{u}} {f : ∀ b < o, Ordinal.{u}} (hf : IsFundam
     · exact hg.2.2
 
 @[deprecated IsFundamentalSeq +typeChanged (since := "2026-03-23")]
-protected theorem lt {a o : Ordinal} {s : Π p < o, Ordinal}
-    (h : IsFundamentalSequence a o s) {p : Ordinal} (hp : p < o) : s p hp < a :=
+protected theorem lt
+    {a o : Ordinal} {s : Π p < o, Ordinal} (h : IsFundamentalSequence a o s)
+    {p : Ordinal} (hp : p < o)
+    : s p hp < a :=
   h.blsub_eq ▸ lt_blsub s p hp
 
 end IsFundamentalSequence
 
 /-- Every ordinal has a fundamental sequence. -/
 @[deprecated exists_isFundamentalSeq +typeChanged (since := "2026-03-23")]
-theorem exists_fundamental_sequence (a : Ordinal.{u}) :
-    ∃ f, IsFundamentalSequence a a.cof.ord f := by
+theorem exists_fundamental_sequence (a : Ordinal.{u})
+    : ∃ f, IsFundamentalSequence a a.cof.ord f := by
   suffices h : ∃ o f, IsFundamentalSequence a o f by
     rcases h with ⟨o, f, hf⟩
     exact ⟨_, hf.ord_cof⟩
@@ -208,9 +220,13 @@ theorem exists_fundamental_sequence (a : Ordinal.{u}) :
   let r' := Subrel r fun i ↦ ∀ j, r j i → f j < f i
   let hrr' : r' ↪r r := Subrel.relEmbedding _ _
   have := hrr'.isWellOrder
-  refine
-    ⟨_, _, hrr'.ordinal_type_le.trans ?_, @fun i j _ h _ => (enum r' ⟨j, h⟩).prop _ ?_,
-      le_antisymm (blsub_le fun i hi => lsub_le_iff.1 hf.le _) ?_⟩
+  refine ⟨
+    _,
+    _,
+    hrr'.ordinal_type_le.trans ?_,
+    @fun i j _ h _ => (enum r' ⟨j, h⟩).prop _ ?_,
+    le_antisymm (blsub_le fun i hi => lsub_le_iff.1 hf.le _) ?_
+  ⟩
   · rw [← hι, hr]
   · change r (hrr'.1 _) (hrr'.1 _)
     rwa [hrr'.2, @enum_lt_enum _ r']
@@ -225,17 +241,22 @@ theorem exists_fundamental_sequence (a : Ordinal.{u}) :
     · obtain ⟨hji, hij⟩ := wo.wf.min_mem _ h
       refine ⟨typein r' ⟨_, fun k hkj => lt_of_lt_of_le ?_ hij⟩, typein_lt_type _ _, ?_⟩
       · by_contra! H
-        exact (wo.wf.not_lt_min {j | r j i ∧ f i ≤ f j} ⟨IsTrans.trans _ _ _ hkj hji, H⟩) hkj
+        exact (wo.wf.not_lt_min ({j | r j i ∧ f i ≤ f j}) ⟨IsTrans.trans _ _ _ hkj hji, H⟩) hkj
       · rwa [bfamilyOfFamily'_typein]
 
 @[deprecated IsFundamentalSeq.comp_isNormal +typeChanged (since := "2026-03-23")]
-theorem IsFundamentalSequence.of_isNormal {f : Ordinal.{u} → Ordinal.{u}} (hf : IsNormal f)
-    {a o} (ha : IsSuccLimit a) {g} (hg : IsFundamentalSequence a o g) :
-    IsFundamentalSequence (f a) o fun b hb => f (g b hb) := by
+theorem IsFundamentalSequence.of_isNormal
+    {f : Ordinal.{u} → Ordinal.{u}} (hf : IsNormal f)
+    {a o} (ha : IsSuccLimit a)
+    {g} (hg : IsFundamentalSequence a o g)
+    : IsFundamentalSequence (f a) o fun b hb => f (g b hb) := by
   refine ⟨?_, @fun i j _ _ h => hf.strictMono (hg.2.1 _ _ h), ?_⟩
   · grind [Ordinal.IsFundamentalSequence, cof_map_of_isNormal]
-  · rw [@blsub_comp.{u, u, u} a _ (fun b _ => f b) (@fun i j _ _ h => hf.strictMono.monotone h) g
-        hg.2.2]
+  · rw [
+      @blsub_comp.{u, u, u} a _
+        (fun b _ => f b)
+        (@fun i j _ _ h => hf.strictMono.monotone h) g hg.2.2
+    ]
     exact IsNormal.blsub_eq.{u, u} hf ha
 
 end Ordinal

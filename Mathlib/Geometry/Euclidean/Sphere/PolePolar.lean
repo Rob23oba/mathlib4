@@ -40,14 +40,19 @@ open scoped RealInnerProductSpace
 variable {V P : Type*}
 variable [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P]
 
-/-- The pole of an affine subspace is the inversion in the sphere of the point in that subspace
-closest to the center. -/
-def pole (s : Sphere P) (as : AffineSubspace ℝ P) [Nonempty as]
-    [as.direction.HasOrthogonalProjection] : P :=
+/--
+The pole of an affine subspace is the inversion in the sphere of the point in that subspace
+closest to the center.
+-/
+def pole
+    (s : Sphere P) (as : AffineSubspace ℝ P) [Nonempty as] [as.direction.HasOrthogonalProjection]
+    : P :=
   inversion s.center s.radius (orthogonalProjection as s.center)
 
-/-- The polar of a point is the affine subspace orthogonal to the radius vector at that point
-and passing through its inversion in the sphere. -/
+/--
+The polar of a point is the affine subspace orthogonal to the radius vector at that point
+and passing through its inversion in the sphere.
+-/
 def polar (s : Sphere P) (p : P) : AffineSubspace ℝ P :=
   s.orthRadius (inversion s.center s.radius p)
 
@@ -119,10 +124,13 @@ lemma mem_polar_iff_inner {s : Sphere P} {p₁ p₂ : P} : p₁ ∈ s.polar p₂
   convert Iff.rfl using 2
   field [dist_ne_zero.2 hp₂]
 
-/-- **La Hire's theorem**: `p₁` lies on the polar of `p₂` if and only if `p₂` lies on the polar of
-`p₁`. -/
-theorem mem_polar_iff_mem_polar {s : Sphere P} {p₁ p₂ : P} (hp₁ : p₁ ≠ s.center)
-    (hp₂ : p₂ ≠ s.center) : p₁ ∈ s.polar p₂ ↔ p₂ ∈ s.polar p₁ := by
+/--
+**La Hire's theorem**: `p₁` lies on the polar of `p₂` if and only if `p₂` lies on the polar of
+`p₁`.
+-/
+theorem mem_polar_iff_mem_polar
+    {s : Sphere P} {p₁ p₂ : P} (hp₁ : p₁ ≠ s.center) (hp₂ : p₂ ≠ s.center)
+    : p₁ ∈ s.polar p₂ ↔ p₂ ∈ s.polar p₁ := by
   simp [mem_polar_iff_inner, real_inner_comm, hp₁, hp₂]
 
 lemma mem_orthRadius_iff_mem_polar_of_mem {s : Sphere P} {p₁ p₂ : P} (hp₁ : p₁ ≠ s.center)

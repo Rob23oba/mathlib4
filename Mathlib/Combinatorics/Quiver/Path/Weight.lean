@@ -8,7 +8,6 @@ module
 public import Mathlib.Combinatorics.Quiver.Path
 public import Mathlib.Algebra.Order.Ring.Defs
 
-
 /-!
 # Path weights in a Quiver
 
@@ -41,13 +40,17 @@ variable [Monoid R]
 
 /-- The weight of a path is the product of the weights of its edges. -/
 def weight (w : ∀ {i j : V}, (i ⟶ j) → R) : ∀ {i j : V}, Path i j → R
-  | _, _, Path.nil => 1
-  | _, _, Path.cons p e => weight w p * w e
+  | _, _, Path.nil =>
+    1
+  | _, _, Path.cons p e =>
+    weight w p * w e
 
 /-- The additive weight of a path is the sum of the weights of its edges. -/
 def addWeight {R : Type*} [AddMonoid R] (w : ∀ {i j : V}, (i ⟶ j) → R) : ∀ {i j : V}, Path i j → R
-  | _, _, Path.nil => 0
-  | _, _, Path.cons p e => addWeight w p + w e
+  | _, _, Path.nil =>
+    0
+  | _, _, Path.cons p e =>
+    addWeight w p + w e
 
 attribute [to_additive existing addWeight] weight
 

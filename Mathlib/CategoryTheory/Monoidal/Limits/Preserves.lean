@@ -18,16 +18,14 @@ public section
 namespace CategoryTheory.MonoidalCategory.Limits
 open _root_.CategoryTheory.Limits
 
-variable {C : Type*} [Category* C] [MonoidalCategory C]
-  {J : Type*} [Category* J] (F : J ⥤ C)
+variable {C : Type*} [Category* C] [MonoidalCategory C] {J : Type*} [Category* J] (F : J ⥤ C)
 
 section Colimits
 
 /-- When `C` is braided and `tensorLeft c` preserves a colimit, then so does `tensorRight k`. -/
 instance preservesColimit_of_braided_and_preservesColimit_tensor_left
-    [BraidedCategory C] (c : C)
-    [PreservesColimit F (tensorLeft c)] :
-    PreservesColimit F (tensorRight c) :=
+    [BraidedCategory C] (c : C) [PreservesColimit F (tensorLeft c)]
+    : PreservesColimit F (tensorRight c) :=
   preservesColimit_of_natIso F (BraidedCategory.tensorLeftIsoTensorRight c)
 
 /-- When `C` is braided and `tensorRight c` preserves a colimit, then so does `tensorLeft k`.
@@ -53,9 +51,8 @@ section Limits
 
 /-- When `C` is braided and `tensorLeft c` preserves a limit, then so does `tensorRight k`. -/
 instance preservesLimit_of_braided_and_preservesLimit_tensor_left
-    [BraidedCategory C] (c : C)
-    [PreservesLimit F (tensorLeft c)] :
-    PreservesLimit F (tensorRight c) :=
+    [BraidedCategory C] (c : C) [PreservesLimit F (tensorLeft c)]
+    : PreservesLimit F (tensorRight c) :=
   preservesLimit_of_natIso F (BraidedCategory.tensorLeftIsoTensorRight c)
 
 /-- When `C` is braided and `tensorRight c` preserves a limit, then so does `tensorLeft k`.

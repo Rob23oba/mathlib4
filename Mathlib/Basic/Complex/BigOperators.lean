@@ -41,8 +41,7 @@ lemma ofReal_balance [Fintype α] (f : α → ℝ) (a : α) :
     ofReal ∘ balance f = balance (ofReal ∘ f : ι → ℂ) := funext <| ofReal_balance _
 
 @[simp]
-theorem re_sum (f : α → ℂ) : (∑ i ∈ s, f i).re = ∑ i ∈ s, (f i).re :=
-  map_sum reAddGroupHom f s
+theorem re_sum (f : α → ℂ) : (∑ i ∈ s, f i).re = ∑ i ∈ s, (f i).re := map_sum reAddGroupHom f s
 
 @[simp]
 lemma re_expect (f : α → ℂ) : (𝔼 i ∈ s, f i).re = 𝔼 i ∈ s, (f i).re :=
@@ -56,8 +55,7 @@ lemma re_balance [Fintype α] (f : α → ℂ) (a : α) : re (balance f a) = bal
     re ∘ balance f = balance (re ∘ f) := funext <| re_balance _
 
 @[simp]
-theorem im_sum (f : α → ℂ) : (∑ i ∈ s, f i).im = ∑ i ∈ s, (f i).im :=
-  map_sum imAddGroupHom f s
+theorem im_sum (f : α → ℂ) : (∑ i ∈ s, f i).im = ∑ i ∈ s, (f i).im := map_sum imAddGroupHom f s
 
 @[simp]
 lemma im_expect (f : α → ℂ) : (𝔼 i ∈ s, f i).im = 𝔼 i ∈ s, (f i).im :=

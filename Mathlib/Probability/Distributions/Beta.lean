@@ -30,24 +30,25 @@ namespace ProbabilityTheory
 section BetaPDF
 
 /-- The normalizing constant in the beta distribution. -/
-noncomputable def beta (α β : ℝ) : ℝ :=
-  Real.Gamma α * Real.Gamma β / Real.Gamma (α + β)
+noncomputable def beta (α β : ℝ) : ℝ := Real.Gamma α * Real.Gamma β / Real.Gamma (α + β)
 
 lemma beta_pos {α β : ℝ} (hα : 0 < α) (hβ : 0 < β) : 0 < beta α β :=
   div_pos (mul_pos (Real.Gamma_pos_of_pos hα) (Real.Gamma_pos_of_pos hβ))
     (Real.Gamma_pos_of_pos (add_pos hα hβ))
 
 /-- Relation between the beta function and the gamma function over the reals. -/
-theorem beta_eq_betaIntegralReal (α β : ℝ) (hα : 0 < α) (hβ : 0 < β) :
-    beta α β = (betaIntegral α β).re := by
+theorem beta_eq_betaIntegralReal (α β : ℝ) (hα : 0 < α) (hβ : 0 < β)
+    : beta α β = (betaIntegral α β).re := by
   rw [betaIntegral_eq_Gamma_mul_div]
   · simp_rw [beta, ← ofReal_add α β, Gamma_ofReal]
     norm_cast
   all_goals simpa
 
-/-- The probability density function of the beta distribution with shape parameters `α` and `β`.
+/--
+The probability density function of the beta distribution with shape parameters `α` and `β`.
 Returns `(1 / beta α β) * x ^ (α - 1) * (1 - x) ^ (β - 1)`
-when `0 < x < 1` and `0` otherwise. -/
+when `0 < x < 1` and `0` otherwise.
+-/
 noncomputable def betaPDFReal (α β x : ℝ) : ℝ :=
   if 0 < x ∧ x < 1 then
     (1 / beta α β) * x ^ (α - 1) * (1 - x) ^ (β - 1)
@@ -55,8 +56,7 @@ noncomputable def betaPDFReal (α β x : ℝ) : ℝ :=
     0
 
 /-- The pdf of the beta distribution, as a function valued in `ℝ≥0∞`. -/
-noncomputable def betaPDF (α β x : ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal (betaPDFReal α β x)
+noncomputable def betaPDF (α β x : ℝ) : ℝ≥0∞ := ENNReal.ofReal (betaPDFReal α β x)
 
 lemma betaPDF_eq (α β x : ℝ) :
     betaPDF α β x =
@@ -128,9 +128,7 @@ lemma lintegral_betaPDF_eq_one {α β : ℝ} (hα : 0 < α) (hβ : 0 < β) :
 end BetaPDF
 
 /-- Measure defined by the beta distribution. -/
-noncomputable
-def betaMeasure (α β : ℝ) : Measure ℝ :=
-  volume.withDensity (betaPDF α β)
+noncomputable def betaMeasure (α β : ℝ) : Measure ℝ := volume.withDensity (betaPDF α β)
 
 lemma isProbabilityMeasureBeta {α β : ℝ} (hα : 0 < α) (hβ : 0 < β) :
     IsProbabilityMeasure (betaMeasure α β) where

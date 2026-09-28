@@ -60,9 +60,11 @@ variable {ι ι' : Type*} (c : ComplexShape ι) (c' : ComplexShape ι')
 
 namespace ComplexShape
 
-/-- An embedding of a complex shape `c : ComplexShape ι` into a complex shape
+/--
+An embedding of a complex shape `c : ComplexShape ι` into a complex shape
 `c' : ComplexShape ι'` consists of an injective map `f : ι → ι'` which satisfies
-a compatibility with respect to the relations `c.Rel` and `c'.Rel`. -/
+a compatibility with respect to the relations `c.Rel` and `c'.Rel`.
+-/
 structure Embedding where
   /-- the map between the underlying types of indices -/
   f : ι → ι'
@@ -81,8 +83,10 @@ def op : Embedding c.symm c'.symm where
   injective_f := e.injective_f
   rel h := e.rel h
 
-/-- An embedding of complex shapes `e` satisfies `e.IsRelIff` if the implication
-`e.rel` is an equivalence. -/
+/--
+An embedding of complex shapes `e` satisfies `e.IsRelIff` if the implication
+`e.rel` is an equivalence.
+-/
 class IsRelIff : Prop where
   rel' (i₁ i₂ : ι) (h : c'.Rel (e.f i₁) (e.f i₂)) : c.Rel i₁ i₂
 
@@ -97,11 +101,13 @@ instance [e.IsRelIff] : e.op.IsRelIff where
 section
 
 variable (c c')
-variable (f : ι → ι') (hf : Function.Injective f)
-    (iff : ∀ (i₁ i₂ : ι), c.Rel i₁ i₂ ↔ c'.Rel (f i₁) (f i₂))
+variable
+  (f : ι → ι') (hf : Function.Injective f) (iff : ∀ (i₁ i₂ : ι), c.Rel i₁ i₂ ↔ c'.Rel (f i₁) (f i₂))
 
-/-- Constructor for embeddings between complex shapes when we have an equivalence
-`∀ (i₁ i₂ : ι), c.Rel i₁ i₂ ↔ c'.Rel (f i₁) (f i₂)`. -/
+/--
+Constructor for embeddings between complex shapes when we have an equivalence
+`∀ (i₁ i₂ : ι), c.Rel i₁ i₂ ↔ c'.Rel (f i₁) (f i₂)`.
+-/
 @[simps]
 def mk' : Embedding c c' where
   f := f
@@ -113,20 +119,22 @@ instance : (mk' c c' f hf iff).IsRelIff where
 
 end
 
-/-- The condition that the image of the map `e.f` of an embedding of
-complex shapes `e : Embedding c c'` is stable by `c'.next`. -/
+/--
+The condition that the image of the map `e.f` of an embedding of
+complex shapes `e : Embedding c c'` is stable by `c'.next`.
+-/
 class IsTruncGE : Prop extends e.IsRelIff where
-  mem_next {j : ι} {k' : ι'} (h : c'.Rel (e.f j) k') :
-    ∃ k, e.f k = k'
+  mem_next {j : ι} {k' : ι'} (h : c'.Rel (e.f j) k') : ∃ k, e.f k = k'
 
 lemma mem_next [e.IsTruncGE] {j : ι} {k' : ι'} (h : c'.Rel (e.f j) k') : ∃ k, e.f k = k' :=
   IsTruncGE.mem_next h
 
-/-- The condition that the image of the map `e.f` of an embedding of
-complex shapes `e : Embedding c c'` is stable by `c'.prev`. -/
+/--
+The condition that the image of the map `e.f` of an embedding of
+complex shapes `e : Embedding c c'` is stable by `c'.prev`.
+-/
 class IsTruncLE : Prop extends e.IsRelIff where
-  mem_prev {i' : ι'} {j : ι} (h : c'.Rel i' (e.f j)) :
-    ∃ i, e.f i = i'
+  mem_prev {i' : ι'} {j : ι} (h : c'.Rel i' (e.f j)) : ∃ i, e.f i = i'
 
 lemma mem_prev [e.IsTruncLE] {i' : ι'} {j : ι} (h : c'.Rel i' (e.f j)) : ∃ i, e.f i = i' :=
   IsTruncLE.mem_prev h
@@ -140,9 +148,10 @@ instance [e.IsTruncLE] : e.op.IsTruncGE where
 open scoped Classical in
 /-- The map `ι' → Option ι` which sends `e.f i` to `some i` and the other elements to `none`. -/
 noncomputable def r (i' : ι') : Option ι :=
-  if h : ∃ (i : ι), e.f i = i'
-  then some h.choose
-  else none
+  if h : ∃ (i : ι), e.f i = i' then
+    some h.choose
+  else
+    none
 
 lemma r_eq_some {i : ι} {i' : ι'} (hi : e.f i = i') :
     e.r i' = some i := by
@@ -178,9 +187,8 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The embedding from `up' a` to itself via (· + b). -/
 @[simps!]
 def embeddingUp'Add (a b : A) : Embedding (up' a) (up' a) :=
-  Embedding.mk' _ _ (· + b)
-    (fun _ _ h => by simpa using h)
-    (by dsimp; simp_rw [add_right_comm _ b a, add_right_cancel_iff, implies_true])
+  Embedding.mk' _ _ (· + b) (fun _ _ h => by simpa using h) (by
+    dsimp; simp_rw [add_right_comm _ b a, add_right_cancel_iff, implies_true])
 
 set_option backward.isDefEq.respectTransparency false in
 instance (a b : A) : (embeddingUp'Add a b).IsRelIff := by dsimp [embeddingUp'Add]; infer_instance
@@ -192,9 +200,8 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The embedding from `down' a` to itself via (· + b). -/
 @[simps!]
 def embeddingDown'Add (a b : A) : Embedding (down' a) (down' a) :=
-  Embedding.mk' _ _ (· + b)
-    (fun _ _ h => by simpa using h)
-    (by dsimp; simp_rw [add_right_comm _ b a, add_right_cancel_iff, implies_true])
+  Embedding.mk' _ _ (· + b) (fun _ _ h => by simpa using h) (by
+    dsimp; simp_rw [add_right_comm _ b a, add_right_cancel_iff, implies_true])
 
 set_option backward.isDefEq.respectTransparency false in
 instance (a b : A) : (embeddingDown'Add a b).IsRelIff := by
@@ -209,9 +216,7 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The obvious embedding from `up ℕ` to `up ℤ`. -/
 @[simps!]
 def embeddingUpNat : Embedding (up ℕ) (up ℤ) :=
-  Embedding.mk' _ _ (fun n => n)
-    (fun _ _ h => by simpa using h)
-    (by dsimp; lia)
+  Embedding.mk' _ _ (fun n => n) (fun _ _ h => by simpa using h) (by dsimp; lia)
 
 set_option backward.isDefEq.respectTransparency false in
 instance : embeddingUpNat.IsRelIff := by dsimp [embeddingUpNat]; infer_instance
@@ -223,9 +228,7 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The embedding from `down ℕ` to `up ℤ` with sends `n` to `-n`. -/
 @[simps!]
 def embeddingDownNat : Embedding (down ℕ) (up ℤ) :=
-  Embedding.mk' _ _ (fun n => -n)
-    (fun _ _ h => by simpa using h)
-    (by dsimp; lia)
+  Embedding.mk' _ _ (fun n => -n) (fun _ _ h => by simpa using h) (by dsimp; lia)
 
 set_option backward.isDefEq.respectTransparency false in
 instance : embeddingDownNat.IsRelIff := by dsimp [embeddingDownNat]; infer_instance
@@ -240,9 +243,7 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The embedding from `up ℕ` to `up ℤ` which sends `n : ℕ` to `p + n`. -/
 @[simps!]
 def embeddingUpIntGE : Embedding (up ℕ) (up ℤ) :=
-  Embedding.mk' _ _ (fun n => p + n)
-    (fun _ _ h => by dsimp at h; lia)
-    (by dsimp; lia)
+  Embedding.mk' _ _ (fun n => p + n) (fun _ _ h => by dsimp at h; lia) (by dsimp; lia)
 
 set_option backward.isDefEq.respectTransparency false in
 instance : (embeddingUpIntGE p).IsRelIff := by dsimp [embeddingUpIntGE]; infer_instance
@@ -255,9 +256,7 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The embedding from `down ℕ` to `up ℤ` which sends `n : ℕ` to `p - n`. -/
 @[simps!]
 def embeddingUpIntLE : Embedding (down ℕ) (up ℤ) :=
-  Embedding.mk' _ _ (fun n => p - n)
-    (fun _ _ h => by dsimp at h; lia)
-    (by dsimp; lia)
+  Embedding.mk' _ _ (fun n => p - n) (fun _ _ h => by dsimp at h; lia) (by dsimp; lia)
 
 set_option backward.isDefEq.respectTransparency false in
 instance : (embeddingUpIntLE p).IsRelIff := by dsimp [embeddingUpIntLE]; infer_instance

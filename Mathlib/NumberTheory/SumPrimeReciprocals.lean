@@ -42,20 +42,21 @@ private lemma ite_prime_eq_mulIndicator :
 
 /-- Reindex a product over `Nat.Primes` as a product over `ℕ`, extending `f` by `1`. -/
 @[to_additive /-- Reindex a sum over `Nat.Primes` as a sum over `ℕ`, extending `f` by `0`. -/]
-theorem Nat.Primes.tprod_eq_tprod_ite :
-    ∏' p : Primes, f p = ∏' n : ℕ, if n.Prime then f n else 1 := by
-  rw [ite_prime_eq_mulIndicator]; exact tprod_subtype {n | n.Prime} f
+theorem Nat.Primes.tprod_eq_tprod_ite
+    : ∏' p : Primes, f p = ∏' n : ℕ, if n.Prime then f n else 1 := by
+  rw [ite_prime_eq_mulIndicator]; exact tprod_subtype ({n | n.Prime}) f
 
 /-- `Multipliable` over `Nat.Primes` iff over `ℕ` extending `f` by `1`. -/
 @[to_additive /-- `Summable` over `Nat.Primes` iff over `ℕ` extending `f` by `0`. -/]
-theorem Nat.Primes.multipliable_iff_multipliable_ite :
-    Multipliable (fun p : Primes ↦ f p) ↔ Multipliable fun n : ℕ ↦ if n.Prime then f n else 1 := by
+theorem Nat.Primes.multipliable_iff_multipliable_ite
+    : Multipliable (fun p : Primes ↦ f p)
+      ↔ Multipliable fun n : ℕ ↦ if n.Prime then f n else 1 := by
   rw [ite_prime_eq_mulIndicator]; exact multipliable_subtype_iff_mulIndicator
 
 /-- `HasProd` over `Nat.Primes` iff over `ℕ` extending `f` by `1`. -/
 @[to_additive /-- `HasSum` over `Nat.Primes` iff over `ℕ` extending `f` by `0`. -/]
-theorem Nat.Primes.hasProd_iff_hasProd_ite {a : M} :
-    HasProd (fun p : Primes ↦ f p) a ↔ HasProd (fun n : ℕ ↦ if n.Prime then f n else 1) a := by
+theorem Nat.Primes.hasProd_iff_hasProd_ite {a : M}
+    : HasProd (fun p : Primes ↦ f p) a ↔ HasProd (fun n : ℕ ↦ if n.Prime then f n else 1) a := by
   rw [ite_prime_eq_mulIndicator]; exact hasProd_subtype_iff_mulIndicator
 
 end PrimeSums
@@ -95,8 +96,8 @@ lemma one_half_le_sum_primes_ge_one_div (k : ℕ) :
     _ ≤ m * (2 * N₀).sqrt + 2 * N₀ * S := by grw [roughNumbersUpTo_card_le']; norm_cast
 
 /-- The sum over the reciprocals of the primes diverges. -/
-theorem not_summable_one_div_on_primes :
-    ¬ Summable (indicator {p | p.Prime} (fun n : ℕ ↦ (1 : ℝ) / n)) := by
+theorem not_summable_one_div_on_primes
+    : ¬ Summable (indicator ({p | p.Prime}) (fun n : ℕ ↦ (1 : ℝ) / n)) := by
   intro h
   obtain ⟨k, hk⟩ := h.nat_tsum_vanishing (Iio_mem_nhds one_half_pos : Iio (1 / 2 : ℝ) ∈ 𝓝 0)
   specialize hk ({p | Nat.Prime p} ∩ {p | k ≤ p}) inter_subset_right
@@ -120,8 +121,8 @@ theorem Nat.Primes.not_summable_one_div : ¬ Summable (fun p : Nat.Primes ↦ (1
   convert! summable_subtype_iff_indicator.mp.mt not_summable_one_div_on_primes
 
 /-- The series over `p^r` for primes `p` converges if and only if `r < -1`. -/
-theorem Nat.Primes.summable_rpow {r : ℝ} :
-    Summable (fun p : Nat.Primes ↦ (p : ℝ) ^ r) ↔ r < -1 := by
+theorem Nat.Primes.summable_rpow {r : ℝ}
+    : Summable (fun p : Nat.Primes ↦ (p : ℝ) ^ r) ↔ r < -1 := by
   by_cases h : r < -1
   · -- case `r < -1`
     simp only [h, iff_true]

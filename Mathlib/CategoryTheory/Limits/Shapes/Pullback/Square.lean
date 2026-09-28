@@ -34,20 +34,16 @@ namespace Square
 variable (sq : Square C)
 
 /-- The pullback cone attached to a commutative square. -/
-abbrev pullbackCone : PullbackCone sq.f₂₄ sq.f₃₄ :=
-  PullbackCone.mk sq.f₁₂ sq.f₁₃ sq.fac
+abbrev pullbackCone : PullbackCone sq.f₂₄ sq.f₃₄ := PullbackCone.mk sq.f₁₂ sq.f₁₃ sq.fac
 
 /-- The pushout cocone attached to a commutative square. -/
-abbrev pushoutCocone : PushoutCocone sq.f₁₂ sq.f₁₃ :=
-  PushoutCocone.mk sq.f₂₄ sq.f₃₄ sq.fac
+abbrev pushoutCocone : PushoutCocone sq.f₁₂ sq.f₁₃ := PushoutCocone.mk sq.f₂₄ sq.f₃₄ sq.fac
 
 /-- The condition that a commutative square is a pullback square. -/
-protected def IsPullback : Prop :=
-  IsPullback sq.f₁₂ sq.f₁₃ sq.f₂₄ sq.f₃₄
+protected def IsPullback : Prop := IsPullback sq.f₁₂ sq.f₁₃ sq.f₂₄ sq.f₃₄
 
 /-- The condition that a commutative square is a pushout square. -/
-protected def IsPushout : Prop :=
-  IsPushout sq.f₁₂ sq.f₁₃ sq.f₂₄ sq.f₃₄
+protected def IsPushout : Prop := IsPushout sq.f₁₂ sq.f₁₃ sq.f₂₄ sq.f₃₄
 
 lemma isPullback_iff :
     sq.IsPullback ↔ Nonempty (IsLimit sq.pullbackCone) :=
@@ -65,16 +61,18 @@ lemma IsPushout.mk (h : IsColimit sq.pushoutCocone) : sq.IsPushout :=
 
 variable {sq}
 
-/-- If a commutative square `sq` is a pullback square,
-then `sq.pullbackCone` is a limit. -/
-noncomputable def IsPullback.isLimit (h : sq.IsPullback) :
-    IsLimit sq.pullbackCone :=
+/--
+If a commutative square `sq` is a pullback square,
+then `sq.pullbackCone` is a limit.
+-/
+noncomputable def IsPullback.isLimit (h : sq.IsPullback) : IsLimit sq.pullbackCone :=
   CategoryTheory.IsPullback.isLimit h
 
-/-- If a commutative square `sq` is a pushout square,
-then `sq.pushoutCocone` is a colimit. -/
-noncomputable def IsPushout.isColimit (h : sq.IsPushout) :
-    IsColimit sq.pushoutCocone :=
+/--
+If a commutative square `sq` is a pushout square,
+then `sq.pushoutCocone` is a colimit.
+-/
+noncomputable def IsPushout.isColimit (h : sq.IsPushout) : IsColimit sq.pushoutCocone :=
   CategoryTheory.IsPushout.isColimit h
 
 lemma IsPullback.of_iso {sq₁ sq₂ : Square C} (h : sq₁.IsPullback)

@@ -27,7 +27,8 @@ universe u v
 
 namespace ModelWithCorners
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
   {H : Type*} [TopologicalSpace H]
 
@@ -45,20 +46,22 @@ attribute [instance] MfldCat.topologicalSpace MfldCat.chartedSpace MfldCat.isMan
 initialize_simps_projections MfldCat (-topologicalSpace, -chartedSpace, -isManifold)
 
 namespace MfldCat
-variable {I : ModelWithCorners 𝕜 E H} {n : ℕ∞ω} {M N P : MfldCat I n} {X Y Z : Type u}
-  [TopologicalSpace X] [ChartedSpace H X] [IsManifold I n X]
-  [TopologicalSpace Y] [ChartedSpace H Y] [IsManifold I n Y]
-  [TopologicalSpace Z] [ChartedSpace H Z] [IsManifold I n Z]
+variable
+  {I : ModelWithCorners 𝕜 E H} {n : ℕ∞ω} {M N P : MfldCat I n} {X Y Z : Type u}
+  [TopologicalSpace X] [ChartedSpace H X] [IsManifold I n X] [TopologicalSpace Y] [ChartedSpace H Y]
+  [IsManifold I n Y] [TopologicalSpace Z] [ChartedSpace H Z] [IsManifold I n Z]
 
 instance : CoeSort (MfldCat I n) (Type u) := ⟨MfldCat.carrier⟩
 
 attribute [coe] MfldCat.carrier
 
-/-- The object of `ModelWithCorners.MfldCat I n` associated to a `C^n` manifold `X` modeled on `I`.
+/--
+The object of `ModelWithCorners.MfldCat I n` associated to a `C^n` manifold `X` modeled on `I`.
 
-This is the preferred way to construct a term of `ModelWithCorners.MfldCat I n`. -/
-abbrev of (X : Type u) [TopologicalSpace X] [ChartedSpace H X] [IsManifold I n X] :
-    MfldCat I n := ⟨X⟩
+This is the preferred way to construct a term of `ModelWithCorners.MfldCat I n`.
+-/
+abbrev of (X : Type u) [TopologicalSpace X] [ChartedSpace H X] [IsManifold I n X] : MfldCat I n :=
+  ⟨X⟩
 
 open Lean.PrettyPrinter.Delaborator in
 /-- This prints `ModelWithCorners.MfldCat.of X` as `↧X`. -/
@@ -150,8 +153,10 @@ def diffeomorphOfIso (i : M ≅ N) : M ≃ₘ^n⟮I, I⟯ N where
   contMDiff_toFun := i.hom.hom.contMDiff
   contMDiff_invFun := i.inv.hom.contMDiff
 
-/-- Diffeomorphisms between manifolds modeled on `I` are the same as isomorphisms in
-`ModelWithCorners.MfldCat I n`. -/
+/--
+Diffeomorphisms between manifolds modeled on `I` are the same as isomorphisms in
+`ModelWithCorners.MfldCat I n`.
+-/
 @[expose, simps]
 def isoEquivDiffeomorph : (M ≅ N) ≃ (M ≃ₘ^n⟮I, I⟯ N) where
   toFun := diffeomorphOfIso

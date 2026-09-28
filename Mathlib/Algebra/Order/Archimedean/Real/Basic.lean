@@ -9,7 +9,6 @@ public import Mathlib.Algebra.Group.Pointwise.Set.Basic
 public import Mathlib.Algebra.Order.Archimedean.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Order.Interval.Set.Disjoint
-
 import Mathlib.Algebra.Order.Group.Pointwise.CompleteLattice
 import Mathlib.Data.Int.LeastGreatest
 
@@ -34,8 +33,7 @@ instance instArchimedean : Archimedean ℝ :=
       let ⟨M, _, H⟩ := f.bounded' 0
       ⟨M, mk_le_of_forall_le ⟨0, fun i _ => Rat.cast_le.2 <| le_of_lt (abs_lt.1 (H i)).2⟩⟩
 
-noncomputable instance : FloorRing ℝ :=
-  Archimedean.floorRing _
+noncomputable instance : FloorRing ℝ := Archimedean.floorRing _
 
 theorem isCauSeq_iff_lift {f : ℕ → ℚ} : IsCauSeq abs f ↔ IsCauSeq abs fun i => (f i : ℝ) where
   mp H ε ε0 :=
@@ -44,13 +42,12 @@ theorem isCauSeq_iff_lift {f : ℕ → ℚ} : IsCauSeq abs f ↔ IsCauSeq abs fu
   mpr H ε ε0 :=
     (H _ (Rat.cast_pos.2 ε0)).imp fun i hi j ij => by dsimp at hi; exact mod_cast hi _ ij
 
-theorem of_near (f : ℕ → ℚ) (x : ℝ) (h : ∀ ε > 0, ∃ i, ∀ j ≥ i, |(f j : ℝ) - x| < ε) :
-    ∃ h', Real.mk ⟨f, h'⟩ = x :=
-  ⟨isCauSeq_iff_lift.2 (CauSeq.of_near _ (const abs x) h),
-    sub_eq_zero.1 <|
-      abs_eq_zero.1 <|
-        (eq_of_le_of_forall_lt_imp_le_of_dense (abs_nonneg _)) fun _ε ε0 =>
-          mk_near_of_forall_near <| (h _ ε0).imp fun _i h j ij => le_of_lt (h j ij)⟩
+theorem of_near (f : ℕ → ℚ) (x : ℝ) (h : ∀ ε > 0, ∃ i, ∀ j ≥ i, |(f j : ℝ) - x| < ε)
+    : ∃ h', Real.mk ⟨f, h'⟩ = x := ⟨
+  isCauSeq_iff_lift.2 (CauSeq.of_near _ (const abs x) h),
+  sub_eq_zero.1 <| abs_eq_zero.1 <| (eq_of_le_of_forall_lt_imp_le_of_dense (abs_nonneg _))
+    fun _ε ε0 => mk_near_of_forall_near <| (h _ ε0).imp fun _i h j ij => le_of_lt (h j ij)
+⟩
 
 theorem exists_isLUB (hne : s.Nonempty) (hbdd : BddAbove s) : ∃ x, IsLUB s x := by
   rcases hne, hbdd with ⟨⟨L, hL⟩, ⟨U, hU⟩⟩
@@ -97,11 +94,12 @@ theorem exists_isLUB (hne : s.Nonempty) (hbdd : BddAbove s) : ∃ x, IsLUB s x :
     have n0 : 0 < n := Nat.cast_pos.1 ((inv_pos.2 xz).trans_le hK)
     refine le_trans ?_ (hf₂ _ n0 _ xS).le
     rwa [le_sub_comm, inv_le_comm₀ (Nat.cast_pos.2 n0 : (_ : ℝ) < _) xz]
-  · exact
-      mk_le_of_forall_le
-        ⟨1, fun n n1 =>
-          let ⟨x, xS, hx⟩ := hf₁ _ n1
-          le_trans hx (h xS)⟩
+  · exact mk_le_of_forall_le ⟨
+      1,
+      fun n n1 =>
+        let ⟨x, xS, hx⟩ := hf₁ _ n1
+        le_trans hx (h xS)
+    ⟩
 
 /-- A nonempty, bounded below set of real numbers has a greatest lower bound. -/
 theorem exists_isGLB (hne : s.Nonempty) (hbdd : BddBelow s) : ∃ x, IsGLB s x := by
@@ -116,18 +114,17 @@ noncomputable instance : SupSet ℝ :=
   ⟨fun s => if h : s.Nonempty ∧ BddAbove s then Classical.choose (exists_isLUB h.1 h.2) else 0⟩
 
 open scoped Classical in
-theorem sSup_def (s : Set ℝ) :
-    sSup s = if h : s.Nonempty ∧ BddAbove s then Classical.choose (exists_isLUB h.1 h.2) else 0 :=
+theorem sSup_def (s : Set ℝ)
+    : sSup s = if h : s.Nonempty ∧ BddAbove s then Classical.choose (exists_isLUB h.1 h.2) else 0 :=
   rfl
 
 protected theorem isLUB_sSup (h₁ : s.Nonempty) (h₂ : BddAbove s) : IsLUB s (sSup s) := by
   simp only [sSup_def, dite_eq_left (And.intro h₁ h₂)]
   apply Classical.choose_spec
 
-noncomputable instance : InfSet ℝ :=
-  ⟨fun s => -sSup (-s)⟩
+noncomputable instance : InfSet ℝ := ⟨fun s => - sSup (-s)⟩
 
-theorem sInf_def (s : Set ℝ) : sInf s = -sSup (-s) := rfl
+theorem sInf_def (s : Set ℝ) : sInf s = - sSup (-s) := rfl
 
 protected theorem isGLB_sInf (h₁ : s.Nonempty) (h₂ : BddBelow s) : IsGLB s (sInf s) := by
   rw [sInf_def, ← isLUB_neg', neg_neg]
@@ -148,28 +145,25 @@ theorem lt_sInf_add_pos (h : s.Nonempty) {ε : ℝ} (hε : 0 < ε) : ∃ a ∈ s
 theorem add_neg_lt_sSup (h : s.Nonempty) {ε : ℝ} (hε : ε < 0) : ∃ a ∈ s, sSup s + ε < a :=
   exists_lt_of_lt_csSup h <| add_lt_of_neg_right _ hε
 
-theorem sInf_le_iff (h : BddBelow s) (h' : s.Nonempty) :
-    sInf s ≤ a ↔ ∀ ε, 0 < ε → ∃ x ∈ s, x < a + ε := by
+theorem sInf_le_iff (h : BddBelow s) (h' : s.Nonempty)
+    : sInf s ≤ a ↔ ∀ ε, 0 < ε → ∃ x ∈ s, x < a + ε := by
   rw [le_iff_forall_pos_lt_add]
   constructor <;> intro H ε ε_pos
   · exact exists_lt_of_csInf_lt h' (H ε ε_pos)
   · rcases H ε ε_pos with ⟨x, x_in, hx⟩
     exact csInf_lt_of_lt h x_in hx
 
-theorem le_sSup_iff (h : BddAbove s) (h' : s.Nonempty) :
-    a ≤ sSup s ↔ ∀ ε, ε < 0 → ∃ x ∈ s, a + ε < x := by
+theorem le_sSup_iff (h : BddAbove s) (h' : s.Nonempty)
+    : a ≤ sSup s ↔ ∀ ε, ε < 0 → ∃ x ∈ s, a + ε < x := by
   rw [le_iff_forall_pos_lt_add]
   refine ⟨fun H ε ε_neg => ?_, fun H ε ε_pos => ?_⟩
   · exact exists_lt_of_lt_csSup h' (lt_sub_iff_add_lt.mp (H _ (neg_pos.mpr ε_neg)))
   · rcases H _ (neg_lt_zero.mpr ε_pos) with ⟨x, x_in, hx⟩
     exact sub_lt_iff_lt_add.mp (lt_csSup_of_lt h x_in hx)
 
-@[simp]
-theorem sSup_empty : sSup (∅ : Set ℝ) = 0 :=
-  dite_eq_right <| by simp
+@[simp] theorem sSup_empty : sSup (∅ : Set ℝ) = 0 := dite_eq_right <| by simp
 
-theorem sInf_univ : sInf (@Set.univ ℝ) = 0 := by
-  simp [sInf_def]
+theorem sInf_univ : sInf (@Set.univ ℝ) = 0 := by simp [sInf_def]
 
 lemma iSup_of_isEmpty [IsEmpty ι] (f : ι → ℝ) : ⨆ i, f i = 0 := by
   simp
@@ -185,8 +179,7 @@ lemma iSup_of_not_bddAbove (hf : ¬BddAbove (Set.range f)) : ⨆ i, f i = 0 := s
 
 theorem sSup_univ : sSup (@Set.univ ℝ) = 0 := Real.sSup_of_not_bddAbove not_bddAbove_univ
 
-@[simp]
-theorem sInf_empty : sInf (∅ : Set ℝ) = 0 := by simp [sInf_def, sSup_empty]
+@[simp] theorem sInf_empty : sInf (∅ : Set ℝ) = 0 := by simp [sInf_def, sSup_empty]
 
 lemma iInf_of_isEmpty [IsEmpty ι] (f : ι → ℝ) : ⨅ i, f i = 0 := by
   simp
@@ -197,22 +190,25 @@ theorem iInf_const_zero : ⨅ _ : ι, (0 : ℝ) = 0 := by
   · exact Real.iInf_of_isEmpty _
   · exact ciInf_const
 
-theorem sInf_of_not_bddBelow (hs : ¬BddBelow s) : sInf s = 0 :=
+theorem sInf_of_not_bddBelow (hs : ¬ BddBelow s) : sInf s = 0 :=
   neg_eq_zero.2 <| sSup_of_not_bddAbove <| mt bddAbove_neg.1 hs
 
-theorem iInf_of_not_bddBelow (hf : ¬BddBelow (Set.range f)) : ⨅ i, f i = 0 :=
+theorem iInf_of_not_bddBelow (hf : ¬ BddBelow (Set.range f)) : ⨅ i, f i = 0 :=
   sInf_of_not_bddBelow hf
 
 @[simp]
-theorem sSup_neg (s : Set ℝ) : sSup (-s) = -sInf s := by
-  obtain rfl | hn := s.eq_empty_or_nonempty; · simp
+theorem sSup_neg (s : Set ℝ) : sSup (-s) = - sInf s := by
+  obtain rfl | hn := s.eq_empty_or_nonempty
+  · simp
   by_cases hb : BddBelow s
   · rw [csSup_neg hn hb]
-  · rw [csInf_of_not_bddBelow hb, Real.sInf_empty, csSup_of_not_bddAbove (bddAbove_neg.not.2 hb),
-      Real.sSup_empty, neg_zero]
+  · rw [
+      csInf_of_not_bddBelow hb, Real.sInf_empty, csSup_of_not_bddAbove (bddAbove_neg.not.2 hb),
+      Real.sSup_empty, neg_zero
+    ]
 
 @[simp]
-theorem sInf_neg (s : Set ℝ) : sInf (-s) = -sSup s := by
+theorem sInf_neg (s : Set ℝ) : sInf (-s) = - sSup s := by
   rw [← neg_eq_iff_eq_neg, ← Real.sSup_neg, neg_neg]
 
 /-- As `sSup s = 0` when `s` is an empty set of reals, it suffices to show that all elements of `s`
@@ -333,15 +329,15 @@ theorem cauSeq_converges (f : CauSeq ℝ abs) : ∃ x, f ≈ const abs x := by
     rw [sub_apply, const_apply, add_comm, ← sub_sub, le_sub_iff_add_le, add_halves]
     exact ih _ ij
 
-instance : CauSeq.IsComplete ℝ abs :=
-  ⟨cauSeq_converges⟩
+instance : CauSeq.IsComplete ℝ abs := ⟨cauSeq_converges⟩
 
 open Set
 
-theorem iInf_Ioi_eq_iInf_rat_gt {f : ℝ → ℝ} (x : ℝ) (hf : BddBelow (f '' Ioi x))
-    (hf_mono : Monotone f) : ⨅ r : Ioi x, f r = ⨅ q : { q' : ℚ // x < q' }, f q := by
+theorem iInf_Ioi_eq_iInf_rat_gt
+    {f : ℝ → ℝ} (x : ℝ) (hf : BddBelow (f '' Ioi x)) (hf_mono : Monotone f)
+    : ⨅ r : Ioi x, f r = ⨅ q : { q' : ℚ // x < q' }, f q := by
   refine le_antisymm ?_ ?_
-  · have : Nonempty { r' : ℚ // x < ↑r' } := by
+  · have : Nonempty {r' : ℚ // x < ↑r'} := by
       obtain ⟨r, hrx⟩ := exists_rat_gt x
       exact ⟨⟨r, hrx⟩⟩
     refine le_ciInf fun r => ?_
@@ -361,13 +357,13 @@ theorem iInf_Ioi_eq_iInf_rat_gt {f : ℝ → ℝ} (x : ℝ) (hf : BddBelow (f ''
     · refine hf_mono (le_trans ?_ hyq.le)
       norm_cast
 
-theorem not_bddAbove_coe : ¬ (BddAbove <| range (fun (x : ℚ) ↦ (x : ℝ))) := by
+theorem not_bddAbove_coe : ¬(BddAbove <| range (fun (x : ℚ) ↦ (x : ℝ))) := by
   dsimp only [BddAbove, upperBounds]
   rw [Set.not_nonempty_iff_eq_empty]
   ext
   simpa using exists_rat_gt _
 
-theorem not_bddBelow_coe : ¬ (BddBelow <| range (fun (x : ℚ) ↦ (x : ℝ))) := by
+theorem not_bddBelow_coe : ¬(BddBelow <| range (fun (x : ℚ) ↦ (x : ℝ))) := by
   dsimp only [BddBelow, lowerBounds]
   rw [Set.not_nonempty_iff_eq_empty]
   ext

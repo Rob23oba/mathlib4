@@ -6,7 +6,6 @@ Authors: Yael Dillies
 module
 
 public import Mathlib.Data.Set.Card
-
 import Mathlib.Order.Interval.Finset.Nat
 
 /-!

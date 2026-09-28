@@ -47,33 +47,35 @@ along any morphism `Y' ⟶ Y` is injective (on points).
 class UniversallyInjective (f : X ⟶ Y) : Prop where
   universally_injective : universally (topologically (Injective ·)) f
 
-theorem Scheme.Hom.injective (f : X ⟶ Y) [UniversallyInjective f] :
-    Function.Injective f :=
+theorem Scheme.Hom.injective (f : X ⟶ Y) [UniversallyInjective f] : Function.Injective f :=
   UniversallyInjective.universally_injective _ _ _ .of_id_snd
 
-theorem universallyInjective_eq :
-    @UniversallyInjective = universally (topologically (Injective ·)) := by
+theorem universallyInjective_eq
+    : @UniversallyInjective = universally (topologically (Injective ·)) := by
   ext X Y f; rw [universallyInjective_iff]
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem universallyInjective_eq_diagonal :
-    @UniversallyInjective = diagonal @Surjective := by
+theorem universallyInjective_eq_diagonal : @UniversallyInjective = diagonal @Surjective := by
   apply le_antisymm
   · intro X Y f hf
     refine ⟨fun x ↦ ⟨pullback.fst f f x, hf.1 _ _ _ (IsPullback.of_hasPullback f f) ?_⟩⟩
     rw [← Scheme.Hom.comp_apply, pullback.diagonal_fst]
     rfl
-  · rw [← universally_eq_iff.mpr (inferInstance : IsStableUnderBaseChange (diagonal @Surjective)),
-      universallyInjective_eq]
+  · rw [
+      ← universally_eq_iff.mpr (inferInstance : IsStableUnderBaseChange (diagonal @Surjective)),
+      universallyInjective_eq
+    ]
     apply universally_mono
     intro X Y f hf x₁ x₂ e
     obtain ⟨t, ht₁, ht₂⟩ := Scheme.Pullback.exists_preimage_pullback _ _ e
     obtain ⟨t, rfl⟩ := hf.1 t
-    rw [← ht₁, ← ht₂, ← Scheme.Hom.comp_apply, ← Scheme.Hom.comp_apply, pullback.diagonal_fst,
-      pullback.diagonal_snd]
+    rw [
+      ← ht₁, ← ht₂, ← Scheme.Hom.comp_apply, ← Scheme.Hom.comp_apply, pullback.diagonal_fst,
+      pullback.diagonal_snd
+    ]
 
-theorem UniversallyInjective.iff_diagonal :
-    UniversallyInjective f ↔ Surjective (pullback.diagonal f) := by
+theorem UniversallyInjective.iff_diagonal
+    : UniversallyInjective f ↔ Surjective (pullback.diagonal f) := by
   rw [universallyInjective_eq_diagonal]; rfl
 
 instance (priority := 900) [Mono f] : UniversallyInjective f :=
@@ -85,31 +87,32 @@ theorem UniversallyInjective.respectsIso : RespectsIso @UniversallyInjective :=
   universallyInjective_eq_diagonal.symm ▸ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance UniversallyInjective.isStableUnderBaseChange :
-    IsStableUnderBaseChange @UniversallyInjective :=
+instance UniversallyInjective.isStableUnderBaseChange
+    : IsStableUnderBaseChange @UniversallyInjective :=
   universallyInjective_eq_diagonal.symm ▸ inferInstance
 
-instance universallyInjective_isStableUnderComposition :
-    IsStableUnderComposition @UniversallyInjective :=
+instance universallyInjective_isStableUnderComposition
+    : IsStableUnderComposition @UniversallyInjective :=
   universallyInjective_eq ▸ inferInstance
 
 instance : MorphismProperty.IsMultiplicative @UniversallyInjective where
   id_mem _ := inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance universallyInjective_isZariskiLocalAtTarget :
-    IsZariskiLocalAtTarget @UniversallyInjective :=
+instance universallyInjective_isZariskiLocalAtTarget
+    : IsZariskiLocalAtTarget @UniversallyInjective :=
   universallyInjective_eq_diagonal.symm ▸ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 @[stacks 01S4]
-theorem tfae_universallyInjective :
-    List.TFAE [
+theorem tfae_universallyInjective
+    : List.TFAE [
       UniversallyInjective f,
       ∀ (K : Type u) [Field K], Function.Injective (fun g : Spec (.of K) ⟶ X ↦ g ≫ f),
       Function.Injective f ∧ ∀ x, (f.residueFieldMap x).hom.IsPurelyInseparable,
-      Surjective (pullback.diagonal f) ] := by
+      Surjective (pullback.diagonal f)
+    ] := by
   tfae_have 1 ↔ 4 := UniversallyInjective.iff_diagonal f
   tfae_have 3 → 2 := by
     intro ⟨h_inj, hf⟩ K _ g₁ g₂ hg

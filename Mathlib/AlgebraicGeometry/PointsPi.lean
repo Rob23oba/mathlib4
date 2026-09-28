@@ -93,12 +93,13 @@ lemma isIso_of_comp_eq_sigmaSpec {V : Scheme}
 
 variable (X : Scheme)
 
-/-- The canonical map `X(Π Rᵢ) ⟶ Π X(Rᵢ)`.
+/--
+The canonical map `X(Π Rᵢ) ⟶ Π X(Rᵢ)`.
 This is injective if `X` is quasi-separated, surjective if `X` is affine,
-or if `X` is compact and each `Rᵢ` is local. -/
-noncomputable
-def pointsPi : (Spec (.of <| Π i, R i) ⟶ X) → Π i, Spec (R i) ⟶ X :=
-  fun f i ↦ Spec.map (CommRingCat.ofHom (Pi.evalRingHom (R ·) i)) ≫ f
+or if `X` is compact and each `Rᵢ` is local.
+-/
+noncomputable def pointsPi : (Spec (.of <| Π i, R i) ⟶ X) → Π i, Spec (R i) ⟶ X := fun f i ↦
+  Spec.map (CommRingCat.ofHom (Pi.evalRingHom (R ·) i)) ≫ f
 
 lemma pointsPi_injective [QuasiSeparatedSpace X] : Function.Injective (pointsPi R X) := by
   rintro f g e

@@ -53,8 +53,10 @@ This section provides a predicate for a kernel to disintegrate a measure.
 namespace MeasureTheory.Measure
 variable (ρ : Measure (α × Ω)) (ρCond : Kernel α Ω)
 
-/-- A kernel `ρCond` is a conditional kernel for a measure `ρ` if it disintegrates it in the sense
-that `ρ.fst ⊗ₘ ρCond = ρ`. -/
+/--
+A kernel `ρCond` is a conditional kernel for a measure `ρ` if it disintegrates it in the sense
+that `ρ.fst ⊗ₘ ρCond = ρ`.
+-/
 class IsCondKernel : Prop where
   disintegrate : ρ.fst ⊗ₘ ρCond = ρ
 
@@ -122,8 +124,10 @@ variable (κ : Kernel α (β × Ω)) (κCond : Kernel (α × β) Ω)
 
 /-! #### Predicate for a kernel to disintegrate a kernel -/
 
-/-- A kernel `κCond` is a conditional kernel for a kernel `κ` if it disintegrates it in the sense
-that `κ.fst ⊗ₖ κCond = κ`. -/
+/--
+A kernel `κCond` is a conditional kernel for a kernel `κ` if it disintegrates it in the sense
+that `κ.fst ⊗ₖ κCond = κ`.
+-/
 class IsCondKernel : Prop where
   protected disintegrate : κ.fst ⊗ₖ κCond = κ
 
@@ -184,18 +188,19 @@ lemma IsCondKernel.isProbabilityMeasure_ae [IsFiniteKernel κ.fst] [κ.IsCondKer
     gcongr
     finiteness
 
-
 /-! #### Existence of a disintegrating kernel in a countable space -/
 
 section Countable
 variable [Countable α] (κCond : α → Kernel β Ω)
 
-/-- Auxiliary definition for `ProbabilityTheory.Kernel.condKernel`.
+/--
+Auxiliary definition for `ProbabilityTheory.Kernel.condKernel`.
 
 A conditional kernel for `κ : Kernel α (β × Ω)` where `α` is countable and `Ω` is a measurable
-space. -/
-noncomputable def condKernelCountable (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y) :
-    Kernel (α × β) Ω where
+space.
+-/
+noncomputable def condKernelCountable (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y)
+    : Kernel (α × β) Ω where
   toFun p := κCond p.1 p.2
   measurable' := by
     refine measurable_from_prod_countable_right' (fun a ↦ (κCond a).measurable) fun x y hx hy ↦ ?_
@@ -204,15 +209,16 @@ noncomputable def condKernelCountable (h_atom : ∀ x y, x ∈ measurableAtom y 
 lemma condKernelCountable_apply (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y)
     (p : α × β) : condKernelCountable κCond h_atom p = κCond p.1 p.2 := rfl
 
-instance condKernelCountable.instIsMarkovKernel [∀ a, IsMarkovKernel (κCond a)]
-     (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y) :
-    IsMarkovKernel (condKernelCountable κCond h_atom) where
+instance condKernelCountable.instIsMarkovKernel
+    [∀ a, IsMarkovKernel (κCond a)] (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y)
+    : IsMarkovKernel (condKernelCountable κCond h_atom) where
   isProbabilityMeasure p := (‹∀ a, IsMarkovKernel (κCond a)› p.1).isProbabilityMeasure p.2
 
-instance condKernelCountable.instIsCondKernel [∀ a, IsMarkovKernel (κCond a)]
-    (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y) (κ : Kernel α (β × Ω))
-    [IsSFiniteKernel κ] [∀ a, (κ a).IsCondKernel (κCond a)] :
-    κ.IsCondKernel (condKernelCountable κCond h_atom) := by
+instance condKernelCountable.instIsCondKernel
+    [∀ a, IsMarkovKernel (κCond a)]
+    (h_atom : ∀ x y, x ∈ measurableAtom y → κCond x = κCond y)
+    (κ : Kernel α (β × Ω)) [IsSFiniteKernel κ] [∀ a, (κ a).IsCondKernel (κCond a)]
+    : κ.IsCondKernel (condKernelCountable κCond h_atom) := by
   constructor
   ext a s hs
   conv_rhs => rw [← (κ a).disintegrate (κCond a)]

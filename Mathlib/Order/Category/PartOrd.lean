@@ -41,8 +41,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab PartOrd.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-instance : CoeSort PartOrd (Type _) :=
-  ⟨PartOrd.carrier⟩
+instance : CoeSort PartOrd (Type _) := ⟨PartOrd.carrier⟩
 
 attribute [coe] PartOrd.carrier
 
@@ -63,8 +62,7 @@ instance : ConcreteCategory PartOrd (· →o ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `PartOrd` back into a `OrderHom`. -/
-abbrev Hom.hom {X Y : PartOrd.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := PartOrd) f
+abbrev Hom.hom {X Y : PartOrd.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := PartOrd) f
 
 /-- Typecheck a `OrderHom` as a morphism in `PartOrd`. -/
 abbrev ofHom {X Y : Type u} [PartialOrder X] [PartialOrder Y] (f : X →o Y) : of X ⟶ of Y :=
@@ -72,8 +70,7 @@ abbrev ofHom {X Y : Type u} [PartialOrder X] [PartialOrder Y] (f : X →o Y) : o
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : PartOrd.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : PartOrd.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -164,14 +161,12 @@ def dualEquiv : PartOrd ≌ PartOrd where
 @[simps]
 def uliftFunctor : PartOrd.{u} ⥤ PartOrd.{max u v} where
   obj X := ↧(ULift.{v} X)
-  map f := PartOrd.ofHom ⟨fun x ↦ ULift.up (f (ULift.down x)),
-    fun x y hxy ↦ f.hom.monotone hxy⟩
+  map f := PartOrd.ofHom ⟨fun x ↦ ULift.up (f (ULift.down x)), fun x y hxy ↦ f.hom.monotone hxy⟩
 
 end PartOrd
 
-theorem partOrd_dual_comp_forget_to_preord :
-    PartOrd.dual ⋙ forget₂ PartOrd Preord =
-      forget₂ PartOrd Preord ⋙ Preord.dual :=
+theorem partOrd_dual_comp_forget_to_preord
+    : PartOrd.dual ⋙ forget₂ PartOrd Preord = forget₂ PartOrd Preord ⋙ Preord.dual :=
   rfl
 
 /-- `Antisymmetrization` as a functor. It is the free functor. -/
@@ -187,28 +182,33 @@ def preordToPartOrd : Preord.{u} ⥤ PartOrd where
     induction x using Quotient.inductionOn'
     exact OrderHom.antisymmetrization_apply_mk ..
 
-/-- `preordToPartOrd` is left adjoint to the forgetful functor, meaning it is the free
-functor from `Preord` to `PartOrd`. -/
-def preordToPartOrdForgetAdjunction :
-    preordToPartOrd.{u} ⊣ forget₂ PartOrd Preord :=
-  Adjunction.mkOfHomEquiv
-    { homEquiv _ _ :=
-        { toFun f := Preord.ofHom
-            ⟨f ∘ toAntisymmetrization (· ≤ ·), f.hom.mono.comp toAntisymmetrization_mono⟩
-          invFun f := PartOrd.ofHom
-            ⟨fun a => Quotient.liftOn' a f (fun _ _ h => (AntisymmRel.image h f.hom.mono).eq),
-              fun a b => Quotient.inductionOn₂' a b fun _ _ h => f.hom.mono h⟩
-          left_inv _ := PartOrd.ext fun x => Quotient.inductionOn' x fun _ => rfl }
-      homEquiv_naturality_left_symm _ _ :=
-        PartOrd.ext fun x => Quotient.inductionOn' x fun _ => rfl }
+/--
+`preordToPartOrd` is left adjoint to the forgetful functor, meaning it is the free
+functor from `Preord` to `PartOrd`.
+-/
+def preordToPartOrdForgetAdjunction : preordToPartOrd.{u} ⊣ forget₂ PartOrd Preord :=
+  Adjunction.mkOfHomEquiv {
+    homEquiv _ _ := {
+      toFun f :=
+        Preord.ofHom ⟨f ∘ toAntisymmetrization (· ≤ ·), f.hom.mono.comp toAntisymmetrization_mono⟩
+      invFun f :=
+        PartOrd.ofHom ⟨
+          fun a => Quotient.liftOn' a f (fun _ _ h => (AntisymmRel.image h f.hom.mono).eq),
+          fun a b => Quotient.inductionOn₂' a b fun _ _ h => f.hom.mono h
+        ⟩
+      left_inv _ := PartOrd.ext fun x => Quotient.inductionOn' x fun _ => rfl
+    }
+    homEquiv_naturality_left_symm _ _ := PartOrd.ext fun x => Quotient.inductionOn' x fun _ => rfl
+  }
 
 -- The `simpNF` linter would complain as `Functor.comp_obj`, `Preord.dual_obj` both apply to LHS
 -- of `preordToPartOrdCompToDualIsoToDualCompPreordToPartOrd_hom_app_coe`
 /-- `PreordToPartOrd` and `OrderDual` commute. -/
 @[simps! -isSimp hom_app_hom_coe inv_app_hom_coe]
-def preordToPartOrdCompToDualIsoToDualCompPreordToPartOrd :
-    preordToPartOrd.{u} ⋙ PartOrd.dual ≅ Preord.dual ⋙ preordToPartOrd :=
-  NatIso.ofComponents (fun _ => PartOrd.Iso.mk <| OrderIso.dualAntisymmetrization _)
+def preordToPartOrdCompToDualIsoToDualCompPreordToPartOrd
+    : preordToPartOrd.{u} ⋙ PartOrd.dual ≅ Preord.dual ⋙ preordToPartOrd :=
+  NatIso.ofComponents
+    (fun _ => PartOrd.Iso.mk <| OrderIso.dualAntisymmetrization _)
     (fun _ => PartOrd.ext fun x => Quotient.inductionOn' x fun _ => rfl)
 
 -- `simp`-normal form for `preordToPartOrdCompToDualIsoToDualCompPreordToPartOrd_inv_app_hom_coe`

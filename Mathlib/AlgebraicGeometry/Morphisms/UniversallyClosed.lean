@@ -23,7 +23,6 @@ base changes.
 
 public section
 
-
 noncomputable section
 
 open CategoryTheory CategoryTheory.Limits TopologicalSpace
@@ -36,7 +35,8 @@ variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
 open CategoryTheory.MorphismProperty
 
-/-- A morphism of schemes `f : X ⟶ Y` is universally closed if the base change `X ×[Y] Y' ⟶ Y'`
+/--
+A morphism of schemes `f : X ⟶ Y` is universally closed if the base change `X ×[Y] Y' ⟶ Y'`
 along any morphism `Y' ⟶ Y` is (topologically) a closed map.
 -/
 @[mk_iff]
@@ -52,8 +52,7 @@ theorem universallyClosed_eq : @UniversallyClosed = universally (topologically @
 instance (priority := 900) [IsClosedImmersion f] : UniversallyClosed f := by
   rw [universallyClosed_eq]
   intro X' Y' i₁ i₂ f' hf
-  have hf' : IsClosedImmersion f' :=
-    MorphismProperty.of_isPullback hf.flip inferInstance
+  have hf' : IsClosedImmersion f' := MorphismProperty.of_isPullback hf.flip inferInstance
   exact f'.isClosedEmbedding.isClosedMap
 
 theorem universallyClosed_respectsIso : RespectsIso @UniversallyClosed :=
@@ -62,12 +61,12 @@ theorem universallyClosed_respectsIso : RespectsIso @UniversallyClosed :=
 instance universallyClosed_isStableUnderBaseChange : IsStableUnderBaseChange @UniversallyClosed :=
   universallyClosed_eq.symm ▸ universally_isStableUnderBaseChange (topologically @IsClosedMap)
 
-instance isClosedMap_isStableUnderComposition :
-    IsStableUnderComposition (topologically @IsClosedMap) where
+instance isClosedMap_isStableUnderComposition
+    : IsStableUnderComposition (topologically @IsClosedMap) where
   comp_mem f g hf hg := IsClosedMap.comp (f := f) (g := g) hg hf
 
-instance universallyClosed_isStableUnderComposition :
-    IsStableUnderComposition @UniversallyClosed := by
+instance universallyClosed_isStableUnderComposition
+    : IsStableUnderComposition @UniversallyClosed := by
   rw [universallyClosed_eq]
   infer_instance
 
@@ -81,21 +80,22 @@ lemma UniversallyClosed.of_comp_surjective {X Y Z : Scheme} (f : X ⟶ Y) (g : Y
   exact IsClosedMap.of_comp_surjective (MorphismProperty.pullback_fst (P := @Surjective) _ _ ‹_›).1
     (Scheme.Hom.continuous _) this
 
-instance universallyClosedTypeComp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [hf : UniversallyClosed f] [hg : UniversallyClosed g] : UniversallyClosed (f ≫ g) :=
+instance universallyClosedTypeComp
+    {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [hf : UniversallyClosed f] [hg : UniversallyClosed g]
+    : UniversallyClosed (f ≫ g) :=
   comp_mem _ _ _ hf hg
 
 instance : MorphismProperty.IsMultiplicative @UniversallyClosed where
   id_mem _ := inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance universallyClosed_fst {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hg : UniversallyClosed g] :
-    UniversallyClosed (pullback.fst f g) :=
+instance universallyClosed_fst {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hg : UniversallyClosed g]
+    : UniversallyClosed (pullback.fst f g) :=
   MorphismProperty.pullback_fst f g hg
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance universallyClosed_snd {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hf : UniversallyClosed f] :
-    UniversallyClosed (pullback.snd f g) :=
+instance universallyClosed_snd {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z) [hf : UniversallyClosed f]
+    : UniversallyClosed (pullback.snd f g) :=
   MorphismProperty.pullback_snd f g hf
 
 instance universallyClosed_isZariskiLocalAtTarget : IsZariskiLocalAtTarget @UniversallyClosed := by
@@ -175,8 +175,11 @@ lemma universallyClosed_eq_universallySpecializing :
     exact universally_mono fun X Y f ⟨h₁, h₂⟩ ↦ (isClosedMap_iff_specializingMap _).mpr h₁
 
 instance (priority := low) Surjective.of_universallyClosed_of_isDominant
-    [UniversallyClosed f] [IsDominant f] : Surjective f := by
-  rw [surjective_iff, ← Set.range_eq_univ, ← f.denseRange.closure_range,
-    f.isClosedMap.isClosed_range.closure_eq]
+    [UniversallyClosed f] [IsDominant f]
+    : Surjective f := by
+  rw [
+    surjective_iff, ← Set.range_eq_univ, ← f.denseRange.closure_range,
+    f.isClosedMap.isClosed_range.closure_eq
+  ]
 
 end AlgebraicGeometry

@@ -43,7 +43,8 @@ variable {M α β : Type*} (e : α ≃ β)
 -- See note [instance transfer via equivalence]
 /-- Transfer `One` across an `Equiv` -/
 @[to_additive /-- Transfer `Zero` across an `Equiv` -/]
-protected abbrev one [One β] : One α where one := e.invFun 1
+protected abbrev one [One β] : One α where
+  one := e.invFun 1
 
 @[to_additive]
 lemma one_def [One β] :
@@ -52,7 +53,8 @@ lemma one_def [One β] :
 
 /-- Transfer `Mul` across an `Equiv` -/
 @[to_additive /-- Transfer `Add` across an `Equiv` -/]
-protected abbrev mul [Mul β] : Mul α where mul x y := e.invFun (e.toFun x * e.toFun y)
+protected abbrev mul [Mul β] : Mul α where
+  mul x y := e.invFun (e.toFun x * e.toFun y)
 
 @[to_additive]
 lemma mul_def [Mul β] (x y : α) :
@@ -61,8 +63,7 @@ lemma mul_def [Mul β] (x y : α) :
 
 /-- Transfer `Div` across an `Equiv` -/
 @[to_additive /-- Transfer `Sub` across an `Equiv` -/]
-protected abbrev div [Div β] : Div α :=
-  ⟨fun x y => e.invFun (e.toFun x / e.toFun y)⟩
+protected abbrev div [Div β] : Div α := ⟨fun x y => e.invFun (e.toFun x / e.toFun y)⟩
 
 @[to_additive]
 lemma div_def [Div β] (x y : α) :
@@ -73,7 +74,8 @@ lemma div_def [Div β] (x y : α) :
 -- but we already have an `Equiv.inv` (which perhaps should move to `Perm.inv`?)
 /-- Transfer `Inv` across an `Equiv` -/
 @[to_additive /-- Transfer `Neg` across an `Equiv` -/]
-protected abbrev Inv [Inv β] : Inv α where inv x := e.invFun (e.toFun x)⁻¹
+protected abbrev Inv [Inv β] : Inv α where
+  inv x := e.invFun (e.toFun x)⁻¹
 
 @[to_additive]
 lemma inv_def [Inv β] (x : α) :
@@ -83,28 +85,28 @@ lemma inv_def [Inv β] (x : α) :
 variable (M) in
 /-- Transfer `Pow` across an `Equiv` -/
 @[to_additive (attr := to_additive /-- Transfer `VAdd` across an `Equiv` -/) smul
-/-- Transfer `SMul` across an `Equiv` -/]
-protected abbrev pow [Pow β M] : Pow α M where pow x n := e.invFun (e.toFun x ^ n)
+  /-- Transfer `SMul` across an `Equiv` -/]
+protected abbrev pow [Pow β M] : Pow α M where
+  pow x n := e.invFun (e.toFun x ^ n)
 
 @[to_additive (attr := to_additive) smul_def]
 lemma pow_def [Pow β M] (n : M) (x : α) :
     letI := e.pow M
     x ^ n = e.symm (e x ^ n) := rfl
 
-/-- An equivalence `e : α ≃ β` gives a multiplicative equivalence `α ≃* β` where
+/--
+An equivalence `e : α ≃ β` gives a multiplicative equivalence `α ≃* β` where
 the multiplicative structure on `α` is the one obtained by transporting a multiplicative structure
-on `β` back along `e`. -/
+on `β` back along `e`.
+-/
 @[to_additive /-- An equivalence `e : α ≃ β` gives an additive equivalence `α ≃+ β` where
 the additive structure on `α` is the one obtained by transporting an additive structure
 on `β` back along `e`. -/]
-def mulEquiv (e : α ≃ β) [Mul β] :
-    let _ := Equiv.mul e
-    α ≃* β := by
+def mulEquiv (e : α ≃ β) [Mul β]
+    : let _ := Equiv.mul e
+      α ≃* β := by
   intros
-  exact
-    { e with
-      map_mul' := fun x y => by
-        simp [mul_def] }
+  exact { e with map_mul' := fun x y => by simp [mul_def] }
 
 @[to_additive (attr := simp)]
 lemma mulEquiv_apply (e : α ≃ β) [Mul β] (a : α) : (mulEquiv e) a = e a := rfl
@@ -118,13 +120,17 @@ lemma mulEquiv_symm_apply (e : α ≃ β) [Mul β] (b : β) :
 @[to_additive /-- Transfer `add_semigroup` across an `Equiv` -/]
 protected abbrev semigroup [Semigroup β] : Semigroup α := by
   let mul := e.mul
-  apply e.injective.semigroup _; intros; exact e.apply_symm_apply _
+  apply e.injective.semigroup _
+  intros
+  exact e.apply_symm_apply _
 
 /-- Transfer `CommSemigroup` across an `Equiv` -/
 @[to_additive /-- Transfer `AddCommSemigroup` across an `Equiv` -/]
 protected abbrev commSemigroup [CommSemigroup β] : CommSemigroup α := by
   let mul := e.mul
-  apply e.injective.commSemigroup _; intros; exact e.apply_symm_apply _
+  apply e.injective.commSemigroup _
+  intros
+  exact e.apply_symm_apply _
 
 /-- Transfer `IsLeftCancelMul` across an `Equiv` -/
 @[to_additive /-- Transfer `IsLeftCancelAdd` across an `Equiv` -/]

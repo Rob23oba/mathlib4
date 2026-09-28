@@ -78,19 +78,23 @@ open scoped NNReal MeasureTheory Topology ProbabilityTheory
 
 namespace ProbabilityTheory.Kernel
 
-variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ} {κ η : Kernel α γ}
+variable
+  {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ} {κ η : Kernel α γ}
   [hαγ : MeasurableSpace.CountableOrCountablyGenerated α γ]
 
 open scoped Classical in
-/-- Auxiliary function used to define `ProbabilityTheory.Kernel.rnDeriv` and
+/--
+Auxiliary function used to define `ProbabilityTheory.Kernel.rnDeriv` and
 `ProbabilityTheory.Kernel.singularPart`.
 
 This has the properties we want for a Radon-Nikodym derivative only if `κ ≪ ν`. The definition of
-`rnDeriv κ η` will be built from `rnDerivAux κ (κ + η)`. -/
-noncomputable
-def rnDerivAux (κ η : Kernel α γ) (a : α) (x : γ) : ℝ :=
-  if hα : Countable α then ((κ a).rnDeriv (η a) x).toReal
-  else haveI := hαγ.countableOrCountablyGenerated.resolve_left hα
+`rnDeriv κ η` will be built from `rnDerivAux κ (κ + η)`.
+-/
+noncomputable def rnDerivAux (κ η : Kernel α γ) (a : α) (x : γ) : ℝ :=
+  if hα : Countable α then
+    ((κ a).rnDeriv (η a) x).toReal
+  else
+    haveI := hαγ.countableOrCountablyGenerated.resolve_left hα
     density (map κ (fun a ↦ (a, ()))) η a x univ
 
 lemma rnDerivAux_nonneg (hκη : κ ≤ η) {a : α} {x : γ} : 0 ≤ rnDerivAux κ η a x := by
@@ -179,11 +183,14 @@ lemma withDensity_one_sub_rnDerivAux (κ η : Kernel α γ) [IsFiniteKernel κ] 
     simp only [ENNReal.ofReal_le_one]
     exact hx
 
-/-- A set of points in `α × γ` related to the absolute continuity / mutual singularity of
-`κ` and `η`. -/
+/--
+A set of points in `α × γ` related to the absolute continuity / mutual singularity of
+`κ` and `η`.
+-/
 def mutuallySingularSet (κ η : Kernel α γ) : Set (α × γ) := {p | 1 ≤ rnDerivAux κ (κ + η) p.1 p.2}
 
-/-- A set of points in `α × γ` related to the absolute continuity / mutual singularity of
+/--
+A set of points in `α × γ` related to the absolute continuity / mutual singularity of
 `κ` and `η`. That is,
 * `withDensity η (rnDeriv κ η) a (mutuallySingularSetSlice κ η a) = 0`,
 * `singularPart κ η a (mutuallySingularSetSlice κ η a)ᶜ = 0`.
@@ -523,11 +530,12 @@ lemma eq_singularPart (h : κ = η.withDensity f + ξ)
 
 end Unique
 
-instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
-    IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
+instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η]
+    : IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
   refine ⟨κ.bound, κ.bound_lt_top, fun a ↦ ?_⟩
   rw [Kernel.withDensity_apply', setLIntegral_univ]
-  swap; · exact measurable_rnDeriv κ η
+  swap
+  · exact measurable_rnDeriv κ η
   rw [lintegral_congr_ae rnDeriv_eq_rnDeriv_measure]
   exact Measure.lintegral_rnDeriv_le.trans (measure_le_bound _ _ _)
 

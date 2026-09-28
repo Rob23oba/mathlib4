@@ -11,7 +11,6 @@ import Mathlib.Analysis.CStarAlgebra.Exponential
 import Mathlib.Analysis.CStarAlgebra.Unitization
 import Mathlib.Analysis.Complex.Liouville
 
-
 /-! # The Fuglede–Putnam–Rosenblum theorem
 
 Let `A` be a C⋆-algebra, and let `a b x : A`. The Fuglede–Putnam–Rosenblum theorem states that
@@ -54,7 +53,6 @@ but the proof is independent of the Fuglede–Putnam–Rosenblum theorem.
 
 -/
 
-
 open NormedSpace selfAdjoint Bornology Complex
 open scoped ComplexStarModule
 
@@ -64,8 +62,10 @@ section Unital
 
 variable [CStarAlgebra A] {a b x : A} [IsStarNormal a] [IsStarNormal b]
 
-/-- The map `expMulMulExp : ℂ → A` given by `z ↦ exp (z • star b) * x * exp (z • star (-a))` for
-fixed `a b x : A`. -/
+/--
+The map `expMulMulExp : ℂ → A` given by `z ↦ exp (z • star b) * x * exp (z • star (-a))` for
+fixed `a b x : A`.
+-/
 noncomputable def expMulMulExp (a b x : A) (z : ℂ) : A := exp (z • star b) * x * exp (z • star (-a))
 
 lemma expMulMulExp_eq_expUnitary_mul_mul_expUnitary (h : SemiconjBy x a b) (z : ℂ) :

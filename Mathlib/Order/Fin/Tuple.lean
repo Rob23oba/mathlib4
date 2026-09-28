@@ -22,8 +22,9 @@ assert_not_exists Monoid
 open Function Set
 
 namespace Fin
-variable {n : ℕ} {α : Fin (n + 1) → Type*} (x : α 0) (q : ∀ i, α i) (p : ∀ i : Fin n, α i.succ)
-  (i : Fin n) (y : α i.succ)
+variable
+  {n : ℕ} {α : Fin (n + 1) → Type*}
+  (x : α 0) (q : ∀ i, α i) (p : ∀ i : Fin n, α i.succ) (i : Fin n) (y : α i.succ)
 
 lemma pi_lex_lt_cons_cons {x₀ y₀ : α 0} {x y : ∀ i : Fin n, α i.succ}
     (s : ∀ {i : Fin n.succ}, α i → α i → Prop) :
@@ -152,49 +153,60 @@ lemma Antitone.vecCons (hf : Antitone f) (ha : f 0 ≤ a) : Antitone (vecCons a 
 
 example : Monotone ![1, 2, 2, 3] := by decide
 
-
 variable {n : ℕ}
 
-/-- `Π i : Fin 2, α i` is order equivalent to `α 0 × α 1`. See also `OrderIso.finTwoArrowEquiv`
-for a non-dependent version. -/
+/--
+`Π i : Fin 2, α i` is order equivalent to `α 0 × α 1`. See also `OrderIso.finTwoArrowEquiv`
+for a non-dependent version.
+-/
 def OrderIso.piFinTwoIso (α : Fin 2 → Type*) [∀ i, Preorder (α i)] : (∀ i, α i) ≃o α 0 × α 1 where
   toEquiv := piFinTwoEquiv α
   map_rel_iff' := Iff.symm Fin.forall_fin_two
 
-/-- The space of functions `Fin 2 → α` is order equivalent to `α × α`. See also
-`OrderIso.piFinTwoIso`. -/
-def OrderIso.finTwoArrowIso (α : Type*) [Preorder α] : (Fin 2 → α) ≃o α × α :=
-  { OrderIso.piFinTwoIso fun _ => α with toEquiv := finTwoArrowEquiv α }
+/--
+The space of functions `Fin 2 → α` is order equivalent to `α × α`. See also
+`OrderIso.piFinTwoIso`.
+-/
+def OrderIso.finTwoArrowIso (α : Type*) [Preorder α] : (Fin 2 → α) ≃o α × α := {
+  OrderIso.piFinTwoIso fun _ => α with
+  toEquiv := finTwoArrowEquiv α
+}
 
 namespace Fin
 
-/-- Order isomorphism between tuples of length `n + 1` and pairs of an element and a tuple of length
+/--
+Order isomorphism between tuples of length `n + 1` and pairs of an element and a tuple of length
 `n` given by separating out the first element of the tuple.
 
-This is `Fin.cons` as an `OrderIso`. -/
+This is `Fin.cons` as an `OrderIso`.
+-/
 @[simps!, simps toEquiv]
-def consOrderIso (α : Fin (n + 1) → Type*) [∀ i, LE (α i)] :
-    α 0 × (∀ i, α (succ i)) ≃o ∀ i, α i where
+def consOrderIso (α : Fin (n + 1) → Type*) [∀ i, LE (α i)]
+    : α 0 × (∀ i, α (succ i)) ≃o ∀ i, α i where
   toEquiv := consEquiv α
   map_rel_iff' := forall_iff_succ
 
-/-- Order isomorphism between tuples of length `n + 1` and pairs of an element and a tuple of length
+/--
+Order isomorphism between tuples of length `n + 1` and pairs of an element and a tuple of length
 `n` given by separating out the last element of the tuple.
 
-This is `Fin.snoc` as an `OrderIso`. -/
+This is `Fin.snoc` as an `OrderIso`.
+-/
 @[simps!, simps toEquiv]
-def snocOrderIso (α : Fin (n + 1) → Type*) [∀ i, LE (α i)] :
-    α (last n) × (∀ i, α (castSucc i)) ≃o ∀ i, α i where
+def snocOrderIso (α : Fin (n + 1) → Type*) [∀ i, LE (α i)]
+    : α (last n) × (∀ i, α (castSucc i)) ≃o ∀ i, α i where
   toEquiv := snocEquiv α
   map_rel_iff' := by simp [Pi.le_def, Prod.le_def, forall_iff_castSucc]
 
-/-- Order isomorphism between tuples of length `n + 1` and pairs of an element and a tuple of length
+/--
+Order isomorphism between tuples of length `n + 1` and pairs of an element and a tuple of length
 `n` given by separating out the `p`-th element of the tuple.
 
-This is `Fin.insertNth` as an `OrderIso`. -/
+This is `Fin.insertNth` as an `OrderIso`.
+-/
 @[simps!, simps toEquiv]
-def insertNthOrderIso (α : Fin (n + 1) → Type*) [∀ i, LE (α i)] (p : Fin (n + 1)) :
-    α p × (∀ i, α (p.succAbove i)) ≃o ∀ i, α i where
+def insertNthOrderIso (α : Fin (n + 1) → Type*) [∀ i, LE (α i)] (p : Fin (n + 1))
+    : α p × (∀ i, α (p.succAbove i)) ≃o ∀ i, α i where
   toEquiv := insertNthEquiv α p
   map_rel_iff' := by simp [Pi.le_def, Prod.le_def, p.forall_iff_succAbove]
 
@@ -210,7 +222,7 @@ not a definitional equality. -/
 end Fin
 
 /-- `Fin.succAbove` as an order isomorphism between `Fin n` and `{x : Fin (n + 1) // x ≠ p}`. -/
-def finSuccAboveOrderIso (p : Fin (n + 1)) : Fin n ≃o { x : Fin (n + 1) // x ≠ p } where
+def finSuccAboveOrderIso (p : Fin (n + 1)) : Fin n ≃o {x : Fin (n + 1) // x ≠ p} where
   __ := finSuccAboveEquiv p
   map_rel_iff' := p.succAboveOrderEmb.map_rel_iff'
 
@@ -228,10 +240,12 @@ lemma finSuccAboveOrderIso_symm_apply_ne_last {p : Fin (n + 1)} (h : p ≠ Fin.l
   rw [← Option.some_inj]
   simpa [finSuccAboveEquiv, OrderIso.symm] using finSuccEquiv'_ne_last_apply h x.property
 
-/-- Promote a `Fin n` into a larger `Fin m`, as a subtype where the underlying
-values are retained. This is the `OrderIso` version of `Fin.castLE`. -/
+/--
+Promote a `Fin n` into a larger `Fin m`, as a subtype where the underlying
+values are retained. This is the `OrderIso` version of `Fin.castLE`.
+-/
 @[simps apply symm_apply]
-def Fin.castLEOrderIso {n m : ℕ} (h : n ≤ m) : Fin n ≃o { i : Fin m // (i : ℕ) < n } where
+def Fin.castLEOrderIso {n m : ℕ} (h : n ≤ m) : Fin n ≃o {i : Fin m // (i : ℕ) < n} where
   toFun i := ⟨Fin.castLE h i, by simp⟩
   invFun i := ⟨i, i.prop⟩
   left_inv _ := by simp

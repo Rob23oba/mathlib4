@@ -50,9 +50,11 @@ instance : IsCancelMulZero ℤ where
 
 instance instIsDomain : IsDomain ℤ where
 
-instance instCharZero : CharZero ℤ where cast_injective _ _ := ofNat.inj
+instance instCharZero : CharZero ℤ where
+  cast_injective _ _ := ofNat.inj
 
-instance instMulDivCancelClass : MulDivCancelClass ℤ where mul_div_cancel _ _ := mul_ediv_cancel _
+instance instMulDivCancelClass : MulDivCancelClass ℤ where
+  mul_div_cancel _ _ := mul_ediv_cancel _
 
 @[simp, norm_cast]
 lemma cast_mul {α : Type*} [NonAssocRing α] : ∀ m n, ((m * n : ℤ) : α) = m * n := fun m => by
@@ -84,9 +86,9 @@ these instances non-computably.
 set_option linter.style.whitespace false -- manual alignment is not recognised
 
 instance instCommSemiring : CommSemiring ℤ := inferInstance
-instance instSemiring     : Semiring ℤ     := inferInstance
-instance instRing         : Ring ℤ         := inferInstance
-instance instDistrib      : Distrib ℤ      := inferInstance
+instance instSemiring : Semiring ℤ := inferInstance
+instance instRing : Ring ℤ := inferInstance
+instance instDistrib : Distrib ℤ := inferInstance
 
 set_option linter.style.whitespace true
 

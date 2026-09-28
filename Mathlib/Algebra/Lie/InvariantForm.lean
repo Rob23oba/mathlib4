@@ -52,7 +52,7 @@ A bilinear form on a Lie module `M` of a Lie algebra `L` is *invariant* if
 for all `x : L` and `y z : M` the condition `Φ ⁅x, y⁆ z = -Φ y ⁅x, z⁆` holds.
 -/
 def _root_.LinearMap.BilinForm.lieInvariant : Prop :=
-  ∀ (x : L) (y z : M), Φ ⁅x, y⁆ z = -Φ y ⁅x, z⁆
+  ∀ (x : L) (y z : M), Φ (⁅x, y⁆) z = - Φ y ⁅x, z⁆
 
 lemma _root_.LinearMap.BilinForm.lieInvariant_iff [LieAlgebra R L] [LieModule R L M] :
     Φ.lieInvariant L ↔ Φ ∈ LieModule.maxTrivSubmodule R L (LinearMap.BilinForm R M) := by
@@ -76,7 +76,8 @@ def orthogonal (hΦ_inv : Φ.lieInvariant L) (N : LieSubmodule R L M) : LieSubmo
     suffices (∀ n ∈ N, Φ n y = 0) → ∀ n ∈ N, Φ n ⁅x, y⁆ = 0 by
       simpa only [
         AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup, Submodule.mem_toAddSubmonoid,
-        LinearMap.BilinForm.mem_orthogonal_iff, LieSubmodule.mem_toSubmodule]
+        LinearMap.BilinForm.mem_orthogonal_iff, LieSubmodule.mem_toSubmodule
+      ]
     intro H a ha
     rw [← neg_eq_zero, ← hΦ_inv]
     exact H _ <| N.lie_mem ha
@@ -124,7 +125,7 @@ variable [Module.Finite K L]
 variable (Φ : LinearMap.BilinForm K L) (hΦ_nondeg : Φ.Nondegenerate)
 variable (hΦ_inv : Φ.lieInvariant L) (hΦ_refl : Φ.IsRefl)
 -- TODO: replace the following assumption by a typeclass assumption `[HasNonAbelianAtoms]`
-variable (hL : ∀ I : LieIdeal K L, IsAtom I → ¬IsLieAbelian I)
+variable (hL : ∀ I : LieIdeal K L, IsAtom I → ¬ IsLieAbelian I)
 include hΦ_nondeg hΦ_refl hL
 
 open Module Submodule in

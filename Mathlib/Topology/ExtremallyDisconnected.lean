@@ -40,14 +40,17 @@ universe u
 
 variable (X : Type u) [TopologicalSpace X]
 
-/-- An extremally disconnected topological space is a space
-in which the closure of every open set is open. -/
+/--
+An extremally disconnected topological space is a space
+in which the closure of every open set is open.
+-/
 class ExtremallyDisconnected : Prop where
   /-- The closure of every open set is open. -/
   open_closure : ∀ U : Set X, IsOpen U → IsOpen (closure U)
 
-theorem extremallyDisconnected_of_homeo {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
-    [ExtremallyDisconnected X] (e : X ≃ₜ Y) : ExtremallyDisconnected Y where
+theorem extremallyDisconnected_of_homeo
+    {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] [ExtremallyDisconnected X] (e : X ≃ₜ Y)
+    : ExtremallyDisconnected Y where
   open_closure U hU := by
     rw [e.symm.isInducing.closure_eq_preimage_closure_image, Homeomorph.isOpen_preimage]
     exact ExtremallyDisconnected.open_closure _ (e.symm.isOpen_image.mpr hU)
@@ -55,31 +58,42 @@ theorem extremallyDisconnected_of_homeo {X Y : Type*} [TopologicalSpace X] [Topo
 section TotallySeparated
 
 /-- Extremally disconnected spaces are totally separated. -/
-instance [ExtremallyDisconnected X] [T2Space X] : TotallySeparatedSpace X :=
-{ isTotallySeparated_univ := by
+instance [ExtremallyDisconnected X] [T2Space X] : TotallySeparatedSpace X := {
+  isTotallySeparated_univ := by
     intro x _ y _ hxy
     obtain ⟨U, V, hUV⟩ := T2Space.t2 hxy
-    refine ⟨closure U, (closure U)ᶜ, ExtremallyDisconnected.open_closure U hUV.1,
-      by simp only [isOpen_compl_iff, isClosed_closure], subset_closure hUV.2.2.1, ?_,
-      by simp only [Set.union_compl_self, Set.subset_univ], disjoint_compl_right⟩
+    refine ⟨
+      closure U,
+      (closure U)ᶜ,
+      ExtremallyDisconnected.open_closure U hUV.1,
+      by simp only [isOpen_compl_iff, isClosed_closure],
+      subset_closure hUV.2.2.1,
+      ?_,
+      by simp only [Set.union_compl_self, Set.subset_univ],
+      disjoint_compl_right
+    ⟩
     rw [Set.mem_compl_iff, mem_closure_iff]
     push Not
     refine ⟨V, ⟨hUV.2.1, hUV.2.2.2.1, ?_⟩⟩
     rw [← Set.disjoint_iff_inter_eq_empty, disjoint_comm]
-    exact hUV.2.2.2.2 }
+    exact hUV.2.2.2.2
+}
 
 end TotallySeparated
 
 section
 
-/-- The assertion `CompactT2.Projective` states that given continuous maps
+/--
+The assertion `CompactT2.Projective` states that given continuous maps
 `f : X → Z` and `g : Y → Z` with `g` surjective between `t_2`, compact topological spaces,
-there exists a continuous lift `h : X → Y`, such that `f = g ∘ h`. -/
+there exists a continuous lift `h : X → Y`, such that `f = g ∘ h`.
+-/
 def CompactT2.Projective : Prop :=
   ∀ {Y Z : Type u} [TopologicalSpace Y] [TopologicalSpace Z],
     ∀ [CompactSpace Y] [T2Space Y] [CompactSpace Z] [T2Space Z],
       ∀ {f : X → Z} {g : Y → Z} (_ : Continuous f) (_ : Continuous g) (_ : Surjective g),
-        ∃ h : X → Y, Continuous h ∧ g ∘ h = f
+        ∃ h : X → Y,
+          Continuous h ∧ g ∘ h = f
 
 variable {X}
 
@@ -94,8 +108,9 @@ theorem StoneCech.projective [DiscreteTopology X] : CompactT2.Projective (StoneC
   refine ⟨h, hh, denseRange_stoneCechUnit.equalizer (hg.comp hh) hf ?_⟩
   rw [comp_assoc, stoneCechExtend_extends ht, ← comp_assoc, hs, id_comp]
 
-protected theorem CompactT2.Projective.extremallyDisconnected [CompactSpace X] [T2Space X]
-    (h : CompactT2.Projective X) : ExtremallyDisconnected X := by
+protected theorem CompactT2.Projective.extremallyDisconnected
+    [CompactSpace X] [T2Space X] (h : CompactT2.Projective X)
+    : ExtremallyDisconnected X := by
   refine { open_closure := fun U hU => ?_ }
   let Z₁ : Set (X × Bool) := Uᶜ ×ˢ {true}
   let Z₂ : Set (X × Bool) := closure U ×ˢ {false}
@@ -117,8 +132,10 @@ protected theorem CompactT2.Projective.extremallyDisconnected [CompactSpace X] [
   have hφ : Continuous φ := continuous_subtype_val.comp hg
   have hφ₁ : ∀ x, (φ x).1 = x := congr_fun g_sec
   suffices closure U = φ ⁻¹' Z₂ by
-    rw [this, preimage_comp, ← isClosed_compl_iff, ← preimage_compl,
-      ← preimage_subtype_coe_eq_compl Subset.rfl]
+    rw [
+      this, preimage_comp, ← isClosed_compl_iff, ← preimage_compl,
+      ← preimage_subtype_coe_eq_compl Subset.rfl
+    ]
     · exact hZ₁.preimage hφ
     · rw [hZ₁₂.inter_eq, inter_empty]
   refine (closure_minimal ?_ <| hZ₂.preimage hφ).antisymm fun x hx => ?_
@@ -241,26 +258,34 @@ private lemma ExtremallyDisconnected.homeoCompactToT2_injective [ExtremallyDisco
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- Lemma 2.3 in [Gleason, *Projective topological spaces*][gleason1958]:
+/--
+Lemma 2.3 in [Gleason, *Projective topological spaces*][gleason1958]:
 a continuous surjection from a compact Hausdorff space to an extremally disconnected Hausdorff space
-satisfying the "Zorn subset condition" is a homeomorphism. -/
-noncomputable def ExtremallyDisconnected.homeoCompactToT2 [ExtremallyDisconnected A] [T2Space A]
-    [T2Space E] [CompactSpace E] {ρ : E → A} (ρ_cont : Continuous ρ) (ρ_surj : ρ.Surjective)
-    (zorn_subset : ∀ E₀ : Set E, E₀ ≠ univ → IsClosed E₀ → ρ '' E₀ ≠ univ) : E ≃ₜ A :=
-  ρ_cont.homeoOfEquivCompactToT2
-    (f := Equiv.ofBijective ρ ⟨homeoCompactToT2_injective ρ_cont ρ_surj zorn_subset, ρ_surj⟩)
+satisfying the "Zorn subset condition" is a homeomorphism.
+-/
+noncomputable def ExtremallyDisconnected.homeoCompactToT2
+    [ExtremallyDisconnected A] [T2Space A] [T2Space E] [CompactSpace E]
+    {ρ : E → A} (ρ_cont : Continuous ρ) (ρ_surj : ρ.Surjective)
+    (zorn_subset : ∀ E₀ : Set E, E₀ ≠ univ → IsClosed E₀ → ρ '' E₀ ≠ univ)
+    : E ≃ₜ A :=
+  ρ_cont.homeoOfEquivCompactToT2 (f :=
+    Equiv.ofBijective ρ ⟨homeoCompactToT2_injective ρ_cont ρ_surj zorn_subset, ρ_surj⟩)
 
-/-- Theorem 2.5 in [Gleason, *Projective topological spaces*][gleason1958]:
+/--
+Theorem 2.5 in [Gleason, *Projective topological spaces*][gleason1958]:
 in the category of compact spaces and continuous maps,
-the projective spaces are precisely the extremally disconnected spaces. -/
-protected theorem CompactT2.ExtremallyDisconnected.projective [ExtremallyDisconnected A]
-    [CompactSpace A] [T2Space A] : CompactT2.Projective A := by
+the projective spaces are precisely the extremally disconnected spaces.
+-/
+protected theorem CompactT2.ExtremallyDisconnected.projective
+    [ExtremallyDisconnected A] [CompactSpace A] [T2Space A]
+    : CompactT2.Projective A := by
   -- let $B$ and $C$ be compact; let $f : B \twoheadrightarrow C$ and $\phi : A \to C$ be continuous
   intro B C _ _ _ _ _ _ φ f φ_cont f_cont f_surj
   -- let $D := \{(a, b) : \phi(a) = f(b)\}$ with projections $\pi_1 : D \to A$ and $\pi_2 : D \to B$
   let D : Set <| A × B := {x | φ x.fst = f x.snd}
-  have D_comp : CompactSpace D := isCompact_iff_compactSpace.mp
-    (isClosed_eq (φ_cont.comp continuous_fst) (f_cont.comp continuous_snd)).isCompact
+  have D_comp : CompactSpace D :=
+    isCompact_iff_compactSpace.mp (isClosed_eq (φ_cont.comp continuous_fst)
+      (f_cont.comp continuous_snd)).isCompact
   -- apply Lemma 2.4 to get closed $E$ satisfying "Zorn subset condition"
   let X₁ : D → A := Prod.fst ∘ Subtype.val
   have X₁_cont : Continuous X₁ := continuous_fst.comp continuous_subtype_val
@@ -275,23 +300,25 @@ protected theorem CompactT2.ExtremallyDisconnected.projective [ExtremallyDisconn
   -- prove $\rho := \pi_2|_E \circ \pi_1|_E^{-1}$ satisfies $\phi = f \circ \rho$
   let X₂ : D → B := Prod.snd ∘ Subtype.val
   have X₂_cont : Continuous X₂ := continuous_snd.comp continuous_subtype_val
-  refine ⟨E.domRestrict X₂ ∘ ρ'.symm,
-    ⟨X₂_cont.continuousOn.domRestrict.comp ρ'.symm.continuous, ?_⟩⟩
+  refine
+    ⟨E.domRestrict X₂ ∘ ρ'.symm, ⟨X₂_cont.continuousOn.domRestrict.comp ρ'.symm.continuous, ?_⟩⟩
   suffices f ∘ E.domRestrict X₂ = φ ∘ ρ' by
     rw [← comp_assoc, this, comp_assoc, Homeomorph.self_comp_symm, comp_id]
   ext x
   exact x.val.mem.symm
 
-protected theorem CompactT2.projective_iff_extremallyDisconnected [CompactSpace A] [T2Space A] :
-    Projective A ↔ ExtremallyDisconnected A :=
+protected theorem CompactT2.projective_iff_extremallyDisconnected [CompactSpace A] [T2Space A]
+    : Projective A ↔ ExtremallyDisconnected A :=
   ⟨Projective.extremallyDisconnected, fun _ => ExtremallyDisconnected.projective⟩
 
 end
 
 -- Note: It might be possible to use Gleason for this instead
 /-- The sigma-type of extremally disconnected spaces is extremally disconnected. -/
-instance instExtremallyDisconnected {ι : Type*} {X : ι → Type*} [∀ i, TopologicalSpace (X i)]
-    [h₀ : ∀ i, ExtremallyDisconnected (X i)] : ExtremallyDisconnected (Σ i, X i) := by
+instance instExtremallyDisconnected
+    {ι : Type*} {X : ι → Type*}
+    [∀ i, TopologicalSpace (X i)] [h₀ : ∀ i, ExtremallyDisconnected (X i)]
+    : ExtremallyDisconnected (Σ i, X i) := by
   constructor
   intro s hs
   rw [isOpen_sigma_iff] at hs ⊢
@@ -320,9 +347,9 @@ instance (priority := 100) [h : PreirreducibleSpace X] : ExtremallyDisconnected 
     · exact ((preirreducibleSpace_iff_open_dense X).mp h hU Un).closure_eq ▸ isOpen_univ
 
 /-- A (pre-)connected, extremally disconnected space is preirreducible. -/
-theorem ExtremallyDisconnected.toPreirreducibleSpace [h : ExtremallyDisconnected X]
-    [h' : PreconnectedSpace X] :
-    PreirreducibleSpace X := by
+theorem ExtremallyDisconnected.toPreirreducibleSpace
+    [h : ExtremallyDisconnected X] [h' : PreconnectedSpace X]
+    : PreirreducibleSpace X := by
   apply (preirreducibleSpace_iff_open_dense X).mpr (fun s hs sn ↦ ?_)
   apply dense_iff_closure_eq.mpr
   cases preconnectedSpace_iff_clopen.mp h' (closure s) ⟨isClosed_closure, h.open_closure s hs⟩

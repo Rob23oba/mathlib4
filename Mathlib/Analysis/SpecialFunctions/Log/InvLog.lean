@@ -54,8 +54,8 @@ theorem deriv_inv_log_apply {x : ℝ} : deriv (fun x ↦ (log x)⁻¹) x = -x⁻
   have := mt (continuousAt (𝕜 := ℝ)) not_continuousAt_inv_log_neg_one
   have := mt (continuousAt (𝕜 := ℝ)) not_continuousAt_inv_log_one
   have := not_differentiableAt_inv_log_zero
-  obtain (⟨_, _, _⟩ | rfl | rfl | rfl) :
-      (x ≠ -1 ∧ x ≠ 0 ∧ x ≠ 1) ∨ x = -1 ∨ x = 0 ∨ x = 1 := by tauto
+  obtain (⟨_, _, _⟩ | rfl | rfl | rfl) : (x ≠ -1 ∧ x ≠ 0 ∧ x ≠ 1) ∨ x = -1 ∨ x = 0 ∨ x = 1 := by
+    tauto
   · simp_all
   all_goals rw [deriv_zero_of_not_differentiableAt ‹_›]; simp
 
@@ -63,15 +63,15 @@ theorem deriv_inv_log_apply {x : ℝ} : deriv (fun x ↦ (log x)⁻¹) x = -x⁻
 theorem deriv_inv_log : deriv (fun x ↦ (log x)⁻¹) = fun x ↦ -x⁻¹ / log x ^ 2 :=
   funext fun _ ↦ deriv_inv_log_apply
 
-theorem differentiableAt_inv_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1) :
-    DifferentiableAt ℝ (fun x ↦ (log x)⁻¹) x := by
+theorem differentiableAt_inv_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1)
+    : DifferentiableAt ℝ (fun x ↦ (log x)⁻¹) x := by
   fun_prop (disch := grind [log_ne_zero])
 
-theorem hasDerivAt_inv_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1) :
-    HasDerivAt (fun x ↦ (log x)⁻¹) (-x⁻¹ / (log x ^ 2)) x := by
+theorem hasDerivAt_inv_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1)
+    : HasDerivAt (fun x ↦ (log x)⁻¹) (-x⁻¹ / (log x ^ 2)) x := by
   simpa using (differentiableAt_inv_log hx₀ hx₁ hx₂).hasDerivAt
 
-theorem differentiableOn_inv_log' : DifferentiableOn ℝ (fun x ↦ (log x)⁻¹) {-1,0,1}ᶜ :=
+theorem differentiableOn_inv_log' : DifferentiableOn ℝ (fun x ↦ (log x)⁻¹) {-1, 0, 1}ᶜ :=
   (differentiableOn_log.mono (by grind)).inv (by simp; tauto)
 
 theorem differentiableOn_inv_log : DifferentiableOn ℝ (fun x ↦ (log x)⁻¹) (.Ioi 1) :=
@@ -104,8 +104,8 @@ theorem deriv_log_log_apply {x : ℝ} : deriv (fun x ↦ log (log x)) x = x⁻¹
   have := not_continuousAt_log_log_neg_one
   have := not_continuousAt_log_log_zero
   have := not_continuousAt_log_log_one
-  obtain (⟨_, _, _⟩ | rfl | rfl | rfl) :
-      (x ≠ -1 ∧ x ≠ 0 ∧ x ≠ 1) ∨ x = -1 ∨ x = 0 ∨ x = 1 := by tauto
+  obtain (⟨_, _, _⟩ | rfl | rfl | rfl) : (x ≠ -1 ∧ x ≠ 0 ∧ x ≠ 1) ∨ x = -1 ∨ x = 0 ∨ x = 1 := by
+    tauto
   · simp_all
   all_goals rw [deriv_zero_of_not_differentiableAt (mt continuousAt ‹_›)]; simp
 
@@ -113,15 +113,15 @@ theorem deriv_log_log_apply {x : ℝ} : deriv (fun x ↦ log (log x)) x = x⁻¹
 theorem deriv_log_log : deriv (fun x ↦ log (log x)) = fun x ↦ x⁻¹ / log x :=
   funext fun _ ↦ deriv_log_log_apply
 
-theorem differentiableAt_log_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1) :
-    DifferentiableAt ℝ (fun x ↦ log (log x)) x :=
+theorem differentiableAt_log_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1)
+    : DifferentiableAt ℝ (fun x ↦ log (log x)) x :=
   (differentiableAt_log (by grind)).log (by simp; grind)
 
-theorem hasDerivAt_log_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1) :
-    HasDerivAt (fun x ↦ log (log x)) (x⁻¹ / log x) x := by
+theorem hasDerivAt_log_log {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) (hx₂ : x ≠ -1)
+    : HasDerivAt (fun x ↦ log (log x)) (x⁻¹ / log x) x := by
   simpa using (differentiableAt_log_log hx₀ hx₁ hx₂).hasDerivAt
 
-theorem differentiableOn_log_log' : DifferentiableOn ℝ (fun x ↦ log (log x)) {-1,0,1}ᶜ :=
+theorem differentiableOn_log_log' : DifferentiableOn ℝ (fun x ↦ log (log x)) {-1, 0, 1}ᶜ :=
   (differentiableOn_log.mono (by grind)).log (by simp; tauto)
 
 theorem differentiableOn_log_log : DifferentiableOn ℝ (fun x ↦ log (log x)) (.Ioi 1) :=

@@ -28,7 +28,6 @@ of `X`.
 
 public section
 
-
 open MeasureTheory Real Set
 
 open scoped NNReal ENNReal ProbabilityTheory

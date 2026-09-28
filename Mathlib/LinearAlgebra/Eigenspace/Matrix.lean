@@ -118,18 +118,18 @@ lemma maxGenEigenspace_toLin'_diagonal_eq_eigenspace [IsDomain R] :
   maxGenEigenspace_toLin_diagonal_eq_eigenspace d <| Pi.basisFun R n
 
 @[simp]
-theorem _root_.LinearMap.spectrum_toMatrix (f : M →ₗ[R] M) (b : Basis n R M) :
-    spectrum R (f.toMatrix b b) = spectrum R f :=
+theorem _root_.LinearMap.spectrum_toMatrix (f : M →ₗ[R] M) (b : Basis n R M)
+    : spectrum R (f.toMatrix b b) = spectrum R f :=
   AlgEquiv.spectrum_eq (LinearMap.toMatrixAlgEquiv b) f
 
 @[simp]
-theorem _root_.LinearMap.spectrum_toMatrix' (f : (n → R) →ₗ[R] (n → R)) :
-    spectrum R f.toMatrix' = spectrum R f :=
+theorem _root_.LinearMap.spectrum_toMatrix' (f : (n → R) →ₗ[R] (n → R))
+    : spectrum R f.toMatrix' = spectrum R f :=
   AlgEquiv.spectrum_eq LinearMap.toMatrixAlgEquiv' f
 
 @[simp]
-theorem spectrum_toLin (A : Matrix n n R) (b : Basis n R M) :
-    spectrum R (A.toLin b b) = spectrum R A :=
+theorem spectrum_toLin (A : Matrix n n R) (b : Basis n R M)
+    : spectrum R (A.toLin b b) = spectrum R A :=
   AlgEquiv.spectrum_eq (Matrix.toLinAlgEquiv b) A
 
 @[simp]

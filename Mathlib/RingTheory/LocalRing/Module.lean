@@ -58,8 +58,8 @@ namespace IsLocalRing
 
 variable [IsLocalRing R]
 
-theorem map_mkQ_eq {N₁ N₂ : Submodule R M} (h : N₁ ≤ N₂) (h' : N₂.FG) :
-    N₁.map (Submodule.mkQ (𝔪 • N₂)) = N₂.map (Submodule.mkQ (𝔪 • N₂)) ↔ N₁ = N₂ := by
+theorem map_mkQ_eq {N₁ N₂ : Submodule R M} (h : N₁ ≤ N₂) (h' : N₂.FG)
+    : N₁.map (Submodule.mkQ (𝔪 • N₂)) = N₂.map (Submodule.mkQ (𝔪 • N₂)) ↔ N₁ = N₂ := by
   constructor
   · intro hN
     have : N₂ ≤ 𝔪 • N₂ ⊔ N₁ := by
@@ -69,42 +69,50 @@ theorem map_mkQ_eq {N₁ N₂ : Submodule R M} (h : N₁ ≤ N₂) (h' : N₂.FG
       (by rw [jacobson_eq_maximalIdeal]; exact bot_ne_top) this)
   · rintro rfl; simp
 
-theorem map_mkQ_eq_top {N : Submodule R M} [Module.Finite R M] :
-    N.map (Submodule.mkQ (𝔪 • ⊤)) = ⊤ ↔ N = ⊤ := by
+theorem map_mkQ_eq_top {N : Submodule R M} [Module.Finite R M]
+    : N.map (Submodule.mkQ (𝔪 • ⊤)) = ⊤ ↔ N = ⊤ := by
   rw [← map_mkQ_eq (N₁ := N) le_top Module.Finite.fg_top, Submodule.map_top, Submodule.range_mkQ]
 
-theorem map_tensorProduct_mk_eq_top {N : Submodule R M} [Module.Finite R M] :
-    N.map (TensorProduct.mk R k M 1) = ⊤ ↔ N = ⊤ := by
+theorem map_tensorProduct_mk_eq_top {N : Submodule R M} [Module.Finite R M]
+    : N.map (TensorProduct.mk R k M 1) = ⊤ ↔ N = ⊤ := by
   constructor
   · intro hN
     let : Module k (M ⧸ (𝔪 • ⊤ : Submodule R M)) :=
       inferInstanceAs (Module (R ⧸ 𝔪) (M ⧸ 𝔪 • (⊤ : Submodule R M)))
     let : IsScalarTower R k (M ⧸ (𝔪 • ⊤ : Submodule R M)) :=
       inferInstanceAs (IsScalarTower R (R ⧸ 𝔪) (M ⧸ 𝔪 • (⊤ : Submodule R M)))
-    let f := AlgebraTensorModule.lift (((LinearMap.ringLmapEquivSelf k k _).symm
-      (Submodule.mkQ (𝔪 • ⊤ : Submodule R M))).restrictScalars R)
+    let f :=
+      AlgebraTensorModule.lift (((LinearMap.ringLmapEquivSelf k k _).symm
+          (Submodule.mkQ (𝔪 • ⊤ : Submodule R M))).restrictScalars
+        R)
     have : f.comp (TensorProduct.mk R k M 1) = Submodule.mkQ (𝔪 • ⊤) := by ext; simp [f]
     have hf : Function.Surjective f := by
-      intro x; obtain ⟨x, rfl⟩ := Submodule.mkQ_surjective _ x
-      rw [← this, LinearMap.comp_apply]; exact ⟨_, rfl⟩
+      intro x
+      obtain ⟨x, rfl⟩ := Submodule.mkQ_surjective _ x
+      rw [← this, LinearMap.comp_apply]
+      exact ⟨_, rfl⟩
     apply_fun Submodule.map f at hN
-    rwa [← Submodule.map_comp, this, Submodule.map_top, LinearMap.range_eq_top.2 hf,
-      map_mkQ_eq_top] at hN
-  · rintro rfl; rw [Submodule.map_top, LinearMap.range_eq_top]
+    rwa [← Submodule.map_comp, this, Submodule.map_top, LinearMap.range_eq_top.2 hf, map_mkQ_eq_top]
+      at hN
+  · rintro rfl
+    rw [Submodule.map_top, LinearMap.range_eq_top]
     exact TensorProduct.mk_surjective R M k Ideal.Quotient.mk_surjective
 
-theorem subsingleton_tensorProduct [Module.Finite R M] :
-    Subsingleton (k ⊗[R] M) ↔ Subsingleton M := by
-  rw [← Submodule.subsingleton_iff R, ← subsingleton_iff_bot_eq_top,
-    ← Submodule.subsingleton_iff R, ← subsingleton_iff_bot_eq_top,
-    ← map_tensorProduct_mk_eq_top (M := M), Submodule.map_bot]
+theorem subsingleton_tensorProduct [Module.Finite R M]
+    : Subsingleton (k ⊗[R] M) ↔ Subsingleton M := by
+  rw [
+    ← Submodule.subsingleton_iff R, ← subsingleton_iff_bot_eq_top, ← Submodule.subsingleton_iff R,
+    ← subsingleton_iff_bot_eq_top, ← map_tensorProduct_mk_eq_top (M := M), Submodule.map_bot
+  ]
 
-theorem span_eq_top_of_tmul_eq_basis [Module.Finite R M] {ι}
-    (f : ι → M) (b : Basis ι k (k ⊗[R] M))
-    (hb : ∀ i, 1 ⊗ₜ f i = b i) : Submodule.span R (Set.range f) = ⊤ := by
-  rw [← map_tensorProduct_mk_eq_top, Submodule.map_span, ← Submodule.restrictScalars_span R k
-    Ideal.Quotient.mk_surjective, Submodule.restrictScalars_eq_top_iff,
-    ← b.span_eq, ← Set.range_comp]
+theorem span_eq_top_of_tmul_eq_basis
+    [Module.Finite R M] {ι} (f : ι → M) (b : Basis ι k (k ⊗[R] M)) (hb : ∀ i, 1 ⊗ₜ f i = b i)
+    : Submodule.span R (Set.range f) = ⊤ := by
+  rw [
+    ← map_tensorProduct_mk_eq_top, Submodule.map_span,
+    ← Submodule.restrictScalars_span R k Ideal.Quotient.mk_surjective,
+    Submodule.restrictScalars_eq_top_iff, ← b.span_eq, ← Set.range_comp
+  ]
   simp only [Function.comp_def, mk_apply, hb, Basis.span_eq]
 
 end IsLocalRing
@@ -130,29 +138,34 @@ theorem lTensor_injective_of_exact_of_exact_of_rTensor_injective
     [AddCommGroup M₁] [Module R M₁] [AddCommGroup M₂] [Module R M₂] [AddCommGroup M₃] [Module R M₃]
     [AddCommGroup N₁] [Module R N₁] [AddCommGroup N₂] [Module R N₂] [AddCommGroup N₃] [Module R N₃]
     {f₁ : M₁ →ₗ[R] M₂} {f₂ : M₂ →ₗ[R] M₃} {g₁ : N₁ →ₗ[R] N₂} {g₂ : N₂ →ₗ[R] N₃}
-    (hfexact : Exact f₁ f₂) (hfsurj : Surjective f₂)
-    (hgexact : Exact g₁ g₂) (hgsurj : Surjective g₂)
-    (hfinj : Injective (f₁.rTensor N₃)) (hginj : Injective (g₁.lTensor M₂)) :
-    Injective (g₁.lTensor M₃) := by
+    (hfexact : Exact f₁ f₂) (hfsurj : Surjective f₂) (hgexact : Exact g₁ g₂)
+    (hgsurj : Surjective g₂) (hfinj : Injective (f₁.rTensor N₃)) (hginj : Injective (g₁.lTensor M₂))
+    : Injective (g₁.lTensor M₃) := by
   rw [injective_iff_map_eq_zero]
   intro x hx
   obtain ⟨x, rfl⟩ := f₂.rTensor_surjective N₁ hfsurj x
   have : f₂.rTensor N₂ (g₁.lTensor M₂ x) = 0 := by
-    rw [← hx, ← LinearMap.comp_apply, ← LinearMap.comp_apply, LinearMap.rTensor_comp_lTensor,
-      LinearMap.lTensor_comp_rTensor]
+    rw [
+      ← hx, ← LinearMap.comp_apply, ← LinearMap.comp_apply, LinearMap.rTensor_comp_lTensor,
+      LinearMap.lTensor_comp_rTensor
+    ]
   obtain ⟨y, hy⟩ := (rTensor_exact N₂ hfexact hfsurj _).mp this
   have : g₂.lTensor M₁ y = 0 := by
     apply hfinj
     trans g₂.lTensor M₂ (g₁.lTensor M₂ x)
-    · rw [← hy, ← LinearMap.comp_apply, ← LinearMap.comp_apply, LinearMap.rTensor_comp_lTensor,
-        LinearMap.lTensor_comp_rTensor]
+    · rw [
+        ← hy, ← LinearMap.comp_apply, ← LinearMap.comp_apply, LinearMap.rTensor_comp_lTensor,
+        LinearMap.lTensor_comp_rTensor
+      ]
     rw [← LinearMap.comp_apply, ← LinearMap.lTensor_comp, hgexact.linearMap_comp_eq_zero]
     simp
   obtain ⟨z, rfl⟩ := (lTensor_exact _ hgexact hgsurj _).mp this
   obtain rfl : f₁.rTensor N₁ z = x := by
     apply hginj
-    simp only [← hy, ← LinearMap.comp_apply, ← LinearMap.comp_apply, LinearMap.lTensor_comp_rTensor,
-      LinearMap.rTensor_comp_lTensor]
+    simp only [
+      ← hy, ← LinearMap.comp_apply, ← LinearMap.comp_apply, LinearMap.lTensor_comp_rTensor,
+      LinearMap.rTensor_comp_lTensor
+    ]
   rw [← LinearMap.comp_apply, ← LinearMap.rTensor_comp, hfexact.linearMap_comp_eq_zero]
   simp
 
@@ -245,16 +258,18 @@ lemma exists_basis_of_span_of_flat [Module.FinitePresentation R M] [Module.Flat 
 If `M` is a finitely presented module over a local ring `(R, 𝔪)` such that `m ⊗ M → M` is
 injective, then `M` is free.
 -/
-theorem free_of_maximalIdeal_rTensor_injective [Module.FinitePresentation R M]
-    (H : Function.Injective ((𝔪).subtype.rTensor M)) :
-    Module.Free R M := by
+theorem free_of_maximalIdeal_rTensor_injective
+    [Module.FinitePresentation R M] (H : Function.Injective ((𝔪).subtype.rTensor M))
+    : Module.Free R M := by
   obtain ⟨_, _, b, _⟩ := exists_basis_of_span_of_maximalIdeal_rTensor_injective H id (by simp)
   exact Free.of_basis b
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem IsLocalRing.linearIndependent_of_flat [Flat R M] {ι : Type u} (v : ι → M)
-    (h : LinearIndependent k (TensorProduct.mk R k M 1 ∘ v)) : LinearIndependent R v := by
-  rw [linearIndependent_iff']; intro s f hfv i hi
+theorem IsLocalRing.linearIndependent_of_flat
+    [Flat R M] {ι : Type u} (v : ι → M) (h : LinearIndependent k (TensorProduct.mk R k M 1 ∘ v))
+    : LinearIndependent R v := by
+  rw [linearIndependent_iff']
+  intro s f hfv i hi
   classical
   induction s using Finset.induction generalizing v i with
   | empty => exact (Finset.notMem_empty _ hi).elim
@@ -286,14 +301,17 @@ theorem IsLocalRing.linearIndependent_of_flat [Flat R M] {ι : Type u} (v : ι �
     exact s.sum_congr rfl fun i hi ↦ by rw [ite_eq_right (ne_of_mem_of_not_mem hi hn)]
   obtain hi | hi := Finset.mem_insert.mp hi
   · rw [hi, hfn, Finset.sum_eq_zero, neg_zero, zero_mul]
-    intro i hi; rw [ih i hi, zero_mul]
+    intro i hi
+    rw [ih i hi, zero_mul]
   · exact ih i hi
 
 set_option backward.isDefEq.respectTransparency.types false in
 open Finsupp in
-theorem IsLocalRing.linearCombination_bijective_of_flat [Module.Finite R M] [Flat R M] {ι : Type u}
-    (v : ι → M) (h : Function.Bijective (linearCombination k (TensorProduct.mk R k M 1 ∘ v))) :
-    Function.Bijective (linearCombination R v) := by
+theorem IsLocalRing.linearCombination_bijective_of_flat
+    [Module.Finite R M] [Flat R M]
+    {ι : Type u}
+    (v : ι → M) (h : Function.Bijective (linearCombination k (TensorProduct.mk R k M 1 ∘ v)))
+    : Function.Bijective (linearCombination R v) := by
   use linearIndependent_of_flat _ h.1
   rw [← LinearMap.range_eq_top, range_linearCombination]
   refine span_eq_top_of_tmul_eq_basis _ (.mk h.1 ?_) fun _ ↦ ?_
@@ -311,16 +329,18 @@ theorem free_of_flat_of_isLocalRing [Module.Finite R P] [Flat R P] : Free R P :=
 If `M → N → P → 0` is a presentation of `P` over a local ring `(R, 𝔪, k)` with
 `M` finite and `N` finite free, then injectivity of `k ⊗ M → k ⊗ N` implies that `P` is free.
 -/
-theorem free_of_lTensor_residueField_injective (hg : Surjective g) (h : Exact f g)
+theorem free_of_lTensor_residueField_injective
+    (hg : Surjective g) (h : Exact f g)
     [Module.Finite R M] [Module.Finite R N] [Module.Free R N]
-    (hf : Function.Injective (f.lTensor k)) :
-    Module.Free R P := by
-  have := Module.finitePresentation_of_free_of_surjective g hg
-    (by rw [h.linearMap_ker_eq, LinearMap.range_eq_map]; exact (Module.Finite.fg_top).map f)
+    (hf : Function.Injective (f.lTensor k))
+    : Module.Free R P := by
+  have :=
+    Module.finitePresentation_of_free_of_surjective g hg
+      (by rw [h.linearMap_ker_eq, LinearMap.range_eq_map]; exact (Module.Finite.fg_top).map f)
   apply free_of_maximalIdeal_rTensor_injective
   rw [← LinearMap.lTensor_inj_iff_rTensor_inj]
-  apply lTensor_injective_of_exact_of_exact_of_rTensor_injective
-    h hg (LinearMap.exact_subtype_mkQ 𝔪) (Submodule.mkQ_surjective _)
+  apply lTensor_injective_of_exact_of_exact_of_rTensor_injective h hg
+    (LinearMap.exact_subtype_mkQ 𝔪) (Submodule.mkQ_surjective _)
     ((LinearMap.lTensor_inj_iff_rTensor_inj _ _).mp hf)
     (Module.Flat.lTensor_preserves_injective_linearMap _ Subtype.val_injective)
 
@@ -331,9 +351,9 @@ Given a linear map `l : M → N` over a local ring `(R, 𝔪, k)`
 with `M` finite and `N` finite free,
 `l` is a split injection if and only if `k ⊗ l` is a (split) injection.
 -/
-theorem IsLocalRing.split_injective_iff_lTensor_residueField_injective [IsLocalRing R]
-    [Module.Finite R M] [Module.Finite R N] [Module.Free R N] (l : M →ₗ[R] N) :
-    (∃ l', l' ∘ₗ l = LinearMap.id) ↔ Function.Injective (l.lTensor (ResidueField R)) := by
+theorem IsLocalRing.split_injective_iff_lTensor_residueField_injective
+    [IsLocalRing R] [Module.Finite R M] [Module.Finite R N] [Module.Free R N] (l : M →ₗ[R] N)
+    : (∃ l', l' ∘ₗ l = LinearMap.id) ↔ Function.Injective (l.lTensor (ResidueField R)) := by
   constructor
   · intro ⟨l', hl⟩
     have : l'.lTensor (ResidueField R) ∘ₗ l.lTensor (ResidueField R) = .id := by
@@ -341,22 +361,25 @@ theorem IsLocalRing.split_injective_iff_lTensor_residueField_injective [IsLocalR
     exact Function.HasLeftInverse.injective ⟨_, LinearMap.congr_fun this⟩
   · intro h
     -- By `Module.free_of_lTensor_residueField_injective`, `k ⊗ l` injective => `N ⧸ l(M)` free.
-    have := Module.free_of_lTensor_residueField_injective l (LinearMap.range l).mkQ
-      (Submodule.mkQ_surjective _) l.exact_map_mkQ_range h
+    have :=
+      Module.free_of_lTensor_residueField_injective l (LinearMap.range l).mkQ
+        (Submodule.mkQ_surjective _) l.exact_map_mkQ_range h
     -- Hence `l(M)` is projective because `0 → l(M) → N → N ⧸ l(M) → 0` splits.
     have : Module.Projective R (LinearMap.range l) := by
-      have := (Exact.split_tfae (LinearMap.exact_subtype_mkQ (LinearMap.range l))
-        Subtype.val_injective (Submodule.mkQ_surjective _)).out 1 2
-      obtain ⟨l', hl'⟩ := this.mp
-         (Module.projective_lifting_property _ _ (Submodule.mkQ_surjective _))
+      have :=
+        (Exact.split_tfae (LinearMap.exact_subtype_mkQ (LinearMap.range l)) Subtype.val_injective
+            (Submodule.mkQ_surjective _)).out
+          1 2
+      obtain ⟨l', hl'⟩ :=
+        this.mp (Module.projective_lifting_property _ _ (Submodule.mkQ_surjective _))
       exact Module.Projective.of_split _ _ hl'
     -- Then `0 → ker l → M → l(M) → 0` splits.
     obtain ⟨l', hl'⟩ : ∃ l', l' ∘ₗ (LinearMap.ker l).subtype = LinearMap.id := by
       have : Function.Exact (LinearMap.ker l).subtype
           (l.codRestrict (LinearMap.range l) (LinearMap.mem_range_self l)) := by
         rw [LinearMap.exact_iff, LinearMap.ker_rangeRestrict, Submodule.range_subtype]
-      have := (Exact.split_tfae this
-        Subtype.val_injective (fun ⟨x, y, e⟩ ↦ ⟨y, Subtype.ext e⟩)).out 1 2
+      have :=
+        (Exact.split_tfae this Subtype.val_injective (fun ⟨x, y, e⟩ ↦ ⟨y, Subtype.ext e⟩)).out 1 2
       exact this.mp (Module.projective_lifting_property _ _ (fun ⟨x, y, e⟩ ↦ ⟨y, Subtype.ext e⟩))
     have : Module.Finite R (LinearMap.ker l) := by
       refine Module.Finite.of_surjective l' ?_
@@ -370,13 +393,16 @@ theorem IsLocalRing.split_injective_iff_lTensor_residueField_injective [IsLocalR
     -- But by assumption `k ⊗ M → k ⊗ l(M)` is already injective, so `k ⊗ ker l = 0`.
     have : Subsingleton (k ⊗[R] LinearMap.ker l) := by
       refine (subsingleton_iff_forall_eq 0).mpr fun y ↦ H (h ?_)
-      rw [map_zero, map_zero, ← LinearMap.comp_apply, ← LinearMap.lTensor_comp,
-        l.exact_subtype_ker_map.linearMap_comp_eq_zero, LinearMap.lTensor_zero,
-        LinearMap.zero_apply]
+      rw [
+        map_zero, map_zero, ← LinearMap.comp_apply, ← LinearMap.lTensor_comp,
+        l.exact_subtype_ker_map.linearMap_comp_eq_zero, LinearMap.lTensor_zero, LinearMap.zero_apply
+      ]
     -- By Nakayama's lemma, `l` is injective.
     have : Function.Injective l := by
-      rwa [← LinearMap.ker_eq_bot, ← Submodule.subsingleton_iff_eq_bot,
-        ← IsLocalRing.subsingleton_tensorProduct (R := R)]
+      rwa [
+        ← LinearMap.ker_eq_bot, ← Submodule.subsingleton_iff_eq_bot,
+        ← IsLocalRing.subsingleton_tensorProduct (R := R)
+      ]
     -- Whence `M ≃ l(M)` is projective and the result follows.
     have := (Exact.split_tfae l.exact_map_mkQ_range this (Submodule.mkQ_surjective _)).out 1 2
     rw [← this]
@@ -390,38 +416,58 @@ open Ideal TensorProduct Submodule
 
 variable (R M) [Finite (MaximalSpectrum R)] [AddCommGroup M] [Module R M]
 
-/-- If `M` is a finite flat module over a commutative semilocal ring `R` that has the same rank `n`
-at every maximal ideal, then `M` is free of rank `n`. -/
-@[stacks 02M9] theorem nonempty_basis_of_flat_of_finrank_eq [Module.Finite R M] [Flat R M]
-    (n : ℕ) (rk : ∀ P : MaximalSpectrum R, finrank (R ⧸ P.1) ((R ⧸ P.1) ⊗[R] M) = n) :
-    Nonempty (Basis (Fin n) R M) := by
+/--
+If `M` is a finite flat module over a commutative semilocal ring `R` that has the same rank `n`
+at every maximal ideal, then `M` is free of rank `n`.
+-/
+@[stacks 02M9]
+theorem nonempty_basis_of_flat_of_finrank_eq
+    [Module.Finite R M] [Flat R M]
+    (n : ℕ) (rk : ∀ P : MaximalSpectrum R, finrank (R ⧸ P.1) ((R ⧸ P.1) ⊗[R] M) = n)
+    : Nonempty (Basis (Fin n) R M) := by
   let := @Quotient.field
-  /- For every maximal ideal `P`, `R⧸P ⊗[R] M` is an `n`-dimensional vector space over the field
-    `R⧸P` by assumption, so we can choose a basis `b' P` indexed by `Fin n`. -/
+  /-
+  For every maximal ideal `P`, `R⧸P ⊗[R] M` is an `n`-dimensional vector space over the field
+  `R⧸P` by assumption, so we can choose a basis `b' P` indexed by `Fin n`.
+  -/
   have b' (P) := Module.finBasisOfFinrankEq _ _ (rk P)
-  /- By Chinese remainder theorem for modules, there exist `n` elements `b i : M` that reduces
-    to `b' P i` modulo each maximal ideal `P`. -/
+  /-
+  By Chinese remainder theorem for modules, there exist `n` elements `b i : M` that reduces
+  to `b' P i` modulo each maximal ideal `P`.
+  -/
   choose b hb using fun i ↦ pi_tensorProductMk_quotient_surjective M _
     (fun _ _ ne ↦ isCoprime_of_isMaximal (MaximalSpectrum.ext_iff.ne.mp ne)) (b' · i)
-  /- It suffices to show the linear map `Rⁿ → M` induced by `b` is bijective, for which
-    it suffices to show `Rₚⁿ → Rₚ ⊗[R] M` is bijective for each maximal ideal `P`. -/
-  refine ⟨⟨.symm <| .ofBijective (Finsupp.linearCombination R b) <| bijective_of_isLocalized_maximal
-    _ (fun P _ ↦ Finsupp.mapRange.linearMap (Algebra.linearMap R (Localization P.primeCompl)))
-    _ (fun P _ ↦ TensorProduct.mk R (Localization P.primeCompl) M 1) _ fun P _ ↦ ?_⟩⟩
+  /-
+  It suffices to show the linear map `Rⁿ → M` induced by `b` is bijective, for which
+  it suffices to show `Rₚⁿ → Rₚ ⊗[R] M` is bijective for each maximal ideal `P`.
+  -/
+  refine ⟨⟨.symm <| .ofBijective (Finsupp.linearCombination R b) <|
+    bijective_of_isLocalized_maximal _
+      (fun P _ ↦ Finsupp.mapRange.linearMap (Algebra.linearMap R (Localization P.primeCompl)))
+      _
+      (fun P _ ↦ TensorProduct.mk R (Localization P.primeCompl) M 1)
+      _
+      fun P _ ↦ ?_⟩⟩
   rw [IsLocalizedModule.map_linearCombination, LinearMap.coe_restrictScalars]
-  /- Since `M` is finite flat, it suffices to show
-    `(Rₚ⧸PRₚ)ⁿ → Rₚ⧸PRₚ ⊗[Rₚ] Rₚ ⊗[R] M ≃ Rₚ⧸PRₚ ⊗[R⧸P] R⧸P ⊗[R] M` is bijective,
-    which follows from that `(R⧸P)ⁿ → R⧸P ⊗[R] M` is bijective. -/
+  /-
+  Since `M` is finite flat, it suffices to show
+  `(Rₚ⧸PRₚ)ⁿ → Rₚ⧸PRₚ ⊗[Rₚ] Rₚ ⊗[R] M ≃ Rₚ⧸PRₚ ⊗[R⧸P] R⧸P ⊗[R] M` is bijective,
+  which follows from that `(R⧸P)ⁿ → R⧸P ⊗[R] M` is bijective.
+  -/
   apply IsLocalRing.linearCombination_bijective_of_flat
-  rw [← (AlgebraTensorModule.cancelBaseChange _ _ P.ResidueField ..).comp_bijective,
-    ← (AlgebraTensorModule.cancelBaseChange R (R ⧸ P) P.ResidueField ..).symm.comp_bijective]
+  rw [
+    ← (AlgebraTensorModule.cancelBaseChange _ _ P.ResidueField ..).comp_bijective,
+    ← (AlgebraTensorModule.cancelBaseChange R (R ⧸ P) P.ResidueField ..).symm.comp_bijective
+  ]
   convert! ((b' ⟨P, ‹_›⟩).repr.lTensor _ ≪≫ₗ finsuppScalarRight _ _ P.ResidueField _).symm.bijective
   refine funext fun r ↦ Finsupp.induction_linear r (by simp) (by simp +contextual) fun _ _ ↦ ?_
   simp [smul_tmul', ← funext_iff.mp (hb _)]
 
-@[stacks 02M9] theorem free_of_flat_of_finrank_eq [Module.Finite R M] [Flat R M]
-    (n : ℕ) (rk : ∀ P : MaximalSpectrum R, finrank (R ⧸ P.1) ((R ⧸ P.1) ⊗[R] M) = n) :
-    Free R M :=
+@[stacks 02M9]
+theorem free_of_flat_of_finrank_eq
+    [Module.Finite R M] [Flat R M]
+    (n : ℕ) (rk : ∀ P : MaximalSpectrum R, finrank (R ⧸ P.1) ((R ⧸ P.1) ⊗[R] M) = n)
+    : Free R M :=
   have ⟨b⟩ := nonempty_basis_of_flat_of_finrank_eq R M n rk
   .of_basis b
 

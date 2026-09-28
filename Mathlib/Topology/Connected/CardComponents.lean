@@ -31,8 +31,9 @@ open ConnectedComponents
 
 section
 
-variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {f : X → Y} (hf₁ : IsOpenMap f)
-  (hf₂ : IsClosedMap f)
+variable
+  {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+  {f : X → Y} (hf₁ : IsOpenMap f) (hf₂ : IsClosedMap f)
 
 include hf₁ hf₂
 

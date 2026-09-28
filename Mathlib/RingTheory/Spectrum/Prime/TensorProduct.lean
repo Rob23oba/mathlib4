@@ -27,9 +27,8 @@ variable [CommRing T] [Algebra R T]
 open TensorProduct Topology
 
 /-- The canonical map from `Spec(S ⊗[R] T)` to the Cartesian product `Spec S × Spec T`. -/
-noncomputable
-def PrimeSpectrum.tensorProductTo (x : PrimeSpectrum (S ⊗[R] T)) :
-    PrimeSpectrum S × PrimeSpectrum T :=
+noncomputable def PrimeSpectrum.tensorProductTo (x : PrimeSpectrum (S ⊗[R] T))
+    : PrimeSpectrum S × PrimeSpectrum T :=
   ⟨comap (algebraMap _ _) x, comap Algebra.TensorProduct.includeRight.toRingHom x⟩
 
 @[fun_prop]

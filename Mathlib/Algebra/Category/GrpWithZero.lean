@@ -35,11 +35,9 @@ attribute [instance] GrpWithZero.str
 
 namespace GrpWithZero
 
-instance : CoeSort GrpWithZero Type* :=
-  ⟨carrier⟩
+instance : CoeSort GrpWithZero Type* := ⟨carrier⟩
 
-instance : Inhabited GrpWithZero :=
-  ⟨of (WithZero PUnit)⟩
+instance : Inhabited GrpWithZero := ⟨of (WithZero PUnit)⟩
 
 instance : LargeCategory.{u} GrpWithZero where
   Hom X Y := MonoidWithZeroHom X Y
@@ -51,8 +49,8 @@ instance groupWithZeroConcreteCategory : ConcreteCategory GrpWithZero (MonoidWit
   ofHom f := f
 
 /-- Typecheck a `MonoidWithZeroHom` as a morphism in `GrpWithZero`. -/
-abbrev ofHom {X Y : Type u} [GroupWithZero X] [GroupWithZero Y]
-    (f : MonoidWithZeroHom X Y) : of X ⟶ of Y :=
+abbrev ofHom {X Y : Type u} [GroupWithZero X] [GroupWithZero Y] (f : MonoidWithZeroHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom f
 
 @[simp]
@@ -71,14 +69,10 @@ lemma coe_comp {X Y Z : GrpWithZero} {f : X ⟶ Y} {g : Y ⟶ Z} : (f ≫ g : X 
   rfl
 
 instance hasForgetToBipointed : HasForget₂ GrpWithZero Bipointed where
-  forget₂ :=
-      { obj := fun X => ⟨X, 0, 1⟩
-        map := fun f => ⟨f, f.map_zero', f.map_one'⟩ }
+  forget₂ := { obj := fun X => ⟨X, 0, 1⟩, map := fun f => ⟨f, f.map_zero', f.map_one'⟩ }
 
 instance hasForgetToMon : HasForget₂ GrpWithZero MonCat where
-  forget₂ :=
-      { obj := fun X => ↧X
-        map := fun f => MonCat.ofHom f.toMonoidHom }
+  forget₂ := { obj := fun X => ↧X, map := fun f => MonCat.ofHom f.toMonoidHom }
 
 /-- Constructs an isomorphism of groups with zero from a group isomorphism between them. -/
 @[simps]

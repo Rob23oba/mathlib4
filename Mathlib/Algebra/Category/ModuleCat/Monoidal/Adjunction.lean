@@ -23,8 +23,8 @@ set_option backward.defeqAttrib.useBackward true
 
 universe u
 
-open CategoryTheory ModuleCat MonoidalCategory Limits
-  Functor.LaxMonoidal Functor.OplaxMonoidal TensorProduct
+open CategoryTheory ModuleCat MonoidalCategory Limits Functor.LaxMonoidal Functor.OplaxMonoidal
+  TensorProduct
 
 namespace ModuleCat
 
@@ -44,37 +44,34 @@ set_option backward.isDefEq.respectTransparency.types false in
 open ModuleCat.MonoidalCategory in
 noncomputable instance : (extendScalars f).Monoidal :=
   letI : Algebra R S := f.toAlgebra
-  Functor.CoreMonoidal.toMonoidal
-    (.mk'
-      (εIso := (AlgebraTensorModule.rid R S S).symm.toModuleIso)
-      (μIso := fun M₁ M₂ ↦ (AlgebraTensorModule.distribBaseChange R S M₁ M₂).symm.toModuleIso)
-      (μIso_inv_natural_left := fun {M₁ M₁'} g M₂ ↦
-        ((extendRestrictScalarsAdj f).homEquiv _ _).injective
-          (tensor_ext (fun _ _ ↦ rfl)))
-      (μIso_inv_natural_right := fun {M₂ M₂'} M₁ g ↦
-        ((extendRestrictScalarsAdj f).homEquiv _ _).injective
-          (tensor_ext (fun _ _ ↦ rfl)))
-      (oplax_associativity := fun M₁ M₂ M₃ ↦
-        ((extendRestrictScalarsAdj f).homEquiv _ _).injective
-          (tensor_ext₃' (fun _ _ _ ↦ rfl)))
-      (oplax_left_unitality := fun M ↦ by
-        ext m
-        dsimp
-        rw [MonoidalCategory.leftUnitor_inv_apply]
-        erw [AlgebraTensorModule.distribBaseChange_tmul,
-          MonoidalCategory.whiskerRight_apply,
-          AlgebraTensorModule.rid_tmul]
-        rw [one_smul]
-        rfl)
-      (oplax_right_unitality := fun M ↦ by
-        ext m
-        dsimp
-        rw [MonoidalCategory.rightUnitor_inv_apply]
-        erw [AlgebraTensorModule.distribBaseChange_tmul,
-          MonoidalCategory.whiskerLeft_apply,
-          AlgebraTensorModule.rid_tmul]
-        rw [one_smul]
-        rfl))
+  Functor.CoreMonoidal.toMonoidal (.mk' (εIso := (AlgebraTensorModule.rid R S S).symm.toModuleIso)
+    (μIso := fun M₁ M₂ ↦ (AlgebraTensorModule.distribBaseChange R S M₁ M₂).symm.toModuleIso)
+    (μIso_inv_natural_left := fun {M₁ M₁'} g M₂ ↦
+      ((extendRestrictScalarsAdj f).homEquiv _ _).injective (tensor_ext (fun _ _ ↦ rfl)))
+    (μIso_inv_natural_right := fun {M₂ M₂'} M₁ g ↦
+      ((extendRestrictScalarsAdj f).homEquiv _ _).injective (tensor_ext (fun _ _ ↦ rfl)))
+    (oplax_associativity := fun M₁ M₂ M₃ ↦
+      ((extendRestrictScalarsAdj f).homEquiv _ _).injective (tensor_ext₃' (fun _ _ _ ↦ rfl)))
+    (oplax_left_unitality := fun M ↦ by
+      ext m
+      dsimp
+      rw [MonoidalCategory.leftUnitor_inv_apply]
+      erw [
+        AlgebraTensorModule.distribBaseChange_tmul, MonoidalCategory.whiskerRight_apply,
+        AlgebraTensorModule.rid_tmul
+      ]
+      rw [one_smul]
+      rfl)
+    (oplax_right_unitality := fun M ↦ by
+      ext m
+      dsimp
+      rw [MonoidalCategory.rightUnitor_inv_apply]
+      erw [
+        AlgebraTensorModule.distribBaseChange_tmul, MonoidalCategory.whiskerLeft_apply,
+        AlgebraTensorModule.rid_tmul
+      ]
+      rw [one_smul]
+      rfl))
 
 set_option backward.defeqAttrib.useBackward true in
 lemma extendScalars_ε :

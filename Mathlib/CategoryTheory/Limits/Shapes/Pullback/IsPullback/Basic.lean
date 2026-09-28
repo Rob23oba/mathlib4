@@ -36,46 +36,44 @@ namespace IsPullback
 variable {P X Y Z : C} {fst : P ⟶ X} {snd : P ⟶ Y} {f : X ⟶ Z} {g : Y ⟶ Z}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `c` is a limiting binary product cone, and we have a terminal object,
+/--
+If `c` is a limiting binary product cone, and we have a terminal object,
 then we have `IsPullback c.fst c.snd 0 0`
-(where each `0` is the unique morphism to the terminal object). -/
-theorem of_is_product {c : BinaryFan X Y} (h : Limits.IsLimit c) (t : IsTerminal Z) :
-    IsPullback c.fst c.snd (t.from _) (t.from _) :=
-  of_isLimit
-    (isPullbackOfIsTerminalIsProduct _ _ _ _ t
-      (IsLimit.ofIsoLimit h
-        (Limits.Cone.ext (Iso.refl c.pt)
-          (by
-            rintro ⟨⟨⟩⟩ <;> simp))))
+(where each `0` is the unique morphism to the terminal object).
+-/
+theorem of_is_product {c : BinaryFan X Y} (h : Limits.IsLimit c) (t : IsTerminal Z)
+    : IsPullback c.fst c.snd (t.from _) (t.from _) :=
+  of_isLimit (isPullbackOfIsTerminalIsProduct _ _ _ _ t
+    (IsLimit.ofIsoLimit h (Limits.Cone.ext (Iso.refl c.pt) (by rintro ⟨⟨⟩⟩ <;> simp))))
 
 /-- A variant of `of_is_product` that is more useful with `apply`. -/
-theorem of_is_product' (h : Limits.IsLimit (BinaryFan.mk fst snd)) (t : IsTerminal Z) :
-    IsPullback fst snd (t.from _) (t.from _) :=
+theorem of_is_product' (h : Limits.IsLimit (BinaryFan.mk fst snd)) (t : IsTerminal Z)
+    : IsPullback fst snd (t.from _) (t.from _) :=
   of_is_product h t
 
 variable (X Y) in
-theorem of_hasBinaryProduct' [HasBinaryProduct X Y] [HasTerminal C] :
-    IsPullback Limits.prod.fst Limits.prod.snd (terminal.from X) (terminal.from Y) :=
+theorem of_hasBinaryProduct' [HasBinaryProduct X Y] [HasTerminal C]
+    : IsPullback Limits.prod.fst Limits.prod.snd (terminal.from X) (terminal.from Y) :=
   of_is_product (limit.isLimit _) terminalIsTerminal
 
-theorem of_iso_pullback (h : CommSq fst snd f g) [HasPullback f g] (i : P ≅ pullback f g)
-    (w₁ : i.hom ≫ pullback.fst _ _ = fst) (w₂ : i.hom ≫ pullback.snd _ _ = snd) :
-      IsPullback fst snd f g :=
+theorem of_iso_pullback
+    (h : CommSq fst snd f g)
+    [HasPullback f g]
+    (i : P ≅ pullback f g)
+    (w₁ : i.hom ≫ pullback.fst _ _ = fst) (w₂ : i.hom ≫ pullback.snd _ _ = snd)
+    : IsPullback fst snd f g :=
   of_isLimit' h
     (Limits.IsLimit.ofIsoLimit (limit.isLimit _)
       (@PullbackCone.ext _ _ _ _ _ _ _ (PullbackCone.mk _ _ _) _ i w₁.symm w₂.symm).symm)
 
-theorem of_horiz_isIso_mono [IsIso fst] [Mono g] (sq : CommSq fst snd f g) :
-    IsPullback fst snd f g :=
-  of_isLimit' sq
-    (by
-      refine
-        PullbackCone.IsLimit.mk _ (fun s => s.fst ≫ inv fst) (by simp)
-          (fun s => ?_) (by cat_disch)
-      simp only [← cancel_mono g, Category.assoc, ← sq.w, IsIso.inv_hom_id_assoc, s.condition])
+theorem of_horiz_isIso_mono [IsIso fst] [Mono g] (sq : CommSq fst snd f g)
+    : IsPullback fst snd f g :=
+  of_isLimit' sq (by
+    refine
+      PullbackCone.IsLimit.mk _ (fun s => s.fst ≫ inv fst) (by simp) (fun s => ?_) (by cat_disch)
+    simp only [← cancel_mono g, Category.assoc, ← sq.w, IsIso.inv_hom_id_assoc, s.condition])
 
-theorem of_horiz_isIso [IsIso fst] [IsIso g] (sq : CommSq fst snd f g) :
-    IsPullback fst snd f g :=
+theorem of_horiz_isIso [IsIso fst] [IsIso g] (sq : CommSq fst snd f g) : IsPullback fst snd f g :=
   of_horiz_isIso_mono sq
 
 lemma of_iso (h : IsPullback fst snd f g)
@@ -155,7 +153,8 @@ section
 -- Objects here are arranged in a 3x2 grid, and indexed by their xy coordinates.
 -- Morphisms are named `hᵢⱼ` for a horizontal morphism starting at `(i,j)`,
 -- and `vᵢⱼ` for a vertical morphism starting at `(i,j)`.
-/-- Paste two pullback squares "vertically" to obtain another pullback square.
+/--
+Paste two pullback squares "vertically" to obtain another pullback square.
 
 The objects in the statement fit into the following diagram:
 ```
@@ -170,13 +169,15 @@ v₂₁          v₂₂
 X₃₁ - h₃₁ -> X₃₂
 ```
 -/
-theorem paste_vert {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂}
-    {h₃₁ : X₃₁ ⟶ X₃₂} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
-    (s : IsPullback h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPullback h₂₁ v₂₁ v₂₂ h₃₁) :
-    IsPullback h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ :=
+theorem paste_vert
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+    {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
+    (s : IsPullback h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPullback h₂₁ v₂₁ v₂₂ h₃₁)
+    : IsPullback h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ :=
   of_isLimit (pasteHorizIsPullback rfl t.isLimit s.isLimit)
 
-/-- Paste two pullback squares "horizontally" to obtain another pullback square.
+/--
+Paste two pullback squares "horizontally" to obtain another pullback square.
 
 The objects in the statement fit into the following diagram:
 ```
@@ -187,13 +188,15 @@ v₁₁          v₁₂          v₁₃
 X₂₁ - h₂₁ -> X₂₂ - h₂₂ -> X₂₃
 ```
 -/
-theorem paste_horiz {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃}
-    {h₂₁ : X₂₁ ⟶ X₂₂} {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
-    (s : IsPullback h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPullback h₁₂ v₁₂ v₁₃ h₂₂) :
-    IsPullback (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) :=
+theorem paste_horiz
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+    {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
+    (s : IsPullback h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPullback h₁₂ v₁₂ v₁₃ h₂₂)
+    : IsPullback (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) :=
   (paste_vert s.flip t.flip).flip
 
-/-- Given a pullback square assembled from a commuting square on the top and
+/--
+Given a pullback square assembled from a commuting square on the top and
 a pullback square on the bottom, the top square is a pullback square.
 
 The objects in the statement fit into the following diagram:
@@ -209,13 +212,16 @@ v₂₁          v₂₂
 X₃₁ - h₃₁ -> X₃₂
 ```
 -/
-theorem of_bot {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+theorem of_bot
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
     {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
     (s : IsPullback h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁) (p : h₁₁ ≫ v₁₂ = v₁₁ ≫ h₂₁)
-    (t : IsPullback h₂₁ v₂₁ v₂₂ h₃₁) : IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
+    (t : IsPullback h₂₁ v₂₁ v₂₂ h₃₁)
+    : IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
   of_isLimit (leftSquareIsPullback (PullbackCone.mk h₁₁ _ p) rfl t.isLimit s.isLimit)
 
-/-- Given a pullback square assembled from a commuting square on the left and
+/--
+Given a pullback square assembled from a commuting square on the left and
 a pullback square on the right, the left square is a pullback square.
 
 The objects in the statement fit into the following diagram:
@@ -227,25 +233,30 @@ v₁₁          v₁₂          v₁₃
 X₂₁ - h₂₁ -> X₂₂ - h₂₂ -> X₂₃
 ```
 -/
-theorem of_right {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+theorem of_right
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
     {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
     (s : IsPullback (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂)) (p : h₁₁ ≫ v₁₂ = v₁₁ ≫ h₂₁)
-    (t : IsPullback h₁₂ v₁₂ v₁₃ h₂₂) : IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
+    (t : IsPullback h₁₂ v₁₂ v₁₃ h₂₂)
+    : IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
   (of_bot s.flip p.symm t.flip).flip
 
-theorem paste_vert_iff {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂}
-    {h₃₁ : X₃₁ ⟶ X₃₂} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
-    (s : IsPullback h₂₁ v₂₁ v₂₂ h₃₁) (e : h₁₁ ≫ v₁₂ = v₁₁ ≫ h₂₁) :
-    IsPullback h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ ↔ IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
+theorem paste_vert_iff
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+    {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
+    (s : IsPullback h₂₁ v₂₁ v₂₂ h₃₁) (e : h₁₁ ≫ v₁₂ = v₁₁ ≫ h₂₁)
+    : IsPullback h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ ↔ IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
   ⟨fun h => h.of_bot e s, fun h => h.paste_vert s⟩
 
-theorem paste_horiz_iff {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃}
-    {h₂₁ : X₂₁ ⟶ X₂₂} {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
-    (s : IsPullback h₁₂ v₁₂ v₁₃ h₂₂) (e : h₁₁ ≫ v₁₂ = v₁₁ ≫ h₂₁) :
-    IsPullback (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) ↔ IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
+theorem paste_horiz_iff
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+    {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
+    (s : IsPullback h₁₂ v₁₂ v₁₃ h₂₂) (e : h₁₁ ≫ v₁₂ = v₁₁ ≫ h₂₁)
+    : IsPullback (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) ↔ IsPullback h₁₁ v₁₁ v₁₂ h₂₁ :=
   ⟨fun h => h.of_right e s, fun h => h.paste_horiz s⟩
 
-/-- Variant of `IsPullback.of_right` where `h₁₁` is induced from a morphism `h₁₃ : X₁₁ ⟶ X₁₃`, and
+/--
+Variant of `IsPullback.of_right` where `h₁₁` is induced from a morphism `h₁₃ : X₁₁ ⟶ X₁₃`, and
 the universal property of the right square.
 
 The objects fit in the following diagram:
@@ -257,13 +268,15 @@ v₁₁          v₁₂          v₁₃
 X₂₁ - h₂₁ -> X₂₂ - h₂₂ -> X₂₃
 ```
 -/
-theorem of_right' {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
-    {h₂₂ : X₂₂ ⟶ X₂₃} {h₁₃ : X₁₁ ⟶ X₁₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
-    (s : IsPullback h₁₃ v₁₁ v₁₃ (h₂₁ ≫ h₂₂)) (t : IsPullback h₁₂ v₁₂ v₁₃ h₂₂) :
-    IsPullback (t.lift h₁₃ (v₁₁ ≫ h₂₁) (by rw [s.w, Category.assoc])) v₁₁ v₁₂ h₂₁ :=
+theorem of_right'
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂} {h₂₂ : X₂₂ ⟶ X₂₃}
+    {h₁₃ : X₁₁ ⟶ X₁₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
+    (s : IsPullback h₁₃ v₁₁ v₁₃ (h₂₁ ≫ h₂₂)) (t : IsPullback h₁₂ v₁₂ v₁₃ h₂₂)
+    : IsPullback (t.lift h₁₃ (v₁₁ ≫ h₂₁) (by rw [s.w, Category.assoc])) v₁₁ v₁₂ h₂₁ :=
   of_right ((t.lift_fst _ _ _) ▸ s) (t.lift_snd _ _ _) t
 
-/-- Variant of `IsPullback.of_bot`, where `v₁₁` is induced from a morphism `v₃₁ : X₁₁ ⟶ X₃₁`, and
+/--
+Variant of `IsPullback.of_bot`, where `v₁₁` is induced from a morphism `v₃₁ : X₁₁ ⟶ X₃₁`, and
 the universal property of the bottom square.
 
 The objects in the statement fit into the following diagram:
@@ -279,22 +292,22 @@ v₂₁          v₂₂
 X₃₁ - h₃₁ -> X₃₂
 ```
 -/
-theorem of_bot' {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂}
-    {h₃₁ : X₃₁ ⟶ X₃₂} {v₃₁ : X₁₁ ⟶ X₃₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
-    (s : IsPullback h₁₁ v₃₁ (v₁₂ ≫ v₂₂) h₃₁) (t : IsPullback h₂₁ v₂₁ v₂₂ h₃₁) :
-    IsPullback h₁₁ (t.lift (h₁₁ ≫ v₁₂) v₃₁ (by rw [Category.assoc, s.w])) v₁₂ h₂₁ :=
+theorem of_bot'
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+    {v₃₁ : X₁₁ ⟶ X₃₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
+    (s : IsPullback h₁₁ v₃₁ (v₁₂ ≫ v₂₂) h₃₁) (t : IsPullback h₂₁ v₂₁ v₂₂ h₃₁)
+    : IsPullback h₁₁ (t.lift (h₁₁ ≫ v₁₂) v₃₁ (by rw [Category.assoc, s.w])) v₁₂ h₂₁ :=
   of_bot ((t.lift_snd _ _ _) ▸ s) (by simp only [lift_fst]) t
 
 instance [HasPullbacksAlong f] (h : P ⟶ Y) : HasPullback h (pullback.fst g f) :=
   IsPullback.hasPullback (IsPullback.of_bot' (IsPullback.of_hasPullback (h ≫ g) f)
     (IsPullback.of_hasPullback g f))
 
-theorem of_vert_isIso_mono [IsIso snd] [Mono f] (sq : CommSq fst snd f g) :
-    IsPullback fst snd f g :=
+theorem of_vert_isIso_mono [IsIso snd] [Mono f] (sq : CommSq fst snd f g)
+    : IsPullback fst snd f g :=
   IsPullback.flip (of_horiz_isIso_mono sq.flip)
 
-theorem of_vert_isIso [IsIso snd] [IsIso f] (sq : CommSq fst snd f g) :
-    IsPullback fst snd f g :=
+theorem of_vert_isIso [IsIso snd] [IsIso f] (sq : CommSq fst snd f g) : IsPullback fst snd f g :=
   of_vert_isIso_mono sq
 
 lemma of_id_fst : IsPullback (𝟙 _) f f (𝟙 _) := IsPullback.of_horiz_isIso ⟨by simp⟩
@@ -427,31 +440,31 @@ namespace IsPushout
 variable {Z X Y P : C} {f : Z ⟶ X} {g : Z ⟶ Y} {inl : X ⟶ P} {inr : Y ⟶ P}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `c` is a colimiting binary coproduct cocone, and we have an initial object,
+/--
+If `c` is a colimiting binary coproduct cocone, and we have an initial object,
 then we have `IsPushout 0 0 c.inl c.inr`
-(where each `0` is the unique morphism from the initial object). -/
-theorem of_is_coproduct {c : BinaryCofan X Y} (h : Limits.IsColimit c) (t : IsInitial Z) :
-    IsPushout (t.to _) (t.to _) c.inl c.inr :=
-  of_isColimit
-    (isPushoutOfIsInitialIsCoproduct _ _ _ _ t
-      (IsColimit.ofIsoColimit h
-        (Limits.Cocone.ext (Iso.refl c.pt)
-          (by
-            rintro ⟨⟨⟩⟩ <;> simp))))
+(where each `0` is the unique morphism from the initial object).
+-/
+theorem of_is_coproduct {c : BinaryCofan X Y} (h : Limits.IsColimit c) (t : IsInitial Z)
+    : IsPushout (t.to _) (t.to _) c.inl c.inr :=
+  of_isColimit (isPushoutOfIsInitialIsCoproduct _ _ _ _ t
+    (IsColimit.ofIsoColimit h (Limits.Cocone.ext (Iso.refl c.pt) (by rintro ⟨⟨⟩⟩ <;> simp))))
 
 /-- A variant of `of_is_coproduct` that is more useful with `apply`. -/
-theorem of_is_coproduct' (h : Limits.IsColimit (BinaryCofan.mk inl inr)) (t : IsInitial Z) :
-    IsPushout (t.to _) (t.to _) inl inr :=
+theorem of_is_coproduct' (h : Limits.IsColimit (BinaryCofan.mk inl inr)) (t : IsInitial Z)
+    : IsPushout (t.to _) (t.to _) inl inr :=
   of_is_coproduct h t
 
 variable (X Y) in
-theorem of_hasBinaryCoproduct' [HasBinaryCoproduct X Y] [HasInitial C] :
-    IsPushout (initial.to _) (initial.to _) (coprod.inl : X ⟶ _) (coprod.inr : Y ⟶ _) :=
+theorem of_hasBinaryCoproduct' [HasBinaryCoproduct X Y] [HasInitial C]
+    : IsPushout (initial.to _) (initial.to _) (coprod.inl : X ⟶ _) (coprod.inr : Y ⟶ _) :=
   of_is_coproduct (colimit.isColimit _) initialIsInitial
 
-theorem of_iso_pushout (h : CommSq f g inl inr) [HasPushout f g] (i : P ≅ pushout f g)
-    (w₁ : inl ≫ i.hom = pushout.inl _ _) (w₂ : inr ≫ i.hom = pushout.inr _ _) :
-      IsPushout f g inl inr :=
+theorem of_iso_pushout
+    (h : CommSq f g inl inr)
+    [HasPushout f g]
+    (i : P ≅ pushout f g) (w₁ : inl ≫ i.hom = pushout.inl _ _) (w₂ : inr ≫ i.hom = pushout.inr _ _)
+    : IsPushout f g inl inr :=
   of_isColimit' h
     (Limits.IsColimit.ofIsoColimit (colimit.isColimit _)
       (PushoutCocone.ext (s := PushoutCocone.mk ..) i w₁ w₂).symm)
@@ -527,7 +540,8 @@ end
 -- Objects here are arranged in a 3x2 grid, and indexed by their xy coordinates.
 -- Morphisms are named `hᵢⱼ` for a horizontal morphism starting at `(i,j)`,
 -- and `vᵢⱼ` for a vertical morphism starting at `(i,j)`.
-/-- Paste two pushout squares "vertically" to obtain another pushout square.
+/--
+Paste two pushout squares "vertically" to obtain another pushout square.
 
 The objects in the statement fit into the following diagram:
 ```
@@ -542,13 +556,15 @@ v₂₁          v₂₂
 X₃₁ - h₃₁ -> X₃₂
 ```
 -/
-theorem paste_vert {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂}
-    {h₃₁ : X₃₁ ⟶ X₃₂} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
-    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPushout h₂₁ v₂₁ v₂₂ h₃₁) :
-    IsPushout h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ :=
+theorem paste_vert
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+    {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
+    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPushout h₂₁ v₂₁ v₂₂ h₃₁)
+    : IsPushout h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ :=
   of_isColimit (pasteHorizIsPushout rfl s.isColimit t.isColimit)
 
-/-- Paste two pushout squares "horizontally" to obtain another pushout square.
+/--
+Paste two pushout squares "horizontally" to obtain another pushout square.
 
 The objects in the statement fit into the following diagram:
 ```
@@ -559,13 +575,15 @@ v₁₁          v₁₂          v₁₃
 X₂₁ - h₂₁ -> X₂₂ - h₂₂ -> X₂₃
 ```
 -/
-theorem paste_horiz {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃}
-    {h₂₁ : X₂₁ ⟶ X₂₂} {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
-    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPushout h₁₂ v₁₂ v₁₃ h₂₂) :
-    IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) :=
+theorem paste_horiz
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+    {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
+    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (t : IsPushout h₁₂ v₁₂ v₁₃ h₂₂)
+    : IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) :=
   (paste_vert s.flip t.flip).flip
 
-/-- Given a pushout square assembled from a pushout square on the top and
+/--
+Given a pushout square assembled from a pushout square on the top and
 a commuting square on the bottom, the bottom square is a pushout square.
 
 The objects in the statement fit into the following diagram:
@@ -581,14 +599,17 @@ v₂₁          v₂₂
 X₃₁ - h₃₁ -> X₃₂
 ```
 -/
-theorem of_top {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+theorem of_top
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
     {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
     (s : IsPushout h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁) (p : h₂₁ ≫ v₂₂ = v₂₁ ≫ h₃₁)
-    (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) : IsPushout h₂₁ v₂₁ v₂₂ h₃₁ :=
-  of_isColimit <| rightSquareIsPushout
-    (PushoutCocone.mk _ _ p) (cocone_inr _) t.isColimit s.isColimit
+    (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁)
+    : IsPushout h₂₁ v₂₁ v₂₂ h₃₁ :=
+  of_isColimit <|
+    rightSquareIsPushout (PushoutCocone.mk _ _ p) (cocone_inr _) t.isColimit s.isColimit
 
-/-- Given a pushout square assembled from a pushout square on the left and
+/--
+Given a pushout square assembled from a pushout square on the left and
 a commuting square on the right, the right square is a pushout square.
 
 The objects in the statement fit into the following diagram:
@@ -600,25 +621,30 @@ v₁₁          v₁₂          v₁₃
 X₂₁ - h₂₁ -> X₂₂ - h₂₂ -> X₂₃
 ```
 -/
-theorem of_left {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+theorem of_left
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
     {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
     (s : IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂)) (p : h₁₂ ≫ v₁₃ = v₁₂ ≫ h₂₂)
-    (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) : IsPushout h₁₂ v₁₂ v₁₃ h₂₂ :=
+    (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁)
+    : IsPushout h₁₂ v₁₂ v₁₃ h₂₂ :=
   (of_top s.flip p.symm t.flip).flip
 
-theorem paste_vert_iff {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂}
-    {h₃₁ : X₃₁ ⟶ X₃₂} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
-    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (e : h₂₁ ≫ v₂₂ = v₂₁ ≫ h₃₁) :
-    IsPushout h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ ↔ IsPushout h₂₁ v₂₁ v₂₂ h₃₁ :=
+theorem paste_vert_iff
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+    {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₂₁ : X₂₁ ⟶ X₃₁} {v₂₂ : X₂₂ ⟶ X₃₂}
+    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (e : h₂₁ ≫ v₂₂ = v₂₁ ≫ h₃₁)
+    : IsPushout h₁₁ (v₁₁ ≫ v₂₁) (v₁₂ ≫ v₂₂) h₃₁ ↔ IsPushout h₂₁ v₂₁ v₂₂ h₃₁ :=
   ⟨fun h => h.of_top e s, s.paste_vert⟩
 
-theorem paste_horiz_iff {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃}
-    {h₂₁ : X₂₁ ⟶ X₂₂} {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
-    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (e : h₁₂ ≫ v₁₃ = v₁₂ ≫ h₂₂) :
-    IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) ↔ IsPushout h₁₂ v₁₂ v₁₃ h₂₂ :=
+theorem paste_horiz_iff
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+    {h₂₂ : X₂₂ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
+    (s : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) (e : h₁₂ ≫ v₁₃ = v₁₂ ≫ h₂₂)
+    : IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ (h₂₁ ≫ h₂₂) ↔ IsPushout h₁₂ v₁₂ v₁₃ h₂₂ :=
   ⟨fun h => h.of_left e s, s.paste_horiz⟩
 
-/-- Variant of `IsPushout.of_top` where `v₂₂` is induced from a morphism `v₁₃ : X₁₂ ⟶ X₃₂`, and
+/--
+Variant of `IsPushout.of_top` where `v₂₂` is induced from a morphism `v₁₃ : X₁₂ ⟶ X₃₂`, and
 the universal property of the top square.
 
 The objects in the statement fit into the following diagram:
@@ -634,13 +660,15 @@ v₂₁          v₂₂
 X₃₁ - h₃₁ -> X₃₂
 ```
 -/
-theorem of_top' {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
+theorem of_top'
+    {X₁₁ X₁₂ X₂₁ X₂₂ X₃₁ X₃₂ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₂₁ : X₂₁ ⟶ X₂₂} {h₃₁ : X₃₁ ⟶ X₃₂}
     {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₂ ⟶ X₃₂} {v₂₁ : X₂₁ ⟶ X₃₁}
-    (s : IsPushout h₁₁ (v₁₁ ≫ v₂₁) v₁₃ h₃₁) (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) :
-      IsPushout h₂₁ v₂₁ (t.desc v₁₃ (v₂₁ ≫ h₃₁) (by rw [s.w, Category.assoc])) h₃₁ :=
+    (s : IsPushout h₁₁ (v₁₁ ≫ v₂₁) v₁₃ h₃₁) (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁)
+    : IsPushout h₂₁ v₂₁ (t.desc v₁₃ (v₂₁ ≫ h₃₁) (by rw [s.w, Category.assoc])) h₃₁ :=
   of_top ((t.inl_desc _ _ _).symm ▸ s) (t.inr_desc _ _ _) t
 
-/-- Variant of `IsPushout.of_right` where `h₂₂` is induced from a morphism `h₂₃ : X₂₁ ⟶ X₂₃`, and
+/--
+Variant of `IsPushout.of_right` where `h₂₂` is induced from a morphism `h₂₃ : X₂₁ ⟶ X₂₃`, and
 the universal property of the left square.
 
 The objects in the statement fit into the following diagram:
@@ -652,19 +680,17 @@ v₁₁          v₁₂          v₁₃
 X₂₁ - h₂₁ -> X₂₂ - h₂₂ -> X₂₃
 ```
 -/
-theorem of_left' {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
+theorem of_left'
+    {X₁₁ X₁₂ X₁₃ X₂₁ X₂₂ X₂₃ : C} {h₁₁ : X₁₁ ⟶ X₁₂} {h₁₂ : X₁₂ ⟶ X₁₃} {h₂₁ : X₂₁ ⟶ X₂₂}
     {h₂₃ : X₂₁ ⟶ X₂₃} {v₁₁ : X₁₁ ⟶ X₂₁} {v₁₂ : X₁₂ ⟶ X₂₂} {v₁₃ : X₁₃ ⟶ X₂₃}
-    (s : IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ h₂₃) (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁) :
-    IsPushout h₁₂ v₁₂ v₁₃ (t.desc (h₁₂ ≫ v₁₃) h₂₃ (by rw [← Category.assoc, s.w])) :=
+    (s : IsPushout (h₁₁ ≫ h₁₂) v₁₁ v₁₃ h₂₃) (t : IsPushout h₁₁ v₁₁ v₁₂ h₂₁)
+    : IsPushout h₁₂ v₁₂ v₁₃ (t.desc (h₁₂ ≫ v₁₃) h₂₃ (by rw [← Category.assoc, s.w])) :=
   of_left ((t.inr_desc _ _ _).symm ▸ s) (by simp only [inl_desc]) t
 
 theorem of_horiz_isIso_epi [Epi f] [IsIso inr] (sq : CommSq f g inl inr) : IsPushout f g inl inr :=
-  of_isColimit' sq
-    (by
-      refine
-        PushoutCocone.IsColimit.mk _ (fun s => inv inr ≫ s.inr) (fun s => ?_)
-          (by simp) (by simp)
-      simp only [← cancel_epi f, s.condition, sq.w_assoc, IsIso.hom_inv_id_assoc])
+  of_isColimit' sq (by
+    refine PushoutCocone.IsColimit.mk _ (fun s => inv inr ≫ s.inr) (fun s => ?_) (by simp) (by simp)
+    simp only [← cancel_epi f, s.condition, sq.w_assoc, IsIso.hom_inv_id_assoc])
 
 theorem of_horiz_isIso [IsIso f] [IsIso inr] (sq : CommSq f g inl inr) : IsPushout f g inl inr :=
   of_horiz_isIso_epi sq
@@ -763,26 +789,30 @@ section Equalizer
 
 variable {X Y Z : C} {f f' : X ⟶ Y} {g g' : Y ⟶ Z}
 
-/-- If `f : X ⟶ Y`, `g g' : Y ⟶ Z` forms a pullback square, then `f` is the equalizer of
-`g` and `g'`. -/
+/--
+If `f : X ⟶ Y`, `g g' : Y ⟶ Z` forms a pullback square, then `f` is the equalizer of
+`g` and `g'`.
+-/
 noncomputable def IsPullback.isLimitFork (H : IsPullback f f g g') : IsLimit (Fork.ofι f H.w) := by
   fapply Fork.IsLimit.mk
   · exact fun s => H.isLimit.lift (PullbackCone.mk s.ι s.ι s.condition)
   · exact fun s => H.isLimit.fac _ WalkingCospan.left
   · intro s m e
-    apply PullbackCone.IsLimit.hom_ext H.isLimit <;> refine e.trans ?_ <;> symm <;>
-      exact H.isLimit.fac _ _
+    apply PullbackCone.IsLimit.hom_ext H.isLimit <;> refine e.trans ?_ <;> symm
+      <;> exact H.isLimit.fac _ _
 
-/-- If `f f' : X ⟶ Y`, `g : Y ⟶ Z` forms a pushout square, then `g` is the coequalizer of
-`f` and `f'`. -/
-noncomputable def IsPushout.isLimitFork (H : IsPushout f f' g g) :
-    IsColimit (Cofork.ofπ g H.w) := by
+/--
+If `f f' : X ⟶ Y`, `g : Y ⟶ Z` forms a pushout square, then `g` is the coequalizer of
+`f` and `f'`.
+-/
+noncomputable def IsPushout.isLimitFork (H : IsPushout f f' g g)
+    : IsColimit (Cofork.ofπ g H.w) := by
   fapply Cofork.IsColimit.mk
   · exact fun s => H.isColimit.desc (PushoutCocone.mk s.π s.π s.condition)
   · exact fun s => H.isColimit.fac _ WalkingSpan.left
   · intro s m e
-    apply PushoutCocone.IsColimit.hom_ext H.isColimit <;> refine e.trans ?_ <;> symm <;>
-      exact H.isColimit.fac _ _
+    apply PushoutCocone.IsColimit.hom_ext H.isColimit <;> refine e.trans ?_ <;> symm
+      <;> exact H.isColimit.fac _ _
 
 end Equalizer
 
@@ -792,24 +822,22 @@ variable {D : Type u₂} [Category.{v₂} D]
 variable (F : C ⥤ D) {W X Y Z : C} {f : W ⟶ X} {g : W ⟶ Y} {h : X ⟶ Z} {i : Y ⟶ Z}
 
 set_option backward.isDefEq.respectTransparency false in
-theorem Functor.map_isPullback [PreservesLimit (cospan h i) F] (s : IsPullback f g h i) :
-    IsPullback (F.map f) (F.map g) (F.map h) (F.map i) := by
-  refine
-    IsPullback.of_isLimit' (F.map_commSq s.toCommSq)
-      (IsLimit.equivOfNatIsoOfIso (cospanCompIso F h i) _ _ (WalkingCospan.ext ?_ ?_ ?_)
-        (isLimitOfPreserves F s.isLimit))
+theorem Functor.map_isPullback [PreservesLimit (cospan h i) F] (s : IsPullback f g h i)
+    : IsPullback (F.map f) (F.map g) (F.map h) (F.map i) := by
+  refine IsPullback.of_isLimit' (F.map_commSq s.toCommSq)
+    (IsLimit.equivOfNatIsoOfIso (cospanCompIso F h i) _ _ (WalkingCospan.ext ?_ ?_ ?_)
+      (isLimitOfPreserves F s.isLimit))
   · rfl
   · simp
   · simp
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-theorem Functor.map_isPushout [PreservesColimit (span f g) F] (s : IsPushout f g h i) :
-    IsPushout (F.map f) (F.map g) (F.map h) (F.map i) := by
-  refine
-    IsPushout.of_isColimit' (F.map_commSq s.toCommSq)
-      (IsColimit.equivOfNatIsoOfIso (spanCompIso F f g) _ _ (WalkingSpan.ext ?_ ?_ ?_)
-        (isColimitOfPreserves F s.isColimit))
+theorem Functor.map_isPushout [PreservesColimit (span f g) F] (s : IsPushout f g h i)
+    : IsPushout (F.map f) (F.map g) (F.map h) (F.map i) := by
+  refine IsPushout.of_isColimit' (F.map_commSq s.toCommSq)
+    (IsColimit.equivOfNatIsoOfIso (spanCompIso F f g) _ _ (WalkingSpan.ext ?_ ?_ ?_)
+      (isColimitOfPreserves F s.isColimit))
   · rfl
   · simp
   · simp
@@ -818,40 +846,50 @@ alias IsPullback.map := Functor.map_isPullback
 
 alias IsPushout.map := Functor.map_isPushout
 
-theorem IsPullback.of_map [ReflectsLimit (cospan h i) F] (e : f ≫ h = g ≫ i)
-    (H : IsPullback (F.map f) (F.map g) (F.map h) (F.map i)) : IsPullback f g h i := by
+theorem IsPullback.of_map
+    [ReflectsLimit (cospan h i) F]
+    (e : f ≫ h = g ≫ i) (H : IsPullback (F.map f) (F.map g) (F.map h) (F.map i))
+    : IsPullback f g h i := by
   refine ⟨⟨e⟩, ⟨isLimitOfReflects F <| ?_⟩⟩
-  refine
-    (IsLimit.equivOfNatIsoOfIso (cospanCompIso F h i) _ _ (WalkingCospan.ext ?_ ?_ ?_)).symm
-      H.isLimit
+  refine (IsLimit.equivOfNatIsoOfIso (cospanCompIso F h i) _ _ (WalkingCospan.ext ?_ ?_ ?_)).symm
+    H.isLimit
   exacts [Iso.refl _, (Category.comp_id _).trans (Category.id_comp _).symm,
     (Category.comp_id _).trans (Category.id_comp _).symm]
 
-theorem IsPullback.of_map_of_faithful [ReflectsLimit (cospan h i) F] [F.Faithful]
-    (H : IsPullback (F.map f) (F.map g) (F.map h) (F.map i)) : IsPullback f g h i :=
+theorem IsPullback.of_map_of_faithful
+    [ReflectsLimit (cospan h i) F] [F.Faithful]
+    (H : IsPullback (F.map f) (F.map g) (F.map h) (F.map i))
+    : IsPullback f g h i :=
   H.of_map F (F.map_injective <| by simpa only [F.map_comp] using H.w)
 
-theorem IsPullback.map_iff {D : Type*} [Category* D] (F : C ⥤ D) [PreservesLimit (cospan h i) F]
-    [ReflectsLimit (cospan h i) F] (e : f ≫ h = g ≫ i) :
-    IsPullback (F.map f) (F.map g) (F.map h) (F.map i) ↔ IsPullback f g h i :=
+theorem IsPullback.map_iff
+    {D : Type*} [Category* D]
+    (F : C ⥤ D) [PreservesLimit (cospan h i) F] [ReflectsLimit (cospan h i) F]
+    (e : f ≫ h = g ≫ i)
+    : IsPullback (F.map f) (F.map g) (F.map h) (F.map i) ↔ IsPullback f g h i :=
   ⟨fun h => h.of_map F e, fun h => h.map F⟩
 
-theorem IsPushout.of_map [ReflectsColimit (span f g) F] (e : f ≫ h = g ≫ i)
-    (H : IsPushout (F.map f) (F.map g) (F.map h) (F.map i)) : IsPushout f g h i := by
+theorem IsPushout.of_map
+    [ReflectsColimit (span f g) F]
+    (e : f ≫ h = g ≫ i) (H : IsPushout (F.map f) (F.map g) (F.map h) (F.map i))
+    : IsPushout f g h i := by
   refine ⟨⟨e⟩, ⟨isColimitOfReflects F <| ?_⟩⟩
-  refine
-    (IsColimit.equivOfNatIsoOfIso (spanCompIso F f g) _ _ (WalkingSpan.ext ?_ ?_ ?_)).symm
-      H.isColimit
+  refine (IsColimit.equivOfNatIsoOfIso (spanCompIso F f g) _ _ (WalkingSpan.ext ?_ ?_ ?_)).symm
+    H.isColimit
   exacts [Iso.refl _, (Category.comp_id _).trans (Category.id_comp _),
     (Category.comp_id _).trans (Category.id_comp _)]
 
-theorem IsPushout.of_map_of_faithful [ReflectsColimit (span f g) F] [F.Faithful]
-    (H : IsPushout (F.map f) (F.map g) (F.map h) (F.map i)) : IsPushout f g h i :=
+theorem IsPushout.of_map_of_faithful
+    [ReflectsColimit (span f g) F] [F.Faithful]
+    (H : IsPushout (F.map f) (F.map g) (F.map h) (F.map i))
+    : IsPushout f g h i :=
   H.of_map F (F.map_injective <| by simpa only [F.map_comp] using H.w)
 
-theorem IsPushout.map_iff {D : Type*} [Category* D] (F : C ⥤ D) [PreservesColimit (span f g) F]
-    [ReflectsColimit (span f g) F] (e : f ≫ h = g ≫ i) :
-    IsPushout (F.map f) (F.map g) (F.map h) (F.map i) ↔ IsPushout f g h i :=
+theorem IsPushout.map_iff
+    {D : Type*} [Category* D]
+    (F : C ⥤ D) [PreservesColimit (span f g) F] [ReflectsColimit (span f g) F]
+    (e : f ≫ h = g ≫ i)
+    : IsPushout (F.map f) (F.map g) (F.map h) (F.map i) ↔ IsPushout f g h i :=
   ⟨fun h => h.of_map F e, fun h => h.map F⟩
 
 variable {F} in
@@ -936,7 +974,8 @@ lemma IsPushout.iff_app [HasPushouts D] {F₁ F₂ F₃ F₄ : C ⥤ D}
     IsPushout f₁ f₂ f₃ f₄ ↔ ∀ (X : C), IsPushout (f₁.app X) (f₂.app X) (f₃.app X) (f₄.app X) :=
   ⟨.app, .of_forall_isPushout_app⟩
 
-/-- Consider a pushout square in a category of functors `J ⥤ C`, where `C` has pushouts:
+/--
+Consider a pushout square in a category of functors `J ⥤ C`, where `C` has pushouts:
 ```
    t
 F₁ → F₂
@@ -948,33 +987,36 @@ F₃ → F₄
 Assume that we have cocones `c₁`, `c₂`, `c₃`, and `c₄` for these functors,
 and that `c₁`, `c₂`, `c₃` are colimit. If the induced square involving the
 points `c₁.pt`, `c₂.pt`, `c₃.pt` and `c₄.pt` is a pushout square, then
-`c₄` is a colimit cocone. (In other words, pushouts commute with colimits.) -/
+`c₄` is a colimit cocone. (In other words, pushouts commute with colimits.)
+-/
 @[no_expose]
 noncomputable def IsPushout.isColimitOfIsColimitOfIsPushout
-    {J : Type*} [Category* J] {F₁ F₂ F₃ F₄ : J ⥤ C} [HasPushouts C]
+    {J : Type*} [Category* J]
+    {F₁ F₂ F₃ F₄ : J ⥤ C} [HasPushouts C]
     {t : F₁ ⟶ F₂} {l : F₁ ⟶ F₃} {r : F₂ ⟶ F₄} {b : F₃ ⟶ F₄} (sq : IsPushout t l r b)
-    (c₁ : Cocone F₁) (c₂ : Cocone F₂) (c₃ : Cocone F₃) (c₄ : Cocone F₄)
+    (c₁ : Cocone F₁) (c₂ : Cocone F₂) (c₃ : Cocone F₃)
+    (c₄ : Cocone F₄)
     (hc₁ : IsColimit c₁) (hc₂ : IsColimit c₂) (hc₃ : IsColimit c₃)
     {t' : c₁.pt ⟶ c₂.pt} {l' : c₁.pt ⟶ c₃.pt} {r' : c₂.pt ⟶ c₄.pt} {b' : c₃.pt ⟶ c₄.pt}
     (sq' : IsPushout t' l' r' b')
     (ht' : ∀ j, c₁.ι.app j ≫ t' = t.app j ≫ c₂.ι.app j := by cat_disch)
     (hl' : ∀ j, c₁.ι.app j ≫ l' = l.app j ≫ c₃.ι.app j := by cat_disch)
     (hr' : ∀ j, c₂.ι.app j ≫ r' = r.app j ≫ c₄.ι.app j := by cat_disch)
-    (hb' : ∀ j, c₃.ι.app j ≫ b' = b.app j ≫ c₄.ι.app j := by cat_disch) :
-    IsColimit c₄ :=
+    (hb' : ∀ j, c₃.ι.app j ≫ b' = b.app j ≫ c₄.ι.app j := by cat_disch)
+    : IsColimit c₄ :=
   let desc (s : Cocone F₄) : c₄.pt ⟶ s.pt :=
-    sq'.desc (hc₂.desc (Cocone.mk _ (r ≫ s.ι)))
-      (hc₃.desc (Cocone.mk _ (b ≫ s.ι)))
-        (hc₁.hom_ext (fun j ↦ by
-          simp [reassoc_of% ht', reassoc_of% hl', reassoc_of% dsimp% congr($(sq.w).app j)]))
+    sq'.desc (hc₂.desc (Cocone.mk _ (r ≫ s.ι))) (hc₃.desc (Cocone.mk _ (b ≫ s.ι)))
+      (hc₁.hom_ext (fun j ↦ by
+        simp [reassoc_of% ht', reassoc_of% hl', reassoc_of% dsimp% congr($(sq.w).app j)]))
   have fac (s : Cocone F₄) (j : J) : c₄.ι.app j ≫ desc s = s.ι.app j :=
     (sq.app j).hom_ext (by simp [desc, ← reassoc_of% hr']) (by simp [desc, ← reassoc_of% hb'])
-  { desc := desc
+  {
+    desc := desc
     fac := fac
     uniq s m hm :=
-      sq'.hom_ext
-        (hc₂.hom_ext (fun j ↦ by simp [reassoc_of% hr', fac, hm]))
-        (hc₃.hom_ext (fun j ↦ by simp [reassoc_of% hb', fac, hm])) }
+      sq'.hom_ext (hc₂.hom_ext (fun j ↦ by simp [reassoc_of% hr', fac, hm]))
+        (hc₃.hom_ext (fun j ↦ by simp [reassoc_of% hb', fac, hm]))
+  }
 
 end Functor
 
@@ -1004,8 +1046,8 @@ lemma isPushout_iff_isColimit_binaryCofan_of_isThin {P X Y Z : C}
 
 variable {D : Type*} [Category* D] [Quiver.IsThin D] (F : C ⥤ D)
 
-instance (priority := low) [PreservesLimitsOfShape (Discrete WalkingPair) F] :
-    PreservesLimitsOfShape WalkingCospan F := by
+instance (priority := low) [PreservesLimitsOfShape (Discrete WalkingPair) F]
+    : PreservesLimitsOfShape WalkingCospan F := by
   refine preservesLimitsOfShape_walkingCospan_of_forall_isPullback fun X Y Z f g hfg ↦ ?_
   use pullback f g, pullback.fst f g, pullback.snd f g, .of_hasPullback f g
   rw [isPullback_iff_isLimit_binaryFan_of_isThin]
@@ -1014,8 +1056,8 @@ instance (priority := low) [PreservesLimitsOfShape (Discrete WalkingPair) F] :
   rw [← CategoryTheory.isPullback_iff_isLimit_binaryFan_of_isThin (f := f) (g := g)]
   exact .of_hasPullback f g
 
-instance (priority := low) [PreservesColimitsOfShape (Discrete WalkingPair) F] :
-    PreservesColimitsOfShape WalkingSpan F := by
+instance (priority := low) [PreservesColimitsOfShape (Discrete WalkingPair) F]
+    : PreservesColimitsOfShape WalkingSpan F := by
   refine preservesColimitsOfShape_walkingCospan_of_forall_isPushout fun X Y Z f g hfg ↦ ?_
   use pushout f g, pushout.inl f g, pushout.inr f g, .of_hasPushout f g
   rw [isPushout_iff_isColimit_binaryCofan_of_isThin]
@@ -1033,11 +1075,12 @@ variable {X Y Z : C} {f : X ⟶ Z} {g : Y ⟶ Z} [HasPullbacksAlong g]
 namespace IsPullback
 
 set_option backward.defeqAttrib.useBackward true in
-/-- An `IsPullback` square yields an isomorphism `Over.mk fst ≅ Over.mk (pullback.fst f g)`
-in `Over X`. -/
-noncomputable def isoOverPullback {P : C} {fst : P ⟶ X} {snd : P ⟶ Y}
-    (h : IsPullback fst snd f g) :
-    Over.mk fst ≅ Over.mk (pullback.fst f g) :=
+/--
+An `IsPullback` square yields an isomorphism `Over.mk fst ≅ Over.mk (pullback.fst f g)`
+in `Over X`.
+-/
+noncomputable def isoOverPullback {P : C} {fst : P ⟶ X} {snd : P ⟶ Y} (h : IsPullback fst snd f g)
+    : Over.mk fst ≅ Over.mk (pullback.fst f g) :=
   Over.isoMk (h.isoIsPullback _ _ (IsPullback.of_hasPullback f g)) (by simp)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -1077,11 +1120,13 @@ end IsPullbackOverPullback
 
 namespace Limits
 
-instance {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) {X' : C} (i : X' ⟶ X) [IsIso i] [HasPullback f g] :
-    HasPullback (i ≫ f) g :=
+instance {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) {X' : C} (i : X' ⟶ X) [IsIso i] [HasPullback f g]
+    : HasPullback (i ≫ f) g :=
   IsPullback.paste_vert
-    (IsPullback.of_vert_isIso_mono (fst := pullback.fst _ _ ≫ inv i) (snd := 𝟙 (pullback f g))
-      ⟨by simp⟩) (.of_hasPullback f g) |>.hasPullback
+      (IsPullback.of_vert_isIso_mono (fst := pullback.fst _ _ ≫ inv i) (snd := 𝟙 (pullback f g))
+        ⟨by simp⟩)
+      (.of_hasPullback f g)
+    |>.hasPullback
 
 @[simp]
 lemma HasPullback.comp_left_left_iff_of_isIso
@@ -1091,8 +1136,8 @@ lemma HasPullback.comp_left_left_iff_of_isIso
   rw [← IsIso.inv_hom_id_assoc i f]
   infer_instance
 
-instance {X Y Z Z' : C} {f : X ⟶ Z} {g : Y ⟶ Z'} (i : Z ⟶ Z') [IsIso i] [HasPullback (f ≫ i) g] :
-    HasPullback f (g ≫ inv i) := by
+instance {X Y Z Z' : C} {f : X ⟶ Z} {g : Y ⟶ Z'} (i : Z ⟶ Z') [IsIso i] [HasPullback (f ≫ i) g]
+    : HasPullback f (g ≫ inv i) := by
   simpa using hasPullback_of_comp_mono (f ≫ i) g (inv i)
 
 lemma HasPullback.comp_left_right_iff_of_isIso
@@ -1100,11 +1145,12 @@ lemma HasPullback.comp_left_right_iff_of_isIso
     HasPullback (f ≫ i) g ↔ HasPullback f (g ≫ inv i) :=
   ⟨fun h ↦ inferInstance, fun h ↦ by simpa using hasPullback_of_comp_mono f (g ≫ inv i) i⟩
 
-instance {X Y Z : C} (f : Z ⟶ X) (g : Z ⟶ Y) {X' : C} (i : X ⟶ X') [IsIso i] [HasPushout f g] :
-    HasPushout (f ≫ i) g :=
+instance {X Y Z : C} (f : Z ⟶ X) (g : Z ⟶ Y) {X' : C} (i : X ⟶ X') [IsIso i] [HasPushout f g]
+    : HasPushout (f ≫ i) g :=
   IsPushout.paste_horiz (.of_hasPushout f g)
-    (IsPushout.of_horiz_isIso_epi (inl := inv i ≫ pushout.inl _ _) (inr := 𝟙 (pushout f g))
-      ⟨by simp⟩) |>.hasPushout
+      (IsPushout.of_horiz_isIso_epi (inl := inv i ≫ pushout.inl _ _) (inr := 𝟙 (pushout f g))
+        ⟨by simp⟩)
+    |>.hasPushout
 
 @[simp]
 lemma HasPushout.comp_left_left_iff_of_isIso
@@ -1114,8 +1160,8 @@ lemma HasPushout.comp_left_left_iff_of_isIso
   rw [← Category.comp_id f, ← IsIso.hom_inv_id i, ← Category.assoc]
   infer_instance
 
-instance {X Y Z Z' : C} {f : Z ⟶ X} {g : Z' ⟶ Y} (i : Z' ⟶ Z) [IsIso i] [HasPushout (i ≫ f) g] :
-    HasPushout f (inv i ≫ g) := by
+instance {X Y Z Z' : C} {f : Z ⟶ X} {g : Z' ⟶ Y} (i : Z' ⟶ Z) [IsIso i] [HasPushout (i ≫ f) g]
+    : HasPushout f (inv i ≫ g) := by
   simpa using hasPushout_of_epi_comp (i ≫ f) g (inv i)
 
 lemma HasPushout.comp_left_right_iff_of_isIso

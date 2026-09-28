@@ -68,8 +68,10 @@ local notation "𝕢" => Periodic.qParam
 
 namespace UpperHalfPlane
 
-/-- The value of `f` at the cusp `∞` (or an arbitrary choice of value if this limit is not
-well-defined). -/
+/--
+The value of `f` at the cusp `∞` (or an arbitrary choice of value if this limit is not
+well-defined).
+-/
 def valueAtInfty (f : ℍ → ℂ) : ℂ := limUnder atImInfty f
 
 lemma IsZeroAtImInfty.valueAtInfty_eq_zero {f : ℍ → ℂ} (hf : IsZeroAtImInfty f) :
@@ -85,23 +87,25 @@ variable (h) in
 The analytic function `F` such that `f τ = F (exp (2 * π * I * τ / h))`, extended by a choice of
 limit at `0`.
 -/
-def cuspFunction (f : ℍ → ℂ) : ℂ → ℂ :=
-  Function.Periodic.cuspFunction h (f ∘ ofComplex)
+def cuspFunction (f : ℍ → ℂ) : ℂ → ℂ := Function.Periodic.cuspFunction h (f ∘ ofComplex)
 
-theorem eq_cuspFunction {f : ℍ → ℂ} (τ : ℍ) (hh : h ≠ 0)
-    (hfper : Periodic (f ∘ ofComplex) h) : cuspFunction h f (𝕢 h τ) = f τ := by
+theorem eq_cuspFunction {f : ℍ → ℂ} (τ : ℍ) (hh : h ≠ 0) (hfper : Periodic (f ∘ ofComplex) h)
+    : cuspFunction h f (𝕢 h τ) = f τ := by
   simpa [cuspFunction] using (Periodic.eq_cuspFunction hh hfper τ)
 
-theorem differentiableAt_cuspFunction {f : ℍ → ℂ} (hh : 0 < h)
-    (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f)
-    {q : ℂ} (hq : ‖q‖ < 1) : DifferentiableAt ℂ (cuspFunction h f) q := by
+theorem differentiableAt_cuspFunction
+    {f : ℍ → ℂ}
+    (hh : 0 < h) (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f)
+    (hfbdd : IsBoundedAtImInfty f)
+    {q : ℂ} (hq : ‖q‖ < 1)
+    : DifferentiableAt ℂ (cuspFunction h f) q := by
   rcases eq_or_ne q 0 with rfl | hq'
   · exact hfper.differentiableAt_cuspFunction_zero hh
       (eventually_of_mem (preimage_mem_comap (Ioi_mem_atTop 0))
         (fun z hz ↦ UpperHalfPlane.mdifferentiableAt_iff.mp (hfhol ⟨z, hz⟩)))
       (hfbdd.comp_tendsto tendsto_comap_im_ofComplex)
-  · exact Periodic.qParam_right_inv hh.ne' hq' ▸
-      hfper.differentiableAt_cuspFunction hh.ne' <| UpperHalfPlane.mdifferentiableAt_iff.mp <|
+  · exact Periodic.qParam_right_inv hh.ne' hq' ▸ hfper.differentiableAt_cuspFunction hh.ne' <|
+      UpperHalfPlane.mdifferentiableAt_iff.mp <|
         hfhol ⟨_, Periodic.im_invQParam_pos_of_norm_lt_one hh hq hq'⟩
 
 lemma differentiableOn_cuspFunction_ball {f : ℍ → ℂ} (hh : 0 < h)
@@ -129,13 +133,14 @@ end UpperHalfPlane
 
 namespace SlashInvariantFormClass
 
-theorem periodic_comp_ofComplex [SlashInvariantFormClass F Γ k] (hΓ : h ∈ Γ.strictPeriods) :
-    Periodic (f ∘ ofComplex) h :=
+theorem periodic_comp_ofComplex [SlashInvariantFormClass F Γ k] (hΓ : h ∈ Γ.strictPeriods)
+    : Periodic (f ∘ ofComplex) h :=
   UpperHalfPlane.periodic_comp_ofComplex fun τ ↦
     SlashInvariantForm.vAdd_apply_of_mem_strictPeriods f τ hΓ
 
-protected theorem eq_cuspFunction [SlashInvariantFormClass F Γ k] (τ : ℍ)
-    (hΓ : h ∈ Γ.strictPeriods) (hh : h ≠ 0) : cuspFunction h f (𝕢 h τ) = f τ :=
+protected theorem eq_cuspFunction
+    [SlashInvariantFormClass F Γ k] (τ : ℍ) (hΓ : h ∈ Γ.strictPeriods) (hh : h ≠ 0)
+    : cuspFunction h f (𝕢 h τ) = f τ :=
   eq_cuspFunction τ hh (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ)
 
 end SlashInvariantFormClass
@@ -145,13 +150,13 @@ open SlashInvariantFormClass
 namespace ModularFormClass
 
 @[deprecated ModularFormClass.bdd_at_infty +typeChanged (since := "2026-04-19")]
-theorem bounded_at_infty_comp_ofComplex [ModularFormClass F Γ k] (hi : IsCusp OnePoint.infty Γ) :
-    BoundedAtFilter I∞ (f ∘ ofComplex) :=
+theorem bounded_at_infty_comp_ofComplex [ModularFormClass F Γ k] (hi : IsCusp OnePoint.infty Γ)
+    : BoundedAtFilter I∞ (f ∘ ofComplex) :=
   (OnePoint.isBoundedAt_infty_iff.mp (bdd_at_cusps f hi)).comp_tendsto tendsto_comap_im_ofComplex
 
-protected theorem differentiableAt_cuspFunction [ModularFormClass F Γ k]
-    (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) {q : ℂ} (hq : ‖q‖ < 1) :
-    DifferentiableAt ℂ (cuspFunction h f) q :=
+protected theorem differentiableAt_cuspFunction
+    [ModularFormClass F Γ k] (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) {q : ℂ} (hq : ‖q‖ < 1)
+    : DifferentiableAt ℂ (cuspFunction h f) q :=
   have : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods hh hΓ⟩
   differentiableAt_cuspFunction hh (periodic_comp_ofComplex f hΓ) (holo f) (bdd_at_infty f) hq
 
@@ -165,9 +170,11 @@ end ModularFormClass
 namespace UpperHalfPlane
 
 variable (h) in
-/-- The `q`-expansion of a function on the upper half plane with strict period `h`, bundled as a
+/--
+The `q`-expansion of a function on the upper half plane with strict period `h`, bundled as a
 `PowerSeries`. The `m`-th coefficient is the Taylor coefficient of the `cuspFunction` at `q = 0`,
-where `q = exp(2πiτ/h)` is the local parameter at the cusp. -/
+where `q = exp(2πiτ/h)` is the local parameter at the cusp.
+-/
 def qExpansion (f : ℍ → ℂ) : PowerSeries ℂ :=
   .mk fun m ↦ (↑m.factorial)⁻¹ * iteratedDeriv m (cuspFunction h f) 0
 
@@ -262,28 +269,34 @@ private lemma hasFPowerSeriesOnBall_update {f : ℍ → ℂ} (hh : 0 < h) {c : �
     · simpa [update_of_ne hy', mul_comm]
         using hasSum_cuspFunction_of_hasSum_punctured hh hf hy hy'
 
-/-- A function on the upper half plane that is given everywhere by a convergent `q`-expansion with
+/--
+A function on the upper half plane that is given everywhere by a convergent `q`-expansion with
 non-negative exponents, `f τ = ∑' m, c m * 𝕢 h τ ^ m`, tends to the constant term of its
-`q`-expansion at `i∞`. -/
-theorem tendsto_atImInfty_of_hasSum_qExpansion {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h)
-    (hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • 𝕢 h τ ^ m) (f τ)) :
-    Tendsto f atImInfty (𝓝 (c 0)) := by
+`q`-expansion at `i∞`.
+-/
+theorem tendsto_atImInfty_of_hasSum_qExpansion
+    {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h) (hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • 𝕢 h τ ^ m) (f τ))
+    : Tendsto f atImInfty (𝓝 (c 0)) := by
   have hfeq : f = fun τ : ℍ ↦ update (cuspFunction h f) 0 (c 0) (𝕢 h τ) := by
     funext τ
     rw [update_of_ne (Periodic.qParam_ne_zero _)]
-    exact (hf τ).unique (hasSum_cuspFunction_of_hasSum_punctured hh hf
-      (Periodic.norm_qParam_lt_one hh τ.im_pos) (exp_ne_zero _))
+    exact (hf τ).unique
+      (hasSum_cuspFunction_of_hasSum_punctured hh hf (Periodic.norm_qParam_lt_one hh τ.im_pos)
+        (exp_ne_zero _))
   rw [hfeq]
   simpa [update_self, Function.comp_def] using
     (hasFPowerSeriesOnBall_update hh hf).hasFPowerSeriesAt.continuousAt.tendsto.comp
       (qParam_tendsto_atImInfty hh)
 
-/-- A function on the upper half plane that is given everywhere by a convergent `q`-expansion with
+/--
+A function on the upper half plane that is given everywhere by a convergent `q`-expansion with
 non-negative exponents, `f τ = ∑' m, c m * 𝕢 h τ ^ m`, is bounded at `i∞`. This is a converse to
 `hasSum_qExpansion`: there, boundedness is a hypothesis used to produce the `q`-expansion, while
-here convergence of the `q`-expansion is enough to deduce boundedness. -/
-theorem isBoundedAtImInfty_of_hasSum_qExpansion {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h)
-    (hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • 𝕢 h τ ^ m) (f τ)) : IsBoundedAtImInfty f :=
+here convergence of the `q`-expansion is enough to deduce boundedness.
+-/
+theorem isBoundedAtImInfty_of_hasSum_qExpansion
+    {f : ℍ → ℂ} {c : ℕ → ℂ} (hh : 0 < h) (hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • 𝕢 h τ ^ m) (f τ))
+    : IsBoundedAtImInfty f :=
   -- `IsBoundedAtImInfty f = BoundedAtFilter atImInfty f = (f =O[atImInfty] 1)` by definition.
   (tendsto_atImInfty_of_hasSum_qExpansion hh hf).isBigO_one ℝ
 
@@ -351,9 +364,11 @@ lemma qExpansion_coeff_eq_intervalIntegral {f : ℍ → ℂ} (hh : 0 < h)
   push_cast
   ring
 
-theorem exp_decay_sub_atImInfty {f : ℍ → ℂ} (hh : 0 < h)
-    (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) :
-    (fun τ ↦ f τ - valueAtInfty f) =O[atImInfty] fun τ ↦ Real.exp (-2 * π * τ.im / h) := by
+theorem exp_decay_sub_atImInfty
+    {f : ℍ → ℂ}
+    (hh : 0 < h) (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f)
+    (hfbdd : IsBoundedAtImInfty f)
+    : (fun τ ↦ f τ - valueAtInfty f) =O[atImInfty] fun τ ↦ Real.exp (-2 * π * τ.im / h) := by
   have := hfbdd.comp_tendsto tendsto_comap_im_ofComplex
   convert!
     (hfper.exp_decay_sub_of_bounded_at_inf hh
@@ -372,13 +387,15 @@ lemma zero_at_infty_comp_ofComplex {f : ℍ → ℂ} (hf : IsZeroAtImInfty f) :
     ZeroAtFilter I∞ (f ∘ ofComplex) :=
   hf.comp tendsto_comap_im_ofComplex
 
-theorem cuspFunction_apply_zero {f : ℍ → ℂ} (hf : IsZeroAtImInfty f) (hh : 0 < h) :
-    cuspFunction h f 0 = 0 :=
+theorem cuspFunction_apply_zero {f : ℍ → ℂ} (hf : IsZeroAtImInfty f) (hh : 0 < h)
+    : cuspFunction h f 0 = 0 :=
   Periodic.cuspFunction_zero_of_zero_at_inf hh hf.zero_at_infty_comp_ofComplex
 
-theorem exp_decay_atImInfty {f : ℍ → ℂ} (hf : IsZeroAtImInfty f) (hh : 0 < h)
-    (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) :
-    f =O[atImInfty] fun τ ↦ Real.exp (-2 * π * τ.im / h) := by
+theorem exp_decay_atImInfty
+    {f : ℍ → ℂ} (hf : IsZeroAtImInfty f)
+    (hh : 0 < h) (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f)
+    (hfbdd : IsBoundedAtImInfty f)
+    : f =O[atImInfty] fun τ ↦ Real.exp (-2 * π * τ.im / h) := by
   simpa [hf.valueAtInfty_eq_zero] using exp_decay_sub_atImInfty hh hfper hfhol hfbdd
 
 end UpperHalfPlane.IsZeroAtImInfty
@@ -394,20 +411,23 @@ protected lemma qExpansion_coeff_eq_intervalIntegral [ModularFormClass F Γ k]
     (holo f) (bdd_at_infty f) n ht
 
 /-- A modular form tends to the constant term of its `q`-expansion at `i∞`. -/
-protected theorem tendsto_atImInfty [ModularFormClass F Γ k] (hh : 0 < h)
-    (hΓ : h ∈ Γ.strictPeriods) : Tendsto f atImInfty (𝓝 ((qExpansion h f).coeff 0)) :=
+protected theorem tendsto_atImInfty [ModularFormClass F Γ k] (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods)
+    : Tendsto f atImInfty (𝓝 ((qExpansion h f).coeff 0)) :=
   have : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods hh hΓ⟩
   tendsto_atImInfty_of_hasSum_qExpansion hh
     (hasSum_qExpansion hh (periodic_comp_ofComplex f hΓ) (holo f) (bdd_at_infty f))
 
-/-- Version of `exp_decay_sub_atImInfty` stating a less precise result but easier to apply in
+/--
+Version of `exp_decay_sub_atImInfty` stating a less precise result but easier to apply in
 practice (not specifying the growth rate precisely).
 
 Note that the `Fact` hypothesis is automatically synthesized for arithmetic subgroups.
-The discreteness hypothesis may be unnecessary, but it is satisfied in the cases of interest. -/
-theorem exp_decay_sub_atImInfty' [ModularFormClass F Γ k] [Γ.HasDetPlusMinusOne]
-    [DiscreteTopology Γ] [Fact (IsCusp OnePoint.infty Γ)] :
-    ∃ c > 0, (fun τ ↦ f τ - valueAtInfty f) =O[atImInfty] (fun τ ↦ Real.exp (-c * τ.im)) := by
+The discreteness hypothesis may be unnecessary, but it is satisfied in the cases of interest.
+-/
+theorem exp_decay_sub_atImInfty'
+    [ModularFormClass F Γ k] [Γ.HasDetPlusMinusOne] [DiscreteTopology Γ]
+    [Fact (IsCusp OnePoint.infty Γ)]
+    : ∃ c > 0, (fun τ ↦ f τ - valueAtInfty f) =O[atImInfty] (fun τ ↦ Real.exp (-c * τ.im)) := by
   have hh : 0 < Γ.strictWidthInfty := Γ.strictWidthInfty_pos_iff.mpr Fact.out
   have hΓ : Γ.strictWidthInfty ∈ Γ.strictPeriods := Γ.strictWidthInfty_mem_strictPeriods
   refine ⟨2 * π / Γ.strictWidthInfty, div_pos Real.two_pi_pos hh, ?_⟩
@@ -415,12 +435,16 @@ theorem exp_decay_sub_atImInfty' [ModularFormClass F Γ k] [Γ.HasDetPlusMinusOn
     3 with τ
   ring_nf
 
-/-- Version of `exp_decay_atImInfty` stating a less precise result but easier to apply in practice
+/--
+Version of `exp_decay_atImInfty` stating a less precise result but easier to apply in practice
 (not specifying the growth rate precisely). Note that the `Fact` hypothesis is automatically
-synthesized for arithmetic subgroups. -/
-theorem exp_decay_atImInfty' [ModularFormClass F Γ k] [Γ.HasDetPlusMinusOne]
-    [DiscreteTopology Γ] [Fact (IsCusp OnePoint.infty Γ)] (hf : IsZeroAtImInfty f) :
-    ∃ c > 0, f =O[atImInfty] fun τ ↦ Real.exp (-c * τ.im) := by
+synthesized for arithmetic subgroups.
+-/
+theorem exp_decay_atImInfty'
+    [ModularFormClass F Γ k] [Γ.HasDetPlusMinusOne] [DiscreteTopology Γ]
+    [Fact (IsCusp OnePoint.infty Γ)]
+    (hf : IsZeroAtImInfty f)
+    : ∃ c > 0, f =O[atImInfty] fun τ ↦ Real.exp (-c * τ.im) := by
   simpa [hf.valueAtInfty_eq_zero] using exp_decay_sub_atImInfty' f
 
 end ModularFormClass
@@ -432,29 +456,28 @@ namespace CuspFormClass
 include Γ k -- can't be inferred from statements but shouldn't be omitted
 variable [CuspFormClass F Γ k]
 
-theorem zero_at_infty_comp_ofComplex [Fact (IsCusp OnePoint.infty Γ)] :
-    ZeroAtFilter I∞ (f ∘ ofComplex) :=
+theorem zero_at_infty_comp_ofComplex [Fact (IsCusp OnePoint.infty Γ)]
+    : ZeroAtFilter I∞ (f ∘ ofComplex) :=
   (zero_at_infty f).comp tendsto_comap_im_ofComplex
 
-theorem cuspFunction_apply_zero (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) :
-    cuspFunction h f 0 = 0 :=
+theorem cuspFunction_apply_zero (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) : cuspFunction h f 0 = 0 :=
   have : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods hh hΓ⟩
   (CuspFormClass.zero_at_infty f).cuspFunction_apply_zero hh
 
 /-- The zeroth coefficient of the `q`-expansion of a cusp form vanishes. -/
-theorem qExpansion_coeff_zero (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) :
-    (qExpansion h f).coeff 0 = 0 := by
+theorem qExpansion_coeff_zero (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods)
+    : (qExpansion h f).coeff 0 = 0 := by
   simp [qExpansion_coeff, cuspFunction_apply_zero f hh hΓ]
 
-theorem exp_decay_atImInfty (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) :
-    f =O[atImInfty] fun τ ↦ Real.exp (-2 * π * τ.im / h) :=
+theorem exp_decay_atImInfty (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods)
+    : f =O[atImInfty] fun τ ↦ Real.exp (-2 * π * τ.im / h) :=
   have : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods hh hΓ⟩
   UpperHalfPlane.IsZeroAtImInfty.exp_decay_atImInfty (CuspFormClass.zero_at_infty f) hh
     (periodic_comp_ofComplex f hΓ) (holo f) (bdd_at_infty f)
 
-theorem exp_decay_atImInfty' [Γ.HasDetPlusMinusOne] [DiscreteTopology Γ]
-    [Fact (IsCusp OnePoint.infty Γ)] :
-    ∃ c > 0, f =O[atImInfty] fun τ ↦ Real.exp (-c * τ.im) :=
+theorem exp_decay_atImInfty'
+    [Γ.HasDetPlusMinusOne] [DiscreteTopology Γ] [Fact (IsCusp OnePoint.infty Γ)]
+    : ∃ c > 0, f =O[atImInfty] fun τ ↦ Real.exp (-c * τ.im) :=
   ModularFormClass.exp_decay_atImInfty' f (CuspFormClass.zero_at_infty f)
 
 end CuspFormClass
@@ -463,9 +486,11 @@ section ring
 
 namespace UpperHalfPlane
 
-theorem cuspFunction_mul_zero {f g : ℂ → ℂ} (hfcts : ContinuousAt (Periodic.cuspFunction h f) 0)
-    (hgcts : ContinuousAt (Periodic.cuspFunction h g) 0) : Periodic.cuspFunction h (f * g) 0 =
-    Periodic.cuspFunction h f 0 * Periodic.cuspFunction h g 0 := by
+theorem cuspFunction_mul_zero
+    {f g : ℂ → ℂ} (hfcts : ContinuousAt (Periodic.cuspFunction h f) 0)
+    (hgcts : ContinuousAt (Periodic.cuspFunction h g) 0)
+    : Periodic.cuspFunction h (f * g) 0
+      = Periodic.cuspFunction h f 0 * Periodic.cuspFunction h g 0 := by
   rw [Periodic.cuspFunction, update_self]
   exact (Periodic.tendsto_nhds_zero hfcts).mul (Periodic.tendsto_nhds_zero hgcts) |>.limUnder_eq
 
@@ -656,8 +681,8 @@ protected lemma mul_ne_zero [Γ.HasDetPlusMinusOne] (hΓ : ∃ h ∈ Γ.strictPe
   exact mul_ne_zero hf hg
 
 /-- The qExpansion map as an additive group hom. to power series over `ℂ`. -/
-def qExpansionAddHom (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) (k : ℤ) :
-    ModularForm Γ k →+ PowerSeries ℂ where
+def qExpansionAddHom (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) (k : ℤ)
+    : ModularForm Γ k →+ PowerSeries ℂ where
   toFun f := qExpansion h f
   map_zero' := qExpansion_zero h
   map_add' f g := ModularForm.qExpansion_add hh hΓ f g
@@ -679,8 +704,8 @@ lemma qExpansion_inj (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) {k : ℤ} {f g 
 
 open scoped DirectSum in
 /-- The qExpansion map as a map from the graded ring of modular forms to power series over `ℂ`. -/
-def qExpansionRingHom (h) [Γ.HasDetPlusMinusOne] (hh : 0 < h)
-    (hΓ : h ∈ Γ.strictPeriods) : (⨁ k, ModularForm Γ k) →+* PowerSeries ℂ :=
+def qExpansionRingHom (h) [Γ.HasDetPlusMinusOne] (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods)
+    : (⨁ k, ModularForm Γ k) →+* PowerSeries ℂ :=
   DirectSum.toSemiring (qExpansionAddHom hh hΓ) ModularForm.qExpansion_one
     (ModularForm.qExpansion_mul hh hΓ)
 
@@ -691,15 +716,18 @@ lemma qExpansionRingHom_apply [Γ.HasDetPlusMinusOne] (hh : 0 < h)
   DirectSum.toSemiring_of ..
 
 open scoped DirectSum in
-/-- The qExpansion map as a `ℂ`-algebra map from the graded ring of modular forms to power series
-over `ℂ`. -/
-def qExpansionAlgHom (h) [Γ.HasDetOne] (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods) :
-    (⨁ k, ModularForm Γ k) →ₐ[ℂ] PowerSeries ℂ :=
+/--
+The qExpansion map as a `ℂ`-algebra map from the graded ring of modular forms to power series
+over `ℂ`.
+-/
+def qExpansionAlgHom (h) [Γ.HasDetOne] (hh : 0 < h) (hΓ : h ∈ Γ.strictPeriods)
+    : (⨁ k, ModularForm Γ k) →ₐ[ℂ] PowerSeries ℂ :=
   DirectSum.toAlgebra ℂ _
-    (fun _ ↦
-      { toFun f := qExpansion h f
-        map_add' f g := ModularForm.qExpansion_add hh hΓ f g
-        map_smul' c f := ModularForm.qExpansion_smul hh hΓ c f })
+    (fun _ ↦ {
+      toFun f := qExpansion h f
+      map_add' f g := ModularForm.qExpansion_add hh hΓ f g
+      map_smul' c f := ModularForm.qExpansion_smul hh hΓ c f
+    })
     ModularForm.qExpansion_one (ModularForm.qExpansion_mul hh hΓ)
 
 @[simp]

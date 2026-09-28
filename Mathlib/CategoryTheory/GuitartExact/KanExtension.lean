@@ -46,33 +46,37 @@ namespace CategoryTheory
 
 open Limits
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃} {C₄ : Type u₄} {D : Type u₅}
-  [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} C₃] [Category.{v₄} C₄]
-  [Category.{v₅} D]
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃} {C₄ : Type u₄} {D : Type u₅}
+  [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} C₃] [Category.{v₄} C₄] [Category.{v₅} D]
 
 namespace Functor.LeftExtension
 
-variable {T : C₁ ⥤ C₂} {L : C₁ ⥤ C₃} {R : C₂ ⥤ C₄} {B : C₃ ⥤ C₄}
-  {F : C₂ ⥤ D} (E : R.LeftExtension F)
+variable
+  {T : C₁ ⥤ C₂} {L : C₁ ⥤ C₃} {R : C₂ ⥤ C₄} {B : C₃ ⥤ C₄} {F : C₂ ⥤ D} (E : R.LeftExtension F)
 
-/-- Given a square `w : TwoSquare T L R B` (consisting of a natural transformation
+/--
+Given a square `w : TwoSquare T L R B` (consisting of a natural transformation
 `T ⋙ R ⟶ L ⋙ B`), this is the obvious map `R.LeftExtension F → L.LeftExtension (T ⋙ F)`
-obtained by the precomposition with `T` and the postcomposition with `w`. -/
+obtained by the precomposition with `T` and the postcomposition with `w`.
+-/
 abbrev compTwoSquare (w : TwoSquare T L R B) : L.LeftExtension (T ⋙ F) :=
   LeftExtension.mk (B ⋙ E.right)
-    (whiskerLeft T E.hom ≫ (associator _ _ _).inv ≫
-      whiskerRight w.natTrans _ ≫ (associator _ _ _).hom)
+    (whiskerLeft T E.hom ≫ (associator _ _ _).inv ≫ whiskerRight w.natTrans _
+      ≫ (associator _ _ _).hom)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a left extension
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a left extension
 of `F` along `R`, then `E` is a pointwise left Kan extension of `F` along `R` at
 `B.obj X₃` iff `E.compTwoSquare w` is a pointwise left Kan extension
-of `T ⋙ F` along `L` at `X₃`. -/
+of `T ⋙ F` along `L` at `X₃`.
+-/
 noncomputable def isPointwiseLeftKanExtensionAtCompTwoSquareEquiv
-    (w : TwoSquare T L R B) (X₃ : C₃) [Final (w.costructuredArrowRightwards X₃)] :
-    (E.compTwoSquare w).IsPointwiseLeftKanExtensionAt X₃ ≃
-      E.IsPointwiseLeftKanExtensionAt (B.obj X₃) := by
+    (w : TwoSquare T L R B) (X₃ : C₃) [Final (w.costructuredArrowRightwards X₃)]
+    : (E.compTwoSquare w).IsPointwiseLeftKanExtensionAt X₃
+      ≃ E.IsPointwiseLeftKanExtensionAt (B.obj X₃) := by
   refine Equiv.trans ?_ (Final.isColimitWhiskerEquiv (w.costructuredArrowRightwards X₃) _)
   exact IsColimit.equivIsoColimit (Cocone.ext (Iso.refl _))
 
@@ -83,34 +87,39 @@ lemma nonempty_isPointwiseLeftKanExtensionAt_compTwoSquare_iff
   (E.isPointwiseLeftKanExtensionAtCompTwoSquareEquiv w _).nonempty_congr
 
 variable {E} in
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a pointwise
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a pointwise
 left Kan extension of `F` along `R`, then `E.compTwoSquare w` is a pointwise left
-Kan extension of `T ⋙ F` along `L`. -/
+Kan extension of `T ⋙ F` along `L`.
+-/
 noncomputable def IsPointwiseLeftKanExtension.compTwoSquare
-    (h : E.IsPointwiseLeftKanExtension) (w : TwoSquare T L R B) [w.GuitartExact] :
-    (E.compTwoSquare w).IsPointwiseLeftKanExtension :=
-  fun X₃ ↦ (E.isPointwiseLeftKanExtensionAtCompTwoSquareEquiv w X₃).symm (h _)
+    (h : E.IsPointwiseLeftKanExtension) (w : TwoSquare T L R B) [w.GuitartExact]
+    : (E.compTwoSquare w).IsPointwiseLeftKanExtension := fun X₃ ↦
+  (E.isPointwiseLeftKanExtensionAtCompTwoSquareEquiv w X₃).symm (h _)
 
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, with `B` essentially surjective,
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, with `B` essentially surjective,
 and `E` is a left extension of `F` along `R`, then `E` is a pointwise
 left Kan extension of `F` along `R` provided `E.compTwoSquare w` is a pointwise left
-Kan extension of `T ⋙ F` along `L`. -/
+Kan extension of `T ⋙ F` along `L`.
+-/
 noncomputable def isPointwiseLeftKanExtensionOfCompTwoSquare
     (w : TwoSquare T L R B) [w.GuitartExact] [B.EssSurj]
-    (h : (E.compTwoSquare w).IsPointwiseLeftKanExtension) :
-    E.IsPointwiseLeftKanExtension :=
-  fun X₄ ↦ E.isPointwiseLeftKanExtensionAtOfIso'
+    (h : (E.compTwoSquare w).IsPointwiseLeftKanExtension)
+    : E.IsPointwiseLeftKanExtension := fun X₄ ↦
+  E.isPointwiseLeftKanExtensionAtOfIso'
     (E.isPointwiseLeftKanExtensionAtCompTwoSquareEquiv w _ (h (B.objPreimage X₄)))
     (B.objObjPreimageIso X₄)
 
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, with `B` essentially surjective,
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, with `B` essentially surjective,
 and `E` is a left extension of `F` along `R`, then `E` is a pointwise left Kan extension
 of `F` along `R` iff `E.compTwoSquare w` is a pointwise left Kan extension
-of `T ⋙ F` along `L`. -/
+of `T ⋙ F` along `L`.
+-/
 noncomputable def isPointwiseLeftKanExtensionEquivOfGuitartExact
-    (w : TwoSquare T L R B) [w.GuitartExact] [B.EssSurj] :
-    (E.compTwoSquare w).IsPointwiseLeftKanExtension ≃
-      E.IsPointwiseLeftKanExtension where
+    (w : TwoSquare T L R B) [w.GuitartExact] [B.EssSurj]
+    : (E.compTwoSquare w).IsPointwiseLeftKanExtension ≃ E.IsPointwiseLeftKanExtension where
   toFun h := E.isPointwiseLeftKanExtensionOfCompTwoSquare w h
   invFun h := h.compTwoSquare w
   left_inv _ := by subsingleton
@@ -120,27 +129,31 @@ end Functor.LeftExtension
 
 namespace Functor.RightExtension
 
-variable {T : C₁ ⥤ C₂} {L : C₁ ⥤ C₃} {R : C₂ ⥤ C₄} {B : C₃ ⥤ C₄}
-  {F : C₃ ⥤ D} (E : B.RightExtension F)
+variable
+  {T : C₁ ⥤ C₂} {L : C₁ ⥤ C₃} {R : C₂ ⥤ C₄} {B : C₃ ⥤ C₄} {F : C₃ ⥤ D} (E : B.RightExtension F)
 
-/-- Given a square `w : TwoSquare T L R B` (consisting of a natural transformation
+/--
+Given a square `w : TwoSquare T L R B` (consisting of a natural transformation
 `T ⋙ R ⟶ L ⋙ B`), this is the obvious map `B.RightExtension F → T.RightExtension (L ⋙ F)`
-obtained by the precomposition with `L` and the postcomposition with `w`. -/
+obtained by the precomposition with `L` and the postcomposition with `w`.
+-/
 abbrev compTwoSquare (w : TwoSquare T L R B) : T.RightExtension (L ⋙ F) :=
   RightExtension.mk (R ⋙ E.left)
-    ((associator _ _ _).inv ≫ whiskerRight w.natTrans _ ≫
-      (associator _ _ _).hom ≫ whiskerLeft L E.hom)
+    ((associator _ _ _).inv ≫ whiskerRight w.natTrans _ ≫ (associator _ _ _).hom
+      ≫ whiskerLeft L E.hom)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency.types false in
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a right extension
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a right extension
 of `F` along `B`, then `E` is a pointwise right Kan extension of `F` along `B` at
 `R.obj X₃` iff `E.compTwoSquare w` is a pointwise right Kan extension
-of `L ⋙ F` along `T` at `X₃`. -/
+of `L ⋙ F` along `T` at `X₃`.
+-/
 noncomputable def isPointwiseRightKanExtensionAtCompTwoSquareEquiv
-    (w : TwoSquare T L R B) (X₂ : C₂) [Initial (w.structuredArrowDownwards X₂)] :
-    (E.compTwoSquare w).IsPointwiseRightKanExtensionAt X₂ ≃
-      E.IsPointwiseRightKanExtensionAt (R.obj X₂) := by
+    (w : TwoSquare T L R B) (X₂ : C₂) [Initial (w.structuredArrowDownwards X₂)]
+    : (E.compTwoSquare w).IsPointwiseRightKanExtensionAt X₂
+      ≃ E.IsPointwiseRightKanExtensionAt (R.obj X₂) := by
   refine Equiv.trans ?_ (Initial.isLimitWhiskerEquiv (w.structuredArrowDownwards X₂) _)
   exact IsLimit.equivIsoLimit (Cone.ext (Iso.refl _))
 
@@ -151,34 +164,39 @@ lemma nonempty_isPointwiseRightKanExtensionAt_compTwoSquare_iff
   (E.isPointwiseRightKanExtensionAtCompTwoSquareEquiv w _).nonempty_congr
 
 variable {E} in
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a pointwise
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, and `E` is a pointwise
 right Kan extension of `F` along `B`, then `E.compTwoSquare w` is a pointwise right
-Kan extension of `L ⋙ F` along `T`. -/
+Kan extension of `L ⋙ F` along `T`.
+-/
 noncomputable def IsPointwiseRightKanExtension.compTwoSquare
-    (h : E.IsPointwiseRightKanExtension) (w : TwoSquare T L R B) [w.GuitartExact] :
-    (E.compTwoSquare w).IsPointwiseRightKanExtension :=
-  fun X₂ ↦ (E.isPointwiseRightKanExtensionAtCompTwoSquareEquiv w X₂).symm (h _)
+    (h : E.IsPointwiseRightKanExtension) (w : TwoSquare T L R B) [w.GuitartExact]
+    : (E.compTwoSquare w).IsPointwiseRightKanExtension := fun X₂ ↦
+  (E.isPointwiseRightKanExtensionAtCompTwoSquareEquiv w X₂).symm (h _)
 
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, with `R` essentially surjective,
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, with `R` essentially surjective,
 and `E` is a right extension of `F` along `B`, then `E` is a pointwise
 right Kan extension of `F` along `R` provided `E.compTwoSquare w` is a pointwise right
-Kan extension of `L ⋙ F` along `T`. -/
+Kan extension of `L ⋙ F` along `T`.
+-/
 noncomputable def isPointwiseRightKanExtensionOfCompTwoSquare
     (w : TwoSquare T L R B) [w.GuitartExact] [R.EssSurj]
-    (h : (E.compTwoSquare w).IsPointwiseRightKanExtension) :
-    E.IsPointwiseRightKanExtension :=
-  fun X₄ ↦ E.isPointwiseRightKanExtensionAtOfIso'
+    (h : (E.compTwoSquare w).IsPointwiseRightKanExtension)
+    : E.IsPointwiseRightKanExtension := fun X₄ ↦
+  E.isPointwiseRightKanExtensionAtOfIso'
     (E.isPointwiseRightKanExtensionAtCompTwoSquareEquiv w _ (h (R.objPreimage X₄)))
     (R.objObjPreimageIso X₄)
 
-/-- If `w : TwoSquare T L R B` is a Guitart exact square, with `R` essentially surjective,
+/--
+If `w : TwoSquare T L R B` is a Guitart exact square, with `R` essentially surjective,
 and `E` is a right extension of `F` along `B`, then `E` is a pointwise right Kan extension
 of `F` along `B` iff `E.compTwoSquare w` is a pointwise right Kan extension
-of `L ⋙ F` along `T`. -/
+of `L ⋙ F` along `T`.
+-/
 noncomputable def isPointwiseRightKanExtensionEquivOfGuitartExact
-    (w : TwoSquare T L R B) [w.GuitartExact] [R.EssSurj] :
-    (E.compTwoSquare w).IsPointwiseRightKanExtension ≃
-      E.IsPointwiseRightKanExtension where
+    (w : TwoSquare T L R B) [w.GuitartExact] [R.EssSurj]
+    : (E.compTwoSquare w).IsPointwiseRightKanExtension ≃ E.IsPointwiseRightKanExtension where
   toFun h := E.isPointwiseRightKanExtensionOfCompTwoSquare w h
   invFun h := h.compTwoSquare w
   left_inv _ := by subsingleton
@@ -188,8 +206,7 @@ end Functor.RightExtension
 
 namespace TwoSquare
 
-variable {T : C₁ ⥤ C₂} {L : C₁ ⥤ C₃} {R : C₂ ⥤ C₄} {B : C₃ ⥤ C₄}
-  (w : TwoSquare T L R B)
+variable {T : C₁ ⥤ C₂} {L : C₁ ⥤ C₃} {R : C₂ ⥤ C₄} {B : C₃ ⥤ C₄} (w : TwoSquare T L R B)
 
 include w
 
@@ -259,11 +276,13 @@ section
 
 variable [∀ (F : C₁ ⥤ D), L.HasLeftKanExtension F] [∀ (F : C₂ ⥤ D), R.HasLeftKanExtension F]
 
-/-- The base change natural transformation for left Kan extensions associated to
-a 2-square. -/
+/--
+The base change natural transformation for left Kan extensions associated to
+a 2-square.
+-/
 @[simps -isSimp]
-noncomputable def lanBaseChange :
-    (whiskeringLeft C₁ C₂ D).obj T ⋙ L.lan ⟶ R.lan ⋙ (whiskeringLeft C₃ C₄ D).obj B where
+noncomputable def lanBaseChange
+    : (whiskeringLeft C₁ C₂ D).obj T ⋙ L.lan ⟶ R.lan ⋙ (whiskeringLeft C₃ C₄ D).obj B where
   app F :=
     ((L.lanAdjunction D).homEquiv _ _).symm
       ((LeftExtension.mk _ (R.lanUnit.app F)).compTwoSquare w).hom
@@ -281,18 +300,18 @@ lemma isIso_lanBaseChange_app_iff (F : C₂ ⥤ D) :
   rw [lanBaseChange_app, isIso_lanAdjunction_homEquiv_symm_iff]
   simp
 
-instance isIso_lanBaseChange_app (F : C₂ ⥤ D)
-    [R.HasPointwiseLeftKanExtension F] [w.GuitartExact] :
-    IsIso (w.lanBaseChange.app F) := by
+instance isIso_lanBaseChange_app (F : C₂ ⥤ D) [R.HasPointwiseLeftKanExtension F] [w.GuitartExact]
+    : IsIso (w.lanBaseChange.app F) := by
   rw [isIso_lanBaseChange_app_iff]
   let hF := isPointwiseLeftKanExtensionOfIsLeftKanExtension (F := F) _ (R.lanUnit.app F)
   exact (hF.compTwoSquare w).isLeftKanExtension
 
 end
 
-instance [∀ (F : C₁ ⥤ D), L.HasLeftKanExtension F]
-    [∀ (F : C₂ ⥤ D), R.HasPointwiseLeftKanExtension F] [w.GuitartExact] :
-    IsIso (w.lanBaseChange (D := D)) := by
+instance
+    [∀ (F : C₁ ⥤ D), L.HasLeftKanExtension F] [∀ (F : C₂ ⥤ D), R.HasPointwiseLeftKanExtension F]
+    [w.GuitartExact]
+    : IsIso (w.lanBaseChange (D := D)) := by
   rw [NatTrans.isIso_iff_isIso_app]
   infer_instance
 
@@ -300,14 +319,16 @@ section
 
 variable [∀ (F : C₁ ⥤ D), T.HasRightKanExtension F] [∀ (F : C₃ ⥤ D), B.HasRightKanExtension F]
 
-/-- The base change natural transformation for left Kan extensions associated to
-a 2-square. -/
+/--
+The base change natural transformation for left Kan extensions associated to
+a 2-square.
+-/
 @[simps -isSimp]
-noncomputable def ranBaseChange :
-    B.ran ⋙ (whiskeringLeft C₂ C₄ D).obj R ⟶ (whiskeringLeft C₁ C₃ D).obj L ⋙ T.ran where
+noncomputable def ranBaseChange
+    : B.ran ⋙ (whiskeringLeft C₂ C₄ D).obj R ⟶ (whiskeringLeft C₁ C₃ D).obj L ⋙ T.ran where
   app F :=
-    ((T.ranAdjunction _).homEquiv _ _)
-      ((RightExtension.mk _ (B.ranCounit.app F)).compTwoSquare w).hom
+    ((T.ranAdjunction _).homEquiv _ _) ((RightExtension.mk _ (B.ranCounit.app F)).compTwoSquare
+      w).hom
   naturality {F₁ F₂} τ := by
     refine (Adjunction.homEquiv_naturality_left ..).symm.trans
       (Eq.trans ?_ (Adjunction.homEquiv_naturality_right ..))
@@ -321,18 +342,18 @@ lemma isIso_ranBaseChange_app_iff (F : C₃ ⥤ D) :
   rw [ranBaseChange_app, isIso_ranAdjunction_homEquiv_iff]
   simp
 
-instance isIso_ranBaseChange_app (F : C₃ ⥤ D)
-    [B.HasPointwiseRightKanExtension F] [w.GuitartExact] :
-    IsIso (w.ranBaseChange.app F) := by
+instance isIso_ranBaseChange_app (F : C₃ ⥤ D) [B.HasPointwiseRightKanExtension F] [w.GuitartExact]
+    : IsIso (w.ranBaseChange.app F) := by
   rw [isIso_ranBaseChange_app_iff]
   let hF := isPointwiseRightKanExtensionOfIsRightKanExtension (F := F) _ (B.ranCounit.app F)
   exact (hF.compTwoSquare w).isRightKanExtension
 
 end
 
-instance [∀ (F : C₁ ⥤ D), T.HasRightKanExtension F]
-    [∀ (F : C₃ ⥤ D), B.HasPointwiseRightKanExtension F] [w.GuitartExact] :
-    IsIso (w.ranBaseChange (D := D)) := by
+instance
+    [∀ (F : C₁ ⥤ D), T.HasRightKanExtension F] [∀ (F : C₃ ⥤ D), B.HasPointwiseRightKanExtension F]
+    [w.GuitartExact]
+    : IsIso (w.ranBaseChange (D := D)) := by
   rw [NatTrans.isIso_iff_isIso_app]
   infer_instance
 

@@ -32,17 +32,20 @@ variable {ι : Type*} {α : ι → Type*} {s : Set (Π i, α i)} {i : ι} {S : S
 namespace Topology
 
 open scoped Classical in
-/-- Given a set in a product space `s : Set (Π j, α j)` and a set of coordinates `S : Set ι`,
+/--
+Given a set in a product space `s : Set (Π j, α j)` and a set of coordinates `S : Set ι`,
 `Sᶜ.domRestrict '' s × (Π i : S, α i)` is the set of functions that coincide with an element of `s`
 on `Sᶜ` and are arbitrary on `S`.
 `reorderRestrictProd` sends a term of that type to `Π j, α j` by looking for the value at `j`
-in one part of the product or the other depending on whether `j` is in `S` or not. -/
-noncomputable def reorderRestrictProd (S : Set ι) (s : Set (Π j, α j))
-    (p : Sᶜ.domRestrict '' s × (Π i : S, α i)) :
-    Π j, α j :=
-  fun j ↦ if h : j ∈ S
-    then (p.2 : Π j : ↑(S : Set ι), α j) ⟨j, h⟩
-    else (p.1 : Π j : ↑(Sᶜ : Set ι), α j) ⟨j, h⟩
+in one part of the product or the other depending on whether `j` is in `S` or not.
+-/
+noncomputable def reorderRestrictProd
+    (S : Set ι) (s : Set (Π j, α j)) (p : Sᶜ.domRestrict '' s × (Π i : S, α i))
+    : Π j, α j := fun j ↦
+  if h : j ∈ S then
+    (p.2 : Π j : ↑(S : Set ι), α j) ⟨j, h⟩
+  else
+    (p.1 : Π j : ↑(Sᶜ : Set ι), α j) ⟨j, h⟩
 
 @[simp]
 lemma reorderRestrictProd_of_mem (p : Sᶜ.domRestrict '' s × (Π i : S, α i)) (j : S) :
@@ -79,12 +82,13 @@ lemma reorderRestrictProd_restrict_compl (x : Sᶜ.domRestrict ⁻¹' Sᶜ.domRe
       (x : Π j, α j) := by
   ext; simp [reorderRestrictProd]
 
-/-- Homeomorphism between the set of functions that coincide with a given set of functions away
-from a given set `S`, and dependent functions away from `S` times any value on `S`. -/
-noncomputable
-def _root_.Homeomorph.preimageImageRestrict (α : ι → Type*) [∀ i, TopologicalSpace (α i)]
-    (S : Set ι) (s : Set (Π j, α j)) :
-    Sᶜ.domRestrict ⁻¹' Sᶜ.domRestrict '' s ≃ₜ Sᶜ.domRestrict '' s × (Π i : S, α i) where
+/--
+Homeomorphism between the set of functions that coincide with a given set of functions away
+from a given set `S`, and dependent functions away from `S` times any value on `S`.
+-/
+noncomputable def _root_.Homeomorph.preimageImageRestrict
+    (α : ι → Type*) [∀ i, TopologicalSpace (α i)] (S : Set ι) (s : Set (Π j, α j))
+    : Sᶜ.domRestrict ⁻¹' Sᶜ.domRestrict '' s ≃ₜ Sᶜ.domRestrict '' s × (Π i : S, α i) where
   toFun x := ⟨⟨Sᶜ.domRestrict x, x.2⟩, fun i ↦ (x : Π j, α j) i⟩
   invFun p := ⟨reorderRestrictProd S s p, reorderRestrictProd_mem_preimage_image_restrict p⟩
   left_inv x := by ext; simp
@@ -124,9 +128,9 @@ section IsClosed
 variable [∀ i, TopologicalSpace (α i)]
 
 /-- The restriction of a compact closed set in a product space to a set of coordinates is closed. -/
-theorem IsCompact.isClosed_image_restrict (S : Set ι)
-    (hs_compact : IsCompact s) (hs_closed : IsClosed s) :
-    IsClosed (S.domRestrict '' s) := by
+theorem IsCompact.isClosed_image_restrict
+    (S : Set ι) (hs_compact : IsCompact s) (hs_closed : IsClosed s)
+    : IsClosed (S.domRestrict '' s) := by
   rw [← Topology.image_snd_preimageImageRestrict]
   have : CompactSpace (Sᶜ.domRestrict '' s) :=
     isCompact_iff_compactSpace.mp (hs_compact.image (Pi.continuous_domRestrict _))

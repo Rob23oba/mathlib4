@@ -61,25 +61,32 @@ variable (A : Type*) [AddMonoid A]
 -- The target
 variable (M : Type*) [Monoid M]
 
-/-- `AddChar A M` is the type of maps `A → M`, for `A` an additive monoid and `M` a multiplicative
+/--
+`AddChar A M` is the type of maps `A → M`, for `A` an additive monoid and `M` a multiplicative
 monoid, which intertwine addition in `A` with multiplication in `M`.
 
 We only put the typeclasses needed for the definition, although in practice we are usually
 interested in much more specific cases (e.g. when `A` is a group and `M` a commutative ring).
 -/
 structure AddChar where
-  /-- The underlying function.
+  /--
+  The underlying function.
 
   Do not use this function directly. Instead use the coercion coming from the `FunLike`
-  instance. -/
+  instance.
+  -/
   toFun : A → M
-  /-- The function maps `0` to `1`.
+  /--
+  The function maps `0` to `1`.
 
-  Do not use this directly. Instead use `AddChar.map_zero_eq_one`. -/
+  Do not use this directly. Instead use `AddChar.map_zero_eq_one`.
+  -/
   map_zero_eq_one' : toFun 0 = 1
-  /-- The function maps addition in `A` to multiplication in `M`.
+  /--
+  The function maps addition in `A` to multiplication in `M`.
 
-  Do not use this directly. Instead use `AddChar.map_add_eq_mul`. -/
+  Do not use this directly. Instead use `AddChar.map_add_eq_mul`.
+  -/
   map_add_eq_mul' : ∀ a b : A, toFun (a + b) = toFun a * toFun b
 
 end AddCharDef
@@ -129,14 +136,13 @@ def toMonoidHom (φ : AddChar A M) : Multiplicative A →* M where
 lemma map_nsmul_eq_pow (ψ : AddChar A M) (n : ℕ) (x : A) : ψ (n • x) = ψ x ^ n :=
   ψ.toMonoidHom.map_pow x n
 
-/-- Additive characters `A → M` are the same thing as monoid homomorphisms from `Multiplicative A`
-to `M`. -/
+/--
+Additive characters `A → M` are the same thing as monoid homomorphisms from `Multiplicative A`
+to `M`.
+-/
 def toMonoidHomEquiv : AddChar A M ≃ (Multiplicative A →* M) where
   toFun φ := φ.toMonoidHom
-  invFun f :=
-  { toFun := f.toFun
-    map_zero_eq_one' := f.map_one'
-    map_add_eq_mul' := f.map_mul' }
+  invFun f := { toFun := f.toFun, map_zero_eq_one' := f.map_one', map_add_eq_mul' := f.map_mul' }
 
 @[simp, norm_cast] lemma coe_toMonoidHomEquiv (ψ : AddChar A M) :
     ⇑(toMonoidHomEquiv ψ) = ψ ∘ Multiplicative.toAdd := rfl
@@ -161,14 +167,13 @@ def toAddMonoidHom (φ : AddChar A M) : A →+ Additive M where
 @[simp] lemma toAddMonoidHom_apply (ψ : AddChar A M) (a : A) :
     ψ.toAddMonoidHom a = Additive.ofMul (ψ a) := rfl
 
-/-- Additive characters `A → M` are the same thing as additive homomorphisms from `A` to
-`Additive M`. -/
+/--
+Additive characters `A → M` are the same thing as additive homomorphisms from `A` to
+`Additive M`.
+-/
 def toAddMonoidHomEquiv : AddChar A M ≃ (A →+ Additive M) where
   toFun φ := φ.toAddMonoidHom
-  invFun f :=
-  { toFun := f.toFun
-    map_zero_eq_one' := f.map_zero'
-    map_add_eq_mul' := f.map_add' }
+  invFun f := { toFun := f.toFun, map_zero_eq_one' := f.map_zero', map_add_eq_mul' := f.map_add' }
 
 @[simp, norm_cast]
 lemma coe_toAddMonoidHomEquiv (ψ : AddChar A M) :
@@ -209,8 +214,9 @@ lemma one_eq_zero : (1 : AddChar A M) = (0 : AddChar A M) := rfl
 instance instInhabited : Inhabited (AddChar A M) := ⟨1⟩
 
 /-- Composing a `MonoidHom` with an `AddChar` yields another `AddChar`. -/
-def _root_.MonoidHom.compAddChar {N : Type*} [Monoid N] (f : M →* N) (φ : AddChar A M) :
-    AddChar A N := toMonoidHomEquiv.symm (f.comp φ.toMonoidHom)
+def _root_.MonoidHom.compAddChar {N : Type*} [Monoid N] (f : M →* N) (φ : AddChar A M)
+    : AddChar A N :=
+  toMonoidHomEquiv.symm (f.comp φ.toMonoidHom)
 
 @[simp, norm_cast]
 lemma _root_.MonoidHom.coe_compAddChar {N : Type*} [Monoid N] (f : M →* N) (φ : AddChar A M) :
@@ -262,8 +268,7 @@ section toCommMonoid
 variable {ι A M : Type*} [AddMonoid A] [CommMonoid M]
 
 /-- When `M` is commutative, `AddChar A M` is a commutative monoid. -/
-instance instCommMonoid : CommMonoid (AddChar A M) :=
-  fast_instance% toMonoidHomEquiv.commMonoid
+instance instCommMonoid : CommMonoid (AddChar A M) := fast_instance% toMonoidHomEquiv.commMonoid
 
 /-- When `M` is commutative, `AddChar A M` is an additive commutative monoid. -/
 instance instAddCommMonoid : AddCommMonoid (AddChar A M) :=
@@ -303,19 +308,23 @@ lemma prod_eq_sum (s : Finset ι) (ψ : ι → AddChar A M) : ∏ i ∈ s, ψ i 
     toMonoidHomEquiv.symm (ψ * φ) = toMonoidHomEquiv.symm ψ + toMonoidHomEquiv.symm φ := rfl
 
 /-- The natural equivalence to `(Multiplicative A →* M)` is a monoid isomorphism. -/
-def toMonoidHomMulEquiv : AddChar A M ≃* (Multiplicative A →* M) :=
-  { toMonoidHomEquiv with map_mul' := fun φ ψ ↦ by rfl }
+def toMonoidHomMulEquiv : AddChar A M ≃* (Multiplicative A →* M) := {
+  toMonoidHomEquiv with
+  map_mul' := fun φ ψ ↦ by rfl
+}
 
-/-- Additive characters `A → M` are the same thing as additive homomorphisms from `A` to
-`Additive M`. -/
-def toAddMonoidAddEquiv : Additive (AddChar A M) ≃+ (A →+ Additive M) :=
-  { toAddMonoidHomEquiv with map_add' := fun φ ψ ↦ by rfl }
+/--
+Additive characters `A → M` are the same thing as additive homomorphisms from `A` to
+`Additive M`.
+-/
+def toAddMonoidAddEquiv : Additive (AddChar A M) ≃+ (A →+ Additive M) := {
+  toAddMonoidHomEquiv with
+  map_add' := fun φ ψ ↦ by rfl
+}
 
 /-- The double dual embedding. -/
 def doubleDualEmb : A →+ AddChar (AddChar A M) M where
-  toFun a := { toFun := fun ψ ↦ ψ a
-               map_zero_eq_one' := by simp
-               map_add_eq_mul' := by simp }
+  toFun a := { toFun := fun ψ ↦ ψ a, map_zero_eq_one' := by simp, map_add_eq_mul' := by simp }
   map_zero' := by ext; simp
   map_add' _ _ := by ext; simp [map_add_eq_mul]
 
@@ -324,8 +333,7 @@ def doubleDualEmb : A →+ AddChar (AddChar A M) M where
 end toCommMonoid
 
 section CommSemiring
-variable {A R : Type*} [AddGroup A] [Fintype A] [CommSemiring R] [IsDomain R]
-  {ψ : AddChar A R}
+variable {A R : Type*} [AddGroup A] [Fintype A] [CommSemiring R] [IsDomain R] {ψ : AddChar A R}
 
 lemma sum_eq_ite (ψ : AddChar A R) [Decidable (ψ = 0)] :
     ∑ a, ψ a = if ψ = 0 then ↑(card A) else 0 := by
@@ -352,10 +360,12 @@ section fromAddCommGroup
 
 variable {A M : Type*} [AddCommGroup A] [CommMonoid M]
 
-/-- The additive characters on a commutative additive group form a commutative group.
+/--
+The additive characters on a commutative additive group form a commutative group.
 
 Note that the inverse is defined using negation on the domain; we do not assume `M` has an
-inversion operation for the definition (but see `AddChar.map_neg_eq_inv` below). -/
+inversion operation for the definition (but see `AddChar.map_neg_eq_inv` below).
+-/
 instance instCommGroup : CommGroup (AddChar A M) where
   inv ψ := ψ.compAddMonoidHom negAddMonoidHom
   inv_mul_cancel ψ := by ext1 x; simp [negAddMonoidHom, ← map_add_eq_mul]
@@ -434,10 +444,11 @@ section Ring
 -- The domain and target of our additive characters. Now we restrict to a ring in the domain.
 variable {R M : Type*} [Ring R] [CommMonoid M]
 
-/-- Define the multiplicative shift of an additive character.
-This satisfies `mulShift ψ a x = ψ (a * x)`. -/
-def mulShift (ψ : AddChar R M) (r : R) : AddChar R M :=
-  ψ.compAddMonoidHom (AddMonoidHom.mulLeft r)
+/--
+Define the multiplicative shift of an additive character.
+This satisfies `mulShift ψ a x = ψ (a * x)`.
+-/
+def mulShift (ψ : AddChar R M) (r : R) : AddChar R M := ψ.compAddMonoidHom (AddMonoidHom.mulLeft r)
 
 @[simp] lemma mulShift_apply {ψ : AddChar R M} {r : R} {x : R} : mulShift ψ r x = ψ (r * x) :=
   rfl
@@ -457,10 +468,11 @@ theorem pow_mulShift (ψ : AddChar R M) (n : ℕ) : ψ ^ n = mulShift ψ n := by
   rw [pow_apply, ← mulShift_spec']
 
 /-- The product of `mulShift ψ r` and `mulShift ψ s` is `mulShift ψ (r + s)`. -/
-theorem mulShift_mul (ψ : AddChar R M) (r s : R) :
-    mulShift ψ r * mulShift ψ s = mulShift ψ (r + s) := by
+theorem mulShift_mul (ψ : AddChar R M) (r s : R)
+    : mulShift ψ r * mulShift ψ s = mulShift ψ (r + s) := by
   ext
-  rw [mulShift_apply, right_distrib, map_add_eq_mul]; norm_cast
+  rw [mulShift_apply, right_distrib, map_add_eq_mul]
+  norm_cast
 
 lemma mulShift_mulShift (ψ : AddChar R M) (r s : R) :
     mulShift (mulShift ψ r) s = mulShift ψ (r * s) := by

@@ -35,32 +35,34 @@ Let `E` be a pre-`0`-hypercover with pairwise pullbacks. If `∐ᵢ Eᵢ` is a u
 and the presheaf `F` preserves products, then the multifork associated to the single object
 `0`-hypercover `{ ∐ᵢ Eᵢ ⟶ S }` is exact if and only if the multifork for `E` is exact.
 -/
-noncomputable
-def PreZeroHypercover.isLimitSigmaOfIsColimitEquiv (E : PreZeroHypercover.{w} S)
-    [E.HasPullbacks] {c : Cofan E.X} (hc : IsColimit c) (huniv : IsUniversalColimit c)
+noncomputable def PreZeroHypercover.isLimitSigmaOfIsColimitEquiv
+    (E : PreZeroHypercover.{w} S) [E.HasPullbacks]
+    {c : Cofan E.X} (hc : IsColimit c) (huniv : IsUniversalColimit c)
     [(E.sigmaOfIsColimit hc).HasPullbacks]
     [∀ i, HasPullback (E.f i) ((E.sigmaOfIsColimit hc).f PUnit.unit)]
-    (F : Cᵒᵖ ⥤ A)
-    [PreservesLimit (Discrete.functor fun i ↦ op (E.toPreOneHypercover.X i)) F]
-    [PreservesLimit (Discrete.functor fun i ↦ op (E.toPreOneHypercover.Y' i)) F] :
-    IsLimit ((E.sigmaOfIsColimit hc).toPreOneHypercover.multifork F) ≃
-      IsLimit (E.toPreOneHypercover.multifork F) := by
+    (F : Cᵒᵖ ⥤ A) [PreservesLimit (Discrete.functor fun i ↦ op (E.toPreOneHypercover.X i)) F]
+    [PreservesLimit (Discrete.functor fun i ↦ op (E.toPreOneHypercover.Y' i)) F]
+    : IsLimit ((E.sigmaOfIsColimit hc).toPreOneHypercover.multifork F)
+      ≃ IsLimit (E.toPreOneHypercover.multifork F) := by
   let c' : Cofan E.toPreOneHypercover.Y' :=
-    Cofan.mk
-      ((E.sigmaOfIsColimit hc).toPreOneHypercover.Y (i₁ := ⟨⟩) (i₂ := ⟨⟩) ⟨⟩)
-      fun b ↦ pullback.map _ _ _ _ (c.inj _) (c.inj _) (𝟙 _) (by simp) (by simp)
+    Cofan.mk ((E.sigmaOfIsColimit hc).toPreOneHypercover.Y (i₁ := ⟨⟩) (i₂ := ⟨⟩) ⟨⟩) fun b ↦
+      pullback.map _ _ _ _ (c.inj _) (c.inj _) (𝟙 _) (by simp) (by simp)
   let equiv : E.toPreOneHypercover.I₁' ≃ E.I₀ × E.I₀ :=
     Equiv.sigmaPUnit (E.toPreOneHypercover.I₀ × E.toPreOneHypercover.I₀)
   have hc' : IsColimit c' := by
     refine (c'.isColimitEquivOfEquiv equiv.symm).symm (Nonempty.some ?_)
-    exact IsUniversalColimit.nonempty_isColimit_prod_of_isPullback
-      huniv huniv E.f E.f ((E.sigmaOfIsColimit hc).f ⟨⟩) ((E.sigmaOfIsColimit hc).f ⟨⟩)
-      (fun i j ↦ .of_hasPullback _ _) (.of_hasPullback _ _) (.refl _) (by simp) (by simp)
-      (by simp [c', equiv, Equiv.sigmaPUnit]) (by simp [c', equiv, Equiv.sigmaPUnit])
+    exact IsUniversalColimit.nonempty_isColimit_prod_of_isPullback huniv huniv E.f E.f
+      ((E.sigmaOfIsColimit hc).f ⟨⟩) ((E.sigmaOfIsColimit hc).f ⟨⟩)
+      (fun i j ↦ .of_hasPullback _ _)
+      (.of_hasPullback _ _) (.refl _) (by simp) (by simp) (by simp [c', equiv, Equiv.sigmaPUnit])
+      (by simp [c', equiv, Equiv.sigmaPUnit])
   refine .trans ?_ (E.toPreOneHypercover.isLimitSigmaOfIsColimitEquiv hc hc' F)
   apply PreOneHypercover.isLimitEquivOfIso
-  refine PreOneHypercover.isoMk (.refl _) (fun _ ↦ .refl _) (fun _ _ ↦ .refl _)
-      (fun _ _ _ ↦ Iso.refl _) (by cat_disch) ?_ ?_
+  refine PreOneHypercover.isoMk (.refl _)
+    (fun _ ↦ .refl _)
+    (fun _ _ ↦ .refl _)
+    (fun _ _ _ ↦ Iso.refl _)
+    (by cat_disch) ?_ ?_
   · intro ⟨⟩ ⟨⟩ k
     refine Cofan.IsColimit.hom_ext hc' _ _ fun k ↦ ?_
     congr 1

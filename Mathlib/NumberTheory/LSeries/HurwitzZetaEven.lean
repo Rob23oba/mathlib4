@@ -61,20 +61,26 @@ section kernel_defs
 ## Definitions and elementary properties of kernels
 -/
 
-/-- Even Hurwitz zeta kernel (function whose Mellin transform will be the even part of the
+/--
+Even Hurwitz zeta kernel (function whose Mellin transform will be the even part of the
 completed Hurwitz zeta function). See `evenKernel_def` for the defining formula, and
-`hasSum_int_evenKernel` for an expression as a sum over `ℤ`. -/
-@[irreducible] def evenKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
+`hasSum_int_evenKernel` for an expression as a sum over `ℤ`.
+-/
+@[irreducible]
+def evenKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
   (show Function.Periodic
-    (fun ξ : ℝ ↦ rexp (-π * ξ ^ 2 * x) * re (jacobiTheta₂ (ξ * I * x) (I * x))) 1 by
-      intro ξ
-      simp only [ofReal_add, ofReal_one, add_mul, one_mul, jacobiTheta₂_add_left']
-      have : cexp (-↑π * I * ((I * ↑x) + 2 * (↑ξ * I * ↑x))) = rexp (π * (x + 2 * ξ * x)) := by
-        ring_nf
-        simp [I_sq]
-      rw [this, re_ofReal_mul, ← mul_assoc, ← Real.exp_add]
-      congr
-      ring).lift a
+      (fun ξ : ℝ ↦ rexp (-π * ξ ^ 2 * x) * re (jacobiTheta₂ (ξ * I * x) (I * x)))
+      1
+      by
+        intro ξ
+        simp only [ofReal_add, ofReal_one, add_mul, one_mul, jacobiTheta₂_add_left']
+        have : cexp (- ↑π * I * ((I * ↑x) + 2 * (↑ξ * I * ↑x))) = rexp (π * (x + 2 * ξ * x)) := by
+          ring_nf
+          simp [I_sq]
+        rw [this, re_ofReal_mul, ← mul_assoc, ← Real.exp_add]
+        congr
+        ring).lift
+    a
 
 lemma evenKernel_def (a x : ℝ) :
     ↑(evenKernel ↑a x) = cexp (-π * a ^ 2 * x) * jacobiTheta₂ (a * I * x) (I * x) := by
@@ -86,11 +92,15 @@ lemma evenKernel_undef (a : UnitAddCircle) {x : ℝ} (hx : x ≤ 0) : evenKernel
   induction a using QuotientAddGroup.induction_on with
   | H a' => simp [← ofReal_inj, evenKernel_def, jacobiTheta₂_undef _ (by simpa : (I * ↑x).im ≤ 0)]
 
-/-- Cosine Hurwitz zeta kernel. See `cosKernel_def` for the defining formula, and
-`hasSum_int_cosKernel` for expression as a sum. -/
-@[irreducible] def cosKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
+/--
+Cosine Hurwitz zeta kernel. See `cosKernel_def` for the defining formula, and
+`hasSum_int_cosKernel` for expression as a sum.
+-/
+@[irreducible]
+def cosKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
   (show Function.Periodic (fun ξ : ℝ ↦ re (jacobiTheta₂ ξ (I * x))) 1 by
-    intro ξ; simp [jacobiTheta₂_add_left]).lift a
+      intro ξ; simp [jacobiTheta₂_add_left]).lift
+    a
 
 lemma cosKernel_def (a x : ℝ) : ↑(cosKernel ↑a x) = jacobiTheta₂ a (I * x) := by
   simp [cosKernel, re_eq_add_conj, jacobiTheta₂_conj, ← mul_two,
@@ -256,10 +266,12 @@ section FEPair
 def hurwitzEvenFEPair (a : UnitAddCircle) : WeakFEPair ℂ where
   f := ofReal ∘ evenKernel a
   g := ofReal ∘ cosKernel a
-  hf_int := (continuous_ofReal.comp_continuousOn (continuousOn_evenKernel a)).locallyIntegrableOn
-    measurableSet_Ioi
-  hg_int := (continuous_ofReal.comp_continuousOn (continuousOn_cosKernel a)).locallyIntegrableOn
-    measurableSet_Ioi
+  hf_int :=
+    (continuous_ofReal.comp_continuousOn (continuousOn_evenKernel a)).locallyIntegrableOn
+      measurableSet_Ioi
+  hg_int :=
+    (continuous_ofReal.comp_continuousOn (continuousOn_cosKernel a)).locallyIntegrableOn
+      measurableSet_Ioi
   k := 1 / 2
   hk := one_half_pos
   ε := 1
@@ -299,8 +311,10 @@ The meromorphic function of `s` which agrees with
 def completedHurwitzZetaEven (a : UnitAddCircle) (s : ℂ) : ℂ :=
   ((hurwitzEvenFEPair a).Λ (s / 2)) / 2
 
-/-- The entire function differing from `completedHurwitzZetaEven a s` by a linear combination of
-`1 / s` and `1 / (1 - s)`. -/
+/--
+The entire function differing from `completedHurwitzZetaEven a s` by a linear combination of
+`1 / s` and `1 / (1 - s)`.
+-/
 def completedHurwitzZetaEven₀ (a : UnitAddCircle) (s : ℂ) : ℂ :=
   ((hurwitzEvenFEPair a).Λ₀ (s / 2)) / 2
 
@@ -320,13 +334,13 @@ lemma completedHurwitzZetaEven_eq (a : UnitAddCircle) (s : ℂ) :
 The meromorphic function of `s` which agrees with
 `Gamma (s / 2) * π ^ (-s / 2) * ∑' n : ℕ, cos (2 * π * a * n) / n ^ s` for `1 < re s`.
 -/
-def completedCosZeta (a : UnitAddCircle) (s : ℂ) : ℂ :=
-  ((hurwitzEvenFEPair a).symm.Λ (s / 2)) / 2
+def completedCosZeta (a : UnitAddCircle) (s : ℂ) : ℂ := ((hurwitzEvenFEPair a).symm.Λ (s / 2)) / 2
 
-/-- The entire function differing from `completedCosZeta a s` by a linear combination of
-`1 / s` and `1 / (1 - s)`. -/
-def completedCosZeta₀ (a : UnitAddCircle) (s : ℂ) : ℂ :=
-  ((hurwitzEvenFEPair a).symm.Λ₀ (s / 2)) / 2
+/--
+The entire function differing from `completedCosZeta a s` by a linear combination of
+`1 / s` and `1 / (1 - s)`.
+-/
+def completedCosZeta₀ (a : UnitAddCircle) (s : ℂ) : ℂ := ((hurwitzEvenFEPair a).symm.Λ₀ (s / 2)) / 2
 
 lemma completedCosZeta_eq (a : UnitAddCircle) (s : ℂ) :
     completedCosZeta a s =
@@ -580,11 +594,12 @@ lemma differentiableAt_update_of_residue
     · exact Tendsto.congr (fun x ↦ by rw [← one_div, one_div_one_div]) nhdsWithin_le_nhds
     · exact eventually_of_mem self_mem_nhdsWithin fun x hx hx' ↦ (hx <| inv_eq_zero.mp hx').elim
 
-/-- The even part of the Hurwitz zeta function, i.e. the meromorphic function of `s` which agrees
-with `1 / 2 * ∑' (n : ℤ), 1 / |n + a| ^ s` for `1 < re s` -/
+/--
+The even part of the Hurwitz zeta function, i.e. the meromorphic function of `s` which agrees
+with `1 / 2 * ∑' (n : ℤ), 1 / |n + a| ^ s` for `1 < re s`
+-/
 noncomputable def hurwitzZetaEven (a : UnitAddCircle) :=
-  Function.update (fun s ↦ completedHurwitzZetaEven a s / Gammaℝ s)
-  0 (if a = 0 then -1 / 2 else 0)
+  Function.update (fun s ↦ completedHurwitzZetaEven a s / Gammaℝ s) 0 (if a = 0 then -1 / 2 else 0)
 
 lemma hurwitzZetaEven_def_of_ne_or_ne {a : UnitAddCircle} {s : ℂ} (h : a ≠ 0 ∨ s ≠ 0) :
     hurwitzZetaEven a s = completedHurwitzZetaEven a s / Gammaℝ s := by
@@ -602,12 +617,13 @@ lemma hurwitzZetaEven_neg (a : UnitAddCircle) (s : ℂ) :
   simp [hurwitzZetaEven]
 
 /-- The trivial zeroes of the even Hurwitz zeta function. -/
-theorem hurwitzZetaEven_neg_two_mul_nat_add_one (a : UnitAddCircle) (n : ℕ) :
-    hurwitzZetaEven a (-2 * (n + 1)) = 0 := by
+theorem hurwitzZetaEven_neg_two_mul_nat_add_one (a : UnitAddCircle) (n : ℕ)
+    : hurwitzZetaEven a (-2 * (n + 1)) = 0 := by
   have : (-2 : ℂ) * (n + 1) ≠ 0 :=
     mul_ne_zero (neg_ne_zero.mpr two_ne_zero) (Nat.cast_add_one_ne_zero n)
-  rw [hurwitzZetaEven, Function.update_of_ne this, Gammaℝ_eq_zero_iff.mpr ⟨n + 1, by simp⟩,
-    div_zero]
+  rw [
+    hurwitzZetaEven, Function.update_of_ne this, Gammaℝ_eq_zero_iff.mpr ⟨n + 1, by simp⟩, div_zero
+  ]
 
 /-- The Hurwitz zeta function is differentiable everywhere except at `s = 1`. This is true
 even in the delicate case `a = 0` and `s = 0` (where the completed zeta has a pole, but this is
@@ -694,8 +710,10 @@ lemma hasSum_nat_hurwitzZetaEven_of_mem_Icc {a : ℝ} (ha : a ∈ Icc 0 1) {s : 
 ## The un-completed cosine zeta
 -/
 
-/-- The cosine zeta function, i.e. the meromorphic function of `s` which agrees
-with `∑' (n : ℕ), cos (2 * π * a * n) / n ^ s` for `1 < re s`. -/
+/--
+The cosine zeta function, i.e. the meromorphic function of `s` which agrees
+with `∑' (n : ℕ), cos (2 * π * a * n) / n ^ s` for `1 < re s`.
+-/
 noncomputable def cosZeta (a : UnitAddCircle) :=
   Function.update (fun s : ℂ ↦ completedCosZeta a s / Gammaℝ s) 0 (-1 / 2)
 
@@ -707,12 +725,14 @@ lemma cosZeta_neg (a : UnitAddCircle) (s : ℂ) :
   simp [cosZeta]
 
 /-- The trivial zeroes of the cosine zeta function. -/
-theorem cosZeta_neg_two_mul_nat_add_one (a : UnitAddCircle) (n : ℕ) :
-    cosZeta a (-2 * (n + 1)) = 0 := by
+theorem cosZeta_neg_two_mul_nat_add_one (a : UnitAddCircle) (n : ℕ)
+    : cosZeta a (-2 * (n + 1)) = 0 := by
   have : (-2 : ℂ) * (n + 1) ≠ 0 :=
     mul_ne_zero (neg_ne_zero.mpr two_ne_zero) (Nat.cast_add_one_ne_zero n)
-  rw [cosZeta, Function.update_of_ne this,
-    Gammaℝ_eq_zero_iff.mpr ⟨n + 1, by rw [neg_mul, Nat.cast_add_one]⟩, div_zero]
+  rw [
+    cosZeta, Function.update_of_ne this,
+    Gammaℝ_eq_zero_iff.mpr ⟨n + 1, by rw [neg_mul, Nat.cast_add_one]⟩, div_zero
+  ]
 
 /-- The cosine zeta function is differentiable everywhere, except at `s = 1` if `a = 0`. -/
 lemma differentiableAt_cosZeta (a : UnitAddCircle) {s : ℂ} (hs' : s ≠ 1 ∨ a ≠ 0) :

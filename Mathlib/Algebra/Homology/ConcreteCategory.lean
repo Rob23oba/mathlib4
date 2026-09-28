@@ -26,7 +26,9 @@ open CategoryTheory
 
 universe v u
 
-variable {C : Type u} [Category.{v} C] {FC : C → C → Type*} {CC : C → Type v}
+variable
+  {C : Type u} [Category.{v} C]
+  {FC : C → C → Type*} {CC : C → Type v}
   [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)] [ConcreteCategory.{v} C FC] [HasForget₂ C Ab.{v}]
   [Abelian C] [(forget₂ C Ab).Additive] [(forget₂ C Ab).PreservesHomology]
   {ι : Type*} {c : ComplexShape ι}
@@ -36,9 +38,10 @@ namespace HomologicalComplex
 variable (K : HomologicalComplex C c)
 
 /-- Constructor for cycles of a homological complex in a concrete category. -/
-noncomputable def cyclesMk {i : ι} (x : (forget₂ C Ab).obj (K.X i)) (j : ι) (hj : c.next i = j)
-    (hx : ((forget₂ C Ab).map (K.d i j)) x = 0) :
-    (forget₂ C Ab).obj (K.cycles i) :=
+noncomputable def cyclesMk
+    {i : ι} (x : (forget₂ C Ab).obj (K.X i))
+    (j : ι) (hj : c.next i = j) (hx : ((forget₂ C Ab).map (K.d i j)) x = 0)
+    : (forget₂ C Ab).obj (K.cycles i) :=
   (K.sc i).cyclesMk x (by subst hj; exact hx)
 
 @[simp]
@@ -56,8 +59,7 @@ namespace ShortComplex
 
 namespace ShortExact
 
-variable {S : ShortComplex (HomologicalComplex C c)}
-  (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j)
+variable {S : ShortComplex (HomologicalComplex C c)} (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j)
 
 lemma δ_apply' (x₃ : (forget₂ C Ab).obj (S.X₃.homology i))
     (x₂ : (forget₂ C Ab).obj (S.X₂.opcycles i))
@@ -88,16 +90,20 @@ In the short exact sequence of complexes
        v            v            v
        0            0            0
 ```
-if `x₁ ∈ X_1,j` and `x₂ ∈ X_2,i` and if `f(x₁) = d(x₂)` then `d(x₁) = 0`. -/
+if `x₁ ∈ X_1,j` and `x₂ ∈ X_2,i` and if `f(x₁) = d(x₂)` then `d(x₁) = 0`.
+-/
 theorem d_eq_zero_of_f_eq_d_apply
     (x₂ : ((forget₂ C Ab).obj (S.X₂.X i))) (x₁ : ((forget₂ C Ab).obj (S.X₁.X j)))
-    (hx₁ : ((forget₂ C Ab).map (S.f.f j)) x₁ = ((forget₂ C Ab).map (S.X₂.d i j)) x₂) (k : ι) :
-    ((forget₂ C Ab).map (S.X₁.d j k)) x₁ = 0 := by
+    (hx₁ : ((forget₂ C Ab).map (S.f.f j)) x₁ = ((forget₂ C Ab).map (S.X₂.d i j)) x₂)
+    (k : ι)
+    : ((forget₂ C Ab).map (S.X₁.d j k)) x₁ = 0 := by
   have := hS.mono_f
   apply (Preadditive.mono_iff_injective (S.f.f k)).1 inferInstance
-  rw [← ConcreteCategory.forget₂_comp_apply, ← HomologicalComplex.Hom.comm,
+  rw [
+    ← ConcreteCategory.forget₂_comp_apply, ← HomologicalComplex.Hom.comm,
     ConcreteCategory.forget₂_comp_apply, hx₁, ← ConcreteCategory.forget₂_comp_apply,
-    HomologicalComplex.d_comp_d, Functor.map_zero, map_zero]
+    HomologicalComplex.d_comp_d, Functor.map_zero, map_zero
+  ]
   rfl
 
 lemma δ_apply (x₃ : (forget₂ C Ab).obj (S.X₃.X i))

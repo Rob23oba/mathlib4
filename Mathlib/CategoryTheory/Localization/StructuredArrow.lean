@@ -36,14 +36,17 @@ namespace Localization
 
 section
 
-variable (W : MorphismProperty C) (L : C ⥤ D) (L' : C ⥤ D')
-  [L.IsLocalization W] [L'.IsLocalization W] {X : C}
+variable
+  (W : MorphismProperty C) (L : C ⥤ D) (L' : C ⥤ D') [L.IsLocalization W] [L'.IsLocalization W]
+  {X : C}
 
-/-- The bijection `StructuredArrow (L.obj X) L ≃ StructuredArrow (L'.obj X) L'`
-when `L` and `L'` are two localization functors for the same class of morphisms. -/
+/--
+The bijection `StructuredArrow (L.obj X) L ≃ StructuredArrow (L'.obj X) L'`
+when `L` and `L'` are two localization functors for the same class of morphisms.
+-/
 @[simps]
-noncomputable def structuredArrowEquiv :
-    StructuredArrow (L.obj X) L ≃ StructuredArrow (L'.obj X) L' where
+noncomputable def structuredArrowEquiv
+    : StructuredArrow (L.obj X) L ≃ StructuredArrow (L'.obj X) L' where
   toFun f := StructuredArrow.mk (homEquiv W L L' f.hom)
   invFun f := StructuredArrow.mk (homEquiv W L' L f.hom)
   left_inv f := by
@@ -59,8 +62,7 @@ end
 
 section
 
-variable (W : MorphismProperty C) {X : C}
-  (P : StructuredArrow (W.Q.obj X) W.Q → Prop)
+variable (W : MorphismProperty C) {X : C} (P : StructuredArrow (W.Q.obj X) W.Q → Prop)
 
 open Construction in
 private lemma induction_structuredArrow'
@@ -88,9 +90,9 @@ end
 
 section
 
-variable (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W] {X : C}
-  (P : StructuredArrow (L.obj X) L → Prop)
-
+variable
+  (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W]
+  {X : C} (P : StructuredArrow (L.obj X) L → Prop)
 
 @[elab_as_elim]
 lemma induction_structuredArrow
@@ -117,8 +119,9 @@ end
 
 section
 
-variable (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W] {Y : C}
-  (P : CostructuredArrow L (L.obj Y) → Prop)
+variable
+  (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W]
+  {Y : C} (P : CostructuredArrow L (L.obj Y) → Prop)
 
 @[elab_as_elim]
 lemma induction_costructuredArrow

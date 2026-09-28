@@ -88,15 +88,17 @@ lemma comp_convMul_distrib [Algebra R B] (h : A →ₐ[R] B) (f g : WithConv <| 
   rw [AlgHom.comp_toLinearMap, ← ofConv_toConv (f * g).ofConv.toLinearMap, toLinearMap_convMul]
   simp [LinearMap.algHom_comp_convMul_distrib, toLinearMap_convMul]
 
-instance : Monoid (WithConv <| C →ₐ[R] A) := fast_instance%
-  (toConv_injective.comp <| toLinearMap_injective.comp ofConv_injective).monoid _
-    toLinearMap_convOne toLinearMap_convMul toLinearMap_convPow
+instance : Monoid (WithConv <| C →ₐ[R] A) :=
+  fast_instance%
+    (toConv_injective.comp <| toLinearMap_injective.comp ofConv_injective).monoid _
+      toLinearMap_convOne toLinearMap_convMul toLinearMap_convPow
 
 variable [IsCocomm R C]
 
-instance : CommMonoid (WithConv <| C →ₐ[R] A) := fast_instance%
-  (toConv_injective.comp <| toLinearMap_injective.comp ofConv_injective).commMonoid _
-    toLinearMap_convOne toLinearMap_convMul toLinearMap_convPow
+instance : CommMonoid (WithConv <| C →ₐ[R] A) :=
+  fast_instance%
+    (toConv_injective.comp <| toLinearMap_injective.comp ofConv_injective).commMonoid _
+      toLinearMap_convOne toLinearMap_convMul toLinearMap_convPow
 
 end AlgHom
 
@@ -155,8 +157,9 @@ lemma toAlgHom_convPow (f : WithConv <| C →ₐc[R] A) :
   | 0 => rfl
   | n + 1 => by simp only [convPow_succ, pow_succ, toAlgHom_convMul, toAlgHom_convPow]
 
-instance : CommMonoid (WithConv <| C →ₐc[R] A) := fast_instance%
-  (toConv_injective.comp <| coe_linearMap_injective.comp ofConv_injective).commMonoid _
-    toLinearMap_convOne toLinearMap_convMul toLinearMap_convPow
+instance : CommMonoid (WithConv <| C →ₐc[R] A) :=
+  fast_instance%
+    (toConv_injective.comp <| coe_linearMap_injective.comp ofConv_injective).commMonoid _
+      toLinearMap_convOne toLinearMap_convMul toLinearMap_convPow
 
 end BialgHom

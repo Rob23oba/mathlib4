@@ -47,19 +47,21 @@ Nakayama, Jacobson
 
 public section
 
-
 variable {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
 
 open Ideal
 
 namespace Submodule
 
-/-- **Nakayama's Lemma** - A slightly more general version of (2) in
+/--
+**Nakayama's Lemma** - A slightly more general version of (2) in
 [Stacks 00DV](https://stacks.math.columbia.edu/tag/00DV).
-See also `eq_bot_of_le_smul_of_le_jacobson_bot` for the special case when `J = ⊥`. -/
+See also `eq_bot_of_le_smul_of_le_jacobson_bot` for the special case when `J = ⊥`.
+-/
 @[stacks 00DV "(2)"]
-theorem eq_smul_of_le_smul_of_le_jacobson {I J : Ideal R} {N : Submodule R M} (hN : N.FG)
-    (hIN : N ≤ I • N) (hIjac : I ≤ jacobson J) : N = J • N := by
+theorem eq_smul_of_le_smul_of_le_jacobson
+    {I J : Ideal R} {N : Submodule R M} (hN : N.FG) (hIN : N ≤ I • N) (hIjac : I ≤ jacobson J)
+    : N = J • N := by
   refine le_antisymm ?_ (Submodule.smul_le.2 fun _ _ _ => Submodule.smul_mem _ _)
   intro n hn
   obtain ⟨r, hr⟩ := Submodule.exists_sub_one_mem_and_smul_eq_zero_of_fg_of_le_smul I N hN hIN
@@ -110,51 +112,68 @@ lemma top_ne_pointwise_smul_of_mem_jacobson_annihilator [Nontrivial M]
   ne_of_ne_of_eq (top_ne_set_smul_of_subset_jacobson_annihilator <|
                     Set.singleton_subset_iff.mpr h) (singleton_set_smul ⊤ r)
 
-/-- **Nakayama's Lemma** - Statement (2) in
+/--
+**Nakayama's Lemma** - Statement (2) in
 [Stacks 00DV](https://stacks.math.columbia.edu/tag/00DV).
 See also `eq_smul_of_le_smul_of_le_jacobson` for a generalisation
-to the `jacobson` of any ideal -/
+to the `jacobson` of any ideal
+-/
 @[stacks 00DV "(2)"]
-theorem eq_bot_of_le_smul_of_le_jacobson_bot (I : Ideal R) (N : Submodule R M) (hN : N.FG)
-    (hIN : N ≤ I • N) (hIjac : I ≤ jacobson ⊥) : N = ⊥ := by
+theorem eq_bot_of_le_smul_of_le_jacobson_bot
+    (I : Ideal R) (N : Submodule R M) (hN : N.FG) (hIN : N ≤ I • N) (hIjac : I ≤ jacobson ⊥)
+    : N = ⊥ := by
   rw [eq_smul_of_le_smul_of_le_jacobson hN hIN hIjac, Submodule.bot_smul]
 
-theorem sup_eq_sup_smul_of_le_smul_of_le_jacobson {I J : Ideal R} {N N' : Submodule R M}
-    (hN' : N'.FG) (hIJ : I ≤ jacobson J) (hNN : N' ≤ N ⊔ I • N') : N ⊔ N' = N ⊔ J • N' := by
+theorem sup_eq_sup_smul_of_le_smul_of_le_jacobson
+    {I J : Ideal R} {N N' : Submodule R M}
+    (hN' : N'.FG) (hIJ : I ≤ jacobson J) (hNN : N' ≤ N ⊔ I • N')
+    : N ⊔ N' = N ⊔ J • N' := by
   have hNN' : N ⊔ N' = N ⊔ I • N' :=
     le_antisymm (sup_le le_sup_left hNN)
-    (sup_le_sup_left (Submodule.smul_le.2 fun _ _ _ => Submodule.smul_mem _ _) _)
-  have h_comap :=
-    comap_injective_of_surjective (LinearMap.range_eq_top.1 N.range_mkQ)
+      (sup_le_sup_left (Submodule.smul_le.2 fun _ _ _ => Submodule.smul_mem _ _) _)
+  have h_comap := comap_injective_of_surjective (LinearMap.range_eq_top.1 N.range_mkQ)
   have : (I • N').map N.mkQ = N'.map N.mkQ := by
     simpa only [← h_comap.eq_iff, comap_map_mkQ, sup_comm, eq_comm] using hNN'
   have :=
     @Submodule.eq_smul_of_le_smul_of_le_jacobson _ _ _ _ _ I J (N'.map N.mkQ) (hN'.map _)
       (by rw [← map_smul'', this]) hIJ
-  rwa [← map_smul'', ← h_comap.eq_iff, comap_map_eq, comap_map_eq, Submodule.ker_mkQ, sup_comm,
-    sup_comm (b := N)] at this
+  rwa [
+      ← map_smul'', ← h_comap.eq_iff, comap_map_eq, comap_map_eq, Submodule.ker_mkQ, sup_comm,
+      sup_comm (b := N)
+    ]
+    at this
 
-/-- **Nakayama's Lemma** - A slightly more general version of (4) in
+/--
+**Nakayama's Lemma** - A slightly more general version of (4) in
 [Stacks 00DV](https://stacks.math.columbia.edu/tag/00DV).
-See also `smul_le_of_le_smul_of_le_jacobson_bot` for the special case when `J = ⊥`. -/
+See also `smul_le_of_le_smul_of_le_jacobson_bot` for the special case when `J = ⊥`.
+-/
 @[stacks 00DV "(4)"]
-theorem sup_smul_eq_sup_smul_of_le_smul_of_le_jacobson {I J : Ideal R} {N N' : Submodule R M}
-    (hN' : N'.FG) (hIJ : I ≤ jacobson J) (hNN : N' ≤ N ⊔ I • N') : N ⊔ I • N' = N ⊔ J • N' :=
+theorem sup_smul_eq_sup_smul_of_le_smul_of_le_jacobson
+    {I J : Ideal R} {N N' : Submodule R M}
+    (hN' : N'.FG) (hIJ : I ≤ jacobson J) (hNN : N' ≤ N ⊔ I • N')
+    : N ⊔ I • N' = N ⊔ J • N' :=
   ((sup_le_sup_left smul_le_right _).antisymm (sup_le le_sup_left hNN)).trans
     (sup_eq_sup_smul_of_le_smul_of_le_jacobson hN' hIJ hNN)
 
-theorem le_of_le_smul_of_le_jacobson_bot {R M} [CommRing R] [AddCommGroup M] [Module R M]
-    {I : Ideal R} {N N' : Submodule R M} (hN' : N'.FG)
-    (hIJ : I ≤ jacobson ⊥) (hNN : N' ≤ N ⊔ I • N') : N' ≤ N := by
+theorem le_of_le_smul_of_le_jacobson_bot
+    {R M} [CommRing R] [AddCommGroup M] [Module R M]
+    {I : Ideal R} {N N' : Submodule R M}
+    (hN' : N'.FG) (hIJ : I ≤ jacobson ⊥) (hNN : N' ≤ N ⊔ I • N')
+    : N' ≤ N := by
   rw [← sup_eq_left, sup_eq_sup_smul_of_le_smul_of_le_jacobson hN' hIJ hNN, bot_smul, sup_bot_eq]
 
-/-- **Nakayama's Lemma** - Statement (4) in
+/--
+**Nakayama's Lemma** - Statement (4) in
 [Stacks 00DV](https://stacks.math.columbia.edu/tag/00DV).
 See also `sup_smul_eq_sup_smul_of_le_smul_of_le_jacobson` for a generalisation
-to the `jacobson` of any ideal -/
+to the `jacobson` of any ideal
+-/
 @[stacks 00DV "(4)"]
-theorem smul_le_of_le_smul_of_le_jacobson_bot {I : Ideal R} {N N' : Submodule R M} (hN' : N'.FG)
-    (hIJ : I ≤ jacobson ⊥) (hNN : N' ≤ N ⊔ I • N') : I • N' ≤ N :=
+theorem smul_le_of_le_smul_of_le_jacobson_bot
+    {I : Ideal R} {N N' : Submodule R M}
+    (hN' : N'.FG) (hIJ : I ≤ jacobson ⊥) (hNN : N' ≤ N ⊔ I • N')
+    : I • N' ≤ N :=
   smul_le_right.trans (le_of_le_smul_of_le_jacobson_bot hN' hIJ hNN)
 
 open scoped Pointwise in
@@ -214,14 +233,15 @@ then there exists a spanning set `t` of `N` in bijection with `s` via the quotie
 -/
 @[stacks 00DV "(8)"]
 theorem exists_injOn_mkQ_image_span_eq_of_span_eq_map_mkQ_of_le_jacobson_bot
-    {I : Ideal R} {N : Submodule R M} (s : Set (M ⧸ (I • N)))
-    (hN : N.FG) (hIjac : I ≤ jacobson ⊥) (hsspan : span R s = map (I • N).mkQ N) :
-    ∃ (t : Set M), t.InjOn (I • N).mkQ ∧ (I • N).mkQ '' t = s ∧ span R t = N := by
+    {I : Ideal R} {N : Submodule R M} (s : Set (M ⧸ (I • N))) (hN : N.FG) (hIjac : I ≤ jacobson ⊥)
+    (hsspan : span R s = map (I • N).mkQ N)
+    : ∃ (t : Set M), t.InjOn (I • N).mkQ ∧ (I • N).mkQ '' t = s ∧ span R t = N := by
   use Quotient.out '' s
   split_ands
   · simp [Set.InjOn]
   · simp [Set.image_image]
-  · symm; apply eq_of_map_mkQ_eq_map_mkQ_of_le_jacobson_bot hN hIjac
+  · symm
+    apply eq_of_map_mkQ_eq_map_mkQ_of_le_jacobson_bot hN hIjac
     simp [← hsspan, map_span, Set.image_image]
 
 end Submodule

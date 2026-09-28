@@ -193,8 +193,8 @@ private lemma PNat.isUnit_natCast [h : Fact (∀ I : Ideal R, I ≠ ⊤ → Char
 private noncomputable def pnatCast [Fact (∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I))] : ℕ+ → Rˣ :=
   fun n => (PNat.isUnit_natCast n).unit
 
-private noncomputable instance coePNatUnits
-    [Fact (∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I))] : Coe ℕ+ Rˣ :=
+private noncomputable instance coePNatUnits [Fact (∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I))]
+    : Coe ℕ+ Rˣ :=
   ⟨EqualCharZero.pnatCast⟩
 
 @[simp]
@@ -214,17 +214,18 @@ private lemma pnatCast_eq_natCast [Fact (∀ I : Ideal R, I ≠ ⊤ → CharZero
 
 /-- Equal characteristic implies `ℚ`-algebra. -/
 @[instance_reducible]
-private noncomputable def algebraRat (h : ∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I)) :
-    Algebra ℚ R :=
+private noncomputable def algebraRat (h : ∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I)) : Algebra ℚ R :=
   haveI : Fact (∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I)) := ⟨h⟩
-  RingHom.toAlgebra
-  { toFun := fun x => x.num /ₚ ↑x.pnatDen
+  RingHom.toAlgebra {
+    toFun := fun x => x.num /ₚ ↑x.pnatDen
     map_zero' := by simp [divp]
     map_one' := by simp
     map_mul' := by
       intro a b
-      simp only [← divp_assoc, divp_mul_eq_mul_divp, divp_divp_eq_divp_mul, divp_eq_iff_mul_eq,
-        pnatCast_eq_natCast, Rat.coe_pnatDen, Units.val_mul]
+      simp only [
+        ← divp_assoc, divp_mul_eq_mul_divp, divp_divp_eq_divp_mul, divp_eq_iff_mul_eq,
+        pnatCast_eq_natCast, Rat.coe_pnatDen, Units.val_mul
+      ]
       trans (↑((a * b).num * a.den * b.den) : R)
       · simp_rw [Int.cast_mul, Int.cast_natCast]
         ring
@@ -232,13 +233,16 @@ private noncomputable def algebraRat (h : ∀ I : Ideal R, I ≠ ⊤ → CharZer
       simp
     map_add' := by
       intro a b
-      simp only [Units.add_divp, pnatCast_eq_natCast, Rat.coe_pnatDen, divp_mul_eq_mul_divp,
-        Units.divp_add, divp_divp_eq_divp_mul, divp_eq_iff_mul_eq, Units.val_mul]
+      simp only [
+        Units.add_divp, pnatCast_eq_natCast, Rat.coe_pnatDen, divp_mul_eq_mul_divp, Units.divp_add,
+        divp_divp_eq_divp_mul, divp_eq_iff_mul_eq, Units.val_mul
+      ]
       trans (↑((a + b).num * a.den * b.den) : R)
       · simp_rw [Int.cast_mul, Int.cast_natCast]
         ring
       rw [Rat.add_num_den' a b]
-      simp }
+      simp
+  }
 
 end ConstructionAlgebraRat
 
@@ -268,13 +272,13 @@ private lemma to_not_mixedCharZero (h : ∀ I : Ideal R, I ≠ ⊤ → CharZero 
 A ring of characteristic zero has equal characteristic iff it does not
 have mixed characteristic for any `p`.
 -/
-theorem iff_not_mixedCharZero [CharZero R] :
-    (∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I)) ↔ ∀ p > 0, ¬MixedCharZero R p :=
+theorem iff_not_mixedCharZero [CharZero R]
+    : (∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I)) ↔ ∀ p > 0, ¬ MixedCharZero R p :=
   ⟨to_not_mixedCharZero R, of_not_mixedCharZero R⟩
 
 /-- A ring is a `ℚ`-algebra iff it has equal characteristic zero. -/
-theorem nonempty_algebraRat_iff :
-    Nonempty (Algebra ℚ R) ↔ ∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I) := by
+theorem nonempty_algebraRat_iff
+    : Nonempty (Algebra ℚ R) ↔ ∀ I : Ideal R, I ≠ ⊤ → CharZero (R ⧸ I) := by
   constructor
   · intro h_alg
     have h_alg' : Algebra ℚ R := h_alg.some
@@ -309,8 +313,10 @@ section MainStatements
 variable {P : Prop}
 
 /-- Split a `Prop` in characteristic zero into equal and mixed characteristic. -/
-theorem split_equalCharZero_mixedCharZero [CharZero R] (h_equal : Algebra ℚ R → P)
-    (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P) : P := by
+theorem split_equalCharZero_mixedCharZero
+    [CharZero R]
+    (h_equal : Algebra ℚ R → P) (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P)
+    : P := by
   by_cases h : ∃ p > 0, MixedCharZero R p
   · rcases h with ⟨p, ⟨H, hp⟩⟩
     rw [← MixedCharZero.reduce_to_p_prime] at h_mixed
@@ -325,9 +331,10 @@ Split any `Prop` over `R` into the three cases:
 - equal characteristic zero.
 - mixed characteristic `(0, p)`.
 -/
-theorem split_by_characteristic (h_pos : ∀ p : ℕ, p ≠ 0 → CharP R p → P)
-    (h_equal : Algebra ℚ R → P)
-    (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P) : P := by
+theorem split_by_characteristic
+    (h_pos : ∀ p : ℕ, p ≠ 0 → CharP R p → P) (h_equal : Algebra ℚ R → P)
+    (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P)
+    : P := by
   cases CharP.exists R with
   | intro p p_charP =>
     by_cases h : p = 0
@@ -342,9 +349,11 @@ In an `IsDomain R`, split any `Prop` over `R` into the three cases:
 - equal characteristic zero.
 - mixed characteristic `(0, p)`.
 -/
-theorem split_by_characteristic_domain [IsDomain R]
-    (h_pos : ∀ p : ℕ, Nat.Prime p → CharP R p → P)
-    (h_equal : Algebra ℚ R → P) (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P) : P := by
+theorem split_by_characteristic_domain
+    [IsDomain R]
+    (h_pos : ∀ p : ℕ, Nat.Prime p → CharP R p → P) (h_equal : Algebra ℚ R → P)
+    (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P)
+    : P := by
   refine split_by_characteristic R ?_ h_equal h_mixed
   intro p p_pos p_char
   have p_prime : Nat.Prime p := or_iff_not_imp_right.mp (CharP.char_is_prime_or_zero R p) p_pos
@@ -356,9 +365,11 @@ In a local ring `R`, split any predicate over `R` into the three cases:
 - equal characteristic zero.
 - mixed characteristic `(0, p)`.
 -/
-theorem split_by_characteristic_localRing [IsLocalRing R]
+theorem split_by_characteristic_localRing
+    [IsLocalRing R]
     (h_pos : ∀ p : ℕ, IsPrimePow p → CharP R p → P) (h_equal : Algebra ℚ R → P)
-    (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P) : P := by
+    (h_mixed : ∀ p : ℕ, Nat.Prime p → MixedCharZero R p → P)
+    : P := by
   refine split_by_characteristic R ?_ h_equal h_mixed
   intro p p_pos p_char
   have p_ppow : IsPrimePow (p : ℕ) := or_iff_not_imp_left.mp (charP_zero_or_prime_power R p) p_pos

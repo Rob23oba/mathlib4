@@ -21,8 +21,10 @@ universe v u
 
 open CategoryTheory Category Limits ZeroObject
 
-variable {C : Type u} [Category.{v} C] [HasZeroMorphisms C] [HasZeroObject C]
-  {ι : Type*} [DecidableEq ι] (c : ComplexShape ι) (j : ι)
+variable
+  {C : Type u} [Category.{v} C] [HasZeroMorphisms C] [HasZeroObject C]
+  {ι : Type*} [DecidableEq ι]
+  (c : ComplexShape ι) (j : ι)
 
 namespace HomologicalComplex
 
@@ -41,8 +43,7 @@ lemma isZero_single_obj_homology (A : C) (i : ι) (hi : i ≠ j) :
     using exactAt_single_obj c j A i hi
 
 /-- The canonical isomorphism `((single C c j).obj A).cycles j ≅ A` -/
-noncomputable def singleObjCyclesSelfIso :
-    ((single C c j).obj A).cycles j ≅ A :=
+noncomputable def singleObjCyclesSelfIso : ((single C c j).obj A).cycles j ≅ A :=
   ((single C c j).obj A).iCyclesIso j _ rfl rfl ≪≫ singleObjXSelf c j A
 
 @[reassoc]
@@ -51,8 +52,7 @@ lemma singleObjCyclesSelfIso_hom :
       ((single C c j).obj A).iCycles j ≫ (singleObjXSelf c j A).hom := rfl
 
 /-- The canonical isomorphism `((single C c j).obj A).opcycles j ≅ A` -/
-noncomputable def singleObjOpcyclesSelfIso :
-    A ≅ ((single C c j).obj A).opcycles j :=
+noncomputable def singleObjOpcyclesSelfIso : A ≅ ((single C c j).obj A).opcycles j :=
   (singleObjXSelf c j A).symm ≪≫ ((single C c j).obj A).pOpcyclesIso _ j rfl rfl
 
 @[reassoc]
@@ -61,8 +61,7 @@ lemma singleObjOpcyclesSelfIso_hom :
       (singleObjXSelf c j A).inv ≫ ((single C c j).obj A).pOpcycles j := rfl
 
 /-- The canonical isomorphism `((single C c j).obj A).homology j ≅ A` -/
-noncomputable def singleObjHomologySelfIso :
-    ((single C c j).obj A).homology j ≅ A :=
+noncomputable def singleObjHomologySelfIso : ((single C c j).obj A).homology j ≅ A :=
   (((single C c j).obj A).isoHomologyπ _ j rfl rfl).symm ≪≫ singleObjCyclesSelfIso c j A
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -185,12 +184,15 @@ lemma singleObjOpcyclesSelfIso_inv_naturality :
 
 variable (C)
 
-/-- The computation of the homology of single complexes, as a natural isomorphism
-`single C c j ⋙ homologyFunctor C c j ≅ 𝟭 C`. -/
+/--
+The computation of the homology of single complexes, as a natural isomorphism
+`single C c j ⋙ homologyFunctor C c j ≅ 𝟭 C`.
+-/
 @[simps!]
-noncomputable def homologyFunctorSingleIso [CategoryWithHomology C] :
-    single C c j ⋙ homologyFunctor C c j ≅ 𝟭 _ :=
-  NatIso.ofComponents (fun A => (singleObjHomologySelfIso c j A))
+noncomputable def homologyFunctorSingleIso [CategoryWithHomology C]
+    : single C c j ⋙ homologyFunctor C c j ≅ 𝟭 _ :=
+  NatIso.ofComponents
+    (fun A => (singleObjHomologySelfIso c j A))
     (fun f => singleObjHomologySelfIso_hom_naturality c j f)
 
 end HomologicalComplex

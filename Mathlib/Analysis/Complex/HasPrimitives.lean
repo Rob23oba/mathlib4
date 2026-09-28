@@ -90,8 +90,10 @@ end AuxiliaryLemmata
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- The `(z, w)`-wedge-integral of `f`, is the integral of `f` over two sides of the rectangle
-  determined by `z` and `w`. -/
+/--
+The `(z, w)`-wedge-integral of `f`, is the integral of `f` over two sides of the rectangle
+determined by `z` and `w`.
+-/
 def wedgeIntegral (z w : ℂ) (f : ℂ → E) : E :=
   (∫ x : ℝ in z.re..w.re, f (x + z.im * I)) + I • (∫ y : ℝ in z.im..w.im, f (w.re + y * I))
 
@@ -105,16 +107,19 @@ lemma wedgeIntegral_add_wedgeIntegral_eq (z w : ℂ) (f : ℂ → E) :
     intervalIntegral.integral_symm z.im w.im, smul_neg]
   abel
 
-/-- A function `f` `IsConservativeOn` in `U` if, for any rectangle contained in `U`
-  the integral of `f` over the rectangle is zero. -/
+/--
+A function `f` `IsConservativeOn` in `U` if, for any rectangle contained in `U`
+the integral of `f` over the rectangle is zero.
+-/
 def IsConservativeOn (f : ℂ → E) (U : Set ℂ) : Prop :=
   ∀ z w, Rectangle z w ⊆ U → wedgeIntegral z w f = - wedgeIntegral w z f
 
-/-- A function `f` `IsExactOn` in `U` if it is the complex derivative of a function on `U`.
+/--
+A function `f` `IsExactOn` in `U` if it is the complex derivative of a function on `U`.
 
-In complex variable theory, this is also referred to as "having a primitive". -/
-def IsExactOn (f : ℂ → E) (U : Set ℂ) : Prop :=
-  ∃ g, ∀ z ∈ U, HasDerivAt g (f z) z
+In complex variable theory, this is also referred to as "having a primitive".
+-/
+def IsExactOn (f : ℂ → E) (U : Set ℂ) : Prop := ∃ g, ∀ z ∈ U, HasDerivAt g (f z) z
 
 lemma IsExactOn.with_val_at {f : ℂ → E} {s : Set ℂ} (h : IsExactOn f s) (x₀ : ℂ) (y : E) :
     ∃ g, g x₀ = y ∧ ∀ x ∈ s, HasDerivAt g (f x) x := by
@@ -127,8 +132,8 @@ lemma IsConservativeOn.mono {U V : Set ℂ} (h : U ⊆ V) (hf : IsConservativeOn
     IsConservativeOn f U :=
   fun z w hzw ↦ hf z w (hzw.trans h)
 
-theorem _root_.DifferentiableOn.isConservativeOn {U : Set ℂ} (hf : DifferentiableOn ℂ f U) :
-    IsConservativeOn f U := by
+theorem _root_.DifferentiableOn.isConservativeOn {U : Set ℂ} (hf : DifferentiableOn ℂ f U)
+    : IsConservativeOn f U := by
   rintro z w hzw
   rw [← add_eq_zero_iff_eq_neg, wedgeIntegral_add_wedgeIntegral_eq]
   exact integral_boundary_rect_eq_zero_of_differentiableOn f z w <| hf.mono hzw
@@ -195,8 +200,10 @@ lemma IsConservativeOn.eventually_nhds_wedgeIntegral_sub_wedgeIntegral
       hf (z.re + c.im * I) (w.re + z.im * I) hU
   grind [wedgeIntegral]
 
-/- The horizontal integral of `f` from `z` to `z.re + w.im * I` is equal to `(w - z).re * f z`
-  up to `o(w - z)`, as `w` tends to `z`. -/
+/-
+The horizontal integral of `f` from `z` to `z.re + w.im * I` is equal to `(w - z).re * f z`
+up to `o(w - z)`, as `w` tends to `z`.
+-/
 private lemma hasDerivAt_wedgeIntegral_re_aux :
     (fun w ↦ (∫ x in z.re..w.re, f (x + z.im * I)) - (w - z).re • f z) =o[𝓝 z] fun w ↦ w - z := by
   suffices (fun x ↦ (∫ t in z.re..x, f (t + z.im * I)) - (x - z.re) • f z) =o[𝓝 z.re]
@@ -248,14 +255,16 @@ private lemma hasDerivAt_wedgeIntegral_im_aux :
     _ ≤ ε * ‖w - z‖ := (mul_le_mul_iff_of_pos_left ε_pos).mpr (abs_im_le_norm _)
 
 /-- The `wedgeIntegral` has derivative at `z` equal to `f z`. -/
-theorem IsConservativeOn.hasDerivAt_wedgeIntegral (h : IsConservativeOn f (ball c r)) :
-    HasDerivAt (fun w ↦ wedgeIntegral c w f) (f z) z := by
+theorem IsConservativeOn.hasDerivAt_wedgeIntegral (h : IsConservativeOn f (ball c r))
+    : HasDerivAt (fun w ↦ wedgeIntegral c w f) (f z) z := by
   rw [hasDerivAt_iff_isLittleO]
   calc
     _ =ᶠ[𝓝 z] (fun w ↦ wedgeIntegral z w f - (w - z) • f z) := ?_
     _ = (fun w ↦ (∫ x in z.re..w.re, f (x + z.im * I)) - (w - z).re • f z)
-        + I • (fun w ↦ (∫ y in z.im..w.im, f (w.re + y * I)) - (w - z).im • f z) := ?_
-    _ =o[𝓝 z] fun w ↦ w - z := (hasDerivAt_wedgeIntegral_re_aux f_cont hz).add
+        + I • (fun w ↦ (∫ y in z.im..w.im, f (w.re + y * I)) - (w - z).im • f z) :=
+      ?_
+    _ =o[𝓝 z] fun w ↦ w - z :=
+      (hasDerivAt_wedgeIntegral_re_aux f_cont hz).add
         ((hasDerivAt_wedgeIntegral_im_aux f_cont hz).const_smul_left I)
   · exact (h.eventually_nhds_wedgeIntegral_sub_wedgeIntegral f_cont hz).mono <| by simp
   ext w
@@ -270,16 +279,17 @@ theorem IsConservativeOn.hasDerivAt_wedgeIntegral (h : IsConservativeOn f (ball 
 
 end ContinuousOnBall
 
-/-- **Morera's theorem for a disk** On a disk, a continuous function whose integrals on rectangles
-  vanish, has primitives. -/
-theorem IsConservativeOn.isExactOn_ball (hf' : ContinuousOn f (ball c r))
-    (hf : IsConservativeOn f (ball c r)) :
-    IsExactOn f (ball c r) :=
+/--
+**Morera's theorem for a disk** On a disk, a continuous function whose integrals on rectangles
+vanish, has primitives.
+-/
+theorem IsConservativeOn.isExactOn_ball
+    (hf' : ContinuousOn f (ball c r)) (hf : IsConservativeOn f (ball c r))
+    : IsExactOn f (ball c r) :=
   ⟨fun z ↦ wedgeIntegral c z f, fun _ ↦ hf.hasDerivAt_wedgeIntegral hf'⟩
 
-theorem isConservativeOn_and_continuousOn_iff_isDifferentiableOn
-    {U : Set ℂ} (hU : IsOpen U) :
-    IsConservativeOn f U ∧ ContinuousOn f U ↔ DifferentiableOn ℂ f U := by
+theorem isConservativeOn_and_continuousOn_iff_isDifferentiableOn {U : Set ℂ} (hU : IsOpen U)
+    : IsConservativeOn f U ∧ ContinuousOn f U ↔ DifferentiableOn ℂ f U := by
   refine ⟨fun ⟨hf, hf'⟩ z hz ↦ ?_, fun hf ↦ ⟨hf.isConservativeOn, hf.continuousOn⟩⟩
   obtain ⟨r, h₀, h₁⟩ : ∃ r > 0, ball z r ⊆ U := Metric.isOpen_iff.mp hU z hz
   have : DifferentiableOn ℂ f (ball z r) :=
@@ -288,16 +298,16 @@ theorem isConservativeOn_and_continuousOn_iff_isDifferentiableOn
   exact mem_nhdsWithin.mpr ⟨ball z r, isOpen_ball, mem_ball_self h₀, inter_subset_left⟩
 
 /-- **Morera's theorem for a disk** On a disk, a holomorphic function has primitives. -/
-theorem _root_.DifferentiableOn.isExactOn_ball (hf : DifferentiableOn ℂ f (ball c r)) :
-    IsExactOn f (ball c r) :=
+theorem _root_.DifferentiableOn.isExactOn_ball (hf : DifferentiableOn ℂ f (ball c r))
+    : IsExactOn f (ball c r) :=
   hf.isConservativeOn.isExactOn_ball hf.continuousOn
 
 /--
 **Morera's theorem for the complex plane** A continuous function on `ℂ` whose integrals on
 rectangles vanish, has primitives.
 -/
-theorem IsConservativeOn.isExactOn_univ (h₁ : Continuous f) (h₂ : IsConservativeOn f univ) :
-    IsExactOn f univ := by
+theorem IsConservativeOn.isExactOn_univ (h₁ : Continuous f) (h₂ : IsConservativeOn f univ)
+    : IsExactOn f univ := by
   use (wedgeIntegral 0 · f)
   intro z _
   have h₃ : IsConservativeOn f (ball 0 (‖z‖ + 1)) := h₂.mono (subset_univ _)

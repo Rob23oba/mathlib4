@@ -21,9 +21,9 @@ public section
 
 namespace CategoryTheory
 
-variable {C D : Type*} [Category* C] [Category* D] (F : C ⥤ D)
-  [F.PreservesEffectiveEpis] [F.ReflectsEffectiveEpis]
-  [F.EffectivelyEnough]
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (F : C ⥤ D) [F.PreservesEffectiveEpis] [F.ReflectsEffectiveEpis] [F.EffectivelyEnough]
   [Preregular D] [F.Full] [F.Faithful]
 
 set_option backward.isDefEq.respectTransparency false in

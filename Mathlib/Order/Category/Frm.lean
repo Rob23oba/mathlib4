@@ -21,7 +21,6 @@ This file defines `Frm`, the category of frames.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory Order
@@ -45,8 +44,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab Frm.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-instance : CoeSort Frm (Type _) :=
-  ⟨Frm.carrier⟩
+instance : CoeSort Frm (Type _) := ⟨Frm.carrier⟩
 
 attribute [coe] Frm.carrier
 
@@ -67,8 +65,7 @@ instance : ConcreteCategory Frm (FrameHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `Frm` back into a `FrameHom`. -/
-abbrev Hom.hom {X Y : Frm.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := Frm) f
+abbrev Hom.hom {X Y : Frm.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := Frm) f
 
 /-- Typecheck a `FrameHom` as a morphism in `Frm`. -/
 abbrev ofHom {X Y : Type u} [Frame X] [Frame Y] (f : FrameHom X Y) : of X ⟶ of Y :=
@@ -76,8 +73,7 @@ abbrev ofHom {X Y : Type u} [Frame X] [Frame Y] (f : FrameHom X Y) : of X ⟶ of
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : Frm.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : Frm.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -146,8 +142,7 @@ lemma inv_hom_apply {X Y : Frm} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x := b
 lemma hom_inv_apply {X Y : Frm} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited Frm :=
-  ⟨of PUnit⟩
+instance : Inhabited Frm := ⟨of PUnit⟩
 
 instance hasForgetToLat : HasForget₂ Frm Lat where
   forget₂.obj X := ↧X

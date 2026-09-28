@@ -56,19 +56,23 @@ section Limits
 
 variable (J : SingleObj M ⥤ Type u)
 
-/-- The equivalence between sections of `J : SingleObj M ⥤ Type u` and fixed points of the
-induced action on `J.obj (SingleObj.star M)`. -/
+/--
+The equivalence between sections of `J : SingleObj M ⥤ Type u` and fixed points of the
+induced action on `J.obj (SingleObj.star M)`.
+-/
 @[simps]
-def Types.sections.equivFixedPoints :
-    J.sections ≃ MulAction.fixedPoints M (J.obj (SingleObj.star M)) where
+def Types.sections.equivFixedPoints
+    : J.sections ≃ MulAction.fixedPoints M (J.obj (SingleObj.star M)) where
   toFun s := ⟨s.val _, s.property⟩
   invFun p := ⟨fun _ ↦ p.val, p.property⟩
 
-/-- The limit of `J : SingleObj M ⥤ Type u` is equivalent to the fixed points of the
-induced action on `J.obj (SingleObj.star M)`. -/
+/--
+The limit of `J : SingleObj M ⥤ Type u` is equivalent to the fixed points of the
+induced action on `J.obj (SingleObj.star M)`.
+-/
 @[simps!]
-noncomputable def Types.limitEquivFixedPoints :
-    limit J ≃ MulAction.fixedPoints M (J.obj (SingleObj.star M)) :=
+noncomputable def Types.limitEquivFixedPoints
+    : limit J ≃ MulAction.fixedPoints M (J.obj (SingleObj.star M)) :=
   (Types.limitEquivSections J).trans (Types.sections.equivFixedPoints J)
 
 end Limits
@@ -86,26 +90,32 @@ lemma colimitTypeRel_iff_orbitRel (x y : J.obj (SingleObj.star G)) :
   change (∃ g : G, y = g • x) ↔ (∃ g : G, g • x = y)
   grind
 
-/-- The explicit quotient construction of the colimit of `J : SingleObj G ⥤ Type u` is
-equivalent to the quotient of `J.obj (SingleObj.star G)` by the induced action. -/
+/--
+The explicit quotient construction of the colimit of `J : SingleObj G ⥤ Type u` is
+equivalent to the quotient of `J.obj (SingleObj.star G)` by the induced action.
+-/
 @[simps]
-def colimitTypeRelEquivOrbitRelQuotient :
-    J.ColimitType ≃ MulAction.orbitRel.Quotient G (J.obj (SingleObj.star G)) where
-  toFun := Quot.lift (fun p => ⟦p.2⟧) <| fun a b h => Quotient.sound <|
-    (colimitTypeRel_iff_orbitRel J a.2 b.2).mp h
-  invFun := Quot.lift (fun x => Quot.mk _ ⟨SingleObj.star G, x⟩) <| fun a b h =>
-    Quot.sound <| (colimitTypeRel_iff_orbitRel J a b).mpr h
+def colimitTypeRelEquivOrbitRelQuotient
+    : J.ColimitType ≃ MulAction.orbitRel.Quotient G (J.obj (SingleObj.star G)) where
+  toFun :=
+    Quot.lift (fun p => ⟦p.2⟧) <| fun a b h =>
+      Quotient.sound <| (colimitTypeRel_iff_orbitRel J a.2 b.2).mp h
+  invFun :=
+    Quot.lift (fun x => Quot.mk _ ⟨SingleObj.star G, x⟩) <| fun a b h =>
+      Quot.sound <| (colimitTypeRel_iff_orbitRel J a b).mpr h
   left_inv := fun x => Quot.inductionOn x (fun _ ↦ rfl)
   right_inv := fun x => Quot.inductionOn x (fun _ ↦ rfl)
 
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The colimit of `J : SingleObj G ⥤ Type u` is equivalent to the quotient of
-`J.obj (SingleObj.star G)` by the induced action. -/
+/--
+The colimit of `J : SingleObj G ⥤ Type u` is equivalent to the quotient of
+`J.obj (SingleObj.star G)` by the induced action.
+-/
 @[simps!]
-noncomputable def Types.colimitEquivQuotient :
-    colimit J ≃ MulAction.orbitRel.Quotient G (J.obj (SingleObj.star G)) :=
+noncomputable def Types.colimitEquivQuotient
+    : colimit J ≃ MulAction.orbitRel.Quotient G (J.obj (SingleObj.star G)) :=
   (Types.colimitEquivColimitType J).trans (colimitTypeRelEquivOrbitRelQuotient J)
 
 end Colimits

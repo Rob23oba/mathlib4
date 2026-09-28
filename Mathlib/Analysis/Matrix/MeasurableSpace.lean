@@ -52,8 +52,9 @@ variable (m n α : Type*) [MeasurableSpace α]
 lemma measurable_of : Measurable <| Matrix.of (m := m) (n := n) (α := α) :=
   measurable_id
 
-instance [Countable m] [Countable n] [TopologicalSpace α] [SecondCountableTopology α]
-  [BorelSpace α] : BorelSpace (Matrix m n α) := inferInstanceAs <| BorelSpace (m → n → α)
+instance [Countable m] [Countable n] [TopologicalSpace α] [SecondCountableTopology α] [BorelSpace α]
+    : BorelSpace (Matrix m n α) :=
+  inferInstanceAs <| BorelSpace (m → n → α)
 
 /-- The map from `m → n → α` to `Matrix m n α` as a measurable equivalence. -/
 protected def ofMeasurableEquiv : (m → n → α) ≃ᵐ (Matrix m n α) where

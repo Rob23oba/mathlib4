@@ -62,13 +62,19 @@ section CategoryStructure
 
 variable {C D}
 
-/-- Morphisms in `C ⋆ D` are those of `C` and `D`, plus a unique
-morphism `(left c ⟶ right d)` for every `c : C` and `d : D`. -/
+/--
+Morphisms in `C ⋆ D` are those of `C` and `D`, plus a unique
+morphism `(left c ⟶ right d)` for every `c : C` and `d : D`.
+-/
 def Hom : C ⋆ D → C ⋆ D → Type (max v₁ v₂)
-  | .left x, .left y => ULift (x ⟶ y)
-  | .right x, .right y => ULift (x ⟶ y)
-  | .left _, .right _ => PUnit
-  | .right _, .left _ => PEmpty
+  | .left x, .left y =>
+    ULift (x ⟶ y)
+  | .right x, .right y =>
+    ULift (x ⟶ y)
+  | .left _, .right _ =>
+    PUnit
+  | .right _, .left _ =>
+    PEmpty
 
 /-- Identity morphisms in `C ⋆ D` are inherited from those in `C` and `D`. -/
 def id : ∀ X : C ⋆ D, Hom X X
@@ -77,22 +83,21 @@ def id : ∀ X : C ⋆ D, Hom X X
 
 /-- Composition in `C ⋆ D` is inherited from the compositions in `C` and `D`. -/
 def comp : ∀ {x y z : C ⋆ D}, Hom x y → Hom y z → Hom x z
-  | .left _x, .left _y, .left _z, f, g => ULift.up (ULift.down f ≫ ULift.down g)
-  | .left _x, .left _y, .right _z, _, _ => PUnit.unit
-  | .left _x, .right _y, .right _z, _, _ => PUnit.unit
-  | .right _x, .right _y, .right _z, f, g => ULift.up (ULift.down f ≫ ULift.down g)
+  | .left _x, .left _y, .left _z, f, g =>
+    ULift.up (ULift.down f ≫ ULift.down g)
+  | .left _x, .left _y, .right _z, _, _ =>
+    PUnit.unit
+  | .left _x, .right _y, .right _z, _, _ =>
+    PUnit.unit
+  | .right _x, .right _y, .right _z, f, g =>
+    ULift.up (ULift.down f ≫ ULift.down g)
 
 instance : Category.{max v₁ v₂} (C ⋆ D) where
   Hom X Y := Hom X Y
   id _ := id _
   comp := comp
   assoc {a b c d} f g h := by
-    cases a <;>
-    cases b <;>
-    cases c <;>
-    cases d <;>
-    simp only [Hom, comp, Category.assoc] <;>
-    tauto
+    cases a <;> cases b <;> cases c <;> cases d <;> simp only [Hom, comp, Category.assoc] <;> tauto
   id_comp {x y} f := by
     cases x <;> cases y <;> simp only [Hom, id, comp, Category.id_comp] <;> tauto
   comp_id {x y} f := by
@@ -110,19 +115,23 @@ end CategoryStructure
 
 section Inclusions
 
-/-- The canonical inclusion from C to `C ⋆ D`.
+/--
+The canonical inclusion from C to `C ⋆ D`.
 Terms of the form `(inclLeft C D).map f` should be treated as primitive when working with joins
 and one should avoid trying to reduce them. For this reason, there is no `inclLeft_map` simp
-lemma. -/
+lemma.
+-/
 @[simps! obj]
 def inclLeft : C ⥤ C ⋆ D where
   obj := left
   map := ULift.up
 
-/-- The canonical inclusion from D to `C ⋆ D`.
+/--
+The canonical inclusion from D to `C ⋆ D`.
 Terms of the form `(inclRight C D).map f` should be treated as primitive when working with joins
 and one should avoid trying to reduce them. For this reason, there is no `inclRight_map` simp
-lemma. -/
+lemma.
+-/
 @[simps! obj]
 def inclRight : D ⥤ C ⋆ D where
   obj := right
@@ -130,18 +139,24 @@ def inclRight : D ⥤ C ⋆ D where
 
 variable {C D}
 
-/-- An induction principle for morphisms in a join of categories: a morphism is either of the form
-`(inclLeft _ _).map _`, `(inclRight _ _).map _`, or is `edge _ _`. -/
+/--
+An induction principle for morphisms in a join of categories: a morphism is either of the form
+`(inclLeft _ _).map _`, `(inclRight _ _).map _`, or is `edge _ _`.
+-/
 @[elab_as_elim, cases_eliminator, induction_eliminator]
-def homInduction {P : {x y : C ⋆ D} → (x ⟶ y) → Sort*}
-    (left : ∀ x y : C, (f : x ⟶ y) → P ((inclLeft C D).map f))
+def homInduction
+    {P : {x y : C ⋆ D} → (x ⟶ y) → Sort*} (left : ∀ x y : C, (f : x ⟶ y) → P ((inclLeft C D).map f))
     (right : ∀ x y : D, (f : x ⟶ y) → P ((inclRight C D).map f))
     (edge : ∀ (c : C) (d : D), P (edge c d))
-    {x y : C ⋆ D} (f : x ⟶ y) : P f :=
+    {x y : C ⋆ D} (f : x ⟶ y)
+    : P f :=
   match x, y, f with
-  | .left x, .left y, .up f => left x y f
-  | .right x, .right y, .up f => right x y f
-  | .left x, .right y, _ => edge x y
+  | .left x, .left y, .up f =>
+    left x y f
+  | .right x, .right y, .up f =>
+    right x y f
+  | .left x, .right y, _ =>
+    edge x y
 
 @[simp]
 lemma homInduction_left {P : {x y : C ⋆ D} → (x ⟶ y) → Sort*}
@@ -195,12 +210,13 @@ variable {D} in
 `homInduction`. -/
 lemma id_right (d : D) : 𝟙 (right d) = (inclRight C D).map (𝟙 d) := rfl
 
-/-- The "canonical" natural transformation from `(Prod.fst C D) ⋙ inclLeft C D` to
+/--
+The "canonical" natural transformation from `(Prod.fst C D) ⋙ inclLeft C D` to
 `(Prod.snd C D) ⋙ inclRight C D`. This is bundling together all the edge morphisms
-into the data of a natural transformation. -/
+into the data of a natural transformation.
+-/
 @[simps!]
-def edgeTransform :
-    Prod.fst C D ⋙ inclLeft C D ⟶ Prod.snd C D ⋙ inclRight C D where
+def edgeTransform : Prod.fst C D ⋙ inclLeft C D ⟶ Prod.snd C D ⋙ inclRight C D where
   app := fun (c, d) ↦ edge c d
 
 end Inclusions
@@ -211,11 +227,12 @@ variable {C D} {E : Type u₃} [Category.{v₃} E] {E' : Type u₄} [Category.{v
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- A pair of functors `F : C ⥤ E, G : D ⥤ E` as well as a natural transformation
+/--
+A pair of functors `F : C ⥤ E, G : D ⥤ E` as well as a natural transformation
 `α : (Prod.fst C D) ⋙ F ⟶ (Prod.snd C D) ⋙ G` defines a functor out of `C ⋆ D`.
-This is the main entry point to define functors out of a join of categories. -/
-def mkFunctor (F : C ⥤ E) (G : D ⥤ E) (α : Prod.fst C D ⋙ F ⟶ Prod.snd C D ⋙ G) :
-    C ⋆ D ⥤ E where
+This is the main entry point to define functors out of a join of categories.
+-/
+def mkFunctor (F : C ⥤ E) (G : D ⥤ E) (α : Prod.fst C D ⋙ F ⟶ Prod.snd C D ⋙ G) : C ⋆ D ⥤ E where
   obj X :=
     match X with
     | .left x => F.obj x
@@ -256,12 +273,10 @@ lemma mkFunctor_map_inclLeft {c c' : C} (f : c ⟶ c') :
   rfl
 
 /-- Precomposing `mkFunctor F G α` with the left inclusion gives back `F`. -/
-@[simps!]
-def mkFunctorLeft : inclLeft C D ⋙ mkFunctor F G α ≅ F := Iso.refl _
+@[simps!] def mkFunctorLeft : inclLeft C D ⋙ mkFunctor F G α ≅ F := Iso.refl _
 
 /-- Precomposing `mkFunctor F G α` with the right inclusion gives back `G`. -/
-@[simps!]
-def mkFunctorRight : inclRight C D ⋙ mkFunctor F G α ≅ G := Iso.refl _
+@[simps!] def mkFunctorRight : inclRight C D ⋙ mkFunctor F G α ≅ G := Iso.refl _
 
 @[simp]
 lemma mkFunctor_map_inclRight {d d' : D} (f : d ⟶ d') :
@@ -284,15 +299,20 @@ lemma mkFunctor_map_edge (c : C) (d : D) :
 
 end
 
-/-- Construct a natural transformation between functors out of a join from
+/--
+Construct a natural transformation between functors out of a join from
 the data of natural transformations between each side that are compatible with the
-action on edge maps. -/
-def mkNatTrans {F : C ⋆ D ⥤ E} {F' : C ⋆ D ⥤ E}
+action on edge maps.
+-/
+def mkNatTrans
+    {F : C ⋆ D ⥤ E} {F' : C ⋆ D ⥤ E}
     (αₗ : inclLeft C D ⋙ F ⟶ inclLeft C D ⋙ F') (αᵣ : inclRight C D ⋙ F ⟶ inclRight C D ⋙ F')
-    (h : whiskerRight (edgeTransform C D) F ≫ whiskerLeft (Prod.snd C D) αᵣ =
-      whiskerLeft (Prod.fst C D) αₗ ≫ whiskerRight (edgeTransform C D) F' := by cat_disch) :
-    F ⟶ F' where
-  app x := match x with
+    (h : whiskerRight (edgeTransform C D) F ≫ whiskerLeft (Prod.snd C D) αᵣ
+        = whiskerLeft (Prod.fst C D) αₗ ≫ whiskerRight (edgeTransform C D) F' := by
+      cat_disch)
+    : F ⟶ F' where
+  app x :=
+    match x with
     | left x => αₗ.app x
     | right x => αᵣ.app x
   naturality {x y} f := by
@@ -303,10 +323,12 @@ def mkNatTrans {F : C ⋆ D ⥤ E} {F' : C ⋆ D ⥤ E}
 
 section
 
-variable {F : C ⋆ D ⥤ E} {F' : C ⋆ D ⥤ E}
-    (αₗ : inclLeft C D ⋙ F ⟶ inclLeft C D ⋙ F') (αᵣ : inclRight C D ⋙ F ⟶ inclRight C D ⋙ F')
-    (h : whiskerRight (edgeTransform C D) F ≫ whiskerLeft (Prod.snd C D) αᵣ =
-      whiskerLeft (Prod.fst C D) αₗ ≫ whiskerRight (edgeTransform C D) F' := by cat_disch)
+variable
+  {F : C ⋆ D ⥤ E} {F' : C ⋆ D ⥤ E}
+  (αₗ : inclLeft C D ⋙ F ⟶ inclLeft C D ⋙ F') (αᵣ : inclRight C D ⋙ F ⟶ inclRight C D ⋙ F')
+  (h : whiskerRight (edgeTransform C D) F ≫ whiskerLeft (Prod.snd C D) αᵣ
+      = whiskerLeft (Prod.fst C D) αₗ ≫ whiskerRight (edgeTransform C D) F' := by
+    cat_disch)
 
 set_option backward.privateInPublic true in
 @[simp]
@@ -363,19 +385,26 @@ lemma mkNatTransComp
 end
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Two functors out of a join of categories are naturally isomorphic if their
+/--
+Two functors out of a join of categories are naturally isomorphic if their
 compositions with the inclusions are isomorphic and the whiskering with the canonical
-transformation is respected through these isomorphisms. -/
+transformation is respected through these isomorphisms.
+-/
 @[simps]
-def mkNatIso {F : C ⋆ D ⥤ E} {G : C ⋆ D ⥤ E}
-    (eₗ : inclLeft C D ⋙ F ≅ inclLeft C D ⋙ G)
-    (eᵣ : inclRight C D ⋙ F ≅ inclRight C D ⋙ G)
-    (h : whiskerRight (edgeTransform C D) F ≫ (isoWhiskerLeft (Prod.snd C D) eᵣ).hom =
-      (isoWhiskerLeft (Prod.fst C D) eₗ).hom ≫ whiskerRight (edgeTransform C D) G := by cat_disch) :
-    F ≅ G where
+def mkNatIso
+    {F : C ⋆ D ⥤ E} {G : C ⋆ D ⥤ E}
+    (eₗ : inclLeft C D ⋙ F ≅ inclLeft C D ⋙ G) (eᵣ : inclRight C D ⋙ F ≅ inclRight C D ⋙ G)
+    (h : whiskerRight (edgeTransform C D) F ≫ (isoWhiskerLeft (Prod.snd C D) eᵣ).hom
+        = (isoWhiskerLeft (Prod.fst C D) eₗ).hom ≫ whiskerRight (edgeTransform C D) G := by
+      cat_disch)
+    : F ≅ G where
   hom := mkNatTrans eₗ.hom eᵣ.hom (by simpa using h)
-  inv := mkNatTrans eₗ.inv eᵣ.inv (by rw [Eq.comm, ← isoWhiskerLeft_inv, ← isoWhiskerLeft_inv,
-    Iso.inv_comp_eq, ← Category.assoc, Eq.comm, Iso.comp_inv_eq, h])
+  inv :=
+    mkNatTrans eₗ.inv eᵣ.inv (by
+      rw [
+        Eq.comm, ← isoWhiskerLeft_inv, ← isoWhiskerLeft_inv, Iso.inv_comp_eq, ← Category.assoc,
+        Eq.comm, Iso.comp_inv_eq, h
+      ])
 
 /-- A pair of functors ((C ⥤ E), (D ⥤ E')) induces a functor `C ⋆ D ⥤ E ⋆ E'`. -/
 def mapPair (Fₗ : C ⥤ E) (Fᵣ : D ⥤ E') : C ⋆ D ⥤ E ⋆ E' :=
@@ -413,35 +442,31 @@ set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- Any functor out of a join is naturally isomorphic to a functor of the form `mkFunctor F G α`. -/
 @[simps!]
-def isoMkFunctor (F : C ⋆ D ⥤ E) :
-    F ≅ mkFunctor (inclLeft C D ⋙ F) (inclRight C D ⋙ F) (whiskerRight (edgeTransform C D) F) :=
+def isoMkFunctor (F : C ⋆ D ⥤ E)
+    : F ≅ mkFunctor (inclLeft C D ⋙ F) (inclRight C D ⋙ F) (whiskerRight (edgeTransform C D) F) :=
   mkNatIso (mkFunctorLeft _ _ _).symm (mkFunctorRight _ _ _).symm
 
 /-- `mapPair` respects identities -/
 @[simps!]
 def mapPairId : mapPair (𝟭 C) (𝟭 D) ≅ 𝟭 (C ⋆ D) :=
-  mkNatIso
-    (mapPairLeft _ _ ≪≫ Functor.leftUnitor _ ≪≫ (Functor.rightUnitor _).symm)
+  mkNatIso (mapPairLeft _ _ ≪≫ Functor.leftUnitor _ ≪≫ (Functor.rightUnitor _).symm)
     (mapPairRight _ _ ≪≫ Functor.leftUnitor _ ≪≫ (Functor.rightUnitor _).symm)
 
-variable {J : Type u₅} [Category.{v₅} J]
-  {K : Type u₆} [Category.{v₆} K]
+variable {J : Type u₅} [Category.{v₅} J] {K : Type u₆} [Category.{v₆} K]
 
 -- @[simps!] times out here
 /-- `mapPair` respects composition -/
-def mapPairComp (Fₗ : C ⥤ E) (Fᵣ : D ⥤ E') (Gₗ : E ⥤ J) (Gᵣ : E' ⥤ K) :
-    mapPair (Fₗ ⋙ Gₗ) (Fᵣ ⋙ Gᵣ) ≅ mapPair Fₗ Fᵣ ⋙ mapPair Gₗ Gᵣ :=
+def mapPairComp (Fₗ : C ⥤ E) (Fᵣ : D ⥤ E') (Gₗ : E ⥤ J) (Gᵣ : E' ⥤ K)
+    : mapPair (Fₗ ⋙ Gₗ) (Fᵣ ⋙ Gᵣ) ≅ mapPair Fₗ Fᵣ ⋙ mapPair Gₗ Gᵣ :=
   mkNatIso
-    (mapPairLeft (Fₗ ⋙ Gₗ) (Fᵣ ⋙ Gᵣ) ≪≫
-      Functor.associator Fₗ Gₗ (inclLeft J K) ≪≫
-      (isoWhiskerLeft Fₗ (mapPairLeft Gₗ Gᵣ).symm) ≪≫
-      (Functor.associator Fₗ (inclLeft E E') (mapPair Gₗ Gᵣ)).symm ≪≫
-      isoWhiskerRight (mapPairLeft Fₗ Fᵣ).symm (mapPair Gₗ Gᵣ))
-    (mapPairRight (Fₗ ⋙ Gₗ) (Fᵣ ⋙ Gᵣ) ≪≫
-      Functor.associator Fᵣ Gᵣ (inclRight J K) ≪≫
-      (isoWhiskerLeft Fᵣ (mapPairRight Gₗ Gᵣ).symm) ≪≫
-      (Functor.associator Fᵣ (inclRight E E') (mapPair Gₗ Gᵣ)).symm ≪≫
-      isoWhiskerRight (mapPairRight Fₗ Fᵣ).symm (mapPair Gₗ Gᵣ))
+    (mapPairLeft (Fₗ ⋙ Gₗ) (Fᵣ ⋙ Gᵣ) ≪≫ Functor.associator Fₗ Gₗ (inclLeft J K)
+      ≪≫ (isoWhiskerLeft Fₗ (mapPairLeft Gₗ Gᵣ).symm)
+      ≪≫ (Functor.associator Fₗ (inclLeft E E') (mapPair Gₗ Gᵣ)).symm
+      ≪≫ isoWhiskerRight (mapPairLeft Fₗ Fᵣ).symm (mapPair Gₗ Gᵣ))
+    (mapPairRight (Fₗ ⋙ Gₗ) (Fᵣ ⋙ Gᵣ) ≪≫ Functor.associator Fᵣ Gᵣ (inclRight J K)
+      ≪≫ (isoWhiskerLeft Fᵣ (mapPairRight Gₗ Gᵣ).symm)
+      ≪≫ (Functor.associator Fᵣ (inclRight E E') (mapPair Gₗ Gᵣ)).symm
+      ≪≫ isoWhiskerRight (mapPairRight Fₗ Fᵣ).symm (mapPair Gₗ Gᵣ))
 
 section mapPairComp
 
@@ -483,21 +508,21 @@ end Functoriality
 
 section NaturalTransforms
 
-variable {E : Type u₃} [Category.{v₃} E]
-  {E' : Type u₄} [Category.{v₄} E']
+variable {E : Type u₃} [Category.{v₃} E] {E' : Type u₄} [Category.{v₄} E']
 
 variable {C D}
 
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- A natural transformation `Fₗ ⟶ Gₗ` induces a natural transformation
-  `mapPair Fₗ H ⟶ mapPair Gₗ H` for every `H : D ⥤ E'`. -/
+/--
+A natural transformation `Fₗ ⟶ Gₗ` induces a natural transformation
+`mapPair Fₗ H ⟶ mapPair Gₗ H` for every `H : D ⥤ E'`.
+-/
 @[simps!]
-def mapWhiskerRight {Fₗ : C ⥤ E} {Gₗ : C ⥤ E} (α : Fₗ ⟶ Gₗ) (H : D ⥤ E') :
-    mapPair Fₗ H ⟶ mapPair Gₗ H :=
-  mkNatTrans
-    ((mapPairLeft Fₗ H).hom ≫ whiskerRight α (inclLeft E E') ≫ (mapPairLeft Gₗ H).inv)
+def mapWhiskerRight {Fₗ : C ⥤ E} {Gₗ : C ⥤ E} (α : Fₗ ⟶ Gₗ) (H : D ⥤ E')
+    : mapPair Fₗ H ⟶ mapPair Gₗ H :=
+  mkNatTrans ((mapPairLeft Fₗ H).hom ≫ whiskerRight α (inclLeft E E') ≫ (mapPairLeft Gₗ H).inv)
     ((mapPairRight Fₗ H).hom ≫ whiskerRight (𝟙 H) (inclRight E E') ≫ (mapPairRight Gₗ H).inv)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -516,13 +541,14 @@ lemma mapWhiskerRight_id (Fₗ : C ⥤ E) (H : D ⥤ E') :
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- A natural transformation `Fᵣ ⟶ Gᵣ` induces a natural transformation
-  `mapPair H Fᵣ ⟶ mapPair H Gᵣ` for every `H : C ⥤ E`. -/
+/--
+A natural transformation `Fᵣ ⟶ Gᵣ` induces a natural transformation
+`mapPair H Fᵣ ⟶ mapPair H Gᵣ` for every `H : C ⥤ E`.
+-/
 @[simps!]
-def mapWhiskerLeft (H : C ⥤ E) {Fᵣ : D ⥤ E'} {Gᵣ : D ⥤ E'} (α : Fᵣ ⟶ Gᵣ) :
-    mapPair H Fᵣ ⟶ mapPair H Gᵣ :=
-  mkNatTrans
-    ((mapPairLeft H Fᵣ).hom ≫ whiskerRight (𝟙 H) (inclLeft E E') ≫ (mapPairLeft H Gᵣ).inv)
+def mapWhiskerLeft (H : C ⥤ E) {Fᵣ : D ⥤ E'} {Gᵣ : D ⥤ E'} (α : Fᵣ ⟶ Gᵣ)
+    : mapPair H Fᵣ ⟶ mapPair H Gᵣ :=
+  mkNatTrans ((mapPairLeft H Fᵣ).hom ≫ whiskerRight (𝟙 H) (inclLeft E E') ≫ (mapPairLeft H Gᵣ).inv)
     ((mapPairRight H Fᵣ).hom ≫ whiskerRight α (inclRight E E') ≫ (mapPairRight H Gᵣ).inv)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -559,11 +585,13 @@ lemma mapWhisker_exchange (Fₗ : C ⥤ E) (Gₗ : C ⥤ E) (Fᵣ : D ⥤ E') (G
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- A natural isomorphism `Fᵣ ≅ Gᵣ` induces a natural isomorphism
-  `mapPair H Fᵣ ≅ mapPair H Gᵣ` for every `H : C ⥤ E`. -/
+/--
+A natural isomorphism `Fᵣ ≅ Gᵣ` induces a natural isomorphism
+`mapPair H Fᵣ ≅ mapPair H Gᵣ` for every `H : C ⥤ E`.
+-/
 @[simps!]
-def mapIsoWhiskerLeft (H : C ⥤ E) {Fᵣ : D ⥤ E'} {Gᵣ : D ⥤ E'} (α : Fᵣ ≅ Gᵣ) :
-    mapPair H Fᵣ ≅ mapPair H Gᵣ :=
+def mapIsoWhiskerLeft (H : C ⥤ E) {Fᵣ : D ⥤ E'} {Gᵣ : D ⥤ E'} (α : Fᵣ ≅ Gᵣ)
+    : mapPair H Fᵣ ≅ mapPair H Gᵣ :=
   mkNatIso
     (mapPairLeft H Fᵣ ≪≫ isoWhiskerRight (Iso.refl H) (inclLeft _ _) ≪≫ (mapPairLeft H Gᵣ).symm)
     (mapPairRight H Fᵣ ≪≫ isoWhiskerRight α (inclRight E E') ≪≫ (mapPairRight H Gᵣ).symm)
@@ -571,13 +599,14 @@ def mapIsoWhiskerLeft (H : C ⥤ E) {Fᵣ : D ⥤ E'} {Gᵣ : D ⥤ E'} (α : F�
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- A natural isomorphism `Fᵣ ≅ Gᵣ` induces a natural isomorphism
-  `mapPair Fₗ H ≅ mapPair Gₗ H` for every `H : C ⥤ E`. -/
+/--
+A natural isomorphism `Fᵣ ≅ Gᵣ` induces a natural isomorphism
+`mapPair Fₗ H ≅ mapPair Gₗ H` for every `H : C ⥤ E`.
+-/
 @[simps!]
-def mapIsoWhiskerRight {Fₗ : C ⥤ E} {Gₗ : C ⥤ E} (α : Fₗ ≅ Gₗ) (H : D ⥤ E') :
-    mapPair Fₗ H ≅ mapPair Gₗ H :=
-  mkNatIso
-    (mapPairLeft Fₗ H ≪≫ isoWhiskerRight α (inclLeft E E') ≪≫ (mapPairLeft Gₗ H).symm)
+def mapIsoWhiskerRight {Fₗ : C ⥤ E} {Gₗ : C ⥤ E} (α : Fₗ ≅ Gₗ) (H : D ⥤ E')
+    : mapPair Fₗ H ≅ mapPair Gₗ H :=
+  mkNatIso (mapPairLeft Fₗ H ≪≫ isoWhiskerRight α (inclLeft E E') ≪≫ (mapPairLeft Gₗ H).symm)
     (mapPairRight Fₗ H ≪≫ isoWhiskerRight (Iso.refl H) (inclRight E E') ≪≫ (mapPairRight Gₗ H).symm)
 
 lemma mapIsoWhiskerRight_hom {Fₗ : C ⥤ E} {Gₗ : C ⥤ E} (α : Fₗ ≅ Gₗ) (H : D ⥤ E') :
@@ -620,8 +649,7 @@ end NaturalTransforms
 
 section mapPairEquiv
 
-variable {C' : Type u₃} [Category.{v₃} C']
-  {D' : Type u₄} [Category.{v₄} D']
+variable {C' : Type u₃} [Category.{v₃} C'] {D' : Type u₄} [Category.{v₄} D']
 
 variable {C D}
 
@@ -633,21 +661,16 @@ def mapPairEquiv (e : C ≌ C') (e' : D ≌ D') : C ⋆ D ≌ C' ⋆ D' where
   functor := mapPair e.functor e'.functor
   inverse := mapPair e.inverse e'.inverse
   unitIso :=
-    mapPairId.symm ≪≫
-      mapIsoWhiskerRight e.unitIso _ ≪≫
-      mapIsoWhiskerLeft _ e'.unitIso ≪≫
-      mapPairComp _ _ _ _
+    mapPairId.symm ≪≫ mapIsoWhiskerRight e.unitIso _ ≪≫ mapIsoWhiskerLeft _ e'.unitIso
+      ≪≫ mapPairComp _ _ _ _
   counitIso :=
-    (mapPairComp _ _ _ _).symm ≪≫
-      mapIsoWhiskerRight e.counitIso _ ≪≫
-      mapIsoWhiskerLeft _ e'.counitIso ≪≫
-      mapPairId
+    (mapPairComp _ _ _ _).symm ≪≫ mapIsoWhiskerRight e.counitIso _
+      ≪≫ mapIsoWhiskerLeft _ e'.counitIso ≪≫ mapPairId
   functor_unitIso_comp x := by
-    cases x <;>
-    simp [← (inclLeft C' D').map_comp, ← (inclRight C' D').map_comp]
+    cases x <;> simp [← (inclLeft C' D').map_comp, ← (inclRight C' D').map_comp]
 
-instance isEquivalenceMapPair {F : C ⥤ C'} {F' : D ⥤ D'} [F.IsEquivalence] [F'.IsEquivalence] :
-    (mapPair F F').IsEquivalence :=
+instance isEquivalenceMapPair {F : C ⥤ C'} {F' : D ⥤ D'} [F.IsEquivalence] [F'.IsEquivalence]
+    : (mapPair F F').IsEquivalence :=
   inferInstanceAs (mapPairEquiv F.asEquivalence F'.asEquivalence).functor.IsEquivalence
 
 end mapPairEquiv

@@ -42,15 +42,14 @@ open Finset Nat
 
 open scoped ArithmeticFunction
 
-/-- `log` as an arithmetic function `ℕ → ℝ`. Note this is in the `ArithmeticFunction`
+/--
+`log` as an arithmetic function `ℕ → ℝ`. Note this is in the `ArithmeticFunction`
 namespace to indicate that it is bundled as an `ArithmeticFunction` rather than being the usual
-real logarithm. -/
-noncomputable def log : ArithmeticFunction ℝ :=
-  ⟨fun n => Real.log n, by simp⟩
+real logarithm.
+-/
+noncomputable def log : ArithmeticFunction ℝ := ⟨fun n => Real.log n, by simp⟩
 
-@[simp]
-theorem log_apply {n : ℕ} : log n = Real.log n :=
-  rfl
+@[simp] theorem log_apply {n : ℕ} : log n = Real.log n := rfl
 
 /--
 The `vonMangoldt` function is the function on natural numbers that returns `log p` if the input can
@@ -70,11 +69,9 @@ noncomputable def vonMangoldt : ArithmeticFunction ℝ :=
 @[inherit_doc] scoped[ArithmeticFunction.vonMangoldt] notation "Λ" =>
   ArithmeticFunction.vonMangoldt
 
-theorem vonMangoldt_apply {n : ℕ} : Λ n = if IsPrimePow n then Real.log (minFac n) else 0 :=
-  rfl
+theorem vonMangoldt_apply {n : ℕ} : Λ n = if IsPrimePow n then Real.log (minFac n) else 0 := rfl
 
-@[simp]
-theorem vonMangoldt_apply_one : Λ 1 = 0 := by simp [vonMangoldt_apply]
+@[simp] theorem vonMangoldt_apply_one : Λ 1 = 0 := by simp [vonMangoldt_apply]
 
 @[simp]
 theorem vonMangoldt_nonneg {n : ℕ} : 0 ≤ Λ n := by
@@ -90,27 +87,32 @@ theorem vonMangoldt_apply_prime {p : ℕ} (hp : p.Prime) : Λ p = Real.log p := 
   rw [vonMangoldt_apply, Prime.minFac_eq hp, ite_eq_left hp.prime.isPrimePow]
 
 theorem vonMangoldt_ne_zero_iff {n : ℕ} : Λ n ≠ 0 ↔ IsPrimePow n := by
-  rcases eq_or_ne n 1 with (rfl | hn); · simp [not_isPrimePow_one]
+  rcases eq_or_ne n 1 with (rfl | hn)
+  · simp [not_isPrimePow_one]
   exact (Real.log_pos (one_lt_cast.2 (minFac_prime hn).one_lt)).ne'.ite_ne_right_iff
 
 theorem vonMangoldt_pos_iff {n : ℕ} : 0 < Λ n ↔ IsPrimePow n :=
   vonMangoldt_nonneg.lt_iff_ne.trans (ne_comm.trans vonMangoldt_ne_zero_iff)
 
-theorem vonMangoldt_eq_zero_iff {n : ℕ} : Λ n = 0 ↔ ¬IsPrimePow n :=
+theorem vonMangoldt_eq_zero_iff {n : ℕ} : Λ n = 0 ↔ ¬ IsPrimePow n :=
   vonMangoldt_ne_zero_iff.not_right
 
 theorem vonMangoldt_sum {n : ℕ} : ∑ i ∈ n.divisors, Λ i = Real.log n := by
   refine recOnPrimeCoprime ?_ ?_ ?_ n
   · simp
   · intro p k hp
-    rw [sum_divisors_prime_pow hp, cast_pow, Real.log_pow, Finset.sum_range_succ', Nat.pow_zero,
-      vonMangoldt_apply_one]
+    rw [
+      sum_divisors_prime_pow hp, cast_pow, Real.log_pow, Finset.sum_range_succ', Nat.pow_zero,
+      vonMangoldt_apply_one
+    ]
     simp [vonMangoldt_apply_pow (Nat.succ_ne_zero _), vonMangoldt_apply_prime hp]
   intro a b ha' hb' hab ha hb
   simp only [vonMangoldt_apply, ← sum_filter] at ha hb ⊢
-  rw [mul_divisors_filter_prime_pow hab, filter_union,
+  rw [
+    mul_divisors_filter_prime_pow hab, filter_union,
     sum_union (disjoint_divisors_filter_isPrimePow hab), ha, hb, Nat.cast_mul,
-    Real.log_mul (cast_ne_zero.2 (pos_of_gt ha').ne') (cast_ne_zero.2 (pos_of_gt hb').ne')]
+    Real.log_mul (cast_ne_zero.2 (pos_of_gt ha').ne') (cast_ne_zero.2 (pos_of_gt hb').ne')
+  ]
 
 -- access notation `ζ` and `μ`
 open scoped zeta Moebius
@@ -130,12 +132,14 @@ theorem log_mul_moebius_eq_vonMangoldt : log * μ = Λ := by
 theorem moebius_mul_log_eq_vonMangoldt : (μ : ArithmeticFunction ℝ) * log = Λ := by
   rw [mul_comm]; simp
 
-theorem sum_moebius_mul_log_eq {n : ℕ} : (∑ d ∈ n.divisors, (μ d : ℝ) * log d) = -Λ n := by
-  simp only [← log_mul_moebius_eq_vonMangoldt, mul_comm log, mul_apply, log_apply, intCoe_apply, ←
-    Finset.sum_neg_distrib, neg_mul_eq_mul_neg]
-  rw [sum_divisorsAntidiagonal fun i j => (μ i : ℝ) * -Real.log j]
-  have : (∑ i ∈ n.divisors, (μ i : ℝ) * -Real.log (n / i : ℕ)) =
-      ∑ i ∈ n.divisors, ((μ i : ℝ) * Real.log i - μ i * Real.log n) := by
+theorem sum_moebius_mul_log_eq {n : ℕ} : (∑ d ∈ n.divisors, (μ d : ℝ) * log d) = - Λ n := by
+  simp only [
+    ← log_mul_moebius_eq_vonMangoldt, mul_comm log, mul_apply, log_apply, intCoe_apply,
+    ← Finset.sum_neg_distrib, neg_mul_eq_mul_neg
+  ]
+  rw [sum_divisorsAntidiagonal fun i j => (μ i : ℝ) * - Real.log j]
+  have : (∑ i ∈ n.divisors, (μ i : ℝ) * -Real.log (n / i : ℕ))
+      = ∑ i ∈ n.divisors, ((μ i : ℝ) * Real.log i - μ i * Real.log n) := by
     apply sum_congr rfl
     simp only [and_imp, Ne, mem_divisors]
     intro m mn hn
@@ -144,12 +148,15 @@ theorem sum_moebius_mul_log_eq {n : ℕ} : (∑ d ∈ n.divisors, (μ d : ℝ) *
       rintro rfl
       exact hn (by simpa using mn)
     rw [Nat.cast_div mn this, Real.log_div (cast_ne_zero.2 hn) this, neg_sub, mul_sub]
-  rw [this, sum_sub_distrib, ← sum_mul, ← Int.cast_sum, ← coe_mul_zeta_apply, eq_comm, sub_eq_self,
-    moebius_mul_coe_zeta]
+  rw [
+    this, sum_sub_distrib, ← sum_mul, ← Int.cast_sum, ← coe_mul_zeta_apply, eq_comm, sub_eq_self,
+    moebius_mul_coe_zeta
+  ]
   rcases eq_or_ne n 1 with (hn | hn) <;> simp [hn]
 
 theorem vonMangoldt_le_log : ∀ {n : ℕ}, Λ n ≤ Real.log (n : ℝ)
-  | 0 => by simp
+  | 0 => by
+    simp
   | n + 1 => by
     rw [← vonMangoldt_sum]
     exact single_le_sum (by exact fun _ _ => vonMangoldt_nonneg)
@@ -163,12 +170,17 @@ open Lean Meta Qq
 
 /-- Extension for the `positivity` tactic: the von Mangoldt function is nonnegative. -/
 @[positivity ArithmeticFunction.vonMangoldt _]
-meta def evalVonMangoldt : PositivityExt where eval {u α} _zα pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@ArithmeticFunction.vonMangoldt $a) =>
-    assertInstancesCommute
-    pure (.nonnegative q(ArithmeticFunction.vonMangoldt_nonneg))
-  | _, _, _ => throwError "not von Mangoldt"
+meta def evalVonMangoldt : PositivityExt where
+  eval {u α} _zα pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@ArithmeticFunction.vonMangoldt $a) =>
+        assertInstancesCommute
+        pure (.nonnegative q(ArithmeticFunction.vonMangoldt_nonneg))
+      | _, _, _ =>
+        throwError "not von Mangoldt"
 
 end Mathlib.Meta.Positivity

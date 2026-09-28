@@ -30,15 +30,18 @@ open scoped MonoidAlgebra
 
 noncomputable section
 
-variable {k : Type u} {G : Type v} {V : Type u'} {W : Type v'} [Monoid G] [Semiring k]
-  [AddCommGroup V] [Module k V] [AddCommGroup W] [Module k W]
+variable
+  {k : Type u} {G : Type v} {V : Type u'} {W : Type v'}
+  [Monoid G] [Semiring k] [AddCommGroup V] [Module k V] [AddCommGroup W] [Module k W]
   {σ : Representation k G V} {ρ : Representation k G W} {X Y Z : Action (Type w) G}
 
 open CategoryTheory
 
 variable (k G X) in
-/-- Every Set `X` that has a `G`-action on it can be made into a `G`-rep by using `X →₀ k` as
-  the base module and `G`-action on it is induced by the `G`-action on `X`. -/
+/--
+Every Set `X` that has a `G`-action on it can be made into a `G`-rep by using `X →₀ k` as
+the base module and `G`-action on it is induced by the `G`-action on `X`.
+-/
 @[simps]
 def linearize : Representation k G k[X.V] where
   toFun g := MonoidAlgebra.mapDomainLinearMap k k (X.ρ g)
@@ -49,8 +52,10 @@ lemma linearize_single (g : G) (x : X.V) :
     linearize k G X g (.single x 1) = .single (X.ρ g x) 1 := by
   simp
 
-/-- Every morphism between `G`-sets could be made into an intertwining map between
-  `Representation`s by the linear map induced on the indexing sets. -/
+/--
+Every morphism between `G`-sets could be made into an intertwining map between
+`Representation`s by the linear map induced on the indexing sets.
+-/
 @[simps toLinearMap]
 def linearizeMap (f : X ⟶ Y) : IntertwiningMap (A := k) (linearize k G X) (linearize k G Y) where
   toLinearMap := MonoidAlgebra.mapDomainLinearMap k k f.hom
@@ -69,8 +74,10 @@ attribute [local simp] types_tensorObj_def types_tensorUnit_def
 
 -- These two unification hints are to help lean understand the underlying types of these actions
 -- which it fails without them because `types` abuses defeq.
-unif_hint (X Y : Action (Type w) G) where ⊢ (X ⊗ Y).V ≟ X.V × Y.V
-unif_hint where ⊢ (𝟙_ (Action (Type w) G)).V ≟ PUnit
+unif_hint (X Y : Action (Type w) G) where
+  ⊢ (X ⊗ Y).V ≟ X.V × Y.V
+unif_hint where
+  ⊢ (𝟙_ (Action (Type w) G)).V ≟ PUnit
 
 lemma _root_.Action.tensor_ρ_apply (g : G) (xy : (X ⊗ Y).V) :
     (X ⊗ Y).ρ g xy = (X.ρ g xy.1, Y.ρ g xy.2) := rfl
@@ -79,8 +86,9 @@ variable (k G) in
 -- I could use `Action.trivial G (PUnit)` but that's not reducibly equal to the tensor unit
 /-- The counit of the linearize functor. -/
 @[simps toLinearMap]
-def ε : (trivial k G k).IntertwiningMap (linearize k G (MonoidalCategoryStruct.tensorUnit
-    (Action (Type w) G))) where
+def ε
+    : (trivial k G k).IntertwiningMap
+      (linearize k G (MonoidalCategoryStruct.tensorUnit (Action (Type w) G))) where
   __ := MonoidAlgebra.uniqueLinearEquiv k PUnit |>.symm.toLinearMap
   isIntertwining' g := by ext1; simp [linearize_single _]
 
@@ -109,8 +117,9 @@ section comm
 
 open scoped MonoidalCategory
 
-variable {k : Type u} [CommSemiring k] [Module k V] [Module k W] {σ : Representation k G V}
-  {ρ : Representation k G W}
+variable
+  {k : Type u} [CommSemiring k] [Module k V] [Module k W]
+  {σ : Representation k G V} {ρ : Representation k G W}
 
 variable (X Y) in
 /-- The tensor (multiplication) of the linearize functor. -/
@@ -169,8 +178,7 @@ lemma μ_rightUnitor : (rid k (linearize k G X)).toIntertwiningMap =
 
 variable (X Y) in
 /-- The comultiplication of the linearize functor. -/
-def δ : (linearize k G (X ⊗ Y)).IntertwiningMap
-    ((linearize k G X).tprod (linearize k G Y)) where
+def δ : (linearize k G (X ⊗ Y)).IntertwiningMap ((linearize k G X).tprod (linearize k G Y)) where
   toLinearMap := (MonoidAlgebra.tensorEquiv k).symm.toLinearMap
   isIntertwining' g := by
     ext; simp [linearize_single _, MonoidAlgebra.tensorEquiv_symm_single_eq_single_one_tmul]; rfl
@@ -207,7 +215,8 @@ lemma leftUnitor_δ (X : Action (Type u) G) : (lid k (linearize k G X)).symm.toI
   -- TODO : try not to `simp` with `δ` and `linearizeMap` directly here
   simp [linearizeMap, δ, MonoidAlgebra.tensorEquiv_symm_single_eq_single_one_tmul]
 
-unif_hint (X : Action (Type u) G) where ⊢ (X ⊗ 𝟙_ (Action (Type u) G)).V ≟ X.V × PUnit in
+unif_hint (X : Action (Type u) G) where
+  ⊢ (X ⊗ 𝟙_ (Action (Type u) G)).V ≟ X.V × PUnit in
 lemma rightUnitor_δ (X : Action (Type u) G) : (rid k (linearize k G X)).symm.toIntertwiningMap =
     (((η k G).lTensor (linearize k G X)).comp (δ X (𝟙_ (Action (Type u) G)))).comp
       (linearizeMap (ρ_ X).inv) := by
@@ -234,8 +243,10 @@ lemma linearizeTrivial_def (X : Type w) (g : G) :
   rfl
 
 variable (k G) in
-/-- This a type-changing equivalence (which requires a non-trivial proof that
-  `LinearEquiv.refl _ _` is `G`-equivariant) to avoid abusing defeq. -/
+/--
+This a type-changing equivalence (which requires a non-trivial proof that
+`LinearEquiv.refl _ _` is `G`-equivariant) to avoid abusing defeq.
+-/
 def linearizeTrivialIso (X : Type w) : (linearize k G (.trivial _ X)).Equiv (trivial k G k[X]) :=
   .mk (.refl ..) fun g ↦ by erw [linearizeTrivial_def, LinearMap.comp_id]
 
@@ -248,14 +259,15 @@ lemma linearizeTrivialIso_symm_apply {X : Type w} (f : k[X]) :
 
 variable (k G) in
 /-- This a type-changing equivalence to avoid abusing defeq. -/
-def linearizeOfMulActionIso (H : Type w) [MulAction G H] :
-    (linearize k G (Action.ofMulAction G H)).Equiv (ofMulAction k G H) :=
+def linearizeOfMulActionIso (H : Type w) [MulAction G H]
+    : (linearize k G (Action.ofMulAction G H)).Equiv (ofMulAction k G H) :=
   .mk (.refl ..) fun _ ↦ rfl
 
 variable (k G) in
 /-- This a type-changing equivalence to avoid abusing defeq. -/
-abbrev linearizeDiagonalEquiv (n : ℕ) : (linearize k G (Action.diagonal G n)).Equiv
-    (diagonal k G n) := linearizeOfMulActionIso k G (Fin n → G)
+abbrev linearizeDiagonalEquiv (n : ℕ)
+    : (linearize k G (Action.diagonal G n)).Equiv (diagonal k G n) :=
+  linearizeOfMulActionIso k G (Fin n → G)
 
 end
 

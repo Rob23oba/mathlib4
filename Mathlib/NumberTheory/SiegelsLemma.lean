@@ -34,7 +34,7 @@ See [M. Hindry and J. Silverman, Diophantine Geometry: an Introduction][hindrysi
 
 public section
 
-/- We set ‖⬝‖ to be Matrix.seminormedAddCommGroup  -/
+/- We set ‖⬝‖ to be Matrix.seminormedAddCommGroup -/
 attribute [local instance] Matrix.seminormedAddCommGroup
 
 open Matrix Finset
@@ -60,7 +60,8 @@ local notation3 "S" => Finset.Icc N P
 
 section preparation
 
-/- In order to apply Pigeonhole we need:
+/-
+In order to apply Pigeonhole we need:
 # Step 1: ∀ v ∈  T, A *ᵥ v ∈  S
 and
 # Step 2: #S < #T
@@ -153,12 +154,12 @@ private lemma card_S_lt_card_T [DecidableEq α] [DecidableEq β]
 end preparation
 
 theorem exists_ne_zero_int_vec_norm_le
-    (hn : Fintype.card α < Fintype.card β) (hm : 0 < Fintype.card α) : ∃ t : β → ℤ, t ≠ 0 ∧
-    A *ᵥ t = 0 ∧ ‖t‖ ≤ (n * max 1 ‖A‖) ^ ((m : ℝ) / (n - m)) := by
+    (hn : Fintype.card α < Fintype.card β) (hm : 0 < Fintype.card α)
+    : ∃ t : β → ℤ, t ≠ 0 ∧ A *ᵥ t = 0 ∧ ‖t‖ ≤ (n * max 1 ‖A‖) ^ ((m : ℝ) / (n - m)) := by
   classical
   -- Pigeonhole
-  rcases exists_ne_map_eq_of_card_lt_of_maps_to (card_S_lt_card_T A hn hm) (image_T_subset_S A)
-    with ⟨x, hxT, y, hyT, hneq, hfeq⟩
+  rcases exists_ne_map_eq_of_card_lt_of_maps_to (card_S_lt_card_T A hn hm) (image_T_subset_S A) with
+    ⟨x, hxT, y, hyT, hneq, hfeq⟩
   -- Proofs that x - y ≠ 0 and x - y is a solution
   refine ⟨x - y, sub_ne_zero.mpr hneq, by simp [mulVec_sub, hfeq], ?_⟩
   -- Inequality
@@ -175,10 +176,8 @@ theorem exists_ne_zero_int_vec_norm_le
     _ ≤ _ := by simpa only [Int.cast_natCast] using Nat.floor_le n_mul_norm_A_pow_e_nonneg
 
 theorem exists_ne_zero_int_vec_norm_le'
-    (hn : Fintype.card α < Fintype.card β) (hm : 0 < Fintype.card α) (hA : A ≠ 0) :
-    ∃ t : β → ℤ, t ≠ 0 ∧
-    A *ᵥ t = 0 ∧ ‖t‖ ≤ (n * ‖A‖) ^ ((m : ℝ) / (n - m)) := by
-  simpa [max_eq_right (one_le_norm_A_of_ne_zero A hA)] using
-    exists_ne_zero_int_vec_norm_le A hn hm
+    (hn : Fintype.card α < Fintype.card β) (hm : 0 < Fintype.card α) (hA : A ≠ 0)
+    : ∃ t : β → ℤ, t ≠ 0 ∧ A *ᵥ t = 0 ∧ ‖t‖ ≤ (n * ‖A‖) ^ ((m : ℝ) / (n - m)) := by
+  simpa [max_eq_right (one_le_norm_A_of_ne_zero A hA)] using exists_ne_zero_int_vec_norm_le A hn hm
 
 end Int.Matrix

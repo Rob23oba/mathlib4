@@ -127,17 +127,21 @@ lemma Filter.Tendsto.op_one_isBoundedUnder_le' {f : α → E} {g : α → F} {l 
     _ = A * C * δ := mul_right_comm _ _ _
     _ < ε := hδ
 
-/-- A helper lemma used to prove that the (scalar or usual) product of a function that tends to one
+/--
+A helper lemma used to prove that the (scalar or usual) product of a function that tends to one
 and a bounded function tends to one. This lemma is formulated for any binary operation
 `op : E → F → G` with an estimate `‖op x y‖ ≤ ‖x‖ * ‖y‖` instead of multiplication so that it
-can be applied to `(*)`, `flip (*)`, `(•)`, and `flip (•)`. -/
+can be applied to `(*)`, `flip (*)`, `(•)`, and `flip (•)`.
+-/
 @[to_additive /-- A helper lemma used to prove that the (scalar or usual) product of a function that
 tends to zero and a bounded function tends to zero. This lemma is formulated for any binary
 operation `op : E → F → G` with an estimate `‖op x y‖ ≤ ‖x‖ * ‖y‖` instead of multiplication so
 that it can be applied to `(*)`, `flip (*)`, `(•)`, and `flip (•)`. -/]
-theorem Filter.Tendsto.op_one_isBoundedUnder_le {f : α → E} {g : α → F} {l : Filter α}
-    (hf : Tendsto f l (𝓝 1)) (hg : IsBoundedUnder (· ≤ ·) l (Norm.norm ∘ g)) (op : E → F → G)
-    (h_op : ∀ x y, ‖op x y‖ ≤ ‖x‖ * ‖y‖) : Tendsto (fun x => op (f x) (g x)) l (𝓝 1) :=
+theorem Filter.Tendsto.op_one_isBoundedUnder_le
+    {f : α → E} {g : α → F} {l : Filter α}
+    (hf : Tendsto f l (𝓝 1)) (hg : IsBoundedUnder (· ≤ ·) l (Norm.norm ∘ g))
+    (op : E → F → G) (h_op : ∀ x y, ‖op x y‖ ≤ ‖x‖ * ‖y‖)
+    : Tendsto (fun x => op (f x) (g x)) l (𝓝 1) :=
   hf.op_one_isBoundedUnder_le' hg op ⟨1, fun x y => (one_mul ‖x‖).symm ▸ h_op x y⟩
 
 @[to_additive tendsto_norm_comp_cofinite_atTop_of_isClosedEmbedding]

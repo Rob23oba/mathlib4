@@ -44,8 +44,10 @@ theorem Smooth.locally_isStandardSmooth (hf : f.Smooth) : Locally IsStandardSmoo
 /-- A ring homomorphism is smooth if and only if it is locally standard smooth. -/
 theorem smooth_iff_locally_isStandardSmooth : Smooth f ↔ Locally IsStandardSmooth f := by
   refine ⟨fun hf ↦ hf.locally_isStandardSmooth, fun hf ↦ ?_⟩
-  rw [← locally_iff_of_localizationSpanTarget Smooth.propertyIsLocal.respectsIso
-    Smooth.ofLocalizationSpanTarget]
+  rw [
+    ← locally_iff_of_localizationSpanTarget Smooth.propertyIsLocal.respectsIso
+      Smooth.ofLocalizationSpanTarget
+  ]
   exact locally_of_locally (fun hf ↦ hf.smooth) hf
 
 /-- A ring homomorphism is étale if and only if it is standard smooth of relative dimension `0`. -/

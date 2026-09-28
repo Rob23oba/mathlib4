@@ -44,25 +44,25 @@ Lemmas relating to natural numbers and integers are in `Mathlib.RingTheory.Radic
 
 namespace UniqueFactorizationMonoid
 
-variable {M : Type*} [CommMonoidWithZero M] [NormalizationMonoid M]
-  [UniqueFactorizationMonoid M] {a b u : M}
+variable
+  {M : Type*} [CommMonoidWithZero M] [NormalizationMonoid M] [UniqueFactorizationMonoid M]
+  {a b u : M}
 
 open scoped Classical in
 /-- The finite set of prime factors of an element in a unique factorization monoid. -/
-def primeFactors (a : M) : Finset M :=
-  (normalizedFactors a).toFinset
+def primeFactors (a : M) : Finset M := (normalizedFactors a).toFinset
 
 @[simp]
-theorem toFinset_normalizedFactors [DecidableEq M] :
-    (normalizedFactors a).toFinset = primeFactors a := by
+theorem toFinset_normalizedFactors [DecidableEq M]
+    : (normalizedFactors a).toFinset = primeFactors a := by
   unfold primeFactors
   convert rfl
 
 lemma mem_primeFactors : a ∈ primeFactors b ↔ a ∈ normalizedFactors b := by
   simp only [primeFactors, Multiset.mem_toFinset]
 
-theorem _root_.Associated.primeFactors_eq {a b : M} (h : Associated a b) :
-    primeFactors a = primeFactors b := by
+theorem _root_.Associated.primeFactors_eq {a b : M} (h : Associated a b)
+    : primeFactors a = primeFactors b := by
   unfold primeFactors
   rw [h.normalizedFactors_eq]
 
@@ -116,20 +116,20 @@ lemma primeFactors_val_eq_normalizedFactors (ha : IsRadical a) :
   exact normalizedFactors_nodup ha
 
 -- Note that the non-zero assumptions are necessary here.
-theorem primeFactors_mul_eq_union [DecidableEq M] (ha : a ≠ 0) (hb : b ≠ 0) :
-    primeFactors (a * b) = primeFactors a ∪ primeFactors b := by
+theorem primeFactors_mul_eq_union [DecidableEq M] (ha : a ≠ 0) (hb : b ≠ 0)
+    : primeFactors (a * b) = primeFactors a ∪ primeFactors b := by
   ext p
   simp [mem_normalizedFactors_iff', mem_primeFactors, ha, hb]
 
 /-- Relatively prime elements have disjoint prime factors (as finsets). -/
-theorem disjoint_primeFactors (hc : IsRelPrime a b) :
-    Disjoint (primeFactors a) (primeFactors b) := by
+theorem disjoint_primeFactors (hc : IsRelPrime a b)
+    : Disjoint (primeFactors a) (primeFactors b) := by
   classical
   exact Multiset.disjoint_toFinset.mpr (disjoint_normalizedFactors hc)
 
-theorem primeFactors_mul_eq_disjUnion (hc : IsRelPrime a b) :
-    primeFactors (a * b) =
-      (primeFactors a).disjUnion (primeFactors b) (disjoint_primeFactors hc) := by
+theorem primeFactors_mul_eq_disjUnion (hc : IsRelPrime a b)
+    : primeFactors (a * b)
+      = (primeFactors a).disjUnion (primeFactors b) (disjoint_primeFactors hc) := by
   obtain rfl | ha := eq_or_ne a 0
   · rw [isRelPrime_zero_left] at hc
     simp only [zero_mul, primeFactors_zero, Finset.empty_disjUnion, primeFactors_of_isUnit hc]
@@ -139,10 +139,11 @@ theorem primeFactors_mul_eq_disjUnion (hc : IsRelPrime a b) :
   classical
   rw [Finset.disjUnion_eq_union, primeFactors_mul_eq_union ha hb]
 
-/-- The radical of an element `a` in a unique factorization monoid is the product of
-the prime factors of `a`. -/
-def radical (a : M) : M :=
-  (primeFactors a).prod id
+/--
+The radical of an element `a` in a unique factorization monoid is the product of
+the prime factors of `a`.
+-/
+def radical (a : M) : M := (primeFactors a).prod id
 
 @[simp] theorem radical_zero : radical (0 : M) = 1 := by simp [radical]
 @[simp] theorem radical_one : radical (1 : M) = 1 := by simp [radical]
@@ -190,12 +191,13 @@ theorem radical_of_prime (ha : Prime a) : radical a = normalize a := by
   rw [normalizedFactors_irreducible ha.irreducible]
   simp only [Multiset.toFinset_singleton, id, Finset.prod_singleton]
 
-theorem radical_pow_of_prime (ha : Prime a) {n : ℕ} (hn : n ≠ 0) :
-    radical (a ^ n) = normalize a := by
+theorem radical_pow_of_prime (ha : Prime a) {n : ℕ} (hn : n ≠ 0)
+    : radical (a ^ n) = normalize a := by
   rw [radical_pow a hn]
   exact radical_of_prime ha
 
-@[simp] theorem radical_ne_zero [Nontrivial M] : radical a ≠ 0 := by
+@[simp]
+theorem radical_ne_zero [Nontrivial M] : radical a ≠ 0 := by
   rw [radical, ← Finset.prod_val]
   apply Multiset.prod_ne_zero
   rw [primeFactors]
@@ -293,10 +295,11 @@ lemma dvd_radical_iff (ha : IsRadical a) (hb₀ : b ≠ 0) : a ∣ radical b ↔
   · simp_all
   · exact (ha.dvd_radical ha₀).trans (radical_dvd_radical hab hb₀)
 
-theorem radical_dvd_iff_primeFactors_subset (hb : b ≠ 0) :
-    radical a ∣ b ↔ primeFactors a ⊆ primeFactors b := by
-  rw [← dvd_radical_iff isRadical_radical hb,
-    radical_dvd_radical_iff_primeFactors_subset_primeFactors]
+theorem radical_dvd_iff_primeFactors_subset (hb : b ≠ 0)
+    : radical a ∣ b ↔ primeFactors a ⊆ primeFactors b := by
+  rw [
+    ← dvd_radical_iff isRadical_radical hb, radical_dvd_radical_iff_primeFactors_subset_primeFactors
+  ]
 
 theorem exists_dvd_pow_iff_radical_dvd (ha : a ≠ 0) : (∃ n, a ∣ b ^ n) ↔ radical a ∣ b := by
   rcases eq_or_ne b 0 with (rfl | hb)
@@ -306,25 +309,27 @@ theorem exists_dvd_pow_iff_radical_dvd (ha : a ≠ 0) : (∃ n, a ∣ b ^ n) ↔
     · simp [radical_of_isUnit <| isUnit_of_dvd_one <| pow_zero b ▸ hdvd]
     grw [radical_dvd_radical hdvd <| pow_ne_zero _ hb, radical_pow b hn, radical_dvd_self]
   · classical
-    rwa [dvd_iff_normalizedFactors_le_normalizedFactors ha <| pow_ne_zero _ hb,
-      normalizedFactors_pow, Multiset.le_card_smul_iff_subset, ← Multiset.toFinset_subset,
-      toFinset_normalizedFactors, toFinset_normalizedFactors,
-      ← radical_dvd_iff_primeFactors_subset hb]
+    rwa [
+      dvd_iff_normalizedFactors_le_normalizedFactors ha <| pow_ne_zero _ hb, normalizedFactors_pow,
+      Multiset.le_card_smul_iff_subset, ← Multiset.toFinset_subset, toFinset_normalizedFactors,
+      toFinset_normalizedFactors, ← radical_dvd_iff_primeFactors_subset hb
+    ]
 
 theorem exists_dvd_radical_self_pow (ha : a ≠ 0) : ∃ n, a ∣ radical a ^ n := by
   rw [exists_dvd_pow_iff_radical_dvd ha]
 
 /-- Radical is multiplicative for relatively prime elements. -/
-theorem radical_mul (hc : IsRelPrime a b) :
-    radical (a * b) = radical a * radical b := by
+theorem radical_mul (hc : IsRelPrime a b) : radical (a * b) = radical a * radical b := by
   simp_rw [radical]
   rw [primeFactors_mul_eq_disjUnion hc, Finset.prod_disjUnion (disjoint_primeFactors hc)]
 
-theorem radical_prod {ι : Type*} {f : ι → M} (s : Finset ι)
-    (h : Set.Pairwise (s : Set ι) (Function.onFun IsRelPrime f)) :
-    radical (∏ i ∈ s, f i) = ∏ i ∈ s, radical (f i) := by
+theorem radical_prod
+    {ι : Type*} {f : ι → M}
+    (s : Finset ι) (h : Set.Pairwise (s : Set ι) (Function.onFun IsRelPrime f))
+    : radical (∏ i ∈ s, f i) = ∏ i ∈ s, radical (f i) := by
   induction s using Finset.cons_induction with
-  | empty => simp
+  | empty =>
+    simp
   | cons i s his ih =>
     simp only [Finset.prod_cons]
     rw [Finset.coe_cons, Set.pairwise_insert_of_symm_of_notMem <| by simpa] at h
@@ -338,23 +343,30 @@ theorem radical_mul_dvd : radical (a * b) ∣ radical a * radical b := by
   obtain rfl | hb := eq_or_ne b 0
   · simp
   nontriviality M
-  simp [radical_dvd_iff_primeFactors_subset, primeFactors_mul_eq_union,
-    primeFactors_mul_eq_union ha hb, primeFactors_radical]
+  simp [
+    radical_dvd_iff_primeFactors_subset, primeFactors_mul_eq_union, primeFactors_mul_eq_union ha hb,
+    primeFactors_radical
+  ]
 
-theorem radical_prod_dvd {ι : Type*} {s : Finset ι} {f : ι → M} :
-    radical (∏ i ∈ s, f i) ∣ ∏ i ∈ s, radical (f i) := by
+theorem radical_prod_dvd {ι : Type*} {s : Finset ι} {f : ι → M}
+    : radical (∏ i ∈ s, f i) ∣ ∏ i ∈ s, radical (f i) := by
   induction s using Finset.cons_induction with
-  | empty => simp
+  | empty =>
+    simp
   | cons i s h ih =>
     simp only [Finset.prod_cons]
     exact radical_mul_dvd.trans (mul_dvd_mul_left _ ih)
 
 theorem radical_mul_of_dvd (h : a ∣ b) : radical (a * b) = radical b := by
   classical
-  by_cases ha : a = 0; · simp_all
-  by_cases hb : b = 0; · simp_all
-  rw [radical_eq_iff_primeFactors_eq, primeFactors_mul_eq_union ha hb, Finset.union_eq_right,
-    ← radical_dvd_iff_primeFactors_subset hb]
+  by_cases ha : a = 0
+  · simp_all
+  by_cases hb : b = 0
+  · simp_all
+  rw [
+    radical_eq_iff_primeFactors_eq, primeFactors_mul_eq_union ha hb, Finset.union_eq_right,
+    ← radical_dvd_iff_primeFactors_subset hb
+  ]
   exact radical_dvd_self.trans h
 
 end UniqueFactorizationMonoid
@@ -364,12 +376,10 @@ open UniqueFactorizationMonoid
 /-! Theorems for UFDs -/
 namespace UniqueFactorizationDomain
 
-variable {R : Type*} [CommRing R] [NormalizationMonoid R]
-  [UniqueFactorizationMonoid R] {a : R}
+variable {R : Type*} [CommRing R] [NormalizationMonoid R] [UniqueFactorizationMonoid R] {a : R}
 
 @[simp]
-theorem radical_neg : radical (-a) = radical a :=
-  radical_eq_of_associated Associated.rfl.neg_left
+theorem radical_neg : radical (-a) = radical a := radical_eq_of_associated Associated.rfl.neg_left
 
 theorem radical_neg_one : radical (-1 : R) = 1 := by simp
 
@@ -377,15 +387,18 @@ end UniqueFactorizationDomain
 
 namespace EuclideanDomain
 
-variable {E : Type*} [EuclideanDomain E] [NormalizationMonoid E] [UniqueFactorizationMonoid E]
+variable
+  {E : Type*} [EuclideanDomain E] [NormalizationMonoid E] [UniqueFactorizationMonoid E]
   {a b u x : E}
 
 /-- Division of an element by its radical in a Euclidean domain. -/
 def divRadical (a : E) : E := a / radical a
 
 theorem radical_mul_divRadical : radical a * divRadical a = a := by
-  rw [divRadical, ← EuclideanDomain.mul_div_assoc _ radical_dvd_self,
-    mul_div_cancel_left₀ _ radical_ne_zero]
+  rw [
+    divRadical, ← EuclideanDomain.mul_div_assoc _ radical_dvd_self,
+    mul_div_cancel_left₀ _ radical_ne_zero
+  ]
 
 theorem divRadical_mul_radical : divRadical a * radical a = a := by
   rw [mul_comm]
@@ -402,17 +415,17 @@ theorem eq_divRadical (h : radical a * x = a) : x = divRadical a := by
   apply EuclideanDomain.eq_div_of_mul_eq_left radical_ne_zero
   rwa [mul_comm]
 
-theorem divRadical_mul (hab : IsCoprime a b) :
-    divRadical (a * b) = divRadical a * divRadical b := by
-  symm; apply eq_divRadical
+theorem divRadical_mul (hab : IsCoprime a b)
+    : divRadical (a * b) = divRadical a * divRadical b := by
+  symm
+  apply eq_divRadical
   rw [UniqueFactorizationMonoid.radical_mul hab.isRelPrime]
   rw [mul_mul_mul_comm, radical_mul_divRadical, radical_mul_divRadical]
 
-theorem divRadical_dvd_self (a : E) : divRadical a ∣ a :=
-  ⟨radical a, divRadical_mul_radical.symm⟩
+theorem divRadical_dvd_self (a : E) : divRadical a ∣ a := ⟨radical a, divRadical_mul_radical.symm⟩
 
-theorem _root_.IsCoprime.divRadical {a b : E} (h : IsCoprime a b) :
-    IsCoprime (divRadical a) (divRadical b) := by
+theorem _root_.IsCoprime.divRadical {a b : E} (h : IsCoprime a b)
+    : IsCoprime (divRadical a) (divRadical b) := by
   rw [← radical_mul_divRadical (a := a)] at h
   rw [← radical_mul_divRadical (a := b)] at h
   exact h.of_mul_left_right.of_mul_right_right

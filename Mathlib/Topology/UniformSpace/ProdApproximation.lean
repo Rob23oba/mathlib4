@@ -26,10 +26,10 @@ open scoped Uniformity
 
 namespace ContinuousMap
 
-variable {X Y R V : Type*}
-  [TopologicalSpace X] [TotallyDisconnectedSpace X] [T2Space X] [CompactSpace X]
-  [TopologicalSpace Y] [CompactSpace Y]
-  [AddCommGroup V] [UniformSpace V] [IsUniformAddGroup V] {S : Set (V × V)}
+variable
+  {X Y R V : Type*} [TopologicalSpace X] [TotallyDisconnectedSpace X] [T2Space X] [CompactSpace X]
+  [TopologicalSpace Y] [CompactSpace Y] [AddCommGroup V] [UniformSpace V] [IsUniformAddGroup V]
+  {S : Set (V × V)}
 
 /-- A continuous function on `X × Y`, taking values in an `R`-module with a uniform structure,
 can be uniformly approximated by sums of functions of the form `(x, y) ↦ f x • g y`.
@@ -67,12 +67,14 @@ section prodMul
 
 open scoped TensorProduct
 
-variable {X Y R : Type*} [TopologicalSpace X] [TopologicalSpace Y]
-    [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+variable
+  {X Y R : Type*}
+  [TopologicalSpace X] [TopologicalSpace Y] [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
 
 /-- The natural bilinear map sending `f, g` to the function `(x, y) ↦ f x * g y` on `X × Y`. -/
 def prodMul : C(X, R) →ₗ[R] C(Y, R) →ₗ[R] C(X × Y, R) :=
-  LinearMap.mk₂ R (fun f g ↦ (f.comp .fst) * (g.comp .snd))
+  LinearMap.mk₂ R
+    (fun f g ↦ (f.comp .fst) * (g.comp .snd))
     (fun f f' g ↦ by ext; simp [add_mul])
     (fun r f g ↦ by ext; simp)
     (fun f g g' ↦ by ext; simp [mul_add])
@@ -87,8 +89,7 @@ lemma prodMul_def (f : C(X, R)) (g : C(Y, R)) :
   (rfl)
 
 /-- Tensor product version of `ContinuousMap.prodMul`. -/
-def tensorHom : C(X, R) ⊗[R] C(Y, R) →ₗ[R] C(X × Y, R) :=
-  TensorProduct.lift prodMul
+def tensorHom : C(X, R) ⊗[R] C(Y, R) →ₗ[R] C(X × Y, R) := TensorProduct.lift prodMul
 
 @[simp]
 lemma tensorHom_tmul (f : C(X, R)) (g : C(Y, R)) :

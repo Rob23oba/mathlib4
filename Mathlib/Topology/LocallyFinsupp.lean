@@ -32,9 +32,7 @@ open Filter Function Set
 
 open scoped Topology
 
-variable
-  {X : Type*} [TopologicalSpace X] {U : Set X}
-  {Y : Type*}
+variable {X : Type*} [TopologicalSpace X] {U : Set X} {Y : Type*}
 
 /-!
 ## Definition, coercion to functions and basic extensionality lemmas
@@ -62,24 +60,23 @@ A function with locally finite support is a function with locally finite support
 -/
 abbrev Function.locallyFinsupp [Zero Y] := locallyFinsuppWithin (Set.univ : Set X) Y
 
-/--
-Function with locally finite support have a zero.
--/
+/-- Function with locally finite support have a zero. -/
 instance [Zero Y] : Zero (locallyFinsuppWithin U Y) where
-  zero :=
-    { toFun := fun _ ↦ 0
-      supportWithinDomain' := by simp
-      supportLocallyFiniteWithinDomain' z hz := by
-        simp_rw [support_fun_zero, inter_empty, finite_empty, and_true]
-        use Set.univ, univ_mem }
+  zero := {
+    toFun := fun _ ↦ 0
+    supportWithinDomain' := by simp
+    supportLocallyFiniteWithinDomain' z hz := by
+      simp_rw [support_fun_zero, inter_empty, finite_empty, and_true]
+      use Set.univ, univ_mem
+  }
 
 /--
 For T1 spaces, the condition `supportLocallyFiniteWithinDomain'` is equivalent to saying that the
 support is codiscrete within `U`.
 -/
-theorem supportDiscreteWithin_iff_locallyFiniteWithin [T1Space X] [Zero Y] {f : X → Y}
-    (h : f.support ⊆ U) :
-    f =ᶠ[codiscreteWithin U] 0 ↔ ∀ z ∈ U, ∃ t ∈ 𝓝 z, Set.Finite (t ∩ f.support) := by
+theorem supportDiscreteWithin_iff_locallyFiniteWithin
+    [T1Space X] [Zero Y] {f : X → Y} (h : f.support ⊆ U)
+    : f =ᶠ[codiscreteWithin U] 0 ↔ ∀ z ∈ U, ∃ t ∈ 𝓝 z, Set.Finite (t ∩ f.support) := by
   have : f.support = (U \ {x | f x = (0 : X → Y) x}) := by
     ext x
     simp only [mem_support, ne_eq, Pi.zero_apply, Set.mem_sdiff, mem_ofPred_eq, iff_and_self]
@@ -209,8 +206,8 @@ lemma apply_eq_zero_of_notMem [Zero Y] {z : X} (D : locallyFinsuppWithin U Y)
 On a T1 space, the support of a function with locally finite support within `U` is discrete within
 `U`.
 -/
-theorem eq_zero_codiscreteWithin [Zero Y] [T1Space X] (D : locallyFinsuppWithin U Y) :
-    D =ᶠ[Filter.codiscreteWithin U] 0 := by
+theorem eq_zero_codiscreteWithin [Zero Y] [T1Space X] (D : locallyFinsuppWithin U Y)
+    : D =ᶠ[Filter.codiscreteWithin U] 0 := by
   apply codiscreteWithin_iff_locallyFiniteComplementWithin.2
   have : D.support = (U \ {x | D x = (0 : X → Y) x}) := by
     ext x
@@ -219,11 +216,9 @@ theorem eq_zero_codiscreteWithin [Zero Y] [T1Space X] (D : locallyFinsuppWithin 
   rw [← this]
   exact D.supportLocallyFiniteWithinDomain
 
-/--
-On a T1 space, the support of a function with locally finite support within `U` is discrete.
--/
-theorem discreteSupport [Zero Y] [T1Space X] (D : locallyFinsuppWithin U Y) :
-    IsDiscrete D.support := by
+/-- On a T1 space, the support of a function with locally finite support within `U` is discrete. -/
+theorem discreteSupport [Zero Y] [T1Space X] (D : locallyFinsuppWithin U Y)
+    : IsDiscrete D.support := by
   have : D.support = {x | D x = 0}ᶜ ∩ U := by
     ext x
     constructor
@@ -241,9 +236,8 @@ theorem discreteSupport [Zero Y] [T1Space X] (D : locallyFinsuppWithin U Y) :
 If `X` is T1 and if `U` is closed, then the support of support of a function with locally finite
 support within `U` is also closed.
 -/
-theorem closedSupport [T1Space X] [Zero Y] (D : locallyFinsuppWithin U Y)
-    (hU : IsClosed U) :
-    IsClosed D.support := by
+theorem closedSupport [T1Space X] [Zero Y] (D : locallyFinsuppWithin U Y) (hU : IsClosed U)
+    : IsClosed D.support := by
   convert!
     isClosed_sdiff_of_codiscreteWithin
       ((supportDiscreteWithin_iff_locallyFiniteWithin D.supportWithinDomain).2
@@ -258,11 +252,10 @@ theorem closedSupport [T1Space X] [Zero Y] (D : locallyFinsuppWithin U Y)
 If `X` is T2 and if `U` is compact, then the support of a function with locally finite support
 within `U` is finite.
 -/
-theorem finiteSupport [T2Space X] [Zero Y] (D : locallyFinsuppWithin U Y)
-    (hU : IsCompact U) :
-    Set.Finite D.support :=
-  (hU.of_isClosed_subset (D.closedSupport hU.isClosed)
-    D.supportWithinDomain).finite D.discreteSupport
+theorem finiteSupport [T2Space X] [Zero Y] (D : locallyFinsuppWithin U Y) (hU : IsCompact U)
+    : Set.Finite D.support :=
+  (hU.of_isClosed_subset (D.closedSupport hU.isClosed) D.supportWithinDomain).finite
+    D.discreteSupport
 
 /-!
 ## Lattice ordered group structure
@@ -279,9 +272,10 @@ Functions with locally finite support within `U` form an additive submonoid of f
 protected def addSubmonoid [AddMonoid Y] : AddSubmonoid (X → Y) where
   carrier := {f | f.support ⊆ U ∧ ∀ z ∈ U, ∃ t ∈ 𝓝 z, Set.Finite (t ∩ f.support)}
   zero_mem' := by
-    simp only [support_subset_iff, ne_eq, mem_ofPred_eq, Pi.zero_apply, not_true_eq_false,
-      IsEmpty.forall_iff, implies_true, support_zero, inter_empty, finite_empty, and_true,
-      true_and]
+    simp only [
+      support_subset_iff, ne_eq, mem_ofPred_eq, Pi.zero_apply, not_true_eq_false,
+      IsEmpty.forall_iff, implies_true, support_zero, inter_empty, finite_empty, and_true, true_and
+    ]
     exact fun _ _ ↦ ⟨⊤, univ_mem⟩
   add_mem' {f g} hf hg := by
     constructor
@@ -294,8 +288,10 @@ protected def addSubmonoid [AddMonoid Y] : AddSubmonoid (X → Y) where
       use t₁ ∩ t₂, inter_mem ht₁.1 ht₂.1
       apply Set.Finite.subset (s := (t₁ ∩ f.support) ∪ (t₂ ∩ g.support)) (ht₁.2.union ht₂.2)
       intro a ha
-      simp_all only [support_subset_iff, ne_eq, mem_ofPred_eq,
-        mem_inter_iff, mem_support, Pi.add_apply, mem_union, true_and]
+      simp_all only [
+        support_subset_iff, ne_eq, mem_ofPred_eq, mem_inter_iff, mem_support, Pi.add_apply,
+        mem_union, true_and
+      ]
       by_contra! hCon
       simp_all
 
@@ -316,13 +312,11 @@ protected lemma memAddSubgroup [AddGroup Y] (D : locallyFinsuppWithin U Y) :
     (D : X → Y) ∈ locallyFinsuppWithin.addSubgroup U :=
   ⟨D.supportWithinDomain, D.supportLocallyFiniteWithinDomain⟩
 
-/--
-Assign a function with locally finite support within `U` to a function in the subgroup.
--/
+/-- Assign a function with locally finite support within `U` to a function in the subgroup. -/
 @[simps]
-def mk_of_mem_addSubmonoid [AddMonoid Y] (f : X → Y)
-    (hf : f ∈ locallyFinsuppWithin.addSubmonoid U) :
-    locallyFinsuppWithin U Y := ⟨f, hf.1, hf.2⟩
+def mk_of_mem_addSubmonoid [AddMonoid Y] (f : X → Y) (hf : f ∈ locallyFinsuppWithin.addSubmonoid U)
+    : locallyFinsuppWithin U Y :=
+  ⟨f, hf.1, hf.2⟩
 
 instance [AddMonoid Y] : Add (locallyFinsuppWithin U Y) where
   add D₁ D₂ := mk_of_mem_addSubmonoid (D₁ + D₂) <| add_mem D₁.memAddSubmonoid D₂.memAddSubmonoid
@@ -330,12 +324,11 @@ instance [AddMonoid Y] : Add (locallyFinsuppWithin U Y) where
 instance [AddMonoid Y] : SMul ℕ (locallyFinsuppWithin U Y) where
   smul n D := mk_of_mem_addSubmonoid (n • D) <| nsmul_mem D.memAddSubmonoid n
 
-/--
-Assign a function with locally finite support within `U` to a function in the subgroup.
--/
+/-- Assign a function with locally finite support within `U` to a function in the subgroup. -/
 @[simps]
-def mk_of_mem_addSubgroup [AddGroup Y] (f : X → Y) (hf : f ∈ locallyFinsuppWithin.addSubgroup U) :
-    locallyFinsuppWithin U Y := ⟨f, hf.1, hf.2⟩
+def mk_of_mem_addSubgroup [AddGroup Y] (f : X → Y) (hf : f ∈ locallyFinsuppWithin.addSubgroup U)
+    : locallyFinsuppWithin U Y :=
+  ⟨f, hf.1, hf.2⟩
 
 @[deprecated (since := "2026-03-06")] alias mk_of_mem := mk_of_mem_addSubgroup
 
@@ -362,12 +355,12 @@ instance [AddGroup Y] : SMul ℤ (locallyFinsuppWithin U Y) where
     (↑(n • D) : X → Y) = n • (D : X → Y) := rfl
 
 instance [AddMonoid Y] : AddMonoid (locallyFinsuppWithin U Y) :=
-  Injective.addMonoid (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y)
-    _ coe_injective coe_zero coe_add coe_nsmul
+  Injective.addMonoid (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y) _ coe_injective coe_zero
+    coe_add coe_nsmul
 
 instance [AddCommMonoid Y] : AddCommMonoid (locallyFinsuppWithin U Y) :=
-  Injective.addCommMonoid (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y)
-    _ coe_injective coe_zero coe_add coe_nsmul
+  Injective.addCommMonoid (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y) _ coe_injective coe_zero
+    coe_add coe_nsmul
 
 @[simp] lemma coe_sum [AddCommMonoid Y] {ι : Type*} {s : Finset ι}
     {F : ι → locallyFinsuppWithin U Y} :
@@ -388,8 +381,8 @@ instance [AddCommMonoid Y] : AddCommMonoid (locallyFinsuppWithin U Y) :=
   · simp_all [finsum_of_infinite_support]
 
 instance [AddGroup Y] : AddGroup (locallyFinsuppWithin U Y) :=
-  Injective.addGroup (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y)
-    _ coe_injective coe_zero coe_add coe_neg coe_sub coe_nsmul coe_zsmul
+  Injective.addGroup (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y) _ coe_injective coe_zero coe_add
+    coe_neg coe_sub coe_nsmul coe_zsmul
 
 /--
 Simplifier lemma: Support does not change when replacing a function with locally finite support by
@@ -399,8 +392,8 @@ its negative.
     (-D).support = D.support := by rw [support, coe_neg, Function.support_neg]
 
 instance [AddCommGroup Y] : AddCommGroup (locallyFinsuppWithin U Y) :=
-  Injective.addCommGroup (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y)
-    _ coe_injective coe_zero coe_add coe_neg coe_sub coe_nsmul coe_zsmul
+  Injective.addCommGroup (M₁ := locallyFinsuppWithin U Y) (M₂ := X → Y) _ coe_injective coe_zero
+    coe_add coe_neg coe_sub coe_nsmul coe_zsmul
 
 variable (Y) in
 /--
@@ -449,14 +442,16 @@ lemma single_pos [DecidableEq X] [Zero Y] [Preorder Y] {x : X} {y : Y} :
     0 < single x (1 : ℤ) := single_pos.2 Int.one_pos
 
 instance [SemilatticeSup Y] [Zero Y] : Max (locallyFinsuppWithin U Y) where
-  max D₁ D₂ :=
-  { toFun z := max (D₁ z) (D₂ z)
+  max D₁ D₂ := {
+    toFun z := max (D₁ z) (D₂ z)
     supportWithinDomain' := by
       intro x
       contrapose
       intro hx
-      simp [notMem_support.1 fun a ↦ hx (D₁.supportWithinDomain a),
-        notMem_support.1 fun a ↦ hx (D₂.supportWithinDomain a)]
+      simp [
+        notMem_support.1 fun a ↦ hx (D₁.supportWithinDomain a),
+        notMem_support.1 fun a ↦ hx (D₂.supportWithinDomain a)
+      ]
     supportLocallyFiniteWithinDomain' := by
       intro z hz
       obtain ⟨t₁, ht₁⟩ := D₁.supportLocallyFiniteWithinDomain z hz
@@ -466,21 +461,24 @@ instance [SemilatticeSup Y] [Zero Y] : Max (locallyFinsuppWithin U Y) where
       intro a ha
       simp_all only [mem_inter_iff, mem_support, ne_eq, mem_union, true_and]
       by_contra! hCon
-      simp_all }
+      simp_all
+  }
 
 @[simp]
 lemma max_apply [SemilatticeSup Y] [Zero Y] {D₁ D₂ : locallyFinsuppWithin U Y} {x : X} :
     max D₁ D₂ x = max (D₁ x) (D₂ x) := rfl
 
 instance [SemilatticeInf Y] [Zero Y] : Min (locallyFinsuppWithin U Y) where
-  min D₁ D₂ :=
-  { toFun z := min (D₁ z) (D₂ z)
+  min D₁ D₂ := {
+    toFun z := min (D₁ z) (D₂ z)
     supportWithinDomain' := by
       intro x
       contrapose
       intro hx
-      simp [notMem_support.1 fun a ↦ hx (D₁.supportWithinDomain a),
-        notMem_support.1 fun a ↦ hx (D₂.supportWithinDomain a)]
+      simp [
+        notMem_support.1 fun a ↦ hx (D₁.supportWithinDomain a),
+        notMem_support.1 fun a ↦ hx (D₂.supportWithinDomain a)
+      ]
     supportLocallyFiniteWithinDomain' := by
       intro z hz
       obtain ⟨t₁, ht₁⟩ := D₁.supportLocallyFiniteWithinDomain z hz
@@ -490,7 +488,8 @@ instance [SemilatticeInf Y] [Zero Y] : Min (locallyFinsuppWithin U Y) where
       intro a ha
       simp_all only [mem_inter_iff, mem_support, ne_eq, mem_union, true_and]
       by_contra! hCon
-      simp_all }
+      simp_all
+  }
 
 @[simp]
 lemma min_apply [SemilatticeInf Y] [Zero Y] {D₁ D₂ : locallyFinsuppWithin U Y} {x : X} :
@@ -524,35 +523,31 @@ end Lattice
 section LinearOrder
 variable [AddCommGroup Y] [LinearOrder Y] [IsOrderedAddMonoid Y]
 
-/--
-Functions with locally finite support within `U` form an ordered commutative group.
--/
+/-- Functions with locally finite support within `U` form an ordered commutative group. -/
 instance : IsOrderedAddMonoid (locallyFinsuppWithin U Y) where
   add_le_add_left := fun _ _ _ _ ↦ by simpa [le_def]
 
-/--
-The positive part of a sum is less than or equal to the sum of the positive parts.
--/
-theorem posPart_add (f₁ f₂ : Function.locallyFinsuppWithin U Y) :
-    (f₁ + f₂)⁺ ≤ f₁⁺ + f₂⁺ := by
+/-- The positive part of a sum is less than or equal to the sum of the positive parts. -/
+theorem posPart_add (f₁ f₂ : Function.locallyFinsuppWithin U Y) : (f₁ + f₂)⁺ ≤ f₁⁺ + f₂⁺ := by
   repeat rw [posPart_def]
   intro x
-  simp only [Function.locallyFinsuppWithin.max_apply, Function.locallyFinsuppWithin.coe_add,
-    Pi.add_apply, Function.locallyFinsuppWithin.coe_zero, Pi.zero_apply, sup_le_iff]
+  simp only [
+    Function.locallyFinsuppWithin.max_apply, Function.locallyFinsuppWithin.coe_add, Pi.add_apply,
+    Function.locallyFinsuppWithin.coe_zero, Pi.zero_apply, sup_le_iff
+  ]
   constructor
   · simp [add_le_add]
   · simp [add_nonneg]
 
-/--
-The negative part of a sum is less than or equal to the sum of the negative parts.
--/
-theorem negPart_add (f₁ f₂ : Function.locallyFinsuppWithin U Y) :
-    (f₁ + f₂)⁻ ≤ f₁⁻ + f₂⁻ := by
+/-- The negative part of a sum is less than or equal to the sum of the negative parts. -/
+theorem negPart_add (f₁ f₂ : Function.locallyFinsuppWithin U Y) : (f₁ + f₂)⁻ ≤ f₁⁻ + f₂⁻ := by
   repeat rw [negPart_def]
   intro x
-  simp only [neg_add_rev, Function.locallyFinsuppWithin.max_apply,
-    Function.locallyFinsuppWithin.coe_add, Function.locallyFinsuppWithin.coe_neg, Pi.add_apply,
-    Pi.neg_apply, Function.locallyFinsuppWithin.coe_zero, Pi.zero_apply, sup_le_iff]
+  simp only [
+    neg_add_rev, Function.locallyFinsuppWithin.max_apply, Function.locallyFinsuppWithin.coe_add,
+    Function.locallyFinsuppWithin.coe_neg, Pi.add_apply, Pi.neg_apply,
+    Function.locallyFinsuppWithin.coe_zero, Pi.zero_apply, sup_le_iff
+  ]
   constructor
   · simp [add_comm, add_le_add]
   · simp [add_nonneg]
@@ -576,9 +571,10 @@ scalar multiplication by a natural number.
 @[simp]
 theorem nsmul_negPart (n : ℕ) (f : locallyFinsuppWithin U Y) : (n • f)⁻ = n • f⁻ := by
   ext x
-  simp only [negPart, max_apply, coe_neg, coe_nsmul, Pi.neg_apply, Pi.smul_apply, coe_zero,
-    Pi.zero_apply]
-  by_cases h : -f x < 0
+  simp only [
+    negPart, max_apply, coe_neg, coe_nsmul, Pi.neg_apply, Pi.smul_apply, coe_zero, Pi.zero_apply
+  ]
+  by_cases h : - f x < 0
   · simpa [max_eq_right_of_lt h] using nsmul_le_nsmul_right h.le n
   · simpa [not_lt.1 h] using nsmul_nonneg (not_lt.1 h) n
 
@@ -603,8 +599,8 @@ end LinearOrder
 If `V` is a subset of `U`, then functions with locally finite support within `U` restrict to
 functions with locally finite support within `V`, by setting their values to zero outside of `V`.
 -/
-noncomputable def restrict [Zero Y] {V : Set X} (D : locallyFinsuppWithin U Y) (h : V ⊆ U) :
-    locallyFinsuppWithin V Y where
+noncomputable def restrict [Zero Y] {V : Set X} (D : locallyFinsuppWithin U Y) (h : V ⊆ U)
+    : locallyFinsuppWithin V Y where
   toFun := by
     classical
     exact fun z ↦ if hz : z ∈ V then D z else 0
@@ -653,16 +649,15 @@ lemma restrict_mono [Zero Y] [LinearOrder Y] {A B : locallyFinsuppWithin U Y} {V
   · simp_all
 
 /-- Restriction as a group morphism -/
-noncomputable def restrictMonoidHom [AddCommGroup Y] {V : Set X} (h : V ⊆ U) :
-    locallyFinsuppWithin U Y →+ locallyFinsuppWithin V Y where
+noncomputable def restrictMonoidHom [AddCommGroup Y] {V : Set X} (h : V ⊆ U)
+    : locallyFinsuppWithin U Y →+ locallyFinsuppWithin V Y where
   toFun D := D.restrict h
   map_zero' := by
     ext x
     simp
   map_add' D₁ D₂ := by
     ext x
-    by_cases hx : x ∈ V
-    <;> simp [restrict_apply, hx]
+    by_cases hx : x ∈ V <;> simp [restrict_apply, hx]
 
 @[simp]
 lemma restrictMonoidHom_apply [AddCommGroup Y] {V : Set X} (D : locallyFinsuppWithin U Y)
@@ -670,18 +665,16 @@ lemma restrictMonoidHom_apply [AddCommGroup Y] {V : Set X} (D : locallyFinsuppWi
     restrictMonoidHom h D = D.restrict h := by rfl
 
 /-- Restriction as an ordered group morphism -/
-noncomputable def restrictOrderMonoidHom [AddCommGroup Y] [LinearOrder Y] {V : Set X} (h : V ⊆ U) :
-    locallyFinsuppWithin U Y →+o locallyFinsuppWithin V Y where
+noncomputable def restrictOrderMonoidHom [AddCommGroup Y] [LinearOrder Y] {V : Set X} (h : V ⊆ U)
+    : locallyFinsuppWithin U Y →+o locallyFinsuppWithin V Y where
   toFun D := D.restrict h
   map_zero' := by
     ext x
     simp
   map_add' D₁ D₂ := by
     ext x
-    by_cases hx : x ∈ V
-    <;> simp [restrict_apply, hx]
-  monotone' _ _ hAB z := by
-    apply restrict_mono h hAB
+    by_cases hx : x ∈ V <;> simp [restrict_apply, hx]
+  monotone' _ _ hAB z := by apply restrict_mono h hAB
 
 @[simp]
 lemma restrictOrderMonoidHom_apply [AddCommGroup Y] [LinearOrder Y] {V : Set X}
@@ -724,17 +717,15 @@ singleton indicator functions.
     exact (notMem_support.mp this).symm
 
 /-- Restriction as a lattice morphism -/
-noncomputable def restrictLatticeHom [AddCommGroup Y] [Lattice Y] {V : Set X} (h : V ⊆ U) :
-    LatticeHom (locallyFinsuppWithin U Y) (locallyFinsuppWithin V Y) where
+noncomputable def restrictLatticeHom [AddCommGroup Y] [Lattice Y] {V : Set X} (h : V ⊆ U)
+    : LatticeHom (locallyFinsuppWithin U Y) (locallyFinsuppWithin V Y) where
   toFun D := D.restrict h
   map_sup' D₁ D₂ := by
     ext x
-    by_cases hx : x ∈ V
-    <;> simp [locallyFinsuppWithin.restrict_apply, hx]
+    by_cases hx : x ∈ V <;> simp [locallyFinsuppWithin.restrict_apply, hx]
   map_inf' D₁ D₂ := by
     ext x
-    by_cases hx : x ∈ V
-    <;> simp [locallyFinsuppWithin.restrict_apply, hx]
+    by_cases hx : x ∈ V <;> simp [locallyFinsuppWithin.restrict_apply, hx]
 
 @[simp]
 lemma restrictLatticeHom_apply [AddCommGroup Y] [Lattice Y] {V : Set X}

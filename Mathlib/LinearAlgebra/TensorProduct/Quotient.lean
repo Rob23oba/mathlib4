@@ -53,23 +53,29 @@ Let `M, N` be `R`-modules, `m ≤ M` and `n ≤ N` be an `R`-submodules. Then we
 isomorphism between tensor products of the quotients and the quotient of the tensor product:
 `(M ⧸ m) ⊗[R] (N ⧸ n) ≃ₗ[R] (M ⊗[R] N) ⧸ (m ⊗ N ⊔ M ⊗ n)`.
 -/
-noncomputable def quotientTensorQuotientEquiv (m : Submodule R M) (n : Submodule R N) :
-    (M ⧸ (m : Submodule R M)) ⊗[R] (N ⧸ (n : Submodule R N)) ≃ₗ[R]
-    (M ⊗[R] N) ⧸
-      (LinearMap.range (map m.subtype LinearMap.id) ⊔
-        LinearMap.range (map LinearMap.id n.subtype)) :=
+noncomputable def quotientTensorQuotientEquiv (m : Submodule R M) (n : Submodule R N)
+    : (M ⧸ (m : Submodule R M)) ⊗[R] (N ⧸ (n : Submodule R N)) ≃ₗ[R]
+      (M ⊗[R] N) ⧸
+        (LinearMap.range (map m.subtype LinearMap.id) ⊔
+          LinearMap.range (map LinearMap.id n.subtype)) :=
   LinearEquiv.ofLinearMap
-    (lift <| Submodule.liftQ _ (LinearMap.flip <| Submodule.liftQ _
-      ((mk R (M := M) (N := N)).flip.compr₂ (Submodule.mkQ _)) fun x hx => by
-      ext y
-      simp only [LinearMap.compr₂_apply, LinearMap.flip_apply, mk_apply, Submodule.mkQ_apply,
-        LinearMap.zero_apply, Submodule.Quotient.mk_eq_zero]
-      exact Submodule.mem_sup_right ⟨y ⊗ₜ ⟨x, hx⟩, rfl⟩) fun x hx => by
-      ext y
-      simp only [LinearMap.coe_comp, Function.comp_apply, Submodule.mkQ_apply, LinearMap.flip_apply,
-        Submodule.liftQ_apply, LinearMap.compr₂_apply, mk_apply, LinearMap.zero_comp,
-        LinearMap.zero_apply, Submodule.Quotient.mk_eq_zero]
-      exact Submodule.mem_sup_left ⟨⟨x, hx⟩ ⊗ₜ y, rfl⟩)
+    (lift <| Submodule.liftQ _
+      (LinearMap.flip <|
+        Submodule.liftQ _ ((mk R (M := M) (N := N)).flip.compr₂ (Submodule.mkQ _)) fun x hx => by
+          ext y
+          simp only [
+            LinearMap.compr₂_apply, LinearMap.flip_apply, mk_apply, Submodule.mkQ_apply,
+            LinearMap.zero_apply, Submodule.Quotient.mk_eq_zero
+          ]
+          exact Submodule.mem_sup_right ⟨y ⊗ₜ ⟨x, hx⟩, rfl⟩)
+      fun x hx => by
+        ext y
+        simp only [
+          LinearMap.coe_comp, Function.comp_apply, Submodule.mkQ_apply, LinearMap.flip_apply,
+          Submodule.liftQ_apply, LinearMap.compr₂_apply, mk_apply, LinearMap.zero_comp,
+          LinearMap.zero_apply, Submodule.Quotient.mk_eq_zero
+        ]
+        exact Submodule.mem_sup_left ⟨⟨x, hx⟩ ⊗ₜ y, rfl⟩)
     (Submodule.liftQ _ (map (Submodule.mkQ _) (Submodule.mkQ _)) fun x hx => by
       rw [Submodule.mem_sup] at hx
       rcases hx with ⟨_, ⟨a, rfl⟩, _, ⟨b, rfl⟩, rfl⟩
@@ -102,13 +108,13 @@ Let `M, N` be `R`-modules, `m ≤ M` be an `R`-submodule. Then we have a linear 
 tensor products of the quotient and the quotient of the tensor product:
 `(M ⧸ m) ⊗[R] N ≃ₗ[R] (M ⊗[R] N) ⧸ (m ⊗ N)`.
 -/
-noncomputable def quotientTensorEquiv (m : Submodule R M) :
-    (M ⧸ (m : Submodule R M)) ⊗[R] N ≃ₗ[R]
-    (M ⊗[R] N) ⧸ (LinearMap.range (map m.subtype (LinearMap.id : N →ₗ[R] N))) :=
-  congr (LinearEquiv.refl _ _) ((Submodule.quotEquivOfEqBot _ rfl).symm) ≪≫ₗ
-  quotientTensorQuotientEquiv (N := N) m ⊥ ≪≫ₗ
-  Submodule.Quotient.equiv _ _ (LinearEquiv.refl _ _) (by
-    simp [Submodule.map_span, range_map_eq_span_tmul])
+noncomputable def quotientTensorEquiv (m : Submodule R M)
+    : (M ⧸ (m : Submodule R M)) ⊗[R] N ≃ₗ[R]
+      (M ⊗[R] N) ⧸ (LinearMap.range (map m.subtype (LinearMap.id : N →ₗ[R] N))) :=
+  congr (LinearEquiv.refl _ _) ((Submodule.quotEquivOfEqBot _ rfl).symm)
+    ≪≫ₗ quotientTensorQuotientEquiv (N := N) m ⊥
+    ≪≫ₗ Submodule.Quotient.equiv _ _ (LinearEquiv.refl _ _)
+      (by simp [Submodule.map_span, range_map_eq_span_tmul])
 
 @[simp]
 lemma quotientTensorEquiv_apply_tmul_mk (m : Submodule R M) (x : M) (y : N) :
@@ -128,12 +134,12 @@ Let `M, N` be `R`-modules, `n ≤ N` be an `R`-submodule. Then we have a linear 
 tensor products of the quotient and the quotient of the tensor product:
 `M ⊗[R] (N ⧸ n) ≃ₗ[R] (M ⊗[R] N) ⧸ (M ⊗ n)`.
 -/
-noncomputable def tensorQuotientEquiv (n : Submodule R N) :
-    M ⊗[R] (N ⧸ (n : Submodule R N)) ≃ₗ[R]
-    (M ⊗[R] N) ⧸ (LinearMap.range (map (LinearMap.id : M →ₗ[R] M) n.subtype)) :=
-  congr ((Submodule.quotEquivOfEqBot _ rfl).symm) (LinearEquiv.refl _ _) ≪≫ₗ
-  quotientTensorQuotientEquiv (⊥ : Submodule R M) n ≪≫ₗ
-  Submodule.Quotient.equiv _ _ (LinearEquiv.refl _ _) (by simp [range_map_eq_span_tmul])
+noncomputable def tensorQuotientEquiv (n : Submodule R N)
+    : M ⊗[R] (N ⧸ (n : Submodule R N)) ≃ₗ[R]
+      (M ⊗[R] N) ⧸ (LinearMap.range (map (LinearMap.id : M →ₗ[R] M) n.subtype)) :=
+  congr ((Submodule.quotEquivOfEqBot _ rfl).symm) (LinearEquiv.refl _ _)
+    ≪≫ₗ quotientTensorQuotientEquiv (⊥ : Submodule R M) n
+    ≪≫ₗ Submodule.Quotient.equiv _ _ (LinearEquiv.refl _ _) (by simp [range_map_eq_span_tmul])
 
 @[simp]
 lemma tensorQuotientEquiv_apply_mk_tmul (n : Submodule R N) (x : M) (y : N) :
@@ -148,21 +154,26 @@ lemma tensorQuotientEquiv_symm_apply_tmul_mk (n : Submodule R N) (x : M) (y : N)
   rfl
 
 variable (M) in
-/-- Left tensoring a module with a quotient of the ring is the same as
-quotienting that module by the corresponding submodule. -/
-noncomputable def quotTensorEquivQuotSMul (I : Ideal R) :
-    ((R ⧸ I) ⊗[R] M) ≃ₗ[R] M ⧸ (I • (⊤ : Submodule R M)) :=
-  quotientTensorEquiv M I ≪≫ₗ
-  (Submodule.Quotient.equiv _ _ (TensorProduct.lid R M) <| by
-    rw [← LinearMap.range_comp, ← (Submodule.topEquiv.lTensor I).range_comp, Submodule.smul_eq_map₂,
-      map₂_eq_range_lift_comp_mapIncl]
+/--
+Left tensoring a module with a quotient of the ring is the same as
+quotienting that module by the corresponding submodule.
+-/
+noncomputable def quotTensorEquivQuotSMul (I : Ideal R)
+    : ((R ⧸ I) ⊗[R] M) ≃ₗ[R] M ⧸ (I • (⊤ : Submodule R M)) :=
+  quotientTensorEquiv M I ≪≫ₗ (Submodule.Quotient.equiv _ _ (TensorProduct.lid R M) <| by
+    rw [
+      ← LinearMap.range_comp, ← (Submodule.topEquiv.lTensor I).range_comp, Submodule.smul_eq_map₂,
+      map₂_eq_range_lift_comp_mapIncl
+    ]
     exact congr_arg _ (TensorProduct.ext' fun _ _ ↦ by simp))
 
 variable (M) in
-/-- Right tensoring a module with a quotient of the ring is the same as
-quotienting that module by the corresponding submodule. -/
-noncomputable def tensorQuotEquivQuotSMul (I : Ideal R) :
-    (M ⊗[R] (R ⧸ I)) ≃ₗ[R] M ⧸ (I • (⊤ : Submodule R M)) :=
+/--
+Right tensoring a module with a quotient of the ring is the same as
+quotienting that module by the corresponding submodule.
+-/
+noncomputable def tensorQuotEquivQuotSMul (I : Ideal R)
+    : (M ⊗[R] (R ⧸ I)) ≃ₗ[R] M ⧸ (I • (⊤ : Submodule R M)) :=
   TensorProduct.comm _ _ _ ≪≫ₗ quotTensorEquivQuotSMul M I
 
 @[simp]
@@ -232,12 +243,16 @@ lemma tensorQuotEquivQuotSMul_comp_mk (I : Ideal R) :
 
 variable (S : Type*) [CommRing S] [Algebra R S]
 
-/-- Let `R` be a commutative ring, `S` be an `R`-algebra, `I` is be ideal of `R`, then `S ⧸ IS` is
-  isomorphic to `S ⊗[R] (R ⧸ I)` as `S` modules. -/
-noncomputable def _root_.Ideal.quotMapEquivTensorQuot {I : Ideal R} :
-    (S ⧸ I.map (algebraMap R S)) ≃ₗ[S] S ⊗[R] (R ⧸ I) where
-  __ := LinearEquiv.symm <| tensorQuotEquivQuotSMul S I ≪≫ₗ Submodule.quotEquivOfEq _ _ (by simp)
-    ≪≫ₗ Submodule.Quotient.restrictScalarsEquiv R _
+/--
+Let `R` be a commutative ring, `S` be an `R`-algebra, `I` is be ideal of `R`, then `S ⧸ IS` is
+isomorphic to `S ⊗[R] (R ⧸ I)` as `S` modules.
+-/
+noncomputable def _root_.Ideal.quotMapEquivTensorQuot {I : Ideal R}
+    : (S ⧸ I.map (algebraMap R S)) ≃ₗ[S] S ⊗[R] (R ⧸ I) where
+  __ :=
+    LinearEquiv.symm <|
+      tensorQuotEquivQuotSMul S I ≪≫ₗ Submodule.quotEquivOfEq _ _ (by simp)
+        ≪≫ₗ Submodule.Quotient.restrictScalarsEquiv R _
   map_smul' := by
     rintro _ ⟨_⟩
     congr
@@ -246,16 +261,18 @@ noncomputable def _root_.Ideal.quotMapEquivTensorQuot {I : Ideal R} :
 alias _root_.Ideal.qoutMapEquivTensorQout := _root_.Ideal.quotMapEquivTensorQuot
 
 variable (M) in
-/-- Let `R` be a commutative ring, `S` be an `R`-algebra, `I` is be ideal of `R`,
-  then `S ⊗[R] M ⧸ I(S ⊗[R] M)` is isomorphic to `S ⊗[R] (M ⧸ IM)` as `S` modules. -/
-noncomputable def tensorQuotMapSMulEquivTensorQuot (I : Ideal R) :
-    ((S ⊗[R] M) ⧸ I.map (algebraMap R S) • (⊤ : Submodule S (S ⊗[R] M))) ≃ₗ[S]
-    S ⊗[R] (M ⧸ (I • (⊤ : Submodule R M))) :=
-  (tensorQuotEquivQuotSMul (S ⊗[R] M) (I.map (algebraMap R S))).symm ≪≫ₗ
-    TensorProduct.comm S (S ⊗[R] M) _ ≪≫ₗ AlgebraTensorModule.cancelBaseChange R S S _ M ≪≫ₗ
-      AlgebraTensorModule.congr (I.quotMapEquivTensorQuot S) (LinearEquiv.refl R M) ≪≫ₗ
-        AlgebraTensorModule.assoc R R S S _ M ≪≫ₗ (TensorProduct.comm R _ M).baseChange R S _ _ ≪≫ₗ
-          (tensorQuotEquivQuotSMul M I).baseChange R S _ _
+/--
+Let `R` be a commutative ring, `S` be an `R`-algebra, `I` is be ideal of `R`,
+then `S ⊗[R] M ⧸ I(S ⊗[R] M)` is isomorphic to `S ⊗[R] (M ⧸ IM)` as `S` modules.
+-/
+noncomputable def tensorQuotMapSMulEquivTensorQuot (I : Ideal R)
+    : ((S ⊗[R] M) ⧸ I.map (algebraMap R S) • (⊤ : Submodule S (S ⊗[R] M))) ≃ₗ[S]
+      S ⊗[R] (M ⧸ (I • (⊤ : Submodule R M))) :=
+  (tensorQuotEquivQuotSMul (S ⊗[R] M) (I.map (algebraMap R S))).symm
+    ≪≫ₗ TensorProduct.comm S (S ⊗[R] M) _ ≪≫ₗ AlgebraTensorModule.cancelBaseChange R S S _ M
+    ≪≫ₗ AlgebraTensorModule.congr (I.quotMapEquivTensorQuot S) (LinearEquiv.refl R M)
+    ≪≫ₗ AlgebraTensorModule.assoc R R S S _ M ≪≫ₗ (TensorProduct.comm R _ M).baseChange R S _ _
+    ≪≫ₗ (tensorQuotEquivQuotSMul M I).baseChange R S _ _
 
 end TensorProduct
 
@@ -263,21 +280,22 @@ open TensorProduct
 
 namespace TensorProduct.AlgebraTensorModule
 
-variable {R : Type*} (A B : Type*) [CommRing R] [CommRing A] [Algebra R A]
-  [CommRing B] [Algebra R B]
+variable
+  {R : Type*} (A B : Type*) [CommRing R] [CommRing A] [Algebra R A] [CommRing B] [Algebra R B]
 variable (M : Type*) [AddCommGroup M] [Module R M] [Module A M] [IsScalarTower R A M]
 variable {N : Type*} [AddCommGroup N] [Module R N] [Module B N] [IsScalarTower R B N]
 
 set_option backward.isDefEq.respectTransparency false in
 /-- More linear version of `TensorProduct.tensorQuotientEquiv`. -/
-noncomputable def tensorQuotientEquiv (n : Submodule B N) :
-    M ⊗[R] (N ⧸ n) ≃ₗ[A]
-      (M ⊗[R] N) ⧸ LinearMap.range (lTensor A M (n.subtype.restrictScalars R)) where
+noncomputable def tensorQuotientEquiv (n : Submodule B N)
+    : M ⊗[R] (N ⧸ n) ≃ₗ[A]
+        (M ⊗[R] N) ⧸ LinearMap.range (lTensor A M (n.subtype.restrictScalars R)) where
   __ := TensorProduct.tensorQuotientEquiv M (n.restrictScalars R)
   map_smul' m x := by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe]
     induction x with
-    | add x y hx hy => simp [hx, hy]
+    | add x y hx hy =>
+      simp [hx, hy]
     | tmul x y =>
       obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ y
       rw [smul_tmul']
@@ -295,12 +313,13 @@ lemma tensorQuotientEquiv_symm_apply_mk_tmul (n : Submodule B N) (x : M) (y : N)
       x ⊗ₜ[R] Submodule.Quotient.mk y :=
   rfl
 
-
 variable [Module A N] [IsScalarTower R A N]
 
-/- This lemma characterizes the kernel of `TensorProduct.mapOfCompatibleSMul`. Together with
+/-
+This lemma characterizes the kernel of `TensorProduct.mapOfCompatibleSMul`. Together with
 `TensorProduct.mapOfCompatibleSMul_surjective` it gives an alternative characterization of
-`M ⊗[A] N` as the quotient of `M ⊗[R] N` by the submodule `S` described below. -/
+`M ⊗[A] N` as the quotient of `M ⊗[R] N` by the submodule `S` described below.
+-/
 lemma ker_mapOfCompatibleSMul :
     (mapOfCompatibleSMul A R A M N).ker =
       Submodule.span A {(a • m) ⊗ₜ[R] n - m ⊗ₜ[R] (a • n) | (a : A) (m : M) (n : N)} := by

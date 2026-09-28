@@ -8,7 +8,6 @@ module
 public import Mathlib.Algebra.BigOperators.GroupWithZero.Action
 public import Mathlib.Algebra.Module.Defs
 public import Mathlib.Data.Fintype.BigOperators
-
 import Mathlib.Algebra.Module.End
 
 /-!
@@ -29,14 +28,15 @@ theorem List.sum_smul {l : List R} {x : M} : l.sum • x = (l.map fun r ↦ r �
 theorem Multiset.sum_smul {l : Multiset R} {x : M} : l.sum • x = (l.map fun r ↦ r • x).sum :=
   ((smulAddHom R M).flip x).map_multiset_sum l
 
-theorem Multiset.sum_smul_sum {s : Multiset R} {t : Multiset M} :
-    s.sum • t.sum = ((s ×ˢ t).map fun p : R × M ↦ p.fst • p.snd).sum := by
+theorem Multiset.sum_smul_sum {s : Multiset R} {t : Multiset M}
+    : s.sum • t.sum = ((s ×ˢ t).map fun p : R × M ↦ p.fst • p.snd).sum := by
   induction s using Multiset.induction with
   | empty => simp
   | cons a s ih => simp [add_smul, ih, ← Multiset.smul_sum]
 
-theorem Finset.sum_smul {f : ι → R} {s : Finset ι} {x : M} :
-    (∑ i ∈ s, f i) • x = ∑ i ∈ s, f i • x := map_sum ((smulAddHom R M).flip x) f s
+theorem Finset.sum_smul {f : ι → R} {s : Finset ι} {x : M}
+    : (∑ i ∈ s, f i) • x = ∑ i ∈ s, f i • x :=
+  map_sum ((smulAddHom R M).flip x) f s
 
 lemma Finset.sum_smul_sum (s : Finset α) (t : Finset β) {f : α → R} {g : β → M} :
     (∑ i ∈ s, f i) • ∑ j ∈ t, g j = ∑ i ∈ s, ∑ j ∈ t, f i • g j := by

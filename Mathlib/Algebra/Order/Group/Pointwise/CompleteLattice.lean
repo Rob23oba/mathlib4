@@ -38,8 +38,7 @@ variable [One M]
 end One
 
 section Group
-variable [Group M] [MulLeftMono M] [MulRightMono M]
-  {s t : Set M}
+variable [Group M] [MulLeftMono M] [MulRightMono M] {s t : Set M}
 
 @[to_additive]
 lemma csSup_inv (hs₀ : s.Nonempty) (hs₁ : BddBelow s) : sSup s⁻¹ = (sInf s)⁻¹ := by
@@ -88,8 +87,7 @@ variable [One M]
 end One
 
 section Group
-variable [Group M] [MulLeftMono M] [MulRightMono M]
-  (s t : Set M)
+variable [Group M] [MulLeftMono M] [MulRightMono M] (s t : Set M)
 
 @[to_additive]
 lemma sSup_inv (s : Set M) : sSup s⁻¹ = (sInf s)⁻¹ := by

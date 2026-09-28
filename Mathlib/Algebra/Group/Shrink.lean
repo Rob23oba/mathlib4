@@ -75,8 +75,7 @@ namespace Shrink
 @[to_additive (attr := simps!) /-- Shrink `α` to a smaller universe preserves addition. -/]
 def mulEquiv [Mul α] : Shrink.{v} α ≃* α := (equivShrink α).symm.mulEquiv
 
-@[to_additive]
-instance [Semigroup α] : Semigroup (Shrink.{v} α) := (equivShrink α).symm.semigroup
+@[to_additive] instance [Semigroup α] : Semigroup (Shrink.{v} α) := (equivShrink α).symm.semigroup
 
 @[to_additive]
 instance [CommSemigroup α] : CommSemigroup (Shrink.{v} α) := (equivShrink α).symm.commSemigroup
@@ -95,17 +94,14 @@ instance [Mul α] [IsCancelMul α] : IsCancelMul (Shrink.{v} α) := (equivShrink
 @[to_additive]
 instance [MulOneClass α] : MulOneClass (Shrink.{v} α) := (equivShrink α).symm.mulOneClass
 
-@[to_additive]
-instance [Monoid α] : Monoid (Shrink.{v} α) := (equivShrink α).symm.monoid
+@[to_additive] instance [Monoid α] : Monoid (Shrink.{v} α) := (equivShrink α).symm.monoid
 
 @[to_additive]
 instance [CommMonoid α] : CommMonoid (Shrink.{v} α) := (equivShrink α).symm.commMonoid
 
-@[to_additive]
-instance [Group α] : Group (Shrink.{v} α) := (equivShrink α).symm.group
+@[to_additive] instance [Group α] : Group (Shrink.{v} α) := (equivShrink α).symm.group
 
-@[to_additive]
-instance [CommGroup α] : CommGroup (Shrink.{v} α) := (equivShrink α).symm.commGroup
+@[to_additive] instance [CommGroup α] : CommGroup (Shrink.{v} α) := (equivShrink α).symm.commGroup
 
 @[to_additive]
 instance [Monoid M] [MulAction M α] : MulAction M (Shrink.{v} α) := (equivShrink α).symm.mulAction M

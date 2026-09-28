@@ -39,8 +39,8 @@ structure ClosedSubgroup (G : Type u) [Group G] [TopologicalSpace G] extends Sub
 
 /-- The type of closed subgroups of an additive topological group. -/
 @[ext]
-structure ClosedAddSubgroup (G : Type u) [AddGroup G] [TopologicalSpace G] extends
-    AddSubgroup G where
+structure ClosedAddSubgroup (G : Type u) [AddGroup G] [TopologicalSpace G]
+    extends AddSubgroup G where
   isClosed' : IsClosed carrier
 
 attribute [to_additive] ClosedSubgroup
@@ -53,9 +53,9 @@ variable (G : Type u) [Group G] [TopologicalSpace G]
 
 variable {G} in
 @[to_additive]
-theorem toSubgroup_injective : Function.Injective
-    (ClosedSubgroup.toSubgroup : ClosedSubgroup G → Subgroup G) :=
-  fun A B h ↦ by
+theorem toSubgroup_injective
+    : Function.Injective
+      (ClosedSubgroup.toSubgroup : ClosedSubgroup G → Subgroup G) := fun A B h ↦ by
   ext
   rw [h]
 

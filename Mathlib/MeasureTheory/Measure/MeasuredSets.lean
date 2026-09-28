@@ -35,8 +35,10 @@ namespace MeasureTheory
 variable {α : Type*} [mα : MeasurableSpace α] {μ : Measure α}
 
 set_option linter.unusedVariables false in
-/-- The subtype of all measurable sets. We denote it as `MeasuredSets μ`, with an explicit but
-unused parameter `μ`, to be able to define a distance on it given by `edist s t = μ (s ∆ t)` -/
+/--
+The subtype of all measurable sets. We denote it as `MeasuredSets μ`, with an explicit but
+unused parameter `μ`, to be able to define a distance on it given by `edist s t = μ (s ∆ t)`
+-/
 @[nolint unusedArguments]
 def MeasuredSets (μ : Measure α) : Type _ := {s : Set α // MeasurableSet s}
 
@@ -65,7 +67,8 @@ lemma MeasuredSets.continuous_measure : Continuous (fun (s : MeasuredSets μ) �
 
 noncomputable instance [IsFiniteMeasure μ] : PseudoMetricSpace (MeasuredSets μ) :=
   PseudoEMetricSpace.toPseudoMetricSpaceOfDist
-    (fun s t ↦ μ.real ((s : Set α) ∆ t)) (fun s t ↦ ENNReal.toReal_nonneg)
+    (fun s t ↦ μ.real ((s : Set α) ∆ t))
+    (fun s t ↦ ENNReal.toReal_nonneg)
     (fun s t ↦ by simp [Measure.real, MeasuredSets.edist_def])
 
 lemma MeasuredSets.dist_def [IsFiniteMeasure μ] (s t : MeasuredSets μ) :

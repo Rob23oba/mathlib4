@@ -22,13 +22,14 @@ universe v v' u u'
 
 namespace CategoryTheory
 
-variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
-  (P Q : ObjectProperty C)
+variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D] (P Q : ObjectProperty C)
 
 namespace ObjectProperty
 
-/-- A predicate `C → Prop` on the objects of a category is closed under isomorphisms
-if whenever `P X`, then all the objects `Y` that are isomorphic to `X` also satisfy `P Y`. -/
+/--
+A predicate `C → Prop` on the objects of a category is closed under isomorphisms
+if whenever `P X`, then all the objects `Y` that are isomorphic to `X` also satisfy `P Y`.
+-/
 class IsClosedUnderIsomorphisms : Prop where
   of_iso {X Y : C} (_ : X ≅ Y) (_ : P X) : P Y
 
@@ -89,8 +90,8 @@ instance (F : C ⥤ D) : IsClosedUnderIsomorphisms (P.map F) where
     rintro _ _ e ⟨X, hX, ⟨e'⟩⟩
     exact ⟨X, hX, ⟨e' ≪≫ e⟩⟩
 
-instance (F : D ⥤ C) [P.IsClosedUnderIsomorphisms] :
-    IsClosedUnderIsomorphisms (P.inverseImage F) where
+instance (F : D ⥤ C) [P.IsClosedUnderIsomorphisms]
+    : IsClosedUnderIsomorphisms (P.inverseImage F) where
   of_iso e hX := P.prop_of_iso (F.mapIso e) hX
 
 @[simp]

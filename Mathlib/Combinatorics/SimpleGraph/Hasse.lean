@@ -26,7 +26,6 @@ path graph on `n` vertices.
 
 @[expose] public section
 
-
 open Order OrderDual Relation
 
 namespace SimpleGraph
@@ -43,24 +42,19 @@ def hasse : SimpleGraph α where
 
 variable {α β} {a b : α}
 
-@[simp]
-theorem hasse_adj : (hasse α).Adj a b ↔ a ⋖ b ∨ b ⋖ a :=
-  Iff.rfl
+@[simp] theorem hasse_adj : (hasse α).Adj a b ↔ a ⋖ b ∨ b ⋖ a := Iff.rfl
 
 /-- `αᵒᵈ` and `α` have the same Hasse diagram. -/
-def hasseDualIso : hasse αᵒᵈ ≃g hasse α :=
-  { ofDual with map_rel_iff' := by simp [or_comm] }
+def hasseDualIso : hasse αᵒᵈ ≃g hasse α := { ofDual with map_rel_iff' := by simp [or_comm] }
 
-@[simp]
-theorem hasseDualIso_apply (a : αᵒᵈ) : hasseDualIso a = ofDual a :=
-  rfl
+@[simp] theorem hasseDualIso_apply (a : αᵒᵈ) : hasseDualIso a = ofDual a := rfl
 
-@[simp]
-theorem hasseDualIso_symm_apply (a : α) : hasseDualIso.symm a = toDual a :=
-  rfl
+@[simp] theorem hasseDualIso_symm_apply (a : α) : hasseDualIso.symm a = toDual a := rfl
 
-/-- The Hasse diagram of a preorder is triangle-free. This is the graph-theoretic formulation of
-`not_covBy_of_lt_of_lt`: if `a ⋖ b` and `b ⋖ c` then `¬a ⋖ c`. -/
+/--
+The Hasse diagram of a preorder is triangle-free. This is the graph-theoretic formulation of
+`not_covBy_of_lt_of_lt`: if `a ⋖ b` and `b ⋖ c` then `¬a ⋖ c`.
+-/
 theorem cliqueFree_hasse_three : (hasse α).CliqueFree 3 := by
   classical
   intro s ⟨hc, hcard⟩
@@ -88,34 +82,32 @@ section LinearOrder
 
 variable [LinearOrder α]
 
-theorem hasse_preconnected_of_succ [SuccOrder α] [IsSuccArchimedean α] : (hasse α).Preconnected :=
-  fun a b => by
+theorem hasse_preconnected_of_succ [SuccOrder α] [IsSuccArchimedean α]
+    : (hasse α).Preconnected := fun a b => by
   rw [reachable_iff_reflTransGen]
-  exact
-    reflTransGen_of_succ _ (fun c hc => Or.inl <| covBy_succ_of_not_isMax hc.2.not_isMax)
-      fun c hc => Or.inr <| covBy_succ_of_not_isMax hc.2.not_isMax
+  exact reflTransGen_of_succ _
+    (fun c hc => Or.inl <| covBy_succ_of_not_isMax hc.2.not_isMax)
+    fun c hc => Or.inr <| covBy_succ_of_not_isMax hc.2.not_isMax
 
-theorem hasse_preconnected_of_pred [PredOrder α] [IsPredArchimedean α] : (hasse α).Preconnected :=
-  fun a b => by
+theorem hasse_preconnected_of_pred [PredOrder α] [IsPredArchimedean α]
+    : (hasse α).Preconnected := fun a b => by
   rw [reachable_iff_reflTransGen, ← reflTransGen_swap]
-  exact
-    reflTransGen_of_pred _ (fun c hc => Or.inl <| pred_covBy_of_not_isMin hc.1.not_isMin)
-      fun c hc => Or.inr <| pred_covBy_of_not_isMin hc.1.not_isMin
+  exact reflTransGen_of_pred _
+    (fun c hc => Or.inl <| pred_covBy_of_not_isMin hc.1.not_isMin)
+    fun c hc => Or.inr <| pred_covBy_of_not_isMin hc.1.not_isMin
 
 end LinearOrder
 
 /-- The path graph on `n` vertices. -/
-def pathGraph (n : ℕ) : SimpleGraph (Fin n) :=
-  hasse _
+def pathGraph (n : ℕ) : SimpleGraph (Fin n) := hasse _
 
-theorem pathGraph_adj {n : ℕ} {u v : Fin n} :
-    (pathGraph n).Adj u v ↔ u.val + 1 = v.val ∨ v.val + 1 = u.val := by simp [pathGraph, hasse]
+theorem pathGraph_adj {n : ℕ} {u v : Fin n}
+    : (pathGraph n).Adj u v ↔ u.val + 1 = v.val ∨ v.val + 1 = u.val := by
+  simp [pathGraph, hasse]
 
-theorem pathGraph_preconnected (n : ℕ) : (pathGraph n).Preconnected :=
-  hasse_preconnected_of_succ _
+theorem pathGraph_preconnected (n : ℕ) : (pathGraph n).Preconnected := hasse_preconnected_of_succ _
 
-theorem pathGraph_connected (n : ℕ) : (pathGraph (n + 1)).Connected :=
-  ⟨pathGraph_preconnected _⟩
+theorem pathGraph_connected (n : ℕ) : (pathGraph (n + 1)).Connected := ⟨pathGraph_preconnected _⟩
 
 theorem pathGraph_two_eq_top : pathGraph 2 = ⊤ := by
   ext u v
@@ -129,25 +121,28 @@ variable {V : Type*} [DecidableEq V] {G : SimpleGraph V} {u v : V} (w : G.Walk u
 def pathGraphHomToSubgraph : pathGraph (w.length + 1) →g w.toSubgraph.coe where
   toFun n := ⟨w.support[n], w.mem_verts_toSubgraph.mpr <| List.getElem_mem _⟩
   map_rel' {a b} h := by
-    grind [support_getElem_eq_getVert, Subgraph.coe_adj, pathGraph_adj, toSubgraph_adj_getVert,
-      Subgraph.Adj.symm]
+    grind [
+      support_getElem_eq_getVert, Subgraph.coe_adj, pathGraph_adj, toSubgraph_adj_getVert,
+      Subgraph.Adj.symm
+    ]
 
 /-- A walk induces a homomorphism from a path graph to the graph -/
-def pathGraphHom : pathGraph (w.length + 1) →g G :=
-  w.toSubgraph.hom.comp w.pathGraphHomToSubgraph
+def pathGraphHom : pathGraph (w.length + 1) →g G := w.toSubgraph.hom.comp w.pathGraphHomToSubgraph
 
 variable {w} in
 /-- The subgraph of a path is isomorphic to the path graph with the same number of vertices -/
-def IsPath.pathGraphIsoToSubgraph (hw : w.IsPath) :
-    pathGraph (w.length + 1) ≃g w.toSubgraph.coe where
+def IsPath.pathGraphIsoToSubgraph (hw : w.IsPath)
+    : pathGraph (w.length + 1) ≃g w.toSubgraph.coe where
   toFun := w.pathGraphHomToSubgraph
   invFun v := ⟨w.support.idxOf v.val, by grind [w.mem_verts_toSubgraph]⟩
   left_inv := by grind [pathGraphHomToSubgraph, RelHom.coeFn_mk, hw.support_nodup]
   right_inv := by grind [pathGraphHomToSubgraph, RelHom.coeFn_mk]
   map_rel_iff' := by
     refine ⟨fun hadj ↦ ?_, w.pathGraphHomToSubgraph.map_rel'⟩
-    grind [w.toSubgraph_adj_iff.mp hadj, pathGraph_adj, getVert_eq_getD_support,
-      pathGraphHomToSubgraph, RelHom.coeFn_mk, hw.support_nodup.getElem_inj_iff]
+    grind [
+      w.toSubgraph_adj_iff.mp hadj, pathGraph_adj, getVert_eq_getD_support, pathGraphHomToSubgraph,
+      RelHom.coeFn_mk, hw.support_nodup.getElem_inj_iff
+    ]
 
 variable {w} in
 /-- A path induces an injective homomorphism from a path graph to the graph -/

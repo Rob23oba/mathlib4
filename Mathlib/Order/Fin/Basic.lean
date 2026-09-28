@@ -59,8 +59,8 @@ theorem coe_min (a b : Fin n) : ↑(min a b) = (min a b : ℕ) := rfl
 theorem compare_eq_compare_val (a b : Fin n) : compare a b = compare a.val b.val := rfl
 
 instance instLinearOrder : LinearOrder (Fin n) :=
-  Fin.val_injective.linearOrder _
-    Fin.le_iff_val_le_val Fin.lt_def val_min val_max compare_eq_compare_val
+  Fin.val_injective.linearOrder _ Fin.le_iff_val_le_val Fin.lt_def val_min val_max
+    compare_eq_compare_val
 
 instance instBoundedOrder [NeZero n] : BoundedOrder (Fin n) where
   top := rev 0
@@ -71,11 +71,13 @@ instance instBoundedOrder [NeZero n] : BoundedOrder (Fin n) where
 instance instBiheytingAlgebra [NeZero n] : BiheytingAlgebra (Fin n) :=
   LinearOrder.toBiheytingAlgebra (Fin n)
 
-/- There is a slight asymmetry here, in the sense that `0` is of type `Fin n` when we have
+/-
+There is a slight asymmetry here, in the sense that `0` is of type `Fin n` when we have
 `[NeZero n]` whereas `last n` is of type `Fin (n + 1)`. To address this properly would
 require a change to std4, defining `NeZero n` and thus re-defining `last n`
 (and possibly make its argument implicit) as `rev 0`, of type `Fin n`. As we can see from these
-lemmas, this would be equivalent to the existing definition. -/
+lemmas, this would be equivalent to the existing definition.
+-/
 
 /-!
 ### Extra instances to short-circuit type class resolution
@@ -108,17 +110,17 @@ theorem rev_last_eq_bot (n : ℕ) : rev (last n) = ⊥ := by rw [rev_last, bot_e
 theorem succ_top (n : ℕ) [NeZero n] : (⊤ : Fin n).succ = ⊤ := by
   rw [← rev_zero_eq_top, ← rev_zero_eq_top, ← rev_castSucc, castSucc_zero']
 
-@[simp]
-theorem val_top (n : ℕ) [NeZero n] : ((⊤ : Fin n) : ℕ) = n - 1 := rfl
+@[simp] theorem val_top (n : ℕ) [NeZero n] : ((⊤ : Fin n) : ℕ) = n - 1 := rfl
 
 @[simp]
 theorem zero_eq_top {n : ℕ} [NeZero n] : (0 : Fin n) = ⊤ ↔ n = 1 := by
-  rw [← bot_eq_zero, subsingleton_iff_bot_eq_top, subsingleton_iff_le_one,
-    le_one_iff_eq_zero_or_eq_one, or_iff_right (NeZero.ne n)]
+  rw [
+    ← bot_eq_zero, subsingleton_iff_bot_eq_top, subsingleton_iff_le_one,
+    le_one_iff_eq_zero_or_eq_one, or_iff_right (NeZero.ne n)
+  ]
 
 @[simp]
-theorem top_eq_zero {n : ℕ} [NeZero n] : (⊤ : Fin n) = 0 ↔ n = 1 :=
-  eq_comm.trans zero_eq_top
+theorem top_eq_zero {n : ℕ} [NeZero n] : (⊤ : Fin n) = 0 ↔ n = 1 := eq_comm.trans zero_eq_top
 
 @[simp]
 theorem cast_top {m n : ℕ} [NeZero m] [NeZero n] (h : m = n) : (⊤ : Fin m).cast h = ⊤ := by
@@ -210,8 +212,7 @@ lemma succAbove_lt_succAbove_iff : succAbove p i < succAbove p j ↔ i < j :=
 theorem natAdd_inj (m) {i j : Fin n} : natAdd m i = natAdd m j ↔ i = j :=
   (strictMono_natAdd _).injective.eq_iff
 
-theorem natAdd_injective (m n : ℕ) :
-    Function.Injective (Fin.natAdd n : Fin m → _) :=
+theorem natAdd_injective (m n : ℕ) : Function.Injective (Fin.natAdd n : Fin m → _) :=
   (strictMono_natAdd _).injective
 
 @[simp, gcongr]
@@ -266,7 +267,8 @@ lemma predAbove_le_predAbove {p q : Fin n} (hpq : p ≤ q) {i j : Fin (n + 1)} (
   (predAbove_right_monotone p hij).trans (predAbove_left_monotone j hpq)
 
 /-- `Fin.predAbove p` as an `OrderHom`. -/
-@[simps!] def predAboveOrderHom (p : Fin n) : Fin (n + 1) →o Fin n :=
+@[simps!]
+def predAboveOrderHom (p : Fin n) : Fin (n + 1) →o Fin n :=
   ⟨p.predAbove, p.predAbove_right_monotone⟩
 
 /-- `predAbove` is injective at the pivot -/
@@ -293,9 +295,11 @@ lemma predAbove_left_injective : Injective (@predAbove n) := by
 def orderIsoSubtype : Fin n ≃o {i // i < n} :=
   equivSubtype.toOrderIso (by simp [Monotone]) (by simp [Monotone])
 
-/-- `Fin.cast` as an `OrderIso`.
+/--
+`Fin.cast` as an `OrderIso`.
 
-`castOrderIso eq i` embeds `i` into an equal `Fin` type. -/
+`castOrderIso eq i` embeds `i` into an equal `Fin` type.
+-/
 @[simps]
 def castOrderIso (eq : n = m) : Fin n ≃o Fin m where
   toEquiv := ⟨Fin.cast eq, Fin.cast eq.symm, leftInverse_cast eq, rightInverse_cast eq⟩
@@ -347,64 +351,62 @@ def succOrderEmb (n : ℕ) : Fin n ↪o Fin (n + 1) := .ofStrictMono succ strict
 
 @[simp] lemma succOrderEmb_toEmbedding : (succOrderEmb n).toEmbedding = succEmb n := rfl
 
-/-- `Fin.castLE` as an `OrderEmbedding`.
+/--
+`Fin.castLE` as an `OrderEmbedding`.
 
-`castLEEmb h i` embeds `i` into a larger `Fin` type. -/
+`castLEEmb h i` embeds `i` into a larger `Fin` type.
+-/
 @[simps! apply toEmbedding]
 def castLEOrderEmb (h : n ≤ m) : Fin n ↪o Fin m := .ofStrictMono (castLE h) (strictMono_castLE h)
 
-@[simp]
-theorem coe_castLEOrderEmb (h : n ≤ m) : castLEOrderEmb h = castLE h :=
-  rfl
+@[simp] theorem coe_castLEOrderEmb (h : n ≤ m) : castLEOrderEmb h = castLE h := rfl
 
-/-- `Fin.castAdd` as an `OrderEmbedding`.
+/--
+`Fin.castAdd` as an `OrderEmbedding`.
 
-`castAddEmb m i` embeds `i : Fin n` in `Fin (n+m)`. See also `Fin.natAddEmb` and `Fin.addNatEmb`. -/
+`castAddEmb m i` embeds `i : Fin n` in `Fin (n+m)`. See also `Fin.natAddEmb` and `Fin.addNatEmb`.
+-/
 @[simps! apply toEmbedding]
 def castAddOrderEmb (m) : Fin n ↪o Fin (n + m) := .ofStrictMono (castAdd m) (strictMono_castAdd m)
 
-@[simp]
-theorem coe_castAddOrderEmb (m : ℕ) : (castAddOrderEmb m : Fin n → _) = castAdd m :=
-  rfl
+@[simp] theorem coe_castAddOrderEmb (m : ℕ) : (castAddOrderEmb m : Fin n → _) = castAdd m := rfl
 
-/-- `Fin.castSucc` as an `OrderEmbedding`.
+/--
+`Fin.castSucc` as an `OrderEmbedding`.
 
-`castSuccOrderEmb i` embeds `i : Fin n` in `Fin (n+1)`. -/
+`castSuccOrderEmb i` embeds `i : Fin n` in `Fin (n+1)`.
+-/
 @[simps! apply toEmbedding]
 def castSuccOrderEmb : Fin n ↪o Fin (n + 1) := .ofStrictMono castSucc strictMono_castSucc
 
-@[simp]
-theorem coe_castSuccOrderEmb : (castSuccOrderEmb : Fin n → _) = castSucc :=
-  rfl
+@[simp] theorem coe_castSuccOrderEmb : (castSuccOrderEmb : Fin n → _) = castSucc := rfl
 
-/-- `Fin.addNat` as an `OrderEmbedding`.
+/--
+`Fin.addNat` as an `OrderEmbedding`.
 
-`addNatOrderEmb m i` adds `m` to `i`, generalizes `Fin.succ`. -/
+`addNatOrderEmb m i` adds `m` to `i`, generalizes `Fin.succ`.
+-/
 @[simps! apply toEmbedding]
 def addNatOrderEmb (m) : Fin n ↪o Fin (n + m) := .ofStrictMono (addNat · m) (strictMono_addNat m)
 
-@[simp]
-theorem coe_addNatOrderEmb (m : ℕ) : (addNatOrderEmb m : Fin n → _) = (addNat · m) :=
-  rfl
+@[simp] theorem coe_addNatOrderEmb (m : ℕ) : (addNatOrderEmb m : Fin n → _) = (addNat · m) := rfl
 
-/-- `Fin.natAdd` as an `OrderEmbedding`.
+/--
+`Fin.natAdd` as an `OrderEmbedding`.
 
-`natAddOrderEmb n i` adds `n` to `i` "on the left". -/
+`natAddOrderEmb n i` adds `n` to `i` "on the left".
+-/
 @[simps! apply toEmbedding]
 def natAddOrderEmb (n) : Fin m ↪o Fin (n + m) := .ofStrictMono (natAdd n) (strictMono_natAdd n)
 
-@[simp]
-theorem coe_natAddOrderEmb (n : ℕ) : (natAddOrderEmb n : Fin m → _) = natAdd n :=
-  rfl
+@[simp] theorem coe_natAddOrderEmb (n : ℕ) : (natAddOrderEmb n : Fin m → _) = natAdd n := rfl
 
 /-- `Fin.succAbove p` as an `OrderEmbedding`. -/
 @[simps! apply toEmbedding]
 def succAboveOrderEmb (p : Fin (n + 1)) : Fin n ↪o Fin (n + 1) :=
   OrderEmbedding.ofStrictMono (succAbove p) (strictMono_succAbove p)
 
-@[simp]
-theorem coe_succAboveOrderEmb (p : Fin (n + 1)) : succAboveOrderEmb p = succAbove p :=
-  rfl
+@[simp] theorem coe_succAboveOrderEmb (p : Fin (n + 1)) : succAboveOrderEmb p = succAbove p := rfl
 
 lemma range_succAboveOrderEmb {n : ℕ} (i : Fin (n + 1)) :
     Set.range (Fin.succAboveOrderEmb i) = {i}ᶜ := by

@@ -5,6 +5,7 @@ Authors: Eric Wieser
 -/
 
 module
+
 public import Mathlib.Logic.Function.Basic
 public import Mathlib.Data.Fin.Init
 
@@ -29,11 +30,12 @@ variable {α : Type*} [XorOp α] [Zero α] [LawfulXor α]
 
 attribute [simp] xor_zero LawfulXor.xor_self
 
-@[simp]
-theorem zero_xor (a : α) : 0 ^^^ a = a := by rw [LawfulXor.xor_comm, xor_zero]
+@[simp] theorem zero_xor (a : α) : 0 ^^^ a = a := by rw [LawfulXor.xor_comm, xor_zero]
 
-instance : Std.Commutative (α := α) XorOp.xor where comm := xor_comm
-instance : Std.Associative (α := α) XorOp.xor where assoc := xor_assoc
+instance : Std.Commutative (α := α) XorOp.xor where
+  comm := xor_comm
+instance : Std.Associative (α := α) XorOp.xor where
+  assoc := xor_assoc
 
 instance : Std.LawfulCommIdentity (α := α) XorOp.xor 0 where
   left_id := zero_xor

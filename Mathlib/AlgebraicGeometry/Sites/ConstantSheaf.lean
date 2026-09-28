@@ -45,16 +45,17 @@ def continuousMapPresheaf (T : Type v) [TopologicalSpace T] : Scheme.{u}ᵒᵖ �
   obj U := C(U.unop, T)
   map {U V} f := ↾fun g ↦ ContinuousMap.comp g f.unop.base.hom
 
-/-- `continuousMapPresheaf` is isomorphic to the composition of the forgetful
-functor to `TopCat` and the yoneda embedding. -/
-def continuousMapPresheafIsoUlift :
-    continuousMapPresheaf T ≅
-      Scheme.forgetToTop.op ⋙ TopCat.uliftFunctor.op ⋙ yoneda.obj ↧(ULift T) :=
-  NatIso.ofComponents fun U ↦ equivEquivIso <|
-    (ContinuousMap.uliftEquiv U.1 T).symm.trans
-    (TopCat.Hom.equivContinuousMap
-      (TopCat.uliftFunctor.obj <| Scheme.forgetToTop.obj U.1)
-      (TopCat.uliftFunctor.obj ↧T)).symm
+/--
+`continuousMapPresheaf` is isomorphic to the composition of the forgetful
+functor to `TopCat` and the yoneda embedding.
+-/
+def continuousMapPresheafIsoUlift
+    : continuousMapPresheaf T
+      ≅ Scheme.forgetToTop.op ⋙ TopCat.uliftFunctor.op ⋙ yoneda.obj ↧(ULift T) :=
+  NatIso.ofComponents fun U ↦
+    equivEquivIso <| (ContinuousMap.uliftEquiv U.1 T).symm.trans
+      (TopCat.Hom.equivContinuousMap (TopCat.uliftFunctor.obj <| Scheme.forgetToTop.obj U.1)
+        (TopCat.uliftFunctor.obj ↧T)).symm
 
 lemma isSheaf_zariskiTopology_continuousMapPresheaf :
     Presheaf.IsSheaf Scheme.zariskiTopology (continuousMapPresheaf T) := by
@@ -84,11 +85,13 @@ lemma isSheaf_fpqcTopology_continuousMapPresheaf :
     · intro y hy
       rwa [← ContinuousMap.cancel_right (Spec.map f).surjective, Topology.IsQuotientMap.lift_comp]
 
-/-- `continuousMapPresheaf` is `U ↦ C(ConnectedComponents U, T)` if `T` is totally
-disconnected. -/
-def continuousMapPresheafEquivOfTotallyDisconnectedSpace [TotallyDisconnectedSpace T]
-    (U : Scheme.{u}) :
-    (continuousMapPresheaf T).obj (.op U) ≃ C(ConnectedComponents U, T) where
+/--
+`continuousMapPresheaf` is `U ↦ C(ConnectedComponents U, T)` if `T` is totally
+disconnected.
+-/
+def continuousMapPresheafEquivOfTotallyDisconnectedSpace
+    [TotallyDisconnectedSpace T] (U : Scheme.{u})
+    : (continuousMapPresheaf T).obj (.op U) ≃ C(ConnectedComponents U, T) where
   toFun f := ⟨f.continuous.connectedComponentsLift, f.continuous.connectedComponentsLift_continuous⟩
   invFun f := .comp f ⟨ConnectedComponents.mk, ConnectedComponents.continuous_coe⟩
   right_inv f := by
@@ -96,20 +99,24 @@ def continuousMapPresheafEquivOfTotallyDisconnectedSpace [TotallyDisconnectedSpa
     dsimp
     exact (Continuous.connectedComponentsLift_unique _ _ (by simp)).symm
 
-/-- `continuousMapPresheaf` as a presheaf of abelian groups associated to a topological abelian
-group. -/
-def continuousMapPresheafAb (A : Type v) [TopologicalSpace A] [AddCommGroup A]
-    [IsTopologicalAddGroup A] :
-    Scheme.{u}ᵒᵖ ⥤ Ab.{max v u} where
-  obj U := ↧C(U.unop, A)
+/--
+`continuousMapPresheaf` as a presheaf of abelian groups associated to a topological abelian
+group.
+-/
+def continuousMapPresheafAb
+    (A : Type v) [TopologicalSpace A] [AddCommGroup A] [IsTopologicalAddGroup A]
+    : Scheme.{u}ᵒᵖ ⥤ Ab.{max v u} where
+  obj U := ↧ C(U.unop, A)
   map {U V} f := AddCommGrpCat.ofHom (ContinuousMap.compAddMonoidHom' f.unop.base.hom)
 
 variable (A : Type v) [TopologicalSpace A] [AddCommGroup A] [IsTopologicalAddGroup A]
 
-/-- `continuousMapPresheafAb` viewed as a type valued sheaf is isomorphic to
-`continuousMapPresheaf`. -/
-def continuousMapPresheafAbForgetIso :
-    continuousMapPresheafAb A ⋙ CategoryTheory.forget Ab ≅ continuousMapPresheaf A :=
+/--
+`continuousMapPresheafAb` viewed as a type valued sheaf is isomorphic to
+`continuousMapPresheaf`.
+-/
+def continuousMapPresheafAbForgetIso
+    : continuousMapPresheafAb A ⋙ CategoryTheory.forget Ab ≅ continuousMapPresheaf A :=
   Iso.refl _
 
 lemma isSheaf_fpqcTopology_continuousMapPresheafAb :

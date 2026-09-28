@@ -93,8 +93,10 @@ lemma measure_inter_eq_prod {s t : Set α} (hs : MeasurableSet s) (ht : Measurab
   cases μ.zero_one s <;> cases μ.zero_one t <;> cases μ.zero_one (s ∩ t)
   all_goals try simp_all [measure_inter_eq_one]
 
-/-- In a standard Borel space, a zero-one measure that is not the zero measure is a Dirac
-measure. -/
+/--
+In a standard Borel space, a zero-one measure that is not the zero measure is a Dirac
+measure.
+-/
 theorem exists_eq_dirac [StandardBorelSpace α] [NeZero μ] : ∃ x₀, μ = Measure.dirac x₀ := by
   have : IsProbabilityMeasure μ := by
     rcases IsZeroOrProbabilityMeasure.measure_univ (μ := μ) with (h | h)

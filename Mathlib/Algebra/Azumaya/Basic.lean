@@ -43,8 +43,10 @@ variable (R A B : Type*) [CommSemiring R] [Ring A] [Ring B] [Algebra R A] [Algeb
 lemma AlgHom.mulLeftRight_bij [h : IsAzumaya R A] :
     Function.Bijective (AlgHom.mulLeftRight R A) := h.bij
 
-/-- The "canonical" isomorphism between `R ⊗ Rᵒᵖ` and `End R R` which is equal
-  to `AlgHom.mulLeftRight R R`. -/
+/--
+The "canonical" isomorphism between `R ⊗ Rᵒᵖ` and `End R R` which is equal
+to `AlgHom.mulLeftRight R R`.
+-/
 abbrev tensorEquivEnd : R ⊗[R] Rᵐᵒᵖ ≃ₐ[R] Module.End R R :=
   Algebra.TensorProduct.lid R Rᵐᵒᵖ |>.trans <| .moduleEndSelf R
 
@@ -78,14 +80,17 @@ theorem of_AlgEquiv (e : A ≃ₐ[R] B) [IsAzumaya R A] : IsAzumaya R B :=
   let _ : FaithfulSMul R B := .of_injective e e.injective
   let _ : Module.Finite R B := .equiv e.toLinearEquiv
   ⟨Function.Bijective.of_comp_iff (AlgHom.mulLeftRight R B)
-    (Algebra.TensorProduct.congr e e.op).bijective |>.1 <| by
-    rw [← AlgEquiv.coe_toAlgHom, ← AlgHom.coe_comp, mulLeftRight_comp_congr]
-    simp [AlgHom.mulLeftRight_bij]⟩
+        (Algebra.TensorProduct.congr e e.op).bijective
+      |>.1 <|
+    by
+      rw [← AlgEquiv.coe_toAlgHom, ← AlgHom.coe_comp, mulLeftRight_comp_congr]
+      simp [AlgHom.mulLeftRight_bij]⟩
 
 end IsAzumaya
 
 /-- An Azumaya algebra is a central algebra. -/
-instance Algebra.IsCentral.instIsAzumaya {R A : Type*} [CommSemiring R] [Semiring A]
-    [Algebra R A] [Module.Free R A] [IsAzumaya R A] : IsCentral R A :=
+instance Algebra.IsCentral.instIsAzumaya
+    {R A : Type*} [CommSemiring R] [Semiring A] [Algebra R A] [Module.Free R A] [IsAzumaya R A]
+    : IsCentral R A :=
   have := of_algEquiv R _ _ (AlgEquiv.ofBijective (.mulLeftRight R A) IsAzumaya.bij).symm
   left_of_tensor R A Aᵐᵒᵖ <| FaithfulSMul.algebraMap_injective _ _

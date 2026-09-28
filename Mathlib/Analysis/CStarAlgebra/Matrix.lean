@@ -46,8 +46,8 @@ section EntrywiseSupNorm
 
 variable [RCLike 𝕜] [Fintype n] [DecidableEq n]
 
-theorem entry_norm_bound_of_unitary {U : Matrix n n 𝕜} (hU : U ∈ Matrix.unitaryGroup n 𝕜)
-    (i j : n) : ‖U i j‖ ≤ 1 := by
+theorem entry_norm_bound_of_unitary {U : Matrix n n 𝕜} (hU : U ∈ Matrix.unitaryGroup n 𝕜) (i j : n)
+    : ‖U i j‖ ≤ 1 := by
   -- The norm squared of an entry is at most the L2 norm of its row.
   have norm_sum : ‖U i j‖ ^ 2 ≤ ∑ x, ‖U i x‖ ^ 2 := by
     apply Multiset.single_le_sum
@@ -79,8 +79,8 @@ theorem entry_norm_bound_of_unitary {U : Matrix n n 𝕜} (hU : U ∈ Matrix.uni
 set_option backward.isDefEq.respectTransparency false in
 open scoped Matrix.Norms.Elementwise in
 /-- The entrywise sup norm of a unitary matrix is at most 1. -/
-theorem entrywise_sup_norm_bound_of_unitary {U : Matrix n n 𝕜} (hU : U ∈ Matrix.unitaryGroup n 𝕜) :
-    ‖U‖ ≤ 1 := by
+theorem entrywise_sup_norm_bound_of_unitary {U : Matrix n n 𝕜} (hU : U ∈ Matrix.unitaryGroup n 𝕜)
+    : ‖U‖ ≤ 1 := by
   simp_rw [pi_norm_le_iff_of_nonneg zero_le_one]
   intros
   exact entry_norm_bound_of_unitary hU _ _
@@ -95,17 +95,19 @@ open LinearMap
 variable [RCLike 𝕜]
 variable [Fintype m] [Fintype n] [DecidableEq n] [Fintype l] [DecidableEq l]
 
-/-- The natural star algebra equivalence between matrices and continuous linear endomorphisms
+/--
+The natural star algebra equivalence between matrices and continuous linear endomorphisms
 of Euclidean space induced by the orthonormal basis `EuclideanSpace.basisFun`.
 
 This is a more-bundled version of `Matrix.toEuclideanLin`, for the special case of square matrices,
-followed by a more-bundled version of `LinearMap.toContinuousLinearMap`. -/
-def toEuclideanCLM :
-    Matrix n n 𝕜 ≃⋆ₐ[𝕜] (EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 n) :=
-  toMatrixOrthonormal (EuclideanSpace.basisFun n 𝕜) |>.symm.trans <|
-    { toContinuousLinearMap with
-      map_mul' := fun _ _ ↦ rfl
-      map_star' := adjoint_toContinuousLinearMap }
+followed by a more-bundled version of `LinearMap.toContinuousLinearMap`.
+-/
+def toEuclideanCLM : Matrix n n 𝕜 ≃⋆ₐ[𝕜] (EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 n) :=
+  toMatrixOrthonormal (EuclideanSpace.basisFun n 𝕜) |>.symm.trans <| {
+    toContinuousLinearMap with
+    map_mul' := fun _ _ ↦ rfl
+    map_star' := adjoint_toContinuousLinearMap
+  }
 
 @[fun_prop]
 lemma continuous_uncurry_toEuclideanCLM :
@@ -147,30 +149,38 @@ lemma inner_toEuclideanCLM (A : Matrix n n ℝ) (x y : EuclideanSpace ℝ n) :
   rw [mul_comm (x.ofLp i)]
   simp [Pi.single_apply]
 
-/-- An auxiliary definition used only to construct the true `NormedAddCommGroup` (and `Metric`)
-structure provided by `Matrix.instMetricSpaceL2Op` and `Matrix.instNormedAddCommGroupL2Op`. -/
+/--
+An auxiliary definition used only to construct the true `NormedAddCommGroup` (and `Metric`)
+structure provided by `Matrix.instMetricSpaceL2Op` and `Matrix.instNormedAddCommGroupL2Op`.
+-/
 @[instance_reducible]
 def l2OpNormedAddCommGroupAux : NormedAddCommGroup (Matrix m n 𝕜) :=
   @NormedAddCommGroup.induced ((Matrix m n 𝕜) ≃ₗ[𝕜] (EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 m)) _
     _ _ _ ContinuousLinearMap.toNormedAddCommGroup.toNormedAddGroup _ _
     (toEuclideanLin.trans toContinuousLinearMap).injective
 
-/-- An auxiliary definition used only to construct the true `NormedRing` (and `Metric`) structure
-provided by `Matrix.instMetricSpaceL2Op` and `Matrix.instNormedRingL2Op`. -/
+/--
+An auxiliary definition used only to construct the true `NormedRing` (and `Metric`) structure
+provided by `Matrix.instMetricSpaceL2Op` and `Matrix.instNormedRingL2Op`.
+-/
 @[instance_reducible]
 def l2OpNormedRingAux : NormedRing (Matrix n n 𝕜) :=
-  @NormedRing.induced ((Matrix n n 𝕜) ≃⋆ₐ[𝕜] (EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 n)) _
-    _ _ _ ContinuousLinearMap.toNormedRing _ _ toEuclideanCLM.injective
+  @NormedRing.induced ((Matrix n n 𝕜) ≃⋆ₐ[𝕜] (EuclideanSpace 𝕜 n →L[𝕜] EuclideanSpace 𝕜 n)) _ _ _ _
+    ContinuousLinearMap.toNormedRing _ _ toEuclideanCLM.injective
 
 open Filter
 open scoped Topology Uniformity
 
-/-- The metric on `Matrix m n 𝕜` arising from the operator norm given by the identification with
-(continuous) linear maps of `EuclideanSpace`. -/
+/--
+The metric on `Matrix m n 𝕜` arising from the operator norm given by the identification with
+(continuous) linear maps of `EuclideanSpace`.
+-/
 @[instance_reducible]
 def instL2OpMetricSpace : MetricSpace (Matrix m n 𝕜) := by
-  /- We first replace the topology so that we can automatically replace the uniformity using
-  `IsUniformAddGroup.toUniformSpace_eq`. -/
+  /-
+  We first replace the topology so that we can automatically replace the uniformity using
+  `IsUniformAddGroup.toUniformSpace_eq`.
+  -/
   letI normed_add_comm_group : NormedAddCommGroup (Matrix m n 𝕜) :=
     { l2OpNormedAddCommGroupAux.replaceTopology <|
         (toEuclideanLin (𝕜 := 𝕜) (m := m) (n := n)).trans toContinuousLinearMap
@@ -186,8 +196,10 @@ scoped[Matrix.Norms.L2Operator] attribute [instance] Matrix.instL2OpMetricSpace
 
 open scoped Matrix.Norms.L2Operator
 
-/-- The norm structure on `Matrix m n 𝕜` arising from the operator norm given by the identification
-with (continuous) linear maps of `EuclideanSpace`. -/
+/--
+The norm structure on `Matrix m n 𝕜` arising from the operator norm given by the identification
+with (continuous) linear maps of `EuclideanSpace`.
+-/
 @[instance_reducible]
 def instL2OpNormedAddCommGroup : NormedAddCommGroup (Matrix m n 𝕜) where
   norm := l2OpNormedAddCommGroupAux.norm
@@ -262,8 +274,10 @@ lemma l2_opNorm_diagonal (v : n → 𝕜) : ‖(diagonal v : Matrix n n 𝕜)‖
 lemma l2_opNNNorm_diagonal (v : n → 𝕜) : ‖(diagonal v : Matrix n n 𝕜)‖₊ = ‖v‖₊ :=
   Subtype.ext <| l2_opNorm_diagonal (n := n) (𝕜 := 𝕜) v
 
-/-- The normed algebra structure on `Matrix n n 𝕜` arising from the operator norm given by the
-identification with (continuous) linear endomorphisms of `EuclideanSpace 𝕜 n`. -/
+/--
+The normed algebra structure on `Matrix n n 𝕜` arising from the operator norm given by the
+identification with (continuous) linear endomorphisms of `EuclideanSpace 𝕜 n`.
+-/
 @[instance_reducible]
 def instL2OpNormedSpace : NormedSpace 𝕜 (Matrix m n 𝕜) where
   norm_smul_le r x := by
@@ -272,8 +286,10 @@ def instL2OpNormedSpace : NormedSpace 𝕜 (Matrix m n 𝕜) where
 
 scoped[Matrix.Norms.L2Operator] attribute [instance] Matrix.instL2OpNormedSpace
 
-/-- The normed ring structure on `Matrix n n 𝕜` arising from the operator norm given by the
-identification with (continuous) linear endomorphisms of `EuclideanSpace 𝕜 n`. -/
+/--
+The normed ring structure on `Matrix n n 𝕜` arising from the operator norm given by the
+identification with (continuous) linear endomorphisms of `EuclideanSpace 𝕜 n`.
+-/
 @[instance_reducible]
 def instL2OpNormedRing : NormedRing (Matrix n n 𝕜) where
   dist_eq := l2OpNormedRingAux.dist_eq
@@ -288,8 +304,10 @@ lemma cstar_norm_def (A : Matrix n n 𝕜) : ‖A‖ = ‖toEuclideanCLM (n := n
 matrices. -/
 lemma cstar_nnnorm_def (A : Matrix n n 𝕜) : ‖A‖₊ = ‖toEuclideanCLM (n := n) (𝕜 := 𝕜) A‖₊ := rfl
 
-/-- The normed algebra structure on `Matrix n n 𝕜` arising from the operator norm given by the
-identification with (continuous) linear endomorphisms of `EuclideanSpace 𝕜 n`. -/
+/--
+The normed algebra structure on `Matrix n n 𝕜` arising from the operator norm given by the
+identification with (continuous) linear endomorphisms of `EuclideanSpace 𝕜 n`.
+-/
 @[instance_reducible]
 def instL2OpNormedAlgebra : NormedAlgebra 𝕜 (Matrix n n 𝕜) where
   norm_smul_le := norm_smul_le
@@ -304,8 +322,9 @@ lemma instCStarRing : CStarRing (Matrix n n 𝕜) where
 scoped[Matrix.Norms.L2Operator] attribute [instance] Matrix.instCStarRing
 
 /-- The matrices `Matrix n n ℂ` with the L2 operator norm form a `CStarAlgebra`. -/
-@[instance_reducible] noncomputable def instCStarAlgebra {n : Type*} [Fintype n] [DecidableEq n] :
-    CStarAlgebra (Matrix n n ℂ) where
+@[instance_reducible]
+noncomputable def instCStarAlgebra {n : Type*} [Fintype n] [DecidableEq n]
+  : CStarAlgebra (Matrix n n ℂ) where
 
 scoped[Matrix.Norms.L2Operator] attribute [instance] Matrix.instCStarAlgebra
 

@@ -31,8 +31,9 @@ namespace CategoryTheory
 
 open Category Opposite Limits Abelian
 
-variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-  [HasWeakSheafify J (Type v)] [HasSheafify J AddCommGrpCat.{v}]
+variable
+  {C : Type u} [Category.{v} C]
+  {J : GrothendieckTopology C} [HasWeakSheafify J (Type v)] [HasSheafify J AddCommGrpCat.{v}]
   [HasExt.{w} (Sheaf J AddCommGrpCat.{v})]
 
 namespace GrothendieckTopology.MayerVietorisSquare
@@ -40,10 +41,8 @@ namespace GrothendieckTopology.MayerVietorisSquare
 variable (S : J.MayerVietorisSquare) (F : Sheaf J AddCommGrpCat.{v})
 
 /-- The sum of two restriction maps in sheaf cohomology. -/
-noncomputable def toBiprod (n : ℕ) :
-    F.H' n S.X₄ ⟶ F.H' n S.X₂ ⊞ F.H' n S.X₃ :=
-  biprod.lift ((F.cohomologyPresheaf n).map S.f₂₄.op)
-      ((F.cohomologyPresheaf n).map S.f₃₄.op)
+noncomputable def toBiprod (n : ℕ) : F.H' n S.X₄ ⟶ F.H' n S.X₂ ⊞ F.H' n S.X₃ :=
+  biprod.lift ((F.cohomologyPresheaf n).map S.f₂₄.op) ((F.cohomologyPresheaf n).map S.f₃₄.op)
 
 lemma toBiprod_apply {n : ℕ} (y : F.H' n S.X₄) :
     S.toBiprod F n y = (AddCommGrpCat.biprodIsoProd _ _).inv
@@ -64,10 +63,8 @@ lemma toBiprod_apply {n : ℕ} (y : F.H' n S.X₄) :
       biprod.lift_snd, Iso.inv_hom_id_apply]
 
 /-- The difference of two restriction maps in sheaf cohomology. -/
-noncomputable def fromBiprod (n : ℕ) :
-    F.H' n S.X₂ ⊞ F.H' n S.X₃ ⟶ F.H' n S.X₁ :=
-  biprod.desc ((F.cohomologyPresheaf n).map S.f₁₂.op)
-      (-(F.cohomologyPresheaf n).map S.f₁₃.op)
+noncomputable def fromBiprod (n : ℕ) : F.H' n S.X₂ ⊞ F.H' n S.X₃ ⟶ F.H' n S.X₁ :=
+  biprod.desc ((F.cohomologyPresheaf n).map S.f₁₂.op) (- (F.cohomologyPresheaf n).map S.f₁₃.op)
 
 @[reassoc (attr := simp)]
 lemma toBiprod_fromBiprod (n : ℕ) : S.toBiprod F n ≫ S.fromBiprod F n = 0 := by
@@ -107,32 +104,35 @@ lemma mk₀_f_comp_biprodAddEquiv_symm_biprodIsoProd_hom
 
 variable (n₀ n₁ : ℕ) (h : n₀ + 1 = n₁)
 
-/-- The connecting homomorphism of the Mayer-Vietoris long exact sequence
-in sheaf cohomology. -/
-noncomputable def δ :
-    F.H' n₀ S.X₁ ⟶ F.H' n₁ S.X₄ :=
+/--
+The connecting homomorphism of the Mayer-Vietoris long exact sequence
+in sheaf cohomology.
+-/
+noncomputable def δ : F.H' n₀ S.X₁ ⟶ F.H' n₁ S.X₄ :=
   AddCommGrpCat.ofHom (S.shortComplex_shortExact.extClass.precomp _ (by omega))
 
 open ComposableArrows
 
-/-- The Mayer-Vietoris long exact sequence of an abelian sheaf `F : Sheaf J AddCommGrpCat`
-for a Mayer-Vietoris square `S : J.MayerVietorisSquare`. -/
+/--
+The Mayer-Vietoris long exact sequence of an abelian sheaf `F : Sheaf J AddCommGrpCat`
+for a Mayer-Vietoris square `S : J.MayerVietorisSquare`.
+-/
 noncomputable abbrev sequence : ComposableArrows AddCommGrpCat.{w} 5 :=
-  mk₅ (S.toBiprod F n₀) (S.fromBiprod F n₀) (S.δ F n₀ n₁ h)
-    (S.toBiprod F n₁) (S.fromBiprod F n₁)
+  mk₅ (S.toBiprod F n₀) (S.fromBiprod F n₀) (S.δ F n₀ n₁ h) (S.toBiprod F n₁) (S.fromBiprod F n₁)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Comparison isomorphism from the Mayer-Vietoris sequence and the
-contravariant sequence of `Ext`-groups. -/
-noncomputable def sequenceIso : S.sequence F n₀ n₁ h ≅
-    Ext.contravariantSequence S.shortComplex_shortExact F n₀ n₁ (by omega) :=
+/--
+Comparison isomorphism from the Mayer-Vietoris sequence and the
+contravariant sequence of `Ext`-groups.
+-/
+noncomputable def sequenceIso
+    : S.sequence F n₀ n₁ h
+      ≅ Ext.contravariantSequence S.shortComplex_shortExact F n₀ n₁ (by omega) :=
   isoMk₅ (Iso.refl _)
-    ((AddCommGrpCat.biprodIsoProd _ _).trans (Ext.biprodAddEquiv.symm).toAddCommGrpIso)
-    (Iso.refl _) (Iso.refl _)
-    ((AddCommGrpCat.biprodIsoProd _ _).trans (Ext.biprodAddEquiv.symm).toAddCommGrpIso)
-    (Iso.refl _)
-    (by ext; apply biprodAddEquiv_symm_biprodIsoProd_hom_toBiprod_apply)
+    ((AddCommGrpCat.biprodIsoProd _ _).trans (Ext.biprodAddEquiv.symm).toAddCommGrpIso) (Iso.refl _)
+    (Iso.refl _) ((AddCommGrpCat.biprodIsoProd _ _).trans (Ext.biprodAddEquiv.symm).toAddCommGrpIso)
+    (Iso.refl _) (by ext; apply biprodAddEquiv_symm_biprodIsoProd_hom_toBiprod_apply)
     (by ext; symm; apply mk₀_f_comp_biprodAddEquiv_symm_biprodIsoProd_hom)
     (by dsimp; rw [comp_id, id_comp]; rfl)
     (by ext; apply biprodAddEquiv_symm_biprodIsoProd_hom_toBiprod_apply)

@@ -33,13 +33,13 @@ instance instMulZeroClass [MulZeroClass M₀] [MulZeroClass N₀] : MulZeroClass
   zero_mul := by simp [Prod.mul_def]
   mul_zero := by simp [Prod.mul_def]
 
-instance instSemigroupWithZero [SemigroupWithZero M₀] [SemigroupWithZero N₀] :
-    SemigroupWithZero (M₀ × N₀) where
+instance instSemigroupWithZero [SemigroupWithZero M₀] [SemigroupWithZero N₀]
+    : SemigroupWithZero (M₀ × N₀) where
   zero_mul := by simp
   mul_zero := by simp
 
-instance instMulZeroOneClass [MulZeroOneClass M₀] [MulZeroOneClass N₀] :
-    MulZeroOneClass (M₀ × N₀) where
+instance instMulZeroOneClass [MulZeroOneClass M₀] [MulZeroOneClass N₀]
+    : MulZeroOneClass (M₀ × N₀) where
   zero_mul := by simp
   mul_zero := by simp
 
@@ -47,8 +47,8 @@ instance instMonoidWithZero [MonoidWithZero M₀] [MonoidWithZero N₀] : Monoid
   zero_mul := by simp
   mul_zero := by simp
 
-instance instCommMonoidWithZero [CommMonoidWithZero M₀] [CommMonoidWithZero N₀] :
-    CommMonoidWithZero (M₀ × N₀) where
+instance instCommMonoidWithZero [CommMonoidWithZero M₀] [CommMonoidWithZero N₀]
+    : CommMonoidWithZero (M₀ × N₀) where
   zero_mul := by simp
   mul_zero := by simp
 

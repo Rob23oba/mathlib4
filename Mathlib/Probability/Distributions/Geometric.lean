@@ -7,7 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.Probability.ProbabilityMassFunction.Basic
-
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
 
 /-! # Geometric distributions
@@ -49,8 +48,8 @@ namespace ProbabilityTheory
 variable {p : unitInterval}
 
 /-- The geometric measure with success probability `p` as a measure over `ℕ`. -/
-noncomputable def geometricMeasure (p : unitInterval) : Measure ℕ := if p ≠ 0
-  then
+noncomputable def geometricMeasure (p : unitInterval) : Measure ℕ :=
+  if p ≠ 0 then
     Measure.sum (fun n ↦ ENNReal.ofReal ((1 - p) ^ n * p) • .dirac n)
   else
     .dirac 0
@@ -87,12 +86,10 @@ lemma hasSum_one_geometricMeasure (hp : p ≠ 0) :
   convert! (hasSum_geometric_of_lt_one (r := 1 - p) (by grind) (by grind)).mul_right (p : ℝ)
   grind
 
-instance isProbabilityMeasure_geometricMeasure :
-    IsProbabilityMeasure (geometricMeasure p) := by
+instance isProbabilityMeasure_geometricMeasure : IsProbabilityMeasure (geometricMeasure p) := by
   rw [geometricMeasure]
   split_ifs with h
-  · exact (hasSum_one_geometricMeasure h).isProbabilityMeasure_sum_dirac
-      (geometricMeasure_nonneg p)
+  · exact (hasSum_one_geometricMeasure h).isProbabilityMeasure_sum_dirac (geometricMeasure_nonneg p)
   · infer_instance
 
 section Integral
@@ -148,8 +145,7 @@ variable {p : ℝ}
 
 /-- The pmf of the geometric distribution depending on its success probability. -/
 @[deprecated geometricMeasure +typeChanged (since := "2026-03-08")]
-noncomputable
-def geometricPMFReal (p : ℝ) (n : ℕ) : ℝ := (1 - p) ^ n * p
+noncomputable def geometricPMFReal (p : ℝ) (n : ℕ) : ℝ := (1 - p) ^ n * p
 
 @[deprecated hasSum_one_geometricMeasure +typeChanged (since := "2026-03-08")]
 lemma geometricPMFRealSum (hp_pos : 0 < p) (hp_le_one : p ≤ 1) :
@@ -175,13 +171,14 @@ lemma geometricPMFReal_nonneg {n : ℕ} (hp_pos : 0 < p) (hp_le_one : p ≤ 1) :
 
 /-- Geometric distribution with success probability `p`. -/
 @[deprecated geometricMeasure +typeChanged (since := "2026-03-08")]
-noncomputable
-def geometricPMF (hp_pos : 0 < p) (hp_le_one : p ≤ 1) : PMF ℕ :=
-  ⟨fun n ↦ ENNReal.ofReal (geometricPMFReal p n), by
+noncomputable def geometricPMF (hp_pos : 0 < p) (hp_le_one : p ≤ 1) : PMF ℕ := ⟨
+  fun n ↦ ENNReal.ofReal (geometricPMFReal p n),
+  by
     apply ENNReal.hasSum_coe.mpr
     rw [← toNNReal_one]
     exact (geometricPMFRealSum hp_pos hp_le_one).toNNReal
-      (fun n ↦ geometricPMFReal_nonneg hp_pos hp_le_one)⟩
+      (fun n ↦ geometricPMFReal_nonneg hp_pos hp_le_one)
+⟩
 
 @[deprecated Measurable.of_discrete +typeChanged (since := "2026-03-08")]
 lemma measurable_geometricPMFReal : Measurable (geometricPMFReal p) := by

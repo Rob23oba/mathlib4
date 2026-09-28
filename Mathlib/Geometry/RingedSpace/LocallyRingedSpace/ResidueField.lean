@@ -40,10 +40,11 @@ namespace AlgebraicGeometry.LocallyRingedSpace
 
 variable (X : LocallyRingedSpace.{u}) {U : Opens X}
 
-/-- The residue field of `X` at a point `x` is the residue field of the stalk of `X`
-at `x`. -/
-def residueField (x : X) : CommRingCat :=
-  ↧(IsLocalRing.ResidueField (X.presheaf.stalk x))
+/--
+The residue field of `X` at a point `x` is the residue field of the stalk of `X`
+at `x`.
+-/
+def residueField (x : X) : CommRingCat := ↧(IsLocalRing.ResidueField (X.presheaf.stalk x))
 
 instance (x : X) : Field (X.residueField x) :=
   inferInstanceAs <| Field (IsLocalRing.ResidueField (X.presheaf.stalk x))
@@ -99,8 +100,10 @@ lemma Γevaluation_ne_zero_iff_mem_basicOpen (x : X) (f : X.presheaf.obj (op ⊤
 
 variable {X Y : LocallyRingedSpace.{u}} (f : X ⟶ Y) (x : X)
 
-/-- If `X ⟶ Y` is a morphism of locally ringed spaces and `x` a point of `X`, we obtain
-a morphism of residue fields in the other direction. -/
+/--
+If `X ⟶ Y` is a morphism of locally ringed spaces and `x` a point of `X`, we obtain
+a morphism of residue fields in the other direction.
+-/
 def residueFieldMap (x : X) : Y.residueField (f.base x) ⟶ X.residueField x :=
   CommRingCat.ofHom (IsLocalRing.ResidueField.map (f.stalkMap x).hom)
 

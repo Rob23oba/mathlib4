@@ -20,8 +20,9 @@ open FaithfulSMul (algebraMap_injective)
 
 namespace RootPairing
 
-variable {ι R M N : Type*} [CommRing R] [CharZero R] [IsDomain R]
-  [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  {ι R M N : Type*}
+  [CommRing R] [CharZero R] [IsDomain R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
   {P : RootPairing ι R M N} [Finite ι] [P.IsCrystallographic]
 
 local notation "Φ" => range P.root
@@ -121,11 +122,10 @@ private lemma chainBotCoeff_mul_chainTopCoeff.aux_0 [P.IsNotG2]
   rw [P.chainBotCoeff_if_one_zero hik_mem, ite_eq_right_iff, P.pairingIn_eq_zero_iff (i := i)]
   lia
 
-variable [P.IsReduced] [P.IsIrreducible]
-  (hi : i ∈ b.support) (hj : j ∈ b.support) (hij : i ≠ j)
-  (h₁ : P.root k + P.root i = P.root l)
-  (h₂ : P.root k - P.root j = P.root m)
-  (h₃ : P.root k + P.root i - P.root j ∈ range P.root)
+variable
+  [P.IsReduced] [P.IsIrreducible]
+  (hi : i ∈ b.support) (hj : j ∈ b.support) (hij : i ≠ j) (h₁ : P.root k + P.root i = P.root l)
+  (h₂ : P.root k - P.root j = P.root m) (h₃ : P.root k + P.root i - P.root j ∈ range P.root)
 
 include hi hj hij h₁ h₂ h₃
 

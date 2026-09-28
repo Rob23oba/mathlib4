@@ -29,13 +29,16 @@ noncomputable section
 
 open Matrix MulOpposite
 
-/-- `AlgHom.mulLeftRight` for matrix algebra sends basis Eᵢⱼ⊗Eₖₗ to
-  the map `f : Eₛₜ ↦ Eᵢⱼ * Eₛₜ * Eₖₗ = δⱼₛδₜₖEᵢₗ`, therefore we construct the inverse
-  by sending `f` to `∑ᵢₗₛₜ f(Eₛₜ)ᵢₗ • Eᵢₛ⊗Eₜₗ`. -/
-abbrev AlgHom.mulLeftRightMatrix_inv :
-    Module.End R (Matrix n n R) →ₗ[R] Matrix n n R ⊗[R] (Matrix n n R)ᵐᵒᵖ where
-  toFun f := ∑ ⟨⟨i, j⟩, k, l⟩ : (n × n) × n × n,
-    f (single j k 1) i l • (single i j 1) ⊗ₜ[R] op (single k l 1)
+/--
+`AlgHom.mulLeftRight` for matrix algebra sends basis Eᵢⱼ⊗Eₖₗ to
+the map `f : Eₛₜ ↦ Eᵢⱼ * Eₛₜ * Eₖₗ = δⱼₛδₜₖEᵢₗ`, therefore we construct the inverse
+by sending `f` to `∑ᵢₗₛₜ f(Eₛₜ)ᵢₗ • Eᵢₛ⊗Eₜₗ`.
+-/
+abbrev AlgHom.mulLeftRightMatrix_inv
+    : Module.End R (Matrix n n R) →ₗ[R] Matrix n n R ⊗[R] (Matrix n n R)ᵐᵒᵖ where
+  toFun f :=
+    ∑ ⟨⟨i, j⟩, k, l⟩ : (n × n) × n × n,
+      f (single j k 1) i l • (single i j 1) ⊗ₜ[R] op (single k l 1)
   map_add' f1 f2 := by simp [add_smul, Finset.sum_add_distrib]
   map_smul' r f := by simp [mul_smul, Finset.smul_sum]
 
@@ -64,10 +67,12 @@ namespace IsAzumaya
 /-- A nontrivial matrix ring over `R` is an Azumaya algebra over `R`. -/
 theorem matrix [Nonempty n] : IsAzumaya R (Matrix n n R) where
   eq_of_smul_eq_smul := by nontriviality R; exact eq_of_smul_eq_smul
-  bij := Function.bijective_iff_has_inverse.mpr
-    ⟨AlgHom.mulLeftRightMatrix_inv R n,
-    DFunLike.congr_fun (AlgHom.mulLeftRightMatrix.inv_comp R n),
-    DFunLike.congr_fun (AlgHom.mulLeftRightMatrix.comp_inv R n)⟩
+  bij :=
+    Function.bijective_iff_has_inverse.mpr ⟨
+      AlgHom.mulLeftRightMatrix_inv R n,
+      DFunLike.congr_fun (AlgHom.mulLeftRightMatrix.inv_comp R n),
+      DFunLike.congr_fun (AlgHom.mulLeftRightMatrix.comp_inv R n)
+    ⟩
 
 end IsAzumaya
 

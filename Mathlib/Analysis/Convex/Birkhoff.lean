@@ -163,8 +163,8 @@ The set of doubly stochastic matrices is the convex hull of the permutation matr
 `exists_eq_sum_perm_of_mem_doublyStochastic` gives a convex weighting of each permutation matrix
 directly.  To show `doublyStochastic n` is convex, use `convex_doublyStochastic`.
 -/
-theorem doublyStochastic_eq_convexHull_permMatrix :
-    doublyStochastic R n = convexHull R {σ.permMatrix R | σ : Equiv.Perm n} := by
+theorem doublyStochastic_eq_convexHull_permMatrix
+    : doublyStochastic R n = convexHull R {σ.permMatrix R | σ : Equiv.Perm n} := by
   refine (convexHull_min ?g1 convex_doublyStochastic).antisymm' fun M hM => ?g2
   case g1 =>
     rintro x ⟨h, rfl⟩
@@ -176,8 +176,8 @@ theorem doublyStochastic_eq_convexHull_permMatrix :
 /--
 The set of extreme points of the doubly stochastic matrices is the set of permutation matrices.
 -/
-theorem extremePoints_doublyStochastic :
-    Set.extremePoints R (doublyStochastic R n) = {σ.permMatrix R | σ : Equiv.Perm n} := by
+theorem extremePoints_doublyStochastic
+    : Set.extremePoints R (doublyStochastic R n) = {σ.permMatrix R | σ : Equiv.Perm n} := by
   refine subset_antisymm ?_ ?_
   · rw [doublyStochastic_eq_convexHull_permMatrix]
     exact extremePoints_convexHull_subset
@@ -192,8 +192,8 @@ theorem extremePoints_doublyStochastic :
   by_contra! h
   have h₂ : openSegment R (x₁ i j) (x₂ i j) ⊆ Set.Ioo 0 1 := by
     rw [openSegment_eq_Ioo' h]
-    apply Set.Ioo_subset_Ioo <;>
-    simp_all [nonneg_of_mem_doublyStochastic, le_one_of_mem_doublyStochastic]
+    apply Set.Ioo_subset_Ioo
+      <;> simp_all [nonneg_of_mem_doublyStochastic, le_one_of_mem_doublyStochastic]
   specialize h₂ h₁
   aesop
 
@@ -201,9 +201,9 @@ end LinearOrderedField
 
 open scoped Matrix.Norms.L2Operator
 
-theorem Matrix.l2_opNorm_le_one_of_mem_doublyStochastic {M : Matrix n n ℝ}
-    (hM : M ∈ doublyStochastic ℝ n) :
-    ‖M‖ ≤ 1 := by
+theorem Matrix.l2_opNorm_le_one_of_mem_doublyStochastic
+    {M : Matrix n n ℝ} (hM : M ∈ doublyStochastic ℝ n)
+    : ‖M‖ ≤ 1 := by
   rw [← SetLike.mem_coe, doublyStochastic_eq_convexHull_permMatrix] at hM
   have ⟨_, ⟨σ, rfl⟩, hσ⟩ := convexOn_univ_norm.exists_ge_of_mem_convexHull (by simp) hM
   exact hσ.trans (permMatrix_l2_opNorm_le _)

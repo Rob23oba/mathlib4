@@ -18,7 +18,6 @@ An object is injective iff the preadditive yoneda functor on it preserves epimor
 
 public section
 
-
 universe v u
 
 open Opposite
@@ -33,23 +32,24 @@ variable [Preadditive C]
 
 namespace Injective
 
-theorem injective_iff_preservesEpimorphisms_preadditiveYoneda_obj (J : C) :
-    Injective J ↔ (preadditiveYoneda.obj J).PreservesEpimorphisms := by
+theorem injective_iff_preservesEpimorphisms_preadditiveYoneda_obj (J : C)
+    : Injective J ↔ (preadditiveYoneda.obj J).PreservesEpimorphisms := by
   rw [injective_iff_preservesEpimorphisms_yoneda_obj]
   refine
     ⟨fun h : (preadditiveYoneda.obj J ⋙ (forget AddCommGrpCat)).PreservesEpimorphisms => ?_, ?_⟩
-  · exact
-      Functor.preservesEpimorphisms_of_preserves_of_reflects (preadditiveYoneda.obj J) (forget _)
+  · exact Functor.preservesEpimorphisms_of_preserves_of_reflects (preadditiveYoneda.obj J)
+      (forget _)
   · intro
     exact (inferInstance : (preadditiveYoneda.obj J ⋙ forget _).PreservesEpimorphisms)
 
-theorem injective_iff_preservesEpimorphisms_preadditive_yoneda_obj' (J : C) :
-    Injective J ↔ (preadditiveYonedaObj J).PreservesEpimorphisms := by
+theorem injective_iff_preservesEpimorphisms_preadditive_yoneda_obj' (J : C)
+    : Injective J ↔ (preadditiveYonedaObj J).PreservesEpimorphisms := by
   rw [injective_iff_preservesEpimorphisms_yoneda_obj]
-  refine ⟨fun h : (preadditiveYonedaObj J ⋙ (forget <| ModuleCat (End J))).PreservesEpimorphisms =>
-    ?_, ?_⟩
-  · exact
-      Functor.preservesEpimorphisms_of_preserves_of_reflects (preadditiveYonedaObj J) (forget _)
+  refine ⟨
+    fun h : (preadditiveYonedaObj J ⋙ (forget <| ModuleCat (End J))).PreservesEpimorphisms => ?_,
+    ?_
+  ⟩
+  · exact Functor.preservesEpimorphisms_of_preserves_of_reflects (preadditiveYonedaObj J) (forget _)
   · intro
     exact (inferInstance : (preadditiveYonedaObj J ⋙ forget _).PreservesEpimorphisms)
 

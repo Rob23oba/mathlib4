@@ -236,15 +236,18 @@ open ModularForm
 local notation "Δ" => ModularForm.discriminant
 
 /-- The modular discriminant `Δ` as a cusp form of weight 12 and level 1. -/
-@[expose] def discriminant : CuspForm 𝒮ℒ 12 where
+@[expose]
+def discriminant : CuspForm 𝒮ℒ 12 where
   toFun := Δ
   slash_action_eq' A hA := by
     obtain ⟨A, rfl⟩ := hA
     exact slash_action_generators_SL2Z discriminant_S_invariant discriminant_T_invariant A
   holo' := by
     rw [UpperHalfPlane.mdifferentiable_iff]
-    refine .congr (fun z hz ↦ (differentiableAt_eta_of_mem_upperHalfPlaneSet hz).pow
-      24 |>.differentiableWithinAt) fun z hz ↦ ?_
+    refine .congr
+      (fun z hz ↦
+        (differentiableAt_eta_of_mem_upperHalfPlaneSet hz).pow 24 |>.differentiableWithinAt)
+      fun z hz ↦ ?_
     simp [ModularForm.discriminant, ofComplex_apply_of_im_pos hz]
   zero_at_cusps' hc := by
     rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z] at hc

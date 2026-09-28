@@ -66,8 +66,10 @@ public lemma sum_neg_one_pow_finrank_eq_zero_of_exact {n : ℕ} (V : Fin (n + 2)
       -/
     rw [surj, finrank_top, Fin.succ_last]
 
-/- An unrolled version of `Module.sum_neg_one_pow_finrank_eq_zero_of_exact`. This is an auxiliary
-lemma en route to `Module.sum_neg_one_pow_finrank_eq_zero_of_exact_six`. -/
+/-
+An unrolled version of `Module.sum_neg_one_pow_finrank_eq_zero_of_exact`. This is an auxiliary
+lemma en route to `Module.sum_neg_one_pow_finrank_eq_zero_of_exact_six`.
+-/
 private lemma sum_neg_one_pow_finrank_eq_zero_of_exact_six_aux {V₀ V₁ V₂ V₃ V₄ V₅ : Type u₀}
     [AddCommGroup V₀] [Module k V₀] [FiniteDimensional k V₀]
     [AddCommGroup V₁] [Module k V₁] [FiniteDimensional k V₁]

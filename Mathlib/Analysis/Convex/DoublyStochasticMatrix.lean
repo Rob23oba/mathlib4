@@ -39,9 +39,9 @@ variable [Semiring R] [PartialOrder R] [IsOrderedRing R] {M : Matrix n n R}
 A square matrix is doubly stochastic iff all entries are nonnegative, and left or right
 multiplication by the vector of all 1s gives the vector of all 1s.
 -/
-def doublyStochastic (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [PartialOrder R]
-    [IsOrderedRing R] :
-    Submonoid (Matrix n n R) where
+def doublyStochastic
+    (R n : Type*) [Fintype n] [DecidableEq n] [Semiring R] [PartialOrder R] [IsOrderedRing R]
+    : Submonoid (Matrix n n R) where
   carrier := {M | (∀ i j, 0 ≤ M i j) ∧ M *ᵥ 1 = 1 ∧ 1 ᵥ* M = 1 }
   mul_mem' {M N} hM hN := by
     refine ⟨fun i j => sum_nonneg fun i _ => mul_nonneg (hM.1 _ _) (hN.1 _ _), ?_, ?_⟩

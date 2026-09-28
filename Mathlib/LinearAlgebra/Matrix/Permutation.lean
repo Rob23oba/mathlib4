@@ -34,11 +34,12 @@ open Equiv
 variable {n R : Type*} [DecidableEq n] (σ τ : Perm n)
 
 variable (R) in
-/-- the permutation matrix associated with an `Equiv.Perm`.
+/--
+the permutation matrix associated with an `Equiv.Perm`.
 
-This is available in a bundled form as `Matrix.permMatrixHom`. -/
-abbrev Equiv.Perm.permMatrix [Zero R] [One R] : Matrix n n R :=
-  σ.toPEquiv.toMatrix
+This is available in a bundled form as `Matrix.permMatrixHom`.
+-/
+abbrev Equiv.Perm.permMatrix [Zero R] [One R] : Matrix n n R := σ.toPEquiv.toMatrix
 
 namespace Matrix
 
@@ -64,12 +65,13 @@ variable [Fintype n]
 /-- The determinant of a permutation matrix equals its sign. -/
 @[simp]
 theorem det_permutation [CommRing R] : det (σ.permMatrix R) = Perm.sign σ := by
-  rw [← Matrix.mul_one (σ.permMatrix R), PEquiv.toMatrix_toPEquiv_mul,
-    det_permute, det_one, mul_one]
+  rw [
+    ← Matrix.mul_one (σ.permMatrix R), PEquiv.toMatrix_toPEquiv_mul, det_permute, det_one, mul_one
+  ]
 
 /-- The trace of a permutation matrix equals the number of fixed points. -/
-theorem trace_permutation [AddCommMonoidWithOne R] :
-    trace (σ.permMatrix R) = (Function.fixedPoints σ).ncard := by
+theorem trace_permutation [AddCommMonoidWithOne R]
+    : trace (σ.permMatrix R) = (Function.fixedPoints σ).ncard := by
   delta trace
   simp [toPEquiv_apply, ← Set.ncard_coe_finset, Function.fixedPoints, Function.IsFixedPt]
 
@@ -105,8 +107,7 @@ See `Matrix.permMatrix_l2_opNorm_eq` for the equality statement assuming the mat
 -/
 theorem permMatrix_l2_opNorm_le : ‖σ.permMatrix 𝕜‖ ≤ 1 :=
   ContinuousLinearMap.opNorm_le_bound _ (by simp) <| by
-    simp [EuclideanSpace.norm_eq, toLpLin_apply, permMatrix_mulVec,
-      σ.sum_comp _ (fun i ↦ ‖_‖ ^ 2)]
+    simp [EuclideanSpace.norm_eq, toLpLin_apply, permMatrix_mulVec, σ.sum_comp _ (fun i ↦ ‖_‖ ^ 2)]
 
 /--
 The l2-operator norm of a nonempty permutation matrix is equal to 1.

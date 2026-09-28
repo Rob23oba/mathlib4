@@ -33,9 +33,11 @@ open CategoryTheory TopologicalSpace Opposite MorphismProperty
 
 namespace AlgebraicGeometry
 
-/-- A morphism of schemes `X ⟶ Y` is finite if
+/--
+A morphism of schemes `X ⟶ Y` is finite if
 the preimage of any affine open subset of `Y` is affine and the induced ring
-hom is finite. -/
+hom is finite.
+-/
 @[mk_iff]
 class IsFinite {X Y : Scheme} (f : X ⟶ Y) : Prop extends IsAffineHom f where
   finite_app (f) (U : Y.Opens) (hU : IsAffineOpen U) : (f.app U).hom.Finite
@@ -45,11 +47,13 @@ alias Scheme.Hom.finite_app := IsFinite.finite_app
 namespace IsFinite
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance : HasAffineProperty @IsFinite
-    (fun X _ f _ ↦ IsAffine X ∧ RingHom.Finite (f.appTop).hom) := by
+instance
+    : HasAffineProperty @IsFinite (fun X _ f _ ↦ IsAffine X ∧ RingHom.Finite (f.appTop).hom) := by
   change HasAffineProperty @IsFinite (affineAnd RingHom.Finite)
-  rw [HasAffineProperty.affineAnd_iff _ RingHom.finite_respectsIso
-    RingHom.finite_localizationPreserves.away RingHom.finite_ofLocalizationSpan]
+  rw [
+    HasAffineProperty.affineAnd_iff _ RingHom.finite_respectsIso
+      RingHom.finite_localizationPreserves.away RingHom.finite_ofLocalizationSpan
+  ]
   simp [isFinite_iff]
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -59,13 +63,13 @@ instance : IsStableUnderComposition @IsFinite :=
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance : IsStableUnderBaseChange @IsFinite :=
-  HasAffineProperty.affineAnd_isStableUnderBaseChange inferInstance
-    RingHom.finite_respectsIso RingHom.finite_isStableUnderBaseChange
+  HasAffineProperty.affineAnd_isStableUnderBaseChange inferInstance RingHom.finite_respectsIso
+    RingHom.finite_isStableUnderBaseChange
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance : ContainsIdentities @IsFinite :=
-  HasAffineProperty.affineAnd_containsIdentities inferInstance
-    RingHom.finite_respectsIso RingHom.finite_containsIdentities
+  HasAffineProperty.affineAnd_containsIdentities inferInstance RingHom.finite_respectsIso
+    RingHom.finite_containsIdentities
 
 instance : IsMultiplicative @IsFinite where
 
@@ -145,8 +149,8 @@ instance (priority := 900) (f : X ⟶ Y) [IsClosedImmersion f] : IsFinite f :=
   ((IsClosedImmersion.iff_isFinite_and_mono f).mp ‹_›).1
 
 instance : MorphismProperty.HasOfPostcompProperty @IsFinite @IsSeparated :=
-  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr
-    fun _ _ _ _ ↦ inferInstanceAs (IsFinite _)
+  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr fun _ _ _ _ ↦
+    inferInstanceAs (IsFinite _)
 
 lemma of_comp (f : X ⟶ Y) (g : Y ⟶ Z) [IsFinite (f ≫ g)] [IsSeparated g] :
     IsFinite f := MorphismProperty.of_postcomp _ _ g ‹_› ‹_›
@@ -156,10 +160,10 @@ lemma comp_iff {f : X ⟶ Y} {g : Y ⟶ Z} [IsFinite g] :
   ⟨fun _ ↦ .of_comp f g, fun _ ↦ inferInstance⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {U V X : Scheme.{u}} (f : U ⟶ X) (g : V ⟶ X) [IsFinite f] [IsFinite g] :
-    IsFinite (Limits.coprod.desc f g) := by
-  refine HasAffineProperty.coprodDesc_affineAnd inferInstance RingHom.finite_respectsIso
-    ?_ _ _ ‹_› ‹_›
+instance {U V X : Scheme.{u}} (f : U ⟶ X) (g : V ⟶ X) [IsFinite f] [IsFinite g]
+    : IsFinite (Limits.coprod.desc f g) := by
+  refine HasAffineProperty.coprodDesc_affineAnd inferInstance RingHom.finite_respectsIso ?_ _ _ ‹_›
+    ‹_›
   intros R S T _ _ _ f g _ _
   algebraize [f, g]
   refine RingHom.finite_algebraMap.mpr inferInstance

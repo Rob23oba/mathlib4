@@ -9,7 +9,6 @@ public import Mathlib.RingTheory.Polynomial.GaussNorm
 public import Mathlib.Analysis.Normed.Unbundled.RingSeminorm
 public import Mathlib.Algebra.Order.Hom.Basic
 
-
 /-!
 # Sup Norm of Polynomials
 
@@ -39,17 +38,18 @@ theorem implying that the squared `l^2` norm of a complex polynomial is the inte
 the polynomial's value on the unit circle.
 -/
 
-
 @[expose] public section supnorm_seminorm
 
 variable {A : Type*} [SeminormedRing A] (p : Polynomial A)
 
 namespace Polynomial
 
-/-- The sup norm of a polynomial on a semi-normed ring, defined as the maximum of its coefficients.
+/--
+The sup norm of a polynomial on a semi-normed ring, defined as the maximum of its coefficients.
 Often called the _(naive) height_ of the polynomial.
 
-This is defined in terms of `Polynomial.gaussNorm`. -/
+This is defined in terms of `Polynomial.gaussNorm`.
+-/
 noncomputable def supNorm : ℝ := p.gaussNorm (SeminormedRing.toRingSeminorm A) 1
 
 /-- The direct definition of the supNorm -/

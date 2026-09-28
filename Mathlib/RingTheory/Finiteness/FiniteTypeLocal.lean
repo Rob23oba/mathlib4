@@ -34,16 +34,20 @@ variable [Algebra S S']
 
 variable {S'} in
 open scoped Classical in
-/-- Let `S` be an `R`-algebra, `M` a submonoid of `S`, `S' = M⁻¹S`.
+/--
+Let `S` be an `R`-algebra, `M` a submonoid of `S`, `S' = M⁻¹S`.
 Suppose the image of some `x : S` falls in the adjoin of some finite `s ⊆ S'` over `R`,
 and `A` is an `R`-subalgebra of `S` containing both `M` and the numerators of `s`.
 Then, there exists some `m : M` such that `m • x` falls in `A`.
 -/
-theorem IsLocalization.exists_smul_mem_of_mem_adjoin [Algebra R S']
-    [IsScalarTower R S S'] (M : Submonoid S) [IsLocalization M S'] (x : S) (s : Finset S')
-    (A : Subalgebra R S) (hA₁ : (IsLocalization.finsetIntegerMultiple M s : Set S) ⊆ A)
-    (hA₂ : M ≤ A.toSubmonoid) (hx : algebraMap S S' x ∈ Algebra.adjoin R (s : Set S')) :
-    ∃ m : M, m • x ∈ A := by
+theorem IsLocalization.exists_smul_mem_of_mem_adjoin
+    [Algebra R S'] [IsScalarTower R S S']
+    (M : Submonoid S) [IsLocalization M S']
+    (x : S)
+    (s : Finset S') (A : Subalgebra R S)
+    (hA₁ : (IsLocalization.finsetIntegerMultiple M s : Set S) ⊆ A) (hA₂ : M ≤ A.toSubmonoid)
+    (hx : algebraMap S S' x ∈ Algebra.adjoin R (s : Set S'))
+    : ∃ m : M, m • x ∈ A := by
   let g : S →ₐ[R] S' := IsScalarTower.toAlgHom R S S'
   let y := IsLocalization.commonDenomOfFinset M s
   have hx₁ : (y : S) • (s : Set S') = g '' _ :=
@@ -56,21 +60,24 @@ theorem IsLocalization.exists_smul_mem_of_mem_adjoin [Algebra R S']
   obtain ⟨a, ha₂⟩ := (IsLocalization.eq_iff_exists M S').mp hx''
   use a * y ^ n
   convert! A.mul_mem hx' (hA₂ a.prop) using 1
-  rw [Submonoid.smul_def, smul_eq_mul, Submonoid.coe_mul, SubmonoidClass.coe_pow, mul_assoc, ← ha₂,
-    mul_comm]
+  rw [
+    Submonoid.smul_def, smul_eq_mul, Submonoid.coe_mul, SubmonoidClass.coe_pow, mul_assoc, ← ha₂,
+    mul_comm
+  ]
 
 variable {S'} in
 open scoped Classical in
-/-- Let `S` be an `R`-algebra, `M` a submonoid of `R`, and `S' = M⁻¹S`.
+/--
+Let `S` be an `R`-algebra, `M` a submonoid of `R`, and `S' = M⁻¹S`.
 If the image of some `x : S` falls in the adjoin of some finite `s ⊆ S'` over `R`,
 then there exists some `m : M` such that `m • x` falls in the
 adjoin of `IsLocalization.finsetIntegerMultiple _ s` over `R`.
 -/
-theorem IsLocalization.lift_mem_adjoin_finsetIntegerMultiple [Algebra R S']
-    [IsScalarTower R S S'] [IsLocalization (M.map (algebraMap R S)) S'] (x : S) (s : Finset S')
-    (hx : algebraMap S S' x ∈ Algebra.adjoin R (s : Set S')) :
-    ∃ m : M, m • x ∈
-      Algebra.adjoin R
+theorem IsLocalization.lift_mem_adjoin_finsetIntegerMultiple
+    [Algebra R S'] [IsScalarTower R S S'] [IsLocalization (M.map (algebraMap R S)) S']
+    (x : S) (s : Finset S') (hx : algebraMap S S' x ∈ Algebra.adjoin R (s : Set S'))
+    : ∃ m : M,
+      m • x ∈ Algebra.adjoin R
         (IsLocalization.finsetIntegerMultiple (M.map (algebraMap R S)) s : Set S) := by
   obtain ⟨⟨_, a, ha, rfl⟩, e⟩ :=
     IsLocalization.exists_smul_mem_of_mem_adjoin (M.map (algebraMap R S)) x s (Algebra.adjoin R _)

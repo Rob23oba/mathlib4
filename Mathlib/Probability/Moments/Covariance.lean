@@ -39,16 +39,19 @@ namespace ProbabilityTheory
 
 variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {X Y Z T : Ω → ℝ} {μ : Measure Ω}
 
-/-- The covariance of two real-valued random variables defined as
-the integral of `(X - 𝔼[X])(Y - 𝔼[Y])`. -/
+/--
+The covariance of two real-valued random variables defined as
+the integral of `(X - 𝔼[X])(Y - 𝔼[Y])`.
+-/
 noncomputable def covariance (X Y : Ω → ℝ) (μ : Measure Ω) : ℝ :=
   ∫ ω, (X ω - μ[X]) * (Y ω - μ[Y]) ∂μ
 
-@[inherit_doc]
-scoped notation "cov[" X ", " Y "; " μ "]" => ProbabilityTheory.covariance X Y μ
+@[inherit_doc] scoped notation "cov[" X ", " Y "; " μ "]" => ProbabilityTheory.covariance X Y μ
 
-/-- The covariance of the real-valued random variables `X` and `Y`
-according to the volume measure. -/
+/--
+The covariance of the real-valued random variables `X` and `Y`
+according to the volume measure.
+-/
 scoped notation "cov[" X ", " Y "]" => cov[X, Y; MeasureTheory.MeasureSpace.volume]
 
 lemma covariance_eq_sub [IsProbabilityMeasure μ] (hX : MemLp X 2 μ) (hY : MemLp Y 2 μ) :
@@ -333,8 +336,10 @@ lemma IndepFun.covariance_eq_zero (h : X ⟂ᵢ[μ] Y) (hX : MemLp X 2 μ) (hY :
 
 section Prod
 
-variable {Ω' : Type*} {mΩ' : MeasurableSpace Ω'} {ν : Measure Ω'}
-  [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] {X : Ω → ℝ} {Y : Ω' → ℝ}
+variable
+  {Ω' : Type*} {mΩ' : MeasurableSpace Ω'} {ν : Measure Ω'}
+  [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+  {X : Ω → ℝ} {Y : Ω' → ℝ}
 
 lemma covariance_fst_snd_prod (hfμ : MemLp X 2 μ) (hgν : MemLp Y 2 ν) :
     cov[fun p ↦ X p.1, fun p ↦ Y p.2; μ.prod ν] = 0 :=

@@ -42,8 +42,10 @@ group generators, generating set, finitely generated
 
 variable {G H ι ι' : Type*} [Group G] [Group H]
 
-/-- The generators of a group are given by a generating family indexed by `ι` and an assignment
-`val : ι → G` such that `Subgroup.closure (Set.range val) = ⊤`. -/
+/--
+The generators of a group are given by a generating family indexed by `ι` and an assignment
+`val : ι → G` such that `Subgroup.closure (Set.range val) = ⊤`.
+-/
 structure Group.Generators (G : Type*) [Group G] (ι : Type*) where
   /-- The generating family itself: `val i` is the element of `G` indexed by `i : ι`. -/
   val : ι → G
@@ -67,8 +69,9 @@ alias lift_val_surjective := lift_surjective
 lemma range_lift_eq_top : P.lift.range = ⊤ := MonoidHom.range_eq_top.mpr P.lift_surjective
 
 /-- If two homomorphisms coincide on the elements of a generating family, then they are equal. -/
-theorem hom_ext {M : Type*} [Monoid M] (f g : G →* M) (h : ∀ i, f (P.val i) = g (P.val i)) :
-    f = g := MonoidHom.eq_of_eqOn_dense P.closure_eq_top (Set.forall_mem_range.mpr h)
+theorem hom_ext {M : Type*} [Monoid M] (f g : G →* M) (h : ∀ i, f (P.val i) = g (P.val i))
+    : f = g :=
+  MonoidHom.eq_of_eqOn_dense P.closure_eq_top (Set.forall_mem_range.mpr h)
 
 /-- The generating family obtained using a generating set `S : Set G`. -/
 def ofSet {S : Set G} (h : Subgroup.closure S = ⊤) : Group.Generators G S where
@@ -81,12 +84,13 @@ lemma ofSet_val {S : Set G} (hS : Subgroup.closure S = ⊤) :
   rfl
 
 /-- The generating family given by a the canonical surjection from `FreeGroup ι`. -/
-def ofFreeGroupHom (φ : FreeGroup ι →* G) (hφ : Function.Surjective φ) :
-    Group.Generators G ι where
+def ofFreeGroupHom (φ : FreeGroup ι →* G) (hφ : Function.Surjective φ) : Group.Generators G ι where
   val := φ ∘ FreeGroup.of
   closure_eq_top := by
-    rw [Set.range_comp, ← MonoidHom.map_closure, FreeGroup.closure_range_of,
-      Subgroup.map_top_of_surjective φ hφ]
+    rw [
+      Set.range_comp, ← MonoidHom.map_closure, FreeGroup.closure_range_of,
+      Subgroup.map_top_of_surjective φ hφ
+    ]
 
 @[simp]
 lemma ofFreeGroupHom_val (φ : FreeGroup ι →* G) (hφ : Function.Surjective φ) :
@@ -103,8 +107,9 @@ lemma ofFreeGroupHom_lift (φ : FreeGroup ι →* G) (hφ : Function.Surjective 
 protected def map (f : G →* H) (hf : Function.Surjective f) : Group.Generators H ι where
   val := f ∘ P.val
   closure_eq_top := by
-    rw [Set.range_comp, ← MonoidHom.map_closure, P.closure_eq_top,
-      Subgroup.map_top_of_surjective f hf]
+    rw [
+      Set.range_comp, ← MonoidHom.map_closure, P.closure_eq_top, Subgroup.map_top_of_surjective f hf
+    ]
 
 @[simp]
 lemma map_val (P : Group.Generators G ι) (f : G →* H) (hf : Function.Surjective f) :
@@ -112,8 +117,8 @@ lemma map_val (P : Group.Generators G ι) (f : G →* H) (hf : Function.Surjecti
   rfl
 
 /-- The transport of a generating family along a surjection of index types. -/
-def reindex (P : Group.Generators G ι) {e : ι' → ι} (he : Function.Surjective e) :
-    Group.Generators G ι' where
+def reindex (P : Group.Generators G ι) {e : ι' → ι} (he : Function.Surjective e)
+    : Group.Generators G ι' where
   val := P.val ∘ e
   closure_eq_top := by rw [Set.range_comp, he.range_eq, Set.image_univ, P.closure_eq_top]
 
@@ -129,8 +134,8 @@ theorem fg [Finite ι] (P : Group.Generators G ι) : Group.FG G :=
 end Group.Generators
 
 /-- A group is finitely generated if and only if it admits a finite generating family. -/
-theorem Group.fg_iff_nonempty_finite_generators :
-    Group.FG G ↔ ∃ n : ℕ, Nonempty (Group.Generators G (Fin n)) := by
+theorem Group.fg_iff_nonempty_finite_generators
+    : Group.FG G ↔ ∃ n : ℕ, Nonempty (Group.Generators G (Fin n)) := by
   constructor
   · rw [Group.FG, isMulFG_iff]
     rintro ⟨S, hS⟩

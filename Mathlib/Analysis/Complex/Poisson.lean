@@ -21,8 +21,7 @@ public section
 open Complex MeasureTheory Metric Real Set
 
 variable
-  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
-  {f : ℂ → E} {R : ℝ} {w c : ℂ} {s : Set ℂ}
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] {f : ℂ → E} {R : ℝ} {w c : ℂ} {s : Set ℂ}
 
 /-!
 ## Kernels of Integration
@@ -31,11 +30,8 @@ For convenience, this preliminary section discussed the kernels on integration t
 various versions of the Poisson Formula.
 -/
 
-/--
-The Herglotz-Riesz kernel of integration.
--/
-noncomputable def herglotzRieszKernel (c w z : ℂ) : ℂ :=
-  ((z - c) + (w - c)) / ((z - c) - (w - c))
+/-- The Herglotz-Riesz kernel of integration. -/
+noncomputable def herglotzRieszKernel (c w z : ℂ) : ℂ := ((z - c) + (w - c)) / ((z - c) - (w - c))
 
 lemma herglotzRieszKernel_def (c w z : ℂ) :
     herglotzRieszKernel c w z = ((z - c) + (w - c)) / ((z - c) - (w - c)) := by rfl
@@ -49,9 +45,7 @@ lemma herglotzRieszKernel_add_const (c w z : ℂ) :
     herglotzRieszKernel c w (z + c) = herglotzRieszKernel 0 (w - c) z := by
   simp [herglotzRieszKernel_fun_def]
 
-/--
-The Poisson kernel of integration.
--/
+/-- The Poisson kernel of integration. -/
 noncomputable def poissonKernel (c w z : ℂ) : ℝ :=
   (‖z - c‖ ^ 2 - ‖w - c‖ ^ 2) / ‖(z - c) - (w - c)‖ ^ 2
 
@@ -99,14 +93,15 @@ private lemma re_herglotzRieszKernel_le_aux (φ θ r R : ℝ) (h₁ : 0 < r) (h�
 Companion theorem to the Poisson Integral Formula: Upper estimate for the real part of the
 Herglotz-Riesz kernel.
 -/
-theorem re_herglotzRieszKernel_le {c z : ℂ} (hz : z ∈ sphere c R) (hw : w ∈ ball c R) :
-    ((z - c + (w - c)) / ((z - c) - (w - c))).re ≤ (R + ‖w - c‖) / (R - ‖w - c‖) := by
+theorem re_herglotzRieszKernel_le {c z : ℂ} (hz : z ∈ sphere c R) (hw : w ∈ ball c R)
+    : ((z - c + (w - c)) / ((z - c) - (w - c))).re ≤ (R + ‖w - c‖) / (R - ‖w - c‖) := by
   obtain ⟨η₀, rfl, η₂⟩ : 0 < R ∧ R = ‖z - c‖ ∧ z - c ≠ 0 := by
     grind [ball_eq_empty, mem_sphere, dist_eq_norm, norm_pos_iff]
   by_cases h₁w : ‖w - c‖ = 0
   · aesop
-  simpa using re_herglotzRieszKernel_le_aux (w - c).arg (z - c).arg ‖w - c‖ ‖z - c‖
-    (by simpa using h₁w) (mem_ball_iff_norm.1 hw)
+  simpa using
+    re_herglotzRieszKernel_le_aux (w - c).arg (z - c).arg (‖w - c‖) (‖z - c‖) (by simpa using h₁w)
+      (mem_ball_iff_norm.1 hw)
 
 private lemma le_re_herglotzRieszKernel_aux (θ φ r R : ℝ) (h₁ : 0 < r) (h₂ : r < R) :
     (R - r) / (R + r)
@@ -132,14 +127,15 @@ private lemma le_re_herglotzRieszKernel_aux (θ φ r R : ℝ) (h₁ : 0 < r) (h�
 Companion theorem to the Poisson Integral Formula: Lower estimate for the real part of the
 Herglotz-Riesz kernel.
 -/
-theorem le_re_herglotzRieszKernel {c z : ℂ} (hz : z ∈ sphere c R) (hw : w ∈ ball c R) :
-    (R - ‖w - c‖) / (R + ‖w - c‖) ≤ ((z - c + (w - c)) / ((z - c) - (w - c))).re := by
+theorem le_re_herglotzRieszKernel {c z : ℂ} (hz : z ∈ sphere c R) (hw : w ∈ ball c R)
+    : (R - ‖w - c‖) / (R + ‖w - c‖) ≤ ((z - c + (w - c)) / ((z - c) - (w - c))).re := by
   obtain ⟨η₀, rfl, η₂⟩ : 0 < R ∧ R = ‖z - c‖ ∧ z - c ≠ 0 := by
     grind [ball_eq_empty, mem_sphere, dist_eq_norm, norm_pos_iff]
   by_cases h₁w : ‖w - c‖ = 0
   · aesop
-  simpa using le_re_herglotzRieszKernel_aux (z - c).arg (w - c).arg ‖w - c‖ ‖z - c‖
-    (by simpa using h₁w) (mem_ball_iff_norm.1 hw)
+  simpa using
+    le_re_herglotzRieszKernel_aux (z - c).arg (w - c).arg (‖w - c‖) (‖z - c‖) (by simpa using h₁w)
+      (mem_ball_iff_norm.1 hw)
 
 /--
 The Herglotz–Riesz kernel `herglotzRieszKernel c w` is continuous on the circle `sphere c |R|`
@@ -157,20 +153,21 @@ whenever `w` does not lie on the circle.
 Taking real parts commutes with the Herglotz–Riesz kernel integral of a real-valued
 circle-integrable function.
 -/
-theorem re_circleAverage_herglotzRieszKernel_smul {g : ℂ → ℝ}
-    (hg : CircleIntegrable g 0 R) (hw : w ∉ sphere 0 |R|) :
-    (circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R).re
+theorem re_circleAverage_herglotzRieszKernel_smul
+    {g : ℂ → ℝ} (hg : CircleIntegrable g 0 R) (hw : w ∉ sphere 0 |R|)
+    : (circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R).re
       = circleAverage ((Complex.re ∘ herglotzRieszKernel 0 w) • g) 0 R := by
   have h₁ : CircleIntegrable (fun ζ ↦ (g ζ : ℂ)) 0 R := by
     simp only [CircleIntegrable, intervalIntegrable_iff] at hg ⊢
     exact Complex.ofRealCLM.integrable_comp hg
   have h₂ : CircleIntegrable (fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R :=
     h₁.continuousOn_smul (continuousOn_herglotzRieszKernel_sphere hw)
-  calc (circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R).re
-      = circleAverage (Complex.reCLM ∘ fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R :=
-        (Complex.reCLM.circleAverage_comp_comm h₂).symm
+  calc
+    (circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R).re
+        = circleAverage (Complex.reCLM ∘ fun ζ ↦ herglotzRieszKernel 0 w ζ • (g ζ : ℂ)) 0 R :=
+      (Complex.reCLM.circleAverage_comp_comm h₂).symm
     _ = circleAverage ((Complex.re ∘ herglotzRieszKernel 0 w) • g) 0 R := by
-        simp [Function.comp_def, Complex.mul_re, Pi.mul_def]
+      simp [Function.comp_def, Complex.mul_re, Pi.mul_def]
 
 /-!
 ## Integral Formulas
@@ -250,33 +247,33 @@ private lemma DiffContOnCl.circleAverage_re_smul_on_ball_zero [CompleteSpace E]
 **Poisson integral formula** for ℂ-differentiable functions on arbitrary disks in the complex plane,
 formulated with the real part of the Herglotz–Riesz kernel of integration.
 -/
-theorem DiffContOnCl.circleAverage_re_herglotzRieszKernel_smul [CompleteSpace E] {c : ℂ}
-    (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R) :
-    Real.circleAverage ((re ∘ herglotzRieszKernel c w) • f) c R = f w := by
+theorem DiffContOnCl.circleAverage_re_herglotzRieszKernel_smul
+    [CompleteSpace E] {c : ℂ} (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R)
+    : Real.circleAverage ((re ∘ herglotzRieszKernel c w) • f) c R = f w := by
   rcases le_or_gt R 0 with hR | hR
   · simp_all [ball_eq_empty.2 hR]
   have h₁g : DiffContOnCl ℂ (fun z ↦ f (z + c)) (ball 0 R) :=
     hf.comp (DifferentiableOn.diffContOnCl <| by fun_prop) (by intro; aesop)
   have h₂g : w - c ∈ ball 0 R := by simpa using mem_ball_iff_norm.1 hw
-  simpa [← circleAverage_map_add_const, herglotzRieszKernel_def]
-    using circleAverage_re_smul_on_ball_zero h₁g h₂g
+  simpa [← circleAverage_map_add_const, herglotzRieszKernel_def] using
+    circleAverage_re_smul_on_ball_zero h₁g h₂g
 
 /--
 **Poisson integral formula** for ℂ-differentiable functions on arbitrary disks in the complex plane,
 formulated with the real part of the Herglotz–Riesz kernel of integration expanded.
 -/
-theorem DiffContOnCl.circleAverage_re_herglotzRieszKernel_smul' [CompleteSpace E] {c : ℂ}
-    (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R) :
-    Real.circleAverage (fun z ↦ ((z - c + (w - c)) / ((z - c) - (w - c))).re • f z) c R = f w :=
+theorem DiffContOnCl.circleAverage_re_herglotzRieszKernel_smul'
+    [CompleteSpace E] {c : ℂ} (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R)
+    : Real.circleAverage (fun z ↦ ((z - c + (w - c)) / ((z - c) - (w - c))).re • f z) c R = f w :=
   hf.circleAverage_re_herglotzRieszKernel_smul hw
 
 /--
 **Poisson integral formula** for ℂ-differentiable functions on arbitrary disks in the complex plane,
 formulated with the Poisson kernel of integration.
 -/
-theorem DiffContOnCl.circleAverage_poissonKernel_smul [CompleteSpace E] {c : ℂ}
-    (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R) :
-    Real.circleAverage (poissonKernel c w • f) c R = f w := by
+theorem DiffContOnCl.circleAverage_poissonKernel_smul
+    [CompleteSpace E] {c : ℂ} (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R)
+    : Real.circleAverage (poissonKernel c w • f) c R = f w := by
   simp_rw [poissonKernel_eq_re_herglotzRieszKernel]
   apply hf.circleAverage_re_herglotzRieszKernel_smul hw
 
@@ -284,9 +281,9 @@ theorem DiffContOnCl.circleAverage_poissonKernel_smul [CompleteSpace E] {c : ℂ
 **Poisson integral formula** for ℂ-differentiable functions on arbitrary disks in the complex plane,
 formulated with the Poisson kernel of integration expanded.
 -/
-theorem DiffContOnCl.circleAverage_poissonKernel_smul' [CompleteSpace E] {c : ℂ}
-    (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R) :
-    Real.circleAverage (fun z ↦ ((‖z - c‖ ^ 2 - ‖w - c‖ ^ 2) / ‖(z - c) - (w - c)‖ ^ 2) • f z) c R
+theorem DiffContOnCl.circleAverage_poissonKernel_smul'
+    [CompleteSpace E] {c : ℂ} (hf : DiffContOnCl ℂ f (ball c R)) (hw : w ∈ ball c R)
+    : Real.circleAverage (fun z ↦ ((‖z - c‖ ^ 2 - ‖w - c‖ ^ 2) / ‖(z - c) - (w - c)‖ ^ 2) • f z) c R
       = f w := by
   apply hf.circleAverage_poissonKernel_smul hw
 
@@ -299,13 +296,15 @@ theorem DiffContOnCl.circleAverage_poissonKernel_smul' [CompleteSpace E] {c : �
 not lie on the circle, then `w ↦ circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • f ζ) 0 R`
 has derivative `circleAverage (fun ζ ↦ (2 * ζ / (ζ - w) ^ 2) • f ζ) 0 R` at `w`.
 -/
-theorem hasDerivAt_circleAverage_herglotzRieszKernel_smul (hg : CircleIntegrable f 0 R)
-    (hw : w ∉ sphere 0 |R|) :
-    HasDerivAt (fun w ↦ circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • f ζ) 0 R)
+theorem hasDerivAt_circleAverage_herglotzRieszKernel_smul
+    (hg : CircleIntegrable f 0 R) (hw : w ∉ sphere 0 |R|)
+    : HasDerivAt
+      (fun w ↦ circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • f ζ) 0 R)
       (circleAverage (fun ζ ↦ (2 * ζ / (ζ - w) ^ 2) • f ζ) 0 R) w := by
   obtain ⟨d, hd, hdist⟩ := exists_ball_forall_le_norm_circleMap_sub hw
-  have hgm : AEStronglyMeasurable (fun θ ↦ f (circleMap 0 R θ))
-      (volume.restrict (uIoc 0 (2 * π))) := (intervalIntegrable_iff.1 hg).aestronglyMeasurable
+  have hgm
+      : AEStronglyMeasurable (fun θ ↦ f (circleMap 0 R θ)) (volume.restrict (uIoc 0 (2 * π))) :=
+    (intervalIntegrable_iff.1 hg).aestronglyMeasurable
   simp only [circleAverage_def]
   apply HasDerivAt.const_smul
   refine (intervalIntegral.hasDerivAt_integral_of_dominated_loc_of_deriv_le
@@ -324,8 +323,7 @@ theorem hasDerivAt_circleAverage_herglotzRieszKernel_smul (hg : CircleIntegrable
       hg.continuousOn_smul (continuousOn_herglotzRieszKernel_sphere hw)
     simpa only [CircleIntegrable, Pi.smul_apply'] using h₁
   -- Measurability of the differentiated integrand
-  case meas2 =>
-    exact (Measurable.aestronglyMeasurable (by fun_prop)).smul hgm
+  case meas2 => exact (Measurable.aestronglyMeasurable (by fun_prop)).smul hgm
   -- Uniform bound for the differentiated integrand near `w`
   case bound =>
     filter_upwards with θ _ x hx
@@ -334,16 +332,17 @@ theorem hasDerivAt_circleAverage_herglotzRieszKernel_smul (hg : CircleIntegrable
     gcongr
     exact hdist x hx θ
   -- Integrability of the bound
-  case int_bound =>
-    exact (IntervalIntegrable.norm hg).const_mul _
+  case int_bound => exact (IntervalIntegrable.norm hg).const_mul _
   -- Differentiability of the integrand in `x`, for `x` near `w`
   case diff =>
     filter_upwards with θ _ x hx
     have h₁ : circleMap 0 R θ - x ≠ 0 := norm_pos_iff.mp (hd.trans_le (hdist x hx θ))
-    have h₂ : HasDerivAt (fun x ↦ herglotzRieszKernel 0 x (circleMap 0 R θ))
+    have h₂ : HasDerivAt
+        (fun x ↦ herglotzRieszKernel 0 x (circleMap 0 R θ))
         (2 * circleMap 0 R θ / (circleMap 0 R θ - x) ^ 2) x := by
-      have h₃ := ((hasDerivAt_id' x).const_add (circleMap 0 R θ)).div
-        ((hasDerivAt_id' x).const_sub (circleMap 0 R θ)) h₁
+      have h₃ :=
+        ((hasDerivAt_id' x).const_add (circleMap 0 R θ)).div
+          ((hasDerivAt_id' x).const_sub (circleMap 0 R θ)) h₁
       simpa [herglotzRieszKernel_def, sub_zero, sub_sub, ← two_mul, Pi.div_def] using h₃
     exact h₂.smul_const (f (circleMap 0 R θ))
 
@@ -351,20 +350,19 @@ theorem hasDerivAt_circleAverage_herglotzRieszKernel_smul (hg : CircleIntegrable
 The Herglotz–Riesz kernel integral of a circle-integrable function is differentiable in the pole
 parameter, throughout the complement of the circle.
 -/
-theorem differentiableOn_circleAverage_herglotzRieszKernel_smul (hg : CircleIntegrable f 0 R) :
-    DifferentiableOn ℂ
+theorem differentiableOn_circleAverage_herglotzRieszKernel_smul (hg : CircleIntegrable f 0 R)
+    : DifferentiableOn ℂ
       (fun w ↦ circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • f ζ) 0 R)
-      (sphere (0 : ℂ) |R|)ᶜ :=
-  fun _ hw ↦ hasDerivAt_circleAverage_herglotzRieszKernel_smul hg hw
-    |>.differentiableAt.differentiableWithinAt
+      (sphere (0 : ℂ) |R|)ᶜ := fun _ hw ↦
+  hasDerivAt_circleAverage_herglotzRieszKernel_smul hg hw |>.differentiableAt.differentiableWithinAt
 
 /--
 The Herglotz–Riesz kernel integral of a circle-integrable function is analytic in the pole
 parameter, throughout the complement of the circle.
 -/
-theorem analyticOnNhd_circleAverage_herglotzRieszKernel_smul [CompleteSpace E]
-    (hg : CircleIntegrable f 0 R) :
-    AnalyticOnNhd ℂ
+theorem analyticOnNhd_circleAverage_herglotzRieszKernel_smul
+    [CompleteSpace E] (hg : CircleIntegrable f 0 R)
+    : AnalyticOnNhd ℂ
       (fun w ↦ circleAverage (fun ζ ↦ herglotzRieszKernel 0 w ζ • f ζ) 0 R)
       (sphere (0 : ℂ) |R|)ᶜ :=
   (differentiableOn_circleAverage_herglotzRieszKernel_smul hg).analyticOnNhd

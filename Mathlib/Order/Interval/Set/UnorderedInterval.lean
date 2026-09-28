@@ -41,7 +41,6 @@ make the notation available.
 
 @[expose] public section
 
-
 open Function
 
 open OrderDual (toDual ofDual)
@@ -54,9 +53,11 @@ section Lattice
 
 variable [Lattice α] [Lattice β] {a a₁ a₂ b b₁ b₂ x : α}
 
-/-- `uIcc a b` is the set of elements lying between `a` and `b`, with `a` and `b` included.
+/--
+`uIcc a b` is the set of elements lying between `a` and `b`, with `a` and `b` included.
 Note that we define it more generally in a lattice as `Set.Icc (a ⊓ b) (a ⊔ b)`. In a product type,
-`uIcc` corresponds to the bounding box of the two elements. -/
+`uIcc` corresponds to the bounding box of the two elements.
+-/
 def uIcc (a b : α) : Set α := Icc (a ⊓ b) (a ⊔ b)
 
 /-- `[[a, b]]` denotes the set of elements lying between `a` and `b`, inclusive. -/
@@ -69,9 +70,7 @@ lemma uIcc_toDual (a b : α) : [[toDual a, toDual b]] = ofDual ⁻¹' [[a, b]] :
   -- Note: needed to hint `(α := α)` after https://github.com/leanprover-community/mathlib4/pull/8386 (elaboration order?)
   Icc_toDual (α := α)
 
-@[simp]
-theorem uIcc_ofDual (a b : αᵒᵈ) : [[ofDual a, ofDual b]] = toDual ⁻¹' [[a, b]] :=
-  Icc_ofDual
+@[simp] theorem uIcc_ofDual (a b : αᵒᵈ) : [[ofDual a, ofDual b]] = toDual ⁻¹' [[a, b]] := Icc_ofDual
 
 @[simp]
 lemma uIcc_of_le (h : a ≤ b) : [[a, b]] = Icc a b := by rw [uIcc, inf_eq_left.2 h, sup_eq_right.2 h]
@@ -128,8 +127,8 @@ lemma bdd_below_bdd_above_iff_subset_uIcc (s : Set α) :
 section Prod
 
 @[simp]
-theorem uIcc_prod_uIcc (a₁ a₂ : α) (b₁ b₂ : β) :
-    [[a₁, a₂]] ×ˢ [[b₁, b₂]] = [[(a₁, b₁), (a₂, b₂)]] :=
+theorem uIcc_prod_uIcc (a₁ a₂ : α) (b₁ b₂ : β)
+    : [[a₁, a₂]] ×ˢ [[b₁, b₂]] = [[(a₁, b₁), (a₂, b₂)]] :=
   Icc_prod_Icc _ _ _ _
 
 theorem uIcc_prod_eq (a b : α × β) : [[a, b]] = [[a.1, b.1]] ×ˢ [[a.2, b.2]] := by simp
@@ -197,8 +196,7 @@ end Lattice
 
 variable [LinearOrder β] {f : α → β} {s : Set α} {a a₁ a₂ b b₁ b₂ c : α}
 
-theorem Icc_min_max : Icc (min a b) (max a b) = [[a, b]] :=
-  rfl
+theorem Icc_min_max : Icc (min a b) (max a b) = [[a, b]] := rfl
 
 lemma uIcc_of_not_le (h : ¬a ≤ b) : [[a, b]] = Icc b a := uIcc_of_gt <| lt_of_not_ge h
 lemma uIcc_of_not_ge (h : ¬b ≤ a) : [[a, b]] = Icc a b := uIcc_of_lt <| lt_of_not_ge h
@@ -317,9 +315,11 @@ lemma uIoc_union_uIoc (h : b ∈ [[a, c]]) : Ι a b ∪ Ι b c = Ι a c := by
 
 section uIoo
 
-/-- `uIoo a b` is the set of elements lying between `a` and `b`, with `a` and `b` not included.
+/--
+`uIoo a b` is the set of elements lying between `a` and `b`, with `a` and `b` not included.
 Note that we define it more generally in a lattice as `Set.Ioo (a ⊓ b) (a ⊔ b)`. In a product type,
-`uIoo` corresponds to the bounding box of the two elements. -/
+`uIoo` corresponds to the bounding box of the two elements.
+-/
 def uIoo (a b : α) : Set α := Ioo (a ⊓ b) (a ⊔ b)
 
 @[simp]
@@ -327,8 +327,7 @@ lemma uIoo_toDual (a b : α) : uIoo (toDual a) (toDual b) = ofDual ⁻¹' uIoo a
   Ioo_toDual (α := α)
 
 @[simp]
-theorem uIoo_ofDual (a b : αᵒᵈ) : uIoo (ofDual a) (ofDual b) = toDual ⁻¹' uIoo a b :=
-  Ioo_ofDual
+theorem uIoo_ofDual (a b : αᵒᵈ) : uIoo (ofDual a) (ofDual b) = toDual ⁻¹' uIoo a b := Ioo_ofDual
 
 @[simp] lemma uIoo_of_le (h : a ≤ b) : uIoo a b = Ioo a b := by
   rw [uIoo, inf_eq_left.2 h, sup_eq_right.2 h]

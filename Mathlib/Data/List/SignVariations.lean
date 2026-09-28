@@ -42,10 +42,11 @@ namespace List
 
 variable {α : Type*} [Zero α] [LinearOrder α]
 
-/-- The number of sign variations of a list: the number of adjacent pairs of opposite sign once
-all zero entries have been removed. -/
-def signVariations (l : List α) : ℕ :=
-  (((l.map sign).filter (· ≠ 0)).destutter (· ≠ ·)).length - 1
+/--
+The number of sign variations of a list: the number of adjacent pairs of opposite sign once
+all zero entries have been removed.
+-/
+def signVariations (l : List α) : ℕ := (((l.map sign).filter (· ≠ 0)).destutter (· ≠ ·)).length - 1
 
 example : signVariations [1, 0, -2, 3, 3] = 2 := by decide
 

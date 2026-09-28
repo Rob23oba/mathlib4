@@ -70,8 +70,10 @@ end Loopless
 
 section Simple
 
-/-- A `Simple` graph is a `Loopless` graph where no pair of vertices are the ends of more than one
-edge. -/
+/--
+A `Simple` graph is a `Loopless` graph where no pair of vertices are the ends of more than one
+edge.
+-/
 @[mk_iff]
 class Simple (G : Graph α β) : Prop extends G.Loopless where
   eq_of_isLink : ∀ ⦃e f x y⦄, G.IsLink e x y → G.IsLink f x y → e = f
@@ -122,18 +124,19 @@ def ofSimpleGraph (G : SimpleGraph α) : Graph α (Sym2 α) where
   IsLink e x y := e = s(x, y) ∧ e ∈ G.edgeSet
   isLink_symm e he := ⟨fun u v ↦ by simp [Sym2.eq_swap]⟩
   eq_or_eq_of_isLink_of_isLink e u v x y he hf := by grind
-  edge_mem_iff_exists_isLink e := by induction e with | h u v => grind
+  edge_mem_iff_exists_isLink e := by
+    induction e with
+    | h u v => grind
 
 @[simp]
 lemma ofSimpleGraph_adj_iff {G : SimpleGraph α} (u v : α) :
     (ofSimpleGraph G).Adj u v ↔ G.Adj u v := by simp [Adj]
 
 /-- The isomorphism between `toSimpleGraph (ofSimpleGraph G)` and `G`. -/
-def toSimpleGraphOfSimpleGraphIso (G : SimpleGraph α) :
-    (toSimpleGraph (ofSimpleGraph G)) ≃g G := by
+def toSimpleGraphOfSimpleGraphIso (G : SimpleGraph α) : (toSimpleGraph (ofSimpleGraph G)) ≃g G := by
   use Equiv.Set.univ α
-  refine ⟨fun h ↦ ⟨fun h' ↦ h.ne (congrArg Subtype.val h'), ?_⟩, fun ⟨_, h⟩ ↦ ?_⟩ <;>
-    revert h <;> rw [ofSimpleGraph_adj_iff] <;> exact id
+  refine ⟨fun h ↦ ⟨fun h' ↦ h.ne (congrArg Subtype.val h'), ?_⟩, fun ⟨_, h⟩ ↦ ?_⟩ <;> revert h
+    <;> rw [ofSimpleGraph_adj_iff] <;> exact id
 
 end toSimpleGraph
 

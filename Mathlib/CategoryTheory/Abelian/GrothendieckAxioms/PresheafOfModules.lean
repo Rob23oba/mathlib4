@@ -22,8 +22,8 @@ open CategoryTheory Limits
 
 namespace PresheafOfModules
 
-public instance {C : Type u} [SmallCategory C] (R : Cᵒᵖ ⥤ RingCat.{u}) :
-    IsGrothendieckAbelian.{u} (PresheafOfModules.{u} R) where
+public instance {C : Type u} [SmallCategory C] (R : Cᵒᵖ ⥤ RingCat.{u})
+    : IsGrothendieckAbelian.{u} (PresheafOfModules.{u} R) where
   hasFilteredColimitsOfSize := ⟨fun _ ↦ ⟨fun _ ↦ inferInstance⟩⟩
   ab5OfSize := ⟨fun J _ _ ↦ ⟨⟨fun K _ _ ↦ ⟨fun {F} ↦
     have : PreservesLimit F (colim (J := J) ⋙ PresheafOfModules.toPresheaf R) :=

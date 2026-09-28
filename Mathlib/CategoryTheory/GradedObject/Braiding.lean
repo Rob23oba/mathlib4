@@ -38,13 +38,17 @@ section Braided
 
 variable [BraidedCategory C]
 
-/-- The braiding `tensorObj X Y ≅ tensorObj Y X` when `X` and `Y` are graded objects
-indexed by a commutative additive monoid. -/
+/--
+The braiding `tensorObj X Y ≅ tensorObj Y X` when `X` and `Y` are graded objects
+indexed by a commutative additive monoid.
+-/
 noncomputable def braiding [HasTensor X Y] [HasTensor Y X] : tensorObj X Y ≅ tensorObj Y X where
-  hom k := tensorObjDesc (fun i j hij => (β_ _ _).hom ≫
-    ιTensorObj Y X j i k (by simpa only [add_comm j i] using hij))
-  inv k := tensorObjDesc (fun i j hij => (β_ _ _).inv ≫
-    ιTensorObj X Y j i k (by simpa only [add_comm j i] using hij))
+  hom k :=
+    tensorObjDesc (fun i j hij =>
+      (β_ _ _).hom ≫ ιTensorObj Y X j i k (by simpa only [add_comm j i] using hij))
+  inv k :=
+    tensorObjDesc (fun i j hij =>
+      (β_ _ _).inv ≫ ιTensorObj X Y j i k (by simpa only [add_comm j i] using hij))
 
 variable {Y Z} in
 lemma braiding_naturality_right [HasTensor X Y] [HasTensor Y X] [HasTensor X Z] [HasTensor Z X]
@@ -149,24 +153,21 @@ section Instances
 variable
   [∀ (X₁ X₂ : GradedObject I C), HasTensor X₁ X₂]
   [∀ (X₁ X₂ X₃ : GradedObject I C), HasGoodTensor₁₂Tensor X₁ X₂ X₃]
-  [∀ (X₁ X₂ X₃ : GradedObject I C), HasGoodTensorTensor₂₃ X₁ X₂ X₃]
-  [DecidableEq I] [HasInitial C]
-  [∀ X₁, PreservesColimit (Functor.empty.{0} C)
-    ((MonoidalCategory.curriedTensor C).obj X₁)]
-  [∀ X₂, PreservesColimit (Functor.empty.{0} C)
-    ((MonoidalCategory.curriedTensor C).flip.obj X₂)]
+  [∀ (X₁ X₂ X₃ : GradedObject I C), HasGoodTensorTensor₂₃ X₁ X₂ X₃] [DecidableEq I] [HasInitial C]
+  [∀ X₁, PreservesColimit (Functor.empty.{0} C) ((MonoidalCategory.curriedTensor C).obj X₁)]
+  [∀ X₂, PreservesColimit (Functor.empty.{0} C) ((MonoidalCategory.curriedTensor C).flip.obj X₂)]
   [∀ (X₁ X₂ X₃ X₄ : GradedObject I C), HasTensor₄ObjExt X₁ X₂ X₃ X₄]
 
-noncomputable instance braidedCategory [BraidedCategory C] :
-    BraidedCategory (GradedObject I C) where
+noncomputable instance braidedCategory [BraidedCategory C]
+    : BraidedCategory (GradedObject I C) where
   braiding X Y := Monoidal.braiding X Y
   braiding_naturality_left _ _ := Monoidal.braiding_naturality_left _ _
   braiding_naturality_right _ _ _ _ := Monoidal.braiding_naturality_right _ _
   hexagon_forward _ _ _ := Monoidal.hexagon_forward _ _ _
   hexagon_reverse _ _ _ := Monoidal.hexagon_reverse _ _ _
 
-noncomputable instance symmetricCategory [SymmetricCategory C] :
-    SymmetricCategory (GradedObject I C) where
+noncomputable instance symmetricCategory [SymmetricCategory C]
+    : SymmetricCategory (GradedObject I C) where
   symmetry _ _ := Monoidal.symmetry _ _
 
 /-!

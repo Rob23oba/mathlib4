@@ -30,8 +30,10 @@ variable (C : Type u) [Category.{v} C] (A : Type w) [AddMonoid A] [HasShift C A]
 
 /-- Given a category `C` equipped with a shift by a monoid `A` -/
 structure TwistShiftData where
-  /-- The invertible elements in the center of `C` which are used to
-  modify the `shiftFunctorAdd` isomorphisms. -/
+  /--
+  The invertible elements in the center of `C` which are used to
+  modify the `shiftFunctorAdd` isomorphisms.
+  -/
   z (a b : A) : (CatCenter C)ˣ
   z_zero_zero : z 0 0 = 1 := by cat_disch
   assoc (a b c : A) : z (a + b) c * z a b = z a (b + c) * z b c := by cat_disch
@@ -57,9 +59,11 @@ lemma shift_z_app (a b c : A) (X : C) :
     ((t.z a b).val.app X)⟦c⟧' = (t.z a b).val.app (X⟦c⟧) := by
   simpa using NatTrans.shift_app_comm (t.z a b).val c X
 
-/-- Given `t : TwistShiftData C A`, this is a type synonym for the category `C`,
+/--
+Given `t : TwistShiftData C A`, this is a type synonym for the category `C`,
 which the same shift functors as `C` but where the `shiftFunctorAdd` isomorphisms
-have been modified using `t`. -/
+have been modified using `t`.
+-/
 @[nolint unusedArguments]
 protected def Category (_ : TwistShiftData C A) : Type u := C
 
@@ -67,32 +71,37 @@ instance : Category t.Category := inferInstanceAs (Category C)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Given `t : TwistShiftData C A`, the shift on the category `TwistShift t` has
+/--
+Given `t : TwistShiftData C A`, the shift on the category `TwistShift t` has
 the same shift functors as `C`, the same isomorphism `shiftFunctorZero` isomorphism,
-but the `shiftFunctorAdd` isomorphisms are modified using `t`. -/
+but the `shiftFunctorAdd` isomorphisms are modified using `t`.
+-/
 def shiftMkCore : ShiftMkCore t.Category A where
   F a := shiftFunctor C a
   zero := shiftFunctorZero C A
-  add a b := NatIso.ofComponents (fun X ↦ t.z a b • (shiftFunctorAdd C a b).app X) (by
-    simp [CatCenter.naturality_assoc, CatCenter.naturality, CatCenter.smul_iso_hom_eq])
+  add a b :=
+    NatIso.ofComponents (fun X ↦ t.z a b • (shiftFunctorAdd C a b).app X) (by
+      simp [CatCenter.naturality_assoc, CatCenter.naturality, CatCenter.smul_iso_hom_eq])
   add_zero_hom_app := by simp [shiftFunctorAdd_add_zero_hom_app, CatCenter.smul_iso_hom_eq]
   zero_add_hom_app := by simp [shiftFunctorAdd_zero_add_hom_app, CatCenter.smul_iso_hom_eq]
   assoc_hom_app a b c X := by
     dsimp
     simp only [Functor.map_comp, Category.assoc, CatCenter.smul_iso_hom_eq]
-    rw [CatCenter.naturality, CatCenter.naturality_assoc, CatCenter.naturality_assoc,
+    rw [
+      CatCenter.naturality, CatCenter.naturality_assoc, CatCenter.naturality_assoc,
       CatCenter.naturality_assoc, CatCenter.naturality_assoc, CatCenter.naturality_assoc,
-      t.shift_z_app, CatCenter.naturality, CatCenter.naturality_assoc,
-      ← CatCenter.mul_app_assoc, ← CatCenter.mul_app_assoc,
-      ← Units.val_mul, ← Units.val_mul, t.assoc a b c]
+      t.shift_z_app, CatCenter.naturality, CatCenter.naturality_assoc, ← CatCenter.mul_app_assoc,
+      ← CatCenter.mul_app_assoc, ← Units.val_mul, ← Units.val_mul, t.assoc a b c
+    ]
     simp [shiftFunctorAdd_assoc_hom_app (C := C) a b c X, shiftFunctorAdd']
 
 instance hasShift : HasShift t.Category A := hasShiftMk _ _ (shiftMkCore t)
 
-/-- Given `t : TwistShiftData C A`, the shift functors on `t.Category`
-identify to the shift functors on `C`. -/
-noncomputable def shiftIso (m : A) : shiftFunctor t.Category m ≅ shiftFunctor C m :=
-  Iso.refl _
+/--
+Given `t : TwistShiftData C A`, the shift functors on `t.Category`
+identify to the shift functors on `C`.
+-/
+noncomputable def shiftIso (m : A) : shiftFunctor t.Category m ≅ shiftFunctor C m := Iso.refl _
 
 set_option backward.isDefEq.respectTransparency false in
 lemma shiftFunctor_map {X Y : t.Category} (f : X ⟶ Y) (m : A) :

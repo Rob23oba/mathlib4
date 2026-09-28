@@ -114,15 +114,15 @@ private lemma has_decomp_connected_components_aux (F : C ⥤ FintypeCat.{w}) [Fi
     exact has_decomp_connected_components_aux_initial X hi
 
 /-- In a Galois category, every object is the sum of connected objects. -/
-theorem has_decomp_connected_components (X : C) :
-    ∃ (ι : Type) (f : ι → C) (g : (i : ι) → f i ⟶ X) (_ : IsColimit (Cofan.mk X g)),
+theorem has_decomp_connected_components (X : C)
+    : ∃ (ι : Type) (f : ι → C) (g : (i : ι) → f i ⟶ X) (_ : IsColimit (Cofan.mk X g)),
       (∀ i, IsConnected (f i)) ∧ Finite ι := by
   let F := getFiberFunctor C
   exact has_decomp_connected_components_aux F (Nat.card <| F.obj X) X rfl
 
 /-- In a Galois category, every object is the sum of connected objects. -/
-theorem has_decomp_connected_components' (X : C) :
-    ∃ (ι : Type) (_ : Finite ι) (f : ι → C) (_ : ∐ f ≅ X), ∀ i, IsConnected (f i) := by
+theorem has_decomp_connected_components' (X : C)
+    : ∃ (ι : Type) (_ : Finite ι) (f : ι → C) (_ : ∐ f ≅ X), ∀ i, IsConnected (f i) := by
   obtain ⟨ι, f, g, hl, hc, hf⟩ := has_decomp_connected_components X
   exact ⟨ι, hf, f, colimit.isoColimitCocone ⟨Cofan.mk X g, hl⟩, hc⟩
 
@@ -191,12 +191,13 @@ variable (X : C)
 
 set_option backward.privateInPublic true in
 /-- The self product of `X` indexed by its fiber. -/
-@[simp]
-private noncomputable def selfProd : C := ∏ᶜ (fun _ : F.obj X ↦ X)
+@[simp] private noncomputable def selfProd : C := ∏ᶜ (fun _ : F.obj X ↦ X)
 
 set_option backward.privateInPublic true in
-/-- For `g : F.obj X → F.obj X`, this is the element in the fiber of the self product,
-which has at index `x : F.obj X` the element `g x`. -/
+/--
+For `g : F.obj X → F.obj X`, this is the element in the fiber of the self product,
+which has at index `x : F.obj X` the element `g x`.
+-/
 private noncomputable def mkSelfProdFib : F.obj (selfProd F X) :=
   (PreservesProduct.iso F _).inv ((Concrete.productEquiv (fun _ : F.obj X ↦ F.obj X)).symm id)
 
@@ -205,14 +206,12 @@ private lemma mkSelfProdFib_map_π (t : F.obj X) : F.map (Pi.π _ t) (mkSelfProd
   rw [← piComparison_comp_π]
   simp [← PreservesProduct.iso_hom, mkSelfProdFib]
 
-variable {X} {A : C} (u : A ⟶ selfProd F X)
-  (a : F.obj A) (h : F.map u a = mkSelfProdFib F X) {F}
+variable {X} {A : C} (u : A ⟶ selfProd F X) (a : F.obj A) (h : F.map u a = mkSelfProdFib F X) {F}
 include h
 
 set_option backward.privateInPublic true in
 /-- For each `x : F.obj X`, this is the composition of `u` with the projection at `x`. -/
-@[simp]
-private noncomputable def selfProdProj (x : F.obj X) : A ⟶ X := u ≫ Pi.π _ x
+@[simp] private noncomputable def selfProdProj (x : F.obj X) : A ⟶ X := u ≫ Pi.π _ x
 
 variable {u a}
 
@@ -225,8 +224,10 @@ private lemma selfProdProj_fiber (x : F.obj X) :
 variable [IsConnected A]
 
 set_option backward.privateInPublic true in
-/-- An element `b : F.obj A` defines a permutation of the fiber of `X` by projecting onto the
-`F.map u b` factor. -/
+/--
+An element `b : F.obj A` defines a permutation of the fiber of `X` by projecting onto the
+`F.map u b` factor.
+-/
 private noncomputable def fiberPerm (b : F.obj A) : F.obj X ≃ F.obj X := by
   let σ (t : F.obj X) : F.obj X := F.map (selfProdProj u t) b
   apply Equiv.ofBijective σ

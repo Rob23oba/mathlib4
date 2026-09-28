@@ -42,10 +42,12 @@ attribute [local simp] Ring.lie_def Matrix.mul_apply Matrix.one_apply Matrix.dia
 
 section IsDomain
 
-variable {ι R M N : Type*} [CommRing R] [IsDomain R] [CharZero R]
-  [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
-  {P : RootPairing ι R M N} [P.IsCrystallographic] [P.IsReduced] {b : P.Base}
-  [Fintype ι] [DecidableEq ι] (i : b.support)
+variable
+  {ι R M N : Type*}
+  [CommRing R] [IsDomain R] [CharZero R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+  {P : RootPairing ι R M N} [P.IsCrystallographic] [P.IsReduced]
+  {b : P.Base} [Fintype ι] [DecidableEq ι]
+  (i : b.support)
 
 /-- An auxiliary lemma en route to `RootPairing.GeckConstruction.isNilpotent_e`. -/
 private lemma isNilpotent_e_aux {j : ι} (n : ℕ) (h : letI _i := P.indexNeg; j ≠ -i) :
@@ -179,9 +181,11 @@ end IsDomain
 
 section Field
 
-variable {ι K M N : Type*} [Field K] [CharZero K] [DecidableEq ι] [Fintype ι]
-  [AddCommGroup M] [Module K M] [AddCommGroup N] [Module K N]
-  {P : RootPairing ι K M N} [P.IsRootSystem] [P.IsCrystallographic] {b : P.Base}
+variable
+  {ι K M N : Type*} [Field K] [CharZero K] [DecidableEq ι] [Fintype ι] [AddCommGroup M] [Module K M]
+  [AddCommGroup N] [Module K N]
+  {P : RootPairing ι K M N} [P.IsRootSystem] [P.IsCrystallographic]
+  {b : P.Base}
 
 open LieModule Matrix
 
@@ -356,8 +360,8 @@ lemma coe_genWeightSpace_zero_eq_span_range_u :
 variable [P.IsReduced] [P.IsIrreducible]
 
 /-- Lemma 4.2 from [Geck](Geck2017). -/
-instance instIsIrreducible [Nonempty ι] :
-    LieModule.IsIrreducible K (lieAlgebra b) (b.support ⊕ ι → K) := by
+instance instIsIrreducible [Nonempty ι]
+    : LieModule.IsIrreducible K (lieAlgebra b) (b.support ⊕ ι → K) := by
   refine LieModule.IsIrreducible.mk fun U hU ↦ ?_
   suffices ∃ i, v b i ∈ U by obtain ⟨i, hi⟩ := this; exact instIsIrreducible_aux₂ hi
   let U' : LieSubmodule K H (b.support ⊕ ι → K) := { U with lie_mem := U.lie_mem }
@@ -368,16 +372,14 @@ instance instIsIrreducible [Nonempty ι] :
   obtain ⟨c, hc⟩ : ∃ c : b.support → K, ∑ i, c i • u i = x :=
     (mem_span_range_iff_exists_fun K).mp <| hU hx
   suffices c = 0 by simp [this, ← hc]
-  have hCM : (4 - b.cartanMatrix).det ≠ 0 :=
-    RootPairing.Base.det_four_sub_cartanMatrix_ne_zero b
+  have hCM : (4 - b.cartanMatrix).det ≠ 0 := RootPairing.Base.det_four_sub_cartanMatrix_ne_zero b
   contrapose! hCM
   suffices ((Int.castRingHom K).mapMatrix (4 - b.cartanMatrix)).det = 0 by
     simpa only [← RingHom.map_det, eq_intCast, Int.cast_eq_zero] using this
   rw [← exists_mulVec_eq_zero_iff]
   suffices (b.cartanMatrix.map abs).map (↑) *ᵥ c = 0 from ⟨c, hCM, by simpa using this⟩
   ext j
-  suffices ∑ k, c k * |b.cartanMatrix j k| = 0 by
-    simpa [mulVec_eq_sum, -Base.cartanMatrix_map_abs]
+  suffices ∑ k, c k * |b.cartanMatrix j k| = 0 by simpa [mulVec_eq_sum, -Base.cartanMatrix_map_abs]
   by_contra contra
   have key : v b j ∈ U := by
     have : ⁅e j, x⁆ ∈ U := U.lie_mem (x := ⟨e j, e_mem_lieAlgebra j⟩) hx

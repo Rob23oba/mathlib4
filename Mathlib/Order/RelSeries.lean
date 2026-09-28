@@ -44,13 +44,11 @@ structure RelSeries where
 
 namespace RelSeries
 
-instance : CoeFun (RelSeries r) (fun x ↦ Fin (x.length + 1) → α) :=
-{ coe := RelSeries.toFun }
+instance : CoeFun (RelSeries r) (fun x ↦ Fin (x.length + 1) → α) := { coe := RelSeries.toFun }
 
-/--
-For any type `α`, each term of `α` gives a relation series with the right most index to be 0.
--/
-@[simps!] def singleton (a : α) : RelSeries r where
+/-- For any type `α`, each term of `α` gives a relation series with the right most index to be 0. -/
+@[simps!]
+def singleton (a : α) : RelSeries r where
   length := 0
   toFun _ := a
   step := Fin.elim0
@@ -61,8 +59,7 @@ instance [IsEmpty α] : IsEmpty (RelSeries r) where
 instance [Inhabited α] : Inhabited (RelSeries r) where
   default := singleton r default
 
-instance [Nonempty α] : Nonempty (RelSeries r) :=
-  Nonempty.map (singleton r) inferInstance
+instance [Nonempty α] : Nonempty (RelSeries r) := Nonempty.map (singleton r) inferInstance
 
 variable {r}
 
@@ -120,8 +117,10 @@ def fromListIsChain (x : List α) (x_ne_nil : x ≠ []) (hx : x.IsChain (· ~[r]
   toFun i := x[Fin.cast (Nat.succ_pred_eq_of_pos <| List.length_pos_iff.mpr x_ne_nil) i]
   step i := List.isChain_iff_getElem.mp hx i _
 
-/-- Relation series of `r` and nonempty list of `α` satisfying `r`-chain condition bijectively
-corresponds to each other. -/
+/--
+Relation series of `r` and nonempty list of `α` satisfying `r`-chain condition bijectively
+corresponds to each other.
+-/
 protected def Equiv : RelSeries r ≃ {x : List α | x ≠ [] ∧ x.IsChain (· ~[r] ·)} where
   toFun x := ⟨_, x.toList_ne_nil, x.isChain_toList⟩
   invFun x := fromListIsChain _ x.2.1 x.2.2
@@ -140,20 +139,28 @@ end RelSeries
 
 namespace SetRel
 
-/-- A relation `r` is said to be finite dimensional iff there is a relation series of `r` with the
-  maximum length. -/
+/--
+A relation `r` is said to be finite dimensional iff there is a relation series of `r` with the
+maximum length.
+-/
 @[mk_iff]
 class FiniteDimensional : Prop where
-  /-- A relation `r` is said to be finite dimensional iff there is a relation series of `r` with the
-  maximum length. -/
+  /--
+  A relation `r` is said to be finite dimensional iff there is a relation series of `r` with the
+  maximum length.
+  -/
   exists_longest_relSeries : ∃ x : RelSeries r, ∀ y : RelSeries r, y.length ≤ x.length
 
-/-- A relation `r` is said to be infinite dimensional iff there exists relation series of arbitrary
-  length. -/
+/--
+A relation `r` is said to be infinite dimensional iff there exists relation series of arbitrary
+length.
+-/
 @[mk_iff]
 class InfiniteDimensional : Prop where
-  /-- A relation `r` is said to be infinite dimensional iff there exists relation series of
-  arbitrary length. -/
+  /--
+  A relation `r` is said to be infinite dimensional iff there exists relation series of
+  arbitrary length.
+  -/
   exists_relSeries_with_length : ∀ n : ℕ, ∃ x : RelSeries r, x.length = n
 
 end SetRel
@@ -187,12 +194,12 @@ lemma nonempty_of_finiteDimensional [r.FiniteDimensional] : Nonempty α := by
   obtain ⟨p, _⟩ := (r.finiteDimensional_iff).mp ‹_›
   exact ⟨p 0⟩
 
-instance membership : Membership α (RelSeries r) :=
-  ⟨Function.swap (· ∈ Set.range ·)⟩
+instance membership : Membership α (RelSeries r) := ⟨Function.swap (· ∈ Set.range ·)⟩
 
 theorem mem_def : x ∈ s ↔ x ∈ Set.range s := Iff.rfl
 
-@[simp] theorem mem_toList : x ∈ s.toList ↔ x ∈ s := by
+@[simp]
+theorem mem_toList : x ∈ s.toList ↔ x ∈ s := by
   rw [RelSeries.toList, List.mem_ofFn', RelSeries.mem_def]
 
 theorem subsingleton_of_length_eq_zero (hs : s.length = 0) : {x | x ∈ s}.Subsingleton := by
@@ -200,15 +207,17 @@ theorem subsingleton_of_length_eq_zero (hs : s.length = 0) : {x | x ∈ s}.Subsi
   congr!
   exact finCongr (by rw [hs, zero_add]) |>.injective <| Subsingleton.elim (α := Fin 1) _ _
 
-theorem length_ne_zero_of_nontrivial (h : {x | x ∈ s}.Nontrivial) : s.length ≠ 0 :=
-  fun hs ↦ h.not_subsingleton <| subsingleton_of_length_eq_zero hs
+theorem length_ne_zero_of_nontrivial (h : {x | x ∈ s}.Nontrivial) : s.length ≠ 0 := fun hs ↦
+  h.not_subsingleton <| subsingleton_of_length_eq_zero hs
 
 theorem length_pos_of_nontrivial (h : {x | x ∈ s}.Nontrivial) : 0 < s.length :=
   Nat.pos_iff_ne_zero.mpr <| length_ne_zero_of_nontrivial h
 
 theorem length_ne_zero [r.IsIrrefl] : s.length ≠ 0 ↔ {x | x ∈ s}.Nontrivial := by
-  refine ⟨fun h ↦ ⟨s 0, by simp [mem_def], s 1, by simp [mem_def],
-    fun rid ↦ r.irrefl (s 0) ?_⟩, length_ne_zero_of_nontrivial⟩
+  refine ⟨
+    fun h ↦ ⟨s 0, by simp [mem_def], s 1, by simp [mem_def], fun rid ↦ r.irrefl (s 0) ?_⟩,
+    length_ne_zero_of_nontrivial
+  ⟩
   nth_rw 2 [rid]
   convert! s.step ⟨0, by lia⟩
   ext
@@ -220,14 +229,18 @@ theorem length_pos [r.IsIrrefl] : 0 < s.length ↔ {x | x ∈ s}.Nontrivial :=
 lemma length_eq_zero [r.IsIrrefl] : s.length = 0 ↔ {x | x ∈ s}.Subsingleton := by
   rw [← not_ne_iff, length_ne_zero, Set.not_nontrivial_iff]
 
-/-- Start of a series, i.e. for `a₀ -r→ a₁ -r→ ... -r→ aₙ`, its head is `a₀`.
+/--
+Start of a series, i.e. for `a₀ -r→ a₁ -r→ ... -r→ aₙ`, its head is `a₀`.
 
-Since a relation series is assumed to be non-empty, this is well defined. -/
+Since a relation series is assumed to be non-empty, this is well defined.
+-/
 def head (x : RelSeries r) : α := x 0
 
-/-- End of a series, i.e. for `a₀ -r→ a₁ -r→ ... -r→ aₙ`, its last element is `aₙ`.
+/--
+End of a series, i.e. for `a₀ -r→ a₁ -r→ ... -r→ aₙ`, its last element is `aₙ`.
 
-Since a relation series is assumed to be non-empty, this is well defined. -/
+Since a relation series is assumed to be non-empty, this is well defined.
+-/
 def last (x : RelSeries r) : α := x <| Fin.last _
 
 lemma apply_zero (p : RelSeries r) : p 0 = p.head := rfl
@@ -287,19 +300,23 @@ def append (p q : RelSeries r) (connect : p.last ~[r] q.head) : RelSeries r wher
   length := p.length + q.length + 1
   toFun := Fin.append p q ∘ Fin.cast (by lia)
   step i := by
-    obtain hi | rfl | hi :=
-      lt_trichotomy i (Fin.castLE (by lia) (Fin.last _ : Fin (p.length + 1)))
+    obtain hi | rfl | hi := lt_trichotomy i (Fin.castLE (by lia) (Fin.last _ : Fin (p.length + 1)))
     · convert! p.step ⟨i.1, hi⟩ <;> convert! Fin.append_left p q _ <;> rfl
     · convert! connect
       · convert! Fin.append_left p q _
       · convert! Fin.append_right p q _; rfl
-    · set x := _; set y := _
+    · set x := _
+      set y := _
       change Fin.append p q x ~[r] Fin.append p q y
-      have hx : x = Fin.natAdd _ ⟨i - (p.length + 1), Nat.sub_lt_left_of_lt_add hi <|
-          i.2.trans <| by lia⟩ := by
+      have hx
+          : x
+            = Fin.natAdd _
+              ⟨i - (p.length + 1), Nat.sub_lt_left_of_lt_add hi <| i.2.trans <| by lia⟩ := by
         ext; dsimp [x, y]; rw [Nat.add_sub_cancel']; exact hi
-      have hy : y = Fin.natAdd _ ⟨i - p.length, Nat.sub_lt_left_of_lt_add (le_of_lt hi)
-          (by exact i.2)⟩ := by
+      have hy
+          : y
+            = Fin.natAdd _
+              ⟨i - p.length, Nat.sub_lt_left_of_lt_add (le_of_lt hi) (by exact i.2)⟩ := by
         ext
         dsimp
         conv_rhs => rw [Nat.add_comm p.length 1, add_assoc,
@@ -307,8 +324,10 @@ def append (p q : RelSeries r) (connect : p.last ~[r] q.head) : RelSeries r wher
         rfl
       rw [hx, Fin.append_right, hy, Fin.append_right]
       convert! q.step ⟨i - (p.length + 1), Nat.sub_lt_left_of_lt_add hi <| by lia⟩
-      rw [Fin.succ_mk, Nat.sub_eq_iff_eq_add (le_of_lt hi : p.length ≤ i),
-        Nat.add_assoc _ 1, add_comm 1, Nat.sub_add_cancel]
+      rw [
+        Fin.succ_mk, Nat.sub_eq_iff_eq_add (le_of_lt hi : p.length ≤ i), Nat.add_assoc _ 1,
+        add_comm 1, Nat.sub_add_cancel
+      ]
       exact hi
 
 set_option backward.defeqAttrib.useBackward true in
@@ -385,8 +404,10 @@ If `a₀ -r→ a₁ -r→ ... -r→ aₙ` is an `r`-series and `a` is such that
 is another `r`-series
 -/
 @[simps]
-def insertNth (p : RelSeries r) (i : Fin p.length) (a : α)
-    (prev_connect : p (Fin.castSucc i) ~[r] a) (connect_next : a ~[r] p i.succ) : RelSeries r where
+def insertNth
+    (p : RelSeries r) (i : Fin p.length)
+    (a : α) (prev_connect : p (Fin.castSucc i) ~[r] a) (connect_next : a ~[r] p i.succ)
+    : RelSeries r where
   length := p.length + 1
   toFun := (Fin.castSucc i.succ).insertNth a p
   step m := by
@@ -528,9 +549,7 @@ lemma mem_snoc {p : RelSeries r} {newLast : α} {rel : p.last ~[r] newLast} {x :
     · exact ⟨i.castSucc, Fin.append_left _ _ _⟩
     · exact ⟨Fin.last _, Fin.append_right _ _ 0⟩
 
-/--
-If a series `a₀ -r→ a₁ -r→ ...` has positive length, then `a₁ -r→ ...` is another series
--/
+/-- If a series `a₀ -r→ a₁ -r→ ...` has positive length, then `a₁ -r→ ...` is another series -/
 @[simps]
 def tail (p : RelSeries r) (len_pos : p.length ≠ 0) : RelSeries r where
   length := p.length - 1
@@ -582,11 +601,12 @@ Note: This can also be used to construct data, but it does not have good definit
 since `(p.cons x hx).tail _ = p` is not a definitional equality.
 -/
 @[elab_as_elim]
-def inductionOn (motive : RelSeries r → Sort*)
-    (singleton : (x : α) → motive (RelSeries.singleton r x))
-    (cons : (p : RelSeries r) → (x : α) → (hx : x ~[r] p.head) → (hp : motive p) →
-      motive (p.cons x hx)) (p : RelSeries r) :
-    motive p := by
+def inductionOn
+    (motive : RelSeries r → Sort*) (singleton : (x : α) → motive (RelSeries.singleton r x))
+    (cons
+      : (p : RelSeries r) → (x : α) → (hx : x ~[r] p.head) → (hp : motive p) → motive (p.cons x hx))
+    (p : RelSeries r)
+    : motive p := by
   let {n : ℕ} (heq : p.length = n) : motive p := by
     induction n generalizing p with
     | zero =>
@@ -611,7 +631,8 @@ lemma toList_snoc (p : RelSeries r) (newLast : α) (rel : p.last ~[r] newLast) :
 
 /--
 If a series ``a₀ -r→ a₁ -r→ ... -r→ aₙ``, then `a₀ -r→ a₁ -r→ ... -r→ aₙ₋₁` is
-another series -/
+another series
+-/
 @[simps]
 def eraseLast (p : RelSeries r) : RelSeries r where
   length := p.length - 1
@@ -650,11 +671,12 @@ To show a proposition `p` for `xs : RelSeries r` it suffices to show it for all 
 and to show that when `p` holds for `xs` it also holds for `xs` appended with one element.
 -/
 @[elab_as_elim]
-def inductionOn' (motive : RelSeries r → Sort*)
-    (singleton : (x : α) → motive (RelSeries.singleton r x))
-    (snoc : (p : RelSeries r) → (x : α) → (hx : p.last ~[r] x) → (hp : motive p) →
-      motive (p.snoc x hx)) (p : RelSeries r) :
-    motive p := by
+def inductionOn'
+    (motive : RelSeries r → Sort*) (singleton : (x : α) → motive (RelSeries.singleton r x))
+    (snoc
+      : (p : RelSeries r) → (x : α) → (hx : p.last ~[r] x) → (hp : motive p) → motive (p.snoc x hx))
+    (p : RelSeries r)
+    : motive p := by
   let {n : ℕ} (heq : p.length = n) : motive p := by
     induction n generalizing p with
     | zero =>
@@ -741,10 +763,11 @@ lemma last_take (p : RelSeries r) (i : Fin (p.length + 1)) :
 @[simps! length]
 def drop (p : RelSeries r) (i : Fin (p.length + 1)) : RelSeries r where
   length := p.length - i
-  toFun := fun ⟨j, h⟩ => p.toFun ⟨j+i, by lia⟩
+  toFun := fun ⟨j, h⟩ => p.toFun ⟨j + i, by lia⟩
   step := fun ⟨j, h⟩ => by
     convert! p.step ⟨j + i.1, by lia⟩
-    simp only [Fin.succ_mk]; lia
+    simp only [Fin.succ_mk]
+    lia
 
 @[simp]
 lemma head_drop (p : RelSeries r) (i : Fin (p.length + 1)) : (p.drop i).head = p.toFun i := by
@@ -815,11 +838,14 @@ lemma SetRel.IsWellFounded.of_finiteDimensional [r.FiniteDimensional] : r.IsWell
 abbrev FiniteDimensionalOrder (γ : Type*) [Preorder γ] :=
   SetRel.FiniteDimensional {(a, b) : γ × γ | a < b}
 
-instance FiniteDimensionalOrder.ofUnique (γ : Type*) [Preorder γ] [Unique γ] :
-    FiniteDimensionalOrder γ where
-  exists_longest_relSeries := ⟨.singleton _ default, fun x ↦ by
-    by_contra! r
-    exact (x.step ⟨0, by lia⟩).ne <| Subsingleton.elim _ _⟩
+instance FiniteDimensionalOrder.ofUnique (γ : Type*) [Preorder γ] [Unique γ]
+    : FiniteDimensionalOrder γ where
+  exists_longest_relSeries := ⟨
+    .singleton _ default,
+    fun x ↦ by
+      by_contra! r
+      exact (x.step ⟨0, by lia⟩).ne <| Subsingleton.elim _ _
+  ⟩
 
 /-- A type is infinite dimensional if it has `LTSeries` of at least arbitrary length -/
 abbrev InfiniteDimensionalOrder (γ : Type*) [Preorder γ] :=
@@ -828,9 +854,7 @@ abbrev InfiniteDimensionalOrder (γ : Type*) [Preorder γ] :=
 section LTSeries
 
 variable (α) [Preorder α] [Preorder β]
-/--
-If `α` is a preorder, a LTSeries is a relation series of the less than relation.
--/
+/-- If `α` is a preorder, a LTSeries is a relation series of the less than relation. -/
 abbrev LTSeries := RelSeries {(a, b) : α × α | a < b}
 
 namespace LTSeries
@@ -866,7 +890,6 @@ lemma longestOf_len_unique [FiniteDimensionalOrder α] (p : LTSeries α)
     p.length = (LTSeries.longestOf α).length :=
   le_antisymm (longestOf_is_longest _) (is_longest _)
 
-
 lemma strictMono (x : LTSeries α) : StrictMono x :=
   fun _ _ h => x.rel_of_lt h
 
@@ -880,8 +903,8 @@ lemma head_le_last (x : LTSeries α) : x.head ≤ x.last := x.head_le _
 
 /-- An alternative constructor of `LTSeries` from a strictly monotone function. -/
 @[simps]
-def mk (length : ℕ) (toFun : Fin (length + 1) → α) (strictMono : StrictMono toFun) :
-    LTSeries α where
+def mk (length : ℕ) (toFun : Fin (length + 1) → α) (strictMono : StrictMono toFun)
+    : LTSeries α where
   length := length
   toFun := toFun
   step i := strictMono <| lt_add_one i.1
@@ -889,8 +912,8 @@ def mk (length : ℕ) (toFun : Fin (length + 1) → α) (strictMono : StrictMono
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- An injection from the type of strictly monotone functions with limited length to `LTSeries`. -/
-def injStrictMono (n : ℕ) :
-    {f : (l : Fin n) × (Fin (l + 1) → α) // StrictMono f.2} ↪ LTSeries α where
+def injStrictMono (n : ℕ)
+    : {f : (l : Fin n) × (Fin (l + 1) → α) // StrictMono f.2} ↪ LTSeries α where
   toFun f := mk f.1.1 f.1.2 f.2
   inj' f g e := by
     obtain ⟨⟨lf, f⟩, mf⟩ := f
@@ -926,11 +949,12 @@ strict series of `β` can be pulled back to a strict chain of `α` by
 preimage of `f⁻¹ {bᵢ}`.
 -/
 @[simps!]
-noncomputable def comap (p : LTSeries β) (f : α → β)
-    (comap : ∀ ⦃x y⦄, f x < f y → x < y)
-    (surjective : Function.Surjective f) :
-    LTSeries α :=
-  mk p.length (fun i ↦ (surjective (p i)).choose)
+noncomputable def comap
+    (p : LTSeries β)
+    (f : α → β) (comap : ∀ ⦃x y⦄, f x < f y → x < y) (surjective : Function.Surjective f)
+    : LTSeries α :=
+  mk p.length
+    (fun i ↦ (surjective (p i)).choose)
     (fun i j h ↦ comap (by simpa only [(surjective _).choose_spec] using p.strictMono h))
 
 /-- The strict series `0 < … < n` in `ℕ`. -/
@@ -948,15 +972,18 @@ def range (n : ℕ) : LTSeries ℕ where
 @[simp] lemma last_range (n : ℕ) : (range n).last = n := rfl
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Any `LTSeries` can be refined to a `CovBy`-`RelSeries`
-in a bidirectionally well-founded order. -/
+/--
+Any `LTSeries` can be refined to a `CovBy`-`RelSeries`
+in a bidirectionally well-founded order.
+-/
 theorem exists_relSeries_covBy
-    {α} [PartialOrder α] [WellFoundedLT α] [WellFoundedGT α] (s : LTSeries α) :
-    ∃ (t : RelSeries {(a, b) : α × α | a ⋖ b}) (i : Fin (s.length + 1) ↪ Fin (t.length + 1)),
+    {α} [PartialOrder α] [WellFoundedLT α] [WellFoundedGT α] (s : LTSeries α)
+    : ∃ (t : RelSeries {(a, b) : α × α | a ⋖ b}) (i : Fin (s.length + 1) ↪ Fin (t.length + 1)),
       t ∘ i = s ∧ i 0 = 0 ∧ i (.last _) = .last _ := by
   obtain ⟨n, s, h⟩ := s
   induction n with
-  | zero => exact ⟨⟨0, s, nofun⟩, (Equiv.refl _).toEmbedding, rfl, rfl, rfl⟩
+  | zero =>
+    exact ⟨⟨0, s, nofun⟩, (Equiv.refl _).toEmbedding, rfl, rfl, rfl⟩
   | succ n IH =>
     obtain ⟨t₁, i, ht, hi₁, hi₂⟩ := IH (s ∘ Fin.castSucc) fun _ ↦ h _
     obtain ⟨t₂, h₁, m, h₂, ht₂⟩ :=
@@ -964,8 +991,8 @@ theorem exists_relSeries_covBy
     let t₃ : RelSeries {(a, b) : α × α | a ⋖ b} := ⟨m, (t₂ ·), fun i ↦ by simpa using! ht₂ i⟩
     have H : t₁.last = t₂ 0 := (congr(t₁ $hi₂.symm).trans (congr_fun ht _)).trans h₁.symm
     refine ⟨t₁.smash t₃ H, ⟨Fin.snoc (Fin.castLE (by simp) ∘ i) (.last _), ?_⟩, ?_, ?_, ?_⟩
-    · refine Fin.lastCases (Fin.lastCases (fun _ ↦ rfl) fun j eq ↦ ?_) fun j ↦ Fin.lastCases
-        (fun eq ↦ ?_) fun k eq ↦ Fin.ext (congr_arg Fin.val (by simpa using! eq) :)
+    · refine Fin.lastCases (Fin.lastCases (fun _ ↦ rfl) fun j eq ↦ ?_) fun j ↦
+        Fin.lastCases (fun eq ↦ ?_) fun k eq ↦ Fin.ext (congr_arg Fin.val (by simpa using! eq) :)
       on_goal 2 => rw [eq_comm] at eq
       all_goals
         rw [Fin.snoc_castSucc] at eq
@@ -978,17 +1005,25 @@ theorem exists_relSeries_covBy
     all_goals simp [Fin.snoc, Fin.castPred_zero, hi₁]
 
 theorem exists_relSeries_covBy_and_head_eq_bot_and_last_eq_bot
-    {α} [PartialOrder α] [BoundedOrder α] [WellFoundedLT α] [WellFoundedGT α] (s : LTSeries α) :
-    ∃ (t : RelSeries {(a, b) : α × α | a ⋖ b}) (i : Fin (s.length + 1) ↪ Fin (t.length + 1)),
+    {α} [PartialOrder α] [BoundedOrder α] [WellFoundedLT α] [WellFoundedGT α] (s : LTSeries α)
+    : ∃ (t : RelSeries {(a, b) : α × α | a ⋖ b}) (i : Fin (s.length + 1) ↪ Fin (t.length + 1)),
       t ∘ i = s ∧ t.head = ⊥ ∧ t.last = ⊤ := by
   wlog h₁ : s.head = ⊥
   · obtain ⟨t, i, hi, ht⟩ := this (s.cons ⊥ (bot_lt_iff_ne_bot.mpr h₁)) rfl
-    exact ⟨t, ⟨fun j ↦ i (j.succ.cast (by simp)), fun _ _ ↦ by simp⟩,
-      funext fun j ↦ congr($hi _).trans (RelSeries.cons_cast_succ _ _ _ _), ht⟩
+    exact ⟨
+      t,
+      ⟨fun j ↦ i (j.succ.cast (by simp)), fun _ _ ↦ by simp⟩,
+      funext fun j ↦ congr($hi _).trans (RelSeries.cons_cast_succ _ _ _ _),
+      ht
+    ⟩
   wlog h₂ : s.last = ⊤
   · obtain ⟨t, i, hi, ht⟩ := this (s.snoc ⊤ (lt_top_iff_ne_top.mpr h₂)) (by simp [h₁]) (by simp)
-    exact ⟨t, ⟨fun j ↦ i (.cast (by simp) j.castSucc), fun _ _ ↦ by simp⟩,
-      funext fun j ↦ congr($hi _).trans (RelSeries.snoc_cast_castSucc _ _ _ _), ht⟩
+    exact ⟨
+      t,
+      ⟨fun j ↦ i (.cast (by simp) j.castSucc), fun _ _ ↦ by simp⟩,
+      funext fun j ↦ congr($hi _).trans (RelSeries.snoc_cast_castSucc _ _ _ _),
+      ht
+    ⟩
   obtain ⟨t, i, hit, hi₁, hi₂⟩ := s.exists_relSeries_covBy
   refine ⟨t, i, hit, ?_, ?_⟩
   · rw [← h₁, RelSeries.head, RelSeries.head, ← hi₁, ← hit, Function.comp]
@@ -1055,7 +1090,8 @@ instance [DecidableLT α] : Fintype (LTSeries α) where
     have bl := s.length_lt_card
     obtain ⟨l, f, mf⟩ := s
     simp_rw [Finset.mem_map, Finset.mem_univ, true_and, Subtype.exists]
-    use ⟨⟨l, bl⟩, f⟩, Fin.strictMono_iff_lt_succ.mpr mf; rfl
+    use ⟨⟨l, bl⟩, f⟩, Fin.strictMono_iff_lt_succ.mpr mf
+    rfl
 
 end Fintype
 

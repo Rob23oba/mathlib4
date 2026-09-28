@@ -31,9 +31,11 @@ open Set
 
 variable {R S : Type*} {x y : R}
 
-theorem IsNilpotent.map [MonoidWithZero R] [MonoidWithZero S] {r : R} {F : Type*}
-    [FunLike F R S] [MonoidWithZeroHomClass F R S] (hr : IsNilpotent r) (f : F) :
-    IsNilpotent (f r) := by
+theorem IsNilpotent.map
+    [MonoidWithZero R] [MonoidWithZero S]
+    {r : R} {F : Type*} [FunLike F R S] [MonoidWithZeroHomClass F R S]
+    (hr : IsNilpotent r) (f : F)
+    : IsNilpotent (f r) := by
   use hr.choose
   rw [← map_pow, hr.choose_spec, map_zero]
 
@@ -42,26 +44,26 @@ lemma IsNilpotent.map_iff [MonoidWithZero R] [MonoidWithZero S] {r : R} {F : Typ
     IsNilpotent (f r) ↔ IsNilpotent r :=
   ⟨fun ⟨k, hk⟩ ↦ ⟨k, (map_eq_zero_iff f hf).mp <| by rwa [map_pow]⟩, fun h ↦ h.map f⟩
 
-theorem IsUnit.isNilpotent_mul_unit_of_commute_iff [MonoidWithZero R] {r u : R}
-    (hu : IsUnit u) (h_comm : Commute r u) :
-    IsNilpotent (r * u) ↔ IsNilpotent r :=
+theorem IsUnit.isNilpotent_mul_unit_of_commute_iff
+    [MonoidWithZero R] {r u : R} (hu : IsUnit u) (h_comm : Commute r u)
+    : IsNilpotent (r * u) ↔ IsNilpotent r :=
   exists_congr fun n ↦ by rw [h_comm.mul_pow, (hu.pow n).mul_left_eq_zero]
 
-theorem IsUnit.isNilpotent_unit_mul_of_commute_iff [MonoidWithZero R] {r u : R}
-    (hu : IsUnit u) (h_comm : Commute r u) :
-    IsNilpotent (u * r) ↔ IsNilpotent r :=
+theorem IsUnit.isNilpotent_unit_mul_of_commute_iff
+    [MonoidWithZero R] {r u : R} (hu : IsUnit u) (h_comm : Commute r u)
+    : IsNilpotent (u * r) ↔ IsNilpotent r :=
   h_comm ▸ hu.isNilpotent_mul_unit_of_commute_iff h_comm
 
 @[simp]
-theorem isNilpotent_op [MonoidWithZero R] {x : R} :
-    IsNilpotent (MulOpposite.op x) ↔ IsNilpotent x := by
+theorem isNilpotent_op [MonoidWithZero R] {x : R}
+    : IsNilpotent (MulOpposite.op x) ↔ IsNilpotent x := by
   simp_rw [IsNilpotent, ← MulOpposite.op_pow, MulOpposite.op_eq_zero_iff]
 
 alias ⟨_, IsNilpotent.op⟩ := isNilpotent_op
 
 @[simp]
-theorem isNilpotent_unop [MonoidWithZero R] {x : Rᵐᵒᵖ} :
-    IsNilpotent (MulOpposite.unop x) ↔ IsNilpotent x :=
+theorem isNilpotent_unop [MonoidWithZero R] {x : Rᵐᵒᵖ}
+    : IsNilpotent (MulOpposite.unop x) ↔ IsNilpotent x :=
   isNilpotent_op.symm
 
 alias ⟨_, IsNilpotent.unop⟩ := isNilpotent_unop
@@ -73,8 +75,10 @@ section ZeroPow
 variable [Zero R] [Pow R ℕ]
 
 variable (x) in
-/-- If `x` is nilpotent, the nilpotency class is the smallest natural number `k` such that
-`x ^ k = 0`. If `x` is not nilpotent, the nilpotency class takes the junk value `0`. -/
+/--
+If `x` is nilpotent, the nilpotency class is the smallest natural number `k` such that
+`x ^ k = 0`. If `x` is not nilpotent, the nilpotency class takes the junk value `0`.
+-/
 noncomputable def nilpotencyClass : ℕ := sInf {k | x ^ k = 0}
 
 @[simp] lemma nilpotencyClass_eq_zero_of_subsingleton [Subsingleton R] :
@@ -138,30 +142,32 @@ end NilpotencyClass
 theorem isReduced_mulOpposite_iff [MonoidWithZero R] : IsReduced Rᵐᵒᵖ ↔ IsReduced R := by
   simp [isReduced_iff]
 
-instance [MonoidWithZero R] [IsReduced R] : IsReduced Rᵐᵒᵖ :=
-  isReduced_mulOpposite_iff.mpr ‹_›
+instance [MonoidWithZero R] [IsReduced R] : IsReduced Rᵐᵒᵖ := isReduced_mulOpposite_iff.mpr ‹_›
 
-theorem isReduced_of_injective [MonoidWithZero R] [MonoidWithZero S] {F : Type*}
-    [FunLike F R S] [MonoidWithZeroHomClass F R S]
-    (f : F) (hf : Function.Injective f) [IsReduced S] :
-    IsReduced R := by
+theorem isReduced_of_injective
+    [MonoidWithZero R] [MonoidWithZero S]
+    {F : Type*} [FunLike F R S] [MonoidWithZeroHomClass F R S]
+    (f : F) (hf : Function.Injective f)
+    [IsReduced S]
+    : IsReduced R := by
   constructor
   intro x hx
   apply hf
   rw [map_zero]
   exact (hx.map f).eq_zero
 
-instance (ι) (R : ι → Type*) [∀ i, Zero (R i)] [∀ i, Pow (R i) ℕ]
-    [∀ i, IsReduced (R i)] : IsReduced (∀ i, R i) where
+instance (ι) (R : ι → Type*) [∀ i, Zero (R i)] [∀ i, Pow (R i) ℕ] [∀ i, IsReduced (R i)]
+    : IsReduced (∀ i, R i) where
   eq_zero _ := fun ⟨n, hn⟩ ↦ funext fun i ↦ IsReduced.eq_zero _ ⟨n, congr($hn i)⟩
 
-/-- An element `y` in a monoid is radical if for any element `x`, `y` divides `x` whenever it
-  divides a power of `x`. -/
-def IsRadical [Dvd R] [Pow R ℕ] (y : R) : Prop :=
-  ∀ (n : ℕ) (x), y ∣ x ^ n → y ∣ x
+/--
+An element `y` in a monoid is radical if for any element `x`, `y` divides `x` whenever it
+divides a power of `x`.
+-/
+def IsRadical [Dvd R] [Pow R ℕ] (y : R) : Prop := ∀ (n : ℕ) (x), y ∣ x ^ n → y ∣ x
 
-theorem isRadical_iff_pow_one_lt [Monoid R] (k : ℕ) (hk : 1 < k) :
-    IsRadical y ↔ ∀ x, y ∣ x ^ k → y ∣ x :=
+theorem isRadical_iff_pow_one_lt [Monoid R] (k : ℕ) (hk : 1 < k)
+    : IsRadical y ↔ ∀ x, y ∣ x ^ k → y ∣ x :=
   ⟨(· k), k.pow_imp_self_of_one_lt hk _ fun _ _ h ↦ .inl (dvd_mul_of_dvd_left h _)⟩
 
 namespace Commute

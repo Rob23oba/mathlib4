@@ -115,10 +115,12 @@ lemma Unitary.spectrum_subset_slitPlane_iff_norm_lt_two {u : A} (hu : u ∈ unit
 lemma IsSelfAdjoint.cfc_arg (u : A) : IsSelfAdjoint (cfc (ofReal ∘ arg : ℂ → ℂ) u) := by
   simp [isSelfAdjoint_iff, ← cfc_star]
 
-/-- The selfadjoint element obtained by taking the argument (using the principal branch and the
+/--
+The selfadjoint element obtained by taking the argument (using the principal branch and the
 continuous functional calculus) of a unitary whose spectrum does not contain `-1`. This returns
 `0` if the principal branch of the logarithm is not continuous on the spectrum of the unitary
-element. -/
+element.
+-/
 @[simps]
 noncomputable def Unitary.argSelfAdjoint (u : unitary A) : selfAdjoint A :=
   ⟨cfc (arg · : ℂ → ℂ) (u : A), .cfc_arg (u : A)⟩
@@ -240,11 +242,13 @@ lemma Unitary.continuousOn_argSelfAdjoint :
     exact hε2
 
 set_option backward.isDefEq.respectTransparency false in
-/-- the maps `unitary.argSelfAdjoint` and `selfAdjoint.expUnitary` form a partial
-homeomorphism between `ball (1 : unitary A) 2` and `ball (0 : selfAdjoint A) π`. -/
+/--
+the maps `unitary.argSelfAdjoint` and `selfAdjoint.expUnitary` form a partial
+homeomorphism between `ball (1 : unitary A) 2` and `ball (0 : selfAdjoint A) π`.
+-/
 @[simps]
-noncomputable def Unitary.openPartialHomeomorph :
-    OpenPartialHomeomorph (unitary A) (selfAdjoint A) where
+noncomputable def Unitary.openPartialHomeomorph
+    : OpenPartialHomeomorph (unitary A) (selfAdjoint A) where
   toFun := argSelfAdjoint
   invFun := expUnitary
   source := ball 1 2
@@ -264,8 +268,7 @@ noncomputable def Unitary.openPartialHomeomorph :
       Real.cos_pi ▸ Real.cos_lt_cos_of_nonneg_of_le_pi (by positivity) le_rfl hx
     simp only [AddSubgroupClass.coe_norm, mul_sub, mul_one, sq, gt_iff_lt]
     linarith
-  left_inv' u hu := expUnitary_argSelfAdjoint <| by
-    simpa [Subtype.dist_eq, dist_eq_norm] using hu
+  left_inv' u hu := expUnitary_argSelfAdjoint <| by simpa [Subtype.dist_eq, dist_eq_norm] using hu
   right_inv' x hx := argSelfAdjoint_expUnitary <| by simpa using hx
   open_source := isOpen_ball
   open_target := isOpen_ball
@@ -281,11 +284,12 @@ lemma Unitary.expUnitary_eq_mul_inv (u v : unitary A) (huv : ‖(u - v : A)‖ <
     expUnitary (argSelfAdjoint (u * star v)) = u * star v :=
   expUnitary_argSelfAdjoint <| norm_sub_eq u v ▸ huv
 
-/-- For a selfadjoint element `x` in a C⋆-algebra, this is the path from `1` to `expUnitary x`
-given by `t ↦ expUnitary (t • x)`. -/
+/--
+For a selfadjoint element `x` in a C⋆-algebra, this is the path from `1` to `expUnitary x`
+given by `t ↦ expUnitary (t • x)`.
+-/
 @[simps]
-noncomputable def selfAdjoint.expUnitaryPathToOne (x : selfAdjoint A) :
-    Path 1 (expUnitary x) where
+noncomputable def selfAdjoint.expUnitaryPathToOne (x : selfAdjoint A) : Path 1 (expUnitary x) where
   toFun t := expUnitary ((t : ℝ) • x)
   continuous_toFun := by fun_prop
   source' := by simp
@@ -296,11 +300,12 @@ lemma selfAdjoint.joined_one_expUnitary (x : selfAdjoint A) :
     Joined (1 : unitary A) (expUnitary x) :=
   ⟨expUnitaryPathToOne x⟩
 
-/-- The path `t ↦ expUnitary (t • argSelfAdjoint (v * star u)) * u`
-from `u : unitary A` to `v` when `‖v - u‖ < 2`. -/
+/--
+The path `t ↦ expUnitary (t • argSelfAdjoint (v * star u)) * u`
+from `u : unitary A` to `v` when `‖v - u‖ < 2`.
+-/
 @[simps]
-noncomputable def Unitary.path (u v : unitary A) (huv : ‖(v - u : A)‖ < 2) :
-    Path u v where
+noncomputable def Unitary.path (u v : unitary A) (huv : ‖(v - u : A)‖ < 2) : Path u v where
   toFun t := expUnitary ((t : ℝ) • argSelfAdjoint (v * star u)) * u
   continuous_toFun := by fun_prop
   source' := by ext; simp

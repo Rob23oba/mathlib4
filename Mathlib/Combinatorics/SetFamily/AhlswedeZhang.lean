@@ -181,8 +181,8 @@ lemma truncatedSup_union_of_notMem (hs : a ∉ lowerClosure s) (ht : a ∉ lower
 end SemilatticeSup
 
 section SemilatticeInf
-variable [SemilatticeInf α] [SemilatticeInf β]
-  [BoundedOrder β] [DecidableLE β] {s t : Finset α} {a : α}
+variable
+  [SemilatticeInf α] [SemilatticeInf β] [BoundedOrder β] [DecidableLE β] {s t : Finset α} {a : α}
 
 set_option backward.privateInPublic true in
 private lemma inf_aux [DecidableLE α] : a ∈ upperClosure s → {b ∈ s | b ≤ a}.Nonempty :=
@@ -343,13 +343,16 @@ open Fintype Nat
 namespace AhlswedeZhang
 variable {α : Type*} [Fintype α] [DecidableEq α] {𝒜 : Finset (Finset α)} {s : Finset α}
 
-/-- Weighted sum of the size of the truncated infima of a set family. Relevant to the
-Ahlswede-Zhang identity. -/
-def infSum (𝒜 : Finset (Finset α)) : ℚ :=
-  ∑ s, #(truncatedInf 𝒜 s) / (#s * (card α).choose #s)
+/--
+Weighted sum of the size of the truncated infima of a set family. Relevant to the
+Ahlswede-Zhang identity.
+-/
+def infSum (𝒜 : Finset (Finset α)) : ℚ := ∑ s, #(truncatedInf 𝒜 s) / (#s * (card α).choose #s)
 
-/-- Weighted sum of the size of the truncated suprema of a set family. Relevant to the
-Ahlswede-Zhang identity. -/
+/--
+Weighted sum of the size of the truncated suprema of a set family. Relevant to the
+Ahlswede-Zhang identity.
+-/
 def supSum (𝒜 : Finset (Finset α)) : ℚ :=
   ∑ s, #(truncatedSup 𝒜 s) / ((card α - #s) * (card α).choose #s)
 

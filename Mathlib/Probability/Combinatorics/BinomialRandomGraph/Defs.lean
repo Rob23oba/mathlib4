@@ -43,8 +43,7 @@ variable {V : Type*} {p : I}
 variable (V p) in
 /-- The binomial distribution with parameter `p` on simple graphs with vertices `V`. -/
 @[expose]
-noncomputable def binomialRandom : Measure (SimpleGraph V) :=
-  setBer(Sym2.diagSetᶜ, p).comap edgeSet
+noncomputable def binomialRandom : Measure (SimpleGraph V) := setBer(Sym2.diagSetᶜ, p).comap edgeSet
 
 @[inherit_doc] scoped notation "G(" V ", " p ")" => binomialRandom V p
 

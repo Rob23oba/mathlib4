@@ -31,24 +31,26 @@ namespace CategoryTheory
 variable {C : Type*} [Category* C]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `i ≫ p = f`, and `f` has the left lifting property with respect to `p`,
-then `f` is a retract of `i`. -/
+/--
+If `i ≫ p = f`, and `f` has the left lifting property with respect to `p`,
+then `f` is a retract of `i`.
+-/
 noncomputable def RetractArrow.ofLeftLiftingProperty
-    {X Y Z : C} {f : X ⟶ Z} {i : X ⟶ Y} {p : Y ⟶ Z} (h : i ≫ p = f)
-    [HasLiftingProperty f p] : RetractArrow f i :=
+    {X Y Z : C} {f : X ⟶ Z} {i : X ⟶ Y} {p : Y ⟶ Z} (h : i ≫ p = f) [HasLiftingProperty f p]
+    : RetractArrow f i :=
   have sq : CommSq i f p (𝟙 _) := ⟨by simp [h]⟩
-  { i := Arrow.homMk (𝟙 X) sq.lift
-    r := Arrow.homMk (𝟙 X) p }
+  { i := Arrow.homMk (𝟙 X) sq.lift, r := Arrow.homMk (𝟙 X) p }
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `i ≫ p = f`, and `f` has the right lifting property with respect to `i`,
-then `f` is a retract of `p`. -/
+/--
+If `i ≫ p = f`, and `f` has the right lifting property with respect to `i`,
+then `f` is a retract of `p`.
+-/
 noncomputable def RetractArrow.ofRightLiftingProperty
-    {X Y Z : C} {f : X ⟶ Z} {i : X ⟶ Y} {p : Y ⟶ Z} (h : i ≫ p = f)
-    [HasLiftingProperty i f] : RetractArrow f p :=
+    {X Y Z : C} {f : X ⟶ Z} {i : X ⟶ Y} {p : Y ⟶ Z} (h : i ≫ p = f) [HasLiftingProperty i f]
+    : RetractArrow f p :=
   have sq : CommSq (𝟙 _) i f p := ⟨by simp [h]⟩
-  { i := Arrow.homMk i (𝟙 _)
-    r := Arrow.homMk sq.lift (𝟙 _) }
+  { i := Arrow.homMk i (𝟙 _), r := Arrow.homMk sq.lift (𝟙 _) }
 
 namespace MorphismProperty
 

@@ -88,8 +88,10 @@ lemma exists_lift_of_mono (X : C) (Y : Action FintypeCat.{u} (Aut F))
   refine ⟨∐ gZ, Sigma.desc gf, t.symm ≪≫ u' ≪≫ is2.symm, ?_, by simp [heq]⟩
   · exact mono_of_mono_map (functorToAction F) (heq ▸ mono_comp _ _)
 
-/-- The by a fiber functor `F : C ⥤ FintypeCat` induced functor `functorToAction F` to
-finite `Aut F`-sets is full. -/
+/--
+The by a fiber functor `F : C ⥤ FintypeCat` induced functor `functorToAction F` to
+finite `Aut F`-sets is full.
+-/
 instance functorToAction_full : Functor.Full (functorToAction F) where
   map_surjective {X Y} f := by
     let u : (functorToAction F).obj X ⟶ (functorToAction F).obj X ⨯ (functorToAction F).obj Y :=
@@ -100,8 +102,8 @@ instance functorToAction_full : Functor.Full (functorToAction F) where
       have : Mono (u ≫ prod.fst) := prod.lift_fst (𝟙 _) f ▸ inferInstance
       have : Mono u := mono_of_mono u prod.fst
       apply mono_comp u _
-    obtain ⟨Z, g, v, _, hvgi⟩ := exists_lift_of_mono F (Limits.prod X Y)
-      ((functorToAction F).obj X) i
+    obtain ⟨Z, g, v, _, hvgi⟩ :=
+      exists_lift_of_mono F (Limits.prod X Y) ((functorToAction F).obj X) i
     let ψ : Z ⟶ X := g ≫ prod.fst
     have hgvi : (functorToAction F).map g = v.inv ≫ i := by simp [← hvgi]
     have : IsIso ((functorToAction F).map ψ) := by

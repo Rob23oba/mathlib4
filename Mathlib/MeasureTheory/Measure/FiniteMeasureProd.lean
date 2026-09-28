@@ -97,8 +97,8 @@ namespace ProbabilityMeasure
 variable {α : Type*} [MeasurableSpace α] {β : Type*} [MeasurableSpace β]
 
 /-- The binary product of probability measures. -/
-noncomputable def prod (μ : ProbabilityMeasure α) (ν : ProbabilityMeasure β) :
-    ProbabilityMeasure (α × β) :=
+noncomputable def prod (μ : ProbabilityMeasure α) (ν : ProbabilityMeasure β)
+    : ProbabilityMeasure (α × β) :=
   ⟨μ.toMeasure.prod ν.toMeasure, by infer_instance⟩
 
 variable (μ : ProbabilityMeasure α) (ν : ProbabilityMeasure β)
@@ -141,17 +141,21 @@ open TopologicalSpace
 
 /-- The map associating to two probability measures their product is a continuous map. -/
 @[fun_prop]
-theorem continuous_prod [TopologicalSpace α] [TopologicalSpace β] [SecondCountableTopology α]
+theorem continuous_prod
+    [TopologicalSpace α] [TopologicalSpace β] [SecondCountableTopology α]
     [SecondCountableTopology β] [PseudoMetrizableSpace α] [PseudoMetrizableSpace β]
-    [OpensMeasurableSpace α] [OpensMeasurableSpace β] :
-    Continuous (fun (μ : ProbabilityMeasure α × ProbabilityMeasure β) ↦ μ.1.prod μ.2) := by
+    [OpensMeasurableSpace α] [OpensMeasurableSpace β]
+    : Continuous (fun (μ : ProbabilityMeasure α × ProbabilityMeasure β) ↦ μ.1.prod μ.2) := by
   refine continuous_iff_continuousAt.2 (fun μ ↦ ?_)
-  /- It suffices to check the convergence along elements of a π-system containing arbitrarily
+  /-
+  It suffices to check the convergence along elements of a π-system containing arbitrarily
   small neighborhoods of any point, by `tendsto_probabilityMeasure_of_tendsto_of_mem`.
-  We take as a π-system the sets of the form `a ×ˢ b` where `a` and `b` have null frontier. -/
-  let S : Set (Set (α × β)) := {t | ∃ (a : Set α) (b : Set β),
-    MeasurableSet a ∧ μ.1 (frontier a) = 0 ∧ MeasurableSet b ∧ μ.2 (frontier b) = 0
-    ∧ t = a ×ˢ b}
+  We take as a π-system the sets of the form `a ×ˢ b` where `a` and `b` have null frontier.
+  -/
+  let S : Set (Set (α × β)) :=
+    {t | ∃ (a : Set α) (b : Set β),
+      MeasurableSet a ∧ μ.1 (frontier a) = 0 ∧ MeasurableSet b ∧ μ.2 (frontier b) = 0
+      ∧ t = a ×ˢ b}
   have : IsPiSystem S := by
     rintro - ⟨a, b, ameas, ha, bmeas, hb, rfl⟩ - ⟨a', b', a'meas, ha', b'meas, hb', rfl⟩ -
     refine ⟨a ∩ a', b ∩ b', ameas.inter a'meas, ?_, bmeas.inter b'meas, ?_, prod_inter_prod⟩
@@ -169,12 +173,25 @@ theorem continuous_prod [TopologicalSpace α] [TopologicalSpace β] [SecondCount
     rcases exists_null_frontier_thickening (μ.1 : Measure α) {x.1} εpos with ⟨r, hr, μr⟩
     rcases exists_null_frontier_thickening (μ.2 : Measure β) {x.2} εpos with ⟨r', hr', μr'⟩
     simp only [thickening_singleton] at μr μr'
-    refine ⟨ball x.1 r ×ˢ ball x.2 r', ⟨ball x.1 r, ball x.2 r', measurableSet_ball,
-      by simp [coeFn_def, μr], measurableSet_ball, by simp [coeFn_def, μr'], rfl⟩, ?_, ?_⟩
+    refine ⟨
+      ball x.1 r ×ˢ ball x.2 r',
+      ⟨
+        ball x.1 r,
+        ball x.2 r',
+        measurableSet_ball,
+        by simp [coeFn_def, μr],
+        measurableSet_ball,
+        by simp [coeFn_def, μr'],
+        rfl
+      ⟩,
+      ?_,
+      ?_
+    ⟩
     · exact (isOpen_ball.prod isOpen_ball).mem_nhds (by simp [hr.1, hr'.1])
-    · calc ball x.1 r ×ˢ ball x.2 r'
-      _ ⊆ ball x.1 ε ×ˢ ball x.2 ε := by gcongr; exacts [hr.2.le, hr'.2.le]
-      _ ⊆ _ := by rwa [ball_prod_same]
+    · calc
+        ball x.1 r ×ˢ ball x.2 r'
+        _ ⊆ ball x.1 ε ×ˢ ball x.2 ε := by gcongr; exacts [hr.2.le, hr'.2.le]
+        _ ⊆ _ := by rwa [ball_prod_same]
   · rintro s ⟨a, b, ameas, ha, bmeas, hb, rfl⟩
     simp only [prod_prod]
     apply Filter.Tendsto.mul

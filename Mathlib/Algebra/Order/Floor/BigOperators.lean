@@ -24,11 +24,13 @@ $$ \sum_{i=0}^{n-1} \left\lfloor x + \frac{i}{n} \right\rfloor = \lfloor n x \rf
 
 namespace Int
 
-/-- The discrete (integer) form of Hermite's identity: the sum of `(m + i) / n` over a
+/--
+The discrete (integer) form of Hermite's identity: the sum of `(m + i) / n` over a
 complete block `0 ≤ i < n` of consecutive shifts equals `m`, where `/` is Euclidean
-(`Int.ediv`) division. -/
-public theorem sum_range_add_ediv (m : ℤ) {n : ℕ} (hn : 0 < n) :
-    ∑ i ∈ Finset.range n, (m + i) / n = m := by
+(`Int.ediv`) division.
+-/
+public theorem sum_range_add_ediv (m : ℤ) {n : ℕ} (hn : 0 < n)
+    : ∑ i ∈ Finset.range n, (m + i) / n = m := by
   rw [← Int.natCast_pos] at hn
   lift m % n to ℕ using Int.emod_nonneg m (by grind) with t ht
   calc
@@ -37,21 +39,25 @@ public theorem sum_range_add_ediv (m : ℤ) {n : ℕ} (hn : 0 < n) :
         rw [Int.add_ediv_of_pos hn]
         grind [Nat.div_eq_zero_iff, Nat.mod_eq_of_lt]
     _ = n * (m / n) + (Finset.Ico (n - t) n).card := by
-      simp [Finset.sum_add_distrib, -tsub_le_iff_right, -Nat.sub_le_iff_le_add,
-        ← Nat.Ico_zero_eq_range]
+      simp [
+        Finset.sum_add_distrib, -tsub_le_iff_right, -Nat.sub_le_iff_le_add, ← Nat.Ico_zero_eq_range
+      ]
     _ = m := by
       have : m % n < n := Int.emod_lt_of_pos _ hn
       grind [Int.mul_ediv_add_emod, Nat.card_Ico]
 
-/-- **Hermite's identity** for the floor function: for every `x` in a linearly ordered
-floor field and every `n : ℕ`, `∑ i ∈ Finset.range n, ⌊x + i / n⌋ = ⌊n * x⌋`. -/
+/--
+**Hermite's identity** for the floor function: for every `x` in a linearly ordered
+floor field and every `n : ℕ`, `∑ i ∈ Finset.range n, ⌊x + i / n⌋ = ⌊n * x⌋`.
+-/
 public theorem sum_floor_add_div
-    {α : Type*} [Field α] [LinearOrder α] [IsOrderedRing α] [FloorRing α] (x : α) (n : ℕ) :
-    ∑ i ∈ Finset.range n, ⌊x + i / n⌋ = ⌊n * x⌋ := by
-  rcases Nat.eq_zero_or_pos n with rfl | hn; · simp
+    {α : Type*} [Field α] [LinearOrder α] [IsOrderedRing α] [FloorRing α] (x : α) (n : ℕ)
+    : ∑ i ∈ Finset.range n, ⌊x + i / n⌋ = ⌊n * x⌋ := by
+  rcases Nat.eq_zero_or_pos n with rfl | hn
+  · simp
   calc
     _ = ∑ i ∈ Finset.range n, (⌊(n : α) * x⌋ + (i : ℤ)) / (n : ℤ) :=
-        Finset.sum_congr rfl fun i _ ↦ by rw [← floor_add_natCast, ← floor_div_natCast]; field_simp
+      Finset.sum_congr rfl fun i _ ↦ by rw [← floor_add_natCast, ← floor_div_natCast]; field_simp
     _ = ⌊(n : α) * x⌋ := sum_range_add_ediv _ hn
 
 end Int

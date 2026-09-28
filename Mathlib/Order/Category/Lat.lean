@@ -40,8 +40,7 @@ initialize_simps_projections Lat (carrier → coe, -str)
 
 namespace Lat
 
-instance : CoeSort Lat (Type _) :=
-  ⟨Lat.carrier⟩
+instance : CoeSort Lat (Type _) := ⟨Lat.carrier⟩
 
 attribute [coe] Lat.carrier
 
@@ -70,8 +69,7 @@ instance : ConcreteCategory Lat (LatticeHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `Lat` back into a `LatticeHom`. -/
-abbrev Hom.hom {X Y : Lat.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := Lat) f
+abbrev Hom.hom {X Y : Lat.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := Lat) f
 
 /-- Typecheck a `LatticeHom` as a morphism in `Lat`. -/
 abbrev ofHom {X Y : Type u} [Lattice X] [Lattice Y] (f : LatticeHom X Y) : of X ⟶ of Y :=
@@ -79,8 +77,7 @@ abbrev ofHom {X Y : Type u} [Lattice X] [Lattice Y] (f : LatticeHom X Y) : of X 
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : Lat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : Lat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -176,6 +173,6 @@ def dualEquiv : Lat ≌ Lat where
 
 end Lat
 
-theorem Lat_dual_comp_forget_to_partOrd :
-    Lat.dual ⋙ forget₂ Lat PartOrd = forget₂ Lat PartOrd ⋙ PartOrd.dual :=
+theorem Lat_dual_comp_forget_to_partOrd
+    : Lat.dual ⋙ forget₂ Lat PartOrd = forget₂ Lat PartOrd ⋙ PartOrd.dual :=
   rfl

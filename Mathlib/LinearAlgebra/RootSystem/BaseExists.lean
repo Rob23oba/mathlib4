@@ -46,8 +46,11 @@ variable {ι R M N : Type*} [Finite ι] [AddCommGroup M] [AddCommGroup N]
 
 section CommRing
 
-variable [CommRing R] [Module R M] [Module R N] (P : RootPairing ι R M N)
-  {S : Type*} [LinearOrder S] [AddCommGroup S] [IsOrderedAddMonoid S] (f : M →+ S)
+variable
+  [CommRing R] [Module R M] [Module R N]
+  (P : RootPairing ι R M N)
+  {S : Type*} [LinearOrder S] [AddCommGroup S] [IsOrderedAddMonoid S]
+  (f : M →+ S)
 
 /-- This is [serre1965](Ch. V, §9, Lemma 3). -/
 lemma baseOf_pairwise_pairing_le_zero [CharZero R] [IsDomain R] [P.IsCrystallographic]
@@ -110,8 +113,9 @@ end CommRing
 
 section Field
 
-variable [Field R] [CharZero R] [Module R M] [Module R N] (P : RootPairing ι R M N)
-  [P.IsRootSystem] [P.IsCrystallographic]
+variable
+  [Field R] [CharZero R] [Module R M] [Module R N]
+  (P : RootPairing ι R M N) [P.IsRootSystem] [P.IsCrystallographic]
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma linearIndepOn_root_baseOf (f : M →+ ℚ) (hf : ∀ i, f (P.root i) ≠ 0) :
@@ -306,13 +310,16 @@ lemma coroot_mem_or_neg_mem_closure_of_root (s : Set ι)
   rw [hf, P.baseOf_root_eq_baseOf_coroot f hf₀ g hg₀ (fun i ↦ (hg i).symm)]
   exact mem_or_neg_mem_closure_baseOf P.coroot (g : N →+ ℚ) i (hg₀ i) (by simp)
 
-/-- An alternate constructor for `RootPairing.Base` which demands the axioms for roots but not for
-coroots. -/
-noncomputable def Base.mk' (s : Set ι)
-    (hli : LinearIndepOn R P.root s)
-    (hsp : ∀ i, P.root i ∈ AddSubmonoid.closure (P.root '' s) ∨
-               -P.root i ∈ AddSubmonoid.closure (P.root '' s)) :
-    P.Base where
+/--
+An alternate constructor for `RootPairing.Base` which demands the axioms for roots but not for
+coroots.
+-/
+noncomputable def Base.mk'
+    (s : Set ι) (hli : LinearIndepOn R P.root s)
+    (hsp : ∀ i,
+      P.root i ∈ AddSubmonoid.closure (P.root '' s)
+        ∨ - P.root i ∈ AddSubmonoid.closure (P.root '' s))
+    : P.Base where
   support := (toFinite s).toFinset
   linearIndepOn_root := by simpa
   linearIndepOn_coroot := by have : Fintype ι := Fintype.ofFinite ι; simpa

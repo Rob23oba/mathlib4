@@ -43,7 +43,6 @@ lemma ArithmeticFunction.one_eq_delta : ↗(1 : ArithmeticFunction ℂ) = δ := 
   ext
   simp [one_apply, LSeries.delta]
 
-
 section Moebius
 
 /-!
@@ -82,7 +81,6 @@ lemma abscissaOfAbsConv_moebius : abscissaOfAbsConv ↗μ = 1 := by
 end ArithmeticFunction
 
 end Moebius
-
 
 /-!
 ### L-series of Dirichlet characters
@@ -221,7 +219,6 @@ lemma LSeries.mul_mu_eq_one {N : ℕ} (χ : DirichletCharacter ℂ N) {s : ℂ}
           LSeriesSummable_mul χ <| ArithmeticFunction.LSeriesSummable_moebius_iff.mpr hs,
     convolution_mul_moebius, LSeries_delta, Pi.one_apply]
 
-
 /-!
 ### L-series of Dirichlet characters do not vanish on re s > 1
 -/
@@ -232,7 +229,6 @@ lemma LSeries_ne_zero_of_one_lt_re {N : ℕ} (χ : DirichletCharacter ℂ N) {s 
   fun h ↦ by simpa [h] using LSeries.mul_mu_eq_one χ hs
 
 end DirichletCharacter
-
 
 section zeta
 
@@ -254,7 +250,6 @@ lemma LSeries.abscissaOfAbsConv_one : abscissaOfAbsConv 1 = 1 :=
 theorem LSeriesSummable_one_iff {s : ℂ} : LSeriesSummable 1 s ↔ 1 < s.re :=
   modOne_eq_one (χ := χ₁) ▸ LSeriesSummable_iff one_ne_zero χ₁
 
-
 namespace ArithmeticFunction
 
 -- access notation `ζ` and `μ`
@@ -266,8 +261,10 @@ lemma LSeries_zeta_eq : L ↗ζ = L 1 := by
   ext s
   exact (LSeries_congr const_one_eq_zeta s).symm
 
-/-- The `LSeries` associated to the arithmetic function `ζ` converges at `s` if and only if
-`re s > 1`. -/
+/--
+The `LSeries` associated to the arithmetic function `ζ` converges at `s` if and only if
+`re s > 1`.
+-/
 theorem LSeriesSummable_zeta_iff {s : ℂ} : LSeriesSummable (ζ ·) s ↔ 1 < s.re :=
   (LSeriesSummable_congr s const_one_eq_zeta).symm.trans LSeriesSummable_one_iff
 
@@ -352,7 +349,6 @@ lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).
 end ComplexOrderLemmas
 
 end zeta
-
 
 section vonMangoldt
 

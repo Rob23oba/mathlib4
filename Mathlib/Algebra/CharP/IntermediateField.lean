@@ -29,8 +29,7 @@ variable (L : IntermediateField F E) (p : ℕ)
 instance charZero [CharZero F] : CharZero L :=
   charZero_of_injective_algebraMap (algebraMap F _).injective
 
-instance charP [CharP F p] : CharP L p :=
-  charP_of_injective_algebraMap (algebraMap F _).injective p
+instance charP [CharP F p] : CharP L p := charP_of_injective_algebraMap (algebraMap F _).injective p
 
 instance expChar [ExpChar F p] : ExpChar L p :=
   expChar_of_injective_algebraMap (algebraMap F _).injective p

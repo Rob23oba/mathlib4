@@ -52,8 +52,10 @@ noncomputable section
 
 variable {X S Y T : Scheme.{u}} (f : X ⟶ S)
 
-/-- The rank of a morphism `f : X ⟶ S` of schemes at a point `s : S`, when `S` is affine.
-This is used as an auxiliary definition to define `AlgebraicGeometry.finrank`. -/
+/--
+The rank of a morphism `f : X ⟶ S` of schemes at a point `s : S`, when `S` is affine.
+This is used as an auxiliary definition to define `AlgebraicGeometry.finrank`.
+-/
 private def IsAffine.finrank [IsAffine S] (f : X ⟶ S) (s : S) : ℕ :=
   f.appTop.hom.finrank (S.isoSpec.hom s)
 
@@ -81,9 +83,11 @@ private lemma IsAffine.finrank_comp_left_of_isIso [IsAffine S]
   apply finrank_of_isPullback g (f ≫ g) f (𝟙 _) _ _ _ rfl
   exact IsPullback.of_horiz_isIso (by simp)
 
-/-- The rank of a morphism `f : X ⟶ S` of schemes at a point `s : S`. When `f` is finite,
+/--
+The rank of a morphism `f : X ⟶ S` of schemes at a point `s : S`. When `f` is finite,
 flat and locally of finite presentation, this is a locally constant function (see
-`AlgebraicGeometry.isLocallyConstant_finrank`). -/
+`AlgebraicGeometry.isLocallyConstant_finrank`).
+-/
 @[stacks 02KA "second part"]
 def Scheme.Hom.finrank {X S : Scheme.{u}} (f : X ⟶ S) (s : S) : ℕ :=
   IsAffine.finrank (pullback.snd f (S.affineOpenCover.f <| S.affineOpenCover.idx s))

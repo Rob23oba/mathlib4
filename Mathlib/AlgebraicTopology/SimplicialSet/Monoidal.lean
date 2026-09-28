@@ -28,8 +28,7 @@ category structure on `SSet`.
 
 universe u
 
-open CategoryTheory MonoidalCategory CartesianMonoidalCategory
-  Limits SimplicialObject.Truncated
+open CategoryTheory MonoidalCategory CartesianMonoidalCategory Limits SimplicialObject.Truncated
 
 open scoped Simplicial
 
@@ -79,13 +78,14 @@ lemma associator_inv_app_apply (K L M : SSet.{u}) {Δ : SimplexCategoryᵒᵖ}
 /-- The bijection `(𝟙_ SSet ⟶ K) ≃ K _⦋0⦌`. -/
 def unitHomEquiv (K : SSet.{u}) : (𝟙_ _ ⟶ K) ≃ K _⦋0⦌ where
   toFun φ := φ.app _ PUnit.unit
-  invFun x :=
-    { app := fun Δ => ↾fun _ => K.map (SimplexCategory.const Δ.unop ⦋0⦌ 0).op x
-      naturality := fun Δ Δ' f => by
-        ext ⟨⟩
-        dsimp
-        rw [← Functor.map_comp_apply]
-        rfl }
+  invFun x := {
+    app := fun Δ => ↾fun _ => K.map (SimplexCategory.const Δ.unop ⦋0⦌ 0).op x
+    naturality := fun Δ Δ' f => by
+      ext ⟨⟩
+      dsimp
+      rw [← Functor.map_comp_apply]
+      rfl
+  }
   left_inv φ := by
     ext Δ ⟨⟩
     dsimp [-Monoidal.tensorUnit_obj]
@@ -95,7 +95,8 @@ def unitHomEquiv (K : SSet.{u}) : (𝟙_ _ ⟶ K) ≃ K _⦋0⦌ where
 
 /-- The object `Δ[0]` is terminal in `SSet`. -/
 def stdSimplex.isTerminalObj₀ : IsTerminal (Δ[0] : SSet.{u}) :=
-  IsTerminal.ofUniqueHom (fun _ ↦ SSet.const (obj₀Equiv.symm 0))
+  IsTerminal.ofUniqueHom
+    (fun _ ↦ SSet.const (obj₀Equiv.symm 0))
     (fun _ _ ↦ by
       ext ⟨n⟩
       exact objEquiv.injective (by ext; simp))
@@ -104,9 +105,8 @@ def stdSimplex.isTerminalObj₀ : IsTerminal (Δ[0] : SSet.{u}) :=
 lemma stdSimplex.ext₀ {X : SSet.{u}} {f g : X ⟶ Δ[0]} : f = g :=
   isTerminalObj₀.hom_ext _ _
 
-instance (X Y : SSet.{u}) (n : SimplexCategoryᵒᵖ)
-    [Finite (X.obj n)] [Finite (Y.obj n)] :
-    Finite ((X ⊗ Y).obj n) :=
+instance (X Y : SSet.{u}) (n : SimplexCategoryᵒᵖ) [Finite (X.obj n)] [Finite (Y.obj n)]
+    : Finite ((X ⊗ Y).obj n) :=
   inferInstanceAs (Finite (X.obj n × Y.obj n))
 
 instance : (𝟙_ SSet.{u}).Finite :=
@@ -114,13 +114,13 @@ instance : (𝟙_ SSet.{u}).Finite :=
     CartesianMonoidalCategory.isTerminalTensorUnit)
 
 instance : HasDimensionLE (𝟙_ SSet.{u}) 0 :=
-  (hasDimensionLT_iff_of_iso (stdSimplex.isTerminalObj₀.{u}.uniqueUpToIso
-    CartesianMonoidalCategory.isTerminalTensorUnit) _).1 inferInstance
+  (hasDimensionLT_iff_of_iso
+      (stdSimplex.isTerminalObj₀.{u}.uniqueUpToIso CartesianMonoidalCategory.isTerminalTensorUnit)
+      _).1
+    inferInstance
 
 instance : opFunctor.{u}.Monoidal :=
-  Functor.CoreMonoidal.toMonoidal
-    { εIso := Iso.refl _
-      μIso _ _ := Iso.refl _ }
+  Functor.CoreMonoidal.toMonoidal { εIso := Iso.refl _, μIso _ _ := Iso.refl _ }
 
 namespace Subcomplex
 
@@ -156,18 +156,19 @@ lemma range_tensorHom {X₁ X₂ Y₁ Y₂ : SSet.{u}} (f₁ : X₁ ⟶ Y₁) (f
 
 /-- The isomorphism `(A.prod B).toSSet ≅ A.toSSet ⊗ B.toSSet`. -/
 @[simps]
-def prodIso {X Y : SSet.{u}} (A : X.Subcomplex) (B : Y.Subcomplex) :
-    (A.prod B).toSSet ≅ A ⊗ B where
-  hom := CartesianMonoidalCategory.lift
-    (lift ((A.prod B).ι ≫ CartesianMonoidalCategory.fst _ _) (by
-      intro _ _ ⟨⟨_, ⟨_, _⟩⟩, _⟩
-      cat_disch))
-    (lift ((A.prod B).ι ≫ CartesianMonoidalCategory.snd _ _) (by
-      intro _ _ ⟨⟨_, ⟨_, _⟩⟩, _⟩
-      cat_disch))
-  inv := lift (A.ι ⊗ₘ B.ι) (by
-    rintro m _ ⟨⟨y₁, y₂⟩, ⟨⟩⟩
-    exact ⟨Subtype.coe_prop _, Subtype.coe_prop _⟩)
+def prodIso {X Y : SSet.{u}} (A : X.Subcomplex) (B : Y.Subcomplex) : (A.prod B).toSSet ≅ A ⊗ B where
+  hom :=
+    CartesianMonoidalCategory.lift
+      (lift ((A.prod B).ι ≫ CartesianMonoidalCategory.fst _ _) (by
+        intro _ _ ⟨⟨_, ⟨_, _⟩⟩, _⟩
+        cat_disch))
+      (lift ((A.prod B).ι ≫ CartesianMonoidalCategory.snd _ _) (by
+        intro _ _ ⟨⟨_, ⟨_, _⟩⟩, _⟩
+        cat_disch))
+  inv :=
+    lift (A.ι ⊗ₘ B.ι) (by
+      rintro m _ ⟨⟨y₁, y₂⟩, ⟨⟩⟩
+      exact ⟨Subtype.coe_prop _, Subtype.coe_prop _⟩)
 
 end Subcomplex
 

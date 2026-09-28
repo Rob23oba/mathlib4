@@ -86,23 +86,27 @@ lemma discr_mem_differentIdeal : ↑(discr K) ∈ differentIdeal ℤ 𝒪 := by
       Int.cast_neg, neg_mem_iff] at this
 
 attribute [local instance] FractionRing.liftAlgebra in
-theorem natAbs_discr_eq_absNorm_differentIdeal_mul_natAbs_discr_pow (L 𝒪' : Type*) [Field L]
-    [NumberField L] [CommRing 𝒪'] [Algebra 𝒪' L] [IsFractionRing 𝒪' L]
+theorem natAbs_discr_eq_absNorm_differentIdeal_mul_natAbs_discr_pow
+    (L 𝒪' : Type*) [Field L] [NumberField L] [CommRing 𝒪'] [Algebra 𝒪' L] [IsFractionRing 𝒪' L]
     [IsDedekindDomain 𝒪'] [CharZero 𝒪'] [Algebra K L] [Algebra 𝒪 𝒪'] [Algebra 𝒪 L]
     [IsScalarTower 𝒪 K L] [IsScalarTower 𝒪 𝒪' L] [IsTorsionFree 𝒪 𝒪'] [Free ℤ 𝒪']
-    [Module.Finite ℤ 𝒪'] [Module.Finite 𝒪 𝒪'] :
-    (discr L).natAbs = Ideal.absNorm (differentIdeal 𝒪 𝒪') *
-      (discr K).natAbs ^ Module.finrank K L := by
+    [Module.Finite ℤ 𝒪'] [Module.Finite 𝒪 𝒪']
+    : (discr L).natAbs
+      = Ideal.absNorm (differentIdeal 𝒪 𝒪') * (discr K).natAbs ^ Module.finrank K L := by
   have := congr(Ideal.absNorm $(differentIdeal_eq_differentIdeal_mul_differentIdeal ℤ 𝒪 𝒪'))
-  rwa [absNorm_differentIdeal L, map_mul, Ideal.absNorm_algebraMap,
-    absNorm_differentIdeal K, ← IsFractionRing.finrank_eq 𝒪 K 𝒪' L] at this
+  rwa [
+      absNorm_differentIdeal L, map_mul, Ideal.absNorm_algebraMap, absNorm_differentIdeal K,
+      ← IsFractionRing.finrank_eq 𝒪 K 𝒪' L
+    ]
+    at this
 
 variable (L : Type*) [Field L]
 
-theorem isCoprime_differentIdeal_of_isCoprime_discr {K₁ K₂ : Type*} [Field K₁]
-    [NumberField K₁] [Field K₂] [NumberField K₂] [Algebra K₁ L] [Algebra K₂ L]
-    (h : IsCoprime (discr K₁) (discr K₂)) :
-    IsCoprime ((differentIdeal ℤ (𝓞 K₁)).map (algebraMap (𝓞 K₁) (𝓞 L)))
+theorem isCoprime_differentIdeal_of_isCoprime_discr
+    {K₁ K₂ : Type*}
+    [Field K₁] [NumberField K₁] [Field K₂] [NumberField K₂] [Algebra K₁ L] [Algebra K₂ L]
+    (h : IsCoprime (discr K₁) (discr K₂))
+    : IsCoprime ((differentIdeal ℤ (𝓞 K₁)).map (algebraMap (𝓞 K₁) (𝓞 L)))
       ((differentIdeal ℤ (𝓞 K₂)).map (algebraMap (𝓞 K₂) (𝓞 L))) := by
   obtain ⟨u, v, h⟩ := h
   refine Ideal.isCoprime_iff_exists.mpr ⟨u * discr K₁, ?_, v * discr K₂, ?_, ?_⟩
@@ -116,22 +120,23 @@ theorem isCoprime_differentIdeal_of_isCoprime_discr {K₁ K₂ : Type*} [Field K
 
 variable [NumberField L]
 
-theorem discr_dvd_discr [Algebra K L] :
-    discr K ∣ discr L := by
+theorem discr_dvd_discr [Algebra K L] : discr K ∣ discr L := by
   suffices discr K ^ Module.finrank K L ∣ discr L from
     dvd_trans (dvd_pow_self _ (Nat.ne_zero_of_lt Module.finrank_pos)) this
-  rw [← Int.dvd_natAbs, natAbs_discr_eq_absNorm_differentIdeal_mul_natAbs_discr_pow K (𝓞 K) L (𝓞 L),
-    Nat.cast_mul, Nat.cast_pow, ← Int.mul_sign_self, mul_pow, ← mul_assoc,
-    mul_comm _ (discr K ^ _), mul_assoc]
+  rw [
+    ← Int.dvd_natAbs, natAbs_discr_eq_absNorm_differentIdeal_mul_natAbs_discr_pow K (𝓞 K) L (𝓞 L),
+    Nat.cast_mul, Nat.cast_pow, ← Int.mul_sign_self, mul_pow, ← mul_assoc, mul_comm _ (discr K ^ _),
+    mul_assoc
+  ]
   exact Int.dvd_mul_right _ _
 
 /--
 Let `K₁` and `K₂` be two number fields and assume that `K₁/ℚ` is Galois. If `discr K₁` and
 `discr K₂` are coprime, then they are linear disjoint over `ℚ`.
 -/
-theorem linearDisjoint_of_isGalois_isCoprime_discr (K₁ K₂ : IntermediateField ℚ L) [IsGalois ℚ K₁]
-    (h : IsCoprime (discr K₁) (discr K₂)) :
-    K₁.LinearDisjoint K₂ := by
+theorem linearDisjoint_of_isGalois_isCoprime_discr
+    (K₁ K₂ : IntermediateField ℚ L) [IsGalois ℚ K₁] (h : IsCoprime (discr K₁) (discr K₂))
+    : K₁.LinearDisjoint K₂ := by
   apply IntermediateField.LinearDisjoint.of_inf_eq_bot
   suffices IsUnit (discr ↥(K₁ ⊓ K₂)) by
     contrapose! this
@@ -146,18 +151,21 @@ Let `K₁` and `K₂` be two number fields and assume that their different ideal
 Then, the absolute value of the discriminant of their compositum is equal to
 `|discr K₁| ^ [K₂ : ℚ] * |discr K₂| ^ [K₁ : ℚ]`.
 -/
-theorem natAbs_discr_eq_natAbs_discr_pow_mul_natAbs_discr_pow (K₁ K₂ : IntermediateField ℚ L)
-    (h₁ : K₁.LinearDisjoint K₂) (h₂ : K₁ ⊔ K₂ = ⊤)
+theorem natAbs_discr_eq_natAbs_discr_pow_mul_natAbs_discr_pow
+    (K₁ K₂ : IntermediateField ℚ L) (h₁ : K₁.LinearDisjoint K₂) (h₂ : K₁ ⊔ K₂ = ⊤)
     (h₃ : IsCoprime ((differentIdeal ℤ (𝓞 K₁)).map (algebraMap (𝓞 K₁) (𝓞 L)))
-      ((differentIdeal ℤ (𝓞 K₂)).map (algebraMap (𝓞 K₂) (𝓞 L)))) :
-    (discr L).natAbs =
-      (discr K₁).natAbs ^ Module.finrank ℚ K₂ * (discr K₂).natAbs ^ Module.finrank ℚ K₁ := by
+      ((differentIdeal ℤ (𝓞 K₂)).map (algebraMap (𝓞 K₂) (𝓞 L))))
+    : (discr L).natAbs
+      = (discr K₁).natAbs ^ Module.finrank ℚ K₂ * (discr K₂).natAbs ^ Module.finrank ℚ K₁ := by
   let _ : Algebra (FractionRing (𝓞 K₁)) (FractionRing (𝓞 L)) := FractionRing.liftAlgebra _ _
   have h_main := natAbs_discr_eq_absNorm_differentIdeal_mul_natAbs_discr_pow K₂ (𝓞 K₂) L (𝓞 L)
-  rwa [differentIdeal_eq_map_differentIdeal ℤ (𝓞 L) (𝓞 K₂) (𝓞 K₁) (F₁ := K₂) (F₂ := K₁)
-    (by rwa [linearDisjoint_comm]) (by rwa [sup_comm]) (by rwa [isCoprime_comm]),
-    Ideal.absNorm_algebraMap, absNorm_differentIdeal K₁, h₁.finrank_right_eq_finrank h₂,
-    ← IsFractionRing.finrank_eq (𝓞 K₁) K₁ (𝓞 L) L, h₁.finrank_left_eq_finrank h₂] at h_main
+  rwa [
+      differentIdeal_eq_map_differentIdeal ℤ (𝓞 L) (𝓞 K₂) (𝓞 K₁) (F₁ := K₂) (F₂ := K₁)
+        (by rwa [linearDisjoint_comm]) (by rwa [sup_comm]) (by rwa [isCoprime_comm]),
+      Ideal.absNorm_algebraMap, absNorm_differentIdeal K₁, h₁.finrank_right_eq_finrank h₂,
+      ← IsFractionRing.finrank_eq (𝓞 K₁) K₁ (𝓞 L) L, h₁.finrank_left_eq_finrank h₂
+    ]
+    at h_main
 
 end
 

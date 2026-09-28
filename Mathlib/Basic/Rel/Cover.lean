@@ -32,12 +32,14 @@ open Set
 namespace SetRel
 variable {X : Type*} {U V : SetRel X X} {s t N N₁ N₂ : Set X} {x : X}
 
-/-- For an entourage `U`, a set `N` is a *`U`-cover* of a set `s` if every point of `s` is `U`-close
+/--
+For an entourage `U`, a set `N` is a *`U`-cover* of a set `s` if every point of `s` is `U`-close
 to some point of `N`.
 
 This is also called a *`U`-net* in the literature.
 
-[R. Vershynin, *High Dimensional Probability*][vershynin2018high], 4.2.1. -/
+[R. Vershynin, *High Dimensional Probability*][vershynin2018high], 4.2.1.
+-/
 def IsCover (U : SetRel X X) (s N : Set X) : Prop := ∀ ⦃x⦄, x ∈ s → ∃ y ∈ N, x ~[U] y
 
 @[simp] lemma IsCover.empty : IsCover U ∅ N := by simp [IsCover]

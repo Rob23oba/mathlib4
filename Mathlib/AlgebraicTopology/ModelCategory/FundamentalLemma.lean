@@ -28,12 +28,16 @@ open CategoryTheory
 
 namespace HomotopicalAlgebra
 
-variable {C : Type*} [Category* C] [ModelCategory C] {H : Type*} [Category* H]
+variable
+  {C : Type*} [Category* C] [ModelCategory C]
+  {H : Type*} [Category* H]
   (L : C ⥤ H) [L.IsLocalization (weakEquivalences _)]
   {X Y : C}
 
-/-- The map `LeftHomotopyClass X Y → (L.obj X ⟶ L.obj Y)` when `L` is
-a localization functor with respect to `weakEquivalences C`. -/
+/--
+The map `LeftHomotopyClass X Y → (L.obj X ⟶ L.obj Y)` when `L` is
+a localization functor with respect to `weakEquivalences C`.
+-/
 def leftHomotopyClassToHom : LeftHomotopyClass X Y → (L.obj X ⟶ L.obj Y) :=
   Quot.lift L.map (fun _ _ h ↦ h.factorsThroughLocalization.map_eq _)
 
@@ -41,8 +45,10 @@ def leftHomotopyClassToHom : LeftHomotopyClass X Y → (L.obj X ⟶ L.obj Y) :=
 lemma leftHomotopyClassToHom_mk (f : X ⟶ Y) :
     leftHomotopyClassToHom L (.mk f) = L.map f := rfl
 
-/-- The map `RightHomotopyClass X Y → (L.obj X ⟶ L.obj Y)` when `L` is
-a localization functor with respect to `weakEquivalences C`. -/
+/--
+The map `RightHomotopyClass X Y → (L.obj X ⟶ L.obj Y)` when `L` is
+a localization functor with respect to `weakEquivalences C`.
+-/
 def rightHomotopyClassToHom : RightHomotopyClass X Y → (L.obj X ⟶ L.obj Y) :=
   Quot.lift L.map (fun _ _ h ↦ h.factorsThroughLocalization.map_eq _)
 

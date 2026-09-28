@@ -115,7 +115,8 @@ lemma le_prod_nonempty_of_submultiplicative (f : α → β) (h_mul : ∀ a b, f 
 end
 
 section OrderedCancelCommMonoid
-variable [CommMonoid α] [Preorder α] [IsOrderedCancelMonoid α] [MulLeftStrictMono α]
+variable
+  [CommMonoid α] [Preorder α] [IsOrderedCancelMonoid α] [MulLeftStrictMono α]
   {s : Multiset ι} {f g : ι → α}
 
 @[to_additive]

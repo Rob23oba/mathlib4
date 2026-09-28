@@ -43,21 +43,24 @@ variable {S : C}
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- If the pre-`0`-hypercover `E` has pairwise pullbacks, the sections over the multifork
-associated to a presheaf of types are equivalent to the compatible families on `E`. -/
+/--
+If the pre-`0`-hypercover `E` has pairwise pullbacks, the sections over the multifork
+associated to a presheaf of types are equivalent to the compatible families on `E`.
+-/
 @[simps]
-def sectionsEquivOfHasPullbacks (E : PreZeroHypercover S)
-    [E.HasPullbacks] (F : Cᵒᵖ ⥤ Type*) :
-    (E.toPreOneHypercover.multicospanIndex F).sections ≃
-      Subtype (Presieve.Arrows.Compatible F E.f) where
-  toFun s :=
-    ⟨s.val, fun i j W gi gj hgij ↦ by
+def sectionsEquivOfHasPullbacks (E : PreZeroHypercover S) [E.HasPullbacks] (F : Cᵒᵖ ⥤ Type*)
+    : (E.toPreOneHypercover.multicospanIndex F).sections
+      ≃ Subtype (Presieve.Arrows.Compatible F E.f) where
+  toFun s := ⟨
+    s.val,
+    fun i j W gi gj hgij ↦ by
       have heq := s.property ⟨(i, j), ⟨⟩⟩
       dsimp at heq
       rw [← pullback.lift_fst _ _ hgij]
       conv_rhs => rw [← pullback.lift_snd _ _ hgij]
       rw [op_comp, Functor.map_comp, op_comp, Functor.map_comp]
-      simp [heq]⟩
+      simp [heq]
+  ⟩
   invFun s := ⟨s.val, fun r ↦ s.property _ _ _ _ _ pullback.condition⟩
   left_inv _ := rfl
   right_inv _ := rfl
@@ -94,13 +97,15 @@ namespace PreOneHypercover
 
 variable {X : C} {E : PreOneHypercover.{w} X} {F : Cᵒᵖ ⥤ Type*}
 
-/-- A presheaf `F` of types is (strongly) separated for a pre-`1`-hypercover if `F` is separated for
-both the `0` and the `1`-components. -/
+/--
+A presheaf `F` of types is (strongly) separated for a pre-`1`-hypercover if `F` is separated for
+both the `0` and the `1`-components.
+-/
 structure IsStronglySeparatedFor {X : C} (E : PreOneHypercover X) (F : Cᵒᵖ ⥤ Type*) : Prop where
   isSeparatedFor_presieve₀ : E.presieve₀.IsSeparatedFor F
-  isSeparatedFor_sieve₁ ⦃i j : E.I₀⦄ ⦃W : C⦄ (p₁ : W ⟶ E.X i) (p₂ : W ⟶ E.X j)
-    (h : p₁ ≫ E.f i = p₂ ≫ E.f j) :
-    (E.sieve₁ p₁ p₂).arrows.IsSeparatedFor F
+  isSeparatedFor_sieve₁
+    ⦃i j : E.I₀⦄ ⦃W : C⦄ (p₁ : W ⟶ E.X i) (p₂ : W ⟶ E.X j) (h : p₁ ≫ E.f i = p₂ ≫ E.f j)
+    : (E.sieve₁ p₁ p₂).arrows.IsSeparatedFor F
 
 /--
 A presheaf `F` of types is (strongly) a sheaf for a pre-`1`-hypercover if `F` is a sheaf for
@@ -110,9 +115,9 @@ This implies that the multiequalizer diagram attached to `E` is exact
 -/
 structure IsStronglySheafFor {X : C} (E : PreOneHypercover X) (F : Cᵒᵖ ⥤ Type*) : Prop where
   isSheafFor_presieve₀ : E.presieve₀.IsSheafFor F
-  isSeparatedFor_sieve₁ ⦃i j : E.I₀⦄ ⦃W : C⦄ (p₁ : W ⟶ E.X i) (p₂ : W ⟶ E.X j)
-    (h : p₁ ≫ E.f i = p₂ ≫ E.f j) :
-    (E.sieve₁ p₁ p₂).arrows.IsSeparatedFor F
+  isSeparatedFor_sieve₁
+    ⦃i j : E.I₀⦄ ⦃W : C⦄ (p₁ : W ⟶ E.X i) (p₂ : W ⟶ E.X j) (h : p₁ ≫ E.f i = p₂ ≫ E.f j)
+    : (E.sieve₁ p₁ p₂).arrows.IsSeparatedFor F
 
 lemma IsStronglySheafFor.isStronglySeparatedFor (h : E.IsStronglySheafFor F) :
     E.IsStronglySeparatedFor F where
@@ -130,10 +135,11 @@ lemma IsStronglySeparatedFor.arrowsCompatible (h : E.IsStronglySeparatedFor F)
   simp [hc]
 
 /-- Glue sections of a `Type`-valued sheaf over a `1`-hypercover. -/
-noncomputable def IsStronglySheafFor.amalgamate (h : E.IsStronglySheafFor F)
+noncomputable def IsStronglySheafFor.amalgamate
+    (h : E.IsStronglySheafFor F)
     (x : ∀ i, F.obj (op <| E.X i))
-    (hc : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), F.map (E.p₁ k).op (x i) = F.map (E.p₂ k).op (x j)) :
-    F.obj (op X) :=
+    (hc : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), F.map (E.p₁ k).op (x i) = F.map (E.p₂ k).op (x j))
+    : F.obj (op X) :=
   (h.isSheafFor_presieve₀).amalgamate _
     ((h.isStronglySeparatedFor.arrowsCompatible x hc).familyOfElements_compatible)
 
@@ -146,17 +152,18 @@ lemma IsStronglySheafFor.map_amalgamate (h : E.IsStronglySheafFor F)
   rw [amalgamate, Presieve.IsSheafFor.valid_glue _ _ _ ⟨i⟩]
   simp
 
-/-- `F` satisfies the (strong) sheaf condition for the pre-`1`-hypercover `E`, then
-the multiequalizer diagram attached to `E` is limiting. -/
-noncomputable
-def IsStronglySheafFor.isLimitMultifork (h : E.IsStronglySheafFor F) :
-    IsLimit (E.multifork F) := by
+/--
+`F` satisfies the (strong) sheaf condition for the pre-`1`-hypercover `E`, then
+the multiequalizer diagram attached to `E` is limiting.
+-/
+noncomputable def IsStronglySheafFor.isLimitMultifork (h : E.IsStronglySheafFor F)
+    : IsLimit (E.multifork F) := by
   refine Nonempty.some ?_
   rw [Multifork.isLimit_types_iff]
   refine ⟨fun s t hst ↦ ?_, fun s ↦ ?_⟩
   · exact h.isSheafFor_presieve₀.isSeparatedFor.ext fun _ _ ⟨i⟩ ↦ congr($(hst).val i)
-  · exact ⟨h.amalgamate s.val fun i j k ↦ s.property ⟨(i, j), k⟩, by
-      ext; exact map_amalgamate _ _ _ _⟩
+  · exact
+      ⟨h.amalgamate s.val fun i j k ↦ s.property ⟨(i, j), k⟩, by ext; exact map_amalgamate _ _ _ _⟩
 
 lemma IsStronglySheafFor.isSheafFor_sieve_of_pullback (h₁ : E.IsStronglySheafFor F)
     (h₂ : ∀ ⦃Y : C⦄ (f : Y ⟶ X), Presieve.IsSeparatedFor F (E.sieve₀.pullback f).arrows)

@@ -35,11 +35,13 @@ attribute [local instance] preservesFiniteLimits_op
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-theorem preadditiveCoyonedaObj_map_surjective {G : C} [Projective G] (hG : IsSeparator G) {X : C}
-    (p : G ⟶ X) [Epi p] {Y : C} :
-    Function.Surjective ((preadditiveCoyonedaObj G).map : (X ⟶ Y) → _) := by
-  rw [← Functor.coe_mapAddHom, ← AddCommGrpCat.hom_ofHom (preadditiveCoyonedaObj G).mapAddHom,
-    ← AddCommGrpCat.epi_iff_surjective]
+theorem preadditiveCoyonedaObj_map_surjective
+    {G : C} [Projective G] (hG : IsSeparator G) {X : C} (p : G ⟶ X) [Epi p] {Y : C}
+    : Function.Surjective ((preadditiveCoyonedaObj G).map : (X ⟶ Y) → _) := by
+  rw [
+    ← Functor.coe_mapAddHom, ← AddCommGrpCat.hom_ofHom (preadditiveCoyonedaObj G).mapAddHom,
+    ← AddCommGrpCat.epi_iff_surjective
+  ]
   let cm : ShortComplex C := ⟨kernel.ι p, p, by simp⟩
   have exact : cm.Exact := ShortComplex.exact_of_f_is_kernel _ (kernelIsKernel _)
   have mono : Mono cm.op.f := by dsimp [cm]; infer_instance
@@ -57,8 +59,9 @@ end
 
 variable {D : Type u'} [Category.{v'} D] (F : D ⥤ C)
 
-theorem full_comp_preadditiveCoyonedaObj [F.Full] {G : C} [Projective G] (hG : IsSeparator G)
-    (hG₂ : ∀ X, ∃ (p : G ⟶ F.obj X), Epi p) : (F ⋙ preadditiveCoyonedaObj G).Full where
+theorem full_comp_preadditiveCoyonedaObj
+    [F.Full] {G : C} [Projective G] (hG : IsSeparator G) (hG₂ : ∀ X, ∃ (p : G ⟶ F.obj X), Epi p)
+    : (F ⋙ preadditiveCoyonedaObj G).Full where
   map_surjective {X Y} f := by
     obtain ⟨p, _⟩ := hG₂ X
     obtain ⟨f, rfl⟩ := preadditiveCoyonedaObj_map_surjective hG p f

@@ -120,8 +120,7 @@ multipartite then `G` will contain such a structure: see
 `exists_isFiveWheelLike_of_maximal_cliqueFree_not_isCompleteMultipartite`.)
 -/
 @[grind]
-structure IsFiveWheelLike (G : SimpleGraph α) (r k : ℕ) (v w₁ w₂ : α) (s t : Finset α) :
-    Prop where
+structure IsFiveWheelLike (G : SimpleGraph α) (r k : ℕ) (v w₁ w₂ : α) (s t : Finset α) : Prop where
   /-- `{v, w₁, w₂}` induces the single edge `w₁w₂` -/
   isPathGraph3Compl : G.IsPathGraph3Compl v w₁ w₂
   notMem_left : v ∉ s
@@ -233,11 +232,15 @@ end withDecEq
 
 /-- A maximally `Kᵣ₊₁`-free graph is `r`-colorable iff it is complete-multipartite. -/
 theorem colorable_iff_isCompleteMultipartite_of_maximal_cliqueFree
-    (h : Maximal (fun H => H.CliqueFree (r + 1)) G) : G.Colorable r ↔ G.IsCompleteMultipartite := by
+    (h : Maximal (fun H => H.CliqueFree (r + 1)) G)
+    : G.Colorable r ↔ G.IsCompleteMultipartite := by
   classical
   match r with
-  | 0 => exact ⟨fun _ ↦ ⟨fun x ↦ cliqueFree_one.1 h.1 |>.elim' x⟩,
-                fun _ ↦ G.colorable_zero_iff.2 <| cliqueFree_one.1 h.1⟩
+  | 0 =>
+    exact ⟨
+      fun _ ↦ ⟨fun x ↦ cliqueFree_one.1 h.1 |>.elim' x⟩,
+      fun _ ↦ G.colorable_zero_iff.2 <| cliqueFree_one.1 h.1
+    ⟩
   | r + 1 =>
     refine ⟨fun hc ↦ ?_, fun hc ↦ hc.colorable_of_cliqueFree h.1⟩
     contrapose hc
@@ -411,17 +414,20 @@ lemma minDegree_le_of_cliqueFree_fiveWheelLikeFree_succ [Fintype α]
 
 end IsFiveWheelLike
 
-/-- **Andrásfai-Erdős-Sós** theorem
+/--
+**Andrásfai-Erdős-Sós** theorem
 
 If `G` is a `Kᵣ₊₁`-free graph with `n` vertices and `(3 * r - 4) * n / (3 * r - 1) < G.minDegree`
 then `G` is `r + 1`-colorable, e.g. if `G` is `K₃`-free and `2 * n / 5 < G.minDegree` then `G`
 is `2`-colorable.
 -/
-theorem colorable_of_cliqueFree_lt_minDegree [Fintype α] [DecidableRel G.Adj]
-    (hf : G.CliqueFree (r + 1)) (hd : (3 * r - 4) * ‖α‖ / (3 * r - 1) < G.minDegree) :
-    G.Colorable r := by
+theorem colorable_of_cliqueFree_lt_minDegree
+    [Fintype α] [DecidableRel G.Adj]
+    (hf : G.CliqueFree (r + 1)) (hd : (3 * r - 4) * ‖α‖ / (3 * r - 1) < G.minDegree)
+    : G.Colorable r := by
   match r with
-  | 0 | 1 => aesop
+  | 0 | 1 =>
+    aesop
   | r + 2 =>
     classical
     -- There is an edge maximal `Kᵣ₊₃`-free supergraph `H` of `G`
@@ -431,7 +437,7 @@ theorem colorable_of_cliqueFree_lt_minDegree [Fintype α] [DecidableRel G.Adj]
     -- Suppose, for a contradiction, that `H` is not `r + 2`-colorable
     by_contra hnotcol
     -- so `H` is not complete-multipartite
-    have hn : ¬ H.IsCompleteMultipartite := fun hc ↦ hnotcol <| hc.colorable_of_cliqueFree hmcf.1
+    have hn : ¬H.IsCompleteMultipartite := fun hc ↦ hnotcol <| hc.colorable_of_cliqueFree hmcf.1
     -- Hence `H` contains `Wᵣ₊₁,ₖ` but not `Wᵣ₊₁,ₖ₊₁`, for some `k < r + 1`
     obtain ⟨k, _, _, _, _, _, hw, hlt, hm⟩ :=
       exists_max_isFiveWheelLike_of_maximal_cliqueFree_not_isCompleteMultipartite hmcf hn
@@ -439,8 +445,8 @@ theorem colorable_of_cliqueFree_lt_minDegree [Fintype α] [DecidableRel G.Adj]
     -- a contradiction.
     have hD := hw.minDegree_le_of_cliqueFree_fiveWheelLikeFree_succ hmcf.1 <| hm _ <| lt_add_one _
     have : (2 * (r + 1) + k) * ‖α‖ / (2 * (r + 1) + k + 3) ≤ (3 * r + 2) * ‖α‖ / (3 * r + 5) := by
-      apply (Nat.le_div_iff_mul_le <| Nat.succ_pos _).2
-              <| (mul_le_mul_iff_right₀ (_ + 2).succ_pos).1 _
+      apply (Nat.le_div_iff_mul_le <| Nat.succ_pos _).2 <|
+        (mul_le_mul_iff_right₀ (_ + 2).succ_pos).1 _
       rw [← mul_assoc, mul_comm (2 * r + 2 + k + 3), mul_comm _ (_ * ‖α‖)]
       apply (Nat.mul_le_mul_right _ (Nat.div_mul_le_self ..)).trans
       nlinarith

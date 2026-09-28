@@ -43,7 +43,7 @@ variable [DivisionRing α]
 private def operate : (Σ n, Operands s n → closure s) → closure s
   | ⟨.inl 0, f⟩ => f false + f true
   | ⟨.inl 1, f⟩ => f false * f true
-  | ⟨.inl 2, f⟩ => -f ()
+  | ⟨.inl 2, f⟩ => - f ()
   | ⟨.inl 3, f⟩ => (f ())⁻¹
   | ⟨.inl 4, _⟩ => 0
   | ⟨.inl 5, _⟩ => 1

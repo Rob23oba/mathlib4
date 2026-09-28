@@ -45,23 +45,20 @@ variable [IsLocalRing R] [IsLocalRing S] [IsLocalHom (algebraMap R S)]
 
 instance : FormallyUnramified S (ResidueField S) := .quotient _
 
-instance [FormallyUnramified R S] :
-    FormallyUnramified (ResidueField R) (ResidueField S) :=
+instance [FormallyUnramified R S] : FormallyUnramified (ResidueField R) (ResidueField S) :=
   have : FormallyUnramified R (ResidueField S) := .comp _ S _
   .of_restrictScalars R _ _
 
 variable [EssFiniteType R S]
 
 @[stacks 00UW "(2)"]
-instance [FormallyUnramified R S] :
-    Module.Finite (ResidueField R) (ResidueField S) :=
+instance [FormallyUnramified R S] : Module.Finite (ResidueField R) (ResidueField S) :=
   have : EssFiniteType R (ResidueField S) := .comp _ S _
   have : EssFiniteType (ResidueField R) (ResidueField S) := .of_comp R _ _
   FormallyUnramified.finite_of_free _ _
 
 @[stacks 00UW "(2)"]
-instance [FormallyUnramified R S] :
-    Algebra.IsSeparable (ResidueField R) (ResidueField S) :=
+instance [FormallyUnramified R S] : Algebra.IsSeparable (ResidueField R) (ResidueField S) :=
   FormallyUnramified.isSeparable _ _
 
 set_option backward.inferInstanceAs.wrap.data false in
@@ -125,8 +122,11 @@ end IsLocalRing
 section IsUnramifiedAt
 
 variable (R : Type*) {S : Type*} [CommRing R] [CommRing S] [Algebra R S]
-variable [EssFiniteType R S] (p : Ideal R) [p.IsPrime] (q : Ideal S) [q.IsPrime] [q.LiesOver p]
-  [Algebra (Localization.AtPrime p) (Localization.AtPrime q)]
+variable
+  [EssFiniteType R S]
+  (p : Ideal R) [p.IsPrime]
+  (q : Ideal S)
+  [q.IsPrime] [q.LiesOver p] [Algebra (Localization.AtPrime p) (Localization.AtPrime q)]
   [IsScalarTower R (Localization.AtPrime p) (Localization.AtPrime q)]
 
 /-- Let `A` be an essentially of finite type `R`-algebra, `q` be a prime over `p`.
@@ -157,8 +157,11 @@ end Algebra
 
 section UniquePrimeOver
 
-variable {R S : Type*} [CommRing R] [CommRing S] [Algebra R S] {p : Ideal R} [p.IsPrime]
-  {q : Ideal S} [q.IsPrime] (hq : p.primesOver S = {q})
+variable
+  {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
+  {p : Ideal R} [p.IsPrime]
+  {q : Ideal S} [q.IsPrime]
+  (hq : p.primesOver S = {q})
 
 include hq
 

@@ -161,7 +161,7 @@ end mulLog
 section negMulLog
 
 /-- The function `x ↦ - x * log x` from `ℝ` to `ℝ`. -/
-noncomputable def negMulLog (x : ℝ) : ℝ := - x * log x
+noncomputable def negMulLog (x : ℝ) : ℝ := -x * log x
 
 lemma negMulLog_def : negMulLog = fun x ↦ - x * log x := rfl
 

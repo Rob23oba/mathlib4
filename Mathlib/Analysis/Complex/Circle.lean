@@ -42,7 +42,6 @@ is the kernel of the homomorphism `Complex.normSq` from `ℂ` to `ℝ`.
 
 @[expose] public section
 
-
 noncomputable section
 
 open Complex Function Metric
@@ -114,17 +113,18 @@ instance instUniformSpace : UniformSpace Circle := inferInstanceAs <| UniformSpa
 @[simps]
 def ofConjDivSelf (z : ℂ) (hz : z ≠ 0) : Circle where
   val := conj z / z
-  property := mem_sphere_zero_iff_norm.2 <| by
-    rw [norm_div, RCLike.norm_conj, div_self]; exact norm_ne_zero_iff.mpr hz
+  property :=
+    mem_sphere_zero_iff_norm.2 <| by
+      rw [norm_div, RCLike.norm_conj, div_self]; exact norm_ne_zero_iff.mpr hz
 
 /-- The map `fun t => exp (t * I)` from `ℝ` to the unit circle in `ℂ`. -/
 def exp : C(ℝ, Circle) where
   toFun t := ⟨(t * I).exp, by simp [Submonoid.unitSphere, exp_mul_I, norm_cos_add_sin_mul_I]⟩
-  continuous_toFun := Continuous.subtype_mk (by fun_prop)
-    (by simp [Submonoid.unitSphere, exp_mul_I, norm_cos_add_sin_mul_I])
+  continuous_toFun :=
+    Continuous.subtype_mk (by fun_prop)
+      (by simp [Submonoid.unitSphere, exp_mul_I, norm_cos_add_sin_mul_I])
 
-@[simp, norm_cast]
-theorem coe_exp (t : ℝ) : exp t = Complex.exp (t * Complex.I) := rfl
+@[simp, norm_cast] theorem coe_exp (t : ℝ) : exp t = Complex.exp (t * Complex.I) := rfl
 
 @[simp]
 theorem exp_zero : exp 0 = 1 :=
@@ -132,11 +132,12 @@ theorem exp_zero : exp 0 = 1 :=
 
 @[simp]
 theorem exp_add (x y : ℝ) : exp (x + y) = exp x * exp y :=
-  Subtype.ext <| by
-    simp only [coe_exp, ofReal_add, add_mul, Complex.exp_add, coe_mul]
+  Subtype.ext <| by simp only [coe_exp, ofReal_add, add_mul, Complex.exp_add, coe_mul]
 
-/-- The map `fun t => exp (t * I)` from `ℝ` to the unit circle in `ℂ`,
-considered as a homomorphism of groups. -/
+/--
+The map `fun t => exp (t * I)` from `ℝ` to the unit circle in `ℂ`,
+considered as a homomorphism of groups.
+-/
 @[simps]
 def expHom : ℝ →+ Additive Circle where
   toFun := Additive.ofMul ∘ exp
@@ -174,29 +175,28 @@ variable {α β M : Type*}
 
 instance instSMul [SMul ℂ α] : SMul Circle α := inferInstanceAs <| SMul (Submonoid.unitSphere _) α
 
-instance instSMulCommClass_left [SMul ℂ β] [SMul α β] [SMulCommClass ℂ α β] :
-    SMulCommClass Circle α β :=
+instance instSMulCommClass_left [SMul ℂ β] [SMul α β] [SMulCommClass ℂ α β]
+    : SMulCommClass Circle α β :=
   inferInstanceAs <| SMulCommClass (Submonoid.unitSphere _) α β
 
-instance instSMulCommClass_right [SMul ℂ β] [SMul α β] [SMulCommClass α ℂ β] :
-    SMulCommClass α Circle β :=
+instance instSMulCommClass_right [SMul ℂ β] [SMul α β] [SMulCommClass α ℂ β]
+    : SMulCommClass α Circle β :=
   inferInstanceAs <| SMulCommClass α (Submonoid.unitSphere _) β
 
-instance instIsScalarTower [SMul ℂ α] [SMul ℂ β] [SMul α β] [IsScalarTower ℂ α β] :
-    IsScalarTower Circle α β :=
+instance instIsScalarTower [SMul ℂ α] [SMul ℂ β] [SMul α β] [IsScalarTower ℂ α β]
+    : IsScalarTower Circle α β :=
   inferInstanceAs <| IsScalarTower (Submonoid.unitSphere _) α β
 
 instance instMulAction [MulAction ℂ α] : MulAction Circle α :=
   inferInstanceAs <| MulAction (Submonoid.unitSphere _) α
 
-instance instDistribMulAction [AddMonoid M] [DistribMulAction ℂ M] :
-    DistribMulAction Circle M :=
+instance instDistribMulAction [AddMonoid M] [DistribMulAction ℂ M] : DistribMulAction Circle M :=
   inferInstanceAs <| DistribMulAction (Submonoid.unitSphere _) M
 
 lemma smul_def [SMul ℂ α] (z : Circle) (a : α) : z • a = (z : ℂ) • a := rfl
 
-instance instContinuousSMul [TopologicalSpace α] [MulAction ℂ α] [ContinuousSMul ℂ α] :
-    ContinuousSMul Circle α :=
+instance instContinuousSMul [TopologicalSpace α] [MulAction ℂ α] [ContinuousSMul ℂ α]
+    : ContinuousSMul Circle α :=
   inferInstanceAs <| ContinuousSMul (Submonoid.unitSphere _) α
 
 section Norm
@@ -216,9 +216,11 @@ end Circle
 
 namespace Real
 
-/-- The additive character from `ℝ` onto the circle, given by `fun x ↦ exp (2 * π * x * I)`.
+/--
+The additive character from `ℝ` onto the circle, given by `fun x ↦ exp (2 * π * x * I)`.
 Denoted as `𝐞` within the `Real.FourierTransform` namespace. This uses the analyst convention that
-there is a `2 * π` in the exponent. -/
+there is a `2 * π` in the exponent.
+-/
 def fourierChar : AddChar ℝ Circle where
   toFun z := .exp (2 * π * z)
   map_zero_eq_one' := by rw [mul_zero, Circle.exp_zero]
@@ -242,8 +244,10 @@ theorem fourierChar_ne_one : fourierChar ≠ 1 := by
   rw [mul_comm, ← mul_assoc, inv_mul_cancel₀ (by positivity), one_mul]
   exact Circle.exp_pi_ne_one
 
-/-- The additive character from `ℝ` onto the circle, given by `fun x ↦ exp (x * I)`. This uses the
-probabilist convention that there is no `2 * π` in the exponent. -/
+/--
+The additive character from `ℝ` onto the circle, given by `fun x ↦ exp (x * I)`. This uses the
+probabilist convention that there is no `2 * π` in the exponent.
+-/
 def probChar : AddChar ℝ Circle where
   toFun := Circle.exp
   map_zero_eq_one' := Circle.exp_zero

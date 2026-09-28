@@ -29,12 +29,15 @@ open Function Module
 namespace LinearMap
 
 section CommSemiring
-variable {R M M' N N' : Type*} [AddCommMonoid M] [AddCommMonoid N] [AddCommMonoid M']
-  [AddCommMonoid N'] [CommSemiring R] [Module R M] [Module R M'] [Module R N] [Module R N']
+variable
+  {R M M' N N' : Type*} [AddCommMonoid M] [AddCommMonoid N] [AddCommMonoid M'] [AddCommMonoid N']
+  [CommSemiring R] [Module R M] [Module R M'] [Module R N] [Module R N']
   {p : M →ₗ[R] N →ₗ[R] R} {x : M} {y : N}
 
-/-- For a ring `R` and two modules `M` and `N`, a perfect pairing is a bilinear map `M × N → R`
-that is bijective in both arguments. -/
+/--
+For a ring `R` and two modules `M` and `N`, a perfect pairing is a bilinear map `M × N → R`
+that is bijective in both arguments.
+-/
 @[ext]
 class IsPerfPair (p : M →ₗ[R] N →ₗ[R] R) where
   bijective_left (p) : Bijective p
@@ -62,7 +65,8 @@ instance flip.instIsPerfPair : p.flip.IsPerfPair := .flip ‹_›
 
 variable (p)
 
-/-- Turn a perfect pairing between `M` and `N` into an isomorphism between `M` and the dual of `N`.
+/--
+Turn a perfect pairing between `M` and `N` into an isomorphism between `M` and the dual of `N`.
 -/
 noncomputable def toPerfPair : M ≃ₗ[R] Dual R N :=
   .ofBijective { toFun := _, map_add' x y := by simp, map_smul' r x := by simp } <|
@@ -97,12 +101,13 @@ protected instance IsPerfPair.id [IsReflexive R M] : IsPerfPair (.id (R := R) (M
 /-- A reflexive module has a perfect pairing with its dual. -/
 instance IsPerfPair.dualEval [IsReflexive R M] : IsPerfPair (Dual.eval R M) := .flip .id
 
-instance IsPerfPair.compl₁₂ (eM : M' ≃ₗ[R] M) (eN : N' ≃ₗ[R] N) :
-    (p.compl₁₂ eM eN : M' →ₗ[R] N' →ₗ[R] R).IsPerfPair :=
-  ⟨((LinearEquiv.congrLeft R R eN).symm.bijective.comp
-    (IsPerfPair.bijective_left p)).comp eM.bijective,
-    ((LinearEquiv.congrLeft R R eM).symm.bijective.comp
-    (IsPerfPair.bijective_right p)).comp eN.bijective⟩
+instance IsPerfPair.compl₁₂ (eM : M' ≃ₗ[R] M) (eN : N' ≃ₗ[R] N)
+    : (p.compl₁₂ eM eN : M' →ₗ[R] N' →ₗ[R] R).IsPerfPair := ⟨
+  ((LinearEquiv.congrLeft R R eN).symm.bijective.comp (IsPerfPair.bijective_left p)).comp
+    eM.bijective,
+  ((LinearEquiv.congrLeft R R eM).symm.bijective.comp (IsPerfPair.bijective_right p)).comp
+    eN.bijective
+⟩
 
 lemma IsPerfPair.congr (eM : M' ≃ₗ[R] M) (eN : N' ≃ₗ[R] N) (q : M' →ₗ[R] N' →ₗ[R] R)
     (H : q.compl₁₂ eM.symm eN.symm = p) : q.IsPerfPair := by
@@ -128,8 +133,9 @@ lemma IsPerfPair.nondegenerate {p : M →ₗ[R] N →ₗ[R] R} (hp : p.IsPerfPai
 end CommSemiring
 
 section Field
-variable {K M N : Type*} [Field K] [AddCommGroup M] [AddCommGroup N]
-  [Module K M] [Module K N] {p : M →ₗ[K] N →ₗ[K] K}
+variable
+  {K M N : Type*} [Field K] [AddCommGroup M] [AddCommGroup N] [Module K M] [Module K N]
+  {p : M →ₗ[K] N →ₗ[K] K}
 
 /-- If the coefficients are a field, and one of the spaces is finite-dimensional, it is sufficient
 to check only injectivity instead of bijectivity of the bilinear pairing. -/
@@ -150,16 +156,18 @@ end LinearMap
 
 noncomputable section
 
-variable {R M N : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]
-  [AddCommMonoid N] [Module R N]
+variable
+  {R M N : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M] [AddCommMonoid N] [Module R N]
 
 namespace LinearMap
 variable {p : M →ₗ[R] N →ₗ[R] R} [p.IsPerfPair]
 
 variable (p) in
-/-- Given a perfect pairing `p` between `M` and `N`, we say a pair of submodules `U` in `M` and
+/--
+Given a perfect pairing `p` between `M` and `N`, we say a pair of submodules `U` in `M` and
 `V` in `N` are perfectly complementary w.r.t. `p` if their dual annihilators are complementary,
-using `p` to identify `M` and `N` with dual spaces. -/
+using `p` to identify `M` and `N` with dual spaces.
+-/
 structure IsPerfectCompl (U : Submodule R M) (V : Submodule R N) : Prop where
   isCompl_left : IsCompl U (V.dualAnnihilator.map (p.toPerfPair.symm : Dual R N →ₗ[R] M))
   isCompl_right : IsCompl V (U.dualAnnihilator.map (p.flip.toPerfPair.symm : Dual R M →ₗ[R] N))
@@ -203,10 +211,11 @@ variable (e : N ≃ₗ[R] Dual R M)
 
 namespace LinearEquiv
 
-/-- For a reflexive module `M`, an equivalence `N ≃ₗ[R] Dual R M` naturally yields an equivalence
-`M ≃ₗ[R] Dual R N`. Such equivalences are known as perfect pairings. -/
-def flip : M ≃ₗ[R] Dual R N :=
-  (evalEquiv R M).trans e.dualMap
+/--
+For a reflexive module `M`, an equivalence `N ≃ₗ[R] Dual R M` naturally yields an equivalence
+`M ≃ₗ[R] Dual R N`. Such equivalences are known as perfect pairings.
+-/
+def flip : M ≃ₗ[R] Dual R N := (evalEquiv R M).trans e.dualMap
 
 @[simp] lemma coe_toLinearMap_flip : e.flip = (↑e : N →ₗ[R] Dual R M).flip := rfl
 

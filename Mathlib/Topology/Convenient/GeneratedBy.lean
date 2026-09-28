@@ -39,17 +39,20 @@ universe v v' t u
 
 open Topology
 
-variable {ι : Type t} (X : ι → Type u) [∀ i, TopologicalSpace (X i)]
-  {Y : Type v} [tY : TopologicalSpace Y] {Z : Type v'} [TopologicalSpace Z]
+variable
+  {ι : Type t} (X : ι → Type u) [∀ i, TopologicalSpace (X i)]
+  {Y : Type v} [tY : TopologicalSpace Y]
+  {Z : Type v'} [TopologicalSpace Z]
 
 namespace TopologicalSpace
 
-/-- Given a family of topological spaces `X i`, the `X`-generated topology on
+/--
+Given a family of topological spaces `X i`, the `X`-generated topology on
 a topological space `Y` is the topology that is coinduced
-by all continuous maps `X i → Y`. -/
+by all continuous maps `X i → Y`.
+-/
 @[instance_reducible]
-def generatedBy : TopologicalSpace Y :=
-  ⨆ (i : ι) (f : C(X i, Y)), coinduced f inferInstance
+def generatedBy : TopologicalSpace Y := ⨆ (i : ι) (f : C(X i, Y)), coinduced f inferInstance
 
 /-- The `X`-generated topology is also coinduced by a single map out of a sigma type. -/
 lemma generatedBy_eq_coinduced :
@@ -64,22 +67,26 @@ variable {X}
 
 namespace Topology
 
-/-- Given a family of topological spaces `X i`, and a topological space `Y`,
-this is a type synonym for `Y` which we endow with the `X`-generated topology. -/
+/--
+Given a family of topological spaces `X i`, and a topological space `Y`,
+this is a type synonym for `Y` which we endow with the `X`-generated topology.
+-/
 @[nolint unusedArguments]
-def WithGeneratedByTopology (X : ι → Type u) [∀ i, TopologicalSpace (X i)]
-    (Y : Type v) [TopologicalSpace Y] := Y
+def WithGeneratedByTopology
+    (X : ι → Type u) [∀ i, TopologicalSpace (X i)] (Y : Type v) [TopologicalSpace Y] :=
+  Y
 
 namespace WithGeneratedByTopology
 
-/-- The obvious bijection `WithGeneratedByTopology X Y ≃ Y`, where
+/--
+The obvious bijection `WithGeneratedByTopology X Y ≃ Y`, where
 the source is endowed with the `X`-generated topology. See `continuous_equiv`
 for the continuity of `equiv`. The inverse map `equiv.symm` is continuous
-iff `Y` is `X`-generated, see `isGeneratedBy_iff`. -/
+iff `Y` is `X`-generated, see `isGeneratedBy_iff`.
+-/
 def equiv : WithGeneratedByTopology X Y ≃ Y := Equiv.refl _
 
-instance {Y : Type v} [TopologicalSpace Y] :
-    TopologicalSpace (WithGeneratedByTopology X Y) :=
+instance {Y : Type v} [TopologicalSpace Y] : TopologicalSpace (WithGeneratedByTopology X Y) :=
   -- fast_instance% .generatedBy X (Y := Y) fails
   letI : TopologicalSpace Y := .generatedBy X (Y := Y)
   inferInstanceAs <| TopologicalSpace Y
@@ -125,10 +132,12 @@ lemma TopologicalSpace.generatedBy_mono {t₁ t₂ : TopologicalSpace Y} (h : t�
 namespace Topology
 
 variable (X Y) in
-/-- Given a family of topological spaces `X i`, we say that a topological space is
+/--
+Given a family of topological spaces `X i`, we say that a topological space is
 `X`-generated (`IsGeneratedBy X Y`) when the topology on `Y` is the `X`-generated
 topology, i.e. when the identity is a homeomorphism
-`WithGeneratedByTopology X Y ≃ₜ Y` (see `IsGeneratedBy.homeomorph`). -/
+`WithGeneratedByTopology X Y ≃ₜ Y` (see `IsGeneratedBy.homeomorph`).
+-/
 @[mk_iff]
 class IsGeneratedBy : Prop where
   continuous_equiv_symm : Continuous (WithGeneratedByTopology.equiv (X := X) (Y := Y)).symm
@@ -254,23 +263,21 @@ lemma IsQuotientMap.isGeneratedBy {f : Y → Z} (hf : IsQuotientMap f) [IsGenera
 end Topology
 
 /-- Quotients of `X`-generated spaces are `X`-generated. -/
-instance Quot.isGeneratedBy [IsGeneratedBy X Y] {r : Y → Y → Prop} :
-    IsGeneratedBy X (Quot r) :=
+instance Quot.isGeneratedBy [IsGeneratedBy X Y] {r : Y → Y → Prop} : IsGeneratedBy X (Quot r) :=
   isQuotientMap_quot_mk.isGeneratedBy
 
 /-- Quotients of `X`-generated spaces are `X`-generated. -/
-instance Quotient.isGeneratedBy [IsGeneratedBy X Y] {s : Setoid Y} :
-    IsGeneratedBy X (Quotient s) :=
+instance Quotient.isGeneratedBy [IsGeneratedBy X Y] {s : Setoid Y} : IsGeneratedBy X (Quotient s) :=
   isQuotientMap_quotient_mk'.isGeneratedBy
 
 /-- Disjoint unions of `X`-generated spaces are `X`-generated. -/
-instance Sum.isGeneratedBy [IsGeneratedBy X Y] [IsGeneratedBy X Z] :
-    IsGeneratedBy X (Y ⊕ Z) :=
+instance Sum.isGeneratedBy [IsGeneratedBy X Y] [IsGeneratedBy X Z] : IsGeneratedBy X (Y ⊕ Z) :=
   IsGeneratedBy.sup (.coinduced Sum.inl) (.coinduced Sum.inr)
 
 /-- Disjoint unions of `X`-generated spaces are `X`-generated. -/
-instance Sigma.isGeneratedBy {κ : Type*} {Y : κ → Type*} [∀ k, TopologicalSpace (Y k)]
-    [∀ k, IsGeneratedBy X (Y k)] : IsGeneratedBy X (Σ k, Y k) :=
+instance Sigma.isGeneratedBy
+    {κ : Type*} {Y : κ → Type*} [∀ k, TopologicalSpace (Y k)] [∀ k, IsGeneratedBy X (Y k)]
+    : IsGeneratedBy X (Σ k, Y k) :=
   .iSup fun _ ↦ .coinduced _
 
 lemma TopologicalSpace.generatedBy_generatedBy (Y : Type*) [TopologicalSpace Y] :

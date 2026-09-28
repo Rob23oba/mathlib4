@@ -50,8 +50,8 @@ lemma sum_finpartition [AddCommMonoid V] [TopologicalSpace V] [T2Space V]
 
 section Basic
 
-variable [TopologicalSpace V] [ENormedAddCommMonoid V] [T2Space V]
-  {μ ν : VectorMeasure X V} {s : Set X}
+variable
+  [TopologicalSpace V] [ENormedAddCommMonoid V] [T2Space V] {μ ν : VectorMeasure X V} {s : Set X}
 
 lemma variation_apply (μ : VectorMeasure X V) (s : Set X) :
     μ.variation s = preVariation (‖μ ·‖ₑ) (isSigmaSubadditiveSetFun_enorm μ) (by simp) s := rfl
@@ -141,10 +141,11 @@ lemma exists_variation_le_add (μ : VectorMeasure X V) {s : Set X} (hs : Measura
       (∀ t ∈ P, MeasurableSet t) ∧ μ.variation s ≤ ∑ p ∈ P, ‖μ p‖ₑ + ε :=
   exists_variation_le_add' μ hs (mod_cast hε) hμ
 
-theorem enorm_measure_le_variation (μ : VectorMeasure X V) (E : Set X) :
-    ‖μ E‖ₑ ≤ variation μ E := by
+theorem enorm_measure_le_variation (μ : VectorMeasure X V) (E : Set X)
+    : ‖μ E‖ₑ ≤ variation μ E := by
   by_cases hE : MeasurableSet E
-  swap; · simp [hE]
+  swap
+  · simp [hE]
   by_cases hE' : (⟨E, hE⟩ : Subtype MeasurableSet) = ⊥
   · simp_all
   simp only [variation_apply, preVariation, ennrealToMeasure_apply hE, ennrealPreVariation_apply]
@@ -258,8 +259,8 @@ lemma variation_map_le : (μ.map φ).variation ≤ μ.variation.map φ := by
 instance [IsFiniteMeasure μ.variation] : IsFiniteMeasure (μ.map φ).variation :=
   isFiniteMeasure_of_le _ variation_map_le
 
-theorem _root_.MeasurableEmbedding.variation_map (hφ : MeasurableEmbedding φ) :
-    (μ.map φ).variation = μ.variation.map φ := by
+theorem _root_.MeasurableEmbedding.variation_map (hφ : MeasurableEmbedding φ)
+    : (μ.map φ).variation = μ.variation.map φ := by
   apply le_antisymm variation_map_le ?_
   apply Measure.le_iff.2 (fun s hs ↦ ?_)
   simp only [hφ.measurable, hs, Measure.map_apply]
@@ -298,8 +299,8 @@ section NormedAddCommGroup
 
 variable [NormedAddCommGroup V] {μ ν : VectorMeasure X V}
 
-theorem norm_measure_le_variation {E : Set X} (hE : μ.variation E ≠ ∞ := by finiteness) :
-    ‖μ E‖ ≤ μ.variation.real E := by
+theorem norm_measure_le_variation {E : Set X} (hE : μ.variation E ≠ ∞ := by finiteness)
+    : ‖μ E‖ ≤ μ.variation.real E := by
   rw [measureReal_def, ← toReal_enorm, ENNReal.toReal_le_toReal (enorm_ne_top) hE]
   exact enorm_measure_le_variation μ E
 
@@ -329,8 +330,8 @@ lemma variation_smul {𝕜 : Type*} [NormedField 𝕜] [NormedSpace 𝕜 V] {c :
   _ = (c • μ).variation := by
     simp [smul_smul, mul_inv_cancel₀ (nnnorm_ne_zero_iff.mpr hc)]
 
-instance {𝕜 : Type*} [NormedField 𝕜] [NormedSpace 𝕜 V] {c : 𝕜} [IsFiniteMeasure μ.variation] :
-    IsFiniteMeasure (c • μ).variation := by
+instance {𝕜 : Type*} [NormedField 𝕜] [NormedSpace 𝕜 V] {c : 𝕜} [IsFiniteMeasure μ.variation]
+    : IsFiniteMeasure (c • μ).variation := by
   simp only [variation_smul]
   infer_instance
 
@@ -338,8 +339,10 @@ instance [Finite X] : IsFiniteMeasure μ.variation where
   measure_univ_lt_top := by
     classical
     let : Fintype X := Fintype.ofFinite X
-    simp only [variation_apply, preVariation_apply, MeasurableSet.univ, ennrealToMeasure_apply,
-      ennrealPreVariation_apply, preVariationFun, ↓reduceDIte, ← sup_univ_eq_ciSup]
+    simp only [
+      variation_apply, preVariation_apply, MeasurableSet.univ, ennrealToMeasure_apply,
+      ennrealPreVariation_apply, preVariationFun, ↓ reduceDIte, ← sup_univ_eq_ciSup
+    ]
     exact (Finset.sup_lt_iff (by simp)).2 (fun b hb ↦ by simp [ENNReal.sum_lt_top, enorm_lt_top])
 
 instance {x : X} {v : V} : IsFiniteMeasure (VectorMeasure.dirac x v).variation := by
@@ -439,8 +442,10 @@ lemma preVariationFun_apply_of_ennreal (s : Set X) : preVariationFun μ s = μ s
 
 theorem variation_eq_ennrealToMeasure : μ.variation = μ.ennrealToMeasure := by
   ext _ hs
-  simp [preVariationFun_apply_of_ennreal, variation_apply, preVariation_apply,
-    ennrealPreVariation_apply, ennrealToMeasure_apply hs]
+  simp [
+    preVariationFun_apply_of_ennreal, variation_apply, preVariation_apply,
+    ennrealPreVariation_apply, ennrealToMeasure_apply hs
+  ]
 
 @[simp]
 theorem ennrealVariation_eq_self : μ.ennrealVariation = μ := by

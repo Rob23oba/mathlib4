@@ -32,53 +32,59 @@ universe w v u
 
 open CategoryTheory Limits MonoidalCategory
 
-attribute [local instance] hasColimitsOfShape_of_finallySmall
-  IsFiltered.isSifted FinallySmall.preservesColimitsOfShape_of_isFiltered
+attribute [local instance]
+  hasColimitsOfShape_of_finallySmall IsFiltered.isSifted
+  FinallySmall.preservesColimitsOfShape_of_isFiltered
 
 namespace PresheafOfModules
 
-variable {C : Type u} [Category.{v} C] [LocallySmall.{w} C]
-  [IsCofiltered C] [InitiallySmall.{w} C]
+variable
+  {C : Type u} [Category.{v} C] [LocallySmall.{w} C] [IsCofiltered C] [InitiallySmall.{w} C]
   {R : Cᵒᵖ ⥤ RingCat.{w}} {cR : Cocone R} (hcR : IsColimit cR)
 
 set_option backward.defeqAttrib.useBackward true in
 variable (cR) in
-/-- Given a cocone `cR` for a functor `R : Cᵒᵖ ⥤ RingCat`, this is the
+/--
+Given a cocone `cR` for a functor `R : Cᵒᵖ ⥤ RingCat`, this is the
 functor `ModuleCat cR.pt ⥤ PresheafOfModules R` which sends a module `M`
 over `cR.pt` to a presheaf of modules whose underlying presheaf of
-abelian groups is the constant functor `Cᵒᵖ ⥤ AddCommGrpCat` with value `M`. -/
+abelian groups is the constant functor `Cᵒᵖ ⥤ AddCommGrpCat` with value `M`.
+-/
 noncomputable def constFunctor : ModuleCat cR.pt ⥤ PresheafOfModules.{w} R where
-  obj M :=
-    { obj X := (ModuleCat.restrictScalars (cR.ι.app X).hom).obj M
-      map {X Y} f :=
-        (ModuleCat.restrictScalarsComp' _ _ _
-          (by ext; dsimp; rw [← Cocone.w cR f]; dsimp)).hom.app _ }
+  obj M := {
+    obj X := (ModuleCat.restrictScalars (cR.ι.app X).hom).obj M
+    map {X Y} f :=
+      (ModuleCat.restrictScalarsComp' _ _ _ (by ext; dsimp; rw [← Cocone.w cR f]; dsimp)).hom.app _
+  }
   map φ := { app X := (ModuleCat.restrictScalars (cR.ι.app X).hom).map φ }
 
 section
 
-variable {M : PresheafOfModules.{w} R} {cM : Cocone M.presheaf} (hcM : IsColimit cM)
+variable
+  {M : PresheafOfModules.{w} R} {cM : Cocone M.presheaf} (hcM : IsColimit cM)
   {M' : PresheafOfModules.{w} R} {cM' : Cocone M'.presheaf} (hcM' : IsColimit cM')
   {M'' : PresheafOfModules.{w} R} {cM'' : Cocone M''.presheaf} (hcM'' : IsColimit cM'')
 
-/-- Given a colimit cocone for a presheaf of rings `R` on a cofiltered category `C`,
+/--
+Given a colimit cocone for a presheaf of rings `R` on a cofiltered category `C`,
 `M` a presheaf of modules over `R`, and a colimit cocone `cM` for the underlying
 functor `Cᵒᵖ ⥤ AddCommGrpCat` of `M`, this is the type `cM.pt` on which we define
-a module structure below. -/
+a module structure below.
+-/
 @[nolint unusedArguments]
 def ModuleColimit (_ : IsColimit cR) (_ : IsColimit cM) : Type w := cM.pt
 
-instance : AddCommGroup (ModuleColimit hcR hcM) :=
-  inferInstanceAs (AddCommGroup cM.pt)
+instance : AddCommGroup (ModuleColimit hcR hcM) := inferInstanceAs (AddCommGroup cM.pt)
 
 namespace ModuleColimit
 
-/-- The cocone for `R ⋙ forget _ ⊗ M.presheaf ⋙ forget _` with point
+/--
+The cocone for `R ⋙ forget _ ⊗ M.presheaf ⋙ forget _` with point
 `ModuleColimit hcR hcM` which allows to define the scalar multiplication
-by `cR.pt` on `ModuleColimit hcR hcM`. -/
+by `cR.pt` on `ModuleColimit hcR hcM`.
+-/
 @[simps]
-noncomputable def coconeSMul :
-    Cocone (R ⋙ forget _ ⊗ M.presheaf ⋙ forget _) where
+noncomputable def coconeSMul : Cocone (R ⋙ forget _ ⊗ M.presheaf ⋙ forget _) where
   pt := ModuleColimit hcR hcM
   ι.app U := ↾fun ⟨(r : R.obj U), (m : M.obj U)⟩ ↦ by exact cM.ι.app U (r • m)
   ι.naturality V U f := by
@@ -87,8 +93,9 @@ noncomputable def coconeSMul :
 
 noncomputable instance : SMul cR.pt (ModuleColimit hcR hcM) where
   smul :=
-    (((isColimitOfPreserves (forget _) hcR).tensor
-      (isColimitOfPreserves (forget _) hcM)).desc (coconeSMul hcR hcM) : _ → _).curry
+    (((isColimitOfPreserves (forget _) hcR).tensor (isColimitOfPreserves (forget _) hcM)).desc
+        (coconeSMul hcR hcM)
+      : _ → _).curry
 
 variable (cR) in
 /-- The "inclusion" maps to the colimit ring. -/
@@ -96,8 +103,7 @@ abbrev ιR {U : Cᵒᵖ} : R.obj U →+* cR.pt := (cR.ι.app U).hom
 
 variable {hcR hcM} in
 /-- The "inclusion" maps to the colimit module, as an additive map. -/
-noncomputable abbrev ιM {U : Cᵒᵖ} : M.obj U →+ ModuleColimit hcR hcM :=
-  (cM.ι.app U).hom
+noncomputable abbrev ιM {U : Cᵒᵖ} : M.obj U →+ ModuleColimit hcR hcM := (cM.ι.app U).hom
 
 @[simp]
 lemma smul_eq {U : Cᵒᵖ} (r : R.obj U) (m : M.obj U) :
@@ -200,12 +206,15 @@ noncomputable instance : Module cR.pt (ModuleColimit hcR hcM) where
     obtain ⟨U, r₁, r₂, m, rfl, rfl, rfl⟩ := jointly_surjective₃ r₁ r₂ m
     simp only [smul_eq, ← map_add, add_smul]
 
-/-- Auxiliary definition for `homEquiv`. This is the universal property
-of `PresheafOfModules.ModuleColimit`, as an abelian group. -/
-noncomputable def homEquiv' {N : Type w} [AddCommGroup N] :
-    (ModuleColimit hcR hcM →+ N) ≃+ (M.presheaf ⟶ (Functor.const _).obj ↧N) where
-  toEquiv := (ConcreteCategory.homEquiv (X := AddCommGrpCat.of (ModuleColimit hcR hcM))
-    (Y := ↧N)).symm.trans hcM.homEquiv
+/--
+Auxiliary definition for `homEquiv`. This is the universal property
+of `PresheafOfModules.ModuleColimit`, as an abelian group.
+-/
+noncomputable def homEquiv' {N : Type w} [AddCommGroup N]
+    : (ModuleColimit hcR hcM →+ N) ≃+ (M.presheaf ⟶ (Functor.const _).obj ↧N) where
+  toEquiv :=
+    (ConcreteCategory.homEquiv (X := AddCommGrpCat.of (ModuleColimit hcR hcM)) (Y := ↧N)).symm.trans
+      hcM.homEquiv
   map_add' _ _ := rfl
 
 omit [LocallySmall.{w, v, u} C] [IsCofiltered C] [InitiallySmall C] in
@@ -236,15 +245,18 @@ lemma map_smul_homEquiv'_iff {N : ModuleCat.{w} cR.pt}
     congr 1
     exact (smul_eq ..).symm
 
-/-- This is the universal property of `PresheafOfModules.ModuleColimit` as a module.
-See also `PresheafOfModules.colimitAdjunction`. -/
-noncomputable def homEquiv {N : ModuleCat.{w} cR.pt} :
-    (↧(ModuleColimit hcR hcM) ⟶ N) ≃+ (M ⟶ (constFunctor cR).obj N) where
-  toFun φ := PresheafOfModules.homMk
-    (homEquiv' hcR hcM ((forget₂ _ AddCommGrpCat).map φ).hom)
+/--
+This is the universal property of `PresheafOfModules.ModuleColimit` as a module.
+See also `PresheafOfModules.colimitAdjunction`.
+-/
+noncomputable def homEquiv {N : ModuleCat.{w} cR.pt}
+    : (↧(ModuleColimit hcR hcM) ⟶ N) ≃+ (M ⟶ (constFunctor cR).obj N) where
+  toFun φ :=
+    PresheafOfModules.homMk (homEquiv' hcR hcM ((forget₂ _ AddCommGrpCat).map φ).hom)
       ((map_smul_homEquiv'_iff hcR hcM ((forget₂ _ AddCommGrpCat).map φ).hom).2 (by simp))
-  invFun ψ := ModuleCat.ofHom
-    { toFun := (homEquiv' hcR hcM).symm ((toPresheaf _).map ψ)
+  invFun ψ :=
+    ModuleCat.ofHom {
+      toFun := (homEquiv' hcR hcM).symm ((toPresheaf _).map ψ)
       map_add' := by simp
       map_smul' := by
         obtain ⟨φ, hφ⟩ := (homEquiv' hcR hcM).surjective ((toPresheaf _).map ψ)
@@ -253,14 +265,17 @@ noncomputable def homEquiv {N : ModuleCat.{w} cR.pt} :
         rw [hφ]
         erw [toPresheaf_map_app_apply]
         rw [map_smul]
-        rfl }
-  left_inv φ := (forget₂ _ AddCommGrpCat).map_injective (by
-    ext : 1
-    exact (homEquiv' hcR hcM).left_inv ((forget₂ _ AddCommGrpCat).map φ).hom)
+        rfl
+    }
+  left_inv φ :=
+    (forget₂ _ AddCommGrpCat).map_injective (by
+      ext : 1
+      exact (homEquiv' hcR hcM).left_inv ((forget₂ _ AddCommGrpCat).map φ).hom)
   right_inv ψ := (toPresheaf _).map_injective ((homEquiv' hcR hcM).right_inv _)
-  map_add' φ₁ φ₂ := (toPresheaf _).map_injective
-    ((homEquiv' hcR hcM).map_add ((forget₂ _ AddCommGrpCat).map φ₁).hom
-      ((forget₂ _ AddCommGrpCat).map φ₂).hom)
+  map_add' φ₁ φ₂ :=
+    (toPresheaf _).map_injective
+      ((homEquiv' hcR hcM).map_add ((forget₂ _ AddCommGrpCat).map φ₁).hom
+        ((forget₂ _ AddCommGrpCat).map φ₂).hom)
 
 @[simp]
 lemma homEquiv_app_apply {N : ModuleCat.{w} cR.pt}
@@ -280,14 +295,12 @@ lemma homEquiv_symm_apply {N : ModuleCat.{w} cR.pt} (β : M ⟶ (constFunctor cR
 
 section
 
-variable {M' : PresheafOfModules.{w} R} {cM' : Cocone M'.presheaf}
-  (hcM' : IsColimit cM')
+variable {M' : PresheafOfModules.{w} R} {cM' : Cocone M'.presheaf} (hcM' : IsColimit cM')
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- The linear map between the colimit modules induced by a morphism of modules. -/
-noncomputable def map (f : M ⟶ M') :
-    ModuleColimit hcR hcM →ₗ[cR.pt] ModuleColimit hcR hcM' where
+noncomputable def map (f : M ⟶ M') : ModuleColimit hcR hcM →ₗ[cR.pt] ModuleColimit hcR hcM' where
   toFun := hcM.desc ((Cocone.precompose ((toPresheaf _).map f)).obj cM')
   map_add' _ _ := map_add _ _ _
   map_smul' r m := by
@@ -348,23 +361,27 @@ end ModuleColimit
 
 end
 
-/-- The colimit module functor from the category of presheaves of modules
+/--
+The colimit module functor from the category of presheaves of modules
 over a presheaf of rings `R` on a cofiltered category to the category
-of modules over a colimit of `R`. -/
+of modules over a colimit of `R`.
+-/
 noncomputable def colimitFunctor : PresheafOfModules.{w} R ⥤ ModuleCat.{w} cR.pt where
   obj M := ↧(ModuleColimit hcR (colimit.isColimit M.presheaf))
   map f := ModuleCat.ofHom (ModuleColimit.map _ _ _ f)
   map_comp f g := by ext : 1; exact (ModuleColimit.comp_map ..).symm
 
-/-- Given a presheaf of rings `R` on a cofiltered category, this is the
+/--
+Given a presheaf of rings `R` on a cofiltered category, this is the
 adjunction between `colimitFunctor : PresheafOfModules R ⥤ ModuleCat cR.pt`
-and the constant functor. -/
-noncomputable def colimitAdjunction :
-    colimitFunctor.{w} hcR ⊣ constFunctor.{w} cR :=
-  Adjunction.mkOfHomEquiv
-    { homEquiv _ _ := (ModuleColimit.homEquiv _ _).toEquiv
-      homEquiv_naturality_left_symm _ _ := ModuleColimit.homEquiv_naturality_left_symm _ _ _ _ _
-      homEquiv_naturality_right _ _ := ModuleColimit.homEquiv_naturality_right _ _ _ _ }
+and the constant functor.
+-/
+noncomputable def colimitAdjunction : colimitFunctor.{w} hcR ⊣ constFunctor.{w} cR :=
+  Adjunction.mkOfHomEquiv {
+    homEquiv _ _ := (ModuleColimit.homEquiv _ _).toEquiv
+    homEquiv_naturality_left_symm _ _ := ModuleColimit.homEquiv_naturality_left_symm _ _ _ _ _
+    homEquiv_naturality_right _ _ := ModuleColimit.homEquiv_naturality_right _ _ _ _
+  }
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in

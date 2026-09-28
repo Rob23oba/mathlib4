@@ -25,7 +25,7 @@ kbb (https://github.com/kim-em/kbb/tree/master) repository, so credit to those a
 variable (n : Type*) [DecidableEq n] [Fintype n] (R : Type*) [CommRing R]
 
 /-- The subtype of matrices with fixed determinant `m` -/
-def FixedDetMatrix (m : R) := { A : Matrix n n R // A.det = m }
+def FixedDetMatrix (m : R) := {A : Matrix n n R // A.det = m}
 
 namespace FixedDetMatrices
 
@@ -83,29 +83,33 @@ private lemma reduce_aux {A : Δ m} (h : (A.1 1 0) ≠ 0) :
 
 /-- Reduction lemma for integral FixedDetMatrices. -/
 @[elab_as_elim]
-def reduce_rec {C : Δ m → Sort*}
-    (base : ∀ A : Δ m, (A.1 1 0) = 0 → C A)
-    (step : ∀ A : Δ m, (A.1 1 0) ≠ 0 → C (reduceStep A) → C A) :
-    ∀ A, C A := fun A => by
+def reduce_rec
+    {C : Δ m → Sort*} (base : ∀ A : Δ m, (A.1 1 0) = 0 → C A)
+    (step : ∀ A : Δ m, (A.1 1 0) ≠ 0 → C (reduceStep A) → C A)
+    : ∀ A, C A := fun A => by
   by_cases h : (A.1 1 0) = 0
   · exact base _ h
   · exact step A h (reduce_rec base step (reduceStep A))
-  termination_by A => Int.natAbs (A.1 1 0)
-  decreasing_by
-    zify
-    exact reduce_aux h
+termination_by A => Int.natAbs (A.1 1 0)
+decreasing_by
+  zify
+  exact reduce_aux h
 
-/-- Map from `Δ m → Δ m` which reduces a `FixedDetMatrix` towards a representative element
-in reps -/
+/--
+Map from `Δ m → Δ m` which reduces a `FixedDetMatrix` towards a representative element
+in reps
+-/
 def reduce : Δ m → Δ m := fun A ↦
   if (A.1 1 0) = 0 then
-    if 0 < A.1 0 0 then (T ^ (-(A.1 0 1 / A.1 1 1))) • A else
-      (T ^ (-(-A.1 0 1 / -A.1 1 1))) • (S • (S • A)) --the -/- don't cancel with ℤ divs.
+    if 0 < A.1 0 0 then
+      (T ^ (-(A.1 0 1 / A.1 1 1))) • A
+    else
+      (T ^ (-(- A.1 0 1 / - A.1 1 1))) • (S • (S • A)) -- the -/- don't cancel with ℤ divs.
   else
     reduce (reduceStep A)
-  termination_by b => Int.natAbs (b.1 1 0)
-  decreasing_by
-    next a h =>
+termination_by b => Int.natAbs (b.1 1 0)
+decreasing_by
+  next a h =>
     zify
     exact reduce_aux h
 
@@ -158,7 +162,7 @@ lemma reps_zero_empty : reps 0 = ∅ := by
   simp_all [h₂.ne']
 
 noncomputable instance repsFintype (k : ℤ) : Fintype (reps k) := by
-  let H := Finset.Icc (-|k|) |k|
+  let H := Finset.Icc (- |k|) |k|
   let H4 := Fin 2 → Fin 2 → H
   apply Fintype.ofInjective (β := H4) (f := fun M i j ↦ ⟨M.1.1 i j, reps_entries_le_m' M.2 i j⟩)
   intro M N h
@@ -238,9 +242,12 @@ private lemma prop_red_T_pow (hS : ∀ B, C B → C (S • B)) (hT : ∀ B, C B 
     rwa [sub_eq_neg_add, zpow_add, zpow_neg_one, ← prop_red_T hS hT, mul_smul, smul_inv_smul]
 
 @[elab_as_elim]
-theorem induction_on {C : Δ m → Prop} {A : Δ m} (hm : m ≠ 0)
+theorem induction_on
+    {C : Δ m → Prop} {A : Δ m}
+    (hm : m ≠ 0)
     (h0 : ∀ A : Δ m, A.1 1 0 = 0 → 0 < A.1 0 0 → 0 ≤ A.1 0 1 → |(A.1 0 1)| < |(A.1 1 1)| → C A)
-    (hS : ∀ B, C B → C (S • B)) (hT : ∀ B, C B → C (T • B)) : C A := by
+    (hS : ∀ B, C B → C (S • B)) (hT : ∀ B, C B → C (T • B))
+    : C A := by
   have h_reduce : C (reduce A) := by
     rcases reduce_mem_reps hm A with ⟨H1, H2, H3, H4⟩
     exact h0 _ H1 H2 H3 H4

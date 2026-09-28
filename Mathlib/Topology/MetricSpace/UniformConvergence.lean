@@ -69,10 +69,11 @@ lemma edist_le {f g : α →ᵤ β} {C : ℝ≥0∞} :
 noncomputable instance : PseudoEMetricSpace (α →ᵤ β) where
   edist_self := by simp [edist_def]
   edist_comm := by simp [edist_def, edist_comm]
-  edist_triangle f₁ f₂ f₃ := calc
-    ⨆ x, edist (f₁ x) (f₃ x) ≤ ⨆ x, edist (f₁ x) (f₂ x) + edist (f₂ x) (f₃ x) :=
-      iSup_mono fun _ ↦ edist_triangle _ _ _
-    _ ≤ (⨆ x, edist (f₁ x) (f₂ x)) + (⨆ x, edist (f₂ x) (f₃ x)) := iSup_add_le _ _
+  edist_triangle f₁ f₂ f₃ :=
+    calc
+      ⨆ x, edist (f₁ x) (f₃ x)
+        ≤ ⨆ x, edist (f₁ x) (f₂ x) + edist (f₂ x) (f₃ x) := iSup_mono fun _ ↦ edist_triangle _ _ _
+      _ ≤ (⨆ x, edist (f₁ x) (f₂ x)) + (⨆ x, edist (f₂ x) (f₃ x)) := iSup_add_le _ _
   toUniformSpace := inferInstance
   uniformity_edist := by
     suffices 𝓤 (α →ᵤ β) = comap (fun x ↦ edist x.1 x.2) (𝓝 0) by
@@ -141,9 +142,11 @@ noncomputable instance [BoundedSpace β] : PseudoMetricSpace (α →ᵤ β) :=
       · simp [edist_def]
       have : BddAbove <| .range fun x ↦ dist (toFun f x) (toFun g x) := by
         use (Metric.ediam (.univ : Set β)).toReal
-        simp +contextual [mem_upperBounds, eq_comm (a := dist _ _), ← edist_dist,
+        simp +contextual [
+          mem_upperBounds, eq_comm (a := dist _ _), ← edist_dist,
           ← ENNReal.ofReal_le_iff_le_toReal BoundedSpace.bounded_univ.ediam_ne_top,
-          Metric.edist_le_ediam_of_mem]
+          Metric.edist_le_ediam_of_mem
+        ]
       exact ENNReal.eq_of_forall_le_nnreal_iff fun r ↦ by simp [edist_def, ciSup_le_iff this]
 
 lemma dist_def [BoundedSpace β] (f g : α →ᵤ β) :
@@ -229,15 +232,17 @@ lemma edist_eq_pi_restrict [Fintype 𝔖] {f g : α →ᵤ[𝔖] β} :
 
 variable [Finite 𝔖]
 
-/-- The natural `EMetric` structure on `α →ᵤ[𝔖] β` when `𝔖` is finite given by
-`edist f g = ⨆ x ∈ ⋃₀ 𝔖, edist (f x) (g x)`. -/
+/--
+The natural `EMetric` structure on `α →ᵤ[𝔖] β` when `𝔖` is finite given by
+`edist f g = ⨆ x ∈ ⋃₀ 𝔖, edist (f x) (g x)`.
+-/
 noncomputable instance : PseudoEMetricSpace (α →ᵤ[𝔖] β) where
   edist_self f := by simp [edist_eq_restrict_sUnion]
   edist_comm := by simp [edist_eq_restrict_sUnion, edist_comm]
   edist_triangle f₁ f₂ f₃ := by simp [edist_eq_restrict_sUnion, edist_triangle]
   toUniformSpace := inferInstance
   uniformity_edist := by
-    let _ := Fintype.ofFinite 𝔖;
+    let _ := Fintype.ofFinite 𝔖
     simp_rw [← isUniformInducing_pi_restrict.comap_uniformity,
       PseudoEMetricSpace.uniformity_edist, comap_iInf, comap_principal, edist_eq_pi_restrict,
       Set.preimage_ofPred_eq]
@@ -292,13 +297,15 @@ noncomputable instance [BoundedSpace β] : PseudoMetricSpace (α →ᵤ[𝔖] β
     (fun f g ↦ ⨆ x : ⋃₀ 𝔖, dist (toFun 𝔖 f x) (toFun 𝔖 g x))
     (fun _ _ ↦ Real.iSup_nonneg fun i ↦ dist_nonneg)
     fun f g ↦ by
-      cases isEmpty_or_nonempty (⋃₀ 𝔖)
+      cases isEmpty_or_nonempty (⋃₀𝔖)
       · simp_all [edist_def]
-      have : BddAbove (.range fun x : ⋃₀ 𝔖 ↦ dist (toFun 𝔖 f x) (toFun 𝔖 g x)) := by
+      have : BddAbove (.range fun x : ⋃₀𝔖 ↦ dist (toFun 𝔖 f x) (toFun 𝔖 g x)) := by
         use (Metric.ediam (.univ : Set β)).toReal
-        simp +contextual [mem_upperBounds, eq_comm (a := dist _ _), ← edist_dist,
+        simp +contextual [
+          mem_upperBounds, eq_comm (a := dist _ _), ← edist_dist,
           ← ENNReal.ofReal_le_iff_le_toReal BoundedSpace.bounded_univ.ediam_ne_top,
-          Metric.edist_le_ediam_of_mem]
+          Metric.edist_le_ediam_of_mem
+        ]
       refine ENNReal.eq_of_forall_le_nnreal_iff fun r ↦ ?_
       simp [edist_def, ciSup_le_iff this]
 

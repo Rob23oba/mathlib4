@@ -97,22 +97,23 @@ lemma coeff_sum_X_pow_of_fintype [Fintype σ] (d : σ →₀ ℕ) (n : ℕ) :
   simp [this, coeff_linearCombination_X_pow_of_fintype]
 
 /-- The formula for the `d`th coefficient of `(X 0 + X 1) ^ n`. -/
-theorem coeff_add_pow (d : Fin 2 →₀ ℕ) (n : ℕ) :
-    ((X 0 + X 1 : MvPolynomial (Fin 2) R) ^ n).coeff d =
-      if (d 0, d 1) ∈ Finset.antidiagonal n then n.choose (d 0) else 0 := by
+theorem coeff_add_pow (d : Fin 2 →₀ ℕ) (n : ℕ)
+    : ((X 0 + X 1 : MvPolynomial (Fin 2) R) ^ n).coeff d
+      = if (d 0, d 1) ∈ Finset.antidiagonal n then n.choose (d 0) else 0 := by
   rw [← Fin.sum_univ_two, coeff_sum_X_pow_of_fintype]
   congr 1
   have : d.sum (fun x m ↦ m) = d 0 + d 1 := by
     simp [Finsupp.sum_of_support_subset d (Finset.subset_univ d.support)]
   simp only [Finset.mem_antidiagonal, this]
   split_ifs with hd
-  · rw [multinomial_eq_of_support_subset (Finset.subset_univ d.support), Finset.univ_fin2,
-      Nat.binomial_eq_choose Fin.zero_ne_one, hd]
+  · rw [
+      multinomial_eq_of_support_subset (Finset.subset_univ d.support), Finset.univ_fin2,
+      Nat.binomial_eq_choose Fin.zero_ne_one, hd
+    ]
   · rfl
 
 /-- A monomial in two variables equals `C a * X 0 ^ d 0 * X 1 ^ d 1`. -/
-theorem monomial_fin_two (d : Fin 2 →₀ ℕ) (a : R) :
-    monomial d a = C a * X 0 ^ d 0 * X 1 ^ d 1 := by
+theorem monomial_fin_two (d : Fin 2 →₀ ℕ) (a : R) : monomial d a = C a * X 0 ^ d 0 * X 1 ^ d 1 := by
   rw [monomial_eq, mul_assoc, d.prod_fintype _ fun _ ↦ pow_zero _, Fin.prod_univ_two]
 
 end MvPolynomial

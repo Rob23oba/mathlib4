@@ -48,9 +48,7 @@ instance : ObjectProperty.IsMonoidal (Presheaf.IsSheaf J (A := A)) where
   prop_unit := tensorUnit_isSheaf _
   prop_tensor F G hF hG := tensorProd_isSheaf J ⟨F, hF⟩ ⟨G, hG⟩
 
-example : CartesianMonoidalCategory (Sheaf J A) :=
-  inferInstance
-
+example : CartesianMonoidalCategory (Sheaf J A) := inferInstance
 
 @[simp] lemma cartesianMonoidalCategoryFst_hom : (fst X Y).hom = fst X.obj Y.obj := rfl
 @[simp] lemma cartesianMonoidalCategorySnd_hom : (snd X Y).hom = snd X.obj Y.obj := rfl

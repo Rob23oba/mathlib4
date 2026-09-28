@@ -45,7 +45,6 @@ arcosh, arccosh, argcosh, acosh
 
 @[expose] public section
 
-
 noncomputable section
 
 open Function Set
@@ -57,16 +56,13 @@ namespace Real
 variable {x y : ℝ}
 
 /-- `arcosh` is defined using a logarithm, `arcosh x = log (x + √(x ^ 2 - 1))`. -/
-@[pp_nodot]
-def arcosh (x : ℝ) :=
-  log (x + √(x ^ 2 - 1))
+@[pp_nodot] def arcosh (x : ℝ) := log (x + √(x ^ 2 - 1))
 
 theorem exp_arcosh {x : ℝ} (hx : 1 ≤ x) : exp (arcosh x) = x + √(x ^ 2 - 1) := by
   apply exp_log
   positivity
 
-@[simp]
-theorem arcosh_zero : arcosh 1 = 0 := by simp [arcosh]
+@[simp] theorem arcosh_zero : arcosh 1 = 0 := by simp [arcosh]
 
 lemma add_sqrt_self_sq_sub_one_inv {x : ℝ} (hx : 1 ≤ x) :
     (x + √(x ^ 2 - 1))⁻¹ = x - √(x ^ 2 - 1) := by
@@ -91,8 +87,10 @@ theorem tanh_arcosh {x : ℝ} (hx : 1 ≤ x) : tanh (arcosh x) = √(x ^ 2 - 1) 
 
 /-- `arcosh` is the left inverse of `cosh` over $[0, ∞)$. -/
 theorem arcosh_cosh {x : ℝ} (hx : 0 ≤ x) : arcosh (cosh x) = x := by
-  rw [arcosh, ← exp_eq_exp, exp_log (by positivity), ← eq_sub_iff_add_eq', exp_sub_cosh,
-    ← sq_eq_sq₀ (sqrt_nonneg _) (sinh_nonneg_iff.mpr hx), ← sinh_sq, sq_sqrt (pow_two_nonneg _)]
+  rw [
+    arcosh, ← exp_eq_exp, exp_log (by positivity), ← eq_sub_iff_add_eq', exp_sub_cosh,
+    ← sq_eq_sq₀ (sqrt_nonneg _) (sinh_nonneg_iff.mpr hx), ← sinh_sq, sq_sqrt (pow_two_nonneg _)
+  ]
 
 theorem arcosh_nonneg {x : ℝ} (hx : 1 ≤ x) : 0 ≤ arcosh x := by
   apply log_nonneg
@@ -150,8 +148,8 @@ def coshOpenPartialHomeomorph : OpenPartialHomeomorph ℝ ℝ where
   continuousOn_toFun := by fun_prop
   continuousOn_invFun := continuousOn_arcosh.mono Ioi_subset_Ici_self
 
-theorem hasStrictDerivAt_arcosh {x : ℝ} (hx : x ∈ Ioi 1) :
-    HasStrictDerivAt arcosh (√(x ^ 2 - 1))⁻¹ x := by
+theorem hasStrictDerivAt_arcosh {x : ℝ} (hx : x ∈ Ioi 1)
+    : HasStrictDerivAt arcosh (√(x ^ 2 - 1))⁻¹ x := by
   rw [← sinh_arcosh (le_of_lt hx)]
   refine coshOpenPartialHomeomorph.hasStrictDerivAt_symm hx ?_ (hasStrictDerivAt_cosh _)
   rw [ne_eq, sinh_eq_zero]
@@ -186,8 +184,8 @@ lemma analyticWithinAt_arcosh {s : Set ℝ} {x : ℝ} (hx : x ∈ Ioi 1) :
   (contDiffAt_arcosh hx).contDiffWithinAt.analyticWithinAt
 
 /-- The function `Real.arcosh` is real analytic. -/
-theorem analyticOnNhd_arcosh {s : Set ℝ} (hs : s ⊆ Ioi 1) : AnalyticOnNhd ℝ arcosh s :=
-  fun _ hx ↦ analyticAt_arcosh (hs hx)
+theorem analyticOnNhd_arcosh {s : Set ℝ} (hs : s ⊆ Ioi 1) : AnalyticOnNhd ℝ arcosh s := fun _ hx ↦
+  analyticAt_arcosh (hs hx)
 
 /-- The function `Real.arcosh` is real analytic. -/
 lemma analyticOn_arcosh {s : Set ℝ} (hs : s ⊆ Ioi 1) : AnalyticOn ℝ arcosh s :=

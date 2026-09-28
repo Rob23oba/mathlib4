@@ -9,7 +9,6 @@ public import Mathlib.Analysis.Complex.Convex
 public import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import Mathlib.Analysis.Calculus.Deriv.Shift
 public import Mathlib.Analysis.SpecificLimits.RCLike
-
 import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
 
 /-!
@@ -64,8 +63,8 @@ lemma log_inv_eq_integral {z : ℂ} (hz : 1 - z ∈ slitPlane) :
 -/
 
 /-- The `n`th Taylor polynomial of `log` at `1`, as a function `ℂ → ℂ` -/
-noncomputable
-def logTaylor (n : ℕ) : ℂ → ℂ := fun z ↦ ∑ j ∈ Finset.range n, (-1) ^ (j + 1) * z ^ j / j
+noncomputable def logTaylor (n : ℕ) : ℂ → ℂ := fun z ↦
+  ∑ j ∈ Finset.range n, (-1) ^ (j + 1) * z ^ j / j
 
 lemma logTaylor_zero : logTaylor 0 = fun _ ↦ 0 := by
   funext
@@ -397,12 +396,11 @@ lemma tendsto_mul_log_one_add_of_tendsto {g : ℝ → ℝ} {t : ℝ}
   filter_upwards [hg0.eventually_const_le (show (-1 : ℝ) < 0 by simp)] with x hg1
   rw [Complex.ofReal_log (by linarith), Complex.ofReal_add, Complex.ofReal_one]
 
-theorem tendsto_mul_log_one_add_div_atTop (t : ℝ) :
-    Tendsto (fun x => x * log (1 + t / x)) atTop (𝓝 t) :=
-  tendsto_mul_log_one_add_of_tendsto <|
-    tendsto_const_nhds.congr' <|
-      (EventuallyEq.div_mul_cancel_atTop tendsto_id).symm.trans <|
-        .of_eq <| funext fun _ => mul_comm _ _
+theorem tendsto_mul_log_one_add_div_atTop (t : ℝ)
+    : Tendsto (fun x => x * log (1 + t / x)) atTop (𝓝 t) :=
+  tendsto_mul_log_one_add_of_tendsto <| tendsto_const_nhds.congr' <|
+    (EventuallyEq.div_mul_cancel_atTop tendsto_id).symm.trans <| .of_eq <|
+      funext fun _ => mul_comm _ _
 
 /-- The limit of `(1 + g x) ^ x` as `(x : ℝ) → ∞` is `exp t`,
 where `t : ℝ` is the limit of `x * g x`. -/

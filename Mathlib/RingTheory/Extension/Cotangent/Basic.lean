@@ -59,8 +59,10 @@ abbrev CotangentSpace : Type _ := S ⊗[P.Ring] Ω[P.Ring⁄R]
 
 /-- The cotangent complex given by a presentation `R[X] → S` (i.e. a closed embedding `S ↪ Aⁿ`). -/
 def cotangentComplex : P.Cotangent →ₗ[S] P.CotangentSpace :=
-  letI f : P.Cotangent ≃ₗ[P.Ring] P.ker.Cotangent :=
-    { __ := AddEquiv.refl _, map_smul' := Cotangent.val_smul' }
+  letI f : P.Cotangent ≃ₗ[P.Ring] P.ker.Cotangent := {
+    __ := AddEquiv.refl _
+    map_smul' := Cotangent.val_smul'
+  }
   (kerCotangentToTensor R P.Ring S ∘ₗ f).extendScalarsOfSurjective P.algebraMap_surjective
 
 @[simp]
@@ -78,14 +80,17 @@ section baseChange
 variable {A : Type*} [CommRing A] [Algebra S A] [Algebra P.Ring A] [IsScalarTower P.Ring S A]
 
 variable (R S) in
-/-- This is (isomorphic to) the base change of the cotangent complex to `A`, but
-the domain and codomains of this are more manageable. -/
+/--
+This is (isomorphic to) the base change of the cotangent complex to `A`, but
+the domain and codomains of this are more manageable.
+-/
 def _root_.KaehlerDifferential.cotangentComplexBaseChange
-    (P A : Type*) [CommRing P] [CommRing A] [Algebra P S] [Algebra P A]
-    [Algebra R P] [Algebra S A] [IsScalarTower P S A] :
-    A ⊗[P] RingHom.ker (algebraMap P S) →ₗ[A] A ⊗[P] Ω[P⁄R] :=
-  LinearMap.liftBaseChange _ (KaehlerDifferential.kerToTensor _ _ _ ∘ₗ Submodule.inclusion
-    (by rw [IsScalarTower.algebraMap_eq P S A]; intro; aesop))
+    (P A : Type*) [CommRing P] [CommRing A] [Algebra P S] [Algebra P A] [Algebra R P] [Algebra S A]
+    [IsScalarTower P S A]
+    : A ⊗[P] RingHom.ker (algebraMap P S) →ₗ[A] A ⊗[P] Ω[P⁄R] :=
+  LinearMap.liftBaseChange _
+    (KaehlerDifferential.kerToTensor _ _ _
+      ∘ₗ Submodule.inclusion (by rw [IsScalarTower.algebraMap_eq P S A]; intro; aesop))
 
 omit [Algebra R S] in
 lemma _root_.KaehlerDifferential.cotangentComplexBaseChange_tmul
@@ -132,10 +137,8 @@ universe w'' u'' v''
 
 variable {R'' : Type u''} {S'' : Type v''} [CommRing R''] [CommRing S''] [Algebra R'' S'']
 variable {P'' : Extension.{w''} R'' S''}
-variable [Algebra R R''] [Algebra S S''] [Algebra R S'']
-  [IsScalarTower R R'' S'']
-variable [Algebra R' R''] [Algebra S' S''] [Algebra R' S'']
-  [IsScalarTower R' R'' S'']
+variable [Algebra R R''] [Algebra S S''] [Algebra R S''] [IsScalarTower R R'' S'']
+variable [Algebra R' R''] [Algebra S' S''] [Algebra R' S''] [IsScalarTower R' R'' S'']
 variable [IsScalarTower R R' R''] [IsScalarTower S S' S'']
 
 namespace CotangentSpace
@@ -233,12 +236,13 @@ then the image of `f - g` is in the kernel of `P' → S`.
 -/
 @[simps! apply_coe]
 def Hom.subToKer (f g : Hom P P') : P.Ring →ₗ[R] P'.ker := by
-  refine ((f.toAlgHom.toLinearMap - g.toAlgHom.toLinearMap).codRestrict
-    (P'.ker.restrictScalars R) ?_)
+  refine ((f.toAlgHom.toLinearMap - g.toAlgHom.toLinearMap).codRestrict (P'.ker.restrictScalars R)
+    ?_)
   intro x
-  simp only [LinearMap.sub_apply, AlgHom.toLinearMap_apply, ker,
-    Submodule.restrictScalars_mem, RingHom.mem_ker, map_sub, algebraMap_toRingHom,
-    sub_self, toAlgHom_apply]
+  simp only [
+    LinearMap.sub_apply, AlgHom.toLinearMap_apply, ker, Submodule.restrictScalars_mem,
+    RingHom.mem_ker, map_sub, algebraMap_toRingHom, sub_self, toAlgHom_apply
+  ]
 
 variable [IsScalarTower R S S'] in
 /--
@@ -257,17 +261,19 @@ def Hom.sub (f g : Hom P P') : P.CotangentSpace →ₗ[S] P'.Cotangent := by
       show algebraMap R S' x = algebraMap S S' (algebraMap P.Ring S (algebraMap R P.Ring x)) by
         rw [← IsScalarTower.algebraMap_apply R P.Ring S, ← IsScalarTower.algebraMap_apply]
   refine (Derivation.liftKaehlerDifferential ?_).liftBaseChange S
-  refine
-  { __ := Cotangent.mk.restrictScalars R ∘ₗ f.subToKer g
+  refine {
+    __ := Cotangent.mk.restrictScalars R ∘ₗ f.subToKer g
     map_one_eq_zero' := ?_
-    leibniz' := ?_ }
+    leibniz' := ?_
+  }
   · ext
     simp [Ideal.toCotangent_eq_zero]
   · intro x y
     ext
-    simp only [LinearMap.coe_comp, LinearMap.coe_restrictScalars, Function.comp_apply,
-      Cotangent.val_mk, Cotangent.val_add, Cotangent.val_smul''', ← map_smul, ← map_add,
-      Ideal.toCotangent_eq]
+    simp only [
+      LinearMap.coe_comp, LinearMap.coe_restrictScalars, Function.comp_apply, Cotangent.val_mk,
+      Cotangent.val_add, Cotangent.val_smul''', ← map_smul, ← map_add, Ideal.toCotangent_eq
+    ]
     exact Hom.sub_aux f g x y
 
 variable [IsScalarTower R S S']
@@ -333,8 +339,8 @@ defined as the kernel of `I/I² → S ⊗[P] Ω[P⁄R]`.
 protected def H1Cotangent : Type _ := LinearMap.ker P.cotangentComplex
 
 -- The `SMul` instance exists to avoid a zsmul diamond.
-variable {R₀} [CommRing R₀] [Algebra R₀ S] [Module R₀ P.Cotangent]
-  [IsScalarTower R₀ S P.Cotangent] in
+variable
+  {R₀} [CommRing R₀] [Algebra R₀ S] [Module R₀ P.Cotangent] [IsScalarTower R₀ S P.Cotangent] in
 deriving instance SMul R₀, AddCommGroup, Module R₀ for (P).H1Cotangent
 
 @[simp] lemma H1Cotangent.val_add (x y : P.H1Cotangent) : (x + y).1 = x.1 + y.1 := rfl
@@ -342,12 +348,11 @@ deriving instance SMul R₀, AddCommGroup, Module R₀ for (P).H1Cotangent
 @[simp] lemma H1Cotangent.val_smul {R₀} [CommRing R₀] [Algebra R₀ S] [Module R₀ P.Cotangent]
     [IsScalarTower R₀ S P.Cotangent] (r : R₀) (x : P.H1Cotangent) : (r • x).1 = r • x.1 := rfl
 
-instance {R₁ R₂} [CommRing R₁] [CommRing R₂] [Algebra R₁ R₂]
-    [Algebra R₁ S] [Algebra R₂ S]
-    [Module R₁ P.Cotangent] [IsScalarTower R₁ S P.Cotangent]
-    [Module R₂ P.Cotangent] [IsScalarTower R₂ S P.Cotangent]
-    [IsScalarTower R₁ R₂ P.Cotangent] :
-    IsScalarTower R₁ R₂ P.H1Cotangent :=
+instance
+    {R₁ R₂} [CommRing R₁] [CommRing R₂] [Algebra R₁ R₂] [Algebra R₁ S] [Algebra R₂ S]
+    [Module R₁ P.Cotangent] [IsScalarTower R₁ S P.Cotangent] [Module R₂ P.Cotangent]
+    [IsScalarTower R₂ S P.Cotangent] [IsScalarTower R₁ R₂ P.Cotangent]
+    : IsScalarTower R₁ R₂ P.H1Cotangent :=
   inferInstanceAs <| IsScalarTower R₁ R₂ (LinearMap.ker _)
 
 lemma subsingleton_h1Cotangent (P : Extension R S) :
@@ -368,9 +373,7 @@ lemma exact_hCotangentι_cotangentComplex : Function.Exact h1Cotangentι P.cotan
   rw [LinearMap.exact_iff]
   exact (Submodule.range_subtype _).symm
 
-/--
-The induced map on the first homology of the (naive) cotangent complex.
--/
+/-- The induced map on the first homology of the (naive) cotangent complex. -/
 @[simps!]
 def H1Cotangent.map (f : Hom P P') : P.H1Cotangent →ₗ[S] P'.H1Cotangent := by
   refine (Cotangent.map f).restrict (p := LinearMap.ker P.cotangentComplex)
@@ -405,21 +408,29 @@ lemma H1Cotangent.map_comp_apply (f : Hom P P') (g : Hom P' P'') (x : P.H1Cotang
     map (g.comp f) x = map g (map f x) :=
   congr($(H1Cotangent.map_comp f g) x)
 
-/-- Maps `P₁ → P₂` and `P₂ → P₁` between extensions
-induce an isomorphism between `H¹(L_P₁)` and `H¹(L_P₂)`. -/
+/--
+Maps `P₁ → P₂` and `P₂ → P₁` between extensions
+induce an isomorphism between `H¹(L_P₁)` and `H¹(L_P₂)`.
+-/
 @[simps! apply]
-def H1Cotangent.equiv {P₁ P₂ : Extension R S} (f₁ : P₁.Hom P₂) (f₂ : P₂.Hom P₁) :
-    P₁.H1Cotangent ≃ₗ[S] P₂.H1Cotangent where
+def H1Cotangent.equiv {P₁ P₂ : Extension R S} (f₁ : P₁.Hom P₂) (f₂ : P₂.Hom P₁)
+    : P₁.H1Cotangent ≃ₗ[S] P₂.H1Cotangent where
   __ := map f₁
   invFun := map f₂
   left_inv x :=
     show (map f₂ ∘ₗ map f₁) x = LinearMap.id (R := S) x by
-    rw [← Extension.H1Cotangent.map_id, eq_comm, map_eq _ (f₂.comp f₁),
-      Extension.H1Cotangent.map_comp]; rfl
+      rw [
+        ← Extension.H1Cotangent.map_id, eq_comm, map_eq _ (f₂.comp f₁),
+        Extension.H1Cotangent.map_comp
+      ]
+      rfl
   right_inv x :=
     show (map f₁ ∘ₗ map f₂) x = LinearMap.id (R := S) x by
-    rw [← Extension.H1Cotangent.map_id, eq_comm, map_eq _ (f₁.comp f₂),
-      Extension.H1Cotangent.map_comp]; rfl
+      rw [
+        ← Extension.H1Cotangent.map_id, eq_comm, map_eq _ (f₁.comp f₂),
+        Extension.H1Cotangent.map_comp
+      ]
+      rfl
 
 omit [IsScalarTower R S S'] in
 lemma Cotangent.map_comp_h1Cotangentι (f : P.Hom P') :
@@ -458,12 +469,14 @@ lemma cotangentSpaceBasis_apply (i) :
 instance (P : Generators R S ι) : Module.Free S P.toExtension.CotangentSpace :=
   .of_basis P.cotangentSpaceBasis
 
-/-- Given generators `R[xᵢ] → S` and an injective map `σ → ι`, this is the
-composition `I/I² → ⊕ S dxᵢ → ⊕ S dxᵢ` where the second `i` only runs over `σ`. -/
-def cotangentRestrict {σ : Type*} {u : σ → ι} (hu : Function.Injective u) :
-    P.toExtension.Cotangent →ₗ[S] (σ →₀ S) :=
-  Finsupp.lcomapDomain u hu ∘ₗ P.cotangentSpaceBasis.repr.toLinearMap ∘ₗ
-    P.toExtension.cotangentComplex
+/--
+Given generators `R[xᵢ] → S` and an injective map `σ → ι`, this is the
+composition `I/I² → ⊕ S dxᵢ → ⊕ S dxᵢ` where the second `i` only runs over `σ`.
+-/
+def cotangentRestrict {σ : Type*} {u : σ → ι} (hu : Function.Injective u)
+    : P.toExtension.Cotangent →ₗ[S] (σ →₀ S) :=
+  Finsupp.lcomapDomain u hu ∘ₗ P.cotangentSpaceBasis.repr.toLinearMap
+    ∘ₗ P.toExtension.cotangentComplex
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -531,10 +544,10 @@ variable {ι : Type w} {ι' : Type*} {P : Generators R S ι}
 open Extension.H1Cotangent in
 /-- `H¹(L_{S/R})` is independent of the presentation chosen. -/
 @[simps! apply]
-def Generators.H1Cotangent.equiv (P : Generators R S ι) (P' : Generators R S ι') :
-    P.toExtension.H1Cotangent ≃ₗ[S] P'.toExtension.H1Cotangent :=
-  Extension.H1Cotangent.equiv
-    (Generators.defaultHom P P').toExtensionHom (Generators.defaultHom P' P).toExtensionHom
+def Generators.H1Cotangent.equiv (P : Generators R S ι) (P' : Generators R S ι')
+    : P.toExtension.H1Cotangent ≃ₗ[S] P'.toExtension.H1Cotangent :=
+  Extension.H1Cotangent.equiv (Generators.defaultHom P P').toExtensionHom
+    (Generators.defaultHom P' P).toExtensionHom
 
 variable {S' : Type*} [CommRing S'] [Algebra R S']
 variable {T : Type w} [CommRing T] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
@@ -550,8 +563,7 @@ def H1Cotangent.map : H1Cotangent R S' →ₗ[S'] H1Cotangent S T :=
   Extension.H1Cotangent.map (Generators.defaultHom _ _).toExtensionHom
 
 /-- Isomorphic algebras induce isomorphic `H¹(L_{S/R})`. -/
-def H1Cotangent.mapEquiv (e : S ≃ₐ[R] S') :
-    H1Cotangent R S ≃ₗ[R] H1Cotangent R S' :=
+def H1Cotangent.mapEquiv (e : S ≃ₐ[R] S') : H1Cotangent R S ≃ₗ[R] H1Cotangent R S' :=
   -- we are constructing data, so we do not use `algebraize`
   letI := e.toRingHom.toAlgebra
   letI := e.symm.toRingHom.toAlgebra
@@ -559,31 +571,37 @@ def H1Cotangent.mapEquiv (e : S ≃ₐ[R] S') :
   have : IsScalarTower R S' S := .of_algebraMap_eq' e.symm.toAlgHom.comp_algebraMap.symm
   have : IsScalarTower S S' S := .of_algebraMap_eq fun _ ↦ (e.symm_apply_apply _).symm
   have : IsScalarTower S' S S' := .of_algebraMap_eq fun _ ↦ (e.apply_symm_apply _).symm
-  { toFun := map R R S S'
+  {
+    toFun := map R R S S'
     invFun := map R R S' S
     left_inv x := by
       change ((map R R S' S).restrictScalars S ∘ₗ map R R S S') x = x
-      rw [map, map, ← Extension.H1Cotangent.map_comp, Extension.H1Cotangent.map_eq,
-        Extension.H1Cotangent.map_id, LinearMap.id_apply]
+      rw [
+        map, map, ← Extension.H1Cotangent.map_comp, Extension.H1Cotangent.map_eq,
+        Extension.H1Cotangent.map_id, LinearMap.id_apply
+      ]
     right_inv x := by
       change ((map R R S S').restrictScalars S' ∘ₗ map R R S' S) x = x
-      rw [map, map, ← Extension.H1Cotangent.map_comp, Extension.H1Cotangent.map_eq,
-        Extension.H1Cotangent.map_id, LinearMap.id_apply]
+      rw [
+        map, map, ← Extension.H1Cotangent.map_comp, Extension.H1Cotangent.map_eq,
+        Extension.H1Cotangent.map_id, LinearMap.id_apply
+      ]
     map_add' := map_add (map R R S S')
-    map_smul' := LinearMap.CompatibleSMul.map_smul (map R R S S') }
+    map_smul' := LinearMap.CompatibleSMul.map_smul (map R R S S')
+  }
 
 variable {R S S' T}
 
 /-- `H¹(L_{S/R})` is independent of the presentation chosen. -/
-abbrev Generators.equivH1Cotangent (P : Generators R S ι) :
-    P.toExtension.H1Cotangent ≃ₗ[S] H1Cotangent R S :=
+abbrev Generators.equivH1Cotangent (P : Generators R S ι)
+    : P.toExtension.H1Cotangent ≃ₗ[S] H1Cotangent R S :=
   Generators.H1Cotangent.equiv _ _
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 attribute [local instance] Module.finitePresentation_of_projective in
-instance [FinitePresentation R S] [Module.Projective S Ω[S⁄R]] :
-    Module.Finite S (H1Cotangent R S) := by
+instance [FinitePresentation R S] [Module.Projective S Ω[S⁄R]]
+    : Module.Finite S (H1Cotangent R S) := by
   let P := Algebra.Presentation.ofFinitePresentation R S
   have : Algebra.FiniteType R P.toExtension.Ring := by
     simp only [Generators.toExtension_Ring]; infer_instance
@@ -593,10 +611,9 @@ instance [FinitePresentation R S] [Module.Projective S Ω[S⁄R]] :
   have := Extension.Cotangent.finite P.fg_ker
   have : Module.FinitePresentation S (LinearMap.range P.toExtension.cotangentComplex) := by
     rw [← LinearMap.exact_iff.mp P.toExtension.exact_cotangentComplex_toKaehler]
-    exact Module.finitePresentation_of_projective_of_exact
-      _ _ (Subtype.val_injective) P.toExtension.toKaehler_surjective
-      (LinearMap.exact_subtype_ker_map _)
-  exact Module.FinitePresentation.fg_ker (N := LinearMap.range P.toExtension.cotangentComplex)
-    _ P.toExtension.cotangentComplex.surjective_rangeRestrict
+    exact Module.finitePresentation_of_projective_of_exact _ _ (Subtype.val_injective)
+      P.toExtension.toKaehler_surjective (LinearMap.exact_subtype_ker_map _)
+  exact Module.FinitePresentation.fg_ker (N := LinearMap.range P.toExtension.cotangentComplex) _
+    P.toExtension.cotangentComplex.surjective_rangeRestrict
 
 end Algebra

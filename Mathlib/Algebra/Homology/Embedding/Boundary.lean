@@ -42,11 +42,12 @@ namespace Embedding
 
 variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'} (e : Embedding c c')
 
-/-- The lower boundary of an embedding `e : Embedding c c'`, as a predicate on `ι`.
+/--
+The lower boundary of an embedding `e : Embedding c c'`, as a predicate on `ι`.
 It is satisfied by `j : ι` when there exists `i' : ι'` not in the image of `e.f`
-such that `c'.Rel i' (e.f j)`. -/
-def BoundaryGE (j : ι) : Prop :=
-  c'.Rel (c'.prev (e.f j)) (e.f j) ∧ ∀ i, ¬c'.Rel (e.f i) (e.f j)
+such that `c'.Rel i' (e.f j)`.
+-/
+def BoundaryGE (j : ι) : Prop := c'.Rel (c'.prev (e.f j)) (e.f j) ∧ ∀ i, ¬ c'.Rel (e.f i) (e.f j)
 
 lemma boundaryGE {i' : ι'} {j : ι} (hj : c'.Rel i' (e.f j)) (hi' : ∀ i, e.f i ≠ i') :
     e.BoundaryGE j := by
@@ -95,11 +96,12 @@ lemma BoundaryGE.false_of_isTruncLE {j : ι} (hj : e.BoundaryGE j) [e.IsTruncLE]
   obtain ⟨i, hi⟩ := e.mem_prev hj.1
   exact hj.2 i (by simpa only [hi] using hj.1)
 
-/-- The upper boundary of an embedding `e : Embedding c c'`, as a predicate on `ι`.
+/--
+The upper boundary of an embedding `e : Embedding c c'`, as a predicate on `ι`.
 It is satisfied by `j : ι` when there exists `k' : ι'` not in the image of `e.f`
-such that `c'.Rel (e.f j) k'`. -/
-def BoundaryLE (j : ι) : Prop :=
-  c'.Rel (e.f j) (c'.next (e.f j)) ∧ ∀ k, ¬c'.Rel (e.f j) (e.f k)
+such that `c'.Rel (e.f j) k'`.
+-/
+def BoundaryLE (j : ι) : Prop := c'.Rel (e.f j) (c'.next (e.f j)) ∧ ∀ k, ¬ c'.Rel (e.f j) (e.f k)
 
 lemma boundaryLE {k' : ι'} {j : ι} (hj : c'.Rel (e.f j) k') (hk' : ∀ i, e.f i ≠ k') :
     e.BoundaryLE j := by

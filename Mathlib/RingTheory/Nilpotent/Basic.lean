@@ -65,7 +65,7 @@ lemma IsNilpotent.smul [MonoidWithZero R] [MonoidWithZero S] [MulActionWithZero 
 
 theorem IsNilpotent.isUnit_sub_one [Ring R] {r : R} (hnil : IsNilpotent r) : IsUnit (r - 1) := by
   obtain ⟨n, hn⟩ := hnil
-  refine ⟨⟨r - 1, -∑ i ∈ Finset.range n, r ^ i, ?_, ?_⟩, rfl⟩
+  refine ⟨⟨r - 1, - ∑ i ∈ Finset.range n, r ^ i, ?_, ?_⟩, rfl⟩
   · simp [mul_geom_sum, hn]
   · simp [geom_sum_mul, hn]
 
@@ -80,17 +80,17 @@ theorem IsNilpotent.isUnit_add_one [Ring R] {r : R} (hnil : IsNilpotent r) : IsU
 theorem IsNilpotent.isUnit_one_add [Ring R] {r : R} (hnil : IsNilpotent r) : IsUnit (1 + r) :=
   add_comm r 1 ▸ isUnit_add_one hnil
 
-theorem IsNilpotent.isUnit_add_left_of_commute [Ring R] {r u : R}
-    (hnil : IsNilpotent r) (hu : IsUnit u) (h_comm : Commute r u) :
-    IsUnit (u + r) := by
+theorem IsNilpotent.isUnit_add_left_of_commute
+    [Ring R] {r u : R} (hnil : IsNilpotent r) (hu : IsUnit u) (h_comm : Commute r u)
+    : IsUnit (u + r) := by
   rw [← Units.isUnit_mul_units _ hu.unit⁻¹, add_mul, IsUnit.mul_val_inv]
   replace h_comm : Commute r (↑hu.unit⁻¹) := Commute.units_inv_right h_comm
   refine IsNilpotent.isUnit_one_add ?_
   exact (hu.unit⁻¹.isUnit.isNilpotent_mul_unit_of_commute_iff h_comm).mpr hnil
 
-theorem IsNilpotent.isUnit_add_right_of_commute [Ring R] {r u : R}
-    (hnil : IsNilpotent r) (hu : IsUnit u) (h_comm : Commute r u) :
-    IsUnit (r + u) :=
+theorem IsNilpotent.isUnit_add_right_of_commute
+    [Ring R] {r u : R} (hnil : IsNilpotent r) (hu : IsUnit u) (h_comm : Commute r u)
+    : IsUnit (r + u) :=
   add_comm r u ▸ hnil.isUnit_add_left_of_commute hu h_comm
 
 lemma IsUnit.not_isNilpotent [Ring R] [Nontrivial R] {x : R} (hx : IsUnit x) :
@@ -111,11 +111,12 @@ lemma IsIdempotentElem.eq_zero_of_isNilpotent [MonoidWithZero R] {e : R}
 alias IsNilpotent.eq_zero_of_isIdempotentElem := IsIdempotentElem.eq_zero_of_isNilpotent
 
 instance [Zero R] [Pow R ℕ] [Zero S] [Pow S ℕ] [IsReduced R] [IsReduced S] : IsReduced (R × S) where
-  eq_zero _ := fun ⟨n, hn⟩ ↦ have hn := Prod.ext_iff.1 hn
+  eq_zero _ := fun ⟨n, hn⟩ ↦
+    have hn := Prod.ext_iff.1 hn
     Prod.ext (IsReduced.eq_zero _ ⟨n, hn.1⟩) (IsReduced.eq_zero _ ⟨n, hn.2⟩)
 
-theorem Prime.isRadical [CommMonoidWithZero R] {y : R} (hy : Prime y) : IsRadical y :=
-  fun _ _ ↦ hy.dvd_of_dvd_pow
+theorem Prime.isRadical [CommMonoidWithZero R] {y : R} (hy : Prime y) : IsRadical y := fun _ _ ↦
+  hy.dvd_of_dvd_pow
 
 theorem zero_isRadical_iff [MonoidWithZero R] : IsRadical (0 : R) ↔ IsReduced R := by
   simp_rw [isReduced_iff, IsNilpotent, exists_imp, ← zero_dvd_iff]
@@ -124,17 +125,20 @@ theorem zero_isRadical_iff [MonoidWithZero R] : IsRadical (0 : R) ↔ IsReduced 
 lemma isRadical_zero [MonoidWithZero R] [IsReduced R] : _root_.IsRadical (0 : R) := by
   simpa [zero_isRadical_iff]
 
-theorem isReduced_iff_pow_one_lt [MonoidWithZero R] (k : ℕ) (hk : 1 < k) :
-    IsReduced R ↔ ∀ x : R, x ^ k = 0 → x = 0 := by
+theorem isReduced_iff_pow_one_lt [MonoidWithZero R] (k : ℕ) (hk : 1 < k)
+    : IsReduced R ↔ ∀ x : R, x ^ k = 0 → x = 0 := by
   simp_rw [← zero_isRadical_iff, isRadical_iff_pow_one_lt k hk, zero_dvd_iff]
 
-theorem IsRadical.of_dvd [CommMonoidWithZero R] [IsCancelMulZero R] {x y : R} (hy : IsRadical y)
-    (h0 : y ≠ 0) (hxy : x ∣ y) : IsRadical x := (isRadical_iff_pow_one_lt 2 one_lt_two).2 <| by
-  obtain ⟨z, rfl⟩ := hxy
-  refine fun w dvd ↦ ((mul_dvd_mul_iff_right <| right_ne_zero_of_mul h0).mp <| hy 2 _ ?_)
-  rw [mul_pow]
-  gcongr
-  exact dvd_pow_self _ two_ne_zero
+theorem IsRadical.of_dvd
+    [CommMonoidWithZero R] [IsCancelMulZero R]
+    {x y : R} (hy : IsRadical y) (h0 : y ≠ 0) (hxy : x ∣ y)
+    : IsRadical x :=
+  (isRadical_iff_pow_one_lt 2 one_lt_two).2 <| by
+    obtain ⟨z, rfl⟩ := hxy
+    refine fun w dvd ↦ ((mul_dvd_mul_iff_right <| right_ne_zero_of_mul h0).mp <| hy 2 _ ?_)
+    rw [mul_pow]
+    gcongr
+    exact dvd_pow_self _ two_ne_zero
 
 namespace Commute
 
@@ -142,9 +146,9 @@ section Semiring
 
 variable [Semiring R]
 
-theorem add_pow_eq_zero_of_add_le_succ_of_pow_eq_zero (h_comm : Commute x y) {m n k : ℕ}
-    (hx : x ^ m = 0) (hy : y ^ n = 0) (h : m + n ≤ k + 1) :
-    (x + y) ^ k = 0 := by
+theorem add_pow_eq_zero_of_add_le_succ_of_pow_eq_zero
+    (h_comm : Commute x y) {m n k : ℕ} (hx : x ^ m = 0) (hy : y ^ n = 0) (h : m + n ≤ k + 1)
+    : (x + y) ^ k = 0 := by
   rw [h_comm.add_pow']
   apply Finset.sum_eq_zero
   rintro ⟨i, j⟩ hij
@@ -154,13 +158,13 @@ theorem add_pow_eq_zero_of_add_le_succ_of_pow_eq_zero (h_comm : Commute x y) {m 
   rw [pow_eq_zero_of_le ?_ hy, mul_zero]
   linarith [Finset.mem_antidiagonal.mp hij]
 
-theorem add_pow_add_eq_zero_of_pow_eq_zero (h_comm : Commute x y) {m n : ℕ}
-    (hx : x ^ m = 0) (hy : y ^ n = 0) :
-    (x + y) ^ (m + n - 1) = 0 :=
+theorem add_pow_add_eq_zero_of_pow_eq_zero
+    (h_comm : Commute x y) {m n : ℕ} (hx : x ^ m = 0) (hy : y ^ n = 0)
+    : (x + y) ^ (m + n - 1) = 0 :=
   h_comm.add_pow_eq_zero_of_add_le_succ_of_pow_eq_zero hx hy <| by rw [← Nat.sub_le_iff_le_add]
 
-theorem isNilpotent_add (h_comm : Commute x y) (hx : IsNilpotent x) (hy : IsNilpotent y) :
-    IsNilpotent (x + y) := by
+theorem isNilpotent_add (h_comm : Commute x y) (hx : IsNilpotent x) (hy : IsNilpotent y)
+    : IsNilpotent (x + y) := by
   obtain ⟨n, hn⟩ := hx
   obtain ⟨m, hm⟩ := hy
   exact ⟨_, add_pow_add_eq_zero_of_pow_eq_zero h_comm hn hm⟩
@@ -179,9 +183,9 @@ protected lemma isNilpotent_sum {ι : Type*} {s : Finset ι} {f : ι → R}
   · exact ih (fun i hi ↦ hnp i (by simp [hi]))
       (fun i j hi hj ↦ h_comm i j (by simp [hi]) (by simp [hj]))
 
-theorem isNilpotent_finsum {ι : Type*} {f : ι → R}
-    (hf : ∀ b, IsNilpotent (f b)) (h_comm : ∀ i j, Commute (f i) (f j)) :
-    IsNilpotent (finsum f) := by
+theorem isNilpotent_finsum
+    {ι : Type*} {f : ι → R} (hf : ∀ b, IsNilpotent (f b)) (h_comm : ∀ i j, Commute (f i) (f j))
+    : IsNilpotent (finsum f) := by
   classical
   by_cases h : HasFiniteSupport f
   · rw [finsum_def, dite_eq_left h]
@@ -208,8 +212,8 @@ section Ring
 
 variable [Ring R]
 
-theorem isNilpotent_sub (h_comm : Commute x y) (hx : IsNilpotent x) (hy : IsNilpotent y) :
-    IsNilpotent (x - y) := by
+theorem isNilpotent_sub (h_comm : Commute x y) (hx : IsNilpotent x) (hy : IsNilpotent y)
+    : IsNilpotent (x - y) := by
   rw [← neg_right_iff] at h_comm
   rw [← isNilpotent_neg_iff] at hy
   rw [sub_eq_add_neg]
@@ -228,9 +232,8 @@ lemma isNilpotent_sum {ι : Type*} {s : Finset ι} {f : ι → R}
     IsNilpotent (∑ i ∈ s, f i) :=
   Commute.isNilpotent_sum hnp fun _ _ _ _ ↦ Commute.all _ _
 
-theorem isNilpotent_finsum {ι : Type*} {f : ι → R}
-    (hf : ∀ b, IsNilpotent (f b)) :
-    IsNilpotent (finsum f) :=
+theorem isNilpotent_finsum {ι : Type*} {f : ι → R} (hf : ∀ b, IsNilpotent (f b))
+    : IsNilpotent (finsum f) :=
   Commute.isNilpotent_finsum hf fun _ _ ↦ Commute.all _ _
 
 end CommSemiring

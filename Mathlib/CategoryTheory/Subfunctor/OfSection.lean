@@ -31,8 +31,10 @@ section
 
 variable {F : Cᵒᵖ ⥤ Type w} {X : Cᵒᵖ} (x : F.obj X)
 
-/-- The subpresheaf of `F : Cᵒᵖ ⥤ Type w` that is generated
-by a section `x : F.obj X`. -/
+/--
+The subpresheaf of `F : Cᵒᵖ ⥤ Type w` that is generated
+by a section `x : F.obj X`.
+-/
 @[simps -isSimp]
 def ofSection : Subfunctor F where
   obj U := Set.ofPred (fun u ↦ ∃ (f : X ⟶ U), F.map f x = u)

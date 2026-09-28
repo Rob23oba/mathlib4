@@ -63,8 +63,9 @@ structure FormalGroup where
   /-- The coefficient of $Y$ in $F(X, Y)$ is 1. -/
   lin_coeff_Y : toPowerSeries.coeff (single 1 1) = 1
   /-- Associativity condition: $F(F(X, Y), Z) = F(X, F(Y, Z))$. -/
-  assoc : toPowerSeries.subst ![toPowerSeries.subst ![Y₀, Y₁], Y₂]
-    = toPowerSeries.subst ![Y₀, toPowerSeries.subst ![Y₁, Y₂]] (S := R)
+  assoc
+    : toPowerSeries.subst ![toPowerSeries.subst ![Y₀, Y₁], Y₂]
+      = toPowerSeries.subst (![Y₀, toPowerSeries.subst ![Y₁, Y₂]]) (S := R)
 
 /-- The natural inclusion from formal group law into formal power series. -/
 instance FormalGroup.coeToPowerSeries : Coe (FormalGroup R) (MvPowerSeries (Fin 2) R) :=
@@ -115,20 +116,24 @@ namespace FormalGroup
 variable {σ : Type*} (F : FormalGroup R)
 
 set_option linter.unusedVariables false in
-/-- `F.Point σ` represents the mathematical space of points of a formal group $F$
+/--
+`F.Point σ` represents the mathematical space of points of a formal group $F$
 taking values in the formal power series ring `MvPowerSeries σ R` with the property
 that constant coefficient is nilpotent.
 
 TODO: Mathematically, a 1-dimensional formal group law $F$ over a ring $R$ defines a group
 structure on the elements of a complete local $R$-algebra (specifically, its maximal ideal)
-via the substitution operation $x +_F y = F(x, y)$. -/
+via the substitution operation $x +_F y = F(x, y)$.
+-/
 @[nolint unusedArguments]
 def Point (F : FormalGroup R) (σ : Type*) := {f : MvPowerSeries σ R // PowerSeries.HasSubst f}
 
 instance : Add (F.Point σ) where
-  add x y := ⟨F.toPowerSeries.subst ![x.val, y.val],
+  add x y := ⟨
+    F.toPowerSeries.subst ![x.val, y.val],
     IsNilpotent_subst (by simp [hasSubst_of_constantCoeff_nilpotent, x.prop, y.prop])
-      (F.zero_constantCoeff ▸ IsNilpotent.zero)⟩
+      (F.zero_constantCoeff ▸ IsNilpotent.zero)
+  ⟩
 
 @[simp]
 lemma add_apply {x y : F.Point σ} : (x + y).val = F.toPowerSeries.subst ![x.val, y.val] := by
@@ -170,16 +175,20 @@ def 𝔾ₘ : FormalGroup R where
     obtain aux₂ := HasSubst.cons_subst_zero_right (f := X₀ + X₁ + X₀ * X₁) (0 : Fin 3) 1 2 (by simp)
     simp_rw [subst_add aux₁, subst_mul aux₁, subst_X aux₁, subst_add aux₂, subst_mul aux₂,
       subst_X aux₂]
-    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, subst_add .X_X, Fin.isValue, subst_X .X_X,
-      Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_fin_one, subst_mul .X_X]
+    simp only [
+      Nat.succ_eq_add_one, Nat.reduceAdd, subst_add .X_X, Fin.isValue, subst_X .X_X,
+      Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_fin_one, subst_mul .X_X
+    ]
     ring
 
 instance : (𝔾ₘ (R := R)).IsComm where
   comm := by simp [subst_add .X_X, subst_mul .X_X, subst_X .X_X, add_comm, mul_comm]
 
-/-- Given an algebra map `f : R →+* S` and a formal group law `F` over `R`, then `f_* F` is a
+/--
+Given an algebra map `f : R →+* S` and a formal group law `F` over `R`, then `f_* F` is a
 formal group law formal group law over `S`. This is constructed by applying `f` to all coefficients
-of the underlying power series. -/
+of the underlying power series.
+-/
 @[simps]
 def map (f : R →+* S) : FormalGroup S where
   toPowerSeries := (F : MvPowerSeries (Fin 2) R).map f
@@ -187,8 +196,9 @@ def map (f : R →+* S) : FormalGroup S where
   lin_coeff_X := by simp [F.lin_coeff_X]
   lin_coeff_Y := by simp [F.lin_coeff_Y]
   assoc := by
-    have (g₁ g₂ : MvPowerSeries (Fin 3) R) : ![g₁.map f, g₂.map f] =
-      fun i => (![g₁, g₂] i).map f := by ext1 i; fin_cases i <;> simp
+    have (g₁ g₂ : MvPowerSeries (Fin 3) R)
+        : ![g₁.map f, g₂.map f] = fun i => (![g₁, g₂] i).map f := by
+      ext1 i; fin_cases i <;> simp
     simp_rw [(map_X f _).symm, this, ← map_subst .X_X, this, ← map_subst
       (HasSubst.cons_subst_zero_left (0 : Fin 3) 1 2 F.zero_constantCoeff), F.assoc,
       ← map_subst (HasSubst.cons_subst_zero_right (0 : Fin 3) 1 2 F.zero_constantCoeff)]
@@ -202,7 +212,7 @@ namespace FormalGroup
 variable (F : FormalGroup R)
 
 /-- An abbreviation of $F(X,0)$ for a formal group $F$. -/
-abbrev Xzero : PowerSeries R := subst ![PowerSeries.X, 0] F.toPowerSeries
+abbrev Xzero : PowerSeries R := subst (![PowerSeries.X, 0]) F.toPowerSeries
 
 lemma constantCoeff_Xzero : F.Xzero.constantCoeff = 0 := by
   simp [PowerSeries.constantCoeff, Xzero, PowerSeries.X, MvPowerSeries.constantCoeff_subst_eq_zero
@@ -254,7 +264,7 @@ lemma Xzero_eq_X : F.Xzero = PowerSeries.X := by
       rw [Xzero_subst_Xzero, F.Xzero.subst_substInv_left F.constantCoeff_Xzero]
 
 /-- An abbreviation of $F(0,X)$ for a formal group $F$. -/
-abbrev zeroX : PowerSeries R := subst ![0, PowerSeries.X] F.toPowerSeries
+abbrev zeroX : PowerSeries R := subst (![0, PowerSeries.X]) F.toPowerSeries
 
 lemma constantCoeff_zeroX : F.zeroX.constantCoeff = 0 := by
   simp [PowerSeries.constantCoeff, zeroX, PowerSeries.X, MvPowerSeries.constantCoeff_subst_eq_zero
@@ -304,8 +314,8 @@ lemma zeroX_eq_X : F.zeroX = PowerSeries.X := by
     _ = _ := by
       rw [zeroX_subst_zeroX, F.zeroX.subst_substInv_left F.constantCoeff_zeroX]
 
-theorem add_zero {f : MvPowerSeries σ R} (hf : PowerSeries.HasSubst f) :
-    F.toPowerSeries.subst ![f, 0] = f := by
+theorem add_zero {f : MvPowerSeries σ R} (hf : PowerSeries.HasSubst f)
+    : F.toPowerSeries.subst ![f, 0] = f := by
   calc
     _ = PowerSeries.subst f (F.toPowerSeries.subst ![PowerSeries.X (R := R), 0]) := by
       rw [PowerSeries.subst, subst_comp_subst_apply _ hf.const]
@@ -314,11 +324,10 @@ theorem add_zero {f : MvPowerSeries σ R} (hf : PowerSeries.HasSubst f) :
         · simp [PowerSeries.X, subst]
         · simp [subst, eval₂]
       exact HasSubst.X_zero
-    _ = _ := by
-      simp [Xzero_eq_X, PowerSeries.subst_X hf]
+    _ = _ := by simp [Xzero_eq_X, PowerSeries.subst_X hf]
 
-theorem zero_add {f : MvPowerSeries σ R} (hf : PowerSeries.HasSubst f) :
-    F.toPowerSeries.subst ![0, f] = f := by
+theorem zero_add {f : MvPowerSeries σ R} (hf : PowerSeries.HasSubst f)
+    : F.toPowerSeries.subst ![0, f] = f := by
   calc
     _ = PowerSeries.subst f (F.toPowerSeries.subst ![0, PowerSeries.X (R := R)]) := by
       rw [PowerSeries.subst, subst_comp_subst_apply _ hf.const]
@@ -327,8 +336,7 @@ theorem zero_add {f : MvPowerSeries σ R} (hf : PowerSeries.HasSubst f) :
         · simp [subst, eval₂]
         · simp [PowerSeries.X, subst]
       · exact HasSubst.zero_X
-    _ = _ := by
-      simp [zeroX_eq_X, PowerSeries.subst_X hf]
+    _ = _ := by simp [zeroX_eq_X, PowerSeries.subst_X hf]
 
 instance : AddMonoid (F.Point σ) where
   zero_add x := Subtype.ext (zero_add F x.prop)

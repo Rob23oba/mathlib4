@@ -26,7 +26,6 @@ A morphism of schemes is separated if its diagonal morphism is a closed immersio
 
 public section
 
-
 noncomputable section
 
 open CategoryTheory CategoryTheory.Limits Opposite TopologicalSpace
@@ -49,8 +48,8 @@ namespace IsSeparated
 
 attribute [instance] isClosedImmersion_diagonal
 
-theorem isSeparated_eq_diagonal_isClosedImmersion :
-    @IsSeparated = MorphismProperty.diagonal @IsClosedImmersion := by
+theorem isSeparated_eq_diagonal_isClosedImmersion
+    : @IsSeparated = MorphismProperty.diagonal @IsClosedImmersion := by
   ext
   exact isSeparated_iff _
 
@@ -86,30 +85,30 @@ instance : IsZariskiLocalAtTarget @IsSeparated := by
   infer_instance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [IsSeparated g] :
-    IsSeparated (pullback.fst f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [IsSeparated g]
+    : IsSeparated (pullback.fst f g) :=
   MorphismProperty.pullback_fst f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [IsSeparated f] :
-    IsSeparated (pullback.snd f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [IsSeparated f]
+    : IsSeparated (pullback.snd f g) :=
   MorphismProperty.pullback_snd f g inferInstance
 
 instance (f : X ⟶ Y) (V : Y.Opens) [IsSeparated f] : IsSeparated (f ∣_ V) :=
   IsZariskiLocalAtTarget.restrict ‹_› V
 
-instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [IsSeparated f] :
-    IsSeparated (f.resLE V U e) := by
+instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [IsSeparated f]
+    : IsSeparated (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
 
 instance (R S : CommRingCat.{u}) (f : R ⟶ S) : IsSeparated (Spec.map f) := by
   constructor
   let := f.hom.toAlgebra
-  change IsClosedImmersion
-    (Limits.pullback.diagonal (Spec.map (CommRingCat.ofHom (algebraMap R S))))
+  change IsClosedImmersion (Limits.pullback.diagonal (Spec.map (CommRingCat.ofHom (algebraMap R
+    S))))
   rw [diagonal_SpecMap, MorphismProperty.cancel_right_of_respectsIso @IsClosedImmersion]
-  exact .spec_of_surjective _ fun x ↦ ⟨.tmul R 1 x,
-    (Algebra.TensorProduct.lmul'_apply_tmul (R := R) (S := S) 1 x).trans (one_mul x)⟩
+  exact .spec_of_surjective _ fun x ↦
+    ⟨.tmul R 1 x, (Algebra.TensorProduct.lmul'_apply_tmul (R := R) (S := S) 1 x).trans (one_mul x)⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[instance 100]
@@ -124,18 +123,21 @@ lemma of_isAffineHom [h : IsAffineHom f] : IsSeparated f := by
   rw [MorphismProperty.arrow_mk_iso_iff @IsSeparated (arrowIsoSpecΓOfIsAffine f)]
   infer_instance
 
-instance {S T : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) (i : S ⟶ T) [IsSeparated i] :
-    IsClosedImmersion (pullback.mapDesc f g i) :=
-  MorphismProperty.of_isPullback (pullback_map_diagonal_isPullback f g i)
-    inferInstance
+instance {S T : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) (i : S ⟶ T) [IsSeparated i]
+    : IsClosedImmersion (pullback.mapDesc f g i) :=
+  MorphismProperty.of_isPullback (pullback_map_diagonal_isPullback f g i) inferInstance
 
-/-- Given `f : X ⟶ Y` and `g : Y ⟶ Z` such that `g` is separated, the induced map
-`X ⟶ X ×[Z] Y` is a closed immersion. -/
-instance [IsSeparated g] :
-    IsClosedImmersion (pullback.lift (𝟙 _) f (Category.id_comp (f ≫ g))) := by
+/--
+Given `f : X ⟶ Y` and `g : Y ⟶ Z` such that `g` is separated, the induced map
+`X ⟶ X ×[Z] Y` is a closed immersion.
+-/
+instance [IsSeparated g]
+    : IsClosedImmersion (pullback.lift (𝟙 _) f (Category.id_comp (f ≫ g))) := by
   rw [← MorphismProperty.cancel_left_of_respectsIso @IsClosedImmersion (pullback.fst f (𝟙 Y))]
-  rw [← MorphismProperty.cancel_right_of_respectsIso @IsClosedImmersion _
-    (pullback.congrHom rfl (Category.id_comp g)).inv]
+  rw [
+    ← MorphismProperty.cancel_right_of_respectsIso @IsClosedImmersion _
+      (pullback.congrHom rfl (Category.id_comp g)).inv
+  ]
   convert (inferInstance : IsClosedImmersion (pullback.mapDesc f (𝟙 _) g))
   ext : 1 <;> simp [pullback.condition]
 
@@ -232,8 +234,8 @@ lemma isSeparated_of_injective (hf : Function.Injective f) :
 end of_injective
 
 instance : MorphismProperty.HasOfPostcompProperty @IsClosedImmersion @IsSeparated :=
-  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr
-    fun _ _ _ _ ↦ inferInstanceAs (IsClosedImmersion _)
+  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr fun _ _ _ _ ↦
+    inferInstanceAs (IsClosedImmersion _)
 
 lemma IsClosedImmersion.of_comp [IsClosedImmersion (f ≫ g)] [IsSeparated g] :
     IsClosedImmersion f := MorphismProperty.of_postcomp _ _ g ‹_› ‹_›
@@ -262,8 +264,8 @@ instance : MorphismProperty.HasOfPostcompProperty @IsSeparated ⊤ where
   of_postcomp f g _ _ := .of_comp f g
 
 instance : MorphismProperty.HasOfPostcompProperty @IsAffineHom @IsSeparated :=
-  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr
-    fun _ _ _ _ ↦ inferInstanceAs (IsAffineHom _)
+  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr fun _ _ _ _ ↦
+    inferInstanceAs (IsAffineHom _)
 
 lemma IsAffineHom.of_comp [IsAffineHom (f ≫ g)] [IsSeparated g] :
     IsAffineHom f := MorphismProperty.of_postcomp _ _ g ‹_› ‹_›
@@ -273,12 +275,15 @@ lemma IsAffineHom.comp_iff [IsAffineHom g] : IsAffineHom (f ≫ g) ↔ IsAffineH
   ⟨fun _ ↦ .of_comp f g, fun _ ↦ inferInstance⟩
 
 @[stacks 01KM]
-instance isClosedImmersion_equalizer_ι_left {S : Scheme} {X Y : Over S} [IsSeparated Y.hom]
-    (f g : X ⟶ Y) : IsClosedImmersion (equalizer.ι f g).left := by
+instance isClosedImmersion_equalizer_ι_left
+    {S : Scheme} {X Y : Over S} [IsSeparated Y.hom] (f g : X ⟶ Y)
+    : IsClosedImmersion (equalizer.ι f g).left := by
   refine MorphismProperty.of_isPullback
     ((Limits.isPullback_equalizer_prod f g).map (Over.forget _)).flip ?_
-  rw [← MorphismProperty.cancel_right_of_respectsIso @IsClosedImmersion _
-    (Over.prodLeftIsoPullback Y Y).hom]
+  rw [
+    ← MorphismProperty.cancel_right_of_respectsIso @IsClosedImmersion _
+      (Over.prodLeftIsoPullback Y Y).hom
+  ]
   convert! (inferInstance : IsClosedImmersion (pullback.diagonal Y.hom))
   ext1 <;> simp [← Over.comp_left]
 
@@ -360,8 +365,8 @@ instance (f g : X ⟶ Y) [Y.IsSeparated] : IsClosedImmersion (Limits.equalizer.�
 end Scheme
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance IsSeparated.hasAffineProperty :
-    HasAffineProperty @IsSeparated fun X _ _ _ ↦ X.IsSeparated := by
+instance IsSeparated.hasAffineProperty
+    : HasAffineProperty @IsSeparated fun X _ _ _ ↦ X.IsSeparated := by
   convert! HasAffineProperty.of_isZariskiLocalAtTarget @IsSeparated with X Y f hY
   rw [Scheme.isSeparated_iff, ← terminal.comp_from f, IsSeparated.comp_iff]
   rfl

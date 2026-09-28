@@ -22,14 +22,18 @@ variable {α β : Type*}
 
 open Order Function
 
-/-- A `SuccOrder` is succ-archimedean if one can go from any two comparable elements by iterating
-`succ` -/
+/--
+A `SuccOrder` is succ-archimedean if one can go from any two comparable elements by iterating
+`succ`
+-/
 class IsSuccArchimedean (α : Type*) [Preorder α] [SuccOrder α] : Prop where
   /-- If `a ≤ b` then one can get to `a` from `b` by iterating `succ` -/
   exists_succ_iterate_of_le {a b : α} (h : a ≤ b) : ∃ n, succ^[n] a = b
 
-/-- A `PredOrder` is pred-archimedean if one can go from any two comparable elements by iterating
-`pred` -/
+/--
+A `PredOrder` is pred-archimedean if one can go from any two comparable elements by iterating
+`pred`
+-/
 @[to_dual existing]
 class IsPredArchimedean (α : Type*) [Preorder α] [PredOrder α] : Prop where
   /-- If `a ≤ b` then one can get to `b` from `a` by iterating `pred` -/
@@ -55,8 +59,7 @@ section SuccOrder
 variable [SuccOrder α] [IsSuccArchimedean α] {a b : α}
 
 @[to_dual]
-theorem LE.le.exists_succ_iterate (h : a ≤ b) : ∃ n, succ^[n] a = b :=
-  exists_succ_iterate_of_le h
+theorem LE.le.exists_succ_iterate (h : a ≤ b) : ∃ n, succ^[n] a = b := exists_succ_iterate_of_le h
 
 @[to_dual]
 theorem exists_succ_iterate_iff_le : (∃ n, succ^[n] a = b) ↔ a ≤ b := by
@@ -67,20 +70,23 @@ theorem exists_succ_iterate_iff_le : (∃ n, succ^[n] a = b) ↔ a ≤ b := by
 -- TODO: rename to `Order.succ_rec`?
 /-- Induction principle on a type with a `SuccOrder` for all elements above a given element `m`. -/
 @[to_dual (attr := elab_as_elim) Pred.rec
-/-- Induction principle on a type with a `PredOrder` for all elements below a given element `m`. -/]
-theorem Succ.rec {m : α} {P : ∀ n, m ≤ n → Prop} (rfl : P m le_rfl)
-    (succ : ∀ n (hmn : m ≤ n), P n hmn → P (succ n) (hmn.trans <| le_succ _)) ⦃n : α⦄
-    (hmn : m ≤ n) : P n hmn := by
+  /-- Induction principle on a type with a `PredOrder` for all elements below a given element `m`. -/]
+theorem Succ.rec
+    {m : α} {P : ∀ n, m ≤ n → Prop}
+    (rfl : P m le_rfl) (succ : ∀ n (hmn : m ≤ n), P n hmn → P (succ n) (hmn.trans <| le_succ _))
+    ⦃n : α⦄ (hmn : m ≤ n)
+    : P n hmn := by
   obtain ⟨n, rfl⟩ := hmn.exists_succ_iterate
   induction n with
-  | zero => exact rfl
+  | zero =>
+    exact rfl
   | succ n ih =>
     simp_rw [Function.iterate_succ_apply']
     exact succ _ (id_le_iterate_of_id_le le_succ n m) (ih _)
 
 @[to_dual Pred.rec_iff]
-theorem Succ.rec_iff {p : α → Prop} (hsucc : ∀ a, p a ↔ p (succ a)) {a b : α} (h : a ≤ b) :
-    p a ↔ p b := by
+theorem Succ.rec_iff {p : α → Prop} (hsucc : ∀ a, p a ↔ p (succ a)) {a b : α} (h : a ≤ b)
+    : p a ↔ p b := by
   obtain ⟨n, rfl⟩ := h.exists_succ_iterate
   exact Iterate.rec (fun b => p a ↔ p b) Iff.rfl (fun c hc => hc.trans (hsucc _)) n
 
@@ -116,13 +122,12 @@ lemma lt_or_le_of_codirected [SuccOrder α] [IsSuccArchimedean α] {r v₁ v₂ 
   · contradiction
 
 -- `to_dual` cannot yet reorder arguments of arguments
-/--
-This isn't an instance due to a loop with `LinearOrder`.
--/
+/-- This isn't an instance due to a loop with `LinearOrder`. -/
 -- See note [reducible non-instances]
-abbrev IsSuccArchimedean.linearOrder [SuccOrder α] [IsSuccArchimedean α]
-     [DecidableEq α] [DecidableLE α] [DecidableLT α]
-     [IsCodirectedOrder α] : LinearOrder α where
+abbrev IsSuccArchimedean.linearOrder
+    [SuccOrder α] [IsSuccArchimedean α] [DecidableEq α] [DecidableLE α] [DecidableLT α]
+    [IsCodirectedOrder α]
+    : LinearOrder α where
   le_total a b :=
     have ⟨c, ha, hb⟩ := directed_of (· ≥ ·) a b
     le_total_of_codirected ha hb
@@ -130,14 +135,13 @@ abbrev IsSuccArchimedean.linearOrder [SuccOrder α] [IsSuccArchimedean α]
   toDecidableLE := inferInstance
   toDecidableLT := inferInstance
 
-/--
-This isn't an instance due to a loop with `LinearOrder`.
--/
+/-- This isn't an instance due to a loop with `LinearOrder`. -/
 -- See note [reducible non-instances]
 @[to_dual existing]
-abbrev IsPredArchimedean.linearOrder [PredOrder α] [IsPredArchimedean α]
-     [DecidableEq α] [DecidableLE α] [DecidableLT α]
-     [IsDirectedOrder α] : LinearOrder α :=
+abbrev IsPredArchimedean.linearOrder
+    [PredOrder α] [IsPredArchimedean α] [DecidableEq α] [DecidableLE α] [DecidableLT α]
+    [IsDirectedOrder α]
+    : LinearOrder α :=
   letI : LinearOrder αᵒᵈ := IsSuccArchimedean.linearOrder
   inferInstanceAs (LinearOrder αᵒᵈᵒᵈ)
 
@@ -187,23 +191,23 @@ section WellFounded
 variable [PartialOrder α]
 
 -- `to_dual` cannot yet reorder arguments of arguments
-instance (priority := 100) WellFoundedLT.toIsPredArchimedean [h : WellFoundedLT α]
-    [PredOrder α] : IsPredArchimedean α :=
-  ⟨fun {a b} => by
-    induction b using WellFoundedLT.induction with | ind b ih
-    intro hab
-    replace hab := eq_or_lt_of_le hab
-    rcases hab with (rfl | hab)
-    · exact ⟨0, rfl⟩
-    rcases eq_or_lt_of_le (pred_le b) with hb | hb
-    · cases (min_of_le_pred hb.ge).not_lt hab
-    obtain ⟨k, hk⟩ := ih (pred b) hb (le_pred_of_lt hab)
-    refine ⟨k + 1, ?_⟩
-    rw [iterate_add_apply, iterate_one, hk]⟩
+instance (priority := 100) WellFoundedLT.toIsPredArchimedean [h : WellFoundedLT α] [PredOrder α]
+    : IsPredArchimedean α := ⟨fun {a b} => by
+  induction b using WellFoundedLT.induction with
+  | ind b ih
+  intro hab
+  replace hab := eq_or_lt_of_le hab
+  rcases hab with (rfl | hab)
+  · exact ⟨0, rfl⟩
+  rcases eq_or_lt_of_le (pred_le b) with hb | hb
+  · cases (min_of_le_pred hb.ge).not_lt hab
+  obtain ⟨k, hk⟩ := ih (pred b) hb (le_pred_of_lt hab)
+  refine ⟨k + 1, ?_⟩
+  rw [iterate_add_apply, iterate_one, hk]⟩
 
 @[to_dual existing]
-instance (priority := 100) WellFoundedGT.toIsSuccArchimedean [h : WellFoundedGT α]
-    [SuccOrder α] : IsSuccArchimedean α :=
+instance (priority := 100) WellFoundedGT.toIsSuccArchimedean [h : WellFoundedGT α] [SuccOrder α]
+    : IsSuccArchimedean α :=
   let h : IsPredArchimedean αᵒᵈ := by infer_instance
   ⟨h.1⟩
 
@@ -298,33 +302,38 @@ section OrdConnected
 
 variable [PartialOrder α]
 
-instance Set.OrdConnected.isPredArchimedean [PredOrder α] [IsPredArchimedean α]
-    (s : Set α) [s.OrdConnected] : IsPredArchimedean s where
-  exists_pred_iterate_of_le := @fun ⟨b, hb⟩ ⟨c, hc⟩ hbc ↦ by classical
-    simp only [Subtype.mk_le_mk] at hbc
-    obtain ⟨n, hn⟩ := hbc.exists_pred_iterate
-    use n
-    induction n generalizing c with
-    | zero => simp_all
-    | succ n hi =>
-      simp_all only [Function.iterate_succ, Function.comp_apply]
-      change Order.pred^[n] (dite ..) = _
-      split_ifs with h
-      · dsimp only at h ⊢
-        apply hi _ _ _ hn
-        · rw [← hn]
-          apply Order.pred_iterate_le
-      · have : Order.pred (⟨c, hc⟩ : s) = ⟨c, hc⟩ := by
-          change dite .. = _
-          simp [h]
-        rw [Function.iterate_fixed]
-        · simp only [Order.pred_eq_iff_isMin] at this
-          apply (this.eq_of_le _).symm
-          exact hbc
-        · exact this
+instance Set.OrdConnected.isPredArchimedean
+    [PredOrder α] [IsPredArchimedean α] (s : Set α) [s.OrdConnected]
+    : IsPredArchimedean s where
+  exists_pred_iterate_of_le :=
+    @fun ⟨b, hb⟩ ⟨c, hc⟩ hbc ↦ by
+      classical
+      simp only [Subtype.mk_le_mk] at hbc
+      obtain ⟨n, hn⟩ := hbc.exists_pred_iterate
+      use n
+      induction n generalizing c with
+      | zero =>
+        simp_all
+      | succ n hi =>
+        simp_all only [Function.iterate_succ, Function.comp_apply]
+        change Order.pred^[n] (dite ..) = _
+        split_ifs with h
+        · dsimp only at h ⊢
+          apply hi _ _ _ hn
+          · rw [← hn]
+            apply Order.pred_iterate_le
+        · have : Order.pred (⟨c, hc⟩ : s) = ⟨c, hc⟩ := by
+            change dite .. = _
+            simp [h]
+          rw [Function.iterate_fixed]
+          · simp only [Order.pred_eq_iff_isMin] at this
+            apply (this.eq_of_le _).symm
+            exact hbc
+          · exact this
 
-instance Set.OrdConnected.isSuccArchimedean [SuccOrder α] [IsSuccArchimedean α]
-    (s : Set α) [s.OrdConnected] : IsSuccArchimedean s :=
+instance Set.OrdConnected.isSuccArchimedean
+    [SuccOrder α] [IsSuccArchimedean α] (s : Set α) [s.OrdConnected]
+    : IsSuccArchimedean s :=
   letI : IsPredArchimedean sᵒᵈ := inferInstanceAs (IsPredArchimedean (OrderDual.ofDual ⁻¹' s))
   inferInstanceAs (IsSuccArchimedean sᵒᵈᵒᵈ)
 

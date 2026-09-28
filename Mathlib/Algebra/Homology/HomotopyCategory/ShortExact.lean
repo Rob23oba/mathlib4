@@ -48,8 +48,10 @@ namespace mappingCone
 
 variable (S : ShortComplex (CochainComplex C ℤ)) (hS : S.ShortExact)
 
-/-- The canonical morphism `mappingCone S.f ⟶ S.X₃` when `S` is a short complex
-of cochain complexes. -/
+/--
+The canonical morphism `mappingCone S.f ⟶ S.X₃` when `S` is a short complex
+of cochain complexes.
+-/
 noncomputable def descShortComplex : mappingCone S.f ⟶ S.X₃ := desc S.f 0 S.g (by simp)
 
 @[reassoc (attr := simp)]

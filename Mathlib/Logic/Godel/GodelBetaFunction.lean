@@ -86,17 +86,22 @@ private lemma pairwise_coprime_coprimes (a : Fin m → ℕ) : Pairwise (Coprime 
     (Nat.dvd_factorial (by lia)
       (by simpa only [Nat.succ_sub_succ] using le_of_lt (lt_of_le_of_lt (sub_le j i) hja)))
 
-/-- Gödel's Beta Function. This is similar to `(Encodable.decodeList)[i]`, but it is easier to
-prove that it is arithmetically definable. -/
+/--
+Gödel's Beta Function. This is similar to `(Encodable.decodeList)[i]`, but it is easier to
+prove that it is arithmetically definable.
+-/
 def beta (n i : ℕ) : ℕ := n.unpair.1 % ((i + 1) * n.unpair.2 + 1)
 
-/-- Inverse of Gödel's Beta Function. This is similar to `Encodable.encodeList`, but it is easier
-to prove that it is arithmetically definable. -/
-@[no_expose] def unbeta (l : List ℕ) : ℕ :=
+/--
+Inverse of Gödel's Beta Function. This is similar to `Encodable.encodeList`, but it is easier
+to prove that it is arithmetically definable.
+-/
+@[no_expose]
+def unbeta (l : List ℕ) : ℕ :=
   (chineseRemainderOfFinset (ι := Fin l.length) (l[·]) (coprimes (l[·])) Finset.univ
-    (by simp [coprimes])
-    (by simpa using Set.pairwise_univ.mpr (pairwise_coprime_coprimes _)) : ℕ).pair
-  (supOfSeq (m := l.length) (l[·]))!
+        (by simp [coprimes]) (by simpa using Set.pairwise_univ.mpr (pairwise_coprime_coprimes _))
+      : ℕ).pair
+    (supOfSeq (m := l.length) (l[·]))!
 
 /-- **Gödel's Beta Function Lemma** -/
 lemma beta_unbeta_coe (l : List ℕ) (i : Fin l.length) : beta (unbeta l) i = l[i] := by

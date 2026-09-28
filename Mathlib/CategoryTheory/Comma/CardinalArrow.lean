@@ -40,8 +40,7 @@ lemma Arrow.finite_iff (C : Type u) [SmallCategory C] :
     have := Fintype.ofEquiv _ (Arrow.equivSigma C).symm
     infer_instance
 
-instance Arrow.finite {C : Type u} [SmallCategory C] [FinCategory C] :
-    Finite (Arrow C) := by
+instance Arrow.finite {C : Type u} [SmallCategory C] [FinCategory C] : Finite (Arrow C) := by
   rw [Arrow.finite_iff]
   exact ⟨inferInstance⟩
 
@@ -77,8 +76,8 @@ lemma locallySmall_of_small_arrow (C : Type u) [Category.{v} C] [Small.{w} (Arro
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The bijection `Arrow.{w} (ShrinkHoms C) ≃ Arrow C`. -/
-noncomputable def Arrow.shrinkHomsEquiv (C : Type u) [Category.{v} C] [LocallySmall.{w} C] :
-    Arrow.{w} (ShrinkHoms C) ≃ Arrow C where
+noncomputable def Arrow.shrinkHomsEquiv (C : Type u) [Category.{v} C] [LocallySmall.{w} C]
+    : Arrow.{w} (ShrinkHoms C) ≃ Arrow C where
   toFun := (ShrinkHoms.equivalence C).inverse.mapArrow.obj
   invFun := (ShrinkHoms.equivalence C).functor.mapArrow.obj
   left_inv _ := by simp
@@ -86,14 +85,14 @@ noncomputable def Arrow.shrinkHomsEquiv (C : Type u) [Category.{v} C] [LocallySm
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The bijection `Arrow (Shrink C) ≃ Arrow C`. -/
-noncomputable def Arrow.shrinkEquiv (C : Type u) [Category.{v} C] [Small.{w} C] :
-    Arrow (Shrink.{w} C) ≃ Arrow C where
+noncomputable def Arrow.shrinkEquiv (C : Type u) [Category.{v} C] [Small.{w} C]
+    : Arrow (Shrink.{w} C) ≃ Arrow C where
   toFun := (Shrink.equivalence C).inverse.mapArrow.obj
   invFun := (Shrink.equivalence C).functor.mapArrow.obj
-  left_inv _ := Arrow.ext (Equiv.apply_symm_apply _ _)
-      ((Equiv.apply_symm_apply _ _)) (by simp; rfl)
-  right_inv _ := Arrow.ext (by simp [Shrink.equivalence])
-    (by simp [Shrink.equivalence]) (by simp [Shrink.equivalence])
+  left_inv _ := Arrow.ext (Equiv.apply_symm_apply _ _) ((Equiv.apply_symm_apply _ _)) (by simp; rfl)
+  right_inv _ :=
+    Arrow.ext (by simp [Shrink.equivalence]) (by simp [Shrink.equivalence])
+      (by simp [Shrink.equivalence])
 
 @[simp]
 lemma hasCardinalLT_arrow_shrinkHoms_iff (C : Type u) [Category.{v} C] [LocallySmall.{w'} C]

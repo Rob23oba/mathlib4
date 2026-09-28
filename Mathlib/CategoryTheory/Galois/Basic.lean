@@ -71,17 +71,18 @@ class PreGaloisCategory (C : Type u₁) [Category.{u₂, u₁} C] : Prop where
   /-- `C` has finite coproducts (G2). -/
   hasFiniteCoproducts : HasFiniteCoproducts C := by infer_instance
   /-- `C` has quotients by finite groups (G2). -/
-  hasQuotientsByFiniteGroups (G : Type u₂) [Group G] [Finite G] :
-    HasColimitsOfShape (SingleObj G) C := by infer_instance
+  hasQuotientsByFiniteGroups (G : Type u₂) [Group G] [Finite G]
+      : HasColimitsOfShape (SingleObj G) C := by
+    infer_instance
   /-- Every monomorphism in `C` induces an isomorphism on a direct summand (G3). -/
-  monoInducesIsoOnDirectSummand {X Y : C} (i : X ⟶ Y) [Mono i] : ∃ (Z : C) (u : Z ⟶ Y),
-    Nonempty (IsColimit (BinaryCofan.mk i u))
+  monoInducesIsoOnDirectSummand {X Y : C} (i : X ⟶ Y) [Mono i]
+    : ∃ (Z : C) (u : Z ⟶ Y), Nonempty (IsColimit (BinaryCofan.mk i u))
 
 namespace PreGaloisCategory
 
 /-- Definition of a fiber functor from a Galois category. Lenstra, Def 3.1, (G4)-(G6) -/
-class FiberFunctor {C : Type u₁} [Category.{u₂, u₁} C] [PreGaloisCategory C]
-    (F : C ⥤ FintypeCat.{w}) where
+class FiberFunctor
+    {C : Type u₁} [Category.{u₂, u₁} C] [PreGaloisCategory C] (F : C ⥤ FintypeCat.{w}) where
   /-- `F` preserves terminal objects (G4). -/
   preservesTerminalObjects : PreservesLimitsOfShape (CategoryTheory.Discrete PEmpty.{1}) F := by
     infer_instance
@@ -92,23 +93,29 @@ class FiberFunctor {C : Type u₁} [Category.{u₂, u₁} C] [PreGaloisCategory 
   /-- `F` preserves epimorphisms (G5). -/
   preservesEpis : Functor.PreservesEpimorphisms F := by infer_instance
   /-- `F` preserves quotients by finite groups (G5). -/
-  preservesQuotientsByFiniteGroups (G : Type u₂) [Group G] [Finite G] :
-    PreservesColimitsOfShape (SingleObj G) F := by infer_instance
+  preservesQuotientsByFiniteGroups (G : Type u₂) [Group G] [Finite G]
+      : PreservesColimitsOfShape (SingleObj G) F := by
+    infer_instance
   /-- `F` reflects isomorphisms (G6). -/
   reflectsIsos : F.ReflectsIsomorphisms := by infer_instance
 
-/-- An object of a category `C` is connected if it is not initial
-and has no non-trivial subobjects. Lenstra, 3.12. -/
+/--
+An object of a category `C` is connected if it is not initial
+and has no non-trivial subobjects. Lenstra, 3.12.
+-/
 class IsConnected {C : Type u₁} [Category.{u₂, u₁} C] (X : C) : Prop where
   /-- `X` is not an initial object. -/
   notInitial : IsInitial X → False
   /-- `X` has no non-trivial subobjects. -/
   noTrivialComponent (Y : C) (i : Y ⟶ X) [Mono i] : (IsInitial Y → False) → IsIso i
 
-/-- A functor is said to preserve connectedness if whenever `X : C` is connected,
-also `F.obj X` is connected. -/
-class PreservesIsConnected {C : Type u₁} [Category.{u₂, u₁} C] {D : Type v₁}
-    [Category.{v₂, v₁} D] (F : C ⥤ D) : Prop where
+/--
+A functor is said to preserve connectedness if whenever `X : C` is connected,
+also `F.obj X` is connected.
+-/
+class PreservesIsConnected
+    {C : Type u₁} [Category.{u₂, u₁} C] {D : Type v₁} [Category.{v₂, v₁} D] (F : C ⥤ D)
+    : Prop where
   /-- `F.obj X` is connected if `X` is connected. -/
   preserves : ∀ {X : C} [IsConnected X], IsConnected (F.obj X)
 
@@ -132,11 +139,13 @@ end
 
 namespace FiberFunctor
 
-variable {C : Type u₁} [Category.{u₂, u₁} C] {F : C ⥤ FintypeCat.{w}} [PreGaloisCategory C]
-  [FiberFunctor F]
+variable
+  {C : Type u₁} [Category.{u₂, u₁} C]
+  {F : C ⥤ FintypeCat.{w}} [PreGaloisCategory C] [FiberFunctor F]
 
-attribute [instance] preservesTerminalObjects preservesPullbacks preservesEpis
-  preservesFiniteCoproducts reflectsIsos preservesQuotientsByFiniteGroups
+attribute [instance]
+  preservesTerminalObjects preservesPullbacks preservesEpis preservesFiniteCoproducts reflectsIsos
+  preservesQuotientsByFiniteGroups
 
 noncomputable instance : ReflectsLimitsOfShape (Discrete PEmpty.{1}) F :=
   reflectsLimitsOfShape_of_reflectsIsomorphisms
@@ -148,21 +157,20 @@ noncomputable instance : PreservesFiniteLimits F :=
   preservesFiniteLimits_of_preservesTerminal_and_pullbacks F
 
 /-- Fiber functors preserve quotients by finite groups in arbitrary universes. -/
-instance {G : Type*} [Group G] [Finite G] :
-    PreservesColimitsOfShape (SingleObj G) F := by
+instance {G : Type*} [Group G] [Finite G] : PreservesColimitsOfShape (SingleObj G) F := by
   choose G' hg hf he using Finite.exists_type_univ_nonempty_mulEquiv G
   exact Limits.preservesColimitsOfShape_of_equiv he.some.toSingleObjEquiv.symm F
 
 /-- Fiber functors reflect monomorphisms. -/
-instance : ReflectsMonomorphisms F := ReflectsMonomorphisms.mk <| by
-  intro X Y f _
-  have : IsIso (pullback.fst (F.map f) (F.map f)) :=
-    isIso_fst_of_mono (F.map f)
-  have : IsIso (F.map (pullback.fst f f)) := by
-    rw [← PreservesPullback.iso_hom_fst]
-    exact IsIso.comp_isIso
-  have : IsIso (pullback.fst f f) := isIso_of_reflects_iso (pullback.fst _ _) F
-  exact (pullback.diagonal_isKernelPair f).mono_of_isIso_fst
+instance : ReflectsMonomorphisms F :=
+  ReflectsMonomorphisms.mk <| by
+    intro X Y f _
+    have : IsIso (pullback.fst (F.map f) (F.map f)) := isIso_fst_of_mono (F.map f)
+    have : IsIso (F.map (pullback.fst f f)) := by
+      rw [← PreservesPullback.iso_hom_fst]
+      exact IsIso.comp_isIso
+    have : IsIso (pullback.fst f f) := isIso_of_reflects_iso (pullback.fst _ _) F
+    exact (pullback.diagonal_isKernelPair f).mono_of_isIso_fst
 
 /-- Fiber functors are faithful. -/
 instance : F.Faithful where
@@ -176,18 +184,19 @@ instance : F.Faithful where
 
 section
 
-/-- If `F` is a fiber functor and `E` is an equivalence between categories of finite types,
-then `F ⋙ E` is again a fiber functor. -/
-instance comp_right (E : FintypeCat.{w} ⥤ FintypeCat.{t}) [E.IsEquivalence] :
-    FiberFunctor (F ⋙ E) where
+/--
+If `F` is a fiber functor and `E` is an equivalence between categories of finite types,
+then `F ⋙ E` is again a fiber functor.
+-/
+instance comp_right (E : FintypeCat.{w} ⥤ FintypeCat.{t}) [E.IsEquivalence]
+    : FiberFunctor (F ⋙ E) where
   preservesQuotientsByFiniteGroups _ := comp_preservesColimitsOfShape F E
 
 end
 
 end FiberFunctor
 
-variable {C : Type u₁} [Category.{u₂, u₁} C]
-  (F : C ⥤ FintypeCat.{w})
+variable {C : Type u₁} [Category.{u₂, u₁} C] (F : C ⥤ FintypeCat.{w})
 
 /-- The canonical action of `Aut F` on the fiber of each object. -/
 instance (X : C) : MulAction (Aut F) (F.obj X) where
@@ -238,12 +247,14 @@ instance nonempty_fiber_of_isConnected (X : C) [IsConnected X] : Nonempty (F.obj
   have ⟨hin⟩ : Nonempty (IsInitial X) := (initial_iff_fiber_empty F X).mpr (not_nonempty_iff.mp h)
   exact IsConnected.notInitial hin
 
-/-- The fiber of the equalizer of `f g : X ⟶ Y` is equivalent to the set of agreement of `f`
-and `g`. -/
-noncomputable def fiberEqualizerEquiv {X Y : C} (f g : X ⟶ Y) :
-    F.obj (equalizer f g) ≃ { x : F.obj X // F.map f x = F.map g x } :=
-  (PreservesEqualizer.iso (F ⋙ FintypeCat.incl) f g ≪≫
-    Types.equalizerIso (F.map f).hom (F.map g).hom).toEquiv
+/--
+The fiber of the equalizer of `f g : X ⟶ Y` is equivalent to the set of agreement of `f`
+and `g`.
+-/
+noncomputable def fiberEqualizerEquiv {X Y : C} (f g : X ⟶ Y)
+    : F.obj (equalizer f g) ≃ {x : F.obj X // F.map f x = F.map g x} :=
+  (PreservesEqualizer.iso (F ⋙ FintypeCat.incl) f g
+    ≪≫ Types.equalizerIso (F.map f).hom (F.map g).hom).toEquiv
 
 @[simp]
 lemma fiberEqualizerEquiv_symm_ι_apply {X Y : C} {f g : X ⟶ Y} (x : F.obj X)
@@ -255,10 +266,11 @@ lemma fiberEqualizerEquiv_symm_ι_apply {X Y : C} {f g : X ⟶ Y} (x : F.obj X)
   rfl
 
 /-- The fiber of the pullback is the fiber product of the fibers. -/
-noncomputable def fiberPullbackEquiv {X A B : C} (f : A ⟶ X) (g : B ⟶ X) :
-    F.obj (pullback f g) ≃ { p : F.obj A × F.obj B // F.map f p.1 = F.map g p.2 } :=
-  Iso.toEquiv (PreservesPullback.iso (F ⋙ FintypeCat.incl) f g ≪≫
-    Types.pullbackIsoPullback (F.map f).hom (F.map g).hom)
+noncomputable def fiberPullbackEquiv {X A B : C} (f : A ⟶ X) (g : B ⟶ X)
+    : F.obj (pullback f g) ≃ {p : F.obj A × F.obj B // F.map f p.1 = F.map g p.2} :=
+  Iso.toEquiv
+    (PreservesPullback.iso (F ⋙ FintypeCat.incl) f g
+      ≪≫ Types.pullbackIsoPullback (F.map f).hom (F.map g).hom)
 
 @[simp]
 lemma fiberPullbackEquiv_symm_fst_apply {X A B : C} {f : A ⟶ X} {g : B ⟶ X}
@@ -281,10 +293,9 @@ lemma fiberPullbackEquiv_symm_snd_apply {X A B : C} {f : A ⟶ X} {g : B ⟶ X}
   rfl
 
 /-- The fiber of the binary product is the binary product of the fibers. -/
-noncomputable def fiberBinaryProductEquiv (X Y : C) :
-    F.obj (X ⨯ Y) ≃ F.obj X × F.obj Y :=
-  (PreservesLimitPair.iso (F ⋙ FintypeCat.incl) X Y ≪≫
-  Types.binaryProductIso (F.obj X) (F.obj Y)).toEquiv
+noncomputable def fiberBinaryProductEquiv (X Y : C) : F.obj (X ⨯ Y) ≃ F.obj X × F.obj Y :=
+  (PreservesLimitPair.iso (F ⋙ FintypeCat.incl) X Y
+    ≪≫ Types.binaryProductIso (F.obj X) (F.obj Y)).toEquiv
 
 @[simp]
 lemma fiberBinaryProductEquiv_symm_fst_apply {X Y : C} (x : F.obj X) (y : F.obj Y) :
@@ -337,10 +348,13 @@ lemma surjective_of_nonempty_fiber_of_isConnected {X A : C} [Nonempty (F.obj X)]
   have : Epi f := epi_of_nonempty_of_isConnected F f
   exact surjective_on_fiber_of_epi F f
 
-/-- If `X : ι → C` is a finite family of objects with non-empty fiber, then
-also `∏ᶜ X` has non-empty fiber. -/
-instance nonempty_fiber_pi_of_nonempty_of_finite {ι : Type*} [Finite ι] (X : ι → C)
-    [∀ i, Nonempty (F.obj (X i))] : Nonempty (F.obj (∏ᶜ X)) := by
+/--
+If `X : ι → C` is a finite family of objects with non-empty fiber, then
+also `∏ᶜ X` has non-empty fiber.
+-/
+instance nonempty_fiber_pi_of_nonempty_of_finite
+    {ι : Type*} [Finite ι] (X : ι → C) [∀ i, Nonempty (F.obj (X i))]
+    : Nonempty (F.obj (∏ᶜ X)) := by
   cases nonempty_fintype ι
   let f (i : ι) : FintypeCat.{w} := F.obj (X i)
   let i : F.obj (∏ᶜ X) ≅ ∏ᶜ f := PreservesProduct.iso F _
@@ -409,13 +423,13 @@ end CardFiber
 end PreGaloisCategory
 
 /-- A `PreGaloisCategory` is a `GaloisCategory` if it admits a fiber functor. -/
-class GaloisCategory (C : Type u₁) [Category.{u₂, u₁} C] : Prop
-    extends PreGaloisCategory C where
+class GaloisCategory (C : Type u₁) [Category.{u₂, u₁} C] : Prop extends PreGaloisCategory C where
   hasFiberFunctor (C) : ∃ F : C ⥤ FintypeCat.{u₂}, PreGaloisCategory.FiberFunctor F
 
 /-- Arbitrarily choose a fiber functor for a Galois category using choice. -/
 noncomputable def GaloisCategory.getFiberFunctor
-    (C : Type u₁) [Category.{u₂, u₁} C] [GaloisCategory C] : C ⥤ FintypeCat.{u₂} :=
+    (C : Type u₁) [Category.{u₂, u₁} C] [GaloisCategory C]
+    : C ⥤ FintypeCat.{u₂} :=
   Classical.choose <| hasFiberFunctor C
 
 open GaloisCategory

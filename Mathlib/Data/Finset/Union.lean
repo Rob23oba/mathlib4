@@ -37,12 +37,17 @@ variable {α β γ : Type*} {s s₁ s₂ : Finset α} {t t₁ t₂ : α → Fins
 namespace Finset
 section DisjiUnion
 
-/-- `disjiUnion s f h` is the set such that `a ∈ disjiUnion s f` iff `a ∈ f i` for some `i ∈ s`.
+/--
+`disjiUnion s f h` is the set such that `a ∈ disjiUnion s f` iff `a ∈ f i` for some `i ∈ s`.
 It is the same as `s.biUnion f`, but it does not require decidable equality on the type. The
-hypothesis ensures that the sets are disjoint. -/
-def disjiUnion (s : Finset α) (t : α → Finset β) (hf : (s : Set α).PairwiseDisjoint t) : Finset β :=
-  ⟨s.val.bind (Finset.val ∘ t), Multiset.nodup_bind.2
-    ⟨fun a _ ↦ (t a).nodup, s.nodup.pairwise fun _ ha _ hb hab ↦ disjoint_val.2 <| hf ha hb hab⟩⟩
+hypothesis ensures that the sets are disjoint.
+-/
+def disjiUnion (s : Finset α) (t : α → Finset β) (hf : (s : Set α).PairwiseDisjoint t)
+    : Finset β := ⟨
+  s.val.bind (Finset.val ∘ t),
+  Multiset.nodup_bind.2
+    ⟨fun a _ ↦ (t a).nodup, s.nodup.pairwise fun _ ha _ hb hab ↦ disjoint_val.2 <| hf ha hb hab⟩
+⟩
 
 @[simp]
 lemma disjiUnion_val (s : Finset α) (t : α → Finset β) (h) :
@@ -116,40 +121,42 @@ lemma disjiUnion_filter_eq_of_maps_to (h : ∀ x ∈ s, f x ∈ t) :
 
 end DecidableEq
 
-theorem map_disjiUnion {f : α ↪ β} {s : Finset α} {t : β → Finset γ} {h} :
-    (s.map f).disjiUnion t h =
-      s.disjiUnion (fun a => t (f a)) fun _ ha _ hb hab =>
-        h (mem_map_of_mem _ ha) (mem_map_of_mem _ hb) (f.injective.ne hab) :=
+theorem map_disjiUnion {f : α ↪ β} {s : Finset α} {t : β → Finset γ} {h}
+    : (s.map f).disjiUnion t h
+      = s.disjiUnion
+        (fun a => t (f a))
+        fun _ ha _ hb hab => h (mem_map_of_mem _ ha) (mem_map_of_mem _ hb) (f.injective.ne hab) :=
   eq_of_veq <| Multiset.bind_map _ _ _
 
-theorem disjiUnion_map {s : Finset α} {t : α → Finset β} {f : β ↪ γ} {h} :
-    (s.disjiUnion t h).map f =
-      s.disjiUnion (fun a => (t a).map f) (h.mono' fun _ _ ↦ (disjoint_map _).2) :=
+theorem disjiUnion_map {s : Finset α} {t : α → Finset β} {f : β ↪ γ} {h}
+    : (s.disjiUnion t h).map f
+      = s.disjiUnion (fun a => (t a).map f) (h.mono' fun _ _ ↦ (disjoint_map _).2) :=
   eq_of_veq <| Multiset.map_bind _ _ _
 
 @[simp]
-theorem disjiUnion_singleton_eq_self (s : Finset α) :
-    s.disjiUnion singleton (fun _ _ => by simp) = s := by
+theorem disjiUnion_singleton_eq_self (s : Finset α)
+    : s.disjiUnion singleton (fun _ _ => by simp) = s := by
   grind
 
 variable {f : α → β} {op : β → β → β} [hc : Std.Commutative op] [ha : Std.Associative op]
 
-theorem fold_disjiUnion {ι : Type*} {s : Finset ι} {t : ι → Finset α} {b : ι → β} {b₀ : β} (h) :
-    (s.disjiUnion t h).fold op (s.fold op b₀ b) f = s.fold op b₀ fun i => (t i).fold op (b i) f :=
+theorem fold_disjiUnion {ι : Type*} {s : Finset ι} {t : ι → Finset α} {b : ι → β} {b₀ : β} (h)
+    : (s.disjiUnion t h).fold op (s.fold op b₀ b) f = s.fold op b₀ fun i => (t i).fold op (b i) f :=
   (congr_arg _ <| Multiset.map_bind _ _ _).trans (Multiset.fold_bind _ _ _ _ _)
 
 lemma pairwiseDisjoint_filter {f : α → Finset β} (h : Set.PairwiseDisjoint ↑s f)
     (p : β → Prop) [DecidablePred p] : Set.PairwiseDisjoint ↑s fun a ↦ (f a).filter p :=
   fun _ h₁ _ h₂ hne ↦ Finset.disjoint_filter_filter (h h₁ h₂ hne)
 
-theorem filter_disjiUnion (s : Finset α) (f : α → Finset β) (h) (p : β → Prop) [DecidablePred p] :
-    (s.disjiUnion f h).filter p
-      = s.disjiUnion (fun a ↦ (f a).filter p) (pairwiseDisjoint_filter h p) := by grind
+theorem filter_disjiUnion (s : Finset α) (f : α → Finset β) (h) (p : β → Prop) [DecidablePred p]
+    : (s.disjiUnion f h).filter p
+      = s.disjiUnion (fun a ↦ (f a).filter p) (pairwiseDisjoint_filter h p) := by
+  grind
 
 set_option backward.isDefEq.respectTransparency false in
-theorem disjiUnion_singleton {f : α → β} (hf : f.Injective) :
-    s.disjiUnion (fun a ↦ {f a}) (fun _ _ _ _ ↦ disjoint_singleton.mpr ∘ hf.ne) =
-      s.map ⟨f, hf⟩ := by
+theorem disjiUnion_singleton {f : α → β} (hf : f.Injective)
+    : s.disjiUnion (fun a ↦ {f a}) (fun _ _ _ _ ↦ disjoint_singleton.mpr ∘ hf.ne)
+      = s.map ⟨f, hf⟩ := by
   ext; simp [eq_comm]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -163,20 +170,22 @@ lemma disjoint_disjiUnion_right
     Disjoint s (t.disjiUnion f hf) ↔ ∀ i ∈ t, Disjoint s (f i) := by
   simpa only [_root_.disjoint_comm] using disjoint_disjiUnion_left t f hf s
 
-theorem pairwiseDisjoint_disjUnion {f g : α → Finset β}
-    (hfg : ∀ a, Disjoint (f a) (g a))
-    (hfg' : Set.Pairwise s fun a₁ a₂ ↦ Disjoint (f a₁) (g a₂))
-    (hf : Set.PairwiseDisjoint s f) (hg : Set.PairwiseDisjoint s g) :
-    Set.PairwiseDisjoint s (fun a ↦ (f a).disjUnion (g a) (hfg a)) := by
+theorem pairwiseDisjoint_disjUnion
+    {f g : α → Finset β}
+    (hfg : ∀ a, Disjoint (f a) (g a)) (hfg' : Set.Pairwise s fun a₁ a₂ ↦ Disjoint (f a₁) (g a₂))
+    (hf : Set.PairwiseDisjoint s f) (hg : Set.PairwiseDisjoint s g)
+    : Set.PairwiseDisjoint s (fun a ↦ (f a).disjUnion (g a) (hfg a)) := by
   intros i hi j hj hij
   simp [hf hi hj hij, hg hi hj hij, hfg' hi hj hij, (hfg' hj hi hij.symm).symm]
 
-theorem disjiUnion_disjUnion {f g : α → Finset β} (hfg : ∀ a, Disjoint (f a) (g a))
-    (hfg' : Set.Pairwise s fun a₁ a₂ ↦ Disjoint (f a₁) (g a₂))
-    (hf : Set.PairwiseDisjoint s f) (hg : Set.PairwiseDisjoint s g) :
-    s.disjiUnion (fun a ↦ (f a).disjUnion (g a) (hfg a))
-        (pairwiseDisjoint_disjUnion hfg hfg' hf hg) =
-      (s.disjiUnion f hf).disjUnion (s.disjiUnion g hg) (by
+theorem disjiUnion_disjUnion
+    {f g : α → Finset β}
+    (hfg : ∀ a, Disjoint (f a) (g a)) (hfg' : Set.Pairwise s fun a₁ a₂ ↦ Disjoint (f a₁) (g a₂))
+    (hf : Set.PairwiseDisjoint s f) (hg : Set.PairwiseDisjoint s g)
+    : s.disjiUnion
+        (fun a ↦ (f a).disjUnion (g a) (hfg a))
+        (pairwiseDisjoint_disjUnion hfg hfg' hf hg)
+      = (s.disjiUnion f hf).disjUnion (s.disjiUnion g hg) (by
         simp_rw [disjoint_disjiUnion_left, disjoint_disjiUnion_right]
         intros i hi j hj
         specialize hfg' hi hj
@@ -188,9 +197,11 @@ end DisjiUnion
 section BUnion
 variable [DecidableEq β]
 
-/-- `Finset.biUnion s t` is the union of `t a` over `a ∈ s`.
+/--
+`Finset.biUnion s t` is the union of `t a` over `a ∈ s`.
 
-(This was formerly `bind` due to the monad structure on types with `DecidableEq`.) -/
+(This was formerly `bind` due to the monad structure on types with `DecidableEq`.)
+-/
 protected def biUnion (s : Finset α) (t : α → Finset β) : Finset β :=
   (s.1.bind fun a ↦ (t a).1).toFinset
 
@@ -282,18 +293,18 @@ lemma disjoint_biUnion_right (s : Finset β) (t : Finset α) (f : α → Finset 
     Disjoint s (t.biUnion f) ↔ ∀ i ∈ t, Disjoint s (f i) := by
   simpa only [_root_.disjoint_comm] using disjoint_biUnion_left t f s
 
-theorem image_biUnion [DecidableEq γ] {f : α → β} {s : Finset α} {t : β → Finset γ} :
-    (s.image f).biUnion t = s.biUnion fun a => t (f a) :=
+theorem image_biUnion [DecidableEq γ] {f : α → β} {s : Finset α} {t : β → Finset γ}
+    : (s.image f).biUnion t = s.biUnion fun a => t (f a) :=
   haveI := Classical.decEq α
   Finset.induction_on s rfl fun a s _ ih => by simp only [image_insert, biUnion_insert, ih]
 
-theorem biUnion_image [DecidableEq γ] {s : Finset α} {t : α → Finset β} {f : β → γ} :
-    (s.biUnion t).image f = s.biUnion fun a => (t a).image f :=
+theorem biUnion_image [DecidableEq γ] {s : Finset α} {t : α → Finset β} {f : β → γ}
+    : (s.biUnion t).image f = s.biUnion fun a => (t a).image f :=
   haveI := Classical.decEq α
   Finset.induction_on s rfl fun a s _ ih => by simp only [biUnion_insert, image_union, ih]
 
-theorem image_biUnion_filter_eq [DecidableEq α] (s : Finset β) (g : β → α) :
-    ((s.image g).biUnion fun a => s.filter fun c => g c = a) = s :=
+theorem image_biUnion_filter_eq [DecidableEq α] (s : Finset β) (g : β → α)
+    : ((s.image g).biUnion fun a => s.filter fun c => g c = a) = s :=
   biUnion_filter_eq_of_maps_to fun _ => mem_image_of_mem g
 
 lemma union_biUnion [DecidableEq α] : (s₁ ∪ s₂).biUnion t = s₁.biUnion t ∪ s₂.biUnion t := by

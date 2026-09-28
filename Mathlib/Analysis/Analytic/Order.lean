@@ -37,28 +37,35 @@ section NormedSpace
 variable {f g : 𝕜 → E} {n : ℕ} {z₀ : 𝕜}
 
 open scoped Classical in
-/-- The order of vanishing of `f` at `z₀`, as an element of `ℕ∞`.
+/--
+The order of vanishing of `f` at `z₀`, as an element of `ℕ∞`.
 
 The order is defined to be `∞` if `f` is identically 0 on a neighbourhood of `z₀`, and otherwise the
 unique `n` such that `f` can locally be written as `f z = (z - z₀) ^ n • g z`, where `g` is analytic
 and does not vanish at `z₀`. See `AnalyticAt.analyticOrderAt_eq_top` and
 `AnalyticAt.analyticOrderAt_eq_natCast` for these equivalences.
 
-If `f` isn't analytic at `z₀`, then `analyticOrderAt f z₀` returns a junk value of `0`. -/
+If `f` isn't analytic at `z₀`, then `analyticOrderAt f z₀` returns a junk value of `0`.
+-/
 noncomputable def analyticOrderAt (f : 𝕜 → E) (z₀ : 𝕜) : ℕ∞ :=
   if hf : AnalyticAt 𝕜 f z₀ then
-    if h : ∀ᶠ z in 𝓝 z₀, f z = 0 then ⊤
-    else ↑(hf.exists_eventuallyEq_pow_smul_nonzero_iff.mpr h).choose
-  else 0
+    if h : ∀ᶠ z in 𝓝 z₀, f z = 0 then
+      ⊤
+    else
+      ↑(hf.exists_eventuallyEq_pow_smul_nonzero_iff.mpr h).choose
+  else
+    0
 
-/-- The order of vanishing of `f` at `z₀`, as an element of `ℕ`.
+/--
+The order of vanishing of `f` at `z₀`, as an element of `ℕ`.
 
 The order is defined to be `0` if `f` is identically zero on a neighbourhood of `z₀`,
 and is otherwise the unique `n` such that `f` can locally be written as `f z = (z - z₀) ^ n • g z`,
 where `g` is analytic and does not vanish at `z₀`. See `AnalyticAt.analyticOrderAt_eq_top` and
 `AnalyticAt.analyticOrderAt_eq_natCast` for these equivalences.
 
-If `f` isn't analytic at `z₀`, then `analyticOrderNatAt f z₀` returns a junk value of `0`. -/
+If `f` isn't analytic at `z₀`, then `analyticOrderNatAt f z₀` returns a junk value of `0`.
+-/
 noncomputable def analyticOrderNatAt (f : 𝕜 → E) (z₀ : 𝕜) : ℕ := (analyticOrderAt f z₀).toNat
 
 @[simp]
@@ -208,8 +215,8 @@ lemma analyticOrderAt_congr (hfg : f =ᶠ[𝓝 z₀] g) :
       analyticOrderAt_of_not_analyticAt <| analyticAt_neg.not.2 hf]
 
 /-- The order of a sum is at least the minimum of the orders of the summands. -/
-theorem le_analyticOrderAt_add :
-    min (analyticOrderAt f z₀) (analyticOrderAt g z₀) ≤ analyticOrderAt (f + g) z₀ := by
+theorem le_analyticOrderAt_add
+    : min (analyticOrderAt f z₀) (analyticOrderAt g z₀) ≤ analyticOrderAt (f + g) z₀ := by
   by_cases hf : AnalyticAt 𝕜 f z₀
   · by_cases hg : AnalyticAt 𝕜 g z₀
     · refine ENat.forall_natCast_le_iff_le.mp fun n ↦ ?_
@@ -273,9 +280,9 @@ lemma analyticOrderAt_smul {f : 𝕜 → 𝕜} (hf : AnalyticAt 𝕜 f z₀) (hg
     exact eventually_nhds_iff.2
       ⟨t ∩ s, fun y hy ↦ (by simp [h₁t y hy.1, h₁s y hy.2]; module), h₂t.inter h₂s, h₃t, h₃s⟩
 
-theorem AnalyticAt.analyticOrderAt_deriv_add_one {x : 𝕜} (hf : AnalyticAt 𝕜 f x)
-    [CompleteSpace E] [CharZero 𝕜] :
-    analyticOrderAt (deriv f) x + 1 = analyticOrderAt (f · - f x) x := by
+theorem AnalyticAt.analyticOrderAt_deriv_add_one
+    {x : 𝕜} (hf : AnalyticAt 𝕜 f x) [CompleteSpace E] [CharZero 𝕜]
+    : analyticOrderAt (deriv f) x + 1 = analyticOrderAt (f · - f x) x := by
   generalize h : analyticOrderAt (f · - f x) x = r
   cases r with
   | top =>
@@ -296,11 +303,12 @@ theorem AnalyticAt.analyticOrderAt_deriv_add_one {x : 𝕜} (hf : AnalyticAt �
     obtain ⟨F, hFa, hFne, hfF⟩ := h
     simp only [sub_eq_iff_eq_add] at hfF
     obtain ⟨U, hUf, hUo, hUx⟩ := eventually_nhds_iff.mp (hfF.and hFa.eventually_analyticAt)
-    have : ∀ y ∈ U, deriv f y =
-        (y - x) ^ (s + 1) • deriv F y + (s + 1) • (y - x) ^ s • F y := by
+    have : ∀ y ∈ U, deriv f y = (y - x) ^ (s + 1) • deriv F y + (s + 1) • (y - x) ^ s • F y := by
       intro y hy
-      rw [EventuallyEq.deriv_eq (eventually_of_mem (hUo.mem_nhds hy) (fun u hu ↦ (hUf u hu).1)),
-        deriv_add_const, deriv_fun_smul (by fun_prop) (hUf y hy).2.differentiableAt]
+      rw [
+        EventuallyEq.deriv_eq (eventually_of_mem (hUo.mem_nhds hy) (fun u hu ↦ (hUf u hu).1)),
+        deriv_add_const, deriv_fun_smul (by fun_prop) (hUf y hy).2.differentiableAt
+      ]
       simp [mul_smul, add_smul, Nat.cast_smul_eq_nsmul]
     rw [analyticOrderAt_congr (eventually_of_mem (hUo.mem_nhds hUx) this)]
     have : analyticOrderAt (fun y ↦ (s + 1) • (y - x) ^ s • F y) x = s := by
@@ -311,12 +319,15 @@ theorem AnalyticAt.analyticOrderAt_deriv_add_one {x : 𝕜} (hf : AnalyticAt �
       · simp_rw [← Nat.cast_smul_eq_nsmul 𝕜]
         fun_prop
     rwa [← Pi.add_def, analyticOrderAt_add_eq_right_of_lt]
-    rw [this, ← ENat.add_one_le_iff (ENat.natCast_ne_top _), ← Nat.cast_add_one,
-      natCast_le_analyticOrderAt (by fun_prop)]
+    rw [
+      this, ← ENat.add_one_le_iff (ENat.natCast_ne_top _), ← Nat.cast_add_one,
+      natCast_le_analyticOrderAt (by fun_prop)
+    ]
     exact ⟨deriv F, hFa.deriv, by simp⟩
 
-theorem AnalyticAt.analyticOrderAt_sub_eq_one_of_deriv_ne_zero {x : 𝕜} (hf : AnalyticAt 𝕜 f x)
-    (hf' : deriv f x ≠ 0) : analyticOrderAt (f · - f x) x = 1 := by
+theorem AnalyticAt.analyticOrderAt_sub_eq_one_of_deriv_ne_zero
+    {x : 𝕜} (hf : AnalyticAt 𝕜 f x) (hf' : deriv f x ≠ 0)
+    : analyticOrderAt (f · - f x) x = 1 := by
   generalize h : analyticOrderAt (f · - f x) x = r
   cases r with
   | top =>
@@ -332,16 +343,20 @@ theorem AnalyticAt.analyticOrderAt_sub_eq_one_of_deriv_ne_zero {x : 𝕜} (hf : 
       simp_all
     · contrapose! hf'
       simp_rw [sub_eq_iff_eq_add] at hfF
-      rw [EventuallyEq.deriv_eq hfF, deriv_add_const, deriv_fun_smul (by fun_prop) (by fun_prop),
-        deriv_fun_pow (by fun_prop), sub_self, zero_pow (by lia), zero_pow (by lia),
-        mul_zero, zero_mul, zero_smul, zero_smul, add_zero]
+      rw [
+        EventuallyEq.deriv_eq hfF, deriv_add_const, deriv_fun_smul (by fun_prop) (by fun_prop),
+        deriv_fun_pow (by fun_prop), sub_self, zero_pow (by lia), zero_pow (by lia), mul_zero,
+        zero_mul, zero_smul, zero_smul, add_zero
+      ]
 
-/-- At a zero with nonvanishing derivative, the analytic order is 1.
+/--
+At a zero with nonvanishing derivative, the analytic order is 1.
 This is a variant of `analyticOrderAt_sub_eq_one_of_deriv_ne_zero` with `f z₀ = 0`
-replacing the subtraction. -/
-theorem AnalyticAt.analyticOrderAt_eq_one_of_zero_deriv_ne_zero {x : 𝕜}
-    (hf : AnalyticAt 𝕜 f x) (hfx : f x = 0) (hf' : deriv f x ≠ 0) :
-    analyticOrderAt f x = 1 := by
+replacing the subtraction.
+-/
+theorem AnalyticAt.analyticOrderAt_eq_one_of_zero_deriv_ne_zero
+    {x : 𝕜} (hf : AnalyticAt 𝕜 f x) (hfx : f x = 0) (hf' : deriv f x ≠ 0)
+    : analyticOrderAt f x = 1 := by
   simpa [hfx] using hf.analyticOrderAt_sub_eq_one_of_deriv_ne_zero hf'
 
 lemma natCast_le_analyticOrderAt_iff_iteratedDeriv_eq_zero [CharZero 𝕜] [CompleteSpace E]
@@ -431,8 +446,8 @@ lemma AnalyticAt.exists_eq_sum_add_pow_mul [CharZero 𝕜] [CompleteSpace E]
       · contrapose hz
         exact (pow_eq_zero_iff'.mp hz).1 ▸ mem_of_mem_nhds hU0
 
-variable [CharZero 𝕜] [CompleteSpace E] {z₀ : 𝕜} {f : 𝕜 → E}
-  (hf : AnalyticAt 𝕜 f z₀) (hzero : f z₀ = 0)
+variable
+  [CharZero 𝕜] [CompleteSpace E] {z₀ : 𝕜} {f : 𝕜 → E} (hf : AnalyticAt 𝕜 f z₀) (hzero : f z₀ = 0)
 
 include hf hzero
 
@@ -499,14 +514,15 @@ lemma analyticOrderAt_centeredMonomial {z₀ : 𝕜} {n : ℕ} :
   exact ⟨1, by simp [Pi.one_def, analyticAt_const]⟩
 
 /-- The analytic order of the function `(· - c)` at `x` is one if `x = c`. -/
-@[simp] theorem analyticOrderAt_id_sub_const_self {c : 𝕜} :
-    analyticOrderAt (· - c) c = 1 := by
+@[simp]
+theorem analyticOrderAt_id_sub_const_self {c : 𝕜} : analyticOrderAt (· - c) c = 1 := by
   have := analyticOrderAt_centeredMonomial (n := 1) (z₀ := c)
   simp_all [pow_one]
 
 /-- The analytic order of the function `(· - c)` at `x` is zero if `x ≠ c`. -/
-@[simp] theorem analyticOrderAt_id_sub_const_of_ne {c x : 𝕜} (h : x ≠ c) :
-    analyticOrderAt (· - c) x = 0 := by
+@[simp]
+theorem analyticOrderAt_id_sub_const_of_ne {c x : 𝕜} (h : x ≠ c)
+    : analyticOrderAt (· - c) x = 0 := by
   apply analyticOrderAt_eq_zero.2
   grind
 
@@ -520,25 +536,26 @@ lemma analyticOrderAt_mul_eq_top_of_right (hg : analyticOrderAt g z₀ = ⊤) :
     analyticOrderAt (f * g) z₀ = ⊤ := analyticOrderAt_smul_eq_top_of_right hg
 
 /-- The order is additive when multiplying analytic functions. -/
-theorem analyticOrderAt_mul (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀) :
-    analyticOrderAt (f * g) z₀ = analyticOrderAt f z₀ + analyticOrderAt g z₀ :=
+theorem analyticOrderAt_mul (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀)
+    : analyticOrderAt (f * g) z₀ = analyticOrderAt f z₀ + analyticOrderAt g z₀ :=
   analyticOrderAt_smul hf hg
 
 /-- The order is additive when multiplying analytic functions. -/
-theorem analyticOrderNatAt_mul (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀)
-    (hf' : analyticOrderAt f z₀ ≠ ⊤) (hg' : analyticOrderAt g z₀ ≠ ⊤) :
-    analyticOrderNatAt (f * g) z₀ = analyticOrderNatAt f z₀ + analyticOrderNatAt g z₀ := by
+theorem analyticOrderNatAt_mul
+    (hf : AnalyticAt 𝕜 f z₀) (hg : AnalyticAt 𝕜 g z₀) (hf' : analyticOrderAt f z₀ ≠ ⊤)
+    (hg' : analyticOrderAt g z₀ ≠ ⊤)
+    : analyticOrderNatAt (f * g) z₀ = analyticOrderNatAt f z₀ + analyticOrderNatAt g z₀ := by
   simp [analyticOrderNatAt, analyticOrderAt_mul, ENat.toNat_add, *]
 
 /-- The order multiplies by `n` when taking an analytic function to its `n`th power. -/
-theorem analyticOrderAt_pow (hf : AnalyticAt 𝕜 f z₀) :
-    ∀ n, analyticOrderAt (f ^ n) z₀ = n • analyticOrderAt f z₀
+theorem analyticOrderAt_pow (hf : AnalyticAt 𝕜 f z₀)
+    : ∀ n, analyticOrderAt (f ^ n) z₀ = n • analyticOrderAt f z₀
   | 0 => by simp [analyticOrderAt_eq_zero]
   | n + 1 => by simp [add_mul, pow_add, analyticOrderAt_mul (hf.pow n), analyticOrderAt_pow, hf]
 
 /-- The order multiplies by `n` when taking an analytic function to its `n`th power. -/
-theorem analyticOrderNatAt_pow (hf : AnalyticAt 𝕜 f z₀) (n : ℕ) :
-    analyticOrderNatAt (f ^ n) z₀ = n • analyticOrderNatAt f z₀ := by
+theorem analyticOrderNatAt_pow (hf : AnalyticAt 𝕜 f z₀) (n : ℕ)
+    : analyticOrderNatAt (f ^ n) z₀ = n • analyticOrderNatAt f z₀ := by
   simp [analyticOrderNatAt, analyticOrderAt_pow, hf]
 
 end NontriviallyNormedField
@@ -603,8 +620,8 @@ namespace AnalyticOnNhd
 variable {U : Set 𝕜} {f : 𝕜 → E}
 
 /-- The set where an analytic function has infinite order is clopen in its domain of analyticity. -/
-theorem isClopen_setOfPred_analyticOrderAt_eq_top (hf : AnalyticOnNhd 𝕜 f U) :
-    IsClopen {u : U | analyticOrderAt f u = ⊤} := by
+theorem isClopen_setOfPred_analyticOrderAt_eq_top (hf : AnalyticOnNhd 𝕜 f U)
+    : IsClopen {u : U | analyticOrderAt f u = ⊤} := by
   constructor
   · rw [← isOpen_compl_iff, isOpen_iff_forall_mem_open]
     intro z hz
@@ -626,7 +643,12 @@ theorem isClopen_setOfPred_analyticOrderAt_eq_top (hf : AnalyticOnNhd 𝕜 f U) 
   · apply isOpen_iff_forall_mem_open.mpr
     intro z hz
     conv =>
-      arg 1; intro; left; right; arg 1; intro
+      arg 1
+      intro
+      left
+      right
+      arg 1
+      intro
       rw [analyticOrderAt_eq_top, eventually_nhds_iff]
     simp only [mem_ofPred_eq] at hz
     rw [analyticOrderAt_eq_top, eventually_nhds_iff] at hz
@@ -638,28 +660,36 @@ theorem isClopen_setOfPred_analyticOrderAt_eq_top (hf : AnalyticOnNhd 𝕜 f U) 
 @[deprecated (since := "2026-07-09")]
 alias isClopen_setOf_analyticOrderAt_eq_top := isClopen_setOfPred_analyticOrderAt_eq_top
 
-/-- On a connected set, there exists a point where a meromorphic function `f` has finite order iff
-`f` has finite order at every point. -/
-theorem exists_analyticOrderAt_ne_top_iff_forall (hf : AnalyticOnNhd 𝕜 f U) (hU : IsConnected U) :
-    (∃ u : U, analyticOrderAt f u ≠ ⊤) ↔ (∀ u : U, analyticOrderAt f u ≠ ⊤) := by
+/--
+On a connected set, there exists a point where a meromorphic function `f` has finite order iff
+`f` has finite order at every point.
+-/
+theorem exists_analyticOrderAt_ne_top_iff_forall (hf : AnalyticOnNhd 𝕜 f U) (hU : IsConnected U)
+    : (∃ u : U, analyticOrderAt f u ≠ ⊤) ↔ (∀ u : U, analyticOrderAt f u ≠ ⊤) := by
   have : ConnectedSpace U := Subtype.connectedSpace hU
   obtain ⟨v⟩ : Nonempty U := inferInstance
   suffices (∀ (u : U), analyticOrderAt f u ≠ ⊤) ∨ ∀ (u : U), analyticOrderAt f u = ⊤ by tauto
   simpa [Set.eq_empty_iff_forall_notMem, Set.eq_univ_iff_forall] using
-      isClopen_iff.1 hf.isClopen_setOfPred_analyticOrderAt_eq_top
+    isClopen_iff.1 hf.isClopen_setOfPred_analyticOrderAt_eq_top
 
-/-- On a preconnected set, a meromorphic function has finite order at one point if it has finite
-order at another point. -/
-theorem analyticOrderAt_ne_top_of_isPreconnected {x y : 𝕜} (hf : AnalyticOnNhd 𝕜 f U)
-    (hU : IsPreconnected U) (h₁x : x ∈ U) (hy : y ∈ U) (h₂x : analyticOrderAt f x ≠ ⊤) :
-    analyticOrderAt f y ≠ ⊤ :=
+/--
+On a preconnected set, a meromorphic function has finite order at one point if it has finite
+order at another point.
+-/
+theorem analyticOrderAt_ne_top_of_isPreconnected
+    {x y : 𝕜}
+    (hf : AnalyticOnNhd 𝕜 f U) (hU : IsPreconnected U) (h₁x : x ∈ U) (hy : y ∈ U)
+    (h₂x : analyticOrderAt f x ≠ ⊤)
+    : analyticOrderAt f y ≠ ⊤ :=
   (hf.exists_analyticOrderAt_ne_top_iff_forall ⟨nonempty_of_mem h₁x, hU⟩).1 (by use ⟨x, h₁x⟩)
     ⟨y, hy⟩
 
-/-- The set where an analytic function has zero or infinite order is discrete within its domain of
-analyticity. -/
-theorem codiscrete_setOfPred_analyticOrderAt_eq_zero_or_top (hf : AnalyticOnNhd 𝕜 f U) :
-    {u : U | analyticOrderAt f u = 0 ∨ analyticOrderAt f u = ⊤} ∈ Filter.codiscrete U := by
+/--
+The set where an analytic function has zero or infinite order is discrete within its domain of
+analyticity.
+-/
+theorem codiscrete_setOfPred_analyticOrderAt_eq_zero_or_top (hf : AnalyticOnNhd 𝕜 f U)
+    : {u : U | analyticOrderAt f u = 0 ∨ analyticOrderAt f u = ⊤} ∈ Filter.codiscrete U := by
   simp_rw [mem_codiscrete_subtype_iff_mem_codiscreteWithin, mem_codiscreteWithin,
     disjoint_principal_right]
   intro x hx
@@ -677,8 +707,8 @@ alias codiscrete_setOf_analyticOrderAt_eq_zero_or_top :=
 The set where an analytic function has zero or infinite order is discrete within its domain of
 analyticity.
 -/
-theorem codiscreteWithin_setOfPred_analyticOrderAt_eq_zero_or_top (hf : AnalyticOnNhd 𝕜 f U) :
-    {u : 𝕜 | analyticOrderAt f u = 0 ∨ analyticOrderAt f u = ⊤} ∈ codiscreteWithin U := by
+theorem codiscreteWithin_setOfPred_analyticOrderAt_eq_zero_or_top (hf : AnalyticOnNhd 𝕜 f U)
+    : {u : 𝕜 | analyticOrderAt f u = 0 ∨ analyticOrderAt f u = ⊤} ∈ codiscreteWithin U := by
   simp_rw [mem_codiscreteWithin, disjoint_principal_right]
   intro x hx
   rcases (hf x hx).eventually_eq_zero_or_eventually_ne_zero with h₁f | h₁f
@@ -698,9 +728,9 @@ codiscrete within `U`.
 See `AnalyticOnNhd.preimage_mem_codiscreteWithin` for a more general statement in preimages of
 codiscrete sets.
 -/
-theorem preimage_zero_mem_codiscreteWithin {x : 𝕜} (h₁f : AnalyticOnNhd 𝕜 f U) (h₂f : f x ≠ 0)
-    (hx : x ∈ U) (hU : IsConnected U) :
-    f ⁻¹' {0}ᶜ ∈ codiscreteWithin U := by
+theorem preimage_zero_mem_codiscreteWithin
+    {x : 𝕜} (h₁f : AnalyticOnNhd 𝕜 f U) (h₂f : f x ≠ 0) (hx : x ∈ U) (hU : IsConnected U)
+    : f ⁻¹' {0}ᶜ ∈ codiscreteWithin U := by
   rcases h₁f.eqOn_zero_or_eventually_ne_zero_of_preconnected hU.isPreconnected with hzero | hne
   · exact (h₂f (hzero hx)).elim
   · exact hne
@@ -711,9 +741,9 @@ If an analytic function `f` is not constantly zero on `𝕜`, then its set of ze
 See `AnalyticOnNhd.preimage_mem_codiscreteWithin` for a more general statement in preimages of
 codiscrete sets.
 -/
-theorem preimage_zero_mem_codiscrete [ConnectedSpace 𝕜] {x : 𝕜} (hf : AnalyticOnNhd 𝕜 f Set.univ)
-    (hx : f x ≠ 0) :
-    f ⁻¹' {0}ᶜ ∈ codiscrete 𝕜 :=
+theorem preimage_zero_mem_codiscrete
+    [ConnectedSpace 𝕜] {x : 𝕜} (hf : AnalyticOnNhd 𝕜 f Set.univ) (hx : f x ≠ 0)
+    : f ⁻¹' {0}ᶜ ∈ codiscrete 𝕜 :=
   hf.preimage_zero_mem_codiscreteWithin hx trivial isConnected_univ
 
 lemma analyticOrderAt_eq_top_iff_eq_zero [PreconnectedSpace 𝕜] {f : 𝕜 → E} (z : 𝕜)

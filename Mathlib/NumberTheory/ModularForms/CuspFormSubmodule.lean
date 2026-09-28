@@ -39,8 +39,8 @@ q-expansion coefficient (for `𝒮ℒ`).
 
 @[expose] public noncomputable section
 
-open UpperHalfPlane ModularForm Complex SlashInvariantForm SlashInvariantFormClass
- ModularFormClass OnePoint Filter
+open UpperHalfPlane ModularForm Complex SlashInvariantForm SlashInvariantFormClass ModularFormClass
+  OnePoint Filter
 
 open scoped MatrixGroups
 
@@ -69,23 +69,24 @@ end CuspForm
 
 namespace ModularForm
 
-/-- The submodule of `ModularForm Γ k` consisting of cusp forms, defined as the range of
-the inclusion `CuspForm.toModularFormₗ`. -/
-def cuspFormSubmodule (Γ : Subgroup (GL (Fin 2) ℝ)) (k : ℤ) [Γ.HasDetOne] :
-    Submodule ℂ (ModularForm Γ k) :=
+/--
+The submodule of `ModularForm Γ k` consisting of cusp forms, defined as the range of
+the inclusion `CuspForm.toModularFormₗ`.
+-/
+def cuspFormSubmodule (Γ : Subgroup (GL (Fin 2) ℝ)) (k : ℤ) [Γ.HasDetOne]
+    : Submodule ℂ (ModularForm Γ k) :=
   LinearMap.range CuspForm.toModularFormₗ
 
 /-- A modular form is a cusp form if it lies in the cusp form submodule. -/
-def IsCuspForm [Γ.HasDetOne] (f : ModularForm Γ k) : Prop :=
-  f ∈ cuspFormSubmodule Γ k
+def IsCuspForm [Γ.HasDetOne] (f : ModularForm Γ k) : Prop := f ∈ cuspFormSubmodule Γ k
 
 @[simp]
 lemma mem_cuspFormSubmodule_iff [Γ.HasDetOne] {f : ModularForm Γ k} :
     f ∈ cuspFormSubmodule Γ k ↔ IsCuspForm f := Iff.rfl
 
 /-- The cusp form submodule is linearly equivalent to the type of cusp forms. -/
-def CuspForm.equivCuspFormSubmodule (Γ : Subgroup (GL (Fin 2) ℝ)) (k : ℤ) [Γ.HasDetOne] :
-    CuspForm Γ k ≃ₗ[ℂ] cuspFormSubmodule Γ k :=
+def CuspForm.equivCuspFormSubmodule (Γ : Subgroup (GL (Fin 2) ℝ)) (k : ℤ) [Γ.HasDetOne]
+    : CuspForm Γ k ≃ₗ[ℂ] cuspFormSubmodule Γ k :=
   LinearEquiv.ofInjective CuspForm.toModularFormₗ CuspForm.toModularFormₗ_injective
 
 /-- The underlying modular form (via `toModularFormₗ`) of a `CuspForm` is itself a cusp form. -/
@@ -128,10 +129,14 @@ lemma isZeroAt_of_coeffZero_eq_zero (f : ModularForm 𝒮ℒ k)
       (ModularFormClass.analyticAt_cuspFunction_zero f one_pos one_mem_strictPeriods_SL)
       (periodic_comp_ofComplex f one_mem_strictPeriods_SL)]
 
-/-- Build a `CuspForm 𝒮ℒ k` from a `ModularForm 𝒮ℒ k` whose q-expansion has vanishing
-constant term. The resulting cusp form has the same underlying function. -/
-def toCuspForm (f : ModularForm 𝒮ℒ k) (h : (qExpansion 1 f).coeff 0 = 0) : CuspForm 𝒮ℒ k :=
-  { f with zero_at_cusps' := isZeroAt_of_coeffZero_eq_zero f h }
+/--
+Build a `CuspForm 𝒮ℒ k` from a `ModularForm 𝒮ℒ k` whose q-expansion has vanishing
+constant term. The resulting cusp form has the same underlying function.
+-/
+def toCuspForm (f : ModularForm 𝒮ℒ k) (h : (qExpansion 1 f).coeff 0 = 0) : CuspForm 𝒮ℒ k := {
+  f with
+  zero_at_cusps' := isZeroAt_of_coeffZero_eq_zero f h
+}
 
 @[simp]
 lemma toCuspForm_apply (f : ModularForm 𝒮ℒ k) (h : (qExpansion 1 f).coeff 0 = 0)

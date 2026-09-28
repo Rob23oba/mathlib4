@@ -85,17 +85,21 @@ open scoped NNReal Topology
 
 namespace ProbabilityTheory.Kernel
 
-variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
-    [CountablyGenerated γ] {κ : Kernel α (γ × β)} {ν : Kernel α γ}
+variable
+  {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
+  [CountablyGenerated γ]
+  {κ : Kernel α (γ × β)} {ν : Kernel α γ}
 
 section DensityProcess
 
-/-- An `ℕ`-indexed martingale that is a density for `κ` with respect to `ν` on the sets in
+/--
+An `ℕ`-indexed martingale that is a density for `κ` with respect to `ν` on the sets in
 `countablePartition γ n`. Used to define its limit `ProbabilityTheory.Kernel.density`, which is
-a density for those kernels for all measurable sets. -/
-noncomputable
-def densityProcess (κ : Kernel α (γ × β)) (ν : Kernel α γ) (n : ℕ) (a : α) (x : γ) (s : Set β) :
-    ℝ :=
+a density for those kernels for all measurable sets.
+-/
+noncomputable def densityProcess
+    (κ : Kernel α (γ × β)) (ν : Kernel α γ) (n : ℕ) (a : α) (x : γ) (s : Set β)
+    : ℝ :=
   (κ a (countablePartitionSet n x ×ˢ s) / ν a (countablePartitionSet n x)).toReal
 
 lemma densityProcess_def (κ : Kernel α (γ × β)) (ν : Kernel α γ) (n : ℕ) (a : α) (s : Set β) :
@@ -419,11 +423,12 @@ end DensityProcess
 
 section Density
 
-/-- Density of the kernel `κ` with respect to `ν`. This is a function `α → γ → Set β → ℝ` which
+/--
+Density of the kernel `κ` with respect to `ν`. This is a function `α → γ → Set β → ℝ` which
 is measurable on `α × γ` for all measurable sets `s : Set β` and satisfies that
-`∫ x in A, density κ ν a x s ∂(ν a) = (κ a).real (A ×ˢ s)` for all measurable `A : Set γ`. -/
-noncomputable
-def density (κ : Kernel α (γ × β)) (ν : Kernel α γ) (a : α) (x : γ) (s : Set β) : ℝ :=
+`∫ x in A, density κ ν a x s ∂(ν a) = (κ a).real (A ×ˢ s)` for all measurable `A : Set γ`.
+-/
+noncomputable def density (κ : Kernel α (γ × β)) (ν : Kernel α γ) (a : α) (x : γ) (s : Set β) : ℝ :=
   limsup (fun n ↦ densityProcess κ ν n a x s) atTop
 
 lemma density_ae_eq_limitProcess (hκν : fst κ ≤ ν) [IsFiniteKernel ν]

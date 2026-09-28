@@ -8,7 +8,6 @@ module
 public import Mathlib.Algebra.Category.CommAlgCat.FiniteType
 public import Mathlib.CategoryTheory.ObjectProperty.Small
 
-
 /-! # Smallness results on the category of `CommRing` -/
 
 public section

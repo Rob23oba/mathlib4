@@ -34,14 +34,15 @@ namespace AlgebraicGeometry
 
 variable {X Y Z : Scheme.{u}} (f : X ⟶ Y)
 
-/-- A morphism of schemes `f : X ⟶ Y` is flat if for each affine `U ⊆ Y` and
+/--
+A morphism of schemes `f : X ⟶ Y` is flat if for each affine `U ⊆ Y` and
 `V ⊆ f ⁻¹' U`, the induced map `Γ(Y, U) ⟶ Γ(X, V)` is flat. This is equivalent to
 asking that all stalk maps are flat (see `AlgebraicGeometry.Flat.iff_flat_stalkMap`).
 -/
 @[mk_iff]
 class Flat (f : X ⟶ Y) : Prop where
-  flat_appLE (f) :
-    ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
+  flat_appLE (f)
+    : ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
       (f.appLE U V e).hom.Flat
 
 alias Scheme.Hom.flat_appLE := Flat.flat_appLE
@@ -55,8 +56,7 @@ instance : HasRingHomProperty @Flat RingHom.Flat where
     rw [flat_iff, affineLocally_iff_forall_isAffineOpen]
 
 instance (priority := 900) [IsOpenImmersion f] : Flat f :=
-  HasRingHomProperty.of_isOpenImmersion
-    RingHom.Flat.containsIdentities
+  HasRingHomProperty.of_isOpenImmersion RingHom.Flat.containsIdentities
 
 instance : MorphismProperty.IsStableUnderComposition @Flat :=
   HasRingHomProperty.stableUnderComposition RingHom.Flat.stableUnderComposition
@@ -65,8 +65,7 @@ instance : MorphismProperty.IsStableUnderComposition @Flat :=
 lemma SpecMap_iff {R S : CommRingCat.{u}} {f : R ⟶ S} : Flat (Spec.map f) ↔ f.hom.Flat :=
   HasRingHomProperty.Spec_iff
 
-instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [hf : Flat f] [hg : Flat g] : Flat (f ≫ g) :=
+instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [hf : Flat f] [hg : Flat g] : Flat (f ≫ g) :=
   MorphismProperty.comp_mem _ f g hf hg
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -88,8 +87,7 @@ instance (f : X ⟶ Z) (g : Y ⟶ Z) [Flat f] : Flat (pullback.snd f g) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (f : X ⟶ Y) (V : Y.Opens) [Flat f] : Flat (f ∣_ V) :=
-  IsZariskiLocalAtTarget.restrict ‹_› V
+instance (f : X ⟶ Y) (V : Y.Opens) [Flat f] : Flat (f ∣_ V) := IsZariskiLocalAtTarget.restrict ‹_› V
 
 instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [Flat f] : Flat (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
@@ -105,16 +103,20 @@ lemma iff_flat_stalkMap : Flat f ↔ ∀ x, (f.stalkMap x).hom.Flat :=
   ⟨fun _ ↦ stalkMap f, fun H ↦ of_stalkMap f H⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X : Scheme.{u}} {ι : Type v} [Small.{u} ι] {Y : ι → Scheme.{u}} {f : ∀ i, Y i ⟶ X}
-    [∀ i, Flat (f i)] : Flat (Sigma.desc f) :=
+instance
+    {X : Scheme.{u}} {ι : Type v} [Small.{u} ι]
+    {Y : ι → Scheme.{u}} {f : ∀ i, Y i ⟶ X} [∀ i, Flat (f i)]
+    : Flat (Sigma.desc f) :=
   IsZariskiLocalAtSource.sigmaDesc (fun _ ↦ inferInstance)
 
 set_option backward.isDefEq.respectTransparency false in
 instance (priority := low) [Subsingleton Y] [IsIntegral Y] : Flat f := by
   refine (MorphismProperty.cancel_right_of_respectsIso @Flat _ Y.isoSpec.hom).mp ?_
   refine (IsZariskiLocalAtSource.iff_of_openCover X.affineCover).mpr fun i ↦ ?_
-  rw [← Spec.map_preimage (X.affineCover.f i ≫ f ≫ Y.isoSpec.hom),
-    HasRingHomProperty.Spec_iff (P := @Flat)]
+  rw [
+    ← Spec.map_preimage (X.affineCover.f i ≫ f ≫ Y.isoSpec.hom),
+    HasRingHomProperty.Spec_iff (P := @Flat)
+  ]
   exact .of_isField (isField_of_isIntegral_of_subsingleton _) _
 
 /-- A surjective, quasi-compact, flat morphism is a quotient map. -/
@@ -217,14 +219,16 @@ We show that this map is
 
 -/
 
-variable {X Y S T : Scheme.{u}} {f : T ⟶ S} {g : Y ⟶ X} {iX : X ⟶ S} {iY : Y ⟶ T}
+variable
+  {X Y S T : Scheme.{u}} {f : T ⟶ S} {g : Y ⟶ X} {iX : X ⟶ S} {iY : Y ⟶ T}
   (H : IsPullback g iY iX f)
-  {US : S.Opens} {UT : T.Opens}
-  {UX : X.Opens} (hUST : UT ≤ f ⁻¹ᵁ US) (hUSX : UX ≤ iX ⁻¹ᵁ US)
+  {US : S.Opens} {UT : T.Opens} {UX : X.Opens} (hUST : UT ≤ f ⁻¹ᵁ US) (hUSX : UX ≤ iX ⁻¹ᵁ US)
   {UY : Y.Opens} (hUY : UY = g ⁻¹ᵁ UX ⊓ iY ⁻¹ᵁ UT)
 
-/-- The canonical map `Γ(X, Uₓ) ⊗[Γ(S, Uₛ)] Γ(T, Uₜ) ⟶ Γ(X ×ₛ T, pr₁ ⁻¹ Uₓ ∩ pr₂ ⁻¹ Uₜ)`.
-This is an isomorphism under various circumstances. -/
+/--
+The canonical map `Γ(X, Uₓ) ⊗[Γ(S, Uₛ)] Γ(T, Uₜ) ⟶ Γ(X ×ₛ T, pr₁ ⁻¹ Uₓ ∩ pr₂ ⁻¹ Uₜ)`.
+This is an isomorphism under various circumstances.
+-/
 abbrev pushoutSection : pushout (iX.appLE US UX hUSX) (f.appLE US UT hUST) ⟶ Γ(Y, UY) :=
   pushout.desc (g.appLE UX UY (by simp [*])) (iY.appLE UT UY (by simp [*]))
     (by simp only [Scheme.Hom.appLE_comp_appLE, H.w])

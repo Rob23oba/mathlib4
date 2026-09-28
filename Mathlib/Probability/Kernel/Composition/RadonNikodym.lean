@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Probability.Kernel.Composition.MeasureCompProd
 public import Mathlib.Probability.Kernel.RadonNikodym
-
 import Mathlib.Probability.Kernel.Composition.WithDensity
 import Mathlib.Probability.Kernel.Composition.AbsolutelyContinuous
 
@@ -34,7 +33,6 @@ If `α` is countable or `β` is countably generated, the kernels have a Radon-Ni
 
 -/
 
-
 public section
 
 open MeasureTheory Set
@@ -42,8 +40,9 @@ open scoped ENNReal
 
 namespace ProbabilityTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : Kernel α β}
+variable
+  {α β : Type*}
+  {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α} {κ η : Kernel α β}
 
 /-- Auxiliary lemma for `rnDeriv_measure_compProd_left`. -/
 private lemma rnDeriv_measure_compProd_left_of_ac (hμν : μ ≪ ν) (κ : Kernel α β)

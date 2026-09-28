@@ -34,22 +34,26 @@ variable (e : α ≃ β)
 variable [AddCommMonoid α] [TopologicalSpace β] [AddCommMonoid β] [Semiring R] [Module R β]
 
 variable (R) in
-/-- An additive equivalence `e : α ≃+ β` gives a continuous linear equivalence `α ≃L[R] β`
+/--
+An additive equivalence `e : α ≃+ β` gives a continuous linear equivalence `α ≃L[R] β`
 where the continuous `R`-module structure on `α` is the one obtained by transporting an
 `R`-module structure on `β` back along `e`.
 
-This is `e.linearEquiv` as a continuous linear equivalence. -/
-def continuousLinearEquiv (e : α ≃+ β) :
-    letI := e.topologicalSpace
-    letI := e.module R
-    α ≃L[R] β :=
+This is `e.linearEquiv` as a continuous linear equivalence.
+-/
+def continuousLinearEquiv (e : α ≃+ β)
+    : letI := e.topologicalSpace
+      letI := e.module R
+      α ≃L[R] β :=
   letI := e.topologicalSpace
   letI := e.module R
-  { toLinearEquiv := e.linearEquiv _
+  {
+    toLinearEquiv := e.linearEquiv _
     continuous_toFun := continuous_induced_dom
     continuous_invFun := by
       simp +instances only [Equiv.topologicalSpace, e.toFun_as_coe, ← e.coinduced_symm]
-      exact continuous_coinduced_rng }
+      exact continuous_coinduced_rng
+  }
 
 @[simp]
 lemma toLinearEquiv_continuousLinearEquiv (e : α ≃+ β) :
@@ -105,6 +109,6 @@ variable (R α) in
 /-- Shrinking `α` to a smaller universe preserves the continuous module structure. -/
 @[simps!]
 noncomputable def Shrink.continuousLinearEquiv
-    [Small.{v} α] [AddCommMonoid α] [TopologicalSpace α] [Semiring R] [Module R α] :
-    Shrink.{v} α ≃L[R] α :=
+    [Small.{v} α] [AddCommMonoid α] [TopologicalSpace α] [Semiring R] [Module R α]
+    : Shrink.{v} α ≃L[R] α :=
   (Shrink.addEquiv (α := α)).continuousLinearEquiv R

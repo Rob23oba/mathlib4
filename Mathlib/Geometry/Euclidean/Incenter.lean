@@ -58,7 +58,6 @@ duplicated.
 
 @[expose] public section
 
-
 open EuclideanGeometry
 open scoped Finset RealInnerProductSpace
 
@@ -75,10 +74,12 @@ namespace Simplex
 
 variable {m n : ℕ} [NeZero m] [NeZero n] (s : Simplex ℝ P n)
 
-/-- The unnormalized weights of the vertices in an affine combination that gives an excenter with
+/--
+The unnormalized weights of the vertices in an affine combination that gives an excenter with
 signs determined by the given set of indices (for the empty set, this is the incenter; for a
 singleton set, this is the excenter opposite a vertex).  An excenter with those signs exists if
-and only if the sum of these weights is nonzero (so the normalized weights sum to 1). -/
+and only if the sum of these weights is nonzero (so the normalized weights sum to 1).
+-/
 def excenterWeightsUnnorm (signs : Finset (Fin (n + 1))) (i : Fin (n + 1)) : ℝ :=
   (if i ∈ signs then -1 else 1) * (s.height i)⁻¹
 
@@ -112,8 +113,7 @@ lemma excenterWeightsUnnorm_ne_zero (signs : Finset (Fin (n + 1))) (i : Fin (n +
   · simp [(s.height_pos i).ne']
 
 /-- Whether an excenter exists with a given choice of signs. -/
-def ExcenterExists (signs : Finset (Fin (n + 1))) : Prop :=
-  ∑ i, s.excenterWeightsUnnorm signs i ≠ 0
+def ExcenterExists (signs : Finset (Fin (n + 1))) : Prop := ∑ i, s.excenterWeightsUnnorm signs i ≠ 0
 
 lemma excenterExists_reindex {e : Fin (n + 1) ≃ Fin (m + 1)} {signs : Finset (Fin (m + 1))} :
     (s.reindex e).ExcenterExists signs ↔ s.ExcenterExists (signs.map e.symm) := by
@@ -132,9 +132,11 @@ lemma excenterExists_reindex {e : Fin (n + 1) ≃ Fin (m + 1)} {signs : Finset (
   ext
   simp [ExcenterExists]
 
-/-- The normalized weights of the vertices in an affine combination that gives an excenter with
+/--
+The normalized weights of the vertices in an affine combination that gives an excenter with
 signs determined by the given set of indices.  An excenter with those signs exists if and only if
-the sum of these weights is 1. -/
+the sum of these weights is 1.
+-/
 def excenterWeights (signs : Finset (Fin (n + 1))) : Fin (n + 1) → ℝ :=
   (∑ i, s.excenterWeightsUnnorm signs i)⁻¹ • s.excenterWeightsUnnorm signs
 
@@ -339,10 +341,12 @@ lemma excenterWeights_empty_lt_inv_two [n.AtLeastTwo] (i : Fin (n + 1)) :
   convert! h
   simp [excenterWeights, excenterWeightsUnnorm, div_eq_inv_mul]
 
-/-- The exsphere with signs determined by the given set of indices (for the empty set, this is
+/--
+The exsphere with signs determined by the given set of indices (for the empty set, this is
 the insphere; for a singleton set, this is the exsphere opposite a vertex).  This is only
 meaningful if `s.ExcenterExists`; otherwise, it is a sphere of radius zero at some arbitrary
-point. -/
+point.
+-/
 def exsphere (signs : Finset (Fin (n + 1))) : Sphere P where
   center := Finset.univ.affineCombination ℝ s.points (s.excenterWeights signs)
   radius := |(∑ i, s.excenterWeightsUnnorm signs i)⁻¹|
@@ -354,19 +358,19 @@ lemma exsphere_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) (signs : Finset (Fin (m
   simp
 
 /-- The insphere of a simplex. -/
-def insphere : Sphere P :=
-  s.exsphere ∅
+def insphere : Sphere P := s.exsphere ∅
 
 @[simp] lemma insphere_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) :
     (s.reindex e).insphere = s.insphere := by
   simp_rw [insphere, exsphere_reindex]
   simp
 
-/-- The excenter with signs determined by the given set of indices (for the empty set, this is
+/--
+The excenter with signs determined by the given set of indices (for the empty set, this is
 the incenter; for a singleton set, this is the excenter opposite a vertex).  This is only
-meaningful if `s.ExcenterExists signs`; otherwise, it is some arbitrary point. -/
-def excenter (signs : Finset (Fin (n + 1))) : P :=
-  (s.exsphere signs).center
+meaningful if `s.ExcenterExists signs`; otherwise, it is some arbitrary point.
+-/
+def excenter (signs : Finset (Fin (n + 1))) : P := (s.exsphere signs).center
 
 lemma excenter_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) (signs : Finset (Fin (m + 1))) :
     (s.reindex e).excenter signs = s.excenter (signs.map e.symm) := by
@@ -390,8 +394,7 @@ variable {s} in
   exact (h.excenter_map S.subtypeₐᵢ).symm
 
 /-- The incenter of a simplex. -/
-def incenter : P :=
-  (s.exsphere ∅).center
+def incenter : P := (s.exsphere ∅).center
 
 @[simp] lemma incenter_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) :
     (s.reindex e).incenter = s.incenter := by
@@ -408,10 +411,11 @@ def incenter : P :=
     (s.restrict S hS).incenter = s.incenter :=
   s.excenterExists_empty.excenter_restrict S hS
 
-/-- The distance between an excenter and a face of the simplex (zero if no such excenter
-exists). -/
-def exradius (signs : Finset (Fin (n + 1))) : ℝ :=
-  (s.exsphere signs).radius
+/--
+The distance between an excenter and a face of the simplex (zero if no such excenter
+exists).
+-/
+def exradius (signs : Finset (Fin (n + 1))) : ℝ := (s.exsphere signs).radius
 
 lemma exradius_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) (signs : Finset (Fin (m + 1))) :
     (s.reindex e).exradius signs = s.exradius (signs.map e.symm) := by
@@ -430,8 +434,7 @@ lemma exradius_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) (signs : Finset (Fin (m
   simp [exradius, exsphere]
 
 /-- The distance between the incenter and a face of the simplex. -/
-def inradius : ℝ :=
-  (s.exsphere ∅).radius
+def inradius : ℝ := (s.exsphere ∅).radius
 
 @[simp] lemma inradius_reindex (e : Fin (n + 1) ≃ Fin (m + 1)) :
     (s.reindex e).inradius = s.inradius := by
@@ -1090,8 +1093,8 @@ lemma sign_signedInfDist_touchpoint_empty {i j : Fin (n + 1)} (hne : i ≠ j) :
 
 /-- The unique weights of the vertices in an affine combination equal to the given touchpoint. -/
 def touchpointWeights (signs : Finset (Fin (n + 1))) (i : Fin (n + 1)) : Fin (n + 1) → ℝ :=
-  (eq_affineCombination_of_mem_affineSpan_of_fintype
-    (s.touchpoint_mem_affineSpan_simplex signs i)).choose
+  (eq_affineCombination_of_mem_affineSpan_of_fintype (s.touchpoint_mem_affineSpan_simplex signs
+    i)).choose
 
 @[simp] lemma sum_touchpointWeights (signs : Finset (Fin (n + 1))) (i : Fin (n + 1)) :
     ∑ j, s.touchpointWeights signs i j = 1 :=

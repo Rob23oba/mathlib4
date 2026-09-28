@@ -25,20 +25,19 @@ open Pretriangulated.Opposite Pretriangulated Limits
 
 namespace ObjectProperty
 
-variable {C : Type*} [Category* C]
-  [HasShift C ℤ] [HasZeroObject C] [Preadditive C]
+variable
+  {C : Type*} [Category* C] [HasShift C ℤ] [HasZeroObject C] [Preadditive C]
   [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
-instance (P : ObjectProperty C) [P.IsStableUnderShift ℤ] :
-    P.op.IsStableUnderShift ℤ where
+instance (P : ObjectProperty C) [P.IsStableUnderShift ℤ] : P.op.IsStableUnderShift ℤ where
   isStableUnderShiftBy n := { le_shift _ hX := P.le_shift (-n) _ hX }
 
-instance (P : ObjectProperty Cᵒᵖ) [P.IsStableUnderShift ℤ] :
-    P.unop.IsStableUnderShift ℤ where
-  isStableUnderShiftBy n :=
-    { le_shift X hX := by
-        obtain ⟨m, rfl⟩ : ∃ m, n = -m := ⟨-n , by simp⟩
-        exact P.le_shift m _ hX }
+instance (P : ObjectProperty Cᵒᵖ) [P.IsStableUnderShift ℤ] : P.unop.IsStableUnderShift ℤ where
+  isStableUnderShiftBy n := {
+    le_shift X hX := by
+      obtain ⟨m, rfl⟩ : ∃ m, n = -m := ⟨-n, by simp⟩
+      exact P.le_shift m _ hX
+  }
 
 instance (P : ObjectProperty C) [P.IsTriangulatedClosed₂] : P.op.IsTriangulatedClosed₂ where
   ext₂' T hT h₁ h₃ := by

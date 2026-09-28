@@ -89,8 +89,7 @@ theorem coborder_eq_union_closure_compl {s : Set X} : coborder s = s ∪ (closur
   rfl
 
 /-- The coborder of any set is dense -/
-theorem dense_coborder {s : Set X} :
-    Dense (coborder s) := by
+theorem dense_coborder {s : Set X} : Dense (coborder s) := by
   rw [dense_iff_closure_eq, coborder_eq_union_closure_compl, closure_union, ← univ_subset_iff]
   refine _root_.subset_trans ?_ (union_subset_union_right _ (subset_closure))
   simp

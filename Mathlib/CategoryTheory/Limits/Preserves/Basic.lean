@@ -36,7 +36,6 @@ with the above definition of "preserves limits".
 
 @[expose] public section
 
-
 open CategoryTheory
 
 noncomputable section
@@ -50,31 +49,39 @@ variable {C : Type u₁} [Category.{v₁} C]
 variable {D : Type u₂} [Category.{v₂} D]
 variable {J : Type w} [Category.{w'} J] {K : J ⥤ C}
 
-/-- A functor `F` preserves limits of `K` (written as `PreservesLimit K F`)
+/--
+A functor `F` preserves limits of `K` (written as `PreservesLimit K F`)
 if `F` maps any limit cone over `K` to a limit cone.
 -/
 class PreservesLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
   preserves {c : Cone K} (hc : IsLimit c) : Nonempty (IsLimit (F.mapCone c))
 
-/-- A functor `F` preserves colimits of `K` (written as `PreservesColimit K F`)
+/--
+A functor `F` preserves colimits of `K` (written as `PreservesColimit K F`)
 if `F` maps any colimit cocone over `K` to a colimit cocone.
 -/
 class PreservesColimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
   preserves {c : Cocone K} (hc : IsColimit c) : Nonempty (IsColimit (F.mapCocone c))
 
-/-- We say that `F` preserves limits of shape `J` if `F` preserves limits for every diagram
-`K : J ⥤ C`, i.e., `F` maps limit cones over `K` to limit cones. -/
+/--
+We say that `F` preserves limits of shape `J` if `F` preserves limits for every diagram
+`K : J ⥤ C`, i.e., `F` maps limit cones over `K` to limit cones.
+-/
 class PreservesLimitsOfShape (J : Type w) [Category.{w'} J] (F : C ⥤ D) : Prop where
   preservesLimit : ∀ {K : J ⥤ C}, PreservesLimit K F := by infer_instance
 
-/-- We say that `F` preserves colimits of shape `J` if `F` preserves colimits for every diagram
-`K : J ⥤ C`, i.e., `F` maps colimit cocones over `K` to colimit cocones. -/
+/--
+We say that `F` preserves colimits of shape `J` if `F` preserves colimits for every diagram
+`K : J ⥤ C`, i.e., `F` maps colimit cocones over `K` to colimit cocones.
+-/
 class PreservesColimitsOfShape (J : Type w) [Category.{w'} J] (F : C ⥤ D) : Prop where
   preservesColimit : ∀ {K : J ⥤ C}, PreservesColimit K F := by infer_instance
 
 -- This should be used with explicit universe variables.
-/-- `PreservesLimitsOfSize.{v u} F` means that `F` sends all limit cones over any
-diagram `J ⥤ C` to limit cones, where `J : Type u` with `[Category.{v} J]`. -/
+/--
+`PreservesLimitsOfSize.{v u} F` means that `F` sends all limit cones over any
+diagram `J ⥤ C` to limit cones, where `J : Type u` with `[Category.{v} J]`.
+-/
 -- After https://github.com/leanprover/lean4/pull/12286 and
 -- https://github.com/leanprover/lean4/pull/12423, the shape universes `w, w'` in
 -- `PreservesLimitsOfSize`, `PreservesColimitsOfSize`, `ReflectsLimitsOfSize`, and
@@ -85,89 +92,101 @@ class PreservesLimitsOfSize (F : C ⥤ D) : Prop where
   preservesLimitsOfShape : ∀ {J : Type w} [Category.{w'} J], PreservesLimitsOfShape J F := by
     infer_instance
 
-/-- We say that `F` preserves (small) limits if it sends small
-limit cones over any diagram to limit cones. -/
-abbrev PreservesLimits (F : C ⥤ D) :=
-  PreservesLimitsOfSize.{v₂, v₂} F
+/--
+We say that `F` preserves (small) limits if it sends small
+limit cones over any diagram to limit cones.
+-/
+abbrev PreservesLimits (F : C ⥤ D) := PreservesLimitsOfSize.{v₂, v₂} F
 
 -- This should be used with explicit universe variables.
-/-- `PreservesColimitsOfSize.{v u} F` means that `F` sends all colimit cocones over any
-diagram `J ⥤ C` to colimit cocones, where `J : Type u` with `[Category.{v} J]`. -/
+/--
+`PreservesColimitsOfSize.{v u} F` means that `F` sends all colimit cocones over any
+diagram `J ⥤ C` to colimit cocones, where `J : Type u` with `[Category.{v} J]`.
+-/
 @[univ_out_params, pp_with_univ]
 class PreservesColimitsOfSize (F : C ⥤ D) : Prop where
   preservesColimitsOfShape : ∀ {J : Type w} [Category.{w'} J], PreservesColimitsOfShape J F := by
     infer_instance
 
-/-- We say that `F` preserves (small) limits if it sends small
-limit cones over any diagram to limit cones. -/
-abbrev PreservesColimits (F : C ⥤ D) :=
-  PreservesColimitsOfSize.{v₂, v₂} F
+/--
+We say that `F` preserves (small) limits if it sends small
+limit cones over any diagram to limit cones.
+-/
+abbrev PreservesColimits (F : C ⥤ D) := PreservesColimitsOfSize.{v₂, v₂} F
 
 -- see Note [lower instance priority]
 attribute [instance 100]
   PreservesLimitsOfShape.preservesLimit PreservesLimitsOfSize.preservesLimitsOfShape
-  PreservesColimitsOfShape.preservesColimit
-  PreservesColimitsOfSize.preservesColimitsOfShape
+  PreservesColimitsOfShape.preservesColimit PreservesColimitsOfSize.preservesColimitsOfShape
 
 -- see Note [lower instance priority]
-/-- A convenience function for `PreservesLimit`, which takes the functor as an explicit argument to
+/--
+A convenience function for `PreservesLimit`, which takes the functor as an explicit argument to
 guide typeclass resolution.
 -/
-def isLimitOfPreserves (F : C ⥤ D) {c : Cone K} (t : IsLimit c) [PreservesLimit K F] :
-    IsLimit (F.mapCone c) :=
+def isLimitOfPreserves (F : C ⥤ D) {c : Cone K} (t : IsLimit c) [PreservesLimit K F]
+    : IsLimit (F.mapCone c) :=
   (PreservesLimit.preserves t).some
 
 /--
 A convenience function for `PreservesColimit`, which takes the functor as an explicit argument to
 guide typeclass resolution.
 -/
-def isColimitOfPreserves (F : C ⥤ D) {c : Cocone K} (t : IsColimit c) [PreservesColimit K F] :
-    IsColimit (F.mapCocone c) :=
+def isColimitOfPreserves (F : C ⥤ D) {c : Cocone K} (t : IsColimit c) [PreservesColimit K F]
+    : IsColimit (F.mapCocone c) :=
   (PreservesColimit.preserves t).some
 
-instance preservesLimit_subsingleton (K : J ⥤ C) (F : C ⥤ D) :
-    Subsingleton (PreservesLimit K F) := by
+instance preservesLimit_subsingleton (K : J ⥤ C) (F : C ⥤ D)
+    : Subsingleton (PreservesLimit K F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance preservesColimit_subsingleton (K : J ⥤ C) (F : C ⥤ D) :
-    Subsingleton (PreservesColimit K F) := by
+instance preservesColimit_subsingleton (K : J ⥤ C) (F : C ⥤ D)
+    : Subsingleton (PreservesColimit K F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance preservesLimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D) :
-    Subsingleton (PreservesLimitsOfShape J F) := by
+instance preservesLimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D)
+    : Subsingleton (PreservesLimitsOfShape J F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance preservesColimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D) :
-    Subsingleton (PreservesColimitsOfShape J F) := by
+instance preservesColimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D)
+    : Subsingleton (PreservesColimitsOfShape J F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance preservesLimitsOfSize_subsingleton (F : C ⥤ D) :
-    Subsingleton (PreservesLimitsOfSize.{w', w} F) := by
+instance preservesLimitsOfSize_subsingleton (F : C ⥤ D)
+    : Subsingleton (PreservesLimitsOfSize.{w', w} F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance preservesColimitsOfSize_subsingleton (F : C ⥤ D) :
-    Subsingleton (PreservesColimitsOfSize.{w', w} F) := by
+instance preservesColimitsOfSize_subsingleton (F : C ⥤ D)
+    : Subsingleton (PreservesColimitsOfSize.{w', w} F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
 instance id_preservesLimitsOfSize : PreservesLimitsOfSize.{w', w} (𝟭 C) where
-  preservesLimitsOfShape {J} 𝒥 :=
-    {
-      preservesLimit := fun {K} =>
-        ⟨fun {c} h =>
-          ⟨fun s => h.lift ⟨s.pt, fun j => s.π.app j, fun _ _ f => s.π.naturality f⟩, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s m w; rcases s with ⟨_, _, _⟩;
-              exact h.uniq _ m w⟩⟩ }
+  preservesLimitsOfShape {J} 𝒥 := {
+    preservesLimit := fun {K} => ⟨fun {c} h => ⟨
+      fun s => h.lift ⟨s.pt, fun j => s.π.app j, fun _ _ f => s.π.naturality f⟩,
+      by cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j,
+      by
+        cases K
+        rcases c with ⟨_, _, _⟩
+        intro s m w
+        rcases s with ⟨_, _, _⟩
+        exact h.uniq _ m w
+    ⟩⟩
+  }
 
 instance id_preservesColimitsOfSize : PreservesColimitsOfSize.{w', w} (𝟭 C) where
-  preservesColimitsOfShape {J} 𝒥 :=
-    {
-      preservesColimit := fun {K} =>
-        ⟨fun {c} h =>
-          ⟨fun s => h.desc ⟨s.pt, fun j => s.ι.app j, fun _ _ f => s.ι.naturality f⟩, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s m w; rcases s with ⟨_, _, _⟩;
-              exact h.uniq _ m w⟩⟩ }
+  preservesColimitsOfShape {J} 𝒥 := {
+    preservesColimit := fun {K} => ⟨fun {c} h => ⟨
+      fun s => h.desc ⟨s.pt, fun j => s.ι.app j, fun _ _ f => s.ι.naturality f⟩,
+      by cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j,
+      by
+        cases K
+        rcases c with ⟨_, _, _⟩
+        intro s m w
+        rcases s with ⟨_, _, _⟩
+        exact h.uniq _ m w
+    ⟩⟩
+  }
 
 instance [HasLimit K] {F : C ⥤ D} [PreservesLimit K F] : HasLimit (K ⋙ F) where
   exists_limit := ⟨_, isLimitOfPreserves F (limit.isLimit K)⟩
@@ -190,25 +209,26 @@ section
 variable {E : Type u₃} [ℰ : Category.{v₃} E]
 variable (F : C ⥤ D) (G : D ⥤ E)
 
-instance comp_preservesLimit [PreservesLimit K F] [PreservesLimit (K ⋙ F) G] :
-    PreservesLimit K (F ⋙ G) where
+instance comp_preservesLimit [PreservesLimit K F] [PreservesLimit (K ⋙ F) G]
+    : PreservesLimit K (F ⋙ G) where
   preserves hc := ⟨isLimitOfPreserves G (isLimitOfPreserves F hc)⟩
 
-instance comp_preservesLimitsOfShape [PreservesLimitsOfShape J F] [PreservesLimitsOfShape J G] :
-    PreservesLimitsOfShape J (F ⋙ G) where
+instance comp_preservesLimitsOfShape [PreservesLimitsOfShape J F] [PreservesLimitsOfShape J G]
+  : PreservesLimitsOfShape J (F ⋙ G) where
 
-instance comp_preservesLimits [PreservesLimitsOfSize.{w', w} F] [PreservesLimitsOfSize.{w', w} G] :
-    PreservesLimitsOfSize.{w', w} (F ⋙ G) where
+instance comp_preservesLimits [PreservesLimitsOfSize.{w', w} F] [PreservesLimitsOfSize.{w', w} G]
+  : PreservesLimitsOfSize.{w', w} (F ⋙ G) where
 
-instance comp_preservesColimit [PreservesColimit K F] [PreservesColimit (K ⋙ F) G] :
-    PreservesColimit K (F ⋙ G) where
+instance comp_preservesColimit [PreservesColimit K F] [PreservesColimit (K ⋙ F) G]
+    : PreservesColimit K (F ⋙ G) where
   preserves hc := ⟨isColimitOfPreserves G (isColimitOfPreserves F hc)⟩
 
-instance comp_preservesColimitsOfShape [PreservesColimitsOfShape J F]
-    [PreservesColimitsOfShape J G] : PreservesColimitsOfShape J (F ⋙ G) where
+instance comp_preservesColimitsOfShape [PreservesColimitsOfShape J F] [PreservesColimitsOfShape J G]
+  : PreservesColimitsOfShape J (F ⋙ G) where
 
-instance comp_preservesColimits [PreservesColimitsOfSize.{w', w} F]
-    [PreservesColimitsOfSize.{w', w} G] : PreservesColimitsOfSize.{w', w} (F ⋙ G) where
+instance comp_preservesColimits
+  [PreservesColimitsOfSize.{w', w} F] [PreservesColimitsOfSize.{w', w} G]
+  : PreservesColimitsOfSize.{w', w} (F ⋙ G) where
 
 end
 
@@ -377,7 +397,8 @@ lemma preservesSmallestColimits_of_preservesColimits (F : C ⥤ D)
     PreservesColimitsOfSize.{0, 0} F :=
   preservesColimitsOfSize_shrink F
 
-/-- A functor `F : C ⥤ D` reflects limits for `K : J ⥤ C` if
+/--
+A functor `F : C ⥤ D` reflects limits for `K : J ⥤ C` if
 whenever the image of a cone over `K` under `F` is a limit cone in `D`,
 the cone was already a limit cone in `C`.
 Note that we do not assume a priori that `D` actually has any limits.
@@ -385,7 +406,8 @@ Note that we do not assume a priori that `D` actually has any limits.
 class ReflectsLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
   reflects {c : Cone K} (hc : IsLimit (F.mapCone c)) : Nonempty (IsLimit c)
 
-/-- A functor `F : C ⥤ D` reflects colimits for `K : J ⥤ C` if
+/--
+A functor `F : C ⥤ D` reflects colimits for `K : J ⥤ C` if
 whenever the image of a cocone over `K` under `F` is a colimit cocone in `D`,
 the cocone was already a colimit cocone in `C`.
 Note that we do not assume a priori that `D` actually has any colimits.
@@ -393,7 +415,8 @@ Note that we do not assume a priori that `D` actually has any colimits.
 class ReflectsColimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
   reflects {c : Cocone K} (hc : IsColimit (F.mapCocone c)) : Nonempty (IsColimit c)
 
-/-- A functor `F : C ⥤ D` reflects limits of shape `J` if
+/--
+A functor `F : C ⥤ D` reflects limits of shape `J` if
 whenever the image of a cone over some `K : J ⥤ C` under `F` is a limit cone in `D`,
 the cone was already a limit cone in `C`.
 Note that we do not assume a priori that `D` actually has any limits.
@@ -401,7 +424,8 @@ Note that we do not assume a priori that `D` actually has any limits.
 class ReflectsLimitsOfShape (J : Type w) [Category.{w'} J] (F : C ⥤ D) : Prop where
   reflectsLimit : ∀ {K : J ⥤ C}, ReflectsLimit K F := by infer_instance
 
-/-- A functor `F : C ⥤ D` reflects colimits of shape `J` if
+/--
+A functor `F : C ⥤ D` reflects colimits of shape `J` if
 whenever the image of a cocone over some `K : J ⥤ C` under `F` is a colimit cocone in `D`,
 the cocone was already a colimit cocone in `C`.
 Note that we do not assume a priori that `D` actually has any colimits.
@@ -410,7 +434,8 @@ class ReflectsColimitsOfShape (J : Type w) [Category.{w'} J] (F : C ⥤ D) : Pro
   reflectsColimit : ∀ {K : J ⥤ C}, ReflectsColimit K F := by infer_instance
 
 -- This should be used with explicit universe variables.
-/-- A functor `F : C ⥤ D` reflects limits if
+/--
+A functor `F : C ⥤ D` reflects limits if
 whenever the image of a cone over some `K : J ⥤ C` under `F` is a limit cone in `D`,
 the cone was already a limit cone in `C`.
 Note that we do not assume a priori that `D` actually has any limits.
@@ -420,16 +445,17 @@ class ReflectsLimitsOfSize (F : C ⥤ D) : Prop where
   reflectsLimitsOfShape : ∀ {J : Type w} [Category.{w'} J], ReflectsLimitsOfShape J F := by
     infer_instance
 
-/-- A functor `F : C ⥤ D` reflects (small) limits if
+/--
+A functor `F : C ⥤ D` reflects (small) limits if
 whenever the image of a cone over some `K : J ⥤ C` under `F` is a limit cone in `D`,
 the cone was already a limit cone in `C`.
 Note that we do not assume a priori that `D` actually has any limits.
 -/
-abbrev ReflectsLimits (F : C ⥤ D) :=
-  ReflectsLimitsOfSize.{v₂, v₂} F
+abbrev ReflectsLimits (F : C ⥤ D) := ReflectsLimitsOfSize.{v₂, v₂} F
 
 -- This should be used with explicit universe variables.
-/-- A functor `F : C ⥤ D` reflects colimits if
+/--
+A functor `F : C ⥤ D` reflects colimits if
 whenever the image of a cocone over some `K : J ⥤ C` under `F` is a colimit cocone in `D`,
 the cocone was already a colimit cocone in `C`.
 Note that we do not assume a priori that `D` actually has any colimits.
@@ -439,115 +465,130 @@ class ReflectsColimitsOfSize (F : C ⥤ D) : Prop where
   reflectsColimitsOfShape : ∀ {J : Type w} [Category.{w'} J], ReflectsColimitsOfShape J F := by
     infer_instance
 
-/-- A functor `F : C ⥤ D` reflects (small) colimits if
+/--
+A functor `F : C ⥤ D` reflects (small) colimits if
 whenever the image of a cocone over some `K : J ⥤ C` under `F` is a colimit cocone in `D`,
 the cocone was already a colimit cocone in `C`.
 Note that we do not assume a priori that `D` actually has any colimits.
 -/
-abbrev ReflectsColimits (F : C ⥤ D) :=
-  ReflectsColimitsOfSize.{v₂, v₂} F
+abbrev ReflectsColimits (F : C ⥤ D) := ReflectsColimitsOfSize.{v₂, v₂} F
 
-/-- A convenience function for `ReflectsLimit`, which takes the functor as an explicit argument to
+/--
+A convenience function for `ReflectsLimit`, which takes the functor as an explicit argument to
 guide typeclass resolution.
 -/
-def isLimitOfReflects (F : C ⥤ D) {c : Cone K} (t : IsLimit (F.mapCone c))
-    [ReflectsLimit K F] : IsLimit c :=
+def isLimitOfReflects (F : C ⥤ D) {c : Cone K} (t : IsLimit (F.mapCone c)) [ReflectsLimit K F]
+    : IsLimit c :=
   (ReflectsLimit.reflects t).some
 
 /--
 A convenience function for `ReflectsColimit`, which takes the functor as an explicit argument to
 guide typeclass resolution.
 -/
-def isColimitOfReflects (F : C ⥤ D) {c : Cocone K} (t : IsColimit (F.mapCocone c))
-    [ReflectsColimit K F] : IsColimit c :=
+def isColimitOfReflects
+    (F : C ⥤ D) {c : Cocone K} (t : IsColimit (F.mapCocone c)) [ReflectsColimit K F]
+    : IsColimit c :=
   (ReflectsColimit.reflects t).some
 
 instance reflectsLimit_subsingleton (K : J ⥤ C) (F : C ⥤ D) : Subsingleton (ReflectsLimit K F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance reflectsColimit_subsingleton (K : J ⥤ C) (F : C ⥤ D) :
-    Subsingleton (ReflectsColimit K F) := by
+instance reflectsColimit_subsingleton (K : J ⥤ C) (F : C ⥤ D)
+    : Subsingleton (ReflectsColimit K F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance reflectsLimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D) :
-    Subsingleton (ReflectsLimitsOfShape J F) := by
+instance reflectsLimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D)
+    : Subsingleton (ReflectsLimitsOfShape J F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance reflectsColimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D) :
-    Subsingleton (ReflectsColimitsOfShape J F) := by
+instance reflectsColimitsOfShape_subsingleton (J : Type w) [Category.{w'} J] (F : C ⥤ D)
+    : Subsingleton (ReflectsColimitsOfShape J F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance reflects_limits_subsingleton (F : C ⥤ D) :
-    Subsingleton (ReflectsLimitsOfSize.{w', w} F) := by
+instance reflects_limits_subsingleton (F : C ⥤ D)
+    : Subsingleton (ReflectsLimitsOfSize.{w', w} F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
-instance reflects_colimits_subsingleton (F : C ⥤ D) :
-    Subsingleton (ReflectsColimitsOfSize.{w', w} F) := by
+instance reflects_colimits_subsingleton (F : C ⥤ D)
+    : Subsingleton (ReflectsColimitsOfSize.{w', w} F) := by
   constructor; rintro ⟨a⟩ ⟨b⟩; congr!
 
 -- see Note [lower instance priority]
-instance (priority := 100) reflectsLimit_of_reflectsLimitsOfShape (K : J ⥤ C) (F : C ⥤ D)
-    [ReflectsLimitsOfShape J F] : ReflectsLimit K F :=
+instance (priority := 100) reflectsLimit_of_reflectsLimitsOfShape
+    (K : J ⥤ C) (F : C ⥤ D) [ReflectsLimitsOfShape J F]
+    : ReflectsLimit K F :=
   ReflectsLimitsOfShape.reflectsLimit
 
 -- see Note [lower instance priority]
-instance (priority := 100) reflectsColimit_of_reflectsColimitsOfShape (K : J ⥤ C) (F : C ⥤ D)
-    [ReflectsColimitsOfShape J F] : ReflectsColimit K F :=
+instance (priority := 100) reflectsColimit_of_reflectsColimitsOfShape
+    (K : J ⥤ C) (F : C ⥤ D) [ReflectsColimitsOfShape J F]
+    : ReflectsColimit K F :=
   ReflectsColimitsOfShape.reflectsColimit
 
 -- see Note [lower instance priority]
-instance (priority := 100) reflectsLimitsOfShape_of_reflectsLimits (J : Type w) [Category.{w'} J]
-    (F : C ⥤ D) [ReflectsLimitsOfSize.{w', w} F] : ReflectsLimitsOfShape J F :=
+instance (priority := 100) reflectsLimitsOfShape_of_reflectsLimits
+    (J : Type w) [Category.{w'} J] (F : C ⥤ D) [ReflectsLimitsOfSize.{w', w} F]
+    : ReflectsLimitsOfShape J F :=
   ReflectsLimitsOfSize.reflectsLimitsOfShape
 
 -- see Note [lower instance priority]
 instance (priority := 100) reflectsColimitsOfShape_of_reflectsColimits
-    (J : Type w) [Category.{w'} J]
-    (F : C ⥤ D) [ReflectsColimitsOfSize.{w', w} F] : ReflectsColimitsOfShape J F :=
+    (J : Type w) [Category.{w'} J] (F : C ⥤ D) [ReflectsColimitsOfSize.{w', w} F]
+    : ReflectsColimitsOfShape J F :=
   ReflectsColimitsOfSize.reflectsColimitsOfShape
 
 instance id_reflectsLimits : ReflectsLimitsOfSize.{w, w'} (𝟭 C) where
-  reflectsLimitsOfShape {J} 𝒥 :=
-    { reflectsLimit := fun {K} =>
-        ⟨fun {c} h =>
-          ⟨fun s => h.lift ⟨s.pt, fun j => s.π.app j, fun _ _ f => s.π.naturality f⟩, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s m w; rcases s with ⟨_, _, _⟩;
-              exact h.uniq _ m w⟩⟩ }
+  reflectsLimitsOfShape {J} 𝒥 := {
+    reflectsLimit := fun {K} => ⟨fun {c} h => ⟨
+      fun s => h.lift ⟨s.pt, fun j => s.π.app j, fun _ _ f => s.π.naturality f⟩,
+      by cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j,
+      by
+        cases K
+        rcases c with ⟨_, _, _⟩
+        intro s m w
+        rcases s with ⟨_, _, _⟩
+        exact h.uniq _ m w
+    ⟩⟩
+  }
 
 instance id_reflectsColimits : ReflectsColimitsOfSize.{w, w'} (𝟭 C) where
-  reflectsColimitsOfShape {J} 𝒥 :=
-    { reflectsColimit := fun {K} =>
-        ⟨fun {c} h =>
-          ⟨fun s => h.desc ⟨s.pt, fun j => s.ι.app j, fun _ _ f => s.ι.naturality f⟩, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j, by
-            cases K; rcases c with ⟨_, _, _⟩; intro s m w; rcases s with ⟨_, _, _⟩;
-              exact h.uniq _ m w⟩⟩ }
+  reflectsColimitsOfShape {J} 𝒥 := {
+    reflectsColimit := fun {K} => ⟨fun {c} h => ⟨
+      fun s => h.desc ⟨s.pt, fun j => s.ι.app j, fun _ _ f => s.ι.naturality f⟩,
+      by cases K; rcases c with ⟨_, _, _⟩; intro s j; cases s; exact h.fac _ j,
+      by
+        cases K
+        rcases c with ⟨_, _, _⟩
+        intro s m w
+        rcases s with ⟨_, _, _⟩
+        exact h.uniq _ m w
+    ⟩⟩
+  }
 
 section
 
 variable {E : Type u₃} [ℰ : Category.{v₃} E]
 variable (F : C ⥤ D) (G : D ⥤ E)
 
-instance comp_reflectsLimit [ReflectsLimit K F] [ReflectsLimit (K ⋙ F) G] :
-    ReflectsLimit K (F ⋙ G) :=
+instance comp_reflectsLimit [ReflectsLimit K F] [ReflectsLimit (K ⋙ F) G]
+    : ReflectsLimit K (F ⋙ G) :=
   ⟨fun h => ReflectsLimit.reflects (isLimitOfReflects G h)⟩
 
-instance comp_reflectsLimitsOfShape [ReflectsLimitsOfShape J F] [ReflectsLimitsOfShape J G] :
-    ReflectsLimitsOfShape J (F ⋙ G) where
+instance comp_reflectsLimitsOfShape [ReflectsLimitsOfShape J F] [ReflectsLimitsOfShape J G]
+  : ReflectsLimitsOfShape J (F ⋙ G) where
 
-instance comp_reflectsLimits [ReflectsLimitsOfSize.{w', w} F] [ReflectsLimitsOfSize.{w', w} G] :
-    ReflectsLimitsOfSize.{w', w} (F ⋙ G) where
+instance comp_reflectsLimits [ReflectsLimitsOfSize.{w', w} F] [ReflectsLimitsOfSize.{w', w} G]
+  : ReflectsLimitsOfSize.{w', w} (F ⋙ G) where
 
-instance comp_reflectsColimit [ReflectsColimit K F] [ReflectsColimit (K ⋙ F) G] :
-    ReflectsColimit K (F ⋙ G) :=
+instance comp_reflectsColimit [ReflectsColimit K F] [ReflectsColimit (K ⋙ F) G]
+    : ReflectsColimit K (F ⋙ G) :=
   ⟨fun h => ReflectsColimit.reflects (isColimitOfReflects G h)⟩
 
-instance comp_reflectsColimitsOfShape [ReflectsColimitsOfShape J F] [ReflectsColimitsOfShape J G] :
-    ReflectsColimitsOfShape J (F ⋙ G) where
+instance comp_reflectsColimitsOfShape [ReflectsColimitsOfShape J F] [ReflectsColimitsOfShape J G]
+  : ReflectsColimitsOfShape J (F ⋙ G) where
 
-instance comp_reflectsColimits [ReflectsColimitsOfSize.{w', w} F]
-    [ReflectsColimitsOfSize.{w', w} G] : ReflectsColimitsOfSize.{w', w} (F ⋙ G) where
+instance comp_reflectsColimits [ReflectsColimitsOfSize.{w', w} F] [ReflectsColimitsOfSize.{w', w} G]
+  : ReflectsColimitsOfSize.{w', w} (F ⋙ G) where
 
 /-- If `F ⋙ G` preserves limits for `K`, and `G` reflects limits for `K ⋙ F`,
 then `F` preserves limits for `K`. -/
@@ -789,26 +830,32 @@ variable (F : C ⥤ D)
 
 /-- A fully faithful functor reflects limits. -/
 instance fullyFaithful_reflectsLimits [F.Full] [F.Faithful] : ReflectsLimitsOfSize.{w, w'} F where
-  reflectsLimitsOfShape {J} 𝒥₁ :=
-    { reflectsLimit := fun {K} =>
-        { reflects := fun {c} t =>
-            ⟨(IsLimit.mkConeMorphism fun _ =>
-                (Cone.functoriality K F).preimage (t.liftConeMorphism _)) <| by
-              apply fun s m => (Cone.functoriality K F).map_injective _
-              intro s m
-              rw [Functor.map_preimage]
-              apply t.uniq_cone_morphism⟩ } }
+  reflectsLimitsOfShape {J} 𝒥₁ := {
+    reflectsLimit := fun {K} => {
+      reflects := fun {c} t =>
+        ⟨(IsLimit.mkConeMorphism fun _ =>
+            (Cone.functoriality K F).preimage (t.liftConeMorphism _)) <|
+          by
+            apply fun s m => (Cone.functoriality K F).map_injective _
+            intro s m
+            rw [Functor.map_preimage]
+            apply t.uniq_cone_morphism⟩
+    }
+  }
 /-- A fully faithful functor reflects colimits. -/
-instance fullyFaithful_reflectsColimits [F.Full] [F.Faithful] :
-    ReflectsColimitsOfSize.{w, w'} F where
-  reflectsColimitsOfShape {J} 𝒥₁ :=
-    { reflectsColimit := fun {K} =>
-        { reflects := fun {c} t =>
-            ⟨(IsColimit.mkCoconeMorphism fun _ =>
-                (Cocone.functoriality K F).preimage (t.descCoconeMorphism _)) <| by
-              apply fun s m => (Cocone.functoriality K F).map_injective _
-              intro s m
-              rw [Functor.map_preimage]
-              apply t.uniq_cocone_morphism⟩ } }
+instance fullyFaithful_reflectsColimits [F.Full] [F.Faithful]
+    : ReflectsColimitsOfSize.{w, w'} F where
+  reflectsColimitsOfShape {J} 𝒥₁ := {
+    reflectsColimit := fun {K} => {
+      reflects := fun {c} t =>
+        ⟨(IsColimit.mkCoconeMorphism fun _ =>
+            (Cocone.functoriality K F).preimage (t.descCoconeMorphism _)) <|
+          by
+            apply fun s m => (Cocone.functoriality K F).map_injective _
+            intro s m
+            rw [Functor.map_preimage]
+            apply t.uniq_cocone_morphism⟩
+    }
+  }
 
 end CategoryTheory.Limits

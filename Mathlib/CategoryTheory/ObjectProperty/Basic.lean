@@ -86,8 +86,10 @@ section
 
 variable {ι : Type u'} (X : ι → C)
 
-/-- The property of objects that is satisfied by the `X i` for a family
-of objects `X : ι : C`. -/
+/--
+The property of objects that is satisfied by the `X i` for a family
+of objects `X : ι : C`.
+-/
 inductive ofObj : ObjectProperty C
   | mk (i : ι) : ofObj (X i)
 
@@ -129,8 +131,7 @@ lemma singleton_le_iff {X : C} {P : ObjectProperty C} :
   simp [ofObj_le_iff]
 
 /-- The property of objects in a category that is satisfied by `X : C` and `Y : C`. -/
-def pair (X Y : C) : ObjectProperty C :=
-  ofObj (Sum.elim (fun (_ : Unit) ↦ X) (fun (_ : Unit) ↦ Y))
+def pair (X Y : C) : ObjectProperty C := ofObj (Sum.elim (fun (_ : Unit) ↦ X) (fun (_ : Unit) ↦ Y))
 
 @[simp]
 lemma pair_iff (X Y Z : C) :
@@ -148,16 +149,15 @@ section
 variable [Category.{v} C] [Category.{v'} D]
 
 /-- The inverse image of a property of objects by a functor. -/
-def inverseImage (P : ObjectProperty D) (F : C ⥤ D) : ObjectProperty C :=
-  fun X ↦ P (F.obj X)
+def inverseImage (P : ObjectProperty D) (F : C ⥤ D) : ObjectProperty C := fun X ↦ P (F.obj X)
 
 @[simp]
 lemma prop_inverseImage_iff (P : ObjectProperty D) (F : C ⥤ D) (X : C) :
     P.inverseImage F X ↔ P (F.obj X) := Iff.rfl
 
 /-- The essential image of a property of objects by a functor. -/
-def map (P : ObjectProperty C) (F : C ⥤ D) : ObjectProperty D :=
-  fun Y ↦ ∃ (X : C), P X ∧ Nonempty (F.obj X ≅ Y)
+def map (P : ObjectProperty C) (F : C ⥤ D) : ObjectProperty D := fun Y ↦
+  ∃ (X : C), P X ∧ Nonempty (F.obj X ≅ Y)
 
 lemma prop_map_iff (P : ObjectProperty C) (F : C ⥤ D) (Y : D) :
     P.map F Y ↔ ∃ (X : C), P X ∧ Nonempty (F.obj X ≅ Y) := Iff.rfl

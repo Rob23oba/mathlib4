@@ -123,10 +123,10 @@ lemma hasInjectiveDimensionLE_of_quotients [Small.{v} R] (M : ModuleCat.{v} R) (
     simp [Subsingleton.elim x₂ 0]
 
 /-- The zeroth Ext group from `R ⧸ ⊥` is canonically equivalent to the underlying module. -/
-private noncomputable def extQuotientBotZeroEquiv [Small.{v} R] (M : ModuleCat.{v} R) :
-    (Ext ↧(Shrink.{v} (R ⧸ (⊥ : Ideal R))) M 0) ≃ M :=
-  (Ext.homEquiv₀.trans ModuleCat.homEquiv).trans ((((Shrink.linearEquiv _ _).trans
-    (Submodule.quotEquivOfEqBot _ rfl)).congrLeft M ℕ).trans
+private noncomputable def extQuotientBotZeroEquiv [Small.{v} R] (M : ModuleCat.{v} R)
+    : (Ext (↧(Shrink.{v} (R ⧸ (⊥ : Ideal R)))) M 0) ≃ M :=
+  (Ext.homEquiv₀.trans ModuleCat.homEquiv).trans
+    ((((Shrink.linearEquiv _ _).trans (Submodule.quotEquivOfEqBot _ rfl)).congrLeft M ℕ).trans
       (LinearMap.ringLmapEquivSelf R ℕ M)).toEquiv
 
 /-- If `Ext⁰(R ⧸ ⊥, M)` is a subsingleton, then `M` is a subsingleton. -/

@@ -38,15 +38,19 @@ lemma norm_symm (x y : ℤ) : ‖![x, y]‖ = ‖![y, x]‖ := by
   simp [EisensteinSeries.norm_eq_max_natAbs, max_comm]
 
 theorem abs_le_left_of_norm (m n : ℤ) : |n| ≤ ‖![n, m]‖ := by
-  simp only [EisensteinSeries.norm_eq_max_natAbs, Fin.isValue, Matrix.cons_val_zero,
-    Matrix.cons_val_one, Matrix.cons_val_fin_one, Nat.cast_max, le_sup_iff]
+  simp only [
+    EisensteinSeries.norm_eq_max_natAbs, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
+    Matrix.cons_val_fin_one, Nat.cast_max, le_sup_iff
+  ]
   left
   rw [Int.abs_eq_natAbs]
   exact le_refl _
 
 theorem abs_le_right_of_norm (m n : ℤ) : |m| ≤ ‖![n, m]‖ := by
-  simp only [EisensteinSeries.norm_eq_max_natAbs, Fin.isValue, Matrix.cons_val_zero,
-    Matrix.cons_val_one, Matrix.cons_val_fin_one, Nat.cast_max, le_sup_iff]
+  simp only [
+    EisensteinSeries.norm_eq_max_natAbs, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
+    Matrix.cons_val_fin_one, Nat.cast_max, le_sup_iff
+  ]
   right
   rw [Int.abs_eq_natAbs]
   exact le_refl _
@@ -63,8 +67,10 @@ lemma abs_norm_eq_max_natAbs_neg (n : ℕ) : ‖![1, -(n + 1 : ℤ)]‖ = n + 1 
 
 section bounding_functions
 
-/-- Auxiliary function used for bounding Eisenstein series, defined as
-  `z.im ^ 2 / (z.re ^ 2 + z.im ^ 2)`. -/
+/--
+Auxiliary function used for bounding Eisenstein series, defined as
+`z.im ^ 2 / (z.re ^ 2 + z.im ^ 2)`.
+-/
 def r1 : ℝ := z.im ^ 2 / (z.re ^ 2 + z.im ^ 2)
 
 lemma r1_eq : r1 z = 1 / ((z.re / z.im) ^ 2 + 1) := by
@@ -84,8 +90,10 @@ lemma r1_aux_bound (c : ℝ) {d : ℝ} (hd : 1 ≤ d ^ 2) :
   rw [r1, H1, div_le_iff₀ (by positivity), ← sub_nonneg, H2]
   exact add_nonneg (sq_nonneg _) (mul_nonneg (sub_nonneg.mpr hd) (sq_nonneg _))
 
-/-- This function is used to give an upper bound on the summands in Eisenstein series; it is
-defined by `z ↦ min z.im √(z.im ^ 2 / (z.re ^ 2 + z.im ^ 2))`. -/
+/--
+This function is used to give an upper bound on the summands in Eisenstein series; it is
+defined by `z ↦ min z.im √(z.im ^ 2 / (z.re ^ 2 + z.im ^ 2))`.
+-/
 def r : ℝ := min z.im √(r1 z)
 
 lemma r_pos : 0 < r z := by

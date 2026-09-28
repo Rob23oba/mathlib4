@@ -36,26 +36,26 @@ of total derived functors (and a refactor of the sequence of derived functors).
 
 @[expose] public section
 
-
 open CategoryTheory Abelian Limits
 
 variable {C : Type*} [Category* C] [Abelian C]
 
 namespace CochainComplex
 
-/-- A morphism of cochain complexes `φ` in an abelian category satisfies
+/--
+A morphism of cochain complexes `φ` in an abelian category satisfies
 `degreewiseEpiWithInjectiveKernel φ` if for any `i : ℤ`, the morphism
-`φ.f i` is an epimorphism with an injective kernel. -/
-def degreewiseEpiWithInjectiveKernel : MorphismProperty (CochainComplex C ℤ) :=
-  fun _ _ φ => ∀ (i : ℤ), epiWithInjectiveKernel (φ.f i)
+`φ.f i` is an epimorphism with an injective kernel.
+-/
+def degreewiseEpiWithInjectiveKernel : MorphismProperty (CochainComplex C ℤ) := fun _ _ φ =>
+  ∀ (i : ℤ), epiWithInjectiveKernel (φ.f i)
 
 instance : (degreewiseEpiWithInjectiveKernel (C := C)).IsMultiplicative where
   id_mem _ _ := MorphismProperty.id_mem _ _
   comp_mem _ _ hf hg n := MorphismProperty.comp_mem _ _ _ (hf n) (hg n)
 
 instance : (degreewiseEpiWithInjectiveKernel (C := C)).IsStableUnderRetracts where
-  of_retract r h i :=
-    MorphismProperty.of_retract (r.map (HomologicalComplex.eval _ _ i)) (h i)
+  of_retract r h i := MorphismProperty.of_retract (r.map (HomologicalComplex.eval _ _ i)) (h i)
 
 lemma degreewiseEpiWithInjectiveKernel_iff_of_isZero {K L : CochainComplex C ℤ}
     (f : K ⟶ L) (hL : IsZero L) :

@@ -32,10 +32,11 @@ variable {C : Type*} [Category* C] [Abelian C]
 
 namespace Abelian
 
-/-- The class of morphisms in an abelian category that are epimorphisms
-and have an injective kernel. -/
-def epiWithInjectiveKernel : MorphismProperty C :=
-  fun _ _ f => Epi f ∧ Injective (kernel f)
+/--
+The class of morphisms in an abelian category that are epimorphisms
+and have an injective kernel.
+-/
+def epiWithInjectiveKernel : MorphismProperty C := fun _ _ f => Epi f ∧ Injective (kernel f)
 
 /-- A morphism `g : X ⟶ Y` is epi with an injective kernel iff there exists a morphism
 `f : I ⟶ X` with `I` injective such that `f ≫ g = 0` and
@@ -79,36 +80,39 @@ instance : (epiWithInjectiveKernel : MorphismProperty C).IsMultiplicative where
     · ext
       · simp [reassoc_of% w₁]
       · simp [reassoc_of% σ₁.s_g, w₂]
-    · exact
-        { r := σ₁.r ≫ biprod.inl + g₁ ≫ σ₂.r ≫ biprod.inr
-          s := σ₂.s ≫ σ₁.s
-          f_r := by
-            ext
-            · simp [σ₁.f_r]
-            · simp [reassoc_of% w₁]
-            · simp
-            · simp [reassoc_of% σ₁.s_g, σ₂.f_r]
-          s_g := by simp [reassoc_of% σ₁.s_g, σ₂.s_g]
-          id := by
-            dsimp
-            have h := g₁ ≫= σ₂.id =≫ σ₁.s
-            simp only [add_comp, assoc, comp_add, id_comp] at h
-            rw [← σ₁.id, ← h]
-            simp only [comp_add, add_comp, assoc, BinaryBicone.inl_fst_assoc,
-              BinaryBicone.inr_fst_assoc, zero_comp, comp_zero, add_zero,
-              BinaryBicone.inl_snd_assoc, BinaryBicone.inr_snd_assoc, zero_add]
-            abel }
+    · exact {
+        r := σ₁.r ≫ biprod.inl + g₁ ≫ σ₂.r ≫ biprod.inr
+        s := σ₂.s ≫ σ₁.s
+        f_r := by
+          ext
+          · simp [σ₁.f_r]
+          · simp [reassoc_of% w₁]
+          · simp
+          · simp [reassoc_of% σ₁.s_g, σ₂.f_r]
+        s_g := by simp [reassoc_of% σ₁.s_g, σ₂.s_g]
+        id := by
+          dsimp
+          have h := g₁ ≫= σ₂.id =≫ σ₁.s
+          simp only [add_comp, assoc, comp_add, id_comp] at h
+          rw [← σ₁.id, ← h]
+          simp only [
+            comp_add, add_comp, assoc, BinaryBicone.inl_fst_assoc, BinaryBicone.inr_fst_assoc,
+            zero_comp, comp_zero, add_zero, BinaryBicone.inl_snd_assoc, BinaryBicone.inr_snd_assoc,
+            zero_add
+          ]
+          abel
+      }
 
 set_option backward.defeqAttrib.useBackward true in
 instance : (epiWithInjectiveKernel (C := C)).IsStableUnderRetracts where
   of_retract := by
     rintro X' Y' X Y f' f r ⟨_, hf⟩
-    have : Epi f' :=
-      (MorphismProperty.epimorphisms C).of_retract r (.infer_property _)
-    let r' : Retract (kernel f') (kernel f) :=
-      { i := kernel.map _ _ r.i.left r.i.right (Arrow.w r.i).symm
-        r := kernel.map _ _ r.r.left r.r.right (Arrow.w r.r).symm
-        retract := by ext; simp }
+    have : Epi f' := (MorphismProperty.epimorphisms C).of_retract r (.infer_property _)
+    let r' : Retract (kernel f') (kernel f) := {
+      i := kernel.map _ _ r.i.left r.i.right (Arrow.w r.i).symm
+      r := kernel.map _ _ r.r.left r.r.right (Arrow.w r.r).symm
+      retract := by ext; simp
+    }
     exact ⟨inferInstance, r'.injective⟩
 
 lemma epiWithInjectiveKernel.hasLiftingProperty

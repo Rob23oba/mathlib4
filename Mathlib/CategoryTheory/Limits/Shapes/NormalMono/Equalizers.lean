@@ -17,7 +17,6 @@ This, and the dual result, are used in the development of abelian categories.
 
 public section
 
-
 noncomputable section
 
 open CategoryTheory
@@ -93,8 +92,8 @@ section
 attribute [local instance] pullback_of_mono
 
 /-- The pullback of `(𝟙 X, f)` and `(𝟙 X, g)` -/
-private abbrev P {X Y : C} (f g : X ⟶ Y) [Mono (prod.lift (𝟙 X) f)] [Mono (prod.lift (𝟙 X) g)] :
-    C :=
+private abbrev P {X Y : C} (f g : X ⟶ Y) [Mono (prod.lift (𝟙 X) f)] [Mono (prod.lift (𝟙 X) g)]
+    : C :=
   pullback (prod.lift (𝟙 X) f) (prod.lift (𝟙 X) g)
 
 /-- The equalizer of `f` and `g` exists. -/
@@ -137,17 +136,18 @@ instance (priority := 100) hasEqualizers : HasEqualizers C :=
 end
 
 /-- If a zero morphism is a cokernel of `f`, then `f` is an epimorphism. -/
-theorem epi_of_zero_cokernel {X Y : C} (f : X ⟶ Y) (Z : C)
-    (l : IsColimit (CokernelCofork.ofπ (0 : Y ⟶ Z) (show f ≫ 0 = 0 by simp))) : Epi f :=
-  ⟨fun u v huv => by
-    obtain ⟨W, w, hw, hl⟩ := normalMonoOfMono (equalizer.ι u v)
-    obtain ⟨m, hm⟩ := equalizer.lift' f huv
-    have hwf : f ≫ w = 0 := by rw [← hm, Category.assoc, hw, comp_zero]
-    obtain ⟨n, hn⟩ := CokernelCofork.IsColimit.desc' l _ hwf
-    rw [Cofork.π_ofπ, zero_comp] at hn
-    have : IsIso (equalizer.ι u v) := by apply isIso_limit_cone_parallelPair_of_eq hn.symm hl
-    apply (cancel_epi (equalizer.ι u v)).1
-    exact equalizer.condition _ _⟩
+theorem epi_of_zero_cokernel
+    {X Y : C} (f : X ⟶ Y)
+    (Z : C) (l : IsColimit (CokernelCofork.ofπ (0 : Y ⟶ Z) (show f ≫ 0 = 0 by simp)))
+    : Epi f := ⟨fun u v huv => by
+  obtain ⟨W, w, hw, hl⟩ := normalMonoOfMono (equalizer.ι u v)
+  obtain ⟨m, hm⟩ := equalizer.lift' f huv
+  have hwf : f ≫ w = 0 := by rw [← hm, Category.assoc, hw, comp_zero]
+  obtain ⟨n, hn⟩ := CokernelCofork.IsColimit.desc' l _ hwf
+  rw [Cofork.π_ofπ, zero_comp] at hn
+  have : IsIso (equalizer.ι u v) := by apply isIso_limit_cone_parallelPair_of_eq hn.symm hl
+  apply (cancel_epi (equalizer.ι u v)).1
+  exact equalizer.condition _ _⟩
 
 section
 
@@ -156,8 +156,8 @@ variable [HasZeroObject C]
 open ZeroObject
 
 /-- If `f ≫ g = 0` implies `g = 0` for all `g`, then `g` is a monomorphism. -/
-theorem epi_of_zero_cancel {X Y : C} (f : X ⟶ Y)
-    (hf : ∀ (Z : C) (g : Y ⟶ Z) (_ : f ≫ g = 0), g = 0) : Epi f :=
+theorem epi_of_zero_cancel {X Y : C} (f : X ⟶ Y) (hf : ∀ (Z : C) (g : Y ⟶ Z) (_ : f ≫ g = 0), g = 0)
+    : Epi f :=
   epi_of_zero_cokernel f 0 <| zeroCokernelOfZeroCancel f hf
 
 variable {D : Type*} [Category* D] [HasZeroMorphisms D] [HasZeroObject D]
@@ -250,8 +250,8 @@ section
 attribute [local instance] pushout_of_epi
 
 /-- The pushout of `(𝟙 Y, f)` and `(𝟙 Y, g)`. -/
-private abbrev Q {X Y : C} (f g : X ⟶ Y) [Epi (coprod.desc (𝟙 Y) f)] [Epi (coprod.desc (𝟙 Y) g)] :
-    C :=
+private abbrev Q {X Y : C} (f g : X ⟶ Y) [Epi (coprod.desc (𝟙 Y) f)] [Epi (coprod.desc (𝟙 Y) g)]
+    : C :=
   pushout (coprod.desc (𝟙 Y) f) (coprod.desc (𝟙 Y) g)
 
 /-- The coequalizer of `f` and `g` exists. -/
@@ -296,20 +296,20 @@ instance (priority := 100) hasCoequalizers : HasCoequalizers C :=
 end
 
 /-- If a zero morphism is a kernel of `f`, then `f` is a monomorphism. -/
-theorem mono_of_zero_kernel {X Y : C} (f : X ⟶ Y) (Z : C)
-    (l : IsLimit (KernelFork.ofι (0 : Z ⟶ X) (show 0 ≫ f = 0 by simp))) : Mono f :=
-  ⟨fun u v huv => by
-    obtain ⟨W, w, hw, hl⟩ := normalEpiOfEpi (coequalizer.π u v)
-    obtain ⟨m, hm⟩ := coequalizer.desc' f huv
-    have reassoced {W : C} (h : coequalizer u v ⟶ W) : w ≫ coequalizer.π u v ≫ h = 0 ≫ h := by
-      rw [← Category.assoc, eq_whisker hw]
-    have hwf : w ≫ f = 0 := by rw [← hm, reassoced, zero_comp]
-    obtain ⟨n, hn⟩ := KernelFork.IsLimit.lift' l _ hwf
-    rw [Fork.ι_ofι, HasZeroMorphisms.comp_zero] at hn
-    have : IsIso (coequalizer.π u v) := by
-      apply isIso_colimit_cocone_parallelPair_of_eq hn.symm hl
-    apply (cancel_mono (coequalizer.π u v)).1
-    exact coequalizer.condition _ _⟩
+theorem mono_of_zero_kernel
+    {X Y : C} (f : X ⟶ Y)
+    (Z : C) (l : IsLimit (KernelFork.ofι (0 : Z ⟶ X) (show 0 ≫ f = 0 by simp)))
+    : Mono f := ⟨fun u v huv => by
+  obtain ⟨W, w, hw, hl⟩ := normalEpiOfEpi (coequalizer.π u v)
+  obtain ⟨m, hm⟩ := coequalizer.desc' f huv
+  have reassoced {W : C} (h : coequalizer u v ⟶ W) : w ≫ coequalizer.π u v ≫ h = 0 ≫ h := by
+    rw [← Category.assoc, eq_whisker hw]
+  have hwf : w ≫ f = 0 := by rw [← hm, reassoced, zero_comp]
+  obtain ⟨n, hn⟩ := KernelFork.IsLimit.lift' l _ hwf
+  rw [Fork.ι_ofι, HasZeroMorphisms.comp_zero] at hn
+  have : IsIso (coequalizer.π u v) := by apply isIso_colimit_cocone_parallelPair_of_eq hn.symm hl
+  apply (cancel_mono (coequalizer.π u v)).1
+  exact coequalizer.condition _ _⟩
 
 section
 
@@ -318,8 +318,9 @@ variable [HasZeroObject C]
 open ZeroObject
 
 /-- If `g ≫ f = 0` implies `g = 0` for all `g`, then `f` is a monomorphism. -/
-theorem mono_of_cancel_zero {X Y : C} (f : X ⟶ Y)
-    (hf : ∀ (Z : C) (g : Z ⟶ X) (_ : g ≫ f = 0), g = 0) : Mono f :=
+theorem mono_of_cancel_zero
+    {X Y : C} (f : X ⟶ Y) (hf : ∀ (Z : C) (g : Z ⟶ X) (_ : g ≫ f = 0), g = 0)
+    : Mono f :=
   mono_of_zero_kernel f 0 <| zeroKernelOfCancelZero f hf
 
 variable {D : Type*} [Category* D] [HasZeroMorphisms D] [HasZeroObject D]

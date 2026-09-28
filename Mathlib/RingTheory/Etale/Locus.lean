@@ -26,19 +26,20 @@ Let `A` be a `R`-algebra.
 
 namespace Algebra
 
-variable {R A B : Type*} [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra A B]
-    [Algebra R B] [IsScalarTower R A B]
+variable
+  {R A B : Type*} [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra A B] [Algebra R B]
+  [IsScalarTower R A B]
 
 variable (R) in
-/-- We say that an `R`-algebra `A` is etale at a prime `q` of `A`
-if `A_q` is formally etale over `R`. -/
-abbrev IsEtaleAt (q : Ideal A) [q.IsPrime] : Prop :=
-  FormallyEtale R (Localization.AtPrime q)
+/--
+We say that an `R`-algebra `A` is etale at a prime `q` of `A`
+if `A_q` is formally etale over `R`.
+-/
+abbrev IsEtaleAt (q : Ideal A) [q.IsPrime] : Prop := FormallyEtale R (Localization.AtPrime q)
 
 variable (R A) in
 /-- `Algebra.etaleLocus R A` is the set of primes `p` of `A` that are etale. -/
-def etaleLocus : Set (PrimeSpectrum A) :=
-  { p | IsEtaleAt R p.asIdeal }
+def etaleLocus : Set (PrimeSpectrum A) := { p | IsEtaleAt R p.asIdeal }
 
 @[simp]
 lemma mem_etaleLocus_iff {p : PrimeSpectrum A} : p ∈ etaleLocus R A ↔ IsEtaleAt R p.asIdeal := .rfl

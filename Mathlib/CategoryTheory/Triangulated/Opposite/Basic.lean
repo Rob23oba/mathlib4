@@ -49,35 +49,39 @@ variable [HasShift C ℤ]
 namespace Opposite
 
 set_option backward.privateInPublic true in
-/-- As it is unclear whether the opposite category `Cᵒᵖ` should always be equipped
+/--
+As it is unclear whether the opposite category `Cᵒᵖ` should always be equipped
 with the shift by `ℤ` such that shifting by `n` on `Cᵒᵖ` corresponds to shifting
 by `-n` on `C`, the user shall have to do `open CategoryTheory.Pretriangulated.Opposite`
-in order to get this shift and the (pre)triangulated structure on `Cᵒᵖ`. -/
+in order to get this shift and the (pre)triangulated structure on `Cᵒᵖ`.
+-/
 private abbrev OppositeShiftAux :=
-  PullbackShift (OppositeShift C ℤ)
-    (AddMonoidHom.mk' (fun (n : ℤ) => -n) (by intros; lia))
+  PullbackShift (OppositeShift C ℤ) (AddMonoidHom.mk' (fun (n : ℤ) => -n) (by intros; lia))
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- The category `Cᵒᵖ` is equipped with the shift such that the shift by `n` on `Cᵒᵖ`
-corresponds to the shift by `-n` on `C`. -/
-scoped instance : HasShift Cᵒᵖ ℤ :=
-  inferInstanceAs <| HasShift (OppositeShiftAux C) ℤ
+/--
+The category `Cᵒᵖ` is equipped with the shift such that the shift by `n` on `Cᵒᵖ`
+corresponds to the shift by `-n` on `C`.
+-/
+scoped instance : HasShift (Cᵒᵖ) ℤ := inferInstanceAs <| HasShift (OppositeShiftAux C) ℤ
 
-instance [Preadditive C] [∀ (n : ℤ), (shiftFunctor C n).Additive] (n : ℤ) :
-    (shiftFunctor Cᵒᵖ n).Additive :=
+instance [Preadditive C] [∀ (n : ℤ), (shiftFunctor C n).Additive] (n : ℤ)
+    : (shiftFunctor (Cᵒᵖ) n).Additive :=
   inferInstanceAs <| (shiftFunctor (OppositeShiftAux C) n).Additive
 
 end Opposite
 
 open Pretriangulated.Opposite
 
-/-- The shift functor on the opposite category identifies to the opposite functor
-of a shift functor on the original category. -/
-def shiftFunctorOpIso (n m : ℤ) (hnm : n + m = 0) :
-    shiftFunctor Cᵒᵖ n ≅ (shiftFunctor C m).op := eqToIso (by
-  obtain rfl : m = -n := by lia
-  rfl)
+/--
+The shift functor on the opposite category identifies to the opposite functor
+of a shift functor on the original category.
+-/
+def shiftFunctorOpIso (n m : ℤ) (hnm : n + m = 0) : shiftFunctor (Cᵒᵖ) n ≅ (shiftFunctor C m).op :=
+  eqToIso (by
+    obtain rfl : m = -n := by lia
+    rfl)
 
 variable {C}
 
@@ -136,28 +140,34 @@ lemma shiftFunctor_op_map {K L : Cᵒᵖ} (φ : K ⟶ L) (n m : ℤ) (hnm : n + 
 
 set_option backward.defeqAttrib.useBackward true in
 variable (C) in
-/-- The autoequivalence `Cᵒᵖ ≌ Cᵒᵖ` whose functor is `shiftFunctor Cᵒᵖ n` and whose inverse
+/--
+The autoequivalence `Cᵒᵖ ≌ Cᵒᵖ` whose functor is `shiftFunctor Cᵒᵖ n` and whose inverse
 functor is `(shiftFunctor C n).op`. In most cases, it is not necessary to unfold the
 definitions of the unit and counit isomorphisms: the compatibilities they satisfy
-are stated as separate lemmas. -/
+are stated as separate lemmas.
+-/
 @[simps functor inverse, implicit_reducible]
 def opShiftFunctorEquivalence (n : ℤ) : Cᵒᵖ ≌ Cᵒᵖ where
-  functor := shiftFunctor Cᵒᵖ n
+  functor := shiftFunctor (Cᵒᵖ) n
   inverse := (shiftFunctor C n).op
-  unitIso := (Functor.opId C).symm ≪≫
-    NatIso.op (shiftFunctorCompIsoId C (-n) n n.add_left_neg) ≪≫
-    Functor.opComp (shiftFunctor C (-n)) (shiftFunctor C n) ≪≫
-    Functor.isoWhiskerRight (shiftFunctorOpIso C n (-n) n.add_right_neg).symm (shiftFunctor C n).op
-  counitIso := Functor.isoWhiskerLeft _ (shiftFunctorOpIso C n (-n) n.add_right_neg) ≪≫
-    (Functor.opComp (shiftFunctor C n) (shiftFunctor C (-n))).symm ≪≫
-    NatIso.op (shiftFunctorCompIsoId C n (-n) n.add_right_neg).symm ≪≫ Functor.opId C
-  functor_unitIso_comp X := Quiver.Hom.unop_inj (by
-    dsimp [shiftFunctorOpIso]
-    simp only [Category.id_comp, Category.comp_id]
-    erw [comp_id, Functor.map_id, comp_id]
-    change (shiftFunctorCompIsoId C n (-n) (add_neg_cancel n)).inv.app (X.unop⟦-n⟧) ≫
-      ((shiftFunctorCompIsoId C (-n) n (neg_add_cancel n)).hom.app X.unop)⟦-n⟧' = 𝟙 _
-    rw [shift_shiftFunctorCompIsoId_neg_add_cancel_hom_app n X.unop, Iso.inv_hom_id_app])
+  unitIso :=
+    (Functor.opId C).symm ≪≫ NatIso.op (shiftFunctorCompIsoId C (-n) n n.add_left_neg)
+      ≪≫ Functor.opComp (shiftFunctor C (-n)) (shiftFunctor C n)
+      ≪≫ Functor.isoWhiskerRight (shiftFunctorOpIso C n (-n) n.add_right_neg).symm
+        (shiftFunctor C n).op
+  counitIso :=
+    Functor.isoWhiskerLeft _ (shiftFunctorOpIso C n (-n) n.add_right_neg)
+      ≪≫ (Functor.opComp (shiftFunctor C n) (shiftFunctor C (-n))).symm
+      ≪≫ NatIso.op (shiftFunctorCompIsoId C n (-n) n.add_right_neg).symm ≪≫ Functor.opId C
+  functor_unitIso_comp X :=
+    Quiver.Hom.unop_inj (by
+      dsimp [shiftFunctorOpIso]
+      simp only [Category.id_comp, Category.comp_id]
+      erw [comp_id, Functor.map_id, comp_id]
+      change (shiftFunctorCompIsoId C n (-n) (add_neg_cancel n)).inv.app (X.unop⟦-n⟧)
+          ≫ ((shiftFunctorCompIsoId C (-n) n (neg_add_cancel n)).hom.app X.unop)⟦-n⟧'
+        = 𝟙 _
+      rw [shift_shiftFunctorCompIsoId_neg_add_cancel_hom_app n X.unop, Iso.inv_hom_id_app])
 
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
@@ -357,10 +367,12 @@ lemma shift_opShiftFunctorEquivalence_counitIso_inv_app
   apply Quiver.Hom.unop_inj
   simp
 
-/-- Given objects `X` and `Y` in `Cᵒᵖ`, this is the bijection
-`(op (X.unop⟦n⟧) ⟶ Y) ≃ (X ⟶ Y⟦n⟧)` for any `n : ℤ`. -/
-def opShiftFunctorEquivalenceSymmHomEquiv {n : ℤ} {X Y : Cᵒᵖ} :
-    (Opposite.op (X.unop⟦n⟧) ⟶ Y) ≃ (X ⟶ Y⟦n⟧) :=
+/--
+Given objects `X` and `Y` in `Cᵒᵖ`, this is the bijection
+`(op (X.unop⟦n⟧) ⟶ Y) ≃ (X ⟶ Y⟦n⟧)` for any `n : ℤ`.
+-/
+def opShiftFunctorEquivalenceSymmHomEquiv {n : ℤ} {X Y : Cᵒᵖ}
+    : (Opposite.op (X.unop⟦n⟧) ⟶ Y) ≃ (X ⟶ Y⟦n⟧) :=
   (opShiftFunctorEquivalence C n).symm.toAdjunction.homEquiv X Y
 
 @[reassoc]

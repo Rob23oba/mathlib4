@@ -73,14 +73,15 @@ attribute [local instance 100] LieRing.ofAssociativeRing
 local notation "φ" => LieModule.toEnd R L M
 
 set_option backward.privateInPublic true in
-/-- Let `x` and `y` be elements of a Lie `R`-algebra `L`, and `M` a Lie module over `L`.
+/--
+Let `x` and `y` be elements of a Lie `R`-algebra `L`, and `M` a Lie module over `L`.
 Then the characteristic polynomials of the family of endomorphisms `⁅r • y + x, _⁆` of `M`
 have coefficients that are polynomial in `r : R`.
 In other words, we obtain a polynomial over `R[X]`
 that specializes to the characteristic polynomial of `⁅r • y + x, _⁆` under the map `X ↦ r`.
-This polynomial is captured in `lieCharpoly R M x y`. -/
-private noncomputable
-def lieCharpoly : Polynomial R[X] :=
+This polynomial is captured in `lieCharpoly R M x y`.
+-/
+private noncomputable def lieCharpoly : Polynomial R[X] :=
   letI bL := chooseBasis R L
   (polyCharpoly (LieHom.toLinearMap φ) bL).map <| RingHomClass.toRingHom <|
     MvPolynomial.aeval fun i ↦ C (bL.repr y i) * X + C (bL.repr x i)

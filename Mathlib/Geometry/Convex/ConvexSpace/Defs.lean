@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Andrew Yang, Yaël Dillies
 -/
 module
+
 public import Mathlib.Algebra.BigOperators.Fin
 public import Mathlib.Algebra.Order.Interval.Set.Instances
 public import Mathlib.Data.Finsupp.Order
 public import Mathlib.LinearAlgebra.Finsupp.LSum
-
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.Positivity.Basic
 
@@ -46,7 +46,8 @@ open Finsupp
 namespace Convexity
 variable {R X Y Z I J K : Type*}
 
-/-- The space of nonnegative functions `X → R` which take finitely many non-zero values summing
+/--
+The space of nonnegative functions `X → R` which take finitely many non-zero values summing
 to 1.
 
 One can interpret this as the standard simplex in `R^⊕X` (`R^X` for finite `X`), with the embedding
@@ -54,7 +55,8 @@ being the map `weights : StdSimplex R X → R^⊕X`.
 
 Note in particular that, in the common case where `X := M` is a `R`-module, `StdSimplex R M` is NOT
 the standard simplex in `M`. Indeed, the notion of a standard simplex depends on a choice of basis,
-and `M` isn't given one. -/
+and `M` isn't given one.
+-/
 structure StdSimplex (R : Type u) [LE R] [AddCommMonoid R] [One R] (X : Type v) where
   /-- The weights of the `StdSimplex` as a `Finsupp`. -/
   weights : X →₀ R
@@ -158,8 +160,7 @@ lemma weights_apply_le_one
 instance [Inhabited X] : Inhabited (StdSimplex R X) where
   default := .single default
 
-instance [Nonempty X] : Nonempty (StdSimplex R X) :=
-  ⟨.single (Classical.arbitrary _)⟩
+instance [Nonempty X] : Nonempty (StdSimplex R X) := ⟨.single (Classical.arbitrary _)⟩
 
 instance [Nontrivial X] : Nontrivial (StdSimplex R X) := by
   obtain ⟨x, y, h⟩ := exists_pair_ne X
@@ -173,7 +174,9 @@ instance [Unique X] : Unique (StdSimplex R X) where
 def duple (x y : X) {s t : R} (hs : 0 ≤ s) (ht : 0 ≤ t) (h : s + t = 1) : StdSimplex R X where
   weights := .single x s + .single y t
   nonneg := add_nonneg (by simpa) (by simpa)
-  total := by classical simpa [sum_add_index]
+  total := by
+    classical
+    simpa [sum_add_index]
 
 /--
 Map a function over the support of a standard simplex.
@@ -263,8 +266,10 @@ lemma mem_range_map_iff
 section
 
 variable {R' : Type*} [Ring R'] [PartialOrder R'] [IsStrictOrderedRing R']
-/-- The bijection between the one dimensional standard simplex
-and the interval `[0, 1]`. -/
+/--
+The bijection between the one dimensional standard simplex
+and the interval `[0, 1]`.
+-/
 @[simps -isSimp]
 def equivIcc : StdSimplex R' (Fin 2) ≃ Set.Icc (0 : R') 1 where
   toFun s := ⟨s.weights 1, by simp⟩
@@ -331,15 +336,20 @@ private lemma restrict_ne_zero_aux {w : StdSimplex K X} {p : X → Prop} [Decida
     (filter p w.weights).sum (fun _x k ↦ k) ≠ 0 :=
   (sum_pos (by simp +contextual [lt_iff_le_and_ne, eq_comm]) <| by simpa [ne_iff, filter_apply]).ne'
 
-/-- Project an element of the standard simplex to a lower-dimensional standard simplex,
-assuming at least one non-zero weight subsists. -/
+/--
+Project an element of the standard simplex to a lower-dimensional standard simplex,
+assuming at least one non-zero weight subsists.
+-/
 def restrict (w : StdSimplex K X) (s : Set X) (hs : ∃ x ∈ s, w.weights x ≠ 0) : StdSimplex K X where
-  weights := open scoped Classical in
+  weights :=
+    open scoped Classical in
     ((w.weights.filter (· ∈ s)).sum fun x k ↦ k)⁻¹ • w.weights.filter (· ∈ s)
   nonneg := by
     classical
     exact smul_nonneg (inv_nonneg.2 restrict_nonneg_aux) fun _ ↦ by simp [filter_apply, apply_ite]
-  total := by classical simp [sum_smul_index, ← mul_sum, restrict_ne_zero_aux hs]
+  total := by
+    classical
+    simp [sum_smul_index, ← mul_sum, restrict_ne_zero_aux hs]
 
 lemma weights_restrict (w : StdSimplex K X) (s : Set X) (hs) [DecidablePred (· ∈ s)] :
     (w.restrict s hs).weights =
@@ -373,27 +383,33 @@ end StdSimplex
 A set equipped with an operation of finite convex combinations,
 where the coefficients must be non-negative and sum to 1.
 -/
-class ConvexSpace (R : Type u) (X : Type v)
+class ConvexSpace
+    (R : Type u)
+    (X : Type v)
     [inst₁ : PartialOrder R] [inst₂ : Semiring R] [inst₃ : IsStrictOrderedRing R] where
   /-- Use `mk` instead. -/
   mk' ::
   /-- Take a convex combination with the given probability distribution over points. -/
-  /- FIXME: Lean makes `inst₁`, `inst₂`, `inst₃` implicit by default, which renders `sConvexComb`
+  /-
+  FIXME: Lean makes `inst₁`, `inst₂`, `inst₃` implicit by default, which renders `sConvexComb`
   unusable without these manual `[inst]` binders. Why is this so? Shouldn't typeclass arguments to
-  a `structure` also be typeclass arguments to its fields? -/
+  a `structure` also be typeclass arguments to its fields?
+  -/
   sConvexComb [inst₁] [inst₂] [inst₃] (f : StdSimplex R X) : X
   /-- A convex combination of a single point is that point. -/
   sConvexComb_single (x : X) : sConvexComb (.single x) = x
-  /-- Associativity of convex combination (monadic join law).
+  /--
+  Associativity of convex combination (monadic join law).
 
-  Use `sConvexComb_sConvexComb` instead. -/
-  assoc (f : StdSimplex R (StdSimplex R X)) :
-    sConvexComb (f.map sConvexComb) = sConvexComb f.join
+  Use `sConvexComb_sConvexComb` instead.
+  -/
+  assoc (f : StdSimplex R (StdSimplex R X)) : sConvexComb (f.map sConvexComb) = sConvexComb f.join
 
 open ConvexSpace StdSimplex
 
-variable [PartialOrder R] [Semiring R] [IsStrictOrderedRing R]
-  [ConvexSpace R X] [ConvexSpace R Y] [ConvexSpace R Z]
+variable
+  [PartialOrder R] [Semiring R] [IsStrictOrderedRing R] [ConvexSpace R X] [ConvexSpace R Y]
+  [ConvexSpace R Z]
 
 export ConvexSpace (sConvexComb sConvexComb_single)
 
@@ -470,18 +486,21 @@ lemma sConvexComb_convexCombPair (s t : R) (hs ht hst) (w w' : StdSimplex R X) :
   simp [convexCombPair, sConvexComb_sConvexComb]
 
 /-- The public constructor for `ConvexSpace`. -/
-abbrev ConvexSpace.mk {X : Type*} (sConvexComb : StdSimplex R X → X)
-    (single : ∀ x : X, sConvexComb (.single x) = x)
+abbrev ConvexSpace.mk
+    {X : Type*} (sConvexComb : StdSimplex R X → X) (single : ∀ x : X, sConvexComb (.single x) = x)
     (assoc : ∀ f : StdSimplex R (StdSimplex R X),
-      sConvexComb (f.map sConvexComb) = sConvexComb f.sConvexComb) : ConvexSpace R X :=
+      sConvexComb (f.map sConvexComb) = sConvexComb f.sConvexComb)
+    : ConvexSpace R X :=
   ⟨sConvexComb, single, assoc⟩
 
 variable (R) in
-/-- A map between convex spaces is affine if it preserves convex combinations.
+/--
+A map between convex spaces is affine if it preserves convex combinations.
 
- Note that this generalises the notion of affine maps between affine spaces.
- See `AffineMap.isAffineMap` for one direction. -/
- -- TODO: Prove the other direction.
+Note that this generalises the notion of affine maps between affine spaces.
+See `AffineMap.isAffineMap` for one direction.
+-/
+-- TODO: Prove the other direction.
 @[fun_prop]
 structure IsAffineMap (f : X → Y) : Prop where
   map_sConvexComb (s : StdSimplex R X) : f s.sConvexComb = (s.map f).sConvexComb
@@ -578,21 +597,26 @@ lemma iConvexComb_assoc {J : Type*} (s : StdSimplex R I) (f : I → StdSimplex R
   simp [map_sConvexComb, map_map]
 
 section IsConvexCombComm
-variable {R S X I J : Type*} [PartialOrder R] [Semiring R] [IsStrictOrderedRing R] [PartialOrder S]
+variable
+  {R S X I J : Type*} [PartialOrder R] [Semiring R] [IsStrictOrderedRing R] [PartialOrder S]
   [Semiring S] [IsStrictOrderedRing S] [ConvexSpace R X] [ConvexSpace S X]
 
 variable (R S X) in
-/-- `IsConvexCombComm R S X` indicates that the `R`-convex and `S`-convex space structures on `X`
+/--
+`IsConvexCombComm R S X` indicates that the `R`-convex and `S`-convex space structures on `X`
 commute, namely for `R`-convex combinations to be `S`-affine.
 
-This is the convex space analogue of `SMulCommClass`. -/
+This is the convex space analogue of `SMulCommClass`.
+-/
 class IsConvexCombComm : Prop where
-  /-- `R`-convex combinations commute with `S`-convex combinations of `Fin n`-indexed families.
+  /--
+  `R`-convex combinations commute with `S`-convex combinations of `Fin n`-indexed families.
 
   This is stated for `Fin n` so that the class does not depend on an extra universe parameter.
-  Use `Convexity.iConvexComb_comm` instead, which works for arbitrary index types. -/
-  protected iConvexComb_comm' {n : ℕ} (f : StdSimplex R (Fin n → X)) (g : StdSimplex S (Fin n)) :
-    f.iConvexComb (fun e ↦ g.iConvexComb e) = g.iConvexComb (fun i ↦ f.iConvexComb (· i))
+  Use `Convexity.iConvexComb_comm` instead, which works for arbitrary index types.
+  -/
+  protected iConvexComb_comm' {n : ℕ} (f : StdSimplex R (Fin n → X)) (g : StdSimplex S (Fin n))
+    : f.iConvexComb (fun e ↦ g.iConvexComb e) = g.iConvexComb (fun i ↦ f.iConvexComb (· i))
 
 /-- `R`-convex combinations commute with `S`-convex combinations. -/
 lemma iConvexComb_comm [IsConvexCombComm R S X] (f : StdSimplex R I) (g : StdSimplex S J)
@@ -616,17 +640,16 @@ protected lemma IsConvexCombComm.symm [IsConvexCombComm R S X] : IsConvexCombCom
 
 end IsConvexCombComm
 
-variable {R X I J : Type*} [PartialOrder R] [CommSemiring R] [IsStrictOrderedRing R]
-  [ConvexSpace R X] in
+variable
+  {R X I J : Type*} [PartialOrder R] [CommSemiring R] [IsStrictOrderedRing R] [ConvexSpace R X] in
 /-- When `R` is commutative, so are its convex combinations. -/
 instance IsConvexCombComm.instSelf : IsConvexCombComm R R X where
   iConvexComb_comm' f g := by
     change f.iConvexComb (fun e ↦ g.iConvexComb e) = g.iConvexComb fun i ↦ f.iConvexComb (· i)
     rw [iConvexComb_assoc', iConvexComb_assoc', iConvexComb_reindex _ (.prodComm ..)]
     congr
-    suffices (f.map fun x ↦ g.map (Prod.mk · x)).sConvexComb =
-        (g.map (f.map ∘ Prod.mk)).sConvexComb by
-      simpa [iConvexComb, map_sConvexComb, map_map, Function.comp_def]
+    suffices (f.map fun x ↦ g.map (Prod.mk · x)).sConvexComb = (g.map (f.map ∘ Prod.mk)).sConvexComb
+    by simpa [iConvexComb, map_sConvexComb, map_map, Function.comp_def]
     ext1
     simp [mapDomain, sum_sum_index, add_smul, smul_sum, mul_comm, sum_comm f.weights g.weights]
 
@@ -659,32 +682,31 @@ lemma convexCombPair_def (p q : X) :
 
 /-- A binary convex combination with weight 0 on the first point returns the second point. -/
 @[simp]
-theorem convexCombPair_zero {x y : X} :
-    convexCombPair (0 : R) 1 (by simp) (by simp) (by simp) x y = y := by
+theorem convexCombPair_zero {x y : X}
+    : convexCombPair (0 : R) 1 (by simp) (by simp) (by simp) x y = y := by
   simp [convexCombPair, StdSimplex.duple, StdSimplex.mk_single]
 
 @[deprecated (since := "2026-05-15")] alias convexComboPair_zero := convexCombPair_zero
 
 /-- A binary convex combination with weight 1 on the first point returns the first point. -/
 @[simp]
-theorem convexCombPair_one {x y : X} :
-    convexCombPair (1 : R) 0 (by simp) (by simp) (by simp) x y = x := by
+theorem convexCombPair_one {x y : X}
+    : convexCombPair (1 : R) 0 (by simp) (by simp) (by simp) x y = x := by
   simp [convexCombPair, StdSimplex.duple, StdSimplex.mk_single]
 
 @[deprecated (since := "2026-05-15")] alias convexComboPair_one := convexCombPair_one
 
 /-- A convex combination of a point with itself is that point. -/
 @[simp]
-theorem convexCombPair_same {x : X} :
-    convexCombPair s t hs ht h x x = x := by
+theorem convexCombPair_same {x : X} : convexCombPair s t hs ht h x x = x := by
   unfold convexCombPair
   convert sConvexComb_single x
   simp only [StdSimplex.duple, StdSimplex.single, ← single_add, h]
 
 @[deprecated (since := "2026-05-15")] alias convexComboPair_symm := convexCombPair_same
 
-theorem convexCombPair_symm {x y : X} :
-    convexCombPair s t hs ht h x y = convexCombPair t s ht hs ((add_comm _ _).trans h) y x := by
+theorem convexCombPair_symm {x y : X}
+    : convexCombPair s t hs ht h x y = convexCombPair t s ht hs ((add_comm _ _).trans h) y x := by
   unfold convexCombPair
   congr 1
   ext1
@@ -771,8 +793,9 @@ lemma convexCombPair_convexCombPair_assoc_right (H : s * t'' = t * s' * s'') (m�
 
 section CommSemiring
 
-variable {R X I : Type*} [PartialOrder R] [CommSemiring R] [IsStrictOrderedRing R]
-  [ConvexSpace R X] {s t : R} (hs : 0 ≤ s) (ht : 0 ≤ t) (h : s + t = 1)
+variable
+  {R X I : Type*} [PartialOrder R] [CommSemiring R] [IsStrictOrderedRing R] [ConvexSpace R X]
+  {s t : R} (hs : 0 ≤ s) (ht : 0 ≤ t) (h : s + t = 1)
 
 lemma iConvexComb_convexCombPair_comm (f : StdSimplex R I) (e₁ e₂ : I → X) :
     f.iConvexComb (fun x ↦ convexCombPair s t hs ht h (e₁ x) (e₂ x)) =

@@ -39,10 +39,13 @@ universe u v
 
 namespace Cardinal
 
-/-- Coercion `ℕ∞ → Cardinal`. It sends natural numbers to natural numbers and `⊤` to `ℵ₀`.
+/--
+Coercion `ℕ∞ → Cardinal`. It sends natural numbers to natural numbers and `⊤` to `ℵ₀`.
 
-See also `Cardinal.ofENatHom` for a bundled homomorphism version. -/
-@[coe] def ofENat : ℕ∞ → Cardinal
+See also `Cardinal.ofENatHom` for a bundled homomorphism version.
+-/
+@[coe]
+def ofENat : ℕ∞ → Cardinal
   | (n : ℕ) => n
   | ⊤ => ℵ₀
 
@@ -186,17 +189,21 @@ lemma toENatAux_eq_nat {x : Cardinal} {n : ℕ} : toENatAux x = n ↔ x = n := b
 
 lemma toENatAux_eq_zero {x : Cardinal} : toENatAux x = 0 ↔ x = 0 := toENatAux_eq_nat
 
-/-- Projection from cardinals to `ℕ∞`. Sends all infinite cardinals to `⊤`.
+/--
+Projection from cardinals to `ℕ∞`. Sends all infinite cardinals to `⊤`.
 
-We define this function as a bundled monotone ring homomorphism. -/
+We define this function as a bundled monotone ring homomorphism.
+-/
 noncomputable def toENat : Cardinal.{u} →+*o ℕ∞ where
   toFun := toENatAux
   map_one' := toENatAux_nat 1
   map_mul' x y := by
-    wlog hle : x ≤ y; · rw [mul_comm, this y x (le_of_not_ge hle), mul_comm]
+    wlog hle : x ≤ y
+    · rw [mul_comm, this y x (le_of_not_ge hle), mul_comm]
     cases lt_or_ge y ℵ₀ with
     | inl hy =>
-      lift x to ℕ using hle.trans_lt hy; lift y to ℕ using hy
+      lift x to ℕ using hle.trans_lt hy
+      lift y to ℕ using hy
       simp only [← Nat.cast_mul, toENatAux_nat]
     | inr hy =>
       rcases eq_or_ne x 0 with rfl | hx
@@ -206,10 +213,12 @@ noncomputable def toENat : Cardinal.{u} →+*o ℕ∞ where
         · rwa [Ne, toENatAux_eq_zero]
         · exact le_mul_of_one_le_of_le (Cardinal.one_le_iff_ne_zero.2 hx) hy
   map_add' x y := by
-    wlog hle : x ≤ y; · rw [add_comm, this y x (le_of_not_ge hle), add_comm]
+    wlog hle : x ≤ y
+    · rw [add_comm, this y x (le_of_not_ge hle), add_comm]
     cases lt_or_ge y ℵ₀ with
     | inl hy =>
-      lift x to ℕ using hle.trans_lt hy; lift y to ℕ using hy
+      lift x to ℕ using hle.trans_lt hy
+      lift y to ℕ using hy
       simp only [← Nat.cast_add, toENatAux_nat]
     | inr hy =>
       simp only [toENatAux_eq_top hy, add_top]
@@ -224,8 +233,10 @@ lemma enat_gc : GaloisConnection (↑) toENat := toENatAux_gc
 @[simp] lemma toENat_ofENat (n : ℕ∞) : toENat n = n := toENatAux_ofENat n
 @[simp] lemma toENat_comp_ofENat : toENat ∘ (↑) = id := funext toENat_ofENat
 
-/-- The coercion `Cardinal.ofENat` and the projection `Cardinal.toENat`
-form a Galois coinsertion. -/
+/--
+The coercion `Cardinal.ofENat` and the projection `Cardinal.toENat`
+form a Galois coinsertion.
+-/
 noncomputable def gciENat : GaloisCoinsertion (↑) toENat :=
   enat_gc.toGaloisCoinsertion fun n ↦ (toENat_ofENat n).le
 

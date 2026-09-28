@@ -19,7 +19,6 @@ Also defines isomorphisms to the categorical product and coproduct, respectively
 
 @[expose] public section
 
-
 open CategoryTheory Limits ConcreteCategory
 
 universe w v u
@@ -50,11 +49,12 @@ def prod.snd : prod F G ⟶ G where
   app _ := ↾fun a ↦ a.2
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given natural transformations `F ⟶ F₁` and `F ⟶ F₂`, construct
-a natural transformation `F ⟶ prod F₁ F₂`. -/
+/--
+Given natural transformations `F ⟶ F₁` and `F ⟶ F₂`, construct
+a natural transformation `F ⟶ prod F₁ F₂`.
+-/
 @[simps]
-def prod.lift {F₁ F₂ : C ⥤ Type w} (τ₁ : F ⟶ F₁) (τ₂ : F ⟶ F₂) :
-    F ⟶ prod F₁ F₂ where
+def prod.lift {F₁ F₂ : C ⥤ Type w} (τ₁ : F ⟶ F₁) (τ₂ : F ⟶ F₂) : F ⟶ prod F₁ F₂ where
   app x := ↾fun y ↦ ⟨τ₁.app x y, τ₂.app x y⟩
 
 @[simp]
@@ -68,9 +68,7 @@ lemma prod.lift_snd {F₁ F₂ : C ⥤ Type w} (τ₁ : F ⟶ F₁) (τ₂ : F �
 variable (F G)
 
 /-- The binary fan whose point is `prod F G`. -/
-@[simps!]
-def binaryProductCone : BinaryFan F G :=
-  BinaryFan.mk prod.fst prod.snd
+@[simps!] def binaryProductCone : BinaryFan F G := BinaryFan.mk prod.fst prod.snd
 
 /-- `prod F G` is a limit cone. -/
 @[simps]
@@ -82,8 +80,7 @@ def binaryProductLimit : IsLimit (binaryProductCone F G) where
     congr
 
 /-- `prod F G` is a binary product for `F` and `G`. -/
-def binaryProductLimitCone : Limits.LimitCone (pair F G) :=
-  ⟨_, binaryProductLimit F G⟩
+def binaryProductLimitCone : Limits.LimitCone (pair F G) := ⟨_, binaryProductLimit F G⟩
 
 /-- The categorical binary product of type-valued functors is `prod F G`. -/
 noncomputable def binaryProductIso : F ⨯ G ≅ prod F G :=
@@ -121,10 +118,11 @@ lemma binaryProductIso_inv_comp_snd_apply (a : C) (z : (prod F G).obj a) :
 
 variable {F G}
 
-/-- Construct an element of `(F ⨯ G).obj a` from an element of `F.obj a` and
-an element of `G.obj a`. -/
-noncomputable
-def prodMk {a : C} (x : F.obj a) (y : G.obj a) : (F ⨯ G).obj a :=
+/--
+Construct an element of `(F ⨯ G).obj a` from an element of `F.obj a` and
+an element of `G.obj a`.
+-/
+noncomputable def prodMk {a : C} (x : F.obj a) (y : G.obj a) : (F ⨯ G).obj a :=
   ((binaryProductIso F G).inv).app a ⟨x, y⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -148,8 +146,7 @@ variable (F G)
 set_option backward.isDefEq.respectTransparency.types false in
 /-- `(F ⨯ G).obj a` is in bijection with the product of `F.obj a` and `G.obj a`. -/
 @[simps]
-noncomputable
-def binaryProductEquiv (a : C) : (F ⨯ G).obj a ≃ (F.obj a) × (G.obj a) where
+noncomputable def binaryProductEquiv (a : C) : (F ⨯ G).obj a ≃ (F.obj a) × (G.obj a) where
   toFun z := ⟨((binaryProductIso F G).hom.app a z).1, ((binaryProductIso F G).hom.app a z).2⟩
   invFun z := prodMk z.1 z.2
   left_inv _ := by simp [-prod_obj, prodMk]
@@ -188,11 +185,12 @@ def coprod.inr : G ⟶ coprod F G where
   app _ := ↾fun x ↦ .inr x
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given natural transformations `F₁ ⟶ F` and `F₂ ⟶ F`, construct
-a natural transformation `coprod F₁ F₂ ⟶ F`. -/
+/--
+Given natural transformations `F₁ ⟶ F` and `F₂ ⟶ F`, construct
+a natural transformation `coprod F₁ F₂ ⟶ F`.
+-/
 @[simps]
-def coprod.desc {F₁ F₂ : C ⥤ Type w} (τ₁ : F₁ ⟶ F) (τ₂ : F₂ ⟶ F) :
-    coprod F₁ F₂ ⟶ F where
+def coprod.desc {F₁ F₂ : C ⥤ Type w} (τ₁ : F₁ ⟶ F) (τ₂ : F₂ ⟶ F) : coprod F₁ F₂ ⟶ F where
   app a := ↾(Sum.elim (τ₁.app a) (τ₂.app a))
   naturality _ _ _ := by ext ⟨⟩ <;> simp
 
@@ -207,9 +205,7 @@ lemma coprod.desc_inr {F₁ F₂ : C ⥤ Type w} (τ₁ : F₁ ⟶ F) (τ₂ : F
 variable (F G)
 
 /-- The binary cofan whose point is `coprod F G`. -/
-@[simps!]
-def binaryCoproductCocone : BinaryCofan F G :=
-  BinaryCofan.mk coprod.inl coprod.inr
+@[simps!] def binaryCoproductCocone : BinaryCofan F G := BinaryCofan.mk coprod.inl coprod.inr
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -220,7 +216,8 @@ def binaryCoproductColimit : IsColimit (binaryCoproductCocone F G) where
   fac _ := fun ⟨j⟩ ↦ WalkingPair.casesOn j rfl rfl
   uniq _ _ h := by
     ext _ x
-    cases x with | _ => simp [← h ⟨WalkingPair.right⟩, ← h ⟨WalkingPair.left⟩]
+    cases x with
+    | _ => simp [← h ⟨WalkingPair.right⟩, ← h ⟨WalkingPair.left⟩]
 
 /-- `coprod F G` is a binary coproduct for `F` and `G`. -/
 def binaryCoproductColimitCocone : Limits.ColimitCocone (pair F G) :=
@@ -273,13 +270,11 @@ lemma inr_comp_binaryCoproductIso_inv_apply (a : C) (x : G.obj a) :
 variable {F G}
 
 /-- Construct an element of `(F ⨿ G).obj a` from an element of `F.obj a` -/
-noncomputable
-abbrev coprodInl {a : C} (x : F.obj a) : (F ⨿ G).obj a :=
+noncomputable abbrev coprodInl {a : C} (x : F.obj a) : (F ⨿ G).obj a :=
   (binaryCoproductIso F G).inv.app a (.inl x)
 
 /-- Construct an element of `(F ⨿ G).obj a` from an element of `G.obj a` -/
-noncomputable
-abbrev coprodInr {a : C} (x : G.obj a) : (F ⨿ G).obj a :=
+noncomputable abbrev coprodInr {a : C} (x : G.obj a) : (F ⨿ G).obj a :=
   (binaryCoproductIso F G).inv.app a (.inr x)
 
 variable (F G)
@@ -287,9 +282,7 @@ variable (F G)
 set_option backward.isDefEq.respectTransparency.types false in
 /-- `(F ⨿ G).obj a` is in bijection with disjoint union of `F.obj a` and `G.obj a`. -/
 @[simps]
-noncomputable
-def binaryCoproductEquiv (a : C) :
-    (F ⨿ G).obj a ≃ (F.obj a) ⊕ (G.obj a) where
+noncomputable def binaryCoproductEquiv (a : C) : (F ⨿ G).obj a ≃ (F.obj a) ⊕ (G.obj a) where
   toFun z := (binaryCoproductIso F G).hom.app a z
   invFun z := (binaryCoproductIso F G).inv.app a z
   left_inv _ := by simp [-coprod_obj]

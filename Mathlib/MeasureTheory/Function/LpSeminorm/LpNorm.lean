@@ -6,7 +6,6 @@ Authors: Yaël Dillies
 module
 
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
-
 import Mathlib.Analysis.RCLike.Lemmas
 import Mathlib.Tactic.Positivity.Finset
 
@@ -23,8 +22,9 @@ open scoped BigOperators ComplexConjugate ENNReal NNReal
 public section
 
 namespace MeasureTheory
-variable {α E : Type*} {m : MeasurableSpace α} {p : ℝ≥0∞} {μ : Measure α}
-  [NormedAddCommGroup E] {f g h : α → E}
+variable
+  {α E : Type*} {m : MeasurableSpace α} {p : ℝ≥0∞} {μ : Measure α} [NormedAddCommGroup E]
+  {f g h : α → E}
 
 lemma toReal_eLpNorm : (eLpNorm f p μ).toReal = lpNorm f p μ := rfl
 

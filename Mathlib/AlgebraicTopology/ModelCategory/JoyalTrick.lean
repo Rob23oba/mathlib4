@@ -32,9 +32,9 @@ namespace HomotopicalAlgebra
 
 namespace ModelCategory
 
-variable {C : Type*} [Category* C]
-  [CategoryWithCofibrations C] [CategoryWithFibrations C] [CategoryWithWeakEquivalences C]
-  [(weakEquivalences C).HasTwoOutOfThreeProperty]
+variable
+  {C : Type*} [Category* C] [CategoryWithCofibrations C] [CategoryWithFibrations C]
+  [CategoryWithWeakEquivalences C] [(weakEquivalences C).HasTwoOutOfThreeProperty]
 
 /-- Joyal's trick: that cofibrations have the left lifting property
 with respect to trivial fibrations follows from the left lifting property

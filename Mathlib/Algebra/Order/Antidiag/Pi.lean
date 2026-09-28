@@ -59,9 +59,11 @@ In this section, we define the antidiagonals in `Fin d → μ` by recursion on `
 computationally efficient, although probably not as efficient as `Finset.Nat.antidiagonalTuple`.
 -/
 
-/-- Auxiliary construction for `finAntidiagonal` that bundles a proof of lawfulness
+/--
+Auxiliary construction for `finAntidiagonal` that bundles a proof of lawfulness
 (`mem_finAntidiagonal`), as this is needed to invoke `disjiUnion`. Using `Finset.disjiUnion` makes
-this computationally much more efficient than using `Finset.biUnion`. -/
+this computationally much more efficient than using `Finset.biUnion`.
+-/
 def finAntidiagonal.aux (d : ℕ) (n : μ) : {s : Finset (Fin d → μ) // ∀ f, f ∈ s ↔ ∑ i, f i = n} :=
   match d with
   | 0 =>
@@ -69,26 +71,29 @@ def finAntidiagonal.aux (d : ℕ) (n : μ) : {s : Finset (Fin d → μ) // ∀ f
       ⟨{0}, by simp [h, Subsingleton.elim _ ![]]⟩
     else
       ⟨∅, by simp [Ne.symm h]⟩
-  | d + 1 =>
-    { val := (antidiagonal n).disjiUnion
-        (fun ab => (aux d ab.2).1.map {
-            toFun := Fin.cons (ab.1)
-            inj' := Fin.cons_right_injective _ }) <| by
-        intro i _ j _ hij
-        simp only [Finset.disjoint_left, Finset.mem_map, Embedding.coeFn_mk]
-        grind [Fin.cons_inj]
-      property := fun f => by
-        simp_rw [mem_disjiUnion, mem_antidiagonal, mem_map, Embedding.coeFn_mk, Prod.exists,
-          (aux d _).prop, Fin.sum_univ_succ]
-        constructor
-        · rintro ⟨a, b, rfl, g, rfl, rfl⟩
-          simp only [Fin.cons_zero, Fin.cons_succ]
-        · intro hf
-          exact ⟨_, _, hf, _, rfl, Fin.cons_self_tail f⟩ }
+  | d + 1 => {
+    val :=
+      (antidiagonal n).disjiUnion (fun ab =>
+          (aux d ab.2).1.map { toFun := Fin.cons (ab.1), inj' := Fin.cons_right_injective _ }) <|
+        by
+          intro i _ j _ hij
+          simp only [Finset.disjoint_left, Finset.mem_map, Embedding.coeFn_mk]
+          grind [Fin.cons_inj]
+    property := fun f => by
+      simp_rw [mem_disjiUnion, mem_antidiagonal, mem_map, Embedding.coeFn_mk, Prod.exists,
+        (aux d _).prop, Fin.sum_univ_succ]
+      constructor
+      · rintro ⟨a, b, rfl, g, rfl, rfl⟩
+        simp only [Fin.cons_zero, Fin.cons_succ]
+      · intro hf
+        exact ⟨_, _, hf, _, rfl, Fin.cons_self_tail f⟩
+  }
 
-/-- `finAntidiagonal d n` is the type of `d`-tuples with sum `n`.
+/--
+`finAntidiagonal d n` is the type of `d`-tuples with sum `n`.
 
-TODO: deduplicate with the less general `Finset.Nat.antidiagonalTuple`. -/
+TODO: deduplicate with the less general `Finset.Nat.antidiagonalTuple`.
+-/
 def finAntidiagonal (d : ℕ) (n : μ) : Finset (Fin d → μ) := finAntidiagonal.aux d n
 
 @[simp] lemma mem_finAntidiagonal {d : ℕ} {f : Fin d → μ} :
@@ -154,8 +159,8 @@ alias finsetCongr_piAntidiag_eq_antidiag := finset_congr_piAntidiag_eq_antidiag
 end AddCommMonoid
 
 section AddCancelCommMonoid
-variable [DecidableEq ι] [AddCancelCommMonoid μ] [HasAntidiagonal μ] [DecidableEq μ] {i : ι}
-  {s : Finset ι}
+variable
+  [DecidableEq ι] [AddCancelCommMonoid μ] [HasAntidiagonal μ] [DecidableEq μ] {i : ι} {s : Finset ι}
 
 lemma pairwiseDisjoint_piAntidiag_map_addRightEmbedding (hi : i ∉ s) (n : μ) :
     (antidiagonal n : Set (μ × μ)).PairwiseDisjoint fun p ↦
@@ -189,8 +194,9 @@ lemma piAntidiag_insert [DecidableEq (ι → μ)] (hi : i ∉ s) (n : μ) :
 end AddCancelCommMonoid
 
 section CanonicallyOrderedAddCommMonoid
-variable [DecidableEq ι] [AddCommMonoid μ] [PartialOrder μ]
-  [CanonicallyOrderedAdd μ] [HasAntidiagonal μ] [DecidableEq μ]
+variable
+  [DecidableEq ι] [AddCommMonoid μ] [PartialOrder μ] [CanonicallyOrderedAdd μ] [HasAntidiagonal μ]
+  [DecidableEq μ]
 
 @[simp] lemma piAntidiag_zero (s : Finset ι) : piAntidiag s (0 : μ) = {0} := by
   ext; simp [funext_iff, not_imp_comm, ← forall_and]

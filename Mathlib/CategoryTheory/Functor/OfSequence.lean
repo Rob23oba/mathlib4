@@ -43,14 +43,21 @@ lemma congr_f (i j : ℕ) (h : i = j) :
   subst h
   simp
 
-/-- The morphism `X i ⟶ X j` obtained by composing morphisms of
-the form `X n ⟶ X (n + 1)` when `i ≤ j`. -/
+/--
+The morphism `X i ⟶ X j` obtained by composing morphisms of
+the form `X n ⟶ X (n + 1)` when `i ≤ j`.
+-/
 def map : ∀ {X : ℕ → C} (_ : ∀ n, X n ⟶ X (n + 1)) (i j : ℕ), i ≤ j → (X i ⟶ X j)
-  | _, _, 0, 0 => fun _ ↦ 𝟙 _
-  | _, f, 0, 1 => fun _ ↦ f 0
-  | _, f, 0, l + 1 => fun _ ↦ f 0 ≫ map (fun n ↦ f (n + 1)) 0 l (by lia)
-  | _, _, _ + 1, 0 => nofun
-  | _, f, k + 1, l + 1 => fun _ ↦ map (fun n ↦ f (n + 1)) k l (by lia)
+  | _, _, 0, 0 => fun _ ↦
+    𝟙 _
+  | _, f, 0, 1 => fun _ ↦
+    f 0
+  | _, f, 0, l + 1 => fun _ ↦
+    f 0 ≫ map (fun n ↦ f (n + 1)) 0 l (by lia)
+  | _, _, _ + 1, 0 =>
+    nofun
+  | _, f, k + 1, l + 1 => fun _ ↦
+    map (fun n ↦ f (n + 1)) k l (by lia)
 
 lemma map_id (i : ℕ) : map f i i (by lia) = 𝟙 _ := by
   revert X f
@@ -99,8 +106,10 @@ example : map f 3 7 (by lia) = f 3 ≫ f 4 ≫ f 5 ≫ f 6 := rfl
 
 end OfSequence
 
-/-- The functor `ℕ ⥤ C` constructed from a sequence of
-morphisms `f : X n ⟶ X (n + 1)` for all `n : ℕ`. -/
+/--
+The functor `ℕ ⥤ C` constructed from a sequence of
+morphisms `f : X n ⟶ X (n + 1)` for all `n : ℕ`.
+-/
 @[simps obj]
 def ofSequence : ℕ ⥤ C where
   obj := X
@@ -117,13 +126,16 @@ end Functor
 
 namespace NatTrans
 
-variable {F G : ℕ ⥤ C} (app : ∀ (n : ℕ), F.obj n ⟶ G.obj n)
-  (naturality : ∀ (n : ℕ), F.map (homOfLE (n.le_add_right 1)) ≫ app (n + 1) =
-      app n ≫ G.map (homOfLE (n.le_add_right 1)))
+variable
+  {F G : ℕ ⥤ C} (app : ∀ (n : ℕ), F.obj n ⟶ G.obj n)
+  (naturality : ∀ (n : ℕ),
+    F.map (homOfLE (n.le_add_right 1)) ≫ app (n + 1) = app n ≫ G.map (homOfLE (n.le_add_right 1)))
 
-/-- Constructor for natural transformations `F ⟶ G` in `ℕ ⥤ C` which takes as inputs
+/--
+Constructor for natural transformations `F ⟶ G` in `ℕ ⥤ C` which takes as inputs
 the morphisms `F.obj n ⟶ G.obj n` for all `n : ℕ` and the naturality condition only
-for morphisms of the form `n ⟶ n + 1`. -/
+for morphisms of the form `n ⟶ n + 1`.
+-/
 @[simps app]
 def ofSequence : F ⟶ G where
   app := app
@@ -134,14 +146,16 @@ def ofSequence : F ⟶ G where
     revert i j
     induction k with
     | zero =>
-        intro i j hk
-        obtain rfl : j = i := by lia
-        simp
+      intro i j hk
+      obtain rfl : j = i := by lia
+      simp
     | succ k hk =>
-        intro i j hk'
-        obtain rfl : j = i + k + 1 := by lia
-        simp only [← homOfLE_comp (show i ≤ i + k by lia) (show i + k ≤ i + k + 1 by lia),
-          Functor.map_comp, assoc, naturality, reassoc_of% (hk rfl)]
+      intro i j hk'
+      obtain rfl : j = i + k + 1 := by lia
+      simp only [
+        ← homOfLE_comp (show i ≤ i + k by lia) (show i + k ≤ i + k + 1 by lia), Functor.map_comp,
+        assoc, naturality, reassoc_of% (hk rfl)
+      ]
 
 end NatTrans
 
@@ -149,16 +163,17 @@ namespace Functor
 
 variable {X : ℕ → C} (f : ∀ n, X (n + 1) ⟶ X n)
 
-/-- The functor `ℕᵒᵖ ⥤ C` constructed from a sequence of
-morphisms `f : X (n + 1) ⟶ X n` for all `n : ℕ`. -/
+/--
+The functor `ℕᵒᵖ ⥤ C` constructed from a sequence of
+morphisms `f : X (n + 1) ⟶ X n` for all `n : ℕ`.
+-/
 @[simps! obj]
 def ofOpSequence : ℕᵒᵖ ⥤ C := (ofSequence (fun n ↦ (f n).op)).leftOp
 
 -- `ofOpSequence` has good definitional properties when applied to explicit natural numbers
 example : (ofOpSequence f).map (homOfLE (show 5 ≤ 5 by lia)).op = 𝟙 _ := rfl
 example : (ofOpSequence f).map (homOfLE (show 0 ≤ 3 by lia)).op = (f 2 ≫ f 1) ≫ f 0 := rfl
-example : (ofOpSequence f).map (homOfLE (show 3 ≤ 7 by lia)).op =
-    ((f 6 ≫ f 5) ≫ f 4) ≫ f 3 := rfl
+example : (ofOpSequence f).map (homOfLE (show 3 ≤ 7 by lia)).op = ((f 6 ≫ f 5) ≫ f 4) ≫ f 3 := rfl
 
 set_option backward.defeqAttrib.useBackward true in
 @[simp]
@@ -170,19 +185,23 @@ end Functor
 
 namespace NatTrans
 
-variable {F G : ℕᵒᵖ ⥤ C} (app : ∀ (n : ℕ), F.obj ⟨n⟩ ⟶ G.obj ⟨n⟩)
-  (naturality : ∀ (n : ℕ), F.map (homOfLE (n.le_add_right 1)).op ≫ app n =
-      app (n + 1) ≫ G.map (homOfLE (n.le_add_right 1)).op)
+variable
+  {F G : ℕᵒᵖ ⥤ C} (app : ∀ (n : ℕ), F.obj ⟨n⟩ ⟶ G.obj ⟨n⟩)
+  (naturality : ∀ (n : ℕ),
+    F.map (homOfLE (n.le_add_right 1)).op ≫ app n
+      = app (n + 1) ≫ G.map (homOfLE (n.le_add_right 1)).op)
 
-/-- Constructor for natural transformations `F ⟶ G` in `ℕᵒᵖ ⥤ C` which takes as inputs
+/--
+Constructor for natural transformations `F ⟶ G` in `ℕᵒᵖ ⥤ C` which takes as inputs
 the morphisms `F.obj ⟨n⟩ ⟶ G.obj ⟨n⟩` for all `n : ℕ` and the naturality condition only
-for morphisms of the form `n ⟶ n + 1`. -/
+for morphisms of the form `n ⟶ n + 1`.
+-/
 @[simps!]
 def ofOpSequence : F ⟶ G where
   app n := app n.unop
   naturality _ _ f := by
-    let φ : G.rightOp ⟶ F.rightOp := ofSequence (fun n ↦ (app n).op)
-      (fun n ↦ Quiver.Hom.unop_inj (naturality n).symm)
+    let φ : G.rightOp ⟶ F.rightOp :=
+      ofSequence (fun n ↦ (app n).op) (fun n ↦ Quiver.Hom.unop_inj (naturality n).symm)
     exact Quiver.Hom.op_inj (φ.naturality f.unop).symm
 
 end NatTrans

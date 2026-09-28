@@ -41,14 +41,11 @@ namespace ProbabilityTheory
 section GammaPDF
 
 /-- The pdf of the gamma distribution depending on its scale and rate -/
-noncomputable
-def gammaPDFReal (a r x : ℝ) : ℝ :=
+noncomputable def gammaPDFReal (a r x : ℝ) : ℝ :=
   if 0 ≤ x then r ^ a / (Gamma a) * x ^ (a - 1) * exp (-(r * x)) else 0
 
 /-- The pdf of the gamma distribution, as a function valued in `ℝ≥0∞` -/
-noncomputable
-def gammaPDF (a r x : ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal (gammaPDFReal a r x)
+noncomputable def gammaPDF (a r x : ℝ) : ℝ≥0∞ := ENNReal.ofReal (gammaPDFReal a r x)
 
 lemma gammaPDF_eq (a r x : ℝ) :
     gammaPDF a r x =
@@ -124,9 +121,7 @@ end GammaPDF
 open MeasureTheory
 
 /-- Measure defined by the gamma distribution -/
-noncomputable
-def gammaMeasure (a r : ℝ) : Measure ℝ :=
-  volume.withDensity (gammaPDF a r)
+noncomputable def gammaMeasure (a r : ℝ) : Measure ℝ := volume.withDensity (gammaPDF a r)
 
 lemma isProbabilityMeasure_gammaMeasure {a r : ℝ} (ha : 0 < a) (hr : 0 < r) :
     IsProbabilityMeasure (gammaMeasure a r) where

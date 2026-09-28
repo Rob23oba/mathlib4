@@ -13,7 +13,6 @@ public import Mathlib.Algebra.Module.Submodule.Pointwise
 public import Mathlib.LinearAlgebra.Span.Defs
 public import Mathlib.Order.CompactlyGenerated.Basic
 public import Mathlib.Order.BourbakiWitt
-
 import Mathlib.Algebra.Field.Basic
 import Mathlib.Algebra.Module.Submodule.EqLocus
 import Mathlib.Algebra.Module.Torsion.Field
@@ -56,42 +55,46 @@ lemma _root_.AddSubmonoid.toNatSubmodule_closure (s : Set M) :
 
 /-- A version of `Submodule.span_eq` for when the span is by a smaller ring. -/
 @[simp]
-theorem span_coe_eq_restrictScalars [Semiring S] [SMul S R] [Module S M] [IsScalarTower S R M] :
-    span S (p : Set M) = p.restrictScalars S :=
+theorem span_coe_eq_restrictScalars [Semiring S] [SMul S R] [Module S M] [IsScalarTower S R M]
+    : span S (p : Set M) = p.restrictScalars S :=
   span_eq (p.restrictScalars S)
 
 include σ₁₂ in
-/-- A version of `Submodule.map_span_le` that does not require the `RingHomSurjective`
-assumption. -/
-theorem image_span_subset (f : M →ₛₗ[σ₁₂] M₂) (s : Set M) (N : Submodule R₂ M₂) :
-    f '' span R s ⊆ N ↔ ∀ m ∈ s, f m ∈ N := image_subset_iff.trans <| span_le (p := N.comap f)
+/--
+A version of `Submodule.map_span_le` that does not require the `RingHomSurjective`
+assumption.
+-/
+theorem image_span_subset (f : M →ₛₗ[σ₁₂] M₂) (s : Set M) (N : Submodule R₂ M₂)
+    : f '' span R s ⊆ N ↔ ∀ m ∈ s, f m ∈ N :=
+  image_subset_iff.trans <| span_le (p := N.comap f)
 
 include σ₁₂ in
 theorem image_span_subset_span (f : M →ₛₗ[σ₁₂] M₂) (s : Set M) : f '' span R s ⊆ span R₂ (f '' s) :=
   (image_span_subset f s _).2 fun x hx ↦ subset_span ⟨x, hx, rfl⟩
 
-theorem map_span [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) (s : Set M) :
-    (span R s).map f = span R₂ (f '' s) :=
+theorem map_span [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) (s : Set M)
+    : (span R s).map f = span R₂ (f '' s) :=
   Eq.symm <| span_eq_of_le _ (Set.image_mono subset_span) (image_span_subset_span f s)
 
 alias _root_.LinearMap.map_span := Submodule.map_span
 
-theorem map_span_le [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) (s : Set M) (N : Submodule R₂ M₂) :
-    map f (span R s) ≤ N ↔ ∀ m ∈ s, f m ∈ N := image_span_subset f s N
+theorem map_span_le [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) (s : Set M) (N : Submodule R₂ M₂)
+    : map f (span R s) ≤ N ↔ ∀ m ∈ s, f m ∈ N :=
+  image_span_subset f s N
 
 alias _root_.LinearMap.map_span_le := Submodule.map_span_le
 
 /-- See also `Submodule.span_preimage_eq`. -/
-theorem span_preimage_le (f : M →ₛₗ[σ₁₂] M₂) (s : Set M₂) :
-    span R (f ⁻¹' s) ≤ (span R₂ s).comap f := by
+theorem span_preimage_le (f : M →ₛₗ[σ₁₂] M₂) (s : Set M₂)
+    : span R (f ⁻¹' s) ≤ (span R₂ s).comap f := by
   rw [span_le, comap_coe]
   exact preimage_mono subset_span
 
 alias _root_.LinearMap.span_preimage_le := Submodule.span_preimage_le
 
 include σ₁₂ in
-theorem mapsTo_span {f : M →ₛₗ[σ₁₂] M₂} {s : Set M} {t : Set M₂} (h : MapsTo f s t) :
-    MapsTo f (span R s) (span R₂ t) :=
+theorem mapsTo_span {f : M →ₛₗ[σ₁₂] M₂} {s : Set M} {t : Set M₂} (h : MapsTo f s t)
+    : MapsTo f (span R s) (span R₂ t) :=
   (span_mono h).trans (span_preimage_le (σ₁₂ := σ₁₂) f t)
 
 alias _root_.Set.MapsTo.submoduleSpan := mapsTo_span
@@ -148,18 +151,22 @@ lemma linearMap_eq_zero_iff_of_eq_span {V : Submodule R M} (f : V →ₗ[R] N)
 
 end
 
-/-- See `Submodule.span_smul_eq` (in `RingTheory.Ideal.Operations`) for
-`span R (r • s) = r • span R s` that holds for arbitrary `r` in a `CommSemiring`. -/
+/--
+See `Submodule.span_smul_eq` (in `RingTheory.Ideal.Operations`) for
+`span R (r • s) = r • span R s` that holds for arbitrary `r` in a `CommSemiring`.
+-/
 theorem span_smul_eq_of_isUnit (s : Set M) (r : R) (hr : IsUnit r) : span R (r • s) = span R s := by
   apply le_antisymm
   · apply span_smul_le
   · convert! span_smul_le (r • s) ((hr.unit⁻¹ :) : R)
     simp [smul_smul]
 
-/-- We can regard `coe_iSup_of_chain` as the statement that `(↑) : (Submodule R M) → Set M` is
-Scott continuous for the ω-complete partial order induced by the complete lattice structures. -/
-theorem coe_scott_continuous :
-    OmegaCompletePartialOrder.ωScottContinuous ((↑) : Submodule R M → Set M) :=
+/--
+We can regard `coe_iSup_of_chain` as the statement that `(↑) : (Submodule R M) → Set M` is
+Scott continuous for the ω-complete partial order induced by the complete lattice structures.
+-/
+theorem coe_scott_continuous
+    : OmegaCompletePartialOrder.ωScottContinuous ((↑) : Submodule R M → Set M) :=
   OmegaCompletePartialOrder.ωScottContinuous.of_monotone_map_ωSup
     ⟨SetLike.coe_mono, fun _ ↦ coe_iSup_of_chain _⟩
 
@@ -170,8 +177,8 @@ variable (S)
 variable [Semiring S] [SMul R S] [Module S M] [IsScalarTower R S M] (p : Submodule R M)
 
 /-- The inclusion of an `R`-submodule into its `S`-span, as an `R`-linear map. -/
-@[simps] def inclusionSpan :
-    p →ₗ[R] span S (p : Set M) where
+@[simps]
+def inclusionSpan : p →ₗ[R] span S (p : Set M) where
   toFun x := ⟨x, subset_span x.property⟩
   map_add' x y := by simp
   map_smul' t x := by simp
@@ -192,21 +199,18 @@ lemma span_range_inclusionSpan :
 variable (R s)
 
 /-- If `R` is "smaller" ring than `S` then the span by `R` is smaller than the span by `S`. -/
-theorem span_le_restrictScalars :
-    span R s ≤ (span S s).restrictScalars R :=
+theorem span_le_restrictScalars : span R s ≤ (span S s).restrictScalars R :=
   Submodule.span_le.2 Submodule.subset_span
 
 /-- A version of `Submodule.span_le_restrictScalars` with coercions. -/
-@[simp]
-theorem span_subset_span :
-    ↑(span R s) ⊆ (span S s : Set M) :=
-  span_le_restrictScalars R S s
+@[simp] theorem span_subset_span : ↑(span R s) ⊆ (span S s : Set M) := span_le_restrictScalars R S s
 
-/-- Taking the span by a large ring of the span by the small ring is the same as taking the span
-by just the large ring. -/
+/--
+Taking the span by a large ring of the span by the small ring is the same as taking the span
+by just the large ring.
+-/
 @[simp]
-theorem span_span_of_tower :
-    span S (span R s : Set M) = span S s :=
+theorem span_span_of_tower : span S (span R s : Set M) = span S s :=
   le_antisymm (span_le.2 <| span_subset_span R S s) (span_mono subset_span)
 
 theorem span_eq_top_of_span_eq_top (s : Set M) (hs : span R s = ⊤) : span S s = ⊤ :=
@@ -228,19 +232,21 @@ lemma span_range_inclusion_eq_top (p : Submodule R M) (q : Submodule S M)
   simpa [range_inclusion] using fun hx ↦ h₁ hx
 
 @[simp]
-theorem span_range_inclusion_restrictScalars_eq_top :
-    span S (range (inclusion <| span_le_restrictScalars R S s)) = ⊤ :=
+theorem span_range_inclusion_restrictScalars_eq_top
+    : span S (range (inclusion <| span_le_restrictScalars R S s)) = ⊤ :=
   span_range_inclusion_eq_top _ _ _ <| by simp
 
 end IsScalarTower
 
-theorem span_singleton_eq_span_singleton {R M : Type*} [Ring R] [IsDomain R] [AddCommGroup M]
-    [Module R M] [Module.IsTorsionFree R M] {x y : M} :
-    (R ∙ x) = (R ∙ y) ↔ ∃ z : Rˣ, z • x = y := by
+theorem span_singleton_eq_span_singleton
+    {R M : Type*} [Ring R] [IsDomain R] [AddCommGroup M] [Module R M] [Module.IsTorsionFree R M]
+    {x y : M}
+    : (R ∙ x) = (R ∙ y) ↔ ∃ z : Rˣ, z • x = y := by
   constructor
   · simp only [le_antisymm_iff, span_singleton_le_iff_mem, mem_span_singleton]
     rintro ⟨⟨a, rfl⟩, b, hb⟩
-    rcases eq_or_ne y 0 with rfl | hy; · simp
+    rcases eq_or_ne y 0 with rfl | hy
+    · simp
     refine ⟨⟨b, a, ?_, ?_⟩, hb⟩
     · apply smul_left_injective R hy
       simpa only [mul_smul, one_smul]
@@ -251,63 +257,66 @@ theorem span_singleton_eq_span_singleton {R M : Type*} [Ring R] [IsDomain R] [Ad
     exact (span_singleton_group_smul_eq _ _ _).symm
 
 @[simp]
-theorem span_image [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) :
-    span R₂ (f '' s) = map f (span R s) :=
+theorem span_image [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂)
+    : span R₂ (f '' s) = map f (span R s) :=
   (map_span f s).symm
 
 @[simp]
-theorem span_image_linearEquiv {σ₂₁} [RingHomInvPair σ₁₂ σ₂₁] [RingHomInvPair σ₂₁ σ₁₂]
-    (f : M ≃ₛₗ[σ₁₂] M₂) : span R₂ (f '' s) = map (f : M →ₛₗ[σ₁₂] M₂) (span R s) :=
+theorem span_image_linearEquiv
+    {σ₂₁} [RingHomInvPair σ₁₂ σ₂₁] [RingHomInvPair σ₂₁ σ₁₂] (f : M ≃ₛₗ[σ₁₂] M₂)
+    : span R₂ (f '' s) = map (f : M →ₛₗ[σ₁₂] M₂) (span R s) :=
   span_image _
 
-theorem apply_mem_span_image_of_mem_span [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) {x : M}
-    {s : Set M} (h : x ∈ Submodule.span R s) : f x ∈ Submodule.span R₂ (f '' s) := by
+theorem apply_mem_span_image_of_mem_span
+    [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) {x : M} {s : Set M} (h : x ∈ Submodule.span R s)
+    : f x ∈ Submodule.span R₂ (f '' s) := by
   rw [Submodule.span_image]
   exact Submodule.mem_map_of_mem h
 
-theorem apply_mem_span_image_iff_mem_span [RingHomSurjective σ₁₂] {f : M →ₛₗ[σ₁₂] M₂} {x : M}
-    {s : Set M} (hf : Function.Injective f) :
-    f x ∈ Submodule.span R₂ (f '' s) ↔ x ∈ Submodule.span R s := by
+theorem apply_mem_span_image_iff_mem_span
+    [RingHomSurjective σ₁₂] {f : M →ₛₗ[σ₁₂] M₂} {x : M} {s : Set M} (hf : Function.Injective f)
+    : f x ∈ Submodule.span R₂ (f '' s) ↔ x ∈ Submodule.span R s := by
   rw [← Submodule.mem_comap, ← Submodule.map_span, Submodule.comap_map_eq_of_injective hf]
 
 @[simp]
-theorem map_subtype_span_singleton {p : Submodule R M} (x : p) :
-    map p.subtype (R ∙ x) = R ∙ (x : M) := by simp [← span_image]
+theorem map_subtype_span_singleton {p : Submodule R M} (x : p)
+    : map p.subtype (R ∙ x) = R ∙ (x : M) := by
+  simp [← span_image]
 
 /-- `f` is an explicit argument so we can `apply` this theorem and obtain `h` as a new goal. -/
-theorem notMem_span_of_apply_notMem_span_image [RingHomSurjective σ₁₂] (f : M →ₛₗ[σ₁₂] M₂) {x : M}
-    {s : Set M} (h : f x ∉ Submodule.span R₂ (f '' s)) : x ∉ Submodule.span R s :=
+theorem notMem_span_of_apply_notMem_span_image
+    [RingHomSurjective σ₁₂]
+    (f : M →ₛₗ[σ₁₂] M₂)
+    {x : M} {s : Set M} (h : f x ∉ Submodule.span R₂ (f '' s))
+    : x ∉ Submodule.span R s :=
   h.imp (apply_mem_span_image_of_mem_span f)
 
 section DistribMulAction
 
 variable {α : Type*} [Monoid α] [DistribMulAction α M] [SMulCommClass α R M]
 
-theorem smul_span (a : α) (s : Set M) : a • span R s = span R (a • s) :=
-  map_span _ _
+theorem smul_span (a : α) (s : Set M) : a • span R s = span R (a • s) := map_span _ _
 
 lemma smul_def (a : α) (S : Submodule R M) : a • S = span R (a • S) := by
   simp [← smul_span]
 
-theorem span_smul (a : α) (s : Set M) : span R (a • s) = a • span R s :=
-  Eq.symm (span_image _).symm
+theorem span_smul (a : α) (s : Set M) : span R (a • s) = a • span R s := Eq.symm (span_image _).symm
 
-theorem set_smul_span (s : Set α) (t : Set M) :
-    s • span R t = span R (s • t) := by
+theorem set_smul_span (s : Set α) (t : Set M) : s • span R t = span R (s • t) := by
   simp_rw [set_smul_eq_iSup, smul_span, iSup_span, Set.iUnion_smul_set]
 
-theorem span_set_smul (s : Set α) (t : Set M) :
-    span R (s • t) = s • span R t := (set_smul_span s t).symm
+theorem span_set_smul (s : Set α) (t : Set M) : span R (s • t) = s • span R t :=
+  (set_smul_span s t).symm
 
 end DistribMulAction
 
-theorem iSup_toAddSubmonoid {ι : Sort*} (p : ι → Submodule R M) :
-    (⨆ i, p i).toAddSubmonoid = ⨆ i, (p i).toAddSubmonoid := by
+theorem iSup_toAddSubmonoid {ι : Sort*} (p : ι → Submodule R M)
+    : (⨆ i, p i).toAddSubmonoid = ⨆ i, (p i).toAddSubmonoid := by
   refine le_antisymm (fun x => ?_) (iSup_le fun i => toAddSubmonoid_mono <| le_iSup _ i)
   simp_rw [iSup_eq_span, AddSubmonoid.iSup_eq_closure, mem_toAddSubmonoid, coe_toAddSubmonoid]
   intro hx
-  refine Submodule.span_induction (fun x hx => ?_) ?_ (fun x y _ _ hx hy => ?_)
-    (fun r x _ hx => ?_) hx
+  refine
+    Submodule.span_induction (fun x hx => ?_) ?_ (fun x y _ _ hx hy => ?_) (fun r x _ hx => ?_) hx
   · exact AddSubmonoid.subset_closure hx
   · exact AddSubmonoid.zero_mem _
   · exact AddSubmonoid.add_mem _ hx hy
@@ -321,49 +330,60 @@ theorem iSup_toAddSubmonoid {ι : Sort*} (p : ι → Submodule R M) :
       rw [smul_add]
       exact AddSubmonoid.add_mem _ hx hy
 
-/-- An induction principle for elements of `⨆ i, p i`.
+/--
+An induction principle for elements of `⨆ i, p i`.
 If `C` holds for `0` and all elements of `p i` for all `i`, and is preserved under addition,
-then it holds for all elements of the supremum of `p`. -/
+then it holds for all elements of the supremum of `p`.
+-/
 @[elab_as_elim]
-theorem iSup_induction {ι : Sort*} (p : ι → Submodule R M) {motive : M → Prop} {x : M}
-    (hx : x ∈ ⨆ i, p i) (mem : ∀ (i), ∀ x ∈ p i, motive x) (zero : motive 0)
-    (add : ∀ x y, motive x → motive y → motive (x + y)) : motive x := by
+theorem iSup_induction
+    {ι : Sort*} (p : ι → Submodule R M)
+    {motive : M → Prop} {x : M} (hx : x ∈ ⨆ i, p i) (mem : ∀ (i), ∀ x ∈ p i, motive x)
+    (zero : motive 0) (add : ∀ x y, motive x → motive y → motive (x + y))
+    : motive x := by
   rw [← mem_toAddSubmonoid, iSup_toAddSubmonoid] at hx
   exact AddSubmonoid.iSup_induction (x := x) _ hx mem zero add
 
 /-- A dependent version of `submodule.iSup_induction`. -/
 @[elab_as_elim]
-theorem iSup_induction' {ι : Sort*} (p : ι → Submodule R M) {motive : ∀ x, (x ∈ ⨆ i, p i) → Prop}
+theorem iSup_induction'
+    {ι : Sort*} (p : ι → Submodule R M)
+    {motive : ∀ x, (x ∈ ⨆ i, p i) → Prop}
     (mem : ∀ (i) (x) (hx : x ∈ p i), motive x (mem_iSup_of_mem i hx)) (zero : motive 0 (zero_mem _))
-    (add : ∀ x y hx hy, motive x hx → motive y hy → motive (x + y) (add_mem ‹_› ‹_›)) {x : M}
-    (hx : x ∈ ⨆ i, p i) : motive x hx := by
+    (add : ∀ x y hx hy, motive x hx → motive y hy → motive (x + y) (add_mem ‹_› ‹_›))
+    {x : M} (hx : x ∈ ⨆ i, p i)
+    : motive x hx := by
   refine Exists.elim ?_ fun (hx : x ∈ ⨆ i, p i) (hc : motive x hx) => hc
-  refine iSup_induction p (motive := fun x : M ↦ ∃ (hx : x ∈ ⨆ i, p i), motive x hx) hx
-    (fun i x hx => ?_) ?_ fun x y => ?_
+  refine iSup_induction p
+    (motive := fun x : M ↦ ∃ (hx : x ∈ ⨆ i, p i), motive x hx)
+    hx
+    (fun i x hx => ?_)
+    ?_
+    fun x y => ?_
   · exact ⟨_, mem _ _ hx⟩
   · exact ⟨_, zero⟩
   · rintro ⟨_, Cx⟩ ⟨_, Cy⟩
     exact ⟨_, add _ _ _ _ Cx Cy⟩
 
-theorem singleton_span_isCompactElement (x : M) :
-    IsCompactElement (span R {x} : Submodule R M) := by
+theorem singleton_span_isCompactElement (x : M)
+    : IsCompactElement (span R {x} : Submodule R M) := by
   rw [isCompactElement_iff_le_of_directed_sSup_le]
   intro d hemp hdir hsup
   have : x ∈ (sSup d) := (mem_of_le_of_mem hsup) (mem_span_singleton_self x)
   obtain ⟨y, ⟨hyd, hxy⟩⟩ := (mem_sSup_of_directed hemp hdir).mp this
-  exact ⟨y, ⟨hyd, by simpa only [span_le, singleton_subset_iff] ⟩⟩
+  exact ⟨y, ⟨hyd, by simpa only [span_le, singleton_subset_iff]⟩⟩
 
 /-- The span of a finite subset is compact in the lattice of submodules. -/
-theorem finset_span_isCompactElement (S : Finset M) :
-    IsCompactElement (span R S : Submodule R M) := by
+theorem finset_span_isCompactElement (S : Finset M)
+    : IsCompactElement (span R S : Submodule R M) := by
   rw [span_eq_iSup_of_singleton_spans]
   simp only [Finset.mem_coe]
   rw [← Finset.sup_eq_iSup]
   exact isCompactElement_finsetSup S fun x _ => singleton_span_isCompactElement x
 
 /-- The span of a finite subset is compact in the lattice of submodules. -/
-theorem finite_span_isCompactElement (S : Set M) (h : S.Finite) :
-    IsCompactElement (span R S : Submodule R M) :=
+theorem finite_span_isCompactElement (S : Set M) (h : S.Finite)
+    : IsCompactElement (span R S : Submodule R M) :=
   Finite.coe_toFinset h ▸ finset_span_isCompactElement h.toFinset
 
 instance : IsCompactlyGenerated (Submodule R M) where
@@ -376,31 +396,28 @@ instance : IsCompactlyGenerated (Submodule R M) where
 variable {M' : Type*} [AddCommMonoid M'] [Module R M'] (q₁ q₁' : Submodule R M')
 
 /-- The product of two submodules is a submodule. -/
-def prod : Submodule R (M × M') :=
-  { p.toAddSubmonoid.prod q₁.toAddSubmonoid with
-    carrier := p ×ˢ q₁
-    smul_mem' := by rintro a ⟨x, y⟩ ⟨hx, hy⟩; exact ⟨smul_mem _ a hx, smul_mem _ a hy⟩ }
+def prod : Submodule R (M × M') := {
+  p.toAddSubmonoid.prod q₁.toAddSubmonoid with
+  carrier := p ×ˢ q₁
+  smul_mem' := by rintro a ⟨x, y⟩ ⟨hx, hy⟩; exact ⟨smul_mem _ a hx, smul_mem _ a hy⟩
+}
+
+@[simp] theorem prod_coe : (prod p q₁ : Set (M × M')) = (p : Set M) ×ˢ (q₁ : Set M') := rfl
 
 @[simp]
-theorem prod_coe : (prod p q₁ : Set (M × M')) = (p : Set M) ×ˢ (q₁ : Set M') :=
-  rfl
-
-@[simp]
-theorem mem_prod {p : Submodule R M} {q : Submodule R M'} {x : M × M'} :
-    x ∈ prod p q ↔ x.1 ∈ p ∧ x.2 ∈ q :=
+theorem mem_prod {p : Submodule R M} {q : Submodule R M'} {x : M × M'}
+    : x ∈ prod p q ↔ x.1 ∈ p ∧ x.2 ∈ q :=
   Set.mem_prod
 
 theorem span_prod_le (s : Set M) (t : Set M') : span R (s ×ˢ t) ≤ prod (span R s) (span R t) :=
   span_le.2 <| Set.prod_mono subset_span subset_span
 
-@[simp]
-theorem prod_top : (prod ⊤ ⊤ : Submodule R (M × M')) = ⊤ := by ext; simp
+@[simp] theorem prod_top : (prod ⊤ ⊤ : Submodule R (M × M')) = ⊤ := by ext; simp
 
-@[simp]
-theorem prod_bot : (prod ⊥ ⊥ : Submodule R (M × M')) = ⊥ := by ext ⟨x, y⟩; simp
+@[simp] theorem prod_bot : (prod ⊥ ⊥ : Submodule R (M × M')) = ⊥ := by ext ⟨x, y⟩; simp
 
-theorem prod_mono {p p' : Submodule R M} {q q' : Submodule R M'} :
-    p ≤ p' → q ≤ q' → prod p q ≤ prod p' q' :=
+theorem prod_mono {p p' : Submodule R M} {q q' : Submodule R M'}
+    : p ≤ p' → q ≤ q' → prod p q ≤ prod p' q' :=
   Set.prod_mono
 
 @[simp]
@@ -411,13 +428,16 @@ theorem prod_inf_prod : prod p q₁ ⊓ prod p' q₁' = prod (p ⊓ p') (q₁ �
 theorem prod_sup_prod : prod p q₁ ⊔ prod p' q₁' = prod (p ⊔ p') (q₁ ⊔ q₁') := by
   refine le_antisymm
     (sup_le (prod_mono le_sup_left le_sup_left) (prod_mono le_sup_right le_sup_right)) ?_
-  simp only [IsConcreteLE.le_iff, mem_prod, and_imp, Prod.forall]; intro xx yy hxx hyy
+  simp only [IsConcreteLE.le_iff, mem_prod, and_imp, Prod.forall]
+  intro xx yy hxx hyy
   rcases mem_sup.1 hxx with ⟨x, hx, x', hx', rfl⟩
   rcases mem_sup.1 hyy with ⟨y, hy, y', hy', rfl⟩
   exact mem_sup.2 ⟨(x, y), ⟨hx, hy⟩, (x', y'), ⟨hx', hy'⟩, rfl⟩
 
-/-- The product submodule `p.prod q` is linearly equivalent to the product `p × q` of the
-submodules. -/
+/--
+The product submodule `p.prod q` is linearly equivalent to the product `p × q` of the
+submodules.
+-/
 @[simps]
 def prodEquiv (p : Submodule R M) (q : Submodule R M') : p.prod q ≃ₗ[R] p × q where
   toFun x := (⟨x.1.1, (mem_prod.1 x.2).1⟩, ⟨x.1.2, (mem_prod.1 x.2).2⟩)
@@ -455,11 +475,12 @@ lemma biSup_comap_subtype_eq_top {ι : Type*} (s : Set ι) (p : ι → Submodule
   rw [map_comap_eq, range_subtype, inf_eq_right]
   exact le_biSup p hi
 
-theorem _root_.LinearMap.exists_ne_zero_of_sSup_eq {N : Submodule R M} {f : N →ₛₗ[σ₁₂] M₂}
-    (h : f ≠ 0) (s : Set (Submodule R M)) (hs : sSup s = N):
-    ∃ m, ∃ h : m ∈ s, f ∘ₛₗ inclusion ((le_sSup h).trans_eq hs) ≠ 0 :=
-  have ⟨_, ⟨m, hm, rfl⟩, ne⟩ := LinearMap.exists_ne_zero_of_sSup_eq_top h (comap N.subtype '' s) <|
-    by rw [sSup_eq_iSup] at hs; rw [sSup_image, ← hs, biSup_comap_subtype_eq_top]
+theorem _root_.LinearMap.exists_ne_zero_of_sSup_eq
+    {N : Submodule R M} {f : N →ₛₗ[σ₁₂] M₂} (h : f ≠ 0) (s : Set (Submodule R M)) (hs : sSup s = N)
+    : ∃ m, ∃ h : m ∈ s, f ∘ₛₗ inclusion ((le_sSup h).trans_eq hs) ≠ 0 :=
+  have ⟨_, ⟨m, hm, rfl⟩, ne⟩ :=
+    LinearMap.exists_ne_zero_of_sSup_eq_top h (comap N.subtype '' s) <| by
+      rw [sSup_eq_iSup] at hs; rw [sSup_image, ← hs, biSup_comap_subtype_eq_top]
   ⟨m, hm, fun eq ↦ ne (LinearMap.ext fun x ↦ congr($eq ⟨x, x.2⟩))⟩
 
 lemma span_val_image_eq_iff (p : Submodule R M) (s : Set p) :
@@ -507,7 +528,7 @@ lemma inf_sup_assoc_of_le_of_neg_le {s : Submodule R M} (t : Submodule R M)
     (s ⊓ t) ⊔ p = s ⊓ (t ⊔ p) := by
   rw [sup_comm, inf_comm, ← sup_inf_assoc_of_le_of_neg_le t hps hnps, inf_comm, sup_comm]
 
-theorem span_neg_eq_neg (s : Set M) : span R (-s) = -span R s := by
+theorem span_neg_eq_neg (s : Set M) : span R (-s) = - span R s := by
   apply le_antisymm
   · rw [span_le, coe_set_neg, ← Set.neg_subset, neg_neg]
     exact subset_span
@@ -521,11 +542,10 @@ lemma _root_.AddSubgroup.toIntSubmodule_closure (s : Set M) :
   (Submodule.span_le.mpr AddSubgroup.subset_closure).antisymm'
     ((Submodule.span ℤ s).toAddSubgroup.closure_le.mpr Submodule.subset_span)
 
-@[simp]
-theorem span_neg (s : Set M) : span R (-s) = span R s := by simp [span_neg_eq_neg]
+@[simp] theorem span_neg (s : Set M) : span R (-s) = span R s := by simp [span_neg_eq_neg]
 
-instance : IsModularLattice (Submodule R M) := ⟨
-  fun _ _ hxy _ _ => by rwa [← sup_inf_assoc_of_le_of_neg_le _ hxy (by simpa)]⟩
+instance : IsModularLattice (Submodule R M) :=
+  ⟨fun _ _ hxy _ _ => by rwa [← sup_inf_assoc_of_le_of_neg_le _ hxy (by simpa)]⟩
 
 lemma isCompl_comap_subtype_of_isCompl_of_le {p q r : Submodule R M}
     (h₁ : IsCompl q r) (h₂ : q ≤ p) :
@@ -542,30 +562,35 @@ variable [Semiring R] [Semiring R₂]
 variable [AddCommGroup M] [Module R M] [AddCommGroup M₂] [Module R₂ M₂]
 variable {τ₁₂ : R →+* R₂} [RingHomSurjective τ₁₂]
 
-theorem comap_map_eq (f : M →ₛₗ[τ₁₂] M₂) (p : Submodule R M) :
-    comap f (map f p) = p ⊔ LinearMap.ker f := by
+theorem comap_map_eq (f : M →ₛₗ[τ₁₂] M₂) (p : Submodule R M)
+    : comap f (map f p) = p ⊔ LinearMap.ker f := by
   refine le_antisymm ?_ (sup_le (le_comap_map _ _) (comap_mono bot_le))
   rintro x ⟨y, hy, e⟩
   exact mem_sup.2 ⟨y, hy, x - y, by simpa using sub_eq_zero.2 e.symm, by simp⟩
 
-theorem map_eq_range_iff {f : M →ₛₗ[τ₁₂] M₂} {p : Submodule R M} :
-    map f p = f.range ↔ Codisjoint p f.ker := by
+theorem map_eq_range_iff {f : M →ₛₗ[τ₁₂] M₂} {p : Submodule R M}
+    : map f p = f.range ↔ Codisjoint p f.ker := by
   simp_rw [le_antisymm_iff, LinearMap.map_le_range, true_and, ← map_top, map_le_iff_le_comap,
     comap_map_eq, codisjoint_iff_le_sup]
 
-theorem map_lt_map_of_le_of_sup_lt_sup {p p' : Submodule R M} {f : M →ₛₗ[τ₁₂] M₂} (hab : p ≤ p')
-    (h : p ⊔ LinearMap.ker f < p' ⊔ LinearMap.ker f) : Submodule.map f p < Submodule.map f p' := by
+theorem map_lt_map_of_le_of_sup_lt_sup
+    {p p' : Submodule R M} {f : M →ₛₗ[τ₁₂] M₂}
+    (hab : p ≤ p') (h : p ⊔ LinearMap.ker f < p' ⊔ LinearMap.ker f)
+    : Submodule.map f p < Submodule.map f p' := by
   simp_rw [← comap_map_eq] at h
   exact lt_of_le_of_ne (map_mono hab) (ne_of_apply_ne _ h.ne)
 
-theorem comap_map_eq_self {f : M →ₛₗ[τ₁₂] M₂} {p : Submodule R M} (h : LinearMap.ker f ≤ p) :
-    comap f (map f p) = p := by rw [Submodule.comap_map_eq, sup_of_le_left h]
+theorem comap_map_eq_self {f : M →ₛₗ[τ₁₂] M₂} {p : Submodule R M} (h : LinearMap.ker f ≤ p)
+    : comap f (map f p) = p := by
+  rw [Submodule.comap_map_eq, sup_of_le_left h]
 
-theorem comap_map_sup_of_comap_le {f : M →ₛₗ[τ₁₂] M₂} {p : Submodule R M} {q : Submodule R₂ M₂}
-    (le : comap f q ≤ p) : comap f (map f p ⊔ q) = p := by
+theorem comap_map_sup_of_comap_le
+    {f : M →ₛₗ[τ₁₂] M₂} {p : Submodule R M} {q : Submodule R₂ M₂} (le : comap f q ≤ p)
+    : comap f (map f p ⊔ q) = p := by
   refine le_antisymm (fun x h ↦ ?_) (map_le_iff_le_comap.mp le_sup_left)
   obtain ⟨_, ⟨y, hy, rfl⟩, z, hz, eq⟩ := mem_sup.mp h
-  rw [add_comm, ← eq_sub_iff_add_eq, ← map_sub] at eq; subst eq
+  rw [add_comm, ← eq_sub_iff_add_eq, ← map_sub] at eq
+  subst eq
   simpa using p.add_mem (le hz) hy
 
 lemma disjoint_map_of_ker_le_right {f : M →ₛₗ[τ₁₂] M₂} {p q : Submodule R M}
@@ -578,27 +603,36 @@ lemma disjoint_map_of_ker_le_left {f : M →ₛₗ[τ₁₂] M₂} {p q : Submod
     (hpq : Disjoint p q) (hker : f.ker ≤ p) : Disjoint (p.map f) (q.map f) :=
   disjoint_map_of_ker_le_right hpq.symm hker |>.symm
 
-theorem isCoatom_comap_or_eq_top (f : M →ₛₗ[τ₁₂] M₂) {p : Submodule R₂ M₂} (hp : IsCoatom p) :
-    IsCoatom (comap f p) ∨ comap f p = ⊤ :=
-  or_iff_not_imp_right.mpr fun h ↦ ⟨h, fun q lt ↦ by
-    rw [← comap_map_sup_of_comap_le lt.le, hp.2 (map f q ⊔ p), comap_top]
-    simpa only [right_lt_sup, map_le_iff_le_comap] using lt.not_ge⟩
+theorem isCoatom_comap_or_eq_top (f : M →ₛₗ[τ₁₂] M₂) {p : Submodule R₂ M₂} (hp : IsCoatom p)
+    : IsCoatom (comap f p) ∨ comap f p = ⊤ :=
+  or_iff_not_imp_right.mpr fun h ↦ ⟨
+    h,
+    fun q lt ↦ by
+      rw [← comap_map_sup_of_comap_le lt.le, hp.2 (map f q ⊔ p), comap_top]
+      simpa only [right_lt_sup, map_le_iff_le_comap] using lt.not_ge
+  ⟩
 
-theorem isCoatom_comap_iff {f : M →ₛₗ[τ₁₂] M₂} (hf : Surjective f) {p : Submodule R₂ M₂} :
-    IsCoatom (comap f p) ↔ IsCoatom p := by
+theorem isCoatom_comap_iff {f : M →ₛₗ[τ₁₂] M₂} (hf : Surjective f) {p : Submodule R₂ M₂}
+    : IsCoatom (comap f p) ↔ IsCoatom p := by
   have := comap_injective_of_surjective hf
   rw [IsCoatom, IsCoatom, ← comap_top f, this.ne_iff]
   refine and_congr_right fun _ ↦
     ⟨fun h m hm ↦ this (h _ <| comap_strictMono_of_surjective hf hm), fun h m hm ↦ ?_⟩
-  rw [← h _ (lt_map_of_comap_lt_of_surjective hf hm),
-    comap_map_eq_self ((comap_mono bot_le).trans hm.le)]
+  rw [
+    ← h _ (lt_map_of_comap_lt_of_surjective hf hm),
+    comap_map_eq_self ((comap_mono bot_le).trans hm.le)
+  ]
 
-theorem isCoatom_map_of_ker_le {f : M →ₛₗ[τ₁₂] M₂} (hf : Surjective f) {p : Submodule R M}
-    (le : LinearMap.ker f ≤ p) (hp : IsCoatom p) : IsCoatom (map f p) :=
+theorem isCoatom_map_of_ker_le
+    {f : M →ₛₗ[τ₁₂] M₂} (hf : Surjective f)
+    {p : Submodule R M} (le : LinearMap.ker f ≤ p) (hp : IsCoatom p)
+    : IsCoatom (map f p) :=
   (isCoatom_comap_iff hf).mp <| by rwa [comap_map_eq_self le]
 
-theorem map_iInf_of_ker_le {f : M →ₛₗ[τ₁₂] M₂} (hf : Surjective f) {ι} {p : ι → Submodule R M}
-    (h : LinearMap.ker f ≤ ⨅ i, p i) : map f (⨅ i, p i) = ⨅ i, map f (p i) := by
+theorem map_iInf_of_ker_le
+    {f : M →ₛₗ[τ₁₂] M₂} (hf : Surjective f)
+    {ι} {p : ι → Submodule R M} (h : LinearMap.ker f ≤ ⨅ i, p i)
+    : map f (⨅ i, p i) = ⨅ i, map f (p i) := by
   conv_rhs => rw [← map_comap_eq_of_surjective hf (⨅ _, _), comap_iInf]
   simp_rw [fun i ↦ comap_map_eq_self (le_iInf_iff.mp h i)]
 
@@ -650,19 +684,20 @@ variable [AddCommGroup M] [Module R M] [AddCommGroup M₂] [Module R₂ M₂]
 variable {τ₁₂ : R →+* R₂} [RingHomSurjective τ₁₂]
 variable {p p' : Submodule R M}
 
-theorem map_strict_mono_or_ker_sup_lt_ker_sup (f : M →ₛₗ[τ₁₂] M₂) (hab : p < p') :
-    Submodule.map f p < Submodule.map f p' ∨ LinearMap.ker f ⊓ p < LinearMap.ker f ⊓ p' := by
+theorem map_strict_mono_or_ker_sup_lt_ker_sup (f : M →ₛₗ[τ₁₂] M₂) (hab : p < p')
+    : Submodule.map f p < Submodule.map f p' ∨ LinearMap.ker f ⊓ p < LinearMap.ker f ⊓ p' := by
   obtain (⟨h, -⟩ | ⟨-, h⟩) := Prod.mk_lt_mk.mp <| strictMono_inf_prod_sup (z := LinearMap.ker f) hab
   · simpa [inf_comm] using Or.inr h
   · apply Or.inl <| map_lt_map_of_le_of_sup_lt_sup hab.le h
 
-theorem _root_.LinearMap.ker_inf_lt_ker_inf_of_map_eq_of_lt {f : M →ₛₗ[τ₁₂] M₂}
-    (hab : p < p') (q : Submodule.map f p = Submodule.map f p') :
-    LinearMap.ker f ⊓ p < LinearMap.ker f ⊓ p' :=
+theorem _root_.LinearMap.ker_inf_lt_ker_inf_of_map_eq_of_lt
+    {f : M →ₛₗ[τ₁₂] M₂} (hab : p < p') (q : Submodule.map f p = Submodule.map f p')
+    : LinearMap.ker f ⊓ p < LinearMap.ker f ⊓ p' :=
   map_strict_mono_or_ker_sup_lt_ker_sup f hab |>.resolve_left q.not_lt
 
-theorem map_strict_mono_of_ker_inf_eq {f : M →ₛₗ[τ₁₂] M₂} (hab : p < p')
-    (q : LinearMap.ker f ⊓ p = LinearMap.ker f ⊓ p') : Submodule.map f p < Submodule.map f p' :=
+theorem map_strict_mono_of_ker_inf_eq
+    {f : M →ₛₗ[τ₁₂] M₂} (hab : p < p') (q : LinearMap.ker f ⊓ p = LinearMap.ker f ⊓ p')
+    : Submodule.map f p < Submodule.map f p' :=
   map_strict_mono_or_ker_sup_lt_ker_sup f hab |>.resolve_right q.not_lt
 
 /-- Version of `disjoint_span_singleton` that works when the scalars are not a field. -/
@@ -684,8 +719,7 @@ theorem wcovBy_span_singleton_sup (x : V) (s : Submodule K V) : WCovBy s (K ∙ 
     simpa [mem_sup, mem_span_singleton] using hqp.le hyq
   rcases eq_or_ne c 0 with rfl | hc
   · simp [hz] at hyp
-  · have : x ∈ q := by
-      rwa [q.add_mem_iff_left (hpq.le hz), q.smul_mem_iff hc] at hyq
+  · have : x ∈ q := by rwa [q.add_mem_iff_left (hpq.le hz), q.smul_mem_iff hc] at hyq
     simp [hpq.le, this]
 
 /-- There is no vector subspace between `s` and `K ∙ x ⊔ s`, `CovBy` version. -/
@@ -693,8 +727,10 @@ theorem covBy_span_singleton_sup {x : V} {s : Submodule K V} (h : x ∉ s) : Cov
   ⟨by simpa, (wcovBy_span_singleton_sup _ _).2⟩
 
 theorem disjoint_span_singleton : Disjoint s (K ∙ x) ↔ x ∈ s → x = 0 := by
-  simpa +contextual [disjoint_span_singleton'', or_iff_not_imp_left, forall_comm (β := ¬_),
-    s.smul_mem_iff] using ⟨fun h ↦ h _ one_ne_zero, fun h _ _ ↦ h⟩
+  simpa +contextual [
+      disjoint_span_singleton'', or_iff_not_imp_left, forall_comm (β := ¬_), s.smul_mem_iff
+    ]
+    using ⟨fun h ↦ h _ one_ne_zero, fun h _ _ ↦ h⟩
 
 theorem disjoint_span_singleton' (hx : x ≠ 0) : Disjoint s (K ∙ x) ↔ x ∉ s := by
   simp [disjoint_span_singleton, hx]
@@ -723,19 +759,19 @@ variable [AddCommGroup M] [AddCommGroup M₂]
 variable [Module R M] [Module R₂ M₂]
 variable {τ₁₂ : R →+* R₂} [RingHomSurjective τ₁₂]
 
-protected theorem map_le_map_iff (f : M →ₛₗ[τ₁₂] M₂) {p p'} :
-    map f p ≤ map f p' ↔ p ≤ p' ⊔ ker f := by
+protected theorem map_le_map_iff (f : M →ₛₗ[τ₁₂] M₂) {p p'}
+    : map f p ≤ map f p' ↔ p ≤ p' ⊔ ker f := by
   rw [map_le_iff_le_comap, Submodule.comap_map_eq]
 
-theorem map_le_map_iff' {f : M →ₛₗ[τ₁₂] M₂} (hf : ker f = ⊥) {p p'} :
-    map f p ≤ map f p' ↔ p ≤ p' := by
+theorem map_le_map_iff' {f : M →ₛₗ[τ₁₂] M₂} (hf : ker f = ⊥) {p p'}
+    : map f p ≤ map f p' ↔ p ≤ p' := by
   rw [LinearMap.map_le_map_iff, hf, sup_bot_eq]
 
 theorem map_injective {f : M →ₛₗ[τ₁₂] M₂} (hf : ker f = ⊥) : Injective (map f) := fun _ _ h =>
   le_antisymm ((map_le_map_iff' hf).1 (le_of_eq h)) ((map_le_map_iff' hf).1 (ge_of_eq h))
 
-theorem map_eq_top_iff {f : M →ₛₗ[τ₁₂] M₂} (hf : range f = ⊤) {p : Submodule R M} :
-    p.map f = ⊤ ↔ p ⊔ LinearMap.ker f = ⊤ := by
+theorem map_eq_top_iff {f : M →ₛₗ[τ₁₂] M₂} (hf : range f = ⊤) {p : Submodule R M}
+    : p.map f = ⊤ ↔ p ⊔ LinearMap.ker f = ⊤ := by
   simp_rw [← top_le_iff, ← hf, range_eq_map, LinearMap.map_le_map_iff]
 
 end AddCommGroup
@@ -744,19 +780,18 @@ section
 
 variable (R) (M) [Semiring R] [AddCommMonoid M] [Module R M]
 
-/-- Given an element `x` of a module `M` over `R`, the natural map from
-`R` to scalar multiples of `x`. See also `LinearMap.ringLmapEquivSelf`. -/
-@[simps!]
-def toSpanSingleton (x : M) : R →ₗ[R] M :=
-  LinearMap.id.smulRight x
+/--
+Given an element `x` of a module `M` over `R`, the natural map from
+`R` to scalar multiples of `x`. See also `LinearMap.ringLmapEquivSelf`.
+-/
+@[simps!] def toSpanSingleton (x : M) : R →ₗ[R] M := LinearMap.id.smulRight x
 
 lemma smulRight_id : id.smulRight = toSpanSingleton R M := rfl
 
-theorem toSpanSingleton_apply_one (x : M) : toSpanSingleton R M x 1 = x :=
-  one_smul _ _
+theorem toSpanSingleton_apply_one (x : M) : toSpanSingleton R M x 1 = x := one_smul _ _
 
-theorem toSpanSingleton_injective : Function.Injective (toSpanSingleton R M) :=
-  fun _ _ eq ↦ by simpa using congr($eq 1)
+theorem toSpanSingleton_injective : Function.Injective (toSpanSingleton R M) := fun _ _ eq ↦ by
+  simpa using congr($eq 1)
 
 @[simp]
 theorem toSpanSingleton_zero : toSpanSingleton R M 0 = 0 := by
@@ -772,40 +807,40 @@ lemma toSpanSingleton_add (x y : M) :
     toSpanSingleton R M (x + y) = toSpanSingleton R M x + toSpanSingleton R M y := by
   ext; simp
 
-theorem toSpanSingleton_smul {S : Type*} [Monoid S] [DistribMulAction S M]
-    [SMulCommClass R S M] (r : S) (x : M) :
-    toSpanSingleton R M (r • x) = r • toSpanSingleton R M x := by
+theorem toSpanSingleton_smul
+    {S : Type*} [Monoid S] [DistribMulAction S M] [SMulCommClass R S M] (r : S) (x : M)
+    : toSpanSingleton R M (r • x) = r • toSpanSingleton R M x := by
   ext; simp
 
-theorem toSpanSingleton_isIdempotentElem_iff {e : R} :
-    IsIdempotentElem (toSpanSingleton R R e) ↔ IsIdempotentElem e := by
+theorem toSpanSingleton_isIdempotentElem_iff {e : R}
+    : IsIdempotentElem (toSpanSingleton R R e) ↔ IsIdempotentElem e := by
   simp_rw [IsIdempotentElem, LinearMap.ext_iff, Module.End.mul_apply, toSpanSingleton_apply,
     smul_eq_mul, mul_assoc]
   exact ⟨fun h ↦ by conv_rhs => rw [← one_mul e, ← h, one_mul], fun h _ ↦ by rw [h]⟩
 
-theorem isIdempotentElem_map_one_iff {f : Module.End R R} :
-    IsIdempotentElem (f 1) ↔ IsIdempotentElem f := by
-  rw [IsIdempotentElem, ← smul_eq_mul, ← map_smul, smul_eq_mul, mul_one, IsIdempotentElem,
-    LinearMap.ext_iff]
+theorem isIdempotentElem_map_one_iff {f : Module.End R R}
+    : IsIdempotentElem (f 1) ↔ IsIdempotentElem f := by
+  rw [
+    IsIdempotentElem, ← smul_eq_mul, ← map_smul, smul_eq_mul, mul_one, IsIdempotentElem,
+    LinearMap.ext_iff
+  ]
   simp_rw [Module.End.mul_apply]
   exact ⟨fun h r ↦ by rw [← mul_one r, ← smul_eq_mul, map_smul, map_smul, h], (· 1)⟩
 
 /-- The range of `toSpanSingleton x` is the span of `x`. -/
-theorem range_toSpanSingleton (x : M) :
-    range (toSpanSingleton R M x) = .span R {x} :=
+theorem range_toSpanSingleton (x : M) : range (toSpanSingleton R M x) = .span R {x} :=
   SetLike.coe_injective (Submodule.span_singleton_eq_range R x).symm
 
 variable (R M) in
-theorem span_singleton_eq_range (x : M) :
-    R ∙ x = range (toSpanSingleton R M x) :=
+theorem span_singleton_eq_range (x : M) : R ∙ x = range (toSpanSingleton R M x) :=
   range_toSpanSingleton x |>.symm
 
-theorem comp_toSpanSingleton [AddCommMonoid M₂] [Module R M₂] (f : M →ₗ[R] M₂) (x : M) :
-    f ∘ₗ toSpanSingleton R M x = toSpanSingleton R M₂ (f x) := by
+theorem comp_toSpanSingleton [AddCommMonoid M₂] [Module R M₂] (f : M →ₗ[R] M₂) (x : M)
+    : f ∘ₗ toSpanSingleton R M x = toSpanSingleton R M₂ (f x) := by
   ext; simp
 
-theorem submoduleOf_span_singleton_of_mem (N : Submodule R M) {x : M} (hx : x ∈ N) :
-    (span R {x}).submoduleOf N = span R {⟨x, hx⟩} := by
+theorem submoduleOf_span_singleton_of_mem (N : Submodule R M) {x : M} (hx : x ∈ N)
+    : (span R {x}).submoduleOf N = span R {⟨x, hx⟩} := by
   ext y
   simp_rw [submoduleOf, mem_comap, subtype_apply, mem_span_singleton]
   aesop
@@ -823,34 +858,44 @@ variable {σ₁₂ : R →+* R₂}
 include σ₁₂
 
 /-- Two linear maps are equal on `Submodule.span s` iff they are equal on `s`. -/
-theorem eqOn_span_iff {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂} :
-    Set.EqOn f g (span R s) ↔ Set.EqOn f g s := by
+theorem eqOn_span_iff {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂}
+    : Set.EqOn f g (span R s) ↔ Set.EqOn f g s := by
   rw [← le_eqLocus, span_le]; rfl
 
-/-- If two linear maps are equal on a set `s`, then they are equal on `Submodule.span s`.
+/--
+If two linear maps are equal on a set `s`, then they are equal on `Submodule.span s`.
 
 This version uses `Set.EqOn`, and the hidden argument will expand to `h : x ∈ (span R s : Set M)`.
-See `LinearMap.eqOn_span` for a version that takes `h : x ∈ span R s` as an argument. -/
-theorem eqOn_span' {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂} (H : Set.EqOn f g s) :
-    Set.EqOn f g (span R s : Set M) :=
+See `LinearMap.eqOn_span` for a version that takes `h : x ∈ span R s` as an argument.
+-/
+theorem eqOn_span' {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂} (H : Set.EqOn f g s)
+    : Set.EqOn f g (span R s : Set M) :=
   eqOn_span_iff.2 H
 
-/-- If two linear maps are equal on a set `s`, then they are equal on `Submodule.span s`.
+/--
+If two linear maps are equal on a set `s`, then they are equal on `Submodule.span s`.
 
-See also `LinearMap.eqOn_span'` for a version using `Set.EqOn`. -/
-theorem eqOn_span {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂} (H : Set.EqOn f g s) ⦃x⦄ (h : x ∈ span R s) :
-    f x = g x :=
+See also `LinearMap.eqOn_span'` for a version using `Set.EqOn`.
+-/
+theorem eqOn_span {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂} (H : Set.EqOn f g s) ⦃x⦄ (h : x ∈ span R s)
+    : f x = g x :=
   eqOn_span' H h
 
-/-- If `s` generates the whole module and linear maps `f`, `g` are equal on `s`, then they are
-equal. -/
+/--
+If `s` generates the whole module and linear maps `f`, `g` are equal on `s`, then they are
+equal.
+-/
 theorem ext_on {s : Set M} {f g : M →ₛₗ[σ₁₂] M₂} (hv : span R s = ⊤) (h : Set.EqOn f g s) : f = g :=
   DFunLike.ext _ _ fun _ => eqOn_span h (eq_top_iff'.1 hv _)
 
-/-- If the range of `v : ι → M` generates the whole module and linear maps `f`, `g` are equal at
-each `v i`, then they are equal. -/
-theorem ext_on_range {ι : Sort*} {v : ι → M} {f g : M →ₛₗ[σ₁₂] M₂} (hv : span R (Set.range v) = ⊤)
-    (h : ∀ i, f (v i) = g (v i)) : f = g :=
+/--
+If the range of `v : ι → M` generates the whole module and linear maps `f`, `g` are equal at
+each `v i`, then they are equal.
+-/
+theorem ext_on_range
+    {ι : Sort*} {v : ι → M} {f g : M →ₛₗ[σ₁₂] M₂}
+    (hv : span R (Set.range v) = ⊤) (h : ∀ i, f (v i) = g (v i))
+    : f = g :=
   ext_on hv (Set.forall_mem_range.2 h)
 
 end AddCommMonoid
@@ -869,12 +914,13 @@ section Field
 
 variable [Field K] [AddCommGroup V] [Module K V]
 
-theorem span_singleton_sup_ker_eq_top (f : V →ₗ[K] K) {x : V} (hx : f x ≠ 0) :
-    K ∙ x ⊔ ker f = ⊤ :=
+theorem span_singleton_sup_ker_eq_top (f : V →ₗ[K] K) {x : V} (hx : f x ≠ 0) : K ∙ x ⊔ ker f = ⊤ :=
   top_unique fun y _ =>
-    Submodule.mem_sup.2
-      ⟨(f y * (f x)⁻¹) • x, Submodule.mem_span_singleton.2 ⟨f y * (f x)⁻¹, rfl⟩,
-        ⟨y - (f y * (f x)⁻¹) • x, by simp [hx]⟩⟩
+    Submodule.mem_sup.2 ⟨
+      (f y * (f x)⁻¹) • x,
+      Submodule.mem_span_singleton.2 ⟨f y * (f x)⁻¹, rfl⟩,
+      ⟨y - (f y * (f x)⁻¹) • x, by simp [hx]⟩
+    ⟩
 
 end Field
 
@@ -885,21 +931,23 @@ open LinearMap
 namespace LinearEquiv
 
 variable (R M)
-variable [Ring R] [IsDomain R] [AddCommGroup M] [Module R M] [Module.IsTorsionFree R M] (x : M)
-  (h : x ≠ 0)
+variable
+  [Ring R] [IsDomain R] [AddCommGroup M] [Module R M] [Module.IsTorsionFree R M] (x : M) (h : x ≠ 0)
 
-/-- Given a nonzero element `x` of a torsion-free module `M` over a ring `R`, the natural
-isomorphism from `R` to the span of `x` given by $r \mapsto r \cdot x$. -/
-noncomputable
-def toSpanNonzeroSingleton : R ≃ₗ[R] R ∙ x :=
+/--
+Given a nonzero element `x` of a torsion-free module `M` over a ring `R`, the natural
+isomorphism from `R` to the span of `x` given by $r \mapsto r \cdot x$.
+-/
+noncomputable def toSpanNonzeroSingleton : R ≃ₗ[R] R ∙ x :=
   LinearEquiv.trans
     (LinearEquiv.ofInjective (LinearMap.toSpanSingleton R M x)
       (ker_eq_bot.1 <| ker_toSpanSingleton R h))
     (LinearEquiv.ofEq (range <| toSpanSingleton R M x) (R ∙ x) (range_toSpanSingleton x))
 
-@[simp] theorem toSpanNonzeroSingleton_apply (t : R) :
-    toSpanNonzeroSingleton R M x h t =
-      (⟨t • x, Submodule.smul_mem _ _ (Submodule.mem_span_singleton_self x)⟩ : R ∙ x) := by
+@[simp]
+theorem toSpanNonzeroSingleton_apply (t : R)
+    : toSpanNonzeroSingleton R M x h t
+      = (⟨t • x, Submodule.smul_mem _ _ (Submodule.mem_span_singleton_self x)⟩ : R ∙ x) := by
   rfl
 
 @[simp]
@@ -907,15 +955,16 @@ lemma toSpanNonzeroSingleton_symm_apply_smul (m : R ∙ x) :
     (toSpanNonzeroSingleton R M x h).symm m • x = m :=
   congrArg Subtype.val <| apply_symm_apply (toSpanNonzeroSingleton R M x h) m
 
-theorem toSpanNonzeroSingleton_one :
-    LinearEquiv.toSpanNonzeroSingleton R M x h 1 =
-      (⟨x, Submodule.mem_span_singleton_self x⟩ : R ∙ x) := by simp
+theorem toSpanNonzeroSingleton_one
+    : LinearEquiv.toSpanNonzeroSingleton R M x h 1
+      = (⟨x, Submodule.mem_span_singleton_self x⟩ : R ∙ x) := by
+  simp
 
-/-- Given a nonzero element `x` of a torsion-free module `M` over a ring `R`, the natural
-isomorphism from the span of `x` to `R` given by $r \cdot x \mapsto r$. -/
-noncomputable
-abbrev coord : R ∙ x ≃ₗ[R] R :=
-  (toSpanNonzeroSingleton R M x h).symm
+/--
+Given a nonzero element `x` of a torsion-free module `M` over a ring `R`, the natural
+isomorphism from the span of `x` to `R` given by $r \cdot x \mapsto r$.
+-/
+noncomputable abbrev coord : R ∙ x ≃ₗ[R] R := (toSpanNonzeroSingleton R M x h).symm
 
 theorem coord_self : (coord R M x h) (⟨x, Submodule.mem_span_singleton_self x⟩ : R ∙ x) = 1 := by
   rw [← toSpanNonzeroSingleton_one R M x h, LinearEquiv.symm_apply_apply]

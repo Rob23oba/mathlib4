@@ -23,13 +23,17 @@ public section
 
 namespace Submodule
 
-variable {R M : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M] {N : Submodule R M}
-  {I : Ideal R} {x : M}
+variable
+  {R M : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]
+  {N : Submodule R M} {I : Ideal R} {x : M}
 
-/-- A minimal prime over an ideal of the form `N.colon {x}` in a Noetherian ring is
-itself an ideal of the form `N.colon {x'}`. -/
-theorem exists_eq_colon_of_mem_minimalPrimes [IsNoetherianRing R]
-    (hI : I ∈ (N.colon {x}).minimalPrimes) : ∃ x' : M, I = N.colon {x'} := by
+/--
+A minimal prime over an ideal of the form `N.colon {x}` in a Noetherian ring is
+itself an ideal of the form `N.colon {x'}`.
+-/
+theorem exists_eq_colon_of_mem_minimalPrimes
+    [IsNoetherianRing R] (hI : I ∈ (N.colon {x}).minimalPrimes)
+    : ∃ x' : M, I = N.colon {x'} := by
   by_cases hx : x ∈ N
   · simp [show (colon N {x}) = ⊤ by simpa, Ideal.minimalPrimes_top] at hI
   classical
@@ -42,8 +46,11 @@ theorem exists_eq_colon_of_mem_minimalPrimes [IsNoetherianRing R]
     have hn0 : n ≠ 0 := by contrapose hn; simpa [hn, ann]
     -- then take `J` to be the product of the other minimal primes raised to the `n`th power
     have h := ann.finite_minimalPrimes_of_isNoetherianRing R
-    rw [← ann.sInf_minimalPrimes, ← h.coe_toFinset, ← h.toFinset.inf_id_eq_sInf,
-      ← Finset.insert_erase (h.mem_toFinset.mpr hI), Finset.inf_insert, id_eq] at hn
+    rw [
+        ← ann.sInf_minimalPrimes, ← h.coe_toFinset, ← h.toFinset.inf_id_eq_sInf,
+        ← Finset.insert_erase (h.mem_toFinset.mpr hI), Finset.inf_insert, id_eq
+      ]
+      at hn
     grw [← Ideal.mul_le_inf, mul_pow] at hn
     refine ⟨n, hn0, ((h.toFinset.erase I).inf id) ^ n, hn, ?_⟩
     have (K : Ideal R) (hKI : K ≤ I) (hK : K ∈ ann.minimalPrimes) : K = I :=

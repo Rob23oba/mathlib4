@@ -40,13 +40,15 @@ namespace MeasureTheory
 
 open Set ENNReal NNReal
 
-variable {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ μ₁ μ₂ μ₃ ν ν' : Measure α} {s t : Set α}
+variable
+  {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ μ₁ μ₂ μ₃ ν ν' : Measure α} {s t : Set α}
 
 namespace Measure
 
-/-- We say that `μ` is absolutely continuous with respect to `ν`, or that `μ` is dominated by `ν`,
-  if `ν(A) = 0` implies that `μ(A) = 0`. -/
+/--
+We say that `μ` is absolutely continuous with respect to `ν`, or that `μ` is dominated by `ν`,
+if `ν(A) = 0` implies that `μ(A) = 0`.
+-/
 def AbsolutelyContinuous {_m0 : MeasurableSpace α} (μ ν : Measure α) : Prop :=
   ∀ ⦃s : Set α⦄, ν s = 0 → μ s = 0
 
@@ -58,8 +60,7 @@ theorem absolutelyContinuous_of_le (h : μ ≤ ν) : μ ≪ ν := fun s hs =>
 
 alias _root_.LE.le.absolutelyContinuous := absolutelyContinuous_of_le
 
-theorem absolutelyContinuous_of_eq (h : μ = ν) : μ ≪ ν :=
-  h.le.absolutelyContinuous
+theorem absolutelyContinuous_of_eq (h : μ = ν) : μ ≪ ν := h.le.absolutelyContinuous
 
 alias _root_.Eq.absolutelyContinuous := absolutelyContinuous_of_eq
 
@@ -71,8 +72,7 @@ theorem mk (h : ∀ ⦃s : Set α⦄, MeasurableSet s → ν s = 0 → μ s = 0)
   exact measure_mono_null h1t (h h2t h3t)
 
 @[refl]
-protected theorem refl {_m0 : MeasurableSpace α} (μ : Measure α) : μ ≪ μ :=
-  rfl.absolutelyContinuous
+protected theorem refl {_m0 : MeasurableSpace α} (μ : Measure α) : μ ≪ μ := rfl.absolutelyContinuous
 
 protected theorem rfl : μ ≪ μ := fun _s hs => hs
 
@@ -82,28 +82,29 @@ instance instRefl {_ : MeasurableSpace α} : @Std.Refl (Measure α) (· ≪ ·) 
 @[simp]
 protected lemma zero (μ : Measure α) : 0 ≪ μ := fun _ _ ↦ by simp
 
-@[trans]
-protected theorem trans (h1 : μ₁ ≪ μ₂) (h2 : μ₂ ≪ μ₃) : μ₁ ≪ μ₃ := fun _s hs => h1 <| h2 hs
+@[trans] protected theorem trans (h1 : μ₁ ≪ μ₂) (h2 : μ₂ ≪ μ₃) : μ₁ ≪ μ₃ := fun _s hs => h1 <| h2 hs
 
 @[mono]
 protected theorem map (h : μ ≪ ν) {f : α → β} (hf : Measurable f) : μ.map f ≪ ν.map f :=
   AbsolutelyContinuous.mk fun s hs => by simpa [hf, hs] using @h _
 
 @[gcongr, mono]
-protected theorem map_of_aemeasurable (h : μ ≪ ν) {f : α → β} (hf : AEMeasurable f ν) :
-    μ.map f ≪ ν.map f := by
+protected theorem map_of_aemeasurable (h : μ ≪ ν) {f : α → β} (hf : AEMeasurable f ν)
+    : μ.map f ≪ ν.map f := by
   rw [map_congr (h hf.ae_eq_mk), map_congr hf.ae_eq_mk]
   exact h.map hf.measurable_mk
 
-protected theorem smul_left [SMul R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] (h : μ ≪ ν) (c : R) :
-    c • μ ≪ ν := fun s hνs => by
+protected theorem smul_left [SMul R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] (h : μ ≪ ν) (c : R)
+    : c • μ ≪ ν := fun s hνs => by
   simp only [h hνs, smul_apply, smul_zero, ← smul_one_smul ℝ≥0∞ c (0 : ℝ≥0∞)]
 
-/-- If `μ ≪ ν`, then `c • μ ≪ c • ν`.
+/--
+If `μ ≪ ν`, then `c • μ ≪ c • ν`.
 
-Earlier, this name was used for what's now called `AbsolutelyContinuous.smul_left`. -/
-protected theorem smul [SMul R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] (h : μ ≪ ν) (c : R) :
-    c • μ ≪ c • ν := by
+Earlier, this name was used for what's now called `AbsolutelyContinuous.smul_left`.
+-/
+protected theorem smul [SMul R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] (h : μ ≪ ν) (c : R)
+    : c • μ ≪ c • ν := by
   intro s hνs
   rw [smul_apply, ← smul_one_smul ℝ≥0∞, smul_eq_mul, mul_eq_zero] at hνs ⊢
   exact hνs.imp_right fun hs ↦ h hs
@@ -162,8 +163,8 @@ lemma absolutelyContinuous_sum_right {μs : ι → Measure α} (i : ι) (hνμ :
 
 lemma smul_absolutelyContinuous {c : ℝ≥0∞} : c • μ ≪ μ := .smul_left .rfl _
 
-theorem absolutelyContinuous_of_le_smul {μ' : Measure α} {c : ℝ≥0∞} (hμ'_le : μ' ≤ c • μ) :
-    μ' ≪ μ :=
+theorem absolutelyContinuous_of_le_smul {μ' : Measure α} {c : ℝ≥0∞} (hμ'_le : μ' ≤ c • μ)
+    : μ' ≪ μ :=
   (Measure.absolutelyContinuous_of_le hμ'_le).trans smul_absolutelyContinuous
 
 lemma absolutelyContinuous_smul {c : ℝ≥0∞} (hc : c ≠ 0) : μ ≪ c • μ := by
@@ -172,10 +173,12 @@ lemma absolutelyContinuous_smul {c : ℝ≥0∞} (hc : c ≠ 0) : μ ≪ c • �
 lemma AbsolutelyContinuous.smul_right (hμν : μ ≪ ν) {c : ℝ≥0∞} (hc : c ≠ 0) : μ ≪ c • ν :=
   (absolutelyContinuous_smul hc).trans (hμν.smul c)
 
-theorem ae_le_iff_absolutelyContinuous : ae μ ≤ ae ν ↔ μ ≪ ν :=
-  ⟨fun h s => by
+theorem ae_le_iff_absolutelyContinuous : ae μ ≤ ae ν ↔ μ ≪ ν := ⟨
+  fun h s => by
     rw [measure_eq_zero_iff_ae_notMem, measure_eq_zero_iff_ae_notMem]
-    exact fun hs => h hs, fun h _ hs => h hs⟩
+    exact fun hs => h hs,
+  fun h _ hs => h hs
+⟩
 
 alias ⟨_root_.LE.le.absolutelyContinuous_of_ae, AbsolutelyContinuous.ae_le⟩ :=
   ae_le_iff_absolutelyContinuous
@@ -188,20 +191,23 @@ theorem AbsolutelyContinuous.ae_eq (h : μ ≪ ν) {f g : α → δ} (h' : f =�
 end Measure
 
 protected theorem AEDisjoint.of_absolutelyContinuous
-    (h : AEDisjoint μ s t) {ν : Measure α} (h' : ν ≪ μ) :
-    AEDisjoint ν s t := h' h
+    (h : AEDisjoint μ s t) {ν : Measure α} (h' : ν ≪ μ)
+    : AEDisjoint ν s t :=
+  h' h
 
-theorem NullMeasurableSet.mono_ac (h : NullMeasurableSet s μ) (hle : ν ≪ μ) :
-    NullMeasurableSet s ν := by
+theorem NullMeasurableSet.mono_ac (h : NullMeasurableSet s μ) (hle : ν ≪ μ)
+    : NullMeasurableSet s ν := by
   obtain ⟨t, ht, hst⟩ := h
   exact ⟨t, ht, hst.filter_mono (ν.ae_le_iff_absolutelyContinuous.2 hle)⟩
 
-theorem ae_eq_comp' {ν : Measure β} {f : α → β} {g g' : β → δ} (hf : AEMeasurable f μ)
-    (h : g =ᵐ[ν] g') (h2 : μ.map f ≪ ν) : g ∘ f =ᵐ[μ] g' ∘ f :=
+theorem ae_eq_comp'
+    {ν : Measure β} {f : α → β} {g g' : β → δ}
+    (hf : AEMeasurable f μ) (h : g =ᵐ[ν] g') (h2 : μ.map f ≪ ν)
+    : g ∘ f =ᵐ[μ] g' ∘ f :=
   (μ.tendsto_ae_map hf).mono_right h2.ae_le h
 
-theorem ae_eq_comp {f : α → β} {g g' : β → δ} (hf : AEMeasurable f μ) (h : g =ᵐ[μ.map f] g') :
-    g ∘ f =ᵐ[μ] g' ∘ f :=
+theorem ae_eq_comp {f : α → β} {g g' : β → δ} (hf : AEMeasurable f μ) (h : g =ᵐ[μ.map f] g')
+    : g ∘ f =ᵐ[μ] g' ∘ f :=
   ae_eq_comp' hf h .rfl
 
 end MeasureTheory

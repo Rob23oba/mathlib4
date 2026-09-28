@@ -29,7 +29,8 @@ namespace Multiset
 
 /-! ### Additive monoid -/
 
-instance instAddLeftMono : AddLeftMono (Multiset α) where elim _s _t _u := Multiset.add_le_add_left
+instance instAddLeftMono : AddLeftMono (Multiset α) where
+  elim _s _t _u := Multiset.add_le_add_left
 
 instance instAddLeftReflectLE : AddLeftReflectLE (Multiset α) where
   le_of_add_le_add_left := Multiset.le_of_add_le_add_left
@@ -120,11 +121,12 @@ lemma map_nsmul (f : α → β) (n : ℕ) (s) : map f (n • s) = n • map f s 
 section
 variable [DecidableEq α]
 
-instance : OrderedSub (Multiset α) where tsub_le_iff_right _n _m _k := Multiset.sub_le_iff_le_add
+instance : OrderedSub (Multiset α) where
+  tsub_le_iff_right _n _m _k := Multiset.sub_le_iff_le_add
 
 instance : ExistsAddOfLE (Multiset α) where
-  exists_add_of_le h := leInductionOn h fun s ↦
-      let ⟨l, p⟩ := s.exists_perm_append; ⟨l, Quot.sound p⟩
+  exists_add_of_le h :=
+    leInductionOn h fun s ↦ let ⟨l, p⟩ := s.exists_perm_append; ⟨l, Quot.sound p⟩
 
 end
 
@@ -150,8 +152,10 @@ lemma filter_nsmul (s : Multiset α) (n : ℕ) : filter p (n • s) = n • filt
 lemma countP_nsmul (s) (n : ℕ) : countP p (n • s) = n * countP p s := by
   induction n <;> simp [*, succ_nsmul, succ_mul, zero_nsmul]
 
-/-- `countP p`, the number of elements of a multiset satisfying `p`, promoted to an
-`AddMonoidHom`. -/
+/--
+`countP p`, the number of elements of a multiset satisfying `p`, promoted to an
+`AddMonoidHom`.
+-/
 def countPAddMonoidHom : Multiset α →+ ℕ where
   toFun := countP p
   map_zero' := countP_zero _
@@ -174,8 +178,7 @@ section
 variable [DecidableEq α] {s : Multiset α}
 
 /-- `count a`, the multiplicity of `a` in a multiset, promoted to an `AddMonoidHom`. -/
-def countAddMonoidHom (a : α) : Multiset α →+ ℕ :=
-  countPAddMonoidHom (a = ·)
+def countAddMonoidHom (a : α) : Multiset α →+ ℕ := countPAddMonoidHom (a = ·)
 
 @[simp]
 lemma coe_countAddMonoidHom (a : α) : (countAddMonoidHom a : Multiset α → ℕ) = count a := rfl

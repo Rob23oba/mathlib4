@@ -27,12 +27,16 @@ open Coalgebra Function Module TensorProduct
 variable {F R A B : Type*}
 
 section CommSemiring
-variable [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B] [Module R A] [Coalgebra R A]
-  [Module R B] [Coalgebra R B] {a b : A}
+variable
+  [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B] [Module R A] [Coalgebra R A] [Module R B]
+  [Coalgebra R B]
+  {a b : A}
 
 variable (R) in
-/-- A group-like element in a coalgebra is an element `a` such that `ε(a) = 1` and `Δ(a) = a ⊗ₜ a`,
-where `ε` and `Δ` are the counit and comultiplication respectively. -/
+/--
+A group-like element in a coalgebra is an element `a` such that `ε(a) = 1` and `Δ(a) = a ⊗ₜ a`,
+where `ε` and `Δ` are the counit and comultiplication respectively.
+-/
 @[mk_iff]
 structure IsGroupLikeElem (a : A) : Prop where
   /-- A group-like element `a` satisfies `ε(a) = 1`. -/
@@ -76,7 +80,8 @@ attribute [simp] isGroupLikeElem_val
 
 attribute [coe] val
 
-instance instCoeOut : CoeOut (GroupLike R A) A where coe := val
+instance instCoeOut : CoeOut (GroupLike R A) A where
+  coe := val
 
 lemma val_injective : Injective (val : GroupLike R A → A) := by rintro ⟨a, ha⟩; congr!
 
@@ -95,8 +100,7 @@ end GroupLike
 end CommSemiring
 
 section CommRing
-variable [CommRing R] [IsDomain R] [AddCommGroup A] [Module R A] [Coalgebra R A]
-  [IsTorsionFree R A]
+variable [CommRing R] [IsDomain R] [AddCommGroup A] [Module R A] [Coalgebra R A] [IsTorsionFree R A]
 
 open Submodule in
 /-- Group-like elements over a domain are linearly independent. -/

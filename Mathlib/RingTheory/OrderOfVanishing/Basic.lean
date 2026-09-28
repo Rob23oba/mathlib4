@@ -28,12 +28,9 @@ variable {R : Type*} {M : Type*} [AddCommMonoid M]
 namespace Ring
 
 variable (R) [Ring R]
-/--
-Order of vanishing function for elements of a ring.
--/
+/-- Order of vanishing function for elements of a ring. -/
 @[stacks 02MD]
-noncomputable
-def ord (x : R) : ℕ∞ := Module.length R (R ⧸ Ideal.span {x})
+noncomputable def ord (x : R) : ℕ∞ := Module.length R (R ⧸ Ideal.span {x})
 
 @[simp]
 lemma ord_one : ord R 1 = 0 := by
@@ -44,11 +41,8 @@ end Ring
 
 variable [CommRing R] [Module R M]
 
-/--
-The map `R ⧸ I →ₗ[R] R ⧸ (a • I)` defined by multiplication by `a`
--/
-def Ideal.mulQuot (a : R) (I : Ideal R) :
-    R ⧸ I →ₗ[R] R ⧸ (a • I) :=
+/-- The map `R ⧸ I →ₗ[R] R ⧸ (a • I)` defined by multiplication by `a` -/
+def Ideal.mulQuot (a : R) (I : Ideal R) : R ⧸ I →ₗ[R] R ⧸ (a • I) :=
   Submodule.mapQ _ _ (LinearMap.mul R R a) (Submodule.le_comap_map _ _)
 
 /--
@@ -67,11 +61,8 @@ lemma Ideal.mulQuot_injective {a : R} (I : Ideal R) (ha : a ∈ nonZeroDivisors 
       exact (Submodule.mul_mem_smul_iff ha).symm
     simp [← m, ker_comp]
 
-/--
-The quotient map `(R ⧸ a • I) →ₗ[R] (R ⧸ Ideal.span {a})`.
--/
-def Ideal.quotOfMul (a : R) (I : Ideal R) :
-    (R ⧸ a • I) →ₗ[R] (R ⧸ Ideal.span {a}) :=
+/-- The quotient map `(R ⧸ a • I) →ₗ[R] (R ⧸ Ideal.span {a})`. -/
+def Ideal.quotOfMul (a : R) (I : Ideal R) : (R ⧸ a • I) →ₗ[R] (R ⧸ Ideal.span {a}) :=
   Submodule.factor <| Submodule.singleton_set_smul I a ▸ Submodule.smul_le_span {a} I
 
 /--
@@ -104,17 +95,16 @@ variable (R)
 The order of vanishing of `a * b` is the order of vanishing of `a` plus the order
 of vanishing of `b`.
 -/
-theorem ord_mul {a b : R} (hb : b ∈ nonZeroDivisors R) :
-    ord R (a * b) = ord R a + ord R b := by
-  have := Module.length_eq_add_of_exact (Ideal.mulQuot b (Ideal.span {a}))
-          (Ideal.quotOfMul b (Ideal.span {a})) (Ideal.mulQuot_injective (Ideal.span {a}) hb)
-          (Ideal.quotOfMul_surjective (Ideal.span {a}))
-          (Ideal.exact_mulQuot_quotOfMul (Ideal.span {a}))
+theorem ord_mul {a b : R} (hb : b ∈ nonZeroDivisors R) : ord R (a * b) = ord R a + ord R b := by
+  have :=
+    Module.length_eq_add_of_exact (Ideal.mulQuot b (Ideal.span {a}))
+      (Ideal.quotOfMul b (Ideal.span {a})) (Ideal.mulQuot_injective (Ideal.span {a}) hb)
+      (Ideal.quotOfMul_surjective (Ideal.span {a})) (Ideal.exact_mulQuot_quotOfMul (Ideal.span {a}))
   simp only [Ring.ord, ← this]
   have lem : (({b} : Set R) • Ideal.span {a}) = Ideal.span {b * a} := by
     simp [← Ideal.submodule_span_eq, Submodule.set_smul_span]
-  have : (({b} : Set R) • Ideal.span {a}) = b • Ideal.span {a} := Submodule.singleton_set_smul
-    (Ideal.span {a}) b
+  have : (({b} : Set R) • Ideal.span {a}) = b • Ideal.span {a} :=
+    Submodule.singleton_set_smul (Ideal.span {a}) b
   rw [this] at lem
   rw [lem, mul_comm]
 
@@ -137,13 +127,12 @@ lemma ord_zero : ord R 0 = Module.length R R := by
       (Module.length_le_of_surjective m m.surjective)
 
 variable {R}
-/--
-For `x : R` a non zero divisor, `ord R (x ^ n) = n • ord R x`.
--/
+/-- For `x : R` a non zero divisor, `ord R (x ^ n) = n • ord R x`. -/
 @[simp]
 theorem ord_pow {x : R} (hx : x ∈ nonZeroDivisors R) (n : ℕ) : ord R (x ^ n) = n • ord R x := by
   induction n with
-  | zero => simp
+  | zero =>
+    simp
   | succ n ih =>
     rw [pow_succ, ord_mul, ih, succ_nsmul]
     exact hx
@@ -210,15 +199,14 @@ section IsPrincipalIdealRing
 
 variable [IsPrincipalIdealRing R]
 
-/--
-In a principal ideal ring, the order of vanishing of an irreducible element is `1`.
--/
+/-- In a principal ideal ring, the order of vanishing of an irreducible element is `1`. -/
 theorem ord_of_irreducible {ϖ : R} (hϖ : Irreducible ϖ) : ord R ϖ = 1 := by
   rw [Ring.ord, Module.length_eq_one_iff]
-  have : (Ideal.span {ϖ}).IsMaximal :=
-    PrincipalIdealRing.isMaximal_of_irreducible hϖ
-  rw [isSimpleModule_iff_isSimpleModule_of_algebraMap_surjective (S := R ⧸ Ideal.span {ϖ})
-    Ideal.Quotient.mk_surjective]
+  have : (Ideal.span {ϖ}).IsMaximal := PrincipalIdealRing.isMaximal_of_irreducible hϖ
+  rw [
+    isSimpleModule_iff_isSimpleModule_of_algebraMap_surjective (S := R ⧸ Ideal.span {ϖ})
+      Ideal.Quotient.mk_surjective
+  ]
   let := Ideal.Quotient.field (Ideal.span {ϖ})
   exact instIsSimpleModule _
 
@@ -235,11 +223,12 @@ This is because if R is finite length, then ord R 0 will be some non-top value,
 meaning in this case `0` will not be mapped to `⊤`.
 -/
 @[stacks 02MD]
-noncomputable
-def ordMonoidWithZeroHom [Nontrivial R] : R →*₀ ℤᵐ⁰ where
-  toFun x := if x ∈ nonZeroDivisors R
-             then (ENat.recTopCoe 0 (WithZero.coe <| Multiplicative.ofAdd ·) (Ring.ord R x))
-             else 0
+noncomputable def ordMonoidWithZeroHom [Nontrivial R] : R →*₀ ℤᵐ⁰ where
+  toFun x :=
+    if x ∈ nonZeroDivisors R then
+      (ENat.recTopCoe 0 (WithZero.coe <| Multiplicative.ofAdd ·) (Ring.ord R x))
+    else
+      0
   map_zero' := by simp [nonZeroDivisors, exists_ne]
   map_one' := by simp [nonZeroDivisors]
   map_mul' := by
@@ -268,9 +257,10 @@ variable {R} in
 If `x` is a non zero divisor, `ordMonoidWithZeroHom` is equal to the canonical embedding
 of `Ring.ord R x` into `WithZero (Multiplicative ℤ)`.
 -/
-theorem ordMonoidWithZeroHom_eq_ord [Nontrivial R] {x : R} (h : x ∈ nonZeroDivisors R) :
-    ordMonoidWithZeroHom R x =
-  (ENat.recTopCoe 0 (WithZero.coe <| Multiplicative.ofAdd ·) (Ring.ord R x)) := dite_eq_left h
+theorem ordMonoidWithZeroHom_eq_ord [Nontrivial R] {x : R} (h : x ∈ nonZeroDivisors R)
+    : ordMonoidWithZeroHom R x
+      = (ENat.recTopCoe 0 (WithZero.coe <| Multiplicative.ofAdd ·) (Ring.ord R x)) :=
+  dite_eq_left h
 
 lemma ordMonoidWithZeroHom_eq_coe
     [Nontrivial R] {x : R} (hx : x ∈ nonZeroDivisors R) {n : ℕ} (hn : Ring.ord R x = n) :
@@ -278,26 +268,28 @@ lemma ordMonoidWithZeroHom_eq_coe
   simp [ordMonoidWithZeroHom_eq_ord hx, hn]
 
 variable {R} in
-/--
-If `x` is not a non zero divisor, `ordMonoidWithZeroHom` is equal to `0`.
--/
+/-- If `x` is not a non zero divisor, `ordMonoidWithZeroHom` is equal to `0`. -/
 @[simp]
-theorem ordMonoidWithZeroHom_eq_zero [Nontrivial R] {x : R} (h : x ∉ nonZeroDivisors R) :
-    ordMonoidWithZeroHom R x = 0 := dite_eq_right h
+theorem ordMonoidWithZeroHom_eq_zero [Nontrivial R] {x : R} (h : x ∉ nonZeroDivisors R)
+    : ordMonoidWithZeroHom R x = 0 :=
+  dite_eq_right h
 
 /--
 The quotient of a Noetherian ring of krull dimension less than or equal to `1` by a principal ideal
 is of finite length.
 -/
-theorem _root_.isFiniteLength_quotient_span_singleton [IsNoetherianRing R]
-    [Ring.KrullDimLE 1 R] {x : R} (hx : x ∈ nonZeroDivisors R) :
-    IsFiniteLength R (R ⧸ Ideal.span {x}) := by
+theorem _root_.isFiniteLength_quotient_span_singleton
+    [IsNoetherianRing R] [Ring.KrullDimLE 1 R] {x : R} (hx : x ∈ nonZeroDivisors R)
+    : IsFiniteLength R (R ⧸ Ideal.span {x}) := by
   rw [isFiniteLength_iff_isNoetherian_isArtinian]
-  suffices IsArtinianRing (R ⧸ Ideal.span {x}) from
-    ⟨isNoetherian_quotient (Ideal.span {x}),
-      isArtinian_of_surjective_algebraMap (Ideal.Quotient.mk_surjective (I := .span {x}))⟩
-  rw [isArtinianRing_iff_krullDimLE_zero, Ring.KrullDimLE, Order.krullDimLE_iff,
-    ← ENat.WithBot.add_le_add_one_right_iff, Nat.cast_zero, zero_add]
+  suffices IsArtinianRing (R ⧸ Ideal.span {x}) from ⟨
+    isNoetherian_quotient (Ideal.span {x}),
+    isArtinian_of_surjective_algebraMap (Ideal.Quotient.mk_surjective (I := .span {x}))
+  ⟩
+  rw [
+    isArtinianRing_iff_krullDimLE_zero, Ring.KrullDimLE, Order.krullDimLE_iff,
+    ← ENat.WithBot.add_le_add_one_right_iff, Nat.cast_zero, zero_add
+  ]
   exact (ringKrullDim_quotient_succ_le_of_nonZeroDivisor hx).trans (Order.KrullDimLE.krullDim_le)
 
 variable [IsNoetherianRing R] [Ring.KrullDimLE 1 R]
@@ -320,10 +312,9 @@ Order of vanishing function for elements of the fraction field defined as the ex
 `CommRing.ordMonoidWithZeroHom` to the field of fractions.
 -/
 @[stacks 02MD]
-noncomputable
-def ordFrac : K →*₀ ℤᵐ⁰ :=
+noncomputable def ordFrac : K →*₀ ℤᵐ⁰ :=
   (toLocalizationMap (nonZeroDivisors R) K).lift₀ (ordMonoidWithZeroHom R) <|
-  ordMonoidWithZeroHom_isUnit R
+    ordMonoidWithZeroHom_isUnit R
 
 lemma ordFrac_eq_ord {x : R} (hx : x ≠ 0) :
     ordFrac R (algebraMap R K x) = ordMonoidWithZeroHom R x := by

@@ -27,19 +27,24 @@ namespace CategoryTheory.MorphismProperty
 
 variable {K : Precoverage C}
 
-/-- The source-local closure of `P` along a precoverage `K` is the weakest property
-containing `P` that is local on the source. -/
+/--
+The source-local closure of `P` along a precoverage `K` is the weakest property
+containing `P` that is local on the source.
+-/
 inductive sourceLocalClosure (K : Precoverage C) (P : MorphismProperty C) : MorphismProperty C
   /-- Force `P ≤ sourceLocalClosure K P`. -/
   | of {X Y : C} (f : X ⟶ Y) : P f → sourceLocalClosure K P f
   /-- Force `RespectsIso`. -/
-  | of_iso {X Y X' Y' : C} (f : X ⟶ Y) (g : X' ⟶ Y') (e : Arrow.mk f ≅ Arrow.mk g) :
-      sourceLocalClosure K P f → sourceLocalClosure K P g
-  | comp {X Y : C} (f : X ⟶ Y) (hf : sourceLocalClosure K P f) (R : Presieve X) (hR : R ∈ K X)
-      {U : C} (g : U ⟶ X) : R g → sourceLocalClosure K P (g ≫ f)
-  | of_presieve {X Y : C} (f : X ⟶ Y) (R : Presieve X) (hR : R ∈ K X)
-      (h : ∀ (U : C) (g : U ⟶ X), R g → sourceLocalClosure K P (g ≫ f)) :
-      sourceLocalClosure K P f
+  | of_iso {X Y X' Y' : C} (f : X ⟶ Y) (g : X' ⟶ Y') (e : Arrow.mk f ≅ Arrow.mk g)
+    : sourceLocalClosure K P f → sourceLocalClosure K P g
+  | comp
+    {X Y : C} (f : X ⟶ Y) (hf : sourceLocalClosure K P f) (R : Presieve X) (hR : R ∈ K X)
+    {U : C} (g : U ⟶ X)
+    : R g → sourceLocalClosure K P (g ≫ f)
+  | of_presieve
+    {X Y : C} (f : X ⟶ Y) (R : Presieve X) (hR : R ∈ K X)
+    (h : ∀ (U : C) (g : U ⟶ X), R g → sourceLocalClosure K P (g ≫ f))
+    : sourceLocalClosure K P f
 
 namespace sourceLocalClosure
 
@@ -67,11 +72,12 @@ lemma le_of_isLocalAtSource (h : P ≤ Q) [Q.IsLocalAtSource K] : sourceLocalClo
 instance [P.ContainsIdentities] : ContainsIdentities (sourceLocalClosure K P) where
   id_mem _ := le _ (P.id_mem _)
 
-instance [P.IsStableUnderBaseChange] [K.IsStableUnderBaseChange] [HasPullbacks C] :
-    IsStableUnderBaseChange (sourceLocalClosure K P) where
+instance [P.IsStableUnderBaseChange] [K.IsStableUnderBaseChange] [HasPullbacks C]
+    : IsStableUnderBaseChange (sourceLocalClosure K P) where
   of_isPullback {Y} X W Z g f fst snd h hf := by
     induction hf generalizing W snd with
-    | of f' hf' => exact .of _ (P.of_isPullback h hf')
+    | of f' hf' =>
+      exact .of _ (P.of_isPullback h hf')
     | of_iso f' g' e hf' ih =>
       exact ih _ (g ≫ e.inv.right) (fst ≫ e.inv.left) _ (h.paste_horiz (.of_horiz_isIso ⟨e.inv.w⟩))
     | comp f' hf' R hR g' hg' ih =>

@@ -177,54 +177,53 @@ lemma HasPeriod.drop_of_hasPeriod_add {q k : ℕ} {w : List α}
   rw [hasPeriod_iff_getElem?] at per_plus per_q ⊢
   grind
 
-/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that
+/--
+The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that
 if word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,
 then it has a period `gcd p q`.
 The proof is similar to the Euclidean algorithm for computing `gcd`.
 -/
-theorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)
-    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by
+theorem HasPeriod.gcd
+    {w : List α} {p q : ℕ}
+    (per_p : HasPeriod w p) (per_q : HasPeriod w q) (len : p + q - p.gcd q ≤ w.length)
+    : HasPeriod w (p.gcd q) := by
   rcases Nat.eq_zero_or_pos p with rfl | p_pos
   · simp_all [HasPeriod]
   rcases Nat.eq_zero_or_pos q with rfl | q_pos
   · simp_all
   cases hyp : compare p q with
   | lt => -- if `p` is less than `q`, switch the two periods
-      have p_lt_q := Nat.compare_eq_lt.mp hyp
-      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)
-  | eq => simpa [(Nat.compare_eq_eq).mp hyp]
+    have p_lt_q := Nat.compare_eq_lt.mp hyp
+    exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)
+  | eq =>
+    simpa [(Nat.compare_eq_eq).mp hyp]
   | gt =>
-      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp
-      have gcd_lt_p : p.gcd q < p := by
-        have : p.gcd q ≠ p := by
-          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]
-        exact this.lt_of_le (gcd_le_left q p_pos)
-      have per_diff : HasPeriod (drop q w) (p - q) := by
-        have : p = (p - q) + q := by lia
-        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)
-      have per_q' : HasPeriod (drop q w) q := by
-        apply @HasPeriod.factor _ (take q w) (drop q w) [] q
-        all_goals simp_all
-      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)
-      have drop_len : q ≤ (drop q w).length := by
-        rw [length_drop]
-        have : p.gcd q ≤ p - q := by
-          rw [← gcd_stable]; apply gcd_le_left q; lia
-        lia
-      have take_eq : take q (drop q w) = take q w := by
-          let ⟨z, hz⟩ := per_q.drop_prefix
-          convert_to take q (drop q w) = take q (drop q w ++ z)
-          · rw [hz]
-          exact (take_append_of_le_length drop_len).symm
-      -- the induction step
-      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=
-        per_diff.gcd per_q' (by simp; lia)
-      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)
-      · rw [take_eq, take_append_drop q w]
-      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)
-          (gcd_dvd_right p q) drop_len
-  termination_by (q, p)
-  decreasing_by
-    all_goals grind
+    have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp
+    have gcd_lt_p : p.gcd q < p := by
+      have : p.gcd q ≠ p := by simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]
+      exact this.lt_of_le (gcd_le_left q p_pos)
+    have per_diff : HasPeriod (drop q w) (p - q) := by
+      have : p = (p - q) + q := by lia
+      exact per_q.drop_of_hasPeriod_add (this ▸ per_p)
+    have per_q' : HasPeriod (drop q w) q := by
+      apply @HasPeriod.factor _ (take q w) (drop q w) [] q
+      all_goals simp_all
+    have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)
+    have drop_len : q ≤ (drop q w).length := by
+      rw [length_drop]
+      have : p.gcd q ≤ p - q := by rw [← gcd_stable]; apply gcd_le_left q; lia
+      lia
+    have take_eq : take q (drop q w) = take q w := by
+      let ⟨z, hz⟩ := per_q.drop_prefix
+      convert_to take q (drop q w) = take q (drop q w ++ z)
+      · rw [hz]
+      exact (take_append_of_le_length drop_len).symm
+    -- the induction step
+    have IH : HasPeriod (drop q w) ((p - q).gcd q) := per_diff.gcd per_q' (by simp; lia)
+    convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)
+    · rw [take_eq, take_append_drop q w]
+    · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w) (gcd_dvd_right p q) drop_len
+termination_by (q, p)
+decreasing_by all_goals grind
 
 end List

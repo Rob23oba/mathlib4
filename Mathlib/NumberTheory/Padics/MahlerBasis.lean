@@ -77,12 +77,15 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The p-adic integers are a binomial ring, i.e. a ring where binomial coefficients make sense. -/
 noncomputable instance instBinomialRing : BinomialRing ℤ_[p] where
   -- We define `multichoose` as a fraction in `ℚ_[p]` together with a proof that its norm is `≤ 1`.
-  multichoose x k := (ascPochhammer ℤ_[p] k).eval x / (k.factorial : ℚ_[p]) |>.lift <| by
-    rw [norm_div, div_le_one (by simpa using k.factorial_ne_zero)]
-    exact x.norm_ascPochhammer_le k
+  multichoose x k :=
+    (ascPochhammer (ℤ_[p]) k).eval x / (k.factorial : ℚ_[p]) |>.lift <| by
+      rw [norm_div, div_le_one (by simpa using k.factorial_ne_zero)]
+      exact x.norm_ascPochhammer_le k
   factorial_nsmul_multichoose x k := by
-    simp [mul_div_cancel₀ _ (mod_cast k.factorial_ne_zero : (k.factorial : ℚ_[p]) ≠ 0),
-      ← PadicInt.coe_inj, Polynomial.eval_eq_smeval]
+    simp [
+      mul_div_cancel₀ _ (mod_cast k.factorial_ne_zero : (k.factorial : ℚ_[p]) ≠ 0),
+      ← PadicInt.coe_inj, Polynomial.eval_eq_smeval
+    ]
 
 @[fun_prop]
 lemma continuous_multichoose (k : ℕ) : Continuous (fun x : ℤ_[p] ↦ Ring.multichoose x k) := by
@@ -150,8 +153,10 @@ namespace PadicInt
 
 section norm_fwdDiff
 
-variable {p : ℕ} [hp : Fact p.Prime] {E : Type*}
-  [NormedAddCommGroup E] [Module ℤ_[p] E] [IsBoundedSMul ℤ_[p] E] [IsUltrametricDist E]
+variable
+  {p : ℕ} [hp : Fact p.Prime]
+  {E : Type*}
+  [NormedAddCommGroup E] [Module (ℤ_[p]) E] [IsBoundedSMul (ℤ_[p]) E] [IsUltrametricDist E]
 
 /--
 Second step in Bojanić's proof of Mahler's theorem (equation (11) of [bojanic74]): show that values
@@ -244,7 +249,8 @@ end norm_fwdDiff
 
 section mahler_coeff
 
-variable {E : Type*} [NormedAddCommGroup E] [Module ℤ_[p] E] [IsBoundedSMul ℤ_[p] E]
+variable
+  {E : Type*} [NormedAddCommGroup E] [Module (ℤ_[p]) E] [IsBoundedSMul (ℤ_[p]) E]
   (a : E) (n : ℕ) (x : ℤ_[p])
 
 /--
@@ -355,25 +361,32 @@ The isometric equivalence from `C(ℤ_[p], E)` to the space of sequences in `E` 
 by Mahler's theorem, for `E` a nonarchimedean `ℚ_[p]`-Banach space.
 -/
 noncomputable def mahlerEquiv : C(ℤ_[p], E) ≃ₗᵢ[ℤ_[p]] C₀(ℕ, E) where
-  toFun f := ⟨⟨(Δ_[1]^[·] f 0), continuous_of_discreteTopology⟩,
-    cocompact_eq_atTop (α := ℕ) ▸ fwdDiff_tendsto_zero f⟩
+  toFun f := ⟨
+    ⟨(Δ_[1]^[·] f 0), continuous_of_discreteTopology⟩,
+    cocompact_eq_atTop (α := ℕ) ▸ fwdDiff_tendsto_zero f
+  ⟩
   invFun a := mahlerSeries a
   map_add' f g := by
     ext x
-    simp only [ContinuousMap.coe_add, fwdDiff_iter_add, Pi.add_apply,
-      ZeroAtInftyContinuousMap.coe_mk, ZeroAtInftyContinuousMap.coe_add]
+    simp only [
+      ContinuousMap.coe_add, fwdDiff_iter_add, Pi.add_apply, ZeroAtInftyContinuousMap.coe_mk,
+      ZeroAtInftyContinuousMap.coe_add
+    ]
   map_smul' r f := by
     ext n
-    simp only [ContinuousMap.coe_smul, RingHom.id_apply, ZeroAtInftyContinuousMap.coe_mk,
-      ZeroAtInftyContinuousMap.coe_smul, Pi.smul_apply, fwdDiff_iter_const_smul]
+    simp only [
+      ContinuousMap.coe_smul, RingHom.id_apply, ZeroAtInftyContinuousMap.coe_mk,
+      ZeroAtInftyContinuousMap.coe_smul, Pi.smul_apply, fwdDiff_iter_const_smul
+    ]
   left_inv f := (hasSum_mahler f).tsum_eq
-  right_inv a := ZeroAtInftyContinuousMap.ext <|
-    fwdDiff_mahlerSeries (cocompact_eq_atTop (α := ℕ) ▸ zero_at_infty a)
+  right_inv a :=
+    ZeroAtInftyContinuousMap.ext <|
+      fwdDiff_mahlerSeries (cocompact_eq_atTop (α := ℕ) ▸ zero_at_infty a)
   norm_map' f := by
     simp only [LinearEquiv.coe_mk, ← ZeroAtInftyContinuousMap.norm_toBCF_eq_norm]
     apply le_antisymm
-    · exact BoundedContinuousFunction.norm_le_of_nonempty.mpr
-        (fun n ↦ norm_fwdDiff_iter_apply_le 1 f 0 n)
+    · exact BoundedContinuousFunction.norm_le_of_nonempty.mpr (fun n ↦
+        norm_fwdDiff_iter_apply_le 1 f 0 n)
     · rw [← (hasSum_mahler f).tsum_eq]
       refine (norm_tsum_le _).trans (ciSup_le fun n ↦ ?_)
       refine le_trans (le_of_eq ?_) (BoundedContinuousFunction.norm_coe_le_norm _ n)
@@ -392,11 +405,14 @@ open Submodule
 /-!
 ### Continuous linear functionals are determined by their values on the Mahler basis
 -/
-variable {R : Type*} [NormedCommRing R] [Algebra ℤ_[p] R] [IsUltrametricDist R] [CompleteSpace R]
-  [IsBoundedSMul ℤ_[p] R]
+variable
+  {R : Type*} [NormedCommRing R] [Algebra (ℤ_[p]) R] [IsUltrametricDist R] [CompleteSpace R]
+  [IsBoundedSMul (ℤ_[p]) R]
 
-theorem dense_span_mahler : Dense (span R
-      (.range fun n ↦ (mahler n : C(ℤ_[p], ℤ_[p])) • (1 : C(ℤ_[p], R))) : Set C(ℤ_[p], R)) := by
+theorem dense_span_mahler
+    : Dense
+      (span R (.range fun n ↦ (mahler n : C(ℤ_[p], ℤ_[p])) • (1 : C(ℤ_[p], R)))
+        : Set C(ℤ_[p], R)) := by
   refine fun f ↦ mem_closure_of_tendsto (PadicInt.hasSum_mahler _) ?_
   refine .of_forall fun s ↦ Submodule.sum_mem _ fun c _ ↦ ?_
   simp only [span_range_eq_iSup]
@@ -413,6 +429,5 @@ lemma ext_mahler {μ : C(ℤ_[p], R) →L[R] R}
   simpa using hμ n
 
 end DenseSpan
-
 
 end PadicInt

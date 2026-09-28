@@ -41,26 +41,26 @@ section NormedOrderedGroup
 variable [NormedCommGroup α] [Preorder α] [IsOrderedMonoid α] {s : Set α}
 
 @[to_additive IsUpperSet.thickening]
-protected theorem IsUpperSet.thickening' (hs : IsUpperSet s) (ε : ℝ) :
-    IsUpperSet (thickening ε s) := by
+protected theorem IsUpperSet.thickening' (hs : IsUpperSet s) (ε : ℝ)
+    : IsUpperSet (thickening ε s) := by
   rw [← ball_mul_one]
   exact hs.mul_left
 
 @[to_additive IsLowerSet.thickening]
-protected theorem IsLowerSet.thickening' (hs : IsLowerSet s) (ε : ℝ) :
-    IsLowerSet (thickening ε s) := by
+protected theorem IsLowerSet.thickening' (hs : IsLowerSet s) (ε : ℝ)
+    : IsLowerSet (thickening ε s) := by
   rw [← ball_mul_one]
   exact hs.mul_left
 
 @[to_additive IsUpperSet.cthickening]
-protected theorem IsUpperSet.cthickening' (hs : IsUpperSet s) (ε : ℝ) :
-    IsUpperSet (cthickening ε s) := by
+protected theorem IsUpperSet.cthickening' (hs : IsUpperSet s) (ε : ℝ)
+    : IsUpperSet (cthickening ε s) := by
   rw [cthickening_eq_iInter_thickening'']
   exact isUpperSet_iInter₂ fun δ _ => hs.thickening' _
 
 @[to_additive IsLowerSet.cthickening]
-protected theorem IsLowerSet.cthickening' (hs : IsLowerSet s) (ε : ℝ) :
-    IsLowerSet (cthickening ε s) := by
+protected theorem IsLowerSet.cthickening' (hs : IsLowerSet s) (ε : ℝ)
+    : IsLowerSet (cthickening ε s) := by
   rw [cthickening_eq_iInter_thickening'']
   exact isLowerSet_iInter₂ fun δ _ => hs.thickening' _
 
@@ -76,12 +76,12 @@ end NormedOrderedGroup
 
 /-! ### `ℝⁿ` -/
 
-
 section Finite
 variable [Finite ι] {s : Set (ι → ℝ)} {x y : ι → ℝ}
 
-theorem IsUpperSet.mem_interior_of_forall_lt (hs : IsUpperSet s) (hx : x ∈ closure s)
-    (h : ∀ i, x i < y i) : y ∈ interior s := by
+theorem IsUpperSet.mem_interior_of_forall_lt
+    (hs : IsUpperSet s) (hx : x ∈ closure s) (h : ∀ i, x i < y i)
+    : y ∈ interior s := by
   cases nonempty_fintype ι
   obtain ⟨ε, hε, hxy⟩ := Pi.exists_forall_pos_add_lt h
   obtain ⟨z, hz, hxz⟩ := Metric.mem_closure_iff.1 hx _ hε
@@ -97,8 +97,9 @@ theorem IsUpperSet.mem_interior_of_forall_lt (hs : IsUpperSet s) (hx : x ∈ clo
   simp_rw [ball_pi _ hδ, Real.ball_eq_Ioo] at hw
   exact ((lt_sub_iff_add_lt.2 <| hyz _).trans (hw _ <| mem_univ _).1).le
 
-theorem IsLowerSet.mem_interior_of_forall_lt (hs : IsLowerSet s) (hx : x ∈ closure s)
-    (h : ∀ i, y i < x i) : y ∈ interior s := by
+theorem IsLowerSet.mem_interior_of_forall_lt
+    (hs : IsLowerSet s) (hx : x ∈ closure s) (h : ∀ i, y i < x i)
+    : y ∈ interior s := by
   cases nonempty_fintype ι
   obtain ⟨ε, hε, hxy⟩ := Pi.exists_forall_pos_add_lt h
   obtain ⟨z, hz, hxz⟩ := Metric.mem_closure_iff.1 hx _ hε
@@ -149,8 +150,8 @@ lemma dist_le_dist_of_le_pi (ha : a₂ ≤ a₁) (h₁ : a₁ ≤ b₁) (hb : b�
   (dist_mono_right_pi h₁ (h₁.trans hb) hb).trans <|
     dist_anti_left_pi (ha.trans <| h₁.trans hb) (h₁.trans hb) ha
 
-theorem IsUpperSet.exists_subset_ball (hs : IsUpperSet s) (hx : x ∈ closure s) (hδ : 0 < δ) :
-    ∃ y, closedBall y (δ / 4) ⊆ closedBall x δ ∧ closedBall y (δ / 4) ⊆ interior s := by
+theorem IsUpperSet.exists_subset_ball (hs : IsUpperSet s) (hx : x ∈ closure s) (hδ : 0 < δ)
+    : ∃ y, closedBall y (δ / 4) ⊆ closedBall x δ ∧ closedBall y (δ / 4) ⊆ interior s := by
   refine ⟨x + const _ (3 / 4 * δ), closedBall_subset_closedBall' ?_, ?_⟩
   · grw [dist_self_add_left, ← const_def, pi_norm_const_le]
     apply le_of_eq
@@ -166,8 +167,8 @@ theorem IsUpperSet.exists_subset_ball (hs : IsUpperSet s) (hx : x ∈ closure s)
   rw [abs_sub_le_iff] at hxy hz
   linarith
 
-theorem IsLowerSet.exists_subset_ball (hs : IsLowerSet s) (hx : x ∈ closure s) (hδ : 0 < δ) :
-    ∃ y, closedBall y (δ / 4) ⊆ closedBall x δ ∧ closedBall y (δ / 4) ⊆ interior s := by
+theorem IsLowerSet.exists_subset_ball (hs : IsLowerSet s) (hx : x ∈ closure s) (hδ : 0 < δ)
+    : ∃ y, closedBall y (δ / 4) ⊆ closedBall x δ ∧ closedBall y (δ / 4) ⊆ interior s := by
   refine ⟨x - const _ (3 / 4 * δ), closedBall_subset_closedBall' ?_, ?_⟩
   · grw [dist_self_sub_left, ← const_def, pi_norm_const_le]
     apply le_of_eq

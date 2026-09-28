@@ -27,7 +27,6 @@ We then prove that the natural inclusion `ι → WithTop ι` is measurable, and 
 
 @[expose] public section
 
-
 namespace WithTop
 
 variable {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι]
@@ -39,8 +38,7 @@ instance : BorelSpace (WithTop ι) := ⟨rfl⟩
 variable [MeasurableSpace ι] [BorelSpace ι]
 
 /-- Measurable equivalence between the non-top elements of `WithTop ι` and `ι`. -/
-noncomputable
-def MeasurableEquiv.neTopEquiv : { r : WithTop ι | r ≠ ⊤ } ≃ᵐ ι :=
+noncomputable def MeasurableEquiv.neTopEquiv : { r : WithTop ι | r ≠ ⊤ } ≃ᵐ ι :=
   (WithTop.neTopHomeomorph ι).toMeasurableEquiv
 
 lemma measurable_of_measurable_comp_coe {α : Type*} {mα : MeasurableSpace α}
@@ -73,9 +71,10 @@ lemma _root_.Measurable.untopA {α} {mα : MeasurableSpace α} [Nonempty ι]
     Measurable (fun x ↦ (f x).untopA) := hf.untopD _
 
 /-- Measurable equivalence between `WithTop ι` and `ι ⊕ Unit`. -/
-def measurableEquivSum : WithTop ι ≃ᵐ ι ⊕ Unit :=
-  { Equiv.optionEquivSumPUnit ι with
-    measurable_toFun := measurable_of_measurable_comp_coe measurable_inl
-    measurable_invFun := measurable_fun_sum measurable_coe (@measurable_const _ Unit _ _ ⊤) }
+def measurableEquivSum : WithTop ι ≃ᵐ ι ⊕ Unit := {
+  Equiv.optionEquivSumPUnit ι with
+  measurable_toFun := measurable_of_measurable_comp_coe measurable_inl
+  measurable_invFun := measurable_fun_sum measurable_coe (@measurable_const _ Unit _ _ ⊤)
+}
 
 end WithTop

@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.SpecialFunctions.Log.PosLog
 public import Mathlib.Tactic.Positivity.Core
-
 import Mathlib.Algebra.FiniteSupport.Basic
 import Mathlib.Algebra.Order.Ring.IsNonarchimedean
 import Mathlib.Data.Fintype.Order
@@ -85,8 +84,8 @@ class AdmissibleAbsValues (K : Type*) [Field K] where
   /-- Only finitely many (nonarchimedean) absolute values are `≠ 1` for any nonzero `x : K`. -/
   hasFiniteMulSupport {x : K} (_ : x ≠ 0) : (fun v : nonarchAbsVal ↦ v.val x).HasFiniteMulSupport
   /-- The product formula. The archimedean absolute values are taken with their multiplicity. -/
-  product_formula {x : K} (_ : x ≠ 0) :
-      (archAbsVal.map (· x)).prod * ∏ᶠ v : nonarchAbsVal, v.val x = 1
+  product_formula {x : K} (_ : x ≠ 0)
+    : (archAbsVal.map (· x)).prod * ∏ᶠ v : nonarchAbsVal, v.val x = 1
 
 open AdmissibleAbsValues Real Function
 
@@ -97,8 +96,10 @@ attribute [fun_prop] hasFiniteMulSupport
 
 variable (K : Type*) [Field K] [AdmissibleAbsValues K]
 
-/-- The `totalWeight` of a field with `AdmissibleAbsValues` is the sum of the multiplicities of
-the archimedean places. -/
+/--
+The `totalWeight` of a field with `AdmissibleAbsValues` is the sum of the multiplicities of
+the archimedean places.
+-/
 def totalWeight : ℕ := archAbsVal (K := K) |>.card
 
 variable {K}
@@ -188,23 +189,33 @@ open Lean.Meta Qq Height
 
 /-- Extension for the `positivity` tactic: `Height.mulHeight₁` is always positive. -/
 @[positivity Height.mulHeight₁ _]
-meta def evalMulHeight₁ : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@mulHeight₁ $K $KF $KA $a) =>
-    assertInstancesCommute
-    pure (.positive q(mulHeight₁_pos $a))
-  | _, _, _ => throwError "not Height.mulHeight₁"
+meta def evalMulHeight₁ : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@mulHeight₁ $K $KF $KA $a) =>
+        assertInstancesCommute
+        pure (.positive q(mulHeight₁_pos $a))
+      | _, _, _ =>
+        throwError "not Height.mulHeight₁"
 
 /-- Extension for the `positivity` tactic: `Height.logHeight₁` is always nonnegative. -/
 @[positivity Height.logHeight₁ _]
-meta def evalLogHeight₁ : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@logHeight₁ $K $KF $KA $a) =>
-    assertInstancesCommute
-    pure (.nonnegative q(zero_le_logHeight₁ $a))
-  | _, _, _ => throwError "not Height.logHeight₁"
+meta def evalLogHeight₁ : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@logHeight₁ $K $KF $KA $a) =>
+        assertInstancesCommute
+        pure (.nonnegative q(zero_le_logHeight₁ $a))
+      | _, _, _ =>
+        throwError "not Height.logHeight₁"
 
 end Mathlib.Meta.Positivity
 
@@ -221,18 +232,21 @@ For a finitely supported function `x : ι →₀ K`, we define the height as the
 restricted to its support.
 -/
 
-
 namespace Height
 
 open AdmissibleAbsValues Real Function
 
 variable {K : Type*} [Field K] [AdmissibleAbsValues K] {ι ι' : Type*}
 
-/-- The multiplicative height of a tuple of elements of `K`.
-For the zero tuple we take the junk value `1`. -/
+/--
+The multiplicative height of a tuple of elements of `K`.
+For the zero tuple we take the junk value `1`.
+-/
 def mulHeight (x : ι → K) : ℝ :=
   have : Decidable (x = 0) := Classical.propDecidable _
-  if x = 0 then 1 else
+  if x = 0 then
+    1
+  else
     (archAbsVal.map fun v ↦ ⨆ i, v (x i)).prod * ∏ᶠ v : nonarchAbsVal, ⨆ i, v.val (x i)
 
 lemma mulHeight_eq {x : ι → K} (hx : x ≠ 0) :
@@ -291,8 +305,7 @@ lemma logHeight_swap (x y : K) : logHeight ![x, y] = logHeight ![y, x] := by
 variable {α : Type*}
 
 /-- The multiplicative height of a finitely supported function. -/
-def _root_.Finsupp.mulHeight (x : α →₀ K) : ℝ :=
-  Height.mulHeight fun i : x.support ↦ x i
+def _root_.Finsupp.mulHeight (x : α →₀ K) : ℝ := Height.mulHeight fun i : x.support ↦ x i
 
 /-- The logarithmic height of a finitely supported function. -/
 def _root_.Finsupp.logHeight (x : α →₀ K) : ℝ := log (mulHeight x)
@@ -509,31 +522,43 @@ open Lean.Meta Qq Height
 
 /-- Extension for the `positivity` tactic: `Height.mulHeight` is always positive. -/
 @[positivity Height.mulHeight _]
-meta def evalMulHeight : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@mulHeight $K $KF $KA $ι $a) =>
-    -- Check whether there is a `Finite` instance for `$ι` around.
-    match ← trySynthInstanceQ q(Finite $ι) with
-    | .some _instFinite =>
-      assertInstancesCommute
-      return .positive q(mulHeight_pos $a)
-    | _ => throwError "index type in Height.mulHeight not known to be finite"
-  | _, _, _ => throwError "not Height.mulHeight"
+meta def evalMulHeight : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@mulHeight $K $KF $KA $ι $a) =>
+        -- Check whether there is a `Finite` instance for `$ι` around.
+        match ← trySynthInstanceQ q(Finite $ι) with
+        | .some _instFinite =>
+          assertInstancesCommute
+          return .positive q(mulHeight_pos $a)
+        | _ =>
+          throwError "index type in Height.mulHeight not known to be finite"
+      | _, _, _ =>
+        throwError "not Height.mulHeight"
 
 /-- Extension for the `positivity` tactic: `Height.logHeight` is always nonnegative. -/
 @[positivity Height.logHeight _]
-meta def evalLogHeight : PositivityExt where eval {u α} _ pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℝ), ~q(@logHeight $K $KF $KA $ι $a) =>
-    -- Check whether there is a `Finite` instance for `$ι` around.
-    match ← trySynthInstanceQ q(Finite $ι) with
-    | .some _instFinite =>
-      assertInstancesCommute
-      return .nonnegative q(logHeight_nonneg $a)
-    | _ => throwError "index type in Height.logHeight not known to be finite"
-  | _, _, _ => throwError "not Height.logHeight"
+meta def evalLogHeight : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℝ), ~q(@logHeight $K $KF $KA $ι $a) =>
+        -- Check whether there is a `Finite` instance for `$ι` around.
+        match ← trySynthInstanceQ q(Finite $ι) with
+        | .some _instFinite =>
+          assertInstancesCommute
+          return .nonnegative q(logHeight_nonneg $a)
+        | _ =>
+          throwError "index type in Height.logHeight not known to be finite"
+      | _, _, _ =>
+        throwError "not Height.logHeight"
 
 end Mathlib.Meta.Positivity
 

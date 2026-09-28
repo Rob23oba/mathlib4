@@ -58,18 +58,19 @@ lemma isEpi_of_surjective_algebraMap (h : Surjective (algebraMap R A)) :
 end Semiring
 
 -- TODO Generalise to any localization
-instance (R A : Type*) [CommRing R] [IsDomain R] [Field A] [Algebra R A] [IsFractionRing R A] :
-    Algebra.IsEpi R A := by
+instance (R A : Type*) [CommRing R] [IsDomain R] [Field A] [Algebra R A] [IsFractionRing R A]
+    : Algebra.IsEpi R A := by
   refine (isEpi_iff_forall_one_tmul_eq R A).mpr fun x ↦ ?_
   obtain ⟨a, b, hb, rfl⟩ := IsFractionRing.div_surjective R x
   set f := algebraMap R A with hf
   replace hb : f b ≠ 0 := by aesop
-  calc 1 ⊗ₜ[R] (f a / f b)
-       = 1 ⊗ₜ[R] (a • (1 / f b)) := by rw [← smul_div_assoc, algebraMap_eq_smul_one a]
-     _ = f a ⊗ₜ[R] (1 / f b) := by rw [← smul_tmul, algebraMap_eq_smul_one a]
-     _ = (b • (f a / f b)) ⊗ₜ[R] (1 / f b) := by rw [smul_def, mul_div_cancel₀ _ hb]
-     _ = (f a / f b) ⊗ₜ[R] (b • (1 / f b)) := by rw [smul_tmul]
-     _ = (f a / f b) ⊗ₜ[R] 1 := by rw [smul_def, mul_div_cancel₀ _ hb]
+  calc
+    1 ⊗ₜ[R] (f a / f b)
+      = 1 ⊗ₜ[R] (a • (1 / f b)) := by rw [← smul_div_assoc, algebraMap_eq_smul_one a]
+    _ = f a ⊗ₜ[R] (1 / f b) := by rw [← smul_tmul, algebraMap_eq_smul_one a]
+    _ = (b • (f a / f b)) ⊗ₜ[R] (1 / f b) := by rw [smul_def, mul_div_cancel₀ _ hb]
+    _ = (f a / f b) ⊗ₜ[R] (b • (1 / f b)) := by rw [smul_tmul]
+    _ = (f a / f b) ⊗ₜ[R] 1 := by rw [smul_def, mul_div_cancel₀ _ hb]
 
 section Ring
 

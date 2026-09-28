@@ -71,28 +71,31 @@ namespace WeierstrassCurve
 
 variable (R) in
 /-- An abbreviation for a Weierstrass curve in affine coordinates. -/
-abbrev Affine : Type r :=
-  WeierstrassCurve R
+abbrev Affine : Type r := WeierstrassCurve R
 
 /-- The conversion from a Weierstrass curve to affine coordinates. -/
-abbrev toAffine (W : WeierstrassCurve R) : Affine R :=
-  W
+abbrev toAffine (W : WeierstrassCurve R) : Affine R := W
 
-variable [CommRing R] {W : Affine R}
-  {S : Type s} [CommRing S] {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+variable
+  [CommRing R]
+  {W : Affine R} {S : Type s} [CommRing S]
+  {A : Type u} [CommRing A]
+  {B : Type v} [CommRing B]
 
 namespace Affine
 
 /-! ## Weierstrass equations in affine coordinates -/
 
 variable (W) in
-/-- The polynomial `W(X, Y) := Y² + a₁XY + a₃Y - (X³ + a₂X² + a₄X + a₆)` associated to a Weierstrass
+/--
+The polynomial `W(X, Y) := Y² + a₁XY + a₃Y - (X³ + a₂X² + a₄X + a₆)` associated to a Weierstrass
 curve `W` over a ring `R` in affine coordinates.
 
 For ease of polynomial manipulation, this is represented as a term of type `R[X][X]`, where the
 inner variable represents `X` and the outer variable represents `Y`. For clarity, the alternative
 notations `Y` and `R[X][Y]` are provided in the `Polynomial.Bivariate` scope to represent the outer
-variable and the bivariate polynomial ring `R[X][X]` respectively. -/
+variable and the bivariate polynomial ring `R[X][X]` respectively.
+-/
 noncomputable def polynomial : R[X][Y] :=
   Y ^ 2 + C (C W.a₁ * X + C W.a₃) * Y - C (X ^ 3 + C W.a₂ * X ^ 2 + C W.a₄ * X + C W.a₆)
 
@@ -143,11 +146,12 @@ lemma evalEval_polynomial_zero : W.polynomial.evalEval 0 0 = -W.a₆ := by
   simp only [evalEval_polynomial, zero_add, zero_sub, mul_zero, zero_pow <| Nat.succ_ne_zero _]
 
 variable (W) in
-/-- The proposition that an affine point `(x, y)` lies in a Weierstrass curve `W`.
+/--
+The proposition that an affine point `(x, y)` lies in a Weierstrass curve `W`.
 
-In other words, it satisfies the Weierstrass equation `W(X, Y) = 0`. -/
-def Equation (x y : R) : Prop :=
-  W.polynomial.evalEval x y = 0
+In other words, it satisfies the Weierstrass equation `W(X, Y) = 0`.
+-/
+def Equation (x y : R) : Prop := W.polynomial.evalEval x y = 0
 
 lemma equation_iff' (x y : R) : W.Equation x y ↔
     y ^ 2 + W.a₁ * x * y + W.a₃ * y - (x ^ 3 + W.a₂ * x ^ 2 + W.a₄ * x + W.a₆) = 0 := by
@@ -170,8 +174,10 @@ lemma equation_iff_variableChange (x y : R) :
 /-! ## The nonsingular condition in affine coordinates -/
 
 variable (W) in
-/-- The partial derivative `W_X(X, Y)` with respect to `X` of the polynomial `W(X, Y)` associated to
-a Weierstrass curve `W` in affine coordinates. -/
+/--
+The partial derivative `W_X(X, Y)` with respect to `X` of the polynomial `W(X, Y)` associated to
+a Weierstrass curve `W` in affine coordinates.
+-/
 -- TODO: define this in terms of `Polynomial.derivative`.
 noncomputable def polynomialX : R[X][Y] :=
   C (C W.a₁) * Y - C (C 3 * X ^ 2 + C (2 * W.a₂) * X + C W.a₄)
@@ -186,11 +192,12 @@ lemma evalEval_polynomialX_zero : W.polynomialX.evalEval 0 0 = -W.a₄ := by
   simp only [evalEval_polynomialX, zero_add, zero_sub, mul_zero, zero_pow <| Nat.succ_ne_zero _]
 
 variable (W) in
-/-- The partial derivative `W_Y(X, Y)` with respect to `Y` of the polynomial `W(X, Y)` associated to
-a Weierstrass curve `W` in affine coordinates. -/
+/--
+The partial derivative `W_Y(X, Y)` with respect to `Y` of the polynomial `W(X, Y)` associated to
+a Weierstrass curve `W` in affine coordinates.
+-/
 -- TODO: define this in terms of `Polynomial.derivative`.
-noncomputable def polynomialY : R[X][Y] :=
-  C (C 2) * Y + C (C W.a₁ * X + C W.a₃)
+noncomputable def polynomialY : R[X][Y] := C (C 2) * Y + C (C W.a₁ * X + C W.a₃)
 
 lemma evalEval_polynomialY (x y : R) : W.polynomialY.evalEval x y = 2 * y + W.a₁ * x + W.a₃ := by
   simp only [polynomialY]
@@ -202,11 +209,13 @@ lemma evalEval_polynomialY_zero : W.polynomialY.evalEval 0 0 = W.a₃ := by
   simp only [evalEval_polynomialY, zero_add, mul_zero]
 
 variable (W) in
-/-- The proposition that an affine point `(x, y)` on a Weierstrass curve `W` is nonsingular.
+/--
+The proposition that an affine point `(x, y)` on a Weierstrass curve `W` is nonsingular.
 
 In other words, either `W_X(x, y) ≠ 0` or `W_Y(x, y) ≠ 0`.
 
-Note that this definition is only mathematically accurate for fields. -/
+Note that this definition is only mathematically accurate for fields.
+-/
 -- TODO: generalise this definition to be mathematically accurate for a larger class of rings.
 def Nonsingular (x y : R) : Prop :=
   W.Equation x y ∧ (W.polynomialX.evalEval x y ≠ 0 ∨ W.polynomialY.evalEval x y ≠ 0)
@@ -255,14 +264,11 @@ lemma equation_iff_nonsingular [Nontrivial R] [W.IsElliptic] {x y : R} :
 variable (W) (f : R →+* S)
 
 /-- The Weierstrass curve in affine coordinates mapped over a ring homomorphism `f : R →+* S`. -/
-abbrev map : Affine S :=
-  WeierstrassCurve.map W f
+abbrev map : Affine S := WeierstrassCurve.map W f
 
 variable (S) in
 /-- The Weierstrass curve in affine coordinates base changed to an algebra `S` over `R`. -/
-@[simps!]
-abbrev baseChange [Algebra R S] : Affine S :=
-  WeierstrassCurve.baseChange W S
+@[simps!] abbrev baseChange [Algebra R S] : Affine S := WeierstrassCurve.baseChange W S
 
 /-- The notation `\textf` for `WeierstrassCurve.Affine.baseChange W S`. -/
 scoped notation:max W:max "⁄" S:max => baseChange W S
@@ -294,8 +300,10 @@ lemma map_nonsingular (hf : Function.Injective f) (x y : R) :
   simp only [Nonsingular, evalEval, W.map_equation hf, map_polynomialX, map_polynomialY,
     map_mapRingHom_evalEval, map_ne_zero_iff f hf]
 
-variable [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [Algebra R B] [Algebra S B]
-  [IsScalarTower R S B] (f : A →ₐ[S] B)
+variable
+  [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [Algebra R B] [Algebra S B]
+  [IsScalarTower R S B]
+  (f : A →ₐ[S] B)
 
 lemma map_baseChange : (W⁄A).map f = W⁄B :=
   WeierstrassCurve.map_baseChange W f

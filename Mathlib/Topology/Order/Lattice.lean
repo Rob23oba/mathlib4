@@ -29,7 +29,8 @@ open Filter
 
 open scoped Topology
 
-/-- Let `L` be a topological space and let `L×L` be equipped with the product topology and let
+/--
+Let `L` be a topological space and let `L×L` be equipped with the product topology and let
 `⊓:L×L → L` be an infimum. Then `L` is said to have *(jointly) continuous infimum* if the map
 `⊓:L×L → L` is continuous.
 -/
@@ -37,7 +38,8 @@ class ContinuousInf (L : Type*) [TopologicalSpace L] [Min L] : Prop where
   /-- The infimum is continuous -/
   continuous_inf : Continuous fun p : L × L => p.1 ⊓ p.2
 
-/-- Let `L` be a topological space and let `L×L` be equipped with the product topology and let
+/--
+Let `L` be a topological space and let `L×L` be equipped with the product topology and let
 `⊓:L×L → L` be a supremum. Then `L` is said to have *(jointly) continuous supremum* if the map
 `⊓:L×L → L` is continuous.
 -/
@@ -45,26 +47,29 @@ class ContinuousSup (L : Type*) [TopologicalSpace L] [Max L] : Prop where
   /-- The supremum is continuous -/
   continuous_sup : Continuous fun p : L × L => p.1 ⊔ p.2
 
-instance OrderDual.continuousSup (L : Type*) [TopologicalSpace L] [Min L]
-    [h : ContinuousInf L] : ContinuousSup Lᵒᵈ where
+instance OrderDual.continuousSup (L : Type*) [TopologicalSpace L] [Min L] [h : ContinuousInf L]
+    : ContinuousSup Lᵒᵈ where
   continuous_sup := h.continuous_inf
 
-instance OrderDual.continuousInf (L : Type*) [TopologicalSpace L] [Max L]
-    [h : ContinuousSup L] : ContinuousInf Lᵒᵈ where
+instance OrderDual.continuousInf (L : Type*) [TopologicalSpace L] [Max L] [h : ContinuousSup L]
+    : ContinuousInf Lᵒᵈ where
   continuous_inf := h.continuous_sup
 
-/-- Let `L` be a lattice equipped with a topology such that `L` has continuous infimum and supremum.
+/--
+Let `L` be a lattice equipped with a topology such that `L` has continuous infimum and supremum.
 Then `L` is said to be a *topological lattice*.
 -/
 class TopologicalLattice (L : Type*) [TopologicalSpace L] [Lattice L] : Prop
   extends ContinuousInf L, ContinuousSup L
 
-instance OrderDual.topologicalLattice (L : Type*) [TopologicalSpace L]
-    [Lattice L] [TopologicalLattice L] : TopologicalLattice Lᵒᵈ where
+instance OrderDual.topologicalLattice
+  (L : Type*) [TopologicalSpace L] [Lattice L] [TopologicalLattice L]
+  : TopologicalLattice Lᵒᵈ where
 
 -- see Note [lower instance priority]
-instance (priority := 100) LinearOrder.topologicalLattice {L : Type*} [TopologicalSpace L]
-    [LinearOrder L] [OrderClosedTopology L] : TopologicalLattice L where
+instance (priority := 100) LinearOrder.topologicalLattice
+    {L : Type*} [TopologicalSpace L] [LinearOrder L] [OrderClosedTopology L]
+    : TopologicalLattice L where
   continuous_inf := continuous_min
   continuous_sup := continuous_max
 
@@ -75,8 +80,9 @@ theorem continuous_inf [Min L] [ContinuousInf L] : Continuous fun p : L × L => 
   ContinuousInf.continuous_inf
 
 @[continuity, fun_prop]
-theorem Continuous.inf [Min L] [ContinuousInf L] {f g : X → L} (hf : Continuous f)
-    (hg : Continuous g) : Continuous fun x => f x ⊓ g x :=
+theorem Continuous.inf
+    [Min L] [ContinuousInf L] {f g : X → L} (hf : Continuous f) (hg : Continuous g)
+    : Continuous fun x => f x ⊓ g x :=
   continuous_inf.comp (hf.prodMk hg :)
 
 @[continuity]
@@ -84,8 +90,9 @@ theorem continuous_sup [Max L] [ContinuousSup L] : Continuous fun p : L × L => 
   ContinuousSup.continuous_sup
 
 @[continuity, fun_prop]
-theorem Continuous.sup [Max L] [ContinuousSup L] {f g : X → L} (hf : Continuous f)
-    (hg : Continuous g) : Continuous fun x => f x ⊔ g x :=
+theorem Continuous.sup
+    [Max L] [ContinuousSup L] {f g : X → L} (hf : Continuous f) (hg : Continuous g)
+    : Continuous fun x => f x ⊔ g x :=
   continuous_sup.comp (hf.prodMk hg :)
 
 namespace Filter.Tendsto
@@ -244,8 +251,9 @@ end Inf
 
 section FinsetSup'
 
-variable {ι : Type*} [SemilatticeSup L] [ContinuousSup L] {s : Finset ι}
-  {f : ι → X → L} {t : Set X} {x : X}
+variable
+  {ι : Type*} [SemilatticeSup L] [ContinuousSup L]
+  {s : Finset ι} {f : ι → X → L} {t : Set X} {x : X}
 
 @[fun_prop]
 lemma ContinuousAt.finset_sup'_apply (hne : s.Nonempty) (hs : ∀ i ∈ s, ContinuousAt (f i) x) :
@@ -293,8 +301,9 @@ end FinsetSup'
 
 section FinsetSup
 
-variable {ι : Type*} [SemilatticeSup L] [OrderBot L] [ContinuousSup L] {s : Finset ι}
-  {f : ι → X → L} {t : Set X} {x : X}
+variable
+  {ι : Type*} [SemilatticeSup L] [OrderBot L] [ContinuousSup L]
+  {s : Finset ι} {f : ι → X → L} {t : Set X} {x : X}
 
 @[fun_prop]
 lemma ContinuousAt.finset_sup_apply (hs : ∀ i ∈ s, ContinuousAt (f i) x) :
@@ -341,8 +350,9 @@ end FinsetSup
 
 section FinsetInf'
 
-variable {ι : Type*} [SemilatticeInf L] [ContinuousInf L] {s : Finset ι}
-  {f : ι → X → L} {t : Set X} {x : X}
+variable
+  {ι : Type*} [SemilatticeInf L] [ContinuousInf L]
+  {s : Finset ι} {f : ι → X → L} {t : Set X} {x : X}
 
 @[fun_prop]
 lemma ContinuousAt.finset_inf'_apply (hne : s.Nonempty) (hs : ∀ i ∈ s, ContinuousAt (f i) x) :
@@ -390,8 +400,9 @@ end FinsetInf'
 
 section FinsetInf
 
-variable {ι : Type*} [SemilatticeInf L] [OrderTop L] [ContinuousInf L] {s : Finset ι}
-  {f : ι → X → L} {t : Set X} {x : X}
+variable
+  {ι : Type*} [SemilatticeInf L] [OrderTop L] [ContinuousInf L]
+  {s : Finset ι} {f : ι → X → L} {t : Set X} {x : X}
 
 @[fun_prop]
 lemma ContinuousAt.finset_inf_apply (hs : ∀ i ∈ s, ContinuousAt (f i) x) :

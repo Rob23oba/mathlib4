@@ -45,19 +45,19 @@ open AffineZariskiSite
 def normalizationDiagram : Y.Opensᵒᵖ ⥤ CommRingCat where
   obj U :=
     letI := (f.app U.unop).hom.toAlgebra
-    .of (integralClosure Γ(Y, U.unop) Γ(X, f ⁻¹ᵁ U.unop))
+    .of (integralClosure (Γ(Y, U.unop)) Γ(X, f ⁻¹ᵁ U.unop))
   map {V U} i :=
-    CommRingCat.ofHom ((X.presheaf.map (homOfLE (f.preimage_mono i.unop.le)).op).hom.restrict
-      _ _ fun x hx ↦ by
-      obtain ⟨U, rfl⟩ := Opposite.op_surjective U
-      obtain ⟨V, rfl⟩ := Opposite.op_surjective V
-      algebraize [(f.app U).hom, (f.app V).hom, (Y.presheaf.map i).hom,
-        (X.presheaf.map (homOfLE (f.preimage_mono i.unop.le)).op).hom,
-        (f.appLE V (f ⁻¹ᵁ U) (f.preimage_mono i.unop.le)).hom]
-      have : IsScalarTower Γ(Y, V) Γ(Y, U) Γ(X, f ⁻¹ᵁ U) := .of_algebraMap_eq' <| by
-        simp [RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp]; rfl
-      have : IsScalarTower Γ(Y, V) Γ(X, f ⁻¹ᵁ V) Γ(X, f ⁻¹ᵁ U) := .of_algebraMap_eq' rfl
-      exact (hx.map (IsScalarTower.toAlgHom Γ(Y, V) _ Γ(X, f ⁻¹ᵁ U))).tower_top)
+    CommRingCat.ofHom
+      ((X.presheaf.map (homOfLE (f.preimage_mono i.unop.le)).op).hom.restrict _ _ fun x hx ↦ by
+        obtain ⟨U, rfl⟩ := Opposite.op_surjective U
+        obtain ⟨V, rfl⟩ := Opposite.op_surjective V
+        algebraize [(f.app U).hom, (f.app V).hom, (Y.presheaf.map i).hom,
+          (X.presheaf.map (homOfLE (f.preimage_mono i.unop.le)).op).hom,
+          (f.appLE V (f ⁻¹ᵁ U) (f.preimage_mono i.unop.le)).hom]
+        have : IsScalarTower (Γ(Y, V)) (Γ(Y, U)) Γ(X, f ⁻¹ᵁ U) :=
+          .of_algebraMap_eq' <| by simp [RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp]; rfl
+        have : IsScalarTower (Γ(Y, V)) (Γ(X, f ⁻¹ᵁ V)) Γ(X, f ⁻¹ᵁ U) := .of_algebraMap_eq' rfl
+        exact (hx.map (IsScalarTower.toAlgHom (Γ(Y, V)) _ Γ(X, f ⁻¹ᵁ U))).tower_top)
   map_id U := by simp; rfl
   map_comp i j := by
     simp only [← CommRingCat.ofHom_comp]
@@ -69,7 +69,8 @@ def normalizationDiagram : Y.Opensᵒᵖ ⥤ CommRingCat where
 def normalizationDiagramMap : Y.presheaf ⟶ f.normalizationDiagram where
   app U :=
     letI := (f.app U.unop).hom.toAlgebra
-    CommRingCat.ofHom (algebraMap Γ(Y, U.unop) (integralClosure Γ(Y, U.unop) Γ(X, f ⁻¹ᵁ U.unop)))
+    CommRingCat.ofHom (algebraMap (Γ(Y, U.unop))
+      (integralClosure (Γ(Y, U.unop)) Γ(X, f ⁻¹ᵁ U.unop)))
   naturality {U V} i := by ext x; exact Subtype.ext congr($(f.naturality i) x)
 
 variable [QuasiCompact f] [QuasiSeparated f]
@@ -122,34 +123,38 @@ instance : (f.normalizationGlueData.functor ⋙ Scheme.forget).IsLocallyDirected
 @[stacks 035H]
 def normalization : Scheme := f.normalizationGlueData.glued
 
-/-- This is the open cover of `f.normalization` by `Spec` of integral closures of `Γ(Y, U)`
-in `Γ(X, f ⁻¹ U)` where `U` ranges over all affine opens. -/
-def normalizationOpenCover : f.normalization.OpenCover :=
-  f.normalizationGlueData.cover
+/--
+This is the open cover of `f.normalization` by `Spec` of integral closures of `Γ(Y, U)`
+in `Γ(X, f ⁻¹ U)` where `U` ranges over all affine opens.
+-/
+def normalizationOpenCover : f.normalization.OpenCover := f.normalizationGlueData.cover
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The dominant morphism into the relative normalization. -/
 def toNormalization : X ⟶ f.normalization :=
-  Scheme.OpenCover.glueMorphismsOfLocallyDirected
-    ((directedCover Y).pullback₁ f)
-    (fun U ↦ letI := (f.app U.1).hom.toAlgebra
-      (pullbackRestrictIsoRestrict f _).hom ≫
-      (f ⁻¹ᵁ U.1).toSpecΓ ≫ Spec.map (CommRingCat.ofHom <| integralClosure Γ(Y, U.1) Γ(X, f ⁻¹ᵁ U.1)
-      |>.val.toRingHom) ≫ f.normalizationOpenCover.f U) fun {U V : Y.AffineZariskiSite} i ↦ by
-  have : (pullbackRestrictIsoRestrict f U.1).inv ≫
-      Cover.trans ((directedCover Y).pullback₁ f) i ≫
-      (pullbackRestrictIsoRestrict f V.1).hom = X.homOfLE
-        (f.preimage_mono (toOpens_mono i.1.1)) := by
-    rw [← cancel_mono (Scheme.Opens.ι _)]
-    simp +instances [Cover.trans, Cover.locallyDirectedPullbackCover]
-  rw [← Iso.inv_comp_eq, reassoc_of% this, ← Scheme.Opens.toSpecΓ_SpecMap_presheaf_map_assoc,
-    ← Spec.map_comp_assoc]
-  dsimp [normalizationOpenCover]
-  rw [← colimit.w f.normalizationGlueData.functor i]
-  dsimp [normalizationGlueData, relativeGluingData]
-  rw [← Spec.map_comp_assoc]
-  rfl
+  Scheme.OpenCover.glueMorphismsOfLocallyDirected ((directedCover Y).pullback₁ f)
+    (fun U ↦
+      letI := (f.app U.1).hom.toAlgebra
+      (pullbackRestrictIsoRestrict f _).hom ≫ (f ⁻¹ᵁ U.1).toSpecΓ
+        ≫ Spec.map (CommRingCat.ofHom <|
+          integralClosure (Γ(Y, U.1)) Γ(X, f ⁻¹ᵁ U.1) |>.val.toRingHom)
+        ≫ f.normalizationOpenCover.f U)
+    fun {U V : Y.AffineZariskiSite} i ↦ by
+      have : (pullbackRestrictIsoRestrict f U.1).inv ≫ Cover.trans ((directedCover Y).pullback₁ f) i
+            ≫ (pullbackRestrictIsoRestrict f V.1).hom
+          = X.homOfLE (f.preimage_mono (toOpens_mono i.1.1)) := by
+        rw [← cancel_mono (Scheme.Opens.ι _)]
+        simp +instances [Cover.trans, Cover.locallyDirectedPullbackCover]
+      rw [
+        ← Iso.inv_comp_eq, reassoc_of% this, ← Scheme.Opens.toSpecΓ_SpecMap_presheaf_map_assoc,
+        ← Spec.map_comp_assoc
+      ]
+      dsimp [normalizationOpenCover]
+      rw [← colimit.w f.normalizationGlueData.functor i]
+      dsimp [normalizationGlueData, relativeGluingData]
+      rw [← Spec.map_comp_assoc]
+      rfl
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -167,8 +172,7 @@ lemma ι_toNormalization (U : Y.affineOpens) :
   exact Scheme.OpenCover.map_glueMorphismsOfLocallyDirected _ _ H _
 
 /-- The morphism from the relative normalization to itself. This map is integral. -/
-def fromNormalization : f.normalization ⟶ Y :=
-  f.normalizationGlueData.toBase
+def fromNormalization : f.normalization ⟶ Y := f.normalizationGlueData.toBase
 
 @[reassoc]
 lemma ι_fromNormalization (U : Y.affineOpens) :
@@ -194,32 +198,35 @@ lemma toNormalization_fromNormalization :
 
 set_option backward.isDefEq.respectTransparency false in
 instance : IsIntegralHom f.fromNormalization := by
-  rw [IsZariskiLocalAtTarget.iff_of_iSup_eq_top (P := @IsIntegralHom) _
-    (iSup_affineOpens_eq_top _)]
+  rw [IsZariskiLocalAtTarget.iff_of_iSup_eq_top (P := @IsIntegralHom) _ (iSup_affineOpens_eq_top _)]
   intro U
-  let e := IsOpenImmersion.isoOfRangeEq (f.fromNormalization ⁻¹ᵁ U).ι (f.normalizationOpenCover.f U)
+  let e :=
+    IsOpenImmersion.isoOfRangeEq (f.fromNormalization ⁻¹ᵁ U).ι (f.normalizationOpenCover.f U)
       (by simpa using congr($(f.fromNormalization_preimage U).1))
-  rw [← MorphismProperty.cancel_left_of_respectsIso @IsIntegralHom e.inv,
-    ← MorphismProperty.cancel_right_of_respectsIso @IsIntegralHom _ U.2.isoSpec.hom]
+  rw [
+    ← MorphismProperty.cancel_left_of_respectsIso @IsIntegralHom e.inv,
+    ← MorphismProperty.cancel_right_of_respectsIso @IsIntegralHom _ U.2.isoSpec.hom
+  ]
   have : (f.normalizationDiagramMap.app (.op U)).hom.IsIntegral := by
     let := (f.app U).hom.toAlgebra
-    change (algebraMap Γ(Y, U) (integralClosure Γ(Y, U) Γ(X, f ⁻¹ᵁ U))).IsIntegral
+    change (algebraMap (Γ(Y, U)) (integralClosure (Γ(Y, U)) Γ(X, f ⁻¹ᵁ U))).IsIntegral
     exact algebraMap_isIntegral_iff.mpr inferInstance
   convert! IsIntegralHom.SpecMap_iff.mpr this
   rw [← cancel_mono U.2.fromSpec]
   simp [IsAffineOpen.isoSpec_hom, e, ι_fromNormalization]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The sections of the relative normalization on the preimage of an affine open is isomorphic to
-the integral closure. -/
-noncomputable
-def normalizationObjIso {U : Y.Opens} (hU : IsAffineOpen U) :
-    letI := (f.app U).hom.toAlgebra
-    Γ(f.normalization, f.fromNormalization ⁻¹ᵁ U) ≅
-      .of (integralClosure Γ(Y, U) Γ(X, f ⁻¹ᵁ U)) :=
-  f.normalization.presheaf.mapIso (eqToIso
-    (by simpa using! (f.fromNormalization_preimage ⟨U, hU⟩).symm)).op ≪≫
-  (f.normalizationOpenCover.f ⟨U, hU⟩).appIso ⊤ ≪≫ Scheme.ΓSpecIso _
+/--
+The sections of the relative normalization on the preimage of an affine open is isomorphic to
+the integral closure.
+-/
+noncomputable def normalizationObjIso {U : Y.Opens} (hU : IsAffineOpen U)
+    : letI := (f.app U).hom.toAlgebra
+      Γ(f.normalization, f.fromNormalization ⁻¹ᵁ U)
+        ≅ .of (integralClosure (Γ(Y, U)) Γ(X, f ⁻¹ᵁ U)) :=
+  f.normalization.presheaf.mapIso (eqToIso (by
+      simpa using! (f.fromNormalization_preimage ⟨U, hU⟩).symm)).op
+    ≪≫ (f.normalizationOpenCover.f ⟨U, hU⟩).appIso ⊤ ≪≫ Scheme.ΓSpecIso _
 
 set_option backward.isDefEq.respectTransparency false in
 lemma toNormalization_app_preimage (U : Y.affineOpens) :
@@ -282,24 +289,31 @@ set_option backward.isDefEq.respectTransparency false in
 @[stacks 03GP]
 instance [IsIntegralHom f] : IsIso f.toNormalization := by
   refine (IsZariskiLocalAtTarget.iff_of_openCover (P := .isomorphisms _)
-    f.normalizationOpenCover).mpr fun U ↦ ?_
-  let e := IsOpenImmersion.isoOfRangeEq (pullback.fst f.toNormalization
-    (f.normalizationOpenCover.f U)) (f ⁻¹ᵁ U.1).ι (by simp [← Hom.coe_opensRange,
-      Hom.opensRange_pullbackFst, ← f.fromNormalization_preimage, ← Scheme.Hom.comp_preimage])
-  rw [← MorphismProperty.cancel_left_of_respectsIso (.isomorphisms _)
-    (e ≪≫ (U.2.preimage f).isoSpec).inv]
+      f.normalizationOpenCover).mpr
+    fun U ↦ ?_
+  let e :=
+    IsOpenImmersion.isoOfRangeEq (pullback.fst f.toNormalization (f.normalizationOpenCover.f U))
+      (f ⁻¹ᵁ U.1).ι
+      (by
+        simp [
+          ← Hom.coe_opensRange, Hom.opensRange_pullbackFst, ← f.fromNormalization_preimage,
+          ← Scheme.Hom.comp_preimage
+        ])
+  rw [
+    ← MorphismProperty.cancel_left_of_respectsIso (.isomorphisms _)
+      (e ≪≫ (U.2.preimage f).isoSpec).inv
+  ]
   let := (f.app U.1).hom.toAlgebra
   convert_to! IsIso (Spec.map (CommRingCat.ofHom
       (integralClosure Γ(Y, U.1) Γ(X, f ⁻¹ᵁ U.1)).val.toRingHom))
   · rw [← cancel_mono (f.normalizationOpenCover.f U), ← cancel_epi (U.2.preimage f).isoSpec.hom]
-    simp [e, -Iso.cancel_iso_hom_left, IsAffineOpen.isoSpec_hom,
-      Hom.ι_toNormalization]
-  have : integralClosure Γ(Y, U.1) Γ(X, f ⁻¹ᵁ U.1) = ⊤ := by
+    simp [e, -Iso.cancel_iso_hom_left, IsAffineOpen.isoSpec_hom, Hom.ι_toNormalization]
+  have : integralClosure (Γ(Y, U.1)) Γ(X, f ⁻¹ᵁ U.1) = ⊤ := by
     rw [integralClosure_eq_top_iff, ← algebraMap_isIntegral_iff, RingHom.algebraMap_toAlgebra]
     exact IsIntegralHom.isIntegral_app _ _ U.2
   rw [this]
-  exact inferInstanceAs (IsIso (Scheme.Spec.mapIso (Subalgebra.topEquiv
-    (R := Γ(Y, U.1)) (A := ↑Γ(X, f ⁻¹ᵁ U.1))).toCommRingCatIso.op).hom)
+  exact inferInstanceAs (IsIso (Scheme.Spec.mapIso (Subalgebra.topEquiv (R := Γ(Y, U.1))
+    (A := ↑ Γ(X, f ⁻¹ᵁ U.1))).toCommRingCatIso.op).hom)
 
 instance [IsAffineHom f] : IsAffineHom f.toNormalization := by
   apply MorphismProperty.of_postcomp (W := @IsAffineHom) (W' := @IsSeparated) _ f.fromNormalization
@@ -308,8 +322,8 @@ instance [IsAffineHom f] : IsAffineHom f.toNormalization := by
     infer_instance
 
 instance : QuasiCompact f.toNormalization := by
-  apply MorphismProperty.of_postcomp (W := @QuasiCompact)
-      (W' := @QuasiSeparated) _ f.fromNormalization
+  apply MorphismProperty.of_postcomp (W := @QuasiCompact) (W' := @QuasiSeparated) _
+    f.fromNormalization
   · infer_instance
   · rw [Hom.toNormalization_fromNormalization]
     infer_instance
@@ -366,27 +380,36 @@ variable {T : Scheme.{u}} (f₁ : X ⟶ T) (f₂ : T ⟶ Y) [IsIntegralHom f₂]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Given an qcqs morphism `f : X ⟶ Y`, which factors into `X ⟶ T ⟶ Y` with `T ⟶ Y` integral,
+/--
+Given an qcqs morphism `f : X ⟶ Y`, which factors into `X ⟶ T ⟶ Y` with `T ⟶ Y` integral,
 the map `X ⟶ T` factors through `f.normalization` uniquely.
-(See `normalization.hom_ext` for the uniqueness result) -/
-noncomputable
-def normalizationDesc (H : f = f₁ ≫ f₂) : f.normalization ⟶ T := by
-  refine colimit.desc _
-    { pt := _
-      ι.app U := Spec.map (CommRingCat.ofHom ((f₁.appLE _ _ (by simp [H])).hom.codRestrict _
-        fun x ↦ ?_)) ≫ (U.2.preimage f₂).fromSpec,
-      ι.naturality := ?_ }
+(See `normalization.hom_ext` for the uniqueness result)
+-/
+noncomputable def normalizationDesc (H : f = f₁ ≫ f₂) : f.normalization ⟶ T := by
+  refine colimit.desc _ {
+    pt := _
+    ι.app U :=
+      Spec.map (CommRingCat.ofHom ((f₁.appLE _ _ (by simp [H])).hom.codRestrict _ fun x ↦ ?_))
+        ≫ (U.2.preimage f₂).fromSpec
+    ι.naturality := ?_
+  }
   · algebraize [(f.app U.1).hom, (f₂.app U.1).hom,
       (f₁.appLE (f₂ ⁻¹ᵁ U.1) (f ⁻¹ᵁ U.1) (by simp [H])).hom]
-    have : IsScalarTower Γ(Y, U.1) Γ(T, f₂ ⁻¹ᵁ U.1) Γ(X, f ⁻¹ᵁ U.1) := .of_algebraMap_eq' <| by
-      simp only [RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp,
-        Hom.app_eq_appLE, Hom.appLE_comp_appLE, ← H]
+    have : IsScalarTower (Γ(Y, U.1)) (Γ(T, f₂ ⁻¹ᵁ U.1)) Γ(X, f ⁻¹ᵁ U.1) :=
+      .of_algebraMap_eq' <| by
+        simp only [
+          RingHom.algebraMap_toAlgebra, ← CommRingCat.hom_comp, Hom.app_eq_appLE,
+          Hom.appLE_comp_appLE, ← H
+        ]
     exact .algebraMap (R := Γ(Y, U.1)) (B := Γ(X, f ⁻¹ᵁ U.1)) (f₂.isIntegral_app U.1 U.2 x)
   · intros U V i
     dsimp [normalizationGlueData, relativeGluingData]
-    rw [Category.comp_id, ← Spec.map_comp_assoc, ← (V.2.preimage f₂).map_fromSpec (U.2.preimage f₂)
-      (homOfLE (f₂.preimage_mono (Scheme.AffineZariskiSite.toOpens_mono i.le))).op,
-      ← Spec.map_comp_assoc]
+    rw [
+      Category.comp_id, ← Spec.map_comp_assoc,
+      ← (V.2.preimage f₂).map_fromSpec (U.2.preimage f₂)
+        (homOfLE (f₂.preimage_mono (Scheme.AffineZariskiSite.toOpens_mono i.le))).op,
+      ← Spec.map_comp_assoc
+    ]
     congr 2
     ext i
     apply Subtype.ext
@@ -492,21 +515,27 @@ end UniversalProperty
 
 section Coproduct
 
-variable {U V : Scheme} {iU : U ⟶ X} {iV : V ⟶ X} (e : IsColimit (BinaryCofan.mk iU iV))
-    [QuasiCompact iU] [QuasiSeparated iU] [QuasiCompact iV] [QuasiSeparated iV]
+variable
+  {U V : Scheme} {iU : U ⟶ X} {iV : V ⟶ X} (e : IsColimit (BinaryCofan.mk iU iV))
+  [QuasiCompact iU] [QuasiSeparated iU] [QuasiCompact iV] [QuasiSeparated iV]
 
-/-- The normalization of `Y` in a coproduct is isomorphic to the coproduct of the normalizations in
-each of the components. -/
-noncomputable def normalizationCoprodIso :
-    (iU ≫ f).normalization ⨿ (iV ≫ f).normalization ≅ f.normalization where
-  hom := coprod.desc
-      ((iU ≫ f).normalizationDesc (iU ≫ f.toNormalization) f.fromNormalization (by simp))
+/--
+The normalization of `Y` in a coproduct is isomorphic to the coproduct of the normalizations in
+each of the components.
+-/
+noncomputable def normalizationCoprodIso
+    : (iU ≫ f).normalization ⨿ (iV ≫ f).normalization ≅ f.normalization where
+  hom :=
+    coprod.desc ((iU ≫ f).normalizationDesc (iU ≫ f.toNormalization) f.fromNormalization (by simp))
       ((iV ≫ f).normalizationDesc (iV ≫ f.toNormalization) f.fromNormalization (by simp))
-  inv := f.normalizationDesc ((e.coconePointUniqueUpToIso (colimit.isColimit _)).hom ≫
-      coprod.map (iU ≫ f).toNormalization (iV ≫ f).toNormalization)
-      (coprod.desc (iU ≫ f).fromNormalization (iV ≫ f).fromNormalization) <| by
-    simp only [← Iso.inv_comp_eq, Category.assoc]
-    apply coprod.hom_ext <;> simp
+  inv :=
+    f.normalizationDesc
+        ((e.coconePointUniqueUpToIso (colimit.isColimit _)).hom
+          ≫ coprod.map (iU ≫ f).toNormalization (iV ≫ f).toNormalization)
+        (coprod.desc (iU ≫ f).fromNormalization (iV ≫ f).fromNormalization) <|
+      by
+        simp only [← Iso.inv_comp_eq, Category.assoc]
+        apply coprod.hom_ext <;> simp
   hom_inv_id := by
     ext
     · refine Scheme.Hom.normalization.hom_ext _ _ _
@@ -573,13 +602,16 @@ section Smooth
 
 variable {X S Y : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) [QuasiCompact f] [QuasiSeparated f]
 
-/-- The comparison lemma between the normalization of the pullback to the pullback of the
-normalization. This is an isomorphism when `g` is smooth. -/
-noncomputable def normalizationPullback :
-    (pullback.snd f g).normalization ⟶ pullback f.fromNormalization g :=
-  (pullback.snd f g).normalizationDesc (pullback.map _ _ _ _ f.toNormalization
-    (𝟙 _) (𝟙 _) (by simp) (by simp)) (pullback.snd _ _) (by simp)
-  deriving IsIntegralHom
+/--
+The comparison lemma between the normalization of the pullback to the pullback of the
+normalization. This is an isomorphism when `g` is smooth.
+-/
+noncomputable def normalizationPullback
+    : (pullback.snd f g).normalization ⟶ pullback f.fromNormalization g :=
+  (pullback.snd f g).normalizationDesc
+    (pullback.map _ _ _ _ f.toNormalization (𝟙 _) (𝟙 _) (by simp) (by simp)) (pullback.snd _ _)
+    (by simp)
+deriving IsIntegralHom
 
 @[reassoc (attr := simp)]
 lemma normalizationPullback_snd :
@@ -599,65 +631,83 @@ open TensorProduct in
 @[stacks 03GV]
 instance [Smooth g] : IsIso (f.normalizationPullback g) := by
   apply IsZariskiLocalAtTarget.of_forall_exists_morphismRestrict (P := .isomorphisms _) fun x ↦ ?_
-  obtain ⟨_, ⟨U, hU, rfl⟩, hxU, -⟩ := S.isBasis_affineOpens.exists_subset_of_mem_open
-    (Set.mem_univ ((pullback.snd _ g ≫ g) x)) isOpen_univ
+  obtain ⟨_, ⟨U, hU, rfl⟩, hxU, -⟩ :=
+    S.isBasis_affineOpens.exists_subset_of_mem_open (Set.mem_univ ((pullback.snd _ g ≫ g) x))
+      isOpen_univ
   obtain ⟨_, ⟨V, hV, rfl⟩, hxV, hVU : V ≤ g ⁻¹ᵁ U⟩ :=
     Y.isBasis_affineOpens.exists_subset_of_mem_open (a := pullback.snd _ g x) hxU (g ⁻¹ᵁ U).2
   let W := pullback.snd (Scheme.Hom.fromNormalization f) g ⁻¹ᵁ V
   refine ⟨W, hxV, (isIso_morphismRestrict_iff_isIso_app _ (U := W) (hV.preimage _)).mpr ?_⟩
-  have := isIso_pushoutSection_of_isQuasiSeparated_of_flat_right
-    (.of_hasPullback f.fromNormalization g) hVU le_rfl (UY := W)
-    (by simp_rw [W, ← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage,
-      ← Scheme.Hom.preimage_inf, inf_eq_right.mpr hVU]) hU hV
-    (hU.preimage f.fromNormalization).isCompact (hU.preimage f.fromNormalization).isQuasiSeparated
-  rw [← @isIso_comp_left_iff _ _ _ _ _ _ _ this,
-    ← isIso_comp_left_iff (pushout.congrHom f.fromNormalization.app_eq_appLE rfl).hom]
+  have :=
+    isIso_pushoutSection_of_isQuasiSeparated_of_flat_right (.of_hasPullback f.fromNormalization g)
+      hVU le_rfl (UY := W)
+      (by
+        simp_rw [W, ← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage,
+          ← Scheme.Hom.preimage_inf, inf_eq_right.mpr hVU])
+      hU hV (hU.preimage f.fromNormalization).isCompact
+      (hU.preimage f.fromNormalization).isQuasiSeparated
+  rw [
+    ← @isIso_comp_left_iff _ _ _ _ _ _ _ this,
+    ← isIso_comp_left_iff (pushout.congrHom f.fromNormalization.app_eq_appLE rfl).hom
+  ]
   have : (g.appLE U V hVU).hom.Smooth := g.smooth_appLE hU hV hVU
   algebraize [(f.app U).hom, (g.appLE U V hVU).hom, ((pullback.snd f g).app V).hom]
-  have := isIso_pushoutSection_of_isQuasiSeparated_of_flat_right
-    (.of_hasPullback f g) hVU le_rfl (UY := pullback.snd f g ⁻¹ᵁ V)
-    (by simp_rw [← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage,
-      ← Scheme.Hom.preimage_inf, inf_eq_right.mpr hVU]) hU hV (f.isCompact_preimage hU.isCompact)
-    (f.isQuasiSeparated_preimage hU.isQuasiSeparated)
-  let e₀ := (CommRingCat.isPushout_tensorProduct ..).flip.isoPushout ≪≫
-    (pushout.congrHom f.app_eq_appLE rfl ≪≫ @asIso _ _ _ _ _ this :)
-  let e : Γ(Y, V) ⊗[Γ(S, U)] Γ(X, f ⁻¹ᵁ U) ≃ₐ[Γ(Y, V)] Γ(pullback f g, pullback.snd f g ⁻¹ᵁ V) :=
-    { toRingEquiv := e₀.commRingCatIsoToRingEquiv,
-      commutes' r := by
-        change (CommRingCat.ofHom Algebra.TensorProduct.includeLeftRingHom ≫ e₀.hom) r =
-          (pullback.snd f g).app V r
-        congr 2
-        simp [e₀, pushout.inr_desc_assoc, Scheme.Hom.app_eq_appLE] }
+  have :=
+    isIso_pushoutSection_of_isQuasiSeparated_of_flat_right (.of_hasPullback f g) hVU le_rfl
+      (UY := pullback.snd f g ⁻¹ᵁ V)
+      (by
+        simp_rw [← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage,
+          ← Scheme.Hom.preimage_inf, inf_eq_right.mpr hVU])
+      hU hV (f.isCompact_preimage hU.isCompact) (f.isQuasiSeparated_preimage hU.isQuasiSeparated)
+  let e₀ :=
+    (CommRingCat.isPushout_tensorProduct ..).flip.isoPushout
+      ≪≫ (pushout.congrHom f.app_eq_appLE rfl ≪≫ @asIso _ _ _ _ _ this :)
+  let e : Γ(Y, V) ⊗[Γ(S, U)] Γ(X, f ⁻¹ᵁ U) ≃ₐ[Γ(Y, V)] Γ(pullback f g, pullback.snd f g ⁻¹ᵁ V) := {
+    toRingEquiv := e₀.commRingCatIsoToRingEquiv
+    commutes' r := by
+      change (CommRingCat.ofHom Algebra.TensorProduct.includeLeftRingHom ≫ e₀.hom) r
+        = (pullback.snd f g).app V r
+      congr 2
+      simp [e₀, pushout.inr_desc_assoc, Scheme.Hom.app_eq_appLE]
+  }
   let ψ : Γ(Y, V) ⊗[Γ(S, U)] integralClosure Γ(S, U) Γ(X, f ⁻¹ᵁ U) →ₐ[Γ(Y, V)]
       integralClosure Γ(Y, V) Γ(pullback f g, pullback.snd f g ⁻¹ᵁ V) :=
     e.mapIntegralClosure.toAlgHom.comp (TensorProduct.toIntegralClosure _ _ _)
-  have hψ : Function.Bijective ψ := e.mapIntegralClosure.bijective.comp
-    TensorProduct.toIntegralClosure_bijective_of_smooth
-  let φ : pushout (f.fromNormalization.app U) (g.appLE U V hVU) ⟶
-      Γ((pullback.snd f g).normalization, f.normalizationPullback g ⁻¹ᵁ W) :=
-    pushout.map _ _ (CommRingCat.ofHom (algebraMap Γ(S, U) (integralClosure Γ(S, U) Γ(X, f ⁻¹ᵁ U))))
-      (g.appLE U V hVU) (f.normalizationObjIso hU).hom (𝟙 _) (𝟙 _)
-      (by simp [Scheme.Hom.fromNormalization_app _ hU]) (by simp) ≫
-    (CommRingCat.isPushout_tensorProduct ..).flip.isoPushout.inv ≫
-    (RingEquiv.ofBijective ψ.toRingHom hψ).toCommRingCatIso.hom ≫
-    ((pullback.snd f g).normalizationObjIso hV).inv ≫
-    (pullback.snd f g).normalization.presheaf.map (eqToHom
-      (by simp only [W, ← Scheme.Hom.comp_preimage, Scheme.Hom.normalizationPullback_snd])).op
+  have hψ : Function.Bijective ψ :=
+    e.mapIntegralClosure.bijective.comp TensorProduct.toIntegralClosure_bijective_of_smooth
+  let φ
+      : pushout (f.fromNormalization.app U) (g.appLE U V hVU)
+        ⟶ Γ((pullback.snd f g).normalization, f.normalizationPullback g ⁻¹ᵁ W) :=
+    pushout.map _ _
+        (CommRingCat.ofHom (algebraMap (Γ(S, U)) (integralClosure (Γ(S, U)) Γ(X, f ⁻¹ᵁ U))))
+        (g.appLE U V hVU) (f.normalizationObjIso hU).hom (𝟙 _) (𝟙 _)
+        (by simp [Scheme.Hom.fromNormalization_app _ hU]) (by simp)
+      ≫ (CommRingCat.isPushout_tensorProduct ..).flip.isoPushout.inv
+      ≫ (RingEquiv.ofBijective ψ.toRingHom hψ).toCommRingCatIso.hom
+      ≫ ((pullback.snd f g).normalizationObjIso hV).inv
+      ≫ (pullback.snd f g).normalization.presheaf.map
+        (eqToHom (by
+          simp only [W, ← Scheme.Hom.comp_preimage, Scheme.Hom.normalizationPullback_snd])).op
   convert! show IsIso φ by dsimp only [φ]; infer_instance using 1
   ext1
   · dsimp [φ]
-    simp only [Scheme.Hom.app_eq_appLE, colimit.ι_desc_assoc, span_left, PushoutCocone.mk_pt,
+    simp only [
+      Scheme.Hom.app_eq_appLE, colimit.ι_desc_assoc, span_left, PushoutCocone.mk_pt,
       PushoutCocone.mk_ι_app, Category.id_comp, Scheme.Hom.appLE_comp_appLE, eqToHom_op,
-      Category.assoc, IsPushout.inl_isoPushout_inv_assoc]
+      Category.assoc, IsPushout.inl_isoPushout_inv_assoc
+    ]
     simp_rw [← Category.assoc, ← IsIso.comp_inv_eq]
-    simp only [← Functor.map_inv, inv_eqToHom, Scheme.Hom.appLE_map, IsIso.Iso.inv_inv,
-      Category.assoc]
-    have : Mono (CommRingCat.ofHom (integralClosure Γ(Y, V)
+    simp only [
+      ← Functor.map_inv, inv_eqToHom, Scheme.Hom.appLE_map, IsIso.Iso.inv_inv, Category.assoc
+    ]
+    have : Mono (CommRingCat.ofHom (integralClosure (Γ(Y, V))
         Γ(pullback f g, pullback.snd f g ⁻¹ᵁ V)).val.toRingHom) :=
       ConcreteCategory.mono_of_injective _ Subtype.val_injective
     rw [← cancel_mono (CommRingCat.ofHom (Subalgebra.val _).toRingHom)]
-    simp only [Category.assoc, Scheme.Hom.normalizationObjIso_hom_val, Scheme.Hom.appLE_comp_appLE,
-      Scheme.Hom.toNormalization_normalizationPullback_fst, ← CommRingCat.ofHom_comp]
+    simp only [
+      Category.assoc, Scheme.Hom.normalizationObjIso_hom_val, Scheme.Hom.appLE_comp_appLE,
+      Scheme.Hom.toNormalization_normalizationPullback_fst, ← CommRingCat.ofHom_comp
+    ]
     have H : pullback.snd f g ⁻¹ᵁ V ≤ pullback.fst f g ⁻¹ᵁ f ⁻¹ᵁ U := by
       rw [← Scheme.Hom.comp_preimage, pullback.condition, Scheme.Hom.comp_preimage]
       exact Scheme.Hom.preimage_mono _ hVU
@@ -671,13 +721,17 @@ instance [Smooth g] : IsIso (f.normalizationPullback g) := by
       · congr 2; simp [e₀, pushout.inl_desc_assoc]
       · simp [ψ, toIntegralClosure, e]; rfl
   · dsimp [φ]
-    simp only [Scheme.Hom.app_eq_appLE, colimit.ι_desc_assoc, span_right, PushoutCocone.mk_pt,
+    simp only [
+      Scheme.Hom.app_eq_appLE, colimit.ι_desc_assoc, span_right, PushoutCocone.mk_pt,
       PushoutCocone.mk_ι_app, Category.id_comp, Scheme.Hom.appLE_comp_appLE,
-      Scheme.Hom.normalizationPullback_snd, eqToHom_op, IsPushout.inr_isoPushout_inv_assoc]
+      Scheme.Hom.normalizationPullback_snd, eqToHom_op, IsPushout.inr_isoPushout_inv_assoc
+    ]
     simp_rw [← Category.assoc, ← IsIso.comp_inv_eq]
-    simp only [← Functor.map_inv, inv_eqToHom, Scheme.Hom.appLE_map, ← Scheme.Hom.app_eq_appLE,
+    simp only [
+      ← Functor.map_inv, inv_eqToHom, Scheme.Hom.appLE_map, ← Scheme.Hom.app_eq_appLE,
       Scheme.Hom.fromNormalization_app _ hV, IsIso.Iso.inv_inv, Category.assoc, Iso.inv_hom_id,
-      Category.comp_id]
+      Category.comp_id
+    ]
     congrm CommRingCat.ofHom $ψ.comp_algebraMap.symm
 
 end Smooth

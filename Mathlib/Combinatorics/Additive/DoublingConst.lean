@@ -23,20 +23,24 @@ namespace Finset
 section Group
 variable {G : Type*} [Group G] [DecidableEq G] {A B : Finset G}
 
-/-- The doubling constant `σₘ[A, B]` of two finsets `A` and `B` in a group is `|A * B| / |A|`.
+/--
+The doubling constant `σₘ[A, B]` of two finsets `A` and `B` in a group is `|A * B| / |A|`.
 
-The notation `σₘ[A, B]` is available in scope `Combinatorics.Additive`. -/
+The notation `σₘ[A, B]` is available in scope `Combinatorics.Additive`.
+-/
 @[to_additive
-/-- The doubling constant `σ[A, B]` of two finsets `A` and `B` in a group is `|A + B| / |A|`.
+  /-- The doubling constant `σ[A, B]` of two finsets `A` and `B` in a group is `|A + B| / |A|`.
 
 The notation `σ[A, B]` is available in scope `Combinatorics.Additive`. -/]
 def mulConst (A B : Finset G) : ℚ≥0 := #(A * B) / #A
 
-/-- The difference constant `δₘ[A, B]` of two finsets `A` and `B` in a group is `|A / B| / |A|`.
+/--
+The difference constant `δₘ[A, B]` of two finsets `A` and `B` in a group is `|A / B| / |A|`.
 
-The notation `δₘ[A, B]` is available in scope `Combinatorics.Additive`. -/
+The notation `δₘ[A, B]` is available in scope `Combinatorics.Additive`.
+-/
 @[to_additive
-/-- The difference constant `σ[A, B]` of two finsets `A` and `B` in a group is `|A - B| / |A|`.
+  /-- The difference constant `σ[A, B]` of two finsets `A` and `B` in a group is `|A - B| / |A|`.
 
 The notation `δ[A, B]` is available in scope `Combinatorics.Additive`. -/]
 def divConst (A B : Finset G) : ℚ≥0 := #(A / B) / #A

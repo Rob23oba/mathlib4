@@ -20,7 +20,6 @@ and shows that the tensor product of free modules is again free.
 
 @[expose] public section
 
-
 noncomputable section
 
 open LinearMap Module
@@ -29,40 +28,38 @@ open scoped TensorProduct
 
 section CommSemiring
 
-variable {R : Type*} {S : Type*} {M : Type*} {N : Type*} {ι : Type*} {κ : Type*}
+variable
+  {R : Type*} {S : Type*} {M : Type*} {N : Type*} {ι : Type*} {κ : Type*}
   [CommSemiring R] [Semiring S] [Algebra R S] [AddCommMonoid M] [Module R M] [Module S M]
   [IsScalarTower R S M] [AddCommMonoid N] [Module R N]
 
 namespace Module.Basis
 
 /-- If `b : ι → M` and `c : κ → N` are bases then so is `fun i ↦ b i.1 ⊗ₜ c i.2 : ι × κ → M ⊗ N`. -/
-def tensorProduct (b : Basis ι S M) (c : Basis κ R N) :
-    Basis (ι × κ) S (M ⊗[R] N) :=
-  Finsupp.basisSingleOne.map
-    ((TensorProduct.AlgebraTensorModule.congr b.repr c.repr).trans <|
-        (finsuppTensorFinsupp R S _ _ _ _).trans <|
-          Finsupp.lcongr (Equiv.refl _) (TensorProduct.AlgebraTensorModule.rid R S S)).symm
+def tensorProduct (b : Basis ι S M) (c : Basis κ R N) : Basis (ι × κ) S (M ⊗[R] N) :=
+  Finsupp.basisSingleOne.map ((TensorProduct.AlgebraTensorModule.congr b.repr c.repr).trans <|
+    (finsuppTensorFinsupp R S _ _ _ _).trans <|
+      Finsupp.lcongr (Equiv.refl _) (TensorProduct.AlgebraTensorModule.rid R S S)).symm
 
 @[simp]
-theorem tensorProduct_apply (b : Basis ι S M) (c : Basis κ R N) (i : ι) (j : κ) :
-    tensorProduct b c (i, j) = b i ⊗ₜ c j := by
+theorem tensorProduct_apply (b : Basis ι S M) (c : Basis κ R N) (i : ι) (j : κ)
+    : tensorProduct b c (i, j) = b i ⊗ₜ c j := by
   simp [tensorProduct]
 
-theorem tensorProduct_apply' (b : Basis ι S M) (c : Basis κ R N) (i : ι × κ) :
-    tensorProduct b c i = b i.1 ⊗ₜ c i.2 := by
+theorem tensorProduct_apply' (b : Basis ι S M) (c : Basis κ R N) (i : ι × κ)
+    : tensorProduct b c i = b i.1 ⊗ₜ c i.2 := by
   simp [tensorProduct]
 
 @[simp]
-theorem tensorProduct_repr_tmul_apply (b : Basis ι S M) (c : Basis κ R N) (m : M) (n : N)
-    (i : ι) (j : κ) :
-    (tensorProduct b c).repr (m ⊗ₜ n) (i, j) = c.repr n j • b.repr m i := by
+theorem tensorProduct_repr_tmul_apply
+    (b : Basis ι S M) (c : Basis κ R N) (m : M) (n : N) (i : ι) (j : κ)
+    : (tensorProduct b c).repr (m ⊗ₜ n) (i, j) = c.repr n j • b.repr m i := by
   simp [tensorProduct]
 
 variable (S : Type*) [Semiring S] [Algebra R S]
 
 /-- The lift of an `R`-basis of `M` to an `S`-basis of the base change `S ⊗[R] M`. -/
-noncomputable
-def baseChange (b : Basis ι R M) : Basis ι S (S ⊗[R] M) :=
+noncomputable def baseChange (b : Basis ι R M) : Basis ι S (S ⊗[R] M) :=
   (tensorProduct (.singleton Unit S) b).reindex (Equiv.punitProd ι)
 
 @[simp]
@@ -204,9 +201,9 @@ end CommSemiring
 
 namespace LinearMap
 
-variable {R A M N ι : Type*} [CommSemiring R] [CommSemiring A] [Algebra R A]
-  [AddCommMonoid M] [Module R M] [AddCommMonoid N] [Module R N] [Module A N]
-  [IsScalarTower R A N]
+variable
+  {R A M N ι : Type*} [CommSemiring R] [CommSemiring A] [Algebra R A] [AddCommMonoid M] [Module R M]
+  [AddCommMonoid N] [Module R N] [Module A N] [IsScalarTower R A N]
 
 lemma liftBaseChange_injective_iff (l : M →ₗ[R] N) (b : Module.Basis ι R M) :
     Function.Injective (l.liftBaseChange A) ↔ LinearIndependent A (l ∘ b) := by

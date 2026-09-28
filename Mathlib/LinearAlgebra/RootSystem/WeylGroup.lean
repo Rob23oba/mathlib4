@@ -47,14 +47,16 @@ noncomputable section
 
 namespace RootPairing
 
-variable [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
   (P : RootPairing ι R M N) (i : ι)
 
-/-- The `Weyl group` of a root pairing is the group of automorphisms of the root pairing generated
-by reflections. -/
+/--
+The `Weyl group` of a root pairing is the group of automorphisms of the root pairing generated
+by reflections.
+-/
 @[wikidata Q768074]
-def weylGroup : Subgroup (Aut P) :=
-  Subgroup.closure (range (Equiv.reflection P))
+def weylGroup : Subgroup (Aut P) := Subgroup.closure (range (Equiv.reflection P))
 
 lemma reflection_mem_weylGroup : Equiv.reflection P i ∈ P.weylGroup :=
   Subgroup.subset_closure <| mem_range_self i

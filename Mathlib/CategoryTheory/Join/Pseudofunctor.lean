@@ -31,17 +31,16 @@ open CategoryTheory.Functor
 section
 variable {A B C D : Type*} [Category* A] [Category* B] [Category* C] [Category* D]
 
-
 variable (A) in
 /-- The structural isomorphism for composition of `pseudofunctorRight`. -/
-def mapCompRight (F : B ⥤ C) (G : C ⥤ D) :
-    mapPair (𝟭 A) (F ⋙ G) ≅ mapPair (𝟭 A) F ⋙ mapPair (𝟭 A) G :=
+def mapCompRight (F : B ⥤ C) (G : C ⥤ D)
+    : mapPair (𝟭 A) (F ⋙ G) ≅ mapPair (𝟭 A) F ⋙ mapPair (𝟭 A) G :=
   mapIsoWhiskerRight (Functor.leftUnitor _).symm _ ≪≫ mapPairComp (𝟭 A) F (𝟭 A) G
 
 variable (D) in
 /-- The structural isomorphism for composition of `pseudofunctorLeft`. -/
-def mapCompLeft (F : A ⥤ B) (G : B ⥤ C) :
-    mapPair (F ⋙ G) (𝟭 D) ≅ mapPair F (𝟭 D) ⋙ mapPair G (𝟭 D) :=
+def mapCompLeft (F : A ⥤ B) (G : B ⥤ C)
+    : mapPair (F ⋙ G) (𝟭 D) ≅ mapPair F (𝟭 D) ⋙ mapPair G (𝟭 D) :=
   mapIsoWhiskerLeft _ (Functor.leftUnitor _).symm ≪≫ mapPairComp F (𝟭 D) G (𝟭 D)
 
 #adaptation_note
@@ -160,8 +159,8 @@ end
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The pseudofunctor sending `D` to `C ⋆ D`. -/
 @[simps!]
-def pseudofunctorRight (C : Type u₁) [Category.{v₁} C] :
-    Pseudofunctor Cat.{v₂, u₂} Cat.{max v₁ v₂, max u₁ u₂} where
+def pseudofunctorRight (C : Type u₁) [Category.{v₁} C]
+    : Pseudofunctor Cat.{v₂, u₂} Cat.{max v₁ v₂, max u₁ u₂} where
   obj D := ↧(C ⋆ D)
   map F := (mapPair (𝟭 C) F.toFunctor).toCatHom
   map₂ f := (mapWhiskerLeft (𝟭 C) f.toNatTrans).toCatHom₂
@@ -178,8 +177,8 @@ def pseudofunctorRight (C : Type u₁) [Category.{v₁} C] :
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The pseudofunctor sending `C` to `C ⋆ D`. -/
 @[simps!]
-def pseudofunctorLeft (D : Type u₂) [Category.{v₂} D] :
-    Pseudofunctor Cat.{v₁, u₁} Cat.{max v₁ v₂, max u₁ u₂} where
+def pseudofunctorLeft (D : Type u₂) [Category.{v₂} D]
+    : Pseudofunctor Cat.{v₁, u₁} Cat.{max v₁ v₂, max u₁ u₂} where
   obj C := ↧(C ⋆ D)
   map F := (mapPair F.toFunctor (𝟭 D)).toCatHom
   map₂ := (mapWhiskerRight ·.toNatTrans _ |>.toCatHom₂)

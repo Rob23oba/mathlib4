@@ -34,7 +34,8 @@ open scoped Topology Pointwise ENNReal NNReal
 
 section SMul
 
-/-- The Minkowski functional for vector spaces over normed fields.
+/--
+The Minkowski functional for vector spaces over normed fields.
 Given a set `s` in a vector space over a normed field `𝕜`,
 `egauge s` is the functional which sends `x : E`
 to the infimum of `‖c‖ₑ` over `c` such that `x` belongs to `s` scaled by `c`.
@@ -43,7 +44,8 @@ The definition only requires `𝕜` to have a `ENorm` instance
 and `(· • ·) : 𝕜 → E → E` to be defined.
 This way the definition applies, e.g., to `𝕜 = ℝ≥0`.
 For `𝕜 = ℝ≥0`, the function is equal (up to conversion to `ℝ`)
-to the usual Minkowski functional defined in `gauge`. -/
+to the usual Minkowski functional defined in `gauge`.
+-/
 noncomputable def egauge (𝕜 : Type*) [ENorm 𝕜] {E : Type*} [SMul 𝕜 E] (s : Set E) (x : E) : ℝ≥0∞ :=
   ⨅ (c : 𝕜) (_ : x ∈ c • s), ‖c‖ₑ
 
@@ -105,8 +107,10 @@ end SMulZero
 
 section NormedDivisionRing
 
-variable {𝕜 : Type*} [NormedDivisionRing 𝕜] {E : Type*} [AddCommGroup E] [Module 𝕜 E]
-    {c : 𝕜} {s : Set E} {x : E}
+variable
+  {𝕜 : Type*} [NormedDivisionRing 𝕜]
+  {E : Type*} [AddCommGroup E] [Module 𝕜 E]
+  {c : 𝕜} {s : Set E} {x : E}
 
 /-- If `c • x ∈ s` and `c ≠ 0`, then `egauge 𝕜 s x` is at most `(‖c‖₊⁻¹ : ℝ≥0)`.
 
@@ -211,22 +215,25 @@ lemma egauge_smul_right (h : c = 0 → s.Nonempty) (x : E) :
     refine (le_egauge_smul_right _ _ _).trans_eq ?_
     rw [inv_smul_smul₀ hc]
 
-/-- The extended gauge of a point `(a, b)` with respect to the product of balanced sets `U` and `V`
+/--
+The extended gauge of a point `(a, b)` with respect to the product of balanced sets `U` and `V`
 is equal to the maximum of the extended gauges of `a` with respect to `U`
 and `b` with respect to `V`.
 -/
-theorem egauge_prod_mk {F : Type*} [AddCommGroup F] [Module 𝕜 F] {U : Set E} {V : Set F}
-    (hU : Balanced 𝕜 U) (hV : Balanced 𝕜 V) (a : E) (b : F) :
-    egauge 𝕜 (U ×ˢ V) (a, b) = max (egauge 𝕜 U a) (egauge 𝕜 V b) := by
+theorem egauge_prod_mk
+    {F : Type*} [AddCommGroup F] [Module 𝕜 F]
+    {U : Set E} {V : Set F} (hU : Balanced 𝕜 U) (hV : Balanced 𝕜 V)
+    (a : E) (b : F)
+    : egauge 𝕜 (U ×ˢ V) (a, b) = max (egauge 𝕜 U a) (egauge 𝕜 V b) := by
   refine le_antisymm (le_of_forall_gt fun r hr ↦ ?_) (le_egauge_prod _ _ _ _)
   simp only [max_lt_iff, egauge_lt_iff, smul_set_prod] at hr ⊢
   rcases hr with ⟨⟨x, hx, hxr⟩, ⟨y, hy, hyr⟩⟩
-  cases le_total ‖x‖ ‖y‖ with
+  cases le_total (‖x‖) ‖y‖ with
   | inl hle => exact ⟨y, ⟨hU.smul_mono hle hx, hy⟩, hyr⟩
   | inr hle => exact ⟨x, ⟨hx, hV.smul_mono hle hy⟩, hxr⟩
 
-theorem egauge_add_add_le {U V : Set E} (hU : Balanced 𝕜 U) (hV : Balanced 𝕜 V) (a b : E) :
-    egauge 𝕜 (U + V) (a + b) ≤ max (egauge 𝕜 U a) (egauge 𝕜 V b) := by
+theorem egauge_add_add_le {U V : Set E} (hU : Balanced 𝕜 U) (hV : Balanced 𝕜 V) (a b : E)
+    : egauge 𝕜 (U + V) (a + b) ≤ max (egauge 𝕜 U a) (egauge 𝕜 V b) := by
   rw [← egauge_prod_mk hU hV a b, ← add_image_prod]
   exact MapsTo.egauge_le 𝕜 (LinearMap.fst 𝕜 E E + LinearMap.snd 𝕜 E E) (mapsTo_image _ _) (a, b)
 
@@ -237,7 +244,8 @@ section Pi
 variable {𝕜 : Type*} {ι : Type*} {E : ι → Type*}
 variable [NormedDivisionRing 𝕜] [∀ i, AddCommGroup (E i)] [∀ i, Module 𝕜 (E i)]
 
-/-- The extended gauge of a point `x` in an indexed product
+/--
+The extended gauge of a point `x` in an indexed product
 with respect to a product of finitely many balanced sets `U i`, `i ∈ I`,
 (and the whole spaces for the other indices)
 is the supremum of the extended gauges of the components of `x`
@@ -248,17 +256,18 @@ This version assumes the following technical condition:
 - or one of `x i`, `i ∈ I`, is nonzero;
 - or `𝕜` is nontrivially normed.
 -/
-theorem egauge_pi' {I : Set ι} (hI : I.Finite)
+theorem egauge_pi'
+    {I : Set ι} (hI : I.Finite)
     {U : ∀ i, Set (E i)} (hU : ∀ i ∈ I, Balanced 𝕜 (U i))
-    (x : ∀ i, E i) (hI₀ : I = univ ∨ (∃ i ∈ I, x i ≠ 0) ∨ (𝓝[≠] (0 : 𝕜)).NeBot) :
-    egauge 𝕜 (I.pi U) x = ⨆ i ∈ I, egauge 𝕜 (U i) (x i) := by
+    (x : ∀ i, E i) (hI₀ : I = univ ∨ (∃ i ∈ I, x i ≠ 0) ∨ (𝓝[≠] (0 : 𝕜)).NeBot)
+    : egauge 𝕜 (I.pi U) x = ⨆ i ∈ I, egauge 𝕜 (U i) (x i) := by
   refine le_antisymm ?_ (iSup₂_le fun i hi ↦ le_egauge_pi hi _ _)
   refine le_of_forall_gt fun r hr ↦ ?_
   have : ∀ i ∈ I, ∃ c : 𝕜, x i ∈ c • U i ∧ ‖c‖ₑ < r := fun i hi ↦
     egauge_lt_iff.mp <| (le_iSup₂ i hi).trans_lt hr
   choose! c hc hcr using this
-  obtain ⟨c₀, hc₀, hc₀I, hc₀r⟩ :
-      ∃ c₀ : 𝕜, (c₀ ≠ 0 ∨ I = univ) ∧ (∀ i ∈ I, ‖c i‖ ≤ ‖c₀‖) ∧ ‖c₀‖ₑ < r := by
+  obtain ⟨c₀, hc₀, hc₀I, hc₀r⟩
+      : ∃ c₀ : 𝕜, (c₀ ≠ 0 ∨ I = univ) ∧ (∀ i ∈ I, ‖c i‖ ≤ ‖c₀‖) ∧ ‖c₀‖ₑ < r := by
     have hr₀ : 0 < r := hr.bot_lt
     rcases I.eq_empty_or_nonempty with rfl | hIne
     · obtain hι | hbot : IsEmpty ι ∨ (𝓝[≠] (0 : 𝕜)).NeBot := by simpa [@eq_comm _ ∅] using hI₀
@@ -282,16 +291,18 @@ theorem egauge_pi' {I : Set ι} (hI : I.Finite)
   intro i hi
   exact (hU i hi).smul_mono (hc₀I i hi) (hc i hi)
 
-/-- The extended gauge of a point `x` in an indexed product with finite index type
+/--
+The extended gauge of a point `x` in an indexed product with finite index type
 with respect to a product of balanced sets `U i`,
 is the supremum of the extended gauges of the components of `x`
 with respect to the corresponding balanced set.
 -/
-theorem egauge_univ_pi [Finite ι] {U : ∀ i, Set (E i)} (hU : ∀ i, Balanced 𝕜 (U i)) (x : ∀ i, E i) :
-    egauge 𝕜 (univ.pi U) x = ⨆ i, egauge 𝕜 (U i) (x i) :=
+theorem egauge_univ_pi [Finite ι] {U : ∀ i, Set (E i)} (hU : ∀ i, Balanced 𝕜 (U i)) (x : ∀ i, E i)
+    : egauge 𝕜 (univ.pi U) x = ⨆ i, egauge 𝕜 (U i) (x i) :=
   egauge_pi' finite_univ (fun i _ ↦ hU i) x (.inl rfl) |>.trans <| by simp
 
-/-- The extended gauge of a point `x` in an indexed product
+/--
+The extended gauge of a point `x` in an indexed product
 with respect to a product of finitely many balanced sets `U i`, `i ∈ I`,
 (and the whole spaces for the other indices)
 is the supremum of the extended gauges of the components of `x`
@@ -301,9 +312,11 @@ This version assumes that `𝕜` is a nontrivially normed division ring.
 See also `egauge_univ_pi` for when `s = univ`,
 and `egauge_pi'` for a version with more choices of the technical assumptions.
 -/
-theorem egauge_pi [(𝓝[≠] (0 : 𝕜)).NeBot] {I : Set ι} {U : ∀ i, Set (E i)}
-    (hI : I.Finite) (hU : ∀ i ∈ I, Balanced 𝕜 (U i)) (x : ∀ i, E i) :
-    egauge 𝕜 (I.pi U) x = ⨆ i ∈ I, egauge 𝕜 (U i) (x i) :=
+theorem egauge_pi
+    [(𝓝[≠] (0 : 𝕜)).NeBot]
+    {I : Set ι} {U : ∀ i, Set (E i)} (hI : I.Finite) (hU : ∀ i ∈ I, Balanced 𝕜 (U i))
+    (x : ∀ i, E i)
+    : egauge 𝕜 (I.pi U) x = ⨆ i ∈ I, egauge 𝕜 (U i) (x i) :=
   egauge_pi' hI hU x <| .inr <| .inr inferInstance
 
 end Pi

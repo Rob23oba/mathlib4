@@ -42,17 +42,19 @@ universe v₁ v₂ v₂' u₁ u₂ u₂'
 
 namespace CategoryTheory
 
-variable {C₁ C₂ D₁ D₂ H : Type*}
-  [Category* C₁] [Category* C₂] [Category* D₁] [Category* D₂] [Category* H]
-  {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
-  {W₁' : MorphismProperty D₁} {W₂' : MorphismProperty D₂}
+variable
+  {C₁ C₂ D₁ D₂ H : Type*} [Category* C₁] [Category* C₂] [Category* D₁] [Category* D₂] [Category* H]
+  {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂} {W₁' : MorphismProperty D₁}
+  {W₂' : MorphismProperty D₂}
 
 namespace LocalizerMorphism
 
 variable (Φ : LocalizerMorphism W₁ W₂)
 
-/-- The category of right resolutions of an object in the target category
-of a localizer morphism. -/
+/--
+The category of right resolutions of an object in the target category
+of a localizer morphism.
+-/
 structure RightResolution (X₂ : C₂) where
   /-- an object in the source category -/
   {X₁ : C₁}
@@ -60,8 +62,10 @@ structure RightResolution (X₂ : C₂) where
   w : X₂ ⟶ Φ.functor.obj X₁
   hw : W₂ w
 
-/-- The category of left resolutions of an object in the target category
-of a localizer morphism. -/
+/--
+The category of left resolutions of an object in the target category
+of a localizer morphism.
+-/
 structure LeftResolution (X₂ : C₂) where
   /-- an object in the source category -/
   {X₁ : C₁}
@@ -105,9 +109,7 @@ def Hom.id (R : Φ.RightResolution X₂) : Hom R R where
 
 /-- The composition of morphisms in `Φ.RightResolution X₂`. -/
 @[simps]
-def Hom.comp {R R' R'' : Φ.RightResolution X₂}
-    (φ : Hom R R') (ψ : Hom R' R'') :
-    Hom R R'' where
+def Hom.comp {R R' R'' : Φ.RightResolution X₂} (φ : Hom R R') (ψ : Hom R' R'') : Hom R R'' where
   f := φ.f ≫ ψ.f
 
 instance : Category (Φ.RightResolution X₂) where
@@ -149,9 +151,7 @@ def Hom.id (L : Φ.LeftResolution X₂) : Hom L L where
 
 /-- The composition of morphisms in `Φ.LeftResolution X₂`. -/
 @[simps]
-def Hom.comp {L L' L'' : Φ.LeftResolution X₂}
-    (φ : Hom L L') (ψ : Hom L' L'') :
-    Hom L L'' where
+def Hom.comp {L L' L'' : Φ.LeftResolution X₂} (φ : Hom L L') (ψ : Hom L' L'') : Hom L L'' where
   f := φ.f ≫ ψ.f
 
 instance : Category (Φ.LeftResolution X₂) where
@@ -177,32 +177,30 @@ variable {Φ}
 
 /-- The canonical map `Φ.LeftResolution X₂ → Φ.op.RightResolution (Opposite.op X₂)`. -/
 @[simps]
-def LeftResolution.op {X₂ : C₂} (L : Φ.LeftResolution X₂) :
-    Φ.op.RightResolution (Opposite.op X₂) where
+def LeftResolution.op {X₂ : C₂} (L : Φ.LeftResolution X₂)
+    : Φ.op.RightResolution (Opposite.op X₂) where
   X₁ := Opposite.op L.X₁
   w := L.w.op
   hw := L.hw
 
 /-- The canonical map `Φ.op.LeftResolution X₂ → Φ.RightResolution X₂`. -/
 @[simps]
-def LeftResolution.unop {X₂ : C₂ᵒᵖ} (L : Φ.op.LeftResolution X₂) :
-    Φ.RightResolution X₂.unop where
+def LeftResolution.unop {X₂ : C₂ᵒᵖ} (L : Φ.op.LeftResolution X₂) : Φ.RightResolution X₂.unop where
   X₁ := Opposite.unop L.X₁
   w := L.w.unop
   hw := L.hw
 
 /-- The canonical map `Φ.RightResolution X₂ → Φ.op.LeftResolution (Opposite.op X₂)`. -/
 @[simps]
-def RightResolution.op {X₂ : C₂} (L : Φ.RightResolution X₂) :
-    Φ.op.LeftResolution (Opposite.op X₂) where
+def RightResolution.op {X₂ : C₂} (L : Φ.RightResolution X₂)
+    : Φ.op.LeftResolution (Opposite.op X₂) where
   X₁ := Opposite.op L.X₁
   w := L.w.op
   hw := L.hw
 
 /-- The canonical map `Φ.op.RightResolution X₂ → Φ.LeftResolution X₂`. -/
 @[simps]
-def RightResolution.unop {X₂ : C₂ᵒᵖ} (L : Φ.op.RightResolution X₂) :
-    Φ.LeftResolution X₂.unop where
+def RightResolution.unop {X₂ : C₂ᵒᵖ} (L : Φ.op.RightResolution X₂) : Φ.LeftResolution X₂.unop where
   X₁ := Opposite.unop L.X₁
   w := L.w.unop
   hw := L.hw
@@ -229,37 +227,33 @@ lemma hasRightResolutions_iff_op : Φ.HasRightResolutions ↔ Φ.op.HasLeftResol
   ⟨fun _ X₂ => ⟨(Classical.arbitrary (Φ.RightResolution X₂.unop)).op⟩,
     fun _ X₂ => ⟨(Classical.arbitrary (Φ.op.LeftResolution (Opposite.op X₂))).unop⟩⟩
 
-instance [Φ.HasRightResolutions] : Φ.op.HasLeftResolutions := by
-  rwa [← hasRightResolutions_iff_op]
+instance [Φ.HasRightResolutions] : Φ.op.HasLeftResolutions := by rwa [← hasRightResolutions_iff_op]
 
-instance [Φ.HasLeftResolutions] : Φ.op.HasRightResolutions := by
-  rwa [← hasLeftResolutions_iff_op]
+instance [Φ.HasLeftResolutions] : Φ.op.HasRightResolutions := by rwa [← hasLeftResolutions_iff_op]
 
 /-- The functor `(Φ.LeftResolution X₂)ᵒᵖ ⥤ Φ.op.RightResolution (Opposite.op X₂)`. -/
 @[simps]
-def LeftResolution.opFunctor (X₂ : C₂) :
-    (Φ.LeftResolution X₂)ᵒᵖ ⥤ Φ.op.RightResolution (Opposite.op X₂) where
+def LeftResolution.opFunctor (X₂ : C₂)
+    : (Φ.LeftResolution X₂)ᵒᵖ ⥤ Φ.op.RightResolution (Opposite.op X₂) where
   obj L := L.unop.op
-  map φ :=
-    { f := φ.unop.f.op
-      comm := Quiver.Hom.unop_inj φ.unop.comm }
+  map φ := { f := φ.unop.f.op, comm := Quiver.Hom.unop_inj φ.unop.comm }
 
 /-- The functor `(Φ.op.RightResolution X₂)ᵒᵖ ⥤ Φ.LeftResolution X₂.unop`. -/
 @[simps]
-def RightResolution.unopFunctor (X₂ : C₂ᵒᵖ) :
-    (Φ.op.RightResolution X₂)ᵒᵖ ⥤ Φ.LeftResolution X₂.unop where
+def RightResolution.unopFunctor (X₂ : C₂ᵒᵖ)
+    : (Φ.op.RightResolution X₂)ᵒᵖ ⥤ Φ.LeftResolution X₂.unop where
   obj R := R.unop.unop
-  map φ :=
-    { f := φ.unop.f.unop
-      comm := Quiver.Hom.op_inj φ.unop.comm }
+  map φ := { f := φ.unop.f.unop, comm := Quiver.Hom.op_inj φ.unop.comm }
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The equivalence of categories
-`(Φ.LeftResolution X₂)ᵒᵖ ≌ Φ.op.RightResolution (Opposite.op X₂)`. -/
+/--
+The equivalence of categories
+`(Φ.LeftResolution X₂)ᵒᵖ ≌ Φ.op.RightResolution (Opposite.op X₂)`.
+-/
 @[simps]
-def LeftResolution.opEquivalence (X₂ : C₂) :
-    (Φ.LeftResolution X₂)ᵒᵖ ≌ Φ.op.RightResolution (Opposite.op X₂) where
+def LeftResolution.opEquivalence (X₂ : C₂)
+    : (Φ.LeftResolution X₂)ᵒᵖ ≌ Φ.op.RightResolution (Opposite.op X₂) where
   functor := LeftResolution.opFunctor Φ X₂
   inverse := (RightResolution.unopFunctor Φ (Opposite.op X₂)).rightOp
   unitIso := Iso.refl _
@@ -309,8 +303,9 @@ end
 
 section
 
-variable {T : LocalizerMorphism W₁ W₂} {L : LocalizerMorphism W₁ W₁'}
-  {R : LocalizerMorphism W₂ W₂'} {B : LocalizerMorphism W₁' W₂'}
+variable
+  {T : LocalizerMorphism W₁ W₂} {L : LocalizerMorphism W₁ W₁'} {R : LocalizerMorphism W₂ W₂'}
+  {B : LocalizerMorphism W₁' W₂'}
 
 set_option backward.defeqAttrib.useBackward true in
 lemma hasRightResolutions_of_iso_of_essSurj

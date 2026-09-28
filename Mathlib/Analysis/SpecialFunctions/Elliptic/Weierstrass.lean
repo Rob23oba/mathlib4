@@ -54,9 +54,11 @@ open scoped Topology Nat
 
 noncomputable section
 
-/-- A pair of `ℝ`-linearly independent complex numbers.
+/--
+A pair of `ℝ`-linearly independent complex numbers.
 They span the period lattice in `lattice`,
-and are the periods of the elliptic functions we shall construct. -/
+and are the periods of the elliptic functions we shall construct.
+-/
 structure PeriodPair : Type where
   /-- The first period in a `PeriodPair`. -/
   ω₁ : ℂ
@@ -69,8 +71,7 @@ variable {M : Type*} [AddCommMonoid M] [TopologicalSpace M] (L : PeriodPair)
 namespace PeriodPair
 
 /-- The `ℝ`-basis of `ℂ` determined by a pair of periods. -/
-protected def basis : Basis (Fin 2) ℝ ℂ :=
-  basisOfLinearIndependentOfCardEqFinrank L.indep (by simp)
+protected def basis : Basis (Fin 2) ℝ ℂ := basisOfLinearIndependentOfCardEqFinrank L.indep (by simp)
 
 @[simp] lemma basis_zero : L.basis 0 = L.ω₁ := by simp [PeriodPair.basis]
 @[simp] lemma basis_one : L.basis 1 = L.ω₂ := by simp [PeriodPair.basis]
@@ -213,9 +214,11 @@ lemma weierstrassP_bound (r : ℝ) (hr : 0 < r) (s : ℂ) (hs : ‖s‖ < r) (l 
 
 section weierstrassPExcept
 
-/-- The Weierstrass `℘` function with the `l₀`-term missing.
+/--
+The Weierstrass `℘` function with the `l₀`-term missing.
 This is mainly a tool for calculations where one would want to omit a diverging term.
-This has the notation `℘[L - l₀]` in the namespace `PeriodPairs`. -/
+This has the notation `℘[L - l₀]` in the namespace `PeriodPairs`.
+-/
 def weierstrassPExcept (l₀ : ℂ) (z : ℂ) : ℂ :=
   ∑' l : L.lattice, if l = l₀ then 0 else (1 / (z - l) ^ 2 - 1 / l ^ 2)
 
@@ -329,9 +332,11 @@ end weierstrassP
 
 section derivWeierstrassPExcept
 
-/-- The derivative of Weierstrass `℘` function with the `l₀`-term missing.
+/--
+The derivative of Weierstrass `℘` function with the `l₀`-term missing.
 This is mainly a tool for calculations where one would want to omit a diverging term.
-This has the notation `℘'[L - l₀]` in the namespace `PeriodPairs`. -/
+This has the notation `℘'[L - l₀]` in the namespace `PeriodPairs`.
+-/
 def derivWeierstrassPExcept (l₀ : ℂ) (z : ℂ) : ℂ :=
   ∑' l : L.lattice, if l.1 = l₀ then 0 else -2 / (z - l) ^ 3
 
@@ -514,8 +519,10 @@ end Periodicity
 
 section derivWeierstrassP
 
-/-- The derivative of Weierstrass `℘` function.
-This has the notation `℘'[L]` in the namespace `PeriodPairs`. -/
+/--
+The derivative of Weierstrass `℘` function.
+This has the notation `℘'[L]` in the namespace `PeriodPairs`.
+-/
 def derivWeierstrassP (z : ℂ) : ℂ := - ∑' l : L.lattice, 2 / (z - l) ^ 3
 
 @[inherit_doc weierstrassP] scoped notation3 "℘'[" L "]" => derivWeierstrassP L
@@ -612,19 +619,26 @@ lemma hasSum_sumInvPow (x : ℂ) {r : ℕ} (hr : 2 < r) :
     (-r) (by simpa) x) fun l ↦ ?_)
   rw [← zpow_natCast, ← zpow_neg, ← norm_zpow]
 
-/-- In the power series expansion of `℘(z) = ∑ aᵢ (z - x)ⁱ` at some `x ∉ L`,
+/--
+In the power series expansion of `℘(z) = ∑ aᵢ (z - x)ⁱ` at some `x ∉ L`,
 each `aᵢ` can be written as an infinite sum over `l ∈ L`.
 This is the summand of this infinite sum with the `l₀`-th term omitted.
-See `PeriodPair.coeff_weierstrassPExceptSeries`. -/
+See `PeriodPair.coeff_weierstrassPExceptSeries`.
+-/
 def weierstrassPExceptSummand (l₀ x : ℂ) (i : ℕ) (l : L.lattice) : ℂ :=
   if l.1 = l₀ then 0 else ((i + 1) * (l.1 - x) ^ (- ↑(i + 2) : ℤ) - i.casesOn (l.1 ^ (-2 : ℤ)) 0)
 
-/-- The power series expansion of `℘[L - l₀]` at `x`.
-See `PeriodPair.hasFPowerSeriesOnBall_weierstrassPExcept`. -/
+/--
+The power series expansion of `℘[L - l₀]` at `x`.
+See `PeriodPair.hasFPowerSeriesOnBall_weierstrassPExcept`.
+-/
 def weierstrassPExceptSeries (l₀ x : ℂ) : FormalMultilinearSeries ℂ ℂ ℂ :=
   letI := Classical.propDecidable
-  .ofScalars _ fun i ↦ if i = 0 then (℘[L - l₀] x) else (i + 1) *
-    (L.sumInvPow x (i + 2) - if l₀ ∈ L.lattice then ((l₀ - x) ^ (i + 2))⁻¹ else 0)
+  .ofScalars _ fun i ↦
+    if i = 0 then
+      (℘[L - l₀] x)
+    else
+      (i + 1) * (L.sumInvPow x (i + 2) - if l₀ ∈ L.lattice then ((l₀ - x) ^ (i + 2))⁻¹ else 0)
 
 lemma coeff_weierstrassPExceptSeries (l₀ x : ℂ) (i : ℕ) :
     (L.weierstrassPExceptSeries l₀ x).coeff i =
@@ -792,12 +806,15 @@ end AnalyticWeierstrassPExcept
 
 section AnalyticderivWeierstrassPExcept
 
-/-- The power series expansion of `℘'[L - l₀]` at `x`.
-See `PeriodPair.hasFPowerSeriesOnBall_derivWeierstrassPExcept`. -/
+/--
+The power series expansion of `℘'[L - l₀]` at `x`.
+See `PeriodPair.hasFPowerSeriesOnBall_derivWeierstrassPExcept`.
+-/
 def derivWeierstrassPExceptSeries (l₀ x : ℂ) : FormalMultilinearSeries ℂ ℂ ℂ :=
   letI := Classical.propDecidable
-  .ofScalars _ fun i ↦ (i + 1) * (i + 2) *
-    (L.sumInvPow x (i + 3) - if l₀ ∈ L.lattice then ((l₀ - x) ^ (i + 3))⁻¹ else 0)
+  .ofScalars _ fun i ↦
+    (i + 1) * (i + 2)
+      * (L.sumInvPow x (i + 3) - if l₀ ∈ L.lattice then ((l₀ - x) ^ (i + 3))⁻¹ else 0)
 
 lemma hasFPowerSeriesOnBall_derivWeierstrassPExcept (l₀ x : ℂ) (r : NNReal) (hr0 : 0 < r)
     (hr : Metric.closedBall x r ⊆ (L.lattice \ {l₀})ᶜ) :
@@ -848,14 +865,18 @@ end AnalyticderivWeierstrassPExcept
 
 section Analytic
 
-/-- In the power series expansion of `℘(z) = ∑ aᵢzⁱ` at some `x ∉ L`,
+/--
+In the power series expansion of `℘(z) = ∑ aᵢzⁱ` at some `x ∉ L`,
 each `aᵢ` can be written as an infinite sum over `l ∈ L`.
-This is the summand of this infinite sum. See `PeriodPair.coeff_weierstrassPSeries`. -/
+This is the summand of this infinite sum. See `PeriodPair.coeff_weierstrassPSeries`.
+-/
 def weierstrassPSummand (x : ℂ) (i : ℕ) (l : L.lattice) : ℂ :=
   ((i + 1) * (l.1 - x) ^ (- ↑(i + 2) : ℤ) - i.casesOn (l.1 ^ (-2 : ℤ)) 0)
 
-/-- The power series expansion of `℘` at `x`.
-See `PeriodPair.hasFPowerSeriesOnBall_weierstrassP`. -/
+/--
+The power series expansion of `℘` at `x`.
+See `PeriodPair.hasFPowerSeriesOnBall_weierstrassP`.
+-/
 def weierstrassPSeries (x : ℂ) : FormalMultilinearSeries ℂ ℂ ℂ :=
   .ofScalars _ fun i ↦ if i = 0 then (℘[L] x) else (i + 1) * L.sumInvPow x (i + 2)
 
@@ -939,9 +960,11 @@ end Analytic
 
 section Relation
 
-/-- The Eisenstein series as a function on lattices.
+/--
+The Eisenstein series as a function on lattices.
 It takes `L` to the sum `∑ l⁻ʳ` over `l ∈ L`.
-TODO: Establish connections with the `ModularForm` library. -/
+TODO: Establish connections with the `ModularForm` library.
+-/
 def G (n : ℕ) : ℂ := ∑' l : L.lattice, (l ^ n)⁻¹
 
 @[simp]
@@ -959,8 +982,10 @@ def g₂ : ℂ := 60 * L.G 4
 /-- The lattice invariant `g₃ := 140 G₆`. -/
 def g₃ : ℂ := 140 * L.G 6
 
-/-- (Implementation detail) The relation that `℘'` and `℘` satisfies.
-We will show that this is constant zero. See `PeriodPair.relation_eq_zero` -/
+/--
+(Implementation detail) The relation that `℘'` and `℘` satisfies.
+We will show that this is constant zero. See `PeriodPair.relation_eq_zero`
+-/
 private def relation (z : ℂ) : ℂ :=
   letI := Classical.propDecidable
   if z ∈ L.lattice then 0 else ℘'[L] z ^ 2 - 4 * ℘[L] z ^ 3 + L.g₂ * ℘[L] z + L.g₃

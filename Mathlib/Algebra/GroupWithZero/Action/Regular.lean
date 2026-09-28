@@ -30,18 +30,16 @@ theorem zero_iff_subsingleton : IsSMulRegular M (0 : R) ↔ Subsingleton M :=
   ⟨fun h => h.subsingleton, fun H a b _ => @Subsingleton.elim _ H a b⟩
 
 /-- The `0` element is not `M`-regular, on a non-trivial module. -/
-theorem not_zero_iff : ¬IsSMulRegular M (0 : R) ↔ Nontrivial M := by
+theorem not_zero_iff : ¬ IsSMulRegular M (0 : R) ↔ Nontrivial M := by
   rw [nontrivial_iff, not_iff_comm, zero_iff_subsingleton, subsingleton_iff]
   push Not
   exact Iff.rfl
 
 /-- The element `0` is `M`-regular when `M` is trivial. -/
-theorem zero [sM : Subsingleton M] : IsSMulRegular M (0 : R) :=
-  zero_iff_subsingleton.mpr sM
+theorem zero [sM : Subsingleton M] : IsSMulRegular M (0 : R) := zero_iff_subsingleton.mpr sM
 
 /-- The `0` element is not `M`-regular, on a non-trivial module. -/
-theorem not_zero [nM : Nontrivial M] : ¬IsSMulRegular M (0 : R) :=
-  not_zero_iff.mpr nM
+theorem not_zero [nM : Nontrivial M] : ¬ IsSMulRegular M (0 : R) := not_zero_iff.mpr nM
 
 end MonoidWithZero
 

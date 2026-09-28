@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Probability.Distributions.Gaussian.IsGaussianProcess.Def
 public import Mathlib.Probability.Independence.Process.HasIndepIncrements.Basic
-
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Independence
 
@@ -52,13 +51,16 @@ section Bot
 
 variable [Bot T]
 
-/-- Given a finite set `I : Finset T` of cardinality `n`,
+/--
+Given a finite set `I : Finset T` of cardinality `n`,
 `I.orderEmbOfFinWithBot : Fin (#I + 1) → T` is the map `(⊥, t₁, ..., tₙ)`,
-where `t₁ < ... < tₙ` are the elements of `I` and `⊥` is the smallest element of `T`. -/
+where `t₁ < ... < tₙ` are the elements of `I` and `⊥` is the smallest element of `T`.
+-/
 noncomputable def orderEmbOfFinWithBot (i : Fin (#I + 1)) : T :=
-  if h : i = 0
-    then ⊥
-    else I.orderEmbOfFin rfl (i.pred h)
+  if h : i = 0 then
+    ⊥
+  else
+    I.orderEmbOfFin rfl (i.pred h)
 
 @[simp]
 lemma orderEmbOfFinWithBot_zero : I.orderEmbOfFinWithBot 0 = ⊥ := rfl
@@ -86,15 +88,19 @@ end Finset
 
 namespace ProbabilityTheory
 
-/-- `incrementsToRestrict I` is a continuous linear map `f` such that if `t₁ < ... < tₙ` are
-then elements of `I`, then `f (xₜ₁, xₜ₂ - xₜ₁, ..., xₜₙ - xₜₙ₋₁) = (xₜ₁, ..., xₜₙ)`. -/
-noncomputable def incrementsToRestrict (R : Type*) [Semiring R] [AddCommMonoid E]
-    [Module R E] [TopologicalSpace E] [ContinuousAdd E] (I : Finset T) :
-    (Fin #I → E) →L[R] (I → E) :=
-  { toFun x i := ∑ j ≤ (I.orderIsoOfFin rfl).symm i, x j
-    map_add' x y := by ext; simp [sum_add_distrib]
-    map_smul' m x := by ext; simp [smul_sum]
-    cont := by fun_prop }
+/--
+`incrementsToRestrict I` is a continuous linear map `f` such that if `t₁ < ... < tₙ` are
+then elements of `I`, then `f (xₜ₁, xₜ₂ - xₜ₁, ..., xₜₙ - xₜₙ₋₁) = (xₜ₁, ..., xₜₙ)`.
+-/
+noncomputable def incrementsToRestrict
+    (R : Type*) [Semiring R] [AddCommMonoid E] [Module R E] [TopologicalSpace E] [ContinuousAdd E]
+    (I : Finset T)
+    : (Fin #I → E) →L[R] (I → E) := {
+  toFun x i := ∑ j ≤ (I.orderIsoOfFin rfl).symm i, x j
+  map_add' x y := by ext; simp [sum_add_distrib]
+  map_smul' m x := by ext; simp [smul_sum]
+  cont := by fun_prop
+}
 
 lemma incrementsToRestrict_increments_orderEmbOfFinWithBot_ae_eq_restrict [Bot T] (R : Type*)
     [Semiring R] [AddCommGroup E] [Module R E] [TopologicalSpace E] [ContinuousAdd E]

@@ -42,24 +42,28 @@ lemma ZMod.natCast_smul_units (n : ℕ) (au : Additive ℤˣ) : (n : ZMod 2) •
 instance : Module (ZMod 2) (Additive ℤˣ) where
   smul z au := .ofMul <| au.toMul ^ z.val
   one_smul _ := Additive.toMul.injective <| pow_one _
-  mul_smul z₁ z₂ au := Additive.toMul.injective <| by
-    dsimp only [ZMod.smul_units_def, toMul_nsmul]
-    rw [← pow_mul, ZMod.val_mul, ← Int.units_pow_eq_pow_mod_two, mul_comm]
+  mul_smul z₁ z₂ au :=
+    Additive.toMul.injective <| by
+      dsimp only [ZMod.smul_units_def, toMul_nsmul]
+      rw [← pow_mul, ZMod.val_mul, ← Int.units_pow_eq_pow_mod_two, mul_comm]
   smul_zero _ := Additive.toMul.injective <| one_pow _
   smul_add _ _ _ := Additive.toMul.injective <| mul_pow _ _ _
-  add_smul z₁ z₂ au := Additive.toMul.injective <| by
-    dsimp only [ZMod.smul_units_def, toMul_nsmul, toMul_add]
-    rw [← pow_add, ZMod.val_add, ← Int.units_pow_eq_pow_mod_two]
+  add_smul z₁ z₂ au :=
+    Additive.toMul.injective <| by
+      dsimp only [ZMod.smul_units_def, toMul_nsmul, toMul_add]
+      rw [← pow_add, ZMod.val_add, ← Int.units_pow_eq_pow_mod_two]
   zero_smul au := Additive.toMul.injective <| pow_zero au.toMul
 
 section CommSemiring
 variable {R : Type*} [CommSemiring R] [Module R (Additive ℤˣ)]
 
-/-- There is a canonical power operation on `ℤˣ` by `R` if `Additive ℤˣ` is an `R`-module.
+/--
+There is a canonical power operation on `ℤˣ` by `R` if `Additive ℤˣ` is an `R`-module.
 
 In lemma names, this operation is called `uzpow` to match `zpow`.
 
-Notably this is satisfied by `R ∈ {ℕ, ℤ, ZMod 2}`. -/
+Notably this is satisfied by `R ∈ {ℕ, ℤ, ZMod 2}`.
+-/
 instance Int.instUnitsPow : Pow ℤˣ R where
   pow u r := (r • Additive.ofMul u).toMul
 

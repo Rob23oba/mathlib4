@@ -152,8 +152,7 @@ end preΨ₄
 
 section preΨ'
 
-private def expDegree (n : ℕ) : ℕ :=
-  (n ^ 2 - if Even n then 4 else 1) / 2
+private def expDegree (n : ℕ) : ℕ := (n ^ 2 - if Even n then 4 else 1) / 2
 
 private lemma expDegree_cast {n : ℕ} (hn : n ≠ 0) :
     2 * (expDegree n : ℤ) = n ^ 2 - if Even n then 4 else 1 := by
@@ -180,8 +179,7 @@ private lemma expDegree_rec (m : ℕ) :
   push_cast [Nat.even_add_one, ite_not, even_two_mul]
   constructor <;> constructor <;> split_ifs <;> ring1
 
-private def expCoeff (n : ℕ) : ℤ :=
-  if Even n then n / 2 else n
+private def expCoeff (n : ℕ) : ℤ := if Even n then n / 2 else n
 
 private lemma expCoeff_cast (n : ℕ) : (expCoeff n : ℚ) = if Even n then (n / 2 : ℚ) else n := by
   rcases n.even_or_odd' with ⟨n, rfl | rfl⟩ <;> simp [expCoeff, n.not_even_two_mul_add_one]

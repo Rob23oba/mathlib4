@@ -168,11 +168,11 @@ private lemma factor_P_δ_σ {n : ℕ} (i : Fin (n + 1)) {x : SimplexCategoryGen
             by simp [h'', reassoc_of% fac]⟩
 
 /-- Any morphism in `SimplexCategoryGenRel` can be decomposed as a `P_σ` followed by a `P_δ`. -/
-theorem exists_P_σ_P_δ_factorization {x y : SimplexCategoryGenRel} (f : x ⟶ y) :
-    ∃ (z : SimplexCategoryGenRel) (e : x ⟶ z) (m : z ⟶ y)
-        (_ : P_σ e) (_ : P_δ m), f = e ≫ m := by
+theorem exists_P_σ_P_δ_factorization {x y : SimplexCategoryGenRel} (f : x ⟶ y)
+    : ∃ (z : SimplexCategoryGenRel) (e : x ⟶ z) (m : z ⟶ y) (_ : P_σ e) (_ : P_δ m), f = e ≫ m := by
   induction f with
-  | @id n => use (mk n), (𝟙 (mk n)), (𝟙 (mk n)), P_σ.id_mem _, P_δ.id_mem _; simp
+  | @id n =>
+    use (mk n), (𝟙 (mk n)), (𝟙 (mk n)), P_σ.id_mem _, P_δ.id_mem _; simp
   | @comp_δ n n' f j h =>
     obtain ⟨z, e, m, ⟨he, hm, rfl⟩⟩ := h
     exact ⟨z, e, m ≫ δ j, he, P_δ.comp_mem _ _ hm (P_δ.δ _), by simp⟩
@@ -182,8 +182,7 @@ theorem exists_P_σ_P_δ_factorization {x y : SimplexCategoryGenRel} (f : x ⟶ 
     | of g hg =>
       rcases hg with ⟨i⟩
       obtain ⟨_, _, _, ⟨he₁, hm₁, h₁⟩⟩ := factor_δ_σ j i
-      exact ⟨_, _, _, P_σ.comp_mem _ _ he he₁, hm₁,
-        by simp [← h₁]⟩
+      exact ⟨_, _, _, P_σ.comp_mem _ _ he he₁, hm₁, by simp [← h₁]⟩
     | @id n =>
       exact ⟨mk n', e ≫ σ j, 𝟙 _, P_σ.comp_mem _ _ he (P_σ.σ _), P_δ.id_mem _, by simp⟩
     | comp_of f g hf hg =>
@@ -196,8 +195,14 @@ theorem exists_P_σ_P_δ_factorization {x y : SimplexCategoryGenRel} (f : x ⟶ 
         obtain h' | ⟨j', j'', h'⟩ := switch_δ_σ j i
         · exact ⟨_, _, _, he, hf, by simp [h']⟩
         · obtain ⟨_, _, m₁, ⟨he₁, hm₁, h₁⟩⟩ := factor_P_δ_σ j' f hf
-          exact ⟨_, _, m₁ ≫ δ j'', P_σ.comp_mem _ _ he he₁, P_δ.comp_mem _ _ hm₁ (P_δ.δ _),
-            by simp [← reassoc_of% h₁, h']⟩
+          exact ⟨
+            _,
+            _,
+            m₁ ≫ δ j'',
+            P_σ.comp_mem _ _ he he₁,
+            P_δ.comp_mem _ _ hm₁ (P_δ.δ _),
+            by simp [← reassoc_of% h₁, h']
+          ⟩
 
 instance : MorphismProperty.HasFactorization P_σ P_δ where
   nonempty_mapFactorizationData f := by

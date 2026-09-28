@@ -31,8 +31,8 @@ namespace ModuleCat
 open CategoryTheory
 
 set_option backward.isDefEq.respectTransparency false in
-instance [Small.{v} R] (S : Submonoid R) :
-    (ModuleCat.localizedModuleFunctor.{v} S).PreservesProjectiveObjects where
+instance [Small.{v} R] (S : Submonoid R)
+    : (ModuleCat.localizedModuleFunctor.{v} S).PreservesProjectiveObjects where
   projective_obj X {proj} := by
     have : Small.{v} (Localization S) := small_of_surjective Localization.mkHom_surjective
     rw [← IsProjective.iff_projective] at proj ⊢

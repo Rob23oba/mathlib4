@@ -16,7 +16,6 @@ This defines `BoolAlg`, the category of Boolean algebras.
 
 @[expose] public section
 
-
 open OrderDual Opposite Set
 
 universe u
@@ -42,8 +41,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab BoolAlg.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-instance : CoeSort BoolAlg (Type _) :=
-  ⟨BoolAlg.carrier⟩
+instance : CoeSort BoolAlg (Type _) := ⟨BoolAlg.carrier⟩
 
 attribute [coe] BoolAlg.carrier
 
@@ -64,18 +62,16 @@ instance : ConcreteCategory BoolAlg (BoundedLatticeHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `BoolAlg` back into a `BoundedLatticeHom`. -/
-abbrev Hom.hom {X Y : BoolAlg.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := BoolAlg) f
+abbrev Hom.hom {X Y : BoolAlg.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := BoolAlg) f
 
 /-- Typecheck a `BoundedLatticeHom` as a morphism in `BoolAlg`. -/
-abbrev ofHom {X Y : Type u} [BooleanAlgebra X] [BooleanAlgebra Y] (f : BoundedLatticeHom X Y) :
-    of X ⟶ of Y :=
+abbrev ofHom {X Y : Type u} [BooleanAlgebra X] [BooleanAlgebra Y] (f : BoundedLatticeHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := BoolAlg) f
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : BoolAlg.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : BoolAlg.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -147,16 +143,12 @@ lemma inv_hom_apply {X Y : BoolAlg} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x 
 lemma hom_inv_apply {X Y : BoolAlg} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited BoolAlg :=
-  ⟨of PUnit⟩
+instance : Inhabited BoolAlg := ⟨of PUnit⟩
 
 /-- Turn a `BoolAlg` into a `BddDistLat` by forgetting its complement operation. -/
-def toBddDistLat (X : BoolAlg) : BddDistLat :=
-  ↧X
+def toBddDistLat (X : BoolAlg) : BddDistLat := ↧X
 
-@[simp]
-theorem coe_toBddDistLat (X : BoolAlg) : ↥X.toBddDistLat = ↥X :=
-  rfl
+@[simp] theorem coe_toBddDistLat (X : BoolAlg) : ↥X.toBddDistLat = ↥X := rfl
 
 instance hasForgetToBddDistLat : HasForget₂ BoolAlg BddDistLat where
   forget₂.obj X := ↧X
@@ -195,9 +187,8 @@ def dualEquiv : BoolAlg ≌ BoolAlg where
 
 end BoolAlg
 
-theorem boolAlg_dual_comp_forget_to_bddDistLat :
-    BoolAlg.dual ⋙ forget₂ BoolAlg BddDistLat =
-    forget₂ BoolAlg BddDistLat ⋙ BddDistLat.dual :=
+theorem boolAlg_dual_comp_forget_to_bddDistLat
+    : BoolAlg.dual ⋙ forget₂ BoolAlg BddDistLat = forget₂ BoolAlg BddDistLat ⋙ BddDistLat.dual :=
   rfl
 
 /-- The powerset functor. `Set` as a contravariant functor. -/

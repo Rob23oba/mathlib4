@@ -26,10 +26,12 @@ variable {C : Type u} [Category.{v} C]
 
 namespace MorphismProperty
 
-/-- The property that the subtype of arrows satisfying a property `P : MorphismProperty C`
-is of cardinality `< κ`. -/
+/--
+The property that the subtype of arrows satisfying a property `P : MorphismProperty C`
+is of cardinality `< κ`.
+-/
 protected abbrev HasCardinalLT (P : MorphismProperty C) (κ : Cardinal.{w}) :=
-    _root_.HasCardinalLT P.toSet κ
+  _root_.HasCardinalLT P.toSet κ
 
 lemma hasCardinalLT_ofHoms {C : Type*} [Category* C]
     {ι : Type*} {X Y : ι → C} (f : ∀ i, X i ⟶ Y i) {κ : Cardinal}

@@ -87,8 +87,7 @@ equivalence. Denoted as `𝓕` within the `ZMod` namespace.
 -/
 noncomputable def dft : (ZMod N → E) ≃ₗ[ℂ] (ZMod N → E) where
   toFun := auxDFT
-  map_add' Φ₁ Φ₂ := by
-    ext; simp only [auxDFT, Pi.add_def, smul_add, sum_add_distrib]
+  map_add' Φ₁ Φ₂ := by ext; simp only [auxDFT, Pi.add_def, smul_add, sum_add_distrib]
   map_smul' c Φ := by
     ext; simp only [auxDFT, Pi.smul_apply, RingHom.id_apply, smul_sum, smul_comm c]
   invFun Φ k := (N : ℂ)⁻¹ • auxDFT Φ (-k)
@@ -96,8 +95,10 @@ noncomputable def dft : (ZMod N → E) ≃ₗ[ℂ] (ZMod N → E) where
     simp only [auxDFT_auxDFT, neg_neg, ← mul_smul, inv_mul_cancel₀ (NeZero.ne _), one_smul]
   right_inv Φ := by
     ext1 j
-    simp only [← Pi.smul_def, auxDFT_smul, auxDFT_neg, auxDFT_auxDFT, neg_neg, ← mul_smul,
-      inv_mul_cancel₀ (NeZero.ne _), one_smul]
+    simp only [
+      ← Pi.smul_def, auxDFT_smul, auxDFT_neg, auxDFT_auxDFT, neg_neg, ← mul_smul,
+      inv_mul_cancel₀ (NeZero.ne _), one_smul
+    ]
 
 @[inherit_doc] scoped notation "𝓕" => dft
 

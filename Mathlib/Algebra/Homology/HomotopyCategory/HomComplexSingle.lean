@@ -37,8 +37,8 @@ namespace Cochain
 
 /-- Constructor for cochains from a single complex. -/
 @[nolint unusedArguments]
-noncomputable def fromSingleMk {p q : ℤ} (f : X ⟶ K.X q) {n : ℤ} (_ : p + n = q) :
-    Cochain ((singleFunctor C p).obj X) K n :=
+noncomputable def fromSingleMk {p q : ℤ} (f : X ⟶ K.X q) {n : ℤ} (_ : p + n = q)
+    : Cochain ((singleFunctor C p).obj X) K n :=
   Cochain.single ((HomologicalComplex.singleObjXSelf (.up ℤ) p X).hom ≫ f) n
 
 variable (X K) in
@@ -68,10 +68,12 @@ lemma δ_fromSingleMk {p q : ℤ} (f : X ⟶ K.X q) {n : ℤ} (h : p + n = q)
   · simp [δ_shape n n' (by lia), HomologicalComplex.shape K q q' (by simp; lia),
       fromSingleMk]
 
-/-- Cochains of degree `n` from `(singleFunctor C p).obj X` to `K` identify
-to `X ⟶ K.X q` when `p + n = q`. -/
-noncomputable def fromSingleEquiv {p q n : ℤ} (h : p + n = q) :
-    Cochain ((singleFunctor C p).obj X) K n ≃+ (X ⟶ K.X q) where
+/--
+Cochains of degree `n` from `(singleFunctor C p).obj X` to `K` identify
+to `X ⟶ K.X q` when `p + n = q`.
+-/
+noncomputable def fromSingleEquiv {p q n : ℤ} (h : p + n = q)
+    : Cochain ((singleFunctor C p).obj X) K n ≃+ (X ⟶ K.X q) where
   toFun α := (HomologicalComplex.singleObjXSelf (.up ℤ) p X).inv ≫ α.v p q h
   invFun f := fromSingleMk f h
   left_inv α := by
@@ -122,8 +124,8 @@ lemma fromSingleMk_postcomp {p q : ℤ} (f : X ⟶ K.X q) {n : ℤ} (h : p + n =
 
 /-- Constructor for cochains to a single complex. -/
 @[nolint unusedArguments]
-noncomputable def toSingleMk {p q : ℤ} (f : K.X p ⟶ X) {n : ℤ} (_ : p + n = q) :
-    Cochain K ((singleFunctor C q).obj X) n :=
+noncomputable def toSingleMk {p q : ℤ} (f : K.X p ⟶ X) {n : ℤ} (_ : p + n = q)
+    : Cochain K ((singleFunctor C q).obj X) n :=
   Cochain.single (f ≫ (HomologicalComplex.singleObjXSelf (.up ℤ) q X).inv) n
 
 variable (X K) in
@@ -152,10 +154,12 @@ lemma δ_toSingleMk {p q : ℤ} (f : K.X p ⟶ X) {n : ℤ} (h : p + n = q)
     simp
   · simp [δ_shape n n' (by lia), HomologicalComplex.shape K p' p (by simp; lia)]
 
-/-- Cochains of degree `n` from `(singleFunctor C q).obj X` to `K` identify
-to `K.X p ⟶ X` when `p + n = q`. -/
-noncomputable def toSingleEquiv {p q n : ℤ} (h : p + n = q) :
-    Cochain K ((singleFunctor C q).obj X) n ≃+ (K.X p ⟶ X) where
+/--
+Cochains of degree `n` from `(singleFunctor C q).obj X` to `K` identify
+to `K.X p ⟶ X` when `p + n = q`.
+-/
+noncomputable def toSingleEquiv {p q n : ℤ} (h : p + n = q)
+    : Cochain K ((singleFunctor C q).obj X) n ≃+ (K.X p ⟶ X) where
   toFun α := α.v p q h ≫ (HomologicalComplex.singleObjXSelf (.up ℤ) q X).hom
   invFun f := toSingleMk f h
   left_inv α := by
@@ -211,9 +215,11 @@ namespace Cocycle
 
 /-- Constructor for cocycles from a single complex. -/
 @[simps!]
-noncomputable def fromSingleMk {p q : ℤ} (f : X ⟶ K.X q) {n : ℤ} (h : p + n = q)
-    (q' : ℤ) (hq' : q + 1 = q') (hf : f ≫ K.d q q' = 0) :
-    Cocycle ((singleFunctor C p).obj X) K n :=
+noncomputable def fromSingleMk
+    {p q : ℤ} (f : X ⟶ K.X q)
+    {n : ℤ} (h : p + n = q)
+    (q' : ℤ) (hq' : q + 1 = q') (hf : f ≫ K.d q q' = 0)
+    : Cocycle ((singleFunctor C p).obj X) K n :=
   Cocycle.mk (Cochain.fromSingleMk f h) _ rfl (by
     rw [Cochain.δ_fromSingleMk _ _ _ q' (by lia), hf]
     simp)
@@ -283,9 +289,11 @@ lemma fromSingleMk_mem_coboundaries_iff {p q : ℤ} (f : X ⟶ K.X q) {n : ℤ} 
 
 /-- Constructor for cocycles to a single complex. -/
 @[simps!]
-noncomputable def toSingleMk {p q : ℤ} (f : K.X p ⟶ X) {n : ℤ} (h : p + n = q)
-    (p' : ℤ) (hp' : p' + 1 = p) (hf : K.d p' p ≫ f = 0) :
-    Cocycle K ((singleFunctor C q).obj X) n :=
+noncomputable def toSingleMk
+    {p q : ℤ} (f : K.X p ⟶ X)
+    {n : ℤ} (h : p + n = q)
+    (p' : ℤ) (hp' : p' + 1 = p) (hf : K.d p' p ≫ f = 0)
+    : Cocycle K ((singleFunctor C q).obj X) n :=
   Cocycle.mk (Cochain.toSingleMk f h) _ rfl (by
     rw [Cochain.δ_toSingleMk _ _ _ p' (by lia), hf]
     simp)

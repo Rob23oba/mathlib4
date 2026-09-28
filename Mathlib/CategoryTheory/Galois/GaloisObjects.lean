@@ -39,8 +39,8 @@ namespace PreGaloisCategory
 
 open Limits CategoryTheory.Functor
 
-noncomputable instance {G : Type v} [Group G] [Finite G] :
-    PreservesColimitsOfShape (SingleObj G) FintypeCat.incl.{w} := by
+noncomputable instance {G : Type v} [Group G] [Finite G]
+    : PreservesColimitsOfShape (SingleObj G) FintypeCat.incl.{w} := by
   choose G' hg hf e using Finite.exists_type_univ_nonempty_mulEquiv G
   exact Limits.preservesColimitsOfShape_of_equiv (Classical.choice e).toSingleObjEquiv.symm _
 
@@ -63,16 +63,17 @@ instance autMulFiber (F : C ⥤ FintypeCat.{w}) (X : C) : MulAction (Aut X) (F.o
 
 variable [GaloisCategory C] (F : C ⥤ FintypeCat.{w}) [FiberFunctor F]
 
-/-- For a connected object `X` of `C`, the quotient `X / Aut X` is terminal if and only if
-the quotient `F.obj X / Aut X` has exactly one element. -/
-noncomputable def quotientByAutTerminalEquivUniqueQuotient
-    (X : C) [IsConnected X] :
-    IsTerminal (colimit <| SingleObj.functor <| Aut.toEnd X) ≃
-    Unique (MulAction.orbitRel.Quotient (Aut X) (F.obj X)) := by
+/--
+For a connected object `X` of `C`, the quotient `X / Aut X` is terminal if and only if
+the quotient `F.obj X / Aut X` has exactly one element.
+-/
+noncomputable def quotientByAutTerminalEquivUniqueQuotient (X : C) [IsConnected X]
+    : IsTerminal (colimit <| SingleObj.functor <| Aut.toEnd X)
+      ≃ Unique (MulAction.orbitRel.Quotient (Aut X) (F.obj X)) := by
   let J : SingleObj (Aut X) ⥤ C := SingleObj.functor (Aut.toEnd X)
   let e : (F ⋙ FintypeCat.incl).obj (colimit J) ≅ _ :=
-    preservesColimitIso (F ⋙ FintypeCat.incl) J ≪≫
-    (Equiv.toIso <| SingleObj.Types.colimitEquivQuotient (J ⋙ F ⋙ FintypeCat.incl))
+    preservesColimitIso (F ⋙ FintypeCat.incl) J
+      ≪≫ (Equiv.toIso <| SingleObj.Types.colimitEquivQuotient (J ⋙ F ⋙ FintypeCat.incl))
   apply Equiv.trans
   · apply (IsTerminal.isTerminalIffObj (F ⋙ FintypeCat.incl) _).trans
       (isLimitEmptyConeEquiv _ (asEmptyCone _) (asEmptyCone _) e)
@@ -82,22 +83,26 @@ lemma isGalois_iff_aux (X : C) [IsConnected X] :
     IsGalois X ↔ Nonempty (IsTerminal <| colimit <| SingleObj.functor <| Aut.toEnd X) :=
   ⟨fun h ↦ h.quotientByAutTerminal, fun h ↦ ⟨h⟩⟩
 
-/-- Given a fiber functor `F` and a connected object `X` of `C`. Then `X` is Galois if and only if
-the natural action of `Aut X` on `F.obj X` is transitive. -/
-theorem isGalois_iff_pretransitive (X : C) [IsConnected X] :
-    IsGalois X ↔ MulAction.IsPretransitive (Aut X) (F.obj X) := by
+/--
+Given a fiber functor `F` and a connected object `X` of `C`. Then `X` is Galois if and only if
+the natural action of `Aut X` on `F.obj X` is transitive.
+-/
+theorem isGalois_iff_pretransitive (X : C) [IsConnected X]
+    : IsGalois X ↔ MulAction.IsPretransitive (Aut X) (F.obj X) := by
   rw [isGalois_iff_aux, Equiv.nonempty_congr <| quotientByAutTerminalEquivUniqueQuotient F X]
   exact (MulAction.pretransitive_iff_unique_quotient_of_nonempty (Aut X) (F.obj X)).symm
 
 /-- If `X` is Galois, the quotient `X / Aut X` is terminal. -/
-noncomputable def isTerminalQuotientOfIsGalois (X : C) [IsGalois X] :
-    IsTerminal <| colimit <| SingleObj.functor <| Aut.toEnd X :=
+noncomputable def isTerminalQuotientOfIsGalois (X : C) [IsGalois X]
+    : IsTerminal <| colimit <| SingleObj.functor <| Aut.toEnd X :=
   Nonempty.some IsGalois.quotientByAutTerminal
 
-/-- If `X` is Galois, then the action of `Aut X` on `F.obj X` is
-transitive for every fiber functor `F`. -/
-instance isPretransitive_of_isGalois (X : C) [IsGalois X] :
-    MulAction.IsPretransitive (Aut X) (F.obj X) := by
+/--
+If `X` is Galois, then the action of `Aut X` on `F.obj X` is
+transitive for every fiber functor `F`.
+-/
+instance isPretransitive_of_isGalois (X : C) [IsGalois X]
+    : MulAction.IsPretransitive (Aut X) (F.obj X) := by
   rw [← isGalois_iff_pretransitive]
   infer_instance
 
@@ -112,12 +117,12 @@ lemma stabilizer_normal_of_isGalois (X : C) [IsGalois X] (x : F.obj X) :
     rw [← h, mulAction_naturality, ninstab, h]
     simp
 
-theorem evaluation_aut_surjective_of_isGalois (A : C) [IsGalois A] (a : F.obj A) :
-    Function.Surjective (fun f : Aut A ↦ F.map f.hom a) :=
+theorem evaluation_aut_surjective_of_isGalois (A : C) [IsGalois A] (a : F.obj A)
+    : Function.Surjective (fun f : Aut A ↦ F.map f.hom a) :=
   MulAction.IsPretransitive.exists_smul_eq a
 
-theorem evaluation_aut_bijective_of_isGalois (A : C) [IsGalois A] (a : F.obj A) :
-    Function.Bijective (fun f : Aut A ↦ F.map f.hom a) :=
+theorem evaluation_aut_bijective_of_isGalois (A : C) [IsGalois A] (a : F.obj A)
+    : Function.Bijective (fun f : Aut A ↦ F.map f.hom a) :=
   ⟨evaluation_aut_injective_of_isConnected F A a, evaluation_aut_surjective_of_isGalois F A a⟩
 
 /-- For Galois `A` and a point `a` of the fiber of `A`, the evaluation at `A` as an equivalence. -/
@@ -151,10 +156,11 @@ lemma exists_autMap {A B : C} (f : A ⟶ B) [IsConnected A] [IsGalois B] (σ : A
     apply evaluation_aut_injective_of_isConnected F B (F.map f a)
     simpa using congr($(F.congr_map hτ) a)
 
-/-- A morphism from a connected object to a Galois object induces a map on automorphism
-groups. This is a group homomorphism (see `autMapHom`). -/
-noncomputable def autMap {A B : C} [IsConnected A] [IsGalois B] (f : A ⟶ B) (σ : Aut A) :
-    Aut B :=
+/--
+A morphism from a connected object to a Galois object induces a map on automorphism
+groups. This is a group homomorphism (see `autMapHom`).
+-/
+noncomputable def autMap {A B : C} [IsConnected A] [IsGalois B] (f : A ⟶ B) (σ : Aut A) : Aut B :=
   (exists_autMap f σ).choose
 
 @[simp]
@@ -208,8 +214,7 @@ lemma autMap_apply_mul {A B : C} [IsConnected A] [IsGalois B] (f : A ⟶ B) (σ 
 
 /-- `MonoidHom` version of `autMap`. -/
 @[simps!]
-noncomputable def autMapHom {A B : C} [IsConnected A] [IsGalois B] (f : A ⟶ B) :
-     Aut A →* Aut B :=
+noncomputable def autMapHom {A B : C} [IsConnected A] [IsGalois B] (f : A ⟶ B) : Aut A →* Aut B :=
   MonoidHom.mk' (autMap f) (autMap_apply_mul f)
 
 end AutMap

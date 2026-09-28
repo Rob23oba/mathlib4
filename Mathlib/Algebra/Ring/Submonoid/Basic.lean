@@ -16,8 +16,8 @@ public section
 open AddSubmonoid
 
 namespace MulMemClass
-variable {M R : Type*} [NonUnitalNonAssocSemiring R] [SetLike M R] [MulMemClass M R] {S : M}
-  {a b : R}
+variable
+  {M R : Type*} [NonUnitalNonAssocSemiring R] [SetLike M R] [MulMemClass M R] {S : M} {a b : R}
 
 /-- The product of an element of the additive closure of a multiplicative subsemigroup `M`
 and an element of `M` is contained in the additive closure of `M`. -/

@@ -34,8 +34,10 @@ namespace AlgebraicGeometry
 
 variable {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S)
 
-/-- We say that morphism `f : X ⟶ Y` is geometrically integral if for all `Spec K ⟶ Y` with `K`
-a field, `X ×[Y] Spec K` is integral. -/
+/--
+We say that morphism `f : X ⟶ Y` is geometrically integral if for all `Spec K ⟶ Y` with `K`
+a field, `X ×[Y] Spec K` is integral.
+-/
 @[mk_iff]
 class GeometricallyIntegral (f : X ⟶ Y) : Prop where
   geometrically_isIntegral : geometrically IsIntegral f
@@ -78,8 +80,7 @@ instance (V : S.Opens) [GeometricallyIntegral f] : GeometricallyIntegral (f ∣_
   MorphismProperty.of_isPullback (isPullback_morphismRestrict ..).flip ‹_›
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (s : S) [GeometricallyIntegral f] :
-    GeometricallyIntegral (f.fiberToSpecResidueField s) :=
+instance (s : S) [GeometricallyIntegral f] : GeometricallyIntegral (f.fiberToSpecResidueField s) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 instance (s : S) [GeometricallyIntegral f] : IsIntegral (f.fiber s) :=
@@ -102,15 +103,18 @@ lemma GeometricallyIntegral.isIntegral_of_subsingleton
   refine ⟨GeometricallyIrreducible.irreducibleSpace_of_subsingleton f,
     GeometricallyReduced.isReduced_of_flat_of_isLocallyNoetherian f⟩
 
-/-- If `X` is geometrically integral and flat and universally open over `S` and `Y` is integral
-and locally noetherian, then `X ×ₛ Y` is integral. -/
-instance [GeometricallyIntegral f] [Flat f] [UniversallyOpen f] [IsIntegral Y]
-    [IsLocallyNoetherian Y] : IsIntegral (pullback f g) :=
+/--
+If `X` is geometrically integral and flat and universally open over `S` and `Y` is integral
+and locally noetherian, then `X ×ₛ Y` is integral.
+-/
+instance
+    [GeometricallyIntegral f] [Flat f] [UniversallyOpen f] [IsIntegral Y] [IsLocallyNoetherian Y]
+    : IsIntegral (pullback f g) :=
   GeometricallyIntegral.isIntegral_of_isLocallyNoetherian (pullback.snd _ _)
 
-instance [GeometricallyIntegral g] [Flat g] [UniversallyOpen g]
-    [IsIntegral X] [IsLocallyNoetherian X] :
-    IsIntegral (pullback f g) :=
+instance
+    [GeometricallyIntegral g] [Flat g] [UniversallyOpen g] [IsIntegral X] [IsLocallyNoetherian X]
+    : IsIntegral (pullback f g) :=
   GeometricallyIntegral.isIntegral_of_isLocallyNoetherian (pullback.fst _ _)
 
 lemma GeometricallyIntegral.iff_geometricallyIntegral_fiber :

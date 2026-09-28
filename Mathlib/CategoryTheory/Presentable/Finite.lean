@@ -21,7 +21,6 @@ and link this definition with the preservation of filtered colimits.
 
 @[expose] public section
 
-
 universe w v' v u' u
 
 namespace CategoryTheory
@@ -32,9 +31,11 @@ variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
 
 attribute [local instance] fact_isRegular_aleph0
 
-/-- A functor `F : C ⥤ D` is finitely accessible if it is `ℵ₀`-accessible.
+/--
+A functor `F : C ⥤ D` is finitely accessible if it is `ℵ₀`-accessible.
 Equivalently, it preserves all filtered colimits.
-See `CategoryTheory.Functor.IsFinitelyAccessible_iff_preservesFilteredColimits`. -/
+See `CategoryTheory.Functor.IsFinitelyAccessible_iff_preservesFilteredColimits`.
+-/
 abbrev Functor.IsFinitelyAccessible (F : C ⥤ D) : Prop := IsCardinalAccessible.{w} F ℵ₀
 
 lemma Functor.IsFinitelyAccessible_iff_preservesFilteredColimitsOfSize {F : C ⥤ D} :
@@ -48,8 +49,7 @@ lemma Functor.isFinitelyAccessible_iff_preservesFilteredColimits {F : C ⥤ D} :
   IsFinitelyAccessible_iff_preservesFilteredColimitsOfSize
 
 /-- An object `X` is finitely presentable if `Hom(X, -)` preserves all filtered colimits. -/
-abbrev IsFinitelyPresentable (X : C) : Prop :=
-  IsCardinalPresentable.{w} X ℵ₀
+abbrev IsFinitelyPresentable (X : C) : Prop := IsCardinalPresentable.{w} X ℵ₀
 
 variable (C) in
 /-- `IsFinitelyPresentable` as an `ObjectProperty` on `C`. This is sometimes called "compact". -/
@@ -61,8 +61,8 @@ lemma ObjectProperty.isFinitelyPresentable_eq_isCardinalPresentable :
 
 variable (C) in
 /-- A morphism `f : X ⟶ Y` is finitely presentable if it is so as an object of `Under X`. -/
-def MorphismProperty.isFinitelyPresentable : MorphismProperty C :=
-  fun _ _ f ↦ ObjectProperty.isFinitelyPresentable.{w} _ (CategoryTheory.Under.mk f)
+def MorphismProperty.isFinitelyPresentable : MorphismProperty C := fun _ _ f ↦
+  ObjectProperty.isFinitelyPresentable.{w} _ (CategoryTheory.Under.mk f)
 
 lemma isFinitelyPresentable_iff_preservesFilteredColimitsOfSize {X : C} :
     IsFinitelyPresentable.{w} X ↔ PreservesFilteredColimitsOfSize.{w, w} (coyoneda.obj (op X)) :=
@@ -72,13 +72,13 @@ lemma isFinitelyPresentable_iff_preservesFilteredColimits {X : C} :
     IsFinitelyPresentable.{v} X ↔ PreservesFilteredColimits (coyoneda.obj (op X)) :=
   Functor.IsFinitelyAccessible_iff_preservesFilteredColimitsOfSize
 
-instance (X : C) [IsFinitelyPresentable.{w} X] :
-    PreservesFilteredColimitsOfSize.{w, w} (coyoneda.obj (op X)) := by
+instance (X : C) [IsFinitelyPresentable.{w} X]
+    : PreservesFilteredColimitsOfSize.{w, w} (coyoneda.obj (op X)) := by
   rw [← isFinitelyPresentable_iff_preservesFilteredColimitsOfSize]
   infer_instance
 
-instance (X : (ObjectProperty.isFinitelyPresentable.{w} C).FullSubcategory) :
-    IsFinitelyPresentable.{w} ((ObjectProperty.isFinitelyPresentable.{w} C).ι.obj X) :=
+instance (X : (ObjectProperty.isFinitelyPresentable.{w} C).FullSubcategory)
+    : IsFinitelyPresentable.{w} ((ObjectProperty.isFinitelyPresentable.{w} C).ι.obj X) :=
   X.property
 
 lemma IsFinitelyPresentable.exists_hom_of_isColimit {J : Type w} [SmallCategory J] [IsFiltered J]

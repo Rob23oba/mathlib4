@@ -28,12 +28,10 @@ section
 variable [CategoryStruct.{v} C]
 
 /-- The property of objects of `Cᵒᵖ` corresponding to `P : ObjectProperty C`. -/
-protected def op (P : ObjectProperty C) : ObjectProperty Cᵒᵖ :=
-  fun X ↦ P X.unop
+protected def op (P : ObjectProperty C) : ObjectProperty Cᵒᵖ := fun X ↦ P X.unop
 
 /-- The property of objects of `C` corresponding to `P : ObjectProperty Cᵒᵖ`. -/
-protected def unop (P : ObjectProperty Cᵒᵖ) : ObjectProperty C :=
-  fun X ↦ P (op X)
+protected def unop (P : ObjectProperty Cᵒᵖ) : ObjectProperty C := fun X ↦ P (op X)
 
 @[simp]
 lemma op_iff (P : ObjectProperty C) (X : Cᵒᵖ) :
@@ -43,8 +41,7 @@ lemma op_iff (P : ObjectProperty C) (X : Cᵒᵖ) :
 lemma unop_iff (P : ObjectProperty Cᵒᵖ) (X : C) :
     P.unop X ↔ P (op X) := Iff.rfl
 
-instance (P : ObjectProperty C) [P.Nonempty] : P.op.Nonempty :=
-  ⟨op P.arbitrary, P.prop_arbitrary⟩
+instance (P : ObjectProperty C) [P.Nonempty] : P.op.Nonempty := ⟨op P.arbitrary, P.prop_arbitrary⟩
 
 instance (P : ObjectProperty Cᵒᵖ) [P.Nonempty] : P.unop.Nonempty :=
   ⟨P.arbitrary.unop, P.prop_arbitrary⟩
@@ -84,8 +81,7 @@ lemma unop_monotone_iff {P Q : ObjectProperty Cᵒᵖ} : P.unop ≤ Q.unop ↔ P
   ⟨op_monotone, unop_monotone⟩
 
 /-- The bijection `Subtype P.op ≃ Subtype P` for `P : ObjectProperty C`. -/
-def subtypeOpEquiv (P : ObjectProperty C) :
-    Subtype P.op ≃ Subtype P where
+def subtypeOpEquiv (P : ObjectProperty C) : Subtype P.op ≃ Subtype P where
   toFun x := ⟨x.1.unop, x.2⟩
   invFun x := ⟨op x.1, x.2⟩
 
@@ -119,12 +115,11 @@ section
 
 variable [Category.{v} C]
 
-instance (P : ObjectProperty C) [P.IsClosedUnderIsomorphisms] :
-    P.op.IsClosedUnderIsomorphisms where
+instance (P : ObjectProperty C) [P.IsClosedUnderIsomorphisms] : P.op.IsClosedUnderIsomorphisms where
   of_iso e hX := P.prop_of_iso e.symm.unop hX
 
-instance (P : ObjectProperty Cᵒᵖ) [P.IsClosedUnderIsomorphisms] :
-    P.unop.IsClosedUnderIsomorphisms where
+instance (P : ObjectProperty Cᵒᵖ) [P.IsClosedUnderIsomorphisms]
+    : P.unop.IsClosedUnderIsomorphisms where
   of_iso e hX := P.prop_of_iso e.symm.op hX
 
 lemma op_isoClosure (P : ObjectProperty C) :
@@ -138,8 +133,10 @@ lemma unop_isoClosure (P : ObjectProperty Cᵒᵖ) :
   rw [← op_injective_iff, P.unop.op_isoClosure, op_unop, op_unop]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given `P : ObjectProperty C`, this is the equivalence between `P.op.FullSubcategory`
-and `P.FullSubcategoryᵒᵖ`. -/
+/--
+Given `P : ObjectProperty C`, this is the equivalence between `P.op.FullSubcategory`
+and `P.FullSubcategoryᵒᵖ`.
+-/
 @[simps]
 def opEquivalence (P : ObjectProperty C) : P.op.FullSubcategory ≌ P.FullSubcategoryᵒᵖ where
   functor := (P.lift P.op.ι.leftOp (fun X ↦ X.unop.property)).rightOp

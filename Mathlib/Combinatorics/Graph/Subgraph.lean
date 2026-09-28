@@ -45,8 +45,8 @@ graphs, subgraph, induced subgraph, spanning subgraph, closed subgraph
 
 public section
 
-variable {α β : Type*} {x y u v : α} {e : β} {G G₁ G₂ H H₁ H₂ K : Graph α β} {F₁ F₂ : Set β}
-  {X : Set α}
+variable
+  {α β : Type*} {x y u v : α} {e : β} {G G₁ G₂ H H₁ H₂ K : Graph α β} {F₁ F₂ : Set β} {X : Set α}
 
 open Set
 
@@ -56,8 +56,10 @@ namespace Graph
 
 section Subgraph
 
-/-- `IsSubgraph H G` is NOT the preferred spelling for the subgraph relation. Please use
-`H ≤ G` instead. -/
+/--
+`IsSubgraph H G` is NOT the preferred spelling for the subgraph relation. Please use
+`H ≤ G` instead.
+-/
 @[mk_iff]
 structure IsSubgraph (H G : Graph α β) : Prop where
   vertexSet_mono : V(H) ⊆ V(G) := by aesop
@@ -71,8 +73,10 @@ lemma IsSubgraph.trans (h₁ : H.IsSubgraph G) (h₂ : G.IsSubgraph G₁) : H.Is
 lemma IsSubgraph.antisymm (h₁ : H.IsSubgraph G) (h₂ : G.IsSubgraph H) : H = G :=
   Graph.ext (h₁.1.antisymm h₂.1) fun _ _ _ ↦ ⟨(h₁.2 ·), (h₂.2 ·)⟩
 
-/-- `H ≤ G` means `H` is a subgraph of `G`. It is defined as `V(H) ⊆ V(G)` and every link of `H`
-being a link of `G`. -/
+/--
+`H ≤ G` means `H` is a subgraph of `G`. It is defined as `V(H) ⊆ V(G)` and every link of `H`
+being a link of `G`.
+-/
 instance : PartialOrder (Graph α β) where
   le := IsSubgraph
   le_refl _ := ⟨le_rfl, fun _ _ _ h ↦ h⟩
@@ -243,8 +247,10 @@ section InducedSubgraph
 
 /-! ### Induced Subgraphs -/
 
-/-- `H ≤i G` (`Graph.IsInducedSubgraph`) is a subgraph of `G` such that every link of `G`
-involving two vertices of `H` is also a link of `H`. -/
+/--
+`H ≤i G` (`Graph.IsInducedSubgraph`) is a subgraph of `G` such that every link of `G`
+involving two vertices of `H` is also a link of `H`.
+-/
 @[mk_iff]
 structure IsInducedSubgraph (H G : Graph α β) : Prop extends le : H ≤ G where
   isLink_of_mem_mem : ∀ ⦃e x y⦄, G.IsLink e x y → x ∈ V(H) → y ∈ V(H) → H.IsLink e x y
@@ -302,8 +308,8 @@ section ClosedSubgraph
 
 /-- `H ≤c G` (`Graph.IsClosedSubgraph`) is a union of components of `G`. -/
 @[mk_iff]
-structure IsClosedSubgraph (H G : Graph α β) : Prop extends
-  isInducedSubgraph : IsInducedSubgraph H G where
+structure IsClosedSubgraph (H G : Graph α β) : Prop
+    extends isInducedSubgraph : IsInducedSubgraph H G where
   closed : ∀ ⦃e x⦄, G.Inc e x → x ∈ V(H) → e ∈ E(H)
 
 @[inherit_doc IsClosedSubgraph]

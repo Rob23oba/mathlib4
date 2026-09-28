@@ -35,27 +35,30 @@ open CategoryTheory
 namespace HomotopicalAlgebra
 
 open MorphismProperty in
-/-- A Reedy structure on a category `C` equipped with two multiplicative
+/--
+A Reedy structure on a category `C` equipped with two multiplicative
 classes of morphisms `W₁` and `W₂` consists of the data of a degree
 map for objects `deg : C → α`, where `α` is a well ordered type. The first
 two axioms `lt₁` and `lt₂` express the behaviour of the degree with
 respect to morphisms in `W₁` (resp. `W₂`) that are not identities, and
 the last axiom says that any morphism can be factored in a unique way
-as a morphism in `W₁` followed by a morphism in `W₂`. -/
-structure ReedyStructure {C : Type*} [Category* C] (W₁ W₂ : MorphismProperty C)
-    [W₁.IsMultiplicative] [W₂.IsMultiplicative]
+as a morphism in `W₁` followed by a morphism in `W₂`.
+-/
+structure ReedyStructure
+    {C : Type*} [Category* C]
+    (W₁ W₂ : MorphismProperty C) [W₁.IsMultiplicative] [W₂.IsMultiplicative]
     (α : Type*) [LinearOrder α] [OrderBot α] [SuccOrder α] [WellFoundedLT α] where
   /-- the degree of an object -/
   deg : C → α
   lt₁ {X Y : C} (f : X ⟶ Y) (hf : W₁ f) (hf' : ¬ identities C f) : deg Y < deg X
   lt₂ {X Y : C} (f : X ⟶ Y) (hf : W₂ f) (hf' : ¬ identities C f) : deg X < deg Y
-  nonempty_unique {X Y : C} (f : X ⟶ Y) :
-    Nonempty (Unique (W₁.MapFactorizationData W₂ f))
+  nonempty_unique {X Y : C} (f : X ⟶ Y) : Nonempty (Unique (W₁.MapFactorizationData W₂ f))
 
 namespace ReedyStructure
 
-variable {C : Type*} [Category* C] {W₁ W₂ : MorphismProperty C}
-  [W₁.IsMultiplicative] [W₂.IsMultiplicative]
+variable
+  {C : Type*} [Category* C]
+  {W₁ W₂ : MorphismProperty C} [W₁.IsMultiplicative] [W₂.IsMultiplicative]
   {α : Type*} [LinearOrder α] [OrderBot α] [SuccOrder α] [WellFoundedLT α]
   (r : ReedyStructure W₁ W₂ α)
 
@@ -63,13 +66,11 @@ variable {C : Type*} [Category* C] {W₁ W₂ : MorphismProperty C}
 @[simps]
 protected def op : ReedyStructure W₂.op W₁.op α where
   deg := r.deg ∘ Opposite.unop
-  lt₁ f hf hf' := r.lt₂ f.unop hf (by
-    simpa [MorphismProperty.identities_op_iff] using hf')
-  lt₂ f hf hf' := r.lt₁ f.unop hf (by
-    simpa [MorphismProperty.identities_op_iff] using hf')
+  lt₁ f hf hf' := r.lt₂ f.unop hf (by simpa [MorphismProperty.identities_op_iff] using hf')
+  lt₂ f hf hf' := r.lt₁ f.unop hf (by simpa [MorphismProperty.identities_op_iff] using hf')
   nonempty_unique f :=
-    MorphismProperty.MapFactorizationData.opEquiv.uniqueCongr.nonempty_congr.1
-      (r.nonempty_unique f.unop)
+    MorphismProperty.MapFactorizationData.opEquiv.uniqueCongr.nonempty_congr.1 (r.nonempty_unique
+      f.unop)
 
 lemma le₁ {X Y : C} (f : X ⟶ Y) (hf : W₁ f) : r.deg Y ≤ r.deg X := by
   by_cases hf' : MorphismProperty.identities C f
@@ -99,11 +100,12 @@ lemma subsingleton_mapFactorizationData ⦃X Y : C⦄ (f : X ⟶ Y) :
   have := (r.nonempty_unique f).some
   infer_instance
 
-/-- The Reedy factorization of a morphism `f : X ⟶ Y` as a morphism in `W₁`
-followed by a morphism in `W₂`. -/
+/--
+The Reedy factorization of a morphism `f : X ⟶ Y` as a morphism in `W₁`
+followed by a morphism in `W₂`.
+-/
 @[no_expose]
-noncomputable def mapFactorizationData {X Y : C} (f : X ⟶ Y) :
-    W₁.MapFactorizationData W₂ f := by
+noncomputable def mapFactorizationData {X Y : C} (f : X ⟶ Y) : W₁.MapFactorizationData W₂ f := by
   letI := (r.nonempty_unique f).some
   exact default
 
@@ -121,9 +123,11 @@ lemma unique {X Y : C} {f : X ⟶ Y} (fac fac' : W₁.MapFactorizationData W₂ 
   obtain rfl : fac = fac' := Subsingleton.elim _ _
   simp
 
-/-- The degree of a morphism for a Reedy structure. It is defined as the degree of
+/--
+The degree of a morphism for a Reedy structure. It is defined as the degree of
 the intermediate object in the Reedy factorization, but it is also the smallest
-degree of an intermediate object in a factorization, see the lemma `degHom_le`. -/
+degree of an intermediate object in a factorization, see the lemma `degHom_le`.
+-/
 @[no_expose]
 noncomputable def degHom {X Y : C} (f : X ⟶ Y) : α := r.deg (r.mapFactorizationData f).Z
 

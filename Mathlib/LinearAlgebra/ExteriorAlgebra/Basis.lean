@@ -18,18 +18,20 @@ namespace ExteriorAlgebra
 
 open Module Set Set.powersetCard exteriorPower
 
-variable {R M : Type*} {m n : ℕ} {I : Type*} [LinearOrder I] [CommRing R]
-  [AddCommGroup M] [Module R M] (b : Module.Basis I R M)
+variable
+  {R M : Type*} {m n : ℕ} {I : Type*} [LinearOrder I] [CommRing R] [AddCommGroup M] [Module R M]
+  (b : Module.Basis I R M)
 
 /-- The direct sum decomposition of the exterior algebra from the graded algebra structure. -/
 instance : DirectSum.Decomposition (fun n ↦ ⋀[R]^n M) :=
   GradedRing.toDecomposition (self := ExteriorAlgebra.gradedAlgebra R M)
 
-/-- If `b` is a basis of `M` (indexed by a linearly ordered type), the basis of the exterior
-algebra of `M` formed by the `n`-fold exterior products of elements of `b` for each `n`. -/
+/--
+If `b` is a basis of `M` (indexed by a linearly ordered type), the basis of the exterior
+algebra of `M` formed by the `n`-fold exterior products of elements of `b` for each `n`.
+-/
 noncomputable def _root_.Module.Basis.ExteriorAlgebra : Basis (Finset I) R (ExteriorAlgebra R M) :=
-  .reindex
-    ((DirectSum.Decomposition.isInternal (fun n => ⋀[R]^n M)).collectedBasis b.exteriorPower)
+  .reindex ((DirectSum.Decomposition.isInternal (fun n => ⋀[R]^n M)).collectedBasis b.exteriorPower)
     Set.powersetCard.prodEquiv
 
 lemma basis_apply (s : Finset I) :

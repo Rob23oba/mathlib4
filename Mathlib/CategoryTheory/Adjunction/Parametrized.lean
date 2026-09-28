@@ -43,24 +43,29 @@ namespace CategoryTheory
 
 open Opposite CategoryTheory.Functor
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃}
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃}
   [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} C₃]
   (F : C₁ ⥤ C₂ ⥤ C₃) (G : C₁ᵒᵖ ⥤ C₃ ⥤ C₂)
 
-/-- Given bifunctors `F : C₁ ⥤ C₂ ⥤ C₃` and `G : C₁ᵒᵖ ⥤ C₃ ⥤ C₂`,
+/--
+Given bifunctors `F : C₁ ⥤ C₂ ⥤ C₃` and `G : C₁ᵒᵖ ⥤ C₃ ⥤ C₂`,
 an adjunction with parameter `F ⊣₂ G` consists of the data of
 adjunctions `F.obj X₁ ⊣ G.obj (op X₁)` for all `X₁ : C₁` which
-satisfy a naturality condition with respect to `X₁`. -/
+satisfy a naturality condition with respect to `X₁`.
+-/
 structure ParametrizedAdjunction where
   /-- a family of adjunctions -/
   adj (X₁ : C₁) : F.obj X₁ ⊣ G.obj (op X₁)
-  unit_whiskerRight_map {X₁ Y₁ : C₁} (f : X₁ ⟶ Y₁) :
-    (adj X₁).unit ≫ whiskerRight (F.map f) _ = (adj Y₁).unit ≫ whiskerLeft _ (G.map f.op) := by
-      cat_disch
+  unit_whiskerRight_map {X₁ Y₁ : C₁} (f : X₁ ⟶ Y₁)
+      : (adj X₁).unit ≫ whiskerRight (F.map f) _ = (adj Y₁).unit ≫ whiskerLeft _ (G.map f.op) := by
+    cat_disch
 
-/-- The notation `F ⊣₂ G` stands for `ParametrizedAdjunction F G`
+/--
+The notation `F ⊣₂ G` stands for `ParametrizedAdjunction F G`
 representing that the bifunctor `F` is the left adjoint to `G`
-in an adjunction with a parameter. -/
+in an adjunction with a parameter.
+-/
 infixl:15 " ⊣₂ " => ParametrizedAdjunction
 
 namespace ParametrizedAdjunction
@@ -70,24 +75,29 @@ attribute [reassoc] unit_whiskerRight_map
 variable {F G}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Alternative constructor for parametrized adjunctions, for which
-the compatibility is stated in terms of `Adjunction.homEquiv`. -/
+/--
+Alternative constructor for parametrized adjunctions, for which
+the compatibility is stated in terms of `Adjunction.homEquiv`.
+-/
 @[simps]
-def mk' (adj : ∀ (X₁ : C₁), F.obj X₁ ⊣ G.obj (op X₁))
+def mk'
+    (adj : ∀ (X₁ : C₁), F.obj X₁ ⊣ G.obj (op X₁))
     (h : ∀ {X₁ Y₁ : C₁} (f : X₁ ⟶ Y₁) {X₂ : C₂} {X₃ : C₃} (g : (F.obj Y₁).obj X₂ ⟶ X₃),
-      (adj X₁).homEquiv X₂ X₃ ((F.map f).app X₂ ≫ g) =
-        (adj Y₁).homEquiv X₂ X₃ g ≫ (G.map f.op).app X₃ := by cat_disch) :
-    F ⊣₂ G where
+        (adj X₁).homEquiv X₂ X₃ ((F.map f).app X₂ ≫ g)
+          = (adj Y₁).homEquiv X₂ X₃ g ≫ (G.map f.op).app X₃ := by
+      cat_disch)
+    : F ⊣₂ G where
   adj := adj
   unit_whiskerRight_map {X₁ Y₁} f := by
     ext X₂
     simpa [Adjunction.homEquiv_unit] using h f (X₂ := X₂) (𝟙 _)
 
-variable (adj₂ : F ⊣₂ G)
-  {X₁ Y₁ : C₁} {X₂ Y₂ : C₂} {X₃ Y₃ : C₃}
+variable (adj₂ : F ⊣₂ G) {X₁ Y₁ : C₁} {X₂ Y₂ : C₂} {X₃ Y₃ : C₃}
 
-/-- The bijection `((F.obj X₁).obj X₂ ⟶ X₃) ≃ (X₂ ⟶ (G.obj (op X₁)).obj X₃)`
-given by an adjunction with a parameter `adj₂ : F ⊣₂ G`. -/
+/--
+The bijection `((F.obj X₁).obj X₂ ⟶ X₃) ≃ (X₂ ⟶ (G.obj (op X₁)).obj X₃)`
+given by an adjunction with a parameter `adj₂ : F ⊣₂ G`.
+-/
 def homEquiv : ((F.obj X₁).obj X₂ ⟶ X₃) ≃ (X₂ ⟶ (G.obj (op X₁)).obj X₃) :=
   (adj₂.adj X₁).homEquiv _ _
 

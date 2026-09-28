@@ -68,8 +68,7 @@ theorem ker_iSup (f : ι → Filter α) : ker (⨆ i, f i) = ⋃ i, ker (f i) :=
   exact mem_iSup.2 fun i ↦ mem_of_superset (hsf i) (subset_iUnion s i)
 
 @[simp]
-theorem ker_sSup (S : Set (Filter α)) : ker (sSup S) = ⋃ f ∈ S, ker f := by
-  simp [sSup_eq_iSup]
+theorem ker_sSup (S : Set (Filter α)) : ker (sSup S) = ⋃ f ∈ S, ker f := by simp [sSup_eq_iSup]
 
 @[simp]
 theorem ker_sup (f g : Filter α) : ker (f ⊔ g) = ker f ∪ ker g := by

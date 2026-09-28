@@ -67,13 +67,15 @@ protected lemma isCentralScalar (e : α ≃ β) [IsCentralScalar M β] :
 
 variable (M) [Monoid M] [Monoid O] in
 /-- Transfer `MulDistribMulAction` across an `Equiv` -/
-protected abbrev mulDistribMulAction (e : N ≃ O) [MulDistribMulAction M O] :
-    letI := e.monoid
-    MulDistribMulAction M N :=
+protected abbrev mulDistribMulAction (e : N ≃ O) [MulDistribMulAction M O]
+    : letI := e.monoid
+      MulDistribMulAction M N :=
   letI := e.monoid
-  { e.mulAction M with
+  {
+    e.mulAction M with
     smul_one := by simp [one_def, smul_def, smul_one]
-    smul_mul := by simp [mul_def, smul_def, smul_mul'] }
+    smul_mul := by simp [mul_def, smul_def, smul_mul']
+  }
 
 variable (M) [SMul M β] in
 /-- Transfer `FaithfulSMul` across an `Equiv`.

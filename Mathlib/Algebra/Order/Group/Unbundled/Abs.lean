@@ -42,25 +42,31 @@ macro:max atomic("|" noWs) a:term noWs "|ₘ" : term => `(mabs $a)
 @[inherit_doc abs]
 macro:max atomic("|" noWs) a:term noWs "|" : term => `(abs $a)
 
-/-- Unexpander for the notation `|a|ₘ` for `mabs a`.
-Tries to add discretionary parentheses in unparsable cases. -/
+/--
+Unexpander for the notation `|a|ₘ` for `mabs a`.
+Tries to add discretionary parentheses in unparsable cases.
+-/
 @[app_unexpander mabs]
 meta def mabs.unexpander : Lean.PrettyPrinter.Unexpander
   | `($_ $a) =>
     match a with
     | `(|$_|) | `(|$_|ₘ) | `(-$_) => `(|($a)|ₘ)
     | _ => `(|$a|ₘ)
-  | _ => throw ()
+  | _ =>
+    throw ()
 
-/-- Unexpander for the notation `|a|` for `abs a`.
-Tries to add discretionary parentheses in unparsable cases. -/
+/--
+Unexpander for the notation `|a|` for `abs a`.
+Tries to add discretionary parentheses in unparsable cases.
+-/
 @[app_unexpander abs]
 meta def abs.unexpander : Lean.PrettyPrinter.Unexpander
   | `($_ $a) =>
     match a with
     | `(|$_|) | `(|$_|ₘ) | `(-$_) => `(|($a)|)
     | _ => `(|$a|)
-  | _ => throw ()
+  | _ =>
+    throw ()
 
 @[to_additive] lemma mabs_le' : |a|ₘ ≤ b ↔ a ≤ b ∧ a⁻¹ ≤ b := sup_le_iff
 
@@ -284,8 +290,10 @@ end LinearOrder
 namespace LatticeOrderedAddCommGroup
 variable [Lattice α] [AddCommGroup α] {s t : Set α}
 
-/-- A set `s` in a lattice ordered group is *solid* if for all `x ∈ s` and all `y ∈ α` such that
-`|y| ≤ |x|`, then `y ∈ s`. -/
+/--
+A set `s` in a lattice ordered group is *solid* if for all `x ∈ s` and all `y ∈ α` such that
+`|y| ≤ |x|`, then `y ∈ s`.
+-/
 def IsSolid (s : Set α) : Prop := ∀ ⦃x⦄, x ∈ s → ∀ ⦃y⦄, |y| ≤ |x| → y ∈ s
 
 /-- The solid closure of a subset `s` is the smallest superset of `s` that is solid. -/

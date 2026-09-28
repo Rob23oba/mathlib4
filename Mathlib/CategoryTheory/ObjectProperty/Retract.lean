@@ -28,8 +28,10 @@ open Limits
 
 variable {C : Type u} [Category.{v} C] (P : ObjectProperty C)
 
-/-- A predicate `C → Prop` on the objects of a category is stable under retracts
-if whenever `P Y`, then all the objects `X` that are retracts of `Y` also satisfy `P X`. -/
+/--
+A predicate `C → Prop` on the objects of a category is stable under retracts
+if whenever `P Y`, then all the objects `X` that are retracts of `Y` also satisfy `P X`.
+-/
 class IsStableUnderRetracts where
   of_retract {X Y : C} (_ : Retract X Y) (_ : P Y) : P X
 
@@ -98,8 +100,7 @@ lemma prop_retractClosure {X Y : C} (h : P Y) (r : Retract X Y) : retractClosure
 lemma le_retractClosure : P ≤ retractClosure P :=
   fun X hX => ⟨X, hX, ⟨Retract.refl X⟩⟩
 
-instance [P.Nonempty] : P.retractClosure.Nonempty :=
-  .mono P.le_retractClosure
+instance [P.Nonempty] : P.retractClosure.Nonempty := .mono P.le_retractClosure
 
 variable {P Q} in
 lemma monotone_retractClosure (h : P ≤ Q) : retractClosure P ≤ retractClosure Q := by
@@ -141,11 +142,11 @@ lemma retractClosure_retractClosure :
     P.retractClosure.retractClosure = P.retractClosure :=
   retractClosure_eq_self P.retractClosure
 
-instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] :
-    ObjectProperty.EssentiallySmall.{w} P.retractClosure where
+instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C]
+    : ObjectProperty.EssentiallySmall.{w} P.retractClosure where
   exists_small_le' := by
     obtain ⟨Q, _, h₁, h₂⟩ := ObjectProperty.EssentiallySmall.exists_small_le.{w} P
-    let α := Σ (X : Subtype Q), { p : X.1 ⟶ X.1 // p ≫ p = p }
+    let α := Σ (X : Subtype Q), {p : X.1 ⟶ X.1 // p ≫ p = p}
     let g {X Y : C} (h : Retract Y X) (hX : Q X) : α := ⟨⟨X, hX⟩, h.r ≫ h.i, by simp⟩
     let R (a : α) : Prop := ∃ (X Y : C) (h : Retract Y X) (hX : Q X), g h hX = a
     choose X Y h hX using fun (a : Subtype R) ↦ a.2
@@ -159,11 +160,15 @@ instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] :
     have hri : (h a).r ≫ (h a).i = r.r ≫ r.i := by
       rw [Sigma.ext_iff, heq_eq_eq] at h₂
       exact Subtype.ext_iff.1 h₂.2
-    exact ⟨_, ⟨a.1, a.2⟩, ⟨{
-      hom := r.i ≫ (h a).r
-      inv := (h a).i ≫ r.r
-      hom_inv_id := by simp [reassoc_of% hri]
-      inv_hom_id := by simp [← reassoc_of% hri]
-    }⟩⟩
+    exact ⟨
+      _,
+      ⟨a.1, a.2⟩,
+      ⟨{
+        hom := r.i ≫ (h a).r
+        inv := (h a).i ≫ r.r
+        hom_inv_id := by simp [reassoc_of% hri]
+        inv_hom_id := by simp [← reassoc_of% hri]
+      }⟩
+    ⟩
 
 end CategoryTheory.ObjectProperty

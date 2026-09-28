@@ -31,8 +31,8 @@ namespace Pairing
 
 variable (P : A.Pairing)
 
-instance (y : P.II) : Finite { x // P.AncestralRel x y } := by
-  let T := { x : P.II // P.AncestralRel x y }
+instance (y : P.II) : Finite {x // P.AncestralRel x y} := by
+  let T := {x : P.II // P.AncestralRel x y}
   let U := Σ (d : Fin (P.p y).1.dim), ⦋d⦌ ⟶ ⦋(P.p y).1.1.1.1⦌
   let ψ : U → X.S := fun ⟨d, f⟩ ↦ S.mk (X.map f.op (P.p y).1.simplex)
   have h (t : T) : ∃ u, ψ u = t.1.1.toS := by
@@ -69,10 +69,11 @@ section IsRegular
 
 variable [P.IsRegular]
 
-/-- The rank function with values in `ℕ` relative to the well founded
-ancestrality relation of a regular pairing. -/
-noncomputable def rank (x : P.II) : ℕ :=
-  P.rank' (P.wf.apply x)
+/--
+The rank function with values in `ℕ` relative to the well founded
+ancestrality relation of a regular pairing.
+-/
+noncomputable def rank (x : P.II) : ℕ := P.rank' (P.wf.apply x)
 
 variable {P} in
 lemma rank_lt {x y : P.II} (h : P.AncestralRel x y) :

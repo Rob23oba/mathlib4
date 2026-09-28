@@ -26,7 +26,6 @@ forms an extension of `L`.
 
 -/
 
-
 @[expose] public section
 
 namespace LieAlgebra
@@ -36,16 +35,17 @@ The semi-direct sum of two Lie algebras `K` and `L` over `R`, relative to a Lie 
 `ψ: L → LieDerivation R K K`. As a set, it is just `K × L`, however the Lie bracket is twisted by
 `ψ`.
 -/
-@[ext] structure SemiDirectSum {R : Type*} [CommRing R] (K : Type*) [LieRing K] [LieAlgebra R K]
+@[ext]
+structure SemiDirectSum
+    {R : Type*} [CommRing R]
+    (K : Type*) [LieRing K] [LieAlgebra R K]
     (L : Type*) [LieRing L] [LieAlgebra R L] (_ : L →ₗ⁅R⁆ LieDerivation R K K) where
   /-- The element of K -/
   left : K
   /-- The element of L -/
   right : L
 
-@[inherit_doc]
-notation:35 K " ⋊⁅" ψ:35 "⁆ " L:35 => SemiDirectSum K L ψ
-
+@[inherit_doc] notation:35 K " ⋊⁅" ψ:35 "⁆ " L:35 => SemiDirectSum K L ψ
 
 namespace SemiDirectSum
 
@@ -71,14 +71,10 @@ def toProd : K ⋊⁅ψ⁆ L ≃ K × L where
 
 instance : AddCommGroup (K ⋊⁅ψ⁆ L) := toProd.addCommGroup
 
-instance : Module R (K ⋊⁅ψ⁆ L) :=
-  { toProd with map_add' _ _ := rfl : (K ⋊⁅ψ⁆ L) ≃+ K × L }.module R
+instance : Module R (K ⋊⁅ψ⁆ L) := { toProd with map_add' _ _ := rfl : (K ⋊⁅ψ⁆ L) ≃+ K × L }.module R
 
 /-- `LieAlgebra.SemiDirectSum.toProd` as a linear equivalence. -/
-def toProdl : (K ⋊⁅ψ⁆ L) ≃ₗ[R] K × L :=
-  { __ := toProd
-    map_add' _ _ := rfl
-    map_smul' _ _ := rfl }
+def toProdl : (K ⋊⁅ψ⁆ L) ≃ₗ[R] K × L := { __ := toProd, map_add' _ _ := rfl, map_smul' _ _ := rfl }
 
 @[simp] lemma toProdl_coe (x : K ⋊⁅ψ⁆ L) : toProdl ψ x = toProd x := rfl
 @[simp] lemma toProdl_symm_coe (x : K × L) : (toProdl ψ).symm x = toProd.symm x := rfl
@@ -131,8 +127,10 @@ def projr : K ⋊⁅ψ⁆ L →ₗ⁅R⁆ L where
   map_smul' _ _ := by simp
   map_lie' := by simp
 
-/-- The canonical projection of the semi-direct sum K ⋊⁅ψ⁆ L to G.
-It is not, in general, a Lie algebra homomorphism, just a linear map. -/
+/--
+The canonical projection of the semi-direct sum K ⋊⁅ψ⁆ L to G.
+It is not, in general, a Lie algebra homomorphism, just a linear map.
+-/
 def projl : K ⋊⁅ψ⁆ L →ₗ[R] K where
   toFun x := x.left
   map_add' _ _ := by simp

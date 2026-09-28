@@ -115,18 +115,24 @@ lemma Ideal.height_le_one_of_isPrincipal_of_mem_minimalPrimes
   · rwa [IsLocalization.minimalPrimes_map p.primeCompl (Localization.AtPrime p) I,
       Set.mem_preimage, Localization.AtPrime.under_maximalIdeal]
 
-theorem Ideal.map_height_le_one_of_mem_minimalPrimes {I p : Ideal R} {x : R}
-    (hp : p ∈ (I ⊔ span {x}).minimalPrimes) : (p.map (Ideal.Quotient.mk I)).height ≤ 1 :=
+theorem Ideal.map_height_le_one_of_mem_minimalPrimes
+    {I p : Ideal R} {x : R} (hp : p ∈ (I ⊔ span {x}).minimalPrimes)
+    : (p.map (Ideal.Quotient.mk I)).height ≤ 1 :=
   let f := Ideal.Quotient.mk I
   have : p.IsPrime := hp.isPrime
   have hfp : RingHom.ker f ≤ p := I.mk_ker.trans_le (le_sup_left.trans hp.le)
-  height_le_one_of_isPrincipal_of_mem_minimalPrimes ((span {x}).map f) (p.map f)
-    ⟨⟨map_isPrime_of_surjective Quotient.mk_surjective hfp,
-      map_mono (le_sup_right.trans hp.le)⟩,
-        fun _ ⟨hr, hxr⟩ hrp ↦ map_le_iff_le_comap.mpr <| hp.2 ⟨hr.comap f, sup_le_iff.mpr
-          ⟨I.mk_ker.symm.trans_le <| ker_le_comap (Ideal.Quotient.mk I), le_comap_of_map_le hxr⟩⟩ <|
-            (comap_mono hrp).trans <| Eq.le <|
-              (p.comap_map_of_surjective _ Quotient.mk_surjective).trans <| sup_eq_left.mpr hfp⟩
+  height_le_one_of_isPrincipal_of_mem_minimalPrimes ((span {x}).map f) (p.map f) ⟨
+    ⟨map_isPrime_of_surjective Quotient.mk_surjective hfp, map_mono (le_sup_right.trans hp.le)⟩,
+    fun _ ⟨hr, hxr⟩ hrp ↦
+      map_le_iff_le_comap.mpr <|
+        hp.2 ⟨
+            hr.comap f,
+            sup_le_iff.mpr
+              ⟨I.mk_ker.symm.trans_le <| ker_le_comap (Ideal.Quotient.mk I), le_comap_of_map_le hxr⟩
+          ⟩ <|
+          (comap_mono hrp).trans <| Eq.le <|
+            (p.comap_map_of_surjective _ Quotient.mk_surjective).trans <| sup_eq_left.mpr hfp
+  ⟩
 
 /-- In a Noetherian ring, the height of a principal ideal spanned by a non-unit is at most one. -/
 lemma Ideal.height_span_singleton_le_one {x : R} (hx' : ¬ IsUnit x) :
@@ -142,13 +148,17 @@ lemma Ideal.height_span_singleton_eq_one_of_mem_nonZeroDivisors {x : R}
   le_antisymm (height_span_singleton_le_one hx')
     (one_le_height_span_singleton_of_mem_nonZeroDivisors hx)
 
-/-- If `q < p` are prime ideals such that `p` is minimal over `span (s ∪ {x})` and
+/--
+If `q < p` are prime ideals such that `p` is minimal over `span (s ∪ {x})` and
 `t` is a set contained in `q` such that `s ⊆ √span (t ∪ {x})`, then `q` is minimal over `span t`.
-This is used in the induction step for the proof of Krull's height theorem. -/
-theorem Ideal.mem_minimalPrimes_span_of_mem_minimalPrimes_span_insert {q p : Ideal R} [q.IsPrime]
-    (hqp : q < p) (x : R) (s : Set R) (hp : p ∈ (span (insert x s)).minimalPrimes)
-    (t : Set R) (htq : t ⊆ q) (hsp : s ⊆ (span (insert x t)).radical) :
-    q ∈ (span t).minimalPrimes := by
+This is used in the induction step for the proof of Krull's height theorem.
+-/
+theorem Ideal.mem_minimalPrimes_span_of_mem_minimalPrimes_span_insert
+    {q p : Ideal R} [q.IsPrime]
+    (hqp : q < p)
+    (x : R) (s : Set R) (hp : p ∈ (span (insert x s)).minimalPrimes)
+    (t : Set R) (htq : t ⊆ q) (hsp : s ⊆ (span (insert x t)).radical)
+    : q ∈ (span t).minimalPrimes := by
   let f := Quotient.mk (span t)
   have hf : Function.Surjective f := Quotient.mk_surjective
   have hI'q : span t ≤ q := span_le.mpr htq
@@ -156,19 +166,28 @@ theorem Ideal.mem_minimalPrimes_span_of_mem_minimalPrimes_span_insert {q p : Ide
   have := hp.isPrime
   have : (p.map f).IsPrime := map_isPrime_of_surjective hf (by rwa [mk_ker])
   suffices h : (p.map f).height ≤ 1 by
-    have h_lt : q.map f < p.map f := (map_mono hqp.le).lt_of_not_ge fun e ↦ hqp.not_ge <| by
-      simpa only [comap_map_of_surjective f hf, ← RingHom.ker_eq_comap_bot, f, mk_ker,
-        sup_eq_left.mpr hI'q, sup_eq_left.mpr hI'p] using comap_mono (f := f) e
+    have h_lt : q.map f < p.map f :=
+      (map_mono hqp.le).lt_of_not_ge fun e ↦
+        hqp.not_ge <| by
+          simpa only [
+              comap_map_of_surjective f hf, ← RingHom.ker_eq_comap_bot, f, mk_ker,
+              sup_eq_left.mpr hI'q, sup_eq_left.mpr hI'p
+            ]
+            using comap_mono (f := f) e
     have : (q.map f).IsPrime := map_isPrime_of_surjective hf (by rwa [mk_ker])
     have : (p.map f).FiniteHeight := ⟨Or.inr (h.trans_lt (WithTop.coe_lt_top 1)).ne⟩
     have := (height_strict_mono_of_isPrime_of_isPrime h_lt).trans_le h
     rw [Order.lt_one_iff, height_eq_zero_iff] at this
     have := minimalPrimes_comap_of_surjective hf this
-    rwa [comap_map_of_surjective f hf, ← RingHom.ker_eq_comap_bot,
-      mk_ker, sup_eq_left.mpr hI'q] at this
-  refine height_le_one_of_isPrincipal_of_mem_minimalPrimes ((span {x}).map f) (p.map f) ⟨⟨this,
-    map_mono <| span_le.mpr <| Set.singleton_subset_iff.mpr <| hp.le <| subset_span <| .inl rfl⟩,
-    fun r ⟨hr, hxr⟩ hrp ↦ map_le_iff_le_comap.mpr (hp.2 ⟨hr.comap f, ?_⟩ ?_)⟩
+    rwa [comap_map_of_surjective f hf, ← RingHom.ker_eq_comap_bot, mk_ker, sup_eq_left.mpr hI'q] at
+      this
+  refine height_le_one_of_isPrincipal_of_mem_minimalPrimes ((span {x}).map f) (p.map f) ⟨
+    ⟨
+      this,
+      map_mono <| span_le.mpr <| Set.singleton_subset_iff.mpr <| hp.le <| subset_span <| .inl rfl
+    ⟩,
+    fun r ⟨hr, hxr⟩ hrp ↦ map_le_iff_le_comap.mpr (hp.2 ⟨hr.comap f, ?_⟩ ?_)
+  ⟩
   · rw [span_le, Set.insert_subset_iff]
     have := map_le_iff_le_comap.mp hxr (subset_span rfl)
     refine ⟨this, hsp.trans ((hr.comap f).isRadical.radical_le_iff.mpr ?_)⟩
@@ -294,9 +313,9 @@ lemma Ideal.height_le_spanRank (I : Ideal R) (hI : I ≠ ⊤) :
   · exact_mod_cast I.height_le_spanRank_toENat hI
   · exact I.spanRank.ofENat_toENat_le
 
-instance Ideal.finiteHeight_of_isNoetherianRing (I : Ideal R) :
-    I.FiniteHeight := finiteHeight_iff_lt.mpr <| Or.elim (em (I = ⊤)) Or.inl
-  fun h ↦ Or.inr <| (I.height_le_spanFinrank h).trans_lt (ENat.natCast_lt_top _)
+instance Ideal.finiteHeight_of_isNoetherianRing (I : Ideal R) : I.FiniteHeight :=
+  finiteHeight_iff_lt.mpr <| Or.elim (em (I = ⊤)) Or.inl fun h ↦
+    Or.inr <| (I.height_le_spanFinrank h).trans_lt (ENat.natCast_lt_top _)
 
 instance [IsLocalRing R] : FiniteRingKrullDim R := by
   apply finiteRingKrullDim_iff_ne_bot_and_top.mpr
@@ -305,8 +324,8 @@ instance [IsLocalRing R] : FiniteRingKrullDim R := by
   · exact WithBot.coe_ne_bot
   · rw [← WithBot.coe_top, ne_eq, WithBot.coe_inj]
     exact ((IsLocalRing.maximalIdeal R).finiteHeight_iff.mp
-      (IsLocalRing.maximalIdeal R).finiteHeight_of_isNoetherianRing).resolve_left
-        Ideal.IsPrime.ne_top'
+        (IsLocalRing.maximalIdeal R).finiteHeight_of_isNoetherianRing).resolve_left
+      Ideal.IsPrime.ne_top'
 
 lemma Ideal.exists_spanRank_eq_and_height_eq (I : Ideal R) (hI : I ≠ ⊤) :
     ∃ J ≤ I, J.spanRank = I.height ∧ J.height = I.height := by

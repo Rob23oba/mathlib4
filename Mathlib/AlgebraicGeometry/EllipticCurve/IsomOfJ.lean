@@ -325,9 +325,11 @@ private lemma exists_variableChange_of_char_ne_two_or_three
 
 end CharNeTwoOrThree
 
-/-- If there are two elliptic curves with the same `j`-invariants defined over a
+/--
+If there are two elliptic curves with the same `j`-invariants defined over a
 separably closed field, then there exists a change of variables over that field which change
-one curve into another. -/
+one curve into another.
+-/
 theorem exists_variableChange_of_j_eq (heq : E.j = E'.j) : ∃ C : VariableChange F, C • E = E' := by
   obtain ⟨p, _⟩ := CharP.exists F
   by_cases hchar2 : p = 2

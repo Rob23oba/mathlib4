@@ -62,8 +62,8 @@ lemma antipode_mul_antidistrib (a b : A) : antipode R (a * b) = antipode R b * a
 variable (R A) in
 /-- The antipode of a commutative Hopf algebra as an anti-algebra hom. -/
 @[expose, simps!]
-def antipodeAlgHomOp : A →ₐ[R] Aᵐᵒᵖ := .ofLinearMap
-    ((MulOpposite.opLinearEquiv R).toLinearMap ∘ₗ antipode R)
+def antipodeAlgHomOp : A →ₐ[R] Aᵐᵒᵖ :=
+  .ofLinearMap ((MulOpposite.opLinearEquiv R).toLinearMap ∘ₗ antipode R)
     (MulOpposite.op_injective (by simp))
     (fun x y ↦ MulOpposite.op_injective (by simp [antipode_mul_antidistrib]))
 
@@ -98,16 +98,20 @@ end LinearMap
 namespace HopfAlgebra
 variable [Semiring A] [HopfAlgebra R A] {f : A →ₗ[R] A}
 
-/-- The antipode is the unique left convolution inverse of the identity: any `R`-linear map `f`
-with `f * id = 1` in the convolution monoid equals the antipode. -/
-theorem eq_antipode_of_convMul_id_eq_one (h : toConv f * toConv LinearMap.id = 1) :
-    f = antipode R :=
+/--
+The antipode is the unique left convolution inverse of the identity: any `R`-linear map `f`
+with `f * id = 1` in the convolution monoid equals the antipode.
+-/
+theorem eq_antipode_of_convMul_id_eq_one (h : toConv f * toConv LinearMap.id = 1)
+    : f = antipode R :=
   toConv_injective (left_inv_eq_right_inv h LinearMap.id_mul_antipode)
 
-/-- The antipode is the unique right convolution inverse of the identity: any `R`-linear map `f`
-with `id * f = 1` in the convolution monoid equals the antipode. -/
-theorem eq_antipode_of_id_convMul_eq_one (h : toConv LinearMap.id * toConv f = 1) :
-    f = antipode R :=
+/--
+The antipode is the unique right convolution inverse of the identity: any `R`-linear map `f`
+with `id * f = 1` in the convolution monoid equals the antipode.
+-/
+theorem eq_antipode_of_id_convMul_eq_one (h : toConv LinearMap.id * toConv f = 1)
+    : f = antipode R :=
   toConv_injective (left_inv_eq_right_inv LinearMap.antipode_mul_id h).symm
 
 end HopfAlgebra
@@ -145,16 +149,21 @@ instance convInv : Inv (WithConv <| A →ₐ[R] C) where
 
 instance convGroup : Group (WithConv <| A →ₐ[R] C) where
   inv_mul_cancel f := by
-    have H : (lmul' R).comp (Algebra.TensorProduct.map f.ofConv f.ofConv) =
-      f.ofConv.comp (lmul' R) := by ext <;> simp
+    have H
+        : (lmul' R).comp (Algebra.TensorProduct.map f.ofConv f.ofConv)
+          = f.ofConv.comp (lmul' R) := by
+      ext <;> simp
     trans toConv <| ((lmul' R).comp (Algebra.TensorProduct.map f.ofConv f.ofConv)).comp
       ((Algebra.TensorProduct.map
       (HopfAlgebra.antipodeAlgHom R A) (.id _ _)).comp (comulAlgHom R A))
-    · rw [AlgHom.comp_assoc, ← AlgHom.comp_assoc (Algebra.TensorProduct.map f.ofConv f.ofConv),
-        ← Algebra.TensorProduct.map_comp]; rfl
+    · rw [
+        AlgHom.comp_assoc, ← AlgHom.comp_assoc (Algebra.TensorProduct.map f.ofConv f.ofConv),
+        ← Algebra.TensorProduct.map_comp
+      ]
+      rfl
     rw [H, AlgHom.comp_assoc, WithConv.ext_iff, ← AlgHom.toLinearMap_injective.eq_iff]
-    change f.ofConv.toLinearMap.comp (toConv (antipode R (A := A)) * toConv LinearMap.id).ofConv =
-      ofConv (1 : WithConv <| A →ₗ[R] C)
+    change f.ofConv.toLinearMap.comp (toConv (antipode R (A := A)) * toConv LinearMap.id).ofConv
+      = ofConv (1 : WithConv <| A →ₗ[R] C)
     rw [LinearMap.antipode_mul_id]
     ext
     simp

@@ -62,28 +62,35 @@ namespace CategoryTheory
 
 open Category Localization CategoryTheory.Functor
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} [Category.{v₁} C₁] [Category.{v₂} C₂]
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} [Category.{v₁} C₁] [Category.{v₂} C₂]
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
 
 namespace LocalizerMorphism
 
 variable (Φ : LocalizerMorphism W₁ W₂)
 
-/-- A localizer morphism `Φ : LocalizerMorphism W₁ W₂` is a right derivability
+/--
+A localizer morphism `Φ : LocalizerMorphism W₁ W₂` is a right derivability
 structure if it has right resolutions and the 2-square where the left and right functors
-are localization functors for `W₁` and `W₂` are Guitart exact. -/
+are localization functors for `W₁` and `W₂` are Guitart exact.
+-/
 class IsRightDerivabilityStructure : Prop where
   hasRightResolutions : Φ.HasRightResolutions := by infer_instance
-  /-- Do not use this field directly: use the more general
+  /--
+  Do not use this field directly: use the more general
   `guitartExact_of_isRightDerivabilityStructure` instead,
-  see also the lemma `isRightDerivabilityStructure_iff`. -/
+  see also the lemma `isRightDerivabilityStructure_iff`.
+  -/
   guitartExact' : TwoSquare.GuitartExact ((Φ.catCommSq W₁.Q W₂.Q).iso).hom
 
-attribute [instance] IsRightDerivabilityStructure.hasRightResolutions
-  IsRightDerivabilityStructure.guitartExact'
+attribute [instance]
+  IsRightDerivabilityStructure.hasRightResolutions IsRightDerivabilityStructure.guitartExact'
 
-variable {D₁ D₂ : Type*} [Category* D₁] [Category* D₂] (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂)
-  [L₁.IsLocalization W₁] [L₂.IsLocalization W₂] (F : D₁ ⥤ D₂)
+variable
+  {D₁ D₂ : Type*} [Category* D₁] [Category* D₂]
+  (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) [L₁.IsLocalization W₁] [L₂.IsLocalization W₂]
+  (F : D₁ ⥤ D₂)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -116,36 +123,43 @@ lemma isRightDerivabilityStructure_iff [Φ.HasRightResolutions] (e : Φ.functor 
     simp
   rw [← TwoSquare.GuitartExact.vComp'_iff_of_equivalences e'.hom E₁ E₂ e''' e₁ e₂, this]
 
-instance guitartExact_of_isRightDerivabilityStructure' [h : Φ.IsRightDerivabilityStructure]
-    (e : Φ.functor ⋙ L₂ ≅ L₁ ⋙ F) : TwoSquare.GuitartExact e.hom := by
+instance guitartExact_of_isRightDerivabilityStructure'
+    [h : Φ.IsRightDerivabilityStructure] (e : Φ.functor ⋙ L₂ ≅ L₁ ⋙ F)
+    : TwoSquare.GuitartExact e.hom := by
   simpa only [Φ.isRightDerivabilityStructure_iff L₁ L₂ F e] using h
 
-instance guitartExact_of_isRightDerivabilityStructure [Φ.IsRightDerivabilityStructure] :
-    TwoSquare.GuitartExact ((Φ.catCommSq L₁ L₂).iso).hom :=
+instance guitartExact_of_isRightDerivabilityStructure [Φ.IsRightDerivabilityStructure]
+    : TwoSquare.GuitartExact ((Φ.catCommSq L₁ L₂).iso).hom :=
   guitartExact_of_isRightDerivabilityStructure' _ _ _ _ _
 
-instance [W₁.ContainsIdentities] : (LocalizerMorphism.id W₁).HasRightResolutions :=
-  fun X₂ => ⟨RightResolution.mk (𝟙 X₂) (W₁.id_mem X₂)⟩
+instance [W₁.ContainsIdentities] : (LocalizerMorphism.id W₁).HasRightResolutions := fun X₂ =>
+  ⟨RightResolution.mk (𝟙 X₂) (W₁.id_mem X₂)⟩
 
 set_option backward.defeqAttrib.useBackward true in
 instance [W₁.ContainsIdentities] : (LocalizerMorphism.id W₁).IsRightDerivabilityStructure := by
-  rw [(LocalizerMorphism.id W₁).isRightDerivabilityStructure_iff W₁.Q W₁.Q (𝟭 W₁.Localization)
-    (Iso.refl _)]
+  rw [
+    (LocalizerMorphism.id W₁).isRightDerivabilityStructure_iff W₁.Q W₁.Q (𝟭 W₁.Localization)
+      (Iso.refl _)
+  ]
   dsimp
   exact TwoSquare.guitartExact_id W₁.Q
 
-/-- A localizer morphism `Φ : LocalizerMorphism W₁ W₂` is a left derivability
+/--
+A localizer morphism `Φ : LocalizerMorphism W₁ W₂` is a left derivability
 structure if it has left resolutions and the 2-square where the top and bottom functors
-are localization functors for `W₁` and `W₂` is Guitart exact. -/
+are localization functors for `W₁` and `W₂` is Guitart exact.
+-/
 class IsLeftDerivabilityStructure : Prop where
   hasLeftResolutions : Φ.HasLeftResolutions := by infer_instance
-  /-- Do not use this field directly: use the more general
+  /--
+  Do not use this field directly: use the more general
   `guitartExact_of_isLeftDerivabilityStructure` instead,
-  see also the lemma `isLeftDerivabilityStructure_iff`. -/
+  see also the lemma `isLeftDerivabilityStructure_iff`.
+  -/
   guitartExact' : TwoSquare.GuitartExact ((Φ.catCommSq W₁.Q W₂.Q).iso).inv
 
-attribute [instance] IsLeftDerivabilityStructure.hasLeftResolutions
-  IsLeftDerivabilityStructure.guitartExact'
+attribute [instance]
+  IsLeftDerivabilityStructure.hasLeftResolutions IsLeftDerivabilityStructure.guitartExact'
 
 lemma isLeftDerivabilityStructure_iff_op :
     Φ.IsLeftDerivabilityStructure ↔
@@ -173,21 +187,24 @@ lemma isLeftDerivabilityStructure_iff [Φ.HasLeftResolutions] (e : Φ.functor �
     ← TwoSquare.guitartExact_op_iff e.inv]
   rfl
 
-instance guitartExact_of_isLeftDerivabilityStructure' [h : Φ.IsLeftDerivabilityStructure]
-    (e : Φ.functor ⋙ L₂ ≅ L₁ ⋙ F) : TwoSquare.GuitartExact e.inv := by
+instance guitartExact_of_isLeftDerivabilityStructure'
+    [h : Φ.IsLeftDerivabilityStructure] (e : Φ.functor ⋙ L₂ ≅ L₁ ⋙ F)
+    : TwoSquare.GuitartExact e.inv := by
   simpa only [Φ.isLeftDerivabilityStructure_iff L₁ L₂ F e] using h
 
-instance guitartExact_of_isLeftDerivabilityStructure [Φ.IsLeftDerivabilityStructure] :
-    TwoSquare.GuitartExact ((Φ.catCommSq L₁ L₂).iso).inv :=
+instance guitartExact_of_isLeftDerivabilityStructure [Φ.IsLeftDerivabilityStructure]
+    : TwoSquare.GuitartExact ((Φ.catCommSq L₁ L₂).iso).inv :=
   guitartExact_of_isLeftDerivabilityStructure' _ _ _ _ _
 
-instance [W₁.ContainsIdentities] : (LocalizerMorphism.id W₁).HasLeftResolutions :=
-  fun X₂ => ⟨LeftResolution.mk (𝟙 X₂) (W₁.id_mem X₂)⟩
+instance [W₁.ContainsIdentities] : (LocalizerMorphism.id W₁).HasLeftResolutions := fun X₂ =>
+  ⟨LeftResolution.mk (𝟙 X₂) (W₁.id_mem X₂)⟩
 
 set_option backward.defeqAttrib.useBackward true in
 instance [W₁.ContainsIdentities] : (LocalizerMorphism.id W₁).IsLeftDerivabilityStructure := by
-  rw [(LocalizerMorphism.id W₁).isLeftDerivabilityStructure_iff W₁.Q W₁.Q (𝟭 W₁.Localization)
-    (Iso.refl _)]
+  rw [
+    (LocalizerMorphism.id W₁).isLeftDerivabilityStructure_iff W₁.Q W₁.Q (𝟭 W₁.Localization)
+      (Iso.refl _)
+  ]
   dsimp
   exact TwoSquare.guitartExact_id' W₁.Q
 

@@ -51,11 +51,9 @@ section Countable
 
 variable [Countable α]
 
-@[to_additive]
-instance : Countable (FreeMonoid α) := inferInstanceAs <| Countable (List α)
+@[to_additive] instance : Countable (FreeMonoid α) := inferInstanceAs <| Countable (List α)
 
-@[to_additive]
-instance : Countable (FreeGroup α) := inferInstanceAs <| Countable (Quot _)
+@[to_additive] instance : Countable (FreeGroup α) := inferInstanceAs <| Countable (Quot _)
 
 instance : Countable (FreeAbelianGroup α) := inferInstanceAs <| Countable (Quot _)
 
@@ -69,8 +67,8 @@ end Countable
 
 namespace Cardinal
 
-theorem mk_abelianization_le (G : Type u) [Group G] :
-    #(Abelianization G) ≤ #G := Cardinal.mk_le_of_surjective Quotient.mk_surjective
+theorem mk_abelianization_le (G : Type u) [Group G] : #(Abelianization G) ≤ #G :=
+  Cardinal.mk_le_of_surjective Quotient.mk_surjective
 
 @[to_additive (attr := simp)]
 theorem mk_freeMonoid [Nonempty α] : #(FreeMonoid α) = max #α ℵ₀ :=
@@ -81,13 +79,17 @@ theorem mk_freeGroup [Nonempty α] : #(FreeGroup α) = max #α ℵ₀ := by
   classical
   apply le_antisymm
   · apply (mk_le_of_injective (FreeGroup.toWord_injective (α := α))).trans_eq
-    simp only [mk_list_eq_max_mk_aleph0, mk_prod, lift_uzero, mk_fintype, Fintype.card_bool,
-      Nat.cast_ofNat, lift_ofNat]
+    simp only [
+      mk_list_eq_max_mk_aleph0, mk_prod, lift_uzero, mk_fintype, Fintype.card_bool, Nat.cast_ofNat,
+      lift_ofNat
+    ]
     obtain hα | hα := lt_or_ge #α ℵ₀
     · simp only [hα.le, max_eq_right, max_eq_right_iff]
       exact (mul_lt_aleph0 hα natCast_lt_aleph0).le
-    · rw [max_eq_left hα, max_eq_left (hα.trans <| Cardinal.le_mul_right two_ne_zero),
-        Cardinal.mul_eq_left hα _ (by simp)]
+    · rw [
+        max_eq_left hα, max_eq_left (hα.trans <| Cardinal.le_mul_right two_ne_zero),
+        Cardinal.mul_eq_left hα _ (by simp)
+      ]
       exact natCast_le_aleph0.trans hα
   · apply max_le
     · exact mk_le_of_injective FreeGroup.of_injective
@@ -110,16 +112,19 @@ end Cardinal
 
 section Nonempty
 
-/-- A commutative ring can be constructed on any non-empty type.
+/--
+A commutative ring can be constructed on any non-empty type.
 
-See also `Infinite.nonempty_field`. -/
+See also `Infinite.nonempty_field`.
+-/
 instance nonempty_commRing [Nonempty α] : Nonempty (CommRing α) := by
   obtain hR | hR := finite_or_infinite α
   · obtain ⟨x⟩ := nonempty_fintype α
     have : NeZero (Fintype.card α) := ⟨by simp⟩
     classical
     obtain ⟨e⟩ := Fintype.truncEquivFin α
-    exact ⟨open scoped Fin.CommRing in e.commRing⟩
+    exact ⟨open scoped Fin.CommRing in
+      e.commRing⟩
   · have ⟨e⟩ : Nonempty (α ≃ FreeCommRing α) := by simp [← Cardinal.eq]
     exact ⟨e.commRing⟩
 

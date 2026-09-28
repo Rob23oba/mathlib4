@@ -10,7 +10,6 @@ public import Mathlib.Algebra.Free
 public import Mathlib.Algebra.Group.WithOne.Basic
 public import Mathlib.Algebra.Group.Units.Basic
 public import Mathlib.Data.Set.Operations
-
 import Mathlib.Data.Set.Insert
 
 /-!
@@ -37,12 +36,12 @@ The natural embedding of the free semigroup into the free monoid.
 This is injective (`FreeSemigroup.toFreeMonoid_injective`), and its image
 consists of all non-`1` elements of the free monoid (`FreeSemigroup.eq_one_or_toFreeMonoid`).
 -/
-@[expose, to_additive /-- The natural embedding of the free additive semigroup into the
+@[expose,
+  to_additive /-- The natural embedding of the free additive semigroup into the
 free additive monoid. This is injective (`FreeAddSemigroup.toFreeAddMonoid_injective`), and its
 image consists of all non-`0` elements of the free additive monoid
 (`FreeAddSemigroup.eq_zero_or_toFreeAddMonoid`). -/]
-def toFreeMonoid : FreeSemigroup α →ₙ* FreeMonoid α :=
-  lift FreeMonoid.of
+def toFreeMonoid : FreeSemigroup α →ₙ* FreeMonoid α := lift FreeMonoid.of
 
 @[to_additive (attr := simp, grind =)]
 lemma toFreeMonoid_of (x : α) : toFreeMonoid (.of x) = .of x := rfl
@@ -79,10 +78,9 @@ end FreeSemigroup
 
 open FreeSemigroup FreeMonoid WithOne
 
-/--
-The free monoid on `α` is isomorphic to the free semigroup on `α` with a `1` added.
--/
-@[expose, to_additive (attr := simps) /-- The free additive monoid on `α` is isomorphic to
+/-- The free monoid on `α` is isomorphic to the free semigroup on `α` with a `1` added. -/
+@[expose,
+  to_additive (attr := simps) /-- The free additive monoid on `α` is isomorphic to
 the free additive semigroup on `α` with a `0` added. -/]
 def FreeMonoid.equivWithOneFreeSemigroup : FreeMonoid α ≃* WithOne (FreeSemigroup α) where
   toFun := lift fun x ↦ ↑(FreeSemigroup.of x)

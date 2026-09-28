@@ -28,8 +28,10 @@ namespace CategoryTheory.Limits
 
 variable {C : Type u} [Category.{v} C]
 
-/-- Given two morphisms `f₁ : X₁ ⟶ S` and `f₂ : X₂ ⟶ S`, this is the choice
-of a pullback of `f₁` and `f₂`. -/
+/--
+Given two morphisms `f₁ : X₁ ⟶ S` and `f₂ : X₂ ⟶ S`, this is the choice
+of a pullback of `f₁` and `f₂`.
+-/
 structure ChosenPullback {X₁ X₂ S : C} (f₁ : X₁ ⟶ S) (f₂ : X₂ ⟶ S) where
   /-- the pullback -/
   pullback : C
@@ -48,8 +50,7 @@ namespace ChosenPullback
 
 section
 
-variable {X₁ X₂ S : C} {f₁ : X₁ ⟶ S} {f₂ : X₂ ⟶ S}
-  (h : ChosenPullback f₁ f₂)
+variable {X₁ X₂ S : C} {f₁ : X₁ ⟶ S} {f₂ : X₂ ⟶ S} (h : ChosenPullback f₁ f₂)
 
 attribute [reassoc] condition
 
@@ -68,10 +69,12 @@ lemma hom_ext {Y : C} {f g : Y ⟶ h.pullback}
     f = g :=
   h.isPullback.hom_ext h₁ h₂
 
-/-- Given `f₁ : X₁ ⟶ S`, `f₂ : X₂ ⟶ S`, `h : ChosenPullback f₁ f₂` and morphisms
+/--
+Given `f₁ : X₁ ⟶ S`, `f₂ : X₂ ⟶ S`, `h : ChosenPullback f₁ f₂` and morphisms
 `g₁ : Y ⟶ X₁`, `g₂ : Y ⟶ X₂` and `b : Y ⟶ S`, this structure contains a morphism
 `Y ⟶ h.pullback` such that `f ≫ h.p₁ = g₁`, `f ≫ h.p₂ = g₂` and `f ≫ h.p = b`.
-(This is nonempty only when `g₁ ≫ f₁ = g₂ ≫ f₂ = b`.) -/
+(This is nonempty only when `g₁ ≫ f₁ = g₂ ≫ f₂ = b`.)
+-/
 structure LiftStruct {Y : C} (g₁ : Y ⟶ X₁) (g₂ : Y ⟶ X₂) (b : Y ⟶ S) where
   /-- a lifting to the pullback -/
   f : Y ⟶ h.pullback
@@ -110,20 +113,25 @@ end
 
 variable {X S : C} {f : X ⟶ S} (h : ChosenPullback f f)
 
-/-- Given `f : X ⟶ S` and `h : ChosenPullback f f`, this is the type of
-morphisms `l : X ⟶ h.pullback` that are equal to the diagonal map. -/
+/--
+Given `f : X ⟶ S` and `h : ChosenPullback f f`, this is the type of
+morphisms `l : X ⟶ h.pullback` that are equal to the diagonal map.
+-/
 abbrev Diagonal := h.LiftStruct (𝟙 X) (𝟙 X) f
 
 instance : Nonempty h.Diagonal := by apply LiftStruct.nonempty <;> cat_disch
 
 end ChosenPullback
 
-variable {X₁ X₂ X₃ S : C} {f₁ : X₁ ⟶ S} {f₂ : X₂ ⟶ S} {f₃ : X₃ ⟶ S}
+variable
+  {X₁ X₂ X₃ S : C} {f₁ : X₁ ⟶ S} {f₂ : X₂ ⟶ S} {f₃ : X₃ ⟶ S}
   (h₁₂ : ChosenPullback f₁ f₂) (h₂₃ : ChosenPullback f₂ f₃) (h₁₃ : ChosenPullback f₁ f₃)
 
-/-- Given three morphisms `f₁ : X₁ ⟶ S`, `f₂ : X₂ ⟶ S` and `f₃ : X₃ ⟶ S`, and chosen
+/--
+Given three morphisms `f₁ : X₁ ⟶ S`, `f₂ : X₂ ⟶ S` and `f₃ : X₃ ⟶ S`, and chosen
 pullbacks for `(f₁, f₂)`, `(f₂, f₃)` and `(f₁, f₃)`, this structure contains the data
-of a wide pullback of the three morphisms `f₁`, `f₂` and `f₃`. -/
+of a wide pullback of the three morphisms `f₁`, `f₂` and `f₃`.
+-/
 structure ChosenPullback₃ where
   /-- A chosen pullback of `h₁₂.pullback` and `h₂₃.pullback` over `X₂`. -/
   chosenPullback : ChosenPullback h₁₂.p₂ h₂₃.p₁
@@ -133,8 +141,10 @@ structure ChosenPullback₃ where
   p₁ : chosenPullback.pullback ⟶ X₁ := chosenPullback.p₁ ≫ h₁₂.p₁
   /-- The projection from the wide pullback of `(f₁, f₂, f₃)` to `X₃`. -/
   p₃ : chosenPullback.pullback ⟶ X₃ := chosenPullback.p₂ ≫ h₂₃.p₂
-  /-- A morphism from the wide pullback `(f₁, f₂, f₃)` to the pullback of `f₁` and `f₃`
-  that is compatible with projections. -/
+  /--
+  A morphism from the wide pullback `(f₁, f₂, f₃)` to the pullback of `f₁` and `f₃`
+  that is compatible with projections.
+  -/
   l : h₁₃.LiftStruct p₁ p₃ p
   hp₁ : chosenPullback.p₁ ≫ h₁₂.p₁ = p₁ := by cat_disch
   hp₃ : chosenPullback.p₂ ≫ h₂₃.p₂ = p₃ := by cat_disch

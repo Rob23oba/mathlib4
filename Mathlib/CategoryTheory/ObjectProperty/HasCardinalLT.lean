@@ -26,10 +26,12 @@ variable {C : Type u} [Category.{v} C]
 
 namespace ObjectProperty
 
-/-- The property that the subtype of objects satisfying a property `P : ObjectProperty C`
-is of cardinality `< κ`. -/
+/--
+The property that the subtype of objects satisfying a property `P : ObjectProperty C`
+is of cardinality `< κ`.
+-/
 protected abbrev HasCardinalLT (P : ObjectProperty C) (κ : Cardinal.{w}) :=
-    _root_.HasCardinalLT (Subtype P) κ
+  _root_.HasCardinalLT (Subtype P) κ
 
 lemma hasCardinalLT_subtype_ofObj
     {ι : Type*} (X : ι → C) {κ : Cardinal.{w}}

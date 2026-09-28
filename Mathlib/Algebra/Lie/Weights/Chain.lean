@@ -59,7 +59,8 @@ It should be possible to unify some of the definitions here such as `LieModule.c
 
 open Module Function Set
 
-variable {R L : Type*} [CommRing R] [LieRing L] [LieAlgebra R L]
+variable
+  {R L : Type*} [CommRing R] [LieRing L] [LieAlgebra R L]
   (M : Type*) [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
 
 namespace LieModule
@@ -103,11 +104,12 @@ lemma exists₂_genWeightSpace_smul_add_eq_bot :
 
 end
 
-/-- Given two (potential) weights `χ₁` and `χ₂` together with integers `p` and `q`, it is often
+/--
+Given two (potential) weights `χ₁` and `χ₂` together with integers `p` and `q`, it is often
 useful to study the sum of weight spaces associated to the family of weights `k • χ₁ + χ₂` for
-`p < k < q`. -/
-def genWeightSpaceChain : LieSubmodule R L M :=
-  ⨆ k ∈ Ioo p q, genWeightSpace M (k • χ₁ + χ₂)
+`p < k < q`.
+-/
+def genWeightSpaceChain : LieSubmodule R L M := ⨆ k ∈ Ioo p q, genWeightSpace M (k • χ₁ + χ₂)
 
 lemma genWeightSpaceChain_def :
     genWeightSpaceChain M χ₁ χ₂ p q = ⨆ k ∈ Ioo p q, genWeightSpace M (k • χ₁ + χ₂) :=
@@ -259,16 +261,16 @@ variable [IsAddTorsionFree R] [IsDomain R] [IsTorsionFree R M] [IsNoetherian R M
 variable (α : L → R) (β : Weight R L M)
 
 /-- This is the largest `n : ℕ` such that `i • α + β` is a weight for all `0 ≤ i ≤ n`. -/
-noncomputable
-def chainTopCoeff : ℕ :=
+noncomputable def chainTopCoeff : ℕ :=
   letI := Classical.propDecidable
-  if hα : α = 0 then 0 else
-  Nat.pred <| Nat.find (show ∃ n, genWeightSpace M (n • α + β : L → R) = ⊥ from
-    (eventually_genWeightSpace_smul_add_eq_bot M α β hα).exists)
+  if hα : α = 0 then
+    0
+  else
+    Nat.pred <| Nat.find (show ∃ n, genWeightSpace M (n • α + β : L → R) = ⊥ from
+      (eventually_genWeightSpace_smul_add_eq_bot M α β hα).exists)
 
 /-- This is the largest `n : ℕ` such that `-i • α + β` is a weight for all `0 ≤ i ≤ n`. -/
-noncomputable
-def chainBotCoeff : ℕ := chainTopCoeff (-α) β
+noncomputable def chainBotCoeff : ℕ := chainTopCoeff (-α) β
 
 @[simp] lemma chainTopCoeff_neg : chainTopCoeff (-α) β = chainBotCoeff α β := rfl
 @[simp] lemma chainBotCoeff_neg : chainBotCoeff (-α) β = chainTopCoeff α β := by
@@ -336,13 +338,11 @@ lemma genWeightSpace_neg_zsmul_add_ne_bot {n : ℕ} (hn : n ≤ chainBotCoeff α
   apply genWeightSpace_zsmul_add_ne_bot α β <;> lia
 
 /-- The last weight in an `α`-chain through `β`. -/
-noncomputable
-def chainTop (α : L → R) (β : Weight R L M) : Weight R L M :=
+noncomputable def chainTop (α : L → R) (β : Weight R L M) : Weight R L M :=
   ⟨chainTopCoeff α β • α + β, genWeightSpace_nsmul_add_ne_bot_of_le α β le_rfl⟩
 
 /-- The first weight in an `α`-chain through `β`. -/
-noncomputable
-def chainBot (α : L → R) (β : Weight R L M) : Weight R L M :=
+noncomputable def chainBot (α : L → R) (β : Weight R L M) : Weight R L M :=
   ⟨(- chainBotCoeff α β : ℤ) • α + β, genWeightSpace_neg_zsmul_add_ne_bot α β le_rfl⟩
 
 lemma coe_chainTop' : (chainTop α β : L → R) = chainTopCoeff α β • α + β := rfl
@@ -390,9 +390,9 @@ section Field
 
 open LieAlgebra LieModule
 
-variable {K : Type*} [Field K] [CharZero K] [LieAlgebra K L]
-  (H : LieSubalgebra K L) [LieRing.IsNilpotent H]
-  [Module K M] [LieModule K L M]
+variable
+  {K : Type*} [Field K] [CharZero K] [LieAlgebra K L]
+  (H : LieSubalgebra K L) [LieRing.IsNilpotent H] [Module K M] [LieModule K L M]
   [IsTriangularizable K H M] [FiniteDimensional K M]
 
 lemma LieModule.isNilpotent_toEnd_of_mem_rootSpace

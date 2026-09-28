@@ -28,17 +28,22 @@ showing it has an Iwasawa structure.
 
 variable {F : Type*} [Field F] {ι : Type*} [DecidableEq ι] [Fintype ι]
 
-/-- The "unipotent radical" attached to a subspace `L ⊆ ι → F`: the subgroup of
+/--
+The "unipotent radical" attached to a subspace `L ⊆ ι → F`: the subgroup of
 `SL ι F` consisting of matrices `A` such that `A - 1` sends every vector into `L`.
-When `L` is one-dimensional this is an abelian subgroup of the stabilizer of `L` in `SL`. -/
-def Matrix.SpecialLinearGroup.lineStab (L : Submodule F (ι → F)) :
-    Subgroup (SpecialLinearGroup ι F) where
+When `L` is one-dimensional this is an abelian subgroup of the stabilizer of `L` in `SL`.
+-/
+def Matrix.SpecialLinearGroup.lineStab (L : Submodule F (ι → F))
+    : Subgroup (SpecialLinearGroup ι F) where
   carrier := {A | ∀ w : ι → F, A • w - w ∈ L}
   one_mem' := by simp
   mul_mem' {A B} hA hB := fun w ↦ by
     simp only [Set.mem_ofPred_eq, mul_smul] at hA hB ⊢
-    rw [show A • B • w - w = ((A • (B • w) - A • w) - (B • w - w)) +
-      (B • w - w) + (A • w - w) by abel, ← smul_sub]
+    rw [
+      show A • B • w - w = ((A • (B • w) - A • w) - (B • w - w)) + (B • w - w) + (A • w - w) by
+        abel,
+      ← smul_sub
+    ]
     exact add_mem (add_mem (hA _) (hB w)) (hA w)
   inv_mem' {A} hA := fun w ↦ by
     convert neg_mem (hA (A⁻¹ • w)) using 1
@@ -51,13 +56,14 @@ lemma Matrix.SpecialLinearGroup.mem_lineStab_iff (A : SpecialLinearGroup ι F)
 
 open scoped LinearAlgebra.Projectivization
 
-/-- The candidate family of subgroups for the Iwasawa structure on
+/--
+The candidate family of subgroups for the Iwasawa structure on
 `PSL ι F` acting on the projective space `ℙ F (ι → F)`: the unipotent radical
-attached to the line through `p`. -/
-noncomputable abbrev PSL.iwasawaT (p : ℙ F (ι → F)) :
-    Subgroup (Matrix.ProjectiveSpecialLinearGroup ι F) :=
-  Subgroup.map (QuotientGroup.mk' _)
-    (Matrix.SpecialLinearGroup.lineStab p.submodule)
+attached to the line through `p`.
+-/
+noncomputable abbrev PSL.iwasawaT (p : ℙ F (ι → F))
+    : Subgroup (Matrix.ProjectiveSpecialLinearGroup ι F) :=
+  Subgroup.map (QuotientGroup.mk' _) (Matrix.SpecialLinearGroup.lineStab p.submodule)
 
 open scoped Pointwise
 

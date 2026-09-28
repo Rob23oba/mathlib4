@@ -78,7 +78,7 @@ lemma PSL.iSup_iwasawaT_eq_top :
 open MulAction
 
 /-- The Iwasawa structure on PSL(2, F). -/
-noncomputable abbrev PSL2.Iwasawa : IwasawaStructure PSL(2, F) (ℙ F (Fin 2 → F)) where
+noncomputable abbrev PSL2.Iwasawa : IwasawaStructure (PSL(2, F)) (ℙ F (Fin 2 → F)) where
   T := PSL.iwasawaT
   is_comm p := by
     have hSL : IsMulCommutative (lineStab (F := F) (ι := Fin 2) p.submodule) := by
@@ -89,8 +89,7 @@ noncomputable abbrev PSL2.Iwasawa : IwasawaStructure PSL(2, F) (ℙ F (Fin 2 →
     obtain ⟨g_SL, rfl⟩ := QuotientGroup.mk_surjective g
     rw [Matrix.ProjectiveSpecialLinearGroup.smul_proj_mk]
     change Subgroup.map _ _ = _
-    rw [PSL.smul_submodule, Matrix.SpecialLinearGroup.lineStab_smul,
-      PSL.iwasawaT_map_conj]
+    rw [PSL.smul_submodule, Matrix.SpecialLinearGroup.lineStab_smul, PSL.iwasawaT_map_conj]
   is_generator := PSL.iSup_iwasawaT_eq_top
 
 namespace SL2Simple
@@ -105,23 +104,26 @@ lemma PSL_commutator_eq_top (hF : ∃ a : F, a ≠ 0 ∧ a ^ 2 ≠ 1) :
   have : Group.IsPerfect (Matrix.ProjectiveSpecialLinearGroup (Fin 2) F) := inferInstance
   exact this.commutator_eq_top
 
-/-- `PSL ι F` is nontrivial whenever `ι` has at least two elements (and `F` is a field,
-hence in particular nontrivial). -/
-instance PSL_nontrivial [Nontrivial ι] :
-    Nontrivial (Matrix.ProjectiveSpecialLinearGroup ι F) := by
+/--
+`PSL ι F` is nontrivial whenever `ι` has at least two elements (and `F` is a field,
+hence in particular nontrivial).
+-/
+instance PSL_nontrivial [Nontrivial ι] : Nontrivial (Matrix.ProjectiveSpecialLinearGroup ι F) := by
   obtain ⟨i₁, i₂, hij⟩ := exists_pair_ne ι
   set g : Matrix.SpecialLinearGroup ι F := transvection hij 1
-  refine ⟨⟨(QuotientGroup.mk g : Matrix.ProjectiveSpecialLinearGroup ι F),
-    1, fun h ↦ one_ne_zero (α := F) ?_⟩⟩
+  refine ⟨⟨
+    (QuotientGroup.mk g : Matrix.ProjectiveSpecialLinearGroup ι F),
+    1,
+    fun h ↦ one_ne_zero (α := F) ?_
+  ⟩⟩
   rwa [QuotientGroup.eq_one_iff, transvection_mem_center_iff] at h
 
 end SL2Simple
 
-theorem Matrix.ProjectiveSpecialLinearGroup.rank_two_simple'
-    (hF : ∃ a : F, a ≠ 0 ∧ a ^ 2 ≠ 1) :
-    IsSimpleGroup PSL(2, F) :=
-  MulAction.IwasawaStructure.isSimpleGroup
-    (SL2Simple.PSL_commutator_eq_top hF) PSL2.Iwasawa inferInstance
+theorem Matrix.ProjectiveSpecialLinearGroup.rank_two_simple' (hF : ∃ a : F, a ≠ 0 ∧ a ^ 2 ≠ 1)
+    : IsSimpleGroup PSL(2, F) :=
+  MulAction.IwasawaStructure.isSimpleGroup (SL2Simple.PSL_commutator_eq_top hF) PSL2.Iwasawa
+    inferInstance
 
 private lemma field_cond_of_four_le_card (hF : 4 ≤ Nat.card F) :
     ∃ a : F, a ≠ 0 ∧ a ^ 2 ≠ 1 := by
@@ -132,6 +134,6 @@ private lemma field_cond_of_four_le_card (hF : 4 ≤ Nat.card F) :
     orderOf_le_of_pow_eq_one zero_lt_two (Units.ext <| by simpa using h)] at hF
   omega
 
-theorem Matrix.ProjectiveSpecialLinearGroup.rank_two_simple (hF : 4 ≤ Nat.card F) :
-    IsSimpleGroup PSL(2, F) :=
+theorem Matrix.ProjectiveSpecialLinearGroup.rank_two_simple (hF : 4 ≤ Nat.card F)
+    : IsSimpleGroup PSL(2, F) :=
   Matrix.ProjectiveSpecialLinearGroup.rank_two_simple' (field_cond_of_four_le_card hF)

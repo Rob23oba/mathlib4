@@ -20,8 +20,10 @@ open scoped nonZeroDivisors
 variable {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
 
 variable (R) in
-/-- An element `s` in an `R`-algebra is almost integral if there exists `r ∈ R⁰` such that
-`r • s ^ n ∈ R` for all `n`. -/
+/--
+An element `s` in an `R`-algebra is almost integral if there exists `r ∈ R⁰` such that
+`r • s ^ n ∈ R` for all `n`.
+-/
 @[stacks 00GW]
 def IsAlmostIntegral (s : S) : Prop := ∃ r ∈ R⁰, ∀ n, r • s ^ n ∈ (algebraMap R S).range
 
@@ -38,8 +40,7 @@ def completeIntegralClosure : Subalgebra R S where
   add_mem' := by
     rintro a b ⟨r, hr, hr'⟩ ⟨s, hs, hs'⟩
     refine ⟨r * s, mul_mem hr hs, fun n ↦ ?_⟩
-    simp only [add_pow, Finset.smul_sum, ← smul_mul_assoc _ (_ * _),
-      ← smul_mul_smul_comm _ (a ^ _)]
+    simp only [add_pow, Finset.smul_sum, ← smul_mul_assoc _ (_ * _), ← smul_mul_smul_comm _ (a ^ _)]
     exact sum_mem fun i _ ↦ mul_mem (mul_mem (hr' _) (hs' _)) (by simp)
   algebraMap_mem' r := ⟨1, one_mem _, by simp [← map_pow]⟩
 

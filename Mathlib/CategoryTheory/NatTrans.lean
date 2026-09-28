@@ -44,7 +44,8 @@ universe v₁ v₂ v₃ v₄ u₁ u₂ u₃ u₄
 variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
 
 set_option linter.translate.warnInvalid false in
-/-- `NatTrans F G` represents a natural transformation between functors `F` and `G`.
+/--
+`NatTrans F G` represents a natural transformation between functors `F` and `G`.
 
 The field `app` provides the components of the natural transformation.
 
@@ -61,11 +62,15 @@ structure NatTrans (F G : C ⥤ D) : Type max u₁ v₂ where
 lemma NatTrans.naturality' {F G : C ⥤ D} (self : NatTrans G F) ⦃X Y : C⦄ (f : Y ⟶ X) :
     self.app Y ≫ F.map f = G.map f ≫ self.app X := (self.naturality f).symm
 
-/-- `NatTrans.mk'` is the dual of `NatTrans.mk`, which we need for `to_dual`.
-Please avoid using this directly. -/
+/--
+`NatTrans.mk'` is the dual of `NatTrans.mk`, which we need for `to_dual`.
+Please avoid using this directly.
+-/
 @[to_dual existing mk]
-abbrev NatTrans.mk' {F G : C ⥤ D} (app : (X : C) → G.obj X ⟶ F.obj X)
-    (naturality : ∀ ⦃X Y : C⦄ (f : Y ⟶ X), app Y ≫ F.map f = G.map f ≫ app X) : NatTrans G F where
+abbrev NatTrans.mk'
+    {F G : C ⥤ D} (app : (X : C) → G.obj X ⟶ F.obj X)
+    (naturality : ∀ ⦃X Y : C⦄ (f : Y ⟶ X), app Y ≫ F.map f = G.map f ≫ app X)
+    : NatTrans G F where
   app
 
 -- Rather arbitrarily, we say that the 'simpler' form is
@@ -82,10 +87,10 @@ namespace NatTrans
 
 /-- `NatTrans.id F` is the identity natural transformation on a functor `F`. -/
 @[implicit_reducible]
-protected def id (F : C ⥤ D) : NatTrans F F where app X := 𝟙 (F.obj X)
+protected def id (F : C ⥤ D) : NatTrans F F where
+  app X := 𝟙 (F.obj X)
 
-@[simp]
-theorem id_app' (F : C ⥤ D) (X : C) : (NatTrans.id F).app X = 𝟙 (F.obj X) := rfl
+@[simp] theorem id_app' (F : C ⥤ D) (X : C) : (NatTrans.id F).app X = 𝟙 (F.obj X) := rfl
 
 instance (F : C ⥤ D) : Inhabited (NatTrans F F) := ⟨NatTrans.id F⟩
 
@@ -103,14 +108,16 @@ def vcomp (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H where
 -- functor_category will rewrite (vcomp α β) to (α ≫ β), so this is not a
 -- suitable simp lemma.  We will declare the variant vcomp_app' there.
 @[to_dual self]
-theorem vcomp_app (α : NatTrans F G) (β : NatTrans G H) (X : C) :
-    (vcomp α β).app X = α.app X ≫ β.app X := rfl
+theorem vcomp_app (α : NatTrans F G) (β : NatTrans G H) (X : C)
+    : (vcomp α β).app X = α.app X ≫ β.app X :=
+  rfl
 
 attribute [grind =] vcomp_app
 
 end
 
-/-- The diagram
+/--
+The diagram
 ```
     F(f)      F(g)      F(h)
 F X ----> F Y ----> F U ----> F V
@@ -122,8 +129,8 @@ G X ----> G Y ----> G U ----> G V
 ```
 commutes.
 -/
-example {F G : C ⥤ D} (α : NatTrans F G) {X Y U V : C} (f : X ⟶ Y) (g : Y ⟶ U) (h : U ⟶ V) :
-    α.app X ≫ G.map f ≫ G.map g ≫ G.map h = F.map f ≫ F.map g ≫ F.map h ≫ α.app V := by
+example {F G : C ⥤ D} (α : NatTrans F G) {X Y U V : C} (f : X ⟶ Y) (g : Y ⟶ U) (h : U ⟶ V)
+    : α.app X ≫ G.map f ≫ G.map g ≫ G.map h = F.map f ≫ F.map g ≫ F.map h ≫ α.app V := by
   grind
 
 end NatTrans

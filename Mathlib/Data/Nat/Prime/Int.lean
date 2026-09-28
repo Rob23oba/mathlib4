@@ -18,19 +18,24 @@ TODO: This file can probably be merged with `Mathlib/Data/Int/NatPrime.lean`.
 
 public section
 
-
 namespace Nat
 
-theorem prime_iff_prime_int {p : ℕ} : p.Prime ↔ _root_.Prime (p : ℤ) :=
-  ⟨fun hp =>
-    ⟨Int.natCast_ne_zero_iff_pos.2 hp.pos, mt Int.isUnit_iff_natAbs_eq.1 hp.ne_one, fun a b h => by
+theorem prime_iff_prime_int {p : ℕ} : p.Prime ↔ _root_.Prime (p : ℤ) := ⟨
+  fun hp => ⟨
+    Int.natCast_ne_zero_iff_pos.2 hp.pos,
+    mt Int.isUnit_iff_natAbs_eq.1 hp.ne_one,
+    fun a b h => by
       rw [← Int.dvd_natAbs, Int.natCast_dvd_natCast, Int.natAbs_mul, hp.dvd_mul] at h
-      rwa [← Int.dvd_natAbs, Int.natCast_dvd_natCast, ← Int.dvd_natAbs, Int.natCast_dvd_natCast]⟩,
-    fun hp =>
-    Nat.prime_iff.2
-      ⟨Int.natCast_ne_zero.1 hp.1,
-        (mt Nat.isUnit_iff.1) fun h => by simp [h] at hp, fun a b => by
-        simpa only [Int.natCast_dvd_natCast, (Int.natCast_mul _ _).symm] using hp.2.2 a b⟩⟩
+      rwa [← Int.dvd_natAbs, Int.natCast_dvd_natCast, ← Int.dvd_natAbs, Int.natCast_dvd_natCast]
+  ⟩,
+  fun hp =>
+    Nat.prime_iff.2 ⟨
+      Int.natCast_ne_zero.1 hp.1,
+      (mt Nat.isUnit_iff.1) fun h => by simp [h] at hp,
+      fun a b => by
+        simpa only [Int.natCast_dvd_natCast, (Int.natCast_mul _ _).symm] using hp.2.2 a b
+    ⟩
+⟩
 
 /-- Two prime powers with positive exponents are equal only when the primes and the
 exponents are equal. -/
@@ -53,14 +58,11 @@ end Nat
 namespace Int
 
 @[simp]
-theorem prime_ofNat_iff {n : ℕ} :
-    Prime (ofNat(n) : ℤ) ↔ Nat.Prime (OfNat.ofNat n) :=
+theorem prime_ofNat_iff {n : ℕ} : Prime (ofNat(n) : ℤ) ↔ Nat.Prime (OfNat.ofNat n) :=
   Nat.prime_iff_prime_int.symm
 
-theorem prime_two : Prime (2 : ℤ) :=
-  prime_ofNat_iff.mpr Nat.prime_two
+theorem prime_two : Prime (2 : ℤ) := prime_ofNat_iff.mpr Nat.prime_two
 
-theorem prime_three : Prime (3 : ℤ) :=
-  prime_ofNat_iff.mpr Nat.prime_three
+theorem prime_three : Prime (3 : ℤ) := prime_ofNat_iff.mpr Nat.prime_three
 
 end Int

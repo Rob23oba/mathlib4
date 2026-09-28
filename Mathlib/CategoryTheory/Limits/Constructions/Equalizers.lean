@@ -18,7 +18,6 @@ TODO: generalize universe
 
 @[expose] public section
 
-
 noncomputable section
 
 universe v v' u u'
@@ -41,26 +40,26 @@ abbrev constructEqualizer (F : WalkingParallelPair ⥤ C) : C :=
     (prod.lift (𝟙 _) (F.map WalkingParallelPairHom.right))
 
 /-- Define the equalizing morphism -/
-abbrev pullbackFst (F : WalkingParallelPair ⥤ C) :
-    constructEqualizer F ⟶ F.obj WalkingParallelPair.zero :=
+abbrev pullbackFst (F : WalkingParallelPair ⥤ C)
+    : constructEqualizer F ⟶ F.obj WalkingParallelPair.zero :=
   pullback.fst _ _
 
-theorem pullbackFst_eq_pullback_snd (F : WalkingParallelPair ⥤ C) :
-    pullbackFst F = pullback.snd _ _ := by
+theorem pullbackFst_eq_pullback_snd (F : WalkingParallelPair ⥤ C)
+    : pullbackFst F = pullback.snd _ _ := by
   convert!
     (eq_whisker pullback.condition Limits.prod.fst :
-      (_ : constructEqualizer F ⟶ F.obj WalkingParallelPair.zero) = _) <;> simp
+      (_ : constructEqualizer F ⟶ F.obj WalkingParallelPair.zero) = _)
+    <;> simp
 
 /-- Define the equalizing cone -/
 abbrev equalizerCone (F : WalkingParallelPair ⥤ C) : Cone F :=
-  Cone.ofFork
-    (Fork.ofι (pullbackFst F)
-      (by
-        conv_rhs => rw [pullbackFst_eq_pullback_snd]
-        convert!
-          (eq_whisker pullback.condition Limits.prod.snd :
-            (_ : constructEqualizer F ⟶ F.obj WalkingParallelPair.one) = _) using
-          1 <;> simp))
+  Cone.ofFork (Fork.ofι (pullbackFst F) (by
+    conv_rhs => rw [pullbackFst_eq_pullback_snd]
+    convert!
+      (eq_whisker pullback.condition Limits.prod.snd :
+        (_ : constructEqualizer F ⟶ F.obj WalkingParallelPair.one) = _) using
+      1
+      <;> simp))
 
 set_option backward.isDefEq.respectTransparency false in
 /-- Show the equalizing cone is a limit -/
@@ -80,12 +79,10 @@ open HasEqualizersOfHasPullbacksAndBinaryProducts
 
 -- This is not an instance, as it is not always how one wants to construct equalizers!
 /-- Any category with pullbacks and binary products, has equalizers. -/
-theorem hasEqualizers_of_hasPullbacks_and_binary_products [HasBinaryProducts C] [HasPullbacks C] :
-    HasEqualizers C :=
-  { has_limit := fun F =>
-      HasLimit.mk
-        { cone := equalizerCone F
-          isLimit := equalizerConeIsLimit F } }
+theorem hasEqualizers_of_hasPullbacks_and_binary_products [HasBinaryProducts C] [HasPullbacks C]
+    : HasEqualizers C := {
+  has_limit := fun F => HasLimit.mk { cone := equalizerCone F, isLimit := equalizerConeIsLimit F }
+}
 
 attribute [local instance] hasPullback_of_preservesPullback
 
@@ -137,25 +134,25 @@ abbrev constructCoequalizer (F : WalkingParallelPair ⥤ C) : C :=
     (coprod.desc (𝟙 _) (F.map WalkingParallelPairHom.right))
 
 /-- Define the equalizing morphism -/
-abbrev pushoutInl (F : WalkingParallelPair ⥤ C) :
-    F.obj WalkingParallelPair.one ⟶ constructCoequalizer F :=
+abbrev pushoutInl (F : WalkingParallelPair ⥤ C)
+    : F.obj WalkingParallelPair.one ⟶ constructCoequalizer F :=
   pushout.inl _ _
 
-theorem pushoutInl_eq_pushout_inr (F : WalkingParallelPair ⥤ C) :
-    pushoutInl F = pushout.inr _ _ := by
+theorem pushoutInl_eq_pushout_inr (F : WalkingParallelPair ⥤ C)
+    : pushoutInl F = pushout.inr _ _ := by
   convert!
       (whisker_eq Limits.coprod.inl pushout.condition : (_ : F.obj _ ⟶ constructCoequalizer _) = _)
     <;> simp
 
 /-- Define the equalizing cocone -/
 abbrev coequalizerCocone (F : WalkingParallelPair ⥤ C) : Cocone F :=
-  Cocone.ofCofork
-    (Cofork.ofπ (pushoutInl F) (by
-        conv_rhs => rw [pushoutInl_eq_pushout_inr]
-        convert!
-          (whisker_eq Limits.coprod.inr pushout.condition :
-            (_ : F.obj _ ⟶ constructCoequalizer _) = _) using
-          1 <;> simp))
+  Cocone.ofCofork (Cofork.ofπ (pushoutInl F) (by
+    conv_rhs => rw [pushoutInl_eq_pushout_inr]
+    convert!
+      (whisker_eq Limits.coprod.inr pushout.condition :
+        (_ : F.obj _ ⟶ constructCoequalizer _) = _) using
+      1
+      <;> simp))
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -179,13 +176,11 @@ open HasCoequalizersOfHasPushoutsAndBinaryCoproducts
 
 -- This is not an instance, as it is not always how one wants to construct equalizers!
 /-- Any category with pullbacks and binary products, has equalizers. -/
-theorem hasCoequalizers_of_hasPushouts_and_binary_coproducts [HasBinaryCoproducts C]
-    [HasPushouts C] : HasCoequalizers C :=
-  {
-    has_colimit := fun F =>
-      HasColimit.mk
-        { cocone := coequalizerCocone F
-          isColimit := coequalizerCoconeIsColimit F } }
+theorem hasCoequalizers_of_hasPushouts_and_binary_coproducts [HasBinaryCoproducts C] [HasPushouts C]
+    : HasCoequalizers C := {
+  has_colimit := fun F =>
+    HasColimit.mk { cocone := coequalizerCocone F, isColimit := coequalizerCoconeIsColimit F }
+}
 
 attribute [local instance] hasPushout_of_preservesPushout
 

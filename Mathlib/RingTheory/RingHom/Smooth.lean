@@ -25,8 +25,10 @@ open TensorProduct
 
 namespace RingHom
 
-/-- A ring homomorphism `f : R →+* S` is formally smooth
-if `S` is formally smooth as an `R` algebra. -/
+/--
+A ring homomorphism `f : R →+* S` is formally smooth
+if `S` is formally smooth as an `R` algebra.
+-/
 @[algebraize RingHom.FormallySmooth.toAlgebra]
 def FormallySmooth (f : R →+* S) : Prop :=
   letI := f.toAlgebra

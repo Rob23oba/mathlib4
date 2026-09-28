@@ -34,45 +34,50 @@ namespace Quiver
 
 variable (V : Type*) [Quiver.{u} V]
 
-/-- Two vertices are related in the zigzag setoid if there is a
-zigzag of arrows from one to the other. -/
+/--
+Two vertices are related in the zigzag setoid if there is a
+zigzag of arrows from one to the other.
+-/
 @[instance_reducible]
-def zigzagSetoid : Setoid V :=
-  ⟨fun a b ↦ Nonempty (@Path (Symmetrify V) _ a b), fun _ ↦ ⟨Path.nil⟩, fun ⟨p⟩ ↦
-    ⟨p.reverse⟩, fun ⟨p⟩ ⟨q⟩ ↦ ⟨p.comp q⟩⟩
+def zigzagSetoid : Setoid V := ⟨
+  fun a b ↦ Nonempty (@Path (Symmetrify V) _ a b),
+  fun _ ↦ ⟨Path.nil⟩,
+  fun ⟨p⟩ ↦ ⟨p.reverse⟩,
+  fun ⟨p⟩ ⟨q⟩ ↦ ⟨p.comp q⟩
+⟩
 
-/-- The type of weakly connected components of a directed graph. Two vertices are
+/--
+The type of weakly connected components of a directed graph. Two vertices are
 in the same weakly connected component if there is a zigzag of arrows from one
-to the other. -/
-def WeaklyConnectedComponent : Type _ :=
-  Quotient (zigzagSetoid V)
+to the other.
+-/
+def WeaklyConnectedComponent : Type _ := Quotient (zigzagSetoid V)
 
 namespace WeaklyConnectedComponent
 
 variable {V}
 
 /-- The weakly connected component corresponding to a vertex. -/
-protected def mk : V → WeaklyConnectedComponent V :=
-  @Quotient.mk' _ (zigzagSetoid V)
+protected def mk : V → WeaklyConnectedComponent V := @Quotient.mk' _ (zigzagSetoid V)
 
-instance : CoeTC V (WeaklyConnectedComponent V) :=
-  ⟨WeaklyConnectedComponent.mk⟩
+instance : CoeTC V (WeaklyConnectedComponent V) := ⟨WeaklyConnectedComponent.mk⟩
 
-instance [Inhabited V] : Inhabited (WeaklyConnectedComponent V) :=
-  ⟨show V from default⟩
+instance [Inhabited V] : Inhabited (WeaklyConnectedComponent V) := ⟨show V from default⟩
 
-protected theorem eq (a b : V) :
-    (a : WeaklyConnectedComponent V) = b ↔ Nonempty (@Path (Symmetrify V) _ a b) :=
+protected theorem eq (a b : V)
+    : (a : WeaklyConnectedComponent V) = b ↔ Nonempty (@Path (Symmetrify V) _ a b) :=
   Quotient.eq''
 
 end WeaklyConnectedComponent
 
 variable {V}
 
-/-- A wide subquiver `H` of `Symmetrify V` determines a wide subquiver of `V`, containing an
-arrow `e` if either `e` or its reversal is in `H`. -/
-def wideSubquiverSymmetrify (H : WideSubquiver (Symmetrify V)) : WideSubquiver V :=
-  fun a b ↦ {e | .inl e ∈ H a b ∨ .inr e ∈ H b a}
+/--
+A wide subquiver `H` of `Symmetrify V` determines a wide subquiver of `V`, containing an
+arrow `e` if either `e` or its reversal is in `H`.
+-/
+def wideSubquiverSymmetrify (H : WideSubquiver (Symmetrify V)) : WideSubquiver V := fun a b ↦
+  {e | .inl e ∈ H a b ∨ .inr e ∈ H b a}
 
 /-!
 ## Strongly connected components (directed connectivity)
@@ -85,15 +90,17 @@ section StronglyConnected
 
 variable (V : Type*) [Quiver V]
 
-/-- Strong connectivity: every ordered pair of vertices is joined by a (possibly empty)
-directed path. -/
-def IsStronglyConnected : Prop :=
-  ∀ i j : V, Nonempty (Path i j)
+/--
+Strong connectivity: every ordered pair of vertices is joined by a (possibly empty)
+directed path.
+-/
+def IsStronglyConnected : Prop := ∀ i j : V, Nonempty (Path i j)
 
-/-- Positive strong connectivity: every ordered pair of vertices is joined by a directed path
-of positive length. -/
-def IsSStronglyConnected : Prop :=
-  ∀ i j : V, ∃ p : Path i j, 0 < p.length
+/--
+Positive strong connectivity: every ordered pair of vertices is joined by a directed path
+of positive length.
+-/
+def IsSStronglyConnected : Prop := ∀ i j : V, ∃ p : Path i j, 0 < p.length
 
 @[simp] lemma isStronglyConnected_iff :
     IsStronglyConnected V ↔ ∀ i j : V, Nonempty (Path i j) := Iff.rfl
@@ -116,28 +123,26 @@ lemma IsSStronglyConnected.isStronglyConnected
 
 /-- Equivalence relation identifying vertices connected by directed paths in both directions. -/
 @[instance_reducible]
-def stronglyConnectedSetoid : Setoid V :=
-  ⟨fun a b => (Nonempty (Path a b)) ∧ (Nonempty (Path b a)),
-   fun _ => ⟨⟨Path.nil⟩, ⟨Path.nil⟩⟩, fun ⟨hab, hba⟩ => ⟨hba, hab⟩, fun ⟨hab, hba⟩ ⟨hbc, hcb⟩ =>
-     ⟨⟨hab.some.comp hbc.some⟩, ⟨hcb.some.comp hba.some⟩⟩⟩
+def stronglyConnectedSetoid : Setoid V := ⟨
+  fun a b => (Nonempty (Path a b)) ∧ (Nonempty (Path b a)),
+  fun _ => ⟨⟨Path.nil⟩, ⟨Path.nil⟩⟩,
+  fun ⟨hab, hba⟩ => ⟨hba, hab⟩,
+  fun ⟨hab, hba⟩ ⟨hbc, hcb⟩ => ⟨⟨hab.some.comp hbc.some⟩, ⟨hcb.some.comp hba.some⟩⟩
+⟩
 
 /-- The type of strongly connected components (bidirectional reachability classes). -/
-def StronglyConnectedComponent : Type _ :=
-  Quotient (stronglyConnectedSetoid V)
+def StronglyConnectedComponent : Type _ := Quotient (stronglyConnectedSetoid V)
 
 namespace StronglyConnectedComponent
 
 variable {V}
 
 /-- The canonical map from a vertex to its strongly connected component. -/
-protected def mk : V → StronglyConnectedComponent V :=
-  @Quotient.mk' _ (stronglyConnectedSetoid V)
+protected def mk : V → StronglyConnectedComponent V := @Quotient.mk' _ (stronglyConnectedSetoid V)
 
-instance : Coe V (StronglyConnectedComponent V) :=
-  ⟨StronglyConnectedComponent.mk⟩
+instance : Coe V (StronglyConnectedComponent V) := ⟨StronglyConnectedComponent.mk⟩
 
-instance [Inhabited V] : Inhabited (StronglyConnectedComponent V) :=
-  ⟨(default : V)⟩
+instance [Inhabited V] : Inhabited (StronglyConnectedComponent V) := ⟨(default : V)⟩
 
 protected lemma eq (a b : V) :
   (a : StronglyConnectedComponent V) = b

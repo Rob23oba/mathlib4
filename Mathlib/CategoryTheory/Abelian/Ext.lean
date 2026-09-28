@@ -28,22 +28,23 @@ compute `Ext` using both projective or injective resolutions.
 
 @[expose] public section
 
-
 noncomputable section
 
 open CategoryTheory Limits
 
-variable (R : Type*) [Ring R] (C : Type*) [Category* C] [Abelian C] [Linear R C]
-  [EnoughProjectives C]
+variable
+  (R : Type*) [Ring R] (C : Type*) [Category* C] [Abelian C] [Linear R C] [EnoughProjectives C]
 
-/-- `Ext R C n` is defined by deriving in
+/--
+`Ext R C n` is defined by deriving in
 the first argument of `(X, Y) ↦ ModuleCat.of R (unop X ⟶ Y)`
 (which is the second argument of `linearYoneda`).
 -/
 def Ext (n : ℕ) : Cᵒᵖ ⥤ C ⥤ ModuleCat R :=
-  Functor.flip
-    { obj := fun Y => (((linearYoneda R C).obj Y).rightOp.leftDerived n).leftOp
-      map := fun f => ((((linearYoneda R C).map f).rightOp).leftDerived n).leftOp }
+  Functor.flip {
+    obj := fun Y => (((linearYoneda R C).obj Y).rightOp.leftDerived n).leftOp
+    map := fun f => ((((linearYoneda R C).map f).rightOp).leftDerived n).leftOp
+  }
 
 open ZeroObject
 
@@ -52,12 +53,17 @@ variable {R C}
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given a chain complex `X` and an object `Y`, this is the cochain complex
-which in degree `i` consists of the module of morphisms `X.X i ⟶ Y`. -/
+/--
+Given a chain complex `X` and an object `Y`, this is the cochain complex
+which in degree `i` consists of the module of morphisms `X.X i ⟶ Y`.
+-/
 @[simps! X d]
-def ChainComplex.linearYonedaObj {α : Type*} [AddRightCancelSemigroup α] [One α]
-    (X : ChainComplex C α) (A : Type*) [Ring A] [Linear A C] (Y : C) :
-    CochainComplex (ModuleCat A) α :=
+def ChainComplex.linearYonedaObj
+    {α : Type*} [AddRightCancelSemigroup α] [One α]
+    (X : ChainComplex C α)
+    (A : Type*) [Ring A] [Linear A C]
+    (Y : C)
+    : CochainComplex (ModuleCat A) α :=
   ((((linearYoneda A C).obj Y).rightOp.mapHomologicalComplex _).obj X).unop
 
 namespace CategoryTheory
@@ -67,10 +73,10 @@ namespace ProjectiveResolution
 variable {X : C} (P : ProjectiveResolution X)
 
 /-- `Ext` can be computed using a projective resolution. -/
-def isoExt (n : ℕ) (Y : C) : ((Ext R C n).obj (Opposite.op X)).obj Y ≅
-    (P.complex.linearYonedaObj R Y).homology n :=
-  (P.isoLeftDerivedObj ((linearYoneda R C).obj Y).rightOp n).unop.symm ≪≫
-    (HomologicalComplex.homologyUnop _ _).symm
+def isoExt (n : ℕ) (Y : C)
+    : ((Ext R C n).obj (Opposite.op X)).obj Y ≅ (P.complex.linearYonedaObj R Y).homology n :=
+  (P.isoLeftDerivedObj ((linearYoneda R C).obj Y).rightOp n).unop.symm
+    ≪≫ (HomologicalComplex.homologyUnop _ _).symm
 
 end ProjectiveResolution
 

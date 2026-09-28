@@ -28,13 +28,13 @@ open Opposite
 
 variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
 
-/-- A property of objects is small relative to a universe `w`
-if the corresponding subtype is. -/
-@[pp_with_univ]
-protected abbrev Small (P : ObjectProperty C) : Prop := _root_.Small.{w} (Subtype P)
+/--
+A property of objects is small relative to a universe `w`
+if the corresponding subtype is.
+-/
+@[pp_with_univ] protected abbrev Small (P : ObjectProperty C) : Prop := _root_.Small.{w} (Subtype P)
 
-instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] :
-    Small.{w} P.FullSubcategory :=
+instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] : Small.{w} P.FullSubcategory :=
   small_of_surjective (f := fun (x : Subtype P) ↦ ⟨x.1, x.2⟩) (fun x ↦ ⟨⟨x.1, x.2⟩, rfl⟩)
 
 lemma Small.of_le {P Q : ObjectProperty C} [ObjectProperty.Small.{w} Q] (h : P ≤ Q) :
@@ -52,41 +52,39 @@ lemma Small.exists_eq_ofObj (P : ObjectProperty C) [ObjectProperty.Small.{w} P] 
       obtain ⟨X, rfl⟩ := (equivShrink _).surjective i
       simpa using X.prop)⟩
 
-instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] :
-    ObjectProperty.Small.{w} P.op :=
+instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] : ObjectProperty.Small.{w} P.op :=
   small_of_injective P.subtypeOpEquiv.injective
 
-instance (P : ObjectProperty Cᵒᵖ) [ObjectProperty.Small.{w} P] :
-    ObjectProperty.Small.{w} P.unop := by
+instance (P : ObjectProperty Cᵒᵖ) [ObjectProperty.Small.{w} P]
+    : ObjectProperty.Small.{w} P.unop := by
   simpa only [← small_congr P.unop.subtypeOpEquiv]
 
-instance {ι : Type*} (X : ι → C) [Small.{w} ι] :
-    ObjectProperty.Small.{w} (ofObj X) :=
+instance {ι : Type*} (X : ι → C) [Small.{w} ι] : ObjectProperty.Small.{w} (ofObj X) :=
   small_of_surjective (f := fun i ↦ ⟨X i, by simp⟩) (by rintro ⟨_, ⟨i⟩⟩; simp)
 
 instance (X Y : C) : ObjectProperty.Small.{w} (.pair X Y) := by
   dsimp [pair]
   infer_instance
 
-instance {P Q : ObjectProperty C} [ObjectProperty.Small.{w} Q] :
-    ObjectProperty.Small.{w} (P ⊓ Q) :=
+instance {P Q : ObjectProperty C} [ObjectProperty.Small.{w} Q] : ObjectProperty.Small.{w} (P ⊓ Q) :=
   Small.of_le inf_le_right
 
-instance {P Q : ObjectProperty C} [ObjectProperty.Small.{w} P] :
-    ObjectProperty.Small.{w} (P ⊓ Q) :=
+instance {P Q : ObjectProperty C} [ObjectProperty.Small.{w} P] : ObjectProperty.Small.{w} (P ⊓ Q) :=
   Small.of_le inf_le_left
 
-instance {P Q : ObjectProperty C} [ObjectProperty.Small.{w} P] [ObjectProperty.Small.{w} Q] :
-    ObjectProperty.Small.{w} (P ⊔ Q) :=
-  small_of_surjective (f := fun (x : Subtype P ⊕ Subtype Q) ↦ match x with
+instance {P Q : ObjectProperty C} [ObjectProperty.Small.{w} P] [ObjectProperty.Small.{w} Q]
+    : ObjectProperty.Small.{w} (P ⊔ Q) :=
+  small_of_surjective
+    (f := fun (x : Subtype P ⊕ Subtype Q) ↦
+      match x with
       | .inl x => ⟨x.1, Or.inl x.2⟩
       | .inr x => ⟨x.1, Or.inr x.2⟩)
     (by rintro ⟨x, hx | hx⟩ <;> aesop)
 
-instance {α : Type*} (P : α → ObjectProperty C)
-    [∀ a, ObjectProperty.Small.{w} (P a)] [Small.{w} α] :
-    ObjectProperty.Small.{w} (⨆ a, P a) :=
-  small_of_surjective (f := fun (x : Σ a, Subtype (P a)) ↦ ⟨x.2.1, by aesop⟩)
+instance {α : Type*} (P : α → ObjectProperty C) [∀ a, ObjectProperty.Small.{w} (P a)] [Small.{w} α]
+    : ObjectProperty.Small.{w} (⨆ a, P a) :=
+  small_of_surjective
+    (f := fun (x : Σ a, Subtype (P a)) ↦ ⟨x.2.1, by aesop⟩)
     (fun ⟨x, hx⟩ ↦ by aesop)
 
 @[simp]
@@ -101,20 +99,20 @@ lemma small_unop_iff (P : ObjectProperty Cᵒᵖ) :
     ObjectProperty.Small.{w} P.unop ↔ ObjectProperty.Small.{w} P := by
   rw [← small_op_iff, op_unop]
 
-instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] :
-    ObjectProperty.Small.{w} P.op := by
+instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] : ObjectProperty.Small.{w} P.op := by
   simpa
 
-instance (P : ObjectProperty Cᵒᵖ) [ObjectProperty.Small.{w} P] :
-    ObjectProperty.Small.{w} P.unop := by
+instance (P : ObjectProperty Cᵒᵖ) [ObjectProperty.Small.{w} P]
+    : ObjectProperty.Small.{w} P.unop := by
   simpa
 
-/-- A property of objects is essentially small relative to a universe `w`
-if it is contained in the closure by isomorphisms of a small property. -/
+/--
+A property of objects is essentially small relative to a universe `w`
+if it is contained in the closure by isomorphisms of a small property.
+-/
 @[pp_with_univ]
 protected class EssentiallySmall (P : ObjectProperty C) : Prop where
-  exists_small_le' (P) : ∃ (Q : ObjectProperty C) (_ : ObjectProperty.Small.{w} Q),
-    P ≤ Q.isoClosure
+  exists_small_le' (P) : ∃ (Q : ObjectProperty C) (_ : ObjectProperty.Small.{w} Q), P ≤ Q.isoClosure
 
 lemma EssentiallySmall.exists_small_le (P : ObjectProperty C)
     [ObjectProperty.EssentiallySmall.{w} P] :
@@ -136,12 +134,12 @@ lemma EssentiallySmall.exists_small_le (P : ObjectProperty C)
     let Z : Subtype P' := ⟨Y, hY, ⟨X, hX, ⟨e.symm⟩⟩⟩
     exact ⟨_, ⟨Z, rfl⟩, ⟨e ≪≫ (hφ Z).some⟩⟩
 
-instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] :
-    ObjectProperty.EssentiallySmall.{w} P where
+instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P]
+    : ObjectProperty.EssentiallySmall.{w} P where
   exists_small_le' := ⟨P, inferInstance, le_isoClosure P⟩
 
-instance (P : ObjectProperty C) [ObjectProperty.EssentiallySmall.{w} P] :
-    ObjectProperty.EssentiallySmall.{w} P.isoClosure where
+instance (P : ObjectProperty C) [ObjectProperty.EssentiallySmall.{w} P]
+    : ObjectProperty.EssentiallySmall.{w} P.isoClosure where
   exists_small_le' := by
     obtain ⟨Q, _, _, _⟩ := EssentiallySmall.exists_small_le.{w} P
     exact ⟨Q, inferInstance, by rwa [isoClosure_le_iff]⟩
@@ -167,9 +165,10 @@ lemma EssentiallySmall.of_le {P Q : ObjectProperty C}
     obtain ⟨R, _, hR⟩ := EssentiallySmall.exists_small_le' Q
     exact ⟨R, inferInstance, h.trans hR⟩
 
-instance {P Q : ObjectProperty C}
-    [ObjectProperty.EssentiallySmall.{w} P] [ObjectProperty.EssentiallySmall.{w} Q] :
-    ObjectProperty.EssentiallySmall.{w} (P ⊔ Q) := by
+instance
+    {P Q : ObjectProperty C}
+    [ObjectProperty.EssentiallySmall.{w} P] [ObjectProperty.EssentiallySmall.{w} Q]
+    : ObjectProperty.EssentiallySmall.{w} (P ⊔ Q) := by
   obtain ⟨P', _, hP'⟩ := EssentiallySmall.exists_small_le' P
   obtain ⟨Q', _, hQ'⟩ := EssentiallySmall.exists_small_le' Q
   refine ⟨P' ⊔ Q', inferInstance, ?_⟩
@@ -178,9 +177,10 @@ instance {P Q : ObjectProperty C}
   · exact hP'.trans (monotone_isoClosure le_sup_left)
   · exact hQ'.trans (monotone_isoClosure le_sup_right)
 
-instance {α : Type*} (P : α → ObjectProperty C)
-    [∀ a, ObjectProperty.EssentiallySmall.{w} (P a)] [Small.{w} α] :
-    ObjectProperty.EssentiallySmall.{w} (⨆ a, P a) where
+instance
+    {α : Type*} (P : α → ObjectProperty C)
+    [∀ a, ObjectProperty.EssentiallySmall.{w} (P a)] [Small.{w} α]
+    : ObjectProperty.EssentiallySmall.{w} (⨆ a, P a) where
   exists_small_le' := by
     have h (a : α) := EssentiallySmall.exists_small_le' (P a)
     choose Q _ hQ using h
@@ -205,45 +205,45 @@ lemma essentiallySmall_unop_iff (P : ObjectProperty Cᵒᵖ) :
       ObjectProperty.EssentiallySmall.{w} P := by
   rw [← essentiallySmall_op_iff, op_unop]
 
-instance (P : ObjectProperty C) [ObjectProperty.EssentiallySmall.{w} P] :
-    ObjectProperty.EssentiallySmall.{w} P.op := by
+instance (P : ObjectProperty C) [ObjectProperty.EssentiallySmall.{w} P]
+    : ObjectProperty.EssentiallySmall.{w} P.op := by
   simpa
 
-instance (P : ObjectProperty Cᵒᵖ) [ObjectProperty.EssentiallySmall.{w} P] :
-    ObjectProperty.EssentiallySmall.{w} P.unop := by
+instance (P : ObjectProperty Cᵒᵖ) [ObjectProperty.EssentiallySmall.{w} P]
+    : ObjectProperty.EssentiallySmall.{w} P.unop := by
   simpa
 
-instance (P : ObjectProperty C) [LocallySmall.{w} C]
-    [ObjectProperty.EssentiallySmall.{w} P] : EssentiallySmall.{w} P.FullSubcategory := by
+instance (P : ObjectProperty C) [LocallySmall.{w} C] [ObjectProperty.EssentiallySmall.{w} P]
+    : EssentiallySmall.{w} P.FullSubcategory := by
   obtain ⟨Q, _, h₁, h₂⟩ := EssentiallySmall.exists_small_le P
   have := (isEquivalence_ιOfLE_iff h₁).2 h₂
   rw [← essentiallySmall_congr (ιOfLE h₁).asEquivalence]
   exact essentiallySmall_of_small_of_locallySmall _
 
-instance [EssentiallySmall.{w} C] :
-    ObjectProperty.EssentiallySmall.{w} (⊤ : ObjectProperty C) where
-  exists_small_le' :=
-    ⟨ofObj (equivSmallModel.{w} C).inverse.obj, inferInstance,
-      fun X _ ↦ ⟨_, ⟨_⟩, ⟨(equivSmallModel.{w} C).unitIso.app X⟩⟩⟩
+instance [EssentiallySmall.{w} C] : ObjectProperty.EssentiallySmall.{w} (⊤ : ObjectProperty C) where
+  exists_small_le' := ⟨
+    ofObj (equivSmallModel.{w} C).inverse.obj,
+    inferInstance,
+    fun X _ ↦ ⟨_, ⟨_⟩, ⟨(equivSmallModel.{w} C).unitIso.app X⟩⟩
+  ⟩
 
-instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] (F : C ⥤ D) :
-    ObjectProperty.Small.{w} (P.strictMap F) :=
+instance (P : ObjectProperty C) [ObjectProperty.Small.{w} P] (F : C ⥤ D)
+    : ObjectProperty.Small.{w} (P.strictMap F) :=
   small_of_surjective (f := fun (X : Subtype P) ↦ ⟨F.obj X.1, ⟨_, X.2⟩⟩) (by
     rintro ⟨_, ⟨X, hX⟩⟩
     exact ⟨⟨X, hX⟩, rfl⟩)
 
-instance (P : ObjectProperty C) [ObjectProperty.EssentiallySmall.{w} P]
-    (F : C ⥤ D) : ObjectProperty.EssentiallySmall.{w} (P.map F) := by
+instance (P : ObjectProperty C) [ObjectProperty.EssentiallySmall.{w} P] (F : C ⥤ D)
+    : ObjectProperty.EssentiallySmall.{w} (P.map F) := by
   obtain ⟨Q, _, h₁, h₂⟩ := EssentiallySmall.exists_small_le P
   exact ⟨Q.strictMap F, inferInstance, (map_monotone h₂ F).trans (by simp)⟩
 
-instance [EssentiallySmall.{w} C] (F : C ⥤ D) :
-    ObjectProperty.EssentiallySmall.{w} F.essImage := by
+instance [EssentiallySmall.{w} C] (F : C ⥤ D) : ObjectProperty.EssentiallySmall.{w} F.essImage := by
   rw [← ObjectProperty.map_top]
   infer_instance
 
-instance (P : ObjectProperty C) [LocallySmall.{w} C]
-    [ObjectProperty.EssentiallySmall.{w} P] : EssentiallySmall.{w} P.FullSubcategory := by
+instance (P : ObjectProperty C) [LocallySmall.{w} C] [ObjectProperty.EssentiallySmall.{w} P]
+    : EssentiallySmall.{w} P.FullSubcategory := by
   obtain ⟨Q, _, h₁, h₂⟩ := EssentiallySmall.exists_small_le P
   have := (isEquivalence_ιOfLE_iff h₁).2 h₂
   rw [← essentiallySmall_congr (ιOfLE h₁).asEquivalence]

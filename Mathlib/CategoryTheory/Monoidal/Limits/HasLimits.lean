@@ -34,8 +34,7 @@ namespace Limits
 
 section HasColimit
 
-variable {J : Type u₁} [Category.{v₁} J]
-    {F G : J ⥤ C} [HasColimit F] [HasColimit G]
+variable {J : Type u₁} [Category.{v₁} J] {F G : J ⥤ C} [HasColimit F] [HasColimit G]
 
 @[reassoc (attr := simp)]
 lemma HasColimit.whiskerLeft_isoOfNatIso_ι_hom (w : F ≅ G) (j : J) {Q : C} :

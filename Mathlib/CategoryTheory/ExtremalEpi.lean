@@ -35,8 +35,10 @@ open Limits
 
 variable {C : Type u} [Category.{v} C] {X Y : C}
 
-/-- An extremal epimorphism `f : X ⟶ Y` is an epimorphism which does not
-factor through any proper subobject of `Y`. -/
+/--
+An extremal epimorphism `f : X ⟶ Y` is an epimorphism which does not
+factor through any proper subobject of `Y`.
+-/
 class ExtremalEpi (f : X ⟶ Y) : Prop extends Epi f where
   isIso (f) {Z : C} (p : X ⟶ Z) (i : Z ⟶ Y) (fac : p ≫ i = f) [Mono i] : IsIso i
 
@@ -57,7 +59,7 @@ lemma ExtremalEpi.mk_of_hasEqualizers [HasEqualizers C]
 
 instance [StrongEpi f] : ExtremalEpi f where
   isIso {Z} p i fac _ := by
-    have sq : CommSq p f i (𝟙 Y) := { }
+    have sq : CommSq p f i (𝟙 Y) := {}
     exact ⟨sq.lift, by simp [← cancel_mono i], by simp⟩
 
 lemma extremalEpi_iff_strongEpi_of_hasPullbacks [HasPullbacks C] :

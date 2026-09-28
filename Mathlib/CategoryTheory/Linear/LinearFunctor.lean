@@ -25,11 +25,12 @@ for every two objects `X` and `Y`, the map
 
 @[expose] public section
 
-
 namespace CategoryTheory
 
-variable (R : Type*) [Semiring R] {C D : Type*} [Category* C] [Category* D]
-  [Preadditive C] [Preadditive D] [CategoryTheory.Linear R C] [CategoryTheory.Linear R D]
+variable
+  (R : Type*) [Semiring R]
+  {C D : Type*} [Category* C] [Category* D] [Preadditive C] [Preadditive D]
+  [CategoryTheory.Linear R C] [CategoryTheory.Linear R D]
   (F : C ⥤ D)
 
 /-- An additive functor `F` is `R`-linear provided `F.map` is an `R`-module morphism. -/
@@ -92,8 +93,10 @@ variable (R) [F.Additive]
 
 /-- `F.mapLinearMap` is an `R`-linear map whose underlying function is `F.map`. -/
 @[simps]
-def mapLinearMap {X Y : C} : (X ⟶ Y) →ₗ[R] F.obj X ⟶ F.obj Y :=
-  { F.mapAddHom with map_smul' := fun r f => F.map_smul r f }
+def mapLinearMap {X Y : C} : (X ⟶ Y) →ₗ[R] F.obj X ⟶ F.obj Y := {
+  F.mapAddHom with
+  map_smul' := fun r f => F.map_smul r f
+}
 
 theorem coe_mapLinearMap {X Y : C} : ⇑(F.mapLinearMap R : (X ⟶ Y) →ₗ[R] _) = F.map := rfl
 
@@ -112,8 +115,9 @@ instance inducedFunctorLinear (F : C → D) : Functor.Linear R (inducedFunctor F
 
 end InducedCategory
 
-instance fullSubcategoryInclusionLinear {C : Type*} [Category* C] [Preadditive C]
-    [CategoryTheory.Linear R C] (Z : ObjectProperty C) : Z.ι.Linear R where
+instance fullSubcategoryInclusionLinear
+  {C : Type*} [Category* C] [Preadditive C] [CategoryTheory.Linear R C] (Z : ObjectProperty C)
+  : Z.ι.Linear R where
 
 section
 

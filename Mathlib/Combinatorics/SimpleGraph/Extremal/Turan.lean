@@ -51,8 +51,10 @@ namespace SimpleGraph
 variable {V : Type*} [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj] {n r : ℕ}
 
 variable (G) in
-/-- An `r + 1`-cliquefree graph is `r`-Turán-maximal if any other `r + 1`-cliquefree graph on
-the same vertex set has the same or fewer number of edges. -/
+/--
+An `r + 1`-cliquefree graph is `r`-Turán-maximal if any other `r + 1`-cliquefree graph on
+the same vertex set has the same or fewer number of edges.
+-/
 def IsTuranMaximal (r : ℕ) : Prop := G.IsExtremal (CliqueFree · (r + 1))
 
 section Defs
@@ -60,7 +62,8 @@ section Defs
 variable {H : SimpleGraph V}
 
 /-- The canonical `r + 1`-cliquefree Turán graph on `n` vertices. -/
-def turanGraph (n r : ℕ) : SimpleGraph (Fin n) where Adj v w := v % r ≠ w % r
+def turanGraph (n r : ℕ) : SimpleGraph (Fin n) where
+  Adj v w := v % r ≠ w % r
 
 lemma turanGraph_adj {v w} : (turanGraph n r).Adj v w ↔ v % r ≠ w % r :=
   .rfl
@@ -85,20 +88,25 @@ theorem turanGraph_eq_top : turanGraph n r = ⊤ ↔ r = 0 ∨ n ≤ r := by
 theorem turanGraph_cliqueFree (hr : 0 < r) : (turanGraph n r).CliqueFree (r + 1) := by
   rw [cliqueFree_iff_isEmpty_copy_top_fin]
   by_contra! ⟨f⟩
-  obtain ⟨x, y, d, c⟩ := exists_ne_map_eq_of_card_lt (fun x ↦
-    (⟨(f x).1 % r, Nat.mod_lt _ hr⟩ : Fin r)) (by simp)
+  obtain ⟨x, y, d, c⟩ :=
+    exists_ne_map_eq_of_card_lt (fun x ↦ (⟨(f x).1 % r, Nat.mod_lt _ hr⟩ : Fin r)) (by simp)
   rw [Fin.mk.injEq] at c
   exact absurd c <| f.toHom.map_adj d
 
-/-- An `r + 1`-cliquefree Turán-maximal graph is _not_ `r`-cliquefree
-if it can accommodate such a clique. -/
-theorem not_cliqueFree_of_isTuranMaximal (hn : r ≤ card V) (hG : G.IsTuranMaximal r) :
-    ¬G.CliqueFree r := by
+/--
+An `r + 1`-cliquefree Turán-maximal graph is _not_ `r`-cliquefree
+if it can accommodate such a clique.
+-/
+theorem not_cliqueFree_of_isTuranMaximal (hn : r ≤ card V) (hG : G.IsTuranMaximal r)
+    : ¬ G.CliqueFree r := by
   rintro h
   obtain ⟨K, _, rfl⟩ := exists_subset_card_eq hn
   obtain ⟨a, -, b, -, hab, hGab⟩ : ∃ a ∈ K, ∃ b ∈ K, a ≠ b ∧ ¬ G.Adj a b := by
-    simpa only [isNClique_iff, IsClique, Set.Pairwise, mem_coe, ne_eq, and_true, not_forall,
-      exists_prop, exists_and_right] using h K
+    simpa only [
+        isNClique_iff, IsClique, Set.Pairwise, mem_coe, ne_eq, and_true, not_forall, exists_prop,
+        exists_and_right
+      ]
+      using h K
   exact hGab <| le_sup_right.trans_eq ((hG.le_iff_eq <| h.sup_edge _ _).1 le_sup_left).symm <|
     (edge_adj ..).2 ⟨Or.inl ⟨rfl, rfl⟩, hab⟩
 
@@ -157,18 +165,18 @@ variable (h : G.IsTuranMaximal r)
 include h
 
 /-- In a Turán-maximal graph, non-adjacency is an equivalence relation. -/
-theorem equivalence_not_adj : Equivalence (¬G.Adj · ·) where
+theorem equivalence_not_adj : Equivalence (¬ G.Adj · ·) where
   refl := by simp
   symm := by simp [adj_comm]
   trans := h.not_adj_trans
 
-/-- The non-adjacency setoid over the vertices of a Turán-maximal graph
-induced by `equivalence_not_adj`. -/
-@[instance_reducible]
-def setoid : Setoid V := ⟨_, h.equivalence_not_adj⟩
+/--
+The non-adjacency setoid over the vertices of a Turán-maximal graph
+induced by `equivalence_not_adj`.
+-/
+@[instance_reducible] def setoid : Setoid V := ⟨_, h.equivalence_not_adj⟩
 
-instance : DecidableRel h.setoid.r :=
-  inferInstanceAs <| DecidableRel (¬G.Adj · ·)
+instance : DecidableRel h.setoid.r := inferInstanceAs <| DecidableRel (¬ G.Adj · ·)
 
 /-- The finpartition derived from `h.setoid`. -/
 def finpartition [DecidableEq V] : Finpartition (univ : Finset V) := Finpartition.ofSetoid h.setoid
@@ -202,15 +210,21 @@ theorem isEquipartition [DecidableEq V] : h.finpartition.IsEquipartition := by
   obtain ⟨w, hw⟩ := fp.nonempty_of_mem_parts hl
   obtain ⟨v, hv⟩ := fp.nonempty_of_mem_parts hs
   apply absurd h
-  rw [IsTuranMaximal, IsExtremal]; push Not; intro cf
+  rw [IsTuranMaximal, IsExtremal]
+  push Not
+  intro cf
   use G.replaceVertex v w, inferInstance, cf.replaceVertex v w
   have large_eq := fp.part_eq_of_mem hl hw
   have small_eq := fp.part_eq_of_mem hs hv
   have ha : G.Adj v w := by
-    by_contra hn; rw [h.not_adj_iff_part_eq, small_eq, large_eq] at hn
-    rw [hn] at ineq; lia
-  rw [G.card_edgeFinset_replaceVertex_of_adj ha,
-    degree_eq_card_sub_part_card h, small_eq, degree_eq_card_sub_part_card h, large_eq]
+    by_contra hn
+    rw [h.not_adj_iff_part_eq, small_eq, large_eq] at hn
+    rw [hn] at ineq
+    lia
+  rw [
+    G.card_edgeFinset_replaceVertex_of_adj ha, degree_eq_card_sub_part_card h, small_eq,
+    degree_eq_card_sub_part_card h, large_eq
+  ]
   have : #large ≤ card V := by simpa using card_le_card large.subset_univ
   lia
 
@@ -224,9 +238,11 @@ lemma card_parts_le [DecidableEq V] : #h.finpartition.parts ≤ r := by
   rw [Finset.card_eq_of_equiv hz.equiv] at ncf
   exact absurd (h.1.mono (Nat.succ_le_of_lt l)) ncf
 
-/-- There are `min n r` parts in a graph on `n` vertices satisfying `G.IsTuranMaximal r`.
+/--
+There are `min n r` parts in a graph on `n` vertices satisfying `G.IsTuranMaximal r`.
 `min` handles the `n < r` case, when `G` is complete but still `r + 1`-cliquefree
-for having insufficiently many vertices. -/
+for having insufficiently many vertices.
+-/
 theorem card_parts [DecidableEq V] : #h.finpartition.parts = min (card V) r := by
   set fp := h.finpartition
   apply le_antisymm (le_min fp.card_parts_le_card h.card_parts_le)
@@ -235,11 +251,15 @@ theorem card_parts [DecidableEq V] : #h.finpartition.parts = min (card V) r := b
   obtain ⟨x, -, y, -, hn, he⟩ :=
     exists_ne_map_eq_of_card_lt_of_maps_to l.1 fun a _ ↦ fp.part_mem.2 (mem_univ a)
   apply absurd h
-  rw [IsTuranMaximal, IsExtremal]; push Not; rintro -
+  rw [IsTuranMaximal, IsExtremal]
+  push Not
+  rintro -
   have cf : G.CliqueFree r := by
     simp_rw [← cliqueFinset_eq_empty_iff, cliqueFinset, filter_eq_empty_iff, mem_univ,
       forall_true_left, isNClique_iff, and_comm, not_and, isClique_iff, Set.Pairwise]
-    intro z zc; push Not; simp_rw [h.not_adj_iff_part_eq]
+    intro z zc
+    push Not
+    simp_rw [h.not_adj_iff_part_eq]
     exact exists_ne_map_eq_of_card_lt_of_maps_to (zc.symm ▸ l.2) fun a _ ↦
       fp.part_mem.2 (mem_univ a)
   use G ⊔ edge x y, inferInstance, cf.sup_edge x y
@@ -248,11 +268,12 @@ theorem card_parts [DecidableEq V] : #h.finpartition.parts = min (card V) r := b
   rwa [h.not_adj_iff_part_eq]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- **Turán's theorem**, forward direction.
+/--
+**Turán's theorem**, forward direction.
 
-Any `r + 1`-cliquefree Turán-maximal graph on `n` vertices is isomorphic to `turanGraph n r`. -/
-theorem nonempty_iso_turanGraph :
-    Nonempty (G ≃g turanGraph (card V) r) := by
+Any `r + 1`-cliquefree Turán-maximal graph on `n` vertices is isomorphic to `turanGraph n r`.
+-/
+theorem nonempty_iso_turanGraph : Nonempty (G ≃g turanGraph (card V) r) := by
   classical
   obtain ⟨zm, zp⟩ := h.isEquipartition.exists_partPreservingEquiv
   use (Equiv.subtypeUnivEquiv mem_univ).symm.trans zm
@@ -264,14 +285,19 @@ theorem nonempty_iso_turanGraph :
   rcases le_or_gt r (card V) with c | c
   · rw [min_eq_right c]; rfl
   · have lc : ∀ x, zm ⟨x, _⟩ < card V := fun x ↦ (zm ⟨x, mem_univ x⟩).2
-    rw [min_eq_left c.le, Nat.mod_eq_of_lt (lc a), Nat.mod_eq_of_lt (lc b),
-      ← Nat.mod_eq_of_lt ((lc a).trans c), ← Nat.mod_eq_of_lt ((lc b).trans c)]; rfl
+    rw [
+      min_eq_left c.le, Nat.mod_eq_of_lt (lc a), Nat.mod_eq_of_lt (lc b),
+      ← Nat.mod_eq_of_lt ((lc a).trans c), ← Nat.mod_eq_of_lt ((lc b).trans c)
+    ]
+    rfl
 
 end IsTuranMaximal
 
-/-- **Turán's theorem**, reverse direction.
+/--
+**Turán's theorem**, reverse direction.
 
-Any graph isomorphic to `turanGraph n r` is itself Turán-maximal if `0 < r`. -/
+Any graph isomorphic to `turanGraph n r` is itself Turán-maximal if `0 < r`.
+-/
 theorem isTuranMaximal_of_iso (f : G ≃g turanGraph n r) (hr : 0 < r) : G.IsTuranMaximal r := by
   obtain ⟨J, _, j⟩ := exists_isTuranMaximal (V := V) hr
   obtain ⟨g⟩ := j.nonempty_iso_turanGraph
@@ -280,18 +306,23 @@ theorem isTuranMaximal_of_iso (f : G ≃g turanGraph n r) (hr : 0 < r) : G.IsTur
     fun H _ cf ↦ (f.symm.comp g).card_edgeFinset_eq ▸ j.2 cf
 
 /-- Turán-maximality with `0 < r` transfers across graph isomorphisms. -/
-theorem IsTuranMaximal.iso {W : Type*} [Fintype W] {H : SimpleGraph W}
-    [DecidableRel H.Adj] (h : G.IsTuranMaximal r) (f : G ≃g H) (hr : 0 < r) : H.IsTuranMaximal r :=
+theorem IsTuranMaximal.iso
+    {W : Type*} [Fintype W]
+    {H : SimpleGraph W} [DecidableRel H.Adj]
+    (h : G.IsTuranMaximal r) (f : G ≃g H) (hr : 0 < r)
+    : H.IsTuranMaximal r :=
   isTuranMaximal_of_iso (h.nonempty_iso_turanGraph.some.comp f.symm) hr
 
 /-- For `0 < r`, `turanGraph n r` is Turán-maximal. -/
 theorem isTuranMaximal_turanGraph (hr : 0 < r) : (turanGraph n r).IsTuranMaximal r :=
   isTuranMaximal_of_iso Iso.refl hr
 
-/-- **Turán's theorem**. `turanGraph n r` is, up to isomorphism, the unique
-`r + 1`-cliquefree Turán-maximal graph on `n` vertices. -/
-theorem isTuranMaximal_iff_nonempty_iso_turanGraph (hr : 0 < r) :
-    G.IsTuranMaximal r ↔ Nonempty (G ≃g turanGraph (card V) r) :=
+/--
+**Turán's theorem**. `turanGraph n r` is, up to isomorphism, the unique
+`r + 1`-cliquefree Turán-maximal graph on `n` vertices.
+-/
+theorem isTuranMaximal_iff_nonempty_iso_turanGraph (hr : 0 < r)
+    : G.IsTuranMaximal r ↔ Nonempty (G ≃g turanGraph (card V) r) :=
   ⟨fun h ↦ h.nonempty_iso_turanGraph, fun h ↦ isTuranMaximal_of_iso h.some hr⟩
 
 variable {α : Type*} [Fintype α] [Nontrivial α]
@@ -307,22 +338,26 @@ lemma isExtremal_top_free_turanGraph :
   exact isTuranMaximal_turanGraph (Nat.sub_pos_iff_lt.mpr Fintype.one_lt_card)
 
 /-- The extremal numbers of `⊤` are equal to the number of edges in `turanGraph`. -/
-theorem extremalNumber_top :
-    extremalNumber n (⊤ : SimpleGraph α) = #(turanGraph n (card α - 1)).edgeFinset := by
+theorem extremalNumber_top
+    : extremalNumber n (⊤ : SimpleGraph α) = #(turanGraph n (card α - 1)).edgeFinset := by
   conv =>
     enter [1, 1]
     rw [← Fintype.card_fin n]
   exact (card_edgeFinset_of_isExtremal_free isExtremal_top_free_turanGraph).symm
 
-/-- The `turanGraph` is, up to isomorphism, the unique extremal graph forbidding `⊤`.
+/--
+The `turanGraph` is, up to isomorphism, the unique extremal graph forbidding `⊤`.
 
 This is **Turán's theorem** restated in terms of the extremal numbers of `⊤`.
-See `SimpleGraph.isTuranMaximal_iff_nonempty_iso_turanGraph`. -/
-theorem card_edgeFinset_eq_extremalNumber_top_iff_nonempty_iso_turanGraph :
-    (⊤ : SimpleGraph α).Free G ∧ #G.edgeFinset = extremalNumber (card V) (⊤ : SimpleGraph α)
+See `SimpleGraph.isTuranMaximal_iff_nonempty_iso_turanGraph`.
+-/
+theorem card_edgeFinset_eq_extremalNumber_top_iff_nonempty_iso_turanGraph
+    : (⊤ : SimpleGraph α).Free G ∧ #G.edgeFinset = extremalNumber (card V) (⊤ : SimpleGraph α)
       ↔ Nonempty (G ≃g turanGraph (card V) (card α - 1)) := by
-  rw [← isTuranMaximal_iff_nonempty_iso_turanGraph (Nat.sub_pos_iff_lt.mpr one_lt_card),
-    ← isExtremal_top_free_iff_isTuranMaximal, isExtremal_free_iff]
+  rw [
+    ← isTuranMaximal_iff_nonempty_iso_turanGraph (Nat.sub_pos_iff_lt.mpr one_lt_card),
+    ← isExtremal_top_free_iff_isTuranMaximal, isExtremal_free_iff
+  ]
 
 /-! ### Number of edges in the Turán graph -/
 
@@ -370,14 +405,17 @@ lemma turanNumber_add : turanNumber (n + r) r = turanNumber n r + n * (r - 1) + 
     congr!; exact sum_ne_add_mod_eq_sub_one
 
 /-- The exact formula for the number of edges in `turanGraph n r`. -/
-theorem turanNumber_eq {n r : ℕ} :
-    turanNumber n r = (n ^ 2 - (n % r) ^ 2) * (r - 1) / (2 * r) + (n % r).choose 2 := by
+theorem turanNumber_eq {n r : ℕ}
+    : turanNumber n r = (n ^ 2 - (n % r) ^ 2) * (r - 1) / (2 * r) + (n % r).choose 2 := by
   rcases r.eq_zero_or_pos with rfl | hr
   · rw [Nat.mod_zero, tsub_self, zero_mul, Nat.zero_div, zero_add]
     have := card_edgeFinset_top_eq_card_choose_two (V := Fin n)
-    rw [Fintype.card_fin] at this; convert! this; exact turanGraph_zero
-  · have ring₁ (n) : (n ^ 2 - (n % r) ^ 2) * (r - 1) / (2 * r) =
-        n % r * (n / r) * (r - 1) + r * (r - 1) * (n / r) ^ 2 / 2 := by
+    rw [Fintype.card_fin] at this
+    convert! this
+    exact turanGraph_zero
+  · have ring₁ (n)
+        : (n ^ 2 - (n % r) ^ 2) * (r - 1) / (2 * r)
+          = n % r * (n / r) * (r - 1) + r * (r - 1) * (n / r) ^ 2 / 2 := by
       nth_rw 1 [← Nat.mod_add_div n r, Nat.sq_sub_sq, add_tsub_cancel_left,
         show (n % r + r * (n / r) + n % r) * (r * (n / r)) * (r - 1) =
           (2 * ((n % r) * (n / r) * (r - 1)) + r * (r - 1) * (n / r) ^ 2) * r by grind]
@@ -385,22 +423,33 @@ theorem turanNumber_eq {n r : ℕ} :
     rcases lt_or_ge n r with h | h
     · rw [Nat.mod_eq_of_lt h, tsub_self, zero_mul, Nat.zero_div, zero_add]
       have := card_edgeFinset_top_eq_card_choose_two (V := Fin n)
-      rw [Fintype.card_fin] at this; convert! this
-      rw [turanGraph_eq_top]; exact .inr h.le
+      rw [Fintype.card_fin] at this
+      convert! this
+      rw [turanGraph_eq_top]
+      exact .inr h.le
     · let n' := n - r
       have n'r : n = n' + r := by lia
-      rw [n'r, turanNumber_add, turanNumber_eq, ring₁, ring₁,
-        add_rotate, ← add_assoc, Nat.add_mod_right, Nat.add_div_right _ hr]
+      rw [
+        n'r, turanNumber_add, turanNumber_eq, ring₁, ring₁, add_rotate, ← add_assoc,
+        Nat.add_mod_right, Nat.add_div_right _ hr
+      ]
       congr 1
       have rd : 2 ∣ r * (r - 1) := (Nat.even_mul_pred_self _).two_dvd
       rw [← Nat.div_mul_right_comm rd, ← Nat.div_mul_right_comm rd, ← Nat.choose_two_right]
-      have ring₂ : n' % r * (n' / r + 1) * (r - 1) + r.choose 2 * (n' / r + 1) ^ 2 =
-          n' % r * (n' / r + 1) * (r - 1) + r.choose 2 +
-          r.choose 2 * 2 * (n' / r) + r.choose 2 * (n' / r) ^ 2 := by grind
-      rw [ring₂, ← add_assoc]; congr 1
-      rw [← add_rotate, ← add_rotate _ _ (r.choose 2)]; congr 1
-      rw [Nat.choose_two_right, Nat.div_mul_cancel rd, mul_add_one, add_mul, ← add_assoc,
-        ← add_rotate, add_comm _ (_ * _)]; congr 1
+      have ring₂
+          : n' % r * (n' / r + 1) * (r - 1) + r.choose 2 * (n' / r + 1) ^ 2
+            = n' % r * (n' / r + 1) * (r - 1) + r.choose 2 + r.choose 2 * 2 * (n' / r)
+              + r.choose 2 * (n' / r) ^ 2 := by
+        grind
+      rw [ring₂, ← add_assoc]
+      congr 1
+      rw [← add_rotate, ← add_rotate _ _ (r.choose 2)]
+      congr 1
+      rw [
+        Nat.choose_two_right, Nat.div_mul_cancel rd, mul_add_one, add_mul, ← add_assoc,
+        ← add_rotate, add_comm _ (_ * _)
+      ]
+      congr 1
       rw [← mul_rotate, ← add_mul, add_comm, mul_comm _ r, Nat.div_add_mod n' r]
 
 lemma turanNumber_two : turanNumber n 2 = n ^ 2 / 4 := by
@@ -419,19 +468,23 @@ lemma turanNumber_three : turanNumber n 3 = n ^ 2 / 3 := by
 /-- A looser, but simpler than `turanNumber_eq`, bound on `turanNumber n r`. -/
 theorem mul_turanNumber_le : 2 * r * turanNumber n r ≤ (r - 1) * n ^ 2 := by
   grw [turanNumber_eq, mul_add, Nat.mul_div_le]
-  rw [tsub_mul, ← Nat.sub_add_comm]; swap
+  rw [tsub_mul, ← Nat.sub_add_comm]
+  swap
   · grw [Nat.mod_le]
     exact Nat.zero_le _
-  rw [Nat.sub_le_iff_le_add, mul_comm, Nat.add_le_add_iff_left, Nat.choose_two_right,
+  rw [
+    Nat.sub_le_iff_le_add, mul_comm, Nat.add_le_add_iff_left, Nat.choose_two_right,
     ← Nat.mul_div_assoc _ (Nat.even_mul_pred_self _).two_dvd, mul_assoc,
-    mul_div_cancel_left₀ _ two_ne_zero, ← mul_assoc, ← mul_rotate, sq, ← mul_rotate (r - 1)]
+    mul_div_cancel_left₀ _ two_ne_zero, ← mul_assoc, ← mul_rotate, sq, ← mul_rotate (r - 1)
+  ]
   gcongr ?_ * _
-  rcases r.eq_zero_or_pos with rfl | hr; · lia
+  rcases r.eq_zero_or_pos with rfl | hr
+  · lia
   rw [Nat.sub_one_mul, Nat.sub_one_mul, mul_comm]
   exact Nat.sub_le_sub_left (Nat.mod_lt _ hr).le _
 
-theorem CliqueFree.card_edgeFinset_le (cf : G.CliqueFree (r + 1)) :
-    #G.edgeFinset ≤ turanNumber (Fintype.card V) r := by
+theorem CliqueFree.card_edgeFinset_le (cf : G.CliqueFree (r + 1))
+    : #G.edgeFinset ≤ turanNumber (Fintype.card V) r := by
   rcases r.eq_zero_or_pos with rfl | hr
   · rw [cliqueFree_one, ← Fintype.card_eq_zero_iff] at cf
     simp [turanNumber_eq, card_edgeFinset_le_card_choose_two]

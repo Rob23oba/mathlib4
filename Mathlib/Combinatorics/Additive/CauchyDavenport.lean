@@ -63,13 +63,15 @@ variable {G α : Type*}
 section General
 variable [Group α] [DecidableEq α] {x y : Finset α × Finset α} {s t : Finset α}
 
-/-- The relation we induct along in the proof by DeVos of the Cauchy-Davenport theorem.
+/--
+The relation we induct along in the proof by DeVos of the Cauchy-Davenport theorem.
 `(s₁, t₁) < (s₂, t₂)` iff
 * `|s₁ * t₁| < |s₂ * t₂|`
 * or `|s₁ * t₁| = |s₂ * t₂|` and `|s₂| + |t₂| < |s₁| + |t₁|`
-* or `|s₁ * t₁| = |s₂ * t₂|` and `|s₁| + |t₁| = |s₂| + |t₂|` and `|s₁| < |s₂|`. -/
+* or `|s₁ * t₁| = |s₂ * t₂|` and `|s₁| + |t₁| = |s₂| + |t₂|` and `|s₁| < |s₂|`.
+-/
 @[to_additive
-/-- The relation we induct along in the proof by DeVos of the Cauchy-Davenport theorem.
+  /-- The relation we induct along in the proof by DeVos of the Cauchy-Davenport theorem.
 `(s₁, t₁) < (s₂, t₂)` iff
 * `|s₁ + t₁| < |s₂ + t₂|`
 * or `|s₁ + t₁| = |s₂ + t₂|` and `|s₂| + |t₂| < |s₁| + |t₁|`

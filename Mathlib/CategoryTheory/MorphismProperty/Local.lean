@@ -49,16 +49,22 @@ it respects isomorphisms, and:
 `0`-hypercover `{Uᵢ}` of `Y` in the precoverage `K`.
 -/
 class IsLocalAtTarget (P : MorphismProperty C) (K : Precoverage C) extends RespectsIso P where
-  /-- If `P` holds for `f : X ⟶ Y`, it also holds for `f` restricted to `Uᵢ` for any
-  `K`-cover `R` of `Y`. -/
-  pullbackSnd {X Y : C} {f : Y ⟶ X} {R : Presieve X} {U : C} {g : U ⟶ X} (hR : R ∈ K X)
-    (hg : R g) (hf : P f) [HasPullback f g] :
-    P (pullback.snd f g)
-  /-- If `P` holds for `f` restricted to `Uᵢ` for all `i`, it also holds for `f : X ⟶ Y` for any
-  `K`-cover `R` of `Y`. -/
-  of_forall_pullbackSnd {X Y : C} {f : Y ⟶ X} {R : Presieve X} (hR : R ∈ K X)
-    (h : ∀ {U : C} {g : U ⟶ X} [HasPullback f g], R g → P (pullback.snd f g)) :
-    P f
+  /--
+  If `P` holds for `f : X ⟶ Y`, it also holds for `f` restricted to `Uᵢ` for any
+  `K`-cover `R` of `Y`.
+  -/
+  pullbackSnd
+    {X Y : C} {f : Y ⟶ X} {R : Presieve X} {U : C} {g : U ⟶ X} (hR : R ∈ K X) (hg : R g) (hf : P f)
+    [HasPullback f g]
+    : P (pullback.snd f g)
+  /--
+  If `P` holds for `f` restricted to `Uᵢ` for all `i`, it also holds for `f : X ⟶ Y` for any
+  `K`-cover `R` of `Y`.
+  -/
+  of_forall_pullbackSnd
+    {X Y : C} {f : Y ⟶ X} {R : Presieve X}
+    (hR : R ∈ K X) (h : ∀ {U : C} {g : U ⟶ X} [HasPullback f g], R g → P (pullback.snd f g))
+    : P f
 
 namespace IsLocalAtTarget
 
@@ -127,8 +133,8 @@ lemma of_zeroHypercover [K.HasPullbacks] (h : ∀ (i : 𝒰.I₀), P (pullback.s
 lemma iff_of_zeroHypercover [K.HasPullbacks] : P f ↔ ∀ i, P (pullback.snd f (𝒰.f i)) :=
   ⟨fun hf _ ↦ pullbackSnd 𝒰.mem₀ ⟨_⟩ hf, fun h ↦ of_zeroHypercover _ h⟩
 
-instance inf (P Q : MorphismProperty C) [IsLocalAtTarget P K] [IsLocalAtTarget Q K] :
-    IsLocalAtTarget (P ⊓ Q) K where
+instance inf (P Q : MorphismProperty C) [IsLocalAtTarget P K] [IsLocalAtTarget Q K]
+    : IsLocalAtTarget (P ⊓ Q) K where
   pullbackSnd hR i h := ⟨pullbackSnd hR i h.1, pullbackSnd hR i h.2⟩
   of_forall_pullbackSnd hR h :=
     ⟨of_forall_pullbackSnd hR fun i ↦ (h i).1, of_forall_pullbackSnd hR fun i ↦ (h i).2⟩
@@ -153,12 +159,15 @@ it respects isomorphisms, and:
 -/
 class IsLocalAtSource (P : MorphismProperty C) (K : Precoverage C) extends RespectsIso P where
   /-- If `P` holds for `f : X ⟶ Y`, it also holds for `𝒰.f i ≫ f` for any `K`-cover `R` of `X`. -/
-  comp {X Y : C} {f : X ⟶ Y} {R : Presieve X} (hR : R ∈ K X) {U : C} (g : U ⟶ X) (hg : R g)
-    (hf : P f) : P (g ≫ f)
-  /-- If `P` holds for `𝒰.f i ≫ f` for all `i`, it holds for `f : X ⟶ Y` for any `K`-cover
-  `R` of X. -/
-  of_forall_comp {X Y : C} {f : X ⟶ Y} {R : Presieve X} (hR : R ∈ K X) :
-    (∀ ⦃U : C⦄ ⦃g : U ⟶ X⦄, R g → P (g ≫ f)) → P f
+  comp
+    {X Y : C} {f : X ⟶ Y} {R : Presieve X} (hR : R ∈ K X) {U : C} (g : U ⟶ X) (hg : R g) (hf : P f)
+    : P (g ≫ f)
+  /--
+  If `P` holds for `𝒰.f i ≫ f` for all `i`, it holds for `f : X ⟶ Y` for any `K`-cover
+  `R` of X.
+  -/
+  of_forall_comp {X Y : C} {f : X ⟶ Y} {R : Presieve X} (hR : R ∈ K X)
+    : (∀ ⦃U : C⦄ ⦃g : U ⟶ X⦄, R g → P (g ≫ f)) → P f
 
 namespace IsLocalAtSource
 
@@ -209,8 +218,8 @@ lemma iff_of_zeroHypercover : P f ↔ ∀ i, P (𝒰.f i ≫ f) :=
   ⟨fun hf i ↦ comp 𝒰.mem₀ _ ⟨i⟩ hf,
     fun h ↦ of_forall_comp 𝒰.mem₀ fun U g ↦ by rintro ⟨i⟩; exact h _⟩
 
-instance inf (P Q : MorphismProperty C) [IsLocalAtSource P K] [IsLocalAtSource Q K] :
-    IsLocalAtSource (P ⊓ Q) K where
+instance inf (P Q : MorphismProperty C) [IsLocalAtSource P K] [IsLocalAtSource Q K]
+    : IsLocalAtSource (P ⊓ Q) K where
   comp hR _ _ hg hf := ⟨comp hR _ hg hf.left, comp hR _ hg hf.right⟩
   of_forall_comp hR h :=
     ⟨of_forall_comp hR fun _ _ hg ↦ (h hg).1, of_forall_comp hR fun _ _ hg ↦ (h hg).2⟩

@@ -25,29 +25,30 @@ open CategoryTheory MonoidalCategory Limits Opposite CartesianMonoidalCategory M
 
 namespace CategoryTheory
 universe w v u
-variable {C : Type u} [Category.{v} C] [CartesianMonoidalCategory C]
+variable
+  {C : Type u} [Category.{v} C] [CartesianMonoidalCategory C]
   {M G H X Y : C} [MonObj M] [GrpObj G] [GrpObj H]
 
 variable (X) in
 /-- If `X` represents a presheaf of monoids, then `X` is a monoid object. -/
 @[to_additive (attr := instance_reducible)
-/-- If `X` represents a presheaf of additive monoids, then `X` is an additive monoid object. -/]
-def GrpObj.ofRepresentableBy (F : Cᵒᵖ ⥤ GrpCat.{w}) (α : (F ⋙ forget _).RepresentableBy X) :
-    GrpObj X where
+  /-- If `X` represents a presheaf of additive monoids, then `X` is an additive monoid object. -/]
+def GrpObj.ofRepresentableBy (F : Cᵒᵖ ⥤ GrpCat.{w}) (α : (F ⋙ forget _).RepresentableBy X)
+    : GrpObj X where
   __ := MonObj.ofRepresentableBy X (F ⋙ forget₂ GrpCat MonCat) α
   inv := α.homEquiv'.symm (α.homEquiv (𝟙 _))⁻¹
   left_inv := by
-    change lift (α.homEquiv'.symm (α.homEquiv (𝟙 X))⁻¹) (𝟙 X) ≫
-      α.homEquiv'.symm (α.homEquiv' (fst X X) * α.homEquiv' (snd X X)) =
-        toUnit X ≫ α.homEquiv'.symm 1
+    change lift (α.homEquiv'.symm (α.homEquiv (𝟙 X))⁻¹) (𝟙 X)
+        ≫ α.homEquiv'.symm (α.homEquiv' (fst X X) * α.homEquiv' (snd X X))
+      = toUnit X ≫ α.homEquiv'.symm 1
     apply α.homEquiv'.injective
     simp only [α.homEquiv'_comp, Equiv.apply_symm_apply, map_mul, map_one]
     simp only [← α.homEquiv'_comp, lift_fst, Equiv.apply_symm_apply, lift_snd]
     exact inv_mul_cancel (α.homEquiv (𝟙 X))
   right_inv := by
-    change lift (𝟙 X) (α.homEquiv'.symm (α.homEquiv' (𝟙 X))⁻¹) ≫
-      α.homEquiv'.symm (α.homEquiv' (fst X X) * α.homEquiv' (snd X X)) =
-        toUnit X ≫ α.homEquiv'.symm 1
+    change lift (𝟙 X) (α.homEquiv'.symm (α.homEquiv' (𝟙 X))⁻¹)
+        ≫ α.homEquiv'.symm (α.homEquiv' (fst X X) * α.homEquiv' (snd X X))
+      = toUnit X ≫ α.homEquiv'.symm 1
     apply α.homEquiv'.injective
     simp only [α.homEquiv'_comp, Equiv.apply_symm_apply, map_mul, map_one]
     simp only [← α.homEquiv'_comp]
@@ -55,13 +56,14 @@ def GrpObj.ofRepresentableBy (F : Cᵒᵖ ⥤ GrpCat.{w}) (α : (F ⋙ forget _)
 
 /-- If `G` is a group object, then `Hom(X, G)` has a group structure. -/
 @[to_additive
-/-- If `G` is an additive group object, then `Hom(X, G)` has an additive group structure. -/]
+  /-- If `G` is an additive group object, then `Hom(X, G)` has an additive group structure. -/]
 abbrev Hom.group : Group (X ⟶ G) where
   inv f := f ≫ ι
-  inv_mul_cancel f := calc
-    lift (f ≫ ι) f ≫ μ
-    _ = (f ≫ lift ι (𝟙 G)) ≫ μ := by simp
-    _ = toUnit X ≫ η := by rw [Category.assoc]; simp
+  inv_mul_cancel f :=
+    calc
+      lift (f ≫ ι) f ≫ μ
+      _ = (f ≫ lift ι (𝟙 G)) ≫ μ := by simp
+      _ = toUnit X ≫ η := by rw [Category.assoc]; simp
 
 scoped[CategoryTheory.MonObj] attribute [instance] Hom.group
 scoped[CategoryTheory.AddMonObj] attribute [instance] Hom.addGroup
@@ -72,7 +74,7 @@ lemma Hom.inv_def (f : X ⟶ G) : f⁻¹ = f ≫ ι := rfl
 variable (G) in
 /-- If `G` is a group object, then `Hom(-, G)` is a presheaf of groups. -/
 @[to_additive (attr := simps)
-/-- If `G` is an additive group object, then `Hom(-, G)` is a presheaf of additive groups. -/]
+  /-- If `G` is an additive group object, then `Hom(-, G)` is a presheaf of additive groups. -/]
 def yonedaGrpObj : Cᵒᵖ ⥤ GrpCat.{v} where
   obj X := ↧(unop X ⟶ G)
   map φ := GrpCat.ofHom ((yonedaMonObj G).map φ).hom
@@ -80,7 +82,7 @@ def yonedaGrpObj : Cᵒᵖ ⥤ GrpCat.{v} where
 variable (G) in
 /-- If `G` is a monoid object, then `Hom(-, G)` as a presheaf of monoids is represented by `G`. -/
 @[to_additive
-/-- If `G` is an additive monoid object, then `Hom(-, G)` as a presheaf of additive monoids
+  /-- If `G` is an additive monoid object, then `Hom(-, G)` as a presheaf of additive monoids
 is represented by `G`. -/]
 def yonedaGrpObjRepresentableBy : (yonedaGrpObj G ⋙ forget _).RepresentableBy G :=
   Functor.representableByEquiv.symm (.refl _)
@@ -95,26 +97,31 @@ lemma GrpObj.ofRepresentableBy_yonedaGrpObjRepresentableBy :
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
 variable (X) in
-/-- If `X` represents a presheaf of groups `F`, then `Hom(-, X)` is isomorphic to `F` as
-a presheaf of groups. -/
+/--
+If `X` represents a presheaf of groups `F`, then `Hom(-, X)` is isomorphic to `F` as
+a presheaf of groups.
+-/
 @[to_additive (attr := simps! hom inv)
-/-- If `X` represents a presheaf of additive groups `F`, then `Hom(-, X)` is isomorphic to `F` as
+  /-- If `X` represents a presheaf of additive groups `F`, then `Hom(-, X)` is isomorphic to `F` as
 a presheaf of additive groups. -/]
-def yonedaGrpObjIsoOfRepresentableBy (F : Cᵒᵖ ⥤ GrpCat.{v}) (α : (F ⋙ forget _).RepresentableBy X) :
-    letI := GrpObj.ofRepresentableBy X F α
-    yonedaGrpObj X ≅ F :=
+def yonedaGrpObjIsoOfRepresentableBy (F : Cᵒᵖ ⥤ GrpCat.{v}) (α : (F ⋙ forget _).RepresentableBy X)
+    : letI := GrpObj.ofRepresentableBy X F α
+      yonedaGrpObj X ≅ F :=
   letI := GrpObj.ofRepresentableBy X F α
-  NatIso.ofComponents (fun Y ↦ MulEquiv.toGrpIso
-    { toEquiv := α.homEquiv
-      map_mul' :=
-  ((yonedaMonObjIsoOfRepresentableBy X (F ⋙ forget₂ GrpCat MonCat) α).hom.app Y).hom.map_mul })
-      fun φ ↦ GrpCat.hom_ext <| MonoidHom.ext <| α.homEquiv_comp φ.unop
+  NatIso.ofComponents
+    (fun Y ↦
+      MulEquiv.toGrpIso {
+        toEquiv := α.homEquiv
+        map_mul' :=
+          ((yonedaMonObjIsoOfRepresentableBy X (F ⋙ forget₂ GrpCat MonCat) α).hom.app Y).hom.map_mul
+      })
+    fun φ ↦ GrpCat.hom_ext <| MonoidHom.ext <| α.homEquiv_comp φ.unop
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The yoneda embedding of `Grp C` into presheaves of groups. -/
 @[to_additive (attr := simps)
-/-- The yoneda embedding of `AddGrp_C` into presheaves of additive groups. -/]
+  /-- The yoneda embedding of `AddGrp_C` into presheaves of additive groups. -/]
 def yonedaGrp : Grp C ⥤ Cᵒᵖ ⥤ GrpCat.{v} where
   obj G := yonedaGrpObj G.X
   map {G H} ψ := { app Y := GrpCat.ofHom ((yonedaMon.map ψ.hom).app Y).hom }
@@ -128,7 +135,7 @@ lemma yonedaGrp_naturality (α : yonedaGrpObj G ⟶ yonedaGrpObj H) (f : X ⟶ Y
 
 /-- The yoneda embedding for `Grp C` is fully faithful. -/
 @[to_additive
-/-- The yoneda embedding for `AddGrp C` is fully faithful. -/]
+  /-- The yoneda embedding for `AddGrp C` is fully faithful. -/]
 def yonedaGrpFullyFaithful : yonedaGrp (C := C).FullyFaithful where
   preimage {G H} α :=
     Grp.homMk' (yonedaMonFullyFaithful.preimage ((Functor.whiskerRight α (forget₂ GrpCat MonCat))))
@@ -141,10 +148,8 @@ def yonedaGrpFullyFaithful : yonedaGrp (C := C).FullyFaithful where
     congr
     apply yonedaMonFullyFaithful.preimage_map
 
-@[to_additive]
-instance : yonedaGrp (C := C).Full := yonedaGrpFullyFaithful.full
-@[to_additive]
-instance : yonedaGrp (C := C).Faithful := yonedaGrpFullyFaithful.faithful
+@[to_additive] instance : yonedaGrp (C := C).Full := yonedaGrpFullyFaithful.full
+@[to_additive] instance : yonedaGrp (C := C).Faithful := yonedaGrpFullyFaithful.faithful
 
 @[to_additive]
 lemma essImage_yonedaGrp :
@@ -200,25 +205,28 @@ lemma Functor.map_inv' {D : Type*} [Category* D] [CartesianMonoidalCategory D] (
     F.map (f⁻¹) = (F.map f)⁻¹ := by
   rw [eq_inv_iff_mul_eq_one, ← Functor.map_mul, inv_mul_cancel, Functor.map_one]
 
-/-- Conjugation in `G` as a morphism. This is the map `(x, y) ↦ x * y * x⁻¹`,
-see `CategoryTheory.GrpObj.lift_conj_eq_mul_mul_inv`. -/
+/--
+Conjugation in `G` as a morphism. This is the map `(x, y) ↦ x * y * x⁻¹`,
+see `CategoryTheory.GrpObj.lift_conj_eq_mul_mul_inv`.
+-/
 @[to_additive
-/-- Conjugation in `G` as a morphism. This is the map `(x, y) ↦ x + y + (-x)`,
+  /-- Conjugation in `G` as a morphism. This is the map `(x, y) ↦ x + y + (-x)`,
 see `CategoryTheory.AddGrpObj.lift_conj_eq_add_add_neg`. -/]
-def GrpObj.conj (G : C) [GrpObj G] : G ⊗ G ⟶ G :=
-  fst _ _ * snd _ _ * (fst _ _)⁻¹
+def GrpObj.conj (G : C) [GrpObj G] : G ⊗ G ⟶ G := fst _ _ * snd _ _ * (fst _ _)⁻¹
 
 @[to_additive (attr := reassoc (attr := simp))]
 lemma GrpObj.lift_conj_eq_mul_mul_inv {X G : C} [GrpObj G] (f₁ f₂ : X ⟶ G) :
     lift f₁ f₂ ≫ conj G = f₁ * f₂ * f₁⁻¹ := by
   simp [conj, comp_mul, comp_inv]
 
-/-- The commutator of `G` as a morphism. This is the map `(x, y) ↦ x * y * x⁻¹ * y⁻¹`,
+/--
+The commutator of `G` as a morphism. This is the map `(x, y) ↦ x * y * x⁻¹ * y⁻¹`,
 see `CategoryTheory.GrpObj.lift_commutator_eq_mul_mul_inv_inv`.
 This morphism is constant with value `1` if and only if `G` is commutative
-(see `CategoryTheory.isCommMonObj_iff_commutator_eq_toUnit_η`). -/
+(see `CategoryTheory.isCommMonObj_iff_commutator_eq_toUnit_η`).
+-/
 @[to_additive
-/-- The commutator of `G` as a morphism. This is the map `(x, y) ↦ x + y + (-x) + (-y)`,
+  /-- The commutator of `G` as a morphism. This is the map `(x, y) ↦ x + y + (-x) + (-y)`,
 see `CategoryTheory.AddGrpObj.lift_commutator_eq_add_add_neg_neg`.
 This morphism is constant with value `0` if and only if `G` is commutative
 (see `CategoryTheory.isCommAddMonObj_iff_commutator_eq_toAddUnit_η`). -/]
@@ -246,8 +254,7 @@ instance [IsCommMonObj G] : IsMonHom ι[G] where
   mul_hom := by simp [GrpObj.mul_inv_rev]
 
 attribute [local simp] Hom.inv_def in
-@[to_additive]
-instance [IsCommMonObj G] {f : M ⟶ G} [IsMonHom f] : IsMonHom f⁻¹ where
+@[to_additive] instance [IsCommMonObj G] {f : M ⟶ G} [IsMonHom f] : IsMonHom f⁻¹ where
 
 namespace Grp
 variable {G H : Grp C} [IsCommMonObj H.X]
@@ -279,7 +286,8 @@ end Hom
 /-- A commutative group object is a group object in the category of group objects. -/
 @[to_additive /-- A commutative additive group object is an additive group object in the category of
 additive group objects. -/]
-instance : GrpObj H where inv := Grp.homMk' { hom := ι[H.X] }
+instance : GrpObj H where
+  inv := Grp.homMk' { hom := ι[H.X] }
 
 namespace Hom
 
@@ -299,14 +307,13 @@ attribute [local simp] mul_eq_mul comp_mul mul_comm mul_div_mul_comm in
 category of additive group objects. -/]
 instance : IsCommMonObj H where
 
-@[to_additive]
-instance [IsCommMonObj G.X] (f : G ⟶ H) : IsMonHom f where
+@[to_additive] instance [IsCommMonObj G.X] (f : G ⟶ H) : IsMonHom f where
 
 end Grp
 
 /-- If `G` is a commutative group object, then `Hom(X, G)` has a commutative group structure. -/
 @[to_additive
-/-- If `G` is a commutative additive group object, then `Hom(X, G)` has a commutative
+  /-- If `G` is a commutative additive group object, then `Hom(X, G)` has a commutative
 additive group structure. -/]
 abbrev Hom.commGroup [IsCommMonObj G] : CommGroup (X ⟶ G) where
 

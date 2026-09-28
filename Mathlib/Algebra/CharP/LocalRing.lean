@@ -22,10 +22,10 @@ public import Mathlib.RingTheory.LocalRing.ResidueField.Defs
 
 public section
 
-
 /-- In a local ring the characteristic is either zero or a prime power. -/
-theorem charP_zero_or_prime_power (R : Type*) [CommRing R] [IsLocalRing R] (q : ℕ)
-    [char_R_q : CharP R q] : q = 0 ∨ IsPrimePow q := by
+theorem charP_zero_or_prime_power
+    (R : Type*) [CommRing R] [IsLocalRing R] (q : ℕ) [char_R_q : CharP R q]
+    : q = 0 ∨ IsPrimePow q := by
   -- Assume `q := char(R)` is not zero.
   apply or_iff_not_imp_left.2
   intro q_pos
@@ -51,8 +51,10 @@ theorem charP_zero_or_prime_power (R : Type*) [CommRing R] [IsLocalRing R] (q : 
       have r_dvd_a := (ringChar.spec K a).1 a_cast_zero
       exact absurd r_dvd_a r_ne_dvd_a
     have rn_cast_zero : ↑(r ^ n) = (0 : R) := by
-      rw [← one_mul (↑(r ^ n) : R), ← a_unit.val_inv_mul, mul_assoc, ← Nat.cast_mul,
-        ← q_eq_a_mul_rn, CharP.cast_eq_zero R q, mul_zero]
+      rw [
+        ← one_mul (↑(r ^ n) : R), ← a_unit.val_inv_mul, mul_assoc, ← Nat.cast_mul, ← q_eq_a_mul_rn,
+        CharP.cast_eq_zero R q, mul_zero
+      ]
     have q_eq_rn := Nat.dvd_antisymm ((CharP.cast_eq_zero_iff R q (r ^ n)).mp rn_cast_zero) rn_dvd_q
     have n_pos : n ≠ 0 := fun n_zero =>
       absurd (by simpa [n_zero] using q_eq_rn) (CharP.char_ne_one R q)

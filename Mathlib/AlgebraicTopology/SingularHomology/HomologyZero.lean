@@ -24,23 +24,23 @@ universe w v u
 
 open CategoryTheory Limits AlgebraicTopology Simplicial
 
-variable {C : Type u} [Category.{v} C] [HasCoproducts.{w} C] [Preadditive C]
-  [CategoryWithHomology C]
+variable
+  {C : Type u} [Category.{v} C] [HasCoproducts.{w} C] [Preadditive C] [CategoryWithHomology C]
 
 namespace TopCat
 
 variable (X : TopCat.{w}) (R : C)
 
-/-- The singular homology of a topological space `X` with coefficients in `R`
-identifies with the coproduct of copies of `R` indexed by `ZerothHomotopy X`. -/
-noncomputable def singularHomology₀Iso :
-    ((singularHomologyFunctor C 0).obj R).obj X ≅ ∐ (fun (_ : ZerothHomotopy X) ↦ R) :=
-  SSet.homology₀Iso _ _ ≪≫
-    (sigmaConst.obj R).mapIso zerothHomotopyEquiv.toIso.symm
+/--
+The singular homology of a topological space `X` with coefficients in `R`
+identifies with the coproduct of copies of `R` indexed by `ZerothHomotopy X`.
+-/
+noncomputable def singularHomology₀Iso
+    : ((singularHomologyFunctor C 0).obj R).obj X ≅ ∐ (fun (_ : ZerothHomotopy X) ↦ R) :=
+  SSet.homology₀Iso _ _ ≪≫ (sigmaConst.obj R).mapIso zerothHomotopyEquiv.toIso.symm
 
 /-- The augmentation map `((singularHomologyFunctor C 0).obj R).obj X ⟶ R`. -/
-noncomputable def singularHomology₀ε :
-    ((singularHomologyFunctor C 0).obj R).obj X ⟶ R :=
+noncomputable def singularHomology₀ε : ((singularHomologyFunctor C 0).obj R).obj X ⟶ R :=
   SSet.homology₀ε _ _
 
 set_option backward.isDefEq.respectTransparency false in

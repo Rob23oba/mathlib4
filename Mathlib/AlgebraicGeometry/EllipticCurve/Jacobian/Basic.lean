@@ -108,18 +108,15 @@ namespace WeierstrassCurve
 
 variable (R) in
 /-- An abbreviation for a Weierstrass curve in Jacobian coordinates. -/
-abbrev Jacobian : Type r :=
-  WeierstrassCurve R
+abbrev Jacobian : Type r := WeierstrassCurve R
 
 /-- The conversion from a Weierstrass curve to Jacobian coordinates. -/
-abbrev toJacobian (W : WeierstrassCurve R) : Jacobian R :=
-  W
+abbrev toJacobian (W : WeierstrassCurve R) : Jacobian R := W
 
 namespace Jacobian
 
 /-- The conversion from a Weierstrass curve in Jacobian coordinates to affine coordinates. -/
-abbrev toAffine (W' : Jacobian R) : Affine R :=
-  W'
+abbrev toAffine (W' : Jacobian R) : Affine R := W'
 
 lemma fin3_def (P : Fin 3 → R) : ![P x, P y, P z] = P := by
   ext n; fin_cases n <;> rfl
@@ -130,12 +127,15 @@ lemma fin3_def_ext (a b c : R) : ![a, b, c] x = a ∧ ![a, b, c] y = b ∧ ![a, 
 lemma comp_fin3 {S : Type s} (f : R → S) (a b c : R) : f ∘ ![a, b, c] = ![f a, f b, f c] :=
   (FinVec.map_eq ..).symm
 
-variable [CommRing R] [Field F] {W' : Jacobian R} {W : Jacobian F} {S : Type s} [CommRing S]
-  {A : Type u} [CommRing A] {B : Type v} [CommRing B] {K : Type v} [Field K]
+variable
+  [CommRing R] [Field F]
+  {W' : Jacobian R} {W : Jacobian F} {S : Type s} [CommRing S]
+  {A : Type u} [CommRing A]
+  {B : Type v} [CommRing B]
+  {K : Type v} [Field K]
 
 /-- The scalar multiplication for a Jacobian point representative on a Weierstrass curve. -/
-scoped instance : SMul R <| Fin 3 → R :=
-  ⟨fun u P => ![u ^ 2 * P x, u ^ 3 * P y, u * P z]⟩
+scoped instance : SMul R <| Fin 3 → R := ⟨fun u P => ![u ^ 2 * P x, u ^ 3 * P y, u * P z]⟩
 
 lemma smul_fin3 (P : Fin 3 → R) (u : R) : u • P = ![u ^ 2 * P x, u ^ 3 * P y, u * P z] :=
   rfl
@@ -153,14 +153,11 @@ scoped instance : MulAction R <| Fin 3 → R where
   mul_smul _ _ _ := by simp only [smul_fin3, mul_pow, mul_assoc, fin3_def_ext]
 
 /-- The equivalence setoid for a Jacobian point representative on a Weierstrass curve. -/
-@[reducible]
-scoped instance : Setoid <| Fin 3 → R :=
-  MulAction.orbitRel Rˣ <| Fin 3 → R
+@[reducible] scoped instance : Setoid <| Fin 3 → R := MulAction.orbitRel Rˣ <| Fin 3 → R
 
 variable (R) in
 /-- The equivalence class of a Jacobian point representative on a Weierstrass curve. -/
-abbrev PointClass : Type r :=
-  MulAction.orbitRel.Quotient Rˣ <| Fin 3 → R
+abbrev PointClass : Type r := MulAction.orbitRel.Quotient Rˣ <| Fin 3 → R
 
 lemma smul_equiv (P : Fin 3 → R) {u : R} (hu : IsUnit u) : u • P ≈ P :=
   ⟨hu.unit, rfl⟩
@@ -234,11 +231,13 @@ lemma Y_eq_iff {P Q : Fin 3 → F} (hPz : P z ≠ 0) (hQz : Q z ≠ 0) :
 /-! ## Weierstrass equations in Jacobian coordinates -/
 
 variable (W') in
-/-- The polynomial `W(X, Y, Z) := Y² + a₁XYZ + a₃YZ³ - (X³ + a₂X²Z² + a₄XZ⁴ + a₆Z⁶)` associated to a
+/--
+The polynomial `W(X, Y, Z) := Y² + a₁XYZ + a₃YZ³ - (X³ + a₂X²Z² + a₄XZ⁴ + a₆Z⁶)` associated to a
 Weierstrass curve `W` over a ring `R` in Jacobian coordinates.
 
 This is represented as a term of type `MvPolynomial (Fin 3) R`, where `X`, `Y`, and `Z`
-represent `X`, `Y`, and `Z` respectively. -/
+represent `X`, `Y`, and `Z` respectively.
+-/
 noncomputable def polynomial : MvPolynomial (Fin 3) R :=
   Y ^ 2 + C W'.a₁ * X * Y * Z + C W'.a₃ * Y * Z ^ 3
     - (X ^ 3 + C W'.a₂ * X ^ 2 * Z ^ 2 + C W'.a₄ * X * Z ^ 4 + C W'.a₆ * Z ^ 6)
@@ -257,12 +256,13 @@ lemma eval_polynomial_of_Z_ne_zero {P : Fin 3 → F} (hPz : P z ≠ 0) : eval P 
       - W.a₄ * P x / P z ^ 2 * div_self (pow_ne_zero 4 hPz) - W.a₆ * div_self (pow_ne_zero 6 hPz)
 
 variable (W') in
-/-- The proposition that a Jacobian point representative `(x, y, z)` lies in a Weierstrass curve
+/--
+The proposition that a Jacobian point representative `(x, y, z)` lies in a Weierstrass curve
 `W`.
 
-In other words, it satisfies the `(2, 3, 1)`-homogeneous Weierstrass equation `W(X, Y, Z) = 0`. -/
-def Equation (P : Fin 3 → R) : Prop :=
-  eval P W'.polynomial = 0
+In other words, it satisfies the `(2, 3, 1)`-homogeneous Weierstrass equation `W(X, Y, Z) = 0`.
+-/
+def Equation (P : Fin 3 → R) : Prop := eval P W'.polynomial = 0
 
 lemma equation_iff (P : Fin 3 → R) : W'.Equation P ↔
     P y ^ 2 + W'.a₁ * P x * P y * P z + W'.a₃ * P y * P z ^ 3
@@ -296,10 +296,11 @@ lemma equation_of_Z_ne_zero {P : Fin 3 → F} (hPz : P z ≠ 0) :
 /-! ## The nonsingular condition in Jacobian coordinates -/
 
 variable (W') in
-/-- The partial derivative `W_X(X, Y, Z)` with respect to `X` of the polynomial `W(X, Y, Z)`
-associated to a Weierstrass curve `W` in Jacobian coordinates. -/
-noncomputable def polynomialX : MvPolynomial (Fin 3) R :=
-  pderiv x W'.polynomial
+/--
+The partial derivative `W_X(X, Y, Z)` with respect to `X` of the polynomial `W(X, Y, Z)`
+associated to a Weierstrass curve `W` in Jacobian coordinates.
+-/
+noncomputable def polynomialX : MvPolynomial (Fin 3) R := pderiv x W'.polynomial
 
 lemma polynomialX_eq : W'.polynomialX =
     C W'.a₁ * Y * Z - (C 3 * X ^ 2 + C (2 * W'.a₂) * X * Z ^ 2 + C W'.a₄ * Z ^ 4) := by
@@ -320,10 +321,11 @@ lemma eval_polynomialX_of_Z_ne_zero {P : Fin 3 → F} (hPz : P z ≠ 0) :
       - W.a₄ * div_self (pow_ne_zero 4 hPz)
 
 variable (W') in
-/-- The partial derivative `W_Y(X, Y, Z)` with respect to `Y` of the polynomial `W(X, Y, Z)`
-associated to a Weierstrass curve `W` in Jacobian coordinates. -/
-noncomputable def polynomialY : MvPolynomial (Fin 3) R :=
-  pderiv y W'.polynomial
+/--
+The partial derivative `W_Y(X, Y, Z)` with respect to `Y` of the polynomial `W(X, Y, Z)`
+associated to a Weierstrass curve `W` in Jacobian coordinates.
+-/
+noncomputable def polynomialY : MvPolynomial (Fin 3) R := pderiv y W'.polynomial
 
 lemma polynomialY_eq : W'.polynomialY = C 2 * Y + C W'.a₁ * X * Z + C W'.a₃ * Z ^ 3 := by
   rw [polynomialY, polynomial]
@@ -342,10 +344,11 @@ lemma eval_polynomialY_of_Z_ne_zero {P : Fin 3 → F} (hPz : P z ≠ 0) :
     W.a₁ * P x / P z ^ 2 * div_self hPz + W.a₃ * div_self (pow_ne_zero 3 hPz)
 
 variable (W') in
-/-- The partial derivative `W_Z(X, Y, Z)` with respect to `Z` of the polynomial `W(X, Y, Z)`
-associated to a Weierstrass curve `W` in Jacobian coordinates. -/
-noncomputable def polynomialZ : MvPolynomial (Fin 3) R :=
-  pderiv z W'.polynomial
+/--
+The partial derivative `W_Z(X, Y, Z)` with respect to `Z` of the polynomial `W(X, Y, Z)`
+associated to a Weierstrass curve `W` in Jacobian coordinates.
+-/
+noncomputable def polynomialZ : MvPolynomial (Fin 3) R := pderiv z W'.polynomial
 
 lemma polynomialZ_eq : W'.polynomialZ = C W'.a₁ * X * Y + C (3 * W'.a₃) * Y * Z ^ 2 -
     (C (2 * W'.a₂) * X ^ 2 * Z + C (4 * W'.a₄) * X * Z ^ 3 + C (6 * W'.a₆) * Z ^ 5) := by
@@ -360,23 +363,26 @@ lemma eval_polynomialZ (P : Fin 3 → R) : eval P W'.polynomialZ =
   simp
 
 /-- Euler's homogeneous function theorem in Jacobian coordinates. -/
-theorem polynomial_relation (P : Fin 3 → R) : 6 * eval P W'.polynomial =
-    2 * P x * eval P W'.polynomialX + 3 * P y * eval P W'.polynomialY +
-      P z * eval P W'.polynomialZ := by
+theorem polynomial_relation (P : Fin 3 → R)
+    : 6 * eval P W'.polynomial
+      = 2 * P x * eval P W'.polynomialX + 3 * P y * eval P W'.polynomialY
+        + P z * eval P W'.polynomialZ := by
   rw [eval_polynomial, eval_polynomialX, eval_polynomialY, eval_polynomialZ]
   ring1
 
 variable (W') in
-/-- The proposition that a Jacobian point representative `(x, y, z)` on a Weierstrass curve `W` is
+/--
+The proposition that a Jacobian point representative `(x, y, z)` on a Weierstrass curve `W` is
 nonsingular.
 
 In other words, either `W_X(x, y, z) ≠ 0`, `W_Y(x, y, z) ≠ 0`, or `W_Z(x, y, z) ≠ 0`.
 
-Note that this definition is only mathematically accurate for fields. -/
+Note that this definition is only mathematically accurate for fields.
+-/
 -- TODO: generalise this definition to be mathematically accurate for a larger class of rings.
 def Nonsingular (P : Fin 3 → R) : Prop :=
-  W'.Equation P ∧
-    (eval P W'.polynomialX ≠ 0 ∨ eval P W'.polynomialY ≠ 0 ∨ eval P W'.polynomialZ ≠ 0)
+  W'.Equation P
+    ∧ (eval P W'.polynomialX ≠ 0 ∨ eval P W'.polynomialY ≠ 0 ∨ eval P W'.polynomialZ ≠ 0)
 
 lemma nonsingular_iff (P : Fin 3 → R) : W'.Nonsingular P ↔ W'.Equation P ∧
     (W'.a₁ * P y * P z - (3 * P x ^ 2 + 2 * W'.a₂ * P x * P z ^ 2 + W'.a₄ * P z ^ 4) ≠ 0 ∨
@@ -483,12 +489,14 @@ lemma comp_equiv_comp (f : F →+* K) {P Q : Fin 3 → F} (hP : W.Nonsingular P)
     exact ⟨Units.map f u, (comp_smul ..).symm⟩
 
 variable (W') in
-/-- The proposition that a Jacobian point class on a Weierstrass curve `W` is nonsingular.
+/--
+The proposition that a Jacobian point class on a Weierstrass curve `W` is nonsingular.
 
 If `P` is a Jacobian point representative on `W`, then `W.NonsingularLift ⟦P⟧` is definitionally
 equivalent to `W.Nonsingular P`.
 
-Note that this definition is only mathematically accurate for fields. -/
+Note that this definition is only mathematically accurate for fields.
+-/
 def NonsingularLift (P : PointClass R) : Prop :=
   P.lift W'.Nonsingular fun _ _ => propext ∘ nonsingular_of_equiv
 
@@ -507,13 +515,11 @@ lemma nonsingularLift_some (a b : R) :
 variable (W') (f : R →+* S)
 
 /-- The Weierstrass curve in Jacobian coordinates mapped over a ring homomorphism `f : R →+* S`. -/
-abbrev map : Jacobian S :=
-  WeierstrassCurve.map W' f
+abbrev map : Jacobian S := WeierstrassCurve.map W' f
 
 variable (S) in
 /-- The Weierstrass curve in Jacobian coordinates base changed to an algebra `S` over `R`. -/
-abbrev baseChange [Algebra R S] : Jacobian S :=
-  WeierstrassCurve.baseChange W' S
+abbrev baseChange [Algebra R S] : Jacobian S := WeierstrassCurve.baseChange W' S
 
 /-- The notation `\textf` for `WeierstrassCurve.Jacobian.baseChange W S`. -/
 scoped notation:max W:max "⁄" S:max => baseChange W S
@@ -552,8 +558,10 @@ lemma map_nonsingular (hf : Function.Injective f) (P : Fin 3 → R) :
   simp only [Nonsingular, W'.map_equation hf, map_polynomialX, map_polynomialY, map_polynomialZ,
     eval_map, ← eval₂_comp, map_ne_zero_iff f hf]
 
-variable [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [Algebra R B] [Algebra S B]
-  [IsScalarTower R S B] (f : A →ₐ[S] B)
+variable
+  [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower R S A] [Algebra R B] [Algebra S B]
+  [IsScalarTower R S B]
+  (f : A →ₐ[S] B)
 
 lemma map_baseChange : (W'⁄A).map f = W'⁄B :=
   WeierstrassCurve.map_baseChange W' f

@@ -27,8 +27,10 @@ open CategoryTheory Topology
 
 namespace AlgebraicGeometry
 
-/-- A morphism of schemes `f : X ⟶ Y` is a preimmersion if the underlying map of
-topological spaces is an embedding and the induced morphisms of stalks are all surjective. -/
+/--
+A morphism of schemes `f : X ⟶ Y` is a preimmersion if the underlying map of
+topological spaces is an embedding and the induced morphisms of stalks are all surjective.
+-/
 @[mk_iff]
 class IsPreimmersion {X Y : Scheme} (f : X ⟶ Y) : Prop extends SurjectiveOnStalks f where
   isEmbedding (f) : IsEmbedding f
@@ -44,8 +46,7 @@ lemma isPreimmersion_eq_inf :
 namespace IsPreimmersion
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance : IsZariskiLocalAtTarget @IsPreimmersion :=
-  isPreimmersion_eq_inf ▸ inferInstance
+instance : IsZariskiLocalAtTarget @IsPreimmersion := isPreimmersion_eq_inf ▸ inferInstance
 
 instance (priority := 900) {X Y : Scheme} (f : X ⟶ Y) [IsOpenImmersion f] : IsPreimmersion f where
   isEmbedding := f.isOpenEmbedding.isEmbedding
@@ -56,15 +57,15 @@ instance : MorphismProperty.IsMultiplicative @IsPreimmersion where
   comp_mem f g _ _ := ⟨g.isEmbedding.comp f.isEmbedding⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion f]
-    [IsPreimmersion g] : IsPreimmersion (f ≫ g) :=
+instance comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion f] [IsPreimmersion g]
+    : IsPreimmersion (f ≫ g) :=
   MorphismProperty.IsStableUnderComposition.comp_mem f g inferInstance inferInstance
 
 instance (priority := 900) {X Y} (f : X ⟶ Y) [IsPreimmersion f] : Mono f :=
   SurjectiveOnStalks.mono_of_injective f.isEmbedding.injective
 
-theorem of_comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion g]
-    [IsPreimmersion (f ≫ g)] : IsPreimmersion f where
+theorem of_comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion g] [IsPreimmersion (f ≫ g)]
+    : IsPreimmersion f where
   isEmbedding := by
     have h := (f ≫ g).isEmbedding
     rwa [← g.isEmbedding.of_comp_iff]
@@ -73,8 +74,8 @@ theorem of_comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion g]
     rw [Scheme.Hom.stalkMap_comp] at h
     exact Function.Surjective.of_comp h
 
-theorem comp_iff {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion g] :
-    IsPreimmersion (f ≫ g) ↔ IsPreimmersion f :=
+theorem comp_iff {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [IsPreimmersion g]
+    : IsPreimmersion (f ≫ g) ↔ IsPreimmersion f :=
   ⟨fun _ ↦ of_comp f g, fun _ ↦ inferInstance⟩
 
 lemma SpecMap_iff {R S : CommRingCat.{u}} (f : R ⟶ S) :
@@ -101,13 +102,15 @@ instance : IsStableUnderBaseChange @IsPreimmersion := by
   refine .mk' fun X Y Z f g _ _ ↦ ?_
   have := pullback_fst (P := @SurjectiveOnStalks) f g inferInstance
   constructor
-  let L (x : (pullback f g :)) : { x : X × Y | f x.1 = g x.2 } :=
-    ⟨⟨pullback.fst f g x, pullback.snd f g x⟩,
-    by simp only [Set.mem_ofPred, ← Scheme.Hom.comp_apply, pullback.condition]⟩
-  have : IsEmbedding L := IsEmbedding.of_comp (by fun_prop) continuous_subtype_val
-    (SurjectiveOnStalks.isEmbedding_pullback f g)
-  exact IsEmbedding.subtypeVal.comp ((TopCat.pullbackHomeoPreimage _ f.continuous _
-    g.isEmbedding).isEmbedding.comp this)
+  let L (x : (pullback f g :)) : { x : X × Y | f x.1 = g x.2 } := ⟨
+    ⟨pullback.fst f g x, pullback.snd f g x⟩,
+    by simp only [Set.mem_ofPred, ← Scheme.Hom.comp_apply, pullback.condition]
+  ⟩
+  have : IsEmbedding L :=
+    IsEmbedding.of_comp (by fun_prop) continuous_subtype_val
+      (SurjectiveOnStalks.isEmbedding_pullback f g)
+  exact IsEmbedding.subtypeVal.comp
+    ((TopCat.pullbackHomeoPreimage _ f.continuous _ g.isEmbedding).isEmbedding.comp this)
 
 variable {X Y Z : Scheme} (f : X ⟶ Z) (g : Y ⟶ Z)
 

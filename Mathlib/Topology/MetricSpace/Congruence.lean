@@ -39,8 +39,10 @@ section PseudoEMetricSpace
 variable [PseudoEMetricSpace P₁] [PseudoEMetricSpace P₂]
 variable [PseudoEMetricSpace P₃] [PseudoEMetricSpace P₄]
 
-/-- A congruence between indexed sets of vertices v₁ and v₂.
-Use `open scoped Congruent` to access the `v₁ ≅ v₂` notation. -/
+/--
+A congruence between indexed sets of vertices v₁ and v₂.
+Use `open scoped Congruent` to access the `v₁ ≅ v₂` notation.
+-/
 def Congruent (v₁ : ι → P₁) (v₂ : ι → P₂) : Prop :=
   ∀ i₁ i₂, edist (v₁ i₁) (v₁ i₂) = edist (v₂ i₁) (v₂ i₂)
 

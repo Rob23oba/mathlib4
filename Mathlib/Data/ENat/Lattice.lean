@@ -284,15 +284,14 @@ theorem sub_iInf : (a - ⨅ i, f i) = ⨆ i, a - f i := by
 
 theorem sInf_add {s : Set ℕ∞} : sInf s + a = ⨅ b ∈ s, b + a := by simp [sInf_eq_iInf, iInf_add]
 
-theorem add_iInf {a : ℕ∞} : a + iInf f = ⨅ b, a + f b := by
-  rw [add_comm, iInf_add]; simp [add_comm]
+theorem add_iInf {a : ℕ∞} : a + iInf f = ⨅ b, a + f b := by rw [add_comm, iInf_add]; simp [add_comm]
 
 theorem iInf_add_iInf (h : ∀ i j, ∃ k, f k + g k ≤ f i + g j) : iInf f + iInf g = ⨅ a, f a + g a :=
   suffices ⨅ a, f a + g a ≤ iInf f + iInf g from
     le_antisymm (le_iInf fun _ => add_le_add (iInf_le _ _) (iInf_le _ _)) this
   calc
-    ⨅ a, f a + g a ≤ ⨅ (a) (a'), f a + g a' :=
-      le_iInf₂ fun a a' => let ⟨k, h⟩ := h a a'; iInf_le_of_le k h
+    ⨅ a, f a + g a
+      ≤ ⨅ (a) (a'), f a + g a' := le_iInf₂ fun a a' => let ⟨k, h⟩ := h a a'; iInf_le_of_le k h
     _ = iInf f + iInf g := by simp_rw [iInf_add, add_iInf]
 
 lemma iInf_add_iInf_of_monotone {ι : Type*} [Preorder ι] [IsCodirectedOrder ι] {f g : ι → ℕ∞}

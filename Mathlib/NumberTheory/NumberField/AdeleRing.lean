@@ -36,10 +36,11 @@ open AbsoluteValue.Completion InfinitePlace.Completion IsDedekindDomain
 
 /-! ## The adele ring  -/
 
-variable (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K]
-  [Algebra R K] [IsFractionRing R K]
+variable
+  (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K] [Algebra R K] [IsFractionRing R K]
 
-/-- `AdeleRing (𝓞 K) K` is the adele ring of a number field `K`.
+/--
+`AdeleRing (𝓞 K) K` is the adele ring of a number field `K`.
 
 More generally `AdeleRing R K` can be used if `K` is the field of fractions
 of the Dedekind domain `R`. This enables use of rings like `AdeleRing ℤ ℚ`, which
@@ -60,12 +61,13 @@ scoped notation:max "𝔸[" K "]" => AdeleRing (𝓞 K) K
 instance : Inhabited 𝔸[R, K] := ⟨0⟩
 
 @[simp]
-theorem algebraMap_fst_apply (x : K) (v : InfinitePlace K) :
-    (algebraMap K 𝔸[R, K] x).1 v = x := rfl
+theorem algebraMap_fst_apply (x : K) (v : InfinitePlace K) : (algebraMap K (𝔸[R, K]) x).1 v = x :=
+  rfl
 
 @[simp]
-theorem algebraMap_snd_apply (x : K) (v : HeightOneSpectrum R) :
-    (algebraMap K 𝔸[R, K] x).2 v = x := rfl
+theorem algebraMap_snd_apply (x : K) (v : HeightOneSpectrum R)
+    : (algebraMap K (𝔸[R, K]) x).2 v = x :=
+  rfl
 
 theorem algebraMap_injective [NumberField K] : Function.Injective (algebraMap K 𝔸[R, K]) :=
   fun _ _ hxy => (algebraMap K K∞).injective (Prod.ext_iff.1 hxy).1
@@ -93,9 +95,7 @@ abbrev IdeleGroup := 𝔸[R, K]ˣ
 namespace IdeleGroup
 
 /-- The map from `Kˣ` to the idele group of `K`. The image is the subgroup of principal ideles. -/
-@[simps!]
-def unitEmbedding : Kˣ →* IdeleGroup R K :=
-  Units.map (algebraMap K 𝔸[R, K]).toMonoidHom
+@[simps!] def unitEmbedding : Kˣ →* IdeleGroup R K := Units.map (algebraMap K 𝔸[R, K]).toMonoidHom
 
 /-- The map from the completion `Kᵥ` at an infinite place `v` to the idele group. -/
 @[simps!]
@@ -108,8 +108,7 @@ def ofAdicCompletion (v : HeightOneSpectrum R) : (v.adicCompletion K)ˣ →* Ide
   Units.map (AdeleRing.ofAdicCompletion R K v)
 
 /-- The subgroup of principal ideles `(x)ᵥ` where `x ∈ Kˣ`. -/
-abbrev principalSubgroup : Subgroup (IdeleGroup R K) :=
-  (IdeleGroup.unitEmbedding R K).range
+abbrev principalSubgroup : Subgroup (IdeleGroup R K) := (IdeleGroup.unitEmbedding R K).range
 
 end IdeleGroup
 

@@ -41,31 +41,35 @@ def ShortComplex.toComposableArrows (S : ShortComplex C) : ComposableArrows C 2 
   ComposableArrows.mk₂ S.f S.g
 
 /-- A map of short complexes induces a map of composable arrows with the same data. -/
-def ShortComplex.mapToComposableArrows {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂) :
-    S₁.toComposableArrows ⟶ S₂.toComposableArrows :=
+def ShortComplex.mapToComposableArrows {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂)
+    : S₁.toComposableArrows ⟶ S₂.toComposableArrows :=
   ComposableArrows.homMk₂ φ.τ₁ φ.τ₂ φ.τ₃ φ.comm₁₂.symm φ.comm₂₃.symm
 
 @[simp]
-theorem ShortComplex.mapToComposableArrows_app_0 {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂) :
-    (ShortComplex.mapToComposableArrows φ).app 0 = φ.τ₁ := rfl
+theorem ShortComplex.mapToComposableArrows_app_0 {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂)
+    : (ShortComplex.mapToComposableArrows φ).app 0 = φ.τ₁ :=
+  rfl
 
 @[simp]
-theorem ShortComplex.mapToComposableArrows_app_1 {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂) :
-    (ShortComplex.mapToComposableArrows φ).app 1 = φ.τ₂ := rfl
+theorem ShortComplex.mapToComposableArrows_app_1 {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂)
+    : (ShortComplex.mapToComposableArrows φ).app 1 = φ.τ₂ :=
+  rfl
 
 @[simp]
-theorem ShortComplex.mapToComposableArrows_app_2 {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂) :
-    (ShortComplex.mapToComposableArrows φ).app 2 = φ.τ₃ := rfl
+theorem ShortComplex.mapToComposableArrows_app_2 {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂)
+    : (ShortComplex.mapToComposableArrows φ).app 2 = φ.τ₃ :=
+  rfl
 
 @[simp]
-theorem ShortComplex.mapToComposableArrows_id {S₁ : ShortComplex C} :
-    (ShortComplex.mapToComposableArrows (𝟙 S₁)) = 𝟙 S₁.toComposableArrows := by
+theorem ShortComplex.mapToComposableArrows_id {S₁ : ShortComplex C}
+    : (ShortComplex.mapToComposableArrows (𝟙 S₁)) = 𝟙 S₁.toComposableArrows := by
   cat_disch
 
 @[simp]
-theorem ShortComplex.mapToComposableArrows_comp {S₁ S₂ S₃ : ShortComplex C} (φ : S₁ ⟶ S₂)
-    (ψ : S₂ ⟶ S₃) : ShortComplex.mapToComposableArrows (φ ≫ ψ) =
-      ShortComplex.mapToComposableArrows φ ≫ ShortComplex.mapToComposableArrows ψ := by
+theorem ShortComplex.mapToComposableArrows_comp
+    {S₁ S₂ S₃ : ShortComplex C} (φ : S₁ ⟶ S₂) (ψ : S₂ ⟶ S₃)
+    : ShortComplex.mapToComposableArrows (φ ≫ ψ)
+      = ShortComplex.mapToComposableArrows φ ≫ ShortComplex.mapToComposableArrows ψ := by
   cat_disch
 
 namespace ComposableArrows
@@ -73,12 +77,13 @@ namespace ComposableArrows
 variable {n : ℕ} (S : ComposableArrows C n)
 
 -- We do not yet replace `omega` with `lia` here, as it is measurably slower.
-/-- `F : ComposableArrows C n` is a complex if all compositions of
-two consecutive arrows are zero. -/
+/--
+`F : ComposableArrows C n` is a complex if all compositions of
+two consecutive arrows are zero.
+-/
 structure IsComplex : Prop where
   /-- the composition of two consecutive arrows is zero -/
-  zero (i : ℕ) (hi : i + 2 ≤ n := by omega) :
-    S.map' i (i + 1) ≫ S.map' (i + 1) (i + 2) = 0
+  zero (i : ℕ) (hi : i + 2 ≤ n := by omega) : S.map' i (i + 1) ≫ S.map' (i + 1) (i + 2) = 0
 
 attribute [reassoc] IsComplex.zero
 
@@ -110,21 +115,27 @@ lemma isComplex₁ (S : ComposableArrows C 1) : S.IsComplex where
 
 variable (S)
 
-/-- The short complex consisting of maps `S.map' i j` and `S.map' j k` when we know
-that `S : ComposableArrows C n` satisfies `S.IsComplex`. -/
-abbrev sc' (hS : S.IsComplex) (i j k : ℕ) (hij : i + 1 = j := by omega)
-    (hjk : j + 1 = k := by omega) (hk : k ≤ n := by omega) :
-    ShortComplex C :=
+/--
+The short complex consisting of maps `S.map' i j` and `S.map' j k` when we know
+that `S : ComposableArrows C n` satisfies `S.IsComplex`.
+-/
+abbrev sc'
+    (hS : S.IsComplex)
+    (i j k : ℕ) (hij : i + 1 = j := by omega) (hjk : j + 1 = k := by omega) (hk : k ≤ n := by omega)
+    : ShortComplex C :=
   ShortComplex.mk (S.map' i j) (S.map' j k) (hS.zero' i j k)
 
-/-- The short complex consisting of maps `S.map' i (i + 1)` and `S.map' (i + 1) (i + 2)`
-when we know that `S : ComposableArrows C n` satisfies `S.IsComplex`. -/
-abbrev sc (hS : S.IsComplex) (i : ℕ) (hi : i + 2 ≤ n := by omega) :
-    ShortComplex C :=
+/--
+The short complex consisting of maps `S.map' i (i + 1)` and `S.map' (i + 1) (i + 2)`
+when we know that `S : ComposableArrows C n` satisfies `S.IsComplex`.
+-/
+abbrev sc (hS : S.IsComplex) (i : ℕ) (hi : i + 2 ≤ n := by omega) : ShortComplex C :=
   S.sc' hS i (i + 1) (i + 2)
 
-/-- `F : ComposableArrows C n` is exact if it is a complex and that all short
-complexes consisting of two consecutive arrows are exact. -/
+/--
+`F : ComposableArrows C n` is exact if it is a complex and that all short
+complexes consisting of two consecutive arrows are exact.
+-/
 structure Exact : Prop extends S.IsComplex where
   exact (i : ℕ) (hi : i + 2 ≤ n := by omega) : (S.sc toIsComplex i).Exact
 
@@ -136,55 +147,64 @@ lemma Exact.exact' (hS : S.Exact) (i j k : ℕ) (hij : i + 1 = j := by omega)
   subst hij hjk
   exact hS.exact i hk
 
-/-- The (exact) short complex consisting of maps `S.map' i j` and `S.map' j k` when we know
-that `S : ComposableArrows C n` is exact. -/
-abbrev Exact.sc' (hS : S.Exact) (i j k : ℕ) (hij : i + 1 = j := by lia)
-    (hjk : j + 1 = k := by lia) (hk : k ≤ n := by lia) :
-    ShortComplex C :=
+/--
+The (exact) short complex consisting of maps `S.map' i j` and `S.map' j k` when we know
+that `S : ComposableArrows C n` is exact.
+-/
+abbrev Exact.sc'
+    (hS : S.Exact)
+    (i j k : ℕ) (hij : i + 1 = j := by lia) (hjk : j + 1 = k := by lia) (hk : k ≤ n := by lia)
+    : ShortComplex C :=
   S.sc' hS.toIsComplex i j k
 
-/-- The short complex consisting of maps `S.map' i (i + 1)` and `S.map' (i + 1) (i + 2)`
-when we know that `S : ComposableArrows C n` is exact. -/
-abbrev Exact.sc (hS : S.Exact) (i : ℕ) (hi : i + 2 ≤ n := by lia) :
-    ShortComplex C :=
+/--
+The short complex consisting of maps `S.map' i (i + 1)` and `S.map' (i + 1) (i + 2)`
+when we know that `S : ComposableArrows C n` is exact.
+-/
+abbrev Exact.sc (hS : S.Exact) (i : ℕ) (hi : i + 2 ≤ n := by lia) : ShortComplex C :=
   S.sc' hS.toIsComplex i (i + 1) (i + 2)
 
 /-- Functoriality maps for `ComposableArrows.sc'`. -/
 @[simps]
-def sc'Map {S₁ S₂ : ComposableArrows C n} (φ : S₁ ⟶ S₂) (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
-    (i j k : ℕ) (hij : i + 1 = j := by omega)
-    (hjk : j + 1 = k := by omega) (hk : k ≤ n := by omega) :
-    S₁.sc' h₁ i j k ⟶ S₂.sc' h₂ i j k where
+def sc'Map
+    {S₁ S₂ : ComposableArrows C n} (φ : S₁ ⟶ S₂) (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
+    (i j k : ℕ) (hij : i + 1 = j := by omega) (hjk : j + 1 = k := by omega) (hk : k ≤ n := by omega)
+    : S₁.sc' h₁ i j k ⟶ S₂.sc' h₂ i j k where
   τ₁ := φ.app _
   τ₂ := φ.app _
   τ₃ := φ.app _
 
 /-- Functoriality maps for `ComposableArrows.sc`. -/
 @[simps!]
-def scMap {S₁ S₂ : ComposableArrows C n} (φ : S₁ ⟶ S₂) (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
-    (i : ℕ) (hi : i + 2 ≤ n := by omega) :
-    S₁.sc h₁ i ⟶ S₂.sc h₂ i :=
+def scMap
+    {S₁ S₂ : ComposableArrows C n} (φ : S₁ ⟶ S₂) (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
+    (i : ℕ) (hi : i + 2 ≤ n := by omega)
+    : S₁.sc h₁ i ⟶ S₂.sc h₂ i :=
   sc'Map φ h₁ h₂ i (i + 1) (i + 2)
 
-/-- The isomorphism `S₁.sc' _ i j k ≅ S₂.sc' _ i j k` induced by an isomorphism `S₁ ≅ S₂`
-in `ComposableArrows C n`. -/
+/--
+The isomorphism `S₁.sc' _ i j k ≅ S₂.sc' _ i j k` induced by an isomorphism `S₁ ≅ S₂`
+in `ComposableArrows C n`.
+-/
 @[simps]
-def sc'MapIso {S₁ S₂ : ComposableArrows C n} (e : S₁ ≅ S₂)
-    (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex) (i j k : ℕ) (hij : i + 1 = j := by omega)
-    (hjk : j + 1 = k := by omega) (hk : k ≤ n := by omega) :
-    S₁.sc' h₁ i j k ≅ S₂.sc' h₂ i j k where
+def sc'MapIso
+    {S₁ S₂ : ComposableArrows C n} (e : S₁ ≅ S₂) (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
+    (i j k : ℕ) (hij : i + 1 = j := by omega) (hjk : j + 1 = k := by omega) (hk : k ≤ n := by omega)
+    : S₁.sc' h₁ i j k ≅ S₂.sc' h₂ i j k where
   hom := sc'Map e.hom h₁ h₂ i j k
   inv := sc'Map e.inv h₂ h₁ i j k
   hom_inv_id := by ext <;> simp
   inv_hom_id := by ext <;> simp
 
-/-- The isomorphism `S₁.sc _ i ≅ S₂.sc _ i` induced by an isomorphism `S₁ ≅ S₂`
-in `ComposableArrows C n`. -/
+/--
+The isomorphism `S₁.sc _ i ≅ S₂.sc _ i` induced by an isomorphism `S₁ ≅ S₂`
+in `ComposableArrows C n`.
+-/
 @[simps]
-def scMapIso {S₁ S₂ : ComposableArrows C n} (e : S₁ ≅ S₂)
-    (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
-    (i : ℕ) (hi : i + 2 ≤ n := by omega) :
-    S₁.sc h₁ i ≅ S₂.sc h₂ i where
+def scMapIso
+    {S₁ S₂ : ComposableArrows C n} (e : S₁ ≅ S₂) (h₁ : S₁.IsComplex) (h₂ : S₂.IsComplex)
+    (i : ℕ) (hi : i + 2 ≤ n := by omega)
+    : S₁.sc h₁ i ≅ S₂.sc h₂ i where
   hom := scMap e.hom h₁ h₂ i
   inv := scMap e.inv h₂ h₁ i
   hom_inv_id := by ext <;> simp
@@ -319,9 +339,9 @@ lemma exact_of_δlast {n : ℕ} (S : ComposableArrows C (n + 2))
   rw [exact_iff_δlast]
   constructor <;> assumption
 
-theorem natAddLEFunctor_obj_exact {n k l : ℕ} (h : k + l ≤ n) {R : ComposableArrows C n}
-    (hR : R.Exact) :
-    ((natAddLEFunctor h).obj R).Exact :=
+theorem natAddLEFunctor_obj_exact
+    {n k l : ℕ} (h : k + l ≤ n) {R : ComposableArrows C n} (hR : R.Exact)
+    : ((natAddLEFunctor h).obj R).Exact :=
   ⟨⟨fun i _ => hR.1.1 (k + i)⟩, fun i _ => hR.exact (k + i)⟩
 
 lemma Exact.isIso_map' {C : Type*} [Category* C] [Preadditive C]

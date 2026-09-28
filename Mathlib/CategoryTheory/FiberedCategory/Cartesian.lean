@@ -52,18 +52,21 @@ section
 
 variable {R S : 𝒮} {a b : 𝒳} (f : R ⟶ S) (φ : a ⟶ b)
 
-/-- A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is Cartesian if for all
+/--
+A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is Cartesian if for all
 morphisms `φ' : a' ⟶ b`, also lying over `f`, there exists a unique morphism `χ : a' ⟶ a` lifting
 `𝟙 R` such that `φ' = χ ≫ φ`.
 
-See SGA 1 VI 5.1. -/
+See SGA 1 VI 5.1.
+-/
 class IsCartesian : Prop where
   [toIsHomLift : IsHomLift p f φ]
-  universal_property {a' : 𝒳} (φ' : a' ⟶ b) [IsHomLift p f φ'] :
-      ∃! χ : a' ⟶ a, IsHomLift p (𝟙 R) χ ∧ χ ≫ φ = φ'
+  universal_property {a' : 𝒳} (φ' : a' ⟶ b) [IsHomLift p f φ']
+    : ∃! χ : a' ⟶ a, IsHomLift p (𝟙 R) χ ∧ χ ≫ φ = φ'
 attribute [instance] IsCartesian.toIsHomLift
 
-/-- A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is strongly Cartesian if for
+/--
+A morphism `φ : a ⟶ b` in `𝒳` lying over `f : R ⟶ S` in `𝒮` is strongly Cartesian if for
 all morphisms `φ' : a' ⟶ b` and all diagrams of the form
 ```
 a'        a --φ--> b
@@ -71,12 +74,13 @@ a'        a --φ--> b
 v         v        v
 R' --g--> R --f--> S
 ```
-such that `φ'` lifts `g ≫ f`, there exists a lift `χ` of `g` such that `φ' = χ ≫ φ`. -/
+such that `φ'` lifts `g ≫ f`, there exists a lift `χ` of `g` such that `φ' = χ ≫ φ`.
+-/
 @[stacks 02XK]
 class IsStronglyCartesian : Prop where
   [toIsHomLift : IsHomLift p f φ]
-  universal_property' {a' : 𝒳} (g : p.obj a' ⟶ R) (φ' : a' ⟶ b) [IsHomLift p (g ≫ f) φ'] :
-      ∃! χ : a' ⟶ a, IsHomLift p g χ ∧ χ ≫ φ = φ'
+  universal_property' {a' : 𝒳} (g : p.obj a' ⟶ R) (φ' : a' ⟶ b) [IsHomLift p (g ≫ f) φ']
+    : ∃! χ : a' ⟶ a, IsHomLift p g χ ∧ χ ≫ φ = φ'
 attribute [instance] IsStronglyCartesian.toIsHomLift
 
 end
@@ -89,9 +93,11 @@ section
 
 variable {a' : 𝒳} (φ' : a' ⟶ b) [IsHomLift p f φ']
 
-/-- Given a Cartesian morphism `φ : a ⟶ b` lying over `f : R ⟶ S` in `𝒳`, and another morphism
+/--
+Given a Cartesian morphism `φ : a ⟶ b` lying over `f : R ⟶ S` in `𝒳`, and another morphism
 `φ' : a' ⟶ b` which also lifts `f`, then `IsCartesian.map f φ φ'` is the morphism `a' ⟶ a` lifting
-`𝟙 R` obtained from the universal property of `φ`. -/
+`𝟙 R` obtained from the universal property of `φ`.
+-/
 protected noncomputable def map : a' ⟶ a :=
   Classical.choose <| IsCartesian.universal_property (p := p) (f := f) (φ := φ) φ'
 
@@ -124,8 +130,8 @@ lemma map_self : IsCartesian.map p f φ φ = 𝟙 a := by
   apply map_uniq
   simp only [id_comp]
 
-instance of_comp_iso {b' : 𝒳} (φ' : b ≅ b') [IsHomLift p (𝟙 S) φ'.hom] :
-    IsCartesian p f (φ ≫ φ'.hom) where
+instance of_comp_iso {b' : 𝒳} (φ' : b ≅ b') [IsHomLift p (𝟙 S) φ'.hom]
+    : IsCartesian p f (φ ≫ φ'.hom) where
   universal_property := by
     intro c ψ hψ
     use IsCartesian.map p f φ (ψ ≫ φ'.inv)
@@ -135,8 +141,10 @@ instance of_comp_iso {b' : 𝒳} (φ' : b ≅ b') [IsHomLift p (𝟙 S) φ'.hom]
     rw [Iso.eq_comp_inv]
     simp only [assoc, hτ₂]
 
-/-- The canonical isomorphism between the domains of two Cartesian arrows
-lying over the same object. -/
+/--
+The canonical isomorphism between the domains of two Cartesian arrows
+lying over the same object.
+-/
 @[simps]
 noncomputable def domainUniqueUpToIso {a' : 𝒳} (φ' : a' ⟶ b) [IsCartesian p f φ'] : a' ≅ a where
   hom := IsCartesian.map p f φ φ'
@@ -150,17 +158,17 @@ noncomputable def domainUniqueUpToIso {a' : 𝒳} (φ' : a' ⟶ b) [IsCartesian 
     apply IsCartesian.ext p (p.map φ) φ
     simp only [assoc, fac, id_comp]
 
-instance domainUniqueUpToIso_inv_isHomLift {a' : 𝒳} (φ' : a' ⟶ b) [IsCartesian p f φ'] :
-    IsHomLift p (𝟙 R) (domainUniqueUpToIso p f φ φ').hom :=
+instance domainUniqueUpToIso_inv_isHomLift {a' : 𝒳} (φ' : a' ⟶ b) [IsCartesian p f φ']
+    : IsHomLift p (𝟙 R) (domainUniqueUpToIso p f φ φ').hom :=
   domainUniqueUpToIso_hom p f φ φ' ▸ IsCartesian.map_isHomLift p f φ φ'
 
-instance domainUniqueUpToIso_hom_isHomLift {a' : 𝒳} (φ' : a' ⟶ b) [IsCartesian p f φ'] :
-    IsHomLift p (𝟙 R) (domainUniqueUpToIso p f φ φ').inv :=
+instance domainUniqueUpToIso_hom_isHomLift {a' : 𝒳} (φ' : a' ⟶ b) [IsCartesian p f φ']
+    : IsHomLift p (𝟙 R) (domainUniqueUpToIso p f φ φ').inv :=
   domainUniqueUpToIso_inv p f φ φ' ▸ IsCartesian.map_isHomLift p f φ' φ
 
 /-- Precomposing a Cartesian morphism with an isomorphism lifting the identity is Cartesian. -/
-instance of_iso_comp {a' : 𝒳} (φ' : a' ≅ a) [IsHomLift p (𝟙 R) φ'.hom] :
-    IsCartesian p f (φ'.hom ≫ φ) where
+instance of_iso_comp {a' : 𝒳} (φ' : a' ≅ a) [IsHomLift p (𝟙 R) φ'.hom]
+    : IsCartesian p f (φ'.hom ≫ φ) where
   universal_property := by
     intro c ψ hψ
     use IsCartesian.map p f φ ψ ≫ φ'.inv
@@ -193,10 +201,11 @@ instance isCartesian_of_isStronglyCartesian : p.IsCartesian f φ where
 
 section
 
-variable {R' : 𝒮} {a' : 𝒳} {g : R' ⟶ R} {f' : R' ⟶ S} (hf' : f' = g ≫ f) (φ' : a' ⟶ b)
-  [IsHomLift p f' φ']
+variable
+  {R' : 𝒮} {a' : 𝒳} {g : R' ⟶ R} {f' : R' ⟶ S} (hf' : f' = g ≫ f) (φ' : a' ⟶ b) [IsHomLift p f' φ']
 
-/-- Given a diagram
+/--
+Given a diagram
 ```
 a'        a --φ--> b
 |         |        |
@@ -204,9 +213,9 @@ v         v        v
 R' --g--> R --f--> S
 ```
 such that `φ` is strongly Cartesian, and a morphism `φ' : a' ⟶ b`. Then `map` is the map `a' ⟶ a`
-lying over `g` obtained from the universal property of `φ`. -/
-noncomputable def map : a' ⟶ a :=
-  Classical.choose <| universal_property p f φ _ _ hf' φ'
+lying over `g` obtained from the universal property of `φ`.
+-/
+noncomputable def map : a' ⟶ a := Classical.choose <| universal_property p f φ _ _ hf' φ'
 
 instance map_isHomLift : IsHomLift p g (map p f φ hf' φ') :=
   (Classical.choose_spec <| universal_property p f φ _ _ hf' φ').1.1
@@ -288,16 +297,18 @@ section
 
 variable {R S T : 𝒮} {a b c : 𝒳} {f : R ⟶ S} {g : S ⟶ T} {φ : a ⟶ b} {ψ : b ⟶ c}
 
-/-- Given two strongly Cartesian morphisms `φ`, `ψ` as follows
+/--
+Given two strongly Cartesian morphisms `φ`, `ψ` as follows
 ```
 a --φ--> b --ψ--> c
 |        |        |
 v        v        v
 R --f--> S --g--> T
 ```
-Then the composite `φ ≫ ψ` is also strongly Cartesian. -/
-instance comp [IsStronglyCartesian p f φ] [IsStronglyCartesian p g ψ] :
-    IsStronglyCartesian p (f ≫ g) (φ ≫ ψ) where
+Then the composite `φ ≫ ψ` is also strongly Cartesian.
+-/
+instance comp [IsStronglyCartesian p f φ] [IsStronglyCartesian p g ψ]
+    : IsStronglyCartesian p (f ≫ g) (φ ≫ ψ) where
   universal_property' := by
     intro a' h τ hτ
     use map p f φ (f' := h ≫ f) rfl (map p g ψ (assoc h f g).symm τ)
@@ -371,27 +382,32 @@ section
 
 variable {R R' S : 𝒮} {a a' b : 𝒳} {f : R ⟶ S} {f' : R' ⟶ S} {g : R' ≅ R}
 
-/-- The canonical isomorphism between the domains of two strongly Cartesian morphisms lying over
-isomorphic objects. -/
+/--
+The canonical isomorphism between the domains of two strongly Cartesian morphisms lying over
+isomorphic objects.
+-/
 @[simps]
-noncomputable def domainIsoOfBaseIso (h : f' = g.hom ≫ f) (φ : a ⟶ b) (φ' : a' ⟶ b)
-    [IsStronglyCartesian p f φ] [IsStronglyCartesian p f' φ'] : a' ≅ a where
+noncomputable def domainIsoOfBaseIso
+    (h : f' = g.hom ≫ f)
+    (φ : a ⟶ b) (φ' : a' ⟶ b) [IsStronglyCartesian p f φ] [IsStronglyCartesian p f' φ']
+    : a' ≅ a where
   hom := map p f φ h φ'
   inv :=
     haveI : p.IsHomLift ((fun x ↦ g.inv ≫ x) (g.hom ≫ f)) φ := by
       simpa using IsCartesian.toIsHomLift
     map p f' φ' (congrArg (g.inv ≫ ·) h.symm) φ
 
-instance domainUniqueUpToIso_inv_isHomLift (h : f' = g.hom ≫ f) (φ : a ⟶ b) (φ' : a' ⟶ b)
-    [IsStronglyCartesian p f φ] [IsStronglyCartesian p f' φ'] :
-    IsHomLift p g.hom (domainIsoOfBaseIso p h φ φ').hom :=
+instance domainUniqueUpToIso_inv_isHomLift
+    (h : f' = g.hom ≫ f)
+    (φ : a ⟶ b) (φ' : a' ⟶ b) [IsStronglyCartesian p f φ] [IsStronglyCartesian p f' φ']
+    : IsHomLift p g.hom (domainIsoOfBaseIso p h φ φ').hom :=
   domainIsoOfBaseIso_hom p h φ φ' ▸ IsStronglyCartesian.map_isHomLift p f φ h φ'
 
-instance domainUniqueUpToIso_hom_isHomLift (h : f' = g.hom ≫ f) (φ : a ⟶ b) (φ' : a' ⟶ b)
-    [IsStronglyCartesian p f φ] [IsStronglyCartesian p f' φ'] :
-    IsHomLift p g.inv (domainIsoOfBaseIso p h φ φ').inv := by
-  have : p.IsHomLift ((fun x ↦ g.inv ≫ x) (g.hom ≫ f)) φ := by
-    simpa using IsCartesian.toIsHomLift
+instance domainUniqueUpToIso_hom_isHomLift
+    (h : f' = g.hom ≫ f)
+    (φ : a ⟶ b) (φ' : a' ⟶ b) [IsStronglyCartesian p f φ] [IsStronglyCartesian p f' φ']
+    : IsHomLift p g.inv (domainIsoOfBaseIso p h φ φ').inv := by
+  have : p.IsHomLift ((fun x ↦ g.inv ≫ x) (g.hom ≫ f)) φ := by simpa using IsCartesian.toIsHomLift
   simpa using IsStronglyCartesian.map_isHomLift p f' φ' (congrArg (g.inv ≫ ·) h.symm) φ
 
 end

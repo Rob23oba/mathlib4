@@ -36,8 +36,10 @@ open CategoryTheory Limits HomotopicalAlgebra
 open scoped Simplicial
 
 open modelCategoryQuillen in
-/-- A simplicial set `S` is a Kan complex if it is fibrant, which means that
-the projection `S ⟶ ⊤_ _` has the right lifting property with respect to horn inclusions. -/
+/--
+A simplicial set `S` is a Kan complex if it is fibrant, which means that
+the projection `S ⟶ ⊤_ _` has the right lifting property with respect to horn inclusions.
+-/
 abbrev KanComplex (S : SSet.{u}) : Prop := HomotopicalAlgebra.IsFibrant S
 
 /-- A Kan complex `S` satisfies the following horn-filling condition:
@@ -51,8 +53,7 @@ lemma KanComplex.hornFilling {S : SSet.{u}} [KanComplex S]
 
 namespace horn.IsCompatible
 
-variable {X : SSet.{u}} {n : ℕ}
-  {i : Fin (n + 2)} {f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X}
+variable {X : SSet.{u}} {n : ℕ} {i : Fin (n + 2)} {f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X}
 
 lemma exists_lift_of_kanComplex [KanComplex X]
     (hf : horn.IsCompatible f) :
@@ -61,11 +62,12 @@ lemma exists_lift_of_kanComplex [KanComplex X]
   obtain ⟨φ, hφ, _⟩ := hf.exists_lift (terminal.from _) (terminal.from _) (by simp)
   exact ⟨φ, hφ⟩
 
-/-- If `X` is a Kan complex and `f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X`
+/--
+If `X` is a Kan complex and `f : ∀ (j : Fin (n + 2)) (_ : j ≠ i), Δ[n] ⟶ X`
 is a compatible family of morphisms (which defines a morphism `Λ[n + 1, i] ⟶ X`),
-then this is a lifting `Δ[n + 1] ⟶ X`. -/
-noncomputable def liftOfKanComplex [KanComplex X] (hf : horn.IsCompatible f) :
-    Δ[n + 1] ⟶ X :=
+then this is a lifting `Δ[n + 1] ⟶ X`.
+-/
+noncomputable def liftOfKanComplex [KanComplex X] (hf : horn.IsCompatible f) : Δ[n + 1] ⟶ X :=
   hf.exists_lift_of_kanComplex.choose
 
 @[reassoc]
@@ -110,14 +112,15 @@ instance {X : SSet.{u}} [KanComplex X] : KanComplex X.op := by
     · simp
     · rw [horn.isCompatible_iff]
       intro j k jh hk hjk
-      simp only [stdSimplex.δ_comp_yonedaEquiv_symm, δ_opObjEquiv,
-        ← stdSimplex.yonedaEquiv_δ_comp]
+      simp only [stdSimplex.δ_comp_yonedaEquiv_symm, δ_opObjEquiv, ← stdSimplex.yonedaEquiv_δ_comp]
       congr 3
-      convert (hf.δ_pred_comp k.rev j.rev (by grind) (by grind) (by grind)).symm <;>
-        grind [Fin.castPred]
+      convert (hf.δ_pred_comp k.rev j.rev (by grind) (by grind) (by grind)).symm
+        <;> grind [Fin.castPred]
   refine ⟨yonedaEquiv.symm (opObjEquiv.symm (yonedaEquiv hf.liftOfKanComplex)), fun j hj ↦ ?_⟩
-  rw [stdSimplex.δ_comp_yonedaEquiv_symm, op_δ, Equiv.apply_symm_apply,
-    ← stdSimplex.yonedaEquiv_δ_comp, hf.δ_liftOfKanComplex ..]
+  rw [
+    stdSimplex.δ_comp_yonedaEquiv_symm, op_δ, Equiv.apply_symm_apply,
+    ← stdSimplex.yonedaEquiv_δ_comp, hf.δ_liftOfKanComplex ..
+  ]
   simp
 
 end SSet

@@ -29,19 +29,22 @@ section
 variable (k V : Type*) [DivisionRing k] [AddCommGroup V] [Module k V]
 
 /-- `ℙ k V` is equivalent to the quotient of the non-zero elements of `V` by `kˣ`. -/
-def equivQuotientOrbitRel : ℙ k V ≃ Quotient (MulAction.orbitRel kˣ { v : V // v ≠ 0 }) :=
+def equivQuotientOrbitRel : ℙ k V ≃ Quotient (MulAction.orbitRel kˣ {v : V // v ≠ 0}) :=
   Quotient.congr (Equiv.refl _) (fun x y ↦ (Units.orbitRel_nonZero_iff k V x y).symm)
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The non-zero elements of `V` are equivalent to the product of `ℙ k V` with the units of `k`. -/
-noncomputable def nonZeroEquivProjectivizationProdUnits : { v : V // v ≠ 0 } ≃ ℙ k V × kˣ :=
-  let e := MulAction.selfEquivOrbitsQuotientProd <| fun b ↦ by
-    rw [(Units.nonZeroSubMul k V).stabilizer_of_subMul,
-      Module.stabilizer_units_eq_bot_of_ne_zero k b.property]
+noncomputable def nonZeroEquivProjectivizationProdUnits : {v : V // v ≠ 0} ≃ ℙ k V × kˣ :=
+  let e :=
+    MulAction.selfEquivOrbitsQuotientProd <| fun b ↦ by
+      rw [
+        (Units.nonZeroSubMul k V).stabilizer_of_subMul,
+        Module.stabilizer_units_eq_bot_of_ne_zero k b.property
+      ]
   e.trans (Equiv.prodCongrLeft (fun _ ↦ (equivQuotientOrbitRel k V).symm))
 
 instance isEmpty_of_subsingleton [Subsingleton V] : IsEmpty (ℙ k V) := by
-  have : IsEmpty { v : V // v ≠ 0 } := ⟨fun v ↦ v.2 (Subsingleton.elim v.1 0)⟩
+  have : IsEmpty {v : V // v ≠ 0} := ⟨fun v ↦ v.2 (Subsingleton.elim v.1 0)⟩
   simpa using (nonZeroEquivProjectivizationProdUnits k V).symm.isEmpty
 
 /-- If `V` is a finite `k`-module and `k` is finite, `ℙ k V` is finite. -/

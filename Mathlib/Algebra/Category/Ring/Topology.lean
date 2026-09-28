@@ -47,8 +47,7 @@ this is the subspace topology `Hom(A, R) ↪ Hom(ℤ[xᵢ], R) = Rᶥ` (see `mvP
 
 This is a scoped instance in `CommRingCat.HomTopology`.
 -/
-scoped instance : TopologicalSpace (A ⟶ R) :=
-  .induced (fun f ↦ f.hom : _ → A → R) inferInstance
+scoped instance : TopologicalSpace (A ⟶ R) := .induced (fun f ↦ f.hom : _ → A → R) inferInstance
 
 @[fun_prop]
 nonrec lemma continuous_apply (x : A) :
@@ -67,8 +66,7 @@ lemma continuous_precomp (f : A ⟶ B) :
 
 /-- If `A ≅ B`, then `Hom(A, R)` is homeomorphic to `Hom(B, R)`. -/
 @[simps]
-def precompHomeomorph (f : A ≅ B) :
-    (B ⟶ R) ≃ₜ (A ⟶ R) where
+def precompHomeomorph (f : A ≅ B) : (B ⟶ R) ≃ₜ (A ⟶ R) where
   toFun φ := _
   invFun φ := _
   continuous_toFun := continuous_precomp f.hom
@@ -107,10 +105,9 @@ lemma isClosedEmbedding_precomp_of_surjective
 
 /-- `Hom(A[Xᵢ], R)` is homeomorphic to `Hom(A, R) × Rⁱ`. -/
 @[simps! apply_fst apply_snd symm_apply_hom]
-noncomputable
-def mvPolynomialHomeomorph (σ : Type v) (R A : CommRingCat.{max u v})
-    [TopologicalSpace R] [IsTopologicalRing R] :
-    (↧(MvPolynomial σ A) ⟶ R) ≃ₜ ((A ⟶ R) × (σ → R)) where
+noncomputable def mvPolynomialHomeomorph
+    (σ : Type v) (R A : CommRingCat.{max u v}) [TopologicalSpace R] [IsTopologicalRing R]
+    : (↧(MvPolynomial σ A) ⟶ R) ≃ₜ ((A ⟶ R) × (σ → R)) where
   toFun f := ⟨CommRingCat.ofHom MvPolynomial.C ≫ f, fun i ↦ f (.X i)⟩
   invFun fx := CommRingCat.ofHom (MvPolynomial.eval₂Hom fx.1.hom fx.2)
   left_inv f := by ext <;> simp
@@ -138,11 +135,9 @@ lemma isClosedEmbedding_hom [IsTopologicalRing R] [T1Space R] :
   ext x
   simp +instances [f]
 
-instance [T2Space R] : T2Space (A ⟶ R) :=
-  (isEmbedding_hom R A).t2Space
+instance [T2Space R] : T2Space (A ⟶ R) := (isEmbedding_hom R A).t2Space
 
-instance [IsTopologicalRing R] [T1Space R] [CompactSpace R] :
-    CompactSpace (A ⟶ R) :=
+instance [IsTopologicalRing R] [T1Space R] [CompactSpace R] : CompactSpace (A ⟶ R) :=
   (isClosedEmbedding_hom R A).compactSpace
 
 open Limits

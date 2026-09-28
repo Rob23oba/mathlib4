@@ -23,9 +23,9 @@ open TopologicalSpace
 
 namespace ContinuousMap
 
-variable {X Y : Type*}
-  [TopologicalSpace X] [WeaklyLocallyCompactSpace X] [SigmaCompactSpace X]
-  [TopologicalSpace Y]
+variable
+  {X Y : Type*}
+  [TopologicalSpace X] [WeaklyLocallyCompactSpace X] [SigmaCompactSpace X] [TopologicalSpace Y]
 
 instance [PseudoMetrizableSpace Y] : PseudoMetrizableSpace C(X, Y) :=
   let := pseudoMetrizableSpaceUniformity Y

@@ -33,7 +33,7 @@ variable {α : Type*} {r : α → α → Prop} {c c₁ c₂ s t : Set α} {a b x
 /-- Predicate for whether a set is reachable from `∅` using `SuccChain` and `⋃₀`. -/
 inductive ChainClosure (r : α → α → Prop) : Set α → Prop
   | succ : ∀ {s}, ChainClosure r s → ChainClosure r (SuccChain r s)
-  | union : ∀ {s}, (∀ a ∈ s, ChainClosure r a) → ChainClosure r (⋃₀ s)
+  | union : ∀ {s}, (∀ a ∈ s, ChainClosure r a) → ChainClosure r (⋃₀s)
 
 /-- An explicit maximal chain. `maxChain` is taken to be the union of all sets in `ChainClosure`. -/
 def maxChain (r : α → α → Prop) : Set α := ⋃₀ Set.ofPred (ChainClosure r)
@@ -100,10 +100,12 @@ lemma ChainClosure.isChain (hc : ChainClosure r c) : IsChain r c := by
       ((hs _ ht₁).total <| hs _ ht₂).elim (fun ht => h t₂ ht₂ (ht hc₁) hc₂ hneq) fun ht =>
         h t₁ ht₁ hc₁ (ht hc₂) hneq
 
-/-- **Hausdorff's maximality principle**
+/--
+**Hausdorff's maximality principle**
 
 There exists a maximal totally ordered set of `α`.
-Note that we do not require `α` to be partially ordered by `r`. -/
+Note that we do not require `α` to be partially ordered by `r`.
+-/
 theorem maxChain_spec : IsMaxChain r (maxChain r) :=
   by_contradiction fun h =>
     let ⟨_, H⟩ := chainClosure_maxChain.isChain.superChain_succChain h

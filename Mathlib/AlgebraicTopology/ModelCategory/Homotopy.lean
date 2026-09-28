@@ -41,15 +41,18 @@ namespace LeftHomotopyRel
 
 variable {f g : X ⟶ Y} [IsCofibrant X]
 
-/-- When two morphisms `X ⟶ Y` with `X` cofibrant are related by a left homotopy,
-this is a choice of a right homotopy relative to any good path object for `Y`. -/
-noncomputable def rightHomotopy (h : LeftHomotopyRel f g) (Q : PathObject Y) [Q.IsGood] :
-    Q.RightHomotopy f g :=
+/--
+When two morphisms `X ⟶ Y` with `X` cofibrant are related by a left homotopy,
+this is a choice of a right homotopy relative to any good path object for `Y`.
+-/
+noncomputable def rightHomotopy (h : LeftHomotopyRel f g) (Q : PathObject Y) [Q.IsGood]
+    : Q.RightHomotopy f g :=
   let P := h.exists_good_cylinder.choose
   have h := h.exists_good_cylinder.choose_spec.2.some
   have h' := h.exists_good_cylinder.choose_spec.1
-  have sq : CommSq (f ≫ Q.ι) P.i₀ Q.p (prod.lift (P.π ≫ f) h.h) := { }
-  { h := P.i₁ ≫ sq.lift
+  have sq : CommSq (f ≫ Q.ι) P.i₀ Q.p (prod.lift (P.π ≫ f) h.h) := {}
+  {
+    h := P.i₁ ≫ sq.lift
     h₀ := by
       have := sq.fac_right =≫ prod.fst
       rw [Category.assoc, Q.p_fst, prod.lift_fst] at this
@@ -57,7 +60,8 @@ noncomputable def rightHomotopy (h : LeftHomotopyRel f g) (Q : PathObject Y) [Q.
     h₁ := by
       have := sq.fac_right =≫ prod.snd
       rw [Category.assoc, Q.p_snd, prod.lift_snd] at this
-      simp [this] }
+      simp [this]
+  }
 
 lemma rightHomotopyRel (h : LeftHomotopyRel f g) : RightHomotopyRel f g := by
   obtain ⟨P, _⟩ := PathObject.exists_very_good Y
@@ -69,15 +73,18 @@ namespace RightHomotopyRel
 
 variable {f g : X ⟶ Y} [IsFibrant Y]
 
-/-- When two morphisms `X ⟶ Y` with `Y` fibrant are related by a right homotopy,
-this is a choice of a left homotopy relative to any good cylinder object for `X`. -/
-noncomputable def leftHomotopy (h : RightHomotopyRel f g) (Q : Cylinder X) [Q.IsGood] :
-    Q.LeftHomotopy f g :=
+/--
+When two morphisms `X ⟶ Y` with `Y` fibrant are related by a right homotopy,
+this is a choice of a left homotopy relative to any good cylinder object for `X`.
+-/
+noncomputable def leftHomotopy (h : RightHomotopyRel f g) (Q : Cylinder X) [Q.IsGood]
+    : Q.LeftHomotopy f g :=
   let P := h.exists_good_pathObject.choose
   have h := h.exists_good_pathObject.choose_spec.2.some
   have h' := h.exists_good_pathObject.choose_spec.1
-  have sq : CommSq (coprod.desc (f ≫ P.ι) h.h) Q.i P.p₀ (Q.π ≫ f) := { }
-  { h := sq.lift ≫ P.p₁
+  have sq : CommSq (coprod.desc (f ≫ P.ι) h.h) Q.i P.p₀ (Q.π ≫ f) := {}
+  {
+    h := sq.lift ≫ P.p₁
     h₀ := by
       have := coprod.inl ≫= sq.fac_left
       rw [Q.inl_i_assoc, coprod.inl_desc] at this
@@ -85,7 +92,8 @@ noncomputable def leftHomotopy (h : RightHomotopyRel f g) (Q : Cylinder X) [Q.Is
     h₁ := by
       have := coprod.inr ≫= sq.fac_left
       rw [Q.inr_i_assoc, coprod.inr_desc] at this
-      simp [reassoc_of% this, P] }
+      simp [reassoc_of% this, P]
+  }
 
 lemma leftHomotopyRel (h : RightHomotopyRel f g) : LeftHomotopyRel f g := by
   obtain ⟨P, _⟩ := Cylinder.exists_very_good X
@@ -101,20 +109,23 @@ lemma leftHomotopyRel_iff_rightHomotopyRel :
     LeftHomotopyRel f g ↔ RightHomotopyRel f g :=
   ⟨fun h ↦ h.rightHomotopyRel, fun h ↦ h.leftHomotopyRel⟩
 
-/-- When two morphisms `X ⟶ Y` with `X` cofibrant and `Y` fibrant are related
+/--
+When two morphisms `X ⟶ Y` with `X` cofibrant and `Y` fibrant are related
 by a left homotopy, this is a choice of a left homotopy relative
-to any good cylinder object for `X`. -/
-noncomputable def LeftHomotopyRel.leftHomotopy
-    (h : LeftHomotopyRel f g) (Q : Cylinder X) [Q.IsGood] :
-    Q.LeftHomotopy f g :=
+to any good cylinder object for `X`.
+-/
+noncomputable def LeftHomotopyRel.leftHomotopy (h : LeftHomotopyRel f g) (Q : Cylinder X) [Q.IsGood]
+    : Q.LeftHomotopy f g :=
   RightHomotopyRel.leftHomotopy (by rwa [← leftHomotopyRel_iff_rightHomotopyRel]) _
 
-/-- When two morphisms `X ⟶ Y` with `X` cofibrant and `Y` fibrant are related
+/--
+When two morphisms `X ⟶ Y` with `X` cofibrant and `Y` fibrant are related
 by a right homotopy, this is a choice of a right homotopy relative
-to any good path object for `Y`. -/
+to any good path object for `Y`.
+-/
 noncomputable def RightHomotopyRel.rightHomotopy
-    (h : RightHomotopyRel f g) (P : PathObject Y) [P.IsGood] :
-    P.RightHomotopy f g :=
+    (h : RightHomotopyRel f g) (P : PathObject Y) [P.IsGood]
+    : P.RightHomotopy f g :=
   LeftHomotopyRel.rightHomotopy (by rwa [leftHomotopyRel_iff_rightHomotopyRel]) _
 
 end
@@ -234,16 +245,23 @@ section
 
 variable [IsCofibrant X] [IsFibrant Y]
 
-/-- Left homotopy classes of maps `X ⟶ Y` identify to right homotopy classes
-when `X` is cofibrant and `Y` is fibrant. -/
-def leftHomotopyClassEquivRightHomotopyClass :
-    LeftHomotopyClass X Y ≃ RightHomotopyClass X Y where
-  toFun := Quot.lift (fun f ↦ .mk f) (fun _ _ h ↦ by
-    rw [RightHomotopyClass.mk_eq_mk_iff]
-    exact h.rightHomotopyRel)
-  invFun := Quot.lift (fun f ↦ .mk f) (fun _ _ h ↦ by
-    rw [LeftHomotopyClass.mk_eq_mk_iff]
-    exact h.leftHomotopyRel)
+/--
+Left homotopy classes of maps `X ⟶ Y` identify to right homotopy classes
+when `X` is cofibrant and `Y` is fibrant.
+-/
+def leftHomotopyClassEquivRightHomotopyClass : LeftHomotopyClass X Y ≃ RightHomotopyClass X Y where
+  toFun :=
+    Quot.lift
+      (fun f ↦ .mk f)
+      (fun _ _ h ↦ by
+        rw [RightHomotopyClass.mk_eq_mk_iff]
+        exact h.rightHomotopyRel)
+  invFun :=
+    Quot.lift
+      (fun f ↦ .mk f)
+      (fun _ _ h ↦ by
+        rw [LeftHomotopyClass.mk_eq_mk_iff]
+        exact h.leftHomotopyRel)
   left_inv := by rintro ⟨f⟩; rfl
   right_inv := by rintro ⟨f⟩; rfl
 

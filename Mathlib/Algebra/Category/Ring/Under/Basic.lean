@@ -71,8 +71,8 @@ end CommRingCat
 namespace AlgHom
 
 /-- Make a morphism in `Under R` from an algebra map. -/
-def toUnder {A B : Type u} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B]
-    (f : A →ₐ[R] B) : CommRingCat.mkUnder R A ⟶ CommRingCat.mkUnder R B :=
+def toUnder {A B : Type u} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] (f : A →ₐ[R] B)
+    : CommRingCat.mkUnder R A ⟶ CommRingCat.mkUnder R B :=
   Under.homMk (CommRingCat.ofHom f.toRingHom) <| by
     ext a
     exact f.commutes' a
@@ -94,9 +94,8 @@ end AlgHom
 namespace AlgEquiv
 
 /-- Make an isomorphism in `Under R` from an algebra isomorphism. -/
-def toUnder {A B : Type u} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B]
-    (f : A ≃ₐ[R] B) :
-    CommRingCat.mkUnder R A ≅ CommRingCat.mkUnder R B where
+def toUnder {A B : Type u} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] (f : A ≃ₐ[R] B)
+    : CommRingCat.mkUnder R A ≅ CommRingCat.mkUnder R B where
   hom := f.toAlgHom.toUnder
   inv := f.symm.toAlgHom.toUnder
 
@@ -133,8 +132,8 @@ def tensorProd : Under R ⥤ Under S where
 set_option backward.isDefEq.respectTransparency false in
 variable (S) in
 /-- The natural isomorphism `S ⊗[R] A ≅ pushout A.hom (algebraMap R S)` in `Under S`. -/
-def tensorProdObjIsoPushoutObj (A : Under R) :
-    mkUnder S (S ⊗[R] A) ≅ (Under.pushout (ofHom <| algebraMap R S)).obj A :=
+def tensorProdObjIsoPushoutObj (A : Under R)
+    : mkUnder S (S ⊗[R] A) ≅ (Under.pushout (ofHom <| algebraMap R S)).obj A :=
   Under.isoMk (CommRingCat.isPushout_tensorProduct R S A).flip.isoPushout <| by
     simp only [mkUnder_hom, AlgHom.toRingHom_eq_coe, IsPushout.inr_isoPushout_hom]
     rfl

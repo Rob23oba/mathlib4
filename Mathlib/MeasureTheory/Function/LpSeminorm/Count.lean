@@ -6,7 +6,6 @@ Authors: Floris van Doorn
 module
 
 public import Mathlib.MeasureTheory.Function.LpSeminorm.Indicator
-
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.Lemmas
 
 /-!
@@ -16,8 +15,10 @@ import Mathlib.MeasureTheory.Function.StronglyMeasurable.Lemmas
 public section
 
 open MeasureTheory Measure ENNReal Set Filter
-variable {α ε : Type*} [MeasurableSpace α] [MeasurableSingletonClass α]
-  [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} {p : ℝ≥0∞} {x : α}
+variable
+  {α ε : Type*}
+  [MeasurableSpace α] [MeasurableSingletonClass α] [TopologicalSpace ε] [ContinuousENorm ε]
+  {f : α → ε} {p : ℝ≥0∞} {x : α}
 
 namespace MeasureTheory
 

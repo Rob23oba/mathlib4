@@ -31,26 +31,28 @@ which sends an object `X : C` to a complex where `X` sits in a single degree.
 
 open CategoryTheory Category ZeroObject Limits Functor
 
-variable (C D E E' : Type*) [Category* C] [Category* D] [Category* E] [Category* E']
+variable
+  (C D E E' : Type*) [Category* C] [Category* D] [Category* E] [Category* E']
   (A : Type*) [AddMonoid A] [HasShift D A] [HasShift E A] [HasShift E' A]
 
 namespace CategoryTheory
 
-/-- The type of families of functors `A → C ⥤ D` which are compatible with
-the shift by `A` on the category `D`. -/
+/--
+The type of families of functors `A → C ⥤ D` which are compatible with
+the shift by `A` on the category `D`.
+-/
 structure SingleFunctors where
   /-- a family of functors `C ⥤ D` indexed by the elements of the additive monoid `A` -/
   functor (a : A) : C ⥤ D
   /-- the isomorphism `functor a' ⋙ shiftFunctor D n ≅ functor a` when `n + a = a'` -/
   shiftIso (n a a' : A) (ha' : n + a = a') : functor a' ⋙ shiftFunctor D n ≅ functor a
   /-- `shiftIso 0` is the obvious isomorphism. -/
-  shiftIso_zero (a : A) :
-    shiftIso 0 a a (zero_add a) = isoWhiskerLeft _ (shiftFunctorZero D A)
+  shiftIso_zero (a : A) : shiftIso 0 a a (zero_add a) = isoWhiskerLeft _ (shiftFunctorZero D A)
   /-- `shiftIso (m + n)` is determined by `shiftIso m` and `shiftIso n`. -/
-  shiftIso_add (n m a a' a'' : A) (ha' : n + a = a') (ha'' : m + a' = a'') :
-    shiftIso (m + n) a a'' (by rw [add_assoc, ha', ha'']) =
-      isoWhiskerLeft _ (shiftFunctorAdd D m n) ≪≫ (Functor.associator _ _ _).symm ≪≫
-        isoWhiskerRight (shiftIso m a' a'' ha'') _ ≪≫ shiftIso n a a' ha'
+  shiftIso_add (n m a a' a'' : A) (ha' : n + a = a') (ha'' : m + a' = a'')
+    : shiftIso (m + n) a a'' (by rw [add_assoc, ha', ha''])
+      = isoWhiskerLeft _ (shiftFunctorAdd D m n) ≪≫ (Functor.associator _ _ _).symm
+        ≪≫ isoWhiskerRight (shiftIso m a' a'' ha'') _ ≪≫ shiftIso n a a' ha'
 
 variable {C D E A}
 variable (F G H : SingleFunctors C D A)
@@ -115,8 +117,10 @@ lemma shiftIso_zero_inv_app (a : A) (X : C) :
 structure Hom where
   /-- a family of natural transformations `F.functor a ⟶ G.functor a` -/
   hom (a : A) : F.functor a ⟶ G.functor a
-  comm (n a a' : A) (ha' : n + a = a') : (F.shiftIso n a a' ha').hom ≫ hom a =
-    whiskerRight (hom a') (shiftFunctor D n) ≫ (G.shiftIso n a a' ha').hom := by cat_disch
+  comm (n a a' : A) (ha' : n + a = a')
+      : (F.shiftIso n a a' ha').hom ≫ hom a
+        = whiskerRight (hom a') (shiftFunctor D n) ≫ (G.shiftIso n a a' ha').hom := by
+    cat_disch
 
 namespace Hom
 
@@ -153,21 +157,26 @@ lemma comp_hom (f : F ⟶ G) (g : G ⟶ H) (a : A) : (f ≫ g).hom a = f.hom a �
 @[ext]
 lemma hom_ext (f g : F ⟶ G) (h : f.hom = g.hom) : f = g := Hom.ext h
 
-/-- Construct an isomorphism in `SingleFunctors C D A` by giving
-level-wise isomorphisms and checking compatibility only in the forward direction. -/
+/--
+Construct an isomorphism in `SingleFunctors C D A` by giving
+level-wise isomorphisms and checking compatibility only in the forward direction.
+-/
 @[simps]
-def isoMk (iso : ∀ a, (F.functor a ≅ G.functor a))
-    (comm : ∀ (n a a' : A) (ha' : n + a = a'), (F.shiftIso n a a' ha').hom ≫ (iso a).hom =
-      whiskerRight (iso a').hom (shiftFunctor D n) ≫ (G.shiftIso n a a' ha').hom) :
-    F ≅ G where
-  hom :=
-    { hom := fun a => (iso a).hom
-      comm := comm }
-  inv :=
-    { hom := fun a => (iso a).inv
-      comm := fun n a a' ha' => by
-        rw [← cancel_mono (iso a).hom, assoc, assoc, Iso.inv_hom_id, comp_id, comm,
-          ← whiskerRight_comp_assoc, Iso.inv_hom_id, whiskerRight_id', id_comp] }
+def isoMk
+    (iso : ∀ a, (F.functor a ≅ G.functor a))
+    (comm : ∀ (n a a' : A) (ha' : n + a = a'),
+      (F.shiftIso n a a' ha').hom ≫ (iso a).hom
+        = whiskerRight (iso a').hom (shiftFunctor D n) ≫ (G.shiftIso n a a' ha').hom)
+    : F ≅ G where
+  hom := { hom := fun a => (iso a).hom, comm := comm }
+  inv := {
+    hom := fun a => (iso a).inv
+    comm := fun n a a' ha' => by
+      rw [
+        ← cancel_mono (iso a).hom, assoc, assoc, Iso.inv_hom_id, comp_id, comm,
+        ← whiskerRight_comp_assoc, Iso.inv_hom_id, whiskerRight_id', id_comp
+      ]
+  }
 
 variable (C D)
 
@@ -202,64 +211,77 @@ instance (f : F ⟶ G) [IsIso f] (n : A) : IsIso (f.hom n) :=
 
 variable (F)
 
-/-- Given `F : SingleFunctors C D A`, and a functor `G : D ⥤ E` which commutes
-with the shift by `A`, this is the "composition" of `F` and `G` in `SingleFunctors C E A`. -/
+/--
+Given `F : SingleFunctors C D A`, and a functor `G : D ⥤ E` which commutes
+with the shift by `A`, this is the "composition" of `F` and `G` in `SingleFunctors C E A`.
+-/
 @[implicit_reducible, simps! functor shiftIso_hom_app shiftIso_inv_app]
-def postcomp (G : D ⥤ E) [G.CommShift A] :
-    SingleFunctors C E A where
+def postcomp (G : D ⥤ E) [G.CommShift A] : SingleFunctors C E A where
   functor a := F.functor a ⋙ G
   shiftIso n a a' ha' :=
-    Functor.associator _ _ _ ≪≫ isoWhiskerLeft _ (G.commShiftIso n).symm ≪≫
-      (Functor.associator _ _ _).symm ≪≫ isoWhiskerRight (F.shiftIso n a a' ha') G
+    Functor.associator _ _ _ ≪≫ isoWhiskerLeft _ (G.commShiftIso n).symm
+      ≪≫ (Functor.associator _ _ _).symm ≪≫ isoWhiskerRight (F.shiftIso n a a' ha') G
   shiftIso_zero a := by
     ext X
     dsimp
-    simp only [Functor.commShiftIso_zero, Functor.CommShift.isoZero_inv_app,
+    simp only [
+      Functor.commShiftIso_zero, Functor.CommShift.isoZero_inv_app,
       SingleFunctors.shiftIso_zero_hom_app, id_comp, assoc, ← G.map_comp, Iso.inv_hom_id_app,
-      Functor.map_id, Functor.id_obj, comp_id]
+      Functor.map_id, Functor.id_obj, comp_id
+    ]
   shiftIso_add n m a a' a'' ha' ha'' := by
     ext X
     dsimp
-    simp only [F.shiftIso_add_hom_app n m a a' a'' ha' ha'', Functor.commShiftIso_add,
+    simp only [
+      F.shiftIso_add_hom_app n m a a' a'' ha' ha'', Functor.commShiftIso_add,
       Functor.CommShift.isoAdd_inv_app, Functor.map_comp, id_comp, assoc,
-      Functor.commShiftIso_inv_naturality_assoc]
+      Functor.commShiftIso_inv_naturality_assoc
+    ]
     simp only [← G.map_comp, Iso.inv_hom_id_app_assoc]
 
 variable (C A)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The functor `SingleFunctors C D A ⥤ SingleFunctors C E A` given by the postcomposition
-by a functor `G : D ⥤ E` which commutes with the shift. -/
+/--
+The functor `SingleFunctors C D A ⥤ SingleFunctors C E A` given by the postcomposition
+by a functor `G : D ⥤ E` which commutes with the shift.
+-/
 @[implicit_reducible, simps]
-def postcompFunctor (G : D ⥤ E) [G.CommShift A] :
-    SingleFunctors C D A ⥤ SingleFunctors C E A where
+def postcompFunctor (G : D ⥤ E) [G.CommShift A] : SingleFunctors C D A ⥤ SingleFunctors C E A where
   obj F := F.postcomp G
-  map {F₁ F₂} φ :=
-    { hom := fun a => whiskerRight (φ.hom a) G
-      comm := fun n a a' ha' => by
-        ext X
-        simpa using G.congr_map (congr_app (φ.comm n a a' ha') X) }
+  map {F₁ F₂} φ := {
+    hom := fun a => whiskerRight (φ.hom a) G
+    comm := fun n a a' ha' => by
+      ext X
+      simpa using G.congr_map (congr_app (φ.comm n a a' ha') X)
+  }
 
 variable {C E' A}
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The canonical isomorphism `(F.postcomp G).postcomp G' ≅ F.postcomp (G ⋙ G')`. -/
 @[simps!]
-def postcompPostcompIso (G : D ⥤ E) (G' : E ⥤ E') [G.CommShift A] [G'.CommShift A] :
-    (F.postcomp G).postcomp G' ≅ F.postcomp (G ⋙ G') :=
-  isoMk (fun _ => Functor.associator _ _ _) (fun n a a' ha' => by
-    ext X
-    simp [Functor.commShiftIso_comp_inv_app])
+def postcompPostcompIso (G : D ⥤ E) (G' : E ⥤ E') [G.CommShift A] [G'.CommShift A]
+    : (F.postcomp G).postcomp G' ≅ F.postcomp (G ⋙ G') :=
+  isoMk
+    (fun _ => Functor.associator _ _ _)
+    (fun n a a' ha' => by
+      ext X
+      simp [Functor.commShiftIso_comp_inv_app])
 
-/-- The isomorphism `F.postcomp G ≅ F.postcomp G'` induced by an isomorphism `e : G ≅ G'`
-which commutes with the shift. -/
+/--
+The isomorphism `F.postcomp G ≅ F.postcomp G'` induced by an isomorphism `e : G ≅ G'`
+which commutes with the shift.
+-/
 @[simps!]
-def postcompIsoOfIso {G G' : D ⥤ E} (e : G ≅ G') [G.CommShift A] [G'.CommShift A]
-    [NatTrans.CommShift e.hom A] :
-    F.postcomp G ≅ F.postcomp G' :=
-  isoMk (fun a => isoWhiskerLeft (F.functor a) e) (fun n a a' ha' => by
-    ext X
-    simp [NatTrans.shift_app e.hom n])
+def postcompIsoOfIso
+    {G G' : D ⥤ E} (e : G ≅ G') [G.CommShift A] [G'.CommShift A] [NatTrans.CommShift e.hom A]
+    : F.postcomp G ≅ F.postcomp G' :=
+  isoMk
+    (fun a => isoWhiskerLeft (F.functor a) e)
+    (fun n a a' ha' => by
+      ext X
+      simp [NatTrans.shift_app e.hom n])
 
 end SingleFunctors
 

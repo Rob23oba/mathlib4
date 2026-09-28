@@ -278,7 +278,8 @@ private lemma not_irrational_exists_rep {x : ℝ} :
   rintro ⟨q, rfl⟩
   exact ⟨q.num, q.den, q.pos, by exact_mod_cast (Rat.num_div_den _).symm⟩
 
-@[simp] theorem irrational_pi : Irrational π := by
+@[simp]
+theorem irrational_pi : Irrational π := by
   apply Irrational.of_div_natCast 2
   rw [Nat.cast_two]
   by_contra h'
@@ -288,8 +289,8 @@ private lemma not_irrational_exists_rep {x : ℝ} :
     rwa [lt_div_iff₀ (by positivity), zero_mul] at this
   have k (n : ℕ) : 0 < (a : ℝ) ^ (2 * n + 1) / n ! := by positivity
   have j : ∀ᶠ n : ℕ in atTop, (a : ℝ) ^ (2 * n + 1) / n ! * I n (π / 2) < 1 := by
-    have := (tendsto_pow_div_factorial_at_top_aux a).eventually_lt_const
-      (show (0 : ℝ) < 1 / 2 by simp)
+    have :=
+      (tendsto_pow_div_factorial_at_top_aux a).eventually_lt_const (show (0 : ℝ) < 1 / 2 by simp)
     filter_upwards [this] with n hn
     rw [lt_div_iff₀ (zero_lt_two : (0 : ℝ) < 2)] at hn
     exact hn.trans_le' (mul_le_mul_of_nonneg_left (I_le _) (by positivity))
@@ -299,8 +300,8 @@ private lemma not_irrational_exists_rep {x : ℝ} :
     is_integer a b ((sinPoly_natDegree_le _).trans (by lia))
   have e := sinPoly_add_cosPoly_eval (π / 2) n
   rw [cos_pi_div_two, sin_pi_div_two, mul_zero, mul_one, add_zero] at e
-  have : a ^ (2 * n + 1) / n ! * I n (π / 2) =
-      eval₂ (Int.castRingHom ℝ) (π / 2) (sinPoly n) * b ^ (2 * n + 1) := by
+  have : a ^ (2 * n + 1) / n ! * I n (π / 2)
+      = eval₂ (Int.castRingHom ℝ) (π / 2) (sinPoly n) * b ^ (2 * n + 1) := by
     nth_rw 2 [h] at e
     simp [field, div_pow] at e ⊢
     linear_combination e

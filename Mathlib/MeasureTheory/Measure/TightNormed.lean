@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.MeasureTheory.Measure.Tight
-
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Complex
 import Mathlib.Order.Filter.ENNReal
 

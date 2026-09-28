@@ -22,18 +22,18 @@ open Filter
 
 variable {X : Type*} [TopologicalSpace X]
 
-theorem AccPt.map {β : Type*} [TopologicalSpace β] {F : Filter X} {x : X}
-    (h : AccPt x F) {f : X → β} (hf1 : ContinuousAt f x) (hf2 : Function.Injective f) :
-    AccPt (f x) (map f F) := by
+theorem AccPt.map
+    {β : Type*} [TopologicalSpace β]
+    {F : Filter X} {x : X} (h : AccPt x F)
+    {f : X → β} (hf1 : ContinuousAt f x) (hf2 : Function.Injective f)
+    : AccPt (f x) (map f F) := by
   apply map_neBot (m := f) (hf := h) |>.mono
   rw [Filter.map_inf hf2]
   gcongr
   apply tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ hf1.continuousWithinAt
   simpa [hf2.eq_iff] using! eventually_mem_nhdsWithin
 
-/--
-The derived set of a set is the set of all accumulation points of it.
--/
+/-- The derived set of a set is the set of all accumulation points of it. -/
 def derivedSet (A : Set X) : Set X := {x | AccPt x (𝓟 A)}
 
 @[simp]
@@ -56,9 +56,10 @@ def relDerivedSet : Set X →o Set X where
 lemma relDerivedSet_subset {A : Set X} : relDerivedSet A ⊆ A :=
   Set.inter_subset_right
 
-theorem Continuous.image_derivedSet {β : Type*} [TopologicalSpace β] {A : Set X} {f : X → β}
-    (hf1 : Continuous f) (hf2 : Function.Injective f) :
-    f '' derivedSet A ⊆ derivedSet (f '' A) := by
+theorem Continuous.image_derivedSet
+    {β : Type*} [TopologicalSpace β]
+    {A : Set X} {f : X → β} (hf1 : Continuous f) (hf2 : Function.Injective f)
+    : f '' derivedSet A ⊆ derivedSet (f '' A) := by
   intro x hx
   simp only [Set.mem_image, mem_derivedSet] at hx
   obtain ⟨y, hy1, rfl⟩ := hx

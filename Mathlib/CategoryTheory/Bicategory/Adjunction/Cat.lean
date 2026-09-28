@@ -24,7 +24,8 @@ namespace CategoryTheory
 
 section
 
-variable {C D E : Type u} [Category.{v} C] [Category.{v} D] [Category.{v} E]
+variable
+  {C D E : Type u} [Category.{v} C] [Category.{v} D] [Category.{v} E]
   {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
   {F' : D ⥤ E} {G' : E ⥤ D} (adj' : F' ⊣ G')
 
@@ -42,15 +43,12 @@ def toCat : Bicategory.Adjunction F.toCatHom G.toCatHom where
 set_option backward.defeqAttrib.useBackward true in
 /-- The adjunction of functors corresponding to an adjunction in the bicategory `Cat`. -/
 @[simps]
-def ofCat {C D : Cat} {F : C ⟶ D} {G : D ⟶ C}
-    (adj : Bicategory.Adjunction F G) :
-    F.toFunctor ⊣ G.toFunctor where
+def ofCat {C D : Cat} {F : C ⟶ D} {G : D ⟶ C} (adj : Bicategory.Adjunction F G)
+    : F.toFunctor ⊣ G.toFunctor where
   unit := adj.unit.toNatTrans
   counit := adj.counit.toNatTrans
-  left_triangle_components X := by
-    simpa using congr($(adj.left_triangle).toNatTrans.app X)
-  right_triangle_components X := by
-    simpa using congr($(adj.right_triangle).toNatTrans.app X)
+  left_triangle_components X := by simpa using congr($(adj.left_triangle).toNatTrans.app X)
+  right_triangle_components X := by simpa using congr($(adj.right_triangle).toNatTrans.app X)
 
 @[simp]
 lemma toCat_ofCat

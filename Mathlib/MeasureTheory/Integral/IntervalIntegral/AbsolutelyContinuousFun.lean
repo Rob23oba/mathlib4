@@ -164,11 +164,14 @@ lemma AbsolutelyContinuousOnInterval.dist_le_of_pairwiseDisjoint_hasSum {f : ℝ
     simp [T]
   exact le_of_tendsto_of_tendsto' (by simp) sum_tendsto dist_le_sum
 
-/-- If `f` is absolutely continuous on `uIcc a b` and `f' x = 0` for a.e. `x ∈ uIcc a b`, then `f`
-is constant on `uIcc a b`. -/
-theorem AbsolutelyContinuousOnInterval.const_of_ae_hasDerivAt_zero {f : ℝ → F} {a b : ℝ}
-    (hf : AbsolutelyContinuousOnInterval f a b) (hf₀ : ∀ᵐ x, x ∈ uIcc a b → HasDerivAt f 0 x) :
-    ∃ C, ∀ x ∈ uIcc a b, f x = C := by
+/--
+If `f` is absolutely continuous on `uIcc a b` and `f' x = 0` for a.e. `x ∈ uIcc a b`, then `f`
+is constant on `uIcc a b`.
+-/
+theorem AbsolutelyContinuousOnInterval.const_of_ae_hasDerivAt_zero
+    {f : ℝ → F} {a b : ℝ}
+    (hf : AbsolutelyContinuousOnInterval f a b) (hf₀ : ∀ᵐ x, x ∈ uIcc a b → HasDerivAt f 0 x)
+    : ∃ C, ∀ x ∈ uIcc a b, f x = C := by
   -- Proof idea : Assume wlog `a < b`. We need to show that `f d = f b` for any `d ∈ [a, b]`.
   -- Fix `d`. It suffices to show that `dist (f d) (f b) ≤ r` for any `r > 0`. Fix `r`.
   -- Use `exists_dist_slope_lt_pairwiseDisjoint_hasSum` with `η = r / (b - d)` to
@@ -193,8 +196,7 @@ theorem AbsolutelyContinuousOnInterval.const_of_ae_hasDerivAt_zero {f : ℝ → 
   replace hf₀ : ∀ᵐ x, x ∈ Ioo d b → HasDerivAt f 0 x := by
     filter_upwards [hf₀] with x _ _ using by grind
   have hfdb' : 0 < r / (b - d) := by apply div_pos <;> linarith
-  have ⟨u, hu₁, hu₂, hu₃⟩ :=
-    exists_dist_slope_lt_pairwiseDisjoint_hasSum hd.right hf₀ hfdb'
+  have ⟨u, hu₁, hu₂, hu₃⟩ := exists_dist_slope_lt_pairwiseDisjoint_hasSum hd.right hf₀ hfdb'
   let g := fun (z : u) ↦ dist (f z.val.1) (f z.val.2)
   have g_nonneg : 0 ≤ g := by intro; simp [g]
   have g_finsum_bound (s : Finset u) : ∑ z ∈ s, g z ≤ r := by
@@ -216,18 +218,21 @@ theorem AbsolutelyContinuousOnInterval.const_of_ae_hasDerivAt_zero {f : ℝ → 
     grind
   have hu₄ := summable_of_sum_le g_nonneg g_finsum_bound |>.hasSum
   have g_sum_bound := Real.tsum_le_of_sum_le g_nonneg g_finsum_bound
-  have := (hf.mono (by grind [uIcc_of_le])).dist_le_of_pairwiseDisjoint_hasSum hd.right
-    (fun s hs ↦ hu₁ s hs |>.left) hu₂ hu₃ hu₄
+  have :=
+    (hf.mono (by grind [uIcc_of_le])).dist_le_of_pairwiseDisjoint_hasSum hd.right
+      (fun s hs ↦ hu₁ s hs |>.left)
+      hu₂ hu₃ hu₄
   linarith
 
-/-- *Fundamental Theorem of Calculus* for absolutely continuous functions: if `f` is absolutely
-continuous on `uIcc a b`, then `∫ (x : ℝ) in a..b, deriv f x = f b - f a`. -/
-theorem AbsolutelyContinuousOnInterval.integral_deriv_eq_sub {f : ℝ → ℝ} {a b : ℝ}
-    (hf : AbsolutelyContinuousOnInterval f a b) :
-    ∫ (x : ℝ) in a..b, deriv f x = f b - f a := by
+/--
+*Fundamental Theorem of Calculus* for absolutely continuous functions: if `f` is absolutely
+continuous on `uIcc a b`, then `∫ (x : ℝ) in a..b, deriv f x = f b - f a`.
+-/
+theorem AbsolutelyContinuousOnInterval.integral_deriv_eq_sub
+    {f : ℝ → ℝ} {a b : ℝ} (hf : AbsolutelyContinuousOnInterval f a b)
+    : ∫ (x : ℝ) in a..b, deriv f x = f b - f a := by
   have f_deriv_integral_ac :=
-    hf.intervalIntegrable_deriv.absolutelyContinuousOnInterval_intervalIntegral
-    (c := a) (by simp)
+    hf.intervalIntegrable_deriv.absolutelyContinuousOnInterval_intervalIntegral (c := a) (by simp)
   let g (x : ℝ) := f x - ∫ (t : ℝ) in a..x, deriv f t
   have g_ac : AbsolutelyContinuousOnInterval g a b := hf.sub (f_deriv_integral_ac)
   have g_ae_deriv_zero : ∀ᵐ x, x ∈ uIcc a b → HasDerivAt g 0 x := by
@@ -244,8 +249,8 @@ theorem AbsolutelyContinuousOnInterval.integral_deriv_eq_sub {f : ℝ → ℝ} {
 /-- The integral of the derivative of a product of two absolutely continuous functions. -/
 theorem AbsolutelyContinuousOnInterval.integral_deriv_mul_eq_sub
     {f g : ℝ → ℝ} {a b : ℝ}
-    (hf : AbsolutelyContinuousOnInterval f a b) (hg : AbsolutelyContinuousOnInterval g a b) :
-    ∫ x in a..b, deriv f x * g x + f x * deriv g x = f b * g b - f a * g a := by
+    (hf : AbsolutelyContinuousOnInterval f a b) (hg : AbsolutelyContinuousOnInterval g a b)
+    : ∫ x in a..b, deriv f x * g x + f x * deriv g x = f b * g b - f a * g a := by
   rw [← (hf.fun_mul hg).integral_deriv_eq_sub]
   apply intervalIntegral.integral_congr_ae
   filter_upwards [hf.ae_differentiableAt, hg.ae_differentiableAt] with x hx₁ hx₂ hx₃
@@ -254,11 +259,14 @@ theorem AbsolutelyContinuousOnInterval.integral_deriv_mul_eq_sub
   exact hx₅.deriv.symm
 
 /-- *Integration by parts* for absolutely continuous functions. -/
-theorem AbsolutelyContinuousOnInterval.integral_mul_deriv_eq_deriv_mul {f g : ℝ → ℝ} {a b : ℝ}
-    (hf : AbsolutelyContinuousOnInterval f a b) (hg : AbsolutelyContinuousOnInterval g a b) :
-    ∫ x in a..b, f x * deriv g x = f b * g b - f a * g a - ∫ x in a..b, deriv f x * g x := by
-  rw [← AbsolutelyContinuousOnInterval.integral_deriv_mul_eq_sub hf hg,
-      ← intervalIntegral.integral_sub]
+theorem AbsolutelyContinuousOnInterval.integral_mul_deriv_eq_deriv_mul
+    {f g : ℝ → ℝ} {a b : ℝ}
+    (hf : AbsolutelyContinuousOnInterval f a b) (hg : AbsolutelyContinuousOnInterval g a b)
+    : ∫ x in a..b, f x * deriv g x = f b * g b - f a * g a - ∫ x in a..b, deriv f x * g x := by
+  rw [
+    ← AbsolutelyContinuousOnInterval.integral_deriv_mul_eq_sub hf hg,
+    ← intervalIntegral.integral_sub
+  ]
   · simp_rw [add_sub_cancel_left]
   · exact (hf.intervalIntegrable_deriv.mul_continuousOn hg.continuousOn).add
       (hg.intervalIntegrable_deriv.continuousOn_mul hf.continuousOn)

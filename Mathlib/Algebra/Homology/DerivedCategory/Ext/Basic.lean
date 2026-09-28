@@ -50,11 +50,14 @@ variable (C : Type u) [Category.{v} C] [Abelian C]
 
 open Localization Limits ZeroObject DerivedCategory Pretriangulated
 
-/-- The property that morphisms between single complexes in arbitrary degrees are `w`-small
-in the derived category. -/
+/--
+The property that morphisms between single complexes in arbitrary degrees are `w`-small
+in the derived category.
+-/
 abbrev HasExt : Prop :=
-  ∀ (X Y : C), HasSmallLocalizedShiftedHom.{w} (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) ℤ
-    ((CochainComplex.singleFunctor C 0).obj X) ((CochainComplex.singleFunctor C 0).obj Y)
+  ∀ (X Y : C),
+    HasSmallLocalizedShiftedHom.{w} (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) ℤ
+      ((CochainComplex.singleFunctor C 0).obj X) ((CochainComplex.singleFunctor C 0).obj Y)
 
 lemma hasExt_iff [HasDerivedCategory.{w'} C] :
     HasExt.{w} C ↔ ∀ (X Y : C) (n : ℤ) (_ : 0 ≤ n), Small.{w}
@@ -93,19 +96,17 @@ lemma HasExt.standard : HasExt.{max u v} C := by
   let := HasDerivedCategory.standard
   exact hasExt_of_hasDerivedCategory _
 
-instance [HasExt.{w} C] (X Y : C) (a b : ℤ) [HasDerivedCategory.{w'} C] :
-    Small.{w} ((singleFunctor C a).obj X ⟶ (singleFunctor C b).obj Y) := by
-  have (a b : ℤ) :
-      Small.{w} (((singleFunctor C 0).obj X)⟦a⟧ ⟶ ((singleFunctor C 0).obj Y)⟦b⟧) :=
-    (hasSmallLocalizedShiftedHom_iff.{w}
-      (W := (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))) (M := ℤ)
-      (X := (CochainComplex.singleFunctor C 0).obj X)
-      (Y := (CochainComplex.singleFunctor C 0).obj Y) Q).1 inferInstance a b
-  exact small_of_injective
-    (β := ((singleFunctor C 0).obj X)⟦-a⟧ ⟶ ((singleFunctor C 0).obj Y)⟦-b⟧)
+instance [HasExt.{w} C] (X Y : C) (a b : ℤ) [HasDerivedCategory.{w'} C]
+    : Small.{w} ((singleFunctor C a).obj X ⟶ (singleFunctor C b).obj Y) := by
+  have (a b : ℤ) : Small.{w} (((singleFunctor C 0).obj X)⟦a⟧ ⟶ ((singleFunctor C 0).obj Y)⟦b⟧) :=
+    (hasSmallLocalizedShiftedHom_iff.{w} (W := (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)))
+        (M := ℤ) (X := (CochainComplex.singleFunctor C 0).obj X)
+        (Y := (CochainComplex.singleFunctor C 0).obj Y) Q).1
+      inferInstance a b
+  exact small_of_injective (β := ((singleFunctor C 0).obj X)⟦-a⟧ ⟶ ((singleFunctor C 0).obj Y)⟦-b⟧)
     (f := fun φ ↦
-      ((singleFunctors C).shiftIso (-a) a 0 (by simp)).hom.app X ≫ φ ≫
-        ((singleFunctors C).shiftIso (-b) b 0 (by simp)).inv.app Y)
+      ((singleFunctors C).shiftIso (-a) a 0 (by simp)).hom.app X ≫ φ
+        ≫ ((singleFunctors C).shiftIso (-b) b 0 (by simp)).inv.app Y)
     (fun φ₁ φ₂ h ↦ by simpa using h)
 
 variable {C}
@@ -117,16 +118,15 @@ namespace Abelian
 /-- An Ext-group in an abelian category `C`, defined as a `Type w` when `[HasExt.{w} C]`. -/
 def Ext (X Y : C) (n : ℕ) : Type w :=
   SmallShiftedHom.{w} (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))
-    ((CochainComplex.singleFunctor C 0).obj X)
-    ((CochainComplex.singleFunctor C 0).obj Y) (n : ℤ)
+    ((CochainComplex.singleFunctor C 0).obj X) ((CochainComplex.singleFunctor C 0).obj Y) (n : ℤ)
 
 namespace Ext
 
 variable {X Y Z T : C}
 
 /-- The composition of `Ext`. -/
-noncomputable def comp {a b : ℕ} (α : Ext X Y a) (β : Ext Y Z b) {c : ℕ} (h : a + b = c) :
-    Ext X Z c :=
+noncomputable def comp {a b : ℕ} (α : Ext X Y a) (β : Ext Y Z b) {c : ℕ} (h : a + b = c)
+    : Ext X Z c :=
   SmallShiftedHom.comp α β (by lia)
 
 lemma comp_assoc {a₁ a₂ a₃ a₁₂ a₂₃ a : ℕ} (α : Ext X Y a₁) (β : Ext Y Z a₂) (γ : Ext Z T a₃)
@@ -155,16 +155,17 @@ section
 
 variable [HasDerivedCategory.{w'} C]
 
-/-- When an instance of `[HasDerivedCategory.{w'} C]` is available, this is the bijection
-between `Ext.{w} X Y n` and a type of morphisms in the derived category. -/
-noncomputable def homEquiv {n : ℕ} :
-    Ext.{w} X Y n ≃ ShiftedHom ((singleFunctor C 0).obj X)
-      ((singleFunctor C 0).obj Y) (n : ℤ) :=
+/--
+When an instance of `[HasDerivedCategory.{w'} C]` is available, this is the bijection
+between `Ext.{w} X Y n` and a type of morphisms in the derived category.
+-/
+noncomputable def homEquiv {n : ℕ}
+    : Ext.{w} X Y n ≃ ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) :=
   SmallShiftedHom.equiv (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) Q
 
 /-- The morphism in the derived category which corresponds to an element in `Ext X Y a`. -/
-noncomputable abbrev hom {a : ℕ} (α : Ext X Y a) :
-    ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (a : ℤ) :=
+noncomputable abbrev hom {a : ℕ} (α : Ext X Y a)
+    : ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (a : ℤ) :=
   homEquiv α
 
 @[simp]
@@ -179,8 +180,8 @@ lemma ext {n : ℕ} {α β : Ext X Y n} (h : α.hom = β.hom) : α = β :=
 end
 
 /-- The canonical map `(X ⟶ Y) → Ext X Y 0`. -/
-noncomputable def mk₀ (f : X ⟶ Y) : Ext X Y 0 := SmallShiftedHom.mk₀ _ _ (by simp)
-  ((CochainComplex.singleFunctor C 0).map f)
+noncomputable def mk₀ (f : X ⟶ Y) : Ext X Y 0 :=
+  SmallShiftedHom.mk₀ _ _ (by simp) ((CochainComplex.singleFunctor C 0).map f)
 
 @[simp]
 lemma mk₀_hom [HasDerivedCategory.{w'} C] (f : X ⟶ Y) :
@@ -198,7 +199,6 @@ lemma mk₀_comp_mk₀_assoc (f : X ⟶ Y) (g : Y ⟶ Z) {n : ℕ} (α : Ext Z T
       (mk₀ (f ≫ g)).comp α (zero_add n) := by
   rw [← mk₀_comp_mk₀, comp_assoc]
   lia
-
 
 variable (X Y) in
 lemma mk₀_bijective : Function.Bijective (mk₀ (X := X) (Y := Y)) := by
@@ -218,8 +218,7 @@ lemma mk₀_bijective : Function.Bijective (mk₀ (X := X) (Y := Y)) := by
 
 /-- The bijection `Ext X Y 0 ≃ (X ⟶ Y)`. -/
 @[simps! symm_apply]
-noncomputable def homEquiv₀ : Ext X Y 0 ≃ (X ⟶ Y) :=
-  (Equiv.ofBijective _ (mk₀_bijective X Y)).symm
+noncomputable def homEquiv₀ : Ext X Y 0 ≃ (X ⟶ Y) := (Equiv.ofBijective _ (mk₀_bijective X Y)).symm
 
 @[simp]
 lemma mk₀_homEquiv₀_apply (f : Ext X Y 0) :
@@ -240,13 +239,15 @@ noncomputable instance : AddCommGroup (Ext X Y n) :=
   letI := HasDerivedCategory.standard C
   homEquiv.addCommGroup
 
-/-- The map from `Ext X Y n` to a `ShiftedHom` type in the *constructed* derived
+/--
+The map from `Ext X Y n` to a `ShiftedHom` type in the *constructed* derived
 category given by `HasDerivedCategory.standard`: this definition is introduced
 only in order to prove properties of the abelian group structure on `Ext`-groups.
-Do not use this definition: use the more general `hom` instead. -/
-noncomputable abbrev hom' (α : Ext X Y n) :
-    letI := HasDerivedCategory.standard C
-    ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) :=
+Do not use this definition: use the more general `hom` instead.
+-/
+noncomputable abbrev hom' (α : Ext X Y n)
+    : letI := HasDerivedCategory.standard C
+      ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) :=
   letI := HasDerivedCategory.standard C
   α.hom
 
@@ -383,11 +384,13 @@ lemma add_hom (α β : Ext X Y n) : (α + β).hom = α.hom + β.hom := by
 lemma neg_hom (α : Ext X Y n) : (-α).hom = -α.hom := by
   rw [← add_right_inj α.hom, ← add_hom, add_neg_cancel, add_neg_cancel, zero_hom]
 
-/-- When an instance of `[HasDerivedCategory.{w'} C]` is available, this is the additive
-bijection between `Ext.{w} X Y n` and a type of morphisms in the derived category. -/
-noncomputable def homAddEquiv {n : ℕ} :
-    Ext.{w} X Y n ≃+
-      ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) where
+/--
+When an instance of `[HasDerivedCategory.{w'} C]` is available, this is the additive
+bijection between `Ext.{w} X Y n` and a type of morphisms in the derived category.
+-/
+noncomputable def homAddEquiv {n : ℕ}
+    : Ext.{w} X Y n
+      ≃+ ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) where
   toEquiv := homEquiv
   map_add' := by simp
 
@@ -399,18 +402,17 @@ end
 variable (X Y Z) in
 /-- The composition of `Ext`, as a bilinear map. -/
 @[simps!]
-noncomputable def bilinearComp (a b c : ℕ) (h : a + b = c) :
-    Ext X Y a →+ Ext Y Z b →+ Ext X Z c :=
+noncomputable def bilinearComp (a b c : ℕ) (h : a + b = c) : Ext X Y a →+ Ext Y Z b →+ Ext X Z c :=
   AddMonoidHom.mk' (fun α ↦ AddMonoidHom.mk' (fun β ↦ α.comp β h) (by simp)) (by aesop)
 
 /-- The postcomposition `Ext X Y a →+ Ext X Z b` with `β : Ext Y Z n` when `a + n = b`. -/
-noncomputable abbrev postcomp (β : Ext Y Z n) (X : C) {a b : ℕ} (h : a + n = b) :
-    Ext X Y a →+ Ext X Z b :=
+noncomputable abbrev postcomp (β : Ext Y Z n) (X : C) {a b : ℕ} (h : a + n = b)
+    : Ext X Y a →+ Ext X Z b :=
   (bilinearComp X Y Z a n b h).flip β
 
 /-- The precomposition `Ext Y Z a →+ Ext X Z b` with `α : Ext X Y n` when `n + a = b`. -/
-noncomputable abbrev precomp (α : Ext X Y n) (Z : C) {a b : ℕ} (h : n + a = b) :
-    Ext Y Z a →+ Ext X Z b :=
+noncomputable abbrev precomp (α : Ext X Y n) (Z : C) {a b : ℕ} (h : n + a = b)
+    : Ext Y Z a →+ Ext X Z b :=
   bilinearComp X Y Z n a b h α
 
 end Ext
@@ -431,20 +433,24 @@ noncomputable def extFunctorObj (X : C) (n : ℕ) : C ⥤ AddCommGrpCat.{w} wher
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The functor `Cᵒᵖ ⥤ C ⥤ AddCommGrpCat` which sends `X : C` and `Y : C`
-to `Ext X Y n`. -/
+/--
+The functor `Cᵒᵖ ⥤ C ⥤ AddCommGrpCat` which sends `X : C` and `Y : C`
+to `Ext X Y n`.
+-/
 @[simps]
 noncomputable def extFunctor (n : ℕ) : Cᵒᵖ ⥤ C ⥤ AddCommGrpCat.{w} where
   obj X := extFunctorObj X.unop n
-  map {X₁ X₂} f :=
-    { app := fun Y ↦ AddCommGrpCat.ofHom (AddMonoidHom.mk'
-        (fun α ↦ (Ext.mk₀ f.unop).comp α (zero_add _)) (by simp))
-      naturality := fun {Y₁ Y₂} g ↦ by
-        ext α
-        dsimp
-        symm
-        apply Ext.comp_assoc
-        all_goals lia }
+  map {X₁ X₂} f := {
+    app := fun Y ↦
+      AddCommGrpCat.ofHom
+        (AddMonoidHom.mk' (fun α ↦ (Ext.mk₀ f.unop).comp α (zero_add _)) (by simp))
+    naturality := fun {Y₁ Y₂} g ↦ by
+      ext α
+      dsimp
+      symm
+      apply Ext.comp_assoc
+      all_goals lia
+  }
   map_comp {X₁ X₂ X₃} f f' := by
     ext Y α
     simp
@@ -472,8 +478,9 @@ lemma Ext.mk₀_sum {X Y : C} {ι : Type*} [Fintype ι] (f : ι → (X ⟶ Y)) :
   map_sum addEquiv₀.symm _ _
 
 /-- `Ext` commutes with biproducts in its first variable. -/
-noncomputable def Ext.biproductAddEquiv {J : Type*} [Fintype J] {X : J → C} {c : Bicone X}
-    (hc : c.IsBilimit) (Y : C) (n : ℕ) : Ext c.pt Y n ≃+ Π i, Ext (X i) Y n where
+noncomputable def Ext.biproductAddEquiv
+    {J : Type*} [Fintype J] {X : J → C} {c : Bicone X} (hc : c.IsBilimit) (Y : C) (n : ℕ)
+    : Ext c.pt Y n ≃+ Π i, Ext (X i) Y n where
   toFun e i := (Ext.mk₀ (c.ι i)).comp e (zero_add n)
   invFun e := ∑ (i : J), (Ext.mk₀ (c.π i)).comp (e i) (zero_add n)
   left_inv x := by
@@ -485,48 +492,49 @@ noncomputable def Ext.biproductAddEquiv {J : Type*} [Fintype J] {X : J → C} {c
     rw [Finset.sum_eq_single i _ (by simp), bicone_ι_π_self, mk₀_id_comp]
     intro _ _ hij
     rw [c.ι_π, dite_eq_right hij.symm, mk₀_zero, zero_comp]
-  map_add' _ _ := by
-    simp only [comp_add, Pi.add_def]
+  map_add' _ _ := by simp only [comp_add, Pi.add_def]
 
 /-- `Ext` commutes with biproducts in its second variable. -/
-noncomputable def Ext.addEquivBiproduct (X : C) {J : Type*} [Fintype J] {Y : J → C} {c : Bicone Y}
-    (hc : c.IsBilimit) (n : ℕ) : Ext X c.pt n ≃+ Π i, Ext X (Y i) n where
+noncomputable def Ext.addEquivBiproduct
+    (X : C) {J : Type*} [Fintype J] {Y : J → C} {c : Bicone Y} (hc : c.IsBilimit) (n : ℕ)
+    : Ext X c.pt n ≃+ Π i, Ext X (Y i) n where
   toFun e i := e.comp (Ext.mk₀ (c.π i)) (add_zero n)
   invFun e := ∑ (i : J), (e i).comp (Ext.mk₀ (c.ι i)) (add_zero n)
   left_inv _ := by
-    simp only [comp_assoc_of_second_deg_zero, mk₀_comp_mk₀, ← Ext.comp_sum,
-      ← Ext.mk₀_sum, IsBilimit.total hc, comp_mk₀_id]
+    simp only [
+      comp_assoc_of_second_deg_zero, mk₀_comp_mk₀, ← Ext.comp_sum, ← Ext.mk₀_sum,
+      IsBilimit.total hc, comp_mk₀_id
+    ]
   right_inv _ := by
     ext i
     simp only [Ext.sum_comp, comp_assoc_of_second_deg_zero, mk₀_comp_mk₀]
     rw [Finset.sum_eq_single i _ (by simp), bicone_ι_π_self, comp_mk₀_id]
     intro _ _ hij
     rw [c.ι_π, dite_eq_right hij, mk₀_zero, comp_zero]
-  map_add' _ _ := by
-    simp only [add_comp, Pi.add_def]
+  map_add' _ _ := by simp only [add_comp, Pi.add_def]
 
 end biproduct
 
 /-- `Ext` commutes with binary biproducts on the first variable. -/
 @[simps apply_fst apply_snd, simps -isSimp symm_apply]
-noncomputable def Ext.biprodAddEquiv {X₁ X₂ Y : C} {n : ℕ} :
-    Ext (X₁ ⊞ X₂) Y n ≃+ Ext X₁ Y n × Ext X₂ Y n where
+noncomputable def Ext.biprodAddEquiv {X₁ X₂ Y : C} {n : ℕ}
+    : Ext (X₁ ⊞ X₂) Y n ≃+ Ext X₁ Y n × Ext X₂ Y n where
   toFun e := ⟨(mk₀ biprod.inl).comp e (zero_add n), (mk₀ biprod.inr).comp e (zero_add n)⟩
   invFun e := (mk₀ biprod.fst).comp e.1 (zero_add n) + (mk₀ biprod.snd).comp e.2 (zero_add n)
-  left_inv _ := by
-    simp only [mk₀_comp_mk₀_assoc, ← add_comp, ← mk₀_add, biprod.total, mk₀_id_comp]
+  left_inv _ := by simp only [mk₀_comp_mk₀_assoc, ← add_comp, ← mk₀_add, biprod.total, mk₀_id_comp]
   right_inv _ := by simp
   map_add' := by simp
 
 /-- `Ext` commutes with binary biproducts on the second variable. -/
 @[simps apply_fst apply_snd, simps -isSimp symm_apply]
-noncomputable def Ext.addEquivBiprod {X : C} {Y₁ Y₂ : C} {n : ℕ} :
-    Ext X (Y₁ ⊞ Y₂) n ≃+ Ext X Y₁ n × Ext X Y₂ n where
+noncomputable def Ext.addEquivBiprod {X : C} {Y₁ Y₂ : C} {n : ℕ}
+    : Ext X (Y₁ ⊞ Y₂) n ≃+ Ext X Y₁ n × Ext X Y₂ n where
   toFun e := ⟨e.comp (mk₀ biprod.fst) (add_zero n), e.comp (mk₀ biprod.snd) (add_zero n)⟩
   invFun e := e.1.comp (mk₀ biprod.inl) (add_zero n) + e.2.comp (mk₀ biprod.inr) (add_zero n)
   left_inv e := by
-    simp only [comp_assoc_of_second_deg_zero, mk₀_comp_mk₀, ← comp_add, ← mk₀_add,
-      biprod.total, comp_mk₀_id]
+    simp only [
+      comp_assoc_of_second_deg_zero, mk₀_comp_mk₀, ← comp_add, ← mk₀_add, biprod.total, comp_mk₀_id
+    ]
   right_inv _ := by simp
   map_add' := by simp
 
@@ -537,8 +545,7 @@ namespace Ext
 variable [HasExt.{w'} C] {X Y : C} {n : ℕ}
 
 /-- Up to an equivalence, the type `Ext.{w} X Y n` does not depend on the universe `w`. -/
-noncomputable def chgUniv : Ext.{w} X Y n ≃ Ext.{w'} X Y n :=
-  SmallShiftedHom.chgUniv.{w', w}
+noncomputable def chgUniv : Ext.{w} X Y n ≃ Ext.{w'} X Y n := SmallShiftedHom.chgUniv.{w', w}
 
 lemma homEquiv_chgUniv [HasDerivedCategory.{w''} C] (e : Ext.{w} X Y n) :
     homEquiv.{w'', w'} (chgUniv.{w'} e) = homEquiv.{w'', w} e := by

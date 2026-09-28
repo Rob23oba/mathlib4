@@ -29,7 +29,6 @@ In the following, `*` can represent either `c`, `o`, or `i`.
 
 public section
 
-
 variable {α : Type*}
 
 namespace Set
@@ -49,7 +48,7 @@ protected lemma coe_inf [SemilatticeInf α] {a b : α} {x y : Ico a b} :
 
 /-- `Ico a b` has a bottom element whenever `a < b`. -/
 @[to_dual
-/-- `Ioc a b` has a top element whenever `a < b`. -/]
+  /-- `Ioc a b` has a top element whenever `a < b`. -/]
 instance orderBot [PartialOrder α] {a b : α} [Fact (a < b)] : OrderBot (Ico a b) :=
   (isLeast_Ico Fact.out).orderBot
 
@@ -98,8 +97,7 @@ protected lemma coe_sup [SemilatticeSup α] {x y : Iic a} :
     ↑(x ⊔ y) = (↑x ⊔ ↑y : α) :=
   rfl
 
-@[to_dual]
-instance [Lattice α] : Lattice (Iic a) where
+@[to_dual] instance [Lattice α] : Lattice (Iic a) where
 
 @[to_dual]
 instance [DistribLattice α] : DistribLattice (Iic a) where
@@ -126,8 +124,7 @@ instance orderBot [Preorder α] [OrderBot α] : OrderBot (Iic a) where
 @[to_dual (attr := simp, norm_cast)]
 protected lemma coe_bot [Preorder α] [OrderBot α] (a : α) : (⊥ : Iic a) = (⊥ : α) := rfl
 
-@[to_dual]
-instance [Preorder α] [OrderBot α] : BoundedOrder (Iic a) where
+@[to_dual] instance [Preorder α] [OrderBot α] : BoundedOrder (Iic a) where
 
 @[to_dual]
 protected lemma disjoint_iff [SemilatticeInf α] [OrderBot α] {x y : Iic a} :
@@ -172,9 +169,8 @@ instance lattice [Lattice α] : Lattice (Icc a b) where
 
 /-- `Icc a b` has a bottom element whenever `a ≤ b`. -/
 @[to_dual
-/-- `Icc a b` has a top element whenever `a ≤ b`. -/]
-instance [Preorder α] [Fact (a ≤ b)] : OrderBot (Icc a b) :=
-  (isLeast_Icc Fact.out).orderBot
+  /-- `Icc a b` has a top element whenever `a ≤ b`. -/]
+instance [Preorder α] [Fact (a ≤ b)] : OrderBot (Icc a b) := (isLeast_Icc Fact.out).orderBot
 
 @[to_dual (attr := simp, norm_cast)]
 protected lemma coe_bot [Preorder α] (a b : α) [Fact (a ≤ b)] : ↑(⊥ : Icc a b) = a := rfl

@@ -31,19 +31,26 @@ section HasZeroMorphisms
 
 namespace IsComplex
 
-variable {C : Type*} [Category C] [HasZeroMorphisms C] {n : ℕ} {S : ComposableArrows C (n + 3)}
-  (hS : S.IsComplex) (k : ℕ)
+variable
+  {C : Type*} [Category C] [HasZeroMorphisms C]
+  {n : ℕ} {S : ComposableArrows C (n + 3)} (hS : S.IsComplex)
+  (k : ℕ)
 
 section
 
-/-- If `S` is a complex, this is the morphism from a cokernel of `S.map' k (k + 1)`
-to a kernel of `S.map' (k + 2) (k + 3)`. -/
-def cokerToKer' (hk : k ≤ n) (cc : CokernelCofork (S.map' k (k + 1)))
-    (kf : KernelFork (S.map' (k + 2) (k + 3))) (hcc : IsColimit cc) (hkf : IsLimit kf) :
-    cc.pt ⟶ kf.pt :=
-  IsColimit.desc hcc (CokernelCofork.ofπ _
-    (show S.map' k (k + 1) ≫ IsLimit.lift hkf (KernelFork.ofι _ (hS.zero (k + 1))) = _ from
-      Fork.IsLimit.hom_ext hkf (by simpa using hS.zero k)))
+/--
+If `S` is a complex, this is the morphism from a cokernel of `S.map' k (k + 1)`
+to a kernel of `S.map' (k + 2) (k + 3)`.
+-/
+def cokerToKer'
+    (hk : k ≤ n)
+    (cc : CokernelCofork (S.map' k (k + 1))) (kf : KernelFork (S.map' (k + 2) (k + 3)))
+    (hcc : IsColimit cc) (hkf : IsLimit kf)
+    : cc.pt ⟶ kf.pt :=
+  IsColimit.desc hcc
+    (CokernelCofork.ofπ _
+      (show S.map' k (k + 1) ≫ IsLimit.lift hkf (KernelFork.ofι _ (hS.zero (k + 1))) = _ from
+        Fork.IsLimit.hom_ext hkf (by simpa using hS.zero k)))
 
 @[reassoc (attr := simp)]
 lemma cokerToKer'_fac (hk : k ≤ n) (cc : CokernelCofork (S.map' k (k + 1)))
@@ -56,11 +63,13 @@ end
 
 section
 
-/-- If `S` is a complex, this is the morphism from the cokernel of `S.map' k (k + 1)`
-to the kernel of `S.map' (k + 2) (k + 3)`. -/
-noncomputable def cokerToKer (hk : k ≤ n := by lia)
-    [HasCokernel (S.map' k (k + 1))] [HasKernel (S.map' (k + 2) (k + 3))] :
-    cokernel (S.map' k (k + 1)) ⟶ kernel (S.map' (k + 2) (k + 3)) :=
+/--
+If `S` is a complex, this is the morphism from the cokernel of `S.map' k (k + 1)`
+to the kernel of `S.map' (k + 2) (k + 3)`.
+-/
+noncomputable def cokerToKer
+    (hk : k ≤ n := by lia) [HasCokernel (S.map' k (k + 1))] [HasKernel (S.map' (k + 2) (k + 3))]
+    : cokernel (S.map' k (k + 1)) ⟶ kernel (S.map' (k + 2) (k + 3)) :=
   hS.cokerToKer' k hk (CokernelCofork.ofπ _ (cokernel.condition _))
     (KernelFork.ofι _ (kernel.condition _)) (cokernelIsCokernel _) (kernelIsKernel _)
 
@@ -74,13 +83,14 @@ end
 
 section
 
-/-- If `S` is a complex, this is the morphism from the opcycles of `S` in
-degree `k + 1` to the cycles of `S` in degree `k + 2`. -/
-noncomputable def opcyclesToCycles (hk : k ≤ n := by lia)
-    [(S.sc hS k).HasRightHomology] [(S.sc hS (k + 1)).HasLeftHomology] :
-    (S.sc hS k _).opcycles ⟶ (S.sc hS (k + 1) _).cycles :=
-  hS.cokerToKer' k hk _ _ (S.sc hS k _).opcyclesIsCokernel
-    (S.sc hS (k + 1) _).cyclesIsKernel
+/--
+If `S` is a complex, this is the morphism from the opcycles of `S` in
+degree `k + 1` to the cycles of `S` in degree `k + 2`.
+-/
+noncomputable def opcyclesToCycles
+    (hk : k ≤ n := by lia) [(S.sc hS k).HasRightHomology] [(S.sc hS (k + 1)).HasLeftHomology]
+    : (S.sc hS k _).opcycles ⟶ (S.sc hS (k + 1) _).cycles :=
+  hS.cokerToKer' k hk _ _ (S.sc hS k _).opcyclesIsCokernel (S.sc hS (k + 1) _).cyclesIsKernel
 
 @[reassoc (attr := simp)]
 lemma opcyclesToCycles_fac (hk : k ≤ n := by lia)
@@ -102,9 +112,10 @@ variable {C : Type*} [Category C] [Preadditive C] {n : ℕ} {S : ComposableArrow
 
 namespace IsComplex
 
-variable (hS : S.IsComplex) (k : ℕ) (hk : k ≤ n)
-  (cc : CokernelCofork (S.map' k (k + 1))) (kf : KernelFork (S.map' (k + 2) (k + 3)))
-  (hcc : IsColimit cc) (hkf : IsLimit kf)
+variable
+  (hS : S.IsComplex)
+  (k : ℕ) (hk : k ≤ n) (cc : CokernelCofork (S.map' k (k + 1)))
+  (kf : KernelFork (S.map' (k + 2) (k + 3))) (hcc : IsColimit cc) (hkf : IsLimit kf)
 
 set_option backward.isDefEq.respectTransparency false in
 lemma epi_cokerToKer' (hS' : (S.sc hS (k + 1)).Exact) :
@@ -136,35 +147,37 @@ end Preadditive
 
 section Balanced
 
-variable {C : Type*} [Category C] [Preadditive C] [Balanced C] {n : ℕ}
-  {S : ComposableArrows C (n + 3)} (hS : S.Exact)
+variable
+  {C : Type*} [Category C] [Preadditive C] [Balanced C]
+  {n : ℕ} {S : ComposableArrows C (n + 3)} (hS : S.Exact)
 
 namespace Exact
 
 section
 
-variable (k : ℕ) (hk : k ≤ n)
-  (cc : CokernelCofork (S.map' k (k + 1))) (kf : KernelFork (S.map' (k + 2) (k + 3)))
-  (hcc : IsColimit cc) (hkf : IsLimit kf)
+variable
+  (k : ℕ) (hk : k ≤ n) (cc : CokernelCofork (S.map' k (k + 1)))
+  (kf : KernelFork (S.map' (k + 2) (k + 3))) (hcc : IsColimit cc) (hkf : IsLimit kf)
 
-/-- If `S` is an exact sequence, this is the morphism from a cokernel
-of `S.map' k (k + 1)` to a kernel of `S.map' (k + 2) (k + 3)`. -/
-abbrev cokerToKer' : cc.pt ⟶ kf.pt :=
-  hS.toIsComplex.cokerToKer' k hk cc kf hcc hkf
+/--
+If `S` is an exact sequence, this is the morphism from a cokernel
+of `S.map' k (k + 1)` to a kernel of `S.map' (k + 2) (k + 3)`.
+-/
+abbrev cokerToKer' : cc.pt ⟶ kf.pt := hS.toIsComplex.cokerToKer' k hk cc kf hcc hkf
 
 instance isIso_cokerToKer' : IsIso (hS.cokerToKer' k hk cc kf hcc hkf) := by
   have : Mono (hS.cokerToKer' k hk cc kf hcc hkf) :=
-      hS.toIsComplex.mono_cokerToKer' k hk cc kf hcc hkf
-    (hS.exact k)
+    hS.toIsComplex.mono_cokerToKer' k hk cc kf hcc hkf (hS.exact k)
   have : Epi (hS.cokerToKer' k hk cc kf hcc hkf) :=
     hS.epi_cokerToKer' k hk cc kf hcc hkf (hS.exact (k + 1))
   apply isIso_of_mono_of_epi
 
-/-- If `S` is an exact sequence, this is the isomorphism from a cokernel
-of `S.map' k (k + 1)` to a kernel of `S.map' (k + 2) (k + 3)`. -/
+/--
+If `S` is an exact sequence, this is the isomorphism from a cokernel
+of `S.map' k (k + 1)` to a kernel of `S.map' (k + 2) (k + 3)`.
+-/
 @[simps! hom]
-noncomputable def cokerIsoKer' : cc.pt ≅ kf.pt :=
-  asIso (hS.cokerToKer' k hk cc kf hcc hkf)
+noncomputable def cokerIsoKer' : cc.pt ≅ kf.pt := asIso (hS.cokerToKer' k hk cc kf hcc hkf)
 
 @[reassoc (attr := simp)]
 lemma cokerIsoKer'_hom_inv_id :
@@ -180,11 +193,14 @@ end
 
 section
 
-/-- If `S` is an exact sequence, this is the isomorphism from the cokernel
-of `S.map' k (k + 1)` to the kernel of `S.map' (k + 2) (k + 3)`. -/
-noncomputable def cokerIsoKer (k : ℕ) (hk : k ≤ n := by lia)
-  [HasCokernel (S.map' k (k + 1))] [HasKernel (S.map' (k + 2) (k + 3))] :
-    cokernel (S.map' k (k + 1) _ _) ≅ kernel (S.map' (k + 2) (k + 3) _ _) :=
+/--
+If `S` is an exact sequence, this is the isomorphism from the cokernel
+of `S.map' k (k + 1)` to the kernel of `S.map' (k + 2) (k + 3)`.
+-/
+noncomputable def cokerIsoKer
+    (k : ℕ) (hk : k ≤ n := by lia)
+    [HasCokernel (S.map' k (k + 1))] [HasKernel (S.map' (k + 2) (k + 3))]
+    : cokernel (S.map' k (k + 1) _ _) ≅ kernel (S.map' (k + 2) (k + 3) _ _) :=
   hS.cokerIsoKer' k hk (CokernelCofork.ofπ _ (cokernel.condition _))
     (KernelFork.ofι _ (kernel.condition _)) (cokernelIsCokernel _) (kernelIsKernel _)
 
@@ -198,11 +214,14 @@ end
 
 section
 
-/-- If `S` is an exact sequence, this is the isomorphism from the opcycles of `S` in
-degree `k + 1` to the cycles of `S` in degree `k + 2`. -/
-noncomputable def opcyclesIsoCycles (k : ℕ) (hk : k ≤ n := by lia)
-    [h₁ : (hS.sc k).HasRightHomology] [h₂ : (hS.sc (k + 1)).HasLeftHomology] :
-    (hS.sc k _).opcycles ≅ (hS.sc (k + 1) _).cycles :=
+/--
+If `S` is an exact sequence, this is the isomorphism from the opcycles of `S` in
+degree `k + 1` to the cycles of `S` in degree `k + 2`.
+-/
+noncomputable def opcyclesIsoCycles
+    (k : ℕ) (hk : k ≤ n := by lia)
+    [h₁ : (hS.sc k).HasRightHomology] [h₂ : (hS.sc (k + 1)).HasLeftHomology]
+    : (hS.sc k _).opcycles ≅ (hS.sc (k + 1) _).cycles :=
   hS.cokerIsoKer' k hk _ _ (hS.sc k _).opcyclesIsCokernel (hS.sc (k + 1) _).cyclesIsKernel
 
 @[reassoc (attr := simp)]

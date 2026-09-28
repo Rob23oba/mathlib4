@@ -29,8 +29,10 @@ variable {C : Type u} [Category.{v} C] {κ : Cardinal.{w}} [Fact κ.IsRegular]
 
 namespace ObjectProperty.IsCardinalFilteredGenerator
 
-variable [LocallySmall.{w} C] {P : ObjectProperty C} [ObjectProperty.EssentiallySmall.{w} P]
-    (hP : P.IsCardinalFilteredGenerator κ)
+variable
+  [LocallySmall.{w} C]
+  {P : ObjectProperty C} [ObjectProperty.EssentiallySmall.{w} P]
+  (hP : P.IsCardinalFilteredGenerator κ)
 
 include hP in
 lemma essentiallyLarge_top :

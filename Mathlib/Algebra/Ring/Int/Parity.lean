@@ -110,11 +110,9 @@ lemma add_one_ediv_two_mul_two_of_odd : Odd n → 1 + n / 2 * 2 = n := by grind
 
 lemma two_mul_ediv_two_of_odd (h : Odd n) : 2 * (n / 2) = n - 1 := by grind
 
-@[simp]
-theorem even_sign_iff {z : ℤ} : Even z.sign ↔ z = 0 := by grind
+@[simp] theorem even_sign_iff {z : ℤ} : Even z.sign ↔ z = 0 := by grind
 
-@[simp]
-theorem odd_sign_iff {z : ℤ} : Odd z.sign ↔ z ≠ 0 := by grind
+@[simp] theorem odd_sign_iff {z : ℤ} : Odd z.sign ↔ z ≠ 0 := by grind
 
 @[norm_cast, simp]
 theorem isSquare_natCast_iff {n : ℕ} : IsSquare (n : ℤ) ↔ IsSquare n := by
@@ -123,8 +121,7 @@ theorem isSquare_natCast_iff {n : ℕ} : IsSquare (n : ℤ) ↔ IsSquare n := by
   · exact ⟨x, mod_cast h⟩
 
 @[simp]
-theorem isSquare_ofNat_iff {n : ℕ} :
-    IsSquare (ofNat(n) : ℤ) ↔ IsSquare (ofNat(n) : ℕ) :=
+theorem isSquare_ofNat_iff {n : ℕ} : IsSquare (ofNat(n) : ℤ) ↔ IsSquare (ofNat(n) : ℕ) :=
   isSquare_natCast_iff
 
 -- These next two don't make good `norm_cast` lemmas.
@@ -138,8 +135,7 @@ theorem coe_nat_two_pow_pred (p : ℕ) : ((2 ^ p - 1 : ℕ) : ℤ) = (2 ^ p - 1 
 lemma sq_emod_four (b : ℤ) : b ^ 2 % 4 = b % 2 := by
   rcases even_or_odd' b with ⟨k, rfl | rfl⟩ <;> grind
 
-theorem sq_emod_four_eq_one_of_odd {x : ℤ} (hx : Odd x) : x ^ 2 % 4 = 1 := by
-  grind [sq_emod_four]
+theorem sq_emod_four_eq_one_of_odd {x : ℤ} (hx : Odd x) : x ^ 2 % 4 = 1 := by grind [sq_emod_four]
 
 lemma eight_dvd_sq_sub_one_of_odd {k : ℤ} (hk : Odd k) : 8 ∣ k ^ 2 - 1 := by
   obtain ⟨m, rfl⟩ := hk
@@ -152,7 +148,7 @@ section DivisionMonoid
 
 variable {α : Type*} [DivisionMonoid α] [HasDistribNeg α] {n : ℤ}
 
-theorem Odd.neg_zpow (h : Odd n) (a : α) : (-a) ^ n = -a ^ n := by
+theorem Odd.neg_zpow (h : Odd n) (a : α) : (-a) ^ n = - a ^ n := by
   obtain ⟨k, rfl⟩ := h
   cases k with
   | ofNat k =>

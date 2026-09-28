@@ -50,8 +50,7 @@ end Asymmetric
 
 section Symmetric
 
-variable {α : Type*} [AddCommGroup α] [PartialOrder α] [IsOrderedAddMonoid α]
-  [LocallyFiniteOrder α]
+variable {α : Type*} [AddCommGroup α] [PartialOrder α] [IsOrderedAddMonoid α] [LocallyFiniteOrder α]
 
 lemma tendsto_Icc_neg_atTop_atTop :
     Tendsto (fun a : α ↦ Icc (-a) a) atTop atTop :=
@@ -73,8 +72,8 @@ end Symmetric
 
 section NatCast
 
-variable {R : Type*} [Ring R] [PartialOrder R] [IsOrderedRing R] [LocallyFiniteOrder R]
-  [Archimedean R]
+variable
+  {R : Type*} [Ring R] [PartialOrder R] [IsOrderedRing R] [LocallyFiniteOrder R] [Archimedean R]
 
 lemma tendsto_Icc_neg :
     Tendsto (fun n : ℕ ↦ Icc (-n : R) n) atTop atTop :=

@@ -58,16 +58,21 @@ namespace MeasureTheory
 
 variable {α : Type*} {C : Set (Set α)} {s t : Set α}
 
-/-- A semi-ring of sets `C` is a family of sets containing `∅`, stable by intersection and such that
-for all `s, t ∈ C`, `s \ t` is equal to a disjoint union of finitely many sets in `C`. -/
+/--
+A semi-ring of sets `C` is a family of sets containing `∅`, stable by intersection and such that
+for all `s, t ∈ C`, `s \ t` is equal to a disjoint union of finitely many sets in `C`.
+-/
 structure IsSetSemiring (C : Set (Set α)) : Prop where
   empty_mem : ∅ ∈ C
   inter_mem : ∀ s ∈ C, ∀ t ∈ C, s ∩ t ∈ C
-  sdiff_eq_sUnion' : ∀ s ∈ C, ∀ t ∈ C,
-    ∃ I : Finset (Set α), ↑I ⊆ C ∧ PairwiseDisjoint (I : Set (Set α)) id ∧ s \ t = ⋃₀ I
+  sdiff_eq_sUnion'
+    : ∀ s ∈ C, ∀ t ∈ C, ∃ I : Finset (Set α),
+      ↑I ⊆ C ∧ PairwiseDisjoint (I : Set (Set α)) id ∧ s \ t = ⋃₀I
 
-/-- A ring of sets `C` is a family of sets containing `∅`, stable by union and set difference.
-It is then also stable by intersection (see `IsSetRing.inter_mem`). -/
+/--
+A ring of sets `C` is a family of sets containing `∅`, stable by union and set difference.
+It is then also stable by intersection (see `IsSetRing.inter_mem`).
+-/
 structure IsSetRing (C : Set (Set α)) : Prop where
   empty_mem : ∅ ∈ C
   union_mem ⦃s t : Set α⦄ : s ∈ C → t ∈ C → s ∪ t ∈ C
@@ -126,20 +131,20 @@ lemma disjointed_mem {ι : Type*} [Preorder ι] [LocallyFiniteOrderBot ι]
     disjointed s i ∈ C :=
   disjointedRec (fun _ j ht ↦ hC.sdiff_mem ht <| hs j) (hs i)
 
-theorem iUnion_le_mem (hC : IsSetRing C) {s : ℕ → Set α} (hs : ∀ n, s n ∈ C) (n : ℕ) :
-    (⋃ i ≤ n, s i) ∈ C := by
+theorem iUnion_le_mem (hC : IsSetRing C) {s : ℕ → Set α} (hs : ∀ n, s n ∈ C) (n : ℕ)
+    : (⋃ i ≤ n, s i) ∈ C := by
   induction n with
   | zero => simp [hs 0]
   | succ n hn => rw [biUnion_le_succ]; exact hC.union_mem hn (hs _)
 
-theorem iInter_le_mem (hC : IsSetRing C) {s : ℕ → Set α} (hs : ∀ n, s n ∈ C) (n : ℕ) :
-    (⋂ i ≤ n, s i) ∈ C := by
+theorem iInter_le_mem (hC : IsSetRing C) {s : ℕ → Set α} (hs : ∀ n, s n ∈ C) (n : ℕ)
+    : (⋂ i ≤ n, s i) ∈ C := by
   induction n with
   | zero => simp [hs 0]
   | succ n hn => rw [biInter_le_succ]; exact hC.inter_mem hn (hs _)
 
-theorem accumulate_mem (hC : IsSetRing C) {s : ℕ → Set α} (hs : ∀ i, s i ∈ C) (n : ℕ) :
-    accumulate s n ∈ C := by
+theorem accumulate_mem (hC : IsSetRing C) {s : ℕ → Set α} (hs : ∀ i, s i ∈ C) (n : ℕ)
+    : accumulate s n ∈ C := by
   induction n with
   | zero => simp [hs 0]
   | succ n hn => rw [accumulate_succ]; exact hC.union_mem hn (hs _)
@@ -150,8 +155,8 @@ namespace IsSetSemiring
 
 lemma isPiSystem (hC : IsSetSemiring C) : IsPiSystem C := fun s hs t ht _ ↦ hC.inter_mem s hs t ht
 
-theorem exists_finpartition_sdiff (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C) :
-    ∃ P : Finpartition (s \ t), ↑P.parts ⊆ C := by
+theorem exists_finpartition_sdiff (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C)
+    : ∃ P : Finpartition (s \ t), ↑P.parts ⊆ C := by
   obtain ⟨I, hIC, hI, hst⟩ := hC.sdiff_eq_sUnion' s hs t ht
   refine ⟨.ofErase I (supIndep_iff_pairwiseDisjoint.mpr hI) ?_, ?_⟩
   · rw [sup_id_eq_sSup, sSup_eq_sUnion, hst]
@@ -159,8 +164,8 @@ theorem exists_finpartition_sdiff (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t 
 
 @[deprecated (since := "2026-06-03")] alias exists_finpartition_diff := exists_finpartition_sdiff
 
-theorem mem_supClosure_iff (hC : IsSetSemiring C) :
-    s ∈ supClosure C ↔ ∃ P : Finpartition s, ↑P.parts ⊆ C where
+theorem mem_supClosure_iff (hC : IsSetSemiring C)
+    : s ∈ supClosure C ↔ ∃ P : Finpartition s, ↑P.parts ⊆ C where
   mp := by
     rintro ⟨S, hS, hSC, rfl⟩
     rw [sup'_eq_sup]
@@ -181,19 +186,19 @@ theorem mem_supClosure_iff (hC : IsSetSemiring C) :
         rintro _ ⟨t, ht, -, rfl⟩
         exact hC.exists_finpartition_sdiff (hP ht) hsC
       exists P.avoid s |>.bind Q |>.extend hs disjoint_sdiff_left (sdiff_sup_self _ _)
-      rw [Finpartition.extend_parts, coe_insert, insert_subset_iff, Finpartition.bind_parts,
-        coe_biUnion, iUnion₂_subset_iff, Subtype.forall]
+      rw [
+        Finpartition.extend_parts, coe_insert, insert_subset_iff, Finpartition.bind_parts,
+        coe_biUnion, iUnion₂_subset_iff, Subtype.forall
+      ]
       exact ⟨hsC, fun t ht _ => hQ t ht⟩
   mpr := by
     intro ⟨P, hP⟩
     rw [← P.sup_parts, sup_id_set_eq_sUnion]
-    exact supClosed_supClosure.sSup_mem
-      (Finset.finite_toSet _)
-      (subset_supClosure hC.empty_mem)
+    exact supClosed_supClosure.sSup_mem (Finset.finite_toSet _) (subset_supClosure hC.empty_mem)
       (hP.trans subset_supClosure)
 
-theorem sdiff_mem_supClosure (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C) :
-    s \ t ∈ supClosure C :=
+theorem sdiff_mem_supClosure (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C)
+    : s \ t ∈ supClosure C :=
   hC.mem_supClosure_iff.mpr <| hC.exists_finpartition_sdiff hs ht
 
 @[deprecated (since := "2026-06-03")] alias diff_mem_supClosure := sdiff_mem_supClosure
@@ -206,7 +211,8 @@ theorem isSetRing_supClosure (hC : IsSetSemiring C) : IsSetRing (supClosure C) w
     rw [sup'_eq_sup]
     clear hT
     induction T using Finset.induction generalizing s with
-    | empty => simpa
+    | empty =>
+      simpa
     | insert t T _ ih =>
       simp_rw [sup_insert, id, sup_eq_union, ← sdiff_sdiff]
       rw [coe_insert, insert_subset_iff] at hTC
@@ -219,13 +225,15 @@ theorem isSetRing_supClosure (hC : IsSetSemiring C) : IsSetRing (supClosure C) w
 
 section disjointOfDiff
 
-/-- In a semi-ring of sets `C`, for all sets `s, t ∈ C`, `s \ t` is equal to a disjoint union of
+/--
+In a semi-ring of sets `C`, for all sets `s, t ∈ C`, `s \ t` is equal to a disjoint union of
 finitely many sets in `C`. The finite set of sets in the union is not unique, but this definition
 gives an arbitrary `Finset (Set α)` that satisfies the equality.
 
-We remove the empty set to ensure that `t ∉ hC.disjointOfDiff hs ht` even if `t = ∅`. -/
-noncomputable def disjointOfDiff (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C) :
-    Finset (Set α) :=
+We remove the empty set to ensure that `t ∉ hC.disjointOfDiff hs ht` even if `t = ∅`.
+-/
+noncomputable def disjointOfDiff (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C)
+    : Finset (Set α) :=
   (hC.exists_finpartition_sdiff hs ht).choose.parts
 
 lemma empty_notMem_disjointOfDiff (hC : IsSetSemiring C) (hs : s ∈ C) (ht : t ∈ C) :
@@ -276,19 +284,21 @@ section disjointOfDiffUnion
 
 variable {I : Finset (Set α)}
 
-private theorem exists_finpartition_sdiff_sUnion (hC : IsSetSemiring C) (hs : s ∈ C) (hI : ↑I ⊆ C) :
-    ∃ P : Finpartition (s \ ⋃₀ I), ↑P.parts ⊆ C := by
+private theorem exists_finpartition_sdiff_sUnion (hC : IsSetSemiring C) (hs : s ∈ C) (hI : ↑I ⊆ C)
+    : ∃ P : Finpartition (s \ ⋃₀I), ↑P.parts ⊆ C := by
   rw [← hC.mem_supClosure_iff, ← sSup_eq_sUnion, ← sup_id_eq_sSup]
   have hC' := hC.isSetRing_supClosure
   exact hC'.sdiff_mem (subset_supClosure hs) <| hC'.finsetSup_mem <| hI.trans subset_supClosure
 
-/-- In a semiring of sets `C`, for all set `s ∈ C` and finite set of sets `I ⊆ C`,
+/--
+In a semiring of sets `C`, for all set `s ∈ C` and finite set of sets `I ⊆ C`,
 `disjointOfDiffUnion` is a finite set of sets in `C` such that
 `s \ ⋃₀ I = ⋃₀ (hC.disjointOfDiffUnion hs I hI)`.
 `disjointOfDiff` is a special case of `disjointOfDiffUnion` where `I` is a
-singleton. -/
-noncomputable def disjointOfDiffUnion (hC : IsSetSemiring C) (hs : s ∈ C) (hI : ↑I ⊆ C) :
-    Finset (Set α) :=
+singleton.
+-/
+noncomputable def disjointOfDiffUnion (hC : IsSetSemiring C) (hs : s ∈ C) (hI : ↑I ⊆ C)
+    : Finset (Set α) :=
   (hC.exists_finpartition_sdiff_sUnion hs hI).choose.parts
 
 lemma empty_notMem_disjointOfDiffUnion (hC : IsSetSemiring C) (hs : s ∈ C)
@@ -386,28 +396,29 @@ end disjointOfDiffUnion
 
 section disjointOfUnion
 
-
 variable {j : Set α} {J : Finset (Set α)}
 
 open MeasureTheory Order
 
-private theorem exists_partition_disjointed (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) (j : J) :
-    ∃ P : Finpartition (disjointed (fun i ↦ (J.equivFin.symm i : Set α)) (J.equivFin j)),
+private theorem exists_partition_disjointed (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) (j : J)
+    : ∃ P : Finpartition (disjointed (fun i ↦ (J.equivFin.symm i : Set α)) (J.equivFin j)),
       ↑P.parts ⊆ C :=
   hC.mem_supClosure_iff.mp <|
     hC.isSetRing_supClosure.disjointed_mem (fun _ ↦ subset_supClosure (hJ (Subtype.coe_prop _))) _
 
-/-- For some `hJ : J ⊆ C` and `j : Set α`, where `hC : IsSetSemiring C`, this is
+/--
+For some `hJ : J ⊆ C` and `j : Set α`, where `hC : IsSetSemiring C`, this is
 a `Finset (Set α)` such that `K j := hC.disjointOfUnion hJ` are disjoint
 and `⋃₀ K j ⊆ j`, for `j ∈ J`.
 Using these we write `⋃₀ J` as a disjoint union `⋃₀ J = ⋃₀ ⋃ x ∈ J, (K x)`.
-See `MeasureTheory.IsSetSemiring.disjointOfUnion_props`. -/
-noncomputable def disjointOfUnion (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) (j : Set α) :
-    Finset (Set α) :=
+See `MeasureTheory.IsSetSemiring.disjointOfUnion_props`.
+-/
+noncomputable def disjointOfUnion (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) (j : Set α)
+    : Finset (Set α) :=
   if hj : j ∈ J then (hC.exists_partition_disjointed hJ ⟨j, hj⟩).choose.parts else ∅
 
-private theorem disjointOfUnion_coe (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) (j : J) :
-    hC.disjointOfUnion hJ j = (hC.exists_partition_disjointed hJ j).choose.parts := by
+private theorem disjointOfUnion_coe (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) (j : J)
+    : hC.disjointOfUnion hJ j = (hC.exists_partition_disjointed hJ j).choose.parts := by
   rw [disjointOfUnion, dite_eq_left j.2]
 
 lemma pairwiseDisjoint_disjointOfUnion (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) :
@@ -462,21 +473,19 @@ lemma sUnion_disjointOfUnion (hC : IsSetSemiring C) (hJ : ↑J ⊆ C) :
     ← Finset.sup_id_set_eq_sUnion, Finpartition.sup_parts, J.equivFin.surjective.iSup_comp,
     iSup_disjointed, J.equivFin.symm.surjective.iSup_comp, iSup_subtype, Finset.sup_eq_iSup, id]
 
-theorem disjointOfUnion_props (hC : IsSetSemiring C) (h1 : ↑J ⊆ C) :
-    ∃ K : Set α → Finset (Set α),
-      PairwiseDisjoint J K
-      ∧ (∀ i ∈ J, ↑(K i) ⊆ C)
-      ∧ PairwiseDisjoint (⋃ x ∈ J, (K x : Set (Set α))) id
-      ∧ (∀ j ∈ J, ⋃₀ K j ⊆ j)
-      ∧ (∀ j ∈ J, ∅ ∉ K j)
-      ∧ ⋃₀ J = ⋃₀ (⋃ x ∈ J, (K x : Set (Set α))) :=
-  ⟨hC.disjointOfUnion h1,
-   hC.pairwiseDisjoint_disjointOfUnion h1,
-   fun _ ↦ hC.disjointOfUnion_subset h1,
-   hC.pairwiseDisjoint_biUnion_disjointOfUnion h1,
-   fun _ ↦ hC.disjointOfUnion_subset_of_mem h1,
-   fun _ ↦ hC.empty_notMem_disjointOfUnion h1,
-   (hC.sUnion_disjointOfUnion h1).symm⟩
+theorem disjointOfUnion_props (hC : IsSetSemiring C) (h1 : ↑J ⊆ C)
+    : ∃ K : Set α → Finset (Set α),
+      PairwiseDisjoint J K ∧ (∀ i ∈ J, ↑(K i) ⊆ C)
+        ∧ PairwiseDisjoint (⋃ x ∈ J, (K x : Set (Set α))) id ∧ (∀ j ∈ J, ⋃₀ K j ⊆ j)
+        ∧ (∀ j ∈ J, ∅ ∉ K j) ∧ ⋃₀J = ⋃₀(⋃ x ∈ J, (K x : Set (Set α))) := ⟨
+  hC.disjointOfUnion h1,
+  hC.pairwiseDisjoint_disjointOfUnion h1,
+  fun _ ↦ hC.disjointOfUnion_subset h1,
+  hC.pairwiseDisjoint_biUnion_disjointOfUnion h1,
+  fun _ ↦ hC.disjointOfUnion_subset_of_mem h1,
+  fun _ ↦ hC.empty_notMem_disjointOfUnion h1,
+  (hC.sUnion_disjointOfUnion h1).symm
+⟩
 
 end disjointOfUnion
 

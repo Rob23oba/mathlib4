@@ -37,20 +37,24 @@ open Abelian Limits ZeroObject
 
 variable {C : Type u} [Category.{v} C] [Abelian C]
 
-/-- An object `X` in an abelian category has Injective dimension `< n` if
+/--
+An object `X` in an abelian category has Injective dimension `< n` if
 all `Ext X Y i` vanish when `n ≤ i`. See also `HasInjectiveDimensionLE`.
 (Do not use the `subsingleton'` field directly. Use the constructor
 `HasInjectiveDimensionLT.mk`, and the lemmas `hasInjectiveDimensionLT_iff` and
-`Ext.eq_zero_of_hasInjectiveDimensionLT`.) -/
-class HasInjectiveDimensionLT (X : C) (n : ℕ) : Prop where mk' ::
-  subsingleton' (i : ℕ) (hi : n ≤ i) ⦃Y : C⦄ :
-    letI := HasExt.standard C
-    Subsingleton (Ext.{max u v} Y X i)
+`Ext.eq_zero_of_hasInjectiveDimensionLT`.)
+-/
+class HasInjectiveDimensionLT (X : C) (n : ℕ) : Prop where
+  mk' ::
+  subsingleton' (i : ℕ) (hi : n ≤ i) ⦃Y : C⦄
+    : letI := HasExt.standard C
+      Subsingleton (Ext.{max u v} Y X i)
 
-/-- An object `X` in an abelian category has Injective dimension `≤ n` if
-all `Ext X Y i` vanish when `n + 1 ≤ i` -/
-abbrev HasInjectiveDimensionLE (X : C) (n : ℕ) : Prop :=
-  HasInjectiveDimensionLT X (n + 1)
+/--
+An object `X` in an abelian category has Injective dimension `≤ n` if
+all `Ext X Y i` vanish when `n + 1 ≤ i`
+-/
+abbrev HasInjectiveDimensionLE (X : C) (n : ℕ) : Prop := HasInjectiveDimensionLT X (n + 1)
 
 namespace HasInjectiveDimensionLT
 
@@ -95,8 +99,7 @@ lemma Limits.IsZero.hasInjectiveDimensionLT_zero (hX : IsZero X) :
   intro i hi Y e
   rw [← e.comp_mk₀_id, hX.eq_zero_of_tgt (𝟙 X), Ext.mk₀_zero, Ext.comp_zero]
 
-instance : HasInjectiveDimensionLT (0 : C) 0 :=
-  (isZero_zero C).hasInjectiveDimensionLT_zero
+instance : HasInjectiveDimensionLT (0 : C) 0 := (isZero_zero C).hasInjectiveDimensionLT_zero
 
 lemma isZero_of_hasInjectiveDimensionLT_zero [HasInjectiveDimensionLT X 0] : IsZero X := by
   let := HasExt.standard C
@@ -116,16 +119,13 @@ lemma hasInjectiveDimensionLT_of_ge (m : ℕ) (h : n ≤ m)
   intro i hi Y e
   exact e.eq_zero_of_hasInjectiveDimensionLT n (by lia)
 
-instance [HasInjectiveDimensionLT X n] (k : ℕ) :
-    HasInjectiveDimensionLT X (n + k) :=
+instance [HasInjectiveDimensionLT X n] (k : ℕ) : HasInjectiveDimensionLT X (n + k) :=
   hasInjectiveDimensionLT_of_ge X n (n + k) (by lia)
 
-instance [HasInjectiveDimensionLT X n] (k : ℕ) :
-    HasInjectiveDimensionLT X (k + n) :=
+instance [HasInjectiveDimensionLT X n] (k : ℕ) : HasInjectiveDimensionLT X (k + n) :=
   hasInjectiveDimensionLT_of_ge X n (k + n) (by lia)
 
-instance [HasInjectiveDimensionLT X n] :
-    HasInjectiveDimensionLT X n.succ :=
+instance [HasInjectiveDimensionLT X n] : HasInjectiveDimensionLT X n.succ :=
   inferInstanceAs (HasInjectiveDimensionLT X (n + 1))
 
 instance [Injective X] : HasInjectiveDimensionLT X 1 := by
@@ -226,9 +226,8 @@ end ShortExact
 
 end ShortComplex
 
-instance (X Y : C) (n : ℕ) [HasInjectiveDimensionLT X n]
-    [HasInjectiveDimensionLT Y n] :
-    HasInjectiveDimensionLT (X ⊞ Y) n :=
+instance (X Y : C) (n : ℕ) [HasInjectiveDimensionLT X n] [HasInjectiveDimensionLT Y n]
+    : HasInjectiveDimensionLT (X ⊞ Y) n :=
   (ShortComplex.Splitting.ofHasBinaryBiproduct X Y).shortExact.hasInjectiveDimensionLT_X₂ n ‹_› ‹_›
 
 lemma hasInjectiveDimensionLT_of_enoughProjectives [HasExt.{w} C] [EnoughProjectives C] (X : C)

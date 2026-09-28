@@ -66,11 +66,14 @@ then an `InnerProductSpace` over `ℂ`.
 
 open scoped ComplexOrder RightActions
 
-/-- A *Hilbert C⋆-module* is a complex module `E` endowed with a right `A`-module structure
+/--
+A *Hilbert C⋆-module* is a complex module `E` endowed with a right `A`-module structure
 (where `A` is typically a C⋆-algebra) and an inner product `⟪x, y⟫_A` which satisfies the
-following properties. -/
-class CStarModule (A E : Type*) [NonUnitalSemiring A] [StarRing A]
-    [Module ℂ A] [AddCommGroup E] [Module ℂ E] [PartialOrder A] [SMul A E] [Norm A] [Norm E]
+following properties.
+-/
+class CStarModule
+    (A E : Type*) [NonUnitalSemiring A] [StarRing A] [Module ℂ A] [AddCommGroup E] [Module ℂ E]
+    [PartialOrder A] [SMul A E] [Norm A] [Norm E]
     extends Inner A E where
   inner_add_right {x} {y} {z} : inner x (y + z) = inner x y + inner x z
   inner_self_nonneg {x} : 0 ≤ inner x x
@@ -78,17 +81,19 @@ class CStarModule (A E : Type*) [NonUnitalSemiring A] [StarRing A]
   inner_op_smul_right {a : A} {x y : E} : inner x (a • y) = a * inner x y
   inner_smul_right_complex {z : ℂ} {x} {y} : inner x (z • y) = z • inner x y
   star_inner x y : star (inner x y) = inner y x
-  norm_eq_sqrt_norm_inner_self x : ‖x‖ = √‖inner x x‖
+  norm_eq_sqrt_norm_inner_self x : ‖x‖ = √ ‖inner x x‖
 
-attribute [simp] CStarModule.inner_add_right CStarModule.star_inner
-  CStarModule.inner_op_smul_right CStarModule.inner_smul_right_complex
+attribute [simp]
+  CStarModule.inner_add_right CStarModule.star_inner CStarModule.inner_op_smul_right
+  CStarModule.inner_smul_right_complex
 
 namespace CStarModule
 
 section general
 
-variable {A E : Type*} [NonUnitalRing A] [StarRing A] [AddCommGroup E] [Module ℂ A]
-  [Module ℂ E] [PartialOrder A] [SMul A E] [Norm A] [Norm E] [CStarModule A E]
+variable
+  {A E : Type*} [NonUnitalRing A] [StarRing A] [AddCommGroup E] [Module ℂ A] [Module ℂ E]
+  [PartialOrder A] [SMul A E] [Norm A] [Norm E] [CStarModule A E]
 
 local notation "⟪" x ", " y "⟫" => inner A x y
 
@@ -124,9 +129,11 @@ lemma inner_smul_right_real {z : ℝ} {x y : E} : ⟪x, z • y⟫ = z • ⟪x,
 
 /-- The function `⟨x, y⟩ ↦ ⟪x, y⟫` bundled as a sesquilinear map. -/
 def innerₛₗ : E →ₗ⋆[ℂ] E →ₗ[ℂ] A where
-  toFun x := { toFun := fun y => ⟪x, y⟫
-               map_add' := fun z y => by simp
-               map_smul' := fun z y => by simp }
+  toFun x := {
+    toFun := fun y => ⟪x, y⟫
+    map_add' := fun z y => by simp
+    map_smul' := fun z y => by simp
+  }
   map_add' z y := by ext; simp
   map_smul' z y := by ext; simp
 
@@ -160,17 +167,20 @@ end general
 
 section norm
 
-variable {A E : Type*} [NonUnitalCStarAlgebra A] [PartialOrder A] [AddCommGroup E]
-  [Module ℂ E] [SMul A E] [Norm E] [CStarModule A E]
+variable
+  {A E : Type*} [NonUnitalCStarAlgebra A] [PartialOrder A] [AddCommGroup E] [Module ℂ E] [SMul A E]
+  [Norm E] [CStarModule A E]
 
 local notation "⟪" x ", " y "⟫" => inner A x y
 
 open scoped InnerProductSpace in
-/-- The norm associated with a Hilbert C⋆-module. It is not registered as a norm, since a type
-might already have a norm defined on it. -/
+/--
+The norm associated with a Hilbert C⋆-module. It is not registered as a norm, since a type
+might already have a norm defined on it.
+-/
 @[instance_reducible]
 noncomputable def norm (A : Type*) {E : Type*} [Norm A] [Inner A E] : Norm E where
-  norm x := √‖⟪x, x⟫_A‖
+  norm x := √ ‖⟪x, x⟫_A‖
 
 section
 include A
@@ -270,8 +280,10 @@ lemma normedSpaceCore : NormedSpace.Core ℂ E where
   norm_triangle x y := CStarModule.norm_triangle A x y
 
 variable (A) in
-/-- This is not listed as an instance because we often want to replace the topology, uniformity
-and bornology instead of inheriting them from the norm. -/
+/--
+This is not listed as an instance because we often want to replace the topology, uniformity
+and bornology instead of inheriting them from the norm.
+-/
 noncomputable abbrev normedAddCommGroup : NormedAddCommGroup E :=
   NormedAddCommGroup.ofCore (CStarModule.normedSpaceCore A)
 
@@ -294,11 +306,14 @@ section NormedAddCommGroup
 
 open scoped InnerProductSpace
 
-/- Note: one generally creates a `CStarModule` instance for a type `E` first before getting the
+/-
+Note: one generally creates a `CStarModule` instance for a type `E` first before getting the
 `NormedAddCommGroup` and `NormedSpace` instances via `CStarModule.normedSpaceCore`, especially by
 using `NormedAddCommGroup.ofCoreReplaceAll` and `NormedSpace.ofCore`. See
-`Analysis.CStarAlgebra.Module.Constructions` for examples. -/
-variable {A E : Type*} [NonUnitalCStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [SMul A E]
+`Analysis.CStarAlgebra.Module.Constructions` for examples.
+-/
+variable
+  {A E : Type*} [NonUnitalCStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [SMul A E]
   [NormedAddCommGroup E] [NormedSpace ℂ E] [CStarModule A E]
 
 /-- The function `⟨x, y⟩ ↦ ⟪x, y⟫` bundled as a continuous sesquilinear map. -/

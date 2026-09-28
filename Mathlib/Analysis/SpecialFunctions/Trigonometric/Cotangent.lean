@@ -55,15 +55,19 @@ lemma Complex.cot_pi_eq_exp_ratio (z : ℂ) :
   ring_nf
 
 /-- This is the version one probably wants, which is why the pi's are there. -/
-theorem pi_mul_cot_pi_q_exp (z : ℍ) :
-    π * cot (π * z) = π * I - 2 * π * I * ∑' n : ℕ, Complex.exp (2 * π * I * z) ^ n := by
-  have h1 : π * ((exp (2 * π * I * z) + 1) / (I * (1 - exp (2 * π * I * z)))) =
-      -π * I * ((exp (2 * π * I * z) + 1) * (1 / (1 - exp (2 * π * I * z)))) := by
+theorem pi_mul_cot_pi_q_exp (z : ℍ)
+    : π * cot (π * z) = π * I - 2 * π * I * ∑' n : ℕ, Complex.exp (2 * π * I * z) ^ n := by
+  have h1
+      : π * ((exp (2 * π * I * z) + 1) / (I * (1 - exp (2 * π * I * z))))
+        = -π * I * ((exp (2 * π * I * z) + 1) * (1 / (1 - exp (2 * π * I * z)))) := by
     simp only [div_mul_eq_div_mul_one_div, div_I, one_div, neg_mul, mul_neg, neg_inj]
     ring
-  rw [cot_pi_eq_exp_ratio, h1, one_div, (tsum_geometric_of_norm_lt_one
-    (UpperHalfPlane.norm_exp_two_pi_I_lt_one z)).symm, add_comm, geom_series_mul_one_add
-      (Complex.exp (2 * π * I * (z : ℂ))) (UpperHalfPlane.norm_exp_two_pi_I_lt_one _)]
+  rw [
+    cot_pi_eq_exp_ratio, h1, one_div,
+    (tsum_geometric_of_norm_lt_one (UpperHalfPlane.norm_exp_two_pi_I_lt_one z)).symm, add_comm,
+    geom_series_mul_one_add (Complex.exp (2 * π * I * (z : ℂ)))
+      (UpperHalfPlane.norm_exp_two_pi_I_lt_one _)
+  ]
   ring
 
 section MittagLeffler
@@ -75,7 +79,7 @@ open scoped Topology Nat Complex
 variable {x : ℂ} {Z : Set ℂ}
 
 /-- The main term in the infinite product for sine. -/
-noncomputable abbrev sineTerm (x : ℂ) (n : ℕ) : ℂ := -x ^ 2 / (n + 1) ^ 2
+noncomputable abbrev sineTerm (x : ℂ) (n : ℕ) : ℂ := - x ^ 2 / (n + 1) ^ 2
 
 lemma sineTerm_ne_zero {x : ℂ} (hx : x ∈ ℂ_ℤ) (n : ℕ) : 1 + sineTerm x n ≠ 0 := by
   simp only [sineTerm, ne_eq]
@@ -226,8 +230,8 @@ lemma cot_series_rep' (hz : x ∈ ℂ_ℤ) : π * cot (π * x) - 1 / x =
     (tendsto_logDeriv_euler_cot_sub hz)
 
 /-- The cotangent infinite sum representation. -/
-theorem cot_series_rep (hz : x ∈ ℂ_ℤ) :
-    π * cot (π * x) = 1 / x + ∑' n : ℕ+, (1 / (x - n) + 1 / (x + n)) := by
+theorem cot_series_rep (hz : x ∈ ℂ_ℤ)
+    : π * cot (π * x) = 1 / x + ∑' n : ℕ+, (1 / (x - n) + 1 / (x + n)) := by
   have h0 := tsum_pnat_eq_tsum_succ (f := fun n ↦ 1 / (x - n) + 1 / (x + n))
   have h1 := cot_series_rep' hz
   simp only [one_div, Nat.cast_add, Nat.cast_one] at *
@@ -398,12 +402,11 @@ lemma iteratedDerivWithin_cot_pi_mul_eq_mul_tsum_zpow {k : ℕ} (hk : 1 ≤ k) {
   ring
 
 /-- The series expansion of the iterated derivative of `π cot (π z)`. -/
-theorem iteratedDerivWithin_cot_pi_mul_eq_mul_tsum_div_pow {k : ℕ} (hk : 1 ≤ k) {z : ℂ}
-    (hz : z ∈ ℍₒ) :
-    iteratedDerivWithin k (fun x : ℂ ↦ π * cot (π * x)) ℍₒ z =
-      (-1) ^ k * k ! * ∑' n : ℤ, 1 / (z + n) ^ (k + 1) := by
+theorem iteratedDerivWithin_cot_pi_mul_eq_mul_tsum_div_pow
+    {k : ℕ} (hk : 1 ≤ k) {z : ℂ} (hz : z ∈ ℍₒ)
+    : iteratedDerivWithin k (fun x : ℂ ↦ π * cot (π * x)) ℍₒ z
+      = (-1) ^ k * k ! * ∑' n : ℤ, 1 / (z + n) ^ (k + 1) := by
   convert! iteratedDerivWithin_cot_pi_mul_eq_mul_tsum_zpow hk hz with n
-  rw [show (-1 - k : ℤ) = -(k + 1 :) by norm_cast; lia, zpow_neg_coe_of_pos _ (by lia),
-    one_div]
+  rw [show (-1 - k : ℤ) = -(k + 1 :) by norm_cast; lia, zpow_neg_coe_of_pos _ (by lia), one_div]
 
 end iteratedDeriv

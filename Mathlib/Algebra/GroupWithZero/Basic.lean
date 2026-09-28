@@ -52,11 +52,9 @@ section MulZeroClass
 
 variable [MulZeroClass M₀] {a b : M₀}
 
-theorem left_ne_zero_of_mul : a * b ≠ 0 → a ≠ 0 :=
-  mt fun h => mul_eq_zero_of_left h b
+theorem left_ne_zero_of_mul : a * b ≠ 0 → a ≠ 0 := mt fun h => mul_eq_zero_of_left h b
 
-theorem right_ne_zero_of_mul : a * b ≠ 0 → b ≠ 0 :=
-  mt (mul_eq_zero_of_right a)
+theorem right_ne_zero_of_mul : a * b ≠ 0 → b ≠ 0 := mt (mul_eq_zero_of_right a)
 
 theorem ne_zero_and_ne_zero_of_mul (h : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
   ⟨left_ne_zero_of_mul h, right_ne_zero_of_mul h⟩
@@ -66,12 +64,10 @@ theorem mul_eq_zero_of_ne_zero_imp_eq_zero {a b : M₀} (h : a ≠ 0 → b = 0) 
   exact if ha : a = 0 then by rw [ha, zero_mul] else by rw [h ha, mul_zero]
 
 /-- To match `one_mul_eq_id`. -/
-theorem zero_mul_eq_const : ((0 : M₀) * ·) = Function.const _ 0 :=
-  funext zero_mul
+theorem zero_mul_eq_const : ((0 : M₀) * ·) = Function.const _ 0 := funext zero_mul
 
 /-- To match `mul_one_eq_id`. -/
-theorem mul_zero_eq_const : (· * (0 : M₀)) = Function.const _ 0 :=
-  funext mul_zero
+theorem mul_zero_eq_const : (· * (0 : M₀)) = Function.const _ 0 := funext mul_zero
 
 end MulZeroClass
 
@@ -89,8 +85,8 @@ end Mul
 
 namespace NeZero
 
-instance mul [Zero M₀] [Mul M₀] [NoZeroDivisors M₀] {x y : M₀} [NeZero x] [NeZero y] :
-    NeZero (x * y) :=
+instance mul [Zero M₀] [Mul M₀] [NoZeroDivisors M₀] {x y : M₀} [NeZero x] [NeZero y]
+    : NeZero (x * y) :=
   ⟨mul_ne_zero out out⟩
 
 end NeZero
@@ -105,17 +101,21 @@ variable [MulZeroOneClass M₀]
 theorem eq_zero_of_zero_eq_one (h : (0 : M₀) = 1) (a : M₀) : a = 0 := by
   rw [← mul_one a, ← h, mul_zero]
 
-/-- In a monoid with zero, if zero equals one, then zero is the unique element.
+/--
+In a monoid with zero, if zero equals one, then zero is the unique element.
 
 Somewhat arbitrarily, we define the default element to be `0`.
-All other elements will be provably equal to it, but not necessarily definitionally equal. -/
+All other elements will be provably equal to it, but not necessarily definitionally equal.
+-/
 @[instance_reducible]
 def uniqueOfZeroEqOne (h : (0 : M₀) = 1) : Unique M₀ where
   default := 0
   uniq := eq_zero_of_zero_eq_one h
 
-/-- In a monoid with zero, zero equals one if and only if all elements of that semiring
-are equal. -/
+/--
+In a monoid with zero, zero equals one if and only if all elements of that semiring
+are equal.
+-/
 theorem subsingleton_iff_zero_eq_one : (0 : M₀) = 1 ↔ Subsingleton M₀ :=
   ⟨fun h => haveI := uniqueOfZeroEqOne h; inferInstance, fun h => @Subsingleton.elim _ h _ _⟩
 
@@ -146,33 +146,32 @@ section Nilpotent
 
 variable {R S : Type*} {x : R}
 
-/-- An element is said to be nilpotent if some natural-number-power of it equals zero.
+/--
+An element is said to be nilpotent if some natural-number-power of it equals zero.
 
 Note that we require only the bare minimum assumptions for the definition to make sense. Even
 `MonoidWithZero` is too strong since nilpotency is important in the study of rings that are only
-power-associative. -/
-def IsNilpotent [Zero R] [Pow R ℕ] (x : R) : Prop :=
-  ∃ n : ℕ, x ^ n = 0
+power-associative.
+-/
+def IsNilpotent [Zero R] [Pow R ℕ] (x : R) : Prop := ∃ n : ℕ, x ^ n = 0
 
-theorem IsNilpotent.mk [Zero R] [Pow R ℕ] (x : R) (n : ℕ) (e : x ^ n = 0) : IsNilpotent x :=
-  ⟨n, e⟩
+theorem IsNilpotent.mk [Zero R] [Pow R ℕ] (x : R) (n : ℕ) (e : x ^ n = 0) : IsNilpotent x := ⟨n, e⟩
 
 @[simp] lemma isNilpotent_of_subsingleton [Zero R] [Pow R ℕ] [Subsingleton R] : IsNilpotent x :=
   ⟨0, Subsingleton.elim _ _⟩
 
-@[simp] theorem IsNilpotent.zero [MonoidWithZero R] : IsNilpotent (0 : R) :=
-  ⟨1, pow_one 0⟩
+@[simp] theorem IsNilpotent.zero [MonoidWithZero R] : IsNilpotent (0 : R) := ⟨1, pow_one 0⟩
 
-theorem not_isNilpotent_one [MonoidWithZero R] [Nontrivial R] :
-    ¬ IsNilpotent (1 : R) := fun ⟨_, H⟩ ↦ zero_ne_one (H.symm.trans (one_pow _))
+theorem not_isNilpotent_one [MonoidWithZero R] [Nontrivial R] : ¬ IsNilpotent (1 : R) :=
+  fun ⟨_, H⟩ ↦ zero_ne_one (H.symm.trans (one_pow _))
 
 lemma IsNilpotent.pow_succ (n : ℕ) {S : Type*} [MonoidWithZero S] {x : S}
     (hx : IsNilpotent x) : IsNilpotent (x ^ n.succ) :=
   have ⟨N, hN⟩ := hx
   ⟨N, by rw [← pow_mul, Nat.succ_mul, pow_add, hN, mul_zero]⟩
 
-theorem IsNilpotent.of_pow [MonoidWithZero R] {x : R} {m : ℕ}
-    (h : IsNilpotent (x ^ m)) : IsNilpotent x :=
+theorem IsNilpotent.of_pow [MonoidWithZero R] {x : R} {m : ℕ} (h : IsNilpotent (x ^ m))
+    : IsNilpotent x :=
   have ⟨n, h⟩ := h
   ⟨m * n, by rw [← h, pow_mul x m n]⟩
 
@@ -193,11 +192,11 @@ class IsReduced (R : Type*) [Zero R] [Pow R ℕ] : Prop where
   /-- A reduced structure has no nonzero nilpotent elements. -/
   eq_zero : ∀ x : R, IsNilpotent x → x = 0
 
-theorem eq_zero_of_pow_eq_zero [Zero R] [Pow R ℕ] [IsReduced R] {n : ℕ} (h : x ^ n = 0) :
-    x = 0 := IsReduced.eq_zero x ⟨n, h⟩
+theorem eq_zero_of_pow_eq_zero [Zero R] [Pow R ℕ] [IsReduced R] {n : ℕ} (h : x ^ n = 0) : x = 0 :=
+  IsReduced.eq_zero x ⟨n, h⟩
 
-instance (priority := 900) isReduced_of_subsingleton [Zero R] [Pow R ℕ] [Subsingleton R] :
-    IsReduced R :=
+instance (priority := 900) isReduced_of_subsingleton [Zero R] [Pow R ℕ] [Subsingleton R]
+    : IsReduced R :=
   ⟨fun _ _ => Subsingleton.elim ..⟩
 
 theorem IsNilpotent.eq_zero [Zero R] [Pow R ℕ] [IsReduced R] (h : IsNilpotent x) : x = 0 :=
@@ -242,8 +241,7 @@ lemma pow_mul_eq_zero_of_le {a b : M₀} {m n : ℕ} (hmn : m ≤ n)
   rw [show n = n - m + m by lia, pow_add, mul_assoc, h]
   simp
 
-instance (priority := 900) isReduced_of_noZeroDivisors [NoZeroDivisors M₀] :
-    IsReduced M₀ :=
+instance (priority := 900) isReduced_of_noZeroDivisors [NoZeroDivisors M₀] : IsReduced M₀ :=
   ⟨fun a ⟨n, ha⟩ ↦ by
     induction n with
     | zero => simpa using congr_arg (a * ·) ha
@@ -266,8 +264,9 @@ lemma sq_eq_zero_iff : a ^ 2 = 0 ↔ a = 0 := pow_eq_zero_iff two_ne_zero
 @[simp] lemma pow_eq_zero_iff' [Nontrivial M₀] : a ^ n = 0 ↔ a = 0 ∧ n ≠ 0 := by
   obtain rfl | hn := eq_or_ne n 0 <;> simp [*]
 
-theorem exists_right_inv_of_exists_left_inv {α} [MonoidWithZero α]
-    (h : ∀ a : α, a ≠ 0 → ∃ b : α, b * a = 1) {a : α} (ha : a ≠ 0) : ∃ b : α, a * b = 1 := by
+theorem exists_right_inv_of_exists_left_inv
+    {α} [MonoidWithZero α] (h : ∀ a : α, a ≠ 0 → ∃ b : α, b * a = 1) {a : α} (ha : a ≠ 0)
+    : ∃ b : α, a * b = 1 := by
   obtain _ | _ := subsingleton_or_nontrivial α
   · exact ⟨a, Subsingleton.elim _ _⟩
   obtain ⟨b, hb⟩ := h a ha
@@ -284,12 +283,14 @@ variable [MulZeroOneClass M₀]
 
 theorem mul_right_eq_self₀ [IsLeftCancelMulZero M₀] : a * b = a ↔ b = 1 ∨ a = 0 :=
   calc
-    a * b = a ↔ a * b = a * 1 := by rw [mul_one]
+    a * b = a
+      ↔ a * b = a * 1 := by rw [mul_one]
     _ ↔ b = 1 ∨ a = 0 := mul_eq_mul_left_iff
 
 theorem mul_left_eq_self₀ [IsRightCancelMulZero M₀] : a * b = b ↔ a = 1 ∨ b = 0 :=
   calc
-    a * b = b ↔ a * b = 1 * b := by rw [one_mul]
+    a * b = b
+      ↔ a * b = 1 * b := by rw [one_mul]
     _ ↔ a = 1 ∨ b = 0 := mul_eq_mul_right_iff
 
 @[simp]
@@ -308,16 +309,20 @@ theorem left_eq_mul₀ [IsLeftCancelMulZero M₀] (ha : a ≠ 0) : a = a * b ↔
 theorem right_eq_mul₀ [IsRightCancelMulZero M₀] (hb : b ≠ 0) : b = a * b ↔ a = 1 := by
   rw [eq_comm, mul_eq_right₀ hb]
 
-/-- An element of a left-cancellative `MulZeroOneClass` fixed by right multiplication by
-an element other than one must be zero. -/
-theorem eq_zero_of_mul_eq_self_right [IsLeftCancelMulZero M₀] (h₁ : b ≠ 1) (h₂ : a * b = a) :
-    a = 0 :=
+/--
+An element of a left-cancellative `MulZeroOneClass` fixed by right multiplication by
+an element other than one must be zero.
+-/
+theorem eq_zero_of_mul_eq_self_right [IsLeftCancelMulZero M₀] (h₁ : b ≠ 1) (h₂ : a * b = a)
+    : a = 0 :=
   Classical.byContradiction fun ha => h₁ <| mul_left_cancel₀ ha <| h₂.symm ▸ (mul_one a).symm
 
-/-- An element of a right-cancellative `MulZeroOneClass` fixed by left multiplication by
-an element other than one must be zero. -/
-theorem eq_zero_of_mul_eq_self_left [IsRightCancelMulZero M₀] (h₁ : b ≠ 1) (h₂ : b * a = a) :
-    a = 0 :=
+/--
+An element of a right-cancellative `MulZeroOneClass` fixed by left multiplication by
+an element other than one must be zero.
+-/
+theorem eq_zero_of_mul_eq_self_left [IsRightCancelMulZero M₀] (h₁ : b ≠ 1) (h₂ : b * a = a)
+    : a = 0 :=
   Classical.byContradiction fun ha => h₁ <| mul_right_cancel₀ ha <| h₂.symm ▸ (one_mul a).symm
 
 variable {M₀ : Type*} [MonoidWithZero M₀]
@@ -326,15 +331,17 @@ instance (priority := 100) [IsLeftCancelMulZero M₀] : IsDedekindFiniteMonoid M
   mul_eq_one_symm h := by
     cases subsingleton_or_nontrivial M₀
     · exact Subsingleton.elim _ _
-    exact (IsLeftCancelMulZero.mul_left_cancel_of_ne_zero
-      (left_ne_zero_of_mul_eq_one h)).mul_eq_one_symm h
+    exact (IsLeftCancelMulZero.mul_left_cancel_of_ne_zero (left_ne_zero_of_mul_eq_one
+        h)).mul_eq_one_symm
+      h
 
 instance (priority := 100) [IsRightCancelMulZero M₀] : IsDedekindFiniteMonoid M₀ where
   mul_eq_one_symm h := by
     cases subsingleton_or_nontrivial M₀
     · exact Subsingleton.elim _ _
-    exact (IsRightCancelMulZero.mul_right_cancel_of_ne_zero
-      (right_ne_zero_of_mul_eq_one h)).mul_eq_one_symm h
+    exact (IsRightCancelMulZero.mul_right_cancel_of_ne_zero (right_ne_zero_of_mul_eq_one
+        h)).mul_eq_one_symm
+      h
 
 end CancelMonoidWithZero
 
@@ -342,27 +349,27 @@ section GroupWithZero
 
 variable [GroupWithZero G₀] {a b x : G₀}
 
-theorem GroupWithZero.mul_right_injective (h : x ≠ 0) :
-    Function.Injective fun y => x * y := fun y y' w => by
+theorem GroupWithZero.mul_right_injective (h : x ≠ 0)
+    : Function.Injective fun y => x * y := fun y y' w => by
   simpa only [← mul_assoc, inv_mul_cancel₀ h, one_mul] using congr_arg (fun y => x⁻¹ * y) w
 
-theorem GroupWithZero.mul_left_injective (h : x ≠ 0) :
-    Function.Injective fun y => y * x := fun y y' w => by
+theorem GroupWithZero.mul_left_injective (h : x ≠ 0)
+    : Function.Injective fun y => y * x := fun y y' w => by
   simpa only [mul_assoc, mul_inv_cancel₀ h, mul_one] using congr_arg (fun y => y * x⁻¹) w
 
 @[simp high] -- should take priority over `IsUnit.mul_inv_cancel_right`
 theorem inv_mul_cancel_right₀ (h : b ≠ 0) (a : G₀) : a * b⁻¹ * b = a :=
   calc
-    a * b⁻¹ * b = a * (b⁻¹ * b) := mul_assoc _ _ _
+    a * b⁻¹ * b
+      = a * (b⁻¹ * b) := mul_assoc _ _ _
     _ = a := by simp [h]
-
 
 @[simp high] -- should take priority over `IsUnit.mul_inv_cancel_left`
 theorem inv_mul_cancel_left₀ (h : a ≠ 0) (b : G₀) : a⁻¹ * (a * b) = b :=
   calc
-    a⁻¹ * (a * b) = a⁻¹ * a * b := (mul_assoc _ _ _).symm
+    a⁻¹ * (a * b)
+      = a⁻¹ * a * b := (mul_assoc _ _ _).symm
     _ = b := by simp [h]
-
 
 private theorem inv_eq_of_mul (h : a * b = 1) : a⁻¹ = b := by
   rw [← inv_mul_cancel_left₀ (left_ne_zero_of_mul_eq_one h) b, h, mul_one]
@@ -395,49 +402,53 @@ section GroupWithZero
 
 variable [GroupWithZero G₀] {a : G₀}
 
-@[simp]
-theorem zero_div (a : G₀) : 0 / a = 0 := by rw [div_eq_mul_inv, zero_mul]
+@[simp] theorem zero_div (a : G₀) : 0 / a = 0 := by rw [div_eq_mul_inv, zero_mul]
 
-@[simp]
-theorem div_zero (a : G₀) : a / 0 = 0 := by rw [div_eq_mul_inv, inv_zero, mul_zero]
+@[simp] theorem div_zero (a : G₀) : a / 0 = 0 := by rw [div_eq_mul_inv, inv_zero, mul_zero]
 
-@[simp]
-protected theorem IsSelfInv.zero : IsSelfInv (0 : G₀) := inv_zero
+@[simp] protected theorem IsSelfInv.zero : IsSelfInv (0 : G₀) := inv_zero
 
-/-- Multiplying `a` by itself and then by its inverse results in `a`
-(whether or not `a` is zero). -/
+/--
+Multiplying `a` by itself and then by its inverse results in `a`
+(whether or not `a` is zero).
+-/
 @[simp]
 theorem mul_self_mul_inv (a : G₀) : a * a * a⁻¹ = a := by
   by_cases h : a = 0
   · rw [h, inv_zero, mul_zero]
   · rw [mul_assoc, mul_inv_cancel₀ h, mul_one]
 
-
-/-- Multiplying `a` by its inverse and then by itself results in `a`
-(whether or not `a` is zero). -/
+/--
+Multiplying `a` by its inverse and then by itself results in `a`
+(whether or not `a` is zero).
+-/
 @[simp]
 theorem mul_inv_mul_cancel (a : G₀) : a * a⁻¹ * a = a := by
   by_cases h : a = 0
   · rw [h, inv_zero, mul_zero]
   · rw [mul_inv_cancel₀ h, one_mul]
 
-
-/-- Multiplying `a⁻¹` by `a` twice results in `a` (whether or not `a`
-is zero). -/
+/--
+Multiplying `a⁻¹` by `a` twice results in `a` (whether or not `a`
+is zero).
+-/
 @[simp]
 theorem inv_mul_mul_self (a : G₀) : a⁻¹ * a * a = a := by
   by_cases h : a = 0
   · rw [h, inv_zero, mul_zero]
   · rw [inv_mul_cancel₀ h, one_mul]
 
-
-/-- Multiplying `a` by itself and then dividing by itself results in `a`, whether or not `a` is
-zero. -/
+/--
+Multiplying `a` by itself and then dividing by itself results in `a`, whether or not `a` is
+zero.
+-/
 @[simp]
 theorem mul_self_div_self (a : G₀) : a * a / a = a := by rw [div_eq_mul_inv, mul_self_mul_inv a]
 
-/-- Dividing `a` by itself and then multiplying by itself results in `a`, whether or not `a` is
-zero. -/
+/--
+Dividing `a` by itself and then multiplying by itself results in `a`, whether or not `a` is
+zero.
+-/
 @[simp]
 theorem div_self_mul_self (a : G₀) : a / a * a = a := by rw [div_eq_mul_inv, mul_inv_mul_cancel a]
 
@@ -446,22 +457,21 @@ attribute [local simp] div_eq_mul_inv mul_comm mul_assoc mul_left_comm
 @[simp]
 theorem div_self_mul_self' (a : G₀) : a / (a * a) = a⁻¹ :=
   calc
-    a / (a * a) = a⁻¹⁻¹ * a⁻¹ * a⁻¹ := by simp [mul_inv_rev]
+    a / (a * a)
+      = a⁻¹⁻¹ * a⁻¹ * a⁻¹ := by simp [mul_inv_rev]
     _ = a⁻¹ := inv_mul_mul_self _
-
 
 theorem one_div_ne_zero {a : G₀} (h : a ≠ 0) : 1 / a ≠ 0 := by
   simpa only [one_div] using inv_ne_zero h
 
-@[simp]
-theorem inv_eq_zero {a : G₀} : a⁻¹ = 0 ↔ a = 0 := by rw [inv_eq_iff_eq_inv, inv_zero]
+@[simp] theorem inv_eq_zero {a : G₀} : a⁻¹ = 0 ↔ a = 0 := by rw [inv_eq_iff_eq_inv, inv_zero]
 
-@[simp]
-theorem zero_eq_inv {a : G₀} : 0 = a⁻¹ ↔ 0 = a :=
-  eq_comm.trans <| inv_eq_zero.trans eq_comm
+@[simp] theorem zero_eq_inv {a : G₀} : 0 = a⁻¹ ↔ 0 = a := eq_comm.trans <| inv_eq_zero.trans eq_comm
 
-/-- Dividing `a` by the result of dividing `a` by itself results in
-`a` (whether or not `a` is zero). -/
+/--
+Dividing `a` by the result of dividing `a` by itself results in
+`a` (whether or not `a` is zero).
+-/
 @[simp]
 theorem div_div_self (a : G₀) : a / (a / a) = a := by
   rw [div_div_eq_mul_div]

@@ -34,16 +34,17 @@ variable (k : Type*) [Field k]
 -- with a `k`-algebra structure given by the frobenius map.
 def AdjoinPthRoots := k
 
-@[no_expose]
-noncomputable instance : Field (AdjoinPthRoots k) := inferInstanceAs (Field k)
+@[no_expose] noncomputable instance : Field (AdjoinPthRoots k) := inferInstanceAs (Field k)
 
 @[no_expose]
 noncomputable instance : Algebra k (AdjoinPthRoots k) := (frobenius k (ringExpChar k)).toAlgebra
 
 instance (p : ℕ) [ExpChar k p] : ExpChar (AdjoinPthRoots k) p := inferInstanceAs (ExpChar k p)
 
-/-- For `k` a field of (exponential) characteristic `p`,
-the `p`-th root map `k → AdjoinPthRoots k`, as a `RingEquiv`. -/
+/--
+For `k` a field of (exponential) characteristic `p`,
+the `p`-th root map `k → AdjoinPthRoots k`, as a `RingEquiv`.
+-/
 noncomputable def AdjoinPthRoots.root : k ≃+* AdjoinPthRoots k := RingEquiv.refl k
 
 variable {k} (p : ℕ) [ExpChar k p]

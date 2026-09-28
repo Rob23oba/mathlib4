@@ -32,18 +32,21 @@ namespace ProjectiveResolution
 
 section
 
-variable [HasZeroObject C] [Preadditive C] {X : C}
-  (R : ProjectiveResolution X)
+variable [HasZeroObject C] [Preadditive C] {X : C} (R : ProjectiveResolution X)
 
-/-- If `R : ProjectiveResolution X`, this is the cochain complex indexed by `ℤ`
-obtained by extending by zero the chain complex `R.complex` indexed by `ℕ`. -/
+/--
+If `R : ProjectiveResolution X`, this is the cochain complex indexed by `ℤ`
+obtained by extending by zero the chain complex `R.complex` indexed by `ℕ`.
+-/
 noncomputable def cochainComplex : CochainComplex C ℤ :=
   R.complex.extend ComplexShape.embeddingDownNat
 
-/-- If `R : ProjectiveResolution X`, then `R.cochainComplex.X n` (with `n : ℕ`)
-is isomorphic to `R.complex.X k` (with `k : ℕ`) when `k = n`. -/
-noncomputable def cochainComplexXIso (n : ℤ) (k : ℕ) (h : -k = n := by lia) :
-    R.cochainComplex.X n ≅ R.complex.X k :=
+/--
+If `R : ProjectiveResolution X`, then `R.cochainComplex.X n` (with `n : ℕ`)
+is isomorphic to `R.complex.X k` (with `k : ℕ`) when `k = n`.
+-/
+noncomputable def cochainComplexXIso (n : ℤ) (k : ℕ) (h : -k = n := by lia)
+    : R.cochainComplex.X n ≅ R.complex.X k :=
   HomologicalComplex.extendXIso _ _ h
 
 @[reassoc]
@@ -62,11 +65,13 @@ instance (n : ℤ) : Projective (R.cochainComplex.X n) := by
     exact Projective.of_iso (R.cochainComplexXIso (-k) k).symm inferInstance
   · exact IsZero.projective (CochainComplex.isZero_of_isStrictlyLE _ 0 _)
 
-/-- The quasi-isomorphism `R.cochainComplex ⟶ (CochainComplex.singleFunctor C 0).obj X`
-in `CochainComplex C ℤ` when `R` is a projective resolution of `X`. -/
+/--
+The quasi-isomorphism `R.cochainComplex ⟶ (CochainComplex.singleFunctor C 0).obj X`
+in `CochainComplex C ℤ` when `R` is a projective resolution of `X`.
+-/
 noncomputable def π' : R.cochainComplex ⟶ (CochainComplex.singleFunctor C 0).obj X :=
-    (ComplexShape.embeddingDownNat.extendFunctor C).map R.π ≫
-      (HomologicalComplex.extendSingleIso _ _ _ _ (by simp)).hom
+  (ComplexShape.embeddingDownNat.extendFunctor C).map R.π
+    ≫ (HomologicalComplex.extendSingleIso _ _ _ _ (by simp)).hom
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -93,11 +98,12 @@ instance : R.cochainComplex.IsGE 0 := by
 
 namespace Hom
 
-variable {R} {X' : C} {R' : ProjectiveResolution X'} {f : X ⟶ X'}
-  (φ : Hom R R' f)
+variable {R} {X' : C} {R' : ProjectiveResolution X'} {f : X ⟶ X'} (φ : Hom R R' f)
 
-/-- The morphism on cochain complexes indexed by `ℤ` that is induced by
-a (heterogeneous) morphism of projective resolutions. -/
+/--
+The morphism on cochain complexes indexed by `ℤ` that is induced by
+a (heterogeneous) morphism of projective resolutions.
+-/
 noncomputable def hom' : R.cochainComplex ⟶ R'.cochainComplex :=
   HomologicalComplex.extendMap φ.hom _
 

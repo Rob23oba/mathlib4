@@ -60,27 +60,30 @@ open scoped ENNReal NNReal
 
 namespace Metric
 
-variable {X Y : Type*} [PseudoEMetricSpace X] [PseudoEMetricSpace Y]
-  {A B C : Set X} {ε δ : ℝ≥0} {x : X}
+variable
+  {X Y : Type*} [PseudoEMetricSpace X] [PseudoEMetricSpace Y] {A B C : Set X} {ε δ : ℝ≥0} {x : X}
 
 section Definitions
 
-/-- The external covering number of a set `A` in `X` for radius `ε` is the minimal cardinality
-(in `ℕ∞`) of an `ε`-cover by points in `X` (not necessarily in `A`). -/
-noncomputable
-def externalCoveringNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=
+/--
+The external covering number of a set `A` in `X` for radius `ε` is the minimal cardinality
+(in `ℕ∞`) of an `ε`-cover by points in `X` (not necessarily in `A`).
+-/
+noncomputable def externalCoveringNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=
   ⨅ (C : Set X) (_ : IsCover ε A C), C.encard
 
-/-- The covering number (or internal covering number) of a set `A` for radius `ε` is
-the minimal cardinality (in `ℕ∞`) of an `ε`-cover contained in `A`. -/
-noncomputable
-def coveringNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=
+/--
+The covering number (or internal covering number) of a set `A` for radius `ε` is
+the minimal cardinality (in `ℕ∞`) of an `ε`-cover contained in `A`.
+-/
+noncomputable def coveringNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=
   ⨅ (C : Set X) (_ : C ⊆ A) (_ : IsCover ε A C), C.encard
 
-/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)
-of an `ε`-separated set in `A`. -/
-noncomputable
-def packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=
+/--
+The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)
+of an `ε`-separated set in `A`.
+-/
+noncomputable def packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=
   ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard
 
 end Definitions
@@ -246,10 +249,11 @@ lemma exists_set_encard_eq_coveringNumber (h : coveringNumber ε A ≠ ⊤) :
     simp_rw [iInf_subtype, iInf_and]
     rfl
 
-/-- A finite internal `ε`-cover of a set `A` by closed balls with minimal cardinality.
-It is defined as the empty set if no such finite cover exists. -/
-noncomputable
-def minimalCover (ε : ℝ≥0) (A : Set X) : Set X :=
+/--
+A finite internal `ε`-cover of a set `A` by closed balls with minimal cardinality.
+It is defined as the empty set if no such finite cover exists.
+-/
+noncomputable def minimalCover (ε : ℝ≥0) (A : Set X) : Set X :=
   if h : coveringNumber ε A ≠ ⊤ then (exists_set_encard_eq_coveringNumber h).choose else ∅
 
 lemma minimalCover_subset : minimalCover ε A ⊆ A := by grind [minimalCover]
@@ -285,10 +289,11 @@ lemma exists_set_encard_eq_packingNumber (h : packingNumber ε A ≠ ⊤) :
     rwa [hC]
   · rw [hC]
 
-/-- A finite `ε`-separated subset of a set `A` with maximal cardinality.
-It is defined as the empty set if no such finite subset exists. -/
-noncomputable
-def maximalSeparatedSet (ε : ℝ≥0) (A : Set X) : Set X :=
+/--
+A finite `ε`-separated subset of a set `A` with maximal cardinality.
+It is defined as the empty set if no such finite subset exists.
+-/
+noncomputable def maximalSeparatedSet (ε : ℝ≥0) (A : Set X) : Set X :=
   if h : packingNumber ε A ≠ ⊤ then (exists_set_encard_eq_packingNumber h).choose else ∅
 
 lemma maximalSeparatedSet_subset : maximalSeparatedSet ε A ⊆ A := by grind [maximalSeparatedSet]
@@ -325,12 +330,16 @@ end MaximalSeparatedSet
 
 section Comparisons
 
-/-- The packing number of a set `A` for radius `2 * ε` is at most the external covering number
-of `A` for radius `ε`. -/
-theorem packingNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set X) :
-    packingNumber (2 * ε) A ≤ externalCoveringNumber ε A := by
-  simp only [packingNumber, ENNReal.coe_mul, ENNReal.coe_ofNat, externalCoveringNumber, le_iInf_iff,
-    iSup_le_iff]
+/--
+The packing number of a set `A` for radius `2 * ε` is at most the external covering number
+of `A` for radius `ε`.
+-/
+theorem packingNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set X)
+    : packingNumber (2 * ε) A ≤ externalCoveringNumber ε A := by
+  simp only [
+    packingNumber, ENNReal.coe_mul, ENNReal.coe_ofNat, externalCoveringNumber, le_iInf_iff,
+    iSup_le_iff
+  ]
   intro C hC_cover D hD_subset hD_separated
   -- For each point in D, choose a point in C which is ε-close to it
   let f : D → C := fun x ↦
@@ -344,22 +353,23 @@ theorem packingNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set 
   apply Set.Pairwise.eq hD_separated x.2 y.2
   simp only [not_lt]
   calc
-    edist (x : X) y ≤ edist (x : X) (f x) + edist (f x : X) y := edist_triangle ..
+    edist (x : X) y
+      ≤ edist (x : X) (f x) + edist (f x : X) y := edist_triangle ..
     _ ≤ 2 * ε := by
       rw [two_mul]
       gcongr
       · exact hf' x
       · simpa [edist_comm, hxy] using hf' y
 
-theorem coveringNumber_le_packingNumber (ε : ℝ≥0) (A : Set X) :
-    coveringNumber ε A ≤ packingNumber ε A := by
+theorem coveringNumber_le_packingNumber (ε : ℝ≥0) (A : Set X)
+    : coveringNumber ε A ≤ packingNumber ε A := by
   by_cases! h_top : packingNumber ε A ≠ ⊤
   · rw [← encard_maximalSeparatedSet h_top]
     exact isCover_maximalSeparatedSet h_top |>.coveringNumber_le_encard maximalSeparatedSet_subset
   · simp [h_top]
 
-theorem coveringNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set X) :
-    coveringNumber (2 * ε) A ≤ externalCoveringNumber ε A := by
+theorem coveringNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set X)
+    : coveringNumber (2 * ε) A ≤ externalCoveringNumber ε A := by
   rcases Set.eq_empty_or_nonempty A with rfl | h_nonempty
   · simp
   refine (coveringNumber_le_packingNumber _ A).trans ?_

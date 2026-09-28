@@ -52,17 +52,20 @@ open TensorProduct
 
 namespace AdicCompletion
 
-/-- The natural `AdicCompletion I R`-linear map from `AdicCompletion I R ⊗[R] M` to
-the adic completion of `M`. -/
+/--
+The natural `AdicCompletion I R`-linear map from `AdicCompletion I R ⊗[R] M` to
+the adic completion of `M`.
+-/
 def ofTensorProduct : AdicCompletion I R ⊗[R] M →ₗ[AdicCompletion I R] AdicCompletion I M :=
-  TensorProduct.AlgebraTensorModule.lift
-    { toFun r := LinearMap.lsmul (AdicCompletion I R) (AdicCompletion I M) r ∘ₗ of I M
-      map_add' x y := by
-        apply LinearMap.ext
-        simp
-      map_smul' r x := by
-        apply LinearMap.ext
-        simp [mul_smul] }
+  TensorProduct.AlgebraTensorModule.lift {
+    toFun r := LinearMap.lsmul (AdicCompletion I R) (AdicCompletion I M) r ∘ₗ of I M
+    map_add' x y := by
+      apply LinearMap.ext
+      simp
+    map_smul' r x := by
+      apply LinearMap.ext
+      simp [mul_smul]
+  }
 
 @[simp]
 lemma ofTensorProduct_tmul (r : AdicCompletion I R) (x : M) :
@@ -79,9 +82,7 @@ lemma ofTensorProduct_naturality (f : M →ₗ[R] N) :
 
 section PiFintype
 
-/-
-In this section we show that `ofTensorProduct` is an isomorphism if `M = R^n`.
--/
+/- In this section we show that `ofTensorProduct` is an isomorphism if `M = R^n`. -/
 
 variable (ι : Type*)
 
@@ -121,10 +122,12 @@ private lemma ofTensorProduct_eq :
   rw [← piEquivOfFintype_comp_ofTensorProduct_eq I ι, ← LinearMap.comp_assoc]
   simp
 
-/-- (Implementation): If `M = R^ι` and `ι` is finite, we may construct an inverse to
-`ofTensorProduct I (ι → R)`. -/
-def ofTensorProductInvOfPiFintype :
-    AdicCompletion I (ι → R) ≃ₗ[AdicCompletion I R] AdicCompletion I R ⊗[R] (ι → R) :=
+/--
+(Implementation): If `M = R^ι` and `ι` is finite, we may construct an inverse to
+`ofTensorProduct I (ι → R)`.
+-/
+def ofTensorProductInvOfPiFintype
+    : AdicCompletion I (ι → R) ≃ₗ[AdicCompletion I R] AdicCompletion I R ⊗[R] (ι → R) :=
   letI f := piEquivOfFintype I (fun _ : ι ↦ R)
   letI g := (TensorProduct.piScalarRight R (AdicCompletion I R) (AdicCompletion I R) ι).symm
   f.trans g
@@ -177,11 +180,9 @@ lemma ofTensorProduct_comp_ofTensorProductInvOfPiFintype :
   simp
 
 /-- `ofTensorProduct` as an equiv in the case of `M = R^ι` where `ι` is finite. -/
-def ofTensorProductEquivOfPiFintype :
-    AdicCompletion I R ⊗[R] (ι → R) ≃ₗ[AdicCompletion I R] AdicCompletion I (ι → R) :=
-  LinearEquiv.ofLinearMap
-    (ofTensorProduct I (ι → R))
-    (ofTensorProductInvOfPiFintype I ι)
+def ofTensorProductEquivOfPiFintype
+    : AdicCompletion I R ⊗[R] (ι → R) ≃ₗ[AdicCompletion I R] AdicCompletion I (ι → R) :=
+  LinearEquiv.ofLinearMap (ofTensorProduct I (ι → R)) (ofTensorProductInvOfPiFintype I ι)
     (ofTensorProduct_comp_ofTensorProductInvOfPiFintype I ι)
     (ofTensorProductInvOfPiFintype_comp_ofTensorProduct I ι)
 
@@ -252,14 +253,14 @@ section
 variable {ι : Type} (f : (ι → R) →ₗ[R] M)
 
 /-- The first horizontal arrow in the top row. -/
-private
-def lTensorKerIncl : AdicCompletion I R ⊗[R] LinearMap.ker f →ₗ[AdicCompletion I R]
-    AdicCompletion I R ⊗[R] (ι → R) :=
+private def lTensorKerIncl
+    : AdicCompletion I R ⊗[R] LinearMap.ker f →ₗ[AdicCompletion I R]
+      AdicCompletion I R ⊗[R] (ι → R) :=
   AlgebraTensorModule.map LinearMap.id (LinearMap.ker f).subtype
 
 /-- The second horizontal arrow in the top row. -/
-private def lTensorf :
-    AdicCompletion I R ⊗[R] (ι → R) →ₗ[AdicCompletion I R] AdicCompletion I R ⊗[R] M :=
+private def lTensorf
+    : AdicCompletion I R ⊗[R] (ι → R) →ₗ[AdicCompletion I R] AdicCompletion I R ⊗[R] M :=
   AlgebraTensorModule.map LinearMap.id f
 
 variable (hf : Function.Surjective f)
@@ -315,18 +316,21 @@ end
 
 variable [IsNoetherianRing R]
 
-/-- If `R` is a Noetherian ring and `M` is a finite `R`-module, then the natural map
-given by `AdicCompletion.ofTensorProduct` is an isomorphism. -/
-theorem ofTensorProduct_bijective_of_finite_of_isNoetherian
-    [Module.Finite R M] :
-    Function.Bijective (ofTensorProduct I M) := by
+/--
+If `R` is a Noetherian ring and `M` is a finite `R`-module, then the natural map
+given by `AdicCompletion.ofTensorProduct` is an isomorphism.
+-/
+theorem ofTensorProduct_bijective_of_finite_of_isNoetherian [Module.Finite R M]
+    : Function.Bijective (ofTensorProduct I M) := by
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R M
   exact ofTensorProduct_bijective_of_map_from_fin I M f hf
 
-/-- `ofTensorProduct` packaged as linear equiv if `M` is a finite `R`-module and `R` is
-Noetherian. -/
-def ofTensorProductEquivOfFiniteNoetherian [Module.Finite R M] :
-    AdicCompletion I R ⊗[R] M ≃ₗ[AdicCompletion I R] AdicCompletion I M :=
+/--
+`ofTensorProduct` packaged as linear equiv if `M` is a finite `R`-module and `R` is
+Noetherian.
+-/
+def ofTensorProductEquivOfFiniteNoetherian [Module.Finite R M]
+    : AdicCompletion I R ⊗[R] M ≃ₗ[AdicCompletion I R] AdicCompletion I M :=
   LinearEquiv.ofBijective (ofTensorProduct I M)
     (ofTensorProduct_bijective_of_finite_of_isNoetherian I M)
 

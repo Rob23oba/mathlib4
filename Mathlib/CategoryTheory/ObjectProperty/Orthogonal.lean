@@ -32,20 +32,22 @@ namespace ObjectProperty
 
 variable (P : ObjectProperty C)
 
-/-- In a category with zero morphisms, the right orthogonal of a property of objects `P`
-is the property of objects `Y` such that any map `X ⟶ Y` vanishes when `P X` holds. -/
+/--
+In a category with zero morphisms, the right orthogonal of a property of objects `P`
+is the property of objects `Y` such that any map `X ⟶ Y` vanishes when `P X` holds.
+-/
 @[stacks 0FXB]
-def rightOrthogonal : ObjectProperty C :=
-  fun Y ↦ ∀ ⦃X : C⦄ (f : X ⟶ Y), P X → f = 0
+def rightOrthogonal : ObjectProperty C := fun Y ↦ ∀ ⦃X : C⦄ (f : X ⟶ Y), P X → f = 0
 
 lemma rightOrthogonal_iff (Y : C) :
     P.rightOrthogonal Y ↔ ∀ ⦃X : C⦄ (f : X ⟶ Y), P X → f = 0 := Iff.rfl
 
-/-- In a category with zero morphisms, the left orthogonal of a property of objects `P`
-is the property of objects `X` such that any map `X ⟶ Y` vanishes when `P Y` holds. -/
+/--
+In a category with zero morphisms, the left orthogonal of a property of objects `P`
+is the property of objects `X` such that any map `X ⟶ Y` vanishes when `P Y` holds.
+-/
 @[stacks 0FXB]
-def leftOrthogonal : ObjectProperty C :=
-  fun X ↦ ∀ ⦃Y : C⦄ (f : X ⟶ Y), P Y → f = 0
+def leftOrthogonal : ObjectProperty C := fun X ↦ ∀ ⦃Y : C⦄ (f : X ⟶ Y), P Y → f = 0
 
 lemma leftOrthogonal_iff (X : C) :
     P.leftOrthogonal X ↔ ∀ ⦃Y : C⦄ (f : X ⟶ Y), P Y → f = 0 := Iff.rfl

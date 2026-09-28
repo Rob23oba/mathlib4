@@ -30,36 +30,26 @@ open scoped ComplexConjugate
 
 namespace UpperHalfPlane
 
-instance : TopologicalSpace ℍ :=
-  .induced UpperHalfPlane.coe inferInstance
+instance : TopologicalSpace ℍ := .induced UpperHalfPlane.coe inferInstance
 
-@[fun_prop]
-theorem isEmbedding_coe : IsEmbedding ((↑) : ℍ → ℂ) :=
-  coe_injective.isEmbedding_induced
+@[fun_prop] theorem isEmbedding_coe : IsEmbedding ((↑) : ℍ → ℂ) := coe_injective.isEmbedding_induced
 
 theorem isOpenEmbedding_coe : IsOpenEmbedding ((↑) : ℍ → ℂ) :=
   ⟨isEmbedding_coe, by simp [isOpen_upperHalfPlaneSet]⟩
 
-@[fun_prop]
-theorem continuous_coe : Continuous ((↑) : ℍ → ℂ) :=
-  isEmbedding_coe.continuous
+@[fun_prop] theorem continuous_coe : Continuous ((↑) : ℍ → ℂ) := isEmbedding_coe.continuous
+
+@[fun_prop] theorem continuous_re : Continuous re := Complex.continuous_re.comp continuous_coe
+
+@[fun_prop] theorem continuous_im : Continuous im := Complex.continuous_im.comp continuous_coe
 
 @[fun_prop]
-theorem continuous_re : Continuous re :=
-  Complex.continuous_re.comp continuous_coe
-
-@[fun_prop]
-theorem continuous_im : Continuous im :=
-  Complex.continuous_im.comp continuous_coe
-
-@[fun_prop]
-theorem _root_.Continuous.upperHalfPlaneMk {X : Type*} [TopologicalSpace X] {f : X → ℂ}
-    (hf : Continuous f) (hf₀ : ∀ x, 0 < (f x).im) :
-    Continuous fun x ↦ mk (f x) (hf₀ x) :=
+theorem _root_.Continuous.upperHalfPlaneMk
+    {X : Type*} [TopologicalSpace X] {f : X → ℂ} (hf : Continuous f) (hf₀ : ∀ x, 0 < (f x).im)
+    : Continuous fun x ↦ mk (f x) (hf₀ x) :=
   isEmbedding_coe.continuous_iff.mpr hf
 
-instance : SecondCountableTopology ℍ :=
-  secondCountableTopology_induced ..
+instance : SecondCountableTopology ℍ := secondCountableTopology_induced ..
 
 instance : T3Space ℍ := isEmbedding_coe.t3Space
 
@@ -73,12 +63,10 @@ instance : LocallyPathConnectedSpace ℍ := isOpenEmbedding_coe.locallyPathConne
 
 instance : NoncompactSpace ℍ where
   noncompact_univ h := by
-    have : IsCompact (Complex.im ⁻¹' Ioi 0) := by
-      simpa [isEmbedding_coe.isCompact_iff] using! h
+    have : IsCompact (Complex.im ⁻¹' Ioi 0) := by simpa [isEmbedding_coe.isCompact_iff] using! h
     simpa [closure_preimage_im] using! congr(0 ∈ $this.isClosed.closure_eq)
 
-instance : LocallyCompactSpace ℍ :=
-  isOpenEmbedding_coe.locallyCompactSpace
+instance : LocallyCompactSpace ℍ := isOpenEmbedding_coe.locallyCompactSpace
 
 /-- Each element of `GL(2, ℝ)` defines a continuous map `ℍ → ℍ`. -/
 instance instContinuousGLSMul : ContinuousConstSMul (GL (Fin 2) ℝ) ℍ where
@@ -88,13 +76,15 @@ instance instContinuousGLSMul : ContinuousConstSMul (GL (Fin 2) ℝ) ℍ where
     refine .comp ?_ ?_
     · split_ifs
       exacts [continuous_id, continuous_conj]
-    · refine .div ?_ ?_ (fun x ↦ denom_ne_zero g x) <;>
-      exact (continuous_const.mul continuous_coe).add continuous_const
+    · refine .div ?_ ?_ (fun x ↦ denom_ne_zero g x)
+        <;> exact (continuous_const.mul continuous_coe).add continuous_const
 
 section strips
 
-/-- The vertical strip of width `A` and height `B`, defined by elements whose real part has absolute
-value less than or equal to `A` and imaginary part is at least `B`. -/
+/--
+The vertical strip of width `A` and height `B`, defined by elements whose real part has absolute
+value less than or equal to `A` and imaginary part is at least `B`.
+-/
 def verticalStrip (A B : ℝ) := {z : ℍ | |z.re| ≤ A ∧ B ≤ z.im}
 
 theorem mem_verticalStrip_iff (A B : ℝ) (z : ℍ) : z ∈ verticalStrip A B ↔ |z.re| ≤ A ∧ B ≤ z.im :=
@@ -120,8 +110,8 @@ lemma subset_verticalStrip_of_isCompact {K : Set ℍ} (hK : IsCompact K) :
   obtain ⟨v, _, hv⟩ := hK.exists_isMinOn hne continuous_im.continuousOn
   exact ⟨|re u|, im v, v.im_pos, fun k hk ↦ ⟨isMaxOn_iff.mp hu _ hk, isMinOn_iff.mp hv _ hk⟩⟩
 
-theorem ModularGroup_T_zpow_mem_verticalStrip (z : ℍ) {N : ℕ} (hn : 0 < N) :
-    ∃ n : ℤ, ModularGroup.T ^ (N * n) • z ∈ verticalStrip N z.im := by
+theorem ModularGroup_T_zpow_mem_verticalStrip (z : ℍ) {N : ℕ} (hn : 0 < N)
+    : ∃ n : ℤ, ModularGroup.T ^ (N * n) • z ∈ verticalStrip N z.im := by
   let n := Int.floor (z.re / N)
   use -n
   rw [modular_T_zpow_smul z (N * -n)]
@@ -181,8 +171,8 @@ lemma comp_ofComplex_of_im_le_zero (f : ℍ → ℂ) (z z' : ℂ) (hz : z.im ≤
     (↑ₕf) z = (↑ₕf) z' := by
   simp [ofComplex_apply_of_im_nonpos, hz, hz']
 
-theorem periodic_comp_ofComplex {f : ℍ → ℂ} {h : ℝ} (hf : ∀ τ : ℍ, f (h +ᵥ τ) = f τ) :
-    Periodic (f ∘ ofComplex) h := by
+theorem periodic_comp_ofComplex {f : ℍ → ℂ} {h : ℝ} (hf : ∀ τ : ℍ, f (h +ᵥ τ) = f τ)
+    : Periodic (f ∘ ofComplex) h := by
   intro w
   by_cases hw : 0 < w.im
   · have hwh : 0 < (w + h).im := by simp [hw]
@@ -191,8 +181,9 @@ theorem periodic_comp_ofComplex {f : ℍ → ℂ} {h : ℝ} (hf : ∀ τ : ℍ, 
     ext
     simp [add_comm]
   · have : (w + h).im ≤ 0 := by simpa using not_lt.mp hw
-    simp [comp_apply, ofComplex_apply_of_im_nonpos this,
-      ofComplex_apply_of_im_nonpos (not_lt.mp hw)]
+    simp [
+      comp_apply, ofComplex_apply_of_im_nonpos this, ofComplex_apply_of_im_nonpos (not_lt.mp hw)
+    ]
 
 lemma eventuallyEq_coe_comp_ofComplex {z : ℂ} (hz : 0 < z.im) :
     UpperHalfPlane.coe ∘ ofComplex =ᶠ[𝓝 z] id := by

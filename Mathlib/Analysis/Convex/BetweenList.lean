@@ -22,7 +22,6 @@ This file defines notions of lists of points in an affine space being in order o
 
 @[expose] public section
 
-
 variable (R : Type*) {V V' P P' : Type*}
 
 open AffineEquiv AffineMap
@@ -35,8 +34,7 @@ variable [Ring R] [PartialOrder R] [AddCommGroup V] [Module R V] [AddTorsor V P]
 variable [AddCommGroup V'] [Module R V'] [AddTorsor V' P']
 
 /-- The points in a list are weakly in that order on a line. -/
-protected def Wbtw (l : List P) : Prop :=
-  l.Triplewise (Wbtw R)
+protected def Wbtw (l : List P) : Prop := l.Triplewise (Wbtw R)
 
 variable {R}
 
@@ -46,8 +44,7 @@ lemma wbtw_cons {p : P} {l : List P} : (p :: l).Wbtw R ↔ l.Pairwise (Wbtw R p)
 variable (R)
 
 /-- The points in a list are strictly in that order on a line. -/
-protected def Sbtw (l : List P) : Prop :=
-  l.Wbtw R ∧ l.Pairwise (· ≠ ·)
+protected def Sbtw (l : List P) : Prop := l.Wbtw R ∧ l.Pairwise (· ≠ ·)
 
 variable (P)
 
@@ -175,8 +172,9 @@ end OrderedRing
 
 section LinearOrderedField
 
-variable [Field R] [LinearOrder R] [IsStrictOrderedRing R]
-  [AddCommGroup V] [Module R V] [AddTorsor V P] {x : P}
+variable
+  [Field R] [LinearOrder R] [IsStrictOrderedRing R] [AddCommGroup V] [Module R V] [AddTorsor V P]
+  {x : P}
 variable {R}
 
 lemma SortedLE.wbtw {l : List R} (h : l.SortedLE) : l.Wbtw R := by

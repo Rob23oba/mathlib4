@@ -65,12 +65,12 @@ protected lemma add_pow_prime_eq (h : Commute x y) :
         ∑ k ∈ Ioo 0 p, x ^ (k - 1) * y ^ (p - k - 1) * ↑(p.choose k / p) := by
   simpa using h.add_pow_prime_pow_eq hp 1
 
-protected theorem exists_add_pow_prime_pow_eq (h : Commute x y) (n : ℕ) :
-    ∃ r, (x + y) ^ p ^ n = x ^ p ^ n + y ^ p ^ n + p * x * y * r :=
+protected theorem exists_add_pow_prime_pow_eq (h : Commute x y) (n : ℕ)
+    : ∃ r, (x + y) ^ p ^ n = x ^ p ^ n + y ^ p ^ n + p * x * y * r :=
   ⟨_, h.add_pow_prime_pow_eq hp n⟩
 
-protected theorem exists_add_pow_prime_eq (h : Commute x y) :
-    ∃ r, (x + y) ^ p = x ^ p + y ^ p + p * x * y * r :=
+protected theorem exists_add_pow_prime_eq (h : Commute x y)
+    : ∃ r, (x + y) ^ p = x ^ p + y ^ p + p * x * y * r :=
   ⟨_, h.add_pow_prime_eq hp⟩
 
 end Commute
@@ -97,14 +97,14 @@ lemma add_pow_prime_eq' :
     (x + y) ^ p = x ^ p + y ^ p + p * ∑ k ∈ Ioo 0 p, x ^ k * y ^ (p - k) * ↑(p.choose k / p) :=
   (Commute.all x y).add_pow_prime_eq' hp
 
-theorem add_pow_prime_eq :
-    (x + y) ^ p =
-      x ^ p + y ^ p + p * x * y *
-        ∑ k ∈ Ioo 0 p, x ^ (k - 1) * y ^ (p - k - 1) * ↑(p.choose k / p) :=
+theorem add_pow_prime_eq
+    : (x + y) ^ p
+      = x ^ p + y ^ p
+        + p * x * y * ∑ k ∈ Ioo 0 p, x ^ (k - 1) * y ^ (p - k - 1) * ↑(p.choose k / p) :=
   (Commute.all x y).add_pow_prime_eq hp
 
-theorem exists_add_pow_prime_pow_eq :
-    ∃ r, (x + y) ^ p ^ n = x ^ p ^ n + y ^ p ^ n + p * x * y * r :=
+theorem exists_add_pow_prime_pow_eq
+    : ∃ r, (x + y) ^ p ^ n = x ^ p ^ n + y ^ p ^ n + p * x * y * r :=
   (Commute.all x y).exists_add_pow_prime_pow_eq hp n
 
 theorem exists_add_pow_prime_eq : ∃ r, (x + y) ^ p = x ^ p + y ^ p + p * x * y * r :=
@@ -274,7 +274,6 @@ lemma Nat.Prime.dvd_add_pow_sub_pow_of_dvd (hpri : p.Prime) {r : R} (h₁ : r �
   exact dvd_add h₁ (h₂.trans <| (dvd_mul_right ..).trans <| dvd_mul_right ..)
 
 end CommRing
-
 
 namespace CharP
 

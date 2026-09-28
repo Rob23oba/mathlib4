@@ -29,7 +29,6 @@ lemma prod_nonneg {s : List R} (h : ∀ a ∈ s, 0 ≤ a) : 0 ≤ s.prod := by
     simp only [mem_cons, forall_eq_or_imp] at h
     exact mul_nonneg h.1 (hind h.2)
 
-
 lemma one_le_prod {s : List R} (h : ∀ a ∈ s, 1 ≤ a) : 1 ≤ s.prod := by
   induction s with
   | nil => simp
@@ -38,11 +37,13 @@ lemma one_le_prod {s : List R} (h : ∀ a ∈ s, 1 ≤ a) : 1 ≤ s.prod := by
     simp only [mem_cons, forall_eq_or_imp] at h
     exact one_le_mul_of_one_le_of_one_le h.1 (hind h.2)
 
-theorem prod_map_le_prod_map₀ {ι : Type*} {s : List ι} (f : ι → R) (g : ι → R)
-    (h0 : ∀ i ∈ s, 0 ≤ f i) (h : ∀ i ∈ s, f i ≤ g i) :
-    (map f s).prod ≤ (map g s).prod := by
+theorem prod_map_le_prod_map₀
+    {ι : Type*} {s : List ι}
+    (f : ι → R) (g : ι → R) (h0 : ∀ i ∈ s, 0 ≤ f i) (h : ∀ i ∈ s, f i ≤ g i)
+    : (map f s).prod ≤ (map g s).prod := by
   induction s with
-  | nil => simp
+  | nil =>
+    simp
   | cons a s hind =>
     simp only [map_cons, prod_cons]
     have := posMulMono_iff_mulPosMono.1 ‹PosMulMono R›
@@ -53,9 +54,10 @@ theorem prod_map_le_prod_map₀ {ι : Type*} {s : List ι} (f : ι → R) (g : �
     · grind [prod_nonneg]
     · apply (h0 _ _).trans (h _ _) <;> simp only [mem_cons, true_or]
 
-theorem prod_map_le_pow_length₀ {F L : Type*} [FunLike F L R] {f : F} {r : R} {t : List L}
-    (hf0 : ∀ x ∈ t, 0 ≤ f x) (hf : ∀ x ∈ t, f x ≤ r) :
-    (map f t).prod ≤ r ^ length t := by
+theorem prod_map_le_pow_length₀
+    {F L : Type*} [FunLike F L R]
+    {f : F} {r : R} {t : List L} (hf0 : ∀ x ∈ t, 0 ≤ f x) (hf : ∀ x ∈ t, f x ≤ r)
+    : (map f t).prod ≤ r ^ length t := by
   convert! prod_map_le_prod_map₀ f (Function.const L r) hf0 hf
   simp [map_const, prod_replicate]
 
@@ -70,11 +72,13 @@ lemma prod_pos {s : List R} (h : ∀ a ∈ s, 0 < a) : 0 < s.prod := by
     simp only [mem_cons, forall_eq_or_imp] at h
     exact mul_pos h.1 (hind h.2)
 
-theorem prod_map_lt_prod_map {ι : Type*} {s : List ι} (hs : s ≠ [])
-    (f : ι → R) (g : ι → R) (h0 : ∀ i ∈ s, 0 < f i) (h : ∀ i ∈ s, f i < g i) :
-    (map f s).prod < (map g s).prod := by
+theorem prod_map_lt_prod_map
+    {ι : Type*} {s : List ι}
+    (hs : s ≠ []) (f : ι → R) (g : ι → R) (h0 : ∀ i ∈ s, 0 < f i) (h : ∀ i ∈ s, f i < g i)
+    : (map f s).prod < (map g s).prod := by
   match s with
-  | [] => contradiction
+  | [] =>
+    contradiction
   | a :: s =>
     simp only [map_cons, prod_cons]
     have := posMulStrictMono_iff_mulPosStrictMono.1 ‹PosMulStrictMono R›

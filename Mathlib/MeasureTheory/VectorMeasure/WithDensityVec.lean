@@ -29,24 +29,27 @@ namespace MeasureTheory.VectorMeasure
 
 local infixr:25 " →ₛ " => SimpleFunc
 
-variable {X E F G : Type*} {mX : MeasurableSpace X}
-  [NormedAddCommGroup E] [NormedSpace ℝ E]
-  [NormedAddCommGroup F] [NormedSpace ℝ F]
-  [NormedAddCommGroup G] [NormedSpace ℝ G]
+variable
+  {X E F G : Type*} {mX : MeasurableSpace X} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  [NormedAddCommGroup F] [NormedSpace ℝ F] [NormedAddCommGroup G] [NormedSpace ℝ G]
   {μ : VectorMeasure X F} {f g : X → E} {B : E →L[ℝ] F →L[ℝ] G} {s : Set X}
 
 open scoped Classical in
-/-- The vector measure with density `f` with respect to a vector measure `μ`, associating to a
+/--
+The vector measure with density `f` with respect to a vector measure `μ`, associating to a
 measurable set the mass `∫ᵛ x in s, f x ∂[B; μ]`.
-If `f` is not integrable, we use the junk value `0`. -/
-noncomputable def withDensity (μ : VectorMeasure X F) (f : X → E) (B : E →L[ℝ] F →L[ℝ] G) :
-    VectorMeasure X G :=
-  if h : μ.Integrable f then
-    { measureOf' s := ∫ᵛ x in s, f x ∂[B; μ]
-      empty' := by simp
-      not_measurable' s hs := setIntegral_eq_zero_of_not_measurableSet hs
-      m_iUnion' s s_meas s_disj := hasSum_setIntegral_iUnion s_meas s_disj h.integrableOn }
-  else 0
+If `f` is not integrable, we use the junk value `0`.
+-/
+noncomputable def withDensity (μ : VectorMeasure X F) (f : X → E) (B : E →L[ℝ] F →L[ℝ] G)
+    : VectorMeasure X G :=
+  if h : μ.Integrable f then {
+    measureOf' s := ∫ᵛ x in s, f x ∂[B; μ]
+    empty' := by simp
+    not_measurable' s hs := setIntegral_eq_zero_of_not_measurableSet hs
+    m_iUnion' s s_meas s_disj := hasSum_setIntegral_iUnion s_meas s_disj h.integrableOn
+  }
+  else
+    0
 
 lemma withDensity_apply (hf : μ.Integrable f) :
     μ.withDensity f B s = ∫ᵛ x in s, f x ∂[B; μ] := by

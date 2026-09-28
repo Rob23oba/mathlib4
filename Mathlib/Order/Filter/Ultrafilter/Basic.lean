@@ -30,13 +30,13 @@ namespace Ultrafilter
 
 variable {f : Ultrafilter α} {s : Set α}
 
-theorem finite_sUnion_mem_iff {s : Set (Set α)} (hs : s.Finite) : ⋃₀ s ∈ f ↔ ∃ t ∈ s, t ∈ f := by
+theorem finite_sUnion_mem_iff {s : Set (Set α)} (hs : s.Finite) : ⋃₀s ∈ f ↔ ∃ t ∈ s, t ∈ f := by
   induction s, hs using Set.Finite.induction_on with
   | empty => simp
   | insert _ _ his => simp [union_mem_iff, his, or_and_right, exists_or]
 
-theorem finite_biUnion_mem_iff {is : Set β} {s : β → Set α} (his : is.Finite) :
-    (⋃ i ∈ is, s i) ∈ f ↔ ∃ i ∈ is, s i ∈ f := by
+theorem finite_biUnion_mem_iff {is : Set β} {s : β → Set α} (his : is.Finite)
+    : (⋃ i ∈ is, s i) ∈ f ↔ ∃ i ∈ is, s i ∈ f := by
   simp only [← sUnion_image, finite_sUnion_mem_iff (his.image s), exists_mem_image]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -58,8 +58,8 @@ theorem eq_pure_of_finite_mem (h : s.Finite) (h' : s ∈ f) : ∃ x ∈ s, f = p
 theorem eq_pure_of_finite [Finite α] (f : Ultrafilter α) : ∃ a, f = pure a :=
   (eq_pure_of_finite_mem finite_univ univ_mem).imp fun _ ⟨_, ha⟩ => ha
 
-theorem pure_surjective [Finite α] : Function.Surjective (pure : α → Ultrafilter α) :=
-  fun f ↦ (eq_pure_of_finite f).imp fun _ ↦ .symm
+theorem pure_surjective [Finite α] : Function.Surjective (pure : α → Ultrafilter α) := fun f ↦
+  (eq_pure_of_finite f).imp fun _ ↦ .symm
 
 theorem le_cofinite_or_eq_pure (f : Ultrafilter α) : (f : Filter α) ≤ cofinite ∨ ∃ a, f = pure a :=
   or_iff_not_imp_left.2 fun h =>
@@ -67,9 +67,10 @@ theorem le_cofinite_or_eq_pure (f : Ultrafilter α) : (f : Filter α) ≤ cofini
     let ⟨a, _, hf⟩ := eq_pure_of_finite_mem hfin hs
     ⟨a, hf⟩
 
-theorem exists_ultrafilter_of_finite_inter_nonempty (S : Set (Set α))
-    (cond : ∀ T : Finset (Set α), (↑T : Set (Set α)) ⊆ S → (⋂₀ (↑T : Set (Set α))).Nonempty) :
-    ∃ F : Ultrafilter α, S ⊆ F.sets :=
+theorem exists_ultrafilter_of_finite_inter_nonempty
+    (S : Set (Set α))
+    (cond : ∀ T : Finset (Set α), (↑T : Set (Set α)) ⊆ S → (⋂₀(↑T : Set (Set α))).Nonempty)
+    : ∃ F : Ultrafilter α, S ⊆ F.sets :=
   haveI : NeBot (generate S) :=
     generate_neBot_iff.2 fun _ hts ht =>
       ht.coe_toFinset ▸ cond ht.toFinset (ht.coe_toFinset.symm ▸ hts)
@@ -87,8 +88,8 @@ lemma atTop_eq_pure_of_isTop [PartialOrder α] {x : α} (hx : IsTop x) :
   { top := x, le_top := hx : OrderTop α }.atTop_eq
 
 /-- The `tendsto` relation can be checked on ultrafilters. -/
-theorem tendsto_iff_ultrafilter (f : α → β) (l₁ : Filter α) (l₂ : Filter β) :
-    Tendsto f l₁ l₂ ↔ ∀ g : Ultrafilter α, ↑g ≤ l₁ → Tendsto f g l₂ := by
+theorem tendsto_iff_ultrafilter (f : α → β) (l₁ : Filter α) (l₂ : Filter β)
+    : Tendsto f l₁ l₂ ↔ ∀ g : Ultrafilter α, ↑g ≤ l₁ → Tendsto f g l₂ := by
   simpa only [tendsto_iff_comap] using le_iff_ultrafilter
 
 section Hyperfilter
@@ -96,20 +97,16 @@ section Hyperfilter
 variable (α) [Infinite α]
 
 /-- The ultrafilter extending the cofinite filter. -/
-noncomputable def hyperfilter : Ultrafilter α :=
-  Ultrafilter.of cofinite
+noncomputable def hyperfilter : Ultrafilter α := Ultrafilter.of cofinite
 
 variable {α}
 
-theorem hyperfilter_le_cofinite : ↑(hyperfilter α) ≤ @cofinite α :=
-  Ultrafilter.of_le cofinite
+theorem hyperfilter_le_cofinite : ↑(hyperfilter α) ≤ @cofinite α := Ultrafilter.of_le cofinite
 
 theorem _root_.Nat.hyperfilter_le_atTop : (hyperfilter ℕ).toFilter ≤ atTop :=
   hyperfilter_le_cofinite.trans_eq Nat.cofinite_eq_atTop
 
-@[simp]
-theorem bot_ne_hyperfilter : (⊥ : Filter α) ≠ hyperfilter α :=
-  (NeBot.ne inferInstance).symm
+@[simp] theorem bot_ne_hyperfilter : (⊥ : Filter α) ≠ hyperfilter α := (NeBot.ne inferInstance).symm
 
 theorem notMem_hyperfilter_of_finite {s : Set α} (hf : s.Finite) : s ∉ hyperfilter α := fun hy =>
   compl_notMem hy <| hyperfilter_le_cofinite hf.compl_mem_cofinite

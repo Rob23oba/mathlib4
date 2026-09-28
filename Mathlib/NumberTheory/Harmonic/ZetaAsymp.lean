@@ -8,7 +8,6 @@ module
 public import Mathlib.NumberTheory.LSeries.Dirichlet
 public import Mathlib.NumberTheory.Harmonic.GammaDeriv
 public import Mathlib.Analysis.Asymptotics.Lemmas
-
 import Mathlib.Analysis.Calculus.Deriv.Star
 import Mathlib.Analysis.Normed.Module.Connected
 
@@ -341,15 +340,15 @@ lemma tendsto_riemannZeta_sub_one_div_nhds_right :
     exact Tendsto.mono_left this (nhdsWithin_mono _ Ioi_subset_Ici_self)
 
 /-- The function `ζ s - 1 / (s - 1)` tends to `γ` as `s → 1`. -/
-theorem _root_.tendsto_riemannZeta_sub_one_div :
-    Tendsto (fun s : ℂ ↦ riemannZeta s - 1 / (s - 1)) (𝓝[≠] 1) (𝓝 γ) := by
+theorem _root_.tendsto_riemannZeta_sub_one_div
+    : Tendsto (fun s : ℂ ↦ riemannZeta s - 1 / (s - 1)) (𝓝[≠] 1) (𝓝 γ) := by
   -- We use the removable-singularity theorem to show that *some* limit over `𝓝[≠] (1 : ℂ)` exists,
   -- and then use the previous result to deduce that this limit must be `γ`.
   let f (s : ℂ) := riemannZeta s - 1 / (s - 1)
   suffices ∃ C, Tendsto f (𝓝[≠] 1) (𝓝 C) by
     obtain ⟨C, hC⟩ := this
-    suffices Tendsto (fun s : ℝ ↦ f s) _ _
-      from (tendsto_nhds_unique this tendsto_riemannZeta_sub_one_div_nhds_right) ▸ hC
+    suffices Tendsto (fun s : ℝ ↦ f s) _ _ from
+      (tendsto_nhds_unique this tendsto_riemannZeta_sub_one_div_nhds_right) ▸ hC
     refine hC.comp (tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ ?_ ?_)
     · exact (Complex.continuous_ofReal.tendsto 1).mono_left (nhdsWithin_le_nhds ..)
     · filter_upwards [self_mem_nhdsWithin] with a ha
@@ -452,11 +451,13 @@ lemma riemannZeta_one_ne_zero : riemannZeta 1 ≠ 0 := by
     exact (lt_trans Real.exp_one_lt_d9 (by norm_num)).trans_le
       <| mul_le_mul_of_nonneg_left Real.two_le_pi (by simp)
 
-/-- **Conjugation symmetry of the Riemann zeta function**: `ζ (conj s) = conj (ζ s)`.
+/--
+**Conjugation symmetry of the Riemann zeta function**: `ζ (conj s) = conj (ζ s)`.
 
 Since `ζ` has real Dirichlet coefficients, `conj (ζ (conj z)) = ζ z` holds termwise for
 `1 < re z`, and the identity principle propagates this to all `s ≠ 1`; the junk value `ζ 1` is
-real, so the identity also holds at `s = 1`. -/
+real, so the identity also holds at `s = 1`.
+-/
 @[simp]
 theorem riemannZeta_conj (s : ℂ) : riemannZeta (conj s) = conj (riemannZeta s) := by
   rcases eq_or_ne s 1 with rfl | hs
@@ -468,20 +469,22 @@ theorem riemannZeta_conj (s : ℂ) : riemannZeta (conj s) = conj (riemannZeta s)
     -- the identity principle propagates the equality to the connected set `{1}ᶜ`.
     have hg_an : AnalyticOnNhd ℂ (fun z ↦ conj (riemannZeta (conj z))) {1}ᶜ :=
       DifferentiableOn.analyticOnNhd
-        (fun z hz ↦ (differentiableAt_conj_conj_iff.mpr <| differentiableAt_riemannZeta <|
-          (map_ne_one_iff _ (starRingEnd ℂ).injective).mpr hz).differentiableWithinAt)
+        (fun z hz ↦
+          (differentiableAt_conj_conj_iff.mpr <| differentiableAt_riemannZeta <|
+            (map_ne_one_iff _ (starRingEnd ℂ).injective).mpr hz).differentiableWithinAt)
         isOpen_compl_singleton
     have hgz (z : ℂ) (hz : 1 < z.re) : conj (riemannZeta (conj z)) = riemannZeta z := by
-      rw [zeta_eq_tsum_one_div_nat_cpow (by rwa [conj_re]), conj_tsum,
-        zeta_eq_tsum_one_div_nat_cpow hz]
+      rw [
+        zeta_eq_tsum_one_div_nat_cpow (by rwa [conj_re]), conj_tsum,
+        zeta_eq_tsum_one_div_nat_cpow hz
+      ]
       exact tsum_congr fun n ↦ by
         rw [map_div₀, map_one, ← conj_cpow _ _ (by rw [natCast_arg]; positivity), conj_natCast]
     have heq : EqOn (fun z ↦ conj (riemannZeta (conj z))) riemannZeta {1}ᶜ :=
       hg_an.eqOn_of_preconnected_of_eventuallyEq analyticOn_riemannZeta
         (isConnected_compl_singleton_of_one_lt_rank (by simp) 1).isPreconnected
         (by simp : (2 : ℂ) ∈ _)
-        (eventuallyEq_of_mem
-          ((isOpen_lt continuous_const continuous_re).mem_nhds (by simp)) hgz)
+        (eventuallyEq_of_mem ((isOpen_lt continuous_const continuous_re).mem_nhds (by simp)) hgz)
     simpa using congrArg (starRingEnd ℂ) (heq hs)
 
 lemma riemannZeta_eventually_ne_zero_nhds_one : ∀ᶠ s in 𝓝 1, riemannZeta s ≠ 0 := by
@@ -493,8 +496,7 @@ lemma completedRiemannZeta₀_zero : completedRiemannZeta₀ 0 = (γ - Complex.l
   simp [completedRiemannZeta₀_one]
 
 /-- The derivative of `riemannZeta` at `s = 0` equals `-log(2π) / 2`. -/
-theorem deriv_riemannZeta_zero :
-    deriv riemannZeta 0 = -log (2 * π) / 2 := by
+theorem deriv_riemannZeta_zero : deriv riemannZeta 0 = - log (2 * π) / 2 := by
   rw [funext riemannZeta_eq_mul_completedRiemannZeta₀]
   apply HasDerivAt.deriv
   have h₁ : HasDerivAt ((id * completedRiemannZeta₀ - 1) - id / (1 - id)) _ 0 :=
@@ -504,14 +506,14 @@ theorem deriv_riemannZeta_zero :
       (.div (hasDerivAt_id 0) (.sub (hasDerivAt_const 0 1) (hasDerivAt_id 0)) (by simp))
   have h₂ : HasDerivAt ((fun x : ℂ => 2) * fun (x : ℂ) => (π : ℂ) ^ (-x / 2)) _ 0 :=
     .mul (hasDerivAt_const 0 2) <|
-    .cpow (hasDerivAt_const 0 _) (.div_const (.neg <| hasDerivAt_id 0) 2) (by simp [Real.pi_pos])
+      .cpow (hasDerivAt_const 0 _) (.div_const (.neg <| hasDerivAt_id 0) 2) (by simp [Real.pi_pos])
   have h₃ : HasDerivAt (Gamma ∘ fun x => x / 2 + 1) (deriv Gamma (0 / 2 + 1) * (1 / 2 + 0)) 0 := by
     refine (differentiableAt_Gamma _ ?_).hasDerivAt.comp 0 ?_
     · simp only [zero_div]
       norm_cast
       simp
     · exact ((hasDerivAt_id 0).div_const 2).add (hasDerivAt_const 0 1)
-  suffices h : -(log (2 * π) * 2) = γ - log (2 * 2 * π) + (-log π + -γ) by
+  suffices h : -(log (2 * π) * 2) = γ - log (2 * 2 * π) + (- log π + -γ) by
     norm_num only at h
     convert! h₁.mul ((h₂.mul h₃).inv (by simp)) using 1
     simpa [completedRiemannZeta₀_zero, hasDerivAt_Gamma_one.deriv, field]
@@ -532,8 +534,7 @@ entire functions `riemannZeta₀`, `riemannZeta₁`.
 open Asymptotics
 
 /-- `riemannZeta₀ s` is the completion of `riemannZeta s - (s-1)⁻¹` at `s = 1`. -/
-noncomputable def riemannZeta₀ (s : ℂ) : ℂ :=
-  if s = 1 then γ else riemannZeta s - (s-1)⁻¹
+noncomputable def riemannZeta₀ (s : ℂ) : ℂ := if s = 1 then γ else riemannZeta s - (s - 1)⁻¹
 
 /-- `riemannZeta₁ s` is the completion of `(s-1) * riemannZeta s` at `s = 1`. -/
 noncomputable def riemannZeta₁ (s : ℂ) : ℂ := 1 + (s - 1) * riemannZeta₀ s

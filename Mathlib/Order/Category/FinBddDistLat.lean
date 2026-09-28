@@ -18,7 +18,6 @@ bounded lattice homomorphisms.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory
@@ -29,14 +28,11 @@ structure FinBddDistLat extends BddDistLat where
 
 namespace FinBddDistLat
 
-instance : CoeSort FinBddDistLat Type* :=
-  ⟨fun X => X.carrier⟩
+instance : CoeSort FinBddDistLat Type* := ⟨fun X => X.carrier⟩
 
-instance (X : FinBddDistLat) : DistribLattice X :=
-  X.str
+instance (X : FinBddDistLat) : DistribLattice X := X.str
 
-instance (X : FinBddDistLat) : BoundedOrder X :=
-  X.isBoundedOrder
+instance (X : FinBddDistLat) : BoundedOrder X := X.isBoundedOrder
 
 attribute [instance] FinBddDistLat.isFintype
 
@@ -75,16 +71,16 @@ abbrev Hom.hom {X Y : FinBddDistLat.{u}} (f : Hom X Y) :=
   ConcreteCategory.hom (C := FinBddDistLat) f
 
 /-- Typecheck a `BoundedLatticeHom` as a morphism in `FinBddDistLat`. -/
-abbrev ofHom {X Y : Type u} [DistribLattice X] [BoundedOrder X] [Fintype X] [DistribLattice Y]
-    [BoundedOrder Y] [Fintype Y]
-    (f : BoundedLatticeHom X Y) :
-    of X ⟶ of Y :=
+abbrev ofHom
+    {X Y : Type u}
+    [DistribLattice X] [BoundedOrder X] [Fintype X] [DistribLattice Y] [BoundedOrder Y] [Fintype Y]
+    (f : BoundedLatticeHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := FinBddDistLat) f
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : FinBddDistLat.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : FinBddDistLat.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -155,8 +151,7 @@ lemma inv_hom_apply {X Y : FinBddDistLat} (e : X ≅ Y) (x : X) : e.inv (e.hom x
 lemma hom_inv_apply {X Y : FinBddDistLat} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited FinBddDistLat :=
-  ⟨of PUnit⟩
+instance : Inhabited FinBddDistLat := ⟨of PUnit⟩
 
 instance hasForgetToBddDistLat : HasForget₂ FinBddDistLat BddDistLat where
   forget₂.obj X := ↧X
@@ -166,8 +161,10 @@ instance hasForgetToFinPartOrd : HasForget₂ FinBddDistLat FinPartOrd where
   forget₂.obj X := ↧X
   forget₂.map f := ConcreteCategory.ofHom (.ofClass f.hom)
 
-/-- Constructs an equivalence between finite distributive lattices from an order isomorphism
-between them. -/
+/--
+Constructs an equivalence between finite distributive lattices from an order isomorphism
+between them.
+-/
 @[simps]
 def Iso.mk {α β : FinBddDistLat.{u}} (e : α.carrier ≃o β.carrier) : α ≅ β where
   hom := ofHom e
@@ -191,7 +188,7 @@ def dualEquiv : FinBddDistLat ≌ FinBddDistLat where
 
 end FinBddDistLat
 
-theorem finBddDistLat_dual_comp_forget_to_bddDistLat :
-    FinBddDistLat.dual ⋙ forget₂ FinBddDistLat BddDistLat =
-      forget₂ FinBddDistLat BddDistLat ⋙ BddDistLat.dual :=
+theorem finBddDistLat_dual_comp_forget_to_bddDistLat
+    : FinBddDistLat.dual ⋙ forget₂ FinBddDistLat BddDistLat
+      = forget₂ FinBddDistLat BddDistLat ⋙ BddDistLat.dual :=
   rfl

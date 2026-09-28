@@ -17,8 +17,10 @@ public import Mathlib.Util.Delaborators
 variable {ι : Type*} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i}
 
 open Units in
-/-- The monoid equivalence between units of a product,
-and the product of the units of each monoid. -/
+/--
+The monoid equivalence between units of a product,
+and the product of the units of each monoid.
+-/
 @[to_additive (attr := simps)
   /-- The additive-monoid equivalence between (additive) units of a product,
   and the product of the (additive) units of each monoid. -/]

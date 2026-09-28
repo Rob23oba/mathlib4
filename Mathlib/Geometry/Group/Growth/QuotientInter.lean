@@ -22,7 +22,9 @@ open Finset Function
 open scoped Pointwise
 
 namespace Finset
-variable {G : Type*} [Group G] [DecidableEq G] {H : Subgroup G} [DecidablePred (· ∈ H)] [H.Normal]
+variable
+  {G : Type*} [Group G] [DecidableEq G]
+  {H : Subgroup G} [DecidablePred (· ∈ H)] [H.Normal]
   {A : Finset G} {m n : ℕ}
 
 @[to_additive]

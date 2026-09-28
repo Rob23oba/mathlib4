@@ -26,10 +26,12 @@ open Filter
 
 open scoped Topology
 
-/-- An *approximate unit* is a proper filter (i.e., `≠ ⊥`) such that multiplication on the left
-(and separately on the right) by `m : α` tends to `𝓝 m` along the filter. -/
-structure Filter.IsApproximateUnit {α : Type*} [TopologicalSpace α] [Mul α]
-    (l : Filter α) : Prop where
+/--
+An *approximate unit* is a proper filter (i.e., `≠ ⊥`) such that multiplication on the left
+(and separately on the right) by `m : α` tends to `𝓝 m` along the filter.
+-/
+structure Filter.IsApproximateUnit {α : Type*} [TopologicalSpace α] [Mul α] (l : Filter α)
+    : Prop where
   /-- Multiplication on the left by `m` tends to `𝓝 m` along the filter. -/
   tendsto_mul_left m : Tendsto (m * ·) l (𝓝 m)
   /-- Multiplication on the right by `m` tends to `𝓝 m` along the filter. -/
@@ -71,7 +73,6 @@ lemma iff_neBot_and_le_nhds_one [SeparatelyContinuousMul α] {l : Filter α} :
 lemma iff_le_nhds_one [SeparatelyContinuousMul α] {l : Filter α} [l.NeBot] :
     IsApproximateUnit l ↔ l ≤ 𝓝 1 := by
   simpa [iff_neBot_and_le_nhds_one] using fun _ ↦ ‹_›
-
 
 end TopologicalMonoid
 

@@ -26,11 +26,9 @@ public section
 
 namespace UpperHalfPlane
 
-@[fun_prop]
-theorem num_continuous : Continuous ↿num := by unfold num; fun_prop
+@[fun_prop] theorem num_continuous : Continuous ↿num := by unfold num; fun_prop
 
-@[fun_prop]
-theorem denom_continuous : Continuous ↿denom := by unfold denom; fun_prop
+@[fun_prop] theorem denom_continuous : Continuous ↿denom := by unfold denom; fun_prop
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma continuous_toSL2R : Continuous toSL2R := by
@@ -39,12 +37,15 @@ lemma continuous_toSL2R : Continuous toSL2R := by
   fun_prop (disch := grind [im_pos])
 
 /-- The action of `SL(2, ℝ)` on `ℍ` is jointly continuous. -/
-instance instContinuousSMulSL2R : ContinuousSMul SL(2, ℝ) ℍ where
+instance instContinuousSMulSL2R : ContinuousSMul (SL(2, ℝ)) ℍ where
   continuous_smul := by
     suffices ∀ (g : SL(2, ℝ)) (τ : ℍ),
-        ContinuousAt (fun ⟨h, z⟩ ↦ (h 0 0 * (z : ℂ) + h 0 1) / (h 1 0 * z + h 1 1)) (g, τ) by
-      simpa [continuous_induced_rng, continuous_iff_continuousAt, Function.comp_def,
-        coe_specialLinearGroup_apply]
+      ContinuousAt (fun ⟨h, z⟩ ↦ (h 0 0 * (z : ℂ) + h 0 1) / (h 1 0 * z + h 1 1)) (g, τ)
+    by
+      simpa [
+        continuous_induced_rng, continuous_iff_continuousAt, Function.comp_def,
+        coe_specialLinearGroup_apply
+      ]
     intro g τ
     fun_prop (disch := exact denom_ne_zero g τ)
 
@@ -62,10 +63,12 @@ lemma σ_eventuallyEq (g : GL (Fin 2) ℝ) : σ =ᶠ[𝓝 g] fun _ ↦ σ g := b
 /-- The action of `GL(2, ℝ)` on `ℍ` is jointly continuous. -/
 instance instContinuousSMulGL2R : ContinuousSMul (GL (Fin 2) ℝ) ℍ := by
   constructor
-  simp only [continuous_induced_rng, Function.comp_def, coe_smul, continuous_iff_continuousAt,
-    Prod.forall]
-  refine fun g τ ↦ .congr ?_ (f := fun x ↦ (σ g) (num x.1 x.2 / denom x.1 x.2))
-    (by filter_upwards [(σ_eventuallyEq g).prod_inl_nhds _] using by simp +contextual)
+  simp only [
+    continuous_induced_rng, Function.comp_def, coe_smul, continuous_iff_continuousAt, Prod.forall
+  ]
+  refine fun g τ ↦
+    .congr ?_ (f := fun x ↦ (σ g) (num x.1 x.2 / denom x.1 x.2)) (by
+      filter_upwards [(σ_eventuallyEq g).prod_inl_nhds _] using by simp +contextual)
   fun_prop (disch := apply denom_ne_zero)
 
 section proper_orbit_map
@@ -119,14 +122,14 @@ lemma isProperMap_smul_I : IsProperMap fun g : SL(2, ℝ) ↦ g • I := by
   · refine le_trans ?_ <| le_max_right √A √A'
     exact Real.le_sqrt_of_sq_le <| le_trans (by fin_cases j <;> simp [sq_nonneg]) (hA' g hg)
 
-instance instProperSMul : ProperSMul SL(2, ℝ) ℍ :=
+instance instProperSMul : ProperSMul (SL(2, ℝ)) ℍ :=
   MulAction.properSMul_of_proper_orbitMap isProperMap_smul_I
 
 end proper_orbit_map
 
 /-- Any discrete subgroup of `SL(2, ℝ)` acts properly discontinuously on `ℍ`. -/
-instance instProperlyDiscontinuousSL2RSubgroup (𝒢 : Subgroup SL(2, ℝ)) [DiscreteTopology 𝒢] :
-    ProperlyDiscontinuousSMul 𝒢 ℍ := by
+instance instProperlyDiscontinuousSL2RSubgroup (𝒢 : Subgroup SL(2, ℝ)) [DiscreteTopology 𝒢]
+    : ProperlyDiscontinuousSMul 𝒢 ℍ := by
   have : IsClosed (𝒢 : Set SL(2, ℝ)) := Subgroup.isClosed_of_discreteTopology
   rw [properlyDiscontinuousSMul_iff_properSMul]
   infer_instance

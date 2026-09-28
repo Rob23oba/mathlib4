@@ -20,7 +20,6 @@ We show this function is (weight 0) invariant under `Γ` if `f, f'` are (weight 
 
 @[expose] public section
 
-
 open UpperHalfPlane Asymptotics Filter
 
 open scoped MatrixGroups ComplexConjugate ModularForm
@@ -28,8 +27,7 @@ open scoped MatrixGroups ComplexConjugate ModularForm
 namespace UpperHalfPlane
 
 /-- The integrand in the Petersson scalar product of two modular forms. -/
-noncomputable def petersson (k : ℤ) (f f' : ℍ → ℂ) (τ : ℍ) :=
-  conj (f τ) * f' τ * τ.im ^ k
+noncomputable def petersson (k : ℤ) (f f' : ℍ → ℂ) (τ : ℍ) := conj (f τ) * f' τ * τ.im ^ k
 
 @[fun_prop]
 lemma petersson_continuous (k : ℤ) {f f' : ℍ → ℂ} (hf : Continuous f) (hf' : Continuous f') :
@@ -91,9 +89,9 @@ lemma SlashInvariantFormClass.petersson_smul {k g τ} {Γ : Subgroup (GL (Fin 2)
 
 namespace UpperHalfPlane.IsZeroAtImInfty
 
-variable (k : ℤ) (Γ : Subgroup (GL (Fin 2) ℝ))
-    [Fact (IsCusp OnePoint.infty Γ)] [Γ.HasDetPlusMinusOne] [DiscreteTopology Γ]
-    [ModularFormClass F Γ k] [ModularFormClass F' Γ k]
+variable
+  (k : ℤ) (Γ : Subgroup (GL (Fin 2) ℝ)) [Fact (IsCusp OnePoint.infty Γ)] [Γ.HasDetPlusMinusOne]
+  [DiscreteTopology Γ] [ModularFormClass F Γ k] [ModularFormClass F' Γ k]
 
 include Γ -- can't be inferred from statements
 

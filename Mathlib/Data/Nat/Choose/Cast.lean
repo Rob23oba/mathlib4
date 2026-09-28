@@ -19,7 +19,6 @@ of characteristic `0`.
 
 public section
 
-
 open Nat
 
 variable (K : Type*)
@@ -42,8 +41,10 @@ section DivisionRing
 variable [DivisionRing K] [NeZero (2 : K)]
 
 theorem cast_choose_two (a : ℕ) : (a.choose 2 : K) = a * (a - 1) / 2 := by
-  rw [← cast_descFactorial_two, descFactorial_eq_factorial_mul_choose, factorial_two, mul_comm,
-    cast_mul, cast_two, eq_div_iff_mul_eq two_ne_zero]
+  rw [
+    ← cast_descFactorial_two, descFactorial_eq_factorial_mul_choose, factorial_two, mul_comm,
+    cast_mul, cast_two, eq_div_iff_mul_eq two_ne_zero
+  ]
 
 end DivisionRing
 end Nat

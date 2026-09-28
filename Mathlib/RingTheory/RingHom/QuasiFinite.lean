@@ -68,8 +68,9 @@ lemma QuasiFinite.holdsForLocalizationAway : HoldsForLocalizationAway QuasiFinit
   introv R _
   exact quasiFinite_algebraMap.mpr (.of_isLocalization (.powers r))
 
-attribute [local instance high] Algebra.TensorProduct.leftAlgebra Algebra.toModule
-    IsScalarTower.right DivisionRing.instIsArtinianRing in
+attribute [local instance high]
+  Algebra.TensorProduct.leftAlgebra Algebra.toModule IsScalarTower.right
+  DivisionRing.instIsArtinianRing in
 lemma QuasiFinite.ofLocalizationSpanTarget : OfLocalizationSpanTarget QuasiFinite := by
   rw [RingHom.ofLocalizationSpanTarget_iff_finite]
   introv R hs H
@@ -125,7 +126,8 @@ lemma QuasiFinite.of_isIntegral_of_finiteType
   exact Algebra.QuasiFinite.of_isIntegral_of_finiteType s
 
 /-- The predicate for a ring hom being quasi-finite at a prime. -/
-abbrev QuasiFiniteAt {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) (p : Ideal S)
-    [p.IsPrime] : Prop := letI := f.toAlgebra; Algebra.QuasiFiniteAt R p
+abbrev QuasiFiniteAt {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) (p : Ideal S) [p.IsPrime]
+    : Prop :=
+  letI := f.toAlgebra; Algebra.QuasiFiniteAt R p
 
 end RingHom

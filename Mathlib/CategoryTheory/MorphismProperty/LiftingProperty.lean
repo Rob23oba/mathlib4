@@ -30,13 +30,17 @@ variable {C : Type u} [Category.{v} C] (T : MorphismProperty C)
 
 namespace MorphismProperty
 
-/-- Given `T : MorphismProperty C`, this is the class of morphisms that have the
-left lifting property (llp) with respect to `T`. -/
+/--
+Given `T : MorphismProperty C`, this is the class of morphisms that have the
+left lifting property (llp) with respect to `T`.
+-/
 def llp : MorphismProperty C := fun _ _ f ↦
   ∀ ⦃X Y : C⦄ (g : X ⟶ Y) (_ : T g), HasLiftingProperty f g
 
-/-- Given `T : MorphismProperty C`, this is the class of morphisms that have the
-right lifting property (rlp) with respect to `T`. -/
+/--
+Given `T : MorphismProperty C`, this is the class of morphisms that have the
+right lifting property (rlp) with respect to `T`.
+-/
 def rlp : MorphismProperty C := fun _ _ f ↦
   ∀ ⦃X Y : C⦄ (g : X ⟶ Y) (_ : T g), HasLiftingProperty g f
 
@@ -83,8 +87,8 @@ instance rlp_isMultiplicative : T.rlp.IsMultiplicative where
     have := hj _ hp
     infer_instance
 
-instance llp_isStableUnderCoproductsOfShape (J : Type*) :
-    T.llp.IsStableUnderCoproductsOfShape J := by
+instance llp_isStableUnderCoproductsOfShape (J : Type*)
+    : T.llp.IsStableUnderCoproductsOfShape J := by
   apply IsStableUnderCoproductsOfShape.mk
   intro A B _ _ f hf X Y p hp
   have := fun j ↦ hf j _ hp
@@ -92,8 +96,7 @@ instance llp_isStableUnderCoproductsOfShape (J : Type*) :
 
 instance : IsStableUnderCoproducts.{w} T.llp where
 
-instance rlp_isStableUnderProductsOfShape (J : Type*) :
-    T.rlp.IsStableUnderProductsOfShape J := by
+instance rlp_isStableUnderProductsOfShape (J : Type*) : T.rlp.IsStableUnderProductsOfShape J := by
   apply IsStableUnderProductsOfShape.mk
   intro A B _ _ f hf X Y p hp
   have := fun j ↦ hf j _ hp

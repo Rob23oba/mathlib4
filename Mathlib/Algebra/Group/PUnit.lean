@@ -35,10 +35,18 @@ instance commGroup : CommGroup PUnit where
   mul_comm _ _ := rfl
 
 -- shortcut instances
-@[to_additive] instance : One PUnit where one := unit
-@[to_additive] instance : Mul PUnit where mul _ _ := unit
-@[to_additive] instance : Div PUnit where div _ _ := unit
-@[to_additive] instance : Inv PUnit where inv _ := unit
+@[to_additive]
+instance : One PUnit where
+  one := unit
+@[to_additive]
+instance : Mul PUnit where
+  mul _ _ := unit
+@[to_additive]
+instance : Div PUnit where
+  div _ _ := unit
+@[to_additive]
+instance : Inv PUnit where
+  inv _ := unit
 
 @[to_additive (attr := simp)] lemma one_eq : (1 : PUnit) = unit := rfl
 

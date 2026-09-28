@@ -70,17 +70,21 @@ namespace Topology
 
 /-! ### Scott-Hausdorff topology -/
 
-/-- The Scott-Hausdorff topology.
+/--
+The Scott-Hausdorff topology.
 
 A set `u` is open in the Scott-Hausdorff topology iff when the least upper bound of a directed set
 `d` lies in `u` then there is a tail of `d` which is a subset of `u`.
 
 For mild conditions on `D`, this is equivalent to saying that open sets are `DirSupInaccOn D`,
-and closed sets are `DirSupClosedOn D`. -/
+and closed sets are `DirSupClosedOn D`.
+-/
 @[instance_reducible]
 def scottHausdorff (α : Type*) (D : Set (Set α)) [Preorder α] : TopologicalSpace α where
-  IsOpen u := ∀ ⦃d : Set α⦄, d ∈ D → d.Nonempty → DirectedOn (· ≤ ·) d → ∀ ⦃a : α⦄, IsLUB d a →
-    a ∈ u → ∃ b ∈ d, Ici b ∩ d ⊆ u
+  IsOpen u :=
+    ∀ ⦃d : Set α⦄,
+      d ∈ D → d.Nonempty → DirectedOn (· ≤ ·) d
+        → ∀ ⦃a : α⦄, IsLUB d a → a ∈ u → ∃ b ∈ d, Ici b ∩ d ⊆ u
   isOpen_univ := fun d _ ⟨b, hb⟩ _ _ _ _ ↦ ⟨b, hb, (Ici b ∩ d).subset_univ⟩
   isOpen_inter s t hs ht d hd₀ hd₁ hd₂ a hd₃ ha := by
     obtain ⟨b₁, hb₁d, hb₁ds⟩ := hs hd₀ hd₁ hd₂ hd₃ ha.1
@@ -91,13 +95,15 @@ def scottHausdorff (α : Type*) (D : Set (Set α)) [Preorder α] : TopologicalSp
     obtain ⟨b, hbd, hbds₀⟩ := h s₀ hs₀s hd₀ hd₁ hd₂ hd₃ has₀
     exact ⟨b, hbd, Set.subset_sUnion_of_subset s s₀ hbds₀ hs₀s⟩
 
-/-- Predicate for an ordered topological space to be equipped with its Scott-Hausdorff topology.
+/--
+Predicate for an ordered topological space to be equipped with its Scott-Hausdorff topology.
 
 A set `u` is open in the Scott-Hausdorff topology iff when the least upper bound of a directed set
 `d` lies in `u` then there is a tail of `d` which is a subset of `u`.
 
 For mild conditions on `D`, this is equivalent to saying that open sets are `DirSupInaccOn D`,
-and closed sets are `DirSupClosedOn D`. -/
+and closed sets are `DirSupClosedOn D`.
+-/
 class IsScottHausdorff (α) (D : Set (Set α)) [Preorder α] [TopologicalSpace α] : Prop where
   topology_eq_scottHausdorff : ‹TopologicalSpace α› = scottHausdorff α D
 
@@ -158,9 +164,11 @@ end IsScottHausdorff
 section Scott
 section Preorder
 
-/-- The Scott topology.
+/--
+The Scott topology.
 
-It is defined as the join of the topology of upper sets and the Scott-Hausdorff topology. -/
+It is defined as the join of the topology of upper sets and the Scott-Hausdorff topology.
+-/
 @[instance_reducible]
 def scott (α : Type*) (D : Set (Set α)) [Preorder α] : TopologicalSpace α :=
   upperSet α ⊔ scottHausdorff α D
@@ -171,10 +179,12 @@ lemma scottHausdorff_le_scott [Preorder α] : scottHausdorff α univ ≤ scott �
 
 variable (α) (D) [Preorder α] [TopologicalSpace α]
 
-/-- Predicate for an ordered topological space to be equipped with its Scott topology.
+/--
+Predicate for an ordered topological space to be equipped with its Scott topology.
 
 The Scott topology is defined as the join of the topology of upper sets and the Scott Hausdorff
-topology. -/
+topology.
+-/
 class IsScott : Prop where
   topology_eq_scott : ‹TopologicalSpace α› = scott α D
 
@@ -265,13 +275,11 @@ end Preorder
 section PartialOrder
 variable [PartialOrder α] [TopologicalSpace α] [IsScott α univ]
 
-/--
-The Scott topology on a partial order is T₀.
--/
+/-- The Scott topology on a partial order is T₀. -/
 -- see Note [lower instance priority]
 instance (priority := 90) : T0Space α :=
-  (t0Space_iff_inseparable α).2 fun x y h ↦ Iic_injective <| by
-    simpa only [inseparable_iff_closure_eq, IsScott.closure_singleton] using h
+  (t0Space_iff_inseparable α).2 fun x y h ↦
+    Iic_injective <| by simpa only [inseparable_iff_closure_eq, IsScott.closure_singleton] using h
 
 end PartialOrder
 
@@ -324,9 +332,7 @@ lemma isOpen_iff_scottContinuous_mem [Preorder α] {s : Set α} [TopologicalSpac
 
 end IsScott
 
-/--
-Type synonym for a preorder equipped with the Scott topology
--/
+/-- Type synonym for a preorder equipped with the Scott topology -/
 def WithScott (α : Type*) := α
 
 namespace WithScott
@@ -347,8 +353,8 @@ lemma toScott_inj {a b : α} : toScott a = toScott b ↔ a = b := Iff.rfl
 lemma ofScott_inj {a b : WithScott α} : ofScott a = ofScott b ↔ a = b := Iff.rfl
 /-- A recursor for `WithScott`. Use as `induction x`. -/
 @[elab_as_elim, cases_eliminator, induction_eliminator]
-protected def rec {β : WithScott α → Sort _}
-    (h : ∀ a, β (toScott a)) : ∀ a, β a := fun a ↦ h (ofScott a)
+protected def rec {β : WithScott α → Sort _} (h : ∀ a, β (toScott a)) : ∀ a, β a := fun a ↦
+  h (ofScott a)
 
 instance [Nonempty α] : Nonempty (WithScott α) := ‹Nonempty α›
 instance [Inhabited α] : Inhabited (WithScott α) := ‹Inhabited α›
@@ -379,8 +385,7 @@ lemma scottHausdorff_le_lower : scottHausdorff α univ ≤ lower α :=
 
 variable [TopologicalSpace α]
 
-/-- If `α` is equipped with the Scott topology, then it is homeomorphic to `WithScott α`.
--/
+/-- If `α` is equipped with the Scott topology, then it is homeomorphic to `WithScott α`. -/
 def IsScott.withScottHomeomorph [IsScott α univ] : WithScott α ≃ₜ α :=
   WithScott.ofScott.toHomeomorphOfIsInducing ⟨IsScott.topology_eq α univ ▸ induced_id.symm⟩
 

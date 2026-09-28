@@ -28,7 +28,6 @@ This file defines light condensed modules over a ring `R`.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory
@@ -64,13 +63,12 @@ lemma LightCondensed.forget_map_hom_app_hom_apply
 The left adjoint to the forgetful functor. The *free light condensed `R`-module* on a light
 condensed set.
 -/
-noncomputable
-def LightCondensed.free : LightCondSet ⥤ LightCondMod R :=
+noncomputable def LightCondensed.free : LightCondSet ⥤ LightCondMod R :=
   Sheaf.composeAndSheafify _ (ModuleCat.free R)
 
 /-- The condensed version of the free-forgetful adjunction. -/
-noncomputable
-def LightCondensed.freeForgetAdjunction : free R ⊣ forget R := Sheaf.adjunction _ (ModuleCat.adj R)
+noncomputable def LightCondensed.freeForgetAdjunction : free R ⊣ forget R :=
+  Sheaf.adjunction _ (ModuleCat.adj R)
 
 open LightCondensed
 

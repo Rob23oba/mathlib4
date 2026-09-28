@@ -24,21 +24,28 @@ namespace CategoryTheory
 
 open Category
 
-variable {C : Type*} [Category* C] {D : Type*} [Category* D] {E : Type*} [Category* E]
+variable
+  {C : Type*} [Category* C]
+  {D : Type*} [Category* D]
+  {E : Type*} [Category* E]
   {M : Type*} [AddMonoid M] [HasShift C M] [HasShift D M] [HasShift E M]
 
-/-- In a category `C` equipped with a shift by an additive monoid,
-this is the type of morphisms `X ⟶ (Y⟦m⟧)` for `m : M`. -/
+/--
+In a category `C` equipped with a shift by an additive monoid,
+this is the type of morphisms `X ⟶ (Y⟦m⟧)` for `m : M`.
+-/
 abbrev ShiftedHom (X Y : C) (m : M) : Type _ := X ⟶ Y⟦m⟧
 
 namespace ShiftedHom
 
 variable {X Y Z T : C}
 
-/-- The composition of `f : X ⟶ Y⟦a⟧` and `g : Y ⟶ Z⟦b⟧`, as a morphism `X ⟶ Z⟦c⟧`
-when `b + a = c`. -/
-noncomputable def comp {a b c : M} (f : ShiftedHom X Y a) (g : ShiftedHom Y Z b) (h : b + a = c) :
-    ShiftedHom X Z c :=
+/--
+The composition of `f : X ⟶ Y⟦a⟧` and `g : Y ⟶ Z⟦b⟧`, as a morphism `X ⟶ Z⟦c⟧`
+when `b + a = c`.
+-/
+noncomputable def comp {a b c : M} (f : ShiftedHom X Y a) (g : ShiftedHom Y Z b) (h : b + a = c)
+    : ShiftedHom X Z c :=
   f ≫ g⟦a⟧' ≫ (shiftFunctorAdd' C b a c h).inv.app _
 
 lemma comp_assoc {a₁ a₂ a₃ a₁₂ a₂₃ a : M}
@@ -162,8 +169,8 @@ lemma zero_comp (a : M) {b c : M} (β : ShiftedHom Y Z b) (h : b + a = c) :
 end Preadditive
 
 /-- The action on `ShiftedHom` of a functor which commutes with the shift. -/
-def map {a : M} (f : ShiftedHom X Y a) (F : C ⥤ D) [F.CommShift M] :
-    ShiftedHom (F.obj X) (F.obj Y) a :=
+def map {a : M} (f : ShiftedHom X Y a) (F : C ⥤ D) [F.CommShift M]
+    : ShiftedHom (F.obj X) (F.obj Y) a :=
   F.map f ≫ (F.commShiftIso a).hom.app Y
 
 @[simp]

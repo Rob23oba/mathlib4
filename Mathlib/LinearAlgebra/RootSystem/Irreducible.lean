@@ -32,14 +32,14 @@ open MulAction (orbit mem_orbit_self mem_orbit_iff)
 open Module.End (invtSubmodule)
 open scoped MonoidAlgebra
 
-variable {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
   (P : RootPairing ι R M N)
 
 namespace RootPairing
 
 /-- The sublattice of invariant submodules of the root space. -/
-def invtRootSubmodule : Sublattice (Submodule R M) :=
-  ⨅ i, invtSubmodule (P.reflection i)
+def invtRootSubmodule : Sublattice (Submodule R M) := ⨅ i, invtSubmodule (P.reflection i)
 
 lemma mem_invtRootSubmodule_iff {q : Submodule R M} :
     q ∈ P.invtRootSubmodule ↔ ∀ i, q ∈ Module.End.invtSubmodule (P.reflection i) := by
@@ -143,15 +143,17 @@ lemma isSimpleModule_weylGroupRootRep_iff [Nontrivial M] :
     refine h q (fun i ↦ ?_) (by simpa using hq)
     exact P.weylGroupRootRep.mem_invtSubmodule.mp q.property ⟨_, P.reflection_mem_weylGroup i⟩
 
-/-- A root pairing is irreducible if it is non-trivial and contains no proper invariant submodules.
+/--
+A root pairing is irreducible if it is non-trivial and contains no proper invariant submodules.
 -/
-@[mk_iff] class IsIrreducible : Prop where
+@[mk_iff]
+class IsIrreducible : Prop where
   nontrivial : Nontrivial M
   nontrivial' : Nontrivial N
-  eq_top_of_invtSubmodule_reflection (q : Submodule R M) :
-    (∀ i, q ∈ invtSubmodule (P.reflection i)) → q ≠ ⊥ → q = ⊤
-  eq_top_of_invtSubmodule_coreflection (q : Submodule R N) :
-    (∀ i, q ∈ invtSubmodule (P.coreflection i)) → q ≠ ⊥ → q = ⊤
+  eq_top_of_invtSubmodule_reflection (q : Submodule R M)
+    : (∀ i, q ∈ invtSubmodule (P.reflection i)) → q ≠ ⊥ → q = ⊤
+  eq_top_of_invtSubmodule_coreflection (q : Submodule R N)
+    : (∀ i, q ∈ invtSubmodule (P.coreflection i)) → q ≠ ⊥ → q = ⊤
 
 instance [P.IsIrreducible] : P.flip.IsIrreducible where
   nontrivial := IsIrreducible.nontrivial' P
@@ -201,10 +203,12 @@ lemma Equiv.isIrreducible {ι₂ M₂ N₂ : Type*}
 
 /-- A nonempty irreducible root pairing is a root system. -/
 instance [Nonempty ι] [NeZero (2 : R)] [P.IsIrreducible] : P.IsRootSystem where
-  span_root_eq_top := IsIrreducible.eq_top_of_invtSubmodule_reflection
-    (P.rootSpan R) P.rootSpan_mem_invtSubmodule_reflection (P.rootSpan_ne_bot R)
-  span_coroot_eq_top := IsIrreducible.eq_top_of_invtSubmodule_coreflection
-    (P.corootSpan R) P.corootSpan_mem_invtSubmodule_coreflection (P.corootSpan_ne_bot R)
+  span_root_eq_top :=
+    IsIrreducible.eq_top_of_invtSubmodule_reflection (P.rootSpan R)
+      P.rootSpan_mem_invtSubmodule_reflection (P.rootSpan_ne_bot R)
+  span_coroot_eq_top :=
+    IsIrreducible.eq_top_of_invtSubmodule_coreflection (P.corootSpan R)
+      P.corootSpan_mem_invtSubmodule_coreflection (P.corootSpan_ne_bot R)
 
 lemma invtSubmodule_reflection_of_invtSubmodule_coreflection (i : ι) (q : Submodule R N)
     (hq : q ∈ invtSubmodule (P.coreflection i)) :

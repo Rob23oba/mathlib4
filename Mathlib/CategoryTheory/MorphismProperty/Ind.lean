@@ -57,10 +57,12 @@ such that
 See `CategoryTheory.MorphismProperty.ind_iff_ind_under_mk` for an equivalent characterization
 in terms of `Y` as an object of `Under X`.
 -/
-def ind (P : MorphismProperty C) : MorphismProperty C :=
-  fun X Y f ↦ ∃ (J : Type w) (_ : SmallCategory J) (_ : IsFiltered J)
-    (D : J ⥤ C) (t : (Functor.const J).obj X ⟶ D) (s : D ⟶ (Functor.const J).obj Y)
-    (_ : IsColimit (Cocone.mk _ s)), ∀ j, P (t.app j) ∧ t.app j ≫ s.app j = f
+def ind (P : MorphismProperty C) : MorphismProperty C := fun X Y f ↦
+  ∃ (J : Type w) (_ : SmallCategory J) (_ : IsFiltered J) (D : J ⥤ C)
+      (t : (Functor.const J).obj X ⟶ D) (s : D ⟶ (Functor.const J).obj Y)
+      (_ : IsColimit (Cocone.mk _ s)),
+    ∀ j,
+      P (t.app j) ∧ t.app j ≫ s.app j = f
 
 lemma exists_hom_of_isFinitelyPresentable {J : Type w} [SmallCategory J] [IsFiltered J] {D : J ⥤ C}
     {c : Cocone D} (hc : IsColimit c) {X A : C} {p : X ⟶ A} (hp : isFinitelyPresentable.{w} C p)
@@ -171,11 +173,11 @@ Then:
   such that `f'` satisfies `P`.
 -/
 class PreIndSpreads (P : MorphismProperty C) : Prop where
-  exists_isPushout {J : Type w} [SmallCategory J] [IsFiltered J] {D : J ⥤ C}
-    {c : Cocone D} (_ : IsColimit c) {T : C} (f : c.pt ⟶ T) :
-    P f →
-    ∃ (j : J) (T' : C) (f' : D.obj j ⟶ T') (g : T' ⟶ T),
-      IsPushout (c.ι.app j) f' f g ∧ P f'
+  exists_isPushout
+    {J : Type w} [SmallCategory J] [IsFiltered J]
+    {D : J ⥤ C} {c : Cocone D} (_ : IsColimit c)
+    {T : C} (f : c.pt ⟶ T)
+    : P f → ∃ (j : J) (T' : C) (f' : D.obj j ⟶ T') (g : T' ⟶ T), IsPushout (c.ι.app j) f' f g ∧ P f'
 
 alias exists_isPushout_of_isFiltered := PreIndSpreads.exists_isPushout
 

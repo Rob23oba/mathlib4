@@ -44,42 +44,53 @@ open scoped Manifold Topology ContDiff
 
 open Set
 
-variable {𝕜 E E' F F' H H' G G' : Type*} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
-  [NormedAddCommGroup F] [NormedSpace 𝕜 F] [NormedAddCommGroup F'] [NormedSpace 𝕜 F']
-  [TopologicalSpace H] [TopologicalSpace H'] [TopologicalSpace G] [TopologicalSpace G']
-  {I : ModelWithCorners 𝕜 E H} {I' : ModelWithCorners 𝕜 E' H'}
-  {J : ModelWithCorners 𝕜 F G} {J' : ModelWithCorners 𝕜 F' G'}
-  {M M' N N' : Type*} [TopologicalSpace M] [ChartedSpace H M]
-  [TopologicalSpace M'] [ChartedSpace H' M']
+variable
+  {𝕜 E E' F F' H H' G G' : Type*} [NontriviallyNormedField 𝕜] [NormedAddCommGroup E]
+  [NormedSpace 𝕜 E] [NormedAddCommGroup E'] [NormedSpace 𝕜 E'] [NormedAddCommGroup F]
+  [NormedSpace 𝕜 F] [NormedAddCommGroup F'] [NormedSpace 𝕜 F'] [TopologicalSpace H]
+  [TopologicalSpace H'] [TopologicalSpace G] [TopologicalSpace G']
+  {I : ModelWithCorners 𝕜 E H} {I' : ModelWithCorners 𝕜 E' H'} {J : ModelWithCorners 𝕜 F G}
+  {J' : ModelWithCorners 𝕜 F' G'} {M M' N N' : Type*}
+  [TopologicalSpace M] [ChartedSpace H M] [TopologicalSpace M'] [ChartedSpace H' M']
   [TopologicalSpace N] [ChartedSpace G N] [TopologicalSpace N'] [ChartedSpace G' N']
   {n : ℕ∞ω}
 
 namespace Manifold
 
-/-- Structure recording good behaviour of a property of functions `M → N` w.r.t. compatible
+/--
+Structure recording good behaviour of a property of functions `M → N` w.r.t. compatible
 choices of both a chart on `M` and `N`. Currently, we ask for the property to be stable under
 restriction of the domain chart, and local in the target.
 
-Motivating examples are immersions and submersions of smooth manifolds. -/
+Motivating examples are immersions and submersions of smooth manifolds.
+-/
 structure IsLocalSourceTargetProperty
-    (P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop) : Prop where
-  mono_source : ∀ {f : M → N}, ∀ {φ : OpenPartialHomeomorph M H}, ∀ {ψ : OpenPartialHomeomorph N G},
-    ∀ {s : Set M}, IsOpen s → P f φ ψ → P f (φ.restr s) ψ
+    (P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop)
+    : Prop where
+  mono_source
+    : ∀ {f : M → N}, ∀ {φ : OpenPartialHomeomorph M H}, ∀ {ψ : OpenPartialHomeomorph N G},
+      ∀ {s : Set M},
+        IsOpen s → P f φ ψ → P f (φ.restr s) ψ
   -- Note: the analogous `mono_target` statement is true for both immersions and submersions.
   -- If and when a future lemma requires it, add this here.
-  congr : ∀ {f g : M → N}, ∀ {φ : OpenPartialHomeomorph M H}, ∀ {ψ : OpenPartialHomeomorph N G},
-    EqOn f g φ.source → P f φ ψ → P g φ ψ
+  congr
+    : ∀ {f g : M → N}, ∀ {φ : OpenPartialHomeomorph M H}, ∀ {ψ : OpenPartialHomeomorph N G},
+      EqOn f g φ.source → P f φ ψ → P g φ ψ
 
 variable (I J n) in
 /-- Data witnessing the fact that `f` has local property `P` at `x` -/
-structure LocalPresentationAt (f : M → N) (x : M)
+structure LocalPresentationAt
+    (f : M → N) (x : M)
     (P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop) where
-  /-- A choice of chart on the domain `M` of the local property `P` of `f` at `x`:
-  w.r.t. this chart and `codChart`, `f` has the local property `P` at `x`. -/
+  /--
+  A choice of chart on the domain `M` of the local property `P` of `f` at `x`:
+  w.r.t. this chart and `codChart`, `f` has the local property `P` at `x`.
+  -/
   domChart : OpenPartialHomeomorph M H
-  /-- A choice of chart on the target `N` of the local property `P` of `f` at `x`:
-  w.r.t. this chart and `domChart`, `f` has the local property `P` at `x`. -/
+  /--
+  A choice of chart on the target `N` of the local property `P` of `f` at `x`:
+  w.r.t. this chart and `domChart`, `f` has the local property `P` at `x`.
+  -/
   codChart : OpenPartialHomeomorph N G
   mem_domChart_source : x ∈ domChart.source
   mem_codChart_source : f x ∈ codChart.source
@@ -89,7 +100,8 @@ structure LocalPresentationAt (f : M → N) (x : M)
   property : P f domChart codChart
 
 variable (I J n) in
-/-- The induced property by a local property `P`: it is satisfied for `f` at `x` iff there exist
+/--
+The induced property by a local property `P`: it is satisfied for `f` at `x` iff there exist
 charts `φ` and `ψ` of `M` and `N` around `x` and `f x`, respectively, such that `f` satisfies `P`
 w.r.t. `φ` and `ψ`.
 
@@ -98,14 +110,15 @@ The motivating examples are smooth immersions and submersions: the corresponding
 in the charts `φ` and `ψ`.
 -/
 @[expose]
-def LiftSourceTargetPropertyAt (f : M → N) (x : M)
-    (P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop) : Prop :=
+def LiftSourceTargetPropertyAt
+    (f : M → N) (x : M) (P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop)
+    : Prop :=
   Nonempty (LocalPresentationAt I J n f x P)
 
 namespace LocalPresentationAt
 
-variable {f : M → N} {x : M}
-  {P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop}
+variable
+  {f : M → N} {x : M} {P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop}
 
 lemma mapsto_domChart_source_codChart_source (h : LocalPresentationAt I J n f x P) :
     MapsTo f h.domChart.source h.codChart.source :=
@@ -115,26 +128,30 @@ end LocalPresentationAt
 
 namespace LiftSourceTargetPropertyAt
 
-variable {f g : M → N} {x : M}
-  {P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop}
+variable
+  {f g : M → N} {x : M} {P : (M → N) → OpenPartialHomeomorph M H → OpenPartialHomeomorph N G → Prop}
 
 /-- A choice of charts witnessing the local property `P` of `f` at `x`. -/
-noncomputable def localPresentationAt (h : LiftSourceTargetPropertyAt I J n f x P) :
-    LocalPresentationAt I J n f x P :=
+noncomputable def localPresentationAt (h : LiftSourceTargetPropertyAt I J n f x P)
+    : LocalPresentationAt I J n f x P :=
   Classical.choice h
 
-/-- A choice of chart on the domain `M` of a local property of `f` at `x`:
+/--
+A choice of chart on the domain `M` of a local property of `f` at `x`:
 w.r.t. this chart and `h.codChart`, `f` has the local property `P` at `x`.
-The particular chart is arbitrary, but this choice matches the witness given by `h.codChart`. -/
-noncomputable def domChart (h : LiftSourceTargetPropertyAt I J n f x P) :
-    OpenPartialHomeomorph M H :=
+The particular chart is arbitrary, but this choice matches the witness given by `h.codChart`.
+-/
+noncomputable def domChart (h : LiftSourceTargetPropertyAt I J n f x P)
+    : OpenPartialHomeomorph M H :=
   h.localPresentationAt.domChart
 
-/-- A choice of chart on the co-domain `N` of a local property of `f` at `x`:
+/--
+A choice of chart on the co-domain `N` of a local property of `f` at `x`:
 w.r.t. this chart and `h.domChart`, `f` has the local property `P` at `x`
-The particular chart is arbitrary, but this choice matches the witness given by `h.domChart`. -/
-noncomputable def codChart (h : LiftSourceTargetPropertyAt I J n f x P) :
-    OpenPartialHomeomorph N G :=
+The particular chart is arbitrary, but this choice matches the witness given by `h.domChart`.
+-/
+noncomputable def codChart (h : LiftSourceTargetPropertyAt I J n f x P)
+    : OpenPartialHomeomorph N G :=
   h.localPresentationAt.codChart
 
 lemma mem_domChart_source (h : LiftSourceTargetPropertyAt I J n f x P) :

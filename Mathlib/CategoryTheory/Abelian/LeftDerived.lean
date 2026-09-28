@@ -55,25 +55,29 @@ namespace CategoryTheory
 
 open Category Limits
 
-variable {C : Type u} [Category.{v} C] {D : Type*} [Category* D]
-  [Abelian C] [HasProjectiveResolutions C] [Abelian D]
+variable
+  {C : Type u} [Category.{v} C]
+  {D : Type*} [Category* D] [Abelian C] [HasProjectiveResolutions C] [Abelian D]
 
-/-- When `F : C ⥤ D` is an additive functor, this is
+/--
+When `F : C ⥤ D` is an additive functor, this is
 the functor `C ⥤ HomotopyCategory D (ComplexShape.down ℕ)` which
-sends `X : C` to `F` applied to a projective resolution of `X`. -/
-noncomputable def Functor.leftDerivedToHomotopyCategory (F : C ⥤ D) [F.Additive] :
-    C ⥤ HomotopyCategory D (ComplexShape.down ℕ) :=
+sends `X : C` to `F` applied to a projective resolution of `X`.
+-/
+noncomputable def Functor.leftDerivedToHomotopyCategory (F : C ⥤ D) [F.Additive]
+    : C ⥤ HomotopyCategory D (ComplexShape.down ℕ) :=
   projectiveResolutions C ⋙ F.mapHomotopyCategory _
 
-/-- If `P : ProjectiveResolution Z` and `F : C ⥤ D` is an additive functor, this is
+/--
+If `P : ProjectiveResolution Z` and `F : C ⥤ D` is an additive functor, this is
 an isomorphism between `F.leftDerivedToHomotopyCategory.obj X` and the complex
-obtained by applying `F` to `P.complex`. -/
-noncomputable def ProjectiveResolution.isoLeftDerivedToHomotopyCategoryObj {X : C}
-    (P : ProjectiveResolution X) (F : C ⥤ D) [F.Additive] :
-    F.leftDerivedToHomotopyCategory.obj X ≅
-      (F.mapHomologicalComplex _ ⋙ HomotopyCategory.quotient _ _).obj P.complex :=
-  (F.mapHomotopyCategory _).mapIso P.iso ≪≫
-    (F.mapHomotopyCategoryFactors _).app P.complex
+obtained by applying `F` to `P.complex`.
+-/
+noncomputable def ProjectiveResolution.isoLeftDerivedToHomotopyCategoryObj
+    {X : C} (P : ProjectiveResolution X) (F : C ⥤ D) [F.Additive]
+    : F.leftDerivedToHomotopyCategory.obj X
+      ≅ (F.mapHomologicalComplex _ ⋙ HomotopyCategory.quotient _ _).obj P.complex :=
+  (F.mapHomotopyCategory _).mapIso P.iso ≪≫ (F.mapHomotopyCategoryFactors _).app P.complex
 
 set_option backward.defeqAttrib.useBackward true in
 @[reassoc]
@@ -107,14 +111,12 @@ noncomputable def Functor.leftDerived (F : C ⥤ D) [F.Additive] (n : ℕ) : C �
   F.leftDerivedToHomotopyCategory ⋙ HomotopyCategory.homologyFunctor D _ n
 
 /-- We can compute a left derived functor using a chosen projective resolution. -/
-noncomputable def ProjectiveResolution.isoLeftDerivedObj {X : C} (P : ProjectiveResolution X)
-    (F : C ⥤ D) [F.Additive] (n : ℕ) :
-    (F.leftDerived n).obj X ≅
-      (HomologicalComplex.homologyFunctor D _ n).obj
-        ((F.mapHomologicalComplex _).obj P.complex) :=
-  (HomotopyCategory.homologyFunctor D _ n).mapIso
-    (P.isoLeftDerivedToHomotopyCategoryObj F) ≪≫
-    (HomotopyCategory.homologyFunctorFactors D (ComplexShape.down ℕ) n).app _
+noncomputable def ProjectiveResolution.isoLeftDerivedObj
+    {X : C} (P : ProjectiveResolution X) (F : C ⥤ D) [F.Additive] (n : ℕ)
+    : (F.leftDerived n).obj X ≅ (HomologicalComplex.homologyFunctor D _ n).obj
+      ((F.mapHomologicalComplex _).obj P.complex) :=
+  (HomotopyCategory.homologyFunctor D _ n).mapIso (P.isoLeftDerivedToHomotopyCategoryObj F)
+    ≪≫ (HomotopyCategory.homologyFunctorFactors D (ComplexShape.down ℕ) n).app _
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -154,28 +156,35 @@ lemma Functor.isZero_leftDerived_obj_projective_succ
   exact ShortComplex.exact_of_isZero_X₂ _ (F.map_isZero (by apply isZero_zero))
 
 set_option backward.isDefEq.respectTransparency false in
-/-- We can compute a left derived functor on a morphism using a descent of that morphism
+/--
+We can compute a left derived functor on a morphism using a descent of that morphism
 to a chain map between chosen projective resolutions.
 -/
-theorem Functor.leftDerived_map_eq (F : C ⥤ D) [F.Additive] (n : ℕ) {X Y : C} (f : X ⟶ Y)
-    {P : ProjectiveResolution X} {Q : ProjectiveResolution Y} (g : P.complex ⟶ Q.complex)
-    (w : g ≫ Q.π = P.π ≫ (ChainComplex.single₀ C).map f) :
-    (F.leftDerived n).map f =
-      (P.isoLeftDerivedObj F n).hom ≫
-        (F.mapHomologicalComplex _ ⋙ HomologicalComplex.homologyFunctor _ _ n).map g ≫
-          (Q.isoLeftDerivedObj F n).inv := by
-  rw [← cancel_mono (Q.isoLeftDerivedObj F n).hom,
-    ProjectiveResolution.isoLeftDerivedObj_hom_naturality f P Q g _ F n,
-    assoc, assoc, Iso.inv_hom_id, comp_id]
-  rw [← HomologicalComplex.comp_f, w, HomologicalComplex.comp_f,
-    ChainComplex.single₀_map_f_zero]
+theorem Functor.leftDerived_map_eq
+    (F : C ⥤ D) [F.Additive]
+    (n : ℕ)
+    {X Y : C} (f : X ⟶ Y)
+    {P : ProjectiveResolution X} {Q : ProjectiveResolution Y}
+    (g : P.complex ⟶ Q.complex) (w : g ≫ Q.π = P.π ≫ (ChainComplex.single₀ C).map f)
+    : (F.leftDerived n).map f
+      = (P.isoLeftDerivedObj F n).hom
+        ≫ (F.mapHomologicalComplex _ ⋙ HomologicalComplex.homologyFunctor _ _ n).map g
+        ≫ (Q.isoLeftDerivedObj F n).inv := by
+  rw [
+    ← cancel_mono (Q.isoLeftDerivedObj F n).hom,
+    ProjectiveResolution.isoLeftDerivedObj_hom_naturality f P Q g _ F n, assoc, assoc,
+    Iso.inv_hom_id, comp_id
+  ]
+  rw [← HomologicalComplex.comp_f, w, HomologicalComplex.comp_f, ChainComplex.single₀_map_f_zero]
 
-/-- The natural transformation
+/--
+The natural transformation
 `F.leftDerivedToHomotopyCategory ⟶ G.leftDerivedToHomotopyCategory` induced by
-a natural transformation `F ⟶ G` between additive functors. -/
+a natural transformation `F ⟶ G` between additive functors.
+-/
 noncomputable def NatTrans.leftDerivedToHomotopyCategory
-    {F G : C ⥤ D} [F.Additive] [G.Additive] (α : F ⟶ G) :
-    F.leftDerivedToHomotopyCategory ⟶ G.leftDerivedToHomotopyCategory :=
+    {F G : C ⥤ D} [F.Additive] [G.Additive] (α : F ⟶ G)
+    : F.leftDerivedToHomotopyCategory ⟶ G.leftDerivedToHomotopyCategory :=
   Functor.whiskerLeft _ (NatTrans.mapHomotopyCategory α (ComplexShape.down ℕ))
 
 set_option backward.defeqAttrib.useBackward true in
@@ -211,23 +220,22 @@ lemma NatTrans.leftDerivedToHomotopyCategory_comp {F G H : C ⥤ D} (α : F ⟶ 
         NatTrans.leftDerivedToHomotopyCategory β := rfl
 
 /-- The natural transformation between left-derived functors induced by a natural transformation. -/
-noncomputable def NatTrans.leftDerived
-    {F G : C ⥤ D} [F.Additive] [G.Additive] (α : F ⟶ G) (n : ℕ) :
-    F.leftDerived n ⟶ G.leftDerived n :=
+noncomputable def NatTrans.leftDerived {F G : C ⥤ D} [F.Additive] [G.Additive] (α : F ⟶ G) (n : ℕ)
+    : F.leftDerived n ⟶ G.leftDerived n :=
   Functor.whiskerRight (NatTrans.leftDerivedToHomotopyCategory α) _
 
 @[simp]
-theorem NatTrans.leftDerived_id (F : C ⥤ D) [F.Additive] (n : ℕ) :
-    NatTrans.leftDerived (𝟙 F) n = 𝟙 (F.leftDerived n) := by
+theorem NatTrans.leftDerived_id (F : C ⥤ D) [F.Additive] (n : ℕ)
+    : NatTrans.leftDerived (𝟙 F) n = 𝟙 (F.leftDerived n) := by
   dsimp only [leftDerived]
   simp only [leftDerivedToHomotopyCategory_id, Functor.whiskerRight_id']
   rfl
 
 set_option backward.isDefEq.respectTransparency false in
 @[simp, reassoc]
-theorem NatTrans.leftDerived_comp {F G H : C ⥤ D} [F.Additive] [G.Additive] [H.Additive]
-    (α : F ⟶ G) (β : G ⟶ H) (n : ℕ) :
-    NatTrans.leftDerived (α ≫ β) n = NatTrans.leftDerived α n ≫ NatTrans.leftDerived β n := by
+theorem NatTrans.leftDerived_comp
+    {F G H : C ⥤ D} [F.Additive] [G.Additive] [H.Additive] (α : F ⟶ G) (β : G ⟶ H) (n : ℕ)
+    : NatTrans.leftDerived (α ≫ β) n = NatTrans.leftDerived α n ≫ NatTrans.leftDerived β n := by
   simp [NatTrans.leftDerived]
 
 namespace ProjectiveResolution
@@ -252,12 +260,13 @@ lemma leftDerived_app_eq
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- If `P : ProjectiveResolution X` and `F` is an additive functor, this is
+/--
+If `P : ProjectiveResolution X` and `F` is an additive functor, this is
 the canonical morphism from the opcycles in degree `0` of
-`(F.mapHomologicalComplex _).obj P.complex` to `F.obj X`. -/
-noncomputable def fromLeftDerivedZero' {X : C}
-    (P : ProjectiveResolution X) (F : C ⥤ D) [F.Additive] :
-    ((F.mapHomologicalComplex _).obj P.complex).opcycles 0 ⟶ F.obj X :=
+`(F.mapHomologicalComplex _).obj P.complex` to `F.obj X`.
+-/
+noncomputable def fromLeftDerivedZero' {X : C} (P : ProjectiveResolution X) (F : C ⥤ D) [F.Additive]
+    : ((F.mapHomologicalComplex _).obj P.complex).opcycles 0 ⟶ F.obj X :=
   HomologicalComplex.descOpcycles _ (F.map (P.π.f 0)) 1 (by simp) (by
     dsimp
     rw [← F.map_comp, complex_d_comp_π_f_zero, F.map_zero])
@@ -282,31 +291,30 @@ lemma fromLeftDerivedZero'_naturality {C} [Category* C] [Abelian C] {X Y : C} (f
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-instance (F : C ⥤ D) [F.Additive] (X : C) [Projective X] :
-    IsIso ((ProjectiveResolution.self X).fromLeftDerivedZero' F) := by
+instance (F : C ⥤ D) [F.Additive] (X : C) [Projective X]
+    : IsIso ((ProjectiveResolution.self X).fromLeftDerivedZero' F) := by
   dsimp [ProjectiveResolution.fromLeftDerivedZero']
   rw [ChainComplex.isIso_descOpcycles_iff]
   refine ⟨ShortComplex.Splitting.exact ?_, inferInstance⟩
-  exact
-    { r := 0
-      s := 𝟙 _
-      f_r := (F.map_isZero (isZero_zero _)).eq_of_src _ _ }
+  exact { r := 0, s := 𝟙 _, f_r := (F.map_isZero (isZero_zero _)).eq_of_src _ _ }
 
 end ProjectiveResolution
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The natural transformation `F.leftDerived 0 ⟶ F`. -/
-noncomputable def Functor.fromLeftDerivedZero (F : C ⥤ D) [F.Additive] :
-    F.leftDerived 0 ⟶ F where
-  app X := (HomotopyCategory.homologyFunctorFactors D (ComplexShape.down ℕ) 0).hom.app _ ≫
-      (ChainComplex.isoHomologyι₀ _).hom ≫ (projectiveResolution X).fromLeftDerivedZero' F
+noncomputable def Functor.fromLeftDerivedZero (F : C ⥤ D) [F.Additive] : F.leftDerived 0 ⟶ F where
+  app X :=
+    (HomotopyCategory.homologyFunctorFactors D (ComplexShape.down ℕ) 0).hom.app _
+      ≫ (ChainComplex.isoHomologyι₀ _).hom ≫ (projectiveResolution X).fromLeftDerivedZero' F
   naturality {X Y} f := by
     dsimp [leftDerived]
-    rw [assoc, assoc, ← ProjectiveResolution.fromLeftDerivedZero'_naturality f
-      (projectiveResolution X) (projectiveResolution Y)
-      (ProjectiveResolution.lift f _ _) (by simp),
-      ← HomologicalComplex.homologyι_naturality_assoc]
+    rw [
+      assoc, assoc,
+      ← ProjectiveResolution.fromLeftDerivedZero'_naturality f (projectiveResolution X)
+        (projectiveResolution Y) (ProjectiveResolution.lift f _ _) (by simp),
+      ← HomologicalComplex.homologyι_naturality_assoc
+    ]
     erw [← NatTrans.naturality_assoc]
     rfl
 
@@ -332,8 +340,7 @@ lemma ProjectiveResolution.fromLeftDerivedZero_eq
   rfl
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (F : C ⥤ D) [F.Additive] (X : C) [Projective X] :
-    IsIso (F.fromLeftDerivedZero.app X) := by
+instance (F : C ⥤ D) [F.Additive] (X : C) [Projective X] : IsIso (F.fromLeftDerivedZero.app X) := by
   rw [(ProjectiveResolution.self X).fromLeftDerivedZero_eq F]
   infer_instance
 
@@ -341,8 +348,7 @@ section
 
 variable (F : C ⥤ D) [F.Additive] [PreservesFiniteColimits F]
 
-instance {X : C} (P : ProjectiveResolution X) :
-    IsIso (P.fromLeftDerivedZero' F) := by
+instance {X : C} (P : ProjectiveResolution X) : IsIso (P.fromLeftDerivedZero' F) := by
   dsimp [ProjectiveResolution.fromLeftDerivedZero']
   rw [ChainComplex.isIso_descOpcycles_iff, ShortComplex.exact_and_epi_g_iff_g_is_cokernel]
   exact ⟨CokernelCofork.mapIsColimit _ (P.isColimitCokernelCofork) F⟩
@@ -352,16 +358,16 @@ instance (X : C) : IsIso (F.fromLeftDerivedZero.app X) := by
   dsimp [Functor.fromLeftDerivedZero]
   infer_instance
 
-instance : IsIso F.fromLeftDerivedZero :=
-  NatIso.isIso_of_isIso_app _
+instance : IsIso F.fromLeftDerivedZero := NatIso.isIso_of_isIso_app _
 
 namespace Functor
 
-/-- The canonical isomorphism `F.leftDerived 0 ≅ F` when `F` is right exact
-(i.e. preserves finite colimits). -/
+/--
+The canonical isomorphism `F.leftDerived 0 ≅ F` when `F` is right exact
+(i.e. preserves finite colimits).
+-/
 @[simps! hom]
-noncomputable def leftDerivedZeroIsoSelf : F.leftDerived 0 ≅ F :=
-  (asIso F.fromLeftDerivedZero)
+noncomputable def leftDerivedZeroIsoSelf : F.leftDerived 0 ≅ F := (asIso F.fromLeftDerivedZero)
 
 @[reassoc (attr := simp)]
 lemma leftDerivedZeroIsoSelf_hom_inv_id :

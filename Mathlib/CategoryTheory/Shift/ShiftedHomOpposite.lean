@@ -31,12 +31,14 @@ variable {C : Type*} [Category* C] [HasShift C ℤ] {X Y Z : C}
 
 namespace ShiftedHom
 
-/-- The bijection `ShiftedHom X Y n ≃ ShiftedHom (Opposite.op Y) (Opposite.op X) n` when
-`n : ℤ`, and `X` and `Y` are objects of a category equipped with a shift by `ℤ`. -/
-noncomputable def opEquiv (n : ℤ) :
-    ShiftedHom X Y n ≃ ShiftedHom (Opposite.op Y) (Opposite.op X) n :=
-  Quiver.Hom.opEquiv.trans
-    ((opShiftFunctorEquivalence C n).symm.toAdjunction.homEquiv (Opposite.op Y) (Opposite.op X))
+/--
+The bijection `ShiftedHom X Y n ≃ ShiftedHom (Opposite.op Y) (Opposite.op X) n` when
+`n : ℤ`, and `X` and `Y` are objects of a category equipped with a shift by `ℤ`.
+-/
+noncomputable def opEquiv (n : ℤ)
+    : ShiftedHom X Y n ≃ ShiftedHom (Opposite.op Y) (Opposite.op X) n :=
+  Quiver.Hom.opEquiv.trans ((opShiftFunctorEquivalence C n).symm.toAdjunction.homEquiv
+    (Opposite.op Y) (Opposite.op X))
 
 lemma opEquiv_symm_apply {n : ℤ} (f : ShiftedHom (Opposite.op Y) (Opposite.op X) n) :
     (opEquiv n).symm f =
@@ -77,11 +79,13 @@ lemma opEquiv_symm_comp {a b : ℤ}
   erw [← NatTrans.naturality]
   rfl
 
-/-- The bijection `ShiftedHom X Y a' ≃ (Opposite.op (Y⟦a⟧) ⟶ (Opposite.op X)⟦n⟧)`
+/--
+The bijection `ShiftedHom X Y a' ≃ (Opposite.op (Y⟦a⟧) ⟶ (Opposite.op X)⟦n⟧)`
 when integers `n`, `a` and `a'` satisfy `n + a = a'`, and `X` and `Y` are objects
-of a category equipped with a shift by `ℤ`. -/
-noncomputable def opEquiv' (n a a' : ℤ) (h : n + a = a') :
-    ShiftedHom X Y a' ≃ (Opposite.op (Y⟦a⟧) ⟶ (Opposite.op X)⟦n⟧) :=
+of a category equipped with a shift by `ℤ`.
+-/
+noncomputable def opEquiv' (n a a' : ℤ) (h : n + a = a')
+    : ShiftedHom X Y a' ≃ (Opposite.op (Y⟦a⟧) ⟶ (Opposite.op X)⟦n⟧) :=
   ((shiftFunctorAdd' C a n a' (by lia)).symm.app Y).homToEquiv.symm.trans (opEquiv n)
 
 lemma opEquiv'_symm_apply {n a : ℤ} (f : Opposite.op (Y⟦a⟧) ⟶ (Opposite.op X)⟦n⟧)

@@ -35,20 +35,22 @@ namespace ContinuousCohomology
 
 open TopRep ContRepresentation
 
-variable {k : Type u} {G H K : Type v} [Ring k] [TopologicalSpace k]
-  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-  [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
-  [Group K] [TopologicalSpace K] [IsTopologicalGroup K]
+variable
+  {k : Type u} {G H K : Type v}
+  [Ring k] [TopologicalSpace k] [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [Group H]
+  [TopologicalSpace H] [IsTopologicalGroup H] [Group K] [TopologicalSpace K] [IsTopologicalGroup K]
   {X : TopRep k G} {Y : TopRep k H} {Z : TopRep k K}
 
 set_option allowUnsafeReducibility true in
 attribute [local reducible] CategoryTheory.Functor.mapHomologicalComplex
 
-/-- The morphisms between the levels of the standard resolutions of `X` and `Y` induced by a
+/--
+The morphisms between the levels of the standard resolutions of `X` and `Y` induced by a
 continuous group homomorphism `φ : H →ₜ* G` and a morphism `f : res φ X ⟶ Y`, given by
-`F ↦ f ∘ F ∘ φ`. -/
-def resolutionMap (φ : H →ₜ* G) (f : res φ X ⟶ Y) :
-    (i : ℕ) → res φ (resolutionX X i) ⟶ resolutionX Y i
+`F ↦ f ∘ F ∘ φ`.
+-/
+def resolutionMap (φ : H →ₜ* G) (f : res φ X ⟶ Y)
+    : (i : ℕ) → res φ (resolutionX X i) ⟶ resolutionX Y i
   | 0 => f
   | i + 1 => ofHom (coind₁ResMap φ (resolutionMap φ f i).hom)
 
@@ -96,17 +98,21 @@ lemma resolutionMap_comp_d (φ : H →ₜ* G) (f : res φ X ⟶ Y) (i : ℕ) :
       coind₁ResMap_comp_coind₁Map_restrict] at ih ⊢
     rw [ih, ← coind₁ResMap_comp_coind₁ι_restrict]
 
-/-- The cochain map `homogeneousCochains X ⟶ homogeneousCochains Y` induced by a continuous
+/--
+The cochain map `homogeneousCochains X ⟶ homogeneousCochains Y` induced by a continuous
 group homomorphism `φ : H →ₜ* G` and a morphism of topological `H`-representations
-`f : res φ X ⟶ Y`, sending an invariant function `σ : C(G, C(G, ⋯))` to `f ∘ σ ∘ φ`. -/
+`f : res φ X ⟶ Y`, sending an invariant function `σ : C(G, C(G, ⋯))` to `f ∘ σ ∘ φ`.
+-/
 @[simps! -isSimp f f_hom]
-def cochainsMap (φ : H →ₜ* G) (f : res φ X ⟶ Y) :
-    homogeneousCochains X ⟶ homogeneousCochains Y where
+def cochainsMap (φ : H →ₜ* G) (f : res φ X ⟶ Y)
+    : homogeneousCochains X ⟶ homogeneousCochains Y where
   f i := invariantsResMap φ (resolutionMap φ f (i + 1))
   comm' i j (hij : _ = _) := by
     subst hij
-    rw [homogeneousCochains.d_eq, homogeneousCochains.d_eq, ← invariantsResMap_comp,
-      resolutionMap_comp_d, invariantsResMap_map_comp]
+    rw [
+      homogeneousCochains.d_eq, homogeneousCochains.d_eq, ← invariantsResMap_comp,
+      resolutionMap_comp_d, invariantsResMap_map_comp
+    ]
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -124,10 +130,12 @@ lemma cochainsMap_comp (φ : H →ₜ* G) (ψ : K →ₜ* H) (f : res φ X ⟶ Y
   ext i v x
   congrm $(resolutionMap_comp φ ψ f g (i + 1)).hom v.1 x
 
-/-- The map `Zⁿ(G, X) ⟶ Zⁿ(H, Y)` on cocycles induced by a continuous group homomorphism
-`φ : H →ₜ* G` and a morphism of topological `H`-representations `f : res φ X ⟶ Y`. -/
-noncomputable abbrev cocyclesMap (φ : H →ₜ* G) (f : res φ X ⟶ Y) (n : ℕ) :
-    cocycles X n ⟶ cocycles Y n :=
+/--
+The map `Zⁿ(G, X) ⟶ Zⁿ(H, Y)` on cocycles induced by a continuous group homomorphism
+`φ : H →ₜ* G` and a morphism of topological `H`-representations `f : res φ X ⟶ Y`.
+-/
+noncomputable abbrev cocyclesMap (φ : H →ₜ* G) (f : res φ X ⟶ Y) (n : ℕ)
+    : cocycles X n ⟶ cocycles Y n :=
   HomologicalComplex.cyclesMap (cochainsMap φ f) n
 
 @[simp]
@@ -142,16 +150,18 @@ lemma cocyclesMap_comp (φ : H →ₜ* G) (ψ : K →ₜ* H) (f : res φ X ⟶ Y
       cocyclesMap φ f n ≫ cocyclesMap ψ g n := by
   simp [cocyclesMap, ← HomologicalComplex.cyclesMap_comp, ← cochainsMap_comp]
 
-/-- The map `Hⁿ(G, X) ⟶ Hⁿ(H, Y)` on continuous cohomology induced by a continuous group
+/--
+The map `Hⁿ(G, X) ⟶ Hⁿ(H, Y)` on continuous cohomology induced by a continuous group
 homomorphism `φ : H →ₜ* G` and a morphism of topological `H`-representations
-`f : res φ X ⟶ Y`. -/
-noncomputable abbrev map (φ : H →ₜ* G) (f : res φ X ⟶ Y) (n : ℕ) :
-    continuousCohomology n X ⟶ continuousCohomology n Y :=
+`f : res φ X ⟶ Y`.
+-/
+noncomputable abbrev map (φ : H →ₜ* G) (f : res φ X ⟶ Y) (n : ℕ)
+    : continuousCohomology n X ⟶ continuousCohomology n Y :=
   HomologicalComplex.homologyMap (cochainsMap φ f) n
 
 @[reassoc]
-theorem π_map (φ : H →ₜ* G) (f : res φ X ⟶ Y) (n : ℕ) :
-    π X n ≫ map φ f n = cocyclesMap φ f n ≫ π Y n := by
+theorem π_map (φ : H →ₜ* G) (f : res φ X ⟶ Y) (n : ℕ)
+    : π X n ≫ map φ f n = cocyclesMap φ f n ≫ π Y n := by
   simp [map, cocyclesMap]
 
 @[simp]

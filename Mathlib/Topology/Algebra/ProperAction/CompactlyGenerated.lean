@@ -37,8 +37,9 @@ open Prod Set
 
 public section
 
-variable {G X : Type*} [TopologicalSpace X] [Group G]
-  [TopologicalSpace G] [MulAction G X] [CompactlyCoherentSpace (X × X)] [T2Space X]
+variable
+  {G X : Type*} [TopologicalSpace X] [Group G] [TopologicalSpace G] [MulAction G X]
+  [CompactlyCoherentSpace (X × X)] [T2Space X]
 
 /-- The `G`-action on `X` is proper iff, for each pair of compacts `U, V` in `X`,
 the set of `g` such that `U` intersects `g • V` is compact.
@@ -84,16 +85,18 @@ alias MulAction.properSMul_iff_isCompact_setOf_inter_nonempty :=
 alias AddAction.properVAdd_iff_isCompact_setOf_inter_nonempty :=
   AddAction.properVAdd_iff_isCompact_setOfPred_inter_nonempty
 
-/-- If a discrete group acts on a T2 space `X` such that `X × X` is compactly
+/--
+If a discrete group acts on a T2 space `X` such that `X × X` is compactly
 coherent, and if the action is continuous in the second variable, then the action is properly
 discontinuous if and only if it is proper. This is in particular true if `X` is first-countable or
-weakly locally compact. -/
+weakly locally compact.
+-/
 @[to_additive /-- If a discrete additive group acts on a T2 space `X` such that `X × X` is compactly
 generated, and if the action is continuous in the second variable, then the action is properly
 discontinuous if and only if it is proper. This is in particular true if `X` is first-countable or
 weakly locally compact. -/]
-theorem properlyDiscontinuousSMul_iff_properSMul [DiscreteTopology G] [ContinuousConstSMul G X] :
-    ProperlyDiscontinuousSMul G X ↔ ProperSMul G X := by
+theorem properlyDiscontinuousSMul_iff_properSMul [DiscreteTopology G] [ContinuousConstSMul G X]
+    : ProperlyDiscontinuousSMul G X ↔ ProperSMul G X := by
   have : ContinuousSMul G X := ⟨continuous_prod_of_discrete_left.mpr continuous_const_smul⟩
   simp only [MulAction.properSMul_iff_isCompact_setOfPred_inter_nonempty, isCompact_iff_finite]
   rw [properlyDiscontinuousSMul_iff]

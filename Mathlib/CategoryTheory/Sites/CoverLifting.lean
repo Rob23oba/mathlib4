@@ -44,7 +44,6 @@ small colimits.
 
 @[expose] public section
 
-
 universe w' w v v₁ v₂ v₃ u u₁ u₂ u₃
 
 noncomputable section
@@ -63,13 +62,17 @@ namespace CategoryTheory
 
 section IsCocontinuous
 
-variable {C : Type*} [Category* C] {D : Type*} [Category* D] {E : Type*} [Category* E] (G : C ⥤ D)
-  (G' : D ⥤ E)
+variable
+  {C : Type*} [Category* C]
+  {D : Type*} [Category* D]
+  {E : Type*} [Category* E]
+  (G : C ⥤ D) (G' : D ⥤ E)
 
 variable (J : GrothendieckTopology C) (K : GrothendieckTopology D)
 variable {L : GrothendieckTopology E}
 
-/-- A functor `G : (C, J) ⥤ (D, K)` between sites is called cocontinuous (SGA 4 III 2.1)
+/--
+A functor `G : (C, J) ⥤ (D, K)` between sites is called cocontinuous (SGA 4 III 2.1)
 if for all covering sieves `R` in `D`, `R.pullback G` is a covering sieve in `C`.
 -/
 class Functor.IsCocontinuous : Prop where
@@ -80,12 +83,11 @@ lemma Functor.cover_lift [G.IsCocontinuous J K] {U : C} {S : Sieve (G.obj U)}
   IsCocontinuous.cover_lift hS
 
 /-- The identity functor on a site is cocontinuous. -/
-instance isCocontinuous_id : Functor.IsCocontinuous (𝟭 C) J J :=
-  ⟨fun h => by simpa using! h⟩
+instance isCocontinuous_id : Functor.IsCocontinuous (𝟭 C) J J := ⟨fun h => by simpa using! h⟩
 
 /-- The composition of two cocontinuous functors is cocontinuous. -/
-theorem isCocontinuous_comp [G.IsCocontinuous J K] [G'.IsCocontinuous K L] :
-    (G ⋙ G').IsCocontinuous J L where
+theorem isCocontinuous_comp [G.IsCocontinuous J K] [G'.IsCocontinuous K L]
+    : (G ⋙ G').IsCocontinuous J L where
   cover_lift h := G.cover_lift J K (G'.cover_lift K L h)
 
 variable {J K} in
@@ -171,18 +173,21 @@ set_option backward.isDefEq.respectTransparency false in
 /-- Auxiliary definition for `lift`. -/
 def liftAux {Y : C} (f : G.obj Y ⟶ X) : s.pt ⟶ F.obj (op Y) :=
   Multifork.IsLimit.lift (hF.isLimitMultifork ⟨_, G.cover_lift J K (K.pullback_stable f S.2)⟩)
-    (fun k ↦ s.ι (⟨_, G.map k.f ≫ f, k.hf⟩) ≫ α.app (op k.Y)) (by
+    (fun k ↦ s.ι (⟨_, G.map k.f ≫ f, k.hf⟩) ≫ α.app (op k.Y))
+    (by
       intro { fst := ⟨Y₁, p₁, hp₁⟩, snd := ⟨Y₂, p₂, hp₂⟩, r := ⟨W, g₁, g₂, w⟩ }
       dsimp at g₁ g₂ w ⊢
-      simp only [Category.assoc, ← α.naturality, Functor.comp_map,
-        Functor.op_map, Quiver.Hom.unop_op]
-      apply s.condition_assoc
-        { fst.hf := hp₁
-          snd.hf := hp₂
-          r.g₁ := G.map g₁
-          r.g₂ := G.map g₂
-          r.w := by simpa using G.congr_map w =≫ f
-          .. })
+      simp only [
+        Category.assoc, ← α.naturality, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op
+      ]
+      apply s.condition_assoc {
+        fst.hf := hp₁
+        snd.hf := hp₂
+        r.g₁ := G.map g₁
+        r.g₂ := G.map g₂
+        r.w := by simpa using G.congr_map w =≫ f
+        ..
+      })
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -223,11 +228,14 @@ variable {α}
 set_option backward.defeqAttrib.useBackward true in
 /-- Auxiliary definition for `isLimitMultifork` -/
 def lift : s.pt ⟶ R.obj (op X) :=
-  (hR (op X)).lift (Cone.mk _
-    { app := fun j ↦ liftAux hF α s j.hom.unop
+  (hR (op X)).lift
+    (Cone.mk _ {
+      app := fun j ↦ liftAux hF α s j.hom.unop
       naturality := fun j j' φ ↦ by
-        simpa using liftAux_map' hF α s j'.hom.unop j.hom.unop (𝟙 _) φ.right.unop
-          (Quiver.Hom.op_inj (by simpa using (StructuredArrow.w φ).symm)) })
+        simpa using
+          liftAux_map' hF α s j'.hom.unop j.hom.unop (𝟙 _) φ.right.unop
+            (Quiver.Hom.op_inj (by simpa using (StructuredArrow.w φ).symm))
+    })
 
 lemma fac' (j : StructuredArrow (op X) G.op) :
     lift hF hR s ≫ R.map j.hom ≫ α.app j.right = liftAux hF α s j.hom.unop := by
@@ -272,13 +280,15 @@ end RanIsSheafOfIsCocontinuous
 variable (K)
 variable [∀ (F : Cᵒᵖ ⥤ A), G.op.HasPointwiseRightKanExtension F]
 
-/-- If `G` is cocontinuous, then `G.op.ran` pushes sheaves to sheaves.
+/--
+If `G` is cocontinuous, then `G.op.ran` pushes sheaves to sheaves.
 
-This is SGA 4 III 2.2. -/
+This is SGA 4 III 2.2.
+-/
 @[stacks 00XK "Alternative reference. There, results are obtained under the additional assumption
 that `C` and `D` have pullbacks."]
-theorem ran_isSheaf_of_isCocontinuous (ℱ : Sheaf J A) :
-    Presheaf.IsSheaf K (G.op.ran.obj ℱ.obj) := by
+theorem ran_isSheaf_of_isCocontinuous (ℱ : Sheaf J A)
+    : Presheaf.IsSheaf K (G.op.ran.obj ℱ.obj) := by
   rw [Presheaf.isSheaf_iff_multifork]
   intro X S
   exact ⟨RanIsSheafOfIsCocontinuous.isLimitMultifork ℱ.2
@@ -290,15 +300,16 @@ variable (A J)
 def Functor.sheafPushforwardCocontinuous : Sheaf J A ⥤ Sheaf K A :=
   ObjectProperty.lift _ (sheafToPresheaf _ _ ⋙ G.op.ran) (ran_isSheaf_of_isCocontinuous _ K)
 
-/-- `G.sheafPushforwardCocontinuous A J K : Sheaf J A ⥤ Sheaf K A` is induced
-by the right Kan extension functor `G.op.ran` on presheaves. -/
+/--
+`G.sheafPushforwardCocontinuous A J K : Sheaf J A ⥤ Sheaf K A` is induced
+by the right Kan extension functor `G.op.ran` on presheaves.
+-/
 @[simps! hom inv]
-def Functor.sheafPushforwardCocontinuousCompSheafToPresheafIso :
-    G.sheafPushforwardCocontinuous A J K ⋙ sheafToPresheaf K A ≅
-      sheafToPresheaf J A ⋙ G.op.ran := Iso.refl _
+def Functor.sheafPushforwardCocontinuousCompSheafToPresheafIso
+    : G.sheafPushforwardCocontinuous A J K ⋙ sheafToPresheaf K A ≅ sheafToPresheaf J A ⋙ G.op.ran :=
+  Iso.refl _
 
 /-
-
 Given a cocontinuous functor `G`, the precomposition with `G.op` induces a functor
 on presheaves with leads to a "pullback" functor `Sheaf K A ⥤ Sheaf J A` (TODO: formalize
 this as `G.sheafPullbackCocontinuous A J K`) using the associated sheaf functor.
@@ -307,7 +318,6 @@ left adjoint to `G.sheafPushforwardCocontinuous A J K`. This adjunction may repl
 `Functor.sheafAdjunctionCocontinuous` below, and then, it could be shown that if
 `G` is also continuous, then we have an isomorphism
 `G.sheafPullbackCocontinuous A J K ≅ G.sheafPushforwardContinuous A J K` (TODO).
-
 -/
 
 namespace Functor
@@ -317,11 +327,12 @@ variable [G.IsContinuous J K]
 /--
 Given a functor between sites that is continuous and cocontinuous,
 the pushforward for the continuous functor `G` is left adjoint to
-the pushforward for the cocontinuous functor `G`. -/
-noncomputable def sheafAdjunctionCocontinuous :
-    G.sheafPushforwardContinuous A J K ⊣ G.sheafPushforwardCocontinuous A J K :=
-  (G.op.ranAdjunction A).restrictFullyFaithful
-    (fullyFaithfulSheafToPresheaf K A) (fullyFaithfulSheafToPresheaf J A)
+the pushforward for the cocontinuous functor `G`.
+-/
+noncomputable def sheafAdjunctionCocontinuous
+    : G.sheafPushforwardContinuous A J K ⊣ G.sheafPushforwardCocontinuous A J K :=
+  (G.op.ranAdjunction A).restrictFullyFaithful (fullyFaithfulSheafToPresheaf K A)
+    (fullyFaithfulSheafToPresheaf J A)
     (G.sheafPushforwardContinuousCompSheafToPresheafIso A J K).symm
     (G.sheafPushforwardCocontinuousCompSheafToPresheafIso A J K).symm
 
@@ -378,15 +389,17 @@ alias sheafAdjunctionCocontinuous_homEquiv_apply_val :=
 variable [HasWeakSheafify J A] [HasWeakSheafify K A]
 
 /-- The natural isomorphism exhibiting compatibility between pushforward and sheafification. -/
-def pushforwardContinuousSheafificationCompatibility :
-    (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf J A ≅
-    presheafToSheaf K A ⋙ G.sheafPushforwardContinuous A J K :=
+def pushforwardContinuousSheafificationCompatibility
+    : (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf J A
+      ≅ presheafToSheaf K A ⋙ G.sheafPushforwardContinuous A J K :=
   ((G.op.ranAdjunction A).comp (sheafificationAdjunction J A)).leftAdjointUniq
     ((sheafificationAdjunction K A).comp (G.sheafAdjunctionCocontinuous A J K))
 
 set_option backward.isDefEq.respectTransparency false in
-/- Implementation: This is primarily used to prove the lemma
-`pullbackSheafificationCompatibility_hom_app_hom`. -/
+/-
+Implementation: This is primarily used to prove the lemma
+`pullbackSheafificationCompatibility_hom_app_hom`.
+-/
 lemma toSheafify_pullbackSheafificationCompatibility (F : Dᵒᵖ ⥤ A) :
     toSheafify J (G.op ⋙ F) ≫
     ((G.pushforwardContinuousSheafificationCompatibility A J K).hom.app F).hom =

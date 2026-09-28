@@ -36,19 +36,23 @@ open CategoryTheory CochainComplex HomComplex Abelian Localization
 
 namespace CategoryTheory.ProjectiveResolution
 
-variable {C : Type u} [Category.{v} C] [Abelian C] [HasExt.{w} C]
-  {X Y : C} (R : ProjectiveResolution X) {n : ℕ}
+variable
+  {C : Type u} [Category.{v} C] [Abelian C] [HasExt.{w} C]
+  {X Y : C} (R : ProjectiveResolution X)
+  {n : ℕ}
 
 instance : R.cochainComplex.IsKProjective := isKProjective_of_projective _ 0
 
-/-- If `R` is a projective resolution of `X`, then `Ext X Y n` identifies
+/--
+If `R` is a projective resolution of `X`, then `Ext X Y n` identifies
 to the type of cohomology classes of degree `n` from `R.cochainComplex`
-to `(singleFunctor C 0).obj Y`. -/
-noncomputable def extEquivCohomologyClass :
-    Ext X Y n ≃ CohomologyClass R.cochainComplex ((singleFunctor C 0).obj Y) n :=
+to `(singleFunctor C 0).obj Y`.
+-/
+noncomputable def extEquivCohomologyClass
+    : Ext X Y n ≃ CohomologyClass R.cochainComplex ((singleFunctor C 0).obj Y) n :=
   (SmallShiftedHom.precompEquiv.{w} R.π'
-    ((by rw [HomologicalComplex.mem_quasiIso_iff]; infer_instance))).trans
-      CochainComplex.HomComplex.CohomologyClass.equivOfIsKProjective.{w}.symm
+      ((by rw [HomologicalComplex.mem_quasiIso_iff]; infer_instance))).trans
+    CochainComplex.HomComplex.CohomologyClass.equivOfIsKProjective.{w}.symm
 
 lemma extEquivCohomologyClass_symm_mk_hom [HasDerivedCategory C]
     (x : Cocycle R.cochainComplex ((singleFunctor C 0).obj Y) n) :
@@ -77,15 +81,15 @@ lemma extEquivCohomologyClass_symm_add
   ext
   simp [← CohomologyClass.mk_add, extEquivCohomologyClass_symm_mk_hom, ShiftedHom.map]
 
-/-- If `R` is a projective resolution of `X`, then `Ext X Y n` identifies
+/--
+If `R` is a projective resolution of `X`, then `Ext X Y n` identifies
 to the type of cohomology classes of degree `n` from `R.cochainComplex`
-to `(singleFunctor C 0).obj Y`. -/
+to `(singleFunctor C 0).obj Y`.
+-/
 @[simps!]
-noncomputable def extAddEquivCohomologyClass :
-    Ext X Y n ≃+ CohomologyClass R.cochainComplex ((singleFunctor C 0).obj Y) n :=
-  AddEquiv.symm
-    { toEquiv := R.extEquivCohomologyClass.symm
-      map_add' := by simp }
+noncomputable def extAddEquivCohomologyClass
+    : Ext X Y n ≃+ CohomologyClass R.cochainComplex ((singleFunctor C 0).obj Y) n :=
+  AddEquiv.symm { toEquiv := R.extEquivCohomologyClass.symm, map_add' := by simp }
 
 @[simp]
 lemma extEquivCohomologyClass_symm_sub
@@ -130,15 +134,17 @@ lemma extEquivCohomologyClass_zero :
     R.extEquivCohomologyClass (0 : Ext X Y n) = 0 :=
   R.extAddEquivCohomologyClass.map_zero
 
-/-- Given a projective resolution `R` of an object `X` of an abelian category,
+/--
+Given a projective resolution `R` of an object `X` of an abelian category,
 this is a constructor for elements in `Ext X Y n` which takes as an input
-a "cocycle" `f : R.cocomplex.X n ⟶ Y`. -/
-noncomputable def extMk {n : ℕ} (f : R.complex.X n ⟶ Y) (m : ℕ) (hm : n + 1 = m)
-    (hf : R.complex.d m n ≫ f = 0) :
-    Ext X Y n :=
-  R.extEquivCohomologyClass.symm
-    (.mk (Cocycle.toSingleMk ((R.cochainComplexXIso (-n) n rfl).hom ≫ f) (by simp)
-      (-m) (by lia) (by simpa [cochainComplex_d _ _ _ m n rfl rfl])))
+a "cocycle" `f : R.cocomplex.X n ⟶ Y`.
+-/
+noncomputable def extMk
+    {n : ℕ} (f : R.complex.X n ⟶ Y) (m : ℕ) (hm : n + 1 = m) (hf : R.complex.d m n ≫ f = 0)
+    : Ext X Y n :=
+  R.extEquivCohomologyClass.symm (.mk (Cocycle.toSingleMk
+    ((R.cochainComplexXIso (-n) n rfl).hom ≫ f) (by simp) (-m) (by lia)
+    (by simpa [cochainComplex_d _ _ _ m n rfl rfl])))
 
 @[simp]
 lemma extEquivCohomologyClass_extMk {n : ℕ} (f : R.complex.X n ⟶ Y) (m : ℕ) (hm : n + 1 = m)

@@ -16,7 +16,6 @@ We derive some `EquivFunctor` instances, to enable `equiv_rw` to rewrite under t
 
 public section
 
-
 open Equiv
 
 instance EquivFunctorUnique : EquivFunctor Unique where

@@ -30,22 +30,24 @@ assert_not_exists mfderiv
 open Filter Function Set Topology
 open scoped Manifold ContDiff
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   -- declare the prerequisites for a charted space `M` over the pair `(E, H)`.
-  {E : Type*}
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] {H : Type*} [TopologicalSpace H]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  {H : Type*} [TopologicalSpace H]
   {I : ModelWithCorners 𝕜 E H} {M : Type*} [TopologicalSpace M]
   -- declare the prerequisites for a charted space `M'` over the pair `(E', H')`.
-  {E' : Type*}
-  [NormedAddCommGroup E'] [NormedSpace 𝕜 E'] {H' : Type*} [TopologicalSpace H']
+  {E' : Type*} [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
+  {H' : Type*} [TopologicalSpace H']
   {I' : ModelWithCorners 𝕜 E' H'} {M' : Type*} [TopologicalSpace M']
   -- declare the prerequisites for a charted space `M''` over the pair `(E'', H'')`.
-  {E'' : Type*}
-  [NormedAddCommGroup E''] [NormedSpace 𝕜 E''] {H'' : Type*} [TopologicalSpace H'']
+  {E'' : Type*} [NormedAddCommGroup E''] [NormedSpace 𝕜 E'']
+  {H'' : Type*} [TopologicalSpace H'']
   {I'' : ModelWithCorners 𝕜 E'' H''} {M'' : Type*} [TopologicalSpace M'']
 
 section ChartedSpace
-variable [ChartedSpace H M] [ChartedSpace H' M'] [ChartedSpace H'' M'']
+variable
+  [ChartedSpace H M] [ChartedSpace H' M'] [ChartedSpace H'' M'']
   -- declare functions, sets, points and smoothness indices
   {f : M → M'} {s : Set M} {x : M} {n : ℕ∞ω}
 
@@ -54,9 +56,11 @@ variable [ChartedSpace H M] [ChartedSpace H' M'] [ChartedSpace H'' M'']
 section Composition
 
 /-- The composition of `C^n` functions within domains at points is `C^n`. -/
-theorem ContMDiffWithinAt.comp {t : Set M'} {g : M' → M''} (x : M)
-    (hg : ContMDiffWithinAt I' I'' n g t (f x)) (hf : ContMDiffWithinAt I I' n f s x)
-    (st : MapsTo f s t) : ContMDiffWithinAt I I'' n (g ∘ f) s x := by
+theorem ContMDiffWithinAt.comp
+    {t : Set M'} {g : M' → M''}
+    (x : M) (hg : ContMDiffWithinAt I' I'' n g t (f x)) (hf : ContMDiffWithinAt I I' n f s x)
+    (st : MapsTo f s t)
+    : ContMDiffWithinAt I I'' n (g ∘ f) s x := by
   rw [contMDiffWithinAt_iff] at hg hf ⊢
   refine ⟨hg.1.comp hf.1 st, ?_⟩
   set e := extChartAt I x
@@ -70,77 +74,95 @@ theorem ContMDiffWithinAt.comp {t : Set M'} {g : M' → M''} (x : M)
     rintro x' (hfx' : f x' ∈ e'.source) ⟨hx's, hx'⟩
     simp only [e, true_and, e.left_inv hx', st hx's, *]
   refine ((hg.2.comp _ (hf.2.mono inter_subset_right)
-      ((mapsTo_preimage _ _).mono_left inter_subset_left)).mono_of_mem_nhdsWithin
-      (inter_mem ?_ self_mem_nhdsWithin)).congr_of_eventuallyEq ?_ ?_
+        ((mapsTo_preimage _ _).mono_left inter_subset_left)).mono_of_mem_nhdsWithin
+      (inter_mem ?_ self_mem_nhdsWithin)).congr_of_eventuallyEq
+    ?_ ?_
   · filter_upwards [A]
     rintro x' ⟨ht, hfx'⟩
-    simp only [*, e, e', mem_preimage, writtenInExtChartAt, (· ∘ ·), mem_inter_iff, e'.left_inv,
-      true_and]
+    simp only [
+      *, e, e', mem_preimage, writtenInExtChartAt, (· ∘ ·), mem_inter_iff, e'.left_inv, true_and
+    ]
     exact mem_range_self _
   · filter_upwards [A]
     rintro x' ⟨-, hfx'⟩
     simp only [*, e, e', (· ∘ ·), writtenInExtChartAt, e'.left_inv]
-  · simp only [e, e', writtenInExtChartAt, (· ∘ ·), mem_extChartAt_source,
-      e.left_inv, e'.left_inv]
+  · simp only [e, e', writtenInExtChartAt, (· ∘ ·), mem_extChartAt_source, e.left_inv, e'.left_inv]
 
 /-- See note [comp_of_eq lemmas] -/
-theorem ContMDiffWithinAt.comp_of_eq {t : Set M'} {g : M' → M''} {x : M} {y : M'}
-    (hg : ContMDiffWithinAt I' I'' n g t y) (hf : ContMDiffWithinAt I I' n f s x)
-    (st : MapsTo f s t) (hx : f x = y) : ContMDiffWithinAt I I'' n (g ∘ f) s x := by
+theorem ContMDiffWithinAt.comp_of_eq
+    {t : Set M'} {g : M' → M''} {x : M} {y : M'} (hg : ContMDiffWithinAt I' I'' n g t y)
+    (hf : ContMDiffWithinAt I I' n f s x) (st : MapsTo f s t) (hx : f x = y)
+    : ContMDiffWithinAt I I'' n (g ∘ f) s x := by
   subst hx; exact hg.comp x hf st
 
 /-- The composition of `C^n` functions on domains is `C^n`. -/
-theorem ContMDiffOn.comp {t : Set M'} {g : M' → M''} (hg : ContMDiffOn I' I'' n g t)
-    (hf : ContMDiffOn I I' n f s) (st : s ⊆ f ⁻¹' t) : ContMDiffOn I I'' n (g ∘ f) s := fun x hx =>
+theorem ContMDiffOn.comp
+    {t : Set M'} {g : M' → M''} (hg : ContMDiffOn I' I'' n g t)
+    (hf : ContMDiffOn I I' n f s) (st : s ⊆ f ⁻¹' t)
+    : ContMDiffOn I I'' n (g ∘ f) s := fun x hx =>
   (hg _ (st hx)).comp x (hf x hx) st
 
 /-- The composition of `C^n` functions on domains is `C^n`. -/
-theorem ContMDiffOn.comp' {t : Set M'} {g : M' → M''} (hg : ContMDiffOn I' I'' n g t)
-    (hf : ContMDiffOn I I' n f s) : ContMDiffOn I I'' n (g ∘ f) (s ∩ f ⁻¹' t) :=
+theorem ContMDiffOn.comp'
+    {t : Set M'} {g : M' → M''} (hg : ContMDiffOn I' I'' n g t) (hf : ContMDiffOn I I' n f s)
+    : ContMDiffOn I I'' n (g ∘ f) (s ∩ f ⁻¹' t) :=
   hg.comp (hf.mono inter_subset_left) inter_subset_right
 
 /-- The composition of `C^n` functions is `C^n`. -/
-theorem ContMDiff.comp {g : M' → M''} (hg : ContMDiff I' I'' n g) (hf : ContMDiff I I' n f) :
-    ContMDiff I I'' n (g ∘ f) := by
+theorem ContMDiff.comp {g : M' → M''} (hg : ContMDiff I' I'' n g) (hf : ContMDiff I I' n f)
+    : ContMDiff I I'' n (g ∘ f) := by
   rw [← contMDiffOn_univ] at hf hg ⊢
   exact hg.comp hf subset_preimage_univ
 
 /-- The composition of `C^n` functions within domains at points is `C^n`. -/
-theorem ContMDiffWithinAt.comp' {t : Set M'} {g : M' → M''} (x : M)
-    (hg : ContMDiffWithinAt I' I'' n g t (f x)) (hf : ContMDiffWithinAt I I' n f s x) :
-    ContMDiffWithinAt I I'' n (g ∘ f) (s ∩ f ⁻¹' t) x :=
+theorem ContMDiffWithinAt.comp'
+    {t : Set M'} {g : M' → M''}
+    (x : M) (hg : ContMDiffWithinAt I' I'' n g t (f x)) (hf : ContMDiffWithinAt I I' n f s x)
+    : ContMDiffWithinAt I I'' n (g ∘ f) (s ∩ f ⁻¹' t) x :=
   hg.comp x (hf.mono inter_subset_left) inter_subset_right
 
-/-- `g ∘ f` is `C^n` within `s` at `x` if `g` is `C^n` at `f x` and
-`f` is `C^n` within `s` at `x`. -/
-theorem ContMDiffAt.comp_contMDiffWithinAt {g : M' → M''} (x : M)
-    (hg : ContMDiffAt I' I'' n g (f x)) (hf : ContMDiffWithinAt I I' n f s x) :
-    ContMDiffWithinAt I I'' n (g ∘ f) s x :=
+/--
+`g ∘ f` is `C^n` within `s` at `x` if `g` is `C^n` at `f x` and
+`f` is `C^n` within `s` at `x`.
+-/
+theorem ContMDiffAt.comp_contMDiffWithinAt
+    {g : M' → M''} (x : M) (hg : ContMDiffAt I' I'' n g (f x)) (hf : ContMDiffWithinAt I I' n f s x)
+    : ContMDiffWithinAt I I'' n (g ∘ f) s x :=
   hg.comp x hf (mapsTo_univ _ _)
 
-/-- `g ∘ f` is `C^n` within `s` at `x` if `g` is `C^n` at `f x` and
-`f` is `C^n` within `s` at `x`. -/
-theorem ContMDiffAt.comp_contMDiffWithinAt_of_eq {g : M' → M''} {x : M} {y : M'}
-    (hg : ContMDiffAt I' I'' n g y) (hf : ContMDiffWithinAt I I' n f s x) (hx : f x = y) :
-    ContMDiffWithinAt I I'' n (g ∘ f) s x := by
+/--
+`g ∘ f` is `C^n` within `s` at `x` if `g` is `C^n` at `f x` and
+`f` is `C^n` within `s` at `x`.
+-/
+theorem ContMDiffAt.comp_contMDiffWithinAt_of_eq
+    {g : M' → M''} {x : M} {y : M'}
+    (hg : ContMDiffAt I' I'' n g y) (hf : ContMDiffWithinAt I I' n f s x) (hx : f x = y)
+    : ContMDiffWithinAt I I'' n (g ∘ f) s x := by
   subst hx; exact hg.comp_contMDiffWithinAt x hf
 
 /-- The composition of `C^n` functions at points is `C^n`. -/
-nonrec theorem ContMDiffAt.comp {g : M' → M''} (x : M) (hg : ContMDiffAt I' I'' n g (f x))
-    (hf : ContMDiffAt I I' n f x) : ContMDiffAt I I'' n (g ∘ f) x :=
+nonrec theorem ContMDiffAt.comp
+    {g : M' → M''} (x : M) (hg : ContMDiffAt I' I'' n g (f x)) (hf : ContMDiffAt I I' n f x)
+    : ContMDiffAt I I'' n (g ∘ f) x :=
   hg.comp x hf (mapsTo_univ _ _)
 
 /-- See note [comp_of_eq lemmas] -/
-theorem ContMDiffAt.comp_of_eq {g : M' → M''} {x : M} {y : M'} (hg : ContMDiffAt I' I'' n g y)
-    (hf : ContMDiffAt I I' n f x) (hx : f x = y) : ContMDiffAt I I'' n (g ∘ f) x := by
+theorem ContMDiffAt.comp_of_eq
+    {g : M' → M''} {x : M} {y : M'}
+    (hg : ContMDiffAt I' I'' n g y) (hf : ContMDiffAt I I' n f x) (hx : f x = y)
+    : ContMDiffAt I I'' n (g ∘ f) x := by
   subst hx; exact hg.comp x hf
 
-theorem ContMDiff.comp_contMDiffOn {f : M → M'} {g : M' → M''} {s : Set M}
-    (hg : ContMDiff I' I'' n g) (hf : ContMDiffOn I I' n f s) : ContMDiffOn I I'' n (g ∘ f) s :=
+theorem ContMDiff.comp_contMDiffOn
+    {f : M → M'} {g : M' → M''} {s : Set M}
+    (hg : ContMDiff I' I'' n g) (hf : ContMDiffOn I I' n f s)
+    : ContMDiffOn I I'' n (g ∘ f) s :=
   hg.contMDiffOn.comp hf Set.subset_preimage_univ
 
-theorem ContMDiffOn.comp_contMDiff {t : Set M'} {g : M' → M''} (hg : ContMDiffOn I' I'' n g t)
-    (hf : ContMDiff I I' n f) (ht : ∀ x, f x ∈ t) : ContMDiff I I'' n (g ∘ f) :=
+theorem ContMDiffOn.comp_contMDiff
+    {t : Set M'} {g : M' → M''} (hg : ContMDiffOn I' I'' n g t)
+    (hf : ContMDiff I I' n f) (ht : ∀ x, f x ∈ t)
+    : ContMDiff I I'' n (g ∘ f) :=
   contMDiffOn_univ.mp <| hg.comp hf.contMDiffOn fun x _ => ht x
 
 end Composition
@@ -150,14 +172,12 @@ end Composition
 section id
 
 theorem contMDiff_id : ContMDiff I I n (id : M → M) :=
-  ContMDiff.of_le
-    ((contDiffWithinAt_localInvariantProp ⊤).liftProp_id contDiffWithinAtProp_id) le_top
+  ContMDiff.of_le ((contDiffWithinAt_localInvariantProp ⊤).liftProp_id contDiffWithinAtProp_id)
+    le_top
 
-theorem contMDiffOn_id : ContMDiffOn I I n (id : M → M) s :=
-  contMDiff_id.contMDiffOn
+theorem contMDiffOn_id : ContMDiffOn I I n (id : M → M) s := contMDiff_id.contMDiffOn
 
-theorem contMDiffAt_id : ContMDiffAt I I n (id : M → M) x :=
-  contMDiff_id.contMDiffAt
+theorem contMDiffAt_id : ContMDiffAt I I n (id : M → M) x := contMDiff_id.contMDiffAt
 
 theorem contMDiffWithinAt_id : ContMDiffWithinAt I I n (id : M → M) s x :=
   contMDiffAt_id.contMDiffWithinAt
@@ -169,16 +189,15 @@ end id
 section Iterate
 
 /-- The iterates of `C^n` functions on domains are `C^n`. -/
-theorem ContMDiffOn.iterate {f : M → M} (hf : ContMDiffOn I I n f s)
-    (hmaps : Set.MapsTo f s s) (k : ℕ) :
-    ContMDiffOn I I n (f^[k]) s := by
+theorem ContMDiffOn.iterate
+    {f : M → M} (hf : ContMDiffOn I I n f s) (hmaps : Set.MapsTo f s s) (k : ℕ)
+    : ContMDiffOn I I n (f^[k]) s := by
   induction k with
   | zero => simpa using contMDiffOn_id
   | succ k h => simpa using h.comp hf hmaps
 
 /-- The iterates of `C^n` functions are `C^n`. -/
-theorem ContMDiff.iterate {f : M → M} (hf : ContMDiff I I n f) (k : ℕ) :
-    ContMDiff I I n (f^[k]) :=
+theorem ContMDiff.iterate {f : M → M} (hf : ContMDiff I I n f) (k : ℕ) : ContMDiff I I n (f^[k]) :=
   contMDiffOn_univ.mp ((contMDiffOn_univ.mpr hf).iterate (univ.mapsTo_univ f) k)
 
 end Iterate
@@ -198,19 +217,15 @@ theorem contMDiff_const : ContMDiff I I' n fun _ : M => c := by
 theorem contMDiff_one [One M'] : ContMDiff I I' n (1 : M → M') := by
   simp only [Pi.one_def, contMDiff_const]
 
-theorem contMDiffOn_const : ContMDiffOn I I' n (fun _ : M => c) s :=
-  contMDiff_const.contMDiffOn
+theorem contMDiffOn_const : ContMDiffOn I I' n (fun _ : M => c) s := contMDiff_const.contMDiffOn
 
 @[to_additive]
-theorem contMDiffOn_one [One M'] : ContMDiffOn I I' n (1 : M → M') s :=
-  contMDiff_one.contMDiffOn
+theorem contMDiffOn_one [One M'] : ContMDiffOn I I' n (1 : M → M') s := contMDiff_one.contMDiffOn
 
-theorem contMDiffAt_const : ContMDiffAt I I' n (fun _ : M => c) x :=
-  contMDiff_const.contMDiffAt
+theorem contMDiffAt_const : ContMDiffAt I I' n (fun _ : M => c) x := contMDiff_const.contMDiffAt
 
 @[to_additive]
-theorem contMDiffAt_one [One M'] : ContMDiffAt I I' n (1 : M → M') x :=
-  contMDiff_one.contMDiffAt
+theorem contMDiffAt_one [One M'] : ContMDiffAt I I' n (1 : M → M') x := contMDiff_one.contMDiffAt
 
 theorem contMDiffWithinAt_const : ContMDiffWithinAt I I' n (fun _ : M => c) s x :=
   contMDiffAt_const.contMDiffWithinAt
@@ -246,13 +261,16 @@ lemma contMDiff_of_discreteTopology [DiscreteTopology M] :
 
 end const
 
-/-- `f` is continuously differentiable if it is cont. differentiable at
-each `x ∈ mulTSupport f`. -/
+/--
+`f` is continuously differentiable if it is cont. differentiable at
+each `x ∈ mulTSupport f`.
+-/
 @[to_additive /-- `f` is continuously differentiable if it is continuously
 differentiable at each `x ∈ tsupport f`. See also `contMDiff_section_of_tsupport`
 for a similar result for sections of vector bundles. -/]
-theorem contMDiff_of_mulTSupport [One M'] {f : M → M'}
-    (hf : ∀ x ∈ mulTSupport f, ContMDiffAt I I' n f x) : ContMDiff I I' n f := by
+theorem contMDiff_of_mulTSupport
+    [One M'] {f : M → M'} (hf : ∀ x ∈ mulTSupport f, ContMDiffAt I I' n f x)
+    : ContMDiff I I' n f := by
   intro x
   by_cases hx : x ∈ mulTSupport f
   · exact hf x hx
@@ -260,8 +278,9 @@ theorem contMDiff_of_mulTSupport [One M'] {f : M → M'}
       (notMem_mulTSupport_iff_eventuallyEq.1 hx)
 
 @[to_additive contMDiffWithinAt_of_notMem]
-theorem contMDiffWithinAt_of_notMem_mulTSupport {f : M → M'} [One M'] {x : M}
-    (hx : x ∉ mulTSupport f) (n : ℕ∞ω) (s : Set M) : ContMDiffWithinAt I I' n f s x := by
+theorem contMDiffWithinAt_of_notMem_mulTSupport
+    {f : M → M'} [One M'] {x : M} (hx : x ∉ mulTSupport f) (n : ℕ∞ω) (s : Set M)
+    : ContMDiffWithinAt I I' n f s x := by
   apply contMDiffWithinAt_const.congr_of_eventuallyEq
     (eventually_nhdsWithin_of_eventually_nhds <| notMem_mulTSupport_iff_eventuallyEq.mp hx)
     (image_eq_one_of_notMem_mulTSupport hx)
@@ -269,8 +288,9 @@ theorem contMDiffWithinAt_of_notMem_mulTSupport {f : M → M'} [One M'] {x : M}
 /-- `f` is continuously differentiable at each point outside of its `mulTSupport`. -/
 @[to_additive contMDiffAt_of_notMem /-- `f` is continuously differentiable at each point outside of
 its `tsupport`. -/]
-theorem contMDiffAt_of_notMem_mulTSupport {f : M → M'} [One M'] {x : M}
-    (hx : x ∉ mulTSupport f) (n : ℕ∞ω) : ContMDiffAt I I' n f x :=
+theorem contMDiffAt_of_notMem_mulTSupport
+    {f : M → M'} [One M'] {x : M} (hx : x ∉ mulTSupport f) (n : ℕ∞ω)
+    : ContMDiffAt I I' n f x :=
   contMDiffWithinAt_of_notMem_mulTSupport hx n univ
 
 /-- Given two `C^n` functions `f` and `g` which coincide locally around the frontier of a set `s`,
@@ -355,25 +375,24 @@ lemma contMDiff_of_contMDiffOn_iUnion_of_isOpen {ι : Type*} {s : ι → Set M}
 
 end contMDiff_union
 
-
 /-! ### The inclusion map from one open set to another is `C^n` -/
 
 section Inclusion
 
 open TopologicalSpace
 
-theorem contMDiffAt_subtype_iff {n : ℕ∞ω} {U : Opens M} {f : M → M'} {x : U} :
-    ContMDiffAt I I' n (fun x : U ↦ f x) x ↔ ContMDiffAt I I' n f x :=
+theorem contMDiffAt_subtype_iff {n : ℕ∞ω} {U : Opens M} {f : M → M'} {x : U}
+    : ContMDiffAt I I' n (fun x : U ↦ f x) x ↔ ContMDiffAt I I' n f x :=
   ((contDiffWithinAt_localInvariantProp n).liftPropAt_iff_comp_subtype_val _ _).symm
 
-theorem contMDiff_subtype_val {n : ℕ∞ω} {U : Opens M} :
-    ContMDiff I I n (Subtype.val : U → M) :=
+theorem contMDiff_subtype_val {n : ℕ∞ω} {U : Opens M} : ContMDiff I I n (Subtype.val : U → M) :=
   fun _ ↦ contMDiffAt_subtype_iff.mpr contMDiffAt_id
 
 @[to_additive]
-theorem ContMDiff.extend_one [T2Space M] [One M'] {n : ℕ∞ω} {U : Opens M} {f : U → M'}
-    (supp : HasCompactMulSupport f) (diff : ContMDiff I I' n f) :
-    ContMDiff I I' n (Subtype.val.extend f 1) := fun x ↦ by
+theorem ContMDiff.extend_one
+    [T2Space M] [One M']
+    {n : ℕ∞ω} {U : Opens M} {f : U → M'} (supp : HasCompactMulSupport f) (diff : ContMDiff I I' n f)
+    : ContMDiff I I' n (Subtype.val.extend f 1) := fun x ↦ by
   refine contMDiff_of_mulTSupport (fun x h ↦ ?_) _
   lift x to U using Subtype.coe_image_subset _ _
     (supp.mulTSupport_extend_one_subset continuous_subtype_val h)
@@ -382,8 +401,8 @@ theorem ContMDiff.extend_one [T2Space M] [One M'] {n : ℕ∞ω} {U : Opens M} {
   rw [extend_comp Subtype.val_injective]
   exact diff.contMDiffAt
 
-theorem contMDiff_inclusion {n : ℕ∞ω} {U V : Opens M} (h : U ≤ V) :
-    ContMDiff I I n (Opens.inclusion h : U → V) := fun _ ↦
+theorem contMDiff_inclusion {n : ℕ∞ω} {U V : Opens M} (h : U ≤ V)
+    : ContMDiff I I n (Opens.inclusion h : U → V) := fun _ ↦
   (contDiffWithinAt_localInvariantProp n).liftProp_inclusion (contDiffWithinAtProp_id ·) _ _
 
 end Inclusion

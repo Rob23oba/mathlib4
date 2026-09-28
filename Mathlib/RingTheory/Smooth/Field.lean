@@ -51,7 +51,8 @@ lemma Algebra.FormallySmooth.of_algebraicIndependent_of_isSeparable
   exact .comp _ (IntermediateField.adjoin K (Set.range v)) _
 
 instance (priority := low) Algebra.FormallySmooth.of_perfectField
-    [PerfectField K] [Algebra.EssFiniteType K L] : Algebra.FormallySmooth K L := by
+    [PerfectField K] [Algebra.EssFiniteType K L]
+    : Algebra.FormallySmooth K L := by
   obtain ⟨s, hs, H⟩ := exists_isTranscendenceBasis_and_isSeparable_of_perfectField K L
   have : Algebra.IsSeparable (↥(IntermediateField.adjoin K (Set.range ((↑) : s → L)))) L := by
     convert! H <;> simp

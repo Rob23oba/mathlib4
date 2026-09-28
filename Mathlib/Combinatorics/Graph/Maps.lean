@@ -33,8 +33,10 @@ namespace Graph
 
 section Map
 
-/-- Map `G : Graph α β` to a `Graph α' β` with the same edge set by applying a function `f : α → α'`
-  to each vertex. Edges between identified vertices become loops. -/
+/--
+Map `G : Graph α β` to a `Graph α' β` with the same edge set by applying a function `f : α → α'`
+to each vertex. Edges between identified vertices become loops.
+-/
 @[expose, simps! (attr := grind =)]
 def map (f : α → α') (G : Graph α β) : Graph α' β where
   vertexSet := f '' V(G)

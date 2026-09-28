@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.Normed.Module.Normalize
 public import Mathlib.Geometry.Euclidean.Angle.Unoriented.Affine
-
 import Mathlib.Geometry.Euclidean.Triangle
 
 /-!
@@ -187,23 +186,25 @@ lemma angle_expression_of_angle_eq_angle_sum :
 
 end UnitVectorAngles
 
-
 /-- **Triangle inequality** for angles between vectors. -/
-public theorem angle_le_angle_add_angle (x y z : V) :
-    angle x z ≤ angle x y + angle y z := by
+public theorem angle_le_angle_add_angle (x y z : V) : angle x z ≤ angle x y + angle y z := by
   by_cases hx : x = 0
   · simpa [hx] using angle_nonneg y z
   by_cases hy : y = 0
   · simpa [hy] using angle_le_pi x z
   by_cases hz : z = 0
   · simpa [hz] using angle_nonneg x y
-  simpa using angle_le_angle_add_angle_of_norm_eq_one (norm_normalize_eq_one_iff.mpr hx)
-    (norm_normalize_eq_one_iff.mpr hy) (norm_normalize_eq_one_iff.mpr hz)
+  simpa using
+    angle_le_angle_add_angle_of_norm_eq_one (norm_normalize_eq_one_iff.mpr hx)
+      (norm_normalize_eq_one_iff.mpr hy) (norm_normalize_eq_one_iff.mpr hz)
 
-/-- The triangle inequality is an equality if the middle vector is a nonnegative linear combination
-of the other two vectors. See `angle_add_angle_eq_pi_of_angle_eq_pi` for the other equality case. -/
-public theorem angle_eq_angle_add_add_angle_add_of_mem_span {x y z : V} (hy : y ≠ 0)
-    (h_mem : y ∈ Submodule.span ℝ≥0 {x, z}) : angle x z = angle x y + angle y z := by
+/--
+The triangle inequality is an equality if the middle vector is a nonnegative linear combination
+of the other two vectors. See `angle_add_angle_eq_pi_of_angle_eq_pi` for the other equality case.
+-/
+public theorem angle_eq_angle_add_add_angle_add_of_mem_span
+    {x y z : V} (hy : y ≠ 0) (h_mem : y ∈ Submodule.span ℝ≥0 {x, z})
+    : angle x z = angle x y + angle y z := by
   rw [Submodule.mem_span_pair] at h_mem
   obtain ⟨kx, kz, rfl⟩ := h_mem
   rcases eq_zero_or_pos kx with rfl | hkx <;> rcases eq_zero_or_pos kz with rfl | hkz
@@ -225,10 +226,12 @@ lemma mem_span_of_linear_combination {x y z : V} {kx ky kz : ℝ≥0} (hy : ky �
     rw [Submodule.mem_span_pair]; grind
   rwa [Submodule.smul_mem_iff _ hy] at h₁
 
-/-- The triangle inequality on vectors `x`, `y`, `z` is an equality if and only if
-`angle x z = π`, or `y` is a nonnegative linear combination of `x` and `z`. -/
-public theorem angle_eq_angle_add_angle_iff {x y z : V} (hy : y ≠ 0) :
-    angle x z = angle x y + angle y z ↔ angle x z = π ∨ y ∈ Submodule.span ℝ≥0 {x, z} := by
+/--
+The triangle inequality on vectors `x`, `y`, `z` is an equality if and only if
+`angle x z = π`, or `y` is a nonnegative linear combination of `x` and `z`.
+-/
+public theorem angle_eq_angle_add_angle_iff {x y z : V} (hy : y ≠ 0)
+    : angle x z = angle x y + angle y z ↔ angle x z = π ∨ y ∈ Submodule.span ℝ≥0 {x, z} := by
   constructor <;> rintro h
   · by_cases hxz₁ : angle x z = π
     · tauto
@@ -242,7 +245,8 @@ public theorem angle_eq_angle_add_angle_iff {x y z : V} (hy : y ≠ 0) :
     have h_sin_xz : Real.sin (angle x z) ≠ 0 := by
       grind [sin_eq_zero_iff_angle_eq_zero_or_angle_eq_pi]
     by_cases hx : x = 0
-    · subst x; simp only [angle_zero_left, left_eq_add] at h
+    · subst x
+      simp only [angle_zero_left, left_eq_add] at h
       rw [angle_eq_zero_iff] at h
       obtain ⟨_, ⟨r, ⟨hr, rfl⟩⟩⟩ := h
       lift r to ℝ≥0 using hr.le
@@ -251,7 +255,8 @@ public theorem angle_eq_angle_add_angle_iff {x y z : V} (hy : y ≠ 0) :
       norm_cast at hr
       grind [isUnit_iff_ne_zero]
     by_cases hz : z = 0
-    · subst z; simp only [angle_zero_right, right_eq_add] at h
+    · subst z
+      simp only [angle_zero_right, right_eq_add] at h
       rw [angle_eq_zero_iff] at h
       obtain ⟨_, ⟨r, ⟨hr, rfl⟩⟩⟩ := h
       lift r to ℝ≥0 using hr.le
@@ -262,9 +267,9 @@ public theorem angle_eq_angle_add_angle_iff {x y z : V} (hy : y ≠ 0) :
       grind [sin_angle_nonneg, norm_nonneg, div_nonneg_iff, mul_nonneg_iff]
     have hnneg₃ : 0 ≤ Real.sin (angle x z) / ‖y‖ := by
       grind [sin_angle_nonneg, norm_nonneg, div_nonneg_iff, mul_nonneg_iff]
-    have hnonzero : (⟨Real.sin (angle x z) / ‖y‖, hnneg₃⟩ : ℝ≥0) ≠ 0 := by
-      simp; grind
-    have h₁ := angle_expression_of_angle_eq_angle_sum (norm_normalize_eq_one_iff.mpr hx)
+    have hnonzero : (⟨Real.sin (angle x z) / ‖y‖, hnneg₃⟩ : ℝ≥0) ≠ 0 := by simp; grind
+    have h₁ :=
+      angle_expression_of_angle_eq_angle_sum (norm_normalize_eq_one_iff.mpr hx)
         (norm_normalize_eq_one_iff.mpr hy) (norm_normalize_eq_one_iff.mpr hz)
     simp only [angle_normalize_right, angle_normalize_left] at h₁
     have h₂ := h₁ hxz₁ h
@@ -280,8 +285,8 @@ end InnerProductGeometry
 
 namespace EuclideanGeometry
 
-variable {V P : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P]
-  [NormedAddTorsor V P]
+variable
+  {V P : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P]
 
 /-- **Triangle inequality** for angles in Euclidean geometry. -/
 public theorem angle_le_angle_add_angle (p p₁ p₂ p₃ : P) : ∠ p₁ p p₃ ≤ ∠ p₁ p p₂ + ∠ p₂ p p₃ :=

@@ -55,21 +55,22 @@ variable {G G' : Type*} [Group G] [Group G'] (H K L : Subgroup G)
 /-- The index of a subgroup as a natural number. Returns `0` if the index is infinite. -/
 @[to_additive (attr := wikidata Q1464168) /-- The index of an additive subgroup as a natural number.
 Returns 0 if the index is infinite. -/]
-noncomputable def index : ℕ :=
-  Nat.card (G ⧸ H)
+noncomputable def index : ℕ := Nat.card (G ⧸ H)
 
-/-- If `H` and `K` are subgroups of a group `G`, then `relIndex H K : ℕ` is the index
-of `H ∩ K` in `K`. The function returns `0` if the index is infinite. -/
+/--
+If `H` and `K` are subgroups of a group `G`, then `relIndex H K : ℕ` is the index
+of `H ∩ K` in `K`. The function returns `0` if the index is infinite.
+-/
 @[to_additive /-- If `H` and `K` are subgroups of an additive group `G`, then `relIndex H K : ℕ`
 is the index of `H ∩ K` in `K`. The function returns `0` if the index is infinite. -/]
-noncomputable def relIndex : ℕ :=
-  (H.subgroupOf K).index
+noncomputable def relIndex : ℕ := (H.subgroupOf K).index
 
 @[to_additive]
-theorem index_comap_of_surjective {f : G' →* G} (hf : Function.Surjective f) :
-    (H.comap f).index = H.index := by
-  have key : ∀ x y : G',
-      QuotientGroup.leftRel (H.comap f) x y ↔ QuotientGroup.leftRel H (f x) (f y) := by
+theorem index_comap_of_surjective {f : G' →* G} (hf : Function.Surjective f)
+    : (H.comap f).index = H.index := by
+  have key
+      : ∀ x y : G',
+        QuotientGroup.leftRel (H.comap f) x y ↔ QuotientGroup.leftRel H (f x) (f y) := by
     simp only [QuotientGroup.leftRel_apply]
     exact fun x y => iff_of_eq congr($(by rw [f.map_mul, f.map_inv]) ∈ H)
   refine Nat.card_congr (Equiv.ofBijective (Quotient.map' f fun x y => (key x y).mp) ⟨?_, ?_⟩)
@@ -82,24 +83,23 @@ theorem index_comap_of_surjective {f : G' →* G} (hf : Function.Surjective f) :
     exact ⟨y, (Quotient.map'_mk'' f _ y).trans congr(Quotient.mk'' $hy)⟩
 
 @[to_additive]
-theorem index_comap (f : G' →* G) :
-    (H.comap f).index = H.relIndex f.range :=
-  .trans congr(index $(by rfl))
+theorem index_comap (f : G' →* G) : (H.comap f).index = H.relIndex f.range :=
+  .trans (congr(index $(by rfl)))
     ((H.subgroupOf f.range).index_comap_of_surjective f.rangeRestrict_surjective)
 
 @[to_additive]
-theorem relIndex_comap (f : G' →* G) (K : Subgroup G') :
-    relIndex (comap f H) K = relIndex H (map f K) := by
+theorem relIndex_comap (f : G' →* G) (K : Subgroup G')
+    : relIndex (comap f H) K = relIndex H (map f K) := by
   rw [relIndex, subgroupOf, comap_comap, index_comap, ← f.map_range, K.range_subtype]
 
 @[to_additive]
-theorem relIndex_map_map_of_injective {f : G →* G'} (H K : Subgroup G) (hf : Function.Injective f) :
-    relIndex (map f H) (map f K) = relIndex H K := by
+theorem relIndex_map_map_of_injective {f : G →* G'} (H K : Subgroup G) (hf : Function.Injective f)
+    : relIndex (map f H) (map f K) = relIndex H K := by
   rw [← Subgroup.relIndex_comap, Subgroup.comap_map_eq_self_of_injective hf]
 
 @[to_additive]
-theorem relIndex_map_map (f : G →* G') (H K : Subgroup G) :
-    (map f H).relIndex (map f K) = (H ⊔ f.ker).relIndex (K ⊔ f.ker) := by
+theorem relIndex_map_map (f : G →* G') (H K : Subgroup G)
+    : (map f H).relIndex (map f K) = (H ⊔ f.ker).relIndex (K ⊔ f.ker) := by
   rw [← comap_map_eq, ← comap_map_eq, relIndex_comap, (gc_map_comap f).l_u_l_eq_l]
 
 variable {H K L}
@@ -118,15 +118,15 @@ theorem relIndex_dvd_index_of_le (h : H ≤ K) : H.relIndex K ∣ H.index :=
   dvd_of_mul_right_eq K.index (relIndex_mul_index h)
 
 @[to_additive]
-theorem relIndex_subgroupOf (hKL : K ≤ L) :
-    (H.subgroupOf L).relIndex (K.subgroupOf L) = H.relIndex K :=
+theorem relIndex_subgroupOf (hKL : K ≤ L)
+    : (H.subgroupOf L).relIndex (K.subgroupOf L) = H.relIndex K :=
   ((index_comap (H.subgroupOf L) (inclusion hKL)).trans (congr_arg _ (inclusion_range hKL))).symm
 
 variable (H K L)
 
 @[to_additive relIndex_mul_relIndex]
-theorem relIndex_mul_relIndex (hHK : H ≤ K) (hKL : K ≤ L) :
-    H.relIndex K * K.relIndex L = H.relIndex L := by
+theorem relIndex_mul_relIndex (hHK : H ≤ K) (hKL : K ≤ L)
+    : H.relIndex K * K.relIndex L = H.relIndex L := by
   rw [← relIndex_subgroupOf hKL]
   exact relIndex_mul_index fun x hx => hHK hx
 
@@ -140,8 +140,10 @@ theorem inf_relIndex_left : (H ⊓ K).relIndex H = K.relIndex H := by
 
 @[to_additive relIndex_inf_mul_relIndex]
 theorem relIndex_inf_mul_relIndex : H.relIndex (K ⊓ L) * K.relIndex L = (H ⊓ K).relIndex L := by
-  rw [← inf_relIndex_right H (K ⊓ L), ← inf_relIndex_right K L, ← inf_relIndex_right (H ⊓ K) L,
-    inf_assoc, relIndex_mul_relIndex (H ⊓ (K ⊓ L)) (K ⊓ L) L inf_le_right inf_le_right]
+  rw [
+    ← inf_relIndex_right H (K ⊓ L), ← inf_relIndex_right K L, ← inf_relIndex_right (H ⊓ K) L,
+    inf_assoc, relIndex_mul_relIndex (H ⊓ (K ⊓ L)) (K ⊓ L) L inf_le_right inf_le_right
+  ]
 
 @[to_additive (attr := simp)]
 theorem relIndex_sup_right [K.Normal] : K.relIndex (H ⊔ K) = K.relIndex H :=
@@ -161,14 +163,17 @@ variable {H K}
 theorem relIndex_dvd_of_le_left (hHK : H ≤ K) : K.relIndex L ∣ H.relIndex L :=
   inf_of_le_left hHK ▸ dvd_of_mul_left_eq _ (relIndex_inf_mul_relIndex _ _ _)
 
-/-- A subgroup has index two if and only if there exists `a` such that for all `b`, exactly one
-of `b * a` and `b` belong to `H`. -/
+/--
+A subgroup has index two if and only if there exists `a` such that for all `b`, exactly one
+of `b * a` and `b` belong to `H`.
+-/
 @[to_additive /-- An additive subgroup has index two if and only if there exists `a` such that
 for all `b`, exactly one of `b + a` and `b` belong to `H`. -/]
 theorem index_eq_two_iff : H.index = 2 ↔ ∃ a, ∀ b, Xor (b * a ∈ H) (b ∈ H) := by
-  simp only [index, Nat.card_eq_two_iff' ((1 : G) : G ⧸ H), ExistsUnique, inv_mem_iff,
-    QuotientGroup.exists_mk, QuotientGroup.forall_mk, Ne, QuotientGroup.eq, mul_one,
-    xor_iff_iff_not]
+  simp only [
+    index, Nat.card_eq_two_iff' ((1 : G) : G ⧸ H), ExistsUnique, inv_mem_iff,
+    QuotientGroup.exists_mk, QuotientGroup.forall_mk, Ne, QuotientGroup.eq, mul_one, xor_iff_iff_not
+  ]
   refine exists_congr fun a =>
     ⟨fun ha b => ⟨fun hba hb => ?_, fun hb => ?_⟩, fun ha => ⟨?_, fun b hb => ?_⟩⟩
   · exact ha.1 ((mul_mem_cancel_left hb).1 hba)
@@ -177,8 +182,10 @@ theorem index_eq_two_iff : H.index = 2 ↔ ∃ a, ∀ b, Xor (b * a ∈ H) (b �
     exact one_mem _
   · rwa [ha, inv_mem_iff (x := b)]
 
-/-- A subgroup has index two if and only if there exists `a` such that for all `b`, exactly one
-of `a * b` and `b` belong to `H`. -/
+/--
+A subgroup has index two if and only if there exists `a` such that for all `b`, exactly one
+of `a * b` and `b` belong to `H`.
+-/
 @[to_additive /-- An additive subgroup has index two if and only if there exists `a` such that
 for all `b`, exactly one of `a + b` and `b` belong to `H`. -/]
 theorem index_eq_two_iff' : H.index = 2 ↔ ∃ a, ∀ b, Xor (a * b ∈ H) (b ∈ H) := by
@@ -241,8 +248,10 @@ lemma relIndex_eq_two_iff_exists_notMem_and' :
 
 @[to_additive]
 theorem mul_mem_iff_of_index_two (h : H.index = 2) {a b : G} : a * b ∈ H ↔ (a ∈ H ↔ b ∈ H) := by
-  by_cases ha : a ∈ H; · simp only [ha, true_iff, mul_mem_cancel_left ha]
-  by_cases hb : b ∈ H; · simp only [hb, iff_true, mul_mem_cancel_right hb]
+  by_cases ha : a ∈ H
+  · simp only [ha, true_iff, mul_mem_cancel_left ha]
+  by_cases hb : b ∈ H
+  · simp only [hb, iff_true, mul_mem_cancel_right hb]
   simp only [ha, hb, iff_true]
   rcases index_eq_two_iff.1 h with ⟨c, hc⟩
   refine (hc _).or.resolve_left ?_
@@ -267,8 +276,7 @@ theorem index_bot : (⊥ : Subgroup G).index = Nat.card G :=
   Nat.card_congr QuotientGroup.quotientBot.toEquiv
 
 @[to_additive (attr := simp)]
-theorem relIndex_top_left : (⊤ : Subgroup G).relIndex H = 1 :=
-  index_top
+theorem relIndex_top_left : (⊤ : Subgroup G).relIndex H = 1 := index_top
 
 @[to_additive (attr := simp)]
 theorem relIndex_top_right : H.relIndex ⊤ = H.index := by
@@ -302,8 +310,8 @@ theorem card_ker_mul_card_range (f : G →* G') : Nat.card f.ker * Nat.card f.ra
   rw [← index_ker, card_mul_index]
 
 @[to_additive card_ker_mul_card_of_surjective]
-theorem card_ker_mul_card_of_surjective (hf : Surjective f) :
-    Nat.card f.ker * Nat.card G' = Nat.card G := by
+theorem card_ker_mul_card_of_surjective (hf : Surjective f)
+    : Nat.card f.ker * Nat.card G' = Nat.card G := by
   rw [← card_ker_mul_card_range f, f.range_eq_top_of_surjective hf, card_top]
 
 @[to_additive]
@@ -319,8 +327,7 @@ theorem card_map_dvd (f : G →* G') : Nat.card (H.map f) ∣ Nat.card H :=
   card_dvd_of_surjective (f.subgroupMap_surjective H)
 
 @[to_additive]
-theorem index_map (f : G →* G') :
-    (H.map f).index = (H ⊔ f.ker).index * f.range.index := by
+theorem index_map (f : G →* G') : (H.map f).index = (H ⊔ f.ker).index * f.range.index := by
   rw [← comap_map_eq, index_comap, relIndex_mul_index (H.map_le_range f)]
 
 @[to_additive]
@@ -329,8 +336,7 @@ theorem index_map_dvd (hf : Surjective f) : (H.map f).index ∣ H.index := by
   exact index_dvd_of_le le_sup_left
 
 @[to_additive]
-theorem dvd_index_map {f : G →* G'} (hf : f.ker ≤ H) :
-    H.index ∣ (H.map f).index := by
+theorem dvd_index_map {f : G →* G'} (hf : f.ker ≤ H) : H.index ∣ (H.map f).index := by
   rw [index_map, sup_of_le_left hf]
   apply dvd_mul_right
 
@@ -351,17 +357,14 @@ theorem index_map_of_injective (hf : Injective f) : (H.map f).index = H.index * 
   rw [H.index_map, f.ker_eq_bot hf, sup_bot_eq]
 
 @[to_additive]
-theorem index_map_subtype {H : Subgroup G} (K : Subgroup H) :
-    (K.map H.subtype).index = K.index * H.index := by
+theorem index_map_subtype {H : Subgroup G} (K : Subgroup H)
+    : (K.map H.subtype).index = K.index * H.index := by
   rw [K.index_map_of_injective H.subtype_injective, H.range_subtype]
 
-@[to_additive]
-theorem index_eq_card : H.index = Nat.card (G ⧸ H) :=
-  rfl
+@[to_additive] theorem index_eq_card : H.index = Nat.card (G ⧸ H) := rfl
 
 @[to_additive index_mul_card]
-theorem index_mul_card : H.index * Nat.card H = Nat.card G := by
-  rw [mul_comm, card_mul_index]
+theorem index_mul_card : H.index * Nat.card H = Nat.card G := by rw [mul_comm, card_mul_index]
 
 @[to_additive relIndex_mul_card]
 theorem relIndex_mul_card : H.relIndex K * Nat.card (H ⊓ K :) = Nat.card K := by
@@ -372,13 +375,10 @@ theorem relIndex_mul_card : H.relIndex K * Nat.card (H ⊓ K :) = Nat.card K := 
 theorem index_eq_card_div [Finite H] : H.index = Nat.card G / Nat.card H := by
   rw [← card_mul_index H, Nat.mul_div_cancel_left _ Nat.card_pos]
 
-@[to_additive]
-theorem index_dvd_card : H.index ∣ Nat.card G :=
-  ⟨Nat.card H, H.index_mul_card.symm⟩
+@[to_additive] theorem index_dvd_card : H.index ∣ Nat.card G := ⟨Nat.card H, H.index_mul_card.symm⟩
 
 @[to_additive]
-theorem relIndex_dvd_card : H.relIndex K ∣ Nat.card K :=
-  (H.subgroupOf K).index_dvd_card
+theorem relIndex_dvd_card : H.relIndex K ∣ Nat.card K := (H.subgroupOf K).index_dvd_card
 
 variable {H K L}
 
@@ -403,24 +403,24 @@ theorem index_eq_zero_of_relIndex_eq_zero (h : H.relIndex K = 0) : H.index = 0 :
   H.relIndex_top_right.symm.trans (relIndex_eq_zero_of_le_right le_top h)
 
 @[to_additive]
-theorem relIndex_le_of_le_left (hHK : H ≤ K) (hHL : H.relIndex L ≠ 0) :
-    K.relIndex L ≤ H.relIndex L :=
+theorem relIndex_le_of_le_left (hHK : H ≤ K) (hHL : H.relIndex L ≠ 0)
+    : K.relIndex L ≤ H.relIndex L :=
   Nat.le_of_dvd (Nat.pos_of_ne_zero hHL) (relIndex_dvd_of_le_left L hHK)
 
 @[to_additive]
-theorem relIndex_le_of_le_right (hKL : K ≤ L) (hHL : H.relIndex L ≠ 0) :
-    H.relIndex K ≤ H.relIndex L :=
+theorem relIndex_le_of_le_right (hKL : K ≤ L) (hHL : H.relIndex L ≠ 0)
+    : H.relIndex K ≤ H.relIndex L :=
   Finite.card_le_of_embedding' (quotientSubgroupOfEmbeddingOfLE H hKL) fun h => (hHL h).elim
 
 @[to_additive]
-theorem relIndex_ne_zero_trans (hHK : H.relIndex K ≠ 0) (hKL : K.relIndex L ≠ 0) :
-    H.relIndex L ≠ 0 := fun h =>
+theorem relIndex_ne_zero_trans (hHK : H.relIndex K ≠ 0) (hKL : K.relIndex L ≠ 0)
+    : H.relIndex L ≠ 0 := fun h =>
   mul_ne_zero (mt (relIndex_eq_zero_of_le_right (show K ⊓ L ≤ K from inf_le_left)) hHK) hKL
     ((relIndex_inf_mul_relIndex H K L).trans (relIndex_eq_zero_of_le_left inf_le_left h))
 
 @[to_additive]
-theorem relIndex_inf_ne_zero (hH : H.relIndex L ≠ 0) (hK : K.relIndex L ≠ 0) :
-    (H ⊓ K).relIndex L ≠ 0 := by
+theorem relIndex_inf_ne_zero (hH : H.relIndex L ≠ 0) (hK : K.relIndex L ≠ 0)
+    : (H ⊓ K).relIndex L ≠ 0 := by
   rw [← relIndex_inf_mul_relIndex, mul_ne_zero_iff_right hK]
   exact mt (relIndex_eq_zero_of_le_right inf_le_right) hH
 
@@ -453,16 +453,16 @@ theorem index_inf_le : (H ⊓ K).index ≤ H.index * K.index := by
   simp_rw [← relIndex_top_right, relIndex_inf_le]
 
 @[to_additive]
-theorem relIndex_iInf_ne_zero {ι : Type*} [_hι : Finite ι] {f : ι → Subgroup G}
-    (hf : ∀ i, (f i).relIndex L ≠ 0) : (⨅ i, f i).relIndex L ≠ 0 :=
+theorem relIndex_iInf_ne_zero
+    {ι : Type*} [_hι : Finite ι] {f : ι → Subgroup G} (hf : ∀ i, (f i).relIndex L ≠ 0)
+    : (⨅ i, f i).relIndex L ≠ 0 :=
   haveI := Fintype.ofFinite ι
-  (Finset.prod_ne_zero_iff.mpr fun i _hi => hf i) ∘
-    Nat.card_pi.symm.trans ∘
-      Finite.card_eq_zero_of_embedding (quotientiInfSubgroupOfEmbedding f L)
+  (Finset.prod_ne_zero_iff.mpr fun i _hi => hf i) ∘ Nat.card_pi.symm.trans
+    ∘ Finite.card_eq_zero_of_embedding (quotientiInfSubgroupOfEmbedding f L)
 
 @[to_additive]
-theorem relIndex_iInf_le {ι : Type*} [Fintype ι] (f : ι → Subgroup G) :
-    (⨅ i, f i).relIndex L ≤ ∏ i, (f i).relIndex L :=
+theorem relIndex_iInf_le {ι : Type*} [Fintype ι] (f : ι → Subgroup G)
+    : (⨅ i, f i).relIndex L ≤ ∏ i, (f i).relIndex L :=
   le_of_le_of_eq
     (Finite.card_le_of_embedding' (quotientiInfSubgroupOfEmbedding f L) fun h =>
       let ⟨i, _hi, h⟩ := Finset.prod_eq_zero_iff.mp (Nat.card_pi.symm.trans h)
@@ -470,31 +470,33 @@ theorem relIndex_iInf_le {ι : Type*} [Fintype ι] (f : ι → Subgroup G) :
     Nat.card_pi
 
 @[to_additive]
-theorem index_iInf_ne_zero {ι : Type*} [Finite ι] {f : ι → Subgroup G}
-    (hf : ∀ i, (f i).index ≠ 0) : (⨅ i, f i).index ≠ 0 := by
+theorem index_iInf_ne_zero {ι : Type*} [Finite ι] {f : ι → Subgroup G} (hf : ∀ i, (f i).index ≠ 0)
+    : (⨅ i, f i).index ≠ 0 := by
   simp_rw [← relIndex_top_right] at hf ⊢
   exact relIndex_iInf_ne_zero hf
 
 @[to_additive]
-theorem index_iInf_le {ι : Type*} [Fintype ι] (f : ι → Subgroup G) :
-    (⨅ i, f i).index ≤ ∏ i, (f i).index := by simp_rw [← relIndex_top_right, relIndex_iInf_le]
+theorem index_iInf_le {ι : Type*} [Fintype ι] (f : ι → Subgroup G)
+    : (⨅ i, f i).index ≤ ∏ i, (f i).index := by
+  simp_rw [← relIndex_top_right, relIndex_iInf_le]
 
 @[to_additive (attr := simp) index_eq_one]
-theorem index_eq_one : H.index = 1 ↔ H = ⊤ :=
-  ⟨fun h =>
-    QuotientGroup.subgroup_eq_top_of_subsingleton H (Nat.card_eq_one_iff_unique.mp h).1,
-    fun h => congr(index $h).trans index_top⟩
+theorem index_eq_one : H.index = 1 ↔ H = ⊤ := ⟨
+  fun h => QuotientGroup.subgroup_eq_top_of_subsingleton H (Nat.card_eq_one_iff_unique.mp h).1,
+  fun h => congr(index $h).trans index_top
+⟩
 
 @[to_additive (attr := simp) relIndex_eq_one]
-theorem relIndex_eq_one : H.relIndex K = 1 ↔ K ≤ H :=
-  index_eq_one.trans subgroupOf_eq_top
+theorem relIndex_eq_one : H.relIndex K = 1 ↔ K ≤ H := index_eq_one.trans subgroupOf_eq_top
 
 @[to_additive (attr := simp) card_eq_one]
 theorem card_eq_one : Nat.card H = 1 ↔ H = ⊥ :=
   H.relIndex_bot_left ▸ relIndex_eq_one.trans le_bot_iff
 
-/-- A subgroup has index dividing 2 if and only if there exists `a` such that for all `b`, at least
-one of `b * a` and `b` belongs to `H`. -/
+/--
+A subgroup has index dividing 2 if and only if there exists `a` such that for all `b`, at least
+one of `b * a` and `b` belongs to `H`.
+-/
 @[to_additive /-- An additive subgroup has index dividing 2 if and only if there exists `a` such
 that for all `b`, at least one of `b + a` and `b` belongs to `H`. -/]
 theorem index_dvd_two_iff : H.index ∣ 2 ↔ ∃ a, ∀ b, (b * a ∈ H) ∨ (b ∈ H) where
@@ -506,7 +508,8 @@ theorem index_dvd_two_iff : H.index ∣ 2 ↔ ∃ a, ∀ b, (b * a ∈ H) ∨ (b
       rw [Nat.le_one_iff_eq_zero_or_eq_one, or_assoc] at this
       exact this.resolve_left fun h ↦ (two_ne_zero <| Nat.zero_dvd.mp (h ▸ hH)).elim
     · simp [index_eq_one.mp hH]
-    · exact match index_eq_two_iff.mp hH with | ⟨a, ha⟩ => ⟨a, fun b ↦ (ha b).or⟩
+    · exact match index_eq_two_iff.mp hH with
+        | ⟨a, ha⟩ => ⟨a, fun b ↦ (ha b).or⟩
   mpr := by
     rintro ⟨a, ha⟩
     by_cases ha' : a ∈ H
@@ -516,8 +519,10 @@ theorem index_dvd_two_iff : H.index ∣ 2 ↔ ∃ a, ∀ b, (b * a ∈ H) ∨ (b
         ⟨a, fun b ↦ (xor_iff_or_and_not_and _ _).mpr ⟨ha b, fun h ↦ ha' ?_⟩⟩)
       simpa using mul_mem (inv_mem h.2) h.1
 
-/-- A subgroup has index dividing 2 if and only if there exists `a` such that for all `b`, at least
-one of `a * b` and `b` belongs to `H`. -/
+/--
+A subgroup has index dividing 2 if and only if there exists `a` such that for all `b`, at least
+one of `a * b` and `b` belongs to `H`.
+-/
 @[to_additive /-- An additive subgroup has index dividing 2 if and only if there exists `a` such
 that for all `b`, at least one of `a + b` and `b` belongs to `H`. -/]
 theorem index_dvd_two_iff' : H.index ∣ 2 ↔ ∃ a, ∀ b, (a * b ∈ H) ∨ (b ∈ H) := by
@@ -673,33 +678,39 @@ section FiniteIndex
 
 /-- Typeclass for finite index subgroups. -/
 class _root_.AddSubgroup.FiniteIndex {G : Type*} [AddGroup G] (H : AddSubgroup G) : Prop where
-  /-- The additive subgroup has finite index;
-  recall that `AddSubgroup.index` returns 0 when the index is infinite. -/
+  /--
+  The additive subgroup has finite index;
+  recall that `AddSubgroup.index` returns 0 when the index is infinite.
+  -/
   index_ne_zero : H.index ≠ 0
 
 variable (H) in
 /-- Typeclass for finite index subgroups. -/
-@[to_additive] class FiniteIndex : Prop where
-  /-- The subgroup has finite index;
-  recall that `Subgroup.index` returns 0 when the index is infinite. -/
+@[to_additive]
+class FiniteIndex : Prop where
+  /--
+  The subgroup has finite index;
+  recall that `Subgroup.index` returns 0 when the index is infinite.
+  -/
   index_ne_zero : H.index ≠ 0
 
 /-- Typeclass for a subgroup `H` to have finite index in a subgroup `K`. -/
-class _root_.AddSubgroup.IsFiniteRelIndex {G : Type*} [AddGroup G] (H K : AddSubgroup G) :
-    Prop where
+class _root_.AddSubgroup.IsFiniteRelIndex {G : Type*} [AddGroup G] (H K : AddSubgroup G)
+    : Prop where
   protected relIndex_ne_zero : H.relIndex K ≠ 0
 
 variable (H K) in
 /-- Typeclass for a subgroup `H` to have finite index in a subgroup `K`. -/
-@[to_additive] class IsFiniteRelIndex : Prop where
+@[to_additive]
+class IsFiniteRelIndex : Prop where
   protected relIndex_ne_zero : H.relIndex K ≠ 0
 
 @[to_additive] lemma relIndex_ne_zero [H.IsFiniteRelIndex K] : H.relIndex K ≠ 0 :=
   IsFiniteRelIndex.relIndex_ne_zero
 
 @[to_additive]
-instance IsFiniteRelIndex.to_finiteIndex_subgroupOf [H.IsFiniteRelIndex K] :
-    (H.subgroupOf K).FiniteIndex where
+instance IsFiniteRelIndex.to_finiteIndex_subgroupOf [H.IsFiniteRelIndex K]
+    : (H.subgroupOf K).FiniteIndex where
   index_ne_zero := relIndex_ne_zero
 
 @[to_additive]
@@ -707,22 +718,20 @@ lemma isFiniteRelIndex_iff_relIndex_ne_zero : H.IsFiniteRelIndex K ↔ H.relInde
   ⟨fun _ ↦ relIndex_ne_zero, IsFiniteRelIndex.mk⟩
 
 @[to_additive (attr := simp)]
-instance : IsFiniteRelIndex H H := by
-  simp [isFiniteRelIndex_iff_relIndex_ne_zero]
+instance : IsFiniteRelIndex H H := by simp [isFiniteRelIndex_iff_relIndex_ne_zero]
 
 @[to_additive]
-protected theorem IsFiniteRelIndex.trans (hHK : IsFiniteRelIndex H K) (hKL : IsFiniteRelIndex K L) :
-    IsFiniteRelIndex H L where
+protected theorem IsFiniteRelIndex.trans (hHK : IsFiniteRelIndex H K) (hKL : IsFiniteRelIndex K L)
+    : IsFiniteRelIndex H L where
   relIndex_ne_zero := relIndex_ne_zero_trans hHK.relIndex_ne_zero hKL.relIndex_ne_zero
 
 @[to_additive]
-protected theorem IsFiniteRelIndex.inf (hHK : IsFiniteRelIndex H L) (hKL : IsFiniteRelIndex K L) :
-    IsFiniteRelIndex (H ⊓ K) L where
+protected theorem IsFiniteRelIndex.inf (hHK : IsFiniteRelIndex H L) (hKL : IsFiniteRelIndex K L)
+    : IsFiniteRelIndex (H ⊓ K) L where
   relIndex_ne_zero := relIndex_inf_ne_zero hHK.relIndex_ne_zero hKL.relIndex_ne_zero
 
 @[to_additive]
-theorem finiteIndex_iff : H.FiniteIndex ↔ H.index ≠ 0 :=
-  ⟨fun h ↦ h.index_ne_zero, fun h ↦ ⟨h⟩⟩
+theorem finiteIndex_iff : H.FiniteIndex ↔ H.index ≠ 0 := ⟨fun h ↦ h.index_ne_zero, fun h ↦ ⟨h⟩⟩
 
 @[to_additive]
 lemma isFiniteRelIndex_iff_finiteIndex :
@@ -730,16 +739,15 @@ lemma isFiniteRelIndex_iff_finiteIndex :
   rw [isFiniteRelIndex_iff_relIndex_ne_zero, finiteIndex_iff, relIndex]
 
 @[to_additive]
-theorem not_finiteIndex_iff : ¬ H.FiniteIndex ↔ H.index = 0 := by
-  simp [finiteIndex_iff]
+theorem not_finiteIndex_iff : ¬H.FiniteIndex ↔ H.index = 0 := by simp [finiteIndex_iff]
 
 @[simp]
 theorem finiteIndex_toAddSubgroup_iff : H.toAddSubgroup.FiniteIndex ↔ H.FiniteIndex := by
   simp [finiteIndex_iff, AddSubgroup.finiteIndex_iff]
 
 @[simp]
-theorem _root_.AddSubgroup.finiteIndex_toSubgroup_iff {G : Type*} [AddGroup G] (H : AddSubgroup G) :
-    H.toSubgroup.FiniteIndex ↔ H.FiniteIndex := by
+theorem _root_.AddSubgroup.finiteIndex_toSubgroup_iff {G : Type*} [AddGroup G] (H : AddSubgroup G)
+    : H.toSubgroup.FiniteIndex ↔ H.FiniteIndex := by
   simp [finiteIndex_iff, AddSubgroup.finiteIndex_iff]
 
 @[to_additive (attr := simp)]
@@ -756,8 +764,7 @@ instance finite_quotient_of_finiteIndex [FiniteIndex H] : Finite (G ⧸ H) :=
   fintypeQuotientOfFiniteIndex.finite
 
 @[to_additive]
-theorem finiteIndex_of_finite_quotient [Finite (G ⧸ H)] : FiniteIndex H :=
-  ⟨index_ne_zero_of_finite⟩
+theorem finiteIndex_of_finite_quotient [Finite (G ⧸ H)] : FiniteIndex H := ⟨index_ne_zero_of_finite⟩
 
 @[to_additive]
 theorem finiteIndex_iff_finite_quotient : FiniteIndex H ↔ Finite (G ⧸ H) :=
@@ -768,45 +775,45 @@ instance (priority := 100) finiteIndex_of_finite [Finite G] : FiniteIndex H :=
   finiteIndex_of_finite_quotient
 
 @[to_additive]
-instance [FiniteIndex H] [FiniteIndex K] : FiniteIndex (H.prod K) := by
-  simp_all [finiteIndex_iff]
+instance [FiniteIndex H] [FiniteIndex K] : FiniteIndex (H.prod K) := by simp_all [finiteIndex_iff]
 
 variable (H) in
 @[to_additive]
 theorem finite_iff_finite_and_finiteIndex : Finite G ↔ Finite H ∧ H.FiniteIndex where
   mp _ := ⟨inferInstance, inferInstance⟩
-  mpr := fun ⟨_, _⟩ ↦ Nat.finite_of_card_ne_zero <|
-    H.card_mul_index ▸ mul_ne_zero Nat.card_pos.ne' FiniteIndex.index_ne_zero
+  mpr := fun ⟨_, _⟩ ↦
+    Nat.finite_of_card_ne_zero <|
+      H.card_mul_index ▸ mul_ne_zero Nat.card_pos.ne' FiniteIndex.index_ne_zero
 
 @[to_additive]
-theorem _root_.MonoidHom.finite_iff_finite_ker_range (f : G →* G') :
-    Finite G ↔ Finite f.ker ∧ Finite f.range := by
-  rw [finite_iff_finite_and_finiteIndex f.ker, ← (QuotientGroup.quotientKerEquivRange f).finite_iff,
-    finiteIndex_iff_finite_quotient]
+theorem _root_.MonoidHom.finite_iff_finite_ker_range (f : G →* G')
+    : Finite G ↔ Finite f.ker ∧ Finite f.range := by
+  rw [
+    finite_iff_finite_and_finiteIndex f.ker, ← (QuotientGroup.quotientKerEquivRange f).finite_iff,
+    finiteIndex_iff_finite_quotient
+  ]
 
-@[to_additive]
-instance : FiniteIndex (⊤ : Subgroup G) :=
-  ⟨ne_of_eq_of_ne index_top one_ne_zero⟩
+@[to_additive] instance : FiniteIndex (⊤ : Subgroup G) := ⟨ne_of_eq_of_ne index_top one_ne_zero⟩
 
 @[to_additive]
 instance [FiniteIndex H] [FiniteIndex K] : FiniteIndex (H ⊓ K) :=
   ⟨index_inf_ne_zero FiniteIndex.index_ne_zero FiniteIndex.index_ne_zero⟩
 
 @[to_additive]
-theorem finiteIndex_iInf {ι : Type*} [Finite ι] {f : ι → Subgroup G}
-    (hf : ∀ i, (f i).FiniteIndex) : (⨅ i, f i).FiniteIndex :=
+theorem finiteIndex_iInf {ι : Type*} [Finite ι] {f : ι → Subgroup G} (hf : ∀ i, (f i).FiniteIndex)
+    : (⨅ i, f i).FiniteIndex :=
   ⟨index_iInf_ne_zero fun i => (hf i).index_ne_zero⟩
 
 @[to_additive]
-theorem finiteIndex_iInf' {ι : Type*} {s : Finset ι}
-    (f : ι → Subgroup G) (hs : ∀ i ∈ s, (f i).FiniteIndex) :
-    (⨅ i ∈ s, f i).FiniteIndex := by
+theorem finiteIndex_iInf'
+    {ι : Type*} {s : Finset ι} (f : ι → Subgroup G) (hs : ∀ i ∈ s, (f i).FiniteIndex)
+    : (⨅ i ∈ s, f i).FiniteIndex := by
   rw [iInf_subtype']
   exact finiteIndex_iInf fun ⟨i, hi⟩ => hs i hi
 
 @[to_additive]
-instance instFiniteIndex_subgroupOf (H K : Subgroup G) [H.FiniteIndex] :
-    (H.subgroupOf K).FiniteIndex :=
+instance instFiniteIndex_subgroupOf (H K : Subgroup G) [H.FiniteIndex]
+    : (H.subgroupOf K).FiniteIndex :=
   ⟨fun h => H.index_ne_zero_of_finite <| H.index_eq_zero_of_relIndex_eq_zero h⟩
 
 @[to_additive]
@@ -817,8 +824,8 @@ instance (H' : Subgroup G') [H'.FiniteIndex] : (H'.comap f).FiniteIndex where
 
 variable (H) in
 @[to_additive]
-theorem FiniteIndex.map_of_surjective [H.FiniteIndex] (hf : Function.Surjective f) :
-    (H.map f).FiniteIndex where
+theorem FiniteIndex.map_of_surjective [H.FiniteIndex] (hf : Function.Surjective f)
+    : (H.map f).FiniteIndex where
   index_ne_zero := ne_zero_of_dvd_ne_zero FiniteIndex.index_ne_zero (H.index_map_dvd hf)
 
 @[to_additive]
@@ -827,8 +834,8 @@ theorem finiteIndex_of_le [FiniteIndex H] (h : H ≤ K) : FiniteIndex K :=
 
 /-- If `H ≤ K` and `H.index` divides `K.index`, then `H = K`. -/
 @[to_additive]
-theorem eq_of_index_dvd_index [hK : K.FiniteIndex] (h_le : H ≤ K) (h_dvd : H.index ∣ K.index) :
-    H = K := by
+theorem eq_of_index_dvd_index [hK : K.FiniteIndex] (h_le : H ≤ K) (h_dvd : H.index ∣ K.index)
+    : H = K := by
   rw [← h_le.ge_iff_eq, ← relIndex_eq_one, ← Nat.dvd_one]
   exact Nat.dvd_of_mul_dvd_mul_right hK.index_ne_zero.pos (by simpa [relIndex_mul_index h_le])
 
@@ -850,19 +857,19 @@ lemma isFiniteRelIndex_of_le_right (h : K ≤ L) [H.IsFiniteRelIndex L] :
   exact mt (relIndex_eq_zero_of_le_right h) relIndex_ne_zero
 
 @[to_additive]
-theorem isFiniteRelIndex_comap_iff {K : Subgroup G'} {f : G' →* G} :
-    IsFiniteRelIndex (H.comap f) K ↔ IsFiniteRelIndex H (K.map f) := by
+theorem isFiniteRelIndex_comap_iff {K : Subgroup G'} {f : G' →* G}
+    : IsFiniteRelIndex (H.comap f) K ↔ IsFiniteRelIndex H (K.map f) := by
   rw [isFiniteRelIndex_iff_relIndex_ne_zero, isFiniteRelIndex_iff_relIndex_ne_zero, relIndex_comap]
 
 @[to_additive]
-theorem IsFiniteRelIndex.map (f : G →* G') (hHK : IsFiniteRelIndex H K) :
-    IsFiniteRelIndex (H.map f) (K.map f) := by
+theorem IsFiniteRelIndex.map (f : G →* G') (hHK : IsFiniteRelIndex H K)
+    : IsFiniteRelIndex (H.map f) (K.map f) := by
   rw [← isFiniteRelIndex_comap_iff, comap_map_eq]
   exact isFiniteRelIndex_of_le_left K le_sup_left
 
 @[to_additive]
-theorem IsFiniteRelIndex.comap (f : G' →* G) (hHK : IsFiniteRelIndex H K) :
-    IsFiniteRelIndex (H.comap f) (K.comap f) := by
+theorem IsFiniteRelIndex.comap (f : G' →* G) (hHK : IsFiniteRelIndex H K)
+    : IsFiniteRelIndex (H.comap f) (K.comap f) := by
   rw [isFiniteRelIndex_comap_iff, map_comap_eq]
   exact isFiniteRelIndex_of_le_right H inf_le_right
 
@@ -885,8 +892,8 @@ lemma index_strictAnti (h : H < K) [H.FiniteIndex] : K.index < H.index := by
 variable (H K)
 
 @[to_additive]
-instance finiteIndex_ker {G' : Type*} [Group G'] (f : G →* G') [Finite f.range] :
-    f.ker.FiniteIndex :=
+instance finiteIndex_ker {G' : Type*} [Group G'] (f : G →* G') [Finite f.range]
+    : f.ker.FiniteIndex :=
   @finiteIndex_of_finite_quotient G _ f.ker
     (Finite.of_equiv f.range (QuotientGroup.quotientKerEquivRange f).symm)
 
@@ -894,16 +901,16 @@ instance finiteIndex_normalCore [H.FiniteIndex] : H.normalCore.FiniteIndex := by
   rw [normalCore_eq_ker]
   infer_instance
 
-instance _root_.AddSubgroup.finiteIndex_normalCore {G : Type*} [AddGroup G] (H : AddSubgroup G)
-    [h : H.FiniteIndex] : H.normalCore.FiniteIndex := by
+instance _root_.AddSubgroup.finiteIndex_normalCore
+    {G : Type*} [AddGroup G] (H : AddSubgroup G) [h : H.FiniteIndex]
+    : H.normalCore.FiniteIndex := by
   rw [← AddSubgroup.finiteIndex_toSubgroup_iff] at h ⊢
   exact H.toSubgroup.finiteIndex_normalCore
 
 attribute [to_additive existing] finiteIndex_normalCore
 
 @[to_additive]
-theorem index_range {f : G →* G} [hf : f.ker.FiniteIndex] :
-    f.range.index = Nat.card f.ker := by
+theorem index_range {f : G →* G} [hf : f.ker.FiniteIndex] : f.range.index = Nat.card f.ker := by
   rw [← mul_left_inj' hf.index_ne_zero, card_mul_index, index_ker, index_mul_card]
 
 end FiniteIndex
@@ -937,23 +944,26 @@ namespace MulAction
 
 variable (G : Type*) {X : Type*} [Group G] [MulAction G X] (x : X)
 
-@[to_additive] theorem index_stabilizer :
-    (stabilizer G x).index = (orbit G x).ncard :=
+@[to_additive]
+theorem index_stabilizer : (stabilizer G x).index = (orbit G x).ncard :=
   (Nat.card_congr (MulAction.orbitEquivQuotientStabilizer G x)).symm.trans
     (Nat.card_coe_set_eq (orbit G x))
 
-@[to_additive] theorem index_stabilizer_of_transitive [IsPretransitive G X] :
-    (stabilizer G x).index = Nat.card X := by
+@[to_additive]
+theorem index_stabilizer_of_transitive [IsPretransitive G X]
+    : (stabilizer G x).index = Nat.card X := by
   rw [index_stabilizer, orbit_eq_univ, Set.ncard_univ]
 
 end MulAction
 
 open MulAction in
 @[to_additive]
-theorem Subgroup.index_centralizer_eq_ncard {G : Type*} [Group G] (g : G) :
-    (Subgroup.centralizer {g}).index = (conjugatesOf g).ncard := by
-  rw [← stabilizer_comap_conj_eq_centralizer_singleton, Subgroup.index_comap, Subgroup.relIndex,
-    stabilizer_subgroupOf, index_stabilizer, orbit_range_conj_eq_conjugatesOf]
+theorem Subgroup.index_centralizer_eq_ncard {G : Type*} [Group G] (g : G)
+    : (Subgroup.centralizer {g}).index = (conjugatesOf g).ncard := by
+  rw [
+    ← stabilizer_comap_conj_eq_centralizer_singleton, Subgroup.index_comap, Subgroup.relIndex,
+    stabilizer_subgroupOf, index_stabilizer, orbit_range_conj_eq_conjugatesOf
+  ]
 
 @[to_additive (attr := deprecated (since := "2026-09-22"))]
 alias MulAction.index_centralizer_eq_ncard := Subgroup.index_centralizer_eq_ncard
@@ -970,8 +980,9 @@ lemma surjective_of_card_ker_le_div {G M : Type*} [Group G] [Group M] [Finite G]
 
 open Finset
 
-variable {G M F : Type*} [Group G] [Fintype G] [Monoid M] [DecidableEq M]
-  [FunLike F G M] [MonoidHomClass F G M]
+variable
+  {G M F : Type*}
+  [Group G] [Fintype G] [Monoid M] [DecidableEq M] [FunLike F G M] [MonoidHomClass F G M]
 
 @[to_additive]
 lemma card_fiber_eq_of_mem_range (f : F) {x y : M} (hx : x ∈ Set.range f) (hy : y ∈ Set.range f) :

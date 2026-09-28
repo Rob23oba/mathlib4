@@ -59,23 +59,22 @@ open MeasureTheory
 
 namespace ProbabilityTheory
 
-variable {Ω 𝓧 𝓨 : Type*}
-  {mΩ : MeasurableSpace Ω} {m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨}
+variable
+  {Ω 𝓧 𝓨 : Type*} {mΩ : MeasurableSpace Ω} {m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨}
   {κ : Kernel Ω 𝓧} {μ : Measure Ω} [IsFiniteMeasure μ] [IsFiniteKernel κ]
 
 variable [StandardBorelSpace Ω] [Nonempty Ω]
 
 /-- Posterior of the kernel `κ` with respect to the measure `μ`. -/
-noncomputable
-def posterior (κ : Kernel Ω 𝓧) (μ : Measure Ω) [IsFiniteMeasure μ] [IsFiniteKernel κ] :
-    Kernel 𝓧 Ω :=
+noncomputable def posterior (κ : Kernel Ω 𝓧) (μ : Measure Ω) [IsFiniteMeasure μ] [IsFiniteKernel κ]
+    : Kernel 𝓧 Ω :=
   ((μ ⊗ₘ κ).map Prod.swap).condKernel
 
 /-- Posterior of the kernel `κ` with respect to the measure `μ`. -/
 scoped[ProbabilityTheory] infix:arg "†" => ProbabilityTheory.posterior
 
 /-- The posterior is a Markov kernel. -/
-instance : IsMarkovKernel κ†μ := by rw [posterior]; infer_instance
+instance : IsMarkovKernel κ † μ := by rw [posterior]; infer_instance
 
 /-- The main property of the posterior. -/
 lemma compProd_posterior_eq_map_swap : (κ ∘ₘ μ) ⊗ₘ κ†μ = (μ ⊗ₘ κ).map Prod.swap := by
@@ -204,7 +203,6 @@ lemma posterior_comp {η : Kernel 𝓧 𝓨} [IsFiniteKernel η] :
 
 end StandardBorelSpace
 
-
 section CountableOrCountablyGenerated
 
 variable [MeasurableSpace.CountableOrCountablyGenerated Ω 𝓧]
@@ -271,7 +269,7 @@ lemma rnDeriv_posterior (h_ac : ∀ᵐ ω ∂μ, κ ω ≪ κ ∘ₘ μ) :
   convert!
     Measure.ae_ae_of_ae_prod
       (rnDeriv_posterior_ae_prod h_ac) -- much faster than `exact`
-         -- much faster than `exact`
+-- much faster than `exact`
 
 lemma rnDeriv_posterior_symm (h_ac : ∀ᵐ ω ∂μ, κ ω ≪ κ ∘ₘ μ) :
     ∀ᵐ x ∂(κ ∘ₘ μ), ∀ᵐ ω ∂μ,

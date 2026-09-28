@@ -67,12 +67,14 @@ lemma RingHom.HasEqualizers.isClosedUnderLimitsOfShape (hQi : RespectsIso Q)
   rw [underObj_iff, ← Under.w e.inv, (toMorphismProperty Q).cancel_right_of_respectsIso]
   exact hQe _ _ (hpres .zero) (hpres .one)
 
-/-- If `Q` is stable under finite products, the inclusion from the subcategory of `Under R` defined
-by `Q` creates finite products. -/
+/--
+If `Q` is stable under finite products, the inclusion from the subcategory of `Under R` defined
+by `Q` creates finite products.
+-/
 @[instance_reducible]
 noncomputable def RingHom.HasFiniteProducts.createsFiniteProductsForget
-    (hQi : RespectsIso Q) (hQp : HasFiniteProducts Q) (R : CommRingCat.{u}) :
-    CreatesFiniteProducts (MorphismProperty.Under.forget (toMorphismProperty Q) ⊤ R) := by
+    (hQi : RespectsIso Q) (hQp : HasFiniteProducts Q) (R : CommRingCat.{u})
+    : CreatesFiniteProducts (MorphismProperty.Under.forget (toMorphismProperty Q) ⊤ R) := by
   refine .mk' _ fun (J : Type u) _ ↦ ?_
   apply +allowSynthFailures Comma.forgetCreatesLimitsOfShapeOfClosed
   have := hQp.isClosedUnderLimitsOfShape hQi R
@@ -97,12 +99,14 @@ lemma RingHom.HasFiniteProducts.preservesFiniteProducts_pushout (hQi : RingHom.R
     infer_instance
   exact preservesLimit_of_reflects_of_preserves _ (MorphismProperty.Under.forget _ ⊤ S)
 
-/-- If `Q` is stable under equalizers, the inclusion from the subcategory of `Under R` defined
-by `Q` creates equalizers. -/
+/--
+If `Q` is stable under equalizers, the inclusion from the subcategory of `Under R` defined
+by `Q` creates equalizers.
+-/
 @[instance_reducible]
-noncomputable def RingHom.HasEqualizers.createsLimitsWalkingParallelPair (hQi : RespectsIso Q)
-    (hQe : HasEqualizers Q) (R : CommRingCat.{u}) :
-    CreatesLimitsOfShape WalkingParallelPair
+noncomputable def RingHom.HasEqualizers.createsLimitsWalkingParallelPair
+    (hQi : RespectsIso Q) (hQe : HasEqualizers Q) (R : CommRingCat.{u})
+    : CreatesLimitsOfShape WalkingParallelPair
       (MorphismProperty.Under.forget (toMorphismProperty Q) ⊤ R) := by
   apply +allowSynthFailures Comma.forgetCreatesLimitsOfShapeOfClosed
   exact hQe.isClosedUnderLimitsOfShape hQi _
@@ -116,12 +120,15 @@ lemma RingHom.HasEqualizers.hasEqualizers (hQi : RespectsIso Q) (hQe : HasEquali
 
 namespace CommRingCat
 
-/-- If `Q` is stable under finite products and equalizers, the inclusion from the subcategory of
-`Under R` defined by `Q` creates finite limits. -/
+/--
+If `Q` is stable under finite products and equalizers, the inclusion from the subcategory of
+`Under R` defined by `Q` creates finite limits.
+-/
 @[instance_reducible]
-noncomputable def Under.createsFiniteLimitsForget (hQi : RingHom.RespectsIso Q)
-    (hQp : RingHom.HasFiniteProducts Q) (hQe : RingHom.HasEqualizers Q) (R : CommRingCat.{u}) :
-    CreatesFiniteLimits (Under.forget (RingHom.toMorphismProperty Q) ⊤ R) :=
+noncomputable def Under.createsFiniteLimitsForget
+    (hQi : RingHom.RespectsIso Q) (hQp : RingHom.HasFiniteProducts Q)
+    (hQe : RingHom.HasEqualizers Q) (R : CommRingCat.{u})
+    : CreatesFiniteLimits (Under.forget (RingHom.toMorphismProperty Q) ⊤ R) :=
   letI := hQp.createsFiniteProductsForget hQi
   letI := hQe.createsLimitsWalkingParallelPair hQi
   createsFiniteLimitsOfCreatesEqualizersAndFiniteProducts _

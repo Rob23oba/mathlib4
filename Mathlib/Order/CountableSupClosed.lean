@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Data.Set.Countable
 public import Mathlib.Order.SupClosed
-
 import Mathlib.Order.Bounds.Lattice
 
 /-!
@@ -39,13 +38,17 @@ variable {ι : Sort*} {α β : Type*} {S : Set (Set α)} {s t : Set α} {a b : �
 section Set
 open Set
 
-/-- A set `s` is closed under countable supremum if for every nonempty countable subset of `s`, any
-least upper bound of that subset is in `s`. -/
+/--
+A set `s` is closed under countable supremum if for every nonempty countable subset of `s`, any
+least upper bound of that subset is in `s`.
+-/
 structure CountableSupClosed [LE α] (s : Set α) : Prop where
   isLUB_mem : ∀ t ⊆ s, t.Nonempty → t.Countable → ∀ x, IsLUB t x → x ∈ s
 
-/-- A set `s` is closed under countable infimum if for every nonempty countable subset of `s`, any
-greatest lower bound of that subset is in `s`. -/
+/--
+A set `s` is closed under countable infimum if for every nonempty countable subset of `s`, any
+greatest lower bound of that subset is in `s`.
+-/
 @[to_dual existing]
 structure CountableInfClosed [LE α] (s : Set α) : Prop where
   isGLB_mem : ∀ t ⊆ s, t.Nonempty → t.Countable → ∀ x, IsGLB t x → x ∈ s
@@ -178,25 +181,26 @@ variable [Preorder α]
 
 /-- Every set generates a set closed under countable supremum. -/
 @[to_dual /-- Every set generates a set closed under countable infimum. -/]
-def countableSupClosure : ClosureOperator (Set α) := .ofPred
-  (fun s ↦ {a | ∃ (A : Set α) (_ : A ⊆ s) (_ : A.Nonempty) (_ : A.Countable), IsLUB A a})
-  CountableSupClosed
-  (fun s x hxs ↦ ⟨{x}, by grind, by simp, by simp, by simp⟩)
-  (fun s ↦ by
-    constructor
-    intro A hA hA_ne hAc x hx
-    choose B hB hB_ne hBc hB_lub using hA
-    refine ⟨⋃ a : A, B a.2, by simp; grind, ?_, ?_, ?_⟩
-    · obtain ⟨a, ha⟩ := hA_ne
-      simp
-      grind
-    · have : Countable A := Set.countable_coe_iff.mpr hAc
-      exact Set.countable_iUnion fun a ↦ hBc a.2
-    · have : Nonempty A := Set.nonempty_coe_sort.mpr hA_ne
-      rw [← isLUB_iUnion_iff_of_isLUB (u := fun a : A ↦ a.1) (fun a ↦ hB_lub a.2)]
-      simpa)
-  (fun s t (hst : s ⊆ t) ht a ⟨A, hAs, hA_ne, hA_c, hA_lub⟩ ↦
-    ht.isLUB_mem A (hAs.trans hst) hA_ne hA_c _ hA_lub)
+def countableSupClosure : ClosureOperator (Set α) :=
+  .ofPred
+    (fun s ↦ {a | ∃ (A : Set α) (_ : A ⊆ s) (_ : A.Nonempty) (_ : A.Countable), IsLUB A a})
+    CountableSupClosed
+    (fun s x hxs ↦ ⟨{x}, by grind, by simp, by simp, by simp⟩)
+    (fun s ↦ by
+      constructor
+      intro A hA hA_ne hAc x hx
+      choose B hB hB_ne hBc hB_lub using hA
+      refine ⟨⋃ a : A, B a.2, by simp; grind, ?_, ?_, ?_⟩
+      · obtain ⟨a, ha⟩ := hA_ne
+        simp
+        grind
+      · have : Countable A := Set.countable_coe_iff.mpr hAc
+        exact Set.countable_iUnion fun a ↦ hBc a.2
+      · have : Nonempty A := Set.nonempty_coe_sort.mpr hA_ne
+        rw [← isLUB_iUnion_iff_of_isLUB (u := fun a : A ↦ a.1) (fun a ↦ hB_lub a.2)]
+        simpa)
+    (fun s t (hst : s ⊆ t) ht a ⟨A, hAs, hA_ne, hA_c, hA_lub⟩ ↦
+      ht.isLUB_mem A (hAs.trans hst) hA_ne hA_c _ hA_lub)
 
 @[to_dual (attr := simp)] lemma subset_countableSupClosure :
     s ⊆ countableSupClosure s := countableSupClosure.le_closure _

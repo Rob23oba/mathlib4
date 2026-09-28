@@ -32,11 +32,13 @@ namespace HomologicalComplex
 
 variable {C : Type*} [Category* C] [HasZeroMorphisms C] [HasZeroObject C]
 
-variable (K L M : HomologicalComplex C c') (φ : K ⟶ L) (φ' : L ⟶ M)
-  (e : c.Embedding c') [e.IsRelIff]
+variable
+  (K L M : HomologicalComplex C c') (φ : K ⟶ L) (φ' : L ⟶ M) (e : c.Embedding c') [e.IsRelIff]
 
-/-- The stupid truncation of a complex `K : HomologicalComplex C c'` relatively to
-an embedding `e : c.Embedding c'` of complex shapes. -/
+/--
+The stupid truncation of a complex `K : HomologicalComplex C c'` relatively to
+an embedding `e : c.Embedding c'` of complex shapes.
+-/
 noncomputable def stupidTrunc : HomologicalComplex C c' := ((K.restriction e).extend e)
 
 instance : IsStrictlySupported (K.stupidTrunc e) e := by
@@ -44,17 +46,16 @@ instance : IsStrictlySupported (K.stupidTrunc e) e := by
   infer_instance
 
 /-- The isomorphism `(K.stupidTrunc e).X i' ≅ K.X i'` when `i` is in the image of `e.f`. -/
-noncomputable def stupidTruncXIso {i : ι} {i' : ι'} (hi' : e.f i = i') :
-    (K.stupidTrunc e).X i' ≅ K.X i' :=
+noncomputable def stupidTruncXIso {i : ι} {i' : ι'} (hi' : e.f i = i')
+    : (K.stupidTrunc e).X i' ≅ K.X i' :=
   (K.restriction e).extendXIso e hi' ≪≫ eqToIso (by subst hi'; rfl)
 
 lemma isZero_stupidTrunc_X (i' : ι') (hi' : ∀ i, e.f i ≠ i') :
     IsZero ((K.stupidTrunc e).X i') :=
   isZero_extend_X _ _ _ hi'
 
-instance {ι'' : Type*} {c'' : ComplexShape ι''} (e' : c''.Embedding c')
-    [K.IsStrictlySupported e'] :
-    IsStrictlySupported (K.stupidTrunc e) e' where
+instance {ι'' : Type*} {c'' : ComplexShape ι''} (e' : c''.Embedding c') [K.IsStrictlySupported e']
+    : IsStrictlySupported (K.stupidTrunc e) e' where
   isZero i' hi' := by
     by_cases hi'' : ∃ i, e.f i = i'
     · obtain ⟨i, hi⟩ := hi''
@@ -103,11 +104,13 @@ namespace ComplexShape.Embedding
 
 variable (e : Embedding c c') (C : Type*) [Category* C] [HasZeroMorphisms C] [HasZeroObject C]
 
-/-- The stupid truncation functor `HomologicalComplex C c' ⥤ HomologicalComplex C c'`
-given by an embedding `e : Embedding c c'` of complex shapes. -/
+/--
+The stupid truncation functor `HomologicalComplex C c' ⥤ HomologicalComplex C c'`
+given by an embedding `e : Embedding c c'` of complex shapes.
+-/
 @[simps]
-noncomputable def stupidTruncFunctor [e.IsRelIff] :
-    HomologicalComplex C c' ⥤ HomologicalComplex C c' where
+noncomputable def stupidTruncFunctor [e.IsRelIff]
+    : HomologicalComplex C c' ⥤ HomologicalComplex C c' where
   obj K := K.stupidTrunc e
   map φ := HomologicalComplex.stupidTruncMap φ e
 

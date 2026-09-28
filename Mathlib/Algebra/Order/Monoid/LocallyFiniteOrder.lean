@@ -65,15 +65,17 @@ lemma card_Ico_one_mul [ExistsMulOfLE M] (a b : M)
 
 end Multiplicative
 
-variable {M G : Type*} [AddCancelCommMonoid M] [LinearOrder M] [IsOrderedAddMonoid M]
-    [LocallyFiniteOrder M] [AddCommGroup G] [LinearOrder G]
-    [IsOrderedAddMonoid G] [LocallyFiniteOrder G]
+variable
+  {M G : Type*}
+  [AddCancelCommMonoid M] [LinearOrder M] [IsOrderedAddMonoid M] [LocallyFiniteOrder M]
+  [AddCommGroup G] [LinearOrder G] [IsOrderedAddMonoid G] [LocallyFiniteOrder G]
 
 variable (G) in
-/-- The canonical embedding (as a monoid hom) from a linearly ordered cancellative additive monoid
-into `ℤ`. This is either surjective or zero. -/
-def LocallyFiniteOrder.addMonoidHom :
-    G →+ ℤ where
+/--
+The canonical embedding (as a monoid hom) from a linearly ordered cancellative additive monoid
+into `ℤ`. This is either surjective or zero.
+-/
+def LocallyFiniteOrder.addMonoidHom : G →+ ℤ where
   toFun a := #(Ico 0 a) - #(Ico 0 (-a))
   map_zero' := by simp
   map_add' a b := by
@@ -85,23 +87,30 @@ def LocallyFiniteOrder.addMonoidHom :
     · obtain rfl := hb.antisymm (ha.trans hab)
       obtain rfl := ha.antisymm hab
       simp
-    · simp only [neg_add_rev, ha, Ico_eq_empty_of_le, card_empty, Nat.cast_zero, zero_sub,
-        Left.neg_nonpos_iff, hb, sub_zero]
+    · simp only [
+        neg_add_rev, ha, Ico_eq_empty_of_le, card_empty, Nat.cast_zero, zero_sub,
+        Left.neg_nonpos_iff, hb, sub_zero
+      ]
       obtain ⟨b, rfl⟩ : ∃ r, b = r - a := ⟨a + b, by abel⟩
       simp only [add_sub_cancel, neg_sub, sub_add_eq_add_sub, add_neg_cancel, zero_sub]
       obtain hb' | hb' := le_total 0 b
-      · simp [hb', neg_add_eq_sub, eq_sub_iff_add_eq, ← Nat.cast_add,
-          ← card_Ico_zero_add, ha, ← sub_eq_add_neg]
-      · simp [hb', neg_add_eq_sub, eq_sub_iff_add_eq, sub_eq_iff_eq_add,
-          ← Nat.cast_add, ← card_Ico_zero_add, hb, sub_add_eq_add_sub]
-    · have : ¬0 < a + b := by simpa using add_nonpos ha hb
+      · simp [
+          hb', neg_add_eq_sub, eq_sub_iff_add_eq, ← Nat.cast_add, ← card_Ico_zero_add, ha,
+          ← sub_eq_add_neg
+        ]
+      · simp [
+          hb', neg_add_eq_sub, eq_sub_iff_add_eq, sub_eq_iff_eq_add, ← Nat.cast_add,
+          ← card_Ico_zero_add, hb, sub_add_eq_add_sub
+        ]
+    · have : ¬ 0 < a + b := by simpa using add_nonpos ha hb
       simp [ha, hb, card_Ico_zero_add, Ico_eq_empty, this]
 
 variable (G) in
-/-- The canonical embedding (as an ordered monoid hom) from a linearly ordered cancellative
-group into `ℤ`. This is either surjective or zero. -/
-def LocallyFiniteOrder.orderAddMonoidHom :
-    G →+o ℤ where
+/--
+The canonical embedding (as an ordered monoid hom) from a linearly ordered cancellative
+group into `ℤ`. This is either surjective or zero.
+-/
+def LocallyFiniteOrder.orderAddMonoidHom : G →+o ℤ where
   __ := addMonoidHom G
   monotone' a b hab := by
     obtain ⟨b, rfl⟩ := add_left_surjective a b
@@ -149,9 +158,7 @@ lemma LocallyFiniteOrder.orderAddMonoidHom_bijective [Nontrivial G] :
 
 variable (G) in
 /-- Any nontrivial linearly ordered abelian group that is locally finite is isomorphic to `ℤ`. -/
-noncomputable
-def LocallyFiniteOrder.orderAddMonoidEquiv [Nontrivial G] :
-    G ≃+o ℤ where
+noncomputable def LocallyFiniteOrder.orderAddMonoidEquiv [Nontrivial G] : G ≃+o ℤ where
   __ := orderAddMonoidHom G
   __ := AddEquiv.ofBijective (orderAddMonoidHom G) orderAddMonoidHom_bijective
   map_le_map_iff' {a b} := by
@@ -165,18 +172,17 @@ lemma LocallyFiniteOrder.orderAddMonoidEquiv_apply [Nontrivial G] (x : G) :
     orderAddMonoidEquiv G x = addMonoidHom G x := rfl
 
 /-- Any linearly ordered abelian group that is locally finite embeds to `Multiplicative ℤ`. -/
-noncomputable
-def LocallyFiniteOrder.orderMonoidEquiv (G : Type*) [CommGroup G] [LinearOrder G]
-    [IsOrderedMonoid G] [LocallyFiniteOrder G] [Nontrivial G] :
-    G ≃*o Multiplicative ℤ :=
+noncomputable def LocallyFiniteOrder.orderMonoidEquiv
+    (G : Type*)
+    [CommGroup G] [LinearOrder G] [IsOrderedMonoid G] [LocallyFiniteOrder G] [Nontrivial G]
+    : G ≃*o Multiplicative ℤ :=
   have : LocallyFiniteOrder (Additive G) := ‹LocallyFiniteOrder G›
   (orderAddMonoidEquiv (Additive G)).toMultiplicative
 
 /-- Any linearly ordered abelian group that is locally finite embeds into `Multiplicative ℤ`. -/
-noncomputable
-def LocallyFiniteOrder.orderMonoidHom (G : Type*) [CommGroup G] [LinearOrder G]
-    [IsOrderedMonoid G] [LocallyFiniteOrder G] :
-    G →*o Multiplicative ℤ :=
+noncomputable def LocallyFiniteOrder.orderMonoidHom
+    (G : Type*) [CommGroup G] [LinearOrder G] [IsOrderedMonoid G] [LocallyFiniteOrder G]
+    : G →*o Multiplicative ℤ :=
   have : LocallyFiniteOrder (Additive G) := ‹LocallyFiniteOrder G›
   ⟨(orderAddMonoidHom (Additive G)).toMultiplicative, (orderAddMonoidHom (Additive G)).2⟩
 
@@ -187,20 +193,22 @@ lemma LocallyFiniteOrder.orderMonoidHom_strictMono {G : Type*} [CommGroup G] [Li
   fun a b h ↦ orderAddMonoidHom_strictMono h
 
 open scoped WithZero in
-/-- Any nontrivial linearly ordered abelian group with zero that is locally finite
-is isomorphic to `ℤᵐ⁰`. -/
-noncomputable
-def LocallyFiniteOrder.orderMonoidWithZeroEquiv (G : Type*) [LinearOrderedCommGroupWithZero G]
-    [LocallyFiniteOrder Gˣ] [Nontrivial Gˣ] : G ≃*o ℤᵐ⁰ :=
+/--
+Any nontrivial linearly ordered abelian group with zero that is locally finite
+is isomorphic to `ℤᵐ⁰`.
+-/
+noncomputable def LocallyFiniteOrder.orderMonoidWithZeroEquiv
+    (G : Type*) [LinearOrderedCommGroupWithZero G] [LocallyFiniteOrder Gˣ] [Nontrivial Gˣ]
+    : G ≃*o ℤᵐ⁰ :=
   OrderMonoidIso.withZeroUnits.symm.trans (LocallyFiniteOrder.orderMonoidEquiv _).withZero
 
 open scoped WithZero in
 /-- Any linearly ordered abelian group with zero that is locally finite embeds into `ℤᵐ⁰`. -/
-noncomputable
-def LocallyFiniteOrder.orderMonoidWithZeroHom (G : Type*) [LinearOrderedCommGroupWithZero G]
-    [LocallyFiniteOrder Gˣ] : G →*₀o ℤᵐ⁰ where
-  __ := (WithZero.map' (orderMonoidHom Gˣ)).comp
-    OrderMonoidIso.withZeroUnits.symm.toMonoidWithZeroHom
+noncomputable def LocallyFiniteOrder.orderMonoidWithZeroHom
+    (G : Type*) [LinearOrderedCommGroupWithZero G] [LocallyFiniteOrder Gˣ]
+    : G →*₀o ℤᵐ⁰ where
+  __ :=
+    (WithZero.map' (orderMonoidHom Gˣ)).comp OrderMonoidIso.withZeroUnits.symm.toMonoidWithZeroHom
   monotone' a b h := by have := (orderMonoidHom Gˣ).monotone'; aesop
 
 lemma LocallyFiniteOrder.orderMonoidWithZeroHom_strictMono {G : Type*}

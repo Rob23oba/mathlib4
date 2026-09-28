@@ -37,13 +37,15 @@ open Category Limits
 
 variable {C : Type u} [Category.{v} C] {A : Type*} [Category* A]
 
-/-- The categorical data that is involved in a `1`-hypercover of an object `S`. This
+/--
+The categorical data that is involved in a `1`-hypercover of an object `S`. This
 consists of a family of morphisms `f i : X i ⟶ S` for `i : I₀`, and for each
 tuple `(i₁, i₂)` of elements in `I₀`, a family of objects `Y j` indexed by
 a type `I₁ i₁ i₂`, which are equipped with a map to the fibre product of `X i₁`
 and `X i₂`, which is phrased here as the data of the two projections
 `p₁ : Y j ⟶ X i₁`, `p₂ : Y j ⟶ X i₂` and the relation `p₁ j ≫ f i₁ = p₂ j ≫ f i₂`.
-(See `GrothendieckTopology.OneHypercover` for the topological conditions.) -/
+(See `GrothendieckTopology.OneHypercover` for the topological conditions.)
+-/
 structure PreOneHypercover (S : C) extends PreZeroHypercover.{w} S where
   /-- the index type of the coverings of the fibre products -/
   I₁ (i₁ i₂ : I₀) : Type w
@@ -59,11 +61,13 @@ namespace PreOneHypercover
 
 variable {S : C} (E : PreOneHypercover.{w} S)
 
-/-- Given an object `W` equipped with morphisms `p₁ : W ⟶ E.X i₁`, `p₂ : W ⟶ E.X i₂`,
+/--
+Given an object `W` equipped with morphisms `p₁ : W ⟶ E.X i₁`, `p₂ : W ⟶ E.X i₂`,
 this is the sieve of `W` which consists of morphisms `g : Z ⟶ W` such that there exists `j`
 and `h : Z ⟶ E.Y j` such that `g ≫ p₁ = h ≫ E.p₁ j` and `g ≫ p₂ = h ≫ E.p₂ j`.
 See lemmas `sieve₁_eq_pullback_sieve₁'` and `sieve₁'_eq_sieve₁` for equational lemmas
-regarding this sieve. -/
+regarding this sieve.
+-/
 @[simps]
 def sieve₁ {i₁ i₂ : E.I₀} {W : C} (p₁ : W ⟶ E.X i₁) (p₂ : W ⟶ E.X i₂) : Sieve W where
   arrows Z g := ∃ (j : E.I₁ i₁ i₂) (h : Z ⟶ E.Y j), g ≫ p₁ = h ≫ E.p₁ j ∧ g ≫ p₂ = h ≫ E.p₂ j
@@ -136,8 +140,10 @@ def multicospanShape : MulticospanShape where
   fst j := j.1.1
   snd j := j.1.2
 
-/-- The diagram of the multifork attached to a presheaf
-`F : Cᵒᵖ ⥤ A`, `S : C` and `E : PreOneHypercover S`. -/
+/--
+The diagram of the multifork attached to a presheaf
+`F : Cᵒᵖ ⥤ A`, `S : C` and `E : PreOneHypercover S`.
+-/
 @[simps]
 def multicospanIndex (F : Cᵒᵖ ⥤ A) : MulticospanIndex E.multicospanShape A where
   left i := F.obj (Opposite.op (E.X i))
@@ -148,8 +154,7 @@ def multicospanIndex (F : Cᵒᵖ ⥤ A) : MulticospanIndex E.multicospanShape A
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- The multifork attached to a presheaf `F : Cᵒᵖ ⥤ A`, `S : C` and `E : PreOneHypercover S`. -/
-def multifork (F : Cᵒᵖ ⥤ A) :
-    Multifork (E.multicospanIndex F) :=
+def multifork (F : Cᵒᵖ ⥤ A) : Multifork (E.multicospanIndex F) :=
   Multifork.ofι _ (F.obj (Opposite.op S)) (fun i₀ => F.map (E.f i₀).op) (by
     rintro ⟨⟨i₁, i₂⟩, (j : E.I₁ i₁ i₂)⟩
     dsimp
@@ -159,12 +164,14 @@ def multifork (F : Cᵒᵖ ⥤ A) :
 lemma multifork_ι (F : Cᵒᵖ ⥤ A) (i : E.I₀) : (E.multifork F).ι i = F.map (E.f i).op := rfl
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The fork associated to a pre-`0`-hypercover induced by taking the coproduct of the
-components. -/
+/--
+The fork associated to a pre-`0`-hypercover induced by taking the coproduct of the
+components.
+-/
 @[simps! pt]
-def forkOfIsColimit {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d)
-    (F : Cᵒᵖ ⥤ A) :
-    Fork (F.map (Cofan.IsColimit.desc hd fun _ ↦ E.p₁ _ ≫ c.inj _).op)
+def forkOfIsColimit
+    {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d) (F : Cᵒᵖ ⥤ A)
+    : Fork (F.map (Cofan.IsColimit.desc hd fun _ ↦ E.p₁ _ ≫ c.inj _).op)
       (F.map (Cofan.IsColimit.desc hd fun _ ↦ E.p₂ _ ≫ c.inj _).op) :=
   .ofι (F.map (Cofan.IsColimit.desc hc E.f).op) <| by
     simp_rw [← Functor.map_comp, ← op_comp]
@@ -183,28 +190,36 @@ open Opposite
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The multifork associated to a pre-`1`-hypercover is limiting if and only if
-the fork induced by taking the coproduct of the components is limiting. -/
+/--
+The multifork associated to a pre-`1`-hypercover is limiting if and only if
+the fork induced by taking the coproduct of the components is limiting.
+-/
 noncomputable def isLimitMultiforkEquivIsLimitFork
-    {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d) (F : Cᵒᵖ ⥤ A)
-    [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.X i)) F]
-    [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.Y' i)) F] :
-    IsLimit (E.multifork F) ≃ IsLimit (E.forkOfIsColimit hc hd F) := by
+    {c : Cofan E.X} (hc : IsColimit c)
+    {d : Cofan E.Y'} (hd : IsColimit d)
+    (F : Cᵒᵖ ⥤ A) [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.X i)) F]
+    [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.Y' i)) F]
+    : IsLimit (E.multifork F) ≃ IsLimit (E.forkOfIsColimit hc hd F) := by
   letI c' : Fan (E.multicospanIndex F).left := Fan.mk _ fun i ↦ F.map (c.inj i).op
   letI hc' : IsLimit c' := isLimitFanMkObjOfIsLimit _ _ (fun i : E.I₀ ↦ _) (Cofan.IsColimit.op hc)
   letI d' : Fan (E.multicospanIndex F).right := Fan.mk _ fun i ↦ F.map (d.inj i).op
   letI hd' : IsLimit d' := isLimitFanMkObjOfIsLimit _ _ (fun i : E.I₁' ↦ _) (Cofan.IsColimit.op hd)
   refine (IsLimit.ofConeEquiv <|
-    (E.multicospanIndex F).multiforkEquivPiForkOfIsLimit hc' hd').symm.trans ?_
+      (E.multicospanIndex F).multiforkEquivPiForkOfIsLimit hc' hd').symm.trans
+    ?_
   refine Fork.isLimitEquivOfIsos _ _ (Iso.refl _) (Iso.refl _) (Iso.refl _) ?_ ?_ ?_
   · refine Fan.IsLimit.hom_ext hd' _ _ fun i ↦ ?_
-    simp only [multicospanShape_L, multicospanIndex_right, multicospanShape_R, Iso.refl_hom,
-      Y'_apply, id_comp, comp_id]
+    simp only [
+      multicospanShape_L, multicospanIndex_right, multicospanShape_R, Iso.refl_hom, Y'_apply,
+      id_comp, comp_id
+    ]
     rw [MulticospanIndex.fstPiMapOfIsLimit_proj]
     simp [c', d', ← F.map_comp, ← op_comp]
   · refine Fan.IsLimit.hom_ext hd' _ _ fun i ↦ ?_
-    simp only [multicospanShape_L, multicospanIndex_right, multicospanShape_R, Iso.refl_hom,
-      Y'_apply, id_comp, comp_id]
+    simp only [
+      multicospanShape_L, multicospanIndex_right, multicospanShape_R, Iso.refl_hom, Y'_apply,
+      id_comp, comp_id
+    ]
     rw [MulticospanIndex.sndPiMapOfIsLimit_proj]
     simp [c', d', ← F.map_comp, ← op_comp]
   · refine Fan.IsLimit.hom_ext hc' _ _ fun i ↦ ?_
@@ -214,8 +229,8 @@ noncomputable def isLimitMultiforkEquivIsLimitFork
 set_option backward.isDefEq.respectTransparency false in
 /-- The single object pre-`1`-hypercover obtained from taking coproducts of the components. -/
 @[simps toPreZeroHypercover Y]
-def sigmaOfIsColimit {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d) :
-    PreOneHypercover.{w} S where
+def sigmaOfIsColimit {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d)
+    : PreOneHypercover.{w} S where
   __ := E.toPreZeroHypercover.sigmaOfIsColimit hc
   I₁ _ _ := PUnit
   Y _ _ _ := d.pt
@@ -237,30 +252,32 @@ lemma p₂_sigmaOfIsColimit {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} 
     d.inj i ≫ (E.sigmaOfIsColimit hc hd).p₂ r = E.p₂ _ ≫ c.inj _ := by
   simp [sigmaOfIsColimit]
 
-instance {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d) :
-    Unique (E.sigmaOfIsColimit hc hd).multicospanShape.L :=
+instance {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d)
+    : Unique (E.sigmaOfIsColimit hc hd).multicospanShape.L :=
   inferInstanceAs <| Unique PUnit
 
-instance {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d) :
-    Unique (E.sigmaOfIsColimit hc hd).multicospanShape.R where
+instance {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'} (hd : IsColimit d)
+    : Unique (E.sigmaOfIsColimit hc hd).multicospanShape.R where
   default := ⟨(⟨⟩, ⟨⟩), ⟨⟩⟩
   uniq _ := rfl
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- If `E` is a pre-`1`-hypercover and `F` a presheaf, the induced equalizer of
+/--
+If `E` is a pre-`1`-hypercover and `F` a presheaf, the induced equalizer of
 the single object covering obtained from `E` by taking coproducts is limiting
-if and only if the induced multiequalizer of `E` is limiting. -/
-noncomputable
-def isLimitSigmaOfIsColimitEquiv {c : Cofan E.X} (hc : IsColimit c) {d : Cofan E.Y'}
-    (hd : IsColimit d) (F : Cᵒᵖ ⥤ A)
-    [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.X i)) F]
-    [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.Y' i)) F] :
-    IsLimit ((E.sigmaOfIsColimit hc hd).multifork F) ≃ IsLimit (E.multifork F) := by
+if and only if the induced multiequalizer of `E` is limiting.
+-/
+noncomputable def isLimitSigmaOfIsColimitEquiv
+    {c : Cofan E.X} (hc : IsColimit c)
+    {d : Cofan E.Y'} (hd : IsColimit d)
+    (F : Cᵒᵖ ⥤ A) [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.X i)) F]
+    [PreservesLimit (Discrete.functor fun i ↦ Opposite.op (E.Y' i)) F]
+    : IsLimit ((E.sigmaOfIsColimit hc hd).multifork F) ≃ IsLimit (E.multifork F) := by
   refine (Multifork.isLimitEquivOfIsos _ _ ?_ ?_ ?_ ?_ ?_ ?_).trans
-    (IsLimit.ofConeEquiv (MulticospanIndex.multiforkOfParallelHomsEquivFork
-      (E.sigmaOfIsColimit hc hd).multicospanShape _ _).symm) |>.trans
-      (E.isLimitMultiforkEquivIsLimitFork hc hd F).symm
+      (IsLimit.ofConeEquiv (MulticospanIndex.multiforkOfParallelHomsEquivFork
+        (E.sigmaOfIsColimit hc hd).multicospanShape _ _).symm)
+    |>.trans (E.isLimitMultiforkEquivIsLimitFork hc hd F).symm
   · exact .refl _
   · exact fun _ ↦ .refl _
   · exact fun _ ↦ .refl _
@@ -296,11 +313,11 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- Intersection of two pre-`1`-hypercovers. -/
 @[simps toPreZeroHypercover I₁ Y p₁ p₂]
-noncomputable
-def inter (E F : PreOneHypercover S) [∀ i j, HasPullback (E.f i) (F.f j)]
+noncomputable def inter
+    (E F : PreOneHypercover S) [∀ i j, HasPullback (E.f i) (F.f j)]
     [∀ (i j : E.I₀) (k : E.I₁ i j) (a b : F.I₀) (l : F.I₁ a b),
-      HasPullback (E.p₁ k ≫ E.f i) (F.p₁ l ≫ F.f a)] :
-    PreOneHypercover S where
+      HasPullback (E.p₁ k ≫ E.f i) (F.p₁ l ≫ F.f a)]
+    : PreOneHypercover S where
   __ := E.toPreZeroHypercover.inter F.toPreZeroHypercover
   I₁ i j := E.I₁ i.1 j.1 × F.I₁ i.2 j.2
   Y i j k := pullback (E.p₁ k.1 ≫ E.f _) (F.p₁ k.2 ≫ F.f _)
@@ -352,11 +369,13 @@ end
 
 section Category
 
-/-- A morphism of pre-`1`-hypercovers of `S` is a family of refinement morphisms commuting
-with the structure morphisms of `E` and `F`. -/
+/--
+A morphism of pre-`1`-hypercovers of `S` is a family of refinement morphisms commuting
+with the structure morphisms of `E` and `F`.
+-/
 @[ext]
-structure Hom (E F : PreOneHypercover S) extends
-    E.toPreZeroHypercover.Hom F.toPreZeroHypercover where
+structure Hom (E F : PreOneHypercover S)
+    extends E.toPreZeroHypercover.Hom F.toPreZeroHypercover where
   /-- The map between indexing types of the coverings of the fibre products over `S`. -/
   s₁ {i j : E.I₀} (k : E.I₁ i j) : F.I₁ (s₀ i) (s₀ j)
   /-- The refinement morphisms between objects in the coverings of the fibre products over `S`. -/
@@ -374,8 +393,7 @@ def Hom.id (E : PreOneHypercover S) : Hom E E where
   s₁ := _root_.id
   h₁ _ := 𝟙 _
 
-variable {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S}
-  {G : PreOneHypercover S}
+variable {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S} {G : PreOneHypercover S}
 
 set_option backward.defeqAttrib.useBackward true in
 /-- Composition of refinement morphisms of pre-`1`-hypercovers. -/
@@ -388,9 +406,7 @@ def Hom.comp (f : E.Hom F) (g : F.Hom G) : E.Hom G where
   w₁₂ := by simp [w₁₂, w₁₂_assoc]
 
 /-- The induced index map `E.I₁' → F.I₁'` from a refinement morphism `E ⟶ F`. -/
-@[simp]
-def Hom.s₁' (f : E.Hom F) (k : E.I₁') : F.I₁' :=
-  ⟨⟨f.s₀ k.1.1, f.s₀ k.1.2⟩, f.s₁ k.2⟩
+@[simp] def Hom.s₁' (f : E.Hom F) (k : E.I₁') : F.I₁' := ⟨⟨f.s₀ k.1.1, f.s₀ k.1.2⟩, f.s₁ k.2⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -409,16 +425,24 @@ def oneToZero : PreOneHypercover.{w} S ⥤ PreZeroHypercover.{w} S where
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- A refinement morphism `E ⟶ F` induces a morphism on associated multiequalizers. -/
-def Hom.mapMultiforkOfIsLimit (f : E.Hom F) (P : Cᵒᵖ ⥤ A) {c : Multifork (E.multicospanIndex P)}
-    (hc : IsLimit c) (d : Multifork (F.multicospanIndex P)) :
-    d.pt ⟶ c.pt :=
+def Hom.mapMultiforkOfIsLimit
+    (f : E.Hom F)
+    (P : Cᵒᵖ ⥤ A)
+    {c : Multifork (E.multicospanIndex P)} (hc : IsLimit c)
+    (d : Multifork (F.multicospanIndex P))
+    : d.pt ⟶ c.pt :=
   Multifork.IsLimit.lift hc (fun a ↦ d.ι (f.s₀ a) ≫ P.map (f.h₀ a).op) <| by
     intro (k : E.I₁')
-    simp only [multicospanIndex_right, multicospanShape_fst, multicospanIndex_left,
-      multicospanIndex_fst, assoc, multicospanShape_snd, multicospanIndex_snd]
+    simp only [
+      multicospanIndex_right, multicospanShape_fst, multicospanIndex_left, multicospanIndex_fst,
+      assoc, multicospanShape_snd, multicospanIndex_snd
+    ]
     have heq := d.condition (f.s₁' k)
-    simp only [Hom.s₁', multicospanIndex_right, multicospanShape_fst, multicospanIndex_left,
-      multicospanIndex_fst, multicospanShape_snd, multicospanIndex_snd] at heq
+    simp only [
+        Hom.s₁', multicospanIndex_right, multicospanShape_fst, multicospanIndex_left,
+        multicospanIndex_fst, multicospanShape_snd, multicospanIndex_snd
+      ]
+      at heq
     rw [← Functor.map_comp, ← op_comp, ← Hom.w₁₁, ← Functor.map_comp, ← op_comp, ← Hom.w₁₂]
     rw [op_comp, Functor.map_comp, reassoc_of% heq, op_comp, Functor.map_comp]
 
@@ -432,8 +456,11 @@ lemma Hom.mapMultiforkOfIsLimit_ι
 
 section
 
-variable (f : E.Hom F) (P : Cᵒᵖ ⥤ A)
-  {c : Multifork (E.multicospanIndex P)} (hc : IsLimit c) {d : Multifork (F.multicospanIndex P)}
+variable
+  (f : E.Hom F)
+  (P : Cᵒᵖ ⥤ A)
+  {c : Multifork (E.multicospanIndex P)} (hc : IsLimit c)
+  {d : Multifork (F.multicospanIndex P)}
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -457,14 +484,17 @@ end
 
 section
 
-variable {S : C} {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S}
-  {i i' j j' : E.I₀} (hii' : i = i') (hjj' : j = j')
+variable
+  {S : C} {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S} {i i' j j' : E.I₀}
+  (hii' : i = i') (hjj' : j = j')
 
-/-- If `i = i'` and `j = j'` this is an equivalence between the `1`-index type at `i`, `j` and
-the one at `i'`, `j'`. -/
-def congrIndexOneOfEq {E : PreOneHypercover.{w} S} {i i' j j' : E.I₀}
-    (hii' : i = i') (hjj' : j = j') :
-    E.I₁ i j ≃ E.I₁ i' j' :=
+/--
+If `i = i'` and `j = j'` this is an equivalence between the `1`-index type at `i`, `j` and
+the one at `i'`, `j'`.
+-/
+def congrIndexOneOfEq
+    {E : PreOneHypercover.{w} S} {i i' j j' : E.I₀} (hii' : i = i') (hjj' : j = j')
+    : E.I₁ i j ≃ E.I₁ i' j' :=
   hii' ▸ hjj' ▸ Equiv.refl _
 
 @[simp]
@@ -520,9 +550,9 @@ possibly combined with an additional `eqToIso` instead. The reason for this is
 that the lemmas around `eqToHom_naturality` are hard to apply in the case where there is a
 mismatch in the type of the index.
 -/
-def congrIndexOneOfEqIso {E : PreOneHypercover S} {i i' j j' : E.I₀}
-    (hii' : i = i') (hjj' : j = j') (k : E.I₁ i j) :
-    E.Y (E.congrIndexOneOfEq hii' hjj' k) ≅ E.Y k :=
+def congrIndexOneOfEqIso
+    {E : PreOneHypercover S} {i i' j j' : E.I₀} (hii' : i = i') (hjj' : j = j') (k : E.I₁ i j)
+    : E.Y (E.congrIndexOneOfEq hii' hjj' k) ≅ E.Y k :=
   eqToIso (by subst hii' hjj'; simp)
 
 set_option backward.isDefEq.respectTransparency false in
@@ -552,8 +582,8 @@ lemma congrIndexOneOfEqIso_inv_p₂ (k : E.I₁ i j) :
   subst hii' hjj'
   simp [congrIndexOneOfEqIso, congrIndexOneOfEq]
 
-variable {i i' j j' : E.I₀} (u₀ : E.I₀ → F.I₀)
-  (u₁ : ∀ i j : E.I₀, ∀ _ : E.I₁ i j, F.I₁ (u₀ i) (u₀ j))
+variable
+  {i i' j j' : E.I₀} (u₀ : E.I₀ → F.I₀) (u₁ : ∀ i j : E.I₀, ∀ _ : E.I₁ i j, F.I₁ (u₀ i) (u₀ j))
   (z : ∀ i j (k : E.I₁ i j), E.Y k ⟶ F.Y (u₁ i j k))
   (hii' : i = i') (hjj' : j = j') (k : E.I₁ i j)
 
@@ -616,7 +646,8 @@ lemma Hom.ext'_iff {E F : PreOneHypercover S} {f g : E.Hom F} :
 
 section
 
-variable (s₀ : E.I₀ ≃ F.I₀) (s₁ : ∀ ⦃i j : E.I₀⦄, E.I₁ i j ≃ F.I₁ (s₀ i) (s₀ j))
+variable
+  (s₀ : E.I₀ ≃ F.I₀) (s₁ : ∀ ⦃i j : E.I₀⦄, E.I₁ i j ≃ F.I₁ (s₀ i) (s₀ j))
   {i j : E.I₀} (k : E.I₁ i j)
 
 lemma congrIndexOneOfEq_equiv :
@@ -647,59 +678,65 @@ end
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Construct an isomorphism of `1`-hypercovers by giving the compatibility conditions only
-in the forward direction. -/
+/--
+Construct an isomorphism of `1`-hypercovers by giving the compatibility conditions only
+in the forward direction.
+-/
 @[simps!]
-def isoMk {S : C} {E F : PreOneHypercover S}
-    (s₀ : E.I₀ ≃ F.I₀) (h₀ : (i : E.I₀) → E.X i ≅ F.X (s₀ i))
+def isoMk
+    {S : C} {E F : PreOneHypercover S} (s₀ : E.I₀ ≃ F.I₀) (h₀ : (i : E.I₀) → E.X i ≅ F.X (s₀ i))
     (s₁ : ∀ ⦃i j : E.I₀⦄, E.I₁ i j ≃ F.I₁ (s₀ i) (s₀ j))
     (h₁ : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), E.Y k ≅ F.Y (s₁ k))
     (w₀ : ∀ (i : E.I₀), (h₀ i).hom ≫ F.f (s₀ i) = E.f i := by cat_disch)
-    (w₁₁ : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j),
-      (h₁ k).hom ≫ F.p₁ _ = E.p₁ _ ≫ (h₀ i).hom := by cat_disch)
-    (w₁₂ : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j),
-      (h₁ k).hom ≫ F.p₂ _ = E.p₂ _ ≫ (h₀ j).hom := by cat_disch) :
-    E ≅ F where
+    (w₁₁ : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), (h₁ k).hom ≫ F.p₁ _ = E.p₁ _ ≫ (h₀ i).hom := by cat_disch)
+    (w₁₂ : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), (h₁ k).hom ≫ F.p₂ _ = E.p₂ _ ≫ (h₀ j).hom := by cat_disch)
+    : E ≅ F where
   hom.toHom := (PreZeroHypercover.isoMk s₀ h₀ w₀).hom
   hom.s₁ k := s₁ k
   hom.h₁ k := (h₁ k).hom
   inv.toHom := (PreZeroHypercover.isoMk s₀ h₀ w₀).inv
   inv.s₁ {i j} k := s₁.symm (F.congrIndexOneOfEq (by simp) (by simp) k)
   inv.h₁ {i j} k :=
-    (F.congrIndexOneOfEqIso (s₀.apply_symm_apply i).symm (s₀.apply_symm_apply j).symm k).inv ≫
-      eqToHom (by simp) ≫ (h₁ _).inv
+    (F.congrIndexOneOfEqIso (s₀.apply_symm_apply i).symm (s₀.apply_symm_apply j).symm k).inv
+      ≫ eqToHom (by simp) ≫ (h₁ _).inv
   inv.w₁₁ {i j} k := by
     obtain ⟨i, rfl⟩ := s₀.surjective i
     obtain ⟨j, rfl⟩ := s₀.surjective j
     obtain ⟨k, rfl⟩ := s₁.surjective k
     rw [← cancel_epi (h₁ k).hom, reassoc_of% w₁₁ k]
-    simp only [PreZeroHypercover.isoMk_inv_s₀, Category.assoc, PreZeroHypercover.isoMk_inv_h₀,
-      Equiv.symm_apply_apply, eqToHom_iso_hom_naturality_assoc, Iso.hom_inv_id,
-      Category.comp_id]
-    rw [PreOneHypercover.isoMk_aux_assoc, ← eqToHom_naturality, eqToHom_refl, Category.comp_id,
-      congrIndexOneOfEqIso_inv_p₁]
+    simp only [
+      PreZeroHypercover.isoMk_inv_s₀, Category.assoc, PreZeroHypercover.isoMk_inv_h₀,
+      Equiv.symm_apply_apply, eqToHom_iso_hom_naturality_assoc, Iso.hom_inv_id, Category.comp_id
+    ]
+    rw [
+      PreOneHypercover.isoMk_aux_assoc, ← eqToHom_naturality, eqToHom_refl, Category.comp_id,
+      congrIndexOneOfEqIso_inv_p₁
+    ]
     apply PreOneHypercover.congrIndexOneOfEq_equiv
   inv.w₁₂ {i j} k := by
     obtain ⟨i, rfl⟩ := s₀.surjective i
     obtain ⟨j, rfl⟩ := s₀.surjective j
     obtain ⟨k, rfl⟩ := s₁.surjective k
     rw [← cancel_epi (h₁ k).hom, reassoc_of% w₁₂ k]
-    simp only [PreZeroHypercover.isoMk_inv_s₀, Category.assoc, PreZeroHypercover.isoMk_inv_h₀,
-      Equiv.symm_apply_apply, eqToHom_iso_hom_naturality_assoc, Iso.hom_inv_id,
-      Category.comp_id]
-    rw [PreOneHypercover.isoMk_aux_assoc, ← eqToHom_naturality, eqToHom_refl, Category.comp_id,
-      congrIndexOneOfEqIso_inv_p₂]
+    simp only [
+      PreZeroHypercover.isoMk_inv_s₀, Category.assoc, PreZeroHypercover.isoMk_inv_h₀,
+      Equiv.symm_apply_apply, eqToHom_iso_hom_naturality_assoc, Iso.hom_inv_id, Category.comp_id
+    ]
+    rw [
+      PreOneHypercover.isoMk_aux_assoc, ← eqToHom_naturality, eqToHom_refl, Category.comp_id,
+      congrIndexOneOfEqIso_inv_p₂
+    ]
     apply PreOneHypercover.congrIndexOneOfEq_equiv
   inv_hom_id := by
-    refine PreOneHypercover.Hom.ext' (by ext; simp) (by intro i; simp)
-      (by simp) fun i j k ↦ ?_
+    refine PreOneHypercover.Hom.ext' (by ext; simp) (by intro i; simp) (by simp) fun i j k ↦ ?_
     dsimp
     simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
     -- If this step is replaced by `simp only [Category.id_comp]` it takes 5 seconds
     exact (Category.id_comp _).symm
   hom_inv_id := by
     refine PreOneHypercover.Hom.ext' (by ext; simp) (by intro i; simp)
-      (fun i j k ↦ (E.congrIndexOneOfEq_equiv s₀ s₁ _).symm) ?_
+      (fun i j k ↦ (E.congrIndexOneOfEq_equiv s₀ s₁ _).symm)
+      ?_
     intro i j k
     simpa using E.isoMk_aux s₀ s₁ h₁ k
 
@@ -759,17 +796,20 @@ lemma inv_hom_h₁ {i j : F.I₀} (k : F.I₁ i j) :
 
 instance (i : E.I₀) : IsIso (e.hom.h₀ i) := by
   use e.inv.h₀ (e.hom.s₀ i) ≫ eqToHom (by simp)
-  rw [PreOneHypercover.hom_inv_h₀_assoc, eqToHom_trans, eqToHom_refl, Category.assoc,
-    ← eqToHom_naturality _ (by simp), PreOneHypercover.inv_hom_h₀_assoc]
+  rw [
+    PreOneHypercover.hom_inv_h₀_assoc, eqToHom_trans, eqToHom_refl, Category.assoc,
+    ← eqToHom_naturality _ (by simp), PreOneHypercover.inv_hom_h₀_assoc
+  ]
   simp
 
-instance (i : F.I₀) : IsIso (e.inv.h₀ i) :=
-  .of_isIso_fac_right (PreOneHypercover.inv_hom_h₀ e i)
+instance (i : F.I₀) : IsIso (e.inv.h₀ i) := .of_isIso_fac_right (PreOneHypercover.inv_hom_h₀ e i)
 
 instance {i j : E.I₀} (k : E.I₁ i j) : IsIso (e.hom.h₁ k) := by
   use e.inv.h₁ _ ≫ eqToHom (by congr 1; simp) ≫ (E.congrIndexOneOfEqIso (by simp) (by simp) k).hom
-  simp only [PreOneHypercover.hom_inv_h₁_assoc, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp,
-    Iso.inv_hom_id, Category.assoc, true_and, PreOneHypercover.congrIndexOneOfEqIso_hom_naturality]
+  simp only [
+    PreOneHypercover.hom_inv_h₁_assoc, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp,
+    Iso.inv_hom_id, Category.assoc, true_and, PreOneHypercover.congrIndexOneOfEqIso_hom_naturality
+  ]
   rw [← eqToHom_naturality_assoc _ (by simp)]
   simp
 
@@ -783,8 +823,8 @@ section
 set_option backward.isDefEq.respectTransparency.types false in
 /-- A refinement morphism `E ⟶ F` induces a functor between the multifork indexing categories. -/
 @[simps]
-def Hom.mapMulticospan {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S} (f : E.Hom F) :
-    WalkingMulticospan E.multicospanShape ⥤ WalkingMulticospan F.multicospanShape where
+def Hom.mapMulticospan {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S} (f : E.Hom F)
+    : WalkingMulticospan E.multicospanShape ⥤ WalkingMulticospan F.multicospanShape where
   obj
     | .left i => .left (f.s₀ i)
     | .right i => .right (f.s₁' i)
@@ -796,16 +836,19 @@ def Hom.mapMulticospan {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S
     | .left _ => rfl
     | .right _ => rfl
   map_comp
-    | .id _, _ => by simp
-    | .fst _, .id _ => by simp
-    | .snd _, .id _ => by simp
+    | .id _, _ => by
+      simp
+    | .fst _, .id _ => by
+      simp
+    | .snd _, .id _ => by
+      simp
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- Isomorphic pre-`1`-hypercovers have equivalent multifork index categories. -/
 @[simps! functor inverse]
-def equivalenceMulticospanOfIso {E F : PreOneHypercover.{w} S} (f : E ≅ F) :
-    WalkingMulticospan E.multicospanShape ≌ WalkingMulticospan F.multicospanShape where
+def equivalenceMulticospanOfIso {E F : PreOneHypercover.{w} S} (f : E ≅ F)
+    : WalkingMulticospan E.multicospanShape ≌ WalkingMulticospan F.multicospanShape where
   functor := f.hom.mapMulticospan
   inverse := f.inv.mapMulticospan
   unitIso :=
@@ -818,16 +861,16 @@ def equivalenceMulticospanOfIso {E F : PreOneHypercover.{w} S} (f : E ≅ F) :
       (fun _ ↦ by dsimp; congr 1; apply PreOneHypercover.I₁'.ext <;> simp)
       (fun _ ↦ by dsimp; rw [eqToHom_naturality]; apply PreOneHypercover.I₁'.ext <;> simp)
       (fun _ ↦ by dsimp; rw [eqToHom_naturality]; apply PreOneHypercover.I₁'.ext <;> simp))
-  functor_unitIso_comp c := by
-    cases c <;> rw [eqToIso.hom, eqToHom_app, eqToHom_map] <;> simp
+  functor_unitIso_comp c := by cases c <;> rw [eqToIso.hom, eqToHom_app, eqToHom_map] <;> simp
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- If `E` and `F` are isomorphic pre-`1`-hypercovers and `G` is a presheaf,
-the multifork for `E` is exact if and only if the multifork for `F` is exact. -/
-noncomputable
-def isLimitEquivOfIso {E F : PreOneHypercover.{w} S} (f : E ≅ F) (G : Cᵒᵖ ⥤ A) :
-    IsLimit (E.multifork G) ≃ IsLimit (F.multifork G) := by
+/--
+If `E` and `F` are isomorphic pre-`1`-hypercovers and `G` is a presheaf,
+the multifork for `E` is exact if and only if the multifork for `F` is exact.
+-/
+noncomputable def isLimitEquivOfIso {E F : PreOneHypercover.{w} S} (f : E ≅ F) (G : Cᵒᵖ ⥤ A)
+    : IsLimit (E.multifork G) ≃ IsLimit (F.multifork G) := by
   refine Equiv.trans ?_
     (IsLimit.whiskerEquivalenceEquiv <| PreOneHypercover.equivalenceMulticospanOfIso f).symm
   refine IsLimit.equivOfNatIsoOfIso ?_ _ _ ?_
@@ -849,16 +892,16 @@ end Category
 
 section
 
-variable (F : PreOneHypercover.{w'} S) {G : PreOneHypercover.{w''} S}
-  [∀ (i : E.I₀) (j : F.I₀), HasPullback (E.f i) (F.f j)]
+variable
+  (F : PreOneHypercover.{w'} S)
+  {G : PreOneHypercover.{w''} S} [∀ (i : E.I₀) (j : F.I₀), HasPullback (E.f i) (F.f j)]
   [∀ (i j : E.I₀) (k : E.I₁ i j) (a b : F.I₀) (l : F.I₁ a b),
     HasPullback (E.p₁ k ≫ E.f i) (F.p₁ l ≫ F.f a)]
 
 set_option backward.isDefEq.respectTransparency false in
 /-- First projection from the intersection of two pre-`1`-hypercovers. -/
 @[simps toHom s₁]
-noncomputable
-def interFst : (E.inter F).Hom E where
+noncomputable def interFst : (E.inter F).Hom E where
   __ := E.toPreZeroHypercover.interFst F.toPreZeroHypercover
   s₁ {i j} k := k.1
   h₁ _ := pullback.fst _ _
@@ -866,8 +909,7 @@ def interFst : (E.inter F).Hom E where
 set_option backward.isDefEq.respectTransparency false in
 /-- Second projection from the intersection of two pre-`1`-hypercovers. -/
 @[simps toHom s₁]
-noncomputable
-def interSnd : (E.inter F).Hom F where
+noncomputable def interSnd : (E.inter F).Hom F where
   __ := E.toPreZeroHypercover.interSnd F.toPreZeroHypercover
   s₁ {i j} k := k.2
   h₁ _ := pullback.snd _ _
@@ -876,14 +918,14 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 variable {E F} in
 /-- Universal property of the intersection of two pre-`1`-hypercovers. -/
-noncomputable
-def interLift {G : PreOneHypercover.{w''} S} (f : G.Hom E) (g : G.Hom F) :
-    G.Hom (E.inter F) where
+noncomputable def interLift {G : PreOneHypercover.{w''} S} (f : G.Hom E) (g : G.Hom F)
+    : G.Hom (E.inter F) where
   __ := PreZeroHypercover.interLift f.toHom g.toHom
   s₁ {i j} k := ⟨f.s₁ k, g.s₁ k⟩
-  h₁ k := pullback.lift (f.h₁ k) (g.h₁ k) <| by
-    rw [f.w₁₁_assoc k, g.w₁₁_assoc k]
-    simp
+  h₁ k :=
+    pullback.lift (f.h₁ k) (g.h₁ k) <| by
+      rw [f.w₁₁_assoc k, g.w₁₁_assoc k]
+      simp
   w₀ := by simp
   w₁₁ k := by
     apply pullback.hom_ext
@@ -902,13 +944,15 @@ namespace GrothendieckTopology
 
 variable (J : GrothendieckTopology C)
 
-/-- The type of `1`-hypercovers of an object `S : C` in a category equipped with a
+/--
+The type of `1`-hypercovers of an object `S : C` in a category equipped with a
 Grothendieck topology `J`. This can be constructed from a covering of `S` and
-a covering of the fibre products of the objects in this covering (see `OneHypercover.mk'`). -/
+a covering of the fibre products of the objects in this covering (see `OneHypercover.mk'`).
+-/
 structure OneHypercover (S : C) extends PreOneHypercover.{w} S where
   mem₀ : toPreOneHypercover.sieve₀ ∈ J S
-  mem₁ (i₁ i₂ : I₀) ⦃W : C⦄ (p₁ : W ⟶ X i₁) (p₂ : W ⟶ X i₂) (w : p₁ ≫ f i₁ = p₂ ≫ f i₂) :
-    toPreOneHypercover.sieve₁ p₁ p₂ ∈ J W
+  mem₁ (i₁ i₂ : I₀) ⦃W : C⦄ (p₁ : W ⟶ X i₁) (p₂ : W ⟶ X i₂) (w : p₁ ≫ f i₁ = p₂ ≫ f i₂)
+    : toPreOneHypercover.sieve₁ p₁ p₂ ∈ J W
 
 variable {J}
 
@@ -920,12 +964,15 @@ lemma OneHypercover.mem_sieve₁' {S : C} (E : J.OneHypercover S)
 
 namespace OneHypercover
 
-/-- In order to check that a certain data is a `1`-hypercover of `S`, it suffices to
-check that the data provides a covering of `S` and of the fibre products. -/
+/--
+In order to check that a certain data is a `1`-hypercover of `S`, it suffices to
+check that the data provides a covering of `S` and of the fibre products.
+-/
 @[simps toPreOneHypercover]
-def mk' {S : C} (E : PreOneHypercover S) [E.HasPullbacks]
-    (mem₀ : E.sieve₀ ∈ J S) (mem₁' : ∀ (i₁ i₂ : E.I₀), E.sieve₁' i₁ i₂ ∈ J _) :
-    J.OneHypercover S where
+def mk'
+    {S : C} (E : PreOneHypercover S) [E.HasPullbacks]
+    (mem₀ : E.sieve₀ ∈ J S) (mem₁' : ∀ (i₁ i₂ : E.I₀), E.sieve₁' i₁ i₂ ∈ J _)
+    : J.OneHypercover S where
   toPreOneHypercover := E
   mem₀ := mem₀
   mem₁ i₁ i₂ W p₁ p₂ w := by
@@ -959,9 +1006,11 @@ lemma multiforkLift_map (i₀ : E.I₀) : multiforkLift c ≫ F.obj.map (E.f i�
 
 end
 
-/-- If `E : J.OneHypercover S` and `F : Sheaf J A`, then `F.obj (op S)` is
+/--
+If `E : J.OneHypercover S` and `F : Sheaf J A`, then `F.obj (op S)` is
 a multiequalizer of suitable maps `F.obj (op (E.X i)) ⟶ F.obj (op (E.Y j))`
-induced by `E.p₁ j` and `E.p₂ j`. -/
+induced by `E.p₁ j` and `E.p₂ j`.
+-/
 noncomputable def isLimitMultifork : IsLimit (E.multifork F.1) :=
   Multifork.IsLimit.mk _ (fun c => multiforkLift c) (fun c => multiforkLift_map c) (by
     intro c m hm
@@ -991,8 +1040,11 @@ def trivial (S : C) : OneHypercover.{w} J S where
   __ := PreOneHypercover.trivial S
   mem₀ := by simp only [PreOneHypercover.sieve₀_trivial, J.top_mem]
   mem₁ _ _ _ _ _ h := by
-    simp only [PreOneHypercover.trivial_toPreZeroHypercover, PreZeroHypercover.singleton_X,
-      PreZeroHypercover.singleton_f, Category.comp_id] at h
+    simp only [
+        PreOneHypercover.trivial_toPreZeroHypercover, PreZeroHypercover.singleton_X,
+        PreZeroHypercover.singleton_f, Category.comp_id
+      ]
+      at h
     subst h
     simp
 
@@ -1001,18 +1053,18 @@ instance (S : C) : Nonempty (J.OneHypercover S) := ⟨trivial J S⟩
 set_option backward.isDefEq.respectTransparency.types false in
 /-- Intersection of two `1`-hypercovers. -/
 @[simps toPreOneHypercover]
-noncomputable
-def inter [HasPullbacks C] (E F : J.OneHypercover S)
-    [∀ (i : E.I₀) (j : F.I₀), HasPullback (E.f i) (F.f j)]
+noncomputable def inter
+    [HasPullbacks C]
+    (E F : J.OneHypercover S) [∀ (i : E.I₀) (j : F.I₀), HasPullback (E.f i) (F.f j)]
     [∀ (i j : E.I₀) (k : E.I₁ i j) (a b : F.I₀) (l : F.I₁ a b),
-      HasPullback (E.p₁ k ≫ E.f i) (F.p₁ l ≫ F.f a)] : J.OneHypercover S where
+      HasPullback (E.p₁ k ≫ E.f i) (F.p₁ l ≫ F.f a)]
+    : J.OneHypercover S where
   __ := E.toPreOneHypercover.inter F.toPreOneHypercover
   mem₀ := (E.toZeroHypercover.inter F.toZeroHypercover).mem₀
   mem₁ i₁ i₂ W p₁ p₂ h := by
     rw [PreOneHypercover.sieve₁_inter h]
     refine J.bind_covering (E.mem₁ _ _ _ _ (by simpa using! h)) fun _ _ _ ↦ ?_
-    exact J.pullback_stable _
-      (F.mem₁ _ _ _ _ (by simpa [Category.assoc, ← pullback.condition]))
+    exact J.pullback_stable _ (F.mem₁ _ _ _ _ (by simpa [Category.assoc, ← pullback.condition]))
 
 end
 
@@ -1034,8 +1086,7 @@ instance : Category (J.OneHypercover S) where
 
 /-- An isomorphism of `1`-hypercovers is an isomorphism of pre-`1`-hypercovers. -/
 @[simps]
-def isoMk {E F : J.OneHypercover S} (f : E.toPreOneHypercover ≅ F.toPreOneHypercover) :
-    E ≅ F where
+def isoMk {E F : J.OneHypercover S} (f : E.toPreOneHypercover ≅ F.toPreOneHypercover) : E ≅ F where
   __ := f
 
 end Category
@@ -1046,9 +1097,11 @@ namespace Cover
 
 variable {X : C} (S : J.Cover X)
 
-/-- The tautological 1-pre-hypercover induced by `S : J.Cover X`. Its index type `I₀`
+/--
+The tautological 1-pre-hypercover induced by `S : J.Cover X`. Its index type `I₀`
 is given by `S.Arrow` (i.e. all the morphisms in the sieve `S`), while `I₁` is given
-by all possible pullback cones. -/
+by all possible pullback cones.
+-/
 @[simps]
 def preOneHypercover : PreOneHypercover.{max u v} X where
   I₀ := S.Arrow
@@ -1077,9 +1130,11 @@ lemma preOneHypercover_sieve₁ (f₁ f₂ : S.Arrow) {W : C} (p₁ : W ⟶ f₁
   exact ⟨{ w := w, .. }, f, rfl, rfl⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The tautological 1-hypercover induced by `S : J.Cover X`. Its index type `I₀`
+/--
+The tautological 1-hypercover induced by `S : J.Cover X`. Its index type `I₀`
 is given by `S.Arrow` (i.e. all the morphisms in the sieve `S`), while `I₁` is given
-by all possible pullback cones. -/
+by all possible pullback cones.
+-/
 @[simps toPreOneHypercover]
 def oneHypercover : J.OneHypercover X where
   toPreOneHypercover := S.preOneHypercover
@@ -1096,12 +1151,14 @@ lemma PreZeroHypercover.ext_of_isSeparatedFor {P : Cᵒᵖ ⥤ Type*} {S : C} (E
     x = y :=
   h.ext fun _ _ ⟨i⟩ ↦ hi i
 
-/-- If the pairwise pullbacks exist, this is the pre-`1`-hypercover where the covers
-by the pullbacks are given by the pullbacks themselves. -/
+/--
+If the pairwise pullbacks exist, this is the pre-`1`-hypercover where the covers
+by the pullbacks are given by the pullbacks themselves.
+-/
 @[simps toPreZeroHypercover I₁ Y p₁ p₂]
-noncomputable def PreZeroHypercover.toPreOneHypercover {S : C} (E : PreZeroHypercover S)
-    [E.HasPullbacks] :
-    PreOneHypercover S where
+noncomputable def PreZeroHypercover.toPreOneHypercover
+    {S : C} (E : PreZeroHypercover S) [E.HasPullbacks]
+    : PreOneHypercover S where
   __ := E
   I₁ _ _ := PUnit
   Y i j _ := pullback (E.f i) (E.f j)
@@ -1110,8 +1167,8 @@ noncomputable def PreZeroHypercover.toPreOneHypercover {S : C} (E : PreZeroHyper
   w _ _ _ := pullback.condition
 
 set_option backward.defeqAttrib.useBackward true in
-instance {S : C} (E : PreZeroHypercover S) [E.HasPullbacks] :
-    E.toPreOneHypercover.HasPullbacks := by
+instance {S : C} (E : PreZeroHypercover S) [E.HasPullbacks]
+    : E.toPreOneHypercover.HasPullbacks := by
   dsimp
   infer_instance
 
@@ -1128,22 +1185,24 @@ lemma sieve₁'_toPreOneHypercover_eq_top {S : C} (E : PreZeroHypercover S) [E.H
   apply pullback.hom_ext <;> simp [PreOneHypercover.toPullback]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- If the pairwise pullbacks exist, this is the pre-`1`-hypercover where the covers
-by the pullbacks are given by the pullbacks themselves. -/
+/--
+If the pairwise pullbacks exist, this is the pre-`1`-hypercover where the covers
+by the pullbacks are given by the pullbacks themselves.
+-/
 @[simps! toPreOneHypercover]
-noncomputable def Precoverage.ZeroHypercover.toOneHypercover {J : Precoverage C}
-    {S : C} (E : J.ZeroHypercover S) [E.HasPullbacks] :
-    (J.toGrothendieck).OneHypercover S :=
+noncomputable def Precoverage.ZeroHypercover.toOneHypercover
+    {J : Precoverage C} {S : C} (E : J.ZeroHypercover S) [E.HasPullbacks]
+    : (J.toGrothendieck).OneHypercover S :=
   .mk' E.toPreZeroHypercover.toPreOneHypercover (J.generate_mem_toGrothendieck E.mem₀) (by simp)
 
 section
 
 /-- Refine a pre-`0`-hypercover by `0`-hypercovers of the pairwise pullbacks. -/
 @[simps toPreZeroHypercover I₁ Y p₁ p₂]
-noncomputable
-def PreZeroHypercover.refineOneHypercover {X : C} (E : PreZeroHypercover.{w} X) [E.HasPullbacks]
-    (F : ∀ i j, PreZeroHypercover.{w} (pullback (E.f i) (E.f j))) :
-    PreOneHypercover.{w} X where
+noncomputable def PreZeroHypercover.refineOneHypercover
+    {X : C} (E : PreZeroHypercover.{w} X) [E.HasPullbacks]
+    (F : ∀ i j, PreZeroHypercover.{w} (pullback (E.f i) (E.f j)))
+    : PreOneHypercover.{w} X where
   __ := E
   I₁ i j := (F i j).I₀
   Y i j k := (F i j).X k
@@ -1151,7 +1210,8 @@ def PreZeroHypercover.refineOneHypercover {X : C} (E : PreZeroHypercover.{w} X) 
   p₂ i j k := (F i j).f k ≫ pullback.snd _ _
   w i j k := by simp [pullback.condition]
 
-variable {X : C} (E : PreZeroHypercover.{w} X) [E.HasPullbacks]
+variable
+  {X : C} (E : PreZeroHypercover.{w} X) [E.HasPullbacks]
   (F : ∀ i j, PreZeroHypercover.{w} (pullback (E.f i) (E.f j)))
 
 instance : (E.refineOneHypercover F).HasPullbacks := ‹_›

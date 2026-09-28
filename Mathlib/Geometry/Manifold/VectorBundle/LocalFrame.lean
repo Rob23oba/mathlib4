@@ -102,18 +102,18 @@ open scoped Topology
 
 open scoped Bundle Manifold ContDiff
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
-  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners 𝕜 E H}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners 𝕜 E H} {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
-variable {F : Type*} [NormedAddCommGroup F] [NormedSpace 𝕜 F]
+variable
+  {F : Type*} [NormedAddCommGroup F] [NormedSpace 𝕜 F]
   -- `F` model fiber
   (n : ℕ∞ω)
-  {V : M → Type*} [TopologicalSpace (TotalSpace F V)]
-  [∀ x, AddCommGroup (V x)] [∀ x, Module 𝕜 (V x)]
-  [∀ x : M, TopologicalSpace (V x)]
-  [FiberBundle F V]
+  {V : M → Type*} [TopologicalSpace (TotalSpace F V)] [∀ x, AddCommGroup (V x)]
+  [∀ x, Module 𝕜 (V x)] [∀ x : M, TopologicalSpace (V x)] [FiberBundle F V]
 
 noncomputable section
 
@@ -169,20 +169,25 @@ lemma toBasisAt_coe (hs : IsLocalFrameOn I F n s u) (hx : x ∈ u) (i : ι) :
     toBasisAt hs hx i = s i x := by
   simpa only [toBasisAt] using Basis.mk_apply (hs.linearIndependent hx) (hs.generating hx) i
 
-/-- If `{sᵢ}` is a local frame on a vector bundle, `F` being finite-dimensional implies the
-indexing set being finite. -/
+/--
+If `{sᵢ}` is a local frame on a vector bundle, `F` being finite-dimensional implies the
+indexing set being finite.
+-/
 @[instance_reducible]
-noncomputable def fintypeOfFiniteDimensional [VectorBundle 𝕜 F V] [FiniteDimensional 𝕜 F]
-    (hs : IsLocalFrameOn I F n s u) (hx : x ∈ u) : Fintype ι := by
+noncomputable def fintypeOfFiniteDimensional
+    [VectorBundle 𝕜 F V] [FiniteDimensional 𝕜 F] (hs : IsLocalFrameOn I F n s u) (hx : x ∈ u)
+    : Fintype ι := by
   have : FiniteDimensional 𝕜 (V x) := by
-    let phi := (trivializationAt F V x).linearEquivAt 𝕜 x
-      (FiberBundle.mem_baseSet_trivializationAt' x)
+    let phi :=
+      (trivializationAt F V x).linearEquivAt 𝕜 x (FiberBundle.mem_baseSet_trivializationAt' x)
     exact Finite.equiv phi.symm
   exact FiniteDimensional.fintypeBasisIndex (hs.toBasisAt hx)
 
 open scoped Classical in
-/-- Coefficients of a section `s` of `V` w.r.t. a local frame `{s i}` on `u`.
-Outside of `u`, this returns the junk value 0. -/
+/--
+Coefficients of a section `s` of `V` w.r.t. a local frame `{s i}` on `u`.
+Outside of `u`, this returns the junk value 0.
+-/
 def coeff (hs : IsLocalFrameOn I F n s u) (i : ι) : Π x : M, (V x →ₗ[𝕜] 𝕜) := fun x ↦
   if hx : x ∈ u then (hs.toBasisAt hx).coord i else 0
 
@@ -324,22 +329,26 @@ end IsLocalFrame
 
 namespace Bundle.Trivialization
 
-variable [VectorBundle 𝕜 F V] [ContMDiffVectorBundle n F V I] {ι : Type*} {x : M}
+variable
+  [VectorBundle 𝕜 F V] [ContMDiffVectorBundle n F V I]
+  {ι : Type*} {x : M}
   (e : Trivialization F (TotalSpace.proj : TotalSpace F V → M)) [MemTrivializationAtlas e]
   (b : Basis ι 𝕜 F)
 
-/-- Given a compatible local trivialisation `e` of `V` and a basis `b` of the model fiber `F`,
-return the corresponding basis of `V x`. -/
-def basisAt (hx : x ∈ e.baseSet) : Basis ι 𝕜 (V x) :=
-  b.map (e.linearEquivAt (R := 𝕜) x hx).symm
+/--
+Given a compatible local trivialisation `e` of `V` and a basis `b` of the model fiber `F`,
+return the corresponding basis of `V x`.
+-/
+def basisAt (hx : x ∈ e.baseSet) : Basis ι 𝕜 (V x) := b.map (e.linearEquivAt (R := 𝕜) x hx).symm
 
 open scoped Classical in
-/-- The local frame on `V` induced by a compatible local trivialization `e` of `V` and a basis
+/--
+The local frame on `V` induced by a compatible local trivialization `e` of `V` and a basis
 `b` of the model fiber `F`. Use `e.localFrame b i` to access the `i`-th section in that frame.
 
-If `x` is outside of `e.baseSet`, this returns the junk value 0. -/
-def localFrame : ι → (x : M) → V x :=
-  fun i x ↦ if hx : x ∈ e.baseSet then e.basisAt b hx i else 0
+If `x` is outside of `e.baseSet`, this returns the junk value 0.
+-/
+def localFrame : ι → (x : M) → V x := fun i x ↦ if hx : x ∈ e.baseSet then e.basisAt b hx i else 0
 
 @[simp]
 lemma localFrame_apply_of_mem_baseSet {i : ι} (hx : x ∈ e.baseSet) :
@@ -377,9 +386,11 @@ lemma _root_.contMDiffAt_localFrame_of_mem (i : ι) (hx : x ∈ e.baseSet) :
 variable [ContMDiffVectorBundle 1 F V I]
 
 variable (I) in
-/-- Coefficients of a section `s` of `V` w.r.t. the local frame `b.localFrame e i`.
+/--
+Coefficients of a section `s` of `V` w.r.t. the local frame `b.localFrame e i`.
 
-If x is outside of `e.baseSet`, this returns the junk value 0. -/
+If x is outside of `e.baseSet`, this returns the junk value 0.
+-/
 def localFrameCoeff (i : ι) : Π x : M, (V x →ₗ[𝕜] 𝕜) :=
   (e.isLocalFrameOn_localFrame_baseSet I 1 b).coeff i
 
@@ -457,9 +468,11 @@ in a local frame induced by a local trivialisation are. In many contexts, this s
 proven in `OrthonormalFrame.lean`).
 -/
 
-variable [VectorBundle 𝕜 F V] [ContMDiffVectorBundle 1 F V I]
+variable
+  [VectorBundle 𝕜 F V] [ContMDiffVectorBundle 1 F V I]
   {e : Trivialization F (TotalSpace.proj : TotalSpace F V → M)} [MemTrivializationAtlas e]
-  {ι : Type*} (b : Basis ι 𝕜 F) {s : Π x : M, V x} {t : Set M} {k : ℕ∞ω} {x x' : M}
+  {ι : Type*} (b : Basis ι 𝕜 F)
+  {s : Π x : M, V x} {t : Set M} {k : ℕ∞ω} {x x' : M}
   [FiniteDimensional 𝕜 F] [CompleteSpace 𝕜] [ContMDiffVectorBundle k F V I]
 
 /-- If `s` is `C^k` at `x`, so is its coefficient `b.localFrameCoeff e i` in the local frame

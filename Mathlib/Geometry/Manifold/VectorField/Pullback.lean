@@ -47,7 +47,8 @@ open scoped Topology Manifold ContDiff
 
 noncomputable section
 
-/- We work in the `VectorField` namespace because pullbacks, Lie brackets, and so on, are notions
+/-
+We work in the `VectorField` namespace because pullbacks, Lie brackets, and so on, are notions
 that make sense in a variety of contexts. We also prefix the notions with `m` to distinguish the
 manifold notions from the vector space notions. For instance, the Lie bracket of two vector
 fields in a manifold is denoted with `VectorField.mlieBracket I V W x`, where `I` is the relevant
@@ -55,32 +56,30 @@ model with corners, `V W : Π (x : M), TangentSpace I x` are the vector fields, 
 the basepoint.
 -/
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
-  {H : Type*} [TopologicalSpace H] {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
-  {I : ModelWithCorners 𝕜 E H}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
-  {H' : Type*} [TopologicalSpace H'] {E' : Type*} [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
-  {I' : ModelWithCorners 𝕜 E' H'}
-  {M' : Type*} [TopologicalSpace M'] [ChartedSpace H' M']
-  {H'' : Type*} [TopologicalSpace H''] {E'' : Type*} [NormedAddCommGroup E''] [NormedSpace 𝕜 E'']
-  {I'' : ModelWithCorners 𝕜 E'' H''}
-  {M'' : Type*} [TopologicalSpace M''] [ChartedSpace H'' M'']
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+  {H : Type*} [TopologicalSpace H]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  {I : ModelWithCorners 𝕜 E H} {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+  {H' : Type*} [TopologicalSpace H']
+  {E' : Type*} [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
+  {I' : ModelWithCorners 𝕜 E' H'} {M' : Type*} [TopologicalSpace M'] [ChartedSpace H' M']
+  {H'' : Type*} [TopologicalSpace H'']
+  {E'' : Type*} [NormedAddCommGroup E''] [NormedSpace 𝕜 E'']
+  {I'' : ModelWithCorners 𝕜 E'' H''} {M'' : Type*} [TopologicalSpace M''] [ChartedSpace H'' M'']
   {f : M → M'} {s t : Set M} {x x₀ : M}
 
-instance {n : ℕ} [n.AtLeastTwo] [IsManifold I (minSmoothness 𝕜 (ofNat(n))) M] :
-    IsManifold I (ofNat(n)) M :=
+instance {n : ℕ} [n.AtLeastTwo] [IsManifold I (minSmoothness 𝕜 (ofNat(n))) M]
+    : IsManifold I (ofNat(n)) M :=
   IsManifold.of_le (n := minSmoothness 𝕜 n) le_minSmoothness
 
-instance [IsManifold I (minSmoothness 𝕜 1) M] :
-    IsManifold I 1 M :=
+instance [IsManifold I (minSmoothness 𝕜 1) M] : IsManifold I 1 M :=
   IsManifold.of_le (n := minSmoothness 𝕜 1) le_minSmoothness
 
-instance [IsManifold I (minSmoothness 𝕜 3) M] :
-    IsManifold I (minSmoothness 𝕜 2) M :=
+instance [IsManifold I (minSmoothness 𝕜 3) M] : IsManifold I (minSmoothness 𝕜 2) M :=
   IsManifold.of_le (n := minSmoothness 𝕜 3) (minSmoothness_monotone (by norm_cast))
 
-instance [IsManifold I (minSmoothness 𝕜 2) M] :
-    IsManifold I (minSmoothness 𝕜 1) M :=
+instance [IsManifold I (minSmoothness 𝕜 2) M] : IsManifold I (minSmoothness 𝕜 1) M :=
   IsManifold.of_le (n := minSmoothness 𝕜 2) (minSmoothness_monotone (by norm_cast))
 
 namespace VectorField
@@ -95,17 +94,20 @@ variable {V V₁ : Π (x : M'), TangentSpace I' x}
 variable {c : 𝕜} {m n : ℕ∞ω} {t : Set M'} {y₀ : M'}
 
 variable (I I') in
-/-- The pullback of a vector field under a map between manifolds, within a set `s`. If the
-derivative of the map within `s` is not invertible, then pullback is given the junk value zero. -/
-def mpullbackWithin (f : M → M') (V : Π (x : M'), TangentSpace I' x) (s : Set M) (x : M) :
-    TangentSpace I x :=
+/--
+The pullback of a vector field under a map between manifolds, within a set `s`. If the
+derivative of the map within `s` is not invertible, then pullback is given the junk value zero.
+-/
+def mpullbackWithin (f : M → M') (V : Π (x : M'), TangentSpace I' x) (s : Set M) (x : M)
+    : TangentSpace I x :=
   (mfderiv[s] f x).inverse (V (f x))
 
 variable (I I') in
-/-- The pullback of a vector field under a map between manifolds. If the derivative of the map is
-not invertible, then pullback is given the junk value zero. -/
-def mpullback (f : M → M') (V : Π (x : M'), TangentSpace I' x) (x : M) :
-    TangentSpace I x :=
+/--
+The pullback of a vector field under a map between manifolds. If the derivative of the map is
+not invertible, then pullback is given the junk value zero.
+-/
+def mpullback (f : M → M') (V : Π (x : M'), TangentSpace I' x) (x : M) : TangentSpace I x :=
   (mfderiv% f x).inverse (V (f x))
 
 lemma mpullbackWithin_apply :
@@ -241,7 +243,6 @@ lemma mpullbackWithin_comp_of_right
     mdifferentiableWithinAt_of_isInvertible_mfderivWithin hf'
   rw [mfderivWithin_comp _ hg hf h hu, IsInvertible.inverse_comp_apply_of_right hf',
     Function.comp_apply]
-
 
 /-! ### Regularity of pullback of vector fields
 
@@ -381,7 +382,6 @@ protected lemma _root_.MDifferentiable.mpullback_vectorField
   fun x ↦ MDifferentiableAt.mpullback_vectorField (hV (f x)) (hf x) (hf' x) hmn
 
 end MDifferentiability
-
 
 section ContMDiff
 

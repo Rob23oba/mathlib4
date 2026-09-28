@@ -152,8 +152,10 @@ protected lemma isCoatom_iff : IsCoatom s ↔ ∃ a, s = {a}ᶜ := by
 
 end Fintype
 
-/-- Finsets are multiset-graded. This is not very meaningful mathematically but rather a handy way
-to record that the inclusion `Finset α ↪ Multiset α` preserves the covering relation. -/
+/--
+Finsets are multiset-graded. This is not very meaningful mathematically but rather a handy way
+to record that the inclusion `Finset α ↪ Multiset α` preserves the covering relation.
+-/
 instance instGradeMinOrder_multiset : GradeMinOrder (Multiset α) (Finset α) where
   grade := val
   grade_strictMono := val_strictMono

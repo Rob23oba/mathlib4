@@ -6,7 +6,6 @@ Authors: Rémy Degenne
 module
 
 public import Mathlib.Probability.Kernel.Composition.AbsolutelyContinuous
-
 import Mathlib.Probability.Kernel.Composition.WithDensity
 
 /-!
@@ -28,8 +27,8 @@ open ProbabilityTheory MeasureTheory
 
 open scoped ENNReal
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ : Measure α} {κ : Kernel α β}
+variable
+  {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} {κ : Kernel α β}
   {f : α → β → ℝ≥0∞}
 
 namespace ProbabilityTheory.Kernel

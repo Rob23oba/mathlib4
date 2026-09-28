@@ -23,28 +23,29 @@ open scoped Pointwise
 
 section Galois
 
-variable (A K L B : Type*) [CommRing A] [CommRing B] [Field K] [Field L]
-  [Algebra A K] [Algebra B L] [IsFractionRing A K] [IsFractionRing B L]
-  [Algebra A B] [Algebra K L] [Algebra A L] [IsScalarTower A K L] [IsScalarTower A B L]
-  [IsIntegrallyClosed A] [IsIntegralClosure B A L]
+variable
+  (A K L B : Type*) [CommRing A] [CommRing B] [Field K] [Field L] [Algebra A K] [Algebra B L]
+  [IsFractionRing A K] [IsFractionRing B L] [Algebra A B] [Algebra K L] [Algebra A L]
+  [IsScalarTower A K L] [IsScalarTower A B L] [IsIntegrallyClosed A] [IsIntegralClosure B A L]
 
 /-- In the AKLB setup, the Galois group of `L/K` acts on `B`. -/
 @[implicit_reducible]
-noncomputable def IsIntegralClosure.MulSemiringAction [Algebra.IsAlgebraic K L] :
-    MulSemiringAction Gal(L/K) B :=
+noncomputable def IsIntegralClosure.MulSemiringAction [Algebra.IsAlgebraic K L]
+    : MulSemiringAction (Gal(L/K)) B :=
   MulSemiringAction.compHom B (galRestrict A K L B).toMonoidHom
 
-instance [Algebra.IsAlgebraic K L] : let := IsIntegralClosure.MulSemiringAction A K L B
-    SMulDistribClass Gal(L/K) B L :=
+instance [Algebra.IsAlgebraic K L]
+    : let := IsIntegralClosure.MulSemiringAction A K L B
+      SMulDistribClass (Gal(L/K)) B L :=
   let := IsIntegralClosure.MulSemiringAction A K L B
   ⟨fun g b l ↦ by
     simp only [Algebra.smul_def, smul_mul', mul_eq_mul_right_iff]
     exact Or.inl (algebraMap_galRestrictHom_apply A K L B g b).symm⟩
 
 /-- In the AKLB setup, every fixed point of `B` lies in the image of `A`. -/
-theorem Algebra.isInvariant_of_isGalois [FiniteDimensional K L] [h : IsGalois K L] :
-    letI := IsIntegralClosure.MulSemiringAction A K L B
-    Algebra.IsInvariant A B Gal(L/K) := by
+theorem Algebra.isInvariant_of_isGalois [FiniteDimensional K L] [h : IsGalois K L]
+    : letI := IsIntegralClosure.MulSemiringAction A K L B
+      Algebra.IsInvariant A B Gal(L/K) := by
   replace h := ((IsGalois.tfae (F := K) (E := L)).out 1 2).mp h
   let := IsIntegralClosure.MulSemiringAction A K L B
   refine ⟨fun b hb ↦ ?_⟩
@@ -56,28 +57,34 @@ theorem Algebra.isInvariant_of_isGalois [FiniteDimensional K L] [h : IsGalois K 
   have hb : IsIntegral A b := IsIntegralClosure.isIntegral A L b
   rw [← isIntegral_algebraMap_iff (B := L), ← hk, isIntegral_algebraMap_iff] at hb
   obtain ⟨a, rfl⟩ := IsIntegrallyClosed.algebraMap_eq_of_integral hb
-  rw [← IsScalarTower.algebraMap_apply, IsScalarTower.algebraMap_apply A B L,
-    (FaithfulSMul.algebraMap_injective B L).eq_iff] at hk
+  rw [
+      ← IsScalarTower.algebraMap_apply, IsScalarTower.algebraMap_apply A B L,
+      (FaithfulSMul.algebraMap_injective B L).eq_iff
+    ]
+    at hk
   exact ⟨a, hk⟩
 
 /-- A variant of `Algebra.isInvariant_of_isGalois`, replacing `Gal(L/K)` by `Aut(B/A)`. -/
-theorem Algebra.isInvariant_of_isGalois' [FiniteDimensional K L] [IsGalois K L] :
-    Algebra.IsInvariant A B (B ≃ₐ[A] B) :=
+theorem Algebra.isInvariant_of_isGalois' [FiniteDimensional K L] [IsGalois K L]
+    : Algebra.IsInvariant A B (B ≃ₐ[A] B) :=
   ⟨fun b h ↦ (isInvariant_of_isGalois A K L B).1 b (fun g ↦ h (galRestrict A K L B g))⟩
 
 end Galois
 
 section normal
 
-variable {A B : Type*} [CommRing A] [CommRing B] [Algebra A B]
+variable
+  {A B : Type*} [CommRing A] [CommRing B] [Algebra A B]
   (G : Type*) [Finite G] [Group G] [MulSemiringAction G B] [Algebra.IsInvariant A B G]
   (P : Ideal A) (Q : Ideal B) [Q.LiesOver P]
 
 namespace Ideal.IsFractionRing
 
-variable [P.IsPrime] [Q.IsPrime] (K L : Type*) [Field K] [Field L] [Algebra K L]
-    [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
-    [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L] [IsScalarTower (A ⧸ P) K L]
+variable
+  [P.IsPrime] [Q.IsPrime]
+  (K L : Type*) [Field K] [Field L] [Algebra K L] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
+  [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L] [Algebra (A ⧸ P) L]
+  [IsScalarTower (A ⧸ P) (B ⧸ Q) L] [IsScalarTower (A ⧸ P) K L]
 
 open Polynomial in
 include P Q G in

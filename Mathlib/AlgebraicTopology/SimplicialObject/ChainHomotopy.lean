@@ -40,8 +40,9 @@ namespace ToChainHomotopy
 /-- The family of components of the induced chain homotopy -/
 noncomputable def hom (p q : ℕ) : X _⦋p⦌ ⟶ Y _⦋q⦌ :=
   if h : p + 1 = q then
-    -∑ k : Fin (p + 1), ((-1 : ℤ) ^ (k : ℕ)) • H.h k ≫ eqToHom (by simp [h])
-  else 0
+    - ∑ k : Fin (p + 1), ((-1 : ℤ) ^ (k : ℕ)) • H.h k ≫ eqToHom (by simp [h])
+  else
+    0
 
 @[simp]
 lemma hom_eq (p : ℕ) :
@@ -152,11 +153,12 @@ private lemma comm_succ (n : ℕ) :
 
 end ToChainHomotopy
 
-/-- A simplicial homotopy between `f` and `g` induces a chain homotopy
-between the induced morphisms on the alternating face map complexes. -/
-noncomputable def toChainHomotopy (H : Homotopy f g) :
-    _root_.Homotopy
-      ((alternatingFaceMapComplex C).map f)
+/--
+A simplicial homotopy between `f` and `g` induces a chain homotopy
+between the induced morphisms on the alternating face map complexes.
+-/
+noncomputable def toChainHomotopy (H : Homotopy f g)
+    : _root_.Homotopy ((alternatingFaceMapComplex C).map f)
       ((alternatingFaceMapComplex C).map g) where
   hom := ToChainHomotopy.hom H
   zero i j hij := ToChainHomotopy.hom_eq_zero _ _ _ hij
@@ -169,9 +171,9 @@ noncomputable def toChainHomotopy (H : Homotopy f g) :
       rw [dNext_eq (i' := n) (w := by simp), prevD_eq (j' := n + 2) (w := by simp)]
       simp [ToChainHomotopy.comm_succ H]
 
-theorem map_homology_eq [CategoryWithHomology C] (H : Homotopy f g) (n : ℕ) :
-    (HomologicalComplex.homologyFunctor C _ n).map ((alternatingFaceMapComplex C).map f) =
-    (HomologicalComplex.homologyFunctor C _ n).map ((alternatingFaceMapComplex C).map g) := by
+theorem map_homology_eq [CategoryWithHomology C] (H : Homotopy f g) (n : ℕ)
+    : (HomologicalComplex.homologyFunctor C _ n).map ((alternatingFaceMapComplex C).map f)
+      = (HomologicalComplex.homologyFunctor C _ n).map ((alternatingFaceMapComplex C).map g) := by
   simpa using! (H.toChainHomotopy).homologyMap_eq n
 
 end CategoryTheory.SimplicialObject.Homotopy

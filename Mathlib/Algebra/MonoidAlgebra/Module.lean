@@ -12,7 +12,6 @@ public import Mathlib.Algebra.MonoidAlgebra.MapDomain
 public import Mathlib.Algebra.MonoidAlgebra.Lift
 public import Mathlib.LinearAlgebra.Basis.Defs
 public import Mathlib.LinearAlgebra.Finsupp.Supported
-
 import Mathlib.LinearAlgebra.Span.Basic
 
 /-!
@@ -71,15 +70,15 @@ instance instIsTorsionFree [IsTorsionFree R S] : IsTorsionFree R S[M] :=
 variable (R) in
 /-- `MonoidAlgebra.coeff` as a linear equiv. -/
 @[to_additive (attr := simps! apply symm_apply)
-/-- `MonoidAlgebra.coeff` as a linear equiv. -/]
+  /-- `MonoidAlgebra.coeff` as a linear equiv. -/]
 def coeffLinearEquiv : S[M] ≃ₗ[R] M →₀ S := coeffAddEquiv.linearEquiv _
 
 variable (R S) in
 /-- `MonoidAlgebra.mapDomain` as a linear map. -/
 @[to_additive /-- `AddMonoidAlgebra.mapDomain` as a linear map. -/]
 def mapDomainLinearMap (f : M → N) : S[M] →ₗ[R] S[N] :=
-  (coeffLinearEquiv _).symm.toLinearMap ∘ₗ Finsupp.lmapDomain _ _ f ∘ₗ
-    (coeffLinearEquiv _).toLinearMap
+  (coeffLinearEquiv _).symm.toLinearMap ∘ₗ Finsupp.lmapDomain _ _ f
+    ∘ₗ (coeffLinearEquiv _).toLinearMap
 
 @[to_additive (attr := simp)]
 lemma coeff_mapDomainLinearMap (f : M → N) (x : S[M]) :
@@ -120,7 +119,7 @@ lemma mapDomainLinearEquiv_trans (e₁ : M ≃ N) (e₂ : N ≃ O) :
 variable (R M) in
 /-- The trivial monoid algebra is the base ring. -/
 @[to_additive (dont_translate := R)
-/-- The trivial monoid algebra is the base ring. -/]
+  /-- The trivial monoid algebra is the base ring. -/]
 def uniqueLinearEquiv [One M] [Subsingleton M] : S[M] ≃ₗ[R] S where
   toAddEquiv := coeffAddEquiv.trans <| Finsupp.uniqueAddEquiv 1
   map_smul' r x := by simp
@@ -138,7 +137,7 @@ lemma uniqueLinearEquiv_symm_apply [One M] [Subsingleton M] (s : S) :
 variable (R S s) in
 /-- The `R`-submodule of all elements of `S[M]` supported on a subset `s` of `M`. -/
 @[to_additive
-/-- The `R`-submodule of all elements of `S[M]` supported on a subset `s` of `M`. -/]
+  /-- The `R`-submodule of all elements of `S[M]` supported on a subset `s` of `M`. -/]
 def supported : Submodule R S[M] := (Finsupp.supported S R s).comap (coeffLinearEquiv R).toLinearMap
 
 @[to_additive] lemma mem_supported : x ∈ supported R S s ↔ ↑x.coeff.support ⊆ s := .rfl
@@ -166,25 +165,29 @@ lemma supported_mono (hst : s ⊆ t) : supported R S s ≤ supported R S t := fu
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Interpret `Finsupp.restrictSupportEquiv` as a linear equivalence between
-`supported M R s` and `s →₀ M`. -/
+/--
+Interpret `Finsupp.restrictSupportEquiv` as a linear equivalence between
+`supported M R s` and `s →₀ M`.
+-/
 @[to_additive (dont_translate := R) (attr := simps!)
-/-- Interpret `Finsupp.restrictSupportEquiv` as a linear equivalence between
+  /-- Interpret `Finsupp.restrictSupportEquiv` as a linear equivalence between
 `supported M R s` and `s →₀ M`. -/]
 def supportedEquivFinsupp (s : Set M) : supported R S s ≃ₗ[R] s →₀ S :=
-  { toFun x := ⟨x.1.coeff, x.2⟩
+  {
+    toFun x := ⟨x.1.coeff, x.2⟩
     invFun x := ⟨.ofCoeff x.1, x.2⟩
     left_inv _ := rfl
     right_inv _ := rfl
     map_add' _ _ := rfl
-    map_smul' _ _ := rfl }
-   ≪≫ₗ Finsupp.supportedEquivFinsupp s
+    map_smul' _ _ := rfl
+  } ≪≫ₗ Finsupp.supportedEquivFinsupp s
 
 end Module
 
 @[to_additive (dont_translate := R) faithfulSMul]
-instance faithfulSMul [Semiring S] [SMulZeroClass R S] [FaithfulSMul R S] [Nonempty M] :
-    FaithfulSMul R S[M] := coeffEquiv.faithfulSMul _
+instance faithfulSMul [Semiring S] [SMulZeroClass R S] [FaithfulSMul R S] [Nonempty M]
+    : FaithfulSMul R S[M] :=
+  coeffEquiv.faithfulSMul _
 
 /-- The standard basis for a monoid algebra. -/
 @[to_additive /-- The standard basis for an additive monoid algebra. -/]
@@ -196,7 +199,8 @@ lemma basis_apply (k) [Semiring k] (r : R) :
     MonoidAlgebra.basis R k r = MonoidAlgebra.single r 1 :=
   rfl
 
-/-- This is not an instance as it conflicts with `MonoidAlgebra.distribMulAction` when `M = kˣ`.
+/--
+This is not an instance as it conflicts with `MonoidAlgebra.distribMulAction` when `M = kˣ`.
 
 TODO: Change the type to `DistribMulAction Gᵈᵐᵃ S[M]` and then it can be an instance.
 TODO: Generalise to a group acting on another, instead of just the left multiplication action.
@@ -223,18 +227,19 @@ variable [Semiring S]
 
 /-- `MonoidAlgebra.single` as a `DistribMulActionHom`. -/
 @[to_additive (dont_translate := R) singleDistribMulActionHom
-/-- `AddMonoidAlgebra.single` as a `DistribMulActionHom`. -/]
+  /-- `AddMonoidAlgebra.single` as a `DistribMulActionHom`. -/]
 def singleDistribMulActionHom [Monoid R] [DistribMulAction R S] (a : M) : S →+[R] S[M] where
   __ := singleAddHom a
   map_smul' S m := by simp
 
 /-- A copy of `Finsupp.distribMulActionHom_ext'` for `MonoidAlgebra`. -/
 @[to_additive (dont_translate := R) (attr := ext) distribMulActionHom_ext'
-/-- A copy of `Finsupp.distribMulActionHom_ext'` for `AddMonoidAlgebra`. -/]
-theorem distribMulActionHom_ext' {N : Type*} [Monoid R] [AddMonoid N] [DistribMulAction R N]
-    [DistribMulAction R S] {f g : S[M] →+[R] N}
-    (h : ∀ a, f.comp (singleDistribMulActionHom a) = g.comp (singleDistribMulActionHom a)) :
-    f = g :=
+  /-- A copy of `Finsupp.distribMulActionHom_ext'` for `AddMonoidAlgebra`. -/]
+theorem distribMulActionHom_ext'
+    {N : Type*} [Monoid R] [AddMonoid N] [DistribMulAction R N] [DistribMulAction R S]
+    {f g : S[M] →+[R] N}
+    (h : ∀ a, f.comp (singleDistribMulActionHom a) = g.comp (singleDistribMulActionHom a))
+    : f = g :=
   DistribMulActionHom.toAddMonoidHom_injective <| addMonoidHom_ext fun a x ↦ congr($(h a) x)
 
 /-- A copy of `Finsupp.lsingle` for `MonoidAlgebra`. -/
@@ -273,11 +278,11 @@ lemma mem_closure_of_mem_span_closure [Nontrivial R]
     m ∈ Submonoid.closure s := by
   rw [← MonoidHom.map_mclosure] at h; simpa using of_mem_span_of_iff.1 h
 
-theorem liftNC_smul (f : S →+* R) (g : M →* R) (c : S) (φ : S[M]) :
-    liftNC (f : S →+ R) g (c • φ) = f c * liftNC (f : S →+ R) g φ := by
-  suffices (liftNC (↑f) g).comp (smulAddHom S S[M] c) =
-      (AddMonoidHom.mulLeft (f c)).comp (liftNC (↑f) g) from
-    congr($this φ)
+theorem liftNC_smul (f : S →+* R) (g : M →* R) (c : S) (φ : S[M])
+    : liftNC (f : S →+ R) g (c • φ) = f c * liftNC (f : S →+ R) g φ := by
+  suffices (liftNC (↑f) g).comp (smulAddHom S (S[M]) c)
+    = (AddMonoidHom.mulLeft (f c)).comp (liftNC (↑f) g)
+  from congr($this φ)
   ext
   simp [mul_assoc]
 
@@ -289,20 +294,24 @@ section NonUnitalNonAssocAlgebra
 variable (S) [Semiring S] [DistribSMul R S] [Mul M]
 
 @[to_additive (dont_translate := R S) isScalarTower_self]
-instance isScalarTower_self [IsScalarTower R S S] : IsScalarTower R S[M] S[M] where
+instance isScalarTower_self [IsScalarTower R S S] : IsScalarTower R (S[M]) S[M] where
   smul_assoc t a b := by
-    classical ext; simp [coeff_mul, sum_smul_index', Finsupp.smul_sum, smul_mul_assoc]
+    classical
+    ext; simp [coeff_mul, sum_smul_index', Finsupp.smul_sum, smul_mul_assoc]
 
-/-- Note that if `S` is a `CommSemiring` then we have `SMulCommClass S S S` and so we can take
+/--
+Note that if `S` is a `CommSemiring` then we have `SMulCommClass S S S` and so we can take
 `R = S` in the below. In other words, if the coefficients are commutative amongst themselves, they
-also commute with the algebra multiplication. -/
+also commute with the algebra multiplication.
+-/
 @[to_additive (dont_translate := R S) smulCommClass_self]
-instance smulCommClass_self [SMulCommClass R S S] : SMulCommClass R S[M] S[M] where
+instance smulCommClass_self [SMulCommClass R S S] : SMulCommClass R (S[M]) S[M] where
   smul_comm t a b := by
-    classical ext; simp [coeff_mul, sum_smul_index', Finsupp.smul_sum, mul_smul_comm]
+    classical
+    ext; simp [coeff_mul, sum_smul_index', Finsupp.smul_sum, mul_smul_comm]
 
 @[to_additive (dont_translate := R S) smulCommClass_symm_self]
-instance smulCommClass_symm_self [SMulCommClass S R S] : SMulCommClass S[M] R S[M] :=
+instance smulCommClass_symm_self [SMulCommClass S R S] : SMulCommClass (S[M]) R S[M] :=
   have := SMulCommClass.symm S R S; .symm ..
 
 end NonUnitalNonAssocAlgebra
@@ -311,12 +320,14 @@ section Submodule
 
 variable [CommSemiring S] [Monoid M]
 variable {V : Type*} [AddCommMonoid V]
-variable [Module S V] [Module S[M] V] [IsScalarTower S S[M] V]
+variable [Module S V] [Module (S[M]) V] [IsScalarTower S (S[M]) V]
 
-/-- A submodule over `S` which is stable under scalar multiplication by elements of `M` is a
-submodule over `S[M]` -/
-def submoduleOfSMulMem (W : Submodule S V) (h : ∀ (g : M) (v : V), v ∈ W → of S M g • v ∈ W) :
-    Submodule S[M] V where
+/--
+A submodule over `S` which is stable under scalar multiplication by elements of `M` is a
+submodule over `S[M]`
+-/
+def submoduleOfSMulMem (W : Submodule S V) (h : ∀ (g : M) (v : V), v ∈ W → of S M g • v ∈ W)
+    : Submodule (S[M]) V where
   carrier := W
   zero_mem' := W.zero_mem'
   add_mem' := W.add_mem'

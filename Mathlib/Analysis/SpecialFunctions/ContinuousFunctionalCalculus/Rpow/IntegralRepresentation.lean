@@ -65,9 +65,7 @@ noncomputable def rpowIntegrand₀₁ (p t x : ℝ) : ℝ := t ^ p * (t⁻¹ - (
 noncomputable def rpowIntegrand₁₂ (p t x : ℝ) : ℝ := t ^ (p - 1) * (t⁻¹ * x + t * (t + x)⁻¹ - 1)
 
 section ZeroOne
-/-
-## `p ∈ (0,1)`
--/
+/- ## `p ∈ (0,1)` -/
 
 variable {p t x : ℝ}
 
@@ -365,9 +363,7 @@ alias exists_measure_rpow_eq_integral := exists_measure_rpow_eq_integral_rpowInt
 end ZeroOne
 
 section OneTwo
-/-
-## `p ∈ (1,2)`
--/
+/- ## `p ∈ (1,2)` -/
 variable {p t x : ℝ}
 
 lemma rpowIntegrand₁₂_eq_mul_rpowIntegrand₀₁ (hx : 0 ≤ x) (ht : 0 < t) :
@@ -450,7 +446,8 @@ open Real
 
 section NonUnitalCFC
 
-variable {A : Type*} [NonUnitalNormedRing A] [StarRing A] [NormedSpace ℝ A] [SMulCommClass ℝ A A]
+variable
+  {A : Type*} [NonUnitalNormedRing A] [StarRing A] [NormedSpace ℝ A] [SMulCommClass ℝ A A]
   [IsScalarTower ℝ A A] [PartialOrder A] [StarOrderedRing A] [NonnegSpectrumClass ℝ A]
   [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 

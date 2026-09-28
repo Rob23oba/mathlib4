@@ -65,7 +65,6 @@ end FunLike
 
 -/
 
-
 public section
 
 section Def
@@ -141,7 +140,7 @@ section Neg
 
 /-- `IsNegApply F α β` states for all `f : F` and `x : α`, `(-f) x = -f x`. -/
 class IsNegApply (F : Type*) (α β : outParam Type*) [FunLike F α β] [Neg β] [Neg F] where
-  neg_apply (f : F) (x : α) : (-f) x = -f x := by intros; rfl
+  neg_apply (f : F) (x : α) : (-f) x = - f x := by intros; rfl
 
 /-- `IsInvApply F α β` states for all `f : F` and `x : α`, `f⁻¹ x = (f x)⁻¹`. -/
 @[to_additive]
@@ -219,19 +218,17 @@ theorem coe_div [Div F] [Div β] [IsDivApply F α β] (f g : F) : ↑(f / g) = (
   ext; simp
 
 @[to_additive (attr := simp, norm_cast)]
-theorem coe_inv [Inv F] [Inv β] [IsInvApply F α β] (f : F) : ↑(f⁻¹) = (f : α → β)⁻¹ := by
-  ext; simp
+theorem coe_inv [Inv F] [Inv β] [IsInvApply F α β] (f : F) : ↑(f⁻¹) = (f : α → β)⁻¹ := by ext; simp
 
 @[to_additive (attr := simp, norm_cast, to_additive) (reorder := f n) coe_smul]
-theorem coe_pow [Pow F M] [Pow β M] [IsPowApply M F α β] (f : F) (n : M) :
-    ↑(f ^ n) = (f : α → β) ^ n := by
+theorem coe_pow [Pow F M] [Pow β M] [IsPowApply M F α β] (f : F) (n : M)
+    : ↑(f ^ n) = (f : α → β) ^ n := by
   ext; simp
 
 @[deprecated (since := "2026-07-23")] alias coe_smul' := coe_smul
 
 @[simp, norm_cast]
-theorem coe_one_eq_id [One F'] [IsOneApplyEqSelf F' α] : ↑(1 : F') = id := by
-  ext; simp
+theorem coe_one_eq_id [One F'] [IsOneApplyEqSelf F' α] : ↑(1 : F') = id := by ext; simp
 
 @[simp, norm_cast]
 theorem coe_one_eq_id_iff [One F'] [IsOneApplyEqSelf F' α] (f : F') : (f : α → α) = id ↔ f = 1 := by
@@ -252,9 +249,11 @@ lemma coe_pow_eq_iterate [Monoid F'] [IsMulApplyEqComp F' α] [IsOneApplyEqSelf 
 
 -- this lemma cannot be `simp` since this creates loops
 @[norm_cast]
-theorem natCast_eq_nsmul_one [NatCast F'] [One F'] [SMul Nat α] [SMul Nat F']
-    [IsSMulApply Nat F' α α] [IsNatCastApply F' α] [IsOneApplyEqSelf F' α] (n : ℕ) :
-  (n : F') = n • (1 : F') := by
+theorem natCast_eq_nsmul_one
+    [NatCast F'] [One F'] [SMul Nat α] [SMul Nat F'] [IsSMulApply Nat F' α α] [IsNatCastApply F' α]
+    [IsOneApplyEqSelf F' α]
+    (n : ℕ)
+    : (n : F') = n • (1 : F') := by
   apply DFunLike.ext
   simp
 
@@ -262,9 +261,11 @@ theorem natCast_eq_nsmul_one [NatCast F'] [One F'] [SMul Nat α] [SMul Nat F']
 
 -- this lemma cannot be `simp` since this creates loops
 @[norm_cast]
-theorem intCast_eq_zsmul_one [IntCast F'] [One F'] [SMul Int α] [SMul Int F']
-    [IsSMulApply Int F' α α] [IsIntCastApply F' α] [IsOneApplyEqSelf F' α] (n : ℤ) :
-  (n : F') = n • (1 : F') := by
+theorem intCast_eq_zsmul_one
+    [IntCast F'] [One F'] [SMul Int α] [SMul Int F'] [IsSMulApply Int F' α α] [IsIntCastApply F' α]
+    [IsOneApplyEqSelf F' α]
+    (n : ℤ)
+    : (n : F') = n • (1 : F') := by
   apply DFunLike.ext
   simp
 

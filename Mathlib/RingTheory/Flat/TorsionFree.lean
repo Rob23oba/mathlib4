@@ -63,8 +63,7 @@ lemma isSMulRegular_of_isRegular {r : R} (hr : IsRegular r) [Flat R M] :
   rw [IsSMulRegular, h2]
   simp [h, LinearEquiv.injective]
 
-instance isTorsionFree [Flat R M] : IsTorsionFree R M :=
-  ⟨fun _ hr ↦ isSMulRegular_of_isRegular hr⟩
+instance isTorsionFree [Flat R M] : IsTorsionFree R M := ⟨fun _ hr ↦ isSMulRegular_of_isRegular hr⟩
 
 end Semiring
 
@@ -90,8 +89,8 @@ theorem torsion_eq_bot [Flat R M] : torsion R M = ⊥ := by
 
 /-- If `R` is Bezout then an `R`-module is flat iff it has no torsion. -/
 @[stacks 0539 "Generalized valuation ring to Bezout domain"]
-theorem flat_iff_torsion_eq_bot_of_isBezout [IsBezout R] [IsDomain R] :
-    Flat R M ↔ torsion R M = ⊥ := by
+theorem flat_iff_torsion_eq_bot_of_isBezout [IsBezout R] [IsDomain R]
+    : Flat R M ↔ torsion R M = ⊥ := by
   -- one way is true in general
   refine ⟨fun _ ↦ torsion_eq_bot, ?_⟩
   -- now assume R is a Bezout domain and M is a torsionfree R-module
@@ -105,14 +104,15 @@ theorem flat_iff_torsion_eq_bot_of_isBezout [IsBezout R] [IsDomain R] :
     apply Subsingleton.elim
   · -- If I ≠ 0 then I ≅ R because R is Bezout and I is finitely generated
     have hprinc : I.IsPrincipal := IsBezout.isPrincipal_of_FG I hFG
-    have : IsPrincipal.generator I ≠ 0 := by
-      rwa [ne_eq, ← IsPrincipal.eq_bot_iff_generator_eq_zero]
+    have : IsPrincipal.generator I ≠ 0 := by rwa [ne_eq, ← IsPrincipal.eq_bot_iff_generator_eq_zero]
     apply Function.Injective.of_comp_right _
       (LinearEquiv.rTensor M (Ideal.isoBaseOfIsPrincipal h)).surjective
-    rw [← LinearEquiv.coe_toLinearMap, ← LinearMap.coe_comp, LinearEquiv.coe_rTensor, rTensor,
+    rw [
+      ← LinearEquiv.coe_toLinearMap, ← LinearMap.coe_comp, LinearEquiv.coe_rTensor, rTensor,
       lift_comp_map, LinearMap.compl₂_id, LinearMap.comp_assoc,
       Ideal.subtype_isoBaseOfIsPrincipal_eq_mul, LinearMap.lift_lsmul_mul_eq_lsmul_lift_lsmul,
-      LinearMap.coe_comp]
+      LinearMap.coe_comp
+    ]
     rw [← Submodule.isTorsionFree_iff_torsion_eq_bot] at htors
     refine Function.Injective.comp (LinearMap.lsmul_injective this) ?_
     rw [← Equiv.injective_comp (TensorProduct.lid R M).symm.toEquiv]
@@ -120,23 +120,27 @@ theorem flat_iff_torsion_eq_bot_of_isBezout [IsBezout R] [IsDomain R] :
     ext
     simp
 
-/-- If every localization of `R` at a maximal ideal is a valuation ring then an `R`-module
-is flat iff it has no torsion. -/
-theorem flat_iff_torsion_eq_bot_of_valuationRing_localization_isMaximal [IsDomain R]
-    (h : ∀ (P : Ideal R), [P.IsMaximal] → ValuationRing (Localization P.primeCompl)) :
-    Flat R M ↔ torsion R M = ⊥ := by
+/--
+If every localization of `R` at a maximal ideal is a valuation ring then an `R`-module
+is flat iff it has no torsion.
+-/
+theorem flat_iff_torsion_eq_bot_of_valuationRing_localization_isMaximal
+    [IsDomain R] (h : ∀ (P : Ideal R), [P.IsMaximal] → ValuationRing (Localization P.primeCompl))
+    : Flat R M ↔ torsion R M = ⊥ := by
   refine ⟨fun _ ↦ Flat.torsion_eq_bot, fun h ↦ ?_⟩
   apply flat_of_localized_maximal
   intro P hP
   rw [← Submodule.isTorsionFree_iff_torsion_eq_bot] at h
-  rw [← flat_iff_of_isLocalization (Localization P.primeCompl) P.primeCompl,
-    Flat.flat_iff_torsion_eq_bot_of_isBezout, ← Submodule.isTorsionFree_iff_torsion_eq_bot]
+  rw [
+    ← flat_iff_of_isLocalization (Localization P.primeCompl) P.primeCompl,
+    Flat.flat_iff_torsion_eq_bot_of_isBezout, ← Submodule.isTorsionFree_iff_torsion_eq_bot
+  ]
   infer_instance
 
 /-- If `R` is a Dedekind domain then an `R`-module is flat iff it has no torsion. -/
 @[stacks 0AUW "(1)"]
-theorem _root_.IsDedekindDomain.flat_iff_torsion_eq_bot [IsDedekindDomain R] :
-    Flat R M ↔ torsion R M = ⊥ := by
+theorem _root_.IsDedekindDomain.flat_iff_torsion_eq_bot [IsDedekindDomain R]
+    : Flat R M ↔ torsion R M = ⊥ := by
   apply flat_iff_torsion_eq_bot_of_valuationRing_localization_isMaximal
   exact fun P ↦ inferInstance
 

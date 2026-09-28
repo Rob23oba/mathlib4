@@ -41,18 +41,19 @@ and rings `R` equipped with the `I`-adic topology where `I ≤ J(R)`.
 class IsOpenUnits (M : Type*) [Monoid M] [TopologicalSpace M] : Prop where
   isOpenEmbedding_unitsVal : IsOpenEmbedding (Units.val : Mˣ → M)
 
-instance (priority := 900) (M : Type*) [Monoid M] [TopologicalSpace M] [DiscreteTopology M] :
-    IsOpenUnits M where
+instance (priority := 900) (M : Type*) [Monoid M] [TopologicalSpace M] [DiscreteTopology M]
+    : IsOpenUnits M where
   isOpenEmbedding_unitsVal :=
-    .of_continuous_injective_isOpenMap Units.continuous_val Units.val_injective
-      fun _ _ ↦ isOpen_discrete _
+    .of_continuous_injective_isOpenMap Units.continuous_val Units.val_injective fun _ _ ↦
+      isOpen_discrete _
 
-instance (priority := 900) {M : Type*} [Group M] [TopologicalSpace M] [ContinuousInv M] :
-    IsOpenUnits M where
+instance (priority := 900) {M : Type*} [Group M] [TopologicalSpace M] [ContinuousInv M]
+    : IsOpenUnits M where
   isOpenEmbedding_unitsVal := toUnits_homeomorph.symm.isOpenEmbedding
 
-instance (priority := 900) {M : Type*} [GroupWithZero M]
-    [TopologicalSpace M] [ContinuousInv₀ M] [T1Space M] : IsOpenUnits M where
+instance (priority := 900)
+    {M : Type*} [GroupWithZero M] [TopologicalSpace M] [ContinuousInv₀ M] [T1Space M]
+    : IsOpenUnits M where
   isOpenEmbedding_unitsVal := by
     refine ⟨Units.isEmbedding_val₀, ?_⟩
     convert! (isClosed_singleton (X := M) (x := 0)).isOpen_compl

@@ -43,7 +43,6 @@ keeping the upper-left block invertible.
 
 @[expose] public section
 
-
 open Matrix
 
 variable {l R : Type*}
@@ -55,20 +54,21 @@ variable (l) [DecidableEq l] (R) [CommRing R]
 section JMatrixLemmas
 
 /-- The matrix defining the canonical skew-symmetric bilinear form. -/
-def J : Matrix (l ⊕ l) (l ⊕ l) R :=
-  Matrix.fromBlocks 0 (-1) 1 0
+def J : Matrix (l ⊕ l) (l ⊕ l) R := Matrix.fromBlocks 0 (-1) 1 0
 
 variable {R} in
 @[simp]
-theorem map_J {F S : Type*} [CommRing S] [FunLike F R S]
-    [AddMonoidHomClass F R S] [OneHomClass F R S] (f : F) :
-    (J l R).map f = J l S := by
+theorem map_J
+    {F S : Type*} [CommRing S] [FunLike F R S] [AddMonoidHomClass F R S] [OneHomClass F R S] (f : F)
+    : (J l R).map f = J l S := by
   simp [J, fromBlocks_map, Matrix.map_neg]
 
 @[simp]
-theorem J_transpose : (J l R)ᵀ = -J l R := by
-  rw [J, fromBlocks_transpose, ← neg_one_smul R (fromBlocks _ _ _ _ : Matrix (l ⊕ l) (l ⊕ l) R),
-    fromBlocks_smul, Matrix.transpose_zero, Matrix.transpose_one, transpose_neg]
+theorem J_transpose : (J l R)ᵀ = - J l R := by
+  rw [
+    J, fromBlocks_transpose, ← neg_one_smul R (fromBlocks _ _ _ _ : Matrix (l ⊕ l) (l ⊕ l) R),
+    fromBlocks_smul, Matrix.transpose_zero, Matrix.transpose_one, transpose_neg
+  ]
   simp [fromBlocks]
 
 variable [Fintype l]
@@ -78,14 +78,16 @@ theorem J_squared : J l R * J l R = -1 := by
   simp only [Matrix.zero_mul, Matrix.neg_mul, zero_add, neg_zero, Matrix.one_mul, add_zero]
   rw [← neg_zero, ← Matrix.fromBlocks_neg, ← fromBlocks_one]
 
-theorem J_inv : (J l R)⁻¹ = -J l R := by
+theorem J_inv : (J l R)⁻¹ = - J l R := by
   refine Matrix.inv_eq_right_inv ?_
   rw [Matrix.mul_neg, J_squared]
   exact neg_neg 1
 
 theorem J_det_mul_J_det : det (J l R) * det (J l R) = 1 := by
-  rw [← det_mul, J_squared, ← one_smul R (-1 : Matrix _ _ R), smul_neg, ← neg_smul, det_smul,
-    Fintype.card_sum, det_one, mul_one]
+  rw [
+    ← det_mul, J_squared, ← one_smul R (-1 : Matrix _ _ R), smul_neg, ← neg_smul, det_smul,
+    Fintype.card_sum, det_one, mul_one
+  ]
   apply Even.neg_one_pow
   exact Even.add_self _
 
@@ -114,11 +116,11 @@ variable [DecidableEq l] [Fintype l] [CommRing R]
 
 open Matrix
 
-theorem mem_iff {A : Matrix (l ⊕ l) (l ⊕ l) R} :
-    A ∈ symplecticGroup l R ↔ A * J l R * Aᵀ = J l R := by simp [symplecticGroup]
+theorem mem_iff {A : Matrix (l ⊕ l) (l ⊕ l) R}
+    : A ∈ symplecticGroup l R ↔ A * J l R * Aᵀ = J l R := by
+  simp [symplecticGroup]
 
-instance coeMatrix : Coe (symplecticGroup l R) (Matrix (l ⊕ l) (l ⊕ l) R) :=
-  ⟨Subtype.val⟩
+instance coeMatrix : Coe (symplecticGroup l R) (Matrix (l ⊕ l) (l ⊕ l) R) := ⟨Subtype.val⟩
 
 section SymplecticJ
 
@@ -129,13 +131,11 @@ theorem J_mem : J l R ∈ symplecticGroup l R := by
   simp
 
 /-- The canonical skew-symmetric matrix as an element in the symplectic group. -/
-def symJ : symplecticGroup l R :=
-  ⟨J l R, J_mem l R⟩
+def symJ : symplecticGroup l R := ⟨J l R, J_mem l R⟩
 
 variable {l} {R}
 
-@[simp]
-theorem coe_J : ↑(symJ l R) = J l R := rfl
+@[simp] theorem coe_J : ↑(symJ l R) = J l R := rfl
 
 end SymplecticJ
 
@@ -156,8 +156,10 @@ theorem symplectic_det (hA : A ∈ symplecticGroup l R) : IsUnit <| det A := by
   rw [mul_comm A.det, mul_assoc] at hA
   exact hA
 
-theorem map_mem {F S : Type*} [CommRing S] [FunLike F R S] [RingHomClass F R S]
-    (hA : A ∈ symplecticGroup l R) (f : F) : A.map f ∈ symplecticGroup l S := by
+theorem map_mem
+    {F S : Type*} [CommRing S] [FunLike F R S] [RingHomClass F R S]
+    (hA : A ∈ symplecticGroup l R) (f : F)
+    : A.map f ∈ symplecticGroup l S := by
   simp_rw [mem_iff, ← transpose_map, ← map_J _ f, ← Matrix.map_mul, mem_iff.mp hA]
 
 theorem transpose_mem (hA : A ∈ symplecticGroup l R) : Aᵀ ∈ symplecticGroup l R := by
@@ -168,10 +170,10 @@ theorem transpose_mem (hA : A ∈ symplecticGroup l R) : Aᵀ ∈ symplecticGrou
     rw [Matrix.det_transpose]
     exact huA
   calc
-    Aᵀ * J l R * A = (-Aᵀ) * (J l R)⁻¹ * A := by
+    Aᵀ * J l R * A = (- Aᵀ) * (J l R)⁻¹ * A := by
       rw [J_inv]
       simp
-    _ = (-Aᵀ) * (A * J l R * Aᵀ)⁻¹ * A := by rw [hA]
+    _ = (- Aᵀ) * (A * J l R * Aᵀ)⁻¹ * A := by rw [hA]
     _ = -(Aᵀ * (Aᵀ⁻¹ * (J l R)⁻¹)) * A⁻¹ * A := by
       simp only [Matrix.mul_inv_rev, Matrix.mul_assoc, Matrix.neg_mul]
     _ = -(J l R)⁻¹ := by
@@ -186,16 +188,18 @@ theorem mem_iff' : A ∈ symplecticGroup l R ↔ Aᵀ * J l R * A = J l R := by
   rw [← transpose_mem_iff, mem_iff, transpose_transpose]
 
 instance hasInv : Inv (symplecticGroup l R) where
-  inv A := ⟨(-J l R) * (A : Matrix (l ⊕ l) (l ⊕ l) R)ᵀ * J l R,
-      mul_mem (mul_mem (neg_mem <| J_mem _ _) <| transpose_mem A.2) <| J_mem _ _⟩
+  inv A := ⟨
+    (- J l R) * (A : Matrix (l ⊕ l) (l ⊕ l) R)ᵀ * J l R,
+    mul_mem (mul_mem (neg_mem <| J_mem _ _) <| transpose_mem A.2) <| J_mem _ _
+  ⟩
 
-theorem coe_inv (A : symplecticGroup l R) : (↑A⁻¹ : Matrix _ _ _) = (-J l R) * (↑A)ᵀ * J l R := rfl
+theorem coe_inv (A : symplecticGroup l R) : (↑A⁻¹ : Matrix _ _ _) = (- J l R) * (↑A)ᵀ * J l R := rfl
 
 theorem inv_left_mul_aux (hA : A ∈ symplecticGroup l R) : -(J l R * Aᵀ * J l R * A) = 1 :=
   calc
-    -(J l R * Aᵀ * J l R * A) = (-J l R) * (Aᵀ * J l R * A) := by
-      simp only [Matrix.mul_assoc, Matrix.neg_mul]
-    _ = (-J l R) * J l R := by
+    -(J l R * Aᵀ * J l R * A)
+      = (- J l R) * (Aᵀ * J l R * A) := by simp only [Matrix.mul_assoc, Matrix.neg_mul]
+    _ = (- J l R) * J l R := by
       rw [mem_iff'] at hA
       rw [hA]
     _ = (-1 : R) • (J l R * J l R) := by simp only [Matrix.neg_mul, neg_smul, one_smul]
@@ -206,35 +210,37 @@ theorem coe_inv' (A : symplecticGroup l R) : (↑A⁻¹ : Matrix (l ⊕ l) (l �
   refine (coe_inv A).trans (inv_eq_left_inv ?_).symm
   simp [inv_left_mul_aux]
 
-theorem inv_eq_symplectic_inv (A : Matrix (l ⊕ l) (l ⊕ l) R) (hA : A ∈ symplecticGroup l R) :
-    A⁻¹ = (-J l R) * Aᵀ * J l R :=
+theorem inv_eq_symplectic_inv (A : Matrix (l ⊕ l) (l ⊕ l) R) (hA : A ∈ symplecticGroup l R)
+    : A⁻¹ = (- J l R) * Aᵀ * J l R :=
   inv_eq_left_inv (by simp only [Matrix.neg_mul, inv_left_mul_aux hA])
 
-instance : Group (symplecticGroup l R) :=
-  { SymplecticGroup.hasInv, Submonoid.toMonoid _ with
-    inv_mul_cancel := fun A => by
-      apply Subtype.ext
-      simp only [Submonoid.coe_one, Submonoid.coe_mul, Matrix.neg_mul, coe_inv]
-      exact inv_left_mul_aux A.2 }
+instance : Group (symplecticGroup l R) := {
+  SymplecticGroup.hasInv, Submonoid.toMonoid _ with
+  inv_mul_cancel := fun A => by
+    apply Subtype.ext
+    simp only [Submonoid.coe_one, Submonoid.coe_mul, Matrix.neg_mul, coe_inv]
+    exact inv_left_mul_aux A.2
+}
 
 section Determinant
 
 variable {A B C D : Matrix l l R}
 
-theorem fromBlocks_mem_iff :
-    fromBlocks A B C D ∈ symplecticGroup l R ↔
-      Aᵀ * C = Cᵀ * A ∧
-      Bᵀ * D = Dᵀ * B ∧
-      Aᵀ * D - Cᵀ * B = 1 := by
+theorem fromBlocks_mem_iff
+    : fromBlocks A B C D ∈ symplecticGroup l R
+      ↔ Aᵀ * C = Cᵀ * A ∧ Bᵀ * D = Dᵀ * B ∧ Aᵀ * D - Cᵀ * B = 1 := by
   refine ⟨fun h ↦ ?_, fun h ↦ mem_iff'.2 ?_⟩
-  · have h_final : fromBlocks (Cᵀ * A - Aᵀ * C) (Cᵀ * B - Aᵀ * D)
-        (Dᵀ * A - Bᵀ * C) (Dᵀ * B - Bᵀ * D) = J l R := by
-      simpa [mem_iff, fromBlocks_transpose, J, fromBlocks_multiply,
-        sub_eq_add_neg] using transpose_mem h
+  · have h_final
+        : fromBlocks (Cᵀ * A - Aᵀ * C) (Cᵀ * B - Aᵀ * D) (Dᵀ * A - Bᵀ * C) (Dᵀ * B - Bᵀ * D)
+          = J l R := by
+      simpa [mem_iff, fromBlocks_transpose, J, fromBlocks_multiply, sub_eq_add_neg] using
+        transpose_mem h
     obtain ⟨h_eq1, h_eq2, _, h_eq3⟩ := fromBlocks_inj.1 h_final
     exact ⟨(sub_eq_zero.1 h_eq1).symm, (sub_eq_zero.1 h_eq3).symm, by grind⟩
-  · simp only [fromBlocks_transpose, J, fromBlocks_multiply, mul_zero, mul_one, zero_add, mul_neg,
-      add_zero, neg_mul, ← sub_eq_add_neg, fromBlocks_inj, sub_eq_zero]
+  · simp only [
+      fromBlocks_transpose, J, fromBlocks_multiply, mul_zero, mul_one, zero_add, mul_neg, add_zero,
+      neg_mul, ← sub_eq_add_neg, fromBlocks_inj, sub_eq_zero
+    ]
     exact ⟨h.1.symm, by grind, by simpa using congr(transpose $(h.2.2)), h.2.1.symm⟩
 
 /-- The determinant of a symplectic matrix is 1 if its upper-left block is invertible. -/
@@ -373,7 +379,8 @@ private lemma det_eq_one_of_isLocalRing [IsLocalRing R] {M : Matrix (l ⊕ l) (l
     rw [Lx_mul, det_one_if_fromBlocks_invertible h_fromBlocks_in]
   rwa [det_mul, det_fromBlocks_zero₂₁, det_one, one_mul, one_mul] at h_main
 
-/-- Symplectic matrices have determinant 1.
+/--
+Symplectic matrices have determinant 1.
 
 The proof strategy comes in two steps:
 1. Consider a symplectic matrix `M` over a local ring, we can construct a matrix of the
@@ -381,9 +388,9 @@ form `fromBlocks 1 X 0 1` s.t. the upper-left block of `(fromBlocks 1 X 0 1) * M
 From this we can calculate the determinant.
 
 2. For a symplectic matrix `M` over general commutative ring `R`, we note that by step 1,
-`M.det - 1 = 0` in any localization at a maximal ideal in `R`. Therefore `M.det = 1` in `R`. -/
-theorem det_eq_one {M : Matrix (l ⊕ l) (l ⊕ l) R} (hM : M ∈ symplecticGroup l R) :
-    M.det = 1 := by
+`M.det - 1 = 0` in any localization at a maximal ideal in `R`. Therefore `M.det = 1` in `R`.
+-/
+theorem det_eq_one {M : Matrix (l ⊕ l) (l ⊕ l) R} (hM : M ∈ symplecticGroup l R) : M.det = 1 := by
   refine sub_eq_zero.1 <| eq_zero_of_localization _ fun _ _ ↦ ?_
   simp [RingHom.map_det, RingHom.mapMatrix_apply, det_eq_one_of_isLocalRing <| map_mem hM _]
 

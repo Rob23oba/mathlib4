@@ -33,19 +33,22 @@ variable {E F : Type*} {β : Type*}
 variable (X : Set E) (Y : Set F) (f : E → F → β)
 
 /-- The trivial minimax inequality -/
-theorem iSup₂_iInf₂_le_iInf₂_iSup₂ [CompleteLinearOrder β] :
-    ⨆ y ∈ Y, ⨅ x ∈ X, f x y ≤ ⨅ x ∈ X, ⨆ y ∈ Y, f x y := by
-  rw [iSup₂_le_iff]; intro y hy
-  rw [le_iInf₂_iff]; intro x hx
+theorem iSup₂_iInf₂_le_iInf₂_iSup₂ [CompleteLinearOrder β]
+    : ⨆ y ∈ Y, ⨅ x ∈ X, f x y ≤ ⨅ x ∈ X, ⨆ y ∈ Y, f x y := by
+  rw [iSup₂_le_iff]
+  intro y hy
+  rw [le_iInf₂_iff]
+  intro x hx
   exact iInf₂_le_of_le x hx (le_iSup₂_of_le y hy (le_refl _))
 
 -- [Hiriart-Urruty, (4.1.4)]
-/-- The pair `(a, b)` is a saddle point of `f` on `X × Y`
+/--
+The pair `(a, b)` is a saddle point of `f` on `X × Y`
 if `f a y ≤ f x b` for all `x ∈ X` and all `y` in `Y`.
 
-Note: we do not require that `a ∈ X` and `b ∈ Y`. -/
-def IsSaddlePointOn [Preorder β] (a : E) (b : F) : Prop :=
-  ∀ x ∈ X, ∀ y ∈ Y, f a y ≤ f x b
+Note: we do not require that `a ∈ X` and `b ∈ Y`.
+-/
+def IsSaddlePointOn [Preorder β] (a : E) (b : F) : Prop := ∀ x ∈ X, ∀ y ∈ Y, f a y ≤ f x b
 
 variable {X Y f}
 

@@ -38,10 +38,11 @@ open CategoryTheory.Functor
 
 variable {C : Type u₁} [Category.{u₂} C] (F : C ⥤ FintypeCat.{w})
 
-/-- For a functor `F : C ⥤ FintypeCat`, the canonical embedding of `Aut F` into
-the product over `Aut (F.obj X)` for all objects `X`. -/
-def autEmbedding : Aut F →* ∀ X, Aut (F.obj X) :=
-  MonoidHom.mk' (fun σ X ↦ σ.app X) (fun _ _ ↦ rfl)
+/--
+For a functor `F : C ⥤ FintypeCat`, the canonical embedding of `Aut F` into
+the product over `Aut (F.obj X)` for all objects `X`.
+-/
+def autEmbedding : Aut F →* ∀ X, Aut (F.obj X) := MonoidHom.mk' (fun σ X ↦ σ.app X) (fun _ _ ↦ rfl)
 
 @[simp]
 lemma autEmbedding_apply (σ : Aut F) (X : C) : autEmbedding F σ X = σ.app X :=
@@ -75,17 +76,18 @@ scoped instance {X Y : C} : DiscreteTopology (F.obj X ⟶ F.obj Y) :=
 lemma aut_discreteTopology (X : C) : DiscreteTopology (Aut (F.obj X)) := ⟨rfl⟩
 
 /-- `Aut F` is equipped with the by the embedding into `∀ X, Aut (F.obj X)` induced embedding. -/
-instance : TopologicalSpace (Aut F) :=
-  TopologicalSpace.induced (autEmbedding F) inferInstance
+instance : TopologicalSpace (Aut F) := TopologicalSpace.induced (autEmbedding F) inferInstance
 
-/-lemma autEmbedding_range :
-    Set.range (autEmbedding F) =
-      ⋂ (f : Arrow C), { a | F.map f.hom ≫ (a f.right).hom = (a f.left).hom ≫ F.map f.hom } := by
-  ext a
-  simp only [Set.mem_range, id_obj, Set.mem_iInter, Set.mem_ofPred_eq]
-  refine ⟨fun ⟨σ, h⟩ i ↦ h.symm ▸ σ.hom.naturality i.hom, fun h ↦ ?_⟩
-  · use NatIso.ofComponents a (fun {X Y} f ↦ h ⟨X, Y, f⟩)
-    rfl-/
+/-
+lemma autEmbedding_range :
+  Set.range (autEmbedding F) =
+    ⋂ (f : Arrow C), { a | F.map f.hom ≫ (a f.right).hom = (a f.left).hom ≫ F.map f.hom } := by
+ext a
+simp only [Set.mem_range, id_obj, Set.mem_iInter, Set.mem_ofPred_eq]
+refine ⟨fun ⟨σ, h⟩ i ↦ h.symm ▸ σ.hom.naturality i.hom, fun h ↦ ?_⟩
+· use NatIso.ofComponents a (fun {X Y} f ↦ h ⟨X, Y, f⟩)
+  rfl
+-/
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The image of `Aut F` in `∀ X, Aut (F.obj X)` are precisely the compatible families of
@@ -150,16 +152,19 @@ lemma continuous_mapAut_whiskeringRight (G : FintypeCat.{w} ⥤ FintypeCat.{v}) 
   change Continuous fun a ↦ G.mapAut (F.obj X) (autEmbedding F a X)
   fun_prop
 
-/-- If `G` is a fully faithful functor of categories finite types, this is the automorphism of
-topological groups `Aut F ≃ Aut (F ⋙ G)`. -/
-noncomputable def autEquivAutWhiskerRight {G : FintypeCat.{w} ⥤ FintypeCat.{v}}
-    (h : G.FullyFaithful) :
-    Aut F ≃ₜ* Aut (F ⋙ G) where
+/--
+If `G` is a fully faithful functor of categories finite types, this is the automorphism of
+topological groups `Aut F ≃ Aut (F ⋙ G)`.
+-/
+noncomputable def autEquivAutWhiskerRight
+    {G : FintypeCat.{w} ⥤ FintypeCat.{v}} (h : G.FullyFaithful)
+    : Aut F ≃ₜ* Aut (F ⋙ G) where
   __ := (h.whiskeringRight C).autMulEquivOfFullyFaithful F
   continuous_toFun := continuous_mapAut_whiskeringRight F G
-  continuous_invFun := Continuous.continuous_symm_of_equiv_compact_to_t2
-    (f := ((h.whiskeringRight C).autMulEquivOfFullyFaithful F).toEquiv)
-    (continuous_mapAut_whiskeringRight F G)
+  continuous_invFun :=
+    Continuous.continuous_symm_of_equiv_compact_to_t2
+      (f := ((h.whiskeringRight C).autMulEquivOfFullyFaithful F).toEquiv)
+      (continuous_mapAut_whiskeringRight F G)
 
 variable [GaloisCategory C] [FiberFunctor F]
 

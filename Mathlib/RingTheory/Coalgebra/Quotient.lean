@@ -33,8 +33,10 @@ section CoalgebraStruct
 
 variable [CoalgebraStruct R C]
 
-/-- An `R`-submodule `I` of an `R`-coalgebra `C` is a *coideal* if the counit vanishes on
-`I` and the comultiplication descends through the module quotient `C ⧸ I`. -/
+/--
+An `R`-submodule `I` of an `R`-coalgebra `C` is a *coideal* if the counit vanishes on
+`I` and the comultiplication descends through the module quotient `C ⧸ I`.
+-/
 @[mk_iff]
 class Submodule.IsCoideal (I : Submodule R C) : Prop where
   counit_eq_zero : ∀ ⦃x : C⦄, x ∈ I → counit (R := R) x = 0
@@ -84,8 +86,7 @@ end CoalgebraStruct
 variable [Coalgebra R C] (I : Submodule R C) [I.IsCoideal]
 
 instance : Coalgebra R (C ⧸ I) := by
-  constructor <;> ext : 1 <;>
-    simp only [coassoc_simps, comul_comp_mkQ, counit_comp_mkQ]
+  constructor <;> ext : 1 <;> simp only [coassoc_simps, comul_comp_mkQ, counit_comp_mkQ]
   · rw [CoassocSimps.map_counit_comp_comul_left]; rfl
   · rw [CoassocSimps.map_counit_comp_comul_right]; rfl
 

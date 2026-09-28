@@ -48,14 +48,18 @@ property. We do not provide typeclasses `*Action.IsTransitive`; users should ass
 `[MulAction.IsPretransitive M α] [Nonempty α]` instead.
 -/
 
-/-- `M` acts pretransitively on `α` if for any `x y` there is `g` such that `g +ᵥ x = y`.
-  A transitive action should furthermore have `α` nonempty. -/
+/--
+`M` acts pretransitively on `α` if for any `x y` there is `g` such that `g +ᵥ x = y`.
+A transitive action should furthermore have `α` nonempty.
+-/
 class AddAction.IsPretransitive (M α : Type*) [VAdd M α] : Prop where
   /-- There is `g` such that `g +ᵥ x = y`. -/
   exists_vadd_eq : ∀ x y : α, ∃ g : M, g +ᵥ x = y
 
-/-- `M` acts pretransitively on `α` if for any `x y` there is `g` such that `g • x = y`.
-  A transitive action should furthermore have `α` nonempty. -/
+/--
+`M` acts pretransitively on `α` if for any `x y` there is `g` such that `g • x = y`.
+A transitive action should furthermore have `α` nonempty.
+-/
 @[to_additive (attr := mk_iff)]
 class MulAction.IsPretransitive (M α : Type*) [SMul M α] : Prop where
   /-- There is `g` such that `g • x = y`. -/
@@ -63,10 +67,9 @@ class MulAction.IsPretransitive (M α : Type*) [SMul M α] : Prop where
 
 @[to_additive]
 instance MulAction.instIsPretransitiveOfSubsingleton
-    {M α : Type*} [Monoid M] [MulAction M α] [Subsingleton α] :
-    MulAction.IsPretransitive M α where
-  exists_smul_eq x y := ⟨1, by
-    simp only [one_smul, Subsingleton.elim x y] ⟩
+    {M α : Type*} [Monoid M] [MulAction M α] [Subsingleton α]
+    : MulAction.IsPretransitive M α where
+  exists_smul_eq x y := ⟨1, by simp only [one_smul, Subsingleton.elim x y]⟩
 
 namespace MulAction
 variable (M) [SMul M α] [IsPretransitive M α]
@@ -126,12 +129,14 @@ section
 
 open Additive Multiplicative
 
-instance Additive.addAction_isPretransitive [Monoid α] [MulAction α β]
-    [MulAction.IsPretransitive α β] : AddAction.IsPretransitive (Additive α) β :=
+instance Additive.addAction_isPretransitive
+    [Monoid α] [MulAction α β] [MulAction.IsPretransitive α β]
+    : AddAction.IsPretransitive (Additive α) β :=
   ⟨@MulAction.exists_smul_eq α _ _ _⟩
 
-instance Multiplicative.mulAction_isPretransitive [AddMonoid α] [AddAction α β]
-    [AddAction.IsPretransitive α β] : MulAction.IsPretransitive (Multiplicative α) β :=
+instance Multiplicative.mulAction_isPretransitive
+    [AddMonoid α] [AddAction α β] [AddAction.IsPretransitive α β]
+    : MulAction.IsPretransitive (Multiplicative α) β :=
   ⟨@AddAction.exists_vadd_eq α _ _ _⟩
 
 end

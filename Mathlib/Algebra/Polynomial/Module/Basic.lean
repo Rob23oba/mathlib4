@@ -20,7 +20,8 @@ module structures on `ℕ →₀ M` of interest. See the docstring of `Polynomia
 universe u v
 open Polynomial
 
-/-- The `R[X]`-module `M[X]` for an `R`-module `M`.
+/--
+The `R[X]`-module `M[X]` for an `R`-module `M`.
 This is isomorphic (as an `R`-module) to `M[X]` when `M` is a ring.
 
 We require all the module instances `Module S (PolynomialModule R M)` to factor through `R` except
@@ -87,14 +88,16 @@ instance instInhabited : Inhabited (PolynomialModule R M) := fast_instance% (coe
 instance instNontrivial [Nontrivial M] : Nontrivial (PolynomialModule R M) :=
   (coeffEquiv R).nontrivial
 
-instance instUnique [Subsingleton M] : Unique (PolynomialModule R M) := fast_instance%
-  (coeffEquiv R).unique
+instance instUnique [Subsingleton M] : Unique (PolynomialModule R M) :=
+  fast_instance%
+    (coeffEquiv R).unique
 
 instance instDecidableEq [DecidableEq M] : DecidableEq (PolynomialModule R M) :=
   (coeffEquiv R).decidableEq
 
-instance instAddCommGroup : AddCommGroup (PolynomialModule R M) := fast_instance%
-  (coeffEquiv R).addCommGroup
+instance instAddCommGroup : AddCommGroup (PolynomialModule R M) :=
+  fast_instance%
+    (coeffEquiv R).addCommGroup
 
 /-- `PolynomialModule.coeff` as an `AddEquiv`. -/
 @[simps! apply symm_apply]
@@ -144,8 +147,9 @@ lemma single_add (n : ℕ) (m₁ m₂ : M) :
 /-- This is required to have the `IsScalarTower S R M` instance to avoid diamonds. -/
 instance : Module S (PolynomialModule R M) := coeffAddEquiv.module _
 
-instance (M : Type u) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower S R M] :
-    IsScalarTower S R (PolynomialModule R M) := coeffAddEquiv.isScalarTower _ _
+instance (M : Type u) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower S R M]
+    : IsScalarTower S R (PolynomialModule R M) :=
+  coeffAddEquiv.isScalarTower _ _
 
 variable (R S) in
 /-- `PolynomialModule.coeff` as a linear equiv. -/
@@ -170,7 +174,7 @@ lemma induction_linear {p : PolynomialModule R M → Prop} (x : PolynomialModule
   Finsupp.induction_linear (motive := (p <| ofCoeff R ·)) x.coeff zero (fun _ _ ↦ add _ _)
     (fun _ _ ↦ single _ _)
 
-instance polynomialModule : Module R[X] (PolynomialModule R M) :=
+instance polynomialModule : Module (R[X]) (PolynomialModule R M) :=
   inferInstanceAs <| Module R[X] <| Module.AEval' <| (coeffLinearEquiv R R).symm.comp <|
     (Finsupp.lmapDomain M R Nat.succ).comp (coeffLinearEquiv R R).toLinearMap
 
@@ -179,20 +183,23 @@ lemma smul_def (f : R[X]) (m : PolynomialModule R M) :
     (Finsupp.lmapDomain M R Nat.succ).comp (coeffLinearEquiv R R).toLinearMap) f m := by
   rfl
 
-instance isScalarTower' (M : Type u) [AddCommGroup M] [Module R M] [Module S M]
-    [IsScalarTower S R M] : IsScalarTower S R[X] (PolynomialModule R M) := by
-  have : IsScalarTower R R[X] (PolynomialModule R M) :=
+instance isScalarTower'
+    (M : Type u) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower S R M]
+    : IsScalarTower S (R[X]) (PolynomialModule R M) := by
+  have : IsScalarTower R (R[X]) (PolynomialModule R M) :=
     inferInstanceAs <| IsScalarTower R R[X] <| Module.AEval' <| (coeffLinearEquiv R R).symm.comp <|
-    (Finsupp.lmapDomain M R Nat.succ).comp (coeffLinearEquiv R R).toLinearMap
+      (Finsupp.lmapDomain M R Nat.succ).comp (coeffLinearEquiv R R).toLinearMap
   constructor
   intro x y z
   rw [← @IsScalarTower.algebraMap_smul S R, ← @IsScalarTower.algebraMap_smul S R, smul_assoc]
 
 @[simp]
-theorem monomial_smul_single (i : ℕ) (r : R) (j : ℕ) (m : M) :
-    monomial i r • single R j m = single R (i + j) (r • m) := by
-  simp only [Module.End.mul_apply, Polynomial.aeval_monomial, Module.End.pow_apply,
-    Module.algebraMap_end_apply, smul_def]
+theorem monomial_smul_single (i : ℕ) (r : R) (j : ℕ) (m : M)
+    : monomial i r • single R j m = single R (i + j) (r • m) := by
+  simp only [
+    Module.End.mul_apply, Polynomial.aeval_monomial, Module.End.pow_apply,
+    Module.algebraMap_end_apply, smul_def
+  ]
   induction i generalizing r j m with
   | zero =>
     rw [Function.iterate_zero, zero_add]
@@ -204,61 +211,73 @@ theorem monomial_smul_single (i : ℕ) (r : R) (j : ℕ) (m : M) :
     congrm ofCoeff R $Finsupp.mapDomain_single
 
 @[simp]
-theorem monomial_smul_lsingle (i : ℕ) (r : R) (j : ℕ) (m : M) :
-    (monomial i) r • lsingle R j m = lsingle R (i + j) (r • m) :=
+theorem monomial_smul_lsingle (i : ℕ) (r : R) (j : ℕ) (m : M)
+    : (monomial i) r • lsingle R j m = lsingle R (i + j) (r • m) :=
   monomial_smul_single ..
 
 @[simp]
-theorem monomial_smul_apply (i : ℕ) (r : R) (g : PolynomialModule R M) (n : ℕ) :
-    (monomial i r • g).coeff n = ite (i ≤ n) (r • g.coeff (n - i)) 0 := by
+theorem monomial_smul_apply (i : ℕ) (r : R) (g : PolynomialModule R M) (n : ℕ)
+    : (monomial i r • g).coeff n = ite (i ≤ n) (r • g.coeff (n - i)) 0 := by
   induction g using PolynomialModule.induction_linear with
-  | zero => simp
-  | add p q hp hq => simp [smul_add, hp, hq, ite_add_ite]
+  | zero =>
+    simp
+  | add p q hp hq =>
+    simp [smul_add, hp, hq, ite_add_ite]
   | single =>
     simp [monomial_smul_single, Finsupp.single_apply]
     grind
 
 @[simp]
-theorem smul_single_apply (i : ℕ) (f : R[X]) (m : M) (n : ℕ) :
-    (f • single R i m).coeff n = ite (i ≤ n) (f.coeff (n - i) • m) 0 := by
+theorem smul_single_apply (i : ℕ) (f : R[X]) (m : M) (n : ℕ)
+    : (f • single R i m).coeff n = ite (i ≤ n) (f.coeff (n - i) • m) 0 := by
   induction f using Polynomial.induction_on' with
   | add p q hp hq => simp [add_smul, hp, hq, ite_add_ite]
   | monomial => simp; grind [monomial_smul_single, coeff_monomial, zero_smul]
 
-theorem smul_apply (f : R[X]) (g : PolynomialModule R M) (n : ℕ) :
-    (f • g).coeff n = ∑ x ∈ Finset.antidiagonal n, f.coeff x.1 • g.coeff x.2 := by
+theorem smul_apply (f : R[X]) (g : PolynomialModule R M) (n : ℕ)
+    : (f • g).coeff n = ∑ x ∈ Finset.antidiagonal n, f.coeff x.1 • g.coeff x.2 := by
   induction f using Polynomial.induction_on' with
-  | add p q hp hq => simp [add_smul, hp, hq, ← Finset.sum_add_distrib]
+  | add p q hp hq =>
+    simp [add_smul, hp, hq, ← Finset.sum_add_distrib]
   | monomial f_n f_a =>
-    rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ fun i j =>
-      (monomial f_n f_a).coeff i • g.coeff j, monomial_smul_apply]
+    rw [
+      Finset.Nat.sum_antidiagonal_eq_sum_range_succ fun i j =>
+        (monomial f_n f_a).coeff i • g.coeff j,
+      monomial_smul_apply
+    ]
     simp [Polynomial.coeff_monomial]
 
 /-- `PolynomialModule R R` is isomorphic to `R[X]` as an `R[X]` module. -/
 def equivPolynomialSelf : PolynomialModule R R ≃ₗ[R[X]] R[X] where
-  toAddEquiv := coeffAddEquiv.trans <| AddMonoidAlgebra.coeffAddEquiv.symm.trans
-    (toFinsuppIso R).symm.toAddEquiv
+  toAddEquiv :=
+    coeffAddEquiv.trans <|
+      AddMonoidAlgebra.coeffAddEquiv.symm.trans (toFinsuppIso R).symm.toAddEquiv
   map_smul' r x := by
     dsimp
     induction x using induction_linear with
-    | zero => simp
-    | add _ _ hp hq => simp_all [smul_add, mul_add]
-    | single n a =>
-    ext i
-    simp only [coeffAddEquiv_apply, AddMonoidAlgebra.coeffAddEquiv_symm_apply,
-      toFinsuppIso_symm_apply, coeff_ofFinsupp, smul_single_apply, smul_eq_mul, coeff_single,
-      AddMonoidAlgebra.ofCoeff_single, ofFinsupp_single]
-    split_ifs with hn
-    · rw [show i = (i - n) + n by lia, Polynomial.coeff_mul_monomial]
+    | zero =>
       simp
-    · rw [Polynomial.coeff_mul, Finset.sum_eq_zero]
-      simp [Polynomial.coeff_monomial]
-      lia
+    | add _ _ hp hq =>
+      simp_all [smul_add, mul_add]
+    | single n a =>
+      ext i
+      simp only [
+        coeffAddEquiv_apply, AddMonoidAlgebra.coeffAddEquiv_symm_apply, toFinsuppIso_symm_apply,
+        coeff_ofFinsupp, smul_single_apply, smul_eq_mul, coeff_single,
+        AddMonoidAlgebra.ofCoeff_single, ofFinsupp_single
+      ]
+      split_ifs with hn
+      · rw [show i = (i - n) + n by lia, Polynomial.coeff_mul_monomial]
+        simp
+      · rw [Polynomial.coeff_mul, Finset.sum_eq_zero]
+        simp [Polynomial.coeff_monomial]
+        lia
 
 /-- `PolynomialModule R S` is isomorphic to `S[X]` as an `R` module. -/
 def equivPolynomial {S : Type*} [CommRing S] [Algebra R S] : PolynomialModule R S ≃ₗ[R] S[X] where
-  toAddEquiv := coeffAddEquiv.trans <| AddMonoidAlgebra.coeffAddEquiv.symm.trans
-    (toFinsuppIso _).symm.toAddEquiv
+  toAddEquiv :=
+    coeffAddEquiv.trans <|
+      AddMonoidAlgebra.coeffAddEquiv.symm.trans (toFinsuppIso _).symm.toAddEquiv
   map_smul' _ _ := rfl
 
 @[simp]
@@ -280,41 +299,50 @@ lemma equivPolynomial_symm_one {S : Type*} [CommRing S] [Algebra R S] :
 variable (R' : Type*) {M' : Type*} [CommRing R'] [AddCommGroup M'] [Module R' M']
 variable [Module R M']
 
-/-- Two `R`-linear maps from `PolynomialModule R M` which are equal
-after pre-composition with every `lsingle R a` are equal. -/
+/--
+Two `R`-linear maps from `PolynomialModule R M` which are equal
+after pre-composition with every `lsingle R a` are equal.
+-/
 @[ext high]
-theorem hom_ext {f g : PolynomialModule R M →ₗ[R] M'}
-    (h : ∀ a, f ∘ₗ lsingle R a = g ∘ₗ lsingle R a) : f = g := by
-  simpa [← DFunLike.coe_fn_eq, funext_iff, PolynomialModule.forall] using Finsupp.lhom_ext'
-    (φ := f.comp (coeffLinearEquiv R R).symm.toLinearMap)
-    (ψ := g.comp (coeffLinearEquiv R R (M := M)).symm.toLinearMap) h
+theorem hom_ext {f g : PolynomialModule R M →ₗ[R] M'} (h : ∀ a, f ∘ₗ lsingle R a = g ∘ₗ lsingle R a)
+    : f = g := by
+  simpa [← DFunLike.coe_fn_eq, funext_iff, PolynomialModule.forall] using
+    Finsupp.lhom_ext' (φ := f.comp (coeffLinearEquiv R R).symm.toLinearMap)
+      (ψ := g.comp (coeffLinearEquiv R R (M := M)).symm.toLinearMap) h
 
 /-- The image of a polynomial under a linear map. -/
 def map (f : M →ₗ[R] M') : PolynomialModule R M →ₗ[R] PolynomialModule R' M' :=
-  (coeffLinearEquiv ..).symm.toLinearMap.comp <| (Finsupp.mapRange.linearMap f).comp
-    (coeffLinearEquiv ..).toLinearMap
+  (coeffLinearEquiv ..).symm.toLinearMap.comp <|
+    (Finsupp.mapRange.linearMap f).comp (coeffLinearEquiv ..).toLinearMap
 
 @[simp]
-theorem map_single (f : M →ₗ[R] M') (i : ℕ) (m : M) :
-    map R' f (single R i m) = single R' i (f m) := by simp [map]
+theorem map_single (f : M →ₗ[R] M') (i : ℕ) (m : M)
+    : map R' f (single R i m) = single R' i (f m) := by
+  simp [map]
 
 @[simp]
-theorem map_lsingle (f : M →ₗ[R] M') (i : ℕ) (m : M) :
-    map R' f (lsingle R i m) = lsingle R' i (f m) :=
+theorem map_lsingle (f : M →ₗ[R] M') (i : ℕ) (m : M)
+    : map R' f (lsingle R i m) = lsingle R' i (f m) :=
   map_single ..
 
 variable [Algebra R R'] [IsScalarTower R R' M']
 
-theorem map_smul (f : M →ₗ[R] M') (p : R[X]) (q : PolynomialModule R M) :
-    map R' f (p • q) = p.map (algebraMap R R') • map R' f q := by
+theorem map_smul (f : M →ₗ[R] M') (p : R[X]) (q : PolynomialModule R M)
+    : map R' f (p • q) = p.map (algebraMap R R') • map R' f q := by
   induction q using induction_linear with
-  | zero => rw [smul_zero, map_zero, smul_zero]
-  | add f g e₁ e₂ => rw [smul_add, map_add, e₁, e₂, map_add, smul_add]
+  | zero =>
+    rw [smul_zero, map_zero, smul_zero]
+  | add f g e₁ e₂ =>
+    rw [smul_add, map_add, e₁, e₂, map_add, smul_add]
   | single i m =>
     induction p using Polynomial.induction_on' with
-    | add _ _ e₁ e₂ => rw [add_smul, map_add, e₁, e₂, Polynomial.map_add, add_smul]
-    | monomial => rw [monomial_smul_single, map_single, Polynomial.map_monomial, map_single,
-        monomial_smul_single, f.map_smul, algebraMap_smul]
+    | add _ _ e₁ e₂ =>
+      rw [add_smul, map_add, e₁, e₂, Polynomial.map_add, add_smul]
+    | monomial =>
+      rw [
+        monomial_smul_single, map_single, Polynomial.map_monomial, map_single, monomial_smul_single,
+        f.map_smul, algebraMap_smul
+      ]
 
 /-- Evaluate a polynomial `p : PolynomialModule R M` at `r : R`. -/
 @[simps! -isSimp]
@@ -338,27 +366,29 @@ theorem eval_lsingle (r : R) (i : ℕ) (m : M) : eval r (lsingle R i m) = r ^ i 
   eval_single r i m
 
 @[simp]
-theorem eval_smul (p : R[X]) (q : PolynomialModule R M) (r : R) :
-    eval r (p • q) = p.eval r • eval r q := by
+theorem eval_smul (p : R[X]) (q : PolynomialModule R M) (r : R)
+    : eval r (p • q) = p.eval r • eval r q := by
   induction q using induction_linear with
-  | zero => rw [smul_zero, map_zero, smul_zero]
-  | add f g e₁ e₂ => rw [smul_add, map_add, e₁, e₂, map_add, smul_add]
+  | zero =>
+    rw [smul_zero, map_zero, smul_zero]
+  | add f g e₁ e₂ =>
+    rw [smul_add, map_add, e₁, e₂, map_add, smul_add]
   | single i m =>
     induction p using Polynomial.induction_on' with
     | add _ _ e₁ e₂ => rw [add_smul, map_add, Polynomial.eval_add, e₁, e₂, add_smul]
     | monomial => simp only [monomial_smul_single, Polynomial.eval_monomial, eval_single]; module
 
 @[simp]
-theorem eval_map (f : M →ₗ[R] M') (q : PolynomialModule R M) (r : R) :
-    eval (algebraMap R R' r) (map R' f q) = f (eval r q) := by
+theorem eval_map (f : M →ₗ[R] M') (q : PolynomialModule R M) (r : R)
+    : eval (algebraMap R R' r) (map R' f q) = f (eval r q) := by
   induction q using induction_linear with
   | zero => simp_rw [map_zero]
   | add f g e₁ e₂ => simp_rw [map_add, e₁, e₂]
   | single i m => simp only [map_single, eval_single, f.map_smul]; module
 
 @[simp]
-theorem eval_map' (f : M →ₗ[R] M) (q : PolynomialModule R M) (r : R) :
-    eval r (map R f q) = f (eval r q) :=
+theorem eval_map' (f : M →ₗ[R] M) (q : PolynomialModule R M) (r : R)
+    : eval r (map R f q) = f (eval r q) :=
   eval_map R f q r
 
 @[simp]
@@ -374,24 +404,26 @@ lemma aeval_equivPolynomial {S : Type*} [CommRing S] [Algebra S R]
 /-- `comp p q` is the composition of `p : R[X]` and `q : M[X]` as `q(p(x))`. -/
 @[simps!]
 def comp (p : R[X]) : PolynomialModule R M →ₗ[R] PolynomialModule R M :=
-  LinearMap.comp ((eval p).restrictScalars R) (map R[X] (lsingle R 0))
+  LinearMap.comp ((eval p).restrictScalars R) (map (R[X]) (lsingle R 0))
 
 theorem comp_single (p : R[X]) (i : ℕ) (m : M) : comp p (single R i m) = p ^ i • single R 0 m := by
   rw [comp_apply, map_single, eval_single]
   rfl
 
-theorem comp_eval (p : R[X]) (q : PolynomialModule R M) (r : R) :
-    eval r (comp p q) = eval (p.eval r) q := by
+theorem comp_eval (p : R[X]) (q : PolynomialModule R M) (r : R)
+    : eval r (comp p q) = eval (p.eval r) q := by
   rw [← LinearMap.comp_apply]
   induction q using induction_linear with
-  | zero => simp_rw [map_zero]
-  | add _ _ e₁ e₂ => simp_rw [map_add, e₁, e₂]
+  | zero =>
+    simp_rw [map_zero]
+  | add _ _ e₁ e₂ =>
+    simp_rw [map_add, e₁, e₂]
   | single i m =>
     rw [LinearMap.comp_apply, comp_single, eval_single, eval_smul, eval_single, eval_pow]
     module
 
-theorem comp_smul (p p' : R[X]) (q : PolynomialModule R M) :
-    comp p (p' • q) = p'.comp p • comp p q := by
+theorem comp_smul (p p' : R[X]) (q : PolynomialModule R M)
+    : comp p (p' • q) = p'.comp p • comp p q := by
   rw [comp_apply, map_smul, eval_smul, Polynomial.comp, Polynomial.eval_map, comp_apply]
   rfl
 

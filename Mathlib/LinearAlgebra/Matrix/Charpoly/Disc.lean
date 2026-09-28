@@ -8,7 +8,6 @@ module
 public import Mathlib.LinearAlgebra.Matrix.Charpoly.Coeff
 public import Mathlib.RingTheory.Polynomial.Resultant.Basic
 
-
 /-!
 # The discriminant of a matrix
 -/
@@ -21,8 +20,10 @@ namespace Matrix
 
 variable {R n : Type*} [CommRing R] [Fintype n] [DecidableEq n]
 
-/-- The discriminant of a matrix is defined to be the discriminant of its characteristic
-polynomial. -/
+/--
+The discriminant of a matrix is defined to be the discriminant of its characteristic
+polynomial.
+-/
 noncomputable def discr (A : Matrix n n R) : R := A.charpoly.discr
 
 @[simp]

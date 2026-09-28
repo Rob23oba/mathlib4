@@ -29,8 +29,10 @@ open CategoryTheory TopologicalSpace Opposite MorphismProperty
 
 namespace AlgebraicGeometry
 
-/-- A morphism of schemes `X ⟶ Y` is integral if the preimage of any affine open subset of `Y` is
-affine and the induced ring hom on sections is integral. -/
+/--
+A morphism of schemes `X ⟶ Y` is integral if the preimage of any affine open subset of `Y` is
+affine and the induced ring hom on sections is integral.
+-/
 @[mk_iff]
 class IsIntegralHom {X Y : Scheme} (f : X ⟶ Y) : Prop extends IsAffineHom f where
   isIntegral_app (f) (U : Y.Opens) (hU : IsAffineOpen U) : (f.app U).hom.IsIntegral
@@ -42,12 +44,15 @@ namespace IsIntegralHom
 variable {X Y Z S : Scheme.{u}}
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance hasAffineProperty : HasAffineProperty @IsIntegralHom
-    fun X _ f _ ↦ IsAffine X ∧ RingHom.IsIntegral (f.app ⊤).hom := by
+instance hasAffineProperty
+    : HasAffineProperty @IsIntegralHom fun X _ f _ ↦
+      IsAffine X ∧ RingHom.IsIntegral (f.app ⊤).hom := by
   change HasAffineProperty @IsIntegralHom (affineAnd RingHom.IsIntegral)
-  rw [HasAffineProperty.affineAnd_iff _ RingHom.isIntegral_respectsIso
-    RingHom.isIntegral_isStableUnderBaseChange.localizationPreserves.away
-    RingHom.isIntegral_ofLocalizationSpan]
+  rw [
+    HasAffineProperty.affineAnd_iff _ RingHom.isIntegral_respectsIso
+      RingHom.isIntegral_isStableUnderBaseChange.localizationPreserves.away
+      RingHom.isIntegral_ofLocalizationSpan
+  ]
   simp [isIntegralHom_iff]
 
 instance : IsStableUnderComposition @IsIntegralHom :=
@@ -80,8 +85,8 @@ instance (f : X ⟶ Y) (V : Y.Opens) [IsIntegralHom f] : IsIntegralHom (f ∣_ V
   IsZariskiLocalAtTarget.restrict ‹_› V
 
 instance : MorphismProperty.HasOfPostcompProperty @IsIntegralHom @IsSeparated :=
-  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr
-    fun _ _ _ _ ↦ inferInstanceAs (IsIntegralHom _)
+  MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr fun _ _ _ _ ↦
+    inferInstanceAs (IsIntegralHom _)
 
 lemma of_comp (f : X ⟶ Y) (g : Y ⟶ Z) [IsIntegralHom (f ≫ g)] [IsSeparated g] :
     IsIntegralHom f := MorphismProperty.of_postcomp _ _ g ‹_› ‹_›
@@ -101,23 +106,24 @@ lemma SpecMap_iff {R S : CommRingCat} {φ : R ⟶ S} :
 set_option backward.isDefEq.respectTransparency.types false in
 instance : IsMultiplicative @IsIntegralHom where
 
-instance {U V X : Scheme.{u}} (f : U ⟶ X) (g : V ⟶ X) [IsIntegralHom f] [IsIntegralHom g] :
-    IsIntegralHom (Limits.coprod.desc f g) := by
+instance {U V X : Scheme.{u}} (f : U ⟶ X) (g : V ⟶ X) [IsIntegralHom f] [IsIntegralHom g]
+    : IsIntegralHom (Limits.coprod.desc f g) := by
   refine hasAffineProperty.coprodDesc_affineAnd RingHom.isIntegral_respectsIso ?_ _ _ ‹_› ‹_›
   intros R S T _ _ _ f g _ _
   algebraize [f, g]
   refine algebraMap_isIntegral_iff.mpr inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (priority := 100) (f : X ⟶ Y) [IsIntegralHom f] :
-    UniversallyClosed f := by
+instance (priority := 100) (f : X ⟶ Y) [IsIntegralHom f] : UniversallyClosed f := by
   revert X Y f ‹IsIntegralHom f›
   rw [universallyClosed_eq, ← IsStableUnderBaseChange.universally_eq (P := @IsIntegralHom)]
   apply universally_mono
   intro X Y f
   wlog hY : ∃ R, Y = Spec R generalizing X Y
-  · rw [IsZariskiLocalAtTarget.iff_of_openCover (P := @IsIntegralHom) Y.affineCover,
-      IsZariskiLocalAtTarget.iff_of_openCover (P := topologically _) Y.affineCover]
+  · rw [
+      IsZariskiLocalAtTarget.iff_of_openCover (P := @IsIntegralHom) Y.affineCover,
+      IsZariskiLocalAtTarget.iff_of_openCover (P := topologically _) Y.affineCover
+    ]
     exact fun a i ↦ this _ ⟨_, rfl⟩ (a i)
   obtain ⟨R, rfl⟩ := hY
   wlog hX : ∃ S, X = Spec S generalizing X

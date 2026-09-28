@@ -69,8 +69,8 @@ lemma SupClosed.directedOn (hs : SupClosed s) : DirectedOn (· ≤ ·) s :=
   fun _a ha _b hb ↦ ⟨_, hs ha hb, le_sup_left, le_sup_right⟩
 
 @[to_dual]
-theorem IsLowerSet.supClosed_iff_directedOn (h : IsLowerSet s) :
-    SupClosed s ↔ DirectedOn (· ≤ ·) s := by
+theorem IsLowerSet.supClosed_iff_directedOn (h : IsLowerSet s)
+    : SupClosed s ↔ DirectedOn (· ≤ ·) s := by
   refine ⟨SupClosed.directedOn, fun hd a ha b hb ↦ ?_⟩
   have ⟨c, hcs, hac, hbc⟩ := hd a ha b hb
   exact h (sup_le hac hbc) hcs
@@ -145,9 +145,11 @@ variable {ι : Sort*} [Lattice α] [Lattice β] {S : Set (Set α)} {f : ι → S
 
 open Set
 
-/-- A set `s` is a *sublattice* if `a ⊔ b ∈ s` and `a ⊓ b ∈ s` for all `a ∈ s`, `b ∈ s`.
+/--
+A set `s` is a *sublattice* if `a ⊔ b ∈ s` and `a ⊓ b ∈ s` for all `a ∈ s`, `b ∈ s`.
 Note: This is not the preferred way to declare a sublattice. One should instead use `Sublattice`.
-TODO: Define `Sublattice`. -/
+TODO: Define `Sublattice`.
+-/
 structure IsSublattice (s : Set α) : Prop where
   supClosed : SupClosed s
   infClosed : InfClosed s
@@ -225,18 +227,19 @@ variable [SemilatticeSup α] [SemilatticeSup β] {s t : Set α} {a b : α}
 
 /-- Every set in a join-semilattice generates a set closed under join. -/
 @[to_dual (attr := simps! isClosed)
-/-- Every set in a meet-semilattice generates a set closed under meet. -/]
-def supClosure : ClosureOperator (Set α) := .ofPred
-  (fun s ↦ {a | ∃ (t : Finset α) (ht : t.Nonempty), ↑t ⊆ s ∧ t.sup' ht id = a})
-  SupClosed
-  (fun s a ha ↦ ⟨{a}, singleton_nonempty _, by simpa⟩)
-  (by
-    classical
-    rintro s _ ⟨t, ht, hts, rfl⟩ _ ⟨u, hu, hus, rfl⟩
-    refine ⟨_, ht.mono subset_union_left, ?_, sup'_union ht hu _⟩
-    rw [coe_union]
-    exact Set.union_subset hts hus)
-  (by rintro s₁ s₂ hs h₂ _ ⟨t, ht, hts, rfl⟩; exact h₂.finsetSup'_mem ht fun i hi ↦ hs <| hts hi)
+  /-- Every set in a meet-semilattice generates a set closed under meet. -/]
+def supClosure : ClosureOperator (Set α) :=
+  .ofPred
+    (fun s ↦ {a | ∃ (t : Finset α) (ht : t.Nonempty), ↑t ⊆ s ∧ t.sup' ht id = a})
+    SupClosed
+    (fun s a ha ↦ ⟨{a}, singleton_nonempty _, by simpa⟩)
+    (by
+      classical
+      rintro s _ ⟨t, ht, hts, rfl⟩ _ ⟨u, hu, hus, rfl⟩
+      refine ⟨_, ht.mono subset_union_left, ?_, sup'_union ht hu _⟩
+      rw [coe_union]
+      exact Set.union_subset hts hus)
+    (by rintro s₁ s₂ hs h₂ _ ⟨t, ht, hts, rfl⟩; exact h₂.finsetSup'_mem ht fun i hi ↦ hs <| hts hi)
 
 @[to_dual (attr := simp)]
 lemma subset_supClosure {s : Set α} : s ⊆ supClosure s := supClosure.le_closure _
@@ -409,13 +412,15 @@ lemma Set.Finite.latticeClosure (hs : s.Finite) : (latticeClosure s).Finite := b
 
 end DistribLattice
 
-/-- A join-semilattice where every sup-closed set has a least upper bound is automatically complete.
+/--
+A join-semilattice where every sup-closed set has a least upper bound is automatically complete.
 -/
 @[to_dual (attr := instance_reducible) /--
-A meet-semilattice where every inf-closed set has a greatest lower bound is automatically
+  A meet-semilattice where every inf-closed set has a greatest lower bound is automatically
 complete. -/]
-def SemilatticeSup.toCompleteSemilatticeSup [SemilatticeSup α] (sSup : Set α → α)
-    (h : ∀ s, SupClosed s → IsLUB s (sSup s)) : CompleteSemilatticeSup α where
+def SemilatticeSup.toCompleteSemilatticeSup
+    [SemilatticeSup α] (sSup : Set α → α) (h : ∀ s, SupClosed s → IsLUB s (sSup s))
+    : CompleteSemilatticeSup α where
   sSup := fun s => sSup (supClosure s)
   isLUB_sSup _ := isLUB_supClosure.mp <| h _ supClosed_supClosure
 

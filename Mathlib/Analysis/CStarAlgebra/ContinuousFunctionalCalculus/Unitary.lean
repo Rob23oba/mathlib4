@@ -38,7 +38,8 @@ end Generic
 
 section Complex
 
-variable {A : Type*} [TopologicalSpace A] [Ring A] [StarRing A] [Algebra ℂ A]
+variable
+  {A : Type*} [TopologicalSpace A] [Ring A] [StarRing A] [Algebra ℂ A]
   [ContinuousFunctionalCalculus ℂ A IsStarNormal]
 
 lemma unitary_iff_isStarNormal_and_spectrum_subset_unitary {u : A} :

@@ -29,19 +29,21 @@ open UpperHalfPlane ModularForm OnePoint
 
 open scoped ModularForm Topology Filter Manifold
 
-variable {𝒢 ℋ : Subgroup (GL (Fin 2) ℝ)} {F : Type*} [FunLike F ℍ ℂ]
-  {k : ℤ} {f : F} {g : GL (Fin 2) ℝ}
+variable
+  {𝒢 ℋ : Subgroup (GL (Fin 2) ℝ)} {F : Type*} [FunLike F ℍ ℂ] {k : ℤ} {f : F} {g : GL (Fin 2) ℝ}
 
 section Translate
 
 open ConjAct Pointwise
 
 variable (f g) in
-/-- Translating a `SlashInvariantForm` by `g : GL (Fin 2) ℝ`, to obtain a new
-`SlashInvariantForm` of level `g⁻¹ 𝒢 g`. -/
+/--
+Translating a `SlashInvariantForm` by `g : GL (Fin 2) ℝ`, to obtain a new
+`SlashInvariantForm` of level `g⁻¹ 𝒢 g`.
+-/
 @[simps -fullyApplied]
-noncomputable def SlashInvariantForm.translate [SlashInvariantFormClass F 𝒢 k] :
-    SlashInvariantForm (toConjAct g⁻¹ • 𝒢) k where
+noncomputable def SlashInvariantForm.translate [SlashInvariantFormClass F 𝒢 k]
+    : SlashInvariantForm (toConjAct g⁻¹ • 𝒢) k where
   toFun := f ∣[k] g
   slash_action_eq' j hj := by
     rw [map_inv, 𝒢.mem_inv_pointwise_smul_iff, toConjAct_smul] at hj
@@ -50,12 +52,14 @@ noncomputable def SlashInvariantForm.translate [SlashInvariantFormClass F 𝒢 k
 variable (f g) in
 /-- Translating a `ModularForm` by `GL(2, ℝ)`, to obtain a new `ModularForm`. -/
 @[simps! -fullyApplied]
-noncomputable def ModularForm.translate [ModularFormClass F 𝒢 k] :
-    ModularForm (toConjAct g⁻¹ • 𝒢) k where
+noncomputable def ModularForm.translate [ModularFormClass F 𝒢 k]
+    : ModularForm (toConjAct g⁻¹ • 𝒢) k where
   __ := SlashInvariantForm.translate f g
   bdd_at_cusps' {c} hc γ hγ := by
-    rw [SlashInvariantForm.toFun_eq_coe, SlashInvariantForm.coe_translate,
-      ← SlashAction.slash_mul, ← isBoundedAt_infty_iff, ← OnePoint.IsBoundedAt.smul_iff]
+    rw [
+      SlashInvariantForm.toFun_eq_coe, SlashInvariantForm.coe_translate, ← SlashAction.slash_mul,
+      ← isBoundedAt_infty_iff, ← OnePoint.IsBoundedAt.smul_iff
+    ]
     apply ModularFormClass.bdd_at_cusps f
     simpa [mul_smul, hγ] using hc.smul g
   holo' := (ModularFormClass.holo f).slash k g
@@ -63,13 +67,14 @@ noncomputable def ModularForm.translate [ModularFormClass F 𝒢 k] :
 variable (f g) in
 /-- Translating a `CuspForm` by `SL(2, ℤ)`, to obtain a new `CuspForm`. -/
 @[simps! -fullyApplied]
-noncomputable def CuspForm.translate [CuspFormClass F 𝒢 k] :
-    CuspForm (toConjAct g⁻¹ • 𝒢) k where
+noncomputable def CuspForm.translate [CuspFormClass F 𝒢 k] : CuspForm (toConjAct g⁻¹ • 𝒢) k where
   __ := ModularForm.translate f g
   zero_at_cusps' {c} hc γ hγ := by
-    rw [SlashInvariantForm.toFun_eq_coe, ModularForm.toSlashInvariantForm_coe,
+    rw [
+      SlashInvariantForm.toFun_eq_coe, ModularForm.toSlashInvariantForm_coe,
       ModularForm.coe_translate, ← SlashAction.slash_mul, ← isZeroAt_infty_iff,
-      ← OnePoint.IsZeroAt.smul_iff]
+      ← OnePoint.IsZeroAt.smul_iff
+    ]
     apply CuspFormClass.zero_at_cusps f
     simpa [mul_smul, hγ] using hc.smul g
 
@@ -101,7 +106,8 @@ end SlashInvariantForm
 namespace ModularForm
 
 /-- Regard a modular form as a form for a subgroup of its level. -/
-@[simps -fullyApplied] def restrict (hGH : 𝒢 ≤ ℋ) (f : ModularForm ℋ k) : ModularForm 𝒢 k where
+@[simps -fullyApplied]
+def restrict (hGH : 𝒢 ≤ ℋ) (f : ModularForm ℋ k) : ModularForm 𝒢 k where
   toFun := f
   slash_action_eq' g hg := f.slash_action_eq' g (hGH hg)
   holo' := f.holo'
@@ -120,12 +126,14 @@ lemma restrict_injective (hGH : 𝒢 ≤ ℋ) : Function.Injective (restrict (k 
 
 section restrictₗ -- do we want this for CuspForm etc? probably not so useful?
 
-variable (k) (R : Type*) [Semiring R] [SMul R ℂ]
-  [Module R (ModularForm 𝒢 k)] [Module R (ModularForm ℋ k)]
+variable
+  (k) (R : Type*) [Semiring R] [SMul R ℂ] [Module R (ModularForm 𝒢 k)] [Module R (ModularForm ℋ k)]
   [IsSMulApply R (ModularForm 𝒢 k) ℍ ℂ] [IsSMulApply R (ModularForm ℋ k) ℍ ℂ]
 
-/-- Restriction bundled as a linear map. The typeclass assumptions will be satisfied for `R = ℝ`
-and any levels, or `R = ℂ` if `HasDetOne` is available. -/
+/--
+Restriction bundled as a linear map. The typeclass assumptions will be satisfied for `R = ℝ`
+and any levels, or `R = ℂ` if `HasDetOne` is available.
+-/
 @[simps -fullyApplied]
 def restrictₗ (hGH : 𝒢 ≤ ℋ) : ModularForm ℋ k →ₗ[R] ModularForm 𝒢 k where
   toFun := restrict hGH
@@ -173,14 +181,18 @@ namespace SlashInvariantForm
 
 variable [SlashInvariantFormClass F 𝒢 k] (f : F)
 
-/-- For `f` invariant under `𝒢`, this is a function on `(ℋ ⧸ 𝒢 ⊓ ℋ) × ℍ → ℂ` which packages up the
-translates of `f` by `ℋ`. -/
+/--
+For `f` invariant under `𝒢`, this is a function on `(ℋ ⧸ 𝒢 ⊓ ℋ) × ℍ → ℂ` which packages up the
+translates of `f` by `ℋ`.
+-/
 def quotientFunc (q : 𝒬) (τ : ℍ) : ℂ :=
-  q.liftOn (fun g ↦ ((f : ℍ → ℂ) ∣[k] g.val⁻¹) τ) (fun h h' hhh' ↦ by
-    obtain ⟨j, hj, hj'⟩ : ∃ g ∈ 𝒢, h' = h * g := by
-      rw [← Quotient.eq_iff_equiv, Quotient.eq, QuotientGroup.leftRel_apply] at hhh'
-      exact ⟨h⁻¹ * h', hhh', mod_cast (mul_inv_cancel_left h h').symm⟩
-    simp [hj', SlashAction.slash_mul, SlashInvariantFormClass.slash_action_eq f j⁻¹ (inv_mem hj)])
+  q.liftOn
+    (fun g ↦ ((f : ℍ → ℂ) ∣[k] g.val⁻¹) τ)
+    (fun h h' hhh' ↦ by
+      obtain ⟨j, hj, hj'⟩ : ∃ g ∈ 𝒢, h' = h * g := by
+        rw [← Quotient.eq_iff_equiv, Quotient.eq, QuotientGroup.leftRel_apply] at hhh'
+        exact ⟨h⁻¹ * h', hhh', mod_cast (mul_inv_cancel_left h h').symm⟩
+      simp [hj', SlashAction.slash_mul, SlashInvariantFormClass.slash_action_eq f j⁻¹ (inv_mem hj)])
 
 @[simp] lemma quotientFunc_mk (h : ℋ) : quotientFunc f ⟦h⟧ = (f : ℍ → ℂ) ∣[k] h.val⁻¹ :=
   rfl
@@ -198,8 +210,8 @@ protected def trace : SlashInvariantForm ℋ k where
   toFun := let := Fintype.ofFinite 𝒬; ∑ q : 𝒬, quotientFunc f q
   slash_action_eq' h hh := by
     let := Fintype.ofFinite 𝒬
-    simpa [SlashAction.sum_slash, quotientFunc_smul f hh]
-      using Equiv.sum_comp (MulAction.toPerm (_ : ℋ)) _
+    simpa [SlashAction.sum_slash, quotientFunc_smul f hh] using
+      Equiv.sum_comp (MulAction.toPerm (_ : ℋ)) _
 
 /-- The norm of a slash-invariant form, as a slash-invariant form. -/
 @[simps! -fullyApplied]
@@ -207,9 +219,11 @@ protected def norm [ℋ.HasDetPlusMinusOne] : SlashInvariantForm ℋ (k * Nat.ca
   toFun := let := Fintype.ofFinite 𝒬; ∏ q : 𝒬, quotientFunc f q
   slash_action_eq' h hh := by
     let := Fintype.ofFinite 𝒬
-    simpa [← Finset.card_univ, ModularForm.prod_slash,
-      quotientFunc_smul f hh, Subgroup.HasDetPlusMinusOne.abs_det hh,
-      -Matrix.GeneralLinearGroup.val_det_apply] using Equiv.prod_comp (MulAction.toPerm (_ : ℋ)) _
+    simpa [
+        ← Finset.card_univ, ModularForm.prod_slash, quotientFunc_smul f hh,
+        Subgroup.HasDetPlusMinusOne.abs_det hh, -Matrix.GeneralLinearGroup.val_det_apply
+      ]
+      using Equiv.prod_comp (MulAction.toPerm (_ : ℋ)) _
 
 end SlashInvariantForm
 
@@ -226,8 +240,10 @@ protected def ModularForm.trace [ModularFormClass F 𝒢 k] : ModularForm ℋ k 
   holo' := .sum (Quotient.forall.mpr fun ⟨r, hr⟩ _ ↦ (translate f r⁻¹).holo')
   bdd_at_cusps' h γ := by
     rintro rfl
-    rw [SlashInvariantForm.trace, IsBoundedAtImInfty, Filter.BoundedAtFilter,
-      SlashAction.sum_slash, Finset.sum_fn]
+    rw [
+      SlashInvariantForm.trace, IsBoundedAtImInfty, Filter.BoundedAtFilter, SlashAction.sum_slash,
+      Finset.sum_fn
+    ]
     refine .fun_sum (Quotient.forall.mpr fun ⟨r, hr⟩ _ ↦ (translate f _).bdd_at_cusps' ?_ γ rfl)
     simpa using h.of_isFiniteRelIndex_conj hr
 
@@ -247,8 +263,8 @@ protected def CuspForm.trace [CuspFormClass F 𝒢 k] : CuspForm ℋ k where
 
 /-- The norm of a modular form, as a modular form. -/
 @[simps! -fullyApplied]
-protected def ModularForm.norm [ℋ.HasDetPlusMinusOne] [ModularFormClass F 𝒢 k] :
-    ModularForm ℋ (k * Nat.card 𝒬) where
+protected def ModularForm.norm [ℋ.HasDetPlusMinusOne] [ModularFormClass F 𝒢 k]
+    : ModularForm ℋ (k * Nat.card 𝒬) where
   __ := SlashInvariantForm.norm ℋ f
   holo' := .prod (Quotient.forall.mpr fun ⟨r, hr⟩ _ ↦ (translate f r⁻¹).holo')
   bdd_at_cusps' h γ := by

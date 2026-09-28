@@ -19,18 +19,18 @@ universe u
 namespace Ordering
 
 @[simp]
-theorem ite_eq_lt_distrib (c : Prop) [Decidable c] (a b : Ordering) :
-    ((if c then a else b) = Ordering.lt) = if c then a = Ordering.lt else b = Ordering.lt := by
+theorem ite_eq_lt_distrib (c : Prop) [Decidable c] (a b : Ordering)
+    : ((if c then a else b) = Ordering.lt) = if c then a = Ordering.lt else b = Ordering.lt := by
   by_cases c <;> simp [*]
 
 @[simp]
-theorem ite_eq_eq_distrib (c : Prop) [Decidable c] (a b : Ordering) :
-    ((if c then a else b) = Ordering.eq) = if c then a = Ordering.eq else b = Ordering.eq := by
+theorem ite_eq_eq_distrib (c : Prop) [Decidable c] (a b : Ordering)
+    : ((if c then a else b) = Ordering.eq) = if c then a = Ordering.eq else b = Ordering.eq := by
   by_cases c <;> simp [*]
 
 @[simp]
-theorem ite_eq_gt_distrib (c : Prop) [Decidable c] (a b : Ordering) :
-    ((if c then a else b) = Ordering.gt) = if c then a = Ordering.gt else b = Ordering.gt := by
+theorem ite_eq_gt_distrib (c : Prop) [Decidable c] (a b : Ordering)
+    : ((if c then a else b) = Ordering.gt) = if c then a = Ordering.gt else b = Ordering.gt := by
   by_cases c <;> simp [*]
 
 @[simp]
@@ -47,16 +47,19 @@ attribute [local simp] cmpUsing
 
 @[simp]
 theorem cmpUsing_eq_lt (a b : α) : (cmpUsing lt a b = Ordering.lt) = lt a b := by
-  simp only [cmpUsing, Ordering.ite_eq_lt_distrib, ite_self, ite_false_right, and_true,
-    reduceCtorEq]
+  simp only [
+    cmpUsing, Ordering.ite_eq_lt_distrib, ite_self, ite_false_right, and_true, reduceCtorEq
+  ]
 
 @[simp]
 theorem cmpUsing_eq_gt [IsStrictOrder α lt] (a b : α) : cmpUsing lt a b = Ordering.gt ↔ lt b a := by
-  simp only [cmpUsing, Ordering.ite_eq_gt_distrib, ite_false_right, and_true, ite_false_left,
-    and_iff_right_iff_imp, reduceCtorEq]
+  simp only [
+    cmpUsing, Ordering.ite_eq_gt_distrib, ite_false_right, and_true, ite_false_left,
+    and_iff_right_iff_imp, reduceCtorEq
+  ]
   exact fun hba hab ↦ (irrefl a) (_root_.trans hab hba)
 
 @[simp]
-theorem cmpUsing_eq_eq (a b : α) : cmpUsing lt a b = Ordering.eq ↔ ¬lt a b ∧ ¬lt b a := by simp
+theorem cmpUsing_eq_eq (a b : α) : cmpUsing lt a b = Ordering.eq ↔ ¬ lt a b ∧ ¬ lt b a := by simp
 
 end

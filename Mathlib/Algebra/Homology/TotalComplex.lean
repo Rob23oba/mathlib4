@@ -35,13 +35,16 @@ open CategoryTheory Category Limits Preadditive
 
 namespace HomologicalComplex₂
 
-variable {C : Type*} [Category* C] [Preadditive C]
+variable
+  {C : Type*} [Category* C] [Preadditive C]
   {I₁ I₂ I₁₂ : Type*} {c₁ : ComplexShape I₁} {c₂ : ComplexShape I₂}
-  (K L M : HomologicalComplex₂ C c₁ c₂) (φ : K ⟶ L) (e : K ≅ L) (ψ : L ⟶ M)
-  (c₁₂ : ComplexShape I₁₂) [TotalComplexShape c₁ c₂ c₁₂]
+  (K L M : HomologicalComplex₂ C c₁ c₂) (φ : K ⟶ L) (e : K ≅ L) (ψ : L ⟶ M) (c₁₂ : ComplexShape I₁₂)
+  [TotalComplexShape c₁ c₂ c₁₂]
 
-/-- A bicomplex has a total bicomplex if for any `i₁₂ : I₁₂`, the coproduct
-of the objects `(K.X i₁).X i₂` such that `ComplexShape.π c₁ c₂ c₁₂ ⟨i₁, i₂⟩ = i₁₂` exists. -/
+/--
+A bicomplex has a total bicomplex if for any `i₁₂ : I₁₂`, the coproduct
+of the objects `(K.X i₁).X i₂` such that `ComplexShape.π c₁ c₂ c₁₂ ⟨i₁, i₂⟩ = i₁₂` exists.
+-/
 abbrev HasTotal := K.toGradedObject.HasMap (ComplexShape.π c₁ c₂ c₁₂)
 
 include e in
@@ -58,16 +61,16 @@ section
 variable (i₁ : I₁) (i₂ : I₂) (i₁₂ : I₁₂)
 
 /-- The horizontal differential in the total complex on a given summand. -/
-noncomputable def d₁ :
-    (K.X i₁).X i₂ ⟶ (K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂)) i₁₂ :=
-  ComplexShape.ε₁ c₁ c₂ c₁₂ ⟨i₁, i₂⟩ • ((K.d i₁ (c₁.next i₁)).f i₂ ≫
-    K.toGradedObject.ιMapObjOrZero (ComplexShape.π c₁ c₂ c₁₂) ⟨_, i₂⟩ i₁₂)
+noncomputable def d₁ : (K.X i₁).X i₂ ⟶ (K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂)) i₁₂ :=
+  ComplexShape.ε₁ c₁ c₂ c₁₂ ⟨i₁, i₂⟩
+    • ((K.d i₁ (c₁.next i₁)).f i₂
+      ≫ K.toGradedObject.ιMapObjOrZero (ComplexShape.π c₁ c₂ c₁₂) ⟨_, i₂⟩ i₁₂)
 
 /-- The vertical differential in the total complex on a given summand. -/
-noncomputable def d₂ :
-    (K.X i₁).X i₂ ⟶ (K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂)) i₁₂ :=
-  ComplexShape.ε₂ c₁ c₂ c₁₂ ⟨i₁, i₂⟩ • ((K.X i₁).d i₂ (c₂.next i₂) ≫
-    K.toGradedObject.ιMapObjOrZero (ComplexShape.π c₁ c₂ c₁₂) ⟨i₁, _⟩ i₁₂)
+noncomputable def d₂ : (K.X i₁).X i₂ ⟶ (K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂)) i₁₂ :=
+  ComplexShape.ε₂ c₁ c₂ c₁₂ ⟨i₁, i₂⟩
+    • ((K.X i₁).d i₂ (c₂.next i₂)
+      ≫ K.toGradedObject.ιMapObjOrZero (ComplexShape.π c₁ c₂ c₁₂) ⟨i₁, _⟩ i₁₂)
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma d₁_eq_zero (h : ¬ c₁.Rel i₁ (c₁.next i₁)) :
@@ -131,18 +134,16 @@ lemma d₂_eq_zero' (i₁ : I₁) {i₂ i₂' : I₂} (h : c₂.Rel i₂ i₂') 
   exact h'
 
 /-- The horizontal differential in the total complex. -/
-noncomputable def D₁ (i₁₂ i₁₂' : I₁₂) :
-    K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂ ⟶
-      K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂' :=
-  GradedObject.descMapObj _ (ComplexShape.π c₁ c₂ c₁₂)
-    (fun ⟨i₁, i₂⟩ _ => K.d₁ c₁₂ i₁ i₂ i₁₂')
+noncomputable def D₁ (i₁₂ i₁₂' : I₁₂)
+    : K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂
+      ⟶ K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂' :=
+  GradedObject.descMapObj _ (ComplexShape.π c₁ c₂ c₁₂) (fun ⟨i₁, i₂⟩ _ => K.d₁ c₁₂ i₁ i₂ i₁₂')
 
 /-- The vertical differential in the total complex. -/
-noncomputable def D₂ (i₁₂ i₁₂' : I₁₂) :
-    K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂ ⟶
-      K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂' :=
-  GradedObject.descMapObj _ (ComplexShape.π c₁ c₂ c₁₂)
-    (fun ⟨i₁, i₂⟩ _ => K.d₂ c₁₂ i₁ i₂ i₁₂')
+noncomputable def D₂ (i₁₂ i₁₂' : I₁₂)
+    : K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂
+      ⟶ K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂) i₁₂' :=
+  GradedObject.descMapObj _ (ComplexShape.π c₁ c₂ c₁₂) (fun ⟨i₁, i₂⟩ _ => K.d₂ c₁₂ i₁ i₂ i₁₂')
 
 namespace totalAux
 
@@ -265,13 +266,12 @@ lemma D₁_D₂ (i₁₂ i₁₂' i₁₂'' : I₁₂) :
 noncomputable def total : HomologicalComplex C c₁₂ where
   X := K.toGradedObject.mapObj (ComplexShape.π c₁ c₂ c₁₂)
   d i₁₂ i₁₂' := K.D₁ c₁₂ i₁₂ i₁₂' + K.D₂ c₁₂ i₁₂ i₁₂'
-  shape i₁₂ i₁₂' h₁₂ := by
-    rw [K.D₁_shape c₁₂ _ _ h₁₂, K.D₂_shape c₁₂ _ _ h₁₂, zero_add]
+  shape i₁₂ i₁₂' h₁₂ := by rw [K.D₁_shape c₁₂ _ _ h₁₂, K.D₂_shape c₁₂ _ _ h₁₂, zero_add]
 
 /-- The inclusion of a summand in the total complex. -/
-noncomputable def ιTotal (i₁ : I₁) (i₂ : I₂) (i₁₂ : I₁₂)
-    (h : ComplexShape.π c₁ c₂ c₁₂ (i₁, i₂) = i₁₂) :
-    (K.X i₁).X i₂ ⟶ (K.total c₁₂).X i₁₂ :=
+noncomputable def ιTotal
+    (i₁ : I₁) (i₂ : I₂) (i₁₂ : I₁₂) (h : ComplexShape.π c₁ c₂ c₁₂ (i₁, i₂) = i₁₂)
+    : (K.X i₁).X i₂ ⟶ (K.total c₁₂).X i₁₂ :=
   K.toGradedObject.ιMapObj (ComplexShape.π c₁ c₂ c₁₂) ⟨i₁, i₂⟩ i₁₂ h
 
 @[reassoc (attr := simp)]
@@ -291,8 +291,8 @@ lemma XXIsoOfEq_inv_ιTotal {x₁ y₁ : I₁} (h₁ : x₁ = y₁) {x₂ y₂ :
   simp
 
 /-- The inclusion of a summand in the total complex, or zero if the degrees do not match. -/
-noncomputable def ιTotalOrZero (i₁ : I₁) (i₂ : I₂) (i₁₂ : I₁₂) :
-    (K.X i₁).X i₂ ⟶ (K.total c₁₂).X i₁₂ :=
+noncomputable def ιTotalOrZero (i₁ : I₁) (i₂ : I₂) (i₁₂ : I₁₂)
+    : (K.X i₁).X i₂ ⟶ (K.total c₁₂).X i₁₂ :=
   K.toGradedObject.ιMapObjOrZero (ComplexShape.π c₁ c₂ c₁₂) ⟨i₁, i₂⟩ i₁₂
 
 lemma ιTotalOrZero_eq (i₁ : I₁) (i₂ : I₂) (i₁₂ : I₁₂)
@@ -341,7 +341,8 @@ lemma d₂_eq (i₁ : I₁) {i₂ i₂' : I₂} (h : c₂.Rel i₂ i₂') (i₁�
 section
 
 variable {c₁₂}
-variable {A : C} {i₁₂ : I₁₂}
+variable
+  {A : C} {i₁₂ : I₁₂}
   (f : ∀ (i₁ : I₁) (i₂ : I₂) (_ : ComplexShape.π c₁ c₂ c₁₂ (i₁, i₂) = i₁₂), (K.X i₁).X i₂ ⟶ A)
 
 /-- Given a bicomplex `K`, this is a constructor for morphisms from `(K.total c₁₂).X i₁₂`. -/
@@ -406,8 +407,10 @@ lemma mapMap_D₂ (i₁₂ i₁₂' : I₁₂) :
 
 end mapAux
 
-/-- The morphism `K.total c₁₂ ⟶ L.total c₁₂` of homological complexes induced
-by a morphism of bicomplexes `K ⟶ L`. -/
+/--
+The morphism `K.total c₁₂ ⟶ L.total c₁₂` of homological complexes induced
+by a morphism of bicomplexes `K ⟶ L`.
+-/
 noncomputable def map : K.total c₁₂ ⟶ L.total c₁₂ where
   f := GradedObject.mapMap (toGradedObjectMap φ) _
   comm' i₁₂ i₁₂' _ := by
@@ -432,8 +435,10 @@ lemma map_comp : map (φ ≫ ψ) c₁₂ = map φ c₁₂ ≫ map ψ c₁₂ := 
   apply (HomologicalComplex.forget _ _).map_injective
   exact GradedObject.mapMap_comp (toGradedObjectMap φ) (toGradedObjectMap ψ) _
 
-/-- The isomorphism `K.total c₁₂ ≅ L.total c₁₂` of homological complexes induced
-by an isomorphism of bicomplexes `K ≅ L`. -/
+/--
+The isomorphism `K.total c₁₂ ≅ L.total c₁₂` of homological complexes induced
+by an isomorphism of bicomplexes `K ≅ L`.
+-/
 @[simps]
 noncomputable def mapIso : K.total c₁₂ ≅ L.total c₁₂ where
   hom := map e.hom _
@@ -468,8 +473,7 @@ variable [∀ (K : HomologicalComplex₂ C c₁ c₂), K.HasTotal c₁₂]
 
 /-- The functor which sends a bicomplex to its total complex. -/
 @[simps]
-noncomputable def totalFunctor :
-    HomologicalComplex₂ C c₁ c₂ ⥤ HomologicalComplex C c₁₂ where
+noncomputable def totalFunctor : HomologicalComplex₂ C c₁ c₂ ⥤ HomologicalComplex C c₁₂ where
   obj K := K.total c₁₂
   map φ := total.map φ c₁₂
 

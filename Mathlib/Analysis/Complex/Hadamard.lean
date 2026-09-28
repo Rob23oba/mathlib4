@@ -60,7 +60,6 @@ We then use a limit argument to cover the case when either of the sides are `0`.
 
 @[expose] public section
 
-
 open Set Filter Function Complex
 
 open scoped Topology
@@ -74,10 +73,11 @@ def verticalStrip (a : ℝ) (b : ℝ) : Set ℂ := re ⁻¹' Ioo a b
 /-- The vertical strip in the complex plane containing all `z ∈ ℂ` such that `z.re ∈ Icc a b`. -/
 def verticalClosedStrip (a : ℝ) (b : ℝ) : Set ℂ := re ⁻¹' Icc a b
 
-/-- The supremum of the norm of `f` on imaginary lines. (Fixed real part)
-This is also known as the function `M` -/
-noncomputable def sSupNormIm {E : Type*} [NormedAddCommGroup E]
-    (f : ℂ → E) (x : ℝ) : ℝ :=
+/--
+The supremum of the norm of `f` on imaginary lines. (Fixed real part)
+This is also known as the function `M`
+-/
+noncomputable def sSupNormIm {E : Type*} [NormedAddCommGroup E] (f : ℂ → E) (x : ℝ) : ℝ :=
   sSup ((norm ∘ f) '' re ⁻¹' {x})
 
 section invInterpStrip
@@ -90,7 +90,8 @@ In other words, this is the inverse of the right side of the target inequality:
 `|f(z)| ≤ |M(0) ^ (1-z)| * |M(1) ^ z|`.
 
 Shifting this by a positive epsilon allows us to prove the case when either of the boundaries
-is zero. -/
+is zero.
+-/
 noncomputable def invInterpStrip (ε : ℝ) : ℂ :=
   (ε + sSupNormIm f 0) ^ (z - 1) * (ε + sSupNormIm f 1) ^ (-z)
 
@@ -210,28 +211,34 @@ lemma F_edge_le_one (f : ℂ → E) (ε : ℝ) (hε : ε > 0) (z : ℂ)
     apply le_of_lt (norm_lt_sSupNormIm_eps f ε hε _ _ hB)
     simp only [verticalClosedStrip, mem_preimage, zero_le_one, hz1, right_mem_Icc]
 
-theorem norm_mul_invInterpStrip_le_one_of_mem_verticalClosedStrip (f : ℂ → E) (ε : ℝ) (hε : 0 < ε)
-    (z : ℂ) (hd : DiffContOnCl ℂ f (verticalStrip 0 1))
-    (hB : BddAbove ((norm ∘ f) '' verticalClosedStrip 0 1)) (hz : z ∈ verticalClosedStrip 0 1) :
-    ‖F f ε z‖ ≤ 1 := by
-  apply PhragmenLindelof.vertical_strip
-    (DiffContOnCl.smul (diffContOnCl_invInterpStrip f hε) hd) _
+theorem norm_mul_invInterpStrip_le_one_of_mem_verticalClosedStrip
+    (f : ℂ → E)
+    (ε : ℝ) (hε : 0 < ε)
+    (z : ℂ)
+    (hd : DiffContOnCl ℂ f (verticalStrip 0 1))
+    (hB : BddAbove ((norm ∘ f) '' verticalClosedStrip 0 1)) (hz : z ∈ verticalClosedStrip 0 1)
+    : ‖F f ε z‖ ≤ 1 := by
+  apply PhragmenLindelof.vertical_strip (DiffContOnCl.smul (diffContOnCl_invInterpStrip f hε) hd) _
     (fun x hx ↦ F_edge_le_one f ε hε x hB (Or.inl hx))
-    (fun x hx ↦ F_edge_le_one f ε hε x hB (Or.inr hx)) hz.1 hz.2
+    (fun x hx ↦ F_edge_le_one f ε hε x hB (Or.inr hx))
+    hz.1 hz.2
   use 0
   rw [sub_zero, div_one]
-  refine ⟨ Real.pi_pos, ?_⟩
+  refine ⟨Real.pi_pos, ?_⟩
   obtain ⟨BF, hBF⟩ := F_BddAbove f ε hε hB
-  simp only [comp_apply, mem_upperBounds, mem_image, forall_exists_index, and_imp,
-    forall_apply_eq_imp_iff₂] at hBF
+  simp only [
+      comp_apply, mem_upperBounds, mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂
+    ]
+    at hBF
   use BF
   rw [Asymptotics.isBigO_iff]
   use 1
   rw [eventually_inf_principal]
   apply Eventually.of_forall
   intro x hx
-  simpa using! (hBF x ((preimage_mono Ioo_subset_Icc_self) hx)).trans
-    ((le_of_lt (lt_add_one BF)).trans (Real.add_one_le_exp BF))
+  simpa using!
+    (hBF x ((preimage_mono Ioo_subset_Icc_self) hx)).trans
+      ((le_of_lt (lt_add_one BF)).trans (Real.add_one_le_exp BF))
 
 end invInterpStrip
 
@@ -245,11 +252,13 @@ In other words, this is the right side of the target inequality:
 `|f(z)| ≤ |M(0) ^ (1-z)| * |M(1) ^ z|`.
 
 Note that if `sSupNormIm f 0 = 0 ∨ sSupNormIm f 1 = 0` then the power is not continuous
-since `0 ^ 0 = 1`. Hence the use of `ite`. -/
+since `0 ^ 0 = 1`. Hence the use of `ite`.
+-/
 noncomputable def interpStrip (z : ℂ) : ℂ :=
-  if sSupNormIm f 0 = 0 ∨ sSupNormIm f 1 = 0
-    then 0
-    else sSupNormIm f 0 ^ (1 - z) * sSupNormIm f 1 ^ z
+  if sSupNormIm f 0 = 0 ∨ sSupNormIm f 1 = 0 then
+    0
+  else
+    sSupNormIm f 0 ^ (1 - z) * sSupNormIm f 1 ^ z
 
 /-- Rewrite for `InterpStrip` when `0 < sSupNormIm f 0` and `0 < sSupNormIm f 1`. -/
 lemma interpStrip_eq_of_pos (z : ℂ) (h0 : 0 < sSupNormIm f 0) (h1 : 0 < sSupNormIm f 1) :
@@ -302,9 +311,10 @@ lemma diffContOnCl_interpStrip :
 
 /-- The correct generalization of `interpStrip` to produce bounds in the general case. -/
 noncomputable def interpStrip' (f : ℂ → E) (l u : ℝ) (z : ℂ) : ℂ :=
-  if sSupNormIm f l = 0 ∨ sSupNormIm f u = 0
-    then 0
-    else sSupNormIm f l ^ (1 - ((z - l) / (u - l))) * sSupNormIm f u ^ ((z - l) / (u - l))
+  if sSupNormIm f l = 0 ∨ sSupNormIm f u = 0 then
+    0
+  else
+    sSupNormIm f l ^ (1 - ((z - l) / (u - l))) * sSupNormIm f u ^ ((z - l) / (u - l))
 
 /-- An auxiliary function to prove the general statement of Hadamard's three lines theorem. -/
 def scale (f : ℂ → E) (l u : ℝ) : ℂ → E := fun z ↦ f (l + z • (u - l))

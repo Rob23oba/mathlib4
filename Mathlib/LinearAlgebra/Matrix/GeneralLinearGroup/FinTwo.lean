@@ -177,11 +177,9 @@ theorem IsElliptic.bc_ne_zero (hm : m.IsElliptic) : m 0 1 * m 1 0 ≠ 0 := by
   refine hm.not_ge ?_
   linear_combination sq_nonneg (m 0 0 - m 1 1)
 
-theorem IsElliptic.b_ne_zero (hm : m.IsElliptic) : m 0 1 ≠ 0 :=
-  left_ne_zero_of_mul hm.bc_ne_zero
+theorem IsElliptic.b_ne_zero (hm : m.IsElliptic) : m 0 1 ≠ 0 := left_ne_zero_of_mul hm.bc_ne_zero
 
-theorem IsElliptic.c_ne_zero (hm : m.IsElliptic) : m 1 0 ≠ 0 :=
-  right_ne_zero_of_mul hm.bc_ne_zero
+theorem IsElliptic.c_ne_zero (hm : m.IsElliptic) : m 1 0 ≠ 0 := right_ne_zero_of_mul hm.bc_ne_zero
 
 end LinearOrder
 
@@ -223,9 +221,11 @@ abbrev IsElliptic [Preorder R] (g : GL (Fin 2) R) : Prop := g.val.IsElliptic
 /-- Synonym of `Matrix.IsHyperbolic`, for dot-notation. -/
 abbrev IsHyperbolic [Preorder R] (g : GL (Fin 2) R) : Prop := g.val.IsHyperbolic
 
-/-- Polynomial whose roots are the fixed points of `g` considered as a Möbius transformation.
+/--
+Polynomial whose roots are the fixed points of `g` considered as a Möbius transformation.
 
-See `Matrix.GeneralLinearGroup.fixpointPolynomial_aeval_eq_zero_iff`. -/
+See `Matrix.GeneralLinearGroup.fixpointPolynomial_aeval_eq_zero_iff`.
+-/
 noncomputable def fixpointPolynomial (g : GL (Fin 2) R) : R[X] :=
   C (g 1 0) * X ^ 2 + C (g 1 1 - g 0 0) * X - C (g 0 1)
 

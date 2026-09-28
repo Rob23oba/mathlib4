@@ -25,8 +25,9 @@ namespace Matrix
 
 open Module.End
 
-variable {ι R : Type*} [Fintype ι] [DecidableEq ι]
-  [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] [StarRing R] [TrivialStar R]
+variable
+  {ι R : Type*} [Fintype ι] [DecidableEq ι] [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
+  [StarRing R] [TrivialStar R]
   (A : Matrix ι ι R) (d : ι → R) (hA : (diagonal d * A).PosDef) (hD : ∀ i, 0 < d i)
 
 include hA hD

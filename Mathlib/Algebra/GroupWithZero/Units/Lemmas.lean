@@ -38,8 +38,8 @@ lemma isLocalHom_of_exists_map_ne_one [FunLike F G₀ M] [MonoidHomClass F G₀ 
       exact (h.mul_right_cancel this).symm
     · exact ⟨⟨a, a⁻¹, mul_inv_cancel₀ h, inv_mul_cancel₀ h⟩, rfl⟩
 
-instance [FunLike F G₀ M₀] [MonoidWithZeroHomClass F G₀ M₀] [Nontrivial M₀]
-    (f : F) : IsLocalHom f :=
+instance [FunLike F G₀ M₀] [MonoidWithZeroHomClass F G₀ M₀] [Nontrivial M₀] (f : F)
+    : IsLocalHom f :=
   isLocalHom_of_exists_map_ne_one ⟨0, by simp⟩
 
 end Monoid
@@ -69,9 +69,11 @@ end Commute
 
 section MulZeroOneClass
 
-variable [GroupWithZero G₀] [MulZeroOneClass M₀'] [Nontrivial M₀'] [FunLike F G₀ M₀']
+variable
+  [GroupWithZero G₀] [MulZeroOneClass M₀'] [Nontrivial M₀'] [FunLike F G₀ M₀']
   [MonoidWithZeroHomClass F G₀ M₀']
-  (f : F) {a : G₀}
+  (f : F)
+  {a : G₀}
 
 theorem map_ne_zero : f a ≠ 0 ↔ a ≠ 0 := by
   refine ⟨fun hfa ha => hfa <| ha.symm ▸ map_zero f, ?_⟩
@@ -80,20 +82,20 @@ theorem map_ne_zero : f a ≠ 0 ↔ a ≠ 0 := by
   apply one_ne_zero (α := M₀')
   rw [← map_one f, ← Units.mul_inv a, map_mul, H, zero_mul]
 
-@[simp]
-theorem map_eq_zero : f a = 0 ↔ a = 0 :=
-  not_iff_not.1 (map_ne_zero f)
+@[simp] theorem map_eq_zero : f a = 0 ↔ a = 0 := not_iff_not.1 (map_ne_zero f)
 
 end MulZeroOneClass
 
 section MonoidWithZero
 
-variable [GroupWithZero G₀] [Nontrivial M₀] [MonoidWithZero M₀'] [FunLike F G₀ M₀]
+variable
+  [GroupWithZero G₀] [Nontrivial M₀] [MonoidWithZero M₀'] [FunLike F G₀ M₀]
   [MonoidWithZeroHomClass F G₀ M₀] [FunLike F' G₀ M₀']
-  (f : F) {a : G₀}
+  (f : F)
+  {a : G₀}
 
-theorem eq_on_inv₀ [MonoidWithZeroHomClass F' G₀ M₀'] (f g : F') (h : f a = g a) :
-    f a⁻¹ = g a⁻¹ := by
+theorem eq_on_inv₀ [MonoidWithZeroHomClass F' G₀ M₀'] (f g : F') (h : f a = g a)
+    : f a⁻¹ = g a⁻¹ := by
   rcases eq_or_ne a 0 with (rfl | ha)
   · rw [inv_zero, map_zero, map_zero]
   · exact (IsUnit.mk0 a ha).eq_on_inv f g h
@@ -102,8 +104,9 @@ end MonoidWithZero
 
 section GroupWithZero
 
-variable [GroupWithZero G₀] [GroupWithZero G₀'] [FunLike F G₀ G₀']
-  [MonoidWithZeroHomClass F G₀ G₀'] (f : F) (a b : G₀)
+variable
+  [GroupWithZero G₀] [GroupWithZero G₀'] [FunLike F G₀ G₀'] [MonoidWithZeroHomClass F G₀ G₀']
+  (f : F) (a b : G₀)
 
 /-- A monoid homomorphism between groups with zeros sending `0` to `0` sends `a⁻¹` to `(f a)⁻¹`. -/
 @[simp]
@@ -113,40 +116,46 @@ theorem map_inv₀ : f a⁻¹ = (f a)⁻¹ := by
   · apply eq_inv_of_mul_eq_one_left
     rw [← map_mul, inv_mul_cancel₀ h, map_one]
 
-@[simp]
-theorem map_div₀ : f (a / b) = f a / f b :=
-  map_div' f (map_inv₀ f) a b
+@[simp] theorem map_div₀ : f (a / b) = f a / f b := map_div' f (map_inv₀ f) a b
 
 end GroupWithZero
 
-/-- We define the inverse as a `MonoidWithZeroHom` by extending the inverse map by zero
-on non-units. -/
-noncomputable def MonoidWithZero.inverse {M : Type*} [CommMonoidWithZero M] :
-    M →*₀ M where
+/--
+We define the inverse as a `MonoidWithZeroHom` by extending the inverse map by zero
+on non-units.
+-/
+noncomputable def MonoidWithZero.inverse {M : Type*} [CommMonoidWithZero M] : M →*₀ M where
   toFun := Ring.inverse
   map_zero' := Ring.inverse_zero _
   map_one' := Ring.inverse_one _
   map_mul' x y := (Ring.mul_inverse_rev x y).trans (mul_comm _ _)
 
 @[simp]
-theorem MonoidWithZero.coe_inverse {M : Type*} [CommMonoidWithZero M] :
-    (MonoidWithZero.inverse : M → M) = Ring.inverse :=
+theorem MonoidWithZero.coe_inverse {M : Type*} [CommMonoidWithZero M]
+    : (MonoidWithZero.inverse : M → M) = Ring.inverse :=
   rfl
 
 @[simp]
-theorem MonoidWithZero.inverse_apply {M : Type*} [CommMonoidWithZero M] (a : M) :
-    MonoidWithZero.inverse a = a⁻¹ʳ :=
+theorem MonoidWithZero.inverse_apply {M : Type*} [CommMonoidWithZero M] (a : M)
+    : MonoidWithZero.inverse a = a⁻¹ʳ :=
   rfl
 
 /-- Inversion on a commutative group with zero, considered as a monoid with zero homomorphism. -/
-def invMonoidWithZeroHom {G₀ : Type*} [CommGroupWithZero G₀] : G₀ →*₀ G₀ :=
-  { invMonoidHom with map_zero' := inv_zero }
+def invMonoidWithZeroHom {G₀ : Type*} [CommGroupWithZero G₀] : G₀ →*₀ G₀ := {
+  invMonoidHom with
+  map_zero' := inv_zero
+}
 
-/-- If a monoid homomorphism `f` between two `GroupWithZero`s maps `0` to `0`, then it maps `x^n`,
-`n : ℤ`, to `(f x)^n`. -/
+/--
+If a monoid homomorphism `f` between two `GroupWithZero`s maps `0` to `0`, then it maps `x^n`,
+`n : ℤ`, to `(f x)^n`.
+-/
 @[simp]
-theorem map_zpow₀ {F G₀ G₀' : Type*} [GroupWithZero G₀] [GroupWithZero G₀'] [FunLike F G₀ G₀']
-    [MonoidWithZeroHomClass F G₀ G₀'] (f : F) (x : G₀) (n : ℤ) : f (x ^ n) = f x ^ n :=
+theorem map_zpow₀
+    {F G₀ G₀' : Type*}
+    [GroupWithZero G₀] [GroupWithZero G₀'] [FunLike F G₀ G₀'] [MonoidWithZeroHomClass F G₀ G₀']
+    (f : F) (x : G₀) (n : ℤ)
+    : f (x ^ n) = f x ^ n :=
   map_zpow' f (map_inv₀ f) x n
 
 end GroupWithZero

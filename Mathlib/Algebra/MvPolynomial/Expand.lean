@@ -23,32 +23,29 @@ This operation is called `MvPolynomial.expand` and it is an algebra homomorphism
 
 @[expose] public section
 
-
 namespace MvPolynomial
 
 section CommSemiring
 
 variable {σ τ R S : Type*} [CommSemiring R] [CommSemiring S] (p : ℕ)
 
-/-- Expand the polynomial by a factor of p, so `∑ aₙ xⁿ` becomes `∑ aₙ xⁿᵖ`.
+/--
+Expand the polynomial by a factor of p, so `∑ aₙ xⁿ` becomes `∑ aₙ xⁿᵖ`.
 
-See also `Polynomial.expand`. -/
-noncomputable def expand : MvPolynomial σ R →ₐ[R] MvPolynomial σ R :=
-  bind₁ fun i ↦ X i ^ p
+See also `Polynomial.expand`.
+-/
+noncomputable def expand : MvPolynomial σ R →ₐ[R] MvPolynomial σ R := bind₁ fun i ↦ X i ^ p
 
-theorem coe_expand :
-    (expand p (R := R) (σ := σ)) = eval₂ C ((fun s ↦ X s : σ → MvPolynomial σ R) ^ p) := rfl
+theorem coe_expand
+    : (expand p (R := R) (σ := σ)) = eval₂ C ((fun s ↦ X s : σ → MvPolynomial σ R) ^ p) :=
+  rfl
 
-theorem expand_C (r : R) : expand p (C r : MvPolynomial σ R) = C r :=
-  eval₂Hom_C _ _ _
+theorem expand_C (r : R) : expand p (C r : MvPolynomial σ R) = C r := eval₂Hom_C _ _ _
+
+@[simp] theorem expand_X (i : σ) : expand p (X i : MvPolynomial σ R) = X i ^ p := eval₂Hom_X' _ _ _
 
 @[simp]
-theorem expand_X (i : σ) : expand p (X i : MvPolynomial σ R) = X i ^ p :=
-  eval₂Hom_X' _ _ _
-
-@[simp]
-theorem expand_monomial (d : σ →₀ ℕ) (r : R) :
-    expand p (monomial d r) = monomial (p • d) r := by
+theorem expand_monomial (d : σ →₀ ℕ) (r : R) : expand p (monomial d r) = monomial (p • d) r := by
   rw [expand, bind₁_monomial, monomial_eq, Finsupp.prod_of_support_subset _ Finsupp.support_smul]
   · simp [pow_mul]
   · simp
@@ -69,8 +66,8 @@ theorem expand_one : expand 1 = AlgHom.id R (MvPolynomial σ R) := by
 
 theorem expand_one_apply (f : MvPolynomial σ R) : expand 1 f = f := by simp
 
-theorem expand_mul_eq_comp (q : ℕ) :
-    expand (σ := σ) (R := R) (p * q) = (expand p).comp (expand q) := by
+theorem expand_mul_eq_comp (q : ℕ)
+    : expand (σ := σ) (R := R) (p * q) = (expand p).comp (expand q) := by
   ext1 i
   simp [pow_mul]
 
@@ -90,14 +87,17 @@ lemma coeff_expand_zero (hp : p ≠ 0) (φ : MvPolynomial σ R) :
                           _ = φ.coeff 0 := by rw [coeff_expand_smul p hp]
 
 /-- Expansion is injective. -/
-theorem expand_injective {n : ℕ} (hn : 0 < n) : Function.Injective (expand n (R := R) (σ := σ)) :=
-  fun g g' H => by
-    ext d
-    rw [← coeff_expand_smul _ (n.ne_zero_iff_zero_lt.mpr hn), H, coeff_expand_smul _
-      (n.ne_zero_iff_zero_lt.mpr hn)]
+theorem expand_injective {n : ℕ} (hn : 0 < n)
+    : Function.Injective (expand n (R := R) (σ := σ)) := fun g g' H => by
+  ext d
+  rw [
+    ← coeff_expand_smul _ (n.ne_zero_iff_zero_lt.mpr hn), H,
+    coeff_expand_smul _ (n.ne_zero_iff_zero_lt.mpr hn)
+  ]
 
-theorem expand_inj {p : ℕ} (hp : 0 < p) {f g : MvPolynomial σ R} :
-    expand p f = expand p g ↔ f = g := (expand_injective hp).eq_iff
+theorem expand_inj {p : ℕ} (hp : 0 < p) {f g : MvPolynomial σ R}
+    : expand p f = expand p g ↔ f = g :=
+  (expand_injective hp).eq_iff
 
 theorem expand_eq_zero {p : ℕ} (hp : 0 < p) {f : MvPolynomial σ R} : expand p f = 0 ↔ f = 0 :=
   (expand_injective hp).eq_iff' (map_zero _)
@@ -105,33 +105,34 @@ theorem expand_eq_zero {p : ℕ} (hp : 0 < p) {f : MvPolynomial σ R} : expand p
 theorem expand_ne_zero {p : ℕ} (hp : 0 < p) {f : MvPolynomial σ R} : expand p f ≠ 0 ↔ f ≠ 0 :=
   (expand_eq_zero hp).not
 
-theorem expand_eq_C {p : ℕ} (hp : 0 < p) {f : MvPolynomial σ R} {r : R} :
-    expand p f = C r ↔ f = C r := by
+theorem expand_eq_C {p : ℕ} (hp : 0 < p) {f : MvPolynomial σ R} {r : R}
+    : expand p f = C r ↔ f = C r := by
   rw [← expand_C, expand_inj hp, expand_C]
 
-theorem expand_comp_bind₁ (p : ℕ) (f : σ → MvPolynomial τ R) :
-    (expand p).comp (bind₁ f) = bind₁ fun i ↦ expand p (f i) := by
+theorem expand_comp_bind₁ (p : ℕ) (f : σ → MvPolynomial τ R)
+    : (expand p).comp (bind₁ f) = bind₁ fun i ↦ expand p (f i) := by
   ext1 i
   simp
 
-theorem expand_bind₁ (f : σ → MvPolynomial τ R) (φ : MvPolynomial σ R) :
-    expand p (bind₁ f φ) = bind₁ (fun i ↦ expand p (f i)) φ := by
+theorem expand_bind₁ (f : σ → MvPolynomial τ R) (φ : MvPolynomial σ R)
+    : expand p (bind₁ f φ) = bind₁ (fun i ↦ expand p (f i)) φ := by
   rw [← AlgHom.comp_apply, expand_comp_bind₁]
 
 @[simp]
-theorem map_expand (f : R →+* S) (φ : MvPolynomial σ R) :
-    map f (expand p φ) = expand p (map f φ) := by simp [expand, map_bind₁]
+theorem map_expand (f : R →+* S) (φ : MvPolynomial σ R)
+    : map f (expand p φ) = expand p (map f φ) := by
+  simp [expand, map_bind₁]
 
 @[simp]
-theorem rename_comp_expand (f : σ → τ) :
-    (rename f).comp (expand p) =
-      (expand p).comp (rename f : MvPolynomial σ R →ₐ[R] MvPolynomial τ R) := by
+theorem rename_comp_expand (f : σ → τ)
+    : (rename f).comp (expand p)
+      = (expand p).comp (rename f : MvPolynomial σ R →ₐ[R] MvPolynomial τ R) := by
   ext1 i
   simp
 
 @[simp]
-theorem rename_expand (f : σ → τ) (φ : MvPolynomial σ R) :
-    rename f (expand p φ) = expand p (rename f φ) :=
+theorem rename_expand (f : σ → τ) (φ : MvPolynomial σ R)
+    : rename f (expand p φ) = expand p (rename f φ) :=
   congr($(rename_comp_expand p f) φ)
 
 lemma eval₂Hom_comp_expand (f : R →+* S) (g : σ → S) :
@@ -184,8 +185,8 @@ lemma support_expand [DecidableEq σ] (hp : p ≠ 0) :
   refine (support_expand_subset φ).antisymm ?_
   simp [Finset.image_subset_iff, hp]
 
-theorem totalDegree_expand (f : MvPolynomial σ R) :
-    (expand p f).totalDegree = f.totalDegree * p := by
+theorem totalDegree_expand (f : MvPolynomial σ R)
+    : (expand p f).totalDegree = f.totalDegree * p := by
   classical
   rcases p.eq_zero_or_pos with hp | hp
   · simp [hp]
@@ -216,9 +217,9 @@ theorem isLocalHom_expand {p : ℕ} (hp : p ≠ 0) : IsLocalHom (expand p (R := 
 
 variable {R}
 
-theorem of_irreducible_expand {p : ℕ} (hp : p ≠ 0) {f : MvPolynomial σ R}
-    (hf : Irreducible (expand p f)) :
-    Irreducible f :=
+theorem of_irreducible_expand
+    {p : ℕ} (hp : p ≠ 0) {f : MvPolynomial σ R} (hf : Irreducible (expand p f))
+    : Irreducible f :=
   let _ := isLocalHom_expand R σ hp
   hf.of_map
 

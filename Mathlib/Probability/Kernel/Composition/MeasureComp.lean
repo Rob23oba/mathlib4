@@ -24,7 +24,8 @@ open ProbabilityTheory MeasureTheory
 
 namespace MeasureTheory.Measure
 
-variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
+variable
+  {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : Kernel α β}
 
 lemma comp_assoc {η : Kernel β γ} : η ∘ₘ (κ ∘ₘ μ) = (η ∘ₖ κ) ∘ₘ μ :=
@@ -74,8 +75,8 @@ instance [IsFiniteMeasure μ] [IsFiniteKernel κ] : IsFiniteMeasure (κ ∘ₘ �
 instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (κ ∘ₘ μ) := by
   rw [← snd_compProd]; infer_instance
 
-instance [IsZeroOrProbabilityMeasure μ] [IsZeroOrMarkovKernel κ] :
-    IsZeroOrProbabilityMeasure (κ ∘ₘ μ) := by
+instance [IsZeroOrProbabilityMeasure μ] [IsZeroOrMarkovKernel κ]
+    : IsZeroOrProbabilityMeasure (κ ∘ₘ μ) := by
   rw [← snd_compProd]; infer_instance
 
 @[simp]

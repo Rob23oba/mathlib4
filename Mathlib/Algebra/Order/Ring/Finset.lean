@@ -44,8 +44,8 @@ end Nat
 
 section
 
-variable {R ι : Type*} [LinearOrder R] [NonUnitalNonAssocSemiring R]
-  [CanonicallyOrderedAdd R] [OrderBot R]
+variable
+  {R ι : Type*} [LinearOrder R] [NonUnitalNonAssocSemiring R] [CanonicallyOrderedAdd R] [OrderBot R]
 
 lemma Finset.mul_sup₀ (s : Finset ι) (f : ι → R) (a : R) :
     a * s.sup f = s.sup (a * f ·) := by

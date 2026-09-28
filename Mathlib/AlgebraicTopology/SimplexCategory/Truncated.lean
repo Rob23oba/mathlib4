@@ -26,13 +26,15 @@ namespace SimplexCategory.Truncated
 instance {d : ℕ} {n m : Truncated d} : DecidableEq (n ⟶ m) := fun a b =>
   decidable_of_iff (a.hom.toOrderHom = b.hom.toOrderHom) (by cat_disch)
 
-/-- For `0 < n`, the inclusion functor from the `n`-truncated simplex category to the untruncated
-simplex category is initial. -/
+/--
+For `0 < n`, the inclusion functor from the `n`-truncated simplex category to the untruncated
+simplex category is initial.
+-/
 instance initial_inclusion {n : ℕ} [NeZero n] : (inclusion n).Initial := by
   have := Nat.pos_of_neZero n
   constructor
   intro Δ
-  have : Nonempty (CostructuredArrow (inclusion n) Δ) := ⟨⟨⦋0⦌ₙ, ⟨⟨⟩⟩, ⦋0⦌.const _ 0 ⟩⟩
+  have : Nonempty (CostructuredArrow (inclusion n) Δ) := ⟨⟨⦋0⦌ₙ, ⟨⟨⟩⟩, ⦋0⦌.const _ 0⟩⟩
   apply zigzag_isConnected
   rintro ⟨⟨Δ₁, hΔ₁⟩, ⟨⟨⟩⟩, f⟩ ⟨⟨Δ₂, hΔ₂⟩, ⟨⟨⟩⟩, f'⟩
   apply Zigzag.trans (j₂ := ⟨⦋0⦌ₙ, ⟨⟨⟩⟩, ⦋0⦌.const _ (f 0)⟩)
@@ -49,20 +51,24 @@ instance initial_inclusion {n : ℕ} [NeZero n] : (inclusion n).Initial := by
       · apply Zigzag.of_inv <| CostructuredArrow.homMk <| Hom.tr <| ⦋0⦌.const _ 0
       · apply Zigzag.of_hom <| CostructuredArrow.homMk <| Hom.tr <| ⦋0⦌.const _ 0
 
-/-- For `0 < n ≤ m`, the inclusion functor from the `n`-truncated simplex category to the
-`m`-truncated simplex category is initial. -/
+/--
+For `0 < n ≤ m`, the inclusion functor from the `n`-truncated simplex category to the
+`m`-truncated simplex category is initial.
+-/
 theorem initial_incl {n m : ℕ} [NeZero n] (hm : n ≤ m) : (incl n m).Initial := by
   have : (incl n m hm ⋙ inclusion m).Initial :=
     Functor.initial_of_natIso (inclCompInclusion (by lia)).symm
   apply Functor.initial_of_comp_full_faithful _ (inclusion m)
 
 /-- Abbreviation for face maps in the `n`-truncated simplex category. -/
-abbrev δ (m : Nat) {n} (i : Fin (n + 2)) (hn := by decide) (hn' := by decide) :
-  (⟨⦋n⦌, hn⟩ : SimplexCategory.Truncated m) ⟶ ⟨⦋n + 1⦌, hn'⟩ := Hom.tr (SimplexCategory.δ i)
+abbrev δ (m : Nat) {n} (i : Fin (n + 2)) (hn := by decide) (hn' := by decide)
+    : (⟨⦋n⦌, hn⟩ : SimplexCategory.Truncated m) ⟶ ⟨⦋n + 1⦌, hn'⟩ :=
+  Hom.tr (SimplexCategory.δ i)
 
 /-- Abbreviation for degeneracy maps in the `n`-truncated simplex category. -/
-abbrev σ (m : Nat) {n} (i : Fin (n + 1)) (hn := by decide) (hn' := by decide) :
-    (⟨⦋n + 1⦌, hn⟩ : SimplexCategory.Truncated m) ⟶ ⟨⦋n⦌, hn'⟩ := Hom.tr (SimplexCategory.σ i)
+abbrev σ (m : Nat) {n} (i : Fin (n + 1)) (hn := by decide) (hn' := by decide)
+    : (⟨⦋n + 1⦌, hn⟩ : SimplexCategory.Truncated m) ⟶ ⟨⦋n⦌, hn'⟩ :=
+  Hom.tr (SimplexCategory.σ i)
 
 section Two
 

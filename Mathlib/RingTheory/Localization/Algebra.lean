@@ -27,8 +27,8 @@ as the translation is currently tedious and can be unified easily after the loca
 
 @[expose] public section
 
-variable {R S P : Type*} (Q : Type*) [CommSemiring R] [CommSemiring S] [CommSemiring P]
-  [CommSemiring Q]
+variable
+  {R S P : Type*} (Q : Type*) [CommSemiring R] [CommSemiring S] [CommSemiring P] [CommSemiring Q]
   {M : Submonoid R} {T : Submonoid P}
   [Algebra R S] [Algebra P Q] [IsLocalization M S] [IsLocalization T Q]
   (g : R →+* P)
@@ -37,13 +37,18 @@ open IsLocalization in
 variable (M S) in
 /-- The span of `I` in a localization of `R` at `M` is the localization of `I` at `M`. -/
 -- TODO: golf using `Ideal.localized'_eq_map`
-instance Algebra.idealMap_isLocalizedModule (I : Ideal R) :
-    IsLocalizedModule M (Algebra.idealMap I (S := S)) where
+instance Algebra.idealMap_isLocalizedModule (I : Ideal R)
+    : IsLocalizedModule M (Algebra.idealMap I (S := S)) where
   map_units x :=
-    (Module.End.isUnit_iff _).mpr ⟨fun a b e ↦ Subtype.ext ((map_units S x).mul_right_injective
-      (by simpa [Algebra.smul_def] using congr(($e).1))),
-      fun a ↦ ⟨⟨_, Ideal.mul_mem_left _ (map_units S x).unit⁻¹.1 a.2⟩,
-        Subtype.ext (by simp [Algebra.smul_def, ← mul_assoc])⟩⟩
+    (Module.End.isUnit_iff _).mpr ⟨
+      fun a b e ↦
+        Subtype.ext ((map_units S x).mul_right_injective
+          (by simpa [Algebra.smul_def] using congr(($e).1))),
+      fun a ↦ ⟨
+        ⟨_, Ideal.mul_mem_left _ (map_units S x).unit⁻¹.1 a.2⟩,
+        Subtype.ext (by simp [Algebra.smul_def, ← mul_assoc])
+      ⟩
+    ⟩
   surj y :=
     have ⟨x, hx⟩ := (mem_map_algebraMap_iff M S).mp y.property
     ⟨x, Subtype.ext (by simp [Submonoid.smul_def, Algebra.smul_def, mul_comm, hx])⟩
@@ -59,14 +64,15 @@ lemma IsLocalization.ker_map (hT : Submonoid.map g M = T) :
 
 variable (S) in
 /-- The canonical linear map from the kernel of `g` to the kernel of its localization. -/
-noncomputable def RingHom.toKerIsLocalization (hy : M ≤ Submonoid.comap g T) :
-    RingHom.ker g →ₗ[R] RingHom.ker (IsLocalization.map Q g hy : S →+* Q) where
+noncomputable def RingHom.toKerIsLocalization (hy : M ≤ Submonoid.comap g T)
+    : RingHom.ker g →ₗ[R] RingHom.ker (IsLocalization.map Q g hy : S →+* Q) where
   toFun x := ⟨algebraMap R S x, by simp [RingHom.mem_ker, RingHom.mem_ker.mp x.property]⟩
-  map_add' x y := by
-    simp only [Submodule.coe_add, map_add, AddMemClass.mk_add_mk]
+  map_add' x y := by simp only [Submodule.coe_add, map_add, AddMemClass.mk_add_mk]
   map_smul' a x := by
-    simp only [SetLike.val_smul, smul_eq_mul, map_mul, id_apply, SetLike.mk_smul_of_tower_mk,
-      Algebra.smul_def]
+    simp only [
+      SetLike.val_smul, smul_eq_mul, map_mul, id_apply, SetLike.mk_smul_of_tower_mk,
+      Algebra.smul_def
+    ]
 
 @[simp]
 lemma RingHom.toKerIsLocalization_apply (hy : M ≤ Submonoid.comap g T) (r : RingHom.ker g) :
@@ -90,25 +96,31 @@ variable {R : Type*} [CommSemiring R] (M : Submonoid R)
 variable {A : Type*} [CommSemiring A] [Algebra R A]
 variable {B : Type*} [CommSemiring B] [Algebra R B]
 variable (Rₚ : Type*) [CommSemiring Rₚ] [Algebra R Rₚ] [IsLocalization M Rₚ]
-variable (Aₚ : Type*) [CommSemiring Aₚ] [Algebra R Aₚ] [Algebra A Aₚ] [IsScalarTower R A Aₚ]
+variable
+  (Aₚ : Type*) [CommSemiring Aₚ] [Algebra R Aₚ] [Algebra A Aₚ] [IsScalarTower R A Aₚ]
   [IsLocalization (Algebra.algebraMapSubmonoid A M) Aₚ]
-variable (Bₚ : Type*) [CommSemiring Bₚ] [Algebra R Bₚ] [Algebra B Bₚ] [IsScalarTower R B Bₚ]
+variable
+  (Bₚ : Type*) [CommSemiring Bₚ] [Algebra R Bₚ] [Algebra B Bₚ] [IsScalarTower R B Bₚ]
   [IsLocalization (Algebra.algebraMapSubmonoid B M) Bₚ]
 variable [Algebra Rₚ Aₚ] [Algebra Rₚ Bₚ] [IsScalarTower R Rₚ Aₚ] [IsScalarTower R Rₚ Bₚ]
 
 namespace IsLocalization
 
-instance isLocalization_algebraMapSubmonoid_map_algHom (f : A →ₐ[R] B) :
-    IsLocalization ((algebraMapSubmonoid A M).map f.toRingHom) Bₚ := by
-  rw [AlgHom.toRingHom_eq_coe, ← Submonoid.map_coe_toMonoidHom, AlgHom.toRingHom_toMonoidHom,
-    Submonoid.map_coe_toMonoidHom, algebraMapSubmonoid_map_eq M f]
+instance isLocalization_algebraMapSubmonoid_map_algHom (f : A →ₐ[R] B)
+    : IsLocalization ((algebraMapSubmonoid A M).map f.toRingHom) Bₚ := by
+  rw [
+    AlgHom.toRingHom_eq_coe, ← Submonoid.map_coe_toMonoidHom, AlgHom.toRingHom_toMonoidHom,
+    Submonoid.map_coe_toMonoidHom, algebraMapSubmonoid_map_eq M f
+  ]
   infer_instance
 
 /-- An algebra map `A →ₐ[R] B` induces an algebra map on localizations `Aₚ →ₐ[Rₚ] Bₚ`. -/
-noncomputable def mapₐ (f : A →ₐ[R] B) : Aₚ →ₐ[Rₚ] Bₚ :=
-  ⟨IsLocalization.map Bₚ f.toRingHom (Algebra.algebraMapSubmonoid_le_comap M f), fun r ↦ by
+noncomputable def mapₐ (f : A →ₐ[R] B) : Aₚ →ₐ[Rₚ] Bₚ := ⟨
+  IsLocalization.map Bₚ f.toRingHom (Algebra.algebraMapSubmonoid_le_comap M f),
+  fun r ↦ by
     obtain ⟨a, m, rfl⟩ := IsLocalization.exists_mk'_eq M r
-    simp [algebraMap_mk' (S := A), algebraMap_mk' (S := B), map_mk']⟩
+    simp [algebraMap_mk' (S := A), algebraMap_mk' (S := B), map_mk']
+⟩
 
 @[simp]
 lemma mapₐ_coe (f : A →ₐ[R] B) :
@@ -162,8 +174,8 @@ end IsLocalization
 open IsLocalization
 
 /-- The canonical linear map from the kernel of an algebra homomorphism to its localization. -/
-noncomputable def AlgHom.toKerIsLocalization (f : A →ₐ[R] B) :
-    RingHom.ker f →ₗ[A] RingHom.ker (mapₐ M Rₚ Aₚ Bₚ f) :=
+noncomputable def AlgHom.toKerIsLocalization (f : A →ₐ[R] B)
+    : RingHom.ker f →ₗ[A] RingHom.ker (mapₐ M Rₚ Aₚ Bₚ f) :=
   RingHom.toKerIsLocalization Aₚ Bₚ f.toRingHom (algebraMapSubmonoid_le_comap M f)
 
 @[simp]

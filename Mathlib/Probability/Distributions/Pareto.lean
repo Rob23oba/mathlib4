@@ -34,12 +34,10 @@ variable {t r x : ℝ}
 section ParetoPDF
 
 /-- The pdf of the Pareto distribution depending on its scale `t` and rate `r`. -/
-noncomputable def paretoPDFReal (t r x : ℝ) : ℝ :=
-  if t ≤ x then r * t ^ r * x ^ (-(r + 1)) else 0
+noncomputable def paretoPDFReal (t r x : ℝ) : ℝ := if t ≤ x then r * t ^ r * x ^ (-(r + 1)) else 0
 
 /-- The pdf of the Pareto distribution, as a function valued in `ℝ≥0∞`. -/
-noncomputable def paretoPDF (t r x : ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal (paretoPDFReal t r x)
+noncomputable def paretoPDF (t r x : ℝ) : ℝ≥0∞ := ENNReal.ofReal (paretoPDFReal t r x)
 
 lemma paretoPDF_eq (t r x : ℝ) :
     paretoPDF t r x = ENNReal.ofReal (if t ≤ x then r * t ^ r * x ^ (-(r + 1)) else 0) := rfl
@@ -115,8 +113,7 @@ end ParetoPDF
 open MeasureTheory
 
 /-- Measure defined by the Pareto distribution. -/
-noncomputable def paretoMeasure (t r : ℝ) : Measure ℝ :=
-  volume.withDensity (paretoPDF t r)
+noncomputable def paretoMeasure (t r : ℝ) : Measure ℝ := volume.withDensity (paretoPDF t r)
 
 lemma isProbabilityMeasure_paretoMeasure (ht : 0 < t) (hr : 0 < r) :
     IsProbabilityMeasure (paretoMeasure t r) where

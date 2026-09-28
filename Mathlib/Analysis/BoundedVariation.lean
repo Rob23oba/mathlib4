@@ -42,9 +42,9 @@ section
 
 open Finset
 
-variable {α : Type*} [LinearOrder α] {E F G : Type*}
-  [NormedAddCommGroup E] [NormedSpace ℝ E]
-  [NormedAddCommGroup F] [NormedSpace ℝ F]
+variable
+  {α : Type*} [LinearOrder α]
+  {E F G : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F] [NormedSpace ℝ F]
   [NormedAddCommGroup G] [NormedSpace ℝ G]
   {s : Set α} {f : α → E} {g : α → F} {C D : ℝ≥0∞} {B : E →L[ℝ] F →L[ℝ] G}
 
@@ -150,17 +150,16 @@ end
 
 namespace BoundedVariationOn
 
-variable {α E M : Type*} [LinearOrder α] [TopologicalSpace α] [OrderTopology α]
-  [PseudoEMetricSpace M]
-  [SecondCountableTopologyEither α M] [MeasurableSpace α] [BorelSpace α]
-  [NormedAddCommGroup E] [SecondCountableTopologyEither α E]
+variable
+  {α E M : Type*} [LinearOrder α] [TopologicalSpace α] [OrderTopology α] [PseudoEMetricSpace M]
+  [SecondCountableTopologyEither α M] [MeasurableSpace α] [BorelSpace α] [NormedAddCommGroup E]
+  [SecondCountableTopologyEither α E]
 
-theorem stronglyMeasurable {f : α → M} (hf : BoundedVariationOn f univ) :
-    StronglyMeasurable f :=
+theorem stronglyMeasurable {f : α → M} (hf : BoundedVariationOn f univ) : StronglyMeasurable f :=
   StronglyMeasurable.of_countable_not_continuousAt hf.countable_not_continuousAt
 
-theorem measurable [MeasurableSpace M] [BorelSpace M] {f : α → M} (hf : BoundedVariationOn f univ) :
-    Measurable f :=
+theorem measurable [MeasurableSpace M] [BorelSpace M] {f : α → M} (hf : BoundedVariationOn f univ)
+    : Measurable f :=
   hf.stronglyMeasurable.measurable
 
 variable {μ : Measure α} {f : α → E}
@@ -184,20 +183,26 @@ end BoundedVariationOn
 
 namespace LocallyBoundedVariationOn
 
-/-- A bounded variation function into `ℝ` is differentiable almost everywhere. Superseded by
-`ae_differentiableWithinAt_of_mem`. -/
-theorem ae_differentiableWithinAt_of_mem_real {f : ℝ → ℝ} {s : Set ℝ}
-    (h : LocallyBoundedVariationOn f s) : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x := by
+/--
+A bounded variation function into `ℝ` is differentiable almost everywhere. Superseded by
+`ae_differentiableWithinAt_of_mem`.
+-/
+theorem ae_differentiableWithinAt_of_mem_real
+    {f : ℝ → ℝ} {s : Set ℝ} (h : LocallyBoundedVariationOn f s)
+    : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x := by
   obtain ⟨p, q, hp, hq, rfl⟩ : ∃ p q, MonotoneOn p s ∧ MonotoneOn q s ∧ f = p - q :=
     h.exists_monotoneOn_sub_monotoneOn
   filter_upwards [hp.ae_differentiableWithinAt_of_mem, hq.ae_differentiableWithinAt_of_mem] with
     x hxp hxq xs
   exact (hxp xs).sub (hxq xs)
 
-/-- A bounded variation function into a finite-dimensional product vector space is differentiable
-almost everywhere. Superseded by `ae_differentiableWithinAt_of_mem`. -/
-theorem ae_differentiableWithinAt_of_mem_pi {ι : Type*} [Fintype ι] {f : ℝ → ι → ℝ} {s : Set ℝ}
-    (h : LocallyBoundedVariationOn f s) : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x := by
+/--
+A bounded variation function into a finite-dimensional product vector space is differentiable
+almost everywhere. Superseded by `ae_differentiableWithinAt_of_mem`.
+-/
+theorem ae_differentiableWithinAt_of_mem_pi
+    {ι : Type*} [Fintype ι] {f : ℝ → ι → ℝ} {s : Set ℝ} (h : LocallyBoundedVariationOn f s)
+    : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x := by
   have A : ∀ i : ι, LipschitzWith 1 fun x : ι → ℝ => x i := fun i => LipschitzWith.eval i
   have : ∀ i : ι, ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ (fun x : ℝ => f x i) s x := fun i ↦ by
     apply ae_differentiableWithinAt_of_mem_real
@@ -205,10 +210,12 @@ theorem ae_differentiableWithinAt_of_mem_pi {ι : Type*} [Fintype ι] {f : ℝ �
   filter_upwards [ae_all_iff.2 this] with x hx xs
   exact differentiableWithinAt_pi.2 fun i => hx i xs
 
-/-- A real function into a finite-dimensional real vector space with bounded variation on a set
-is differentiable almost everywhere in this set. -/
-theorem ae_differentiableWithinAt_of_mem {f : ℝ → V} {s : Set ℝ}
-    (h : LocallyBoundedVariationOn f s) : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x := by
+/--
+A real function into a finite-dimensional real vector space with bounded variation on a set
+is differentiable almost everywhere in this set.
+-/
+theorem ae_differentiableWithinAt_of_mem {f : ℝ → V} {s : Set ℝ} (h : LocallyBoundedVariationOn f s)
+    : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x := by
   let A := (Module.Basis.ofVectorSpace ℝ V).equivFun.toContinuousLinearEquiv
   suffices H : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ (A ∘ f) s x by
     filter_upwards [H] with x hx xs
@@ -216,12 +223,15 @@ theorem ae_differentiableWithinAt_of_mem {f : ℝ → V} {s : Set ℝ}
   apply ae_differentiableWithinAt_of_mem_pi
   exact A.lipschitzWith.comp_locallyBoundedVariationOn h
 
-/-- A real function into a finite-dimensional real vector space with bounded variation on an
+/--
+A real function into a finite-dimensional real vector space with bounded variation on an
 interval is differentiable almost everywhere in this interval. This one differs from
 `LocallyBoundedVariationOn.ae_differentiableWithinAt_of_mem` by using `DifferentiableAt` instead of
-`DifferentiableWithinAt` in its conclusion. -/
-theorem _root_.BoundedVariationOn.ae_differentiableAt_of_mem_uIcc {f : ℝ → V} {a b : ℝ}
-    (h : BoundedVariationOn f (uIcc a b)) : ∀ᵐ x, x ∈ uIcc a b → DifferentiableAt ℝ f x := by
+`DifferentiableWithinAt` in its conclusion.
+-/
+theorem _root_.BoundedVariationOn.ae_differentiableAt_of_mem_uIcc
+    {f : ℝ → V} {a b : ℝ} (h : BoundedVariationOn f (uIcc a b))
+    : ∀ᵐ x, x ∈ uIcc a b → DifferentiableAt ℝ f x := by
   have h₁ : ∀ᵐ x, x ≠ min a b := by simp [ae_iff, measure_singleton]
   have h₂ : ∀ᵐ x, x ≠ max a b := by simp [ae_iff, measure_singleton]
   filter_upwards [h.locallyBoundedVariationOn.ae_differentiableWithinAt_of_mem, h₁, h₂]
@@ -230,42 +240,53 @@ theorem _root_.BoundedVariationOn.ae_differentiableAt_of_mem_uIcc {f : ℝ → V
   exact (hx₁ hx₄).differentiableAt
     (Icc_mem_nhds (lt_of_le_of_ne hx₄.left hx₂.symm) (lt_of_le_of_ne hx₄.right hx₃))
 
-/-- A real function into a finite-dimensional real vector space with bounded variation on a set
-is differentiable almost everywhere in this set. -/
-theorem ae_differentiableWithinAt {f : ℝ → V} {s : Set ℝ} (h : LocallyBoundedVariationOn f s)
-    (hs : MeasurableSet s) : ∀ᵐ x ∂volume.restrict s, DifferentiableWithinAt ℝ f s x := by
+/--
+A real function into a finite-dimensional real vector space with bounded variation on a set
+is differentiable almost everywhere in this set.
+-/
+theorem ae_differentiableWithinAt
+    {f : ℝ → V} {s : Set ℝ} (h : LocallyBoundedVariationOn f s) (hs : MeasurableSet s)
+    : ∀ᵐ x ∂volume.restrict s, DifferentiableWithinAt ℝ f s x := by
   rw [ae_restrict_iff' hs]
   exact h.ae_differentiableWithinAt_of_mem
 
-/-- A real function into a finite-dimensional real vector space with bounded variation
-is differentiable almost everywhere. -/
-theorem ae_differentiableAt {f : ℝ → V} (h : LocallyBoundedVariationOn f univ) :
-    ∀ᵐ x, DifferentiableAt ℝ f x := by
+/--
+A real function into a finite-dimensional real vector space with bounded variation
+is differentiable almost everywhere.
+-/
+theorem ae_differentiableAt {f : ℝ → V} (h : LocallyBoundedVariationOn f univ)
+    : ∀ᵐ x, DifferentiableAt ℝ f x := by
   filter_upwards [h.ae_differentiableWithinAt_of_mem] with x hx
   rw [differentiableWithinAt_univ] at hx
   exact hx (mem_univ _)
 
 end LocallyBoundedVariationOn
 
-/-- A real function into a finite-dimensional real vector space which is Lipschitz on a set
+/--
+A real function into a finite-dimensional real vector space which is Lipschitz on a set
 is differentiable almost everywhere in this set. For the general Rademacher theorem assuming
 that the source space is finite dimensional, see `LipschitzOnWith.ae_differentiableWithinAt_of_mem`.
 -/
-theorem LipschitzOnWith.ae_differentiableWithinAt_of_mem_real {C : ℝ≥0} {f : ℝ → V} {s : Set ℝ}
-    (h : LipschitzOnWith C f s) : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x :=
+theorem LipschitzOnWith.ae_differentiableWithinAt_of_mem_real
+    {C : ℝ≥0} {f : ℝ → V} {s : Set ℝ} (h : LipschitzOnWith C f s)
+    : ∀ᵐ x, x ∈ s → DifferentiableWithinAt ℝ f s x :=
   h.locallyBoundedVariationOn.ae_differentiableWithinAt_of_mem
 
-/-- A real function into a finite-dimensional real vector space which is Lipschitz on a set
+/--
+A real function into a finite-dimensional real vector space which is Lipschitz on a set
 is differentiable almost everywhere in this set. For the general Rademacher theorem assuming
-that the source space is finite dimensional, see `LipschitzOnWith.ae_differentiableWithinAt`. -/
-theorem LipschitzOnWith.ae_differentiableWithinAt_real {C : ℝ≥0} {f : ℝ → V} {s : Set ℝ}
-    (h : LipschitzOnWith C f s) (hs : MeasurableSet s) :
-    ∀ᵐ x ∂volume.restrict s, DifferentiableWithinAt ℝ f s x :=
+that the source space is finite dimensional, see `LipschitzOnWith.ae_differentiableWithinAt`.
+-/
+theorem LipschitzOnWith.ae_differentiableWithinAt_real
+    {C : ℝ≥0} {f : ℝ → V} {s : Set ℝ} (h : LipschitzOnWith C f s) (hs : MeasurableSet s)
+    : ∀ᵐ x ∂volume.restrict s, DifferentiableWithinAt ℝ f s x :=
   h.locallyBoundedVariationOn.ae_differentiableWithinAt hs
 
-/-- A real Lipschitz function into a finite-dimensional real vector space is differentiable
+/--
+A real Lipschitz function into a finite-dimensional real vector space is differentiable
 almost everywhere. For the general Rademacher theorem assuming
-that the source space is finite dimensional, see `LipschitzWith.ae_differentiableAt`. -/
-theorem LipschitzWith.ae_differentiableAt_real {C : ℝ≥0} {f : ℝ → V} (h : LipschitzWith C f) :
-    ∀ᵐ x, DifferentiableAt ℝ f x :=
+that the source space is finite dimensional, see `LipschitzWith.ae_differentiableAt`.
+-/
+theorem LipschitzWith.ae_differentiableAt_real {C : ℝ≥0} {f : ℝ → V} (h : LipschitzWith C f)
+    : ∀ᵐ x, DifferentiableAt ℝ f x :=
   (h.locallyBoundedVariationOn univ).ae_differentiableAt

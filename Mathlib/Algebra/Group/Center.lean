@@ -87,9 +87,12 @@ protected theorem right_comm (h : IsMulCentral c) (a b) : a * b * c = a * c * b 
   simp only [h.right_assoc, h.mid_assoc, (h.comm _).eq]
 
 @[to_additive]
-protected theorem map {F} [FunLike F M N] [MulHomClass F M N] {f : F} (h : IsMulCentral a)
-    (hf : Function.Surjective f) : IsMulCentral (f a) := by
-  refine ⟨fun a ↦ ?_ , fun a b ↦ ?_, fun a b ↦ ?_⟩
+protected theorem map
+    {F} [FunLike F M N] [MulHomClass F M N]
+    {f : F}
+    (h : IsMulCentral a) (hf : Function.Surjective f)
+    : IsMulCentral (f a) := by
+  refine ⟨fun a ↦ ?_, fun a b ↦ ?_, fun a b ↦ ?_⟩
   · obtain ⟨_, rfl⟩ := hf a
     rw [commute_iff_eq, ← map_mul, ← map_mul, h.comm]
   all_goals
@@ -98,8 +101,10 @@ protected theorem map {F} [FunLike F M N] [MulHomClass F M N] {f : F} (h : IsMul
     simp only [← map_mul, h.left_assoc, h.right_assoc]
 
 @[to_additive]
-protected theorem of_map {F} [FunLike F M N] [MulHomClass F M N] {f : F} (h : IsMulCentral (f a))
-    (hf : Function.Injective f) : IsMulCentral a where
+protected theorem of_map
+    {F} [FunLike F M N] [MulHomClass F M N]
+    {f : F} (h : IsMulCentral (f a)) (hf : Function.Injective f)
+    : IsMulCentral a where
   comm _ := hf <| by rw [map_mul, map_mul, h.comm]
   left_assoc _ _ := hf <| by simp [map_mul, h.left_assoc]
   right_assoc _ _ := hf <| by simp [map_mul, h.right_assoc]
@@ -116,8 +121,7 @@ variable [Mul M] [Mul N]
 variable (M) in
 /-- The center of a magma. -/
 @[to_additive addCenter /-- The center of an additive magma. -/]
-def center : Set M :=
-  { z | IsMulCentral z }
+def center : Set M := { z | IsMulCentral z }
 
 variable (S) in
 /-- The centralizer of a subset of a magma. -/
@@ -125,30 +129,32 @@ variable (S) in
 def centralizer : Set M := {c | ∀ m ∈ S, m * c = c * m}
 
 @[to_additive mem_addCenter_iff]
-theorem mem_center_iff {z : M} : z ∈ center M ↔ IsMulCentral z :=
-  Iff.rfl
+theorem mem_center_iff {z : M} : z ∈ center M ↔ IsMulCentral z := Iff.rfl
 
 @[to_additive image_addCenter_subset]
-theorem image_center_subset {F} [FunLike F M N] [MulHomClass F M N] {f : F}
-    (hf : Function.Surjective f) : f '' (Set.center M) ⊆ Set.center N := by
+theorem image_center_subset
+    {F} [FunLike F M N] [MulHomClass F M N] {f : F} (hf : Function.Surjective f)
+    : f '' (Set.center M) ⊆ Set.center N := by
   simpa [subset_def, mem_center_iff] using fun _ h ↦ IsMulCentral.map h hf
 
 @[to_additive preimage_addCenter_subset]
-theorem preimage_center_subset {F} [FunLike F M N] [MulHomClass F M N] {f : F}
-    (hf : Function.Injective f) : f ⁻¹' Set.center N ⊆ Set.center M :=
-  fun _ hx ↦ Set.mem_center_iff.mpr (hx.of_map hf)
+theorem preimage_center_subset
+    {F} [FunLike F M N] [MulHomClass F M N] {f : F} (hf : Function.Injective f)
+    : f ⁻¹' Set.center N ⊆ Set.center M := fun _ hx ↦
+  Set.mem_center_iff.mpr (hx.of_map hf)
 
 @[to_additive (attr := simp) image_addCenter_eq]
-theorem image_center_eq {F} [EquivLike F M N] [MulEquivClass F M N] (f : F) :
-    f '' Set.center M = Set.center N := by
+theorem image_center_eq {F} [EquivLike F M N] [MulEquivClass F M N] (f : F)
+    : f '' Set.center M = Set.center N := by
   refine le_antisymm (image_center_subset <| EquivLike.surjective f) fun x hx ↦ ?_
   obtain ⟨a, rfl⟩ := EquivLike.surjective f x
   have := image_center_subset (MulEquivClass.toMulEquiv f).symm.surjective (mem_image_of_mem _ hx)
   simpa using this
 
 @[to_additive]
-theorem _root_.MulEquivClass.apply_mem_center_iff {F} [EquivLike F M N] [MulEquivClass F M N]
-    (f : F) {x : M} : f x ∈ Set.center N ↔ x ∈ Set.center M := by
+theorem _root_.MulEquivClass.apply_mem_center_iff
+    {F} [EquivLike F M N] [MulEquivClass F M N] (f : F) {x : M}
+    : f x ∈ Set.center N ↔ x ∈ Set.center M := by
   rw [← image_center_eq (f := f)]
   simp [-image_center_eq]
 
@@ -159,8 +165,8 @@ alias ⟨_, _root_.MulEquivClass.apply_mem_center⟩ := _root_.MulEquivClass.app
 lemma mem_centralizer_iff {c : M} : c ∈ centralizer S ↔ ∀ m ∈ S, m * c = c * m := Iff.rfl
 
 @[to_additive (attr := simp) add_mem_addCenter]
-theorem mul_mem_center {z₁ z₂ : M} (hz₁ : z₁ ∈ Set.center M) (hz₂ : z₂ ∈ Set.center M) :
-    z₁ * z₂ ∈ Set.center M := by
+theorem mul_mem_center {z₁ z₂ : M} (hz₁ : z₁ ∈ Set.center M) (hz₂ : z₂ ∈ Set.center M)
+    : z₁ * z₂ ∈ Set.center M := by
   simp only [commute_iff_eq, mem_center_iff, isMulCentral_iff] at *
   grind
 
@@ -186,8 +192,9 @@ lemma centralizer_centralizer_centralizer (S : Set M) :
   exact fun x hx y hy ↦ hx y <| Set.subset_centralizer_centralizer hy
 
 @[to_additive decidableMemAddCentralizer]
-instance decidableMemCentralizer [∀ a : M, Decidable <| ∀ b ∈ S, b * a = a * b] :
-    DecidablePred (· ∈ centralizer S) := fun _ ↦ decidable_of_iff' _ mem_centralizer_iff
+instance decidableMemCentralizer [∀ a : M, Decidable <| ∀ b ∈ S, b * a = a * b]
+    : DecidablePred (· ∈ centralizer S) := fun _ ↦
+  decidable_of_iff' _ mem_centralizer_iff
 
 @[to_additive addCentralizer_addCentralizer_pairwise_commute]
 lemma centralizer_centralizer_pairwise_commute (h_comm : S.Pairwise Commute) :
@@ -204,35 +211,38 @@ theorem centralizer_empty : (∅ : Set M).centralizer = ⊤ := by simp [centrali
 
 /-- The centralizer of the product of non-empty sets is equal to the product of the centralizers. -/
 @[to_additive addCentralizer_prod]
-theorem centralizer_prod {N : Type*} [Mul N] {S : Set M} {T : Set N}
-    (hS : S.Nonempty) (hT : T.Nonempty) :
-    (S ×ˢ T).centralizer = S.centralizer ×ˢ T.centralizer := by
+theorem centralizer_prod
+    {N : Type*} [Mul N] {S : Set M} {T : Set N} (hS : S.Nonempty) (hT : T.Nonempty)
+    : (S ×ˢ T).centralizer = S.centralizer ×ˢ T.centralizer := by
   ext
   simp only [mem_prod, mem_centralizer_iff, Prod.forall, Prod.mul_def]
   grind [Set.Nonempty]
 
 @[to_additive prod_addCentralizer_subset_addCentralizer_prod]
-theorem prod_centralizer_subset_centralizer_prod {N : Type*} [Mul N] (S : Set M) (T : Set N) :
-    S.centralizer ×ˢ T.centralizer ⊆ (S ×ˢ T).centralizer := by
+theorem prod_centralizer_subset_centralizer_prod {N : Type*} [Mul N] (S : Set M) (T : Set N)
+    : S.centralizer ×ˢ T.centralizer ⊆ (S ×ˢ T).centralizer := by
   simp_all [subset_def, mem_centralizer_iff]
 
 @[to_additive addCenter_prod]
-protected theorem center_prod {N : Type*} [Mul N] :
-    center (M × N) = center M ×ˢ center N := by
+protected theorem center_prod {N : Type*} [Mul N] : center (M × N) = center M ×ˢ center N := by
   aesop (add simp [forall_and, commute_iff_eq, isMulCentral_iff, mem_center_iff])
 
 open Function in
 @[to_additive addCenter_pi]
-protected theorem center_pi {ι : Type*} {A : ι → Type*} [Π i, Mul (A i)] :
-    center (Π i, A i) = univ.pi fun i ↦ center (A i) := by
+protected theorem center_pi {ι : Type*} {A : ι → Type*} [Π i, Mul (A i)]
+    : center (Π i, A i) = univ.pi fun i ↦ center (A i) := by
   classical
   ext x
-  simp only [mem_pi, mem_center_iff, isMulCentral_iff, mem_univ, forall_true_left,
-    commute_iff_eq, funext_iff, Pi.mul_def]
+  simp only [
+    mem_pi, mem_center_iff, isMulCentral_iff, mem_univ, forall_true_left, commute_iff_eq,
+    funext_iff, Pi.mul_def
+  ]
   refine ⟨fun ⟨h1, h2, h3⟩ i ↦ ?_, by grind⟩
-  exact ⟨fun a ↦ by simpa using h1 (update x i a) i,
+  exact ⟨
+    fun a ↦ by simpa using h1 (update x i a) i,
     fun b c ↦ by simpa using h2 (update x i b) (update x i c) i,
-    fun a b ↦ by simpa using h3 (update x i a) (update x i b) i⟩
+    fun a b ↦ by simpa using h3 (update x i a) (update x i b) i
+  ⟩
 
 end Mul
 
@@ -240,9 +250,10 @@ section Semigroup
 variable [Semigroup M] {a b : M}
 
 @[to_additive]
-theorem _root_.Semigroup.mem_center_iff {z : M} :
-    z ∈ Set.center M ↔ ∀ g, g * z = z * g := ⟨fun a g ↦ by rw [IsMulCentral.comm a g],
-  fun h ↦ ⟨fun _ ↦ (h _).symm, fun _ _ ↦ (mul_assoc z _ _).symm, fun _ _ ↦ mul_assoc _ _ z⟩ ⟩
+theorem _root_.Semigroup.mem_center_iff {z : M} : z ∈ Set.center M ↔ ∀ g, g * z = z * g := ⟨
+  fun a g ↦ by rw [IsMulCentral.comm a g],
+  fun h ↦ ⟨fun _ ↦ (h _).symm, fun _ _ ↦ (mul_assoc z _ _).symm, fun _ _ ↦ mul_assoc _ _ z⟩
+⟩
 
 @[to_additive (attr := simp) add_mem_addCentralizer]
 lemma mul_mem_centralizer (ha : a ∈ centralizer S) (hb : b ∈ centralizer S) :
@@ -253,7 +264,8 @@ lemma mul_mem_centralizer (ha : a ∈ centralizer S) (hb : b ∈ centralizer S) 
 theorem centralizer_eq_top_iff_subset : centralizer S = Set.univ ↔ S ⊆ center M :=
   eq_top_iff.trans ⟨
     fun h _ hx ↦ Semigroup.mem_center_iff.mpr fun _ ↦ by rw [h trivial _ hx],
-    fun h _ _ _ hm ↦ (h hm).comm _⟩
+    fun h _ _ _ hm ↦ (h hm).comm _
+  ⟩
 
 variable (M) in
 @[to_additive (attr := simp) addCentralizer_univ]
@@ -263,8 +275,9 @@ lemma centralizer_univ : centralizer univ = center M :=
 
 -- TODO Add `instance : Decidable (IsMulCentral a)` for `instance decidableMemCenter [Mul M]`
 @[to_additive decidableMemAddCenter]
-instance decidableMemCenter [∀ a : M, Decidable <| ∀ b : M, b * a = a * b] :
-    DecidablePred (· ∈ center M) := fun _ => decidable_of_iff' _ (Semigroup.mem_center_iff)
+instance decidableMemCenter [∀ a : M, Decidable <| ∀ b : M, b * a = a * b]
+    : DecidablePred (· ∈ center M) := fun _ =>
+  decidable_of_iff' _ (Semigroup.mem_center_iff)
 
 end Semigroup
 
@@ -301,8 +314,7 @@ section Monoid
 variable [Monoid M]
 
 @[to_additive subset_addCenter_add_units]
-theorem subset_center_units : ((↑) : Mˣ → M) ⁻¹' center M ⊆ Set.center Mˣ :=
-  fun _ ha => by
+theorem subset_center_units : ((↑) : Mˣ → M) ⁻¹' center M ⊆ Set.center Mˣ := fun _ ha => by
   rw [_root_.Semigroup.mem_center_iff]
   intro _
   rw [← Units.val_inj, Units.val_mul, Units.val_mul, ha.comm]

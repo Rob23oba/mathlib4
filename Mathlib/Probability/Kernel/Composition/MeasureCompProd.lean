@@ -35,12 +35,12 @@ open ProbabilityTheory Set
 
 namespace MeasureTheory.Measure
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : Kernel α β}
+variable
+  {α β : Type*}
+  {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α} {κ η : Kernel α β}
 
 /-- The composition-product of a measure and a kernel. -/
-noncomputable
-def compProd (μ : Measure α) (κ : Kernel α β) : Measure (α × β) :=
+noncomputable def compProd (μ : Measure α) (κ : Kernel α β) : Measure (α × β) :=
   (Kernel.const Unit μ ⊗ₖ Kernel.prodMkLeft Unit κ) ()
 
 @[inherit_doc]
@@ -219,8 +219,8 @@ instance [IsFiniteMeasure μ] [IsFiniteKernel κ] : IsFiniteMeasure (μ ⊗ₘ �
 instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (μ ⊗ₘ κ) := by
   rw [compProd]; infer_instance
 
-instance [IsZeroOrProbabilityMeasure μ] [IsZeroOrMarkovKernel κ] :
-    IsZeroOrProbabilityMeasure (μ ⊗ₘ κ) := by
+instance [IsZeroOrProbabilityMeasure μ] [IsZeroOrMarkovKernel κ]
+    : IsZeroOrProbabilityMeasure (μ ⊗ₘ κ) := by
   rw [compProd]
   exact IsZeroOrMarkovKernel.isZeroOrProbabilityMeasure ()
 

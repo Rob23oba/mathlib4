@@ -51,11 +51,8 @@ variable {R S : Type*} [NonUnitalNonAssocRing R] [NonUnitalNonAssocRing S]
 variable {F : Type*} [FunLike F R S]
 variable (f : F)
 
-/--
-The smallest two-sided ideal containing a set.
--/
-abbrev span (s : Set R) : TwoSidedIdeal R :=
-  { ringCon := ringConGen (fun a b ↦ a - b ∈ s) }
+/-- The smallest two-sided ideal containing a set. -/
+abbrev span (s : Set R) : TwoSidedIdeal R := { ringCon := ringConGen (fun a b ↦ a - b ∈ s) }
 
 lemma subset_span {s : Set R} : s ⊆ (span s : Set R) := by
   intro x hx
@@ -82,38 +79,38 @@ lemma span_le {s : Set R} {I : TwoSidedIdeal R} : span s ≤ I ↔ s ⊆ I := by
   rw [TwoSidedIdeal.ringCon_le_iff, RingCon.gi _ |>.gc]
   exact ⟨fun h x hx ↦ by aesop, fun h x y hxy ↦ (rel_iff I x y).mpr (h hxy)⟩
 
-/-- An induction principle for span membership.
+/--
+An induction principle for span membership.
 
 If `p` holds for 0 and all elements of `s`,
 and is preserved under addition and left and right multiplication,
-then `p` holds for all elements of the span of `s`. -/
+then `p` holds for all elements of the span of `s`.
+-/
 @[elab_as_elim]
-theorem span_induction {s : Set R}
-    {p : (x : R) → x ∈ TwoSidedIdeal.span s → Prop}
-    (mem : ∀ (x) (h : x ∈ s), p x (subset_span h))
-    (zero : p 0 (zero_mem _))
+theorem span_induction
+    {s : Set R} {p : (x : R) → x ∈ TwoSidedIdeal.span s → Prop}
+    (mem : ∀ (x) (h : x ∈ s), p x (subset_span h)) (zero : p 0 (zero_mem _))
     (add : ∀ x y hx hy, p x hx → p y hy → p (x + y) (add_mem _ hx hy))
     (neg : ∀ x hx, p x hx → p (-x) (neg_mem _ hx))
     (left_absorb : ∀ a x hx, p x hx → p (a * x) (mul_mem_left _ _ _ hx))
     (right_absorb : ∀ b x hx, p x hx → p (x * b) (mul_mem_right _ _ _ hx))
-    {x : R} (hx : x ∈ span s) : p x hx :=
-  let J : TwoSidedIdeal R := .mk'
-    {x | ∃ hx, p x hx}
-    ⟨zero_mem _, zero⟩
-    (fun ⟨hx1, hx2⟩ ⟨hy1, hy2⟩ ↦ ⟨add_mem _ hx1 hy1, add _ _ hx1 hy1 hx2 hy2⟩)
-    (fun ⟨hx1, hx2⟩ ↦ ⟨neg_mem _ hx1, neg _ hx1 hx2⟩)
-    (fun {x' y'} ⟨hy1, hy2⟩ ↦ ⟨mul_mem_left _ _ _ hy1, left_absorb _ _ _ hy2⟩)
-    (fun {x' y'} ⟨hx1, hx2⟩ ↦ ⟨mul_mem_right _ _ _ hx1, right_absorb _ _ _ hx2⟩)
-  span_le (s := s) (I := J) |>.2
-    (fun x hx ↦ ⟨by simpa using (mem_span_iff.2 fun I a ↦ a hx), by simp_all⟩) hx
-      |>.elim fun _ ↦ by simp
+    {x : R} (hx : x ∈ span s)
+    : p x hx :=
+  let J : TwoSidedIdeal R :=
+    .mk' ({x | ∃ hx, p x hx}) ⟨zero_mem _, zero⟩
+      (fun ⟨hx1, hx2⟩ ⟨hy1, hy2⟩ ↦ ⟨add_mem _ hx1 hy1, add _ _ hx1 hy1 hx2 hy2⟩)
+      (fun ⟨hx1, hx2⟩ ↦ ⟨neg_mem _ hx1, neg _ hx1 hx2⟩)
+      (fun {x' y'} ⟨hy1, hy2⟩ ↦ ⟨mul_mem_left _ _ _ hy1, left_absorb _ _ _ hy2⟩)
+      (fun {x' y'} ⟨hx1, hx2⟩ ↦ ⟨mul_mem_right _ _ _ hx1, right_absorb _ _ _ hx2⟩)
+  span_le (s := s) (I := J)
+    |>.2 (fun x hx ↦ ⟨by simpa using (mem_span_iff.2 fun I a ↦ a hx), by simp_all⟩) hx
+    |>.elim fun _ ↦ by simp
 
 /--
 Pushout of a two-sided ideal. Defined as the span of the image of a two-sided ideal under a ring
 homomorphism.
 -/
-def map (I : TwoSidedIdeal R) : TwoSidedIdeal S :=
-  span (f '' I)
+def map (I : TwoSidedIdeal R) : TwoSidedIdeal S := span (f '' I)
 
 lemma map_mono {I J : TwoSidedIdeal R} (h : I ≤ J) :
     map f I ≤ map f J :=
@@ -122,8 +119,7 @@ lemma map_mono {I J : TwoSidedIdeal R} (h : I ≤ J) :
 variable [NonUnitalRingHomClass F R S]
 
 set_option backward.isDefEq.respectTransparency false in
-/--
-Preimage of a two-sided ideal, as a two-sided ideal. -/
+/-- Preimage of a two-sided ideal, as a two-sided ideal. -/
 def comap : TwoSidedIdeal S →o TwoSidedIdeal R where
   toFun I := ⟨I.ringCon.comap f⟩
   monotone' := by
@@ -147,8 +143,7 @@ If `R` and `S` are isomorphic as rings, then two-sided ideals of `R` and two-sid
 order isomorphic.
 -/
 def _root_.RingEquiv.mapTwoSidedIdeal (e : R ≃+* S) : TwoSidedIdeal R ≃o TwoSidedIdeal S :=
-  OrderIso.ofHomInv (comap e.symm) (comap e) (by ext; simp [mem_comap])
-    (by ext; simp [mem_comap])
+  OrderIso.ofHomInv (comap e.symm) (comap e) (by ext; simp [mem_comap]) (by ext; simp [mem_comap])
 
 lemma _root_.RingEquiv.mapTwoSidedIdeal_apply (e : R ≃+* S) (I : TwoSidedIdeal R) :
     e.mapTwoSidedIdeal I = I.comap e.symm := rfl
@@ -267,9 +262,11 @@ lemma mem_span_iff_mem_addSubgroup_closure {s : Set R} {z : R} :
 
 variable (I : TwoSidedIdeal R)
 
-instance : SMul R I where smul r x := ⟨r • x.1, I.mul_mem_left _ _ x.2⟩
+instance : SMul R I where
+  smul r x := ⟨r • x.1, I.mul_mem_left _ _ x.2⟩
 
-instance : SMul Rᵐᵒᵖ I where smul r x := ⟨r • x.1, I.mul_mem_right _ _ x.2⟩
+instance : SMul Rᵐᵒᵖ I where
+  smul r x := ⟨r • x.1, I.mul_mem_right _ _ x.2⟩
 
 instance leftModule : Module R I :=
   Function.Injective.module _ (coeAddMonoidHom I) Subtype.coe_injective fun _ _ ↦ rfl
@@ -296,12 +293,9 @@ def subtype : I →ₗ[R] R where
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
-theorem subtype_injective : Function.Injective (subtype I) :=
-  Subtype.coe_injective
+theorem subtype_injective : Function.Injective (subtype I) := Subtype.coe_injective
 
-@[simp]
-theorem coe_subtype : ⇑(subtype I) = Subtype.val :=
-  rfl
+@[simp] theorem coe_subtype : ⇑(subtype I) = Subtype.val := rfl
 
 /--
 For any `RingCon R`, when we view it as an ideal in `Rᵒᵖ`, `subtype` is the injective `Rᵐᵒᵖ`-linear
@@ -327,11 +321,12 @@ lemma mem_fromIdeal {I : Ideal R} {x : R} :
 
 /-- Every two-sided ideal is also a left ideal. -/
 def asIdeal : TwoSidedIdeal R →o Ideal R where
-  toFun I :=
-  { carrier := I
+  toFun I := {
+    carrier := I
     add_mem' := I.add_mem
     zero_mem' := I.zero_mem
-    smul_mem' := fun r x hx => I.mul_mem_left r x hx }
+    smul_mem' := fun r x hx => I.mul_mem_left r x hx
+  }
   monotone' _ _ h _ h' := h h'
 
 set_option backward.isDefEq.respectTransparency false in
@@ -373,18 +368,21 @@ section CommRing
 
 variable {R : Type*} [CommRing R]
 
-/--
-When the ring is commutative, two-sided ideals are exactly the same as left ideals.
--/
+/-- When the ring is commutative, two-sided ideals are exactly the same as left ideals. -/
 def orderIsoIdeal : TwoSidedIdeal R ≃o Ideal R where
   toFun := asIdeal
   invFun := fromIdeal
   map_rel_iff' := ⟨fun h _ hx ↦ h hx, fun h ↦ asIdeal.monotone' h⟩
   left_inv _ := SetLike.ext fun _ ↦ mem_span_iff.trans <| by aesop
-  right_inv J := SetLike.ext fun x ↦ mem_span_iff.trans
-    ⟨fun h ↦ mem_mk' _ _ _ _ _ _ _ |>.1 <| h (mk'
-      J J.zero_mem J.add_mem J.neg_mem (J.mul_mem_left _) (J.mul_mem_right _))
-      (fun x => by simp), by aesop⟩
+  right_inv J :=
+    SetLike.ext fun x ↦
+      mem_span_iff.trans ⟨
+        fun h ↦
+          mem_mk' _ _ _ _ _ _ _ |>.1 <|
+            h (mk' J J.zero_mem J.add_mem J.neg_mem (J.mul_mem_left _) (J.mul_mem_right _))
+              (fun x => by simp),
+        by aesop
+      ⟩
 
 end CommRing
 
@@ -420,8 +418,9 @@ instance : CanLift (Ideal R) (TwoSidedIdeal R) TwoSidedIdeal.asIdeal (·.IsTwoSi
 end Ideal
 
 /-- A two-sided ideal is simply a left ideal that is two-sided. -/
-@[simps] def TwoSidedIdeal.orderIsoIsTwoSided {R : Type*} [Ring R] :
-    TwoSidedIdeal R ≃o {I : Ideal R // I.IsTwoSided} where
+@[simps]
+def TwoSidedIdeal.orderIsoIsTwoSided {R : Type*} [Ring R]
+    : TwoSidedIdeal R ≃o {I : Ideal R // I.IsTwoSided} where
   toFun I := ⟨I.asIdeal, inferInstance⟩
   invFun I := have := I.2; I.1.toTwoSided
   left_inv _ := by simp

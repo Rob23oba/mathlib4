@@ -8,7 +8,6 @@ module
 public import Mathlib.InformationTheory.KullbackLeibler.Basic
 public import Mathlib.Probability.Kernel.Composition.MeasureCompProd
 public import Mathlib.Probability.Notation
-
 import Mathlib.Probability.Kernel.Composition.IntegralCompProd
 import Mathlib.Probability.Kernel.Composition.RadonNikodym
 
@@ -85,9 +84,9 @@ open scoped ENNReal
 
 namespace InformationTheory
 
-variable {𝓧 𝓨 : Type*} {m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨}
-  {μ ν : Measure 𝓧} {κ η : Kernel 𝓧 𝓨}
-  [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsMarkovKernel κ] [IsMarkovKernel η]
+variable
+  {𝓧 𝓨 : Type*} {m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨} {μ ν : Measure 𝓧}
+  {κ η : Kernel 𝓧 𝓨} [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsMarkovKernel κ] [IsMarkovKernel η]
 
 /-- If the log-likelihood ration between two composition-products is integrable, then so is the
 log-likelihood ratio between the two measures on the first space. -/
@@ -198,9 +197,11 @@ lemma klDiv_compProd_left : klDiv (μ ⊗ₘ κ) (ν ⊗ₘ κ) = klDiv μ ν :=
     simp
 
 variable (μ ν κ η) in
-/-- **Chain rule** for the Kullback-Leibler divergence, with conditional KL expressed using
+/--
+**Chain rule** for the Kullback-Leibler divergence, with conditional KL expressed using
 composition-products.
-This version holds without any assumption on the measurable spaces. -/
+This version holds without any assumption on the measurable spaces.
+-/
 theorem klDiv_compProd_eq_add : klDiv (μ ⊗ₘ κ) (ν ⊗ₘ η) = klDiv μ ν + klDiv (μ ⊗ₘ κ) (μ ⊗ₘ η) := by
   -- first, if we don't have absolute continuity, both sides are `∞`
   by_cases h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η
@@ -229,8 +230,9 @@ theorem klDiv_compProd_eq_add : klDiv (μ ⊗ₘ κ) (ν ⊗ₘ η) = klDiv μ �
     (integral_llr_add_sub_measure_univ_nonneg h_ac_κη h_int_κη), measureReal_def,
     Measure.compProd_apply_univ, add_sub_cancel_right]
   -- it suffices to prove the chain rule for the integrals of log-likelihood ratios
-  suffices ∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂μ ⊗ₘ κ =
-      ∫ a, llr μ ν a ∂μ + ∫ p, llr (μ ⊗ₘ κ) (μ ⊗ₘ η) p ∂(μ ⊗ₘ κ) by rw [this]; ring_nf
+  suffices ∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂μ ⊗ₘ κ
+    = ∫ a, llr μ ν a ∂μ + ∫ p, llr (μ ⊗ₘ κ) (μ ⊗ₘ η) p ∂(μ ⊗ₘ κ)
+  by rw [this]; ring_nf
   -- the result follows from a previous lemma
   exact integral_llr_compProd_eq_add h_ac h_int
 

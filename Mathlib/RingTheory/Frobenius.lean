@@ -49,8 +49,10 @@ Let `G` be a finite group acting on a ring `S`, and `R` is the fixed subring of 
 
 variable {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
 
-/-- `φ : S →ₐ[R] S` is an (arithmetic) Frobenius at `Q` if
-`φ x ≡ x ^ #(R/p) (mod Q)` for all `x : S` (`AlgHom.IsArithFrobAt`). -/
+/--
+`φ : S →ₐ[R] S` is an (arithmetic) Frobenius at `Q` if
+`φ x ≡ x ^ #(R/p) (mod Q)` for all `x : S` (`AlgHom.IsArithFrobAt`).
+-/
 def AlgHom.IsArithFrobAt (φ : S →ₐ[R] S) (Q : Ideal S) : Prop :=
   ∀ x, φ x - x ^ Nat.card (R ⧸ Q.under R) ∈ Q
 
@@ -130,12 +132,12 @@ lemma apply_of_pow_eq_one [IsDomain S] {ζ : S} {m : ℕ} (hζ : ζ ^ m = 1) (hk
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- A Frobenius element at `Q` restricts to an automorphism of `S_Q`. -/
-noncomputable
-def localize [Q.IsPrime] : Localization.AtPrime Q →ₐ[R] Localization.AtPrime Q where
+noncomputable def localize [Q.IsPrime] : Localization.AtPrime Q →ₐ[R] Localization.AtPrime Q where
   toRingHom := Localization.localRingHom _ _ φ H.comap_eq.symm
   commutes' x := by
-    simp [IsScalarTower.algebraMap_apply R S (Localization.AtPrime Q),
-      Localization.localRingHom_to_map]
+    simp [
+      IsScalarTower.algebraMap_apply R S (Localization.AtPrime Q), Localization.localRingHom_to_map
+    ]
 
 @[simp]
 lemma localize_algebraMap [Q.IsPrime] (x : S) :
@@ -180,8 +182,9 @@ variable (R) in
 Suppose `S` is an `R` algebra, `M` is a monoid acting on `S` whose action is trivial on `R`
 `σ : M` is an (arithmetic) Frobenius at an ideal `Q` of `S` if `σ • x ≡ x ^ q (mod Q)` for all `x`.
 -/
-abbrev IsArithFrobAt {M : Type*} [Monoid M] [MulSemiringAction M S] [SMulCommClass M R S]
-    (σ : M) (Q : Ideal S) : Prop :=
+abbrev IsArithFrobAt
+    {M : Type*} [Monoid M] [MulSemiringAction M S] [SMulCommClass M R S] (σ : M) (Q : Ideal S)
+    : Prop :=
   (MulSemiringAction.toAlgHom R S σ).IsArithFrobAt Q
 
 namespace IsArithFrobAt
@@ -253,20 +256,21 @@ lemma exists_primesOver_isConj (P : Ideal R)
 
 variable (R G Q)
 
-/-- Let `G` be a finite group acting on `S`, `R` be the fixed subring, and `Q` be a prime of `S`
+/--
+Let `G` be a finite group acting on `S`, `R` be the fixed subring, and `Q` be a prime of `S`
 with finite residue field. This is an arbitrary choice of a Frobenius over `Q`. It is chosen so that
-the Frobenius elements of `Q₁` and `Q₂` are conjugate if they lie over the same prime. -/
-noncomputable
-def _root_.arithFrobAt [Q.IsPrime] [Finite (S ⧸ Q)] : G :=
-  (exists_primesOver_isConj S G (Q.under R)
-    ⟨⟨Q, ‹_›, ⟨rfl⟩⟩, ‹Finite (S ⧸ Q)›⟩).choose ⟨Q, ‹_›, ⟨rfl⟩⟩
+the Frobenius elements of `Q₁` and `Q₂` are conjugate if they lie over the same prime.
+-/
+noncomputable def _root_.arithFrobAt [Q.IsPrime] [Finite (S ⧸ Q)] : G :=
+  (exists_primesOver_isConj S G (Q.under R) ⟨⟨Q, ‹_›, ⟨rfl⟩⟩, ‹Finite (S ⧸ Q)›⟩).choose
+    ⟨Q, ‹_›, ⟨rfl⟩⟩
 
 protected lemma arithFrobAt [Q.IsPrime] [Finite (S ⧸ Q)] : IsArithFrobAt R (arithFrobAt R G Q) Q :=
   (exists_primesOver_isConj S G (Q.under R)
     ⟨⟨Q, ‹_›, ⟨rfl⟩⟩, ‹Finite (S ⧸ Q)›⟩).choose_spec.1 ⟨Q, ‹_›, ⟨rfl⟩⟩
 
-theorem arithFrobAt_mem_stabilizer [Q.IsPrime] [Finite (S ⧸ Q)] :
-    arithFrobAt R G Q ∈ MulAction.stabilizer G Q :=
+theorem arithFrobAt_mem_stabilizer [Q.IsPrime] [Finite (S ⧸ Q)]
+    : arithFrobAt R G Q ∈ MulAction.stabilizer G Q :=
   mem_stabilizer (.arithFrobAt R G Q)
 
 lemma _root_.isConj_arithFrobAt

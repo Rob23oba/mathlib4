@@ -57,36 +57,36 @@ section Semiring
 
 variable [Semiring R] [AddCommGroup M] [Module R M]
 
-/-- The submodule with every element negated. Note if `R` is a ring and not just a semiring, this
+/--
+The submodule with every element negated. Note if `R` is a ring and not just a semiring, this
 is a no-op, as shown by `Submodule.neg_eq_self`.
 
 Recall that When `R` is the semiring corresponding to the nonnegative elements of `R'`,
 `Submodule R' M` is the type of cones of `M`. This instance reflects such cones about `0`.
 
-This is available as an instance in the `Pointwise` locale. -/
+This is available as an instance in the `Pointwise` locale.
+-/
 @[instance_reducible]
 protected def pointwiseNeg : Neg (Submodule R M) where
-  neg p :=
-    { -p.toAddSubmonoid with
-      smul_mem' := fun r m hm => Set.mem_neg.2 <| smul_neg r m ▸ p.smul_mem r <| Set.mem_neg.1 hm }
+  neg p := {
+    -p.toAddSubmonoid with
+    smul_mem' := fun r m hm => Set.mem_neg.2 <| smul_neg r m ▸ p.smul_mem r <| Set.mem_neg.1 hm
+  }
 
 scoped[Pointwise] attribute [instance] Submodule.pointwiseNeg
 
-@[simp]
-theorem coe_set_neg (S : Submodule R M) : ↑(-S) = -(S : Set M) :=
-  rfl
+@[simp] theorem coe_set_neg (S : Submodule R M) : ↑(-S) = -(S : Set M) := rfl
 
 @[simp]
-theorem neg_toAddSubmonoid (S : Submodule R M) : (-S).toAddSubmonoid = -S.toAddSubmonoid :=
-  rfl
+theorem neg_toAddSubmonoid (S : Submodule R M) : (-S).toAddSubmonoid = -S.toAddSubmonoid := rfl
 
-@[simp]
-theorem mem_neg {g : M} {S : Submodule R M} : g ∈ -S ↔ -g ∈ S :=
-  Iff.rfl
+@[simp] theorem mem_neg {g : M} {S : Submodule R M} : g ∈ -S ↔ -g ∈ S := Iff.rfl
 
-/-- `Submodule.pointwiseNeg` is involutive.
+/--
+`Submodule.pointwiseNeg` is involutive.
 
-This is available as an instance in the `Pointwise` locale. -/
+This is available as an instance in the `Pointwise` locale.
+-/
 @[instance_reducible]
 protected def involutivePointwiseNeg : InvolutiveNeg (Submodule R M) where
   neg_neg _S := SetLike.coe_injective <| neg_neg _
@@ -108,8 +108,7 @@ def negOrderIso : Submodule R M ≃o Submodule R M where
   toEquiv := Equiv.neg _
   map_rel_iff' := @neg_le_neg _ _ _ _ _
 
-@[simp]
-theorem neg_inf (S T : Submodule R M) : -(S ⊓ T) = -S ⊓ -T := rfl
+@[simp] theorem neg_inf (S T : Submodule R M) : -(S ⊓ T) = -S ⊓ -T := rfl
 
 @[simp]
 theorem neg_sup (S T : Submodule R M) : -(S ⊔ T) = -S ⊔ -T :=
@@ -119,22 +118,22 @@ theorem neg_sup (S T : Submodule R M) : -(S ⊔ T) = -S ⊔ -T :=
 theorem neg_bot : -(⊥ : Submodule R M) = ⊥ :=
   SetLike.coe_injective <| (Set.neg_singleton 0).trans <| congr_arg _ neg_zero
 
-@[simp]
-theorem neg_top : -(⊤ : Submodule R M) = ⊤ :=
-  SetLike.coe_injective Set.neg_univ
+@[simp] theorem neg_top : -(⊤ : Submodule R M) = ⊤ := SetLike.coe_injective Set.neg_univ
 
 @[simp]
-theorem neg_iInf {ι : Sort*} (S : ι → Submodule R M) : (-⨅ i, S i) = ⨅ i, -S i :=
+theorem neg_iInf {ι : Sort*} (S : ι → Submodule R M) : (- ⨅ i, S i) = ⨅ i, -S i :=
   (negOrderIso : Submodule R M ≃o Submodule R M).map_iInf _
 
 @[simp]
-theorem neg_iSup {ι : Sort*} (S : ι → Submodule R M) : (-⨆ i, S i) = ⨆ i, -S i :=
+theorem neg_iSup {ι : Sort*} (S : ι → Submodule R M) : (- ⨆ i, S i) = ⨆ i, -S i :=
   (negOrderIso : Submodule R M ≃o Submodule R M).map_iSup _
 
 variable {S : Type*} [Semiring S] [SMul S R] [Module S M] [IsScalarTower S R M]
 
-@[simp] theorem neg_restrictScalars (p : Submodule R M) :
-  -(restrictScalars S p) = restrictScalars S (-p) := by ext; simp
+@[simp]
+theorem neg_restrictScalars (p : Submodule R M)
+    : -(restrictScalars S p) = restrictScalars S (-p) := by
+  ext; simp
 
 end Semiring
 
@@ -159,13 +158,9 @@ instance pointwiseAddCommMonoid : AddCommMonoid (Submodule R M) where
   add_comm := sup_comm
   nsmul := nsmulRec
 
-@[simp]
-theorem add_eq_sup (p q : Submodule R M) : p + q = p ⊔ q :=
-  rfl
+@[simp] theorem add_eq_sup (p q : Submodule R M) : p + q = p ⊔ q := rfl
 
-@[simp]
-theorem zero_eq_bot : (0 : Submodule R M) = ⊥ :=
-  rfl
+@[simp] theorem zero_eq_bot : (0 : Submodule R M) = ⊥ := rfl
 
 instance : IsOrderedAddMonoid (Submodule R M) where
   add_le_add_left _ _ := sup_le_sup_right
@@ -179,81 +174,86 @@ section
 
 variable [Monoid α] [DistribMulAction α M] [SMulCommClass α R M]
 
-/-- The action on a submodule corresponding to applying the action to every element.
+/--
+The action on a submodule corresponding to applying the action to every element.
 
-This is available as an instance in the `Pointwise` locale. -/
+This is available as an instance in the `Pointwise` locale.
+-/
 @[instance_reducible]
 protected def pointwiseDistribMulAction : DistribMulAction α (Submodule R M) where
   smul a S := S.map (DistribSMul.toLinearMap R M a : M →ₗ[R] M)
-  one_smul S :=
-    congr(S.map $(LinearMap.ext <| one_smul α)).trans S.map_id
-  mul_smul _a₁ _a₂ S :=
-    congr(S.map $(LinearMap.ext <| mul_smul _ _)).trans
-      (S.map_comp _ _)
+  one_smul S := congr(S.map $(LinearMap.ext <| one_smul α)).trans S.map_id
+  mul_smul _a₁ _a₂ S := congr(S.map $(LinearMap.ext <| mul_smul _ _)).trans (S.map_comp _ _)
   smul_zero _a := map_bot _
   smul_add _a _S₁ _S₂ := map_sup _ _ _
 
 scoped[Pointwise] attribute [instance] Submodule.pointwiseDistribMulAction
 
-theorem pointwise_smul_def {a : α} {S : Submodule R M} :
-    a • S = S.map (DistribSMul.toLinearMap R M a) := rfl
+theorem pointwise_smul_def {a : α} {S : Submodule R M}
+    : a • S = S.map (DistribSMul.toLinearMap R M a) :=
+  rfl
 
 @[simp, norm_cast]
-theorem coe_pointwise_smul (a : α) (S : Submodule R M) : ↑(a • S) = a • (S : Set M) :=
+theorem coe_pointwise_smul (a : α) (S : Submodule R M) : ↑(a • S) = a • (S : Set M) := rfl
+
+@[simp]
+theorem pointwise_smul_toAddSubmonoid (a : α) (S : Submodule R M)
+    : (a • S).toAddSubmonoid = a • S.toAddSubmonoid :=
   rfl
 
 @[simp]
-theorem pointwise_smul_toAddSubmonoid (a : α) (S : Submodule R M) :
-    (a • S).toAddSubmonoid = a • S.toAddSubmonoid :=
+theorem pointwise_smul_toAddSubgroup
+    {R M : Type*}
+    [Ring R] [AddCommGroup M] [DistribMulAction α M] [Module R M] [SMulCommClass α R M]
+    (a : α) (S : Submodule R M)
+    : (a • S).toAddSubgroup = a • S.toAddSubgroup :=
   rfl
 
-@[simp]
-theorem pointwise_smul_toAddSubgroup {R M : Type*} [Ring R] [AddCommGroup M] [DistribMulAction α M]
-    [Module R M] [SMulCommClass α R M] (a : α) (S : Submodule R M) :
-    (a • S).toAddSubgroup = a • S.toAddSubgroup :=
-  rfl
-
-theorem mem_smul_pointwise_iff_exists (m : M) (a : α) (S : Submodule R M) :
-    m ∈ a • S ↔ ∃ b ∈ S, a • b = m :=
+theorem mem_smul_pointwise_iff_exists (m : M) (a : α) (S : Submodule R M)
+    : m ∈ a • S ↔ ∃ b ∈ S, a • b = m :=
   Set.mem_smul_set
 
 theorem smul_mem_pointwise_smul (m : M) (a : α) (S : Submodule R M) : m ∈ S → a • m ∈ a • S :=
   (Set.smul_mem_smul_set : _ → _ ∈ a • (S : Set M))
 
-instance : CovariantClass α (Submodule R M) HSMul.hSMul LE.le :=
-  ⟨fun _ _ => map_mono⟩
+instance : CovariantClass α (Submodule R M) HSMul.hSMul LE.le := ⟨fun _ _ => map_mono⟩
 
 /-- See also `Submodule.smul_bot`. -/
-@[simp]
-theorem smul_bot' (a : α) : a • (⊥ : Submodule R M) = ⊥ :=
-  map_bot _
+@[simp] theorem smul_bot' (a : α) : a • (⊥ : Submodule R M) = ⊥ := map_bot _
 
 /-- See also `Submodule.smul_sup`. -/
-theorem smul_sup' (a : α) (S T : Submodule R M) : a • (S ⊔ T) = a • S ⊔ a • T :=
-  map_sup _ _ _
+theorem smul_sup' (a : α) (S T : Submodule R M) : a • (S ⊔ T) = a • S ⊔ a • T := map_sup _ _ _
 
 /-- See also `Submodule.smul_iSup`. -/
-theorem smul_iSup' (a : α) {ι : Sort*} (f : ι → Submodule R M) :
-    a • ⨆ i, f i = ⨆ i, a • f i :=
+theorem smul_iSup' (a : α) {ι : Sort*} (f : ι → Submodule R M) : a • ⨆ i, f i = ⨆ i, a • f i :=
   map_iSup _ _
 
-instance pointwiseCentralScalar [DistribMulAction αᵐᵒᵖ M] [SMulCommClass αᵐᵒᵖ R M]
-    [IsCentralScalar α M] : IsCentralScalar α (Submodule R M) :=
+instance pointwiseCentralScalar
+    [DistribMulAction αᵐᵒᵖ M] [SMulCommClass αᵐᵒᵖ R M] [IsCentralScalar α M]
+    : IsCentralScalar α (Submodule R M) :=
   ⟨fun _a S => (congr_arg fun f : Module.End R M => S.map f) <| LinearMap.ext <| op_smul_eq_smul _⟩
 
 @[simp]
-theorem smul_le_self_of_tower {α : Type*} [Monoid α] [SMul α R] [DistribMulAction α M]
-    [SMulCommClass α R M] [IsScalarTower α R M] (a : α) (S : Submodule R M) : a • S ≤ S := by
+theorem smul_le_self_of_tower
+    {α : Type*}
+    [Monoid α] [SMul α R] [DistribMulAction α M] [SMulCommClass α R M] [IsScalarTower α R M]
+    (a : α) (S : Submodule R M)
+    : a • S ≤ S := by
   rintro y ⟨x, hx, rfl⟩
   exact smul_of_tower_mem _ a hx
 
-theorem smul_eq_self_of_isUnit [SMul α R] [IsScalarTower α R M] {N : Submodule R M}
-    {u : α} (hu : IsUnit u) : u • N = N := by
+theorem smul_eq_self_of_isUnit
+    [SMul α R] [IsScalarTower α R M] {N : Submodule R M} {u : α} (hu : IsUnit u)
+    : u • N = N := by
   refine le_antisymm (N.smul_le_self_of_tower u) ?_
   grw [← (u • N).smul_le_self_of_tower hu.unit⁻¹.val, ← mul_smul, IsUnit.val_inv_mul, one_smul]
 
-theorem smul_eq_self {α : Type*} [Group α] [SMul α R] [DistribMulAction α M] [SMulCommClass α R M]
-    [IsScalarTower α R M] {N : Submodule R M} (u : α) : u • N = N :=
+theorem smul_eq_self
+    {α : Type*}
+    [Group α] [SMul α R] [DistribMulAction α M] [SMulCommClass α R M] [IsScalarTower α R M]
+    {N : Submodule R M}
+    (u : α)
+    : u • N = N :=
   smul_eq_self_of_isUnit (Group.isUnit u)
 
 end
@@ -262,17 +262,19 @@ section
 
 variable [Semiring α] [Module α M] [SMulCommClass α R M]
 
-/-- The action on a submodule corresponding to applying the action to every element.
+/--
+The action on a submodule corresponding to applying the action to every element.
 
 This is available as an instance in the `Pointwise` locale.
 
 This is a stronger version of `Submodule.pointwiseDistribMulAction`. Note that `add_smul` does
-not hold so this cannot be stated as a `Module`. -/
+not hold so this cannot be stated as a `Module`.
+-/
 @[instance_reducible]
-protected def pointwiseMulActionWithZero : MulActionWithZero α (Submodule R M) :=
-  { Submodule.pointwiseDistribMulAction with
-    zero_smul := fun S =>
-      congr(S.map $(LinearMap.ext <| zero_smul α)).trans S.map_zero }
+protected def pointwiseMulActionWithZero : MulActionWithZero α (Submodule R M) := {
+  Submodule.pointwiseDistribMulAction with
+  zero_smul := fun S => congr(S.map $(LinearMap.ext <| zero_smul α)).trans S.map_zero
+}
 
 scoped[Pointwise] attribute [instance] Submodule.pointwiseMulActionWithZero
 
@@ -352,9 +354,8 @@ lemma set_smul_eq_of_le (p : Submodule R M)
     s • N = p :=
   le_antisymm (set_smul_le s N p closed_under_smul) le
 
-instance : CovariantClass (Set S) (Submodule R M) HSMul.hSMul LE.le :=
-  ⟨fun _ _ _ le => set_smul_le _ _ _ fun _ _ hr hm => mem_set_smul_of_mem_mem (mem1 := hr)
-    (mem2 := le hm)⟩
+instance : CovariantClass (Set S) (Submodule R M) HSMul.hSMul LE.le := ⟨fun _ _ _ le =>
+  set_smul_le _ _ _ fun _ _ hr hm => mem_set_smul_of_mem_mem (mem1 := hr) (mem2 := le hm)⟩
 
 lemma set_smul_mono_left {s t : Set S} (le : s ≤ t) :
     s • N ≤ t • N :=
@@ -465,9 +466,10 @@ end DistribMulAction
 
 section Group
 
-variable {R G M : Type*} [Semiring R] [AddCommMonoid M] [Module R M]
-    [Group G] [DistribMulAction G M] [SMulCommClass G R M]
-    {S : Submodule R M}
+variable
+  {R G M : Type*}
+  [Semiring R] [AddCommMonoid M] [Module R M] [Group G] [DistribMulAction G M] [SMulCommClass G R M]
+  {S : Submodule R M}
 
 open MulAction
 
@@ -477,8 +479,8 @@ lemma stabilizer_coe :
   rw [mem_stabilizer_iff, SetLike.ext'_iff, coe_pointwise_smul,
     ← mem_stabilizer_iff]
 
-theorem mem_stabilizer_submodule_iff_map_eq {e : G} :
-    e ∈ stabilizer G S ↔ S.map (DistribSMul.toLinearMap R M e) = S := by
+theorem mem_stabilizer_submodule_iff_map_eq {e : G}
+    : e ∈ stabilizer G S ↔ S.map (DistribSMul.toLinearMap R M e) = S := by
   rfl
 
 end Group

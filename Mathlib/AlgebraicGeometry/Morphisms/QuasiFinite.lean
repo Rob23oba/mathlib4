@@ -69,8 +69,8 @@ The converse holds under various scenarios:
 -/
 @[mk_iff]
 class LocallyQuasiFinite : Prop where
-  quasiFinite_appLE :
-    ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
+  quasiFinite_appLE
+    : ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
       (f.appLE U V e).hom.QuasiFinite
 
 instance : HasRingHomProperty @LocallyQuasiFinite RingHom.QuasiFinite where
@@ -82,31 +82,32 @@ instance : HasRingHomProperty @LocallyQuasiFinite RingHom.QuasiFinite where
 instance : MorphismProperty.IsStableUnderComposition @LocallyQuasiFinite :=
   HasRingHomProperty.stableUnderComposition RingHom.QuasiFinite.stableUnderComposition
 
-instance {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [LocallyQuasiFinite f] [LocallyQuasiFinite g] : LocallyQuasiFinite (f ≫ g) :=
+instance {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [LocallyQuasiFinite f] [LocallyQuasiFinite g]
+    : LocallyQuasiFinite (f ≫ g) :=
   MorphismProperty.comp_mem _ f g ‹_› ‹_›
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance (priority := low) [IsFinite f] : LocallyQuasiFinite f := by
   rw [HasAffineProperty.eq_targetAffineLocally @IsFinite] at ‹IsFinite f›
   rw [HasRingHomProperty.eq_affineLocally @LocallyQuasiFinite]
-  refine ((targetAffineLocally_affineAnd_eq_affineLocally
-    RingHom.QuasiFinite.propertyIsLocal).le f ?_).2
+  refine ((targetAffineLocally_affineAnd_eq_affineLocally RingHom.QuasiFinite.propertyIsLocal).le f
+    ?_).2
   exact targetAffineLocally_affineAnd_le (fun hf ↦ .of_finite hf) f ‹_›
 
 instance (priority := low) [IsImmersion f] : LocallyQuasiFinite f := by
   rw [← f.liftCoborder_ι]
-  have := HasRingHomProperty.of_isOpenImmersion (P := @LocallyQuasiFinite)
-    RingHom.QuasiFinite.holdsForLocalizationAway.containsIdentities (f := f.coborderRange.ι)
+  have :=
+    HasRingHomProperty.of_isOpenImmersion (P := @LocallyQuasiFinite)
+      RingHom.QuasiFinite.holdsForLocalizationAway.containsIdentities (f := f.coborderRange.ι)
   infer_instance
 
-theorem LocallyQuasiFinite.of_comp {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [LocallyQuasiFinite (f ≫ g)] : LocallyQuasiFinite f :=
+theorem LocallyQuasiFinite.of_comp
+    {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [LocallyQuasiFinite (f ≫ g)]
+    : LocallyQuasiFinite f :=
   HasRingHomProperty.of_comp (fun _ _ ↦ RingHom.QuasiFinite.of_comp) ‹_›
 
-theorem LocallyQuasiFinite.comp_iff {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [LocallyQuasiFinite g] :
-    LocallyQuasiFinite (f ≫ g) ↔ LocallyQuasiFinite f :=
+theorem LocallyQuasiFinite.comp_iff {X Y Z : Scheme} (f : X ⟶ Y) (g : Y ⟶ Z) [LocallyQuasiFinite g]
+    : LocallyQuasiFinite (f ≫ g) ↔ LocallyQuasiFinite f :=
   ⟨fun _ ↦ .of_comp f g, fun _ ↦ inferInstance⟩
 
 instance : MorphismProperty.IsMultiplicative @LocallyQuasiFinite where
@@ -116,27 +117,27 @@ instance : MorphismProperty.IsStableUnderBaseChange @LocallyQuasiFinite :=
   HasRingHomProperty.isStableUnderBaseChange RingHom.QuasiFinite.isStableUnderBaseChange
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyQuasiFinite g] :
-    LocallyQuasiFinite (pullback.fst f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyQuasiFinite g]
+    : LocallyQuasiFinite (pullback.fst f g) :=
   MorphismProperty.pullback_fst f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyQuasiFinite f] :
-    LocallyQuasiFinite (pullback.snd f g) :=
+instance {X Y S : Scheme} (f : X ⟶ S) (g : Y ⟶ S) [LocallyQuasiFinite f]
+    : LocallyQuasiFinite (pullback.snd f g) :=
   MorphismProperty.pullback_snd f g inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance (V : Y.Opens) [LocallyQuasiFinite f] : LocallyQuasiFinite (f ∣_ V) :=
   IsZariskiLocalAtTarget.restrict ‹_› V
 
-instance (U : X.Opens) (V : Y.Opens) (e) [LocallyQuasiFinite f] :
-    LocallyQuasiFinite (f.resLE V U e) := by
+instance (U : X.Opens) (V : Y.Opens) (e) [LocallyQuasiFinite f]
+    : LocallyQuasiFinite (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
 
 instance : MorphismProperty.Respects @LocallyQuasiFinite @IsOpenImmersion :=
   HasRingHomProperty.respects_isOpenImmersion
-  (RingHom.QuasiFinite.stableUnderComposition.stableUnderCompositionWithLocalizationAway
-    RingHom.QuasiFinite.holdsForLocalizationAway).1
+    (RingHom.QuasiFinite.stableUnderComposition.stableUnderCompositionWithLocalizationAway
+      RingHom.QuasiFinite.holdsForLocalizationAway).1
 
 set_option backward.isDefEq.respectTransparency false in
 nonrec lemma IsLocallyArtinian.of_locallyQuasiFinite [LocallyQuasiFinite f]
@@ -204,8 +205,8 @@ nonrec lemma IsFinite.of_locallyQuasiFinite (f : X ⟶ Y) [LocallyQuasiFinite f]
   algebraize [φ.hom]
   exact .of_quasiFinite
 
-instance (f : X ⟶ Y) [LocallyQuasiFinite f] [QuasiCompact f] (x : Y) :
-    IsFinite (f.fiberToSpecResidueField x) :=
+instance (f : X ⟶ Y) [LocallyQuasiFinite f] [QuasiCompact f] (x : Y)
+    : IsFinite (f.fiberToSpecResidueField x) :=
   .of_locallyQuasiFinite (pullback.snd _ _)
 
 set_option backward.isDefEq.respectTransparency false in
@@ -324,11 +325,14 @@ lemma LocallyQuasiFinite.of_injective {f : X ⟶ Y} [LocallyOfFiniteType f]
     (hf : Function.Injective f) : LocallyQuasiFinite f :=
   .of_finite_preimage_singleton _ fun _ ↦ (Set.subsingleton_singleton.preimage hf).finite
 
-instance (priority := low) {f : X ⟶ Y} [LocallyOfFiniteType f]
-    [UniversallyInjective f] : LocallyQuasiFinite f := .of_injective f.injective
+instance (priority := low) {f : X ⟶ Y} [LocallyOfFiniteType f] [UniversallyInjective f]
+    : LocallyQuasiFinite f :=
+  .of_injective f.injective
 
-/-- A morphism `f : X ⟶ Y` is quasi-finite at `x : X`
-if the stalk map `𝒪_{X, x} ⟶ 𝒪_{Y, f x}` is quasi-finite. -/
+/--
+A morphism `f : X ⟶ Y` is quasi-finite at `x : X`
+if the stalk map `𝒪_{X, x} ⟶ 𝒪_{Y, f x}` is quasi-finite.
+-/
 def Scheme.Hom.QuasiFiniteAt (x : X) : Prop := (f.stalkMap x).hom.QuasiFinite
 
 variable {f} in

@@ -43,7 +43,8 @@ variable [LT M]
 end AddCommMonoid
 
 section CommMonoidWithZero
-variable [CommMonoidWithZero M₀] [NoZeroDivisors M₀] [Nontrivial M₀] [DecidableEq M₀]
+variable
+  [CommMonoidWithZero M₀] [NoZeroDivisors M₀] [Nontrivial M₀] [DecidableEq M₀]
   {s : Finset ι} {f : ι → WithTop M₀} {i : ι}
 
 /-- A product of finite terms is finite. -/
@@ -106,7 +107,8 @@ lemma sum_lt_bot (h : ∀ i ∈ s, f i ≠ ⊥) : ⊥ < ∑ i ∈ s, f i :=
 end AddCommMonoid
 
 section CommMonoidWithZero
-variable [CommMonoidWithZero M₀] [NoZeroDivisors M₀] [Nontrivial M₀] [DecidableEq M₀]
+variable
+  [CommMonoidWithZero M₀] [NoZeroDivisors M₀] [Nontrivial M₀] [DecidableEq M₀]
   {s : Finset ι} {f : ι → WithBot M₀}
 
 /-- A product of finite terms is finite. -/

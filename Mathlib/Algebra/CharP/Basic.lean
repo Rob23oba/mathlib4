@@ -135,16 +135,19 @@ end
 section Prod
 variable (S : Type*) [AddMonoidWithOne R] [AddMonoidWithOne S] (p q : ℕ) [CharP R p]
 
-/-- The characteristic of the product of rings is the least common multiple of the
-characteristics of the two rings. -/
+/--
+The characteristic of the product of rings is the least common multiple of the
+characteristics of the two rings.
+-/
 instance Nat.lcm.charP [CharP S q] : CharP (R × S) (Nat.lcm p q) where
   cast_eq_zero_iff := by
     simp [Prod.ext_iff, CharP.cast_eq_zero_iff R p, CharP.cast_eq_zero_iff S q, Nat.lcm_dvd_iff]
 
-/-- The characteristic of the product of two rings of the same characteristic
-  is the same as the characteristic of the rings -/
-instance Prod.charP [CharP S p] : CharP (R × S) p := by
-  convert! Nat.lcm.charP R S p p; simp
+/--
+The characteristic of the product of two rings of the same characteristic
+is the same as the characteristic of the rings
+-/
+instance Prod.charP [CharP S p] : CharP (R × S) p := by convert! Nat.lcm.charP R S p p; simp
 
 instance Prod.charZero_of_left [CharZero R] : CharZero (R × S) where
   cast_injective _ _ h := CharZero.cast_injective congr($(h).fst)
@@ -192,7 +195,8 @@ open Fin.NatCast
 
 /-- The characteristic of `F_p` is `p`. -/
 @[stacks 09FS "First part. We don't require `p` to be a prime in mathlib."]
-instance charP (n : ℕ) [NeZero n] : CharP (Fin n) n where cast_eq_zero_iff _ := natCast_eq_zero
+instance charP (n : ℕ) [NeZero n] : CharP (Fin n) n where
+  cast_eq_zero_iff _ := natCast_eq_zero
 
 end Fin
 
@@ -210,8 +214,8 @@ end AddMonoidWithOne
 
 section CommRing
 
-instance (α : Type*) [Semiring α] [IsLeftCancelAdd α] (n : ℕ) [CharP α n] :
-    Lean.Grind.IsCharP α n where
+instance (α : Type*) [Semiring α] [IsLeftCancelAdd α] (n : ℕ) [CharP α n]
+    : Lean.Grind.IsCharP α n where
   ofNat_ext_iff {a b} := by
     rw [Lean.Grind.Semiring.ofNat_eq_natCast, Lean.Grind.Semiring.ofNat_eq_natCast]
     exact CharP.cast_eq_iff_mod_eq α n

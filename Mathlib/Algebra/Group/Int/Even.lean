@@ -43,9 +43,8 @@ lemma not_even_iff : ¬Even n ↔ n % 2 = 1 := by grind
 instance : DecidablePred (Even : ℤ → Prop) := fun _ ↦ decidable_of_iff _ even_iff.symm
 
 /-- `IsSquare` can be decided on `ℤ` by checking against the square root. -/
-instance : DecidablePred (IsSquare : ℤ → Prop) :=
-  fun m ↦ decidable_of_iff' (sqrt m * sqrt m = m) <| by
-    simp_rw [← exists_mul_self m, IsSquare, eq_comm]
+instance : DecidablePred (IsSquare : ℤ → Prop) := fun m ↦
+  decidable_of_iff' (sqrt m * sqrt m = m) <| by simp_rw [← exists_mul_self m, IsSquare, eq_comm]
 
 @[simp] lemma not_even_one : ¬Even (1 : ℤ) := by simp [even_iff]
 
@@ -79,16 +78,18 @@ lemma two_mul_ediv_two_of_even : Even n → 2 * (n / 2) = n := by grind
 lemma ediv_two_mul_two_of_even : Even n → n / 2 * 2 = n := by grind
 
 -- Here are examples of how `parity_simps` can be used with `Int`.
-example (m n : ℤ) (h : Even m) : ¬Even (n + 3) ↔ Even (m ^ 2 + m + n) := by
+example (m n : ℤ) (h : Even m) : ¬ Even (n + 3) ↔ Even (m ^ 2 + m + n) := by
   simp +decide [*, parity_simps]
 
-example : ¬Even (25394535 : ℤ) := by decide
+example : ¬ Even (25394535 : ℤ) := by decide
 
 @[simp]
 theorem isSquare_sign_iff {z : ℤ} : IsSquare z.sign ↔ 0 ≤ z := by
   induction z using Int.induction_on with
-  | zero => simpa using ⟨0, by simp⟩
-  | succ => norm_cast; simp
+  | zero =>
+    simpa using ⟨0, by simp⟩
+  | succ =>
+    norm_cast; simp
   | pred =>
     rw [sign_eq_neg_one_of_neg (by lia), ← neg_add', Int.neg_nonneg]
     norm_cast

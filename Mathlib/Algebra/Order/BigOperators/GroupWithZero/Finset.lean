@@ -46,33 +46,47 @@ lemma prod_le_prod₀ (h0 : ∀ i ∈ s, 0 ≤ f i) (h1 : ∀ i ∈ s, f i ≤ g
     gcongr
     exacts [prod_nonneg h0.2, h0.1.trans h1.1, h1.1, ih h0.2 h1.2]
 
-/-- A finite product of nonnegative monotone functions is monotone. See also
-`Monotone.finsetProd'` for the case of an ordered commutative multiplicative monoid. -/
-theorem _root_.Monotone.finsetProd {γ : Type*} [Preorder γ] {f : ι → γ → R}
-    (hf : ∀ i ∈ s, Monotone (f i)) (hf₀ : ∀ i ∈ s, ∀ x, 0 ≤ f i x) :
-    Monotone fun x ↦ ∏ i ∈ s, f i x :=
-  fun _ _ hab ↦ prod_le_prod₀ (fun i hi ↦ hf₀ i hi _) fun i hi ↦ hf i hi hab
+/--
+A finite product of nonnegative monotone functions is monotone. See also
+`Monotone.finsetProd'` for the case of an ordered commutative multiplicative monoid.
+-/
+theorem _root_.Monotone.finsetProd
+    {γ : Type*} [Preorder γ]
+    {f : ι → γ → R} (hf : ∀ i ∈ s, Monotone (f i)) (hf₀ : ∀ i ∈ s, ∀ x, 0 ≤ f i x)
+    : Monotone fun x ↦ ∏ i ∈ s, f i x := fun _ _ hab ↦
+  prod_le_prod₀ (fun i hi ↦ hf₀ i hi _) fun i hi ↦ hf i hi hab
 
-/-- A finite product of functions nonnegative and monotone on `u` is monotone on `u`. See also
-`MonotoneOn.finsetProd'` for the case of an ordered commutative multiplicative monoid. -/
-theorem _root_.MonotoneOn.finsetProd {γ : Type*} [Preorder γ] {u : Set γ} {f : ι → γ → R}
-    (hf : ∀ i ∈ s, MonotoneOn (f i) u) (hf₀ : ∀ i ∈ s, ∀ x ∈ u, 0 ≤ f i x) :
-    MonotoneOn (fun x ↦ ∏ i ∈ s, f i x) u :=
-  fun _ ha _ hb hab ↦ prod_le_prod₀ (fun i hi ↦ hf₀ i hi _ ha) fun i hi ↦ hf i hi ha hb hab
+/--
+A finite product of functions nonnegative and monotone on `u` is monotone on `u`. See also
+`MonotoneOn.finsetProd'` for the case of an ordered commutative multiplicative monoid.
+-/
+theorem _root_.MonotoneOn.finsetProd
+    {γ : Type*} [Preorder γ]
+    {u : Set γ} {f : ι → γ → R}
+    (hf : ∀ i ∈ s, MonotoneOn (f i) u) (hf₀ : ∀ i ∈ s, ∀ x ∈ u, 0 ≤ f i x)
+    : MonotoneOn (fun x ↦ ∏ i ∈ s, f i x) u := fun _ ha _ hb hab ↦
+  prod_le_prod₀ (fun i hi ↦ hf₀ i hi _ ha) fun i hi ↦ hf i hi ha hb hab
 
-/-- A finite product of nonnegative antitone functions is antitone. See also
-`Antitone.finsetProd'` for the case of an ordered commutative multiplicative monoid. -/
-theorem _root_.Antitone.finsetProd {γ : Type*} [Preorder γ] {f : ι → γ → R}
-    (hf : ∀ i ∈ s, Antitone (f i)) (hf₀ : ∀ i ∈ s, ∀ x, 0 ≤ f i x) :
-    Antitone fun x ↦ ∏ i ∈ s, f i x :=
-  fun _ _ hab ↦ prod_le_prod₀ (fun i hi ↦ hf₀ i hi _) fun i hi ↦ hf i hi hab
+/--
+A finite product of nonnegative antitone functions is antitone. See also
+`Antitone.finsetProd'` for the case of an ordered commutative multiplicative monoid.
+-/
+theorem _root_.Antitone.finsetProd
+    {γ : Type*} [Preorder γ]
+    {f : ι → γ → R} (hf : ∀ i ∈ s, Antitone (f i)) (hf₀ : ∀ i ∈ s, ∀ x, 0 ≤ f i x)
+    : Antitone fun x ↦ ∏ i ∈ s, f i x := fun _ _ hab ↦
+  prod_le_prod₀ (fun i hi ↦ hf₀ i hi _) fun i hi ↦ hf i hi hab
 
-/-- A finite product of functions nonnegative and antitone on `u` is antitone on `u`. See also
-`AntitoneOn.finsetProd'` for the case of an ordered commutative multiplicative monoid. -/
-theorem _root_.AntitoneOn.finsetProd {γ : Type*} [Preorder γ] {u : Set γ} {f : ι → γ → R}
-    (hf : ∀ i ∈ s, AntitoneOn (f i) u) (hf₀ : ∀ i ∈ s, ∀ x ∈ u, 0 ≤ f i x) :
-    AntitoneOn (fun x ↦ ∏ i ∈ s, f i x) u :=
-  fun _ ha _ hb hab ↦ prod_le_prod₀ (fun i hi ↦ hf₀ i hi _ hb) fun i hi ↦ hf i hi ha hb hab
+/--
+A finite product of functions nonnegative and antitone on `u` is antitone on `u`. See also
+`AntitoneOn.finsetProd'` for the case of an ordered commutative multiplicative monoid.
+-/
+theorem _root_.AntitoneOn.finsetProd
+    {γ : Type*} [Preorder γ]
+    {u : Set γ} {f : ι → γ → R}
+    (hf : ∀ i ∈ s, AntitoneOn (f i) u) (hf₀ : ∀ i ∈ s, ∀ x ∈ u, 0 ≤ f i x)
+    : AntitoneOn (fun x ↦ ∏ i ∈ s, f i x) u := fun _ ha _ hb hab ↦
+  prod_le_prod₀ (fun i hi ↦ hf₀ i hi _ hb) fun i hi ↦ hf i hi ha hb hab
 
 /-- If each `f i`, `i ∈ s` belongs to `[0, 1]`, then their product is less than or equal to one.
 See also `Finset.prod_le_one` for the case of an ordered commutative multiplicative monoid. -/
@@ -132,28 +146,29 @@ lemma prod_le_prod_of_subset_of_le_one₀ (h : s ⊆ t) (hf₀ : ∀ i ∈ t, 0 
     ∏ i ∈ t, f i ≤ ∏ i ∈ s, f i :=
   prod_mono_of_subset_of_le_one₀ h hf₀ (by simp) hf
 
-theorem prod_mono_set_of_one_le₀ (hf : ∀ x, 1 ≤ f x) :
-    Monotone fun s ↦ ∏ x ∈ s, f x :=
-  fun _ _ hst ↦ prod_le_prod_of_subset_of_one_le₀ hst
-    (fun i _ ↦ zero_le_one.trans (hf i)) (fun x _ _ ↦ hf x)
+theorem prod_mono_set_of_one_le₀ (hf : ∀ x, 1 ≤ f x)
+    : Monotone fun s ↦ ∏ x ∈ s, f x := fun _ _ hst ↦
+  prod_le_prod_of_subset_of_one_le₀ hst (fun i _ ↦ zero_le_one.trans (hf i)) (fun x _ _ ↦ hf x)
 
-theorem prod_anti_set_of_le_one₀ (hf0 : ∀ (x : ι), 0 ≤ f x) (hf : ∀ (x : ι), f x ≤ 1) :
-    Antitone fun (s : Finset ι) => ∏ x ∈ s, f x :=
-  fun _ _ hst ↦ prod_le_prod_of_subset_of_le_one₀ hst (by grind) (by simp [hf])
+theorem prod_anti_set_of_le_one₀ (hf0 : ∀ (x : ι), 0 ≤ f x) (hf : ∀ (x : ι), f x ≤ 1)
+    : Antitone fun (s : Finset ι) => ∏ x ∈ s, f x := fun _ _ hst ↦
+  prod_le_prod_of_subset_of_le_one₀ hst (by grind) (by simp [hf])
 
-theorem prod_le_prod_of_injOn₀ {α : Type*} [DecidableEq α]
-    {g : α → R} {s : Finset ι} {t : Finset α} (e : ι → α) (he : Set.InjOn e s)
-    (ht : image e s ⊆ t) (h : ∀ i ∈ s, f i ≤ g (e i))
-    (hf0 : ∀ i ∈ s, 0 ≤ f i) (hg : ∀ a ∈ t, a ∉ image e s → 1 ≤ g a) :
-    ∏ i ∈ s, f i ≤ ∏ a ∈ t, g a := by
+theorem prod_le_prod_of_injOn₀
+    {α : Type*} [DecidableEq α]
+    {g : α → R} {s : Finset ι} {t : Finset α}
+    (e : ι → α) (he : Set.InjOn e s) (ht : image e s ⊆ t) (h : ∀ i ∈ s, f i ≤ g (e i))
+    (hf0 : ∀ i ∈ s, 0 ≤ f i) (hg : ∀ a ∈ t, a ∉ image e s → 1 ≤ g a)
+    : ∏ i ∈ s, f i ≤ ∏ a ∈ t, g a := by
   refine le_trans ?_ (prod_le_prod_of_subset_of_one_le₀ ht (by grind) hg)
   grw [prod_image he, prod_le_prod₀ hf0 h]
 
 end PosMulMono
 
 section PosMulStrictMono
-variable [PartialOrder R] [ZeroLEOneClass R] [PosMulStrictMono R] [Nontrivial R] {f g : ι → R}
-  {s : Finset ι}
+variable
+  [PartialOrder R] [ZeroLEOneClass R] [PosMulStrictMono R] [Nontrivial R]
+  {f g : ι → R} {s : Finset ι}
 
 lemma prod_pos (h0 : ∀ i ∈ s, 0 < f i) : 0 < ∏ i ∈ s, f i :=
   prod_induction f (fun x ↦ 0 < x) (fun _ _ ha hb ↦ mul_pos ha hb) zero_lt_one h0

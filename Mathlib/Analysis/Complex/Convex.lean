@@ -96,7 +96,7 @@ lemma Convex.rectangle_subset {U : Set ℂ} (U_convex : Convex ℝ U) {z w : ℂ
 -- or that `Complex.range_exp` and `Complex.continuous_exp`,
 -- but both of them requires a lot more import.
 instance : PathConnectedSpace ℂˣ :=
-  have : PathConnectedSpace { z : ℂ // z ≠ 0 } :=
+  have : PathConnectedSpace {z : ℂ // z ≠ 0} :=
     (isPathConnected_iff_pathConnectedSpace (F := {0}ᶜ)).mp (by
       convert!
         (((convex_halfSpace_im_gt 0).isPathConnected ⟨.I, by simp⟩).union

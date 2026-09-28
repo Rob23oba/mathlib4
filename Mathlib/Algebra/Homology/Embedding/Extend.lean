@@ -32,8 +32,10 @@ variable {C : Type*} [Category* C] [HasZeroObject C]
 
 section
 
-variable [HasZeroMorphisms C] (K L M : HomologicalComplex C c)
-  (φ : K ⟶ L) (φ' : L ⟶ M) (e : c.Embedding c')
+variable
+  [HasZeroMorphisms C]
+  (K L M : HomologicalComplex C c) (φ : K ⟶ L) (φ' : L ⟶ M)
+  (e : c.Embedding c')
 
 namespace extend
 
@@ -43,8 +45,8 @@ noncomputable def X : Option ι → C
   | none => 0
 
 /-- The isomorphism `X K i ≅ K.X j` when `i = some j`. -/
-noncomputable def XIso {i : Option ι} {j : ι} (hj : i = some j) :
-    X K i ≅ K.X j := eqToIso (by subst hj; rfl)
+noncomputable def XIso {i : Option ι} {j : ι} (hj : i = some j) : X K i ≅ K.X j :=
+  eqToIso (by subst hj; rfl)
 
 lemma isZero_X {i : Option ι} (hi : i = none) :
     IsZero (X K i) := by
@@ -59,9 +61,12 @@ noncomputable def XOpIso (i : Option ι) : X K.op i ≅ Opposite.op (X K i) :=
 
 /-- Auxiliary definition for the `d` field of `HomologicalComplex.extend`. -/
 noncomputable def d : ∀ (i j : Option ι), extend.X K i ⟶ extend.X K j
-  | none, _ => 0
-  | some i, some j => K.d i j
-  | some _, none => 0
+  | none, _ =>
+    0
+  | some i, some j =>
+    K.d i j
+  | some _, none =>
+    0
 
 lemma d_none_eq_zero (i j : Option ι) (hi : i = none) :
     d K i j = 0 := by subst hi; rfl
@@ -112,9 +117,11 @@ lemma mapX_none {i : Option ι} (hi : i = none) :
 
 end extend
 
-/-- Given `K : HomologicalComplex C c` and `e : c.Embedding c'`,
+/--
+Given `K : HomologicalComplex C c` and `e : c.Embedding c'`,
 this is the extension of `K` in `HomologicalComplex C c'`: it is
-zero in the degrees that are not in the image of `e.f`. -/
+zero in the degrees that are not in the image of `e.f`.
+-/
 noncomputable def extend : HomologicalComplex C c' where
   X i' := extend.X K (e.r i')
   d i' j' := extend.d K (e.r i') (e.r j')
@@ -135,12 +142,13 @@ noncomputable def extend : HomologicalComplex C c' where
       · rw [extend.d_none_eq_zero K _ _ hj', comp_zero]
       · obtain hk' | ⟨k, hk⟩ := (e.r k').eq_none_or_eq_some
         · rw [extend.d_none_eq_zero' K _ _ hk', comp_zero]
-        · rw [extend.d_eq K hi hj, extend.d_eq K hj hk, assoc, assoc,
-            Iso.inv_hom_id_assoc, K.d_comp_d_assoc, zero_comp, comp_zero]
+        · rw [
+            extend.d_eq K hi hj, extend.d_eq K hj hk, assoc, assoc, Iso.inv_hom_id_assoc,
+            K.d_comp_d_assoc, zero_comp, comp_zero
+          ]
 
 /-- The isomorphism `(K.extend e).X i' ≅ K.X i` when `e.f i = i'`. -/
-noncomputable def extendXIso {i' : ι'} {i : ι} (h : e.f i = i') :
-    (K.extend e).X i' ≅ K.X i :=
+noncomputable def extendXIso {i' : ι'} {i : ι} (h : e.f i = i') : (K.extend e).X i' ≅ K.X i :=
   extend.XIso K (e.r_eq_some h)
 
 lemma isZero_extend_X' (i' : ι') (hi' : e.r i' = none) :
@@ -180,9 +188,11 @@ lemma extend_d_to_eq_zero (i' j' : ι') (j : ι) (hj : e.f j = j') (hj' : ¬ c.R
 variable {K L M}
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Given an embedding `e : c.Embedding c'` of complexes shapes, this is the
+/--
+Given an embedding `e : c.Embedding c'` of complexes shapes, this is the
 morphism `K.extend e ⟶ L.extend e` induced by a morphism `K ⟶ L` in
-`HomologicalComplex C c`. -/
+`HomologicalComplex C c`.
+-/
 noncomputable def extendMap : K.extend e ⟶ L.extend e where
   f _ := extend.mapX φ _
   comm' i' j' _ := by
@@ -190,18 +200,19 @@ noncomputable def extendMap : K.extend e ⟶ L.extend e where
     · obtain ⟨i, hi⟩ := hi
       by_cases hj : ∃ j, e.f j = j'
       · obtain ⟨j, hj⟩ := hj
-        rw [K.extend_d_eq e hi hj, L.extend_d_eq e hi hj,
-          extend.mapX_some φ (e.r_eq_some hi),
-          extend.mapX_some φ (e.r_eq_some hj)]
+        rw [
+          K.extend_d_eq e hi hj, L.extend_d_eq e hi hj, extend.mapX_some φ (e.r_eq_some hi),
+          extend.mapX_some φ (e.r_eq_some hj)
+        ]
         simp only [extendXIso, assoc, Iso.inv_hom_id_assoc, Hom.comm_assoc]
       · have hj' := e.r_eq_none j' (fun j'' hj'' => hj ⟨j'', hj''⟩)
         dsimp [extend]
-        rw [extend.d_none_eq_zero' _ _ _ hj', extend.d_none_eq_zero' _ _ _ hj',
-          comp_zero, zero_comp]
+        rw [
+          extend.d_none_eq_zero' _ _ _ hj', extend.d_none_eq_zero' _ _ _ hj', comp_zero, zero_comp
+        ]
     · have hi' := e.r_eq_none i' (fun i'' hi'' => hi ⟨i'', hi''⟩)
       dsimp [extend]
-      rw [extend.d_none_eq_zero _ _ _ hi', extend.d_none_eq_zero _ _ _ hi',
-        comp_zero, zero_comp]
+      rw [extend.d_none_eq_zero _ _ _ hi', extend.d_none_eq_zero _ _ _ hi', comp_zero, zero_comp]
 
 lemma extendMap_f {i : ι} {i' : ι'} (h : e.f i = i') :
     (extendMap φ e).f i' =
@@ -248,8 +259,7 @@ lemma extendMap_zero : extendMap (0 : K ⟶ L) e = 0 := by
 
 /-- The canonical isomorphism `K.op.extend e.op ≅ (K.extend e).op`. -/
 noncomputable def extendOpIso : K.op.extend e.op ≅ (K.extend e).op :=
-  Hom.isoOfComponents (fun _ ↦ extend.XOpIso _ _) (fun _ _ _ ↦
-    extend.XOpIso_hom_d_op _ _ _)
+  Hom.isoOfComponents (fun _ ↦ extend.XOpIso _ _) (fun _ _ _ ↦ extend.XOpIso_hom_d_op _ _ _)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -275,8 +285,7 @@ lemma extendMap_add [Preadditive C] {K L : HomologicalComplex C c} (φ φ' : K �
 
 section
 
-variable [HasZeroMorphisms C] [DecidableEq ι]
-  (e : c.Embedding c') (X : C)
+variable [HasZeroMorphisms C] [DecidableEq ι] (e : c.Embedding c') (X : C)
 
 @[simp]
 lemma extend_single_d (i : ι) (j' k' : ι') :
@@ -292,14 +301,14 @@ lemma extend_single_d (i : ι) (j' k' : ι') :
 variable [DecidableEq ι'] (i : ι) (i' : ι')
 
 /-- The extension of a single complex is a single complex. -/
-noncomputable def extendSingleIso (h : e.f i = i') :
-    ((single C c i).obj X).extend e ≅ (single C c' i').obj X where
+noncomputable def extendSingleIso (h : e.f i = i')
+    : ((single C c i).obj X).extend e ≅ (single C c' i').obj X where
   hom :=
-    mkHomToSingle
-      ((((single C c i).obj X).extendXIso e h).hom ≫ (singleObjXSelf c i X).hom) (by simp)
+    mkHomToSingle ((((single C c i).obj X).extendXIso e h).hom ≫ (singleObjXSelf c i X).hom)
+      (by simp)
   inv :=
-    mkHomFromSingle
-      ((singleObjXSelf c i X).inv ≫ (((single C c i).obj X).extendXIso e h).inv) (by simp)
+    mkHomFromSingle ((singleObjXSelf c i X).inv ≫ (((single C c i).obj X).extendXIso e h).inv)
+      (by simp)
   hom_inv_id := by
     ext j'
     by_cases hj : ∃ j, e.f j = j'
@@ -308,7 +317,8 @@ noncomputable def extendSingleIso (h : e.f i = i') :
       · obtain rfl : i' = j' := by rw [← hj, hij, h]
         simp
       · exact ((isZero_single_obj_X _ _ _ _ hij).of_iso
-          (((single C c i).obj X).extendXIso e hj)).eq_of_src _ _
+            (((single C c i).obj X).extendXIso e hj)).eq_of_src
+          _ _
     · exact IsZero.eq_of_src (isZero_extend_X _ _ _ (by tauto)) _ _
 
 @[reassoc]
@@ -327,15 +337,23 @@ lemma extendSingleIso_inv_f (h : e.f i = i') :
 
 end
 
-instance [HasZeroMorphisms C] (e : c.Embedding c') (K : HomologicalComplex C c)
-    [∀ i, Projective (K.X i)] (i' : ι') : Projective ((K.extend e).X i') := by
+instance
+    [HasZeroMorphisms C]
+    (e : c.Embedding c')
+    (K : HomologicalComplex C c) [∀ i, Projective (K.X i)]
+    (i' : ι')
+    : Projective ((K.extend e).X i') := by
   by_cases! hi' : ∃ i, e.f i = i'
   · obtain ⟨i, hi⟩ := hi'
     exact Projective.of_iso (K.extendXIso e hi).symm inferInstance
   · exact (isZero_extend_X K e i' hi').projective
 
-instance [HasZeroMorphisms C] (e : c.Embedding c') (K : HomologicalComplex C c)
-    [∀ i, Injective (K.X i)] (i' : ι') : Injective ((K.extend e).X i') := by
+instance
+    [HasZeroMorphisms C]
+    (e : c.Embedding c')
+    (K : HomologicalComplex C c) [∀ i, Injective (K.X i)]
+    (i' : ι')
+    : Injective ((K.extend e).X i') := by
   by_cases! hi' : ∃ i, e.f i = i'
   · obtain ⟨i, hi⟩ := hi'
     exact Injective.of_iso (K.extendXIso e hi).symm inferInstance
@@ -347,25 +365,27 @@ namespace ComplexShape.Embedding
 
 variable (e : Embedding c c') (C : Type*) [Category* C] [HasZeroObject C]
 
-/-- Given an embedding `e : c.Embedding c'` of complex shapes, this is
+/--
+Given an embedding `e : c.Embedding c'` of complex shapes, this is
 the functor `HomologicalComplex C c ⥤ HomologicalComplex C c'` which
 extend complexes along `e`: the extended complexes are zero
-in the degrees that are not in the image of `e.f`. -/
+in the degrees that are not in the image of `e.f`.
+-/
 @[simps]
-noncomputable def extendFunctor [HasZeroMorphisms C] :
-    HomologicalComplex C c ⥤ HomologicalComplex C c' where
+noncomputable def extendFunctor [HasZeroMorphisms C]
+    : HomologicalComplex C c ⥤ HomologicalComplex C c' where
   obj K := K.extend e
   map φ := HomologicalComplex.extendMap φ e
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given an embedding `e : c.Embedding c'` of complex shapes, this is the isomorphism
+/--
+Given an embedding `e : c.Embedding c'` of complex shapes, this is the isomorphism
 `e.extendFunctor C ⋙ HomologicalComplex.eval _ _ i' ≅ HomologicalComplex.eval _ _ i`
-when `e.f i = i'. -/
-noncomputable def extendFunctorCompEvalIso
-    [HasZeroMorphisms C] {i : ι} {i' : ι'} (h : e.f i = i') :
-    e.extendFunctor C ⋙ HomologicalComplex.eval _ _ i' ≅ HomologicalComplex.eval _ _ i :=
-  NatIso.ofComponents (fun K ↦ K.extendXIso e h)
-    (by simp [HomologicalComplex.extendMap_f _ _ h])
+when `e.f i = i'.
+-/
+noncomputable def extendFunctorCompEvalIso [HasZeroMorphisms C] {i : ι} {i' : ι'} (h : e.f i = i')
+    : e.extendFunctor C ⋙ HomologicalComplex.eval _ _ i' ≅ HomologicalComplex.eval _ _ i :=
+  NatIso.ofComponents (fun K ↦ K.extendXIso e h) (by simp [HomologicalComplex.extendMap_f _ _ h])
 
 instance [HasZeroMorphisms C] : (e.extendFunctor C).PreservesZeroMorphisms where
 
@@ -373,14 +393,15 @@ instance [Preadditive C] : (e.extendFunctor C).Additive where
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The extension functor attached to an embedding of complex shapes is fully faithful. -/
-noncomputable def fullyFaithfulExtendFunctor [HasZeroMorphisms C] :
-    (e.extendFunctor C).FullyFaithful where
-  preimage {K L} φ :=
-    { f i := (K.extendXIso e rfl).inv ≫ φ.f (e.f i) ≫ (L.extendXIso e rfl).hom
-      comm' i j h := by
-        have := φ.comm (e.f i) (e.f j)
-        simp only [extendFunctor_obj, K.extend_d_eq e rfl rfl, L.extend_d_eq e rfl rfl] at this
-        simp [← cancel_mono (L.extendXIso e rfl).inv, Category.assoc, this] }
+noncomputable def fullyFaithfulExtendFunctor [HasZeroMorphisms C]
+    : (e.extendFunctor C).FullyFaithful where
+  preimage {K L} φ := {
+    f i := (K.extendXIso e rfl).inv ≫ φ.f (e.f i) ≫ (L.extendXIso e rfl).hom
+    comm' i j h := by
+      have := φ.comm (e.f i) (e.f j)
+      simp only [extendFunctor_obj, K.extend_d_eq e rfl rfl, L.extend_d_eq e rfl rfl] at this
+      simp [← cancel_mono (L.extendXIso e rfl).inv, Category.assoc, this]
+  }
   map_preimage {K L} φ := by
     ext i'
     by_cases hi' : ∃ i, e.f i = i'
@@ -392,9 +413,8 @@ noncomputable def fullyFaithfulExtendFunctor [HasZeroMorphisms C] :
     simp [HomologicalComplex.extendMap_f _ _ rfl]
 
 instance [HasZeroMorphisms C] : (e.extendFunctor C).Faithful :=
-    (e.fullyFaithfulExtendFunctor C).faithful
+  (e.fullyFaithfulExtendFunctor C).faithful
 
-instance [HasZeroMorphisms C] : (e.extendFunctor C).Full :=
-    (e.fullyFaithfulExtendFunctor C).full
+instance [HasZeroMorphisms C] : (e.extendFunctor C).Full := (e.fullyFaithfulExtendFunctor C).full
 
 end ComplexShape.Embedding

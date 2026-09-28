@@ -166,8 +166,7 @@ lemma LFunction_changeLevel {M N : ℕ} [NeZero M] [NeZero N] (hMN : M ∣ N)
 -/
 
 /-- The `L`-function of the trivial character mod `N`. -/
-noncomputable abbrev LFunctionTrivChar (N : ℕ) [NeZero N] :=
-  (1 : DirichletCharacter ℂ N).LFunction
+noncomputable abbrev LFunctionTrivChar (N : ℕ) [NeZero N] := (1 : DirichletCharacter ℂ N).LFunction
 
 /-- The L function of the trivial Dirichlet character mod `N` is obtained from the Riemann
 zeta function by multiplying with `∏ p ∈ N.primeFactors, (1 - (p : ℂ) ^ (-s))`. -/
@@ -221,7 +220,8 @@ end gammaFactor
 The completed L-function of a Dirichlet character, almost everywhere equal to
 `LFunction χ s * gammaFactor χ s`.
 -/
-@[pp_nodot] noncomputable def completedLFunction (χ : DirichletCharacter ℂ N) (s : ℂ) : ℂ :=
+@[pp_nodot]
+noncomputable def completedLFunction (χ : DirichletCharacter ℂ N) (s : ℂ) : ℂ :=
   ZMod.completedLFunction χ s
 
 /--
@@ -281,8 +281,8 @@ lemma rootNumber_modOne (χ : DirichletCharacter ℂ 1) : rootNumber χ = 1 := b
 namespace IsPrimitive
 
 /-- **Functional equation** for primitive Dirichlet L-functions. -/
-theorem completedLFunction_one_sub {χ : DirichletCharacter ℂ N} (hχ : IsPrimitive χ) (s : ℂ) :
-    completedLFunction χ (1 - s) = N ^ (s - 1 / 2) * rootNumber χ * completedLFunction χ⁻¹ s := by
+theorem completedLFunction_one_sub {χ : DirichletCharacter ℂ N} (hχ : IsPrimitive χ) (s : ℂ)
+    : completedLFunction χ (1 - s) = N ^ (s - 1 / 2) * rootNumber χ * completedLFunction χ⁻¹ s := by
   classical
   -- First handle special case of Riemann zeta
   rcases eq_or_ne N 1 with rfl | hN
@@ -294,23 +294,29 @@ theorem completedLFunction_one_sub {χ : DirichletCharacter ℂ N} (hχ : IsPrim
   let ε := I ^ (if χ.Even then 0 else 1)
   -- gather up powers of N
   rw [rootNumber, ← mul_comm_div, ← mul_comm_div, ← cpow_sub _ _ (NeZero.ne _), sub_sub, add_halves]
-  calc completedLFunction χ (1 - s)
-  _ = N ^ (s - 1) * χ (-1) / ε * ZMod.completedLFunction (𝓕 χ) s := by
-    simp only [ε]
-    split_ifs with h
-    · rw [pow_zero, div_one, h, mul_one, completedLFunction,
-        completedLFunction_one_sub_even h.to_fun _ (.inr h_sum) (.inr <| χ.map_zero' hN)]
-    · replace h : χ.Odd := χ.even_or_odd.resolve_left h
-      rw [completedLFunction, completedLFunction_one_sub_odd h.to_fun,
-        pow_one, h, div_I, mul_neg_one, ← neg_mul, neg_neg]
-  _ = (_) * ZMod.completedLFunction (fun j ↦ χ⁻¹ (-1) * gaussSum χ stdAddChar * χ⁻¹ j) s := by
-    congr 2 with j
-    rw [hχ.fourierTransform_eq_inv_mul_gaussSum, ← neg_one_mul j, map_mul, mul_right_comm]
-  _ = N ^ (s - 1) / ε * gaussSum χ stdAddChar * completedLFunction χ⁻¹ s * (χ (-1) * χ⁻¹ (-1)) := by
-    rw [completedLFunction, completedLFunction_const_mul]
-    ring
-  _ = N ^ (s - 1) / ε * gaussSum χ stdAddChar * completedLFunction χ⁻¹ s := by
-    rw [← MulChar.mul_apply, mul_inv_cancel, MulChar.one_apply (isUnit_one.neg), mul_one]
+  calc
+    completedLFunction χ (1 - s)
+    _ = N ^ (s - 1) * χ (-1) / ε * ZMod.completedLFunction (𝓕 χ) s := by
+      simp only [ε]
+      split_ifs with h
+      · rw [
+          pow_zero, div_one, h, mul_one, completedLFunction,
+          completedLFunction_one_sub_even h.to_fun _ (.inr h_sum) (.inr <| χ.map_zero' hN)
+        ]
+      · replace h : χ.Odd := χ.even_or_odd.resolve_left h
+        rw [
+          completedLFunction, completedLFunction_one_sub_odd h.to_fun, pow_one, h, div_I,
+          mul_neg_one, ← neg_mul, neg_neg
+        ]
+    _ = (_) * ZMod.completedLFunction (fun j ↦ χ⁻¹ (-1) * gaussSum χ stdAddChar * χ⁻¹ j) s := by
+      congr 2 with j
+      rw [hχ.fourierTransform_eq_inv_mul_gaussSum, ← neg_one_mul j, map_mul, mul_right_comm]
+    _ = N ^ (s - 1) / ε * gaussSum χ stdAddChar * completedLFunction χ⁻¹ s
+        * (χ (-1) * χ⁻¹ (-1)) := by
+      rw [completedLFunction, completedLFunction_const_mul]
+      ring
+    _ = N ^ (s - 1) / ε * gaussSum χ stdAddChar * completedLFunction χ⁻¹ s := by
+      rw [← MulChar.mul_apply, mul_inv_cancel, MulChar.one_apply (isUnit_one.neg), mul_one]
 
 end IsPrimitive
 
@@ -332,12 +338,15 @@ section trivial
 
 variable (n : ℕ) [NeZero n]
 
-/-- The function obtained by "multiplying away" the pole of `L χ` for a trivial Dirichlet
+/--
+The function obtained by "multiplying away" the pole of `L χ` for a trivial Dirichlet
 character `χ`. Its (negative) logarithmic derivative is used to prove Dirichlet's Theorem
-on primes in arithmetic progression. -/
+on primes in arithmetic progression.
+-/
 noncomputable abbrev LFunctionTrivChar₁ : ℂ → ℂ :=
-  Function.update (fun s ↦ (s - 1) * LFunctionTrivChar n s) 1
-    (∏ p ∈ n.primeFactors, (1 - (p : ℂ)⁻¹))
+  Function.update
+    (fun s ↦ (s - 1) * LFunctionTrivChar n s)
+    1 (∏ p ∈ n.primeFactors, (1 - (p : ℂ)⁻¹))
 
 lemma LFunctionTrivChar₁_apply_one_ne_zero : LFunctionTrivChar₁ n 1 ≠ 0 := by
   simp only [Function.update_self]

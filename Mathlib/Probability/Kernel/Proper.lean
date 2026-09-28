@@ -33,20 +33,23 @@ open MeasureTheory ENNReal Set
 open scoped ProbabilityTheory
 
 namespace ProbabilityTheory.Kernel
-variable {X : Type*} {𝓑 𝓧 : MeasurableSpace X} {π : Kernel[𝓑, 𝓧] X X} {A B : Set X}
-  {f g : X → ℝ≥0∞} {x₀ : X}
+variable
+  {X : Type*} {𝓑 𝓧 : MeasurableSpace X}
+  {π : Kernel[𝓑, 𝓧] X X} {A B : Set X} {f g : X → ℝ≥0∞} {x₀ : X}
 
-/-- For two σ-algebras `𝓑 ≤ 𝓧` on a space `X`, a `𝓑, 𝓧`-kernel `π : X → Measure X` is proper if
+/--
+For two σ-algebras `𝓑 ≤ 𝓧` on a space `X`, a `𝓑, 𝓧`-kernel `π : X → Measure X` is proper if
 `∫ x, g x * f x ∂(π x₀) = g x₀ * ∫ x, f x ∂(π x₀)` for all `x₀ : X`, `𝓧`-measurable function `f`
 and `𝓑`-measurable function `g`.
 
 By the standard machine, this is equivalent to having that, for all `B ∈ 𝓑`, `π` restricted to `B`
 is the same as `π` times the indicator of `B`.
 
-To avoid assuming `𝓑 ≤ 𝓧` in the definition, we replace `𝓑` by `𝓑 ⊓ 𝓧` in the restriction. -/
+To avoid assuming `𝓑 ≤ 𝓧` in the definition, we replace `𝓑` by `𝓑 ⊓ 𝓧` in the restriction.
+-/
 structure IsProper (π : Kernel[𝓑, 𝓧] X X) : Prop where
-  restrict_eq_indicator_smul' :
-    ∀ ⦃B : Set X⦄ (hB : MeasurableSet[𝓑 ⊓ 𝓧] B) (x : X),
+  restrict_eq_indicator_smul'
+    : ∀ ⦃B : Set X⦄ (hB : MeasurableSet[𝓑 ⊓ 𝓧] B) (x : X),
       π.restrict (inf_le_right (b := 𝓧) _ hB) x = B.indicator (fun _ ↦ (1 : ℝ≥0∞)) x • π x
 
 lemma isProper_iff_restrict_eq_indicator_smul (h𝓑𝓧 : 𝓑 ≤ 𝓧) :

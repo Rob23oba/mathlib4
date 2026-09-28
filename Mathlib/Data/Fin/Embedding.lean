@@ -45,12 +45,11 @@ section Order
 
 /-- The inclusion map `Fin n → ℕ` is an embedding. -/
 @[simps -fullyApplied apply]
-def valEmbedding : Fin n ↪ ℕ :=
-  ⟨val, val_injective⟩
+def valEmbedding : Fin n ↪ ℕ := ⟨val, val_injective⟩
 
 @[simp]
-theorem equivSubtype_symm_trans_valEmbedding :
-    equivSubtype.symm.toEmbedding.trans valEmbedding = Embedding.subtype (· < n) :=
+theorem equivSubtype_symm_trans_valEmbedding
+    : equivSubtype.symm.toEmbedding.trans valEmbedding = Embedding.subtype (· < n) :=
   rfl
 
 end Order
@@ -66,9 +65,7 @@ def succEmb (n : ℕ) : Fin n ↪ Fin (n + 1) where
   toFun := succ
   inj' := succ_injective _
 
-@[simp]
-theorem coe_succEmb : ⇑(succEmb n) = Fin.succ :=
-  rfl
+@[simp] theorem coe_succEmb : ⇑(succEmb n) = Fin.succ := rfl
 
 attribute [simp] castSucc_inj
 
@@ -80,9 +77,11 @@ def castLEEmb (h : n ≤ m) : Fin n ↪ Fin m where
 
 @[simp, norm_cast] lemma coe_castLEEmb {m n} (hmn : m ≤ n) : castLEEmb hmn = castLE hmn := rfl
 
-/- The next proof can be golfed a lot using `Fintype.card`.
+/-
+The next proof can be golfed a lot using `Fintype.card`.
 It is written this way to define `ENat.card` and `Nat.card` without a `Fintype` dependency
-(not done yet). -/
+(not done yet).
+-/
 lemma nonempty_embedding_iff : Nonempty (Fin n ↪ Fin m) ↔ n ≤ m := by
   refine ⟨fun h ↦ ?_, fun h ↦ ⟨castLEEmb h⟩⟩
   induction n generalizing m with
@@ -100,8 +99,10 @@ lemma equiv_iff_eq : Nonempty (Fin m ≃ Fin n) ↔ m = n :=
   ⟨fun ⟨e⟩ ↦ Nat.le_antisymm (nonempty_embedding_iff.1 ⟨e⟩) (nonempty_embedding_iff.1 ⟨e.symm⟩),
     fun h ↦ h ▸ ⟨.refl _⟩⟩
 
-/-- `Fin.castAdd` as an `Embedding`, `castAddEmb m i` embeds `i : Fin n` in `Fin (n+m)`.
-See also `Fin.natAddEmb` and `Fin.addNatEmb`. -/
+/--
+`Fin.castAdd` as an `Embedding`, `castAddEmb m i` embeds `i : Fin n` in `Fin (n+m)`.
+See also `Fin.natAddEmb` and `Fin.addNatEmb`.
+-/
 def castAddEmb (m) : Fin n ↪ Fin (n + m) := castLEEmb (le_add_right n m)
 
 @[simp]
@@ -140,9 +141,11 @@ def succAboveEmb (p : Fin (n + 1)) : Fin n ↪ Fin (n + 1) := ⟨p.succAbove, su
 
 @[simp, norm_cast] lemma coe_succAboveEmb (p : Fin (n + 1)) : p.succAboveEmb = p.succAbove := rfl
 
-/-- `Fin.natAdd_castLEEmb` as an `Embedding` from `Fin n` to `Fin m`, by appending the former
+/--
+`Fin.natAdd_castLEEmb` as an `Embedding` from `Fin n` to `Fin m`, by appending the former
 at the end of the latter.
-`natAdd_castLEEmb hmn i` maps `i : Fin m` to `i + (m - n) : Fin n` by adding `m - n` to `i` -/
+`natAdd_castLEEmb hmn i` maps `i : Fin m` to `i + (m - n) : Fin n` by adding `m - n` to `i`
+-/
 @[simps!]
 def natAdd_castLEEmb (hmn : n ≤ m) : Fin n ↪ Fin m :=
   (addNatEmb (m - n)).trans (finCongr (by lia)).toEmbedding

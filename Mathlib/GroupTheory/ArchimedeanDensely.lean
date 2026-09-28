@@ -31,8 +31,9 @@ open scoped WithZero
 
 -- no earlier file imports the necessary requirements for the next three
 
-theorem exists_pow_lt₀ {G : Type*} [LinearOrderedCommGroupWithZero G] [MulArchimedean G]
-    {a : G} (ha : a < 1) (b : Gˣ) : ∃ n : ℕ, a ^ n < b := by
+theorem exists_pow_lt₀
+    {G : Type*} [LinearOrderedCommGroupWithZero G] [MulArchimedean G] {a : G} (ha : a < 1) (b : Gˣ)
+    : ∃ n : ℕ, a ^ n < b := by
   rcases eq_or_ne a 0 with rfl | ha'
   · use 1
     simp
@@ -67,9 +68,7 @@ lemma Int.addEquiv_eq_refl_or_neg (e : ℤ ≃+ ℤ) : e = .refl _ ∨ e = .neg 
 
 instance : Fintype (ℤ ≃+ ℤ) where
   elems := .cons (.neg _) ({.refl _}) (by simp [AddEquiv.ext_int_iff])
-  complete x := by
-    obtain rfl | rfl := Int.addEquiv_eq_refl_or_neg x <;>
-    simp
+  complete x := by obtain rfl | rfl := Int.addEquiv_eq_refl_or_neg x <;> simp
 
 @[simp]
 lemma Int.univ_addEquiv :
@@ -79,36 +78,41 @@ lemma Int.univ_addEquiv :
 @[simp] lemma Int.card_fintype_addEquiv : Fintype.card (ℤ ≃+ ℤ) = 2 := rfl
 
 instance : Unique (ℤ ≃+o ℤ) where
-  uniq e := OrderAddMonoidIso.toAddEquiv_injective <|
-    Int.addEquiv_eq_refl_or_neg e |>.resolve_right fun H => by
-      replace H : e 1 = -1 := congr($H 1)
-      have h1 : 0 < e 1 := by
-        rw [← map_zero e, map_lt_map_iff]
-        simp
-      simp [H] at h1
+  uniq e :=
+    OrderAddMonoidIso.toAddEquiv_injective <| Int.addEquiv_eq_refl_or_neg e
+      |>.resolve_right fun H => by
+        replace H : e 1 = -1 := congr($H 1)
+        have h1 : 0 < e 1 := by
+          rw [← map_zero e, map_lt_map_iff]
+          simp
+        simp [H] at h1
 
 open OrderDual in
 instance : Unique (ℤ ≃+o ℤᵒᵈ) where
   default := ⟨AddEquiv.neg ℤ |>.trans ⟨toDual, toDual_add⟩, by simp⟩
-  uniq e := OrderAddMonoidIso.toAddEquiv_injective <| by
-    simp only [OrderAddMonoidIso.toAddEquiv_eq_coe]
-    refine Int.addEquiv_eq_refl_or_neg ((e : ℤ ≃+ ℤᵒᵈ).trans ⟨toDual, toDual_add⟩)
+  uniq e :=
+    OrderAddMonoidIso.toAddEquiv_injective <| by
+      simp only [OrderAddMonoidIso.toAddEquiv_eq_coe]
+      refine Int.addEquiv_eq_refl_or_neg ((e : ℤ ≃+ ℤᵒᵈ).trans ⟨toDual, toDual_add⟩)
         |>.resolve_left fun H => by
-      replace H : e 1 = 1 := congr($H 1)
-      have h1 : 0 < e 1 := by
-        rw [← map_zero e, map_lt_map_iff]
-        simp
-      simp [H, ← ofDual_lt_ofDual] at h1
+          replace H : e 1 = 1 := congr($H 1)
+          have h1 : 0 < e 1 := by
+            rw [← map_zero e, map_lt_map_iff]
+            simp
+          simp [H, ← ofDual_lt_ofDual] at h1
 
 open Subgroup in
-/-- In two linearly ordered groups, the closure of an element of one group
-is isomorphic (and order-isomorphic) to the closure of an element in the other group. -/
+/--
+In two linearly ordered groups, the closure of an element of one group
+is isomorphic (and order-isomorphic) to the closure of an element in the other group.
+-/
 @[to_additive /-- In two linearly ordered additive groups, the closure of an element of one group
 is isomorphic (and order-isomorphic) to the closure of an element in the other group. -/]
-noncomputable def LinearOrderedCommGroup.closure_equiv_closure {G G' : Type*}
-    [CommGroup G] [LinearOrder G] [IsOrderedMonoid G]
-    [CommGroup G'] [LinearOrder G'] [IsOrderedMonoid G'] (x : G) (y : G') (hxy : x = 1 ↔ y = 1) :
-    closure ({x} : Set G) ≃*o closure ({y} : Set G') :=
+noncomputable def LinearOrderedCommGroup.closure_equiv_closure
+    {G G' : Type*} [CommGroup G] [LinearOrder G] [IsOrderedMonoid G] [CommGroup G'] [LinearOrder G']
+    [IsOrderedMonoid G']
+    (x : G) (y : G') (hxy : x = 1 ↔ y = 1)
+    : closure ({x} : Set G) ≃*o closure ({y} : Set G') :=
   if hx : x = 1 then by
     refine ⟨⟨⟨fun _ ↦ ⟨1, by simp [hxy.mp hx]⟩, fun _ ↦ ⟨1, by simp [hx]⟩, ?_, ?_⟩, ?_⟩, ?_⟩
     · intro ⟨a, ha⟩
@@ -122,11 +126,9 @@ noncomputable def LinearOrderedCommGroup.closure_equiv_closure {G G' : Type*}
       simp [ha, hb]
   else by
     set x' := max x x⁻¹ with hx'
-    have xpos : 1 < x' := by
-      simp [hx', eq_comm, hx]
+    have xpos : 1 < x' := by simp [hx', eq_comm, hx]
     set y' := max y y⁻¹ with hy'
-    have ypos : 1 < y' := by
-      simp [hy', eq_comm, ← hxy, hx]
+    have ypos : 1 < y' := by simp [hy', eq_comm, ← hxy, hx]
     have hxc : closure {x} = closure {x'} := by rcases max_cases x x⁻¹ <;> simp_all
     have hyc : closure {y} = closure {y'} := by rcases max_cases y y⁻¹ <;> simp_all
     have Hx : ∀ (z : closure {x}), z ∈ zpowers ⟨x', by simp [hxc]⟩ := by
@@ -141,8 +143,10 @@ noncomputable def LinearOrderedCommGroup.closure_equiv_closure {G G' : Type*}
     · intro a b
       obtain ⟨m, rfl⟩ := Hx a
       obtain ⟨n, rfl⟩ := Hx b
-      simp only [MulEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe, map_zpow,
-        mulEquivOfOrderOfEq_apply_gen]
+      simp only [
+        MulEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe, map_zpow,
+        mulEquivOfOrderOfEq_apply_gen
+      ]
       simp_all [zpow_le_zpow_iff_right, ← Subtype.coe_lt_coe]
 
 variable {G : Type*} [CommGroup G] [LinearOrder G] [IsOrderedMonoid G] [MulArchimedean G]
@@ -182,31 +186,39 @@ lemma Subgroup.isLeast_of_closure_iff_eq_mabs {a b : G} :
       rw [← Left.one_le_inv_iff, ← zpow_neg]
       exact one_le_zpow ha (by simp [hk])
 
-/-- If an element of a linearly ordered archimedean additive group is the least positive element,
-then the whole group is isomorphic (and order-isomorphic) to the integers. -/
-noncomputable def LinearOrderedAddCommGroup.int_orderAddMonoidIso_of_isLeast_pos {G : Type*}
-    [AddCommGroup G] [LinearOrder G] [IsOrderedAddMonoid G] [Archimedean G] {x : G}
-    (h : IsLeast {y : G | 0 < y} x) : G ≃+o ℤ := by
-  have : IsLeast {y : G | y ∈ (⊤ : AddSubgroup G) ∧ 0 < y} x := by simpa using h
+/--
+If an element of a linearly ordered archimedean additive group is the least positive element,
+then the whole group is isomorphic (and order-isomorphic) to the integers.
+-/
+noncomputable def LinearOrderedAddCommGroup.int_orderAddMonoidIso_of_isLeast_pos
+    {G : Type*} [AddCommGroup G] [LinearOrder G] [IsOrderedAddMonoid G] [Archimedean G]
+    {x : G} (h : IsLeast ({y : G | 0 < y}) x)
+    : G ≃+o ℤ := by
+  have : IsLeast ({y : G | y ∈ (⊤ : AddSubgroup G) ∧ 0 < y}) x := by simpa using h
   replace this := AddSubgroup.cyclic_of_min this
-  let e : G ≃+o (⊤ : AddSubgroup G) := ⟨AddSubsemigroup.topEquiv.symm,
-    (AddEquiv.strictMono_symm AddSubsemigroup.strictMono_topEquiv).le_iff_le⟩
-  let e' : (⊤ : AddSubgroup G) ≃+o AddSubgroup.closure {x} :=
-    ⟨AddEquiv.subsemigroupCongr (by simp [this]),
-     (AddEquiv.strictMono_subsemigroupCongr _).le_iff_le⟩
-  let g : (⊤ : AddSubgroup ℤ) ≃+o ℤ := ⟨AddSubsemigroup.topEquiv,
-    (AddSubsemigroup.strictMono_topEquiv).le_iff_le⟩
+  let e : G ≃+o (⊤ : AddSubgroup G) := ⟨
+    AddSubsemigroup.topEquiv.symm,
+    (AddEquiv.strictMono_symm AddSubsemigroup.strictMono_topEquiv).le_iff_le
+  ⟩
+  let e' : (⊤ : AddSubgroup G) ≃+o AddSubgroup.closure {x} := ⟨
+    AddEquiv.subsemigroupCongr (by simp [this]),
+    (AddEquiv.strictMono_subsemigroupCongr _).le_iff_le
+  ⟩
+  let g : (⊤ : AddSubgroup ℤ) ≃+o ℤ :=
+    ⟨AddSubsemigroup.topEquiv, (AddSubsemigroup.strictMono_topEquiv).le_iff_le⟩
   let g' : AddSubgroup.closure ({1} : Set ℤ) ≃+o (⊤ : AddSubgroup ℤ) :=
-    ⟨(.subsemigroupCongr (by simp)),
-     (AddEquiv.strictMono_subsemigroupCongr _).le_iff_le⟩
+    ⟨(.subsemigroupCongr (by simp)), (AddEquiv.strictMono_subsemigroupCongr _).le_iff_le⟩
   let f := closure_equiv_closure x (1 : ℤ) (by simp [h.left.ne'])
   exact ((((e.trans e').trans f).trans g').trans g : G ≃+o ℤ)
 
-/-- If an element of a linearly ordered mul-archimedean group is the least element greater than 1,
-then the whole group is isomorphic (and order-isomorphic) to the multiplicative integers. -/
+/--
+If an element of a linearly ordered mul-archimedean group is the least element greater than 1,
+then the whole group is isomorphic (and order-isomorphic) to the multiplicative integers.
+-/
 noncomputable def LinearOrderedCommGroup.multiplicative_int_orderMonoidIso_of_isLeast_one_lt
-    {x : G} (h : IsLeast {y : G | 1 < y} x) : G ≃*o Multiplicative ℤ := by
-  have : IsLeast {y : Additive G | 0 < y} (.ofMul x) := h
+    {x : G} (h : IsLeast ({y : G | 1 < y}) x)
+    : G ≃*o Multiplicative ℤ := by
+  have : IsLeast ({y : Additive G | 0 < y}) (.ofMul x) := h
   let f' := LinearOrderedAddCommGroup.int_orderAddMonoidIso_of_isLeast_pos (G := Additive G) this
   exact f'.toMultiplicativeRight
 
@@ -475,10 +487,10 @@ lemma LinearOrderedCommGroupWithZero.wellFoundedOn_setOfPred_ge_gt_iff_nonempty_
 alias LinearOrderedCommGroupWithZero.wellFoundedOn_setOf_ge_gt_iff_nonempty_discrete_of_ne_zero :=
   LinearOrderedCommGroupWithZero.wellFoundedOn_setOfPred_ge_gt_iff_nonempty_discrete_of_ne_zero
 
-instance instWellFoundedGTWithZeroMultiplicativeIntLeOne :
-    WellFoundedGT { v : ℤᵐ⁰ // v ≤ 1 } :=
+instance instWellFoundedGTWithZeroMultiplicativeIntLeOne : WellFoundedGT {v : ℤᵐ⁰ // v ≤ 1} :=
   (LinearOrderedCommGroupWithZero.wellFoundedOn_setOfPred_ge_gt_iff_nonempty_discrete_of_ne_zero
-    one_ne_zero).mpr instNonemptyOfInhabited
+      one_ne_zero).mpr
+    instNonemptyOfInhabited
 
 end WellFounded
 
@@ -513,8 +525,7 @@ instance : LocallyFiniteOrder (Multiplicative X) :=
 instance : LocallyFiniteOrder (Additive X) :=
   OrderIso.locallyFiniteOrder (⟨Additive.toMul, by simp⟩ : Additive X ≃o X)
 
-noncomputable
-instance [Monoid X] : LocallyFiniteOrder (Units X) :=
+noncomputable instance [Monoid X] : LocallyFiniteOrder (Units X) :=
   OrderEmbedding.locallyFiniteOrder (⟨⟨Units.val, Units.val_injective⟩, by simp⟩ : Units X ↪o X)
 
 instance [Group X] : LocallyFiniteOrder (WithZero X)ˣ :=
@@ -532,15 +543,13 @@ lemma denselyOrdered_multiplicative_iff : DenselyOrdered (Multiplicative X) ↔ 
 
 instance [DenselyOrdered X] : DenselyOrdered (Multiplicative X) :=
   denselyOrdered_multiplicative_iff.2 ‹_›
-instance [DenselyOrdered X] : DenselyOrdered (Additive X) :=
-  denselyOrdered_additive_iff.2 ‹_›
+instance [DenselyOrdered X] : DenselyOrdered (Additive X) := denselyOrdered_additive_iff.2 ‹_›
 
 lemma WithZero.denselyOrdered_iff {M : Type*} [Preorder M] [NoMinOrder M] :
     DenselyOrdered (WithZero M) ↔ DenselyOrdered M :=
   WithBot.denselyOrdered_iff
 
-instance {X : Type*} [Preorder X] [NoMinOrder X] [DenselyOrdered X] :
-    DenselyOrdered (WithZero X) :=
+instance {X : Type*} [Preorder X] [NoMinOrder X] [DenselyOrdered X] : DenselyOrdered (WithZero X) :=
   WithZero.denselyOrdered_iff.mpr inferInstance
 
 lemma Int.not_denselyOrdered : ¬ DenselyOrdered ℤ :=

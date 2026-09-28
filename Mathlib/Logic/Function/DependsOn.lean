@@ -55,14 +55,15 @@ open Function Set
 
 variable {ι : Type*} {α : ι → Type*} {β : Type*}
 
-/-- A function `f` depends on `s` if, whenever `x` and `y` coincide over `s`, `f x = f y`.
+/--
+A function `f` depends on `s` if, whenever `x` and `y` coincide over `s`, `f x = f y`.
 
 It should be interpreted as "`f` _potentially_ depends only on variables in `s`".
 However it might be the case that `f` does not depend at all on variables in `s`,
 for example if `f` is constant. As a consequence, `DependsOn f univ` is always true,
-see `dependsOn_univ`. -/
-def DependsOn (f : (Π i, α i) → β) (s : Set ι) : Prop :=
-  ∀ ⦃x y⦄, (∀ i ∈ s, x i = y i) → f x = f y
+see `dependsOn_univ`.
+-/
+def DependsOn (f : (Π i, α i) → β) (s : Set ι) : Prop := ∀ ⦃x y⦄, (∀ i ∈ s, x i = y i) → f x = f y
 
 lemma dependsOn_iff_factorsThrough {f : (Π i, α i) → β} {s : Set ι} :
     DependsOn f s ↔ FactorsThrough f s.domRestrict := by

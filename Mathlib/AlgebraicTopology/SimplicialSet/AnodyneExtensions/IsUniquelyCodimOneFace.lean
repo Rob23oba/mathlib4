@@ -72,11 +72,12 @@ lemma existsUnique_δ_cast_simplex :
   simpa only [S.cast, iff] using hxy.cast hd
 
 include hxy in
-/-- When a `d`-dimensional simplex `x` is a `1`-codimensional face of `y`, this is
+/--
+When a `d`-dimensional simplex `x` is a `1`-codimensional face of `y`, this is
 the only `i : Fin (d + 2)`, such that `X.δ i y = x` (with an abuse of notation:
-see `δ_index` and `δ_eq_iff` for well typed statements). -/
-noncomputable def index : Fin (d + 2) :=
-  (hxy.existsUnique_δ_cast_simplex hd).exists.choose
+see `δ_index` and `δ_eq_iff` for well typed statements).
+-/
+noncomputable def index : Fin (d + 2) := (hxy.existsUnique_δ_cast_simplex hd).exists.choose
 
 lemma δ_index :
     X.δ (hxy.index hd) (y.cast (by rw [hxy.dim_eq, hd])).simplex = (x.cast hd).simplex :=

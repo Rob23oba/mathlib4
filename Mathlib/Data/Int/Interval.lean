@@ -69,57 +69,54 @@ instance instLocallyFiniteOrder : LocallyFiniteOrder ℤ where
 
 variable (a b : ℤ)
 
-theorem Icc_eq_finset_map :
-    Icc a b =
-      (Finset.range (b + 1 - a).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding a) :=
+theorem Icc_eq_finset_map
+    : Icc a b
+      = (Finset.range (b + 1 - a).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding a) :=
   rfl
 
-theorem Ico_eq_finset_map :
-    Ico a b = (Finset.range (b - a).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding a) :=
+theorem Ico_eq_finset_map
+    : Ico a b = (Finset.range (b - a).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding a) :=
   rfl
 
-theorem Ioc_eq_finset_map :
-    Ioc a b =
-      (Finset.range (b - a).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding (a + 1)) :=
+theorem Ioc_eq_finset_map
+    : Ioc a b
+      = (Finset.range (b - a).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding (a + 1)) :=
   rfl
 
-theorem Ioo_eq_finset_map :
-    Ioo a b =
-      (Finset.range (b - a - 1).toNat).map (Nat.castEmbedding.trans <| addLeftEmbedding (a + 1)) :=
+theorem Ioo_eq_finset_map
+    : Ioo a b
+      = (Finset.range (b - a - 1).toNat).map
+        (Nat.castEmbedding.trans <| addLeftEmbedding (a + 1)) :=
   rfl
 
-theorem uIcc_eq_finset_map :
-    uIcc a b = (range (max a b + 1 - min a b).toNat).map
-      (Nat.castEmbedding.trans <| addLeftEmbedding <| min a b) := rfl
+theorem uIcc_eq_finset_map
+    : uIcc a b
+      = (range (max a b + 1 - min a b).toNat).map
+        (Nat.castEmbedding.trans <| addLeftEmbedding <| min a b) :=
+  rfl
 
-@[simp]
-theorem card_Icc : #(Icc a b) = (b + 1 - a).toNat := (card_map _).trans <| card_range _
+@[simp] theorem card_Icc : #(Icc a b) = (b + 1 - a).toNat := (card_map _).trans <| card_range _
 
-@[simp]
-theorem card_Ico : #(Ico a b) = (b - a).toNat := (card_map _).trans <| card_range _
+@[simp] theorem card_Ico : #(Ico a b) = (b - a).toNat := (card_map _).trans <| card_range _
 
-@[simp]
-theorem card_Ioc : #(Ioc a b) = (b - a).toNat := (card_map _).trans <| card_range _
+@[simp] theorem card_Ioc : #(Ioc a b) = (b - a).toNat := (card_map _).trans <| card_range _
 
-@[simp]
-theorem card_Ioo : #(Ioo a b) = (b - a - 1).toNat := (card_map _).trans <| card_range _
+@[simp] theorem card_Ioo : #(Ioo a b) = (b - a - 1).toNat := (card_map _).trans <| card_range _
 
 @[simp]
 theorem card_uIcc : #(uIcc a b) = (b - a).natAbs + 1 :=
-  (card_map _).trans <|
-    (Nat.cast_inj (R := ℤ)).mp <| by
-      rw [card_range,
-        Int.toNat_of_nonneg (sub_nonneg_of_le <| le_add_one min_le_max), Int.natCast_add,
-        Int.natCast_natAbs, add_comm, add_sub_assoc, max_sub_min_eq_abs, add_comm, Int.ofNat_one]
+  (card_map _).trans <| (Nat.cast_inj (R := ℤ)).mp <| by
+    rw [
+      card_range, Int.toNat_of_nonneg (sub_nonneg_of_le <| le_add_one min_le_max), Int.natCast_add,
+      Int.natCast_natAbs, add_comm, add_sub_assoc, max_sub_min_eq_abs, add_comm, Int.ofNat_one
+    ]
 
 theorem card_Icc_of_le (h : a ≤ b + 1) : (#(Icc a b) : ℤ) = b + 1 - a := by
   rw [card_Icc, toNat_sub_of_le h]
 
-theorem card_Ico_of_le (h : a ≤ b) : (#(Ico a b) : ℤ) = b - a := by
-  rw [card_Ico, toNat_sub_of_le h]
+theorem card_Ico_of_le (h : a ≤ b) : (#(Ico a b) : ℤ) = b - a := by rw [card_Ico, toNat_sub_of_le h]
 
-theorem card_Ioc_of_le (h : a ≤ b) : (#(Ioc a b) : ℤ) = b - a := by
-  rw [card_Ioc, toNat_sub_of_le h]
+theorem card_Ioc_of_le (h : a ≤ b) : (#(Ioc a b) : ℤ) = b - a := by rw [card_Ioc, toNat_sub_of_le h]
 
 theorem card_Ioo_of_lt (h : a < b) : (#(Ioo a b) : ℤ) = b - a - 1 := by
   rw [card_Ioo, sub_sub, toNat_sub_of_le h]
@@ -132,11 +129,9 @@ theorem Icc_eq_pair : Finset.Icc a (a + 1) = {a, a + 1} := by
 theorem card_fintype_Icc_of_le (h : a ≤ b + 1) : (Fintype.card (Set.Icc a b) : ℤ) = b + 1 - a := by
   simp [h]
 
-theorem card_fintype_Ico_of_le (h : a ≤ b) : (Fintype.card (Set.Ico a b) : ℤ) = b - a := by
-  simp [h]
+theorem card_fintype_Ico_of_le (h : a ≤ b) : (Fintype.card (Set.Ico a b) : ℤ) = b - a := by simp [h]
 
-theorem card_fintype_Ioc_of_le (h : a ≤ b) : (Fintype.card (Set.Ioc a b) : ℤ) = b - a := by
-  simp [h]
+theorem card_fintype_Ioc_of_le (h : a ≤ b) : (Fintype.card (Set.Ioc a b) : ℤ) = b - a := by simp [h]
 
 theorem card_fintype_Ioo_of_lt (h : a < b) : (Fintype.card (Set.Ioo a b) : ℤ) = b - a - 1 := by
   simp [h]
@@ -158,7 +153,8 @@ theorem image_Ico_emod (n a : ℤ) (h : 0 ≤ a) : (Ico n (n + a)).image (· % a
         _ ≤ i + a + a * (n / a) := by gcongr; exact (Int.emod_lt_of_pos n ha).le
         _ = i + a * (n / a + 1) := by grind
     · calc
-        i + a * (n / a + 1) < n % a + a * (n / a + 1) := by gcongr
+        i + a * (n / a + 1)
+          < n % a + a * (n / a + 1) := by gcongr
         _ = n + a := by rw [mul_add, mul_one, ← add_assoc, hn]
     · rw [Int.add_mul_emod_self_left, Int.emod_eq_of_lt hi₀ hia]
   · refine ⟨i + a * (n / a), ⟨?_, ?_⟩, ?_⟩

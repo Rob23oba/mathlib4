@@ -29,8 +29,10 @@ universe v u
 variable {T : Type u} [Category.{v} T]
 
 variable (T) in
-/-- The arrow category of `T` has as objects all morphisms in `T` and as morphisms commutative
-squares in `T`. -/
+/--
+The arrow category of `T` has as objects all morphisms in `T` and as morphisms commutative
+squares in `T`.
+-/
 def Arrow := Comma (𝟭 T) (𝟭 T)
 
 to_dual_name_hint Left Right
@@ -42,8 +44,7 @@ protected def Arrow.Hom (f g : Arrow T) := CommaMorphism f g
 instance : Quiver (Arrow T) where
   Hom := Arrow.Hom
 
-instance : Category (Arrow T) :=
-  inferInstanceAs <| Category (Comma (𝟭 T) (𝟭 T))
+instance : Category (Arrow T) := inferInstanceAs <| Category (Comma (𝟭 T) (𝟭 T))
 
 namespace Arrow
 
@@ -64,12 +65,10 @@ lemma hom_ext {X Y : Arrow T} (f g : X ⟶ Y) (h₁ : f.left = g.left) (h₂ : f
   CommaMorphism.ext h₁ h₂
 
 @[to_dual (attr := simp)]
-theorem id_left (f : Arrow T) : Arrow.Hom.left (𝟙 f) = 𝟙 f.left :=
-  rfl
+theorem id_left (f : Arrow T) : Arrow.Hom.left (𝟙 f) = 𝟙 f.left := rfl
 
 @[to_dual (reorder := f g) (attr := simp, reassoc)]
-theorem comp_left {X Y Z : Arrow T} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (f ≫ g).left = f.left ≫ g.left := rfl
+theorem comp_left {X Y Z : Arrow T} (f : X ⟶ Y) (g : Y ⟶ Z) : (f ≫ g).left = f.left ≫ g.left := rfl
 
 /-- An object in the arrow category is simply a morphism in `T`. -/
 @[simps, to_dual self, implicit_reducible]
@@ -92,8 +91,8 @@ lemma mk_surjective (f : Arrow T) :
   ⟨_, _, f.hom, rfl⟩
 
 @[to_dual self]
-theorem mk_injective (A B : T) :
-    Function.Injective (Arrow.mk : (A ⟶ B) → Arrow T) := fun f g h => by
+theorem mk_injective (A B : T)
+    : Function.Injective (Arrow.mk : (A ⟶ B) → Arrow T) := fun f g h => by
   cases h
   rfl
 
@@ -106,8 +105,7 @@ instance {X Y : T} : CoeOut (X ⟶ Y) (Arrow T) where
   coe := mk
 
 @[to_dual none, reassoc (attr := simp high)]
-theorem w {f g : Arrow T} (sq : f ⟶ g) : sq.left ≫ g.hom = f.hom ≫ sq.right :=
-  CommaMorphism.w sq
+theorem w {f g : Arrow T} (sq : f ⟶ g) : sq.left ≫ g.hom = f.hom ≫ sq.right := CommaMorphism.w sq
 
 @[to_dual none, reassoc]
 alias Hom.w := w
@@ -121,8 +119,8 @@ theorem iso_w {f g : Arrow T} (e : f ≅ g) : g.hom = e.inv.left ≫ f.hom ≫ e
   simp [← Arrow.comp_right]
 
 @[to_dual none]
-theorem iso_w' {W X Y Z : T} {f : W ⟶ X} {g : Y ⟶ Z} (e : Arrow.mk f ≅ Arrow.mk g) :
-    g = e.inv.left ≫ f ≫ e.hom.right :=
+theorem iso_w' {W X Y Z : T} {f : W ⟶ X} {g : Y ⟶ Z} (e : Arrow.mk f ≅ Arrow.mk g)
+    : g = e.inv.left ≫ f ≫ e.hom.right :=
   iso_w e
 
 lemma eqToHom_left {X Y : Arrow T} (h : X = Y) :
@@ -159,99 +157,127 @@ lemma arrow_mk_eqToHom_comp {X' X Y : T} (f : X ⟶ Y) (h : X' = X) :
     Arrow.mk (eqToHom h ≫ f) = Arrow.mk f :=
   ext h rfl (by simp)
 
-/-- A morphism in the arrow category is a commutative square connecting two objects of the arrow
-    category. -/
+/--
+A morphism in the arrow category is a commutative square connecting two objects of the arrow
+category.
+-/
 @[simps, implicit_reducible]
-def homMk {f g : Arrow T} (u : f.left ⟶ g.left) (v : f.right ⟶ g.right)
-    (w : u ≫ g.hom = f.hom ≫ v := by cat_disch) : f ⟶ g where
+def homMk
+    {f g : Arrow T} (u : f.left ⟶ g.left) (v : f.right ⟶ g.right)
+    (w : u ≫ g.hom = f.hom ≫ v := by cat_disch)
+    : f ⟶ g where
   left := u
   right := v
   w := w
 
-/-- `homMk''` is the dual of `homMk`, which we need for `to_dual`.
-Please avoid using this directly. -/
+/--
+`homMk''` is the dual of `homMk`, which we need for `to_dual`.
+Please avoid using this directly.
+-/
 @[to_dual existing homMk]
-abbrev homMk'' {f g : Arrow T} (u : g.right ⟶ f.right) (v : g.left ⟶ f.left)
-    (w : g.hom ≫ u = v ≫ f.hom := by cat_disch) : g ⟶ f :=
+abbrev homMk''
+    {f g : Arrow T} (u : g.right ⟶ f.right) (v : g.left ⟶ f.left)
+    (w : g.hom ≫ u = v ≫ f.hom := by cat_disch)
+    : g ⟶ f :=
   homMk v u
 attribute [to_dual none] homMk_left homMk_right
 
 /-- We can also build a morphism in the arrow category out of any commutative square in `T`. -/
 @[simps]
-def homMk' {X Y : T} {f : X ⟶ Y} {P Q : T} {g : P ⟶ Q} (u : X ⟶ P) (v : Y ⟶ Q)
-    (w : u ≫ g = f ≫ v := by cat_disch) :
-    Arrow.mk f ⟶ Arrow.mk g where
+def homMk'
+    {X Y : T} {f : X ⟶ Y} {P Q : T} {g : P ⟶ Q} (u : X ⟶ P) (v : Y ⟶ Q)
+    (w : u ≫ g = f ≫ v := by cat_disch)
+    : Arrow.mk f ⟶ Arrow.mk g where
   left := u
   right := v
   w := w
 
-/-- `homMk'''` is the dual of `homMk'`, which we need for `to_dual`.
-Please avoid using this directly. -/
+/--
+`homMk'''` is the dual of `homMk'`, which we need for `to_dual`.
+Please avoid using this directly.
+-/
 @[to_dual existing homMk']
-abbrev homMk''' {X Y : T} {f : Y ⟶ X} {P Q : T} {g : Q ⟶ P} (u : P ⟶ X) (v : Q ⟶ Y)
-    (w : g ≫ u = v ≫ f := by cat_disch) : mk g ⟶ mk f :=
+abbrev homMk'''
+    {X Y : T} {f : Y ⟶ X} {P Q : T} {g : Q ⟶ P} (u : P ⟶ X) (v : Q ⟶ Y)
+    (w : g ≫ u = v ≫ f := by cat_disch)
+    : mk g ⟶ mk f :=
   homMk' v u
 attribute [to_dual none] homMk'_left
 
 set_option backward.defeqAttrib.useBackward true in
 @[to_dual none, reassoc]
-theorem w_mk_left {X Y : T} {f : X ⟶ Y} {g : Arrow T} (sq : mk f ⟶ g) :
-    dsimp% sq.left ≫ g.hom = f ≫ sq.right :=
+theorem w_mk_left {X Y : T} {f : X ⟶ Y} {g : Arrow T} (sq : mk f ⟶ g)
+    : dsimp% sq.left ≫ g.hom = f ≫ sq.right :=
   sq.w
 
 set_option backward.defeqAttrib.useBackward true in
 @[to_dual none, reassoc (attr := simp)]
-theorem w_mk_right {f : Arrow T} {X Y : T} {g : X ⟶ Y} (sq : f ⟶ mk g) :
-    dsimp% sq.left ≫ g = f.hom ≫ sq.right :=
+theorem w_mk_right {f : Arrow T} {X Y : T} {g : X ⟶ Y} (sq : f ⟶ mk g)
+    : dsimp% sq.left ≫ g = f.hom ≫ sq.right :=
   sq.w
 
 set_option backward.defeqAttrib.useBackward true in
 @[to_dual none, reassoc]
-theorem w_mk {X Y X' Y' : T} {f : X ⟶ Y} {g : X' ⟶ Y'} (sq : mk f ⟶ mk g) :
-    dsimp% sq.left ≫ g = f ≫ sq.right :=
+theorem w_mk {X Y X' Y' : T} {f : X ⟶ Y} {g : X' ⟶ Y'} (sq : mk f ⟶ mk g)
+    : dsimp% sq.left ≫ g = f ≫ sq.right :=
   sq.w
 
 @[to_dual self (reorder := f g, 6 7)]
-theorem isIso_of_isIso_left_of_isIso_right {f g : Arrow T} (ff : f ⟶ g) [IsIso ff.left]
-    [IsIso ff.right] : IsIso ff where
+theorem isIso_of_isIso_left_of_isIso_right
+    {f g : Arrow T} (ff : f ⟶ g) [IsIso ff.left] [IsIso ff.right]
+    : IsIso ff where
   out := ⟨homMk (inv ff.left) (inv ff.right), by cat_disch⟩
 
-/-- Create an isomorphism between arrows,
+/--
+Create an isomorphism between arrows,
 by providing isomorphisms between the domains and codomains,
-and a proof that the square commutes. -/
+and a proof that the square commutes.
+-/
 @[simps!]
-def isoMk {f g : Arrow T} (l : f.left ≅ g.left) (r : f.right ≅ g.right)
-    (h : l.hom ≫ g.hom = f.hom ≫ r.hom := by cat_disch) : f ≅ g :=
+def isoMk
+    {f g : Arrow T} (l : f.left ≅ g.left) (r : f.right ≅ g.right)
+    (h : l.hom ≫ g.hom = f.hom ≫ r.hom := by cat_disch)
+    : f ≅ g :=
   Comma.isoMk l r h
 
-/-- `isoMk''` is the dual of `isoMk`, which we need for `to_dual`.
-Please avoid using this directly. -/
+/--
+`isoMk''` is the dual of `isoMk`, which we need for `to_dual`.
+Please avoid using this directly.
+-/
 @[to_dual existing isoMk]
-abbrev isoMk'' {f g : Arrow T} (l : f.right ≅ g.right) (r : f.left ≅ g.left)
-    (h : g.hom ≫ l.inv = r.inv ≫ f.hom := by cat_disch) : f ≅ g :=
+abbrev isoMk''
+    {f g : Arrow T} (l : f.right ≅ g.right) (r : f.left ≅ g.left)
+    (h : g.hom ≫ l.inv = r.inv ≫ f.hom := by cat_disch)
+    : f ≅ g :=
   isoMk r l (by rwa [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp] at h)
 attribute [to_dual none] isoMk_hom_left isoMk_hom_right isoMk_inv_left isoMk_inv_right
 
-/-- A variant of `Arrow.isoMk` that creates an iso between two `Arrow.mk`s with a better type
-signature. -/
-abbrev isoMk' {W X Y Z : T} (f : W ⟶ X) (g : Y ⟶ Z) (e₁ : W ≅ Y) (e₂ : X ≅ Z)
-    (h : e₁.hom ≫ g = f ≫ e₂.hom := by cat_disch) : Arrow.mk f ≅ Arrow.mk g :=
+/--
+A variant of `Arrow.isoMk` that creates an iso between two `Arrow.mk`s with a better type
+signature.
+-/
+abbrev isoMk'
+    {W X Y Z : T} (f : W ⟶ X) (g : Y ⟶ Z) (e₁ : W ≅ Y) (e₂ : X ≅ Z)
+    (h : e₁.hom ≫ g = f ≫ e₂.hom := by cat_disch)
+    : Arrow.mk f ≅ Arrow.mk g :=
   Arrow.isoMk e₁ e₂ h
 
-/-- `isoMk'''` is the dual of `isoMk'`, which we need for `to_dual`.
-Please avoid using this directly. -/
+/--
+`isoMk'''` is the dual of `isoMk'`, which we need for `to_dual`.
+Please avoid using this directly.
+-/
 @[to_dual existing isoMk']
-abbrev isoMk''' {W X Y Z : T} (f : X ⟶ W) (g : Z ⟶ Y) (e₁ : W ≅ Y)
-  (e₂ : X ≅ Z) (h : g ≫ e₁.inv = e₂.inv ≫ f := by cat_disch) : mk f ≅ mk g :=
+abbrev isoMk'''
+    {W X Y Z : T} (f : X ⟶ W) (g : Z ⟶ Y) (e₁ : W ≅ Y) (e₂ : X ≅ Z)
+    (h : g ≫ e₁.inv = e₂.inv ≫ f := by cat_disch)
+    : mk f ≅ mk g :=
   isoMk' f g e₂ e₁ (by rwa [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp] at h)
 
 section
 
 variable {f g : Arrow T} (sq : f ⟶ g)
 
-@[to_dual]
-instance isIso_left [IsIso sq] : IsIso sq.left :=
-  ⟨(inv sq).left, by simp [← comp_left]⟩
+@[to_dual] instance isIso_left [IsIso sq] : IsIso sq.left := ⟨(inv sq).left, by simp [← comp_left]⟩
 
 @[to_dual none]
 private lemma isIso_of_isIso' {f g : Arrow T} (sq : f ⟶ g) [IsIso sq] [IsIso f.hom] :
@@ -291,9 +317,7 @@ set_option backward.defeqAttrib.useBackward true in
 @[to_dual epi_right]
 instance mono_left [Mono sq] : Mono sq.left where
   right_cancellation {Z} φ ψ h := by
-    let aux : (Z ⟶ f.left) → (Arrow.mk (𝟙 Z) ⟶ f) := fun φ =>
-      { left := φ
-        right := φ ≫ f.hom }
+    let aux : (Z ⟶ f.left) → (Arrow.mk (𝟙 Z) ⟶ f) := fun φ => { left := φ, right := φ ≫ f.hom }
     have : ∀ g, (aux g).right = g ≫ f.hom := fun g => rfl
     change (aux φ).left = (aux ψ).left
     congr 1
@@ -312,23 +336,28 @@ lemma inv_hom_id_left (e : f ≅ g) : e.inv.left ≫ e.hom.left = 𝟙 _ := by
 
 end
 
-/-- Given a square from an arrow `i` to an isomorphism `p`, express the source part of `sq`
-in terms of the inverse of `p`. -/
+/--
+Given a square from an arrow `i` to an isomorphism `p`, express the source part of `sq`
+in terms of the inverse of `p`.
+-/
 @[simp]
-theorem square_to_iso_invert (i : Arrow T) {X Y : T} (p : X ≅ Y) (sq : i ⟶ Arrow.mk p.hom) :
-    i.hom ≫ sq.right ≫ p.inv = sq.left := by
+theorem square_to_iso_invert (i : Arrow T) {X Y : T} (p : X ≅ Y) (sq : i ⟶ Arrow.mk p.hom)
+    : i.hom ≫ sq.right ≫ p.inv = sq.left := by
   simpa only [mk_right, Category.assoc] using! (Iso.comp_inv_eq p).mpr (Arrow.w_mk_right sq).symm
 
-/-- Given a square from an isomorphism `i` to an arrow `p`, express the target part of `sq`
-in terms of the inverse of `i`. -/
-theorem square_from_iso_invert {X Y : T} (i : X ≅ Y) (p : Arrow T) (sq : Arrow.mk i.hom ⟶ p) :
-    i.inv ≫ sq.left ≫ p.hom = sq.right := by
+/--
+Given a square from an isomorphism `i` to an arrow `p`, express the target part of `sq`
+in terms of the inverse of `i`.
+-/
+theorem square_from_iso_invert {X Y : T} (i : X ≅ Y) (p : Arrow T) (sq : Arrow.mk i.hom ⟶ p)
+    : i.inv ≫ sq.left ≫ p.hom = sq.right := by
   simp
 
 variable {C : Type u} [Category.{v} C]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- A helper construction: given a square between `i` and `f ≫ g`, produce a square between
+/--
+A helper construction: given a square between `i` and `f ≫ g`, produce a square between
 `i` and `g`, whose top leg uses `f`:
 ```
 A  → X
@@ -339,8 +368,8 @@ B  → Z                 B → Z
 ```
 -/
 @[simps!]
-def squareToSnd {X Y Z : C} {i : Arrow C} {f : X ⟶ Y} {g : Y ⟶ Z} (sq : i ⟶ Arrow.mk (f ≫ g)) :
-    i ⟶ Arrow.mk g :=
+def squareToSnd {X Y Z : C} {i : Arrow C} {f : X ⟶ Y} {g : Y ⟶ Z} (sq : i ⟶ Arrow.mk (f ≫ g))
+    : i ⟶ Arrow.mk g :=
   Arrow.homMk (sq.left ≫ f) (sq.right) (by simp [w_mk sq])
 
 /-- The functor sending an arrow to its source. -/
@@ -353,7 +382,8 @@ set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- The natural transformation from `leftFunc` to `rightFunc`, given by the arrow itself. -/
 @[simps]
-def leftToRight : (leftFunc : Arrow C ⥤ C) ⟶ rightFunc where app f := f.hom
+def leftToRight : (leftFunc : Arrow C ⥤ C) ⟶ rightFunc where
+  app f := f.hom
 
 end Arrow
 
@@ -373,8 +403,10 @@ attribute [to_dual self (reorder := X Y)] mapArrow_map
 
 variable (C D)
 
-/-- The functor `(C ⥤ D) ⥤ (Arrow C ⥤ Arrow D)` which sends
-a functor `F : C ⥤ D` to `F.mapArrow`. -/
+/--
+The functor `(C ⥤ D) ⥤ (Arrow C ⥤ Arrow D)` which sends
+a functor `F : C ⥤ D` to `F.mapArrow`.
+-/
 @[simps, implicit_reducible]
 def mapArrowFunctor : (C ⥤ D) ⥤ (Arrow C ⥤ Arrow D) where
   obj F := F.mapArrow
@@ -394,15 +426,13 @@ def mapArrowEquivalence (e : C ≌ D) : Arrow C ≌ Arrow D where
   counitIso := Functor.mapIso (mapArrowFunctor D D) e.counitIso
 
 set_option backward.defeqAttrib.useBackward true in
-instance essSurj_mapArrow (F : C ⥤ D) [F.Full] [F.EssSurj] :
-    F.mapArrow.EssSurj where
-  mem_essImage f :=
-    ⟨Arrow.mk (F.preimage ((F.objObjPreimageIso _).hom ≫ f.hom ≫
-      (F.objObjPreimageIso _).inv)),
-        ⟨Arrow.isoMk (F.objObjPreimageIso _) (F.objObjPreimageIso _)⟩⟩
+instance essSurj_mapArrow (F : C ⥤ D) [F.Full] [F.EssSurj] : F.mapArrow.EssSurj where
+  mem_essImage f := ⟨
+    Arrow.mk (F.preimage ((F.objObjPreimageIso _).hom ≫ f.hom ≫ (F.objObjPreimageIso _).inv)),
+    ⟨Arrow.isoMk (F.objObjPreimageIso _) (F.objObjPreimageIso _)⟩
+  ⟩
 
-instance isEquivalence_mapArrow (F : C ⥤ D) [IsEquivalence F] :
-    IsEquivalence F.mapArrow :=
+instance isEquivalence_mapArrow (F : C ⥤ D) [IsEquivalence F] : IsEquivalence F.mapArrow :=
   (mapArrowEquivalence (asEquivalence F)).isEquivalence_functor
 
 end Functor
@@ -410,18 +440,19 @@ end Functor
 variable {C D : Type*} [Category* C] [Category* D]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The images of `f : Arrow C` by two isomorphic functors `F : C ⥤ D` are
-isomorphic arrows in `D`. -/
-def Arrow.isoOfNatIso {F G : C ⥤ D} (e : F ≅ G)
-    (f : Arrow C) : F.mapArrow.obj f ≅ G.mapArrow.obj f :=
+/--
+The images of `f : Arrow C` by two isomorphic functors `F : C ⥤ D` are
+isomorphic arrows in `D`.
+-/
+def Arrow.isoOfNatIso {F G : C ⥤ D} (e : F ≅ G) (f : Arrow C)
+    : F.mapArrow.obj f ≅ G.mapArrow.obj f :=
   Arrow.isoMk (e.app f.left) (e.app f.right)
 
 variable (T)
 
 /-- `Arrow T` is equivalent to a sigma type. -/
 @[simps!]
-def Arrow.equivSigma :
-    Arrow T ≃ Σ (X Y : T), X ⟶ Y where
+def Arrow.equivSigma : Arrow T ≃ Σ (X Y : T), X ⟶ Y where
   toFun f := ⟨_, _, f.hom⟩
   invFun x := Arrow.mk x.2.2
 

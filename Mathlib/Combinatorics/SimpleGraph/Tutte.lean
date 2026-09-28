@@ -118,19 +118,22 @@ private lemma Subgraph.IsMatching.exists_verts_compl_subset_universalVerts
     aesop
   exact ⟨M1 ⊔ M2, hM1.2.sup hM2 disjointM12, this⟩
 
-/-- If the universal vertices of a graph `G` decompose `G` into cliques such that the Tutte isn't
-violated, then `G` has a perfect matching. -/
+/--
+If the universal vertices of a graph `G` decompose `G` into cliques such that the Tutte isn't
+violated, then `G` has a perfect matching.
+-/
 theorem Subgraph.IsPerfectMatching.exists_of_isClique_supp
-    (hveven : Even (Nat.card V)) (h : ¬G.IsTutteViolator G.universalVerts)
+    (hveven : Even (Nat.card V)) (h : ¬ G.IsTutteViolator G.universalVerts)
     (h' : ∀ (K : G.deleteUniversalVerts.coe.ConnectedComponent),
-      G.deleteUniversalVerts.coe.IsClique K.supp) :
-    ∃ (M : Subgraph G), M.IsPerfectMatching := by
+      G.deleteUniversalVerts.coe.IsClique K.supp)
+    : ∃ (M : Subgraph G), M.IsPerfectMatching := by
   classical
   cases nonempty_fintype V
   obtain ⟨M, hM, hsub⟩ := IsMatching.exists_verts_compl_subset_universalVerts h h'
-  obtain ⟨M', hM'⟩ := ((G.isClique_universalVerts.subset hsub).even_iff_exists_isMatching
-    (Set.toFinite _)).mp (by simpa [Set.even_ncard_compl_iff hveven, -Set.toFinset_card,
-      ← Set.ncard_eq_toFinset_card'] using hM.even_card)
+  obtain ⟨M', hM'⟩ :=
+    ((G.isClique_universalVerts.subset hsub).even_iff_exists_isMatching (Set.toFinite _)).mp (by
+      simpa [Set.even_ncard_compl_iff hveven, -Set.toFinset_card, ← Set.ncard_eq_toFinset_card']
+        using hM.even_card)
   refine ⟨M ⊔ M', hM.sup hM'.2 ?_, ?_⟩
   · simp [hM.support_eq_verts, hM'.2.support_eq_verts, hM'.1, disjoint_compl_right]
   · rw [Subgraph.isSpanning_iff, Subgraph.verts_sup, hM'.1]
@@ -154,27 +157,28 @@ lemma not_isTutteViolator_of_isPerfectMatching {M : Subgraph G} (hM : M.IsPerfec
 open scoped symmDiff
 
 /-- This lemma constructs a perfect matching on `G` from two near-matchings. -/
-private theorem tutte_exists_isPerfectMatching_of_near_matchings {x a b c : V}
-    {M1 : Subgraph (G ⊔ edge x b)} {M2 : Subgraph (G ⊔ edge a c)} (hxa : G.Adj x a)
-    (hab : G.Adj a b) (hnGxb : ¬G.Adj x b) (hnGac : ¬G.Adj a c) (hnxb : x ≠ b) (hnxc : x ≠ c)
-    (hnac : a ≠ c) (hnbc : b ≠ c) (hM1 : M1.IsPerfectMatching) (hM2 : M2.IsPerfectMatching) :
-    ∃ (M : Subgraph G), M.IsPerfectMatching := by
+private theorem tutte_exists_isPerfectMatching_of_near_matchings
+    {x a b c : V} {M1 : Subgraph (G ⊔ edge x b)} {M2 : Subgraph (G ⊔ edge a c)} (hxa : G.Adj x a)
+    (hab : G.Adj a b) (hnGxb : ¬ G.Adj x b) (hnGac : ¬ G.Adj a c) (hnxb : x ≠ b) (hnxc : x ≠ c)
+    (hnac : a ≠ c) (hnbc : b ≠ c) (hM1 : M1.IsPerfectMatching) (hM2 : M2.IsPerfectMatching)
+    : ∃ (M : Subgraph G), M.IsPerfectMatching := by
   classical
   -- If either matching does not contain their extra edge, we just use it as a perfect matching
-  by_cases hM1xb : ¬M1.Adj x b
+  by_cases hM1xb : ¬ M1.Adj x b
   · use G.toSubgraph M1.spanningCoe (M1.spanningCoe_sup_edge_le _ hM1xb)
     exact (Subgraph.IsPerfectMatching.toSubgraph_iff (M1.spanningCoe_sup_edge_le _ hM1xb)).mpr hM1
-  by_cases hM2ac : ¬M2.Adj a c
+  by_cases hM2ac : ¬ M2.Adj a c
   · use G.toSubgraph M2.spanningCoe (M2.spanningCoe_sup_edge_le _ hM2ac)
     exact (Subgraph.IsPerfectMatching.toSubgraph_iff (M2.spanningCoe_sup_edge_le _ hM2ac)).mpr hM2
   simp only [not_not] at hM1xb hM2ac
   -- Neither matching contains the edge that would make the other matching of G perfect
-  have hM1nac : ¬M1.Adj a c := fun h ↦ by simpa [hnGac, edge_adj, hnac, hxa.ne, hnbc.symm, hab.ne]
-    using h.adj_sub
+  have hM1nac : ¬ M1.Adj a c := fun h ↦ by
+    simpa [hnGac, edge_adj, hnac, hxa.ne, hnbc.symm, hab.ne] using h.adj_sub
   have hsupG : G ⊔ edge x b ⊔ (G ⊔ edge a c) = (G ⊔ edge a c) ⊔ edge x b := by grind
   -- We state conditions for our cycle that hold in all cases and show that this suffices
-  suffices ∃ (G' : SimpleGraph V), G'.IsAlternating M2.spanningCoe ∧ G'.IsCycles ∧ ¬G'.Adj x b ∧
-      G'.Adj a c ∧ G' ≤ G ⊔ edge a c by
+  suffices ∃ (G' : SimpleGraph V),
+    G'.IsAlternating M2.spanningCoe ∧ G'.IsCycles ∧ ¬ G'.Adj x b ∧ G'.Adj a c ∧ G' ≤ G ⊔ edge a c
+  by
     obtain ⟨G', hG', hG'cyc, hG'xb, hnG'ac, hle⟩ := this
     have : M2.spanningCoe ∆ G' ≤ G := by
       apply Disjoint.left_le_of_le_sup_right (symmDiff_le (le_sup_of_le_right M2.spanningCoe_le)
@@ -190,8 +194,9 @@ private theorem tutte_exists_isPerfectMatching_of_near_matchings {x a b c : V}
   have hM1sub := Subgraph.spanningCoe_le M1
   have hM2sub := Subgraph.spanningCoe_le M2
   -- We consider the cycle that contains the vertex `c`
-  have induce_le : ((cycles.connectedComponentMk c).toSimpleGraph).spanningCoe ≤
-      (G ⊔ edge a c) ⊔ edge x b := by
+  have induce_le
+      : ((cycles.connectedComponentMk c).toSimpleGraph).spanningCoe
+        ≤ (G ⊔ edge a c) ⊔ edge x b := by
     refine le_trans (spanningCoe_induce_le cycles (cycles.connectedComponentMk c).supp) ?_
     simp only [← hsupG, cycles]
     exact le_trans (by apply symmDiff_le_sup) (sup_le_sup hM1sub hM2sub)
@@ -199,11 +204,14 @@ private theorem tutte_exists_isPerfectMatching_of_near_matchings {x a b c : V}
   by_cases! hxc : x ∉ (cycles.connectedComponentMk c).supp
   · use (cycles.connectedComponentMk c).toSimpleGraph.spanningCoe
     refine ⟨hcalt.mono (spanningCoe_induce_le cycles (cycles.connectedComponentMk c).supp), ?_⟩
-    simp only [ConnectedComponent.adj_spanningCoe_toSimpleGraph, hxc, hcac, false_and,
-      not_false_eq_true, ConnectedComponent.mem_supp_iff, ConnectedComponent.eq, and_true,
-      true_and, hcac.reachable]
-    refine ⟨hcycles.toSimpleGraph (cycles.connectedComponentMk c),
-      Disjoint.left_le_of_le_sup_right induce_le ?_⟩
+    simp only [
+      ConnectedComponent.adj_spanningCoe_toSimpleGraph, hxc, hcac, false_and, not_false_eq_true,
+      ConnectedComponent.mem_supp_iff, ConnectedComponent.eq, and_true, true_and, hcac.reachable
+    ]
+    refine ⟨
+      hcycles.toSimpleGraph (cycles.connectedComponentMk c),
+      Disjoint.left_le_of_le_sup_right induce_le ?_
+    ⟩
     rw [disjoint_edge]
     rw [ConnectedComponent.adj_spanningCoe_toSimpleGraph]
     simp_all
@@ -213,20 +221,25 @@ private theorem tutte_exists_isPerfectMatching_of_near_matchings {x a b c : V}
     rw [M2.adj_comm]
     exact hM2.1.not_adj_left_of_ne h.symm hM2ac
   -- Else we construct a path that contain the edge `a c`, but not the edge `x b`
-  obtain ⟨x', hx', p, hp, hpac, hnpxb⟩ :
-      ∃ x' ∈ ({x, b} : Finset V), ∃ (p : cycles.Walk a x'), p.IsPath ∧
-        p.toSubgraph.Adj a c ∧ ¬p.toSubgraph.Adj x b := by
-    obtain ⟨p, hp⟩ := hcycles.exists_cycle_toSubgraph_verts_eq_connectedComponentSupp hacc
-      ⟨_, hcac⟩
-    obtain ⟨p', hp'⟩ := hp.1.exists_isCycle_snd_verts_eq (by
-      rwa [hp.1.adj_toSubgraph_iff_of_isCycles hcycles (hp.2 ▸ hacc)])
-    obtain ⟨x', hx', hx'p, htw⟩ := Walk.exists_mem_support_forall_mem_support_imp_eq {x, b} <| by
-      use x
-      simp only [Finset.mem_filter, Finset.mem_insert, Finset.mem_singleton, true_or, true_and]
-      rwa [← @Walk.mem_verts_toSubgraph, hp'.2.2, hp.2]
-    refine ⟨x', hx', p'.takeUntil x' hx'p, hp'.1.isPath_takeUntil hx'p, ?_, fun h ↦ ?_⟩; swap
-    · simp [htw _ (by simp) (Walk.mem_support_of_adj_toSubgraph h.symm),
-        htw _ (by simp) (Walk.mem_support_of_adj_toSubgraph h)] at hnxb
+  obtain ⟨x', hx', p, hp, hpac, hnpxb⟩
+      : ∃ x' ∈ ({x, b} : Finset V), ∃ (p : cycles.Walk a x'),
+        p.IsPath ∧ p.toSubgraph.Adj a c ∧ ¬ p.toSubgraph.Adj x b := by
+    obtain ⟨p, hp⟩ := hcycles.exists_cycle_toSubgraph_verts_eq_connectedComponentSupp hacc ⟨_, hcac⟩
+    obtain ⟨p', hp'⟩ :=
+      hp.1.exists_isCycle_snd_verts_eq (by
+        rwa [hp.1.adj_toSubgraph_iff_of_isCycles hcycles (hp.2 ▸ hacc)])
+    obtain ⟨x', hx', hx'p, htw⟩ :=
+      Walk.exists_mem_support_forall_mem_support_imp_eq {x, b} <| by
+        use x
+        simp only [Finset.mem_filter, Finset.mem_insert, Finset.mem_singleton, true_or, true_and]
+        rwa [← @Walk.mem_verts_toSubgraph, hp'.2.2, hp.2]
+    refine ⟨x', hx', p'.takeUntil x' hx'p, hp'.1.isPath_takeUntil hx'p, ?_, fun h ↦ ?_⟩
+    swap
+    · simp [
+          htw _ (by simp) (Walk.mem_support_of_adj_toSubgraph h.symm),
+          htw _ (by simp) (Walk.mem_support_of_adj_toSubgraph h)
+        ]
+        at hnxb
     have : (p'.takeUntil x' hx'p).toSubgraph.Adj a (p'.takeUntil x' hx'p).snd := by
       apply Walk.toSubgraph_adj_snd
       rw [Walk.nil_takeUntil]
@@ -237,15 +250,16 @@ private theorem tutte_exists_isPerfectMatching_of_near_matchings {x a b c : V}
     exacts [hxa.ne, hab.ne.symm]
   -- We show this path satisfies all requirements
   have hle : p.toSubgraph.spanningCoe ≤ G ⊔ edge a c := by
-    rw [← sdiff_edge _ (by simpa : ¬p.toSubgraph.spanningCoe.Adj x b), sdiff_le_iff']
+    rw [← sdiff_edge _ (by simpa : ¬ p.toSubgraph.spanningCoe.Adj x b), sdiff_le_iff']
     intro v w hvw
     apply hsupG ▸ sup_le_sup hM1sub hM2sub
     have := p.toSubgraph.spanningCoe_le hvw
     simp only [cycles, symmDiff_def] at this
     aesop
   -- Helper condition to show that `p` ends with an edge in `M2`
-  have aux {x' : V} (hx' : x' ∈ ({x, b} : Set V)) (c' : V) (hc : c' ≠ a)
-      (hadj : p.toSubgraph.Adj c' x') : M2.Adj c' x' := by
+  have aux
+      {x' : V} (hx' : x' ∈ ({x, b} : Set V)) (c' : V) (hc : c' ≠ a) (hadj : p.toSubgraph.Adj c' x')
+      : M2.Adj c' x' := by
     refine (hadj.adj_sub.resolve_left fun hl ↦ hnpxb ?_).1
     obtain ⟨w, -, hw⟩ := hM1.1 (hM1.2 x')
     obtain rfl | rfl := hx'
@@ -255,14 +269,14 @@ private theorem tutte_exists_isPerfectMatching_of_near_matchings {x a b c : V}
       exact hadj
   simp only [Finset.mem_insert, Finset.mem_singleton] at hx'
   obtain rfl | rfl := hx'
-  · exact tutte_exists_isAlternating_isCycles p hp hcalt (hnM2 x' hnxc) hpac hnpxb hM2ac
-      hxa hnxc hab.ne hle (aux (by simp))
+  · exact tutte_exists_isAlternating_isCycles p hp hcalt (hnM2 x' hnxc) hpac hnpxb hM2ac hxa hnxc
+      hab.ne hle (aux (by simp))
   · conv =>
       enter [1, G', 2, 2, 1, 1]
       rw [adj_comm]
     rw [Subgraph.adj_comm] at hnpxb
-    exact tutte_exists_isAlternating_isCycles p hp hcalt (hnM2 _ hnbc) hpac hnpxb hM2ac
-      hab.symm hnbc hxa.ne.symm hle (aux (by simp))
+    exact tutte_exists_isAlternating_isCycles p hp hcalt (hnM2 _ hnbc) hpac hnpxb hM2ac hab.symm
+      hnbc hxa.ne.symm hle (aux (by simp))
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- From a graph on an even number of vertices with no perfect matching, we can remove an odd number
@@ -311,11 +325,13 @@ lemma exists_isTutteViolator (h : ∀ (M : G.Subgraph), ¬M.IsPerfectMatching)
       hxb hnadjxb (fun hadj ↦ hc.2 hadj) (by lia) hcnex hc.1 hbnec hG1 hG2
     exact hMatchingFree Mcon hMcon
 
-/-- **Tutte's theorem**
+/--
+**Tutte's theorem**
 
 A graph has a perfect matching if and only if: For every subset `u` of vertices, removing this
 subset induces at most `u.ncard` components of odd size. This is formally stated using the
-predicate `IsTutteViolator`, which is satisfied exactly when this condition does not hold. -/
+predicate `IsTutteViolator`, which is satisfied exactly when this condition does not hold.
+-/
 theorem tutte : (∃ M : Subgraph G, M.IsPerfectMatching) ↔ ∀ u, ¬ G.IsTutteViolator u := by
   refine ⟨by rintro ⟨M, hM⟩; apply not_isTutteViolator_of_isPerfectMatching hM, ?_⟩
   contrapose!

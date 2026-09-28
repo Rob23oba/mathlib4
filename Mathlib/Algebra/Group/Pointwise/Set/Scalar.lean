@@ -67,15 +67,19 @@ section SMul
 
 /-- The dilation of set `x • s` is defined as `{x • y | y ∈ s}` in scope `Pointwise`. -/
 @[to_additive (attr := instance_reducible)
-/-- The translation of set `x +ᵥ s` is defined as `{x +ᵥ y | y ∈ s}` in scope `Pointwise`. -/]
-protected def smulSet [SMul α β] : SMul α (Set β) where smul a := image (a • ·)
+  /-- The translation of set `x +ᵥ s` is defined as `{x +ᵥ y | y ∈ s}` in scope `Pointwise`. -/]
+protected def smulSet [SMul α β] : SMul α (Set β) where
+  smul a := image (a • ·)
 
-/-- The pointwise scalar multiplication of sets `s • t` is defined as `{x • y | x ∈ s, y ∈ t}` in
-scope `Pointwise`. -/
+/--
+The pointwise scalar multiplication of sets `s • t` is defined as `{x • y | x ∈ s, y ∈ t}` in
+scope `Pointwise`.
+-/
 @[to_additive (attr := instance_reducible)
-/-- The pointwise scalar addition of sets `s +ᵥ t` is defined as `{x +ᵥ y | x ∈ s, y ∈ t}` in locale
+  /-- The pointwise scalar addition of sets `s +ᵥ t` is defined as `{x +ᵥ y | x ∈ s, y ∈ t}` in locale
 `Pointwise`. -/]
-protected def smul [SMul α β] : SMul (Set α) (Set β) where smul := image2 (· • ·)
+protected def smul [SMul α β] : SMul (Set α) (Set β) where
+  smul := image2 (· • ·)
 
 scoped[Pointwise] attribute [instance] Set.smulSet Set.smul
 scoped[Pointwise] attribute [instance] Set.vaddSet Set.vadd
@@ -83,8 +87,7 @@ scoped[Pointwise] attribute [instance] Set.vaddSet Set.vadd
 open scoped Pointwise
 
 section SMul
-variable [SMul α β] {s s₁ s₂ : Set α} {t t₁ t₂ u : Set β} {a : α}
-  {b : β}
+variable [SMul α β] {s s₁ s₂ : Set α} {t t₁ t₂ u : Set β} {a : α} {b : β}
 
 @[to_additive (attr := simp)] lemma image2_smul : image2 (· • ·) s t = s • t := rfl
 
@@ -196,8 +199,10 @@ section Pi
 variable {M ι : Type*} {π : ι → Type*} [∀ i, SMul M (π i)]
 
 @[to_additive]
-theorem smul_set_pi_of_surjective (c : M) (I : Set ι) (s : ∀ i, Set (π i))
-    (hsurj : ∀ i ∉ I, Function.Surjective (c • · : π i → π i)) : c • I.pi s = I.pi (c • s) :=
+theorem smul_set_pi_of_surjective
+    (c : M) (I : Set ι)
+    (s : ∀ i, Set (π i)) (hsurj : ∀ i ∉ I, Function.Surjective (c • · : π i → π i))
+    : c • I.pi s = I.pi (c • s) :=
   piMap_image_pi hsurj s
 
 @[to_additive]
@@ -224,11 +229,11 @@ lemma smul_set_range [SMul α β] {ι : Sort*} (a : α) (f : ι → β) :
 end SMul
 
 section SDiv
-variable [SDiv α β] {s s₁ s₂ t t₁ t₂ : Set β} {u : Set α} {a : α}
-  {b c : β}
+variable [SDiv α β] {s s₁ s₂ t t₁ t₂ : Set β} {u : Set α} {a : α} {b c : β}
 
 @[to_additive]
-instance sdiv : SDiv (Set α) (Set β) where sdiv := image2 (· /ₛ ·)
+instance sdiv : SDiv (Set α) (Set β) where
+  sdiv := image2 (· /ₛ ·)
 
 @[to_additive (attr := simp)]
 lemma image2_sdiv : image2 (· /ₛ ·) s t = s /ₛ t := rfl

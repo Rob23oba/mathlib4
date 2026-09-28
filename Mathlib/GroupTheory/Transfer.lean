@@ -29,7 +29,6 @@ In this file we construct the transfer homomorphism.
 
 @[expose] public noncomputable section
 
-
 variable {G : Type*} [Group G] {H : Subgroup G} {A : Type*} [CommGroup A] (ϕ : H →* A)
 
 namespace Subgroup
@@ -55,14 +54,11 @@ def diff : A :=
 
 @[to_additive]
 theorem diff_mul_diff : diff ϕ R S * diff ϕ S T = diff ϕ R T :=
-  prod_mul_distrib.symm.trans
-    (prod_congr rfl fun q _ =>
-      (ϕ.map_mul _ _).symm.trans
-        congr(ϕ $(by simp_rw [Subtype.ext_iff, coe_mul, mul_assoc, mul_inv_cancel_left])))
+  prod_mul_distrib.symm.trans (prod_congr rfl fun q _ =>
+    (ϕ.map_mul _ _).symm.trans
+      congr(ϕ $(by simp_rw [Subtype.ext_iff, coe_mul, mul_assoc, mul_inv_cancel_left])))
 
-@[to_additive]
-theorem diff_self : diff ϕ T T = 1 :=
-  mul_eq_left.mp (diff_mul_diff ϕ T T T)
+@[to_additive] theorem diff_self : diff ϕ T T = 1 := mul_eq_left.mp (diff_mul_diff ϕ T T T)
 
 @[to_additive]
 theorem diff_inv : (diff ϕ S T)⁻¹ = diff ϕ T S :=
@@ -72,8 +68,10 @@ theorem diff_inv : (diff ϕ S T)⁻¹ = diff ϕ T S :=
 theorem smul_diff_smul (g : G) : diff ϕ (g • S) (g • T) = diff ϕ S T :=
   let _ := H.fintypeQuotientOfFiniteIndex
   Fintype.prod_equiv (MulAction.toPerm g).symm _ _ fun _ ↦ by
-    simp only [smul_apply_eq_smul_apply_inv_smul, smul_eq_mul, mul_inv_rev, mul_assoc,
-      inv_mul_cancel_left, toPerm_symm_apply]
+    simp only [
+      smul_apply_eq_smul_apply_inv_smul, smul_eq_mul, mul_inv_rev, mul_assoc, inv_mul_cancel_left,
+      toPerm_symm_apply
+    ]
 
 end leftTransversals
 
@@ -82,9 +80,11 @@ open Equiv Function MulAction ZMod
 variable (g : G)
 
 variable (H) in
-/-- The transfer transversal as a function. Given a `⟨g⟩`-orbit `q₀, g • q₀, ..., g ^ (m - 1) • q₀`
-  in `G ⧸ H`, an element `g ^ k • q₀` is mapped to `g ^ k • g₀` for a fixed choice of
-  representative `g₀` of `q₀`. -/
+/--
+The transfer transversal as a function. Given a `⟨g⟩`-orbit `q₀, g • q₀, ..., g ^ (m - 1) • q₀`
+in `G ⧸ H`, an element `g ^ k • q₀` is mapped to `g ^ k • g₀` for a fixed choice of
+representative `g₀` of `q₀`.
+-/
 def transferFunction : G ⧸ H → G := fun q =>
   g ^ (cast (quotientEquivSigmaZMod H g q).2 : ℤ) * (quotientEquivSigmaZMod H g q).1.out.out
 
@@ -98,15 +98,19 @@ lemma coe_transferFunction (q : G ⧸ H) : ↑(transferFunction H g q) = q := by
     ← quotientEquivSigmaZMod_symm_apply, Sigma.eta, symm_apply_apply]
 
 variable (H) in
-/-- The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices
-of representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. -/
+/--
+The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices
+of representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`.
+-/
 def transferSet : Set G := Set.range (transferFunction H g)
 
 lemma mem_transferSet (q : G ⧸ H) : transferFunction H g q ∈ transferSet H g := ⟨q, rfl⟩
 
 variable (H) in
-/-- The transfer transversal. Contains elements of the form `g ^ k • g₀` for fixed choices
-  of representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. -/
+/--
+The transfer transversal. Contains elements of the form `g ^ k • g₀` for fixed choices
+of representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`.
+-/
 def transferTransversal : H.LeftTransversal :=
   ⟨transferSet H g, isComplement_range_left (coe_transferFunction g)⟩
 
@@ -140,15 +144,19 @@ namespace MonoidHom
 
 open MulAction Subgroup Subgroup.leftTransversals
 
-/-- Given `ϕ : H →* A` from `H : Subgroup G` to a commutative group `A`,
-the transfer homomorphism is `transfer ϕ : G →* A`. -/
+/--
+Given `ϕ : H →* A` from `H : Subgroup G` to a commutative group `A`,
+the transfer homomorphism is `transfer ϕ : G →* A`.
+-/
 @[to_additive /-- Given `ϕ : H →+ A` from `H : AddSubgroup G` to an additive commutative group `A`,
 the transfer homomorphism is `transfer ϕ : G →+ A`. -/]
 def transfer [FiniteIndex H] : G →* A :=
   let T : H.LeftTransversal := default
-  { toFun := fun g => diff ϕ T (g • T)
+  {
+    toFun := fun g => diff ϕ T (g • T)
     map_one' := by rw [one_smul, diff_self]
-    map_mul' := fun g h => by rw [mul_smul, ← diff_mul_diff, smul_diff_smul] }
+    map_mul' := fun g h => by rw [mul_smul, ← diff_mul_diff, smul_diff_smul]
+  }
 
 variable (T : H.LeftTransversal)
 
@@ -157,22 +165,24 @@ theorem transfer_def [FiniteIndex H] (g : G) : transfer ϕ g = diff ϕ T (g • 
   rw [transfer, ← diff_mul_diff, ← smul_diff_smul, mul_comm, diff_mul_diff] <;> rfl
 
 /-- Explicit computation of the transfer homomorphism. -/
-theorem transfer_eq_prod_quotient_orbitRel_zpowers_quot [FiniteIndex H] (g : G)
-    [Fintype (Quotient (orbitRel (zpowers g) (G ⧸ H)))] :
-    transfer ϕ g =
-      ∏ q : Quotient (orbitRel (zpowers g) (G ⧸ H)),
-        ϕ
-          ⟨q.out.out⁻¹ * g ^ Function.minimalPeriod (g • ·) q.out * q.out.out,
-            QuotientGroup.out_conj_pow_minimalPeriod_mem H g q.out⟩ := by
+theorem transfer_eq_prod_quotient_orbitRel_zpowers_quot
+    [FiniteIndex H] (g : G) [Fintype (Quotient (orbitRel (zpowers g) (G ⧸ H)))]
+    : transfer ϕ g
+      = ∏ q : Quotient (orbitRel (zpowers g) (G ⧸ H)),
+          ϕ
+            ⟨q.out.out⁻¹ * g ^ Function.minimalPeriod (g • ·) q.out * q.out.out,
+              QuotientGroup.out_conj_pow_minimalPeriod_mem H g q.out⟩ := by
   let := H.fintypeQuotientOfFiniteIndex
   calc
-    transfer ϕ g = ∏ q : G ⧸ H, _ := transfer_def ϕ (transferTransversal H g) g
+    transfer ϕ g
+      = ∏ q : G ⧸ H, _ := transfer_def ϕ (transferTransversal H g) g
     _ = _ := ((quotientEquivSigmaZMod H g).symm.prod_comp _).symm
     _ = _ := Finset.prod_sigma _ _ _
     _ = _ := by
       refine Fintype.prod_congr _ _ (fun q => ?_)
-      simp only [quotientEquivSigmaZMod_symm_apply, transferTransversal_apply',
-        transferTransversal_apply'']
+      simp only [
+        quotientEquivSigmaZMod_symm_apply, transferTransversal_apply', transferTransversal_apply''
+      ]
       rw [Fintype.prod_eq_single (0 : ZMod (Function.minimalPeriod (g • ·) q.out)) _]
       · simp only [ite_eq_left, ZMod.cast_zero, zpow_zero, one_mul, mul_assoc]
       · intro k hk
@@ -181,49 +191,53 @@ theorem transfer_eq_prod_quotient_orbitRel_zpowers_quot [FiniteIndex H] (g : G)
 
 open scoped IsMulCommutative in
 /-- Auxiliary lemma in order to state `transfer_eq_pow`. -/
-theorem transfer_eq_pow_aux (g : G)
-    (key : ∀ (k : ℕ) (g₀ : G), g₀⁻¹ * g ^ k * g₀ ∈ H → g₀⁻¹ * g ^ k * g₀ = g ^ k) :
-    g ^ H.index ∈ H := by
+theorem transfer_eq_pow_aux
+    (g : G) (key : ∀ (k : ℕ) (g₀ : G), g₀⁻¹ * g ^ k * g₀ ∈ H → g₀⁻¹ * g ^ k * g₀ = g ^ k)
+    : g ^ H.index ∈ H := by
   by_cases hH : H.index = 0
   · rw [hH, pow_zero]
     exact H.one_mem
   let := fintypeOfIndexNeZero hH
   classical
-    replace key : ∀ (k : ℕ) (g₀ : G), g₀⁻¹ * g ^ k * g₀ ∈ H → g ^ k ∈ H := fun k g₀ hk =>
-      congr($(key k g₀ hk) ∈ H).mp hk
-    replace key : ∀ q : G ⧸ H, g ^ Function.minimalPeriod (g • ·) q ∈ H := fun q =>
-      key (Function.minimalPeriod (g • ·) q) q.out
-        (QuotientGroup.out_conj_pow_minimalPeriod_mem H g q)
-    let f : Quotient (orbitRel (zpowers g) (G ⧸ H)) → zpowers g := fun q =>
-      (⟨g, mem_zpowers g⟩ : zpowers g) ^ Function.minimalPeriod (g • ·) q.out
-    have hf : ∀ q, f q ∈ H.subgroupOf (zpowers g) := fun q => key q.out
-    replace key :=
-      Subgroup.prod_mem (H.subgroupOf (zpowers g)) fun q (_ : q ∈ Finset.univ) => hf q
-    simpa only [f, Finset.prod_pow_eq_pow_sum, index_eq_sum_minimalPeriod H g] using! key
+  replace key : ∀ (k : ℕ) (g₀ : G), g₀⁻¹ * g ^ k * g₀ ∈ H → g ^ k ∈ H := fun k g₀ hk =>
+    congr($(key k g₀ hk) ∈ H).mp hk
+  replace key : ∀ q : G ⧸ H, g ^ Function.minimalPeriod (g • ·) q ∈ H := fun q =>
+    key (Function.minimalPeriod (g • ·) q) q.out
+      (QuotientGroup.out_conj_pow_minimalPeriod_mem H g q)
+  let f : Quotient (orbitRel (zpowers g) (G ⧸ H)) → zpowers g := fun q =>
+    (⟨g, mem_zpowers g⟩ : zpowers g) ^ Function.minimalPeriod (g • ·) q.out
+  have hf : ∀ q, f q ∈ H.subgroupOf (zpowers g) := fun q => key q.out
+  replace key := Subgroup.prod_mem (H.subgroupOf (zpowers g)) fun q (_ : q ∈ Finset.univ) => hf q
+  simpa only [f, Finset.prod_pow_eq_pow_sum, index_eq_sum_minimalPeriod H g] using! key
 
 open scoped IsMulCommutative in
-theorem transfer_eq_pow [FiniteIndex H] (g : G)
-    (key : ∀ (k : ℕ) (g₀ : G), g₀⁻¹ * g ^ k * g₀ ∈ H → g₀⁻¹ * g ^ k * g₀ = g ^ k) :
-    transfer ϕ g = ϕ ⟨g ^ H.index, transfer_eq_pow_aux g key⟩ := by
+theorem transfer_eq_pow
+    [FiniteIndex H]
+    (g : G) (key : ∀ (k : ℕ) (g₀ : G), g₀⁻¹ * g ^ k * g₀ ∈ H → g₀⁻¹ * g ^ k * g₀ = g ^ k)
+    : transfer ϕ g = ϕ ⟨g ^ H.index, transfer_eq_pow_aux g key⟩ := by
   classical
-    let := H.fintypeQuotientOfFiniteIndex
-    change ∀ (k g₀) (hk : g₀⁻¹ * g ^ k * g₀ ∈ H), ↑(⟨g₀⁻¹ * g ^ k * g₀, hk⟩ : H) = g ^ k at key
-    rw [transfer_eq_prod_quotient_orbitRel_zpowers_quot, ← Finset.prod_map_toList,
-      ← Function.comp_def ϕ, List.prod_map_hom]
-    refine congrArg ϕ (Subtype.coe_injective ?_)
-    dsimp only
-    rw [H.coe_mk, ← (zpowers g).coe_mk g (mem_zpowers g), ← (zpowers g).coe_pow,
-      index_eq_sum_minimalPeriod H g, ← Finset.prod_pow_eq_pow_sum, ← Finset.prod_map_toList]
-    simp only [Subgroup.val_list_prod, List.map_map]
-    congr 2
-    funext
-    apply key
+  let := H.fintypeQuotientOfFiniteIndex
+  change ∀ (k g₀) (hk : g₀⁻¹ * g ^ k * g₀ ∈ H), ↑(⟨g₀⁻¹ * g ^ k * g₀, hk⟩ : H) = g ^ k at key
+  rw [
+    transfer_eq_prod_quotient_orbitRel_zpowers_quot, ← Finset.prod_map_toList,
+    ← Function.comp_def ϕ, List.prod_map_hom
+  ]
+  refine congrArg ϕ (Subtype.coe_injective ?_)
+  dsimp only
+  rw [
+    H.coe_mk, ← (zpowers g).coe_mk g (mem_zpowers g), ← (zpowers g).coe_pow,
+    index_eq_sum_minimalPeriod H g, ← Finset.prod_pow_eq_pow_sum, ← Finset.prod_map_toList
+  ]
+  simp only [Subgroup.val_list_prod, List.map_map]
+  congr 2
+  funext
+  apply key
 
 open scoped IsMulCommutative in
-theorem transfer_center_eq_pow [FiniteIndex (center G)] (g : G) :
-    transfer (MonoidHom.id (center G)) g = ⟨g ^ (center G).index, (center G).pow_index_mem g⟩ :=
-  transfer_eq_pow (id (center G)) g fun k _ hk => by rw [← mul_right_inj, ← hk.comm,
-    mul_inv_cancel_right]
+theorem transfer_center_eq_pow [FiniteIndex (center G)] (g : G)
+    : transfer (MonoidHom.id (center G)) g = ⟨g ^ (center G).index, (center G).pow_index_mem g⟩ :=
+  transfer_eq_pow (id (center G)) g fun k _ hk => by
+    rw [← mul_right_inj, ← hk.comm, mul_inv_cancel_right]
 
 variable (G) in
 /-- The transfer homomorphism `G →* center G`. -/
@@ -233,8 +247,8 @@ def transferCenterPow [FiniteIndex (center G)] : G →* center G where
   map_mul' a b := by simp_rw [← show ∀ _, (_ : center G) = _ from transfer_center_eq_pow, map_mul]
 
 @[simp]
-theorem transferCenterPow_apply [FiniteIndex (center G)] (g : G) :
-    ↑(transferCenterPow G g) = g ^ (center G).index :=
+theorem transferCenterPow_apply [FiniteIndex (center G)] (g : G)
+    : ↑(transferCenterPow G g) = g ^ (center G).index :=
   rfl
 
 section BurnsideTransfer
@@ -251,10 +265,9 @@ def transferSylow [P.FiniteIndex] : G →* P :=
 variable [Fact p.Prime] [Finite (Sylow p G)]
 
 /-- Auxiliary lemma in order to state `transferSylow_eq_pow`. -/
-theorem transferSylow_eq_pow_aux (g : G) (hg : g ∈ P) (k : ℕ) (g₀ : G)
-    (h : g₀⁻¹ * g ^ k * g₀ ∈ P) : g₀⁻¹ * g ^ k * g₀ = g ^ k := by
-  have : IsMulCommutative P :=
-    ⟨⟨fun a b => Subtype.ext (hP (le_normalizer b.2) a a.2)⟩⟩
+theorem transferSylow_eq_pow_aux (g : G) (hg : g ∈ P) (k : ℕ) (g₀ : G) (h : g₀⁻¹ * g ^ k * g₀ ∈ P)
+    : g₀⁻¹ * g ^ k * g₀ = g ^ k := by
+  have : IsMulCommutative P := ⟨⟨fun a b => Subtype.ext (hP (le_normalizer b.2) a a.2)⟩⟩
   replace hg := P.pow_mem hg k
   obtain ⟨n, hn, h⟩ := P.conj_eq_normalizer_conj_of_mem (g ^ k) g₀ hg h
   exact h.trans (Commute.inv_mul_cancel (hP hn (g ^ k) hg).symm)
@@ -262,41 +275,44 @@ theorem transferSylow_eq_pow_aux (g : G) (hg : g ∈ P) (k : ℕ) (g₀ : G)
 variable [P.FiniteIndex]
 
 open scoped IsMulCommutative in
-theorem transferSylow_eq_pow (g : G) (hg : g ∈ P) :
-    transferSylow P hP g =
-      ⟨g ^ P.index, transfer_eq_pow_aux g (transferSylow_eq_pow_aux P hP g hg)⟩ :=
+theorem transferSylow_eq_pow (g : G) (hg : g ∈ P)
+    : transferSylow P hP g
+      = ⟨g ^ P.index, transfer_eq_pow_aux g (transferSylow_eq_pow_aux P hP g hg)⟩ :=
   haveI : IsMulCommutative P := ⟨⟨fun a b => Subtype.ext (hP (le_normalizer b.2) a a.2)⟩⟩
   transfer_eq_pow _ _ <| transferSylow_eq_pow_aux P hP g hg
 
-theorem transferSylow_domRestrict_eq_pow : ⇑((transferSylow P hP).domRestrict (P : Subgroup G)) =
-    (fun x : P => x ^ (P : Subgroup G).index) :=
+theorem transferSylow_domRestrict_eq_pow
+    : ⇑((transferSylow P hP).domRestrict (P : Subgroup G))
+      = (fun x : P => x ^ (P : Subgroup G).index) :=
   funext fun g => transferSylow_eq_pow P hP g g.2
 
 @[deprecated (since := "2026-07-19")]
 alias transferSylow_restrict_eq_pow := transferSylow_domRestrict_eq_pow
 
-/-- **Burnside's normal p-complement theorem**: If `N(P) ≤ C(P)`, then `P` has a normal
-complement. -/
+/--
+**Burnside's normal p-complement theorem**: If `N(P) ≤ C(P)`, then `P` has a normal
+complement.
+-/
 theorem ker_transferSylow_isComplement' : IsComplement' (transferSylow P hP).ker P := by
   have hf : Function.Bijective ((transferSylow P hP).domRestrict (P : Subgroup G)) :=
     (transferSylow_domRestrict_eq_pow P hP).symm ▸ (P.2.powEquiv' P.not_dvd_index).bijective
   rw [Function.Bijective, ← range_eq_top, domRestrict_range] at hf
-  have := range_eq_top.mp (top_le_iff.mp (hf.2.ge.trans
-    (map_le_range (transferSylow P hP) P)))
-  rw [← (comap_injective this).eq_iff, comap_top, comap_map_eq, sup_comm, SetLike.ext'_iff,
-    normal_mul, ← ker_eq_bot_iff, ← map_subtype_inj,
-    ker_domRestrict, subgroupOf_map_subtype, Subgroup.map_bot, coe_top] at hf
+  have := range_eq_top.mp (top_le_iff.mp (hf.2.ge.trans (map_le_range (transferSylow P hP) P)))
+  rw [
+      ← (comap_injective this).eq_iff, comap_top, comap_map_eq, sup_comm, SetLike.ext'_iff,
+      normal_mul, ← ker_eq_bot_iff, ← map_subtype_inj, ker_domRestrict, subgroupOf_map_subtype,
+      Subgroup.map_bot, coe_top
+    ]
+    at hf
   exact isComplement'_of_disjoint_and_mul_eq_univ (disjoint_iff.2 hf.1) hf.2
 
-theorem not_dvd_card_ker_transferSylow : ¬p ∣ Nat.card (transferSylow P hP).ker :=
+theorem not_dvd_card_ker_transferSylow : ¬ p ∣ Nat.card (transferSylow P hP).ker :=
   (ker_transferSylow_isComplement' P hP).index_eq_card ▸ P.not_dvd_index
 
-theorem ker_transferSylow_disjoint (Q : Subgroup G) (hQ : IsPGroup p Q) :
-    Disjoint (transferSylow P hP).ker Q :=
-  disjoint_iff.mpr <|
-    card_eq_one.mp <|
-      (hQ.to_le inf_le_right).card_eq_or_dvd.resolve_right fun h =>
-        not_dvd_card_ker_transferSylow P hP <| h.trans <| card_dvd_of_le inf_le_left
+theorem ker_transferSylow_disjoint (Q : Subgroup G) (hQ : IsPGroup p Q)
+    : Disjoint (transferSylow P hP).ker Q :=
+  disjoint_iff.mpr <| card_eq_one.mp <| (hQ.to_le inf_le_right).card_eq_or_dvd.resolve_right
+    fun h => not_dvd_card_ker_transferSylow P hP <| h.trans <| card_dvd_of_le inf_le_left
 
 end BurnsideTransfer
 
@@ -310,8 +326,7 @@ open Subgroup
 variable {G : Type*} [Group G] [Finite G] {p : ℕ} (hp : (Nat.card G).minFac = p) {P : Sylow p G}
 
 include hp in
-theorem normalizer_le_centralizer (hP : IsCyclic P) :
-    normalizer P ≤ centralizer (P : Set G) := by
+theorem normalizer_le_centralizer (hP : IsCyclic P) : normalizer P ≤ centralizer (P : Set G) := by
   subst hp
   by_cases hn : Nat.card G = 1
   · have := (Nat.card_eq_one_iff_unique.mp hn).1
@@ -333,21 +348,24 @@ theorem normalizer_le_centralizer (hP : IsCyclic P) :
   · apply Nat.Coprime.coprime_dvd_left <| relIndex_dvd_card ..
     apply Nat.Coprime.coprime_dvd_left <| card_subgroup_dvd_card _
     have h1 := Nat.gcd_dvd_left (Nat.card G) ((Nat.card G).minFac - 1)
-    have h2 := Nat.gcd_le_right (n := (Nat.card G).minFac - 1) (Nat.card G)
-      (tsub_pos_iff_lt.mpr (Nat.minFac_prime hn).one_lt)
+    have h2 :=
+      Nat.gcd_le_right (n := (Nat.card G).minFac - 1) (Nat.card G)
+        (tsub_pos_iff_lt.mpr (Nat.minFac_prime hn).one_lt)
     contrapose! h2
     refine Nat.sub_one_lt_of_le (Nat.card G).minFac_pos (Nat.minFac_le_of_dvd ?_ h1)
     exact (Nat.two_le_iff _).mpr ⟨ne_zero_of_dvd_ne_zero Nat.card_pos.ne' h1, h2⟩
 
 include hp in
 /-- A cyclic Sylow subgroup for the smallest prime has a normal complement. -/
-theorem isComplement' (hP : IsCyclic P) :
-    (MonoidHom.transferSylow P (hP.normalizer_le_centralizer hp)).ker.IsComplement' P := by
+theorem isComplement' (hP : IsCyclic P)
+    : (MonoidHom.transferSylow P (hP.normalizer_le_centralizer hp)).ker.IsComplement' P := by
   subst hp
   by_cases hn : Nat.card G = 1
   · have := (Nat.card_eq_one_iff_unique.mp hn).1
-    rw [Subsingleton.elim (MonoidHom.transferSylow P (hP.normalizer_le_centralizer rfl)).ker ⊥,
-      Subsingleton.elim P.1 ⊤]
+    rw [
+      Subsingleton.elim (MonoidHom.transferSylow P (hP.normalizer_le_centralizer rfl)).ker ⊥,
+      Subsingleton.elim P.1 ⊤
+    ]
     exact isComplement'_bot_top
   have := Fact.mk (Nat.minFac_prime hn)
   exact MonoidHom.ker_transferSylow_isComplement' P (hP.normalizer_le_centralizer rfl)

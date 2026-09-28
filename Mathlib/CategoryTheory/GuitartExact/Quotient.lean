@@ -42,9 +42,9 @@ namespace CategoryTheory.TwoSquare.GuitartExact
 
 open HomotopicalAlgebra Opposite
 
-variable {C₀ C H₀ H : Type*} [Category* C₀] [Category* C] [Category* H₀] [Category* H]
-  {T : C₀ ⥤ H₀} {L : C₀ ⥤ C} {R : H₀ ⥤ H} {B : C ⥤ H}
-  [T.EssSurj] [T.Full] [B.Full]
+variable
+  {C₀ C H₀ H : Type*} [Category* C₀] [Category* C] [Category* H₀] [Category* H]
+  {T : C₀ ⥤ H₀} {L : C₀ ⥤ C} {R : H₀ ⥤ H} {B : C ⥤ H} [T.EssSurj] [T.Full] [B.Full]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

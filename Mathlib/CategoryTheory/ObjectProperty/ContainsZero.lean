@@ -34,9 +34,11 @@ namespace ObjectProperty
 
 variable (P Q : ObjectProperty C)
 
-/-- Given `P : ObjectProperty C`, we say that `P.ContainsZero` if there exists
+/--
+Given `P : ObjectProperty C`, we say that `P.ContainsZero` if there exists
 a zero object for which `P` holds. When `P` is closed under isomorphisms,
-this holds for any zero object. -/
+this holds for any zero object.
+-/
 class ContainsZero : Prop where
   exists_zero : ∃ (Z : C), IsZero Z ∧ P Z
 
@@ -64,26 +66,27 @@ instance [HasZeroObject C] : (⊤ : ObjectProperty C).ContainsZero where
 instance [HasZeroObject C] : ContainsZero (IsZero (C := C)) where
   exists_zero := ⟨0, isZero_zero C, isZero_zero C⟩
 
-instance [P.ContainsZero] [HasZeroMorphisms C] [HasZeroMorphisms D]
-    (F : C ⥤ D) [F.PreservesZeroMorphisms] : (P.map F).ContainsZero where
+instance
+    [P.ContainsZero] [HasZeroMorphisms C] [HasZeroMorphisms D]
+    (F : C ⥤ D) [F.PreservesZeroMorphisms]
+    : (P.map F).ContainsZero where
   exists_zero := by
     obtain ⟨Z, h₁, h₂⟩ := P.exists_prop_of_containsZero
     exact ⟨F.obj Z, F.map_isZero h₁, P.prop_map_obj F h₂⟩
 
-instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms]
-    [HasZeroMorphisms C] [HasZeroMorphisms D]
-    (F : D ⥤ C) [F.PreservesZeroMorphisms] [HasZeroObject D] :
-    (P.inverseImage F).ContainsZero where
-  exists_zero :=
-    ⟨0, isZero_zero D, P.prop_of_isZero (F.map_isZero (isZero_zero D))⟩
+instance
+    [P.ContainsZero] [P.IsClosedUnderIsomorphisms] [HasZeroMorphisms C] [HasZeroMorphisms D]
+    (F : D ⥤ C) [F.PreservesZeroMorphisms] [HasZeroObject D]
+    : (P.inverseImage F).ContainsZero where
+  exists_zero := ⟨0, isZero_zero D, P.prop_of_isZero (F.map_isZero (isZero_zero D))⟩
 
 instance [P.ContainsZero] : P.isoClosure.ContainsZero where
   exists_zero := by
     obtain ⟨Z, hZ, hP⟩ := P.exists_prop_of_containsZero
     exact ⟨Z, hZ, P.le_isoClosure _ hP⟩
 
-instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms] [Q.ContainsZero] :
-    (P ⊓ Q).ContainsZero where
+instance [P.ContainsZero] [P.IsClosedUnderIsomorphisms] [Q.ContainsZero]
+    : (P ⊓ Q).ContainsZero where
   exists_zero := by
     obtain ⟨Z, hZ, hQ⟩ := Q.exists_prop_of_containsZero
     exact ⟨Z, hZ, P.prop_of_isZero hZ, hQ⟩
@@ -103,17 +106,18 @@ instance [P.ContainsZero] : HasZeroObject P.FullSubcategory where
     obtain ⟨X, h₁, h₂⟩ := P.exists_prop_of_containsZero
     exact ⟨_, IsZero.of_full_of_faithful_of_isZero P.ι ⟨X, h₂⟩ h₁⟩
 
-instance [P.ContainsZero] [Q.ContainsZero] [Q.IsClosedUnderIsomorphisms] :
-    (P ⊓ Q).ContainsZero where
+instance [P.ContainsZero] [Q.ContainsZero] [Q.IsClosedUnderIsomorphisms]
+    : (P ⊓ Q).ContainsZero where
   exists_zero := by
     obtain ⟨Z, hZ, hP⟩ := P.exists_prop_of_containsZero
     exact ⟨Z, hZ, hP, Q.prop_of_isZero hZ⟩
 
 end ObjectProperty
 
-/-- Given a functor `F : C ⥤ D`, this is the property of objects of `C`
-satisfied by those `X : C` such that `IsZero (F.obj X)`. -/
-abbrev Functor.kernel (F : C ⥤ D) : ObjectProperty C :=
-  ObjectProperty.inverseImage IsZero F
+/--
+Given a functor `F : C ⥤ D`, this is the property of objects of `C`
+satisfied by those `X : C` such that `IsZero (F.obj X)`.
+-/
+abbrev Functor.kernel (F : C ⥤ D) : ObjectProperty C := ObjectProperty.inverseImage IsZero F
 
 end CategoryTheory

@@ -27,34 +27,38 @@ namespace CategoryTheory
 
 open Abelian Limits
 
-variable {C D : Type*} [Category* C] [Category* D] [Abelian C] [Abelian D]
-  [HasExt.{w₁} C] [HasExt.{w₂} D]
-  {F : C ⥤ D} {G : D ⥤ C} [F.Additive] [G.Additive]
-  [PreservesFiniteLimits F] [PreservesFiniteColimits F]
-  [PreservesFiniteLimits G] [PreservesFiniteColimits G]
+variable
+  {C D : Type*} [Category* C] [Category* D] [Abelian C] [Abelian D] [HasExt.{w₁} C] [HasExt.{w₂} D]
+  {F : C ⥤ D} {G : D ⥤ C} [F.Additive] [G.Additive] [PreservesFiniteLimits F]
+  [PreservesFiniteColimits F] [PreservesFiniteLimits G] [PreservesFiniteColimits G]
 
 namespace Adjunction
 
-/-- The bijection of `Ext`-groups that is induced by an adjunction
-between exact functors. -/
+/--
+The bijection of `Ext`-groups that is induced by an adjunction
+between exact functors.
+-/
 @[simps -isSimp apply symm_apply]
-noncomputable def extEquiv (adj : F ⊣ G) {X : C} {Y : D} {n : ℕ} :
-    Ext (F.obj X) Y n ≃+ Ext X (G.obj Y) n where
+noncomputable def extEquiv (adj : F ⊣ G) {X : C} {Y : D} {n : ℕ}
+    : Ext (F.obj X) Y n ≃+ Ext X (G.obj Y) n where
   toFun e := (Ext.mk₀ (adj.unit.app X)).comp (e.mapExactFunctor G) (zero_add n)
   invFun e := (e.mapExactFunctor F).comp (Ext.mk₀ (adj.counit.app Y)) (add_zero n)
   left_inv e := by
     dsimp
-    rw [Ext.mapExactFunctor_comp, Ext.comp_assoc _ _ _ _ (add_zero n) (by lia),
-      ← Ext.comp_mapExactFunctor, Ext.mapExactFunctor_comp_mk₀_natTransApp,
-      Ext.id_mapExactFunctor, Ext.mapExactFunctor_mk₀,
-      ← Ext.comp_assoc _ _ _ (zero_add 0) (by lia) (by lia),
-      Ext.mk₀_comp_mk₀, adj.left_triangle_components, Ext.mk₀_id_comp]
+    rw [
+      Ext.mapExactFunctor_comp, Ext.comp_assoc _ _ _ _ (add_zero n) (by lia),
+      ← Ext.comp_mapExactFunctor, Ext.mapExactFunctor_comp_mk₀_natTransApp, Ext.id_mapExactFunctor,
+      Ext.mapExactFunctor_mk₀, ← Ext.comp_assoc _ _ _ (zero_add 0) (by lia) (by lia),
+      Ext.mk₀_comp_mk₀, adj.left_triangle_components, Ext.mk₀_id_comp
+    ]
   right_inv e := by
     dsimp
-    rw [Ext.mapExactFunctor_comp, ← Ext.comp_assoc _ _ _ (zero_add n) (by lia) (by lia),
+    rw [
+      Ext.mapExactFunctor_comp, ← Ext.comp_assoc _ _ _ (zero_add n) (by lia) (by lia),
       ← Ext.comp_mapExactFunctor, ← Ext.mapExactFunctor_comp_mk₀_natTransApp,
-      Ext.id_mapExactFunctor, Ext.comp_assoc _ _ _ _ (add_zero 0) (by lia),
-      Ext.mapExactFunctor_mk₀, Ext.mk₀_comp_mk₀, adj.right_triangle_components]
+      Ext.id_mapExactFunctor, Ext.comp_assoc _ _ _ _ (add_zero 0) (by lia), Ext.mapExactFunctor_mk₀,
+      Ext.mk₀_comp_mk₀, adj.right_triangle_components
+    ]
     simp
   map_add' := by simp
 
@@ -133,12 +137,15 @@ lemma extEquiv_symm_naturality_right₀ (adj : F ⊣ G) {X : C} {Y₁ Y₂ : D} 
   simpa [Ext.mapExactFunctor_mk₀] using
     adj.extEquiv_symm_naturality_right e (Ext.mk₀ f) (add_zero n)
 
-/-- The linear equivalence on `Ext`-modules that is induced by an adjunction
-between exact linear functors. -/
-noncomputable abbrev extLinearEquiv (adj : F ⊣ G) (R : Type*) [Ring R] [Linear R C] [Linear R D]
-    [Functor.Linear R G]
-    {X : C} {Y : D} {n : ℕ} :
-    Ext (F.obj X) Y n ≃ₗ[R] Ext X (G.obj Y) n where
+/--
+The linear equivalence on `Ext`-modules that is induced by an adjunction
+between exact linear functors.
+-/
+noncomputable abbrev extLinearEquiv
+    (adj : F ⊣ G)
+    (R : Type*) [Ring R] [Linear R C] [Linear R D] [Functor.Linear R G]
+    {X : C} {Y : D} {n : ℕ}
+    : Ext (F.obj X) Y n ≃ₗ[R] Ext X (G.obj Y) n where
   toAddEquiv := adj.extEquiv
   map_smul' := by simp [extEquiv_apply]
 

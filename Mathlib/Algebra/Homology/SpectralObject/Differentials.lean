@@ -37,24 +37,28 @@ variable (X : SpectralObject C ι)
 
 section
 
-variable {i₀ i₁ i₂ i₃ i₄ i₅ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃)
-  (f₄ : i₃ ⟶ i₄) (f₅ : i₄ ⟶ i₅) (f₁₂ : i₀ ⟶ i₂) (h₁₂ : f₁ ≫ f₂ = f₁₂)
-  (f₂₃ : i₁ ⟶ i₃) (h₂₃ : f₂ ≫ f₃ = f₂₃)
-  (f₃₄ : i₂ ⟶ i₄) (h₃₄ : f₃ ≫ f₄ = f₃₄)
-  (f₄₅ : i₃ ⟶ i₅) (h₄₅ : f₄ ≫ f₅ = f₄₅)
+variable
+  {i₀ i₁ i₂ i₃ i₄ i₅ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃) (f₄ : i₃ ⟶ i₄) (f₅ : i₄ ⟶ i₅)
+  (f₁₂ : i₀ ⟶ i₂) (h₁₂ : f₁ ≫ f₂ = f₁₂) (f₂₃ : i₁ ⟶ i₃) (h₂₃ : f₂ ≫ f₃ = f₂₃) (f₃₄ : i₂ ⟶ i₄)
+  (h₃₄ : f₃ ≫ f₄ = f₃₄) (f₄₅ : i₃ ⟶ i₅) (h₄₅ : f₄ ≫ f₅ = f₄₅)
   (n₀ n₁ n₂ n₃ : ℤ)
 
-/-- The differential `E^{n}(f₃, f₄, f₅) ⟶ E^{n+1}(f₁, f₂, f₃)` that is
-attached to a family of five composable morphisms `f₁`, `f₂`, `f₃`, `f₄`, `f₅`. -/
+/--
+The differential `E^{n}(f₃, f₄, f₅) ⟶ E^{n+1}(f₁, f₂, f₃)` that is
+attached to a family of five composable morphisms `f₁`, `f₂`, `f₃`, `f₄`, `f₅`.
+-/
 noncomputable def d
-    (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) (hn₃ : n₂ + 1 = n₃ := by lia) :
-    X.E f₃ f₄ f₅ n₀ n₁ n₂ hn₁ hn₂ ⟶ X.E f₁ f₂ f₃ n₁ n₂ n₃ hn₂ hn₃ :=
-  X.descE f₃ f₄ f₅ _ rfl n₀ n₁ n₂ (X.δ (f₁ ≫ f₂) (f₃ ≫ f₄) n₁ n₂ hn₂ ≫
-    X.toCycles f₁ f₂ _ rfl n₂ ≫ X.πE f₁ f₂ f₃ n₁ n₂ n₃ hn₂ hn₃) (by
-      rw [X.δ_naturality_assoc (f₁ ≫ f₂) f₃ (f₁ ≫ f₂) (f₃ ≫ f₄)
-        (𝟙 _) (twoδ₂Toδ₁ f₃ f₄ _ rfl) n₁ n₂ rfl hn₂, Functor.map_id, id_comp,
-        δ_toCycles_assoc .., δToCycles_πE ..]) hn₁
-          (by rw [δ_δ_assoc .., zero_comp])
+    (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) (hn₃ : n₂ + 1 = n₃ := by lia)
+    : X.E f₃ f₄ f₅ n₀ n₁ n₂ hn₁ hn₂ ⟶ X.E f₁ f₂ f₃ n₁ n₂ n₃ hn₂ hn₃ :=
+  X.descE f₃ f₄ f₅ _ rfl n₀ n₁ n₂
+    (X.δ (f₁ ≫ f₂) (f₃ ≫ f₄) n₁ n₂ hn₂ ≫ X.toCycles f₁ f₂ _ rfl n₂ ≫ X.πE f₁ f₂ f₃ n₁ n₂ n₃ hn₂ hn₃)
+    (by
+      rw [
+        X.δ_naturality_assoc (f₁ ≫ f₂) f₃ (f₁ ≫ f₂) (f₃ ≫ f₄) (𝟙 _) (twoδ₂Toδ₁ f₃ f₄ _ rfl) n₁ n₂
+          rfl hn₂,
+        Functor.map_id, id_comp, δ_toCycles_assoc .., δToCycles_πE ..
+      ])
+    hn₁ (by rw [δ_δ_assoc .., zero_comp])
 
 @[reassoc]
 lemma toCycles_πE_d
@@ -87,8 +91,9 @@ end
 
 section
 
-variable {i₀ i₁ i₂ i₃ i₄ i₅ i₆ i₇ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃)
-  (f₄ : i₃ ⟶ i₄) (f₅ : i₄ ⟶ i₅) (f₆ : i₅ ⟶ i₆) (f₇ : i₆ ⟶ i₇)
+variable
+  {i₀ i₁ i₂ i₃ i₄ i₅ i₆ i₇ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃) (f₄ : i₃ ⟶ i₄)
+  (f₅ : i₄ ⟶ i₅) (f₆ : i₅ ⟶ i₆) (f₇ : i₆ ⟶ i₇)
   (n₀ n₁ n₂ n₃ n₄ : ℤ)
 
 @[reassoc (attr := simp)]
@@ -106,22 +111,25 @@ end
 
 section
 
-variable {i j k l : ι} (f₁ : i ⟶ j) (f₂ : j ⟶ k) (f₃ : k ⟶ l)
-  (f₁₂ : i ⟶ k) (h₁₂ : f₁ ≫ f₂ = f₁₂) (f₂₃ : j ⟶ l) (h₂₃ : f₂ ≫ f₃ = f₂₃)
+variable
+  {i j k l : ι} (f₁ : i ⟶ j) (f₂ : j ⟶ k) (f₃ : k ⟶ l) (f₁₂ : i ⟶ k) (h₁₂ : f₁ ≫ f₂ = f₁₂)
+  (f₂₃ : j ⟶ l) (h₂₃ : f₂ ≫ f₃ = f₂₃)
   (n₀ n₁ : ℤ)
 
-/-- When `f₁`, `f₂` and `f₃` are composable morphisms, this is the canonical
+/--
+When `f₁`, `f₂` and `f₃` are composable morphisms, this is the canonical
 morphism `Z^n(f₂, f₃) ⟶ opZ^{n+1}(f₁, f₂)` that is induced both
 by `δ : H^n(f₂ ≫ f₃) ⟶ H^{n+1}(f₁)` (see `toCycles_Ψ`) and
 by `δ : H^n(f₃) ⟶ H^{n+1}(f₁ ≫ f₂)` (see `Ψ_fromOpcycles`).
 See the lemma `πE_d_ιE` for the relation between this definition
-and the differentials `d`. -/
-noncomputable def Ψ (hn₁ : n₀ + 1 = n₁ := by lia) :
-    X.cycles f₂ f₃ n₀ ⟶ X.opcycles f₁ f₂ n₁ :=
-  X.descCycles f₂ f₃ _ rfl
-    (X.δ f₁ (f₂ ≫ f₃) n₀ n₁ hn₁ ≫ X.pOpcycles f₁ f₂ n₁) (by
-      rw [X.δ_naturality_assoc f₁ f₂ f₁ (f₂ ≫ f₃) (𝟙 _) (twoδ₂Toδ₁ f₂ f₃ _ rfl) _ _ rfl,
-        Functor.map_id, id_comp, δ_pOpcycles ..])
+and the differentials `d`.
+-/
+noncomputable def Ψ (hn₁ : n₀ + 1 = n₁ := by lia) : X.cycles f₂ f₃ n₀ ⟶ X.opcycles f₁ f₂ n₁ :=
+  X.descCycles f₂ f₃ _ rfl (X.δ f₁ (f₂ ≫ f₃) n₀ n₁ hn₁ ≫ X.pOpcycles f₁ f₂ n₁) (by
+    rw [
+      X.δ_naturality_assoc f₁ f₂ f₁ (f₂ ≫ f₃) (𝟙 _) (twoδ₂Toδ₁ f₂ f₃ _ rfl) _ _ rfl, Functor.map_id,
+      id_comp, δ_pOpcycles ..
+    ])
 
 @[reassoc (attr := simp)]
 lemma toCycles_Ψ (hn₁ : n₀ + 1 = n₁ := by lia) :
@@ -160,12 +168,12 @@ lemma Ψ_opcyclesMap (hn₁ : n₀ + 1 = n₁ := by lia) :
     (twoδ₂Toδ₁ f₁₂ f₃ (f₁ ≫ f₂ ≫ f₃) (by rw [reassoc_of% h₁₂])) n₁ rfl rfl,
     Ψ_fromOpcycles_assoc .., zero₁ .., comp_zero]
 
-/-- When `f₁`, `f₂` and `f₃` are composable morphisms, this is the exact sequence
-`Z^n(f₁ ≫ f₂, f₃) ⟶ Z^n(f₂, f₃) ⟶ opZ^{n+1}(f₁, f₂) ⟶ opZ^{n+1}(f₁, f₂ ≫ f₃)`. -/
-noncomputable def sequenceΨ (hn₁ : n₀ + 1 = n₁ := by lia) :
-    ComposableArrows C 3 :=
-  mk₃ (X.cyclesMap _ _ _ _ (threeδ₁Toδ₀ f₁ f₂ f₃ f₁₂ h₁₂) n₀)
-    (X.Ψ f₁ f₂ f₃ n₀ n₁ hn₁)
+/--
+When `f₁`, `f₂` and `f₃` are composable morphisms, this is the exact sequence
+`Z^n(f₁ ≫ f₂, f₃) ⟶ Z^n(f₂, f₃) ⟶ opZ^{n+1}(f₁, f₂) ⟶ opZ^{n+1}(f₁, f₂ ≫ f₃)`.
+-/
+noncomputable def sequenceΨ (hn₁ : n₀ + 1 = n₁ := by lia) : ComposableArrows C 3 :=
+  mk₃ (X.cyclesMap _ _ _ _ (threeδ₁Toδ₀ f₁ f₂ f₃ f₁₂ h₁₂) n₀) (X.Ψ f₁ f₂ f₃ n₀ n₁ hn₁)
     (X.opcyclesMap _ _ _ _ (threeδ₃Toδ₂ f₁ f₂ f₃ f₂₃ h₂₃) n₁)
 
 lemma cyclesMap_Ψ_exact (hn₁ : n₀ + 1 = n₁ := by lia) :
@@ -218,8 +226,7 @@ lemma πE_d_ιE
 
 section
 
-variable {i₀ i₁ i₂ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂)
-  (n₀ n₁ n₂ n₃ : ℤ)
+variable {i₀ i₁ i₂ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (n₀ n₁ n₂ n₃ : ℤ)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

@@ -77,20 +77,25 @@ Simultaneously, uniform spaces need a theory of relations on a type `α` as elem
 
 variable {α β γ δ : Type*} {ι : Sort*}
 
-/-- A relation on `α` and `β`, aka a set-valued function, aka a partial multifunction.
+/--
+A relation on `α` and `β`, aka a set-valued function, aka a partial multifunction.
 
-We represent them as sets due to how relations are used in the context of uniform spaces. -/
+We represent them as sets due to how relations are used in the context of uniform spaces.
+-/
 abbrev SetRel (α β : Type*) := Set (α × β)
 
 namespace SetRel
-variable {R R₁ R₂ : SetRel α β} {S : SetRel β γ} {s s₁ s₂ : Set α} {t t₁ t₂ : Set β} {u : Set γ}
+variable
+  {R R₁ R₂ : SetRel α β} {S : SetRel β γ} {s s₁ s₂ : Set α} {t t₁ t₂ : Set β} {u : Set γ}
   {a a₁ a₂ : α} {b : β} {c : γ}
 
-/-- Notation for apply a relation `R : SetRel α β` to `a : α`, `b : β`,
+/--
+Notation for apply a relation `R : SetRel α β` to `a : α`, `b : β`,
 scoped to the `SetRel` namespace.
 
 Since `SetRel α β := Set (α × β)`, `a ~[R] b` is simply notation for `(a, b) ∈ R`, but this should
-be considered an implementation detail. -/
+be considered an implementation detail.
+-/
 scoped notation:50 a:50 " ~[" R "] " b:50 => (a, b) ∈ R
 
 variable (R) in
@@ -144,9 +149,11 @@ protected def id : SetRel α α := {(a₁, a₂) | a₁ = a₂}
 -- Not simp because `SetRel.inv_eq_self` already proves it
 lemma inv_id : (.id : SetRel α α).inv = .id := by grind
 
-/-- Composition of relation.
+/--
+Composition of relation.
 
-Note that this follows the `CategoryTheory` order of arguments. -/
+Note that this follows the `CategoryTheory` order of arguments.
+-/
 def comp (R : SetRel α β) (S : SetRel β γ) : SetRel α γ := {(a, c) | ∃ b, a ~[R] b ∧ b ~[S] c}
 
 @[inherit_doc] scoped infixl:62 " ○ " => comp
@@ -320,8 +327,10 @@ lemma image_eq_biUnion : R.image s = ⋃ x ∈ s, {y | x ~[R] y} := by grind [Se
 lemma preimage_eq_biUnion : R.preimage t = ⋃ y ∈ t, {x | x ~[R] y} := by grind [Set.mem_iUnion]
 
 variable (R t) in
-/-- Core of a set `S : Set β` w.R.t `R : SetRel α β` is the set of `x : α` that are related *only*
-to elements of `S`. Other generalization of `Function.preimage`. -/
+/--
+Core of a set `S : Set β` w.R.t `R : SetRel α β` is the set of `x : α` that are related *only*
+to elements of `S`. Other generalization of `Function.preimage`.
+-/
 def core : Set α := {a | ∀ ⦃b⦄, a ~[R] b → b ∈ t}
 
 @[simp, grind =] lemma mem_core : a ∈ R.core t ↔ ∀ ⦃b⦄, a ~[R] b → b ∈ t := .rfl
@@ -385,8 +394,8 @@ protected lemma IsRefl.sInter {ℛ : Set <| SetRel α α} (hℛ : ∀ R ∈ ℛ,
     SetRel.IsRefl (⋂₀ ℛ) where
   refl _a R hR := (hℛ R hR).refl _
 
-instance isRefl_iInter {R : ι → SetRel α α} [∀ i, (R i).IsRefl] :
-    SetRel.IsRefl (⋂ i, R i) := .sInter <| by simpa
+instance isRefl_iInter {R : ι → SetRel α α} [∀ i, (R i).IsRefl] : SetRel.IsRefl (⋂ i, R i) :=
+  .sInter <| by simpa
 
 instance isRefl_preimage {f : β → α} [R.IsRefl] : SetRel.IsRefl (Prod.map f f ⁻¹' R) where
   refl _ := R.rfl
@@ -439,8 +448,10 @@ lemma inv_eq_self_iff : R.inv = R ↔ R.IsSymm where
 
 instance [R.IsSymm] : R.inv.IsSymm := by simpa
 
-instance isSymm_empty : (∅ : SetRel α α).IsSymm where symm _ _ := by simp
-instance isSymm_univ : SetRel.IsSymm (Set.univ : SetRel α α) where symm _ _ := by simp
+instance isSymm_empty : (∅ : SetRel α α).IsSymm where
+  symm _ _ := by simp
+instance isSymm_univ : SetRel.IsSymm (Set.univ : SetRel α α) where
+  symm _ _ := by simp
 
 instance isSymm_inter [R₁.IsSymm] [R₂.IsSymm] : (R₁ ∩ R₂).IsSymm where
   symm _ _ := .imp R₁.symm R₂.symm
@@ -449,18 +460,20 @@ protected lemma IsSymm.sInter {ℛ : Set <| SetRel α α} (hℛ : ∀ R ∈ ℛ,
     SetRel.IsSymm (⋂₀ ℛ) where
   symm _a _b hab R hR := (hℛ R hR).symm _ _ <| hab R hR
 
-instance isSymm_iInter {R : ι → SetRel α α} [∀ i, (R i).IsSymm] :
-    SetRel.IsSymm (⋂ i, R i) := .sInter <| by simpa
+instance isSymm_iInter {R : ι → SetRel α α} [∀ i, (R i).IsSymm] : SetRel.IsSymm (⋂ i, R i) :=
+  .sInter <| by simpa
 
-instance isSymm_id : (SetRel.id : SetRel α α).IsSymm where symm _ _ := .symm
+instance isSymm_id : (SetRel.id : SetRel α α).IsSymm where
+  symm _ _ := .symm
 
 instance isSymm_preimage {f : β → α} [R.IsSymm] : SetRel.IsSymm (Prod.map f f ⁻¹' R) where
   symm _ _ := R.symm
 
 instance isSymm_image {f : α → β} [R.IsSymm] : SetRel.IsSymm (Prod.map f f '' R) where
   symm := by
-    simp only [Set.mem_image, Prod.exists, Prod.map_apply, Prod.mk.injEq, forall_exists_index,
-      and_imp]
+    simp only [
+      Set.mem_image, Prod.exists, Prod.map_apply, Prod.mk.injEq, forall_exists_index, and_imp
+    ]
     rintro _ _ a₁ a₂ ha rfl rfl
     exact ⟨_, _, R.symm ha, rfl, rfl⟩
 
@@ -482,7 +495,8 @@ variable (R) in
 /-- The maximal symmetric relation contained in a given relation. -/
 def symmetrize : SetRel α α := R ∩ R.inv
 
-instance isSymm_symmetrize : R.symmetrize.IsSymm where symm _ _ := .symm
+instance isSymm_symmetrize : R.symmetrize.IsSymm where
+  symm _ _ := .symm
 
 lemma symmetrize_subset_self : R.symmetrize ⊆ R := Set.inter_subset_left
 lemma symmetrize_subset_inv : R.symmetrize ⊆ R.inv := Set.inter_subset_right
@@ -514,9 +528,12 @@ lemma isTrans_iff_comp_subset_self : R.IsTrans ↔ R ○ R ⊆ R where
   mp _ := comp_subset_self
   mpr h := ⟨fun _ _ _ hx hy ↦ h ⟨_, hx, hy⟩⟩
 
-instance isTrans_empty : (∅ : SetRel α α).IsTrans where trans _ _ _ := by simp
-instance isTrans_univ : SetRel.IsTrans (Set.univ : SetRel α α) where trans _ _ _ := by simp
-instance isTrans_singleton (x : α × α) : SetRel.IsTrans {x} where trans _ _ _ := by grind
+instance isTrans_empty : (∅ : SetRel α α).IsTrans where
+  trans _ _ _ := by simp
+instance isTrans_univ : SetRel.IsTrans (Set.univ : SetRel α α) where
+  trans _ _ _ := by simp
+instance isTrans_singleton (x : α × α) : SetRel.IsTrans {x} where
+  trans _ _ _ := by grind
 
 instance isTrans_inter [R₁.IsTrans] [R₂.IsTrans] : (R₁ ∩ R₂).IsTrans where
   trans _a _b _c hab hbc := ⟨R₁.trans hab.1 hbc.1, R₂.trans hab.2 hbc.2⟩
@@ -525,10 +542,11 @@ protected lemma IsTrans.sInter {ℛ : Set <| SetRel α α} (hℛ : ∀ R ∈ ℛ
     SetRel.IsTrans (⋂₀ ℛ) where
   trans _a _b _c hab hbc R hR := (hℛ R hR).trans _ _ _ (hab R hR) <| hbc R hR
 
-instance isTrans_iInter {R : ι → SetRel α α} [∀ i, (R i).IsTrans] :
-    SetRel.IsTrans (⋂ i, R i) := .sInter <| by simpa
+instance isTrans_iInter {R : ι → SetRel α α} [∀ i, (R i).IsTrans] : SetRel.IsTrans (⋂ i, R i) :=
+  .sInter <| by simpa
 
-instance isTrans_id : (.id : SetRel α α).IsTrans where trans _ _ _ := .trans
+instance isTrans_id : (.id : SetRel α α).IsTrans where
+  trans _ _ _ := .trans
 
 instance isTrans_preimage {f : β → α} [R.IsTrans] : SetRel.IsTrans (Prod.map f f ⁻¹' R) where
   trans _ _ _ := R.trans
@@ -546,13 +564,16 @@ protected lemma irrefl [R.IsIrrefl] : ¬ a ~[R] a := irrefl_of (· ~[R] ·) _
 instance {R : α → α → Prop} [Std.Irrefl R] : SetRel.IsIrrefl {(a, b) | R a b} := ‹_›
 
 variable (R) in
-/-- A relation `R` on a type `α` is well-founded if all elements of `α` are accessible within `R`.
+/--
+A relation `R` on a type `α` is well-founded if all elements of `α` are accessible within `R`.
 -/
 abbrev IsWellFounded : Prop := WellFounded (· ~[R] ·)
 
 variable (R S) in
-/-- A relation homomorphism with respect to a given pair of relations `R` and `S` s is a function
-`f : α → β` such that `a ~[R] b → f a ~[s] f b`. -/
+/--
+A relation homomorphism with respect to a given pair of relations `R` and `S` s is a function
+`f : α → β` such that `a ~[R] b → f a ~[s] f b`.
+-/
 abbrev Hom := (· ~[R] ·) →r (· ~[S] ·)
 
 end SetRel
@@ -578,8 +599,7 @@ theorem graph_injective : Injective (graph : (α → β) → SetRel α β) := by
 theorem graph_comp (f : β → γ) (g : α → β) : graph (f ∘ g) = graph g ○ graph f := by aesop
 
 /-- The higher-arity graph of a function. Describes α-argument functions from β to β. -/
-def tupleGraph (f : (α → β) → β) : Set (Option α → β) :=
-  { v | f (v ∘ some) = v none }
+def tupleGraph (f : (α → β) → β) : Set (Option α → β) := { v | f (v ∘ some) = v none }
 
 end Function
 
@@ -601,8 +621,7 @@ lemma SetRel.exists_graph_eq_iff (R : SetRel α β) :
 
 namespace Set
 
-theorem image_eq (f : α → β) (s : Set α) : f '' s = (Function.graph f).image s := by
-  rfl
+theorem image_eq (f : α → β) (s : Set α) : f '' s = (Function.graph f).image s := by rfl
 
 theorem preimage_eq (f : α → β) (s : Set β) : f ⁻¹' s = (Function.graph f).preimage s := by
   simp [Set.preimage, SetRel.preimage]
@@ -612,7 +631,9 @@ theorem preimage_eq_core (f : α → β) (s : Set β) : f ⁻¹' s = (Function.g
 
 end Set
 
-/-- A shorthand for `α → β → Prop`.
+/--
+A shorthand for `α → β → Prop`.
 
-Consider using `SetRel` instead if you want extra API for relations. -/
+Consider using `SetRel` instead if you want extra API for relations.
+-/
 abbrev Rel (α β : Sort*) : Sort _ := α → β → Prop

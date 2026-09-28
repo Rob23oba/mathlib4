@@ -123,7 +123,8 @@ lemma rec_add_one {C : ℕ → Sort*} (h0 : C 0) (h : ∀ n, C n → C (n + 1)) 
 @[simp] lemma rec_one {C : ℕ → Sort*} (h0 : C 0) (h : ∀ n, C n → C (n + 1)) :
     Nat.rec (motive := C) h0 h 1 = h 0 h0 := rfl
 
-/-- Recursion starting at a non-zero number: given a map `C k → C (k+1)` for each `k ≥ n`,
+/--
+Recursion starting at a non-zero number: given a map `C k → C (k+1)` for each `k ≥ n`,
 there is a map from `C n` to each `C m`, `n ≤ m`.
 
 This is a version of `Nat.le.rec` that works for `Sort u`.
@@ -135,11 +136,12 @@ induction hle using Nat.leRec with
 ```
 -/
 @[elab_as_elim]
-def leRec {n} {motive : (m : ℕ) → n ≤ m → Sort*}
-    (refl : motive n (Nat.le_refl _))
-    (le_succ_of_le : ∀ ⦃k⦄ (h : n ≤ k), motive k h → motive (k + 1) (le_succ_of_le h)) :
-    ∀ {m} (h : n ≤ m), motive m h
-  | 0, H => Nat.eq_zero_of_le_zero H ▸ refl
+def leRec
+    {n} {motive : (m : ℕ) → n ≤ m → Sort*} (refl : motive n (Nat.le_refl _))
+    (le_succ_of_le : ∀ ⦃k⦄ (h : n ≤ k), motive k h → motive (k + 1) (le_succ_of_le h))
+    : ∀ {m} (h : n ≤ m), motive m h
+  | 0, H =>
+    Nat.eq_zero_of_le_zero H ▸ refl
   | m + 1, H =>
     (le_succ_iff.1 H).by_cases
       (fun h : n ≤ m ↦ le_succ_of_le h <| leRec refl le_succ_of_le h)
@@ -190,9 +192,11 @@ lemma leRec_succ_left {motive : (m : ℕ) → n ≤ m → Sort*}
       leRec (motive := motive) refl le_succ_of_le h1 := by
   rw [leRec_trans _ _ (le_succ n) h2, leRec_succ']
 
-/-- Recursion starting at a non-zero number: given a map `C k → C (k + 1)` for each `k`,
+/--
+Recursion starting at a non-zero number: given a map `C k → C (k + 1)` for each `k`,
 there is a map from `C n` to each `C m`, `n ≤ m`. For a version where the assumption is only made
-when `k ≥ n`, see `Nat.leRec`. -/
+when `k ≥ n`, see `Nat.leRec`.
+-/
 @[elab_as_elim]
 def leRecOn {C : ℕ → Sort*} {n : ℕ} : ∀ {m}, n ≤ m → (∀ {k}, C k → C (k + 1)) → C n → C m :=
   fun h of_succ self => Nat.leRec self (fun _ _ => @of_succ _) h
@@ -236,44 +240,60 @@ lemma le_induction {m : ℕ} {P : ∀ n, m ≤ n → Prop} (base : P m m.le_refl
 
 /-- Induction principle deriving the next case from the two previous ones. -/
 @[elab_as_elim]
-def twoStepInduction {motive : ℕ → Sort*} (zero : motive 0) (one : motive 1)
-    (more : ∀ n, motive n → motive (n + 1) → motive (n + 2)) : ∀ a, motive a
+def twoStepInduction
+    {motive : ℕ → Sort*}
+    (zero : motive 0) (one : motive 1) (more : ∀ n, motive n → motive (n + 1) → motive (n + 2))
+    : ∀ a, motive a
   | 0 => zero
   | 1 => one
   | _ + 2 => more _ (twoStepInduction zero one more _) (twoStepInduction zero one more _)
 
-/-- Induction principle deriving the next case from the `k` previous ones. Use as
+/--
+Induction principle deriving the next case from the `k` previous ones. Use as
 ```
 induction n using stepInduction 3 with
 | base n hn => ...
 | step n ih => ...
-``` -/
+```
+-/
 @[elab_as_elim]
-def stepInduction {motive : ℕ → Sort*} (k : ℕ) (base : ∀ i < k, motive i)
-    (step : ∀ n, (∀ i < k, motive (n + i)) → motive (n + k)) (a : ℕ) : motive a :=
-  if h : a < k then base _ h else
-  (show a - k + k = a by lia) ▸ step (a - k) fun _ _ ↦ stepInduction k base step _
+def stepInduction
+    {motive : ℕ → Sort*}
+    (k : ℕ) (base : ∀ i < k, motive i) (step : ∀ n, (∀ i < k, motive (n + i)) → motive (n + k))
+    (a : ℕ)
+    : motive a :=
+  if h : a < k then
+    base _ h
+  else
+    (show a - k + k = a by lia) ▸ step (a - k) fun _ _ ↦ stepInduction k base step _
 
 @[elab_as_elim]
-protected theorem strong_induction_on {p : ℕ → Prop} (n : ℕ)
-    (h : ∀ n, (∀ m < n, p m) → p n) : p n :=
+protected theorem strong_induction_on {p : ℕ → Prop} (n : ℕ) (h : ∀ n, (∀ m < n, p m) → p n)
+    : p n :=
   Nat.strongRecOn n h
 
-protected theorem case_strong_induction_on {p : ℕ → Prop} (a : ℕ) (hz : p 0)
-    (hi : ∀ n, (∀ m ≤ n, p m) → p (n + 1)) : p a :=
+protected theorem case_strong_induction_on
+    {p : ℕ → Prop} (a : ℕ) (hz : p 0) (hi : ∀ n, (∀ m ≤ n, p m) → p (n + 1))
+    : p a :=
   Nat.caseStrongRecOn a hz hi
 
-/-- Decreasing induction: if `P (k+1)` implies `P k` for all `k < n`, then `P n` implies `P m` for
+/--
+Decreasing induction: if `P (k+1)` implies `P k` for all `k < n`, then `P n` implies `P m` for
 all `m ≤ n`.
 Also works for functions to `Sort*`.
 
-For a version also assuming `m ≤ k`, see `Nat.decreasingInduction'`. -/
+For a version also assuming `m ≤ k`, see `Nat.decreasingInduction'`.
+-/
 @[elab_as_elim]
-def decreasingInduction {n} {motive : (m : ℕ) → m ≤ n → Sort*}
+def decreasingInduction
+    {n} {motive : (m : ℕ) → m ≤ n → Sort*}
     (of_succ : ∀ k (h : k < n), motive (k + 1) h → motive k (le_of_succ_le h))
-    (self : motive n (Nat.le_refl _)) {m} (mn : m ≤ n) : motive m mn := by
+    (self : motive n (Nat.le_refl _))
+    {m} (mn : m ≤ n)
+    : motive m mn := by
   induction mn using leRec with
-  | refl => exact self
+  | refl =>
+    exact self
   | @le_succ_of_le k _ ih =>
     apply ih (fun i hi => of_succ i (le_succ_of_le hi)) (of_succ k (lt_succ_self _) self)
 
@@ -312,48 +332,66 @@ lemma decreasingInduction_succ_left {motive : (m : ℕ) → m ≤ n → Sort*} (
     decreasingInduction_trans (n := m + 1) (Nat.le_succ m),
     decreasingInduction_succ']
 
-/-- Given `P : ℕ → ℕ → Sort*`, if for all `m n : ℕ` we can extend `P` from the rectangle
+/--
+Given `P : ℕ → ℕ → Sort*`, if for all `m n : ℕ` we can extend `P` from the rectangle
 strictly below `(m, n)` to `P m n`, then we have `P n m` for all `n m : ℕ`.
 Note that for non-`Prop` output it is preferable to use the equation compiler directly if possible,
-since this produces equation lemmas. -/
+since this produces equation lemmas.
+-/
 @[elab_as_elim]
-def strongSubRecursion {P : ℕ → ℕ → Sort*} (H : ∀ m n, (∀ x y, x < m → y < n → P x y) → P m n) :
-    ∀ n m : ℕ, P n m
+def strongSubRecursion {P : ℕ → ℕ → Sort*} (H : ∀ m n, (∀ x y, x < m → y < n → P x y) → P m n)
+    : ∀ n m : ℕ, P n m
   | n, m => H n m fun x y _ _ ↦ strongSubRecursion H x y
 
-/-- Given `P : ℕ → ℕ → Sort*`, if we have `P m 0` and `P 0 n` for all `m n : ℕ`, and for any
+/--
+Given `P : ℕ → ℕ → Sort*`, if we have `P m 0` and `P 0 n` for all `m n : ℕ`, and for any
 `m n : ℕ` we can extend `P` from `(m, n + 1)` and `(m + 1, n)` to `(m + 1, n + 1)` then we have
 `P m n` for all `m n : ℕ`.
 
 Note that for non-`Prop` output it is preferable to use the equation compiler directly if possible,
-since this produces equation lemmas. -/
+since this produces equation lemmas.
+-/
 @[elab_as_elim]
-def pincerRecursion {P : ℕ → ℕ → Sort*} (Ha0 : ∀ m : ℕ, P m 0) (H0b : ∀ n : ℕ, P 0 n)
-    (H : ∀ x y : ℕ, P x y.succ → P x.succ y → P x.succ y.succ) : ∀ n m : ℕ, P n m
-  | m, 0 => Ha0 m
-  | 0, n => H0b n
-  | Nat.succ _, Nat.succ _ => H _ _ (pincerRecursion Ha0 H0b H _ _) (pincerRecursion Ha0 H0b H _ _)
+def pincerRecursion
+    {P : ℕ → ℕ → Sort*} (Ha0 : ∀ m : ℕ, P m 0) (H0b : ∀ n : ℕ, P 0 n)
+    (H : ∀ x y : ℕ, P x y.succ → P x.succ y → P x.succ y.succ)
+    : ∀ n m : ℕ, P n m
+  | m, 0 =>
+    Ha0 m
+  | 0, n =>
+    H0b n
+  | Nat.succ _, Nat.succ _ =>
+    H _ _ (pincerRecursion Ha0 H0b H _ _) (pincerRecursion Ha0 H0b H _ _)
 
-/-- Decreasing induction: if `P (k+1)` implies `P k` for all `m ≤ k < n`, then `P n` implies `P m`.
+/--
+Decreasing induction: if `P (k+1)` implies `P k` for all `m ≤ k < n`, then `P n` implies `P m`.
 Also works for functions to `Sort*`.
 
-Weakens the assumptions of `Nat.decreasingInduction`. -/
+Weakens the assumptions of `Nat.decreasingInduction`.
+-/
 @[elab_as_elim]
-def decreasingInduction' {P : ℕ → Sort*} (h : ∀ k < n, m ≤ k → P (k + 1) → P k)
-    (mn : m ≤ n) (hP : P n) : P m := by
+def decreasingInduction'
+    {P : ℕ → Sort*} (h : ∀ k < n, m ≤ k → P (k + 1) → P k) (mn : m ≤ n) (hP : P n)
+    : P m := by
   induction mn using decreasingInduction with
-  | self => exact hP
+  | self =>
+    exact hP
   | of_succ k hk ih =>
     exact h _ (lt_of_succ_le hk) (Nat.le_refl _)
       (ih fun k' hk' h'' => h k' hk' <| le_of_succ_le h'')
 
-/-- Given a predicate on two naturals `P : ℕ → ℕ → Prop`, `P a b` is true for all `a < b` if
+/--
+Given a predicate on two naturals `P : ℕ → ℕ → Prop`, `P a b` is true for all `a < b` if
 `P (a + 1) (a + 1)` is true for all `a`, `P 0 (b + 1)` is true for all `b` and for all
-`a < b`, `P (a + 1) b` is true and `P a (b + 1)` is true implies `P (a + 1) (b + 1)` is true. -/
+`a < b`, `P (a + 1) b` is true and `P a (b + 1)` is true implies `P (a + 1) (b + 1)` is true.
+-/
 @[elab_as_elim]
-theorem diag_induction (P : ℕ → ℕ → Prop) (ha : ∀ a, P (a + 1) (a + 1)) (hb : ∀ b, P 0 (b + 1))
-    (hd : ∀ a b, a < b → P (a + 1) b → P a (b + 1) → P (a + 1) (b + 1)) : ∀ a b, a < b → P a b
-  | 0, _ + 1, _ => hb _
+theorem diag_induction
+    (P : ℕ → ℕ → Prop) (ha : ∀ a, P (a + 1) (a + 1)) (hb : ∀ b, P 0 (b + 1))
+    (hd : ∀ a b, a < b → P (a + 1) b → P a (b + 1) → P (a + 1) (b + 1))
+    : ∀ a b, a < b → P a b
+  | 0, _ + 1, _ =>
+    hb _
   | a + 1, b + 1, h => by
     apply hd _ _ (Nat.add_lt_add_iff_right.1 h)
     · have : a + 1 = b ∨ a + 1 < b := by lia
@@ -369,9 +407,7 @@ lemma not_pos_pow_dvd {a n : ℕ} (ha : 1 < a) (hn : 1 < n) : ¬ a ^ n ∣ a :=
   not_dvd_of_pos_of_lt (Nat.lt_trans Nat.zero_lt_one ha)
     (lt_of_eq_of_lt (Nat.pow_one a).symm ((Nat.pow_lt_pow_iff_right ha).2 hn))
 
-@[simp]
-protected theorem not_two_dvd_bit1 (n : ℕ) : ¬2 ∣ 2 * n + 1 := by
-  lia
+@[simp] protected theorem not_two_dvd_bit1 (n : ℕ) : ¬ 2 ∣ 2 * n + 1 := by lia
 
 /-- A natural number `m` divides the sum `m + n` if and only if `m` divides `n`. -/
 @[simp] protected lemma dvd_add_self_left : m ∣ m + n ↔ m ∣ n := Nat.dvd_add_right (Nat.dvd_refl m)
@@ -391,16 +427,16 @@ lemma dvd_left_iff_eq : (∀ a : ℕ, a ∣ m ↔ a ∣ n) ↔ m = n :=
 
 /-! ### Decidability of predicates -/
 
-instance decidableLoHi (lo hi : ℕ) (P : ℕ → Prop) [DecidablePred P] :
-    Decidable (∀ x, lo ≤ x → x < hi → P x) :=
+instance decidableLoHi (lo hi : ℕ) (P : ℕ → Prop) [DecidablePred P]
+    : Decidable (∀ x, lo ≤ x → x < hi → P x) :=
   decidable_of_iff (∀ x < hi - lo, P (lo + x)) <| by
-    refine ⟨fun al x hl hh ↦ ?_,
-      fun al x h ↦ al _ (Nat.le_add_right _ _) (Nat.lt_sub_iff_add_lt'.1 h)⟩
+    refine
+      ⟨fun al x hl hh ↦ ?_, fun al x h ↦ al _ (Nat.le_add_right _ _) (Nat.lt_sub_iff_add_lt'.1 h)⟩
     have := al (x - lo) ((Nat.sub_lt_sub_iff_right hl).2 hh)
     rwa [Nat.add_sub_cancel' hl] at this
 
-instance decidableLoHiLe (lo hi : ℕ) (P : ℕ → Prop) [DecidablePred P] :
-    Decidable (∀ x, lo ≤ x → x ≤ hi → P x) :=
+instance decidableLoHiLe (lo hi : ℕ) (P : ℕ → Prop) [DecidablePred P]
+    : Decidable (∀ x, lo ≤ x → x ≤ hi → P x) :=
   decidable_of_iff (∀ x, lo ≤ x → x < hi + 1 → P x) <|
     forall₂_congr fun _ _ ↦ imp_congr Nat.lt_succ_iff Iff.rfl
 
@@ -409,7 +445,8 @@ instance (n : ℤ) [NeZero n] : NeZero n.natAbs where
 
 /-! ### `Nat.AtLeastTwo` -/
 
-/-- A type class for natural numbers which are greater than or equal to `2`.
+/--
+A type class for natural numbers which are greater than or equal to `2`.
 
 `NeZero` and `AtLeastTwo` are used for numeric literals, and also for groups of related lemmas
 sharing a common value of `n` that needs to be nonzero, or at least `2`, and where it is
@@ -419,7 +456,8 @@ required conditions, such as `m + 1`. Less widely used cases may be defined as l
 global instances and then made into instances locally where needed. If implicit arguments,
 appearing before other explicit arguments, are allowed to be `autoParam`s in a future version of
 Lean, such an `autoParam` that is proved `by lia` might be a more general replacement for the
-use of typeclass inference for this purpose. -/
+use of typeclass inference for this purpose.
+-/
 class AtLeastTwo (n : ℕ) : Prop where
   prop : 2 ≤ n
 

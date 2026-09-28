@@ -28,7 +28,6 @@ We show that these properties are local, and are stable under compositions.
 
 public section
 
-
 noncomputable section
 
 open CategoryTheory Topology
@@ -39,12 +38,14 @@ namespace AlgebraicGeometry
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
-/-- A morphism of schemes `f : X ⟶ Y` is locally of finite presentation if for each affine `U ⊆ Y`
-and `V ⊆ f ⁻¹' U`, The induced map `Γ(Y, U) ⟶ Γ(X, V)` is of finite presentation. -/
+/--
+A morphism of schemes `f : X ⟶ Y` is locally of finite presentation if for each affine `U ⊆ Y`
+and `V ⊆ f ⁻¹' U`, The induced map `Γ(Y, U) ⟶ Γ(X, V)` is of finite presentation.
+-/
 @[mk_iff]
 class LocallyOfFinitePresentation (f : X ⟶ Y) : Prop where
-  finitePresentation_appLE (f) :
-    ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
+  finitePresentation_appLE (f)
+    : ∀ {U : Y.Opens} (_ : IsAffineOpen U) {V : X.Opens} (_ : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U),
       (f.appLE U V e).hom.FinitePresentation
 
 alias Scheme.Hom.finitePresentation_appLE := LocallyOfFinitePresentation.finitePresentation_appLE
@@ -55,8 +56,8 @@ instance : HasRingHomProperty @LocallyOfFinitePresentation RingHom.FinitePresent
     ext X Y f
     rw [locallyOfFinitePresentation_iff, affineLocally_iff_forall_isAffineOpen]
 
-instance (priority := 900) locallyOfFinitePresentation_of_isOpenImmersion [IsOpenImmersion f] :
-    LocallyOfFinitePresentation f :=
+instance (priority := 900) locallyOfFinitePresentation_of_isOpenImmersion [IsOpenImmersion f]
+    : LocallyOfFinitePresentation f :=
   HasRingHomProperty.of_isOpenImmersion
     RingHom.finitePresentation_holdsForLocalizationAway.containsIdentities
 
@@ -73,36 +74,37 @@ lemma Scheme.Hom.finitePresentation_appTop {X Y : Scheme.{u}} (f : X ⟶ Y) [IsA
     f.appTop.hom.FinitePresentation :=
   HasRingHomProperty.appTop (P := @LocallyOfFinitePresentation) _ inferInstance
 
-instance locallyOfFinitePresentation_comp {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
-    [hf : LocallyOfFinitePresentation f] [hg : LocallyOfFinitePresentation g] :
-    LocallyOfFinitePresentation (f ≫ g) :=
+instance locallyOfFinitePresentation_comp
+    {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
+    [hf : LocallyOfFinitePresentation f] [hg : LocallyOfFinitePresentation g]
+    : LocallyOfFinitePresentation (f ≫ g) :=
   MorphismProperty.comp_mem _ f g hf hg
 
-instance locallyOfFinitePresentation_isStableUnderBaseChange :
-    MorphismProperty.IsStableUnderBaseChange @LocallyOfFinitePresentation :=
+instance locallyOfFinitePresentation_isStableUnderBaseChange
+    : MorphismProperty.IsStableUnderBaseChange @LocallyOfFinitePresentation :=
   HasRingHomProperty.isStableUnderBaseChange RingHom.finitePresentation_isStableUnderBaseChange
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [LocallyOfFinitePresentation g] :
-    LocallyOfFinitePresentation (Limits.pullback.fst f g) :=
+instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [LocallyOfFinitePresentation g]
+    : LocallyOfFinitePresentation (Limits.pullback.fst f g) :=
   MorphismProperty.pullback_fst _ _ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [LocallyOfFinitePresentation f] :
-    LocallyOfFinitePresentation (Limits.pullback.snd f g) :=
+instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [LocallyOfFinitePresentation f]
+    : LocallyOfFinitePresentation (Limits.pullback.snd f g) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (f : X ⟶ Y) (V : Y.Opens) [LocallyOfFinitePresentation f] :
-    LocallyOfFinitePresentation (f ∣_ V) :=
+instance (f : X ⟶ Y) (V : Y.Opens) [LocallyOfFinitePresentation f]
+    : LocallyOfFinitePresentation (f ∣_ V) :=
   IsZariskiLocalAtTarget.restrict ‹_› V
 
-instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [LocallyOfFinitePresentation f] :
-    LocallyOfFinitePresentation (f.resLE V U e) := by
+instance (f : X ⟶ Y) (U : X.Opens) (V : Y.Opens) (e) [LocallyOfFinitePresentation f]
+    : LocallyOfFinitePresentation (f.resLE V U e) := by
   delta Scheme.Hom.resLE; infer_instance
 
-instance {X Y : Scheme.{u}} (f : X ⟶ Y) [hf : LocallyOfFinitePresentation f] :
-    LocallyOfFiniteType f := by
+instance {X Y : Scheme.{u}} (f : X ⟶ Y) [hf : LocallyOfFinitePresentation f]
+    : LocallyOfFiniteType f := by
   rw [HasRingHomProperty.eq_affineLocally @LocallyOfFinitePresentation] at hf
   rw [HasRingHomProperty.eq_affineLocally @LocallyOfFiniteType]
   refine affineLocally_le (fun hf ↦ ?_) f hf

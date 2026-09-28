@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Convex.Continuous
 public import Mathlib.Analysis.Convex.Integral
 public import Mathlib.Probability.Kernel.Composition.MeasureCompProd
-
 import Mathlib.Analysis.Convex.Approximation
 import Mathlib.Probability.Kernel.Composition.IntegralCompProd
 import Mathlib.Probability.Kernel.Composition.RadonNikodym
@@ -27,7 +26,6 @@ import Mathlib.Probability.Kernel.Composition.RadonNikodym
 -/
 
 public section
-
 
 open Set ProbabilityTheory
 open scoped ENNReal
@@ -108,7 +106,8 @@ lemma mul_le_integral_rnDeriv_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 section Integrable
 
-variable {𝓨 : Type*} {m𝓨 : MeasurableSpace 𝓨} {κ η : Kernel 𝓧 𝓨} {f : ℝ → ℝ}
+variable
+  {𝓨 : Type*} {m𝓨 : MeasurableSpace 𝓨} {κ η : Kernel 𝓧 𝓨} {f : ℝ → ℝ}
   [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 lemma lintegral_rnDeriv_compProd [IsSFiniteKernel κ] [IsFiniteKernel η]

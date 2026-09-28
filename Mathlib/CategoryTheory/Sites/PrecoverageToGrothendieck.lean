@@ -44,10 +44,10 @@ See `Precoverage.toGrothendieck`.
 inductive Saturate (J : Precoverage C) : (X : C) → Sieve X → Prop where
   | of (X : C) (S : Presieve X) (hS : S ∈ J X) : J.Saturate X (Sieve.generate S)
   | top (X : C) : J.Saturate X ⊤
-  | pullback (X : C) (S : Sieve X) : J.Saturate X S → ∀ (Y : C) (f : Y ⟶ X),
-      J.Saturate Y (S.pullback f)
-  | transitive (X : C) (S R : Sieve X) : J.Saturate X S →
-      (∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → J.Saturate Y (R.pullback f)) → J.Saturate X R
+  | pullback (X : C) (S : Sieve X)
+    : J.Saturate X S → ∀ (Y : C) (f : Y ⟶ X), J.Saturate Y (S.pullback f)
+  | transitive (X : C) (S R : Sieve X)
+    : J.Saturate X S → (∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → J.Saturate Y (R.pullback f)) → J.Saturate X R
 
 /--
 The Grothendieck topology associated to a precoverage `J`.
@@ -95,10 +95,10 @@ The main theorem of this file: given a precoverage `J` on `C`, a `Type*`-valued 
 a sheaf for the associated Grothendieck topology if and only if it is a sheaf for all pullback
 sieves of presieves in `J`.
 -/
-theorem isSheaf_toGrothendieck_iff (P : Cᵒᵖ ⥤ Type*) :
-    Presieve.IsSheaf J.toGrothendieck P ↔
-      (∀ {X Y : C} {f : Y ⟶ X} (R : Presieve X), R ∈ J X →
-        Presieve.IsSheafFor P ((Sieve.generate R).pullback f).arrows) := by
+theorem isSheaf_toGrothendieck_iff (P : Cᵒᵖ ⥤ Type*)
+    : Presieve.IsSheaf J.toGrothendieck P
+      ↔ (∀ {X Y : C} {f : Y ⟶ X} (R : Presieve X),
+        R ∈ J X → Presieve.IsSheafFor P ((Sieve.generate R).pullback f).arrows) := by
   constructor
   · intro H _ _ _ _ hR
     apply H.isSheafFor
@@ -131,9 +131,10 @@ theorem isSheaf_toGrothendieck_iff (P : Cᵒᵖ ⥤ Type*) :
         simp only [← comp_apply]
         rw [← P.map_comp, ← op_comp, h₁, h₂]
         simpa only [Sieve.pullback_apply, Category.assoc] using hgg
-      let y : ∀ ⦃Z : C⦄ (g : Z ⟶ Y),
-        ((S.pullback (g ≫ f)).pullback (𝟙 _)).arrows.FamilyOfElements P :=
-        fun Z g ZZ gg hgg => x (gg ≫ g) (by simpa using hgg)
+      let y
+          : ∀ ⦃Z : C⦄ (g : Z ⟶ Y),
+            ((S.pullback (g ≫ f)).pullback (𝟙 _)).arrows.FamilyOfElements P := fun Z g ZZ gg hgg =>
+        x (gg ≫ g) (by simpa using hgg)
       have hy : ∀ ⦃Z : C⦄ (g : Z ⟶ Y), (y g).Compatible := by
         intro Z g Y₁ Y₂ ZZ g₁ g₂ f₁ f₂ h₁ h₂ h
         rw [hx]

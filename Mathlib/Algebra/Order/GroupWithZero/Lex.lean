@@ -63,7 +63,6 @@ lemma fst_mono [LinearOrderedCommGroupWithZero M₀] [GroupWithZero N₀] [Preor
   refine WithZero.forall.mpr ?_
   simp +contextual [WithZero.forall, Prod.le_def]
 
-
 lemma snd_mono [GroupWithZero M₀] [Preorder M₀] [LinearOrderedCommGroupWithZero N₀] :
     Monotone (snd M₀ N₀) := by
   refine WithZero.forall.mpr ?_
@@ -80,9 +79,11 @@ open MonoidWithZeroHom
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given linearly ordered groups with zero M, N, the natural inclusion ordered homomorphism from
+/--
+Given linearly ordered groups with zero M, N, the natural inclusion ordered homomorphism from
 M to `WithZero (Mˣ ×ₗ Nˣ)`, which is the linearly ordered group with zero that can be identified
-as their product. -/
+as their product.
+-/
 @[simps!]
 nonrec def inl : α →*₀o WithZero (αˣ ×ₗ βˣ) where
   __ := (WithZero.map' (toLexMulEquiv ..).toMonoidHom).comp (inl α β)
@@ -91,25 +92,28 @@ nonrec def inl : α →*₀o WithZero (αˣ ×ₗ βˣ) where
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given linearly ordered groups with zero M, N, the natural inclusion ordered homomorphism from
+/--
+Given linearly ordered groups with zero M, N, the natural inclusion ordered homomorphism from
 N to `WithZero (Mˣ ×ₗ Nˣ)`, which is the linearly ordered group with zero that can be identified
-as their product. -/
+as their product.
+-/
 @[simps!]
 nonrec def inr : β →*₀o WithZero (αˣ ×ₗ βˣ) where
   __ := (WithZero.map' (toLexMulEquiv ..).toMonoidHom).comp (inr α β)
   monotone' := by simpa using (WithZero.map'_mono (Prod.Lex.toLex_mono)).comp inr_mono
 
-/-- Given linearly ordered groups with zero M, N, the natural projection ordered homomorphism from
+/--
+Given linearly ordered groups with zero M, N, the natural projection ordered homomorphism from
 `WithZero (Mˣ ×ₗ Nˣ)` to M, which is the linearly ordered group with zero that can be identified
-as their product. -/
+as their product.
+-/
 @[simps!]
 nonrec def fst : WithZero (αˣ ×ₗ βˣ) →*₀o α where
   __ := (fst α β).comp (WithZero.map' (toLexMulEquiv (αˣ × βˣ)).symm.toMonoidHom)
   monotone' := by
     -- this can't rely on `Monotone.comp` since `ofLex` is not monotone
     intro x y
-    cases x <;>
-    cases y
+    cases x <;> cases y
     · simp
     · simp
     · simp
@@ -119,8 +123,7 @@ set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem fst_comp_inl : (fst _ _).comp (inl α β) = .id α := by
   ext x
-  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x <;>
-  simp
+  obtain rfl | ⟨_, rfl⟩ := GroupWithZero.eq_zero_or_unit x <;> simp
 
 variable {α β}
 
@@ -136,9 +139,11 @@ lemma inr_eq_coe_inrₗ {n : β} (hn : n ≠ 0) :
   lift n to βˣ using isUnit_iff_ne_zero.mpr hn
   simp
 
-theorem inl_mul_inr_eq_coe_toLex {m : α} {n : β} (hm : m ≠ 0) (hn : n ≠ 0) :
-    inl α β m * inr α β n = toLex (Units.mk0 _ hm, Units.mk0 _ hn) := by
-  rw [inl_eq_coe_inlₗ hm, inr_eq_coe_inrₗ hn,
-      ← WithZero.coe_mul, OrderMonoidHom.inlₗ_mul_inrₗ_eq_toLex]
+theorem inl_mul_inr_eq_coe_toLex {m : α} {n : β} (hm : m ≠ 0) (hn : n ≠ 0)
+    : inl α β m * inr α β n = toLex (Units.mk0 _ hm, Units.mk0 _ hn) := by
+  rw [
+    inl_eq_coe_inlₗ hm, inr_eq_coe_inrₗ hn, ← WithZero.coe_mul,
+    OrderMonoidHom.inlₗ_mul_inrₗ_eq_toLex
+  ]
 
 end LinearOrderedCommGroupWithZero

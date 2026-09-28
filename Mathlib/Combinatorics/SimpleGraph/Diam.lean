@@ -38,8 +38,7 @@ variable {α : Type*} {G G' : SimpleGraph α}
 section eccent
 
 /-- The eccentricity of a vertex is the greatest distance between it and any other vertex. -/
-noncomputable def eccent (G : SimpleGraph α) (u : α) : ℕ∞ :=
-  ⨆ v, G.edist u v
+noncomputable def eccent (G : SimpleGraph α) (u : α) : ℕ∞ := ⨆ v, G.edist u v
 
 lemma eccent_def : G.eccent = fun u ↦ ⨆ v, G.edist u v := rfl
 
@@ -126,8 +125,7 @@ section ediam
 The extended diameter is the greatest distance between any two vertices, with the value `⊤` in
 case the distances are not bounded above, or the graph is not connected.
 -/
-noncomputable def ediam (G : SimpleGraph α) : ℕ∞ :=
-  ⨆ u, G.eccent u
+noncomputable def ediam (G : SimpleGraph α) : ℕ∞ := ⨆ u, G.eccent u
 
 lemma ediam_eq_iSup_iSup_edist : G.ediam = ⨆ u, ⨆ v, G.edist u v :=
   rfl
@@ -262,8 +260,7 @@ section diam
 The diameter is the greatest distance between any two vertices, with the value `0` in
 case the distances are not bounded above, or the graph is not connected.
 -/
-noncomputable def diam (G : SimpleGraph α) :=
-  G.ediam.toNat
+noncomputable def diam (G : SimpleGraph α) := G.ediam.toNat
 
 lemma diam_def : G.diam = (⨆ p : α × α, G.edist p.1 p.2).toNat := by
   rw [diam, ediam_def]
@@ -339,8 +336,7 @@ end diam
 section radius
 
 /-- The radius of a simple graph is the minimum eccentricity of any vertex. -/
-noncomputable def radius (G : SimpleGraph α) : ℕ∞ :=
-  ⨅ u, G.eccent u
+noncomputable def radius (G : SimpleGraph α) : ℕ∞ := ⨅ u, G.eccent u
 
 lemma radius_eq_iInf_iSup_edist : G.radius = ⨅ u, ⨆ v, G.edist u v :=
   rfl
@@ -434,8 +430,7 @@ end radius
 section center
 
 /-- The center of a simple graph is the set of vertices with eccentricity equal to the radius. -/
-def center (G : SimpleGraph α) : Set α :=
-  {u | G.eccent u = G.radius}
+def center (G : SimpleGraph α) : Set α := {u | G.eccent u = G.radius}
 
 lemma center_nonempty [Nonempty α] : G.center.Nonempty :=
   exists_eccent_eq_radius

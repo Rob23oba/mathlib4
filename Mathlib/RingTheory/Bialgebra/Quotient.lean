@@ -57,10 +57,12 @@ lemma comul_comp_mkₐ :
 
 /-- The bialgebra structure on `A ⧸ I` when `I` is a biideal. -/
 instance : Bialgebra R (A ⧸ I) := by
-  refine .ofAlgHom (comulAlgHom I) (counitAlgHom I) ?_ ?_ ?_ <;>
-    refine Ideal.Quotient.algHom_ext R (AlgHom.toLinearMap_injective ?_) <;>
-    simp only [coassoc_simps, AlgHom.comp_toLinearMap, Algebra.TensorProduct.toLinearMap_map,
-      comul_comp_mkₐ, counit_comp_mkₐ]
+  refine .ofAlgHom (comulAlgHom I) (counitAlgHom I) ?_ ?_ ?_
+    <;> refine Ideal.Quotient.algHom_ext R (AlgHom.toLinearMap_injective ?_)
+    <;> simp only [
+      coassoc_simps, AlgHom.comp_toLinearMap, Algebra.TensorProduct.toLinearMap_map, comul_comp_mkₐ,
+      counit_comp_mkₐ
+    ]
   · simp [coassoc_simps]
   · rw [CoassocSimps.map_counit_comp_comul_left]; rfl
   · rw [CoassocSimps.map_counit_comp_comul_right]; rfl

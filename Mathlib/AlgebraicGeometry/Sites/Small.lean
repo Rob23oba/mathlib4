@@ -56,13 +56,14 @@ private lemma map_functorPullback_mem_coverings (hPQ : P ≤ Q) (X : Q.Over ⊤ 
 variable [P.IsStableUnderBaseChange]
 
 /-- The presieve defined by a `P`-cover of `S`-schemes. -/
-def Cover.toPresieveOver {X : Over S} (𝒰 : Cover.{u} (precoverage P) X.left) [𝒰.Over S] :
-    Presieve X :=
+def Cover.toPresieveOver {X : Over S} (𝒰 : Cover.{u} (precoverage P) X.left) [𝒰.Over S]
+    : Presieve X :=
   Presieve.ofArrows (fun i ↦ (𝒰.X i).asOver S) (fun i ↦ (𝒰.f i).asOver S)
 
 /-- The presieve defined by a `P`-cover of `S`-schemes with `Q`. -/
-def Cover.toPresieveOverProp {X : Q.Over ⊤ S} (𝒰 : Cover.{u} (precoverage P) X.left) [𝒰.Over S]
-    (h : ∀ j, Q (𝒰.X j ↘ S)) : Presieve X :=
+def Cover.toPresieveOverProp
+    {X : Q.Over ⊤ S} (𝒰 : Cover.{u} (precoverage P) X.left) [𝒰.Over S] (h : ∀ j, Q (𝒰.X j ↘ S))
+    : Presieve X :=
   Presieve.ofArrows (fun i ↦ (𝒰.X i).asOverProp S (h i)) (fun i ↦ (𝒰.f i).asOverProp S)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -92,14 +93,17 @@ variable [P.IsMultiplicative]
 
 variable (P Q S)
 
-/-- The pretopology on `Over S` induced by `P` where coverings are given by `P`-covers
-of `S`-schemes. -/
-abbrev overPretopology : Pretopology (Over S) :=
-  ((Scheme.precoverage P).over S).toPretopology
+/--
+The pretopology on `Over S` induced by `P` where coverings are given by `P`-covers
+of `S`-schemes.
+-/
+abbrev overPretopology : Pretopology (Over S) := ((Scheme.precoverage P).over S).toPretopology
 
-/-- The topology on `Over S` induced from the topology on `Scheme` defined by `P`.
+/--
+The topology on `Over S` induced from the topology on `Scheme` defined by `P`.
 This agrees with the topology induced by `S.overPretopology P`, see
-`AlgebraicGeometry.Scheme.overGrothendieckTopology_eq_toGrothendieck_overPretopology`. -/
+`AlgebraicGeometry.Scheme.overGrothendieckTopology_eq_toGrothendieck_overPretopology`.
+-/
 abbrev overGrothendieckTopology : GrothendieckTopology (Over S) :=
   (Scheme.grothendieckTopology P).over S
 
@@ -133,8 +137,10 @@ instance : (MorphismProperty.Over.forget P ⊤ S).LocallyCoverDense (overGrothen
   locallyCoverDense_of_le S le_rfl
 
 variable (S) {Q} in
-/-- If `P` and `Q` are morphism properties with `P ≤ Q`, this is the Grothendieck topology
-induced via the forgetful functor `Q.Over ⊤ S ⥤ Over S` by the topology defined by `P`. -/
+/--
+If `P` and `Q` are morphism properties with `P ≤ Q`, this is the Grothendieck topology
+induced via the forgetful functor `Q.Over ⊤ S ⥤ Over S` by the topology defined by `P`.
+-/
 abbrev smallGrothendieckTopology : GrothendieckTopology (Q.Over ⊤ S) :=
   (MorphismProperty.Over.forget Q ⊤ S).restrictedTopology (S.overGrothendieckTopology P)
 
@@ -143,10 +149,12 @@ alias smallGrothendieckTopologyOfLE := smallGrothendieckTopology
 
 variable [Q.IsStableUnderBaseChange] [Q.HasOfPostcompProperty Q]
 
-/-- The pretopology defined on the subcategory of `S`-schemes satisfying `Q` where coverings
+/--
+The pretopology defined on the subcategory of `S`-schemes satisfying `Q` where coverings
 are given by `P`-coverings in `S`-schemes satisfying `Q`.
 The most common case is `P = Q`. In this case, this is simply surjective families
-in `S`-schemes with `P`. -/
+in `S`-schemes with `P`.
+-/
 abbrev smallPretopology : Pretopology (Q.Over ⊤ S) :=
   (((precoverage P).over S).comap (MorphismProperty.Over.forget Q ⊤ S)).toPretopology
 

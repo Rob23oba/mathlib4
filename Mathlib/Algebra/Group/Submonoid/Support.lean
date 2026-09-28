@@ -6,7 +6,6 @@ Authors: Artie Khovanov
 module
 
 public import Mathlib.Algebra.Group.Subgroup.Lattice
-
 public import Mathlib.Algebra.Group.Submonoid.Pointwise
 
 /-!
@@ -40,7 +39,7 @@ The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`,
 the largest subgroup of `G` contained in `M`.
 -/
 @[to_additive (attr := simps!)
-/-- The support of a submonoid `M` of a group `G` is `M ∩ -M`,
+  /-- The support of a submonoid `M` of a group `G` is `M ∩ -M`,
 the largest subgroup of `G` contained in `M`. -/]
 def mulSupport : Subgroup G where
   toSubmonoid := M ⊓ M⁻¹
@@ -55,9 +54,9 @@ theorem mulSupport_toSubmonoid : M.mulSupport.toSubmonoid = M ⊓ M⁻¹ := rfl
 
 /-- The support of a submonoid is the largest subgroup it contains. -/
 @[to_additive /-- The support of a submonoid is the largest subgroup it contains. -/]
-theorem _root_.Subgroup.gc_toSubmonoid_mulSupport :
-    GaloisConnection (α := Subgroup G) Subgroup.toSubmonoid mulSupport :=
-  fun _ _ ↦ ⟨fun _ _ ↦ by aesop, fun h _ hx ↦ (h hx).1⟩
+theorem _root_.Subgroup.gc_toSubmonoid_mulSupport
+    : GaloisConnection (α := Subgroup G) Subgroup.toSubmonoid mulSupport := fun _ _ ↦
+  ⟨fun _ _ ↦ by aesop, fun h _ hx ↦ (h hx).1⟩
 
 variable {M}
 
@@ -72,8 +71,9 @@ namespace IsMulPointed
 theorem mk (h : ∀ x ∈ M, x⁻¹ ∈ M → x = 1) : M.IsMulPointed := h -- for Aesop
 
 @[to_additive (attr := aesop safe forward (immediate := [hM, hx₁]))]
-theorem eq_one_of_mem_of_inv_mem (hM : M.IsMulPointed)
-    {x : G} (hx₁ : x ∈ M) (hx₂ : x⁻¹ ∈ M) : x = 1 := hM _ hx₁ hx₂
+theorem eq_one_of_mem_of_inv_mem (hM : M.IsMulPointed) {x : G} (hx₁ : x ∈ M) (hx₂ : x⁻¹ ∈ M)
+    : x = 1 :=
+  hM _ hx₁ hx₂
 
 @[to_additive (attr := aesop safe forward (immediate := [hM, hx₂]))]
 alias eq_one_of_mem_of_inv_mem₂ := eq_one_of_mem_of_inv_mem -- for Aesop
@@ -96,7 +96,7 @@ end IsMulPointed
 variable (M) in
 /-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/
 @[to_additive
-/-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/]
+  /-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/]
 def IsMulSpanning := ∀ a : G, a ∈ M ∨ a⁻¹ ∈ M
 
 namespace IsMulSpanning
@@ -108,12 +108,11 @@ theorem mk (h : ∀ a : G, a ∈ M ∨ a⁻¹ ∈ M) : M.IsMulSpanning := h -- f
 theorem mem_or_inv_mem (hM : M.IsMulSpanning) (a : G) : a ∈ M ∨ a⁻¹ ∈ M := by aesop
 
 @[to_additive]
-theorem of_le {N : Submonoid G} (hM : M.IsMulSpanning) (h : M ≤ N) :
-    N.IsMulSpanning := by aesop
+theorem of_le {N : Submonoid G} (hM : M.IsMulSpanning) (h : M ≤ N) : N.IsMulSpanning := by aesop
 
 @[to_additive]
-theorem maximal_isMulPointed (hMp : M.IsMulPointed) (hMs : M.IsMulSpanning) :
-    Maximal IsMulPointed M :=
+theorem maximal_isMulPointed (hMp : M.IsMulPointed) (hMs : M.IsMulSpanning)
+    : Maximal IsMulPointed M :=
   ⟨hMp, fun N hN h ↦ by rw [IsConcreteLE.le_iff] at h ⊢; aesop⟩
 
 end Submonoid.IsMulSpanning

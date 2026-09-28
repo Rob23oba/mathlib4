@@ -51,14 +51,16 @@ section Products
 section ProductEquiv
 
 variable {FC : C → C → Type*} {CC : C → Type max w v} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
-variable [ConcreteCategory.{max w v} C FC] {J : Type w} (F : J → C)
-  [HasProduct F] [PreservesLimit (Discrete.functor F) (forget C)]
+variable
+  [ConcreteCategory.{max w v} C FC]
+  {J : Type w} (F : J → C) [HasProduct F] [PreservesLimit (Discrete.functor F) (forget C)]
 
-/-- The equivalence `ToType (∏ᶜ F) ≃ ∀ j, ToType (F j)` if `F : J → C` is a family of objects
-in a concrete category `C`. -/
+/--
+The equivalence `ToType (∏ᶜ F) ≃ ∀ j, ToType (F j)` if `F : J → C` is a family of objects
+in a concrete category `C`.
+-/
 noncomputable def productEquiv : ToType (∏ᶜ F) ≃ ∀ j, ToType (F j) :=
-  ((PreservesProduct.iso (forget C) F) ≪≫ (Types.productIso.{w, v} fun j =>
-    (ToType (F j)))).toEquiv
+  ((PreservesProduct.iso (forget C) F) ≪≫ (Types.productIso.{w, v} fun j => (ToType (F j)))).toEquiv
 
 @[simp]
 lemma productEquiv_apply_apply (x : ToType (∏ᶜ F)) (j : J) :
@@ -76,9 +78,9 @@ section ProductExt
 
 variable {J : Type w} (f : J → C) [HasProduct f] {D : Type t} [Category.{r} D]
 variable {FD : D → D → Type*} {DD : D → Type max w r} [∀ X Y, FunLike (FD X Y) (DD X) (DD Y)]
-variable [ConcreteCategory.{max w r} D FD] (F : C ⥤ D)
-  [PreservesLimit (Discrete.functor f) F]
-  [HasProduct fun j => F.obj (f j)]
+variable
+  [ConcreteCategory.{max w r} D FD]
+  (F : C ⥤ D) [PreservesLimit (Discrete.functor f) F] [HasProduct fun j => F.obj (f j)]
   [PreservesLimitsOfShape WalkingCospan (forget D)]
   [PreservesLimit (Discrete.functor fun b ↦ F.obj (f b)) (forget D)]
 
@@ -99,24 +101,31 @@ section Terminal
 variable {FC : C → C → Type*} {CC : C → Type w} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
 variable [ConcreteCategory.{w} C FC]
 
-/-- If `forget C` preserves terminals and `X` is terminal, then `ToType X` is a
-singleton. -/
+/--
+If `forget C` preserves terminals and `X` is terminal, then `ToType X` is a
+singleton.
+-/
 @[instance_reducible]
-noncomputable def uniqueOfTerminalOfPreserves [PreservesLimit (Functor.empty.{0} C) (forget C)]
-    (X : C) (h : IsTerminal X) : Unique (ToType X) :=
+noncomputable def uniqueOfTerminalOfPreserves
+    [PreservesLimit (Functor.empty.{0} C) (forget C)] (X : C) (h : IsTerminal X)
+    : Unique (ToType X) :=
   Types.isTerminalEquivUnique (ToType X) <| IsTerminal.isTerminalObj (forget C) X h
 
 /-- If `forget C` reflects terminals and `ToType X` is a singleton, then `X` is terminal. -/
-noncomputable def terminalOfUniqueOfReflects [ReflectsLimit (Functor.empty.{0} C) (forget C)]
-    (X : C) (h : Unique (ToType X)) : IsTerminal X :=
-  IsTerminal.isTerminalOfObj (forget C) X <|
-    (Types.isTerminalEquivUnique (ToType X)).symm h
+noncomputable def terminalOfUniqueOfReflects
+    [ReflectsLimit (Functor.empty.{0} C) (forget C)] (X : C) (h : Unique (ToType X))
+    : IsTerminal X :=
+  IsTerminal.isTerminalOfObj (forget C) X <| (Types.isTerminalEquivUnique (ToType X)).symm h
 
-/-- The equivalence `IsTerminal X ≃ Unique (ToType X)` if the forgetful functor
-preserves and reflects terminals. -/
-noncomputable def terminalIffUnique [PreservesLimit (Functor.empty.{0} C) (forget C)]
-    [ReflectsLimit (Functor.empty.{0} C) (forget C)] (X : C) :
-    IsTerminal X ≃ Unique (ToType X) :=
+/--
+The equivalence `IsTerminal X ≃ Unique (ToType X)` if the forgetful functor
+preserves and reflects terminals.
+-/
+noncomputable def terminalIffUnique
+    [PreservesLimit (Functor.empty.{0} C) (forget C)]
+    [ReflectsLimit (Functor.empty.{0} C) (forget C)]
+    (X : C)
+    : IsTerminal X ≃ Unique (ToType X) :=
   (IsTerminal.isTerminalIffObj (forget C) X).trans <| Types.isTerminalEquivUnique _
 
 variable (C)
@@ -161,11 +170,14 @@ end Initial
 section BinaryProducts
 
 variable {FC : C → C → Type*} {CC : C → Type w} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
-variable [ConcreteCategory.{w} C FC] (X₁ X₂ : C) [HasBinaryProduct X₁ X₂]
-  [PreservesLimit (pair X₁ X₂) (forget C)]
+variable
+  [ConcreteCategory.{w} C FC]
+  (X₁ X₂ : C) [HasBinaryProduct X₁ X₂] [PreservesLimit (pair X₁ X₂) (forget C)]
 
-/-- The equivalence `ToType (X₁ ⨯ X₂) ≃ (ToType X₁) × (ToType X₂)`
-if `X₁` and `X₂` are objects in a concrete category `C`. -/
+/--
+The equivalence `ToType (X₁ ⨯ X₂) ≃ (ToType X₁) × (ToType X₂)`
+if `X₁` and `X₂` are objects in a concrete category `C`.
+-/
 noncomputable def prodEquiv : ToType (X₁ ⨯ X₂) ≃ ToType X₁ × ToType X₂ :=
   (PreservesLimitPair.iso (forget C) X₁ X₂ ≪≫ Types.binaryProductIso _ _).toEquiv
 
@@ -197,20 +209,22 @@ section Pullbacks
 
 variable {FC : C → C → Type*} {CC : C → Type v} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
 variable [ConcreteCategory.{v} C FC]
-variable {X₁ X₂ S : C} (f₁ : X₁ ⟶ S) (f₂ : X₂ ⟶ S)
-    [HasPullback f₁ f₂] [PreservesLimit (cospan f₁ f₂) (forget C)]
+variable
+  {X₁ X₂ S : C} (f₁ : X₁ ⟶ S) (f₂ : X₂ ⟶ S)
+  [HasPullback f₁ f₂] [PreservesLimit (cospan f₁ f₂) (forget C)]
 
-/-- In a concrete category `C`, given two morphisms `f₁ : X₁ ⟶ S` and `f₂ : X₂ ⟶ S`,
+/--
+In a concrete category `C`, given two morphisms `f₁ : X₁ ⟶ S` and `f₂ : X₂ ⟶ S`,
 the elements in `pullback f₁ f₂` can be identified to compatible tuples of
-elements in `X₁` and `X₂`. -/
-noncomputable def pullbackEquiv :
-    ToType (pullback f₁ f₂) ≃ { p : ToType X₁ × ToType X₂ // f₁ p.1 = f₂ p.2 } :=
-  (PreservesPullback.iso (forget C) f₁ f₂ ≪≫
-    Types.pullbackIsoPullback (↾f₁) (↾f₂)).toEquiv
+elements in `X₁` and `X₂`.
+-/
+noncomputable def pullbackEquiv
+    : ToType (pullback f₁ f₂) ≃ {p : ToType X₁ × ToType X₂ // f₁ p.1 = f₂ p.2} :=
+  (PreservesPullback.iso (forget C) f₁ f₂ ≪≫ Types.pullbackIsoPullback (↾f₁) (↾f₂)).toEquiv
 
 /-- Constructor for elements in a pullback in a concrete category. -/
-noncomputable def pullbackMk (x₁ : ToType X₁) (x₂ : ToType X₂) (h : f₁ x₁ = f₂ x₂) :
-    ToType (pullback f₁ f₂) :=
+noncomputable def pullbackMk (x₁ : ToType X₁) (x₂ : ToType X₂) (h : f₁ x₁ = f₂ x₂)
+    : ToType (pullback f₁ f₂) :=
   (pullbackEquiv f₁ f₂).symm ⟨⟨x₁, x₂⟩, h⟩
 
 lemma pullbackMk_surjective (x : ToType (pullback f₁ f₂)) :
@@ -241,19 +255,22 @@ open WidePullback
 
 open WidePullbackShape
 
-theorem widePullback_ext {B : C} {ι : Type w} {X : ι → C} (f : ∀ j : ι, X j ⟶ B)
+theorem widePullback_ext
+    {B : C} {ι : Type w} {X : ι → C} (f : ∀ j : ι, X j ⟶ B)
     [HasWidePullback B X f] [PreservesLimit (wideCospan B X f) (forget C)]
-    (x y : ToType (widePullback B X f)) (h₀ : base f x = base f y) (h : ∀ j, π f j x = π f j y) :
-    x = y := by
+    (x y : ToType (widePullback B X f)) (h₀ : base f x = base f y) (h : ∀ j, π f j x = π f j y)
+    : x = y := by
   apply Concrete.limit_ext
   rintro (_ | j)
   · exact h₀
   · apply h
 
-theorem widePullback_ext' {B : C} {ι : Type w} [Nonempty ι] {X : ι → C}
-    (f : ∀ j : ι, X j ⟶ B) [HasWidePullback.{w} B X f]
-    [PreservesLimit (wideCospan B X f) (forget C)] (x y : ToType (widePullback B X f))
-    (h : ∀ j, π f j x = π f j y) : x = y := by
+theorem widePullback_ext'
+    {B : C} {ι : Type w} [Nonempty ι]
+    {X : ι → C} (f : ∀ j : ι, X j ⟶ B)
+    [HasWidePullback.{w} B X f] [PreservesLimit (wideCospan B X f) (forget C)]
+    (x y : ToType (widePullback B X f)) (h : ∀ j, π f j x = π f j y)
+    : x = y := by
   apply Concrete.widePullback_ext _ _ _ _ h
   inhabit ι
   simp only [← π_arrow f default, ConcreteCategory.comp_apply, h]
@@ -267,42 +284,50 @@ variable [ConcreteCategory.{s} C FC]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-theorem multiequalizer_ext {J : MulticospanShape.{w, w'}}
-    {I : MulticospanIndex J C} [HasMultiequalizer I]
-    [PreservesLimit I.multicospan (forget C)] (x y : ToType (multiequalizer I))
-    (h : ∀ t : J.L, Multiequalizer.ι I t x = Multiequalizer.ι I t y) : x = y := by
+theorem multiequalizer_ext
+    {J : MulticospanShape.{w, w'}} {I : MulticospanIndex J C}
+    [HasMultiequalizer I] [PreservesLimit I.multicospan (forget C)]
+    (x y : ToType (multiequalizer I))
+    (h : ∀ t : J.L, Multiequalizer.ι I t x = Multiequalizer.ι I t y)
+    : x = y := by
   apply Concrete.limit_ext
   rintro (a | b)
   · apply h
-  · rw [← limit.w I.multicospan (WalkingMulticospan.Hom.fst b), ConcreteCategory.comp_apply,
-      ConcreteCategory.comp_apply]
+  · rw [
+      ← limit.w I.multicospan (WalkingMulticospan.Hom.fst b), ConcreteCategory.comp_apply,
+      ConcreteCategory.comp_apply
+    ]
     simp [h]
 
 set_option backward.defeqAttrib.useBackward true in
 /-- An auxiliary equivalence to be used in `multiequalizerEquiv` below. -/
-def multiequalizerEquivAux {J : MulticospanShape.{w, w'}} (I : MulticospanIndex J C) :
-    (I.multicospan ⋙ forget C).sections ≃
-    { x : ∀ i : J.L, ToType (I.left i) // ∀ i : J.R, I.fst i (x _) = I.snd i (x _) } where
-  toFun x :=
-    ⟨fun _ => x.1 (WalkingMulticospan.left _), fun i => by
+def multiequalizerEquivAux {J : MulticospanShape.{w, w'}} (I : MulticospanIndex J C)
+    : (I.multicospan ⋙ forget C).sections
+      ≃ {x : ∀ i : J.L, ToType (I.left i) // ∀ i : J.R, I.fst i (x _) = I.snd i (x _)} where
+  toFun x := ⟨
+    fun _ => x.1 (WalkingMulticospan.left _),
+    fun i => by
       have a := x.2 (WalkingMulticospan.Hom.fst i)
       have b := x.2 (WalkingMulticospan.Hom.snd i)
       rw [← b] at a
-      exact a⟩
-  invFun x :=
-    { val := fun j =>
-        match j with
-        | WalkingMulticospan.left _ => x.1 _
-        | WalkingMulticospan.right b => I.fst b (x.1 _)
-      property := by
-        rintro (a | b) (a' | b') (f | f | f)
-        · simp only [WalkingMulticospan.Hom.id_eq_id, Functor.map_id]; rfl
-        · rfl
-        · dsimp
-          exact (x.2 b').symm
-        · simp only [WalkingMulticospan.Hom.id_eq_id, Functor.map_id]; rfl }
+      exact a
+  ⟩
+  invFun x := {
+    val := fun j =>
+      match j with
+      | WalkingMulticospan.left _ => x.1 _
+      | WalkingMulticospan.right b => I.fst b (x.1 _)
+    property := by
+      rintro (a | b) (a' | b') (f | f | f)
+      · simp only [WalkingMulticospan.Hom.id_eq_id, Functor.map_id]; rfl
+      · rfl
+      · dsimp
+        exact (x.2 b').symm
+      · simp only [WalkingMulticospan.Hom.id_eq_id, Functor.map_id]; rfl
+  }
   left_inv := by
-    intro x; ext (a | b)
+    intro x
+    ext (a | b)
     · rfl
     · rw [← x.2 (WalkingMulticospan.Hom.fst b)]
       rfl
@@ -311,23 +336,26 @@ def multiequalizerEquivAux {J : MulticospanShape.{w, w'}} (I : MulticospanIndex 
     ext i
     rfl
 
-/-- The equivalence between the noncomputable multiequalizer and
-the concrete multiequalizer. -/
-noncomputable def multiequalizerEquiv {J : MulticospanShape.{w, w'}}
-    (I : MulticospanIndex J C) [HasMultiequalizer I]
-    [PreservesLimit I.multicospan (forget C)] :
-    ToType (multiequalizer I) ≃
-      { x : ∀ i : J.L, ToType (I.left i) // ∀ i : J.R, I.fst i (x _) = I.snd i (x _) } :=
+/--
+The equivalence between the noncomputable multiequalizer and
+the concrete multiequalizer.
+-/
+noncomputable def multiequalizerEquiv
+    {J : MulticospanShape.{w, w'}} (I : MulticospanIndex J C)
+    [HasMultiequalizer I] [PreservesLimit I.multicospan (forget C)]
+    : ToType (multiequalizer I)
+      ≃ {x : ∀ i : J.L, ToType (I.left i) // ∀ i : J.R, I.fst i (x _) = I.snd i (x _)} :=
   letI h1 := limit.isLimit I.multicospan
   letI h2 := isLimitOfPreserves (forget C) h1
   (Types.isLimitEquivSections h2).trans (Concrete.multiequalizerEquivAux I)
 
 @[simp]
-theorem multiequalizerEquiv_apply {J : MulticospanShape.{w, w'}}
-    (I : MulticospanIndex J C) [HasMultiequalizer I]
-    [PreservesLimit I.multicospan (forget C)] (x : ToType (multiequalizer I)) (i : J.L) :
-    ((Concrete.multiequalizerEquiv I) x : ∀ i : J.L, ToType (I.left i)) i =
-      Multiequalizer.ι I i x :=
+theorem multiequalizerEquiv_apply
+    {J : MulticospanShape.{w, w'}} (I : MulticospanIndex J C)
+    [HasMultiequalizer I] [PreservesLimit I.multicospan (forget C)]
+    (x : ToType (multiequalizer I)) (i : J.L)
+    : ((Concrete.multiequalizerEquiv I) x : ∀ i : J.L, ToType (I.left i)) i
+      = Multiequalizer.ι I i x :=
   rfl
 
 end Multiequalizer
@@ -341,19 +369,23 @@ open WidePushoutShape
 variable {FC : C → C → Type*} {CC : C → Type v} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)]
 variable [ConcreteCategory.{v} C FC]
 
-theorem widePushout_exists_rep {B : C} {α : Type _} {X : α → C} (f : ∀ j : α, B ⟶ X j)
+theorem widePushout_exists_rep
+    {B : C} {α : Type _} {X : α → C} (f : ∀ j : α, B ⟶ X j)
     [HasWidePushout.{v} B X f] [PreservesColimit (wideSpan B X f) (forget C)]
-    (x : ToType (widePushout B X f)) :
-    (∃ y : ToType B, head f y = x) ∨ ∃ (i : α) (y : ToType (X i)), ι f i y = x := by
+    (x : ToType (widePushout B X f))
+    : (∃ y : ToType B, head f y = x) ∨ ∃ (i : α) (y : ToType (X i)), ι f i y = x := by
   obtain ⟨_ | j, y, rfl⟩ := Concrete.colimit_exists_rep _ x
   · left
     use y
   · right
     use j, y
 
-theorem widePushout_exists_rep' {B : C} {α : Type _} [Nonempty α] {X : α → C}
-    (f : ∀ j : α, B ⟶ X j) [HasWidePushout.{v} B X f] [PreservesColimit (wideSpan B X f) (forget C)]
-    (x : ToType (widePushout B X f)) : ∃ (i : α) (y : ToType (X i)), ι f i y = x := by
+theorem widePushout_exists_rep'
+    {B : C} {α : Type _} [Nonempty α]
+    {X : α → C} (f : ∀ j : α, B ⟶ X j)
+    [HasWidePushout.{v} B X f] [PreservesColimit (wideSpan B X f) (forget C)]
+    (x : ToType (widePushout B X f))
+    : ∃ (i : α) (y : ToType (X i)), ι f i y = x := by
   rcases Concrete.widePushout_exists_rep f x with (⟨y, rfl⟩ | ⟨i, y, rfl⟩)
   · inhabit α
     use default, f _ y
@@ -364,10 +396,13 @@ end WidePushout
 
 attribute [local ext] ConcreteCategory.hom_ext in
 -- We don't mark this as an `@[ext]` lemma as we don't always want to work elementwise.
-theorem cokernel_funext {C : Type*} [Category* C] [HasZeroMorphisms C] {FC : C → C → Type*}
-    {CC : C → Type*} [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)] [ConcreteCategory C FC]
-    {M N K : C} {f : M ⟶ N} [HasCokernel f] {g h : cokernel f ⟶ K}
-    (w : ∀ n : ToType N, g (cokernel.π f n) = h (cokernel.π f n)) : g = h := by
+theorem cokernel_funext
+    {C : Type*} [Category* C] [HasZeroMorphisms C]
+    {FC : C → C → Type*} {CC : C → Type*}
+    [∀ X Y, FunLike (FC X Y) (CC X) (CC Y)] [ConcreteCategory C FC]
+    {M N K : C} {f : M ⟶ N} [HasCokernel f]
+    {g h : cokernel f ⟶ K} (w : ∀ n : ToType N, g (cokernel.π f n) = h (cokernel.π f n))
+    : g = h := by
   ext x
   simpa using w x
 

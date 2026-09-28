@@ -43,23 +43,24 @@ open BoundedContinuousFunction Complex
 
 namespace BoundedContinuousFunction
 
-variable {V W : Type*} [AddCommGroup V] [Module ℝ V] [TopologicalSpace V]
-    [AddCommGroup W] [Module ℝ W] [TopologicalSpace W]
-    {e : AddChar ℝ Circle} {L : V →ₗ[ℝ] W →ₗ[ℝ] ℝ}
-    {he : Continuous e} {hL : Continuous fun p : V × W ↦ L p.1 p.2}
+variable
+  {V W : Type*} [AddCommGroup V] [Module ℝ V] [TopologicalSpace V] [AddCommGroup W] [Module ℝ W]
+  [TopologicalSpace W]
+  {e : AddChar ℝ Circle} {L : V →ₗ[ℝ] W →ₗ[ℝ] ℝ}
+  {he : Continuous e} {hL : Continuous fun p : V × W ↦ L p.1 p.2}
 
 /-- The bounded continuous mapping `fun v ↦ e (L v w)` from `V` to `ℂ`. -/
-noncomputable def char (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2) (w : W) :
-    V →ᵇ ℂ where
+noncomputable def char (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2) (w : W)
+    : V →ᵇ ℂ where
   toFun := fun v ↦ e (L v w)
-  continuous_toFun :=
-    continuous_induced_dom.comp (he.comp (hL.comp (Continuous.prodMk_left w)))
+  continuous_toFun := continuous_induced_dom.comp (he.comp (hL.comp (Continuous.prodMk_left w)))
   map_bounded' := by
     refine ⟨2, fun x y ↦ ?_⟩
-    calc dist _ _
-      ≤ (‖_‖ : ℝ) + ‖_‖ := dist_le_norm_add_norm _ _
-    _ ≤ 1 + 1 := add_le_add (by simp) (by simp)
-    _ = 2 := by ring
+    calc
+      dist _ _
+        ≤ (‖_‖ : ℝ) + ‖_‖ := dist_le_norm_add_norm _ _
+      _ ≤ 1 + 1 := add_le_add (by simp) (by simp)
+      _ = 2 := by ring
 
 @[simp]
 lemma char_apply (w : W) (v : V) :
@@ -78,19 +79,26 @@ lemma char_neg (w : W) :
 
 set_option backward.isDefEq.respectTransparency false in
 /-- If `e` and `L` are non-trivial, then `char he hL w, w : W` separates points in `V`. -/
-theorem ext_of_char_eq (he : Continuous e) (he' : e ≠ 1)
-    (hL : Continuous fun p : V × W ↦ L p.1 p.2) (hL' : ∀ v ≠ 0, L v ≠ 0) {v v' : V}
-    (h : ∀ w, char he hL w v = char he hL w v') :
-    v = v' := by
+theorem ext_of_char_eq
+    (he : Continuous e)
+    (he' : e ≠ 1)
+    (hL : Continuous fun p : V × W ↦ L p.1 p.2)
+    (hL' : ∀ v ≠ 0, L v ≠ 0)
+    {v v' : V} (h : ∀ w, char he hL w v = char he hL w v')
+    : v = v' := by
   contrapose! h
   obtain ⟨w, hw⟩ := DFunLike.ne_iff.mp (hL' (v - v') (sub_ne_zero_of_ne h))
   obtain ⟨a, ha⟩ := DFunLike.ne_iff.mp he'
   use (a / (L (v - v') w)) • w
   simp only [map_sub, LinearMap.sub_apply, char_apply, ne_eq]
-  rw [← div_eq_one_iff_eq (Circle.coe_ne_zero _), div_eq_inv_mul, ← Metric.unitSphere.coe_inv,
-    ← e.map_neg_eq_inv, ← Submonoid.coe_mul, ← e.map_add_eq_mul, OneMemClass.coe_eq_one]
-  simp only [map_sub, LinearMap.sub_apply, LinearMap.zero_apply, AddChar.one_apply,
-    map_smul, smul_eq_mul] at ha hw ⊢
+  rw [
+    ← div_eq_one_iff_eq (Circle.coe_ne_zero _), div_eq_inv_mul, ← Metric.unitSphere.coe_inv,
+    ← e.map_neg_eq_inv, ← Submonoid.coe_mul, ← e.map_add_eq_mul, OneMemClass.coe_eq_one
+  ]
+  simp only [
+      map_sub, LinearMap.sub_apply, LinearMap.zero_apply, AddChar.one_apply, map_smul, smul_eq_mul
+    ]
+    at ha hw ⊢
   #adaptation_note /-- Before https://github.com/leanprover/lean4/pull/13166
   (replacing grind's canonicalizer with a type-directed normalizer), `grind` closed this goal.
   It is not yet clear whether this is due to defeq abuse in Mathlib or a problem in the new
@@ -100,8 +108,8 @@ theorem ext_of_char_eq (he : Continuous e) (he' : e ≠ 1)
   assumption
 
 /-- Monoid homomorphism mapping `w` to `fun v ↦ e (L v w)`. -/
-noncomputable def charMonoidHom (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2) :
-    Multiplicative W →* (V →ᵇ ℂ) where
+noncomputable def charMonoidHom (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2)
+    : Multiplicative W →* (V →ᵇ ℂ) where
   toFun w := char he hL w.toAdd
   map_one' := char_zero_eq_one
   map_mul' := char_add_eq_mul (he := he) (hL := hL)
@@ -112,9 +120,8 @@ lemma charMonoidHom_apply (w : Multiplicative W) (v : V) :
     charMonoidHom he hL w v = e (L v w.toAdd) := by simp [charMonoidHom]
 
 /-- Algebra homomorphism mapping `w` to `fun v ↦ e (L v w)`. -/
-noncomputable
-def charAlgHom (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2) :
-    AddMonoidAlgebra ℂ W →ₐ[ℂ] (V →ᵇ ℂ) :=
+noncomputable def charAlgHom (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2)
+    : AddMonoidAlgebra ℂ W →ₐ[ℂ] (V →ᵇ ℂ) :=
   AddMonoidAlgebra.lift ℂ (V →ᵇ ℂ) W (charMonoidHom he hL)
 
 @[simp]
@@ -137,9 +144,8 @@ lemma star_mem_range_charAlgHom (he : Continuous e) (hL : Continuous fun p : V �
   simp [charAlgHom_apply, Finsupp.sum_embDomain, z, Finsupp.sum_mapRange_index, f]
 
 /-- The star-subalgebra of polynomials. -/
-noncomputable
-def charPoly (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2) :
-    StarSubalgebra ℂ (V →ᵇ ℂ) where
+noncomputable def charPoly (he : Continuous e) (hL : Continuous fun p : V × W ↦ L p.1 p.2)
+    : StarSubalgebra ℂ (V →ᵇ ℂ) where
   toSubalgebra := (charAlgHom he hL).range
   star_mem' hx := star_mem_range_charAlgHom he hL hx
 

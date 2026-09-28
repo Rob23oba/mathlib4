@@ -83,16 +83,16 @@ alias ⟨_, Integrable.of_fst_of_snd_prodLp⟩ := integrable_prodLp_iff
 
 variable [NormedSpace ℝ E] [NormedSpace ℝ F]
 
-theorem fst_integral_withLp [CompleteSpace F] (hf : Integrable f μ) :
-    (∫ x, f x ∂μ).fst = ∫ x, (f x).fst ∂μ := by
+theorem fst_integral_withLp [CompleteSpace F] (hf : Integrable f μ)
+    : (∫ x, f x ∂μ).fst = ∫ x, (f x).fst ∂μ := by
   rw [← WithLp.ofLp_fst]
   conv => enter [1, 1]; change WithLp.prodContinuousLinearEquiv q ℝ E F _
   rw [← ContinuousLinearEquiv.integral_comp_comm, fst_integral]
   · rfl
   · exact (ContinuousLinearEquiv.integrable_comp_iff _).2 hf
 
-theorem snd_integral_withLp [CompleteSpace E] (hf : Integrable f μ) :
-    (∫ x, f x ∂μ).snd = ∫ x, (f x).snd ∂μ := by
+theorem snd_integral_withLp [CompleteSpace E] (hf : Integrable f μ)
+    : (∫ x, f x ∂μ).snd = ∫ x, (f x).snd ∂μ := by
   rw [← WithLp.ofLp_snd]
   conv => enter [1, 1]; change WithLp.prodContinuousLinearEquiv q ℝ E F _
   rw [← ContinuousLinearEquiv.integral_comp_comm, snd_integral]

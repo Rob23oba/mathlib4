@@ -42,8 +42,10 @@ namespace PreOneHypercover
 
 variable {S : C} {E : PreOneHypercover.{w} S} {F : PreOneHypercover.{w'} S}
 
-/-- A homotopy of refinements `E ⟶ F` is a family of morphisms `Xᵢ ⟶ Yₐ` where
-`Yₐ` is a component of the cover of `X_{f(i)} ×[S] X_{g(i)}`. -/
+/--
+A homotopy of refinements `E ⟶ F` is a family of morphisms `Xᵢ ⟶ Yₐ` where
+`Yₐ` is a component of the cover of `X_{f(i)} ×[S] X_{g(i)}`.
+-/
 structure Homotopy (f g : E.Hom F) where
   /-- The index map sending `i : E.I₀` to `a` above `(f(i), g(i))`. -/
   H (i : E.I₀) : F.I₁ (f.s₀ i) (g.s₀ i)
@@ -74,12 +76,15 @@ lemma Homotopy.mapMultiforkOfIsLimit_eq
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- If `f : E ⟶ F` and `g : F ⟶ E` are refinement morphisms of pre-`1`-hypercovers such that
+/--
+If `f : E ⟶ F` and `g : F ⟶ E` are refinement morphisms of pre-`1`-hypercovers such that
 the composition `g ≫ f` is homotopic to the identity, then if the multifork associated
-to `E` is exact also the multifork associated to `F` is exact. -/
-def Homotopy.isLimitMultifork (f : E.Hom F) (g : F.Hom E) (hgf : Homotopy (g.comp f) (.id F))
-    {G : Cᵒᵖ ⥤ A} (hE : IsLimit (E.multifork G)) :
-    IsLimit (F.multifork G) := by
+to `E` is exact also the multifork associated to `F` is exact.
+-/
+def Homotopy.isLimitMultifork
+    (f : E.Hom F) (g : F.Hom E) (hgf : Homotopy (g.comp f) (.id F))
+    {G : Cᵒᵖ ⥤ A} (hE : IsLimit (E.multifork G))
+    : IsLimit (F.multifork G) := by
   refine Multifork.IsLimit.mk _ ?_ ?_ ?_
   · intro t
     refine Multifork.IsLimit.lift hE (fun a ↦ t.ι (f.s₀ a) ≫ G.map (f.h₀ a).op) ?_
@@ -94,20 +99,28 @@ def Homotopy.isLimitMultifork (f : E.Hom F) (g : F.Hom E) (hgf : Homotopy (g.com
     have h1 := hgf.wl i
     have h2 := t.condition ⟨⟨_, _⟩, hgf.H i⟩
     dsimp at h1 h2
-    rw [← g.w₀, op_comp, Functor.map_comp, ← E.multifork_ι, Multifork.IsLimit.fac_assoc,
+    rw [
+      ← g.w₀, op_comp, Functor.map_comp, ← E.multifork_ι, Multifork.IsLimit.fac_assoc,
       Category.assoc, ← Functor.map_comp, ← op_comp, ← h1, op_comp, Functor.map_comp,
-      reassoc_of% h2, ← Functor.map_comp, ← op_comp, hgf.wr i]
+      reassoc_of% h2, ← Functor.map_comp, ← op_comp, hgf.wr i
+    ]
     simp
   · intro t m hm
     refine Multifork.IsLimit.hom_ext hE fun i ↦ ?_
-    rw [Multifork.IsLimit.fac, multifork_ι, ← f.w₀, op_comp, Functor.map_comp, ← F.multifork_ι,
-      reassoc_of% hm]
+    rw [
+      Multifork.IsLimit.fac, multifork_ι, ← f.w₀, op_comp, Functor.map_comp, ← F.multifork_ι,
+      reassoc_of% hm
+    ]
 
-/-- `E` and `F` are homotopy equivalent, then the multifork associated
-to `E` is exact if and only if the multifork associated to `F` is exact. -/
-def Homotopy.isLimitMultiforkEquiv (f : E.Hom F) (g : F.Hom E)
-    (hfg : Homotopy (f.comp g) (.id E)) (hgf : Homotopy (g.comp f) (.id F)) {G : Cᵒᵖ ⥤ A} :
-    IsLimit (E.multifork G) ≃ IsLimit (F.multifork G) where
+/--
+`E` and `F` are homotopy equivalent, then the multifork associated
+to `E` is exact if and only if the multifork associated to `F` is exact.
+-/
+def Homotopy.isLimitMultiforkEquiv
+    (f : E.Hom F) (g : F.Hom E)
+    (hfg : Homotopy (f.comp g) (.id E)) (hgf : Homotopy (g.comp f) (.id F))
+    {G : Cᵒᵖ ⥤ A}
+    : IsLimit (E.multifork G) ≃ IsLimit (F.multifork G) where
   toFun h := hgf.isLimitMultifork _ _ h
   invFun h := hfg.isLimitMultifork _ _ h
   left_inv _ := Subsingleton.elim _ _
@@ -118,19 +131,19 @@ end
 variable [Limits.HasPullbacks C] (f g : E.Hom F)
 
 /-- (Implementation): The covering object of `cylinder f g`. -/
-noncomputable
-abbrev cylinderX {i : E.I₀} (k : F.I₁ (f.s₀ i) (g.s₀ i)) : C :=
+noncomputable abbrev cylinderX {i : E.I₀} (k : F.I₁ (f.s₀ i) (g.s₀ i)) : C :=
   pullback (pullback.lift (f.h₀ i) (g.h₀ i) (by simp)) (F.toPullback k)
 
 /-- (Implementation): The structure morphisms of the covering objects of `cylinder f g`. -/
-noncomputable
-abbrev cylinderf {i : E.I₀} (k : F.I₁ (f.s₀ i) (g.s₀ i)) : cylinderX f g k ⟶ S :=
+noncomputable abbrev cylinderf {i : E.I₀} (k : F.I₁ (f.s₀ i) (g.s₀ i)) : cylinderX f g k ⟶ S :=
   pullback.fst _ _ ≫ E.f _
 
-/-- Given two refinement morphisms `f, g : E ⟶ F`, this is a (pre-)`1`-hypercover `W` that
+/--
+Given two refinement morphisms `f, g : E ⟶ F`, this is a (pre-)`1`-hypercover `W` that
 admits a morphism `h : W ⟶ E` such that `h ≫ f` and `h ≫ g` are homotopic. Hence
 they become equal after quotienting out by homotopy.
-This is a `1`-hypercover, if `E` and `F` are (see `OneHypercover.cylinder`). -/
+This is a `1`-hypercover, if `E` and `F` are (see `OneHypercover.cylinder`).
+-/
 @[simps]
 noncomputable def cylinder (f g : E.Hom F) : PreOneHypercover.{max w w'} S where
   I₀ := Σ (i : E.I₀), F.I₁ (f.s₀ i) (g.s₀ i)
@@ -139,9 +152,8 @@ noncomputable def cylinder (f g : E.Hom F) : PreOneHypercover.{max w w'} S where
   I₁ p q := ULift.{max w w'} (E.I₁ p.1 q.1)
   Y {p q} k :=
     pullback
-      (pullback.map (cylinderf f g p.2)
-        (cylinderf f g q.2) _ _ (pullback.fst _ _) (pullback.fst _ _) (𝟙 S) (by simp)
-        (by simp))
+      (pullback.map (cylinderf f g p.2) (cylinderf f g q.2) _ _ (pullback.fst _ _)
+        (pullback.fst _ _) (𝟙 S) (by simp) (by simp))
       (pullback.lift _ _ (E.w k.down))
   p₁ {p q} k := pullback.fst _ _ ≫ pullback.fst _ _
   p₂ {p q} k := pullback.fst _ _ ≫ pullback.snd _ _
@@ -214,8 +226,8 @@ noncomputable def cylinderHom : (cylinder f g).Hom E where
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- (Implementation): The homotopy of the morphisms `cylinder f g ⟶ E ⟶ F`. -/
-noncomputable def cylinderHomotopy :
-    Homotopy ((cylinderHom f g).comp f) ((cylinderHom f g).comp g) where
+noncomputable def cylinderHomotopy
+    : Homotopy ((cylinderHom f g).comp f) ((cylinderHom f g).comp g) where
   H p := p.2
   a p := pullback.snd _ _
   wl p := by
@@ -224,10 +236,13 @@ noncomputable def cylinderHomotopy :
     rw [← pullback.condition_assoc]
     simp
   wr p := by
-    have : g.h₀ p.fst = pullback.lift (f.h₀ p.fst) (g.h₀ p.fst) (by simp) ≫
-        pullback.snd (F.f _) (F.f _) := by simp
-    dsimp only [cylinder_X, Hom.comp_s₀, cylinder_I₀, Function.comp_apply, cylinderHom_s₀,
-      Hom.comp_h₀, cylinderHom_h₀]
+    have : g.h₀ p.fst
+        = pullback.lift (f.h₀ p.fst) (g.h₀ p.fst) (by simp) ≫ pullback.snd (F.f _) (F.f _) := by
+      simp
+    dsimp only [
+      cylinder_X, Hom.comp_s₀, cylinder_I₀, Function.comp_apply, cylinderHom_s₀, Hom.comp_h₀,
+      cylinderHom_h₀
+    ]
     nth_rw 3 [this]
     rw [pullback.condition_assoc]
     simp
@@ -252,9 +267,11 @@ variable {S : C} {E : OneHypercover.{w} J S} {F : OneHypercover.{w'} J S}
 variable [HasPullbacks C]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Given two refinement morphism `f, g : E ⟶ F`, this is a `1`-hypercover `W` that
+/--
+Given two refinement morphism `f, g : E ⟶ F`, this is a `1`-hypercover `W` that
 admits a morphism `h : W ⟶ E` such that `h ≫ f` and `h ≫ g` are homotopic. Hence
-they become equal after quotienting out by homotopy. -/
+they become equal after quotienting out by homotopy.
+-/
 @[simps! toPreOneHypercover]
 noncomputable def cylinder (f g : E.Hom F) : J.OneHypercover S :=
   mk' (PreOneHypercover.cylinder f g)
@@ -282,8 +299,8 @@ Two refinement morphisms of `1`-hypercovers are homotopic if there exists a homo
 them.
 Note: This is not an equivalence relation, it is not even reflexive!
 -/
-def OneHypercover.homotopicRel : HomRel (J.OneHypercover S) :=
-  fun _ _ f g ↦ Nonempty (PreOneHypercover.Homotopy f g)
+def OneHypercover.homotopicRel : HomRel (J.OneHypercover S) := fun _ _ f g ↦
+  Nonempty (PreOneHypercover.Homotopy f g)
 
 /-- The category of `1`-hypercovers with refinement morphisms up to homotopy. -/
 abbrev HOneHypercover (S : C) := Quotient (OneHypercover.homotopicRel J S)
@@ -305,9 +322,12 @@ instance : Nonempty (J.HOneHypercover S) := ⟨⟨Nonempty.some inferInstance⟩
 
 /-- If `C` has pullbacks, the category of `1`-hypercovers up to homotopy is cofiltered. -/
 instance isCofiltered_of_hasPullbacks [HasPullbacks C] : IsCofiltered (J.HOneHypercover S) where
-  cone_objs {E F} :=
-    ⟨⟨E.1.inter F.1⟩, Quot.mk _ (PreOneHypercover.interFst _ _),
-      Quot.mk _ (PreOneHypercover.interSnd _ _), ⟨⟩⟩
+  cone_objs {E F} := ⟨
+    ⟨E.1.inter F.1⟩,
+    Quot.mk _ (PreOneHypercover.interFst _ _),
+    Quot.mk _ (PreOneHypercover.interSnd _ _),
+    ⟨⟩
+  ⟩
   cone_maps {X Y} f g := by
     obtain ⟨(f : X.1 ⟶ Y.1), rfl⟩ := (toHOneHypercover J S).map_surjective f
     obtain ⟨(g : X.1 ⟶ Y.1), rfl⟩ := (toHOneHypercover J S).map_surjective g

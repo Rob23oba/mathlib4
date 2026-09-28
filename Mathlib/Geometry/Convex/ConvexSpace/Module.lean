@@ -10,7 +10,6 @@ public import Mathlib.Geometry.Convex.Star
 public import Mathlib.Geometry.Convex.ConvexSpace.AffineMap
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Tactic.NormNum.Basic
-
 import Mathlib.LinearAlgebra.Prod
 
 /-!
@@ -33,24 +32,31 @@ namespace Convexity
 variable {F R M N I : Type*} [Semiring R] [PartialOrder R] [IsStrictOrderedRing R]
 
 section AddCommMonoid
-variable [AddCommMonoid M] [Module R M] [AddCommMonoid N] [Module R N] [SetLike F M]
-  [AddSubmonoidClass F M] [SMulMemClass F R M] {f g : M → N}
+variable
+  [AddCommMonoid M] [Module R M] [AddCommMonoid N] [Module R N] [SetLike F M]
+  [AddSubmonoidClass F M] [SMulMemClass F R M]
+  {f g : M → N}
 
-/-- Any semimodule over an ordered semiring is a convex space.
+/--
+Any semimodule over an ordered semiring is a convex space.
 
 This is not an instance because it creates a diamond with structural instances such as
 `ConvexSpace R X → ConvexSpace R Y → ConvexSpace R (X × Y)` because
 `(∑ i, f i).fst = ∑ i, (f i).fst` isn't defeq, ultimately because `Finset.sum` isn't a field of
-`AddCommMonoid` but derived from them through recursion. -/
+`AddCommMonoid` but derived from them through recursion.
+-/
 @[expose, implicit_reducible]
 def ConvexSpace.ofModule : ConvexSpace R M where
   sConvexComb w := w.weights.sum fun m r ↦ r • m
   sConvexComb_single := by simp
   assoc := by
-    simp [Finsupp.sum_mapDomain_index, add_smul, Finsupp.sum_sum_index, Finsupp.sum_smul_index,
-      mul_smul, Finsupp.smul_sum]
+    simp [
+      Finsupp.sum_mapDomain_index, add_smul, Finsupp.sum_sum_index, Finsupp.sum_smul_index,
+      mul_smul, Finsupp.smul_sum
+    ]
 
-/-- An ordered ring `R` is a convex space over itself with the convex combination operation being
+/--
+An ordered ring `R` is a convex space over itself with the convex combination operation being
 the weighted sum.
 
 Note that the convex hull of `0` and `1` will only be `[0, 1]` when `R` satisfies `ExistsAddOfLE`.
@@ -79,7 +85,8 @@ instance IsModuleConvexSpace.of_module : IsModuleConvexSpace R M where
 lemma isModuleConvexSpace_self : IsModuleConvexSpace R R := inferInstance
 
 section IsModuleConvexSpace
-variable [ConvexSpace R M] [IsModuleConvexSpace R M] [ConvexSpace R N] [IsModuleConvexSpace R N]
+variable
+  [ConvexSpace R M] [IsModuleConvexSpace R M] [ConvexSpace R N] [IsModuleConvexSpace R N]
   {x y : M} {s t : Set M} {a b : R}
 
 /-- `iConvexComb` in a module can be expressed as a sum. -/
@@ -131,14 +138,16 @@ lemma subtypeVal_submodule_convexCombPair (S : F) (a b : R) (ha hb hab) (x y : S
     (↑(convexCombPair a b ha hb hab x y) : M) = convexCombPair a b ha hb hab x.val y.val :=
   subtypeVal_convexCombPair ..
 
-instance (S : F) : IsModuleConvexSpace R S where sConvexComb_eq_sum w := by ext; simp [Finsupp.sum]
+instance (S : F) : IsModuleConvexSpace R S where
+  sConvexComb_eq_sum w := by ext; simp [Finsupp.sum]
 
 instance : IsModuleConvexSpace R (M × N) where
   sConvexComb_eq_sum w := by ext <;> simp [Finsupp.sum, Prod.fst_sum, Prod.snd_sum]
 
-instance {ι : Type*} {M : ι → Type*} [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)]
-    [∀ i, ConvexSpace R (M i)] [∀ i, IsModuleConvexSpace R (M i)] :
-    IsModuleConvexSpace R (∀ i, M i) where
+instance
+    {ι : Type*} {M : ι → Type*} [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)]
+    [∀ i, ConvexSpace R (M i)] [∀ i, IsModuleConvexSpace R (M i)]
+    : IsModuleConvexSpace R (∀ i, M i) where
   sConvexComb_eq_sum w := by ext; simp [Finsupp.sum]
 
 instance {ι : Type*} : IsModuleConvexSpace R (ι →₀ M) where
@@ -184,12 +193,14 @@ lemma IsStarConvexSet.add (hs : IsStarConvexSet R x s) (ht : IsStarConvexSet R y
 end IsModuleConvexSpace
 
 section IsConvexCombComm
-variable {S : Type*} [Semiring S] [PartialOrder S] [IsStrictOrderedRing S] [Module S M]
-  [ConvexSpace R M] [IsModuleConvexSpace R M] [ConvexSpace S M] [IsModuleConvexSpace S M]
-  [SMulCommClass R S M]
+variable
+  {S : Type*} [Semiring S] [PartialOrder S] [IsStrictOrderedRing S] [Module S M] [ConvexSpace R M]
+  [IsModuleConvexSpace R M] [ConvexSpace S M] [IsModuleConvexSpace S M] [SMulCommClass R S M]
 
-/-- The convex space structures over `R` and over `S` on a module commute as soon as the `R` and `S`
-actions do. -/
+/--
+The convex space structures over `R` and over `S` on a module commute as soon as the `R` and `S`
+actions do.
+-/
 instance _root_.SMulCommClass.toIsConvexCombComm : IsConvexCombComm R S M where
   iConvexComb_comm' f g := by
     simp only [iConvexComb_eq_sum, Finsupp.sum, Finset.smul_sum]
@@ -205,8 +216,9 @@ lemma StdSimplex.isAffineMap_weights : IsAffineMap R (weights (R := R) (X := I))
 end AddCommMonoid
 
 section AddCommGroup
-variable [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
-  [ConvexSpace R M] [IsModuleConvexSpace R M] [ConvexSpace R N] [IsModuleConvexSpace R N]
+variable
+  [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [ConvexSpace R M]
+  [IsModuleConvexSpace R M] [ConvexSpace R N] [IsModuleConvexSpace R N]
   {x y : M} {s t : Set M} {f g : M → N}
 
 @[fun_prop]

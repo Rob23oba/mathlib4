@@ -53,10 +53,8 @@ lemma hasSmallLocalizedShiftedHom_of_isLE_of_isGE
         ((singleFunctors C).shiftIso q (b - q) b (by simp)).hom.app Y)
     (fun φ₁ φ₂ h ↦ by simpa [cancel_epi, cancel_mono] using h)
 
-instance [HasExt.{w} C] (K L : CochainComplex C ℤ)
-    [K.IsGE 0] [K.IsLE 0] [L.IsGE 0] [L.IsLE 0] :
-    HasSmallLocalizedShiftedHom.{w}
-      (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) ℤ K L :=
+instance [HasExt.{w} C] (K L : CochainComplex C ℤ) [K.IsGE 0] [K.IsLE 0] [L.IsGE 0] [L.IsLE 0]
+    : HasSmallLocalizedShiftedHom.{w} (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) ℤ K L :=
   HasExt.hasSmallLocalizedShiftedHom_of_isLE_of_isGE _ _ 0 0
 
 end HasExt

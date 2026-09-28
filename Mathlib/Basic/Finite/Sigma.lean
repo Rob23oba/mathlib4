@@ -27,8 +27,8 @@ instance [Finite α] [∀ a, Finite (β a)] : Finite (Σ a, β a) := by
 instance {ι : Sort*} {π : ι → Sort*} [Finite ι] [∀ i, Finite (π i)] : Finite (Σ' i, π i) :=
   of_equiv _ (Equiv.psigmaEquivSigmaPLift π).symm
 
-instance Set.finite_sigma (s : Set α) (t : (i : α) → Set (β i)) [Finite s] [∀ i, Finite (t i)] :
-    Finite (s.sigma t) :=
+instance Set.finite_sigma (s : Set α) (t : (i : α) → Set (β i)) [Finite s] [∀ i, Finite (t i)]
+    : Finite (s.sigma t) :=
   .of_equiv _ (Equiv.Set.sigma s t).symm
 
 end Finite

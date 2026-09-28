@@ -68,19 +68,24 @@ attribute [to_additive] ProfiniteGrp
 instance : CoeSort ProfiniteGrp (Type u) where
   coe G := G.toProfinite
 
-attribute [instance] ProfiniteGrp.group ProfiniteGrp.isTopologicalGroup
-    ProfiniteAddGrp.addGroup ProfiniteAddGrp.topologicalAddGroup
+attribute [instance]
+  ProfiniteGrp.group ProfiniteGrp.isTopologicalGroup ProfiniteAddGrp.addGroup
+  ProfiniteAddGrp.topologicalAddGroup
 
-/-- Construct a term of `ProfiniteGrp` from a type endowed with the structure of a
+/--
+Construct a term of `ProfiniteGrp` from a type endowed with the structure of a
 compact and totally disconnected topological group.
 (The condition of being Hausdorff can be omitted here because totally disconnected implies that
-`{1}` is a closed set, thus implying Hausdorff in a topological group.) -/
+`{1}` is a closed set, thus implying Hausdorff in a topological group.)
+-/
 @[to_additive /-- Construct a term of `ProfiniteAddGrp` from a type endowed with the structure of a
 compact and totally disconnected topological additive group.
 (The condition of being Hausdorff can be omitted here because totally disconnected implies that
 `{0}` is a closed set, thus implying Hausdorff in a topological additive group.) -/]
-abbrev ProfiniteGrp.of (G : Type u) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [TotallyDisconnectedSpace G] : ProfiniteGrp.{u} where
+abbrev ProfiniteGrp.of
+    (G : Type u) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [TotallyDisconnectedSpace G]
+    : ProfiniteGrp.{u} where
   toProfinite := ↧G
   group := ‹_›
   isTopologicalGroup := ‹_›
@@ -117,16 +122,17 @@ instance : ConcreteCategory ProfiniteGrp (fun X Y => X →ₜ* Y) where
 
 /-- The underlying `ContinuousMonoidHom`. -/
 @[to_additive /-- The underlying `ContinuousAddMonoidHom`. -/]
-abbrev ProfiniteGrp.Hom.hom {M N : ProfiniteGrp.{u}} (f : ProfiniteGrp.Hom M N) :
-    M →ₜ* N :=
+abbrev ProfiniteGrp.Hom.hom {M N : ProfiniteGrp.{u}} (f : ProfiniteGrp.Hom M N) : M →ₜ* N :=
   ConcreteCategory.hom (C := ProfiniteGrp) f
 
 /-- Typecheck a `ContinuousMonoidHom` as a morphism in `ProfiniteGrp`. -/
 @[to_additive /-- Typecheck a `ContinuousAddMonoidHom` as a morphism in `ProfiniteAddGrp`. -/]
-abbrev ProfiniteGrp.ofHom {X Y : Type u} [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
-    [CompactSpace X] [TotallyDisconnectedSpace X] [Group Y] [TopologicalSpace Y]
-    [IsTopologicalGroup Y] [CompactSpace Y] [TotallyDisconnectedSpace Y]
-    (f : X →ₜ* Y) : ProfiniteGrp.of X ⟶ ProfiniteGrp.of Y :=
+abbrev ProfiniteGrp.ofHom
+    {X Y : Type u} [Group X] [TopologicalSpace X] [IsTopologicalGroup X] [CompactSpace X]
+    [TotallyDisconnectedSpace X] [Group Y] [TopologicalSpace Y] [IsTopologicalGroup Y]
+    [CompactSpace Y] [TotallyDisconnectedSpace Y]
+    (f : X →ₜ* Y)
+    : ProfiniteGrp.of X ⟶ ProfiniteGrp.of Y :=
   ConcreteCategory.ofHom f
 
 namespace ProfiniteGrp
@@ -157,10 +163,11 @@ lemma comp_apply {A B C : ProfiniteGrp.{u}} (f : A ⟶ B) (g : B ⟶ C) (a : A) 
 lemma hom_ext {A B : ProfiniteGrp.{u}} {f g : A ⟶ B} (hf : f.hom = g.hom) : f = g :=
   Hom.ext hf
 
-variable {X Y Z : Type u} [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
-    [CompactSpace X] [TotallyDisconnectedSpace X] [Group Y] [TopologicalSpace Y]
-    [IsTopologicalGroup Y] [CompactSpace Y] [TotallyDisconnectedSpace Y] [Group Z]
-    [TopologicalSpace Z] [IsTopologicalGroup Z] [CompactSpace Z] [TotallyDisconnectedSpace Z]
+variable
+  {X Y Z : Type u} [Group X] [TopologicalSpace X] [IsTopologicalGroup X] [CompactSpace X]
+  [TotallyDisconnectedSpace X] [Group Y] [TopologicalSpace Y] [IsTopologicalGroup Y]
+  [CompactSpace Y] [TotallyDisconnectedSpace Y] [Group Z] [TopologicalSpace Z]
+  [IsTopologicalGroup Z] [CompactSpace Z] [TotallyDisconnectedSpace Z]
 
 @[to_additive (attr := simp)]
 lemma hom_ofHom (f : X →ₜ* Y) : (ofHom f).hom = f := rfl
@@ -189,20 +196,18 @@ lemma hom_inv_apply {A B : ProfiniteGrp.{u}} (e : A ≅ B) (x : B) : e.hom (e.in
   simp
 
 @[to_additive (attr := simp)]
-theorem coe_id (X : ProfiniteGrp) : (𝟙 X : X → X) = id :=
-  rfl
+theorem coe_id (X : ProfiniteGrp) : (𝟙 X : X → X) = id := rfl
 
 @[to_additive (attr := simp)]
-theorem coe_comp {X Y Z : ProfiniteGrp} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (f ≫ g : X → Z) = g ∘ f :=
-  rfl
+theorem coe_comp {X Y Z : ProfiniteGrp} (f : X ⟶ Y) (g : Y ⟶ Z) : (f ≫ g : X → Z) = g ∘ f := rfl
 
-/-- Construct a term of `ProfiniteGrp` from a type endowed with the structure of a
-profinite topological group. -/
+/--
+Construct a term of `ProfiniteGrp` from a type endowed with the structure of a
+profinite topological group.
+-/
 @[to_additive /-- Construct a term of `ProfiniteAddGrp` from a type endowed with the structure of a
 profinite topological additive group. -/]
-abbrev ofProfinite (G : Profinite) [Group G] [IsTopologicalGroup G] :
-    ProfiniteGrp := of G
+abbrev ofProfinite (G : Profinite) [Group G] [IsTopologicalGroup G] : ProfiniteGrp := of G
 
 /-- The pi-type of profinite groups is a profinite group. -/
 @[to_additive /-- The pi-type of profinite additive groups is a
@@ -231,9 +236,7 @@ def ofFiniteGrpHom {G H : FiniteGrp.{u}} (f : G ⟶ H) : ofFiniteGrp G ⟶ ofFin
 
 @[to_additive]
 instance : HasForget₂ FiniteGrp ProfiniteGrp where
-  forget₂ :=
-  { obj := ofFiniteGrp
-    map := ofFiniteGrpHom }
+  forget₂ := { obj := ofFiniteGrp, map := ofFiniteGrpHom }
 
 @[to_additive]
 instance : HasForget₂ ProfiniteGrp GrpCat where
@@ -249,14 +252,18 @@ def ofClosedSubgroup {G : ProfiniteGrp} (H : ClosedSubgroup G) : ProfiniteGrp :=
 /-- A topological group that has a `ContinuousMulEquiv` to a profinite group is profinite. -/
 @[to_additive /-- A topological additive group that has a `ContinuousAddEquiv` to a
 profinite additive group is profinite. -/]
-def ofContinuousMulEquiv {G : ProfiniteGrp.{u}} {H : Type v} [TopologicalSpace H]
-    [Group H] [IsTopologicalGroup H] (e : G ≃ₜ* H) : ProfiniteGrp.{v} :=
+def ofContinuousMulEquiv
+    {G : ProfiniteGrp.{u}} {H : Type v} [TopologicalSpace H] [Group H] [IsTopologicalGroup H]
+    (e : G ≃ₜ* H)
+    : ProfiniteGrp.{v} :=
   let _ : CompactSpace H := Homeomorph.compactSpace e.toHomeomorph
   let _ : TotallyDisconnectedSpace H := Homeomorph.totallyDisconnectedSpace e.toHomeomorph
   ↧H
 
-/-- Build an isomorphism in the category `ProfiniteGrp` from
-a `ContinuousMulEquiv` between `ProfiniteGrp`s. -/
+/--
+Build an isomorphism in the category `ProfiniteGrp` from
+a `ContinuousMulEquiv` between `ProfiniteGrp`s.
+-/
 @[to_additive /-- Build an isomorphism in the category `ProfiniteAddGrp` from
 a `ContinuousAddEquiv` between `ProfiniteAddGrp`s. -/]
 def ContinuousMulEquiv.toProfiniteGrpIso {X Y : ProfiniteGrp} (e : X ≃ₜ* Y) : X ≅ Y where
@@ -267,22 +274,19 @@ def ContinuousMulEquiv.toProfiniteGrpIso {X Y : ProfiniteGrp} (e : X ≃ₜ* Y) 
 @[to_additive /-- The functor mapping a profinite additive group to its underlying profinite
 space. -/]
 instance : HasForget₂ ProfiniteGrp Profinite where
-  forget₂ := {
-    obj G := G.toProfinite
-    map f := CompHausLike.ofHom _ ⟨f, by fun_prop⟩}
+  forget₂ := { obj G := G.toProfinite, map f := CompHausLike.ofHom _ ⟨f, by fun_prop⟩ }
 
 @[to_additive]
 instance : (forget₂ ProfiniteGrp Profinite).Faithful := {
   map_injective := fun {_ _} _ _ h =>
-    ConcreteCategory.hom_ext _ _ fun x ↦ CategoryTheory.congr_fun h x }
+    ConcreteCategory.hom_ext _ _ fun x ↦ CategoryTheory.congr_fun h x
+}
 
 @[to_additive]
 instance : (forget₂ ProfiniteGrp Profinite).ReflectsIsomorphisms where
   reflects {X Y} f _ := by
     let i := asIso ((forget₂ ProfiniteGrp Profinite).map f)
-    let e : X ≃ₜ* Y :=
-      { CompHausLike.homeoOfIso i with
-          map_mul' := map_mul f.hom }
+    let e : X ≃ₜ* Y := { CompHausLike.homeoOfIso i with map_mul' := map_mul f.hom }
     exact (ContinuousMulEquiv.toProfiniteGrpIso e).isIso_hom
 
 @[to_additive]
@@ -330,46 +334,53 @@ set_option backward.defeqAttrib.useBackward true in
 @[to_additive /-- The explicit limit cone in `ProfiniteAddGrp`. -/]
 abbrev limitCone : Limits.Cone F where
   pt := ofProfinite (Profinite.limitCone (F ⋙ (forget₂ ProfiniteGrp Profinite))).pt
-  π :=
-  { app := fun j => ⟨{
+  π := {
+    app := fun j => ⟨{
       toFun := fun x => x.1 j
       map_one' := rfl
       map_mul' := fun x y => rfl
       continuous_toFun := by
-        exact (continuous_apply j).comp (continuous_iff_le_induced.mpr fun U a => a) }⟩
+        exact (continuous_apply j).comp (continuous_iff_le_induced.mpr fun U a => a)
+    }⟩
     naturality := fun i j f => by
-      simp only [Functor.const_obj_obj, Functor.comp_obj,
-        Functor.const_obj_map, Category.id_comp, Functor.comp_map]
+      simp only [
+        Functor.const_obj_obj, Functor.comp_obj, Functor.const_obj_map, Category.id_comp,
+        Functor.comp_map
+      ]
       congr
-      exact funext fun x => (x.2 f).symm }
+      exact funext fun x => (x.2 f).symm
+  }
 
 /-- `ProfiniteGrp.limitCone` is a limit cone. -/
 @[to_additive /-- `ProfiniteAddGrp.limitCone` is a limit cone. -/]
 def limitConeIsLimit : Limits.IsLimit (limitCone F) where
-  lift cone := ofHom
-    { ((Profinite.limitConeIsLimit (F ⋙ (forget₂ ProfiniteGrp Profinite))).lift
+  lift cone :=
+    ofHom {
+      ((Profinite.limitConeIsLimit (F ⋙ (forget₂ ProfiniteGrp Profinite))).lift
         ((forget₂ ProfiniteGrp Profinite).mapCone cone)).hom.hom with
       map_one' := Subtype.ext (funext fun j ↦ map_one (cone.π.app j).hom)
       -- TODO: investigate whether it's possible to set up `ext` lemmas for the `TopCat`-related
       -- categories so that `by ext j; exact map_one (cone.π.app j)` works here, similarly below.
-      map_mul' := fun _ _ ↦ Subtype.ext (funext fun j ↦ map_mul (cone.π.app j).hom _ _) }
+      map_mul' := fun _ _ ↦ Subtype.ext (funext fun j ↦ map_mul (cone.π.app j).hom _ _)
+    }
   uniq cone m h := by
     apply (forget₂ ProfiniteGrp Profinite).map_injective
-    simpa using! (Profinite.limitConeIsLimit (F ⋙ (forget₂ ProfiniteGrp Profinite))).uniq
-      ((forget₂ ProfiniteGrp Profinite).mapCone cone) ((forget₂ ProfiniteGrp Profinite).map m)
-      (fun j ↦ congrArg (forget₂ ProfiniteGrp Profinite).map (h j))
+    simpa using!
+      (Profinite.limitConeIsLimit (F ⋙ (forget₂ ProfiniteGrp Profinite))).uniq
+        ((forget₂ ProfiniteGrp Profinite).mapCone cone) ((forget₂ ProfiniteGrp Profinite).map m)
+        (fun j ↦ congrArg (forget₂ ProfiniteGrp Profinite).map (h j))
 
 @[to_additive]
 instance : Limits.HasLimit F where
-  exists_limit := Nonempty.intro
-    { cone := limitCone F
-      isLimit := limitConeIsLimit F }
+  exists_limit := Nonempty.intro { cone := limitCone F, isLimit := limitConeIsLimit F }
 
 @[to_additive]
 instance : Limits.PreservesLimits (forget₂ ProfiniteGrp Profinite) where
   preservesLimitsOfShape := {
-    preservesLimit := fun {F} ↦ CategoryTheory.Limits.preservesLimit_of_preserves_limit_cone
-      (limitConeIsLimit F) (Profinite.limitConeIsLimit (F ⋙ (forget₂ ProfiniteGrp Profinite))) }
+    preservesLimit := fun {F} ↦
+      CategoryTheory.Limits.preservesLimit_of_preserves_limit_cone (limitConeIsLimit F)
+        (Profinite.limitConeIsLimit (F ⋙ (forget₂ ProfiniteGrp Profinite)))
+  }
 
 @[to_additive]
 instance : CompactSpace (limitConePtAux F) :=

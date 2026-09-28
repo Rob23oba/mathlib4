@@ -40,10 +40,11 @@ namespace AlgebraicGeometry.Scheme
 
 variable (X : Scheme.{u}) {U : X.Opens}
 
-/-- The residue field of `X` at a point `x` is the residue field of the stalk of `X`
-at `x`. -/
-def residueField (x : X) : CommRingCat :=
-  ↧(IsLocalRing.ResidueField (X.presheaf.stalk x))
+/--
+The residue field of `X` at a point `x` is the residue field of the stalk of `X`
+at `x`.
+-/
+def residueField (x : X) : CommRingCat := ↧(IsLocalRing.ResidueField (X.presheaf.stalk x))
 
 instance (x : X) : Field (X.residueField x) :=
   inferInstanceAs <| Field (IsLocalRing.ResidueField (X.presheaf.stalk x))
@@ -54,8 +55,10 @@ instance (x : X) : Unique (Spec (X.residueField x)) := inferInstanceAs (Unique (
 def residue (X : Scheme.{u}) (x) : X.presheaf.stalk x ⟶ X.residueField x :=
   CommRingCat.ofHom (IsLocalRing.residue (X.presheaf.stalk x))
 
-/-- See `AlgebraicGeometry.IsClosedImmersion.SpecMap_residue` for the stronger result that
-`Spec.map (X.residue x)` is a closed immersion. -/
+/--
+See `AlgebraicGeometry.IsClosedImmersion.SpecMap_residue` for the stronger result that
+`Spec.map (X.residue x)` is a closed immersion.
+-/
 instance {X : Scheme.{u}} (x) : IsPreimmersion (Spec.map (X.residue x)) :=
   IsPreimmersion.mk_SpecMap
     (PrimeSpectrum.isClosedEmbedding_comap_of_surjective _ _
@@ -73,11 +76,13 @@ lemma residue_surjective (X : Scheme.{u}) (x) : Function.Surjective (X.residue x
 instance (X : Scheme.{u}) (x) : Epi (X.residue x) :=
   ConcreteCategory.epi_of_surjective _ (X.residue_surjective x)
 
-/-- If `K` is a field and `f : 𝒪_{X, x} ⟶ K` is a ring map, then this is the induced
-map `κ(x) ⟶ K`. -/
-def descResidueField {K : Type u} [Field K] {X : Scheme.{u}} {x : X}
-    (f : X.presheaf.stalk x ⟶ ↧K) [IsLocalHom f.hom] :
-    X.residueField x ⟶ ↧K :=
+/--
+If `K` is a field and `f : 𝒪_{X, x} ⟶ K` is a ring map, then this is the induced
+map `κ(x) ⟶ K`.
+-/
+def descResidueField
+    {K : Type u} [Field K] {X : Scheme.{u}} {x : X} (f : X.presheaf.stalk x ⟶ ↧K) [IsLocalHom f.hom]
+    : X.residueField x ⟶ ↧K :=
   CommRingCat.ofHom (IsLocalRing.ResidueField.lift (S := K) f.hom)
 
 @[reassoc (attr := simp)]
@@ -100,8 +105,7 @@ def evaluation (U : X.Opens) (x : X) (hx : x ∈ U) : Γ(X, U) ⟶ X.residueFiel
 lemma germ_residue (x hx) : X.presheaf.germ U x hx ≫ X.residue x = X.evaluation U x hx := rfl
 
 /-- The global evaluation map from `Γ(X, ⊤)` to the residue field at `x`. -/
-abbrev Γevaluation (x : X) : Γ(X, ⊤) ⟶ X.residueField x :=
-  X.evaluation ⊤ x trivial
+abbrev Γevaluation (x : X) : Γ(X, ⊤) ⟶ X.residueField x := X.evaluation ⊤ x trivial
 
 @[simp]
 lemma evaluation_eq_zero_iff_notMem_basicOpen (x : X) (hx : x ∈ U) (f : Γ(X, U)) :
@@ -118,10 +122,11 @@ lemma basicOpen_eq_bot_iff_forall_evaluation_eq_zero (f : X.presheaf.obj (op U))
 
 variable {X Y : Scheme.{u}} (f : X ⟶ Y)
 
-/-- If `X ⟶ Y` is a morphism of locally ringed spaces and `x` a point of `X`, we obtain
-a morphism of residue fields in the other direction. -/
-def Hom.residueFieldMap (f : X ⟶ Y) (x : X) :
-    Y.residueField (f x) ⟶ X.residueField x :=
+/--
+If `X ⟶ Y` is a morphism of locally ringed spaces and `x` a point of `X`, we obtain
+a morphism of residue fields in the other direction.
+-/
+def Hom.residueFieldMap (f : X ⟶ Y) (x : X) : Y.residueField (f x) ⟶ X.residueField x :=
   CommRingCat.ofHom <| IsLocalRing.ResidueField.map (f.stalkMap x).hom
 
 @[reassoc]
@@ -175,15 +180,14 @@ lemma Γevaluation_naturality_apply (x : X) (a : Y.presheaf.obj (op ⊤)) :
   LocallyRingedSpace.Γevaluation_naturality_apply f.toLRSHom x a
 
 instance [IsOpenImmersion f] (x) : IsIso (f.residueFieldMap x) :=
-  (IsLocalRing.ResidueField.mapEquiv
-    (asIso (f.stalkMap x)).commRingCatIsoToRingEquiv).toCommRingCatIso.isIso_hom
+  (IsLocalRing.ResidueField.mapEquiv (asIso (f.stalkMap
+    x)).commRingCatIsoToRingEquiv).toCommRingCatIso.isIso_hom
 
 section congr
 
 -- replace this def if hard to work with
 /-- The isomorphism between residue fields of equal points. -/
-def residueFieldCongr {x y : X} (h : x = y) :
-    X.residueField x ≅ X.residueField y :=
+def residueFieldCongr {x y : X} (h : x = y) : X.residueField x ≅ X.residueField y :=
   eqToIso (by subst h; rfl)
 
 @[simp]
@@ -234,8 +238,7 @@ end congr
 section fromResidueField
 
 /-- The canonical map `Spec κ(x) ⟶ X`. -/
-def fromSpecResidueField (X : Scheme) (x : X) :
-    Spec (X.residueField x) ⟶ X :=
+def fromSpecResidueField (X : Scheme) (x : X) : Spec (X.residueField x) ⟶ X :=
   Spec.map (X.residue x) ≫ X.fromSpecStalk x
 
 instance {X : Scheme.{u}} (x : X) : IsPreimmersion (X.fromSpecResidueField x) := by
@@ -243,11 +246,10 @@ instance {X : Scheme.{u}} (x : X) : IsPreimmersion (X.fromSpecResidueField x) :=
   rw [IsPreimmersion.comp_iff]
   infer_instance
 
-@[simps] noncomputable
-instance (x : X) : (Spec (X.residueField x)).Over X := ⟨X.fromSpecResidueField x⟩
+@[simps]
+noncomputable instance (x : X) : (Spec (X.residueField x)).Over X := ⟨X.fromSpecResidueField x⟩
 
-noncomputable
-instance (x : X) : (Spec (X.residueField x)).CanonicallyOver X where
+noncomputable instance (x : X) : (Spec (X.residueField x)).CanonicallyOver X where
 
 @[reassoc (attr := simp)]
 lemma residueFieldCongr_fromSpecResidueField {x y : X} (h : x = y) :
@@ -297,11 +299,8 @@ variable (R : CommRingCat) (x : Spec R)
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The residue fields of `Spec R` are isomorphic to `Ideal.ResidueField`. -/
-noncomputable
-def Spec.residueFieldIso :
-    (Spec R).residueField x ≅ ↧x.asIdeal.ResidueField :=
-  (IsLocalRing.ResidueField.mapEquiv
-    (Spec.stalkIso R x).commRingCatIsoToRingEquiv).toCommRingCatIso
+noncomputable def Spec.residueFieldIso : (Spec R).residueField x ≅ ↧x.asIdeal.ResidueField :=
+  (IsLocalRing.ResidueField.mapEquiv (Spec.stalkIso R x).commRingCatIsoToRingEquiv).toCommRingCatIso
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[reassoc (attr := simp)]
@@ -337,16 +336,18 @@ lemma Spec.Γevaluation_eq_of_field {k : Type u} [Field k] (x : Spec (.of k)) :
   rw [this, Spec.algebraMap_residueFieldIso_inv, Iso.hom_inv_id_assoc]
   exact ((Spec (.of k)).germ_residue (U := ⊤) x trivial).symm
 
-instance Spec.isIso_Γevaluation {k : Type u} [Field k] (x : Spec (.of k)) :
-    IsIso ((Spec (.of k)).Γevaluation x) := by
+instance Spec.isIso_Γevaluation {k : Type u} [Field k] (x : Spec (.of k))
+    : IsIso ((Spec (.of k)).Γevaluation x) := by
   rw [Spec.Γevaluation_eq_of_field]
   infer_instance
 
-/-- For a field `k`, the residue field of `Spec k` at any point `x` is canonically isomorphic
-to `k`. -/
+/--
+For a field `k`, the residue field of `Spec k` at any point `x` is canonically isomorphic
+to `k`.
+-/
 @[simps! -isSimp inv]
-noncomputable def Spec.residueFieldIsoOfField {k : Type u} [Field k] (x : Spec (.of k)) :
-    (Spec (.of k)).residueField x ≅ .of k :=
+noncomputable def Spec.residueFieldIsoOfField {k : Type u} [Field k] (x : Spec (.of k))
+    : (Spec (.of k)).residueField x ≅ .of k :=
   (asIso ((Spec (.of k)).Γevaluation x)).symm ≪≫ Scheme.ΓSpecIso (.of k)
 
 attribute [reassoc] Spec.residueFieldIsoOfField_inv
@@ -403,23 +404,27 @@ lemma SpecToEquivOfField_eq_iff {K : Type*} [Field K] {X : Scheme}
     simpa
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- For a field `K` and a scheme `X`, the morphisms `Spec K ⟶ X` bijectively correspond
-to pairs of points `x` of `X` and embeddings `κ(x) ⟶ K`. -/
+/--
+For a field `K` and a scheme `X`, the morphisms `Spec K ⟶ X` bijectively correspond
+to pairs of points `x` of `X` and embeddings `κ(x) ⟶ K`.
+-/
 @[simps]
-def SpecToEquivOfField (K : Type u) [Field K] (X : Scheme.{u}) :
-    (Spec ↧K ⟶ X) ≃ Σ x, X.residueField x ⟶ ↧K where
-  toFun f :=
-    ⟨_, X.descResidueField (Scheme.stalkClosedPointTo f)⟩
+def SpecToEquivOfField (K : Type u) [Field K] (X : Scheme.{u})
+    : (Spec ↧K ⟶ X) ≃ Σ x, X.residueField x ⟶ ↧K where
+  toFun f := ⟨_, X.descResidueField (Scheme.stalkClosedPointTo f)⟩
   invFun xf := Spec.map xf.2 ≫ X.fromSpecResidueField xf.1
   left_inv := Scheme.descResidueField_stalkClosedPointTo_fromSpecResidueField K X
   right_inv f := by
     rw [SpecToEquivOfField_eq_iff]
-    simp only [CommRingCat.coe_of, Scheme.Hom.comp_base, TopCat.coe_comp, Function.comp_apply,
-      Scheme.fromSpecResidueField_apply, exists_true_left]
+    simp only [
+      CommRingCat.coe_of, Scheme.Hom.comp_base, TopCat.coe_comp, Function.comp_apply,
+      Scheme.fromSpecResidueField_apply, exists_true_left
+    ]
     rw [← Spec.map_inj, Spec.map_comp, ← cancel_mono (X.fromSpecResidueField _)]
-    grind [Scheme.descResidueField_stalkClosedPointTo_fromSpecResidueField,
-      Scheme.fromSpecResidueField_apply,
-      Scheme.residueFieldCongr_fromSpecResidueField]
+    grind [
+      Scheme.descResidueField_stalkClosedPointTo_fromSpecResidueField,
+      Scheme.fromSpecResidueField_apply, Scheme.residueFieldCongr_fromSpecResidueField
+    ]
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]

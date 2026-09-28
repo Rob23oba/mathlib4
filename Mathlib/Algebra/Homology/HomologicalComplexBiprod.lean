@@ -22,8 +22,9 @@ open CategoryTheory Limits
 
 namespace HomologicalComplex
 
-variable {C ι : Type*} [Category* C] [Preadditive C] {c : ComplexShape ι}
-  (K L : HomologicalComplex C c) [∀ i, HasBinaryBiproduct (K.X i) (L.X i)]
+variable
+  {C ι : Type*} [Category* C] [Preadditive C]
+  {c : ComplexShape ι} (K L : HomologicalComplex C c) [∀ i, HasBinaryBiproduct (K.X i) (L.X i)]
 
 instance (i : ι) : HasBinaryBiproduct ((eval C c i).obj K) ((eval C c i).obj L) := by
   dsimp [eval]
@@ -43,8 +44,7 @@ instance (i : ι) : PreservesBinaryBiproduct K L (eval C c i) :=
   preservesBinaryBiproduct_of_preservesBinaryProduct _
 
 /-- The canonical isomorphism `(K ⊞ L).X i ≅ (K.X i) ⊞ (L.X i)`. -/
-noncomputable def biprodXIso (i : ι) : (K ⊞ L).X i ≅ (K.X i) ⊞ (L.X i) :=
-  (eval C c i).mapBiprod K L
+noncomputable def biprodXIso (i : ι) : (K ⊞ L).X i ≅ (K.X i) ⊞ (L.X i) := (eval C c i).mapBiprod K L
 
 set_option backward.defeqAttrib.useBackward true in
 @[reassoc (attr := simp)]

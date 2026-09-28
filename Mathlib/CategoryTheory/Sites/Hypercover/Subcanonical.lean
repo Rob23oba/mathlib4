@@ -30,13 +30,16 @@ namespace GrothendieckTopology.OneHypercover
 variable {J : GrothendieckTopology C} [J.Subcanonical]
 
 /-- Glue a family of morphisms along a `1`-hypercover for a subcanonical topology. -/
-noncomputable def glueMorphisms {S T : C} (E : J.OneHypercover S) (f : ∀ i, E.X i ⟶ T)
-    (h : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), E.p₁ k ≫ f i = E.p₂ k ≫ f j) :
-    S ⟶ T :=
-  (E.isStronglySheafFor
-    (Subcanonical.isSheaf_of_isRepresentable (CategoryTheory.yoneda.obj T))).amalgamate f h
+noncomputable def glueMorphisms
+    {S T : C} (E : J.OneHypercover S) (f : ∀ i, E.X i ⟶ T)
+    (h : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), E.p₁ k ≫ f i = E.p₂ k ≫ f j)
+    : S ⟶ T :=
+  (E.isStronglySheafFor (Subcanonical.isSheaf_of_isRepresentable (CategoryTheory.yoneda.obj
+      T))).amalgamate
+    f h
 
-variable {S T : C} (E : J.OneHypercover S) (f : ∀ i, E.X i ⟶ T)
+variable
+  {S T : C} (E : J.OneHypercover S) (f : ∀ i, E.X i ⟶ T)
   (h : ∀ ⦃i j : E.I₀⦄ (k : E.I₁ i j), E.p₁ k ≫ f i = E.p₂ k ≫ f j)
 
 @[reassoc (attr := simp)]
@@ -58,10 +61,11 @@ lemma hom_ext {X Y : C} (𝒰 : J.ZeroHypercover X) {f g : X ⟶ Y}
   exact 𝒰.ext_of_isSeparatedFor hs.isSeparatedFor fun i ↦ by simp [h i]
 
 /-- Glue morphisms along a `0`-hypercover. -/
-noncomputable def glueMorphisms {S T : C} (𝒰 : J.ZeroHypercover S) [𝒰.HasPullbacks]
+noncomputable def glueMorphisms
+    {S T : C} (𝒰 : J.ZeroHypercover S) [𝒰.HasPullbacks]
     (f : ∀ i, 𝒰.X i ⟶ T)
-    (hf : ∀ i j, pullback.fst (𝒰.f i) (𝒰.f j) ≫ f i = pullback.snd (𝒰.f i) (𝒰.f j) ≫ f j) :
-    S ⟶ T :=
+    (hf : ∀ i j, pullback.fst (𝒰.f i) (𝒰.f j) ≫ f i = pullback.snd (𝒰.f i) (𝒰.f j) ≫ f j)
+    : S ⟶ T :=
   𝒰.toOneHypercover.glueMorphisms f fun i j _ ↦ hf i j
 
 @[reassoc (attr := simp)]
@@ -82,8 +86,9 @@ set_option backward.isDefEq.respectTransparency false in
 instance : (isomorphisms C).IsLocalAtTarget J := by
   refine .mk_of_isStableUnderBaseChange fun {X Y} f 𝒰 (H : ∀ i, IsIso _) ↦ ⟨?_, ?_, ?_⟩
   · refine 𝒰.glueMorphisms (fun i ↦ inv (pullback.snd f (𝒰.f i)) ≫ pullback.fst _ _) fun i j ↦ ?_
-    let f := pullback.map (pullback.fst f (𝒰.f i) ≫ f) (𝒰.f j) (𝒰.f i) (𝒰.f j) (pullback.snd _ _)
-      (𝟙 _) (𝟙 _) (by simp [pullback.condition]) (by simp)
+    let f :=
+      pullback.map (pullback.fst f (𝒰.f i) ≫ f) (𝒰.f j) (𝒰.f i) (𝒰.f j) (pullback.snd _ _) (𝟙 _)
+        (𝟙 _) (by simp [pullback.condition]) (by simp)
     rw [← cancel_epi ((pullbackRightPullbackFstIso _ _ _).hom ≫ f)]
     simp [pullback.condition, f]
   · exact (𝒰.pullback₁ f).hom_ext fun i ↦ by simp [pullback.condition_assoc]

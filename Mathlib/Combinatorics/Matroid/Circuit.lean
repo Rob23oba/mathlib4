@@ -203,11 +203,13 @@ lemma restrict_isCircuit_iff (hR : R ⊆ M.E := by aesop_mat) :
 
 /-! ### Fundamental IsCircuits -/
 
-/-- For an independent set `I` and some `e ∈ M.closure I \ I`,
+/--
+For an independent set `I` and some `e ∈ M.closure I \ I`,
 `M.fundCircuit e I` is the unique circuit contained in `insert e I`.
 For the fact that this is a circuit, see `Matroid.Indep.fundCircuit_isCircuit`,
 and the fact that it is unique, see `Matroid.IsCircuit.eq_fundCircuit_of_subset`.
-Has the junk value `{e}` if `e ∈ I` or `e ∉ M.E`, and `insert e I` if `e ∈ M.E \ M.closure I`. -/
+Has the junk value `{e}` if `e ∈ I` or `e ∉ M.E`, and `insert e I` if `e ∈ M.E \ M.closure I`.
+-/
 def fundCircuit (M : Matroid α) (e : α) (I : Set α) : Set α :=
   insert e (I ∩ ⋂₀ {J | J ⊆ I ∧ M.closure {e} ⊆ M.closure J})
 
@@ -564,8 +566,10 @@ section IsCocircuit
 
 variable {K B : Set α}
 
-/-- A cocircuit is a circuit of the dual matroid,
-or equivalently the complement of a hyperplane. -/
+/--
+A cocircuit is a circuit of the dual matroid,
+or equivalently the complement of a hyperplane.
+-/
 abbrev IsCocircuit (M : Matroid α) (K : Set α) : Prop := M✶.IsCircuit K
 
 lemma isCocircuit_def : M.IsCocircuit K ↔ M✶.IsCircuit K := Iff.rfl
@@ -683,10 +687,12 @@ lemma exists_isCircuit [RankPos M✶] : ∃ C, M.IsCircuit C :=
 lemma rankPos_iff_exists_isCocircuit : M.RankPos ↔ ∃ K, M.IsCocircuit K := by
   rw [← dual_dual M, dual_rankPos_iff_exists_isCircuit, dual_dual M]
 
-/-- The fundamental cocircuit for `B` and `e`:
+/--
+The fundamental cocircuit for `B` and `e`:
 that is, the unique cocircuit `K` of `M` for which `K ∩ B = {e}`.
 Should be used when `B` is a base and `e ∈ B`.
-Has the junk value `{e}` if `e ∉ B` or `e ∉ M.E`. -/
+Has the junk value `{e}` if `e ∉ B` or `e ∉ M.E`.
+-/
 def fundCocircuit (M : Matroid α) (e : α) (B : Set α) := M✶.fundCircuit e (M✶.E \ B)
 
 lemma fundCocircuit_isCocircuit (he : e ∈ B) (hB : M.IsBase B) :

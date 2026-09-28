@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Def
 public import Mathlib.Probability.HasLaw
-
 import Mathlib.Probability.Distributions.Gaussian.Fernique
 
 /-!
@@ -38,8 +37,7 @@ variable {Ω E F ι : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
 
 section Basic
 
-variable [TopologicalSpace E] [AddCommMonoid E] [Module ℝ E] [mE : MeasurableSpace E]
-  {X Y : Ω → E}
+variable [TopologicalSpace E] [AddCommMonoid E] [Module ℝ E] [mE : MeasurableSpace E] {X Y : Ω → E}
 
 lemma HasGaussianLaw.congr {Y : Ω → E} (hX : HasGaussianLaw X P) (h : X =ᵐ[P] Y) :
     HasGaussianLaw Y P where
@@ -206,8 +204,9 @@ end Prod
 
 section Pi
 
-variable {E : ι → Type*} [∀ i, NormedAddCommGroup (E i)]
-  [∀ i, NormedSpace ℝ (E i)] [∀ i, MeasurableSpace (E i)] [∀ i, BorelSpace (E i)]
+variable
+  {E : ι → Type*} [∀ i, NormedAddCommGroup (E i)] [∀ i, NormedSpace ℝ (E i)]
+  [∀ i, MeasurableSpace (E i)] [∀ i, BorelSpace (E i)]
   {X : (i : ι) → Ω → E i}
 
 lemma eval (hX : HasGaussianLaw (fun ω ↦ (X · ω)) P) (i : ι) :

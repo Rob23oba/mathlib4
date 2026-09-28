@@ -30,8 +30,10 @@ section Semiring
 variable [Semiring R] [AddCommMonoid M] [Module R M]
 variable {N N₁ N₂ : Submodule R M} {S S₁ S₂ : Set M}
 
-/-- `N.colon P` is the ideal of all elements `r : R` such that `r • P ⊆ N`.
-We treat it as an infix in lemma names. -/
+/--
+`N.colon P` is the ideal of all elements `r : R` such that `r • P ⊆ N`.
+We treat it as an infix in lemma names.
+-/
 def colon (N : Submodule R M) (S : Set M) : Ideal R where
   carrier := {r : R | (r • S : Set M) ⊆ N}
   add_mem' ha hb :=
@@ -63,14 +65,14 @@ theorem bot_colon : colon (⊥ : Submodule R M) (N : Set M) = N.annihilator := b
   ext x
   simp [mem_colon, mem_annihilator]
 
-theorem colon_mono (hn : N₁ ≤ N₂) (hs : S₁ ⊆ S₂) : N₁.colon S₂ ≤ N₂.colon S₁ :=
-  fun _ hrns ↦ mem_colon.mpr fun s₁ hs₁ ↦ hn <| mem_colon.mp hrns s₁ <| hs hs₁
+theorem colon_mono (hn : N₁ ≤ N₂) (hs : S₁ ⊆ S₂) : N₁.colon S₂ ≤ N₂.colon S₁ := fun _ hrns ↦
+  mem_colon.mpr fun s₁ hs₁ ↦ hn <| mem_colon.mp hrns s₁ <| hs hs₁
 
 theorem _root_.Ideal.le_colon {I : Ideal R} {S : Set R} [I.IsTwoSided] : I ≤ I.colon S :=
   colon_univ.symm.trans_le (colon_mono le_rfl S.subset_univ)
 
-theorem iInf_colon_iUnion (ι₁ : Sort*) (f : ι₁ → Submodule R M) (ι₂ : Sort*) (g : ι₂ → Set M) :
-    (⨅ i, f i).colon (⋃ j, g j) = ⨅ (i) (j), (f i).colon (g j) := by
+theorem iInf_colon_iUnion (ι₁ : Sort*) (f : ι₁ → Submodule R M) (ι₂ : Sort*) (g : ι₂ → Set M)
+    : (⨅ i, f i).colon (⋃ j, g j) = ⨅ (i) (j), (f i).colon (g j) := by
   aesop (add simp mem_colon)
 
 /-- If `S ⊆ N₂`, then intersecting with `N₂` does not change the colon ideal. -/
@@ -142,11 +144,10 @@ theorem colon_span : N.colon (span R S) = N.colon S := by
 theorem _root_.Ideal.colon_span {I : Ideal R} {S : Set R} : I.colon (Ideal.span S) = I.colon S := by
   simp
 
-theorem mem_colon_span_singleton {x : M} {r : R} : r ∈ N.colon (span R {x}) ↔ r • x ∈ N := by
-  simp
+theorem mem_colon_span_singleton {x : M} {r : R} : r ∈ N.colon (span R {x}) ↔ r • x ∈ N := by simp
 
-theorem _root_.Ideal.mem_colon_span_singleton {I : Ideal R} {x r : R} :
-    r ∈ I.colon (Ideal.span {x}) ↔ r * x ∈ I := by
+theorem _root_.Ideal.mem_colon_span_singleton {I : Ideal R} {x r : R}
+    : r ∈ I.colon (Ideal.span {x}) ↔ r * x ∈ I := by
   simp
 
 end CommSemiring
@@ -167,11 +168,13 @@ theorem annihilator_quotient : Module.annihilator R (M ⧸ N) = N.colon Set.univ
   ext r
   have htop : (⊤ : Submodule R (M ⧸ N)) = (⊤ : Submodule R M).map N.mkQ := by
     simpa [map_top] using (LinearMap.range_eq_top.mpr (mkQ_surjective N)).symm
-  rw [← annihilator_top (R := R) (M := M ⧸ N), htop,
-    annihilator_map_mkQ_eq_colon (N := N) (P := ⊤), Submodule.top_coe]
+  rw [
+    ← annihilator_top (R := R) (M := M ⧸ N), htop, annihilator_map_mkQ_eq_colon (N := N) (P := ⊤),
+    Submodule.top_coe
+  ]
 
-theorem _root_.Ideal.annihilator_quotient {I : Ideal R} [I.IsTwoSided] :
-    Module.annihilator R (R ⧸ I) = I := by
+theorem _root_.Ideal.annihilator_quotient {I : Ideal R} [I.IsTwoSided]
+    : Module.annihilator R (R ⧸ I) = I := by
   rw [Submodule.annihilator_quotient, colon_univ]
 
 end Ring

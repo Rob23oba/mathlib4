@@ -44,11 +44,7 @@ variable {α : Type*} [Preorder α] {M N P : Multiset α} {a : α}
 
 /-- The standard Dershowitz–Manna ordering. -/
 def IsDershowitzMannaLT (M N : Multiset α) : Prop :=
-  ∃ X Y Z,
-      Z ≠ ∅
-    ∧ M = X + Y
-    ∧ N = X + Z
-    ∧ ∀ y ∈ Y, ∃ z ∈ Z, y < z
+  ∃ X Y Z, Z ≠ ∅ ∧ M = X + Y ∧ N = X + Z ∧ ∀ y ∈ Y, ∃ z ∈ Z, y < z
 
 /-- `IsDershowitzMannaLT` is transitive. -/
 lemma IsDershowitzMannaLT.trans :
@@ -71,13 +67,11 @@ lemma IsDershowitzMannaLT.trans :
   · obtain ⟨z, hz, hyz⟩ := hYZ₂ y <| mem_of_le (Multiset.sub_le_self ..) hy
     exact ⟨z, .inl hz, hyz⟩
 
-/-- A special case of `IsDershowitzMannaLT`. The transitive closure of it is used to define
-an equivalent (proved later) version of the ordering. -/
-private def OneStep (M N : Multiset α) : Prop :=
-  ∃ X Y a,
-      M = X + Y
-    ∧ N = X + {a}
-    ∧ ∀ y ∈ Y, y < a
+/--
+A special case of `IsDershowitzMannaLT`. The transitive closure of it is used to define
+an equivalent (proved later) version of the ordering.
+-/
+private def OneStep (M N : Multiset α) : Prop := ∃ X Y a, M = X + Y ∧ N = X + {a} ∧ ∀ y ∈ Y, y < a
 
 private lemma isDershowitzMannaLT_of_oneStep : OneStep M N → IsDershowitzMannaLT M N := by
   rintro ⟨X, Y, a, M_def, N_def, ys_lt_a⟩
@@ -162,12 +156,12 @@ private lemma transGen_oneStep_eq_isDershowitzMannaLT :
   exact ⟨isDershowitzMannaLT_of_transGen_oneStep, transGen_oneStep_of_isDershowitzMannaLT⟩
 
 /-- Over a well-founded order, the Dershowitz-Manna order on multisets is well-founded. -/
-theorem wellFounded_isDershowitzMannaLT [WellFoundedLT α] :
-    WellFounded (IsDershowitzMannaLT : Multiset α → Multiset α → Prop) := by
+theorem wellFounded_isDershowitzMannaLT [WellFoundedLT α]
+    : WellFounded (IsDershowitzMannaLT : Multiset α → Multiset α → Prop) := by
   rw [← transGen_oneStep_eq_isDershowitzMannaLT]
   exact isDershowitzMannaLT_singleton_wf.transGen
 
 instance instWellFoundedIsDershowitzMannaLT [WellFoundedLT α] : WellFoundedRelation (Multiset α) :=
-    ⟨IsDershowitzMannaLT, wellFounded_isDershowitzMannaLT⟩
+  ⟨IsDershowitzMannaLT, wellFounded_isDershowitzMannaLT⟩
 
 end Multiset

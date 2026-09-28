@@ -38,8 +38,9 @@ In this file, we define the notion of quasi-finite algebras and prove basic prop
 
 @[expose] public section
 
-variable {R S T : Type*} [CommRing R] [CommRing S] [CommRing T]
-  [Algebra R S] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
+variable
+  {R S T : Type*} [CommRing R] [CommRing S] [CommRing T] [Algebra R S] [Algebra R T] [Algebra S T]
+  [IsScalarTower R S T]
 
 -- See `Mathlib/RingTheory/QuasiFinite/Polynomial.lean`
 assert_not_exists RatFunc
@@ -65,8 +66,8 @@ this is equivalent to having finite fibers for finite-type algebras.
 -/
 @[mk_iff, stacks 00PL]
 class QuasiFinite : Prop where
-  finite_fiber (P : Ideal R) [P.IsPrime] :
-    Module.Finite P.ResidueField (P.Fiber S) := by infer_instance
+  finite_fiber (P : Ideal R) [P.IsPrime] : Module.Finite P.ResidueField (P.Fiber S) := by
+    infer_instance
 
 attribute [stacks 00PM] quasiFinite_iff
 
@@ -91,8 +92,8 @@ lemma finite_primesOver [QuasiFinite R S] (I : Ideal R) : (I.primesOver S).Finit
     exact h inferInstance
 
 open Ideal in
-instance (p : Ideal R) (q : Ideal S) [q.LiesOver p] [q.IsPrime] [QuasiFinite R S] :
-    IsArtinianRing (Localization.AtPrime q ⧸ p.map (algebraMap R (Localization.AtPrime q))) := by
+instance (p : Ideal R) (q : Ideal S) [q.LiesOver p] [q.IsPrime] [QuasiFinite R S]
+    : IsArtinianRing (Localization.AtPrime q ⧸ p.map (algebraMap R (Localization.AtPrime q))) := by
   have : p.IsPrime := isPrime_of_liesOver q p
   let Sq := Localization.AtPrime q
   let r := PrimeSpectrum.primesOverOrderIsoFiber R S p (primesOver.mk p q)
@@ -118,8 +119,8 @@ lemma isDiscrete_comap_preimage [QuasiFinite R S] {s : Set (PrimeSpectrum R)}
 instance (priority := low) [Module.Finite R S] : QuasiFinite R S where
 
 @[stacks 00PP "(3)"]
-instance baseChange [QuasiFinite R S] {A : Type*} [CommRing A] [Algebra R A] :
-    QuasiFinite A (A ⊗[R] S) := by
+instance baseChange [QuasiFinite R S] {A : Type*} [CommRing A] [Algebra R A]
+    : QuasiFinite A (A ⊗[R] S) := by
   refine ⟨fun P hP ↦ ?_⟩
   let p := P.under R
   let := Localization.AtPrime.algebraOfLiesOver p P
@@ -233,8 +234,8 @@ instance (M : Submonoid S) [QuasiFinite R S] : QuasiFinite R (Localization M) :=
 instance (priority := low) [IsFractionRing R S] : QuasiFinite R S :=
   of_isLocalization (nonZeroDivisors R)
 
-instance [QuasiFinite R S] (p : Ideal R) [p.IsPrime] (q : Ideal (p.Fiber S)) [q.IsPrime] :
-    Module.Finite p.ResidueField (Localization.AtPrime q) :=
+instance [QuasiFinite R S] (p : Ideal R) [p.IsPrime] (q : Ideal (p.Fiber S)) [q.IsPrime]
+    : Module.Finite p.ResidueField (Localization.AtPrime q) :=
   .of_quasiFinite
 
 instance (P : Ideal S) [P.IsPrime] [QuasiFinite R S] : QuasiFinite R P.ResidueField :=
@@ -286,10 +287,13 @@ lemma eq_of_le_of_under_eq [QuasiFinite R S] (P Q : Ideal S) [P.IsPrime] [Q.IsPr
     (a := ⟨P, ‹_›⟩) (b := ⟨Q, ‹_›⟩) (by simpa [← PrimeSpectrum.le_iff_specializes]) rfl
     (PrimeSpectrum.ext h₂.symm)).1)
 
-instance [QuasiFinite R S] (P : Ideal R) [P.IsPrime] (Q : Ideal S) [Q.IsPrime] [Q.LiesOver P]
-    [Algebra (Localization.AtPrime P) (Localization.AtPrime Q)]
-    [IsScalarTower R (Localization.AtPrime P) (Localization.AtPrime Q)] :
-    Module.Finite P.ResidueField Q.ResidueField :=
+instance
+    [QuasiFinite R S]
+    (P : Ideal R) [P.IsPrime]
+    (Q : Ideal S)
+    [Q.IsPrime] [Q.LiesOver P] [Algebra (Localization.AtPrime P) (Localization.AtPrime Q)]
+    [IsScalarTower R (Localization.AtPrime P) (Localization.AtPrime Q)]
+    : Module.Finite P.ResidueField Q.ResidueField :=
   have : QuasiFinite P.ResidueField Q.ResidueField := .of_restrictScalars R _ _
   .of_quasiFinite
 
@@ -361,12 +365,13 @@ end QuasiFinite
 section QuasiFiniteAt
 
 variable (R) in
-/-- If `S` is an `R`-algebra and `p` a prime of `S`, we say that `S` is `R`-quasi-finite at `p`
+/--
+If `S` is an `R`-algebra and `p` a prime of `S`, we say that `S` is `R`-quasi-finite at `p`
 if `Sₚ` is `R`-quasi-finite. In the case where `S` is (essentially) of finite type over `R`,
 this is equivalent to the usual definition that `p` is isolated in its fiber.
-See `Ideal.exists_notMem_forall_mem_of_ne_of_liesOver`. -/
-abbrev QuasiFiniteAt (p : Ideal S) [p.IsPrime] : Prop :=
-  QuasiFinite R (Localization.AtPrime p)
+See `Ideal.exists_notMem_forall_mem_of_ne_of_liesOver`.
+-/
+abbrev QuasiFiniteAt (p : Ideal S) [p.IsPrime] : Prop := QuasiFinite R (Localization.AtPrime p)
 
 lemma QuasiFiniteAt.baseChange (p : Ideal S) [p.IsPrime] [QuasiFiniteAt R p]
     {A : Type*} [CommRing A] [Algebra R A] (q : Ideal (A ⊗[R] S)) [q.IsPrime]
@@ -402,8 +407,9 @@ lemma QuasiFiniteAt.of_surjectiveOnStalks_of_liesOver (p : Ideal S) [p.IsPrime]
     [q.LiesOver p] : QuasiFiniteAt R q :=
   .of_surjectiveOnStalks p (IsScalarTower.toAlgHom R S T) hf _ (q.over_def p)
 
-instance QuasiFiniteAt.comap_algEquiv (p : Ideal S) [p.IsPrime] [Algebra.QuasiFiniteAt R p]
-    (f : T ≃ₐ[R] S) : QuasiFiniteAt R (p.comap f.toRingHom) :=
+instance QuasiFiniteAt.comap_algEquiv
+    (p : Ideal S) [p.IsPrime] [Algebra.QuasiFiniteAt R p] (f : T ≃ₐ[R] S)
+    : QuasiFiniteAt R (p.comap f.toRingHom) :=
   .of_surjectiveOnStalks p f.symm.toAlgHom
     (RingHom.surjectiveOnStalks_of_surjective f.symm.surjective) _ (by ext; simp)
 
@@ -434,17 +440,20 @@ lemma QuasiFiniteAt.eq_of_le_of_under_eq {P Q : Ideal S} [P.IsPrime] [Q.IsPrime]
   rw [← Localization.AtPrime.under_maximalIdeal (I := Q), ← H,
     Q.under_map_of_isLocalizationAtPrime h₁]
 
-instance (p : Ideal R) [p.IsPrime] (P : Ideal S) [P.IsPrime] [P.LiesOver p] [QuasiFiniteAt R P]
+instance
+    (p : Ideal R) [p.IsPrime]
+    (P : Ideal S) [P.IsPrime] [P.LiesOver p] [QuasiFiniteAt R P]
     [Algebra (Localization.AtPrime p) (Localization.AtPrime P)]
-    [IsScalarTower R (Localization.AtPrime p) (Localization.AtPrime P)] :
-    Module.Finite p.ResidueField P.ResidueField := by
+    [IsScalarTower R (Localization.AtPrime p) (Localization.AtPrime P)]
+    : Module.Finite p.ResidueField P.ResidueField := by
   let m := IsLocalRing.maximalIdeal (Localization.AtPrime P)
   let : m.LiesOver p := .trans _ P _
   let := Localization.AtPrime.algebraOfLiesOver p m
   let := Localization.AtPrime.algebraOfLiesOver P m
-  let e := AlgEquiv.ofBijective (IsScalarTower.toAlgHom p.ResidueField P.ResidueField
-    m.ResidueField) ((RingHom.surjectiveOnStalks_of_isLocalization
-        P.primeCompl _).residueFieldMap_bijective P m (m.over_def P))
+  let e :=
+    AlgEquiv.ofBijective (IsScalarTower.toAlgHom p.ResidueField P.ResidueField m.ResidueField)
+      ((RingHom.surjectiveOnStalks_of_isLocalization P.primeCompl _).residueFieldMap_bijective P m
+        (m.over_def P))
   exact .of_surjective e.symm.toLinearMap e.symm.surjective
 
 set_option backward.defeqAttrib.useBackward true in

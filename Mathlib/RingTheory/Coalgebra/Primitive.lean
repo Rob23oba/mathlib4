@@ -38,12 +38,15 @@ variable {F R A B : Type*} [CommSemiring R]
 namespace Coalgebra
 
 section AddCommMonoid
-variable [AddCommMonoid A] [Module R A] [Coalgebra R A]
-  [AddCommMonoid B] [Module R B] [Coalgebra R B] {g h a b : A}
+variable
+  [AddCommMonoid A] [Module R A] [Coalgebra R A] [AddCommMonoid B] [Module R B] [Coalgebra R B]
+  {g h a b : A}
 
 variable (R) in
-/-- An element `a` of a coalgebra is `(g, h)`-skew-primitive if `ε a = 0` and
-`Δ a = g ⊗ₜ a + a ⊗ₜ h`, where `ε` and `Δ` are the counit and comultiplication respectively. -/
+/--
+An element `a` of a coalgebra is `(g, h)`-skew-primitive if `ε a = 0` and
+`Δ a = g ⊗ₜ a + a ⊗ₜ h`, where `ε` and `Δ` are the counit and comultiplication respectively.
+-/
 @[mk_iff]
 structure IsSkewPrimitiveElem (g h a : A) : Prop where
   /-- A skew-primitive element `a` satisfies `ε(a) = 0`. -/

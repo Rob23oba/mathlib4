@@ -31,7 +31,8 @@ variable {ι M N : Type*} {α β γ : ι → Type*} (i : ι)
 namespace Pi
 
 @[to_additive]
-instance smul' [∀ i, SMul (α i) (β i)] : SMul (∀ i, α i) (∀ i, β i) where smul s x i := s i • x i
+instance smul' [∀ i, SMul (α i) (β i)] : SMul (∀ i, α i) (∀ i, β i) where
+  smul s x i := s i • x i
 
 @[to_additive (attr := push ←)]
 lemma smul_def' [∀ i, SMul (α i) (β i)] (s : ∀ i, α i) (x : ∀ i, β i) : s • x = fun i ↦ s i • x i :=
@@ -42,38 +43,45 @@ lemma smul_apply' [∀ i, SMul (α i) (β i)] (s : ∀ i, α i) (x : ∀ i, β i
   rfl
 
 @[to_additive]
-instance isScalarTower [SMul M N] [∀ i, SMul N (α i)] [∀ i, SMul M (α i)]
-    [∀ i, IsScalarTower M N (α i)] : IsScalarTower M N (∀ i, α i) where
+instance isScalarTower
+    [SMul M N] [∀ i, SMul N (α i)] [∀ i, SMul M (α i)] [∀ i, IsScalarTower M N (α i)]
+    : IsScalarTower M N (∀ i, α i) where
   smul_assoc x y z := funext fun i ↦ smul_assoc x y (z i)
 
 @[to_additive]
-instance isScalarTower' [∀ i, SMul M (α i)] [∀ i, SMul (α i) (β i)] [∀ i, SMul M (β i)]
-    [∀ i, IsScalarTower M (α i) (β i)] : IsScalarTower M (∀ i, α i) (∀ i, β i) where
+instance isScalarTower'
+    [∀ i, SMul M (α i)] [∀ i, SMul (α i) (β i)] [∀ i, SMul M (β i)]
+    [∀ i, IsScalarTower M (α i) (β i)]
+    : IsScalarTower M (∀ i, α i) (∀ i, β i) where
   smul_assoc x y z := funext fun i ↦ smul_assoc x (y i) (z i)
 
 @[to_additive]
-instance isScalarTower'' [∀ i, SMul (α i) (β i)] [∀ i, SMul (β i) (γ i)] [∀ i, SMul (α i) (γ i)]
-    [∀ i, IsScalarTower (α i) (β i) (γ i)] : IsScalarTower (∀ i, α i) (∀ i, β i) (∀ i, γ i) where
+instance isScalarTower''
+    [∀ i, SMul (α i) (β i)] [∀ i, SMul (β i) (γ i)] [∀ i, SMul (α i) (γ i)]
+    [∀ i, IsScalarTower (α i) (β i) (γ i)]
+    : IsScalarTower (∀ i, α i) (∀ i, β i) (∀ i, γ i) where
   smul_assoc x y z := funext fun i ↦ smul_assoc (x i) (y i) (z i)
 
 @[to_additive]
-instance smulCommClass [∀ i, SMul M (α i)] [∀ i, SMul N (α i)] [∀ i, SMulCommClass M N (α i)] :
-    SMulCommClass M N (∀ i, α i) where
+instance smulCommClass [∀ i, SMul M (α i)] [∀ i, SMul N (α i)] [∀ i, SMulCommClass M N (α i)]
+    : SMulCommClass M N (∀ i, α i) where
   smul_comm x y z := funext fun i ↦ smul_comm x y (z i)
 
 @[to_additive]
-instance smulCommClass' [∀ i, SMul M (β i)] [∀ i, SMul (α i) (β i)]
-    [∀ i, SMulCommClass M (α i) (β i)] : SMulCommClass M (∀ i, α i) (∀ i, β i) :=
+instance smulCommClass'
+    [∀ i, SMul M (β i)] [∀ i, SMul (α i) (β i)] [∀ i, SMulCommClass M (α i) (β i)]
+    : SMulCommClass M (∀ i, α i) (∀ i, β i) :=
   ⟨fun x y z => funext fun i ↦ smul_comm x (y i) (z i)⟩
 
 @[to_additive]
-instance smulCommClass'' [∀ i, SMul (β i) (γ i)] [∀ i, SMul (α i) (γ i)]
-    [∀ i, SMulCommClass (α i) (β i) (γ i)] : SMulCommClass (∀ i, α i) (∀ i, β i) (∀ i, γ i) where
+instance smulCommClass''
+    [∀ i, SMul (β i) (γ i)] [∀ i, SMul (α i) (γ i)] [∀ i, SMulCommClass (α i) (β i) (γ i)]
+    : SMulCommClass (∀ i, α i) (∀ i, β i) (∀ i, γ i) where
   smul_comm x y z := funext fun i ↦ smul_comm (x i) (y i) (z i)
 
 @[to_additive]
-instance isCentralScalar [∀ i, SMul M (α i)] [∀ i, SMul Mᵐᵒᵖ (α i)] [∀ i, IsCentralScalar M (α i)] :
-    IsCentralScalar M (∀ i, α i) where
+instance isCentralScalar [∀ i, SMul M (α i)] [∀ i, SMul Mᵐᵒᵖ (α i)] [∀ i, IsCentralScalar M (α i)]
+    : IsCentralScalar M (∀ i, α i) where
   op_smul_eq_smul _ _ := funext fun _ ↦ op_smul_eq_smul _ _
 
 /-- If `α i` has a faithful scalar action for a given `i`, then so does `Π i, α i`. This is
@@ -89,8 +97,9 @@ lemma faithfulSMul_at [∀ i, SMul M (α i)] [∀ i, Nonempty (α i)] (i : ι) [
       congr_fun (h <| Function.update (fun j => Classical.choice (‹∀ i, Nonempty (α i)› j)) i a) i
 
 @[to_additive]
-instance faithfulSMul [Nonempty ι] [∀ i, SMul M (α i)] [∀ i, Nonempty (α i)]
-    [∀ i, FaithfulSMul M (α i)] : FaithfulSMul M (∀ i, α i) :=
+instance faithfulSMul
+    [Nonempty ι] [∀ i, SMul M (α i)] [∀ i, Nonempty (α i)] [∀ i, FaithfulSMul M (α i)]
+    : FaithfulSMul M (∀ i, α i) :=
   let ⟨i⟩ := ‹Nonempty ι›
   faithfulSMul_at i
 
@@ -100,9 +109,8 @@ instance mulAction (M) {m : Monoid M} [∀ i, MulAction M (α i)] : @MulAction M
   one_smul _ := funext fun _ ↦ one_smul _ _
 
 @[to_additive]
-instance mulAction' {m : ∀ i, Monoid (α i)} [∀ i, MulAction (α i) (β i)] :
-    @MulAction (∀ i, α i) (∀ i, β i)
-      (@Pi.monoid ι α m) where
+instance mulAction' {m : ∀ i, Monoid (α i)} [∀ i, MulAction (α i) (β i)]
+    : @MulAction (∀ i, α i) (∀ i, β i) (@Pi.monoid ι α m) where
   mul_smul _ _ _ := funext fun _ ↦ mul_smul _ _ _
   one_smul _ := funext fun _ ↦ one_smul _ _
 
@@ -110,20 +118,25 @@ end Pi
 
 namespace Function
 
-/-- Non-dependent version of `Pi.smul`. Lean gets confused by the dependent instance if this
-is not present. -/
+/--
+Non-dependent version of `Pi.smul`. Lean gets confused by the dependent instance if this
+is not present.
+-/
 @[to_additive
-/-- Non-dependent version of `Pi.vadd`. Lean gets confused by the dependent instance
+  /-- Non-dependent version of `Pi.vadd`. Lean gets confused by the dependent instance
 if this is not present. -/]
 instance hasSMul {α : Type*} [SMul M α] : SMul M (ι → α) := Pi.instSMul
 
-/-- Non-dependent version of `Pi.smulCommClass`. Lean gets confused by the dependent instance if
-this is not present. -/
+/--
+Non-dependent version of `Pi.smulCommClass`. Lean gets confused by the dependent instance if
+this is not present.
+-/
 @[to_additive
   /-- Non-dependent version of `Pi.vaddCommClass`. Lean gets confused by the dependent
   instance if this is not present. -/]
-instance smulCommClass {α : Type*} [SMul M α] [SMul N α] [SMulCommClass M N α] :
-    SMulCommClass M N (ι → α) := Pi.smulCommClass
+instance smulCommClass {α : Type*} [SMul M α] [SMul N α] [SMulCommClass M N α]
+    : SMulCommClass M N (ι → α) :=
+  Pi.smulCommClass
 
 @[to_additive]
 lemma update_smul [∀ i, SMul M (α i)] [DecidableEq ι] (c : M) (f₁ : ∀ i, α i)

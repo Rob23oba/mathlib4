@@ -23,7 +23,6 @@ types.
 
 public section
 
-
 open CategoryTheory
 
 open CategoryTheory.Functor
@@ -42,8 +41,10 @@ section FilteredColimits
 section Preserves
 
 -- This should be used with explicit universe variables.
-/-- `PreservesFilteredColimitsOfSize.{w', w} F` means that `F` sends all colimit cocones over any
-filtered diagram `J ⥤ C` to colimit cocones, where `J : Type w` with `[Category.{w'} J]`. -/
+/--
+`PreservesFilteredColimitsOfSize.{w', w} F` means that `F` sends all colimit cocones over any
+filtered diagram `J ⥤ C` to colimit cocones, where `J : Type w` with `[Category.{w'} J]`.
+-/
 -- After https://github.com/leanprover/lean4/pull/12286 and
 -- https://github.com/leanprover/lean4/pull/12423, the shape universes in
 -- `PreservesFilteredColimitsOfSize`, `ReflectsFilteredColimitsOfSize`,
@@ -51,26 +52,27 @@ filtered diagram `J ⥤ C` to colimit cocones, where `J : Type w` with `[Categor
 -- universe output parameters. See Note [universe output parameters and typeclass caching].
 @[univ_out_params, pp_with_univ]
 class PreservesFilteredColimitsOfSize (F : C ⥤ D) : Prop where
-  preserves_filtered_colimits :
-    ∀ (J : Type w) [Category.{w'} J] [IsFiltered J], PreservesColimitsOfShape J F
+  preserves_filtered_colimits
+    : ∀ (J : Type w) [Category.{w'} J] [IsFiltered J], PreservesColimitsOfShape J F
 
 /--
 A functor is said to preserve filtered colimits, if it preserves all colimits of shape `J`, where
 `J` is a filtered category which is small relative to the universe in which morphisms of the source
 live.
 -/
-abbrev PreservesFilteredColimits (F : C ⥤ D) : Prop :=
-  PreservesFilteredColimitsOfSize.{v₂, v₂} F
+abbrev PreservesFilteredColimits (F : C ⥤ D) : Prop := PreservesFilteredColimitsOfSize.{v₂, v₂} F
 
 attribute [instance 100] PreservesFilteredColimitsOfSize.preserves_filtered_colimits
 
-instance (priority := 100) PreservesColimits.preservesFilteredColimits (F : C ⥤ D)
-    [PreservesColimitsOfSize.{w, w'} F] : PreservesFilteredColimitsOfSize.{w, w'} F where
+instance (priority := 100) PreservesColimits.preservesFilteredColimits
+    (F : C ⥤ D) [PreservesColimitsOfSize.{w, w'} F]
+    : PreservesFilteredColimitsOfSize.{w, w'} F where
   preserves_filtered_colimits _ := inferInstance
 
-instance comp_preservesFilteredColimits (F : C ⥤ D) (G : D ⥤ E)
-    [PreservesFilteredColimitsOfSize.{w, w'} F] [PreservesFilteredColimitsOfSize.{w, w'} G] :
-      PreservesFilteredColimitsOfSize.{w, w'} (F ⋙ G) where
+instance comp_preservesFilteredColimits
+    (F : C ⥤ D) (G : D ⥤ E)
+    [PreservesFilteredColimitsOfSize.{w, w'} F] [PreservesFilteredColimitsOfSize.{w, w'} G]
+    : PreservesFilteredColimitsOfSize.{w, w'} (F ⋙ G) where
   preserves_filtered_colimits _ := inferInstance
 
 /-- A functor preserving larger filtered colimits also preserves smaller filtered colimits. -/
@@ -103,30 +105,33 @@ end Preserves
 section Reflects
 
 -- This should be used with explicit universe variables.
-/-- `ReflectsFilteredColimitsOfSize.{w', w} F` means that whenever the image of a filtered cocone
-under `F` is a colimit cocone, the original cocone was already a colimit. -/
+/--
+`ReflectsFilteredColimitsOfSize.{w', w} F` means that whenever the image of a filtered cocone
+under `F` is a colimit cocone, the original cocone was already a colimit.
+-/
 @[univ_out_params, pp_with_univ]
 class ReflectsFilteredColimitsOfSize (F : C ⥤ D) : Prop where
-  reflects_filtered_colimits :
-    ∀ (J : Type w) [Category.{w'} J] [IsFiltered J], ReflectsColimitsOfShape J F
+  reflects_filtered_colimits
+    : ∀ (J : Type w) [Category.{w'} J] [IsFiltered J], ReflectsColimitsOfShape J F
 
 /--
 A functor is said to reflect filtered colimits, if it reflects all colimits of shape `J`, where
 `J` is a filtered category which is small relative to the universe in which morphisms of the source
 live.
 -/
-abbrev ReflectsFilteredColimits (F : C ⥤ D) : Prop :=
-  ReflectsFilteredColimitsOfSize.{v₂, v₂} F
+abbrev ReflectsFilteredColimits (F : C ⥤ D) : Prop := ReflectsFilteredColimitsOfSize.{v₂, v₂} F
 
 attribute [instance 100] ReflectsFilteredColimitsOfSize.reflects_filtered_colimits
 
-instance (priority := 100) ReflectsColimits.reflectsFilteredColimits (F : C ⥤ D)
-    [ReflectsColimitsOfSize.{w, w'} F] : ReflectsFilteredColimitsOfSize.{w, w'} F where
+instance (priority := 100) ReflectsColimits.reflectsFilteredColimits
+    (F : C ⥤ D) [ReflectsColimitsOfSize.{w, w'} F]
+    : ReflectsFilteredColimitsOfSize.{w, w'} F where
   reflects_filtered_colimits _ := inferInstance
 
-instance comp_reflectsFilteredColimits (F : C ⥤ D) (G : D ⥤ E)
-    [ReflectsFilteredColimitsOfSize.{w, w'} F] [ReflectsFilteredColimitsOfSize.{w, w'} G] :
-      ReflectsFilteredColimitsOfSize.{w, w'} (F ⋙ G) where
+instance comp_reflectsFilteredColimits
+    (F : C ⥤ D) (G : D ⥤ E)
+    [ReflectsFilteredColimitsOfSize.{w, w'} F] [ReflectsFilteredColimitsOfSize.{w, w'} G]
+    : ReflectsFilteredColimitsOfSize.{w, w'} (F ⋙ G) where
   reflects_filtered_colimits _ := inferInstance
 
 /-- A functor reflecting larger filtered colimits also reflects smaller filtered colimits. -/
@@ -163,30 +168,33 @@ section CofilteredLimits
 section Preserves
 
 -- This should be used with explicit universe variables.
-/-- `PreservesCofilteredLimitsOfSize.{w', w} F` means that `F` sends all limit cones over any
-cofiltered diagram `J ⥤ C` to limit cones, where `J : Type w` with `[Category.{w'} J]`. -/
+/--
+`PreservesCofilteredLimitsOfSize.{w', w} F` means that `F` sends all limit cones over any
+cofiltered diagram `J ⥤ C` to limit cones, where `J : Type w` with `[Category.{w'} J]`.
+-/
 @[univ_out_params, pp_with_univ]
 class PreservesCofilteredLimitsOfSize (F : C ⥤ D) : Prop where
-  preserves_cofiltered_limits :
-    ∀ (J : Type w) [Category.{w'} J] [IsCofiltered J], PreservesLimitsOfShape J F
+  preserves_cofiltered_limits
+    : ∀ (J : Type w) [Category.{w'} J] [IsCofiltered J], PreservesLimitsOfShape J F
 
 /--
 A functor is said to preserve cofiltered limits, if it preserves all limits of shape `J`, where
 `J` is a cofiltered category which is small relative to the universe in which morphisms of the
 source live.
 -/
-abbrev PreservesCofilteredLimits (F : C ⥤ D) : Prop :=
-  PreservesCofilteredLimitsOfSize.{v₂, v₂} F
+abbrev PreservesCofilteredLimits (F : C ⥤ D) : Prop := PreservesCofilteredLimitsOfSize.{v₂, v₂} F
 
 attribute [instance 100] PreservesCofilteredLimitsOfSize.preserves_cofiltered_limits
 
-instance (priority := 100) PreservesLimits.preservesCofilteredLimits (F : C ⥤ D)
-    [PreservesLimitsOfSize.{w, w'} F] : PreservesCofilteredLimitsOfSize.{w, w'} F where
+instance (priority := 100) PreservesLimits.preservesCofilteredLimits
+    (F : C ⥤ D) [PreservesLimitsOfSize.{w, w'} F]
+    : PreservesCofilteredLimitsOfSize.{w, w'} F where
   preserves_cofiltered_limits _ := inferInstance
 
-instance comp_preservesCofilteredLimits (F : C ⥤ D) (G : D ⥤ E)
-    [PreservesCofilteredLimitsOfSize.{w, w'} F] [PreservesCofilteredLimitsOfSize.{w, w'} G] :
-      PreservesCofilteredLimitsOfSize.{w, w'} (F ⋙ G) where
+instance comp_preservesCofilteredLimits
+    (F : C ⥤ D) (G : D ⥤ E)
+    [PreservesCofilteredLimitsOfSize.{w, w'} F] [PreservesCofilteredLimitsOfSize.{w, w'} G]
+    : PreservesCofilteredLimitsOfSize.{w, w'} (F ⋙ G) where
   preserves_cofiltered_limits _ := inferInstance
 
 /-- A functor preserving larger cofiltered limits also preserves smaller cofiltered limits. -/
@@ -219,30 +227,33 @@ end Preserves
 section Reflects
 
 -- This should be used with explicit universe variables.
-/-- `ReflectsCofilteredLimitsOfSize.{w', w} F` means that whenever the image of a cofiltered cone
-under `F` is a limit cone, the original cone was already a limit. -/
+/--
+`ReflectsCofilteredLimitsOfSize.{w', w} F` means that whenever the image of a cofiltered cone
+under `F` is a limit cone, the original cone was already a limit.
+-/
 @[univ_out_params, pp_with_univ]
 class ReflectsCofilteredLimitsOfSize (F : C ⥤ D) : Prop where
-  reflects_cofiltered_limits :
-    ∀ (J : Type w) [Category.{w'} J] [IsCofiltered J], ReflectsLimitsOfShape J F
+  reflects_cofiltered_limits
+    : ∀ (J : Type w) [Category.{w'} J] [IsCofiltered J], ReflectsLimitsOfShape J F
 
 /--
 A functor is said to reflect cofiltered limits, if it reflects all limits of shape `J`, where
 `J` is a cofiltered category which is small relative to the universe in which morphisms of the
 source live.
 -/
-abbrev ReflectsCofilteredLimits (F : C ⥤ D) : Prop :=
-  ReflectsCofilteredLimitsOfSize.{v₂, v₂} F
+abbrev ReflectsCofilteredLimits (F : C ⥤ D) : Prop := ReflectsCofilteredLimitsOfSize.{v₂, v₂} F
 
 attribute [instance 100] ReflectsCofilteredLimitsOfSize.reflects_cofiltered_limits
 
-instance (priority := 100) ReflectsLimits.reflectsCofilteredLimits (F : C ⥤ D)
-    [ReflectsLimitsOfSize.{w, w'} F] : ReflectsCofilteredLimitsOfSize.{w, w'} F where
+instance (priority := 100) ReflectsLimits.reflectsCofilteredLimits
+    (F : C ⥤ D) [ReflectsLimitsOfSize.{w, w'} F]
+    : ReflectsCofilteredLimitsOfSize.{w, w'} F where
   reflects_cofiltered_limits _ := inferInstance
 
-instance comp_reflectsCofilteredLimits (F : C ⥤ D) (G : D ⥤ E)
-    [ReflectsCofilteredLimitsOfSize.{w, w'} F] [ReflectsCofilteredLimitsOfSize.{w, w'} G] :
-      ReflectsCofilteredLimitsOfSize.{w, w'} (F ⋙ G) where
+instance comp_reflectsCofilteredLimits
+    (F : C ⥤ D) (G : D ⥤ E)
+    [ReflectsCofilteredLimitsOfSize.{w, w'} F] [ReflectsCofilteredLimitsOfSize.{w, w'} G]
+    : ReflectsCofilteredLimitsOfSize.{w, w'} (F ⋙ G) where
   reflects_cofiltered_limits _ := inferInstance
 
 /-- A functor reflecting larger cofiltered limits also reflects smaller cofiltered limits. -/

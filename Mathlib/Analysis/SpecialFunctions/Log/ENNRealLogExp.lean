@@ -76,10 +76,11 @@ lemma rpow_eq_exp_mul_log (x : ℝ≥0∞) (y : ℝ) : x ^ y = exp (y * log x) :
 
 section OrderIso
 
-/-- `ENNReal.log` and its inverse `EReal.exp` are an order isomorphism between `ℝ≥0∞` and
-`EReal`. -/
-noncomputable
-def logOrderIso : ℝ≥0∞ ≃o EReal where
+/--
+`ENNReal.log` and its inverse `EReal.exp` are an order isomorphism between `ℝ≥0∞` and
+`EReal`.
+-/
+noncomputable def logOrderIso : ℝ≥0∞ ≃o EReal where
   toFun := log
   invFun := exp
   left_inv x := exp_log x
@@ -88,10 +89,11 @@ def logOrderIso : ℝ≥0∞ ≃o EReal where
 
 @[simp] lemma logOrderIso_apply (x : ℝ≥0∞) : logOrderIso x = log x := rfl
 
-/-- `EReal.exp` and its inverse `ENNReal.log` are an order isomorphism between `EReal` and
-`ℝ≥0∞`. -/
-noncomputable
-def _root_.EReal.expOrderIso := logOrderIso.symm
+/--
+`EReal.exp` and its inverse `ENNReal.log` are an order isomorphism between `EReal` and
+`ℝ≥0∞`.
+-/
+noncomputable def _root_.EReal.expOrderIso := logOrderIso.symm
 
 @[simp] lemma _root_.EReal.expOrderIso_apply (x : EReal) : expOrderIso x = exp x := rfl
 

@@ -80,12 +80,12 @@ instance Polynomial.isRegularRing_of_isRegularRing [IsRegularRing R] : IsRegular
   let q := p.comap C
   let S := (Localization.AtPrime q)[X]
   let pc := Submonoid.map Polynomial.C.toMonoidHom q.primeCompl
-  let : Algebra R[X] S := algebra R (Localization.AtPrime q)
+  let : Algebra (R[X]) S := algebra R (Localization.AtPrime q)
   have : IsLocalization pc S := Polynomial.isLocalization _ _
-  let pS := p.map (algebraMap R[X] S)
+  let pS := p.map (algebraMap (R[X]) S)
   have disj : Disjoint (pc : Set R[X]) (p : Set R[X]) := by
-    simpa [pc, q] using! Set.disjoint_image_left.mpr
-      (Set.disjoint_compl_left_iff_subset.mpr (fun _ a ↦ a))
+    simpa [pc, q] using!
+      Set.disjoint_image_left.mpr (Set.disjoint_compl_left_iff_subset.mpr (fun _ a ↦ a))
   have : pS.IsPrime := IsLocalization.isPrime_of_isPrime_disjoint pc _ _ ‹_› disj
   have : IsLocalization.AtPrime (Localization.AtPrime pS) p := by
     convert IsLocalization.isLocalization_isLocalization_atPrime_isLocalization pc
@@ -93,22 +93,28 @@ instance Polynomial.isRegularRing_of_isRegularRing [IsRegularRing R] : IsRegular
     exact (IsLocalization.under_map_of_isPrime_disjoint pc _ ‹_› disj).symm
   have := isRegularRing_iff.mp ‹_› q
   have eq : comap C pS = maximalIdeal (Localization.AtPrime q) := by
-    rw [← IsLocalization.map_under q.primeCompl _ (comap C pS),
-      ← IsLocalization.map_under q.primeCompl _ (maximalIdeal (Localization.AtPrime q))]
+    rw [
+      ← IsLocalization.map_under q.primeCompl _ (comap C pS),
+      ← IsLocalization.map_under q.primeCompl _ (maximalIdeal (Localization.AtPrime q))
+    ]
     simp only [comap_comap, S, pS]
-    rw [← Polynomial.algebraMap_eq (R := Localization.AtPrime q),
+    rw [
+      ← Polynomial.algebraMap_eq (R := Localization.AtPrime q),
       ← IsScalarTower.algebraMap_eq R (Localization.AtPrime q) (Localization.AtPrime q)[X],
-      IsScalarTower.algebraMap_eq R R[X] (Localization.AtPrime q)[X], ← comap_comap,
-      ← Ideal.under_def R[X], IsLocalization.under_map_of_isPrime_disjoint pc _ ‹_› disj]
+      IsScalarTower.algebraMap_eq R (R[X]) (Localization.AtPrime q)[X], ← comap_comap,
+      ← Ideal.under_def R[X], IsLocalization.under_map_of_isPrime_disjoint pc _ ‹_› disj
+    ]
     simp [q, IsLocalization.AtPrime.under_maximalIdeal (Localization.AtPrime q) q]
   have := isRegularLocalRing_localization_atPrime_of_comap_eq_maximalIdeal _ pS eq
   exact IsRegularLocalRing.of_ringEquiv (IsLocalization.algEquiv p.primeCompl
     (Localization.AtPrime pS) (Localization.AtPrime p)).toRingEquiv
 
-instance MvPolynomial.isRegularRing_of_isRegularRing [IsRegularRing R] {ι : Type*} [Finite ι] :
-    IsRegularRing (MvPolynomial ι R) := by
+instance MvPolynomial.isRegularRing_of_isRegularRing [IsRegularRing R] {ι : Type*} [Finite ι]
+    : IsRegularRing (MvPolynomial ι R) := by
   induction ι using Finite.induction_empty_option with
-  | of_equiv e H => exact IsRegularRing.of_ringEquiv (renameEquiv _ e).toRingEquiv
-  | h_empty => exact IsRegularRing.of_ringEquiv (isEmptyRingEquiv R _).symm
+  | of_equiv e H =>
+    exact IsRegularRing.of_ringEquiv (renameEquiv _ e).toRingEquiv
+  | h_empty =>
+    exact IsRegularRing.of_ringEquiv (isEmptyRingEquiv R _).symm
   | h_option IH =>
     exact IsRegularRing.of_ringEquiv (MvPolynomial.optionEquivLeft _ _).toRingEquiv.symm

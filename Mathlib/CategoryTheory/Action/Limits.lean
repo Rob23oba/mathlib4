@@ -47,8 +47,8 @@ instance [HasLimits V] : HasLimits (Action V G) :=
   Adjunction.has_limits_of_equivalence (Action.functorCategoryEquivalence _ _).functor
 
 /-- If `V` has limits of shape `J`, so does `Action V G`. -/
-instance hasLimitsOfShape {J : Type*} [Category* J] [HasLimitsOfShape J V] :
-    HasLimitsOfShape J (Action V G) :=
+instance hasLimitsOfShape {J : Type*} [Category* J] [HasLimitsOfShape J V]
+    : HasLimitsOfShape J (Action V G) :=
   Adjunction.hasLimitsOfShape_of_equivalence (Action.functorCategoryEquivalence _ _).functor
 
 instance [HasFiniteCoproducts V] : HasFiniteCoproducts (Action V G) where
@@ -63,8 +63,8 @@ instance [HasColimits V] : HasColimits (Action V G) :=
   Adjunction.has_colimits_of_equivalence (Action.functorCategoryEquivalence _ _).functor
 
 /-- If `V` has colimits of shape `J`, so does `Action V G`. -/
-instance hasColimitsOfShape {J : Type*} [Category* J]
-    [HasColimitsOfShape J V] : HasColimitsOfShape J (Action V G) :=
+instance hasColimitsOfShape {J : Type*} [Category* J] [HasColimitsOfShape J V]
+    : HasColimitsOfShape J (Action V G) :=
   Adjunction.hasColimitsOfShape_of_equivalence (Action.functorCategoryEquivalence _ _).functor
 
 end Limits
@@ -155,38 +155,42 @@ end Preservation
 
 section Forget
 
-/-- `Action.forget V G : Action V G ⥤ V` preserves the limit of some `K : J ⥤ Action V G` if
-`K ⋙ Action.forget V G` has a limit. -/
-noncomputable instance {J : Type*} [Category* J] (K : J ⥤ Action V G) [HasLimit (K ⋙ forget V G)] :
-    PreservesLimit K (Action.forget V G) := by
-  change PreservesLimit K ((Action.functorCategoryEquivalence V G).functor ⋙
-    (evaluation (SingleObj G) V).obj (SingleObj.star G))
-  have (k : SingleObj G) :
-      HasLimit ((K ⋙ (functorCategoryEquivalence V G).functor).flip.obj k) :=
+/--
+`Action.forget V G : Action V G ⥤ V` preserves the limit of some `K : J ⥤ Action V G` if
+`K ⋙ Action.forget V G` has a limit.
+-/
+noncomputable instance {J : Type*} [Category* J] (K : J ⥤ Action V G) [HasLimit (K ⋙ forget V G)]
+    : PreservesLimit K (Action.forget V G) := by
+  change PreservesLimit K
+    ((Action.functorCategoryEquivalence V G).functor
+      ⋙ (evaluation (SingleObj G) V).obj (SingleObj.star G))
+  have (k : SingleObj G) : HasLimit ((K ⋙ (functorCategoryEquivalence V G).functor).flip.obj k) :=
     inferInstanceAs (HasLimit (K ⋙ forget V G))
   infer_instance
 
-noncomputable instance {J : Type*} [Category* J] [HasLimitsOfShape J V] :
-    PreservesLimitsOfShape J (Action.forget V G) where
+noncomputable instance {J : Type*} [Category* J] [HasLimitsOfShape J V]
+  : PreservesLimitsOfShape J (Action.forget V G) where
 
-/-- `Action.forget V G : Action V G ⥤ V` preserves the colimit of some `K : J ⥤ Action V G` if
-`K ⋙ Action.forget V G` has a colimit. -/
-noncomputable instance {J : Type*} [Category* J]
-    (K : J ⥤ Action V G) [HasColimit (K ⋙ forget V G)] :
-    PreservesColimit K (Action.forget V G) := by
-  change PreservesColimit K ((Action.functorCategoryEquivalence V G).functor ⋙
-    (evaluation (SingleObj G) V).obj (SingleObj.star G))
-  have (k : SingleObj G) :
-      HasColimit ((K ⋙ (functorCategoryEquivalence V G).functor).flip.obj k) :=
+/--
+`Action.forget V G : Action V G ⥤ V` preserves the colimit of some `K : J ⥤ Action V G` if
+`K ⋙ Action.forget V G` has a colimit.
+-/
+noncomputable instance {J : Type*} [Category* J] (K : J ⥤ Action V G) [HasColimit (K ⋙ forget V G)]
+    : PreservesColimit K (Action.forget V G) := by
+  change PreservesColimit K
+    ((Action.functorCategoryEquivalence V G).functor
+      ⋙ (evaluation (SingleObj G) V).obj (SingleObj.star G))
+  have (k : SingleObj G) : HasColimit ((K ⋙ (functorCategoryEquivalence V G).functor).flip.obj k) :=
     inferInstanceAs (HasColimit (K ⋙ forget V G))
   infer_instance
 
-noncomputable instance {J : Type*} [Category* J] [HasColimitsOfShape J V] :
-    PreservesColimitsOfShape J (Action.forget V G) where
+noncomputable instance {J : Type*} [Category* J] [HasColimitsOfShape J V]
+  : PreservesColimitsOfShape J (Action.forget V G) where
 
 noncomputable instance [HasFiniteLimits V] : PreservesFiniteLimits (Action.forget V G) := by
-  change PreservesFiniteLimits ((Action.functorCategoryEquivalence V G).functor ⋙
-    (evaluation (SingleObj G) V).obj (SingleObj.star G))
+  change PreservesFiniteLimits
+    ((Action.functorCategoryEquivalence V G).functor
+      ⋙ (evaluation (SingleObj G) V).obj (SingleObj.star G))
   have : PreservesFiniteLimits ((evaluation (SingleObj G) V).obj (SingleObj.star G)) := by
     constructor
     intro _ _ _
@@ -194,33 +198,32 @@ noncomputable instance [HasFiniteLimits V] : PreservesFiniteLimits (Action.forge
   apply comp_preservesFiniteLimits
 
 noncomputable instance [HasFiniteColimits V] : PreservesFiniteColimits (Action.forget V G) := by
-  change PreservesFiniteColimits ((Action.functorCategoryEquivalence V G).functor ⋙
-    (evaluation (SingleObj G) V).obj (SingleObj.star G))
+  change PreservesFiniteColimits
+    ((Action.functorCategoryEquivalence V G).functor
+      ⋙ (evaluation (SingleObj G) V).obj (SingleObj.star G))
   have : PreservesFiniteColimits ((evaluation (SingleObj G) V).obj (SingleObj.star G)) := by
     constructor
     intro _ _ _
     infer_instance
   apply comp_preservesFiniteColimits
 
-instance {J : Type*} [Category* J] (F : J ⥤ Action V G) :
-    ReflectsLimit F (Action.forget V G) where
+instance {J : Type*} [Category* J] (F : J ⥤ Action V G) : ReflectsLimit F (Action.forget V G) where
   reflects h := ⟨by
     apply isLimitOfReflects ((Action.functorCategoryEquivalence V G).functor)
     exact evaluationJointlyReflectsLimits _ (fun _ => h)⟩
 
-instance {J : Type*} [Category* J] :
-    ReflectsLimitsOfShape J (Action.forget V G) where
+instance {J : Type*} [Category* J] : ReflectsLimitsOfShape J (Action.forget V G) where
 
 instance : ReflectsLimits (Action.forget V G) where
 
-instance {J : Type*} [Category* J] (F : J ⥤ Action V G) :
-    ReflectsColimit F (Action.forget V G) where
+instance {J : Type*} [Category* J] (F : J ⥤ Action V G)
+    : ReflectsColimit F (Action.forget V G) where
   reflects h := ⟨by
     apply isColimitOfReflects ((Action.functorCategoryEquivalence V G).functor)
     exact evaluationJointlyReflectsColimits _ (fun _ => h)⟩
 
-noncomputable instance {J : Type*} [Category* J] :
-    ReflectsColimitsOfShape J (Action.forget V G) where
+noncomputable instance {J : Type*} [Category* J]
+  : ReflectsColimitsOfShape J (Action.forget V G) where
 
 noncomputable instance : ReflectsColimits (Action.forget V G) where
 
@@ -230,50 +233,71 @@ namespace Functor
 
 variable {W : Type*} [Category* W] (F : V ⥤ W) (G : Type*) [Monoid G] {J : Type*} [Category* J]
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves the limit of some `K : J ⥤ Action V G` if
-`K ⋙ forget V G` has a limit and `F` preserves the limit of `K ⋙ forget V G`. -/
-instance mapActionPreservesLimit_of_preserves (K : J ⥤ Action V G) [HasLimit (K ⋙ forget V G)]
-    [PreservesLimit (K ⋙ Action.forget V G) F] : PreservesLimit K (F.mapAction G) :=
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves the limit of some `K : J ⥤ Action V G` if
+`K ⋙ forget V G` has a limit and `F` preserves the limit of `K ⋙ forget V G`.
+-/
+instance mapActionPreservesLimit_of_preserves
+    (K : J ⥤ Action V G) [HasLimit (K ⋙ forget V G)] [PreservesLimit (K ⋙ Action.forget V G) F]
+    : PreservesLimit K (F.mapAction G) :=
   Action.preservesLimit_of_preserves (F.mapAction G) K <|
     inferInstanceAs (PreservesLimit K (forget V G ⋙ F))
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves limits of some shape `J` if
-`V` has limits of shape `J` and `F` preserves limits of shape `J`. -/
-instance mapActionPreservesLimitsOfShapeOfPreserves [PreservesLimitsOfShape J F]
-    [HasLimitsOfShape J V] : PreservesLimitsOfShape J (F.mapAction G) where
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves limits of some shape `J` if
+`V` has limits of shape `J` and `F` preserves limits of shape `J`.
+-/
+instance mapActionPreservesLimitsOfShapeOfPreserves
+  [PreservesLimitsOfShape J F] [HasLimitsOfShape J V]
+  : PreservesLimitsOfShape J (F.mapAction G) where
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves limits of some size if
-`V` has limits of that size and `F` preserves limits of that size. -/
-instance preservesLimitsOfSize_of_preserves [PreservesLimitsOfSize.{w₂, w₁} F]
-    [HasLimitsOfSize.{w₂, w₁} V] : PreservesLimitsOfSize.{w₂, w₁} (F.mapAction G) where
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves limits of some size if
+`V` has limits of that size and `F` preserves limits of that size.
+-/
+instance preservesLimitsOfSize_of_preserves
+  [PreservesLimitsOfSize.{w₂, w₁} F] [HasLimitsOfSize.{w₂, w₁} V]
+  : PreservesLimitsOfSize.{w₂, w₁} (F.mapAction G) where
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves finite limits if
-`V` has finite limits and `F` preserves finite limits. -/
-instance [PreservesFiniteLimits F] [HasFiniteLimits V] :
-    PreservesFiniteLimits (F.mapAction G) where
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves finite limits if
+`V` has finite limits and `F` preserves finite limits.
+-/
+instance [PreservesFiniteLimits F] [HasFiniteLimits V] : PreservesFiniteLimits (F.mapAction G) where
   preservesFiniteLimits _ _ _ := inferInstance
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves the colimit of some `K : J ⥤ Action V G` if
-`K ⋙ forget V G` has a colimit and `F` preserves the colimit of `K ⋙ forget V G`. -/
-instance mapActionPreservesColimit_of_preserves (K : J ⥤ Action V G) [HasColimit (K ⋙ forget V G)]
-    [PreservesColimit (K ⋙ Action.forget V G) F] : PreservesColimit K (F.mapAction G) :=
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves the colimit of some `K : J ⥤ Action V G` if
+`K ⋙ forget V G` has a colimit and `F` preserves the colimit of `K ⋙ forget V G`.
+-/
+instance mapActionPreservesColimit_of_preserves
+    (K : J ⥤ Action V G) [HasColimit (K ⋙ forget V G)] [PreservesColimit (K ⋙ Action.forget V G) F]
+    : PreservesColimit K (F.mapAction G) :=
   Action.preservesColimit_of_preserves (F.mapAction G) K <|
     inferInstanceAs (PreservesColimit K (forget V G ⋙ F))
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves colimits of some shape `J` if
-`V` has colimits of shape `J` and `F` preserves colimits of shape `J`. -/
-instance mapActionPreservesColimitsOfShapeOfPreserves [PreservesColimitsOfShape J F]
-    [HasColimitsOfShape J V] : PreservesColimitsOfShape J (F.mapAction G) where
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves colimits of some shape `J` if
+`V` has colimits of shape `J` and `F` preserves colimits of shape `J`.
+-/
+instance mapActionPreservesColimitsOfShapeOfPreserves
+  [PreservesColimitsOfShape J F] [HasColimitsOfShape J V]
+  : PreservesColimitsOfShape J (F.mapAction G) where
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves colimits of some size if
-`V` has colimits of that size and `F` preserves colimits of that size. -/
-instance preservesColimitsOfSize_of_preserves [PreservesColimitsOfSize.{w₂, w₁} F]
-    [HasColimitsOfSize.{w₂, w₁} V] : PreservesColimitsOfSize.{w₂, w₁} (F.mapAction G) where
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves colimits of some size if
+`V` has colimits of that size and `F` preserves colimits of that size.
+-/
+instance preservesColimitsOfSize_of_preserves
+  [PreservesColimitsOfSize.{w₂, w₁} F] [HasColimitsOfSize.{w₂, w₁} V]
+  : PreservesColimitsOfSize.{w₂, w₁} (F.mapAction G) where
 
-/-- `F.mapAction : Action V G ⥤ Action W G` preserves finite colimits if
-`V` has finite colimits and `F` preserves finite colimits. -/
-instance [PreservesFiniteColimits F] [HasFiniteColimits V] :
-    PreservesFiniteColimits (F.mapAction G) where
+/--
+`F.mapAction : Action V G ⥤ Action W G` preserves finite colimits if
+`V` has finite colimits and `F` preserves finite colimits.
+-/
+instance [PreservesFiniteColimits F] [HasFiniteColimits V]
+    : PreservesFiniteColimits (F.mapAction G) where
   preservesFiniteColimits _ _ _ := inferInstance
 
 end Functor
@@ -284,20 +308,19 @@ variable [HasZeroMorphisms V]
 
 instance {X Y : Action V G} : Zero (X ⟶ Y) := ⟨0, by simp⟩
 
-@[simp]
-theorem zero_hom {X Y : Action V G} : (0 : X ⟶ Y).hom = 0 :=
-  rfl
+@[simp] theorem zero_hom {X Y : Action V G} : (0 : X ⟶ Y).hom = 0 := rfl
 
 instance : HasZeroMorphisms (Action V G) where
 
 instance forget_preservesZeroMorphisms : Functor.PreservesZeroMorphisms (forget V G) where
 
-instance forget₂_preservesZeroMorphisms {FV : V → V → Type*} {CV : V → Type*}
-    [∀ X Y, FunLike (FV X Y) (CV X) (CV Y)] [ConcreteCategory V FV] :
-    Functor.PreservesZeroMorphisms (forget₂ (Action V G) V) where
+instance forget₂_preservesZeroMorphisms
+  {FV : V → V → Type*} {CV : V → Type*}
+  [∀ X Y, FunLike (FV X Y) (CV X) (CV Y)] [ConcreteCategory V FV]
+  : Functor.PreservesZeroMorphisms (forget₂ (Action V G) V) where
 
-instance functorCategoryEquivalence_preservesZeroMorphisms :
-    Functor.PreservesZeroMorphisms (functorCategoryEquivalence V G).functor where
+instance functorCategoryEquivalence_preservesZeroMorphisms
+  : Functor.PreservesZeroMorphisms (functorCategoryEquivalence V G).functor where
 
 end HasZeroMorphisms
 
@@ -329,22 +352,24 @@ instance : SMul ℤ (X ⟶ Y) where
 instance : Preadditive (Action V G) where
   homGroup X Y :=
     hom_injective.addCommGroup (M₂ := X.V ⟶ Y.V) _ zero_hom add_hom neg_hom sub_hom
-      (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
+      (fun _ _ ↦ rfl)
+      (fun _ _ ↦ rfl)
   add_comp := by intros; ext; exact Preadditive.add_comp _ _ _ _ _ _
   comp_add := by intros; ext; exact Preadditive.comp_add _ _ _ _ _ _
 
 instance forget_additive : Functor.Additive (forget V G) where
 
-instance forget₂_additive {FV : V → V → Type*} {CV : V → Type*}
-    [∀ X Y, FunLike (FV X Y) (CV X) (CV Y)] [ConcreteCategory V FV] :
-    Functor.Additive (forget₂ (Action V G) V) where
+instance forget₂_additive
+  {FV : V → V → Type*} {CV : V → Type*}
+  [∀ X Y, FunLike (FV X Y) (CV X) (CV Y)] [ConcreteCategory V FV]
+  : Functor.Additive (forget₂ (Action V G) V) where
 
-instance functorCategoryEquivalence_additive :
-    Functor.Additive (functorCategoryEquivalence V G).functor where
+instance functorCategoryEquivalence_additive
+  : Functor.Additive (functorCategoryEquivalence V G).functor where
 
 @[simp]
-theorem sum_hom {ι : Type*} (f : ι → (X ⟶ Y)) (s : Finset ι) :
-    (s.sum f).hom = s.sum fun i => (f i).hom :=
+theorem sum_hom {ι : Type*} (f : ι → (X ⟶ Y)) (s : Finset ι)
+    : (s.sum f).hom = s.sum fun i => (f i).hom :=
   (forget V G).map_sum f s
 
 end Preadditive
@@ -354,29 +379,29 @@ section Linear
 variable [Preadditive V] {R : Type*} [Semiring R] [Linear R V]
 
 instance : Linear R (Action V G) where
-  homModule X Y :=
-    { smul := fun r f => ⟨r • f.hom, by simp [f.comm]⟩
-      one_smul := by intros; ext; exact one_smul _ _
-      smul_zero := by intros; ext; exact smul_zero _
-      zero_smul := by intros; ext; exact zero_smul _ _
-      add_smul := by intros; ext; exact add_smul _ _ _
-      smul_add := by intros; ext; exact smul_add _ _ _
-      mul_smul := by intros; ext; exact mul_smul _ _ _ }
+  homModule X Y := {
+    smul := fun r f => ⟨r • f.hom, by simp [f.comm]⟩
+    one_smul := by intros; ext; exact one_smul _ _
+    smul_zero := by intros; ext; exact smul_zero _
+    zero_smul := by intros; ext; exact zero_smul _ _
+    add_smul := by intros; ext; exact add_smul _ _ _
+    smul_add := by intros; ext; exact smul_add _ _ _
+    mul_smul := by intros; ext; exact mul_smul _ _ _
+  }
   smul_comp := by intros; ext; exact Linear.smul_comp _ _ _ _ _ _
   comp_smul := by intros; ext; exact Linear.comp_smul _ _ _ _ _ _
 
 instance forget_linear : Functor.Linear R (forget V G) where
 
-instance forget₂_linear {FV : V → V → Type*} {CV : V → Type*}
-    [∀ X Y, FunLike (FV X Y) (CV X) (CV Y)] [ConcreteCategory V FV] :
-    Functor.Linear R (forget₂ (Action V G) V) where
+instance forget₂_linear
+  {FV : V → V → Type*} {CV : V → Type*}
+  [∀ X Y, FunLike (FV X Y) (CV X) (CV Y)] [ConcreteCategory V FV]
+  : Functor.Linear R (forget₂ (Action V G) V) where
 
-instance functorCategoryEquivalence_linear :
-    Functor.Linear R (functorCategoryEquivalence V G).functor where
+instance functorCategoryEquivalence_linear
+  : Functor.Linear R (functorCategoryEquivalence V G).functor where
 
-@[simp]
-theorem smul_hom {X Y : Action V G} (r : R) (f : X ⟶ Y) : (r • f).hom = r • f.hom :=
-  rfl
+@[simp] theorem smul_hom {X Y : Action V G} (r : R) (f : X ⟶ Y) : (r • f).hom = r • f.hom := rfl
 
 variable {H : Type*} [Monoid H] (f : G →* H)
 
@@ -389,11 +414,9 @@ end Linear
 section Abelian
 
 /-- Auxiliary construction for the `Abelian (Action V G)` instance. -/
-def abelianAux : Action V G ≌ (SingleObj G) ⥤ V :=
-  functorCategoryEquivalence V G
+def abelianAux : Action V G ≌ (SingleObj G) ⥤ V := functorCategoryEquivalence V G
 
-noncomputable instance [Abelian V] : Abelian (Action V G) :=
-  abelianOfEquivalence abelianAux.functor
+noncomputable instance [Abelian V] : Abelian (Action V G) := abelianOfEquivalence abelianAux.functor
 
 end Abelian
 
@@ -401,8 +424,8 @@ end Action
 
 namespace CategoryTheory.Functor
 
-variable {W : Type*} [Category* W] (F : V ⥤ W) (G : Type*) [Monoid G] [Preadditive V]
-  [Preadditive W]
+variable
+  {W : Type*} [Category* W] (F : V ⥤ W) (G : Type*) [Monoid G] [Preadditive V] [Preadditive W]
 
 instance mapAction_preadditive [F.Additive] : (F.mapAction G).Additive where
 

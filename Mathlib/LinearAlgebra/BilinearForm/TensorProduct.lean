@@ -47,30 +47,30 @@ variable [Module R M₂] [Module R N₂]
 namespace BilinMap
 
 variable (R A) in
-/-- The tensor product of two bilinear maps injects into bilinear maps on tensor products.
+/--
+The tensor product of two bilinear maps injects into bilinear maps on tensor products.
 
 Note this is heterobasic; the bilinear map on the left can take values in a module over a
-(commutative) algebra over the ring of the module in which the right bilinear map is valued. -/
-def tensorDistrib :
-    (BilinMap A M₁ N₁ ⊗[R] BilinMap R M₂ N₂) →ₗ[A] BilinMap A (M₁ ⊗[R] M₂) (N₁ ⊗[R] N₂) :=
-  (TensorProduct.lift.equiv (.id A) (M₁ ⊗[R] M₂) (M₁ ⊗[R] M₂) (N₁ ⊗[R] N₂)).symm.toLinearMap ∘ₗ
-  ((LinearMap.llcomp A _ _ _).flip
-    (TensorProduct.AlgebraTensorModule.tensorTensorTensorComm R R A A M₁ M₂ M₁ M₂).toLinearMap)
-  ∘ₗ TensorProduct.AlgebraTensorModule.homTensorHomMap R _ _ _ _ _ _
-  ∘ₗ (TensorProduct.AlgebraTensorModule.congr
-    (TensorProduct.lift.equiv (.id A) M₁ M₁ N₁)
-    (TensorProduct.lift.equiv (.id R) _ _ _)).toLinearMap
+(commutative) algebra over the ring of the module in which the right bilinear map is valued.
+-/
+def tensorDistrib
+    : (BilinMap A M₁ N₁ ⊗[R] BilinMap R M₂ N₂) →ₗ[A] BilinMap A (M₁ ⊗[R] M₂) (N₁ ⊗[R] N₂) :=
+  (TensorProduct.lift.equiv (.id A) (M₁ ⊗[R] M₂) (M₁ ⊗[R] M₂) (N₁ ⊗[R] N₂)).symm.toLinearMap
+    ∘ₗ ((LinearMap.llcomp A _ _ _).flip
+      (TensorProduct.AlgebraTensorModule.tensorTensorTensorComm R R A A M₁ M₂ M₁ M₂).toLinearMap)
+    ∘ₗ TensorProduct.AlgebraTensorModule.homTensorHomMap R _ _ _ _ _ _
+    ∘ₗ (TensorProduct.AlgebraTensorModule.congr (TensorProduct.lift.equiv (.id A) M₁ M₁ N₁)
+      (TensorProduct.lift.equiv (.id R) _ _ _)).toLinearMap
 
 @[simp]
-theorem tensorDistrib_tmul (B₁ : BilinMap A M₁ N₁) (B₂ : BilinMap R M₂ N₂) (m₁ : M₁) (m₂ : M₂)
-    (m₁' : M₁) (m₂' : M₂) :
-    tensorDistrib R A (B₁ ⊗ₜ B₂) (m₁ ⊗ₜ m₂) (m₁' ⊗ₜ m₂')
-      = B₁ m₁ m₁' ⊗ₜ B₂ m₂ m₂' :=
+theorem tensorDistrib_tmul
+    (B₁ : BilinMap A M₁ N₁) (B₂ : BilinMap R M₂ N₂) (m₁ : M₁) (m₂ : M₂) (m₁' : M₁) (m₂' : M₂)
+    : tensorDistrib R A (B₁ ⊗ₜ B₂) (m₁ ⊗ₜ m₂) (m₁' ⊗ₜ m₂') = B₁ m₁ m₁' ⊗ₜ B₂ m₂ m₂' :=
   rfl
 
 /-- The tensor product of two bilinear forms, a shorthand for dot notation. -/
-protected abbrev tmul (B₁ : BilinMap A M₁ N₁) (B₂ : BilinMap R M₂ N₂) :
-    BilinMap A (M₁ ⊗[R] M₂) (N₁ ⊗[R] N₂) :=
+protected abbrev tmul (B₁ : BilinMap A M₁ N₁) (B₂ : BilinMap R M₂ N₂)
+    : BilinMap A (M₁ ⊗[R] M₂) (N₁ ⊗[R] N₂) :=
   tensorDistrib R A (B₁ ⊗ₜ[R] B₂)
 
 attribute [local ext] TensorProduct.ext in
@@ -89,9 +89,8 @@ protected def baseChange (B : BilinMap R M₂ N₂) : BilinMap A (A ⊗[R] M₂)
   BilinMap.tmul (R := R) (A := A) (M₁ := A) (M₂ := M₂) (LinearMap.mul A A) B
 
 @[simp]
-theorem baseChange_tmul (B₂ : BilinMap R M₂ N₂) (a : A) (m₂ : M₂)
-    (a' : A) (m₂' : M₂) :
-    B₂.baseChange A (a ⊗ₜ m₂) (a' ⊗ₜ m₂') = (a * a') ⊗ₜ (B₂ m₂ m₂') :=
+theorem baseChange_tmul (B₂ : BilinMap R M₂ N₂) (a : A) (m₂ : M₂) (a' : A) (m₂' : M₂)
+    : B₂.baseChange A (a ⊗ₜ m₂) (a' ⊗ₜ m₂') = (a * a') ⊗ₜ (B₂ m₂ m₂') :=
   rfl
 
 lemma baseChange_isSymm {B₂ : BilinMap R M₂ N₂} (hB₂ : ∀ x y, B₂ x y = B₂ y x) (x y : A ⊗[R] M₂) :
@@ -103,10 +102,12 @@ end BilinMap
 namespace BilinForm
 
 variable (R A) in
-/-- The tensor product of two bilinear forms injects into bilinear forms on tensor products.
+/--
+The tensor product of two bilinear forms injects into bilinear forms on tensor products.
 
 Note this is heterobasic; the bilinear form on the left can take values in an (commutative) algebra
-over the ring in which the right bilinear form is valued. -/
+over the ring in which the right bilinear form is valued.
+-/
 def tensorDistrib : BilinForm A M₁ ⊗[R] BilinForm R M₂ →ₗ[A] BilinForm A (M₁ ⊗[R] M₂) :=
   (AlgebraTensorModule.rid R A A).congrRight₂.toLinearMap ∘ₗ (BilinMap.tensorDistrib R A)
 
@@ -114,10 +115,9 @@ variable (R A) in
 -- TODO: make the RHS `MulOpposite.op (B₂ m₂ m₂') • B₁ m₁ m₁'` so that this has a nicer defeq for
 -- `R = A` of `B₁ m₁ m₁' * B₂ m₂ m₂'`, as it did before the generalization in https://github.com/leanprover-community/mathlib4/pull/6306.
 @[simp]
-theorem tensorDistrib_tmul (B₁ : BilinForm A M₁) (B₂ : BilinForm R M₂) (m₁ : M₁) (m₂ : M₂)
-    (m₁' : M₁) (m₂' : M₂) :
-    tensorDistrib R A (B₁ ⊗ₜ B₂) (m₁ ⊗ₜ m₂) (m₁' ⊗ₜ m₂')
-      = B₂ m₂ m₂' • B₁ m₁ m₁' :=
+theorem tensorDistrib_tmul
+    (B₁ : BilinForm A M₁) (B₂ : BilinForm R M₂) (m₁ : M₁) (m₂ : M₂) (m₁' : M₁) (m₂' : M₂)
+    : tensorDistrib R A (B₁ ⊗ₜ B₂) (m₁ ⊗ₜ m₂) (m₁' ⊗ₜ m₂') = B₂ m₂ m₂' • B₁ m₁ m₁' :=
   rfl
 
 /-- The tensor product of two bilinear forms, a shorthand for dot notation. -/
@@ -138,9 +138,8 @@ protected def baseChange (B : BilinForm R M₂) : BilinForm A (A ⊗[R] M₂) :=
   BilinForm.tmul (R := R) (A := A) (M₁ := A) (M₂ := M₂) (LinearMap.mul A A) B
 
 @[simp]
-theorem baseChange_tmul (B₂ : BilinForm R M₂) (a : A) (m₂ : M₂)
-    (a' : A) (m₂' : M₂) :
-    B₂.baseChange A (a ⊗ₜ m₂) (a' ⊗ₜ m₂') = (B₂ m₂ m₂') • (a * a') :=
+theorem baseChange_tmul (B₂ : BilinForm R M₂) (a : A) (m₂ : M₂) (a' : A) (m₂' : M₂)
+    : B₂.baseChange A (a ⊗ₜ m₂) (a' ⊗ₜ m₂') = (B₂ m₂ m₂') • (a * a') :=
   rfl
 
 @[simp] lemma baseChange_zero : (0 : BilinForm R M₂).baseChange A = 0 := by ext; simp
@@ -172,31 +171,32 @@ namespace BilinForm
 
 variable (R) in
 /-- `tensorDistrib` as an equivalence. -/
-noncomputable def tensorDistribEquiv :
-    BilinForm R M₁ ⊗[R] BilinForm R M₂ ≃ₗ[R] BilinForm R (M₁ ⊗[R] M₂) :=
+noncomputable def tensorDistribEquiv
+    : BilinForm R M₁ ⊗[R] BilinForm R M₂ ≃ₗ[R] BilinForm R (M₁ ⊗[R] M₂) :=
   -- the same `LinearEquiv`s as from `tensorDistrib`,
   -- but with the inner linear map also as an equiv
-  TensorProduct.congr
-    (TensorProduct.lift.equiv (.id R) _ _ _) (TensorProduct.lift.equiv (.id R) _ _ _) ≪≫ₗ
-  TensorProduct.dualDistribEquiv R (M₁ ⊗ M₁) (M₂ ⊗ M₂) ≪≫ₗ
-  (TensorProduct.tensorTensorTensorComm R _ _ _ _).dualMap ≪≫ₗ
-  (TensorProduct.lift.equiv (.id R) _ _ _).symm
+  TensorProduct.congr (TensorProduct.lift.equiv (.id R) _ _ _)
+      (TensorProduct.lift.equiv (.id R) _ _ _)
+    ≪≫ₗ TensorProduct.dualDistribEquiv R (M₁ ⊗ M₁) (M₂ ⊗ M₂)
+    ≪≫ₗ (TensorProduct.tensorTensorTensorComm R _ _ _ _).dualMap
+    ≪≫ₗ (TensorProduct.lift.equiv (.id R) _ _ _).symm
 
 @[simp]
-theorem tensorDistribEquiv_tmul (B₁ : BilinForm R M₁) (B₂ : BilinForm R M₂) (m₁ : M₁) (m₂ : M₂)
-    (m₁' : M₁) (m₂' : M₂) :
-    tensorDistribEquiv R (M₁ := M₁) (M₂ := M₂) (B₁ ⊗ₜ[R] B₂) (m₁ ⊗ₜ m₂) (m₁' ⊗ₜ m₂')
+theorem tensorDistribEquiv_tmul
+    (B₁ : BilinForm R M₁) (B₂ : BilinForm R M₂) (m₁ : M₁) (m₂ : M₂) (m₁' : M₁) (m₂' : M₂)
+    : tensorDistribEquiv R (M₁ := M₁) (M₂ := M₂) (B₁ ⊗ₜ[R] B₂) (m₁ ⊗ₜ m₂) (m₁' ⊗ₜ m₂')
       = B₂ m₂ m₂' * B₁ m₁ m₁' :=
   rfl
 
 variable (R M₁ M₂) in
 @[simp]
-theorem tensorDistribEquiv_toLinearMap :
-    (tensorDistribEquiv R (M₁ := M₁) (M₂ := M₂)).toLinearMap = tensorDistrib R R := rfl
+theorem tensorDistribEquiv_toLinearMap
+    : (tensorDistribEquiv R (M₁ := M₁) (M₂ := M₂)).toLinearMap = tensorDistrib R R :=
+  rfl
 
 @[simp]
-theorem tensorDistribEquiv_apply (B : BilinForm R M₁ ⊗ BilinForm R M₂) :
-    tensorDistribEquiv R (M₁ := M₁) (M₂ := M₂) B = tensorDistrib R R B :=
+theorem tensorDistribEquiv_apply (B : BilinForm R M₁ ⊗ BilinForm R M₂)
+    : tensorDistribEquiv R (M₁ := M₁) (M₂ := M₂) B = tensorDistrib R R B :=
   congr($(tensorDistribEquiv_toLinearMap R M₁ M₂) B)
 
 end BilinForm

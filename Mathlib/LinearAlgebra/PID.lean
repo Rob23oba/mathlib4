@@ -27,8 +27,8 @@ public section
 
 namespace LinearMap
 
-variable {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
-  [Module.Finite R M] [Module.Free R M]
+variable
+  {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Finite R M] [Module.Free R M]
 
 /-- If a linear endomorphism of a (finite, free) module `M` takes values in a submodule `p ⊆ M`,
 then the trace of its restriction to `p` is equal to its trace on `M`. -/

@@ -156,8 +156,8 @@ protected lemma IsIntegral.coeff
   · simpa [show i ≠ m by lia] using this
   · simp [coeff_eq_zero_of_natDegree_lt hi, isIntegral_zero]
 
-theorem Polynomial.isIntegral_iff_isIntegral_coeff {f : S[X]} :
-    IsIntegral R[X] f ↔ ∀ n, IsIntegral R (f.coeff n) := by
+theorem Polynomial.isIntegral_iff_isIntegral_coeff {f : S[X]}
+    : IsIntegral (R[X]) f ↔ ∀ n, IsIntegral R (f.coeff n) := by
   refine ⟨IsIntegral.coeff, fun H ↦ ?_⟩
   rw [← f.sum_monomial_eq, Polynomial.sum]
   simp only [← C_mul_X_pow_eq_monomial, ← map_X (algebraMap R S)]
@@ -173,11 +173,12 @@ lemma IsIntegral.of_aeval_monic_of_isIntegral_coeff {R A : Type*} [CommRing R] [
     (by simpa [← eval_map_algebraMap, hqp] using hx.tower_top))
 
 @[stacks 030A]
-instance {R : Type*} [CommRing R] [IsDomain R] [IsIntegrallyClosed R] :
-    IsIntegrallyClosed R[X] := by
+instance {R : Type*} [CommRing R] [IsDomain R] [IsIntegrallyClosed R]
+    : IsIntegrallyClosed R[X] := by
   let K := FractionRing R
   have : IsIntegrallyClosed K[X] := UniqueFactorizationMonoid.instIsIntegrallyClosed
-  suffices IsIntegrallyClosedIn R[X] K[X] from .of_isIntegrallyClosed_of_isIntegrallyClosedIn _ K[X]
+  suffices IsIntegrallyClosedIn (R[X]) K[X] from
+    .of_isIntegrallyClosed_of_isIntegrallyClosedIn _ K[X]
   refine isIntegrallyClosedIn_iff.mpr ⟨map_injective _ (IsFractionRing.injective _ _), ?_⟩
   refine fun {p} hp ↦ (lifts_iff_coeff_lifts _).mpr fun n ↦ ?_
   exact IsIntegrallyClosed.isIntegral_iff.mp (hp.coeff _)
@@ -186,41 +187,47 @@ end
 
 attribute [local instance] MvPolynomial.algebraMvPolynomial in
 attribute [-simp] AlgEquiv.symm_toRingEquiv in
-theorem MvPolynomial.isIntegral_iff_isIntegral_coeff.{w} {σ : Type w} {f : MvPolynomial σ S} :
-    IsIntegral (MvPolynomial σ R) f ↔ ∀ n, IsIntegral R (f.coeff n) := by
+theorem MvPolynomial.isIntegral_iff_isIntegral_coeff.{w} {σ : Type w} {f : MvPolynomial σ S}
+    : IsIntegral (MvPolynomial σ R) f ↔ ∀ n, IsIntegral R (f.coeff n) := by
   refine ⟨fun H n ↦ ?mp, fun H ↦ ?mpr⟩
   case mpr =>
     rw [← f.support_sum_monomial_coeff]
     simp_rw [monomial_eq]
-    refine IsIntegral.sum _ fun n _ ↦ .mul ((H n).map (Algebra.ofId _ _)).tower_top
-      (.prod _ fun i _ ↦ .pow ?_ _)
+    refine IsIntegral.sum _ fun n _ ↦
+      .mul ((H n).map (Algebra.ofId _ _)).tower_top (.prod _ fun i _ ↦ .pow ?_ _)
     convert! isIntegral_algebraMap (x := MvPolynomial.X i)
     simp only [algebraMap_def, map_X]
   unfold IsIntegral at H
   wlog hσ : Finite σ generalizing σ
-  · obtain ⟨g, hg⟩ := MvPolynomial.exists_rename_eq_of_vars_subset_range (τ := f.vars) f _
-      Subtype.val_injective (by simp)
+  · obtain ⟨g, hg⟩ :=
+      MvPolynomial.exists_rename_eq_of_vars_subset_range (τ := f.vars) f _ Subtype.val_injective
+        (by simp)
     by_cases hn : n ∈ Set.range (Finsupp.mapDomain ((↑) : f.vars → σ))
     · obtain ⟨n, rfl⟩ := hn
       simp_rw [← hg, coeff_rename_mapDomain _ Subtype.val_injective]
-      exact this (f := g) (RingHom.IsIntegralElem.of_map
-        (g := (rename ((↑) : f.vars → σ)).toRingHom) (rename_injective _ Subtype.val_injective)
-        (.of_comp (f := (killCompl (f := ((↑) : f.vars → σ)) Subtype.val_injective).toRingHom) <| by
-        simp only [AlgHom.toRingHom_eq_coe, algebraMap_def, RingHom.coe_coe, hg]
-        convert!
-          H.map
-            ((rename Subtype.val).comp
-                (killCompl (f := ((↑) : f.vars → σ)) Subtype.val_injective)).toRingHom
-        · exact RingHom.ext (by simp [MvPolynomial.killCompl_map])
-        · nth_rw 1 12 [← hg]; simp)) n (.of_fintype _)
+      exact this (f := g)
+        (RingHom.IsIntegralElem.of_map (g := (rename ((↑) : f.vars → σ)).toRingHom)
+          (rename_injective _ Subtype.val_injective)
+          (.of_comp (f := (killCompl (f := ((↑) : f.vars → σ)) Subtype.val_injective).toRingHom) <|
+            by
+              simp only [AlgHom.toRingHom_eq_coe, algebraMap_def, RingHom.coe_coe, hg]
+              convert!
+                H.map
+                  ((rename Subtype.val).comp
+                      (killCompl (f := ((↑) : f.vars → σ)) Subtype.val_injective)).toRingHom
+              · exact RingHom.ext (by simp [MvPolynomial.killCompl_map])
+              · nth_rw 1 12 [← hg]; simp))
+        n (.of_fintype _)
     · rw [← hg, coeff_rename_eq_zero _ _ _ (by grind)]
       exact isIntegral_zero
   revert f n
   apply Finite.induction_empty_option _ _ _ σ
   · intro α β e IH f H n
-    have := @IH (rename e.symm f) (.of_map (g := (rename e).toRingHom)
-      (rename_injective _ e.injective) <| .of_comp (f := (rename e.symm).toRingHom)
-        (by convert H <;> aesop)) (n.embDomain e.symm)
+    have :=
+      @IH (rename e.symm f)
+        (.of_map (g := (rename e).toRingHom) (rename_injective _ e.injective) <|
+          .of_comp (f := (rename e.symm).toRingHom) (by convert H <;> aesop))
+        (n.embDomain e.symm)
     simpa [Finsupp.embDomain_eq_mapDomain, coeff_rename_mapDomain _ e.symm.injective] using! this
   · intro f H n
     refine .of_map (g := (isEmptyAlgEquiv _ PEmpty).symm.toRingHom)
@@ -233,15 +240,18 @@ theorem MvPolynomial.isIntegral_iff_isIntegral_coeff.{w} {σ : Type w} {f : MvPo
       simpa [-EmbeddingLike.apply_eq_iff_eq, -isEmptyAlgEquiv_apply] using!
         congr((isEmptyAlgEquiv S PEmpty.{w + 1}).symm ($this f))
   · intro α _ IH f H n
-    have := IH (IsIntegral.coeff (R := MvPolynomial α R)
-      (p := optionEquivLeft _ _ f) (.of_map
-      (g := (optionEquivLeft _ _).symm.toRingHom) (optionEquivLeft _ _).symm.injective
-      (.of_comp (f := (optionEquivLeft _ _).toRingHom) (by
-        convert! H
-        · ext i m
-          · aesop
-          · cases i <;> aesop
-        · aesop))) (n .none)) n.some
+    have :=
+      IH
+        (IsIntegral.coeff (R := MvPolynomial α R) (p := optionEquivLeft _ _ f)
+          (.of_map (g := (optionEquivLeft _ _).symm.toRingHom) (optionEquivLeft _ _).symm.injective
+            (.of_comp (f := (optionEquivLeft _ _).toRingHom) (by
+              convert! H
+              · ext i m
+                · aesop
+                · cases i <;> aesop
+              · aesop)))
+          (n .none))
+        n.some
     rwa [optionEquivLeft_coeff_some_coeff_none] at this
 
 end

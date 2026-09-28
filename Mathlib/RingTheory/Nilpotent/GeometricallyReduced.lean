@@ -48,12 +48,14 @@ namespace Algebra
 
 variable {k A : Type*} [Field k] [Ring A] [Algebra k A]
 
-/-- An `R`-algebra `A` is geometrically reduced iff for every prime ideal `p` of R`
-  the base change to `AlgebraicClosure p.ResidueField` is reduced. -/
+/--
+An `R`-algebra `A` is geometrically reduced iff for every prime ideal `p` of R`
+the base change to `AlgebraicClosure p.ResidueField` is reduced.
+-/
 @[mk_iff]
 class IsGeometricallyReduced (R A : Type*) [CommRing R] [Ring A] [Algebra R A] : Prop where
-  isReduced_algebraicClosure_tensorProduct (p : Ideal R) [p.IsPrime] :
-    IsReduced (AlgebraicClosure p.ResidueField ⊗[R] A)
+  isReduced_algebraicClosure_tensorProduct (p : Ideal R) [p.IsPrime]
+    : IsReduced (AlgebraicClosure p.ResidueField ⊗[R] A)
 
 attribute [instance] IsGeometricallyReduced.isReduced_algebraicClosure_tensorProduct
 
@@ -68,8 +70,10 @@ lemma isGeometricallyReduced_field_iff (k A : Type*) [Field k] [Ring A] [Algebra
   · exact isReduced_of_injective _ (Algebra.TensorProduct.congr (e ⊥) AlgEquiv.refl).injective
   · exact isReduced_of_injective _ (Algebra.TensorProduct.congr (e p).symm AlgEquiv.refl).injective
 
-instance (k A K : Type*) [Field k] [Ring A] [Algebra k A] [Field K] [Algebra k K]
-    [Algebra.IsAlgebraic k K] [IsGeometricallyReduced k A] : IsReduced (K ⊗[k] A) := by
+instance
+    (k A K : Type*) [Field k] [Ring A] [Algebra k A] [Field K] [Algebra k K]
+    [Algebra.IsAlgebraic k K] [IsGeometricallyReduced k A]
+    : IsReduced (K ⊗[k] A) := by
   have := (isGeometricallyReduced_field_iff k A).mp ‹_›
   exact isReduced_of_injective
     (Algebra.TensorProduct.map ((IsAlgClosed.lift : K →ₐ[k] AlgebraicClosure k)) 1)
@@ -83,16 +87,17 @@ lemma IsGeometricallyReduced.of_injective {B : Type*} [Ring B] [Algebra k B] (f 
 
 variable (k) in
 theorem isReduced_of_isGeometricallyReduced [IsGeometricallyReduced k A] : IsReduced A :=
-  isReduced_of_injective
-    (Algebra.TensorProduct.includeRight : A →ₐ[k] (AlgebraicClosure k) ⊗[k] A)
+  isReduced_of_injective (Algebra.TensorProduct.includeRight : A →ₐ[k] (AlgebraicClosure k) ⊗[k] A)
     (Algebra.TensorProduct.includeRight_injective (RingHom.injective _))
 
-/-- If all finitely generated subalgebras of `A` are geometrically reduced, then `A` is
-  geometrically reduced. -/
+/--
+If all finitely generated subalgebras of `A` are geometrically reduced, then `A` is
+geometrically reduced.
+-/
 @[stacks 030T]
 theorem IsGeometricallyReduced.of_forall_fg
-    (h : ∀ B : Subalgebra k A, B.FG → IsGeometricallyReduced k B) :
-    IsGeometricallyReduced k A := by
+    (h : ∀ B : Subalgebra k A, B.FG → IsGeometricallyReduced k B)
+    : IsGeometricallyReduced k A := by
   simp_rw [isGeometricallyReduced_field_iff] at h ⊢
   exact IsReduced.tensorProduct_of_flat_of_forall_fg h
 

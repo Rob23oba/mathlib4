@@ -35,28 +35,31 @@ namespace WithLp
 
 open Unitization
 
-/-- The natural map between `Unitization 𝕜 A` and `𝕜 × A`, transferred to their `WithLp 1`
-synonyms. -/
+/--
+The natural map between `Unitization 𝕜 A` and `𝕜 × A`, transferred to their `WithLp 1`
+synonyms.
+-/
 noncomputable def unitization_addEquiv_prod : WithLp 1 (Unitization 𝕜 A) ≃+ WithLp 1 (𝕜 × A) :=
   (WithLp.linearEquiv 1 𝕜 (Unitization 𝕜 A)).toAddEquiv.trans <|
     (addEquiv 𝕜 A).trans (WithLp.linearEquiv 1 𝕜 (𝕜 × A)).symm.toAddEquiv
 
-noncomputable instance instUnitizationNormedAddCommGroup :
-    NormedAddCommGroup (WithLp 1 (Unitization 𝕜 A)) :=
+noncomputable instance instUnitizationNormedAddCommGroup
+    : NormedAddCommGroup (WithLp 1 (Unitization 𝕜 A)) :=
   NormedAddCommGroup.induced (WithLp 1 (Unitization 𝕜 A)) (WithLp 1 (𝕜 × A))
     (unitization_addEquiv_prod 𝕜 A) (AddEquiv.injective _)
 
 /-- Bundle `WithLp.unitization_addEquiv_prod` as a `UniformEquiv`. -/
-noncomputable def uniformEquiv_unitization_addEquiv_prod :
-    WithLp 1 (Unitization 𝕜 A) ≃ᵤ WithLp 1 (𝕜 × A) :=
-  { unitization_addEquiv_prod 𝕜 A with
-    uniformContinuous_invFun := uniformContinuous_comap' uniformContinuous_id
-    uniformContinuous_toFun := uniformContinuous_iff_le_comap.mpr le_rfl }
+noncomputable def uniformEquiv_unitization_addEquiv_prod
+    : WithLp 1 (Unitization 𝕜 A) ≃ᵤ WithLp 1 (𝕜 × A) := {
+  unitization_addEquiv_prod 𝕜 A with
+  uniformContinuous_invFun := uniformContinuous_comap' uniformContinuous_id
+  uniformContinuous_toFun := uniformContinuous_iff_le_comap.mpr le_rfl
+}
 
-instance instCompleteSpace [CompleteSpace 𝕜] [CompleteSpace A] :
-    CompleteSpace (WithLp 1 (Unitization 𝕜 A)) :=
-  completeSpace_congr (uniformEquiv_unitization_addEquiv_prod 𝕜 A).isUniformEmbedding |>.mpr
-    inferInstance
+instance instCompleteSpace [CompleteSpace 𝕜] [CompleteSpace A]
+    : CompleteSpace (WithLp 1 (Unitization 𝕜 A)) :=
+  completeSpace_congr (uniformEquiv_unitization_addEquiv_prod 𝕜 A).isUniformEmbedding
+    |>.mpr inferInstance
 
 variable {𝕜 A}
 
@@ -91,8 +94,8 @@ instance instUnitizationRing : Ring (WithLp 1 (Unitization 𝕜 A)) :=
 @[simp]
 lemma unitization_mul (x y : WithLp 1 (Unitization 𝕜 A)) : ofLp (x * y) = ofLp x * ofLp y := rfl
 
-instance {R : Type*} [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A] [IsScalarTower R 𝕜 A] :
-    Algebra R (WithLp 1 (Unitization 𝕜 A)) :=
+instance {R : Type*} [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A] [IsScalarTower R 𝕜 A]
+    : Algebra R (WithLp 1 (Unitization 𝕜 A)) :=
   (WithLp.equiv 1 (Unitization 𝕜 A)).algebra R
 
 @[simp]
@@ -110,8 +113,9 @@ lemma unitization_algebraMap (r : 𝕜) :
 
 /-- `equiv` bundled as an algebra isomorphism with `Unitization 𝕜 A`. -/
 @[simps!]
-def unitizationAlgEquiv (R : Type*) [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A]
-    [IsScalarTower R 𝕜 A] : WithLp 1 (Unitization 𝕜 A) ≃ₐ[R] Unitization 𝕜 A where
+def unitizationAlgEquiv
+    (R : Type*) [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A] [IsScalarTower R 𝕜 A]
+    : WithLp 1 (Unitization 𝕜 A) ≃ₐ[R] Unitization 𝕜 A where
   __ := WithLp.linearEquiv _ R _
   map_mul' _ _ := rfl
   map_add' _ _ := rfl
@@ -126,18 +130,19 @@ noncomputable instance instUnitizationNormedRing : NormedRing (WithLp 1 (Unitiza
     congr! 3
     exact mul_comm ..
 
-noncomputable instance instUnitizationNormedAlgebra :
-    NormedAlgebra 𝕜 (WithLp 1 (Unitization 𝕜 A)) where
+noncomputable instance instUnitizationNormedAlgebra
+    : NormedAlgebra 𝕜 (WithLp 1 (Unitization 𝕜 A)) where
   norm_smul_le r x := by
     simp_rw [unitization_norm_def, ofLp_smul, fst_smul, snd_smul, norm_smul, mul_add]
     exact le_rfl
 
-instance [HasSummableGeomSeries A] :
-    HasSummableGeomSeries (WithLp 1 (Unitization 𝕜 A)) := by
-  /- Take `x = (r, a) : Unitization 𝕜 A` with `‖x‖ = ‖r‖ + ‖a‖ < 1`.
+instance [HasSummableGeomSeries A] : HasSummableGeomSeries (WithLp 1 (Unitization 𝕜 A)) := by
+  /-
+  Take `x = (r, a) : Unitization 𝕜 A` with `‖x‖ = ‖r‖ + ‖a‖ < 1`.
   Then `‖r‖ < 1`, so `r ≠ 1`, and `‖b‖ < 1` where `b := (1 - r)⁻¹ • a`. By hypothesis, `-b` is
   quasiregular, so `1 - ↑b` is invertible in `Unitization 𝕜 A`. But then
-  `1 - x = (1 - r) • (1 - ↑b)` is invertible. -/
+  `1 - x = (1 - r) • (1 - ↑b)` is invertible.
+  -/
   rw [hasSummableGeomSeries_iff_isUnit]
   intro x hx₁
   let (eq := hx) (r, a) := (ofLp x).toProd

@@ -26,14 +26,15 @@ namespace Limits.Types
 
 variable {J : Type u} [Category.{v} J] (F : Jᵒᵖ ⥤ J ⥤ Type max w u)
 
-/-- The relation on the sigma type `(W : J) × (F.obj (op W)).obj W` used to construct explicit
+/--
+The relation on the sigma type `(W : J) × (F.obj (op W)).obj W` used to construct explicit
 coends in `Type`. Two terms `⟨j, x⟩` and `⟨j', x'⟩` are related if and only if there is a
 morphism `f : j ⟶ j'` in `J` and an element `y : (F.obj (op j')).obj j` such that
-`(F.map f.op).app j y = x` and `(F.obj _).map f y = x'`, see `coendRel_iff` below. -/
+`(F.map f.op).app j y = x` and `(F.obj _).map f y = x'`, see `coendRel_iff` below.
+-/
 inductive coendRel : (j : J) × (F.obj (op j)).obj j → (j : J) × (F.obj (op j)).obj j → Prop where
-  | mk {j j' : J} (f : j ⟶ j') (x : (F.obj (op j')).obj j) :
-    coendRel ⟨j, TypeCat.Hom.hom ((F.map f.op).app _) x⟩
-      ⟨j', TypeCat.Hom.hom ((F.obj _).map f) x⟩
+  | mk {j j' : J} (f : j ⟶ j') (x : (F.obj (op j')).obj j)
+    : coendRel ⟨j, TypeCat.Hom.hom ((F.map f.op).app _) x⟩ ⟨j', TypeCat.Hom.hom ((F.obj _).map f) x⟩
 
 lemma coendRel_iff (j j' : J) (x : (F.obj (op j)).obj j) (x' : (F.obj (op j')).obj j') :
     coendRel F ⟨j, x⟩ ⟨j', x'⟩ ↔
@@ -48,8 +49,10 @@ lemma coendRel_iff (j j' : J) (x : (F.obj (op j)).obj j) (x' : (F.obj (op j')).o
 /-- The coend of a bifunctor valued in `Type`, defined as a quotient. -/
 abbrev coend : Type max w u := Quot (coendRel F)
 
-/-- Given `F : Jᵒᵖ ⥤ J ⥤ Type*`, this is the inclusion `(F.obj (op j)).obj j ⟶ coend F`
-for any `j : J`, which sends `x` to `Quot.mk _ ⟨j, x⟩` -/
+/--
+Given `F : Jᵒᵖ ⥤ J ⥤ Type*`, this is the inclusion `(F.obj (op j)).obj j ⟶ coend F`
+for any `j : J`, which sends `x` to `Quot.mk _ ⟨j, x⟩`
+-/
 def coend.ι (j : J) : (F.obj (op j)).obj j ⟶ coend F := ↾fun x ↦ Quot.mk _ ⟨j, x⟩
 
 variable {F}
@@ -68,8 +71,12 @@ def cowedge : Cowedge F := Cowedge.mk (coend F) (coend.ι F) (by intros; apply c
 
 /-- The cowedge corresponding to the explicit coend in `Type` is colimiting. -/
 def cowedgeIsColimit : IsColimit (cowedge F) where
-  desc s := TypeCat.ofHom <| Quot.lift (fun x ↦ Multicofork.π s x.fst x.snd) fun _ _ h ↦ by
-    cases h with | mk f x => congrm $(Cowedge.condition s f) _
+  desc s :=
+    TypeCat.ofHom <| Quot.lift
+      (fun x ↦ Multicofork.π s x.fst x.snd)
+      fun _ _ h ↦ by
+        cases h with
+        | mk f x => congrm $(Cowedge.condition s f) _
   fac s := by rintro (_ | _) <;> cat_disch
   uniq s m h := by ext ⟨j⟩; congrm $(h (.right j.fst)) j.snd
 
@@ -114,12 +121,13 @@ variable {J : Type u} [Category.{v} J] (F : Jᵒᵖ ⥤ J ⥤ Type max w u)
 
 /-- The end of a bifunctor valued in `Type`, defined as the subtype of compatible families. -/
 abbrev end_ : Type max w u :=
-  { x : ∀ j, (F.obj (op j)).obj j // ∀ ⦃i j : J⦄ (f : i ⟶ j),
-      TypeCat.Hom.hom ((F.obj (op i)).map f) (x i) =
-        TypeCat.Hom.hom ((F.map f.op).app j) (x j) }
+  {x : ∀ j, (F.obj (op j)).obj j // ∀ ⦃i j : J⦄ (f : i ⟶ j),
+    TypeCat.Hom.hom ((F.obj (op i)).map f) (x i) = TypeCat.Hom.hom ((F.map f.op).app j) (x j)}
 
-/-- Given `F : Jᵒᵖ ⥤ J ⥤ Type*`, this is the projection `end_ F ⟶ (F.obj (op j)).obj j`
-for any `j : J`, which sends `x` to `x.1 j`. -/
+/--
+Given `F : Jᵒᵖ ⥤ J ⥤ Type*`, this is the projection `end_ F ⟶ (F.obj (op j)).obj j`
+for any `j : J`, which sends `x` to `x.1 j`.
+-/
 def end_.π (j : J) : end_ F ⟶ (F.obj (op j)).obj j := ↾fun x ↦ x.1 j
 
 variable {F}
@@ -137,9 +145,9 @@ def wedge : Wedge F := Wedge.mk (end_ F) (end_.π F) (by intros; apply end_.cond
 
 /-- The wedge corresponding to the explicit end in `Type` is limiting. -/
 def wedgeIsLimit : IsLimit (wedge F) where
-  lift s := TypeCat.ofHom <| fun x ↦
-    (⟨fun j : J ↦ Multifork.ι s j x, fun _ _ f ↦ by
-      congrm $(Wedge.condition s f) x⟩ : end_ F)
+  lift s :=
+    TypeCat.ofHom <| fun x ↦
+      (⟨fun j : J ↦ Multifork.ι s j x, fun _ _ f ↦ by congrm $(Wedge.condition s f) x⟩ : end_ F)
   fac s := by rintro (_ | _) <;> cat_disch
   uniq s m h := by
     ext x

@@ -56,8 +56,7 @@ lemma ModuleCat.reflectsIsomorphisms_extendScalars_of_faithfullyFlat
 
 /-- Extension of scalars by a faithfully flat ring map is comonadic. -/
 @[instance_reducible]
-def comonadicExtendScalars (hf : f.FaithfullyFlat) :
-    ComonadicLeftAdjoint (extendScalars f) := by
+def comonadicExtendScalars (hf : f.FaithfullyFlat) : ComonadicLeftAdjoint (extendScalars f) := by
   have := preservesFiniteLimits_extendScalars_of_flat hf.flat
   have := reflectsIsomorphisms_extendScalars_of_faithfullyFlat hf
   convert!

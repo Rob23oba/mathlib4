@@ -29,7 +29,6 @@ matrix group, group, matrix inverse
 
 @[expose] public section
 
-
 namespace Matrix
 
 universe u v
@@ -38,10 +37,12 @@ open Matrix
 
 open LinearMap
 
-/-- `GL n R` is the group of `n` by `n` `R`-matrices with unit determinant.
-Defined as a subtype of matrices -/
-abbrev GeneralLinearGroup (n : Type u) (R : Type v) [DecidableEq n] [Fintype n] [Semiring R] :
-    Type _ :=
+/--
+`GL n R` is the group of `n` by `n` `R`-matrices with unit determinant.
+Defined as a subtype of matrices
+-/
+abbrev GeneralLinearGroup (n : Type u) (R : Type v) [DecidableEq n] [Fintype n] [Semiring R]
+    : Type _ :=
   (Matrix n n R)ˣ
 
 @[inherit_doc] notation "GL" => GeneralLinearGroup
@@ -52,8 +53,7 @@ variable {n : Type u} [DecidableEq n] [Fintype n] {R : Type v}
 
 variable (n) in
 /-- Scalar matrix as an element of `GL n R`. -/
-def scalar [Semiring R] : Rˣ →* GL n R :=
-  Units.map (Matrix.scalar n).toMonoidHom
+def scalar [Semiring R] : Rˣ →* GL n R := Units.map (Matrix.scalar n).toMonoidHom
 
 section CoeFnInstance
 
@@ -92,11 +92,12 @@ lemma scalar_commute (u : Rˣ) (A : GL n R) : scalar n u * A = A * scalar n u :=
 /-- The determinant of a unit matrix is itself a unit. -/
 @[simps]
 def det : GL n R →* Rˣ where
-  toFun A :=
-    { val := (↑A : Matrix n n R).det
-      inv := (↑A⁻¹ : Matrix n n R).det
-      val_inv := by rw [← det_mul, A.mul_inv, det_one]
-      inv_val := by rw [← det_mul, A.inv_mul, det_one] }
+  toFun A := {
+    val := (↑A : Matrix n n R).det
+    inv := (↑A⁻¹ : Matrix n n R).det
+    val_inv := by rw [← det_mul, A.mul_inv, det_one]
+    inv_val := by rw [← det_mul, A.inv_mul, det_one]
+  }
   map_one' := Units.ext det_one
   map_mul' _ _ := Units.ext <| det_mul _ _
 
@@ -116,16 +117,19 @@ lemma det_surjective [Nonempty n] : Function.Surjective (det : GL n R → Rˣ) :
       diagonal_eq_one]
   <;> funext j <;> split_ifs <;> simp
 
-/-- The groups `GL n R` (notation for `Matrix.GeneralLinearGroup n R`) and
-`LinearMap.GeneralLinearGroup R (n → R)` are multiplicatively equivalent -/
+/--
+The groups `GL n R` (notation for `Matrix.GeneralLinearGroup n R`) and
+`LinearMap.GeneralLinearGroup R (n → R)` are multiplicatively equivalent
+-/
 def toLin : GL n R ≃* LinearMap.GeneralLinearGroup R (n → R) :=
   Units.mapEquiv toLinAlgEquiv'.toMulEquiv
 
-/-- The isomorphism from `GL n R` to the general linear group of a module
-associated with a basis. -/
-noncomputable def toLin'
-    {V : Type*} [AddCommGroup V] [Module R V] (b : Module.Basis n R V) :
-    GL n R ≃* LinearMap.GeneralLinearGroup R V :=
+/--
+The isomorphism from `GL n R` to the general linear group of a module
+associated with a basis.
+-/
+noncomputable def toLin' {V : Type*} [AddCommGroup V] [Module R V] (b : Module.Basis n R V)
+    : GL n R ≃* LinearMap.GeneralLinearGroup R V :=
   toLin.trans <| LinearMap.GeneralLinearGroup.congrLinearEquiv b.equivFun.symm
 
 lemma toLin'_apply {V : Type*} [AddCommGroup V] [Module R V]
@@ -135,13 +139,11 @@ lemma toLin'_apply {V : Type*} [AddCommGroup V] [Module R V]
 
 /-- Given a matrix with invertible determinant, we get an element of `GL n R`. -/
 @[simps! val]
-def mk' (A : Matrix n n R) (_ : Invertible (Matrix.det A)) : GL n R :=
-  unitOfDetInvertible A
+def mk' (A : Matrix n n R) (_ : Invertible (Matrix.det A)) : GL n R := unitOfDetInvertible A
 
 /-- Given a matrix with unit determinant, we get an element of `GL n R`. -/
 @[simps! val]
-noncomputable def mk'' (A : Matrix n n R) (h : IsUnit (Matrix.det A)) : GL n R :=
-  nonsingInvUnit A h
+noncomputable def mk'' (A : Matrix n n R) (h : IsUnit (Matrix.det A)) : GL n R := nonsingInvUnit A h
 
 /-- Given a matrix with non-zero determinant over a field, we get an element of `GL n K`. -/
 @[simps! val]
@@ -159,25 +161,17 @@ section CoeLemmas
 
 variable (A B : GL n R)
 
-@[simp]
-theorem coe_mul : ↑(A * B) = (↑A : Matrix n n R) * (↑B : Matrix n n R) :=
-  rfl
+@[simp] theorem coe_mul : ↑(A * B) = (↑A : Matrix n n R) * (↑B : Matrix n n R) := rfl
 
-@[simp]
-theorem coe_one : ↑(1 : GL n R) = (1 : Matrix n n R) :=
-  rfl
+@[simp] theorem coe_one : ↑(1 : GL n R) = (1 : Matrix n n R) := rfl
 
 theorem coe_inv : ↑A⁻¹ = (↑A : Matrix n n R)⁻¹ :=
   letI := A.invertible
   invOf_eq_nonsing_inv (↑A : Matrix n n R)
 
-@[simp]
-theorem coe_toLin : (toLin A : (n → R) →ₗ[R] n → R) = Matrix.mulVecLin A :=
-  rfl
+@[simp] theorem coe_toLin : (toLin A : (n → R) →ₗ[R] n → R) = Matrix.mulVecLin A := rfl
 
-@[simp]
-theorem toLin_apply (v : n → R) : (toLin A : _ → n → R) v = Matrix.mulVecLin A v :=
-  rfl
+@[simp] theorem toLin_apply (v : n → R) : (toLin A : _ → n → R) v = Matrix.mulVecLin A v := rfl
 
 end CoeLemmas
 
@@ -187,22 +181,18 @@ variable {S T : Type*} [CommRing S] [CommRing T]
 @[simps! apply_val]
 def map (f : R →+* S) : GL n R →* GL n S := Units.map (RingHom.mapMatrix f).toMonoidHom
 
-@[simp]
-theorem map_id : map (RingHom.id R) = MonoidHom.id (GL n R) :=
-  rfl
+@[simp] theorem map_id : map (RingHom.id R) = MonoidHom.id (GL n R) := rfl
 
 @[simp]
 protected lemma map_apply (f : R →+* S) (i j : n) (g : GL n R) : map f g i j = f (g i j) := by
   rfl
 
 @[simp]
-theorem map_comp (f : T →+* R) (g : R →+* S) :
-    map (g.comp f) = (map g).comp (map (n := n) f) :=
-  rfl
+theorem map_comp (f : T →+* R) (g : R →+* S) : map (g.comp f) = (map g).comp (map (n := n) f) := rfl
 
 @[simp]
-theorem map_comp_apply (f : T →+* R) (g : R →+* S) (x : GL n T) :
-    (map g).comp (map f) x = map g (map f x) :=
+theorem map_comp_apply (f : T →+* R) (g : R →+* S) (x : GL n T)
+    : (map g).comp (map f) x = map g (map f x) :=
   rfl
 
 variable (f : R →+* S)
@@ -257,8 +247,9 @@ protected def kronecker (x : GL n R) (y : GL m R) : GL (n × m) R where
   val_inv := by simp only [← mul_kronecker_mul, Units.mul_inv, one_kronecker_one]
   inv_val := by simp only [← mul_kronecker_mul, Units.inv_mul, one_kronecker_one]
 
-theorem _root_.Matrix.IsUnit.kronecker {x : Matrix n n R} {y : Matrix m m R}
-    (hx : IsUnit x) (hy : IsUnit y) : IsUnit (x ⊗ₖ y) :=
+theorem _root_.Matrix.IsUnit.kronecker
+    {x : Matrix n n R} {y : Matrix m m R} (hx : IsUnit x) (hy : IsUnit y)
+    : IsUnit (x ⊗ₖ y) :=
   GeneralLinearGroup.kronecker hx.unit hy.unit |>.isUnit
 
 end kronecker
@@ -267,7 +258,9 @@ end GeneralLinearGroup
 
 namespace SpecialLinearGroup
 
-variable {n : Type u} [DecidableEq n] [Fintype n] {R : Type v} [CommRing R]
+variable
+  {n : Type u} [DecidableEq n] [Fintype n]
+  {R : Type v} [CommRing R]
   {S : Type*} [CommRing S] [Algebra R S]
 
 /-- `toGL` is the map from the special linear group to the general linear group. -/
@@ -276,8 +269,7 @@ def toGL : Matrix.SpecialLinearGroup n R →* Matrix.GeneralLinearGroup n R wher
   map_one' := Units.ext rfl
   map_mul' _ _ := Units.ext rfl
 
-instance hasCoeToGeneralLinearGroup : Coe (SpecialLinearGroup n R) (GL n R) :=
-  ⟨toGL⟩
+instance hasCoeToGeneralLinearGroup : Coe (SpecialLinearGroup n R) (GL n R) := ⟨toGL⟩
 
 lemma toGL_injective :
     Function.Injective (toGL : SpecialLinearGroup n R → GL n R) := fun g g' ↦ by
@@ -289,8 +281,7 @@ lemma toGL_inj (g g' : SpecialLinearGroup n R) :
   toGL_injective.eq_iff
 
 @[simp]
-theorem coeToGL_det (g : SpecialLinearGroup n R) :
-    Matrix.GeneralLinearGroup.det (g : GL n R) = 1 :=
+theorem coeToGL_det (g : SpecialLinearGroup n R) : Matrix.GeneralLinearGroup.det (g : GL n R) = 1 :=
   Units.ext g.prop
 
 @[simp]
@@ -313,8 +304,10 @@ def toGLKerEquiv : SpecialLinearGroup n R ≃* (GeneralLinearGroup.det : GL n R 
   map_mul' _ _ := by ext; rfl
 
 variable (S) in
-/-- `mapGL` is the map from the special linear group over `R` to the general linear group over
-`S`, where `S` is an `R`-algebra. -/
+/--
+`mapGL` is the map from the special linear group over `R` to the general linear group over
+`S`, where `S` is an `R`-algebra.
+-/
 def mapGL : Matrix.SpecialLinearGroup n R →* Matrix.GeneralLinearGroup n S :=
   toGL.comp (map (algebraMap R S))
 
@@ -347,17 +340,19 @@ end SpecialLinearGroup
 
 section
 
-variable {n : Type u} {R : Type v} [DecidableEq n] [Fintype n]
-  [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
+variable
+  {n : Type u} {R : Type v}
+  [DecidableEq n] [Fintype n] [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
 
 section
 
 variable (n R)
 
-/-- This is the subgroup of `nxn` matrices with entries over a
-linear ordered ring and positive determinant. -/
-def GLPos : Subgroup (GL n R) :=
-  (Units.posSubgroup R).comap GeneralLinearGroup.det
+/--
+This is the subgroup of `nxn` matrices with entries over a
+linear ordered ring and positive determinant.
+-/
+def GLPos : Subgroup (GL n R) := (Units.posSubgroup R).comap GeneralLinearGroup.det
 
 @[inherit_doc] scoped[MatrixGroups] notation "GL(" n ", " R ")" "⁺" => GLPos (Fin n) R
 
@@ -367,37 +362,38 @@ end
 theorem mem_glpos (A : GL n R) : A ∈ GLPos n R ↔ 0 < (Matrix.GeneralLinearGroup.det A : R) :=
   Iff.rfl
 
-theorem GLPos.det_ne_zero (A : GLPos n R) : ((A : GL n R) : Matrix n n R).det ≠ 0 :=
-  ne_of_gt A.prop
+theorem GLPos.det_ne_zero (A : GLPos n R) : ((A : GL n R) : Matrix n n R).det ≠ 0 := ne_of_gt A.prop
 
 end
 
 section Neg
 
-variable {n : Type u} {R : Type v} [DecidableEq n] [Fintype n]
-  [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
-  [Fact (Even (Fintype.card n))]
+variable
+  {n : Type u} {R : Type v} [DecidableEq n] [Fintype n] [CommRing R] [LinearOrder R]
+  [IsStrictOrderedRing R] [Fact (Even (Fintype.card n))]
 
-/-- Formal operation of negation on general linear group on even cardinality `n` given by negating
-each element. -/
-instance : Neg (GLPos n R) :=
-  ⟨fun g =>
-    ⟨-g, by
-      rw [mem_glpos, GeneralLinearGroup.val_det_apply, Units.val_neg, det_neg,
-        (Fact.out (p := Even <| Fintype.card n)).neg_one_pow, one_mul]
-      exact g.prop⟩⟩
+/--
+Formal operation of negation on general linear group on even cardinality `n` given by negating
+each element.
+-/
+instance : Neg (GLPos n R) := ⟨fun g => ⟨
+  -g,
+  by
+    rw [
+      mem_glpos, GeneralLinearGroup.val_det_apply, Units.val_neg, det_neg,
+      (Fact.out (p := Even <| Fintype.card n)).neg_one_pow, one_mul
+    ]
+    exact g.prop
+⟩⟩
+
+@[simp] theorem GLPos.coe_neg_GL (g : GLPos n R) : ↑(-g) = -(g : GL n R) := rfl
 
 @[simp]
-theorem GLPos.coe_neg_GL (g : GLPos n R) : ↑(-g) = -(g : GL n R) :=
-  rfl
+theorem GLPos.coe_neg (g : GLPos n R) : (↑(-g) : GL n R) = -((g : GL n R) : Matrix n n R) := rfl
 
 @[simp]
-theorem GLPos.coe_neg (g : GLPos n R) : (↑(-g) : GL n R) = -((g : GL n R) : Matrix n n R) :=
-  rfl
-
-@[simp]
-theorem GLPos.coe_neg_apply (g : GLPos n R) (i j : n) :
-    ((↑(-g) : GL n R) : Matrix n n R) i j = -((g : GL n R) : Matrix n n R) i j :=
+theorem GLPos.coe_neg_apply (g : GLPos n R) (i j : n)
+    : ((↑(-g) : GL n R) : Matrix n n R) i j = - ((g : GL n R) : Matrix n n R) i j :=
   rfl
 
 instance : HasDistribNeg (GLPos n R) :=
@@ -407,7 +403,8 @@ end Neg
 
 namespace SpecialLinearGroup
 
-variable {n : Type u} [DecidableEq n] [Fintype n]
+variable
+  {n : Type u} [DecidableEq n] [Fintype n]
   {R : Type v} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
 
 /-- `Matrix.SpecialLinearGroup n R` embeds into `GL_pos n R` -/
@@ -416,8 +413,7 @@ def toGLPos : SpecialLinearGroup n R →* GLPos n R where
   map_one' := Subtype.ext <| Units.ext rfl
   map_mul' _ _ := Subtype.ext <| Units.ext rfl
 
-instance : Coe (SpecialLinearGroup n R) (GLPos n R) :=
-  ⟨toGLPos⟩
+instance : Coe (SpecialLinearGroup n R) (GLPos n R) := ⟨toGLPos⟩
 
 theorem toGLPos_injective : Function.Injective (toGLPos : SpecialLinearGroup n R → GLPos n R) :=
   -- Porting note: had to rewrite this to hint the correct types to Lean
@@ -426,16 +422,18 @@ theorem toGLPos_injective : Function.Injective (toGLPos : SpecialLinearGroup n R
     (f := fun (A : GLPos n R) ↦ ((A : GL n R) : Matrix n n R))
     Subtype.coe_injective
 
-/-- Coercing a `Matrix.SpecialLinearGroup` via `GL_pos` and `GL` is the same as coercing straight to
-a matrix. -/
+/--
+Coercing a `Matrix.SpecialLinearGroup` via `GL_pos` and `GL` is the same as coercing straight to
+a matrix.
+-/
 @[simp]
-theorem coe_GLPos_coe_GL_coe_matrix (g : SpecialLinearGroup n R) :
-    (↑(↑(↑g : GLPos n R) : GL n R) : Matrix n n R) = ↑g :=
+theorem coe_GLPos_coe_GL_coe_matrix (g : SpecialLinearGroup n R)
+    : (↑(↑(↑g : GLPos n R) : GL n R) : Matrix n n R) = ↑g :=
   rfl
 
 @[simp]
-theorem coe_to_GLPos_to_GL_det (g : SpecialLinearGroup n R) :
-    Matrix.GeneralLinearGroup.det ((g : GLPos n R) : GL n R) = 1 :=
+theorem coe_to_GLPos_to_GL_det (g : SpecialLinearGroup n R)
+    : Matrix.GeneralLinearGroup.det ((g : GLPos n R) : GL n R) = 1 :=
   Units.ext g.prop
 
 variable [Fact (Even (Fintype.card n))]

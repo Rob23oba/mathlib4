@@ -34,8 +34,8 @@ variable {α : Type u} {l₁ l₂ : List α}
 
 /-! ### take, drop -/
 
-theorem take_one_drop_eq_of_lt_length {l : List α} {n : ℕ} (h : n < l.length) :
-    (l.drop n).take 1 = [l.get ⟨n, h⟩] := by
+theorem take_one_drop_eq_of_lt_length {l : List α} {n : ℕ} (h : n < l.length)
+    : (l.drop n).take 1 = [l.get ⟨n, h⟩] := by
   rw [drop_eq_getElem_cons h, take, take]
   simp
 
@@ -64,12 +64,11 @@ theorem take_one_drop_eq_of_lt_length {l : List α} {n : ℕ} (h : n < l.length)
 lemma take_concat_get' (l : List α) (i : ℕ) (h : i < l.length) :
     l.take i ++ [l[i]] = l.take (i + 1) := by simp
 
-theorem cons_getElem_drop_succ {l : List α} {n : Nat} {h : n < l.length} :
-    l[n] :: l.drop (n + 1) = l.drop n :=
+theorem cons_getElem_drop_succ {l : List α} {n : Nat} {h : n < l.length}
+    : l[n] :: l.drop (n + 1) = l.drop n :=
   (drop_eq_getElem_cons h).symm
 
-theorem cons_get_drop_succ {l : List α} {n} :
-    l.get n :: l.drop (n.1 + 1) = l.drop n.1 :=
+theorem cons_get_drop_succ {l : List α} {n} : l.get n :: l.drop (n.1 + 1) = l.drop n.1 :=
   (drop_eq_getElem_cons n.2).symm
 
 lemma drop_length_sub_one {l : List α} (h : l ≠ []) : l.drop (l.length - 1) = [l.getLast h] := by
@@ -115,8 +114,10 @@ variable [Inhabited α]
 
 @[simp]
 theorem takeI_length : ∀ n l, length (@takeI α _ n l) = n
-  | 0, _ => rfl
-  | _ + 1, _ => congr(succ $(takeI_length ..))
+  | 0, _ =>
+    rfl
+  | _ + 1, _ =>
+    congr(succ $(takeI_length ..))
 
 @[simp]
 theorem takeI_nil : ∀ n, takeI n (@nil α) = replicate n default
@@ -124,8 +125,10 @@ theorem takeI_nil : ∀ n, takeI n (@nil α) = replicate n default
   | _ + 1 => congr(cons _ $(takeI_nil _))
 
 theorem takeI_eq_take : ∀ {n} {l : List α}, n ≤ length l → takeI n l = take n l
-  | 0, _, _ => rfl
-  | _ + 1, _ :: _, h => congr(cons _ $(takeI_eq_take <| le_of_succ_le_succ h))
+  | 0, _, _ =>
+    rfl
+  | _ + 1, _ :: _, h =>
+    congr(cons _ $(takeI_eq_take <| le_of_succ_le_succ h))
 
 @[simp]
 theorem takeI_left (l₁ l₂ : List α) : takeI (length l₁) (l₁ ++ l₂) = l₁ :=
@@ -141,14 +144,18 @@ section TakeD
 
 @[simp]
 theorem takeD_length : ∀ n l a, length (@takeD α n l a) = n
-  | 0, _, _ => rfl
-  | _ + 1, _, _ => congr(succ $(takeD_length ..))
+  | 0, _, _ =>
+    rfl
+  | _ + 1, _, _ =>
+    congr(succ $(takeD_length ..))
 
 -- `takeD_nil` is already in batteries
 
 theorem takeD_eq_take : ∀ {n} {l : List α} a, n ≤ length l → takeD n l a = take n l
-  | 0, _, _, _ => rfl
-  | _ + 1, _ :: _, a, h => congr(cons _ $(takeD_eq_take a <| le_of_succ_le_succ h))
+  | 0, _, _, _ =>
+    rfl
+  | _ + 1, _ :: _, a, h =>
+    congr(cons _ $(takeD_eq_take a <| le_of_succ_le_succ h))
 
 @[simp]
 theorem takeD_left (l₁ l₂ : List α) (a : α) : takeD (length l₁) (l₁ ++ l₂) a = l₁ :=
@@ -167,9 +174,10 @@ variable (p)
 
 variable (p : α → Bool)
 
-private theorem span.loop_eq_take_drop :
-    ∀ l₁ l₂ : List α, span.loop p l₁ l₂ = (l₂.reverse ++ takeWhile p l₁, dropWhile p l₁)
-  | [], l₂ => by simp [span.loop, takeWhile, dropWhile]
+private theorem span.loop_eq_take_drop
+    : ∀ l₁ l₂ : List α, span.loop p l₁ l₂ = (l₂.reverse ++ takeWhile p l₁, dropWhile p l₁)
+  | [], l₂ => by
+    simp [span.loop, takeWhile, dropWhile]
   | (a :: l), l₂ => by
     cases hp : p a <;> simp [hp, span.loop, span.loop_eq_take_drop, takeWhile, dropWhile]
 
@@ -185,11 +193,12 @@ theorem dropSlice_eq (xs : List α) (n m : ℕ) : dropSlice n m xs = xs.take n +
   induction n generalizing xs with cases xs with grind [dropSlice]
 
 @[simp, grind =]
-theorem length_dropSlice (i j : ℕ) (xs : List α) :
-    (dropSlice i j xs).length = xs.length - min j (xs.length - i) := by
+theorem length_dropSlice (i j : ℕ) (xs : List α)
+    : (dropSlice i j xs).length = xs.length - min j (xs.length - i) := by
   induction xs generalizing i j with cases i with grind [dropSlice]
 
-theorem length_dropSlice_lt (i j : ℕ) (hj : 0 < j) (xs : List α) (hi : i < xs.length) :
-    (dropSlice i j xs).length < xs.length := by grind
+theorem length_dropSlice_lt (i j : ℕ) (hj : 0 < j) (xs : List α) (hi : i < xs.length)
+    : (dropSlice i j xs).length < xs.length := by
+  grind
 
 end List

@@ -84,8 +84,7 @@ open scoped LSeries.notation
 variable {q : ℕ} (a : ZMod q)
 
 /-- The von Mangoldt function restricted to the residue class `a` mod `q`. -/
-noncomputable abbrev residueClass : ℕ → ℝ :=
-  {n : ℕ | (n : ZMod q) = a}.indicator (vonMangoldt ·)
+noncomputable abbrev residueClass : ℕ → ℝ := {n : ℕ | (n : ZMod q) = a}.indicator (vonMangoldt ·)
 
 lemma residueClass_nonneg (n : ℕ) : 0 ≤ residueClass a n :=
   Set.indicator_apply_nonneg fun _ ↦ vonMangoldt_nonneg
@@ -250,15 +249,17 @@ lemma LSeries_residueClass_eq (ha : IsUnit a) {s : ℂ} (hs : 1 < s.re) :
 variable (a)
 
 open scoped Classical in
-/-- The auxiliary function used, e.g., with the Wiener-Ikehara Theorem to prove
+/--
+The auxiliary function used, e.g., with the Wiener-Ikehara Theorem to prove
 Dirichlet's Theorem. On `re s > 1`, it agrees with the L-series of the von Mangoldt
 function restricted to the residue class `a : ZMod q` minus the principal part
 `(q.totient)⁻¹/(s-1)` of the pole at `s = 1`;
-see `ArithmeticFunction.vonMangoldt.eqOn_LFunctionResidueClassAux`. -/
-noncomputable
-abbrev LFunctionResidueClassAux (s : ℂ) : ℂ :=
-  (q.totient : ℂ)⁻¹ * (-deriv (LFunctionTrivChar₁ q) s / LFunctionTrivChar₁ q s -
-    ∑ χ ∈ ({1}ᶜ : Finset (DirichletCharacter ℂ q)), χ a⁻¹ * deriv (LFunction χ) s / LFunction χ s)
+see `ArithmeticFunction.vonMangoldt.eqOn_LFunctionResidueClassAux`.
+-/
+noncomputable abbrev LFunctionResidueClassAux (s : ℂ) : ℂ :=
+  (q.totient : ℂ)⁻¹
+    * (- deriv (LFunctionTrivChar₁ q) s / LFunctionTrivChar₁ q s
+      - ∑ χ ∈ ({1}ᶜ : Finset (DirichletCharacter ℂ q)), χ a⁻¹ * deriv (LFunction χ) s / LFunction χ s)
 
 /-- The auxiliary function is continuous away from the zeros of the L-functions of the Dirichlet
 characters mod `q` (including at `s = 1`). -/
@@ -424,43 +425,50 @@ open ArithmeticFunction vonMangoldt
 
 variable {q : ℕ} [NeZero q] {a : ZMod q}
 
-/-- **Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
+/--
+**Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
 integer and `a : ZMod q` is a unit, then there are infinitely many prime numbers `p`
-such that `(p : ZMod q) = a`. -/
-theorem infinite_setOfPred_prime_and_eq_mod (ha : IsUnit a) :
-    {p : ℕ | p.Prime ∧ (p : ZMod q) = a}.Infinite := by
+such that `(p : ZMod q) = a`.
+-/
+theorem infinite_setOfPred_prime_and_eq_mod (ha : IsUnit a)
+    : {p : ℕ | p.Prime ∧ (p : ZMod q) = a}.Infinite := by
   by_contra! H
-  exact not_summable_residueClass_prime_div ha <|
-    summable_of_hasFiniteSupport <| show Set.Finite _ from support_residueClass_prime_div a ▸ H
+  exact not_summable_residueClass_prime_div ha <| summable_of_hasFiniteSupport <|
+    show Set.Finite _ from support_residueClass_prime_div a ▸ H
 
 @[deprecated (since := "2026-07-09")]
 alias infinite_setOf_prime_and_eq_mod := infinite_setOfPred_prime_and_eq_mod
 
-/-- **Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
+/--
+**Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
 integer and `a : ZMod q` is a unit, then there are infinitely many prime numbers `p`
-such that `(p : ZMod q) = a`. -/
-theorem forall_exists_prime_gt_and_eq_mod (ha : IsUnit a) (n : ℕ) :
-    ∃ p > n, p.Prime ∧ (p : ZMod q) = a := by
+such that `(p : ZMod q) = a`.
+-/
+theorem forall_exists_prime_gt_and_eq_mod (ha : IsUnit a) (n : ℕ)
+    : ∃ p > n, p.Prime ∧ (p : ZMod q) = a := by
   obtain ⟨p, hp₁, hp₂⟩ := Set.infinite_iff_exists_gt.mp (infinite_setOfPred_prime_and_eq_mod ha) n
   exact ⟨p, hp₂.gt, Set.mem_ofPred.mp hp₁⟩
 
-/-- **Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
+/--
+**Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
 integer and `a : ℤ` is coprime to `q`, then there are infinitely many prime numbers `p`
-such that `p ≡ a mod q`. -/
-theorem forall_exists_prime_gt_and_zmodEq (n : ℕ) {q : ℕ} {a : ℤ} (hq : q ≠ 0) (h : IsCoprime a q) :
-    ∃ p > n, p.Prime ∧ p ≡ a [ZMOD q] := by
+such that `p ≡ a mod q`.
+-/
+theorem forall_exists_prime_gt_and_zmodEq (n : ℕ) {q : ℕ} {a : ℤ} (hq : q ≠ 0) (h : IsCoprime a q)
+    : ∃ p > n, p.Prime ∧ p ≡ a [ZMOD q] := by
   have : NeZero q := ⟨hq⟩
-  have : IsUnit (a : ZMod q) := by
-    rwa [ZMod.coe_int_isUnit_iff_isCoprime, isCoprime_comm]
+  have : IsUnit (a : ZMod q) := by rwa [ZMod.coe_int_isUnit_iff_isCoprime, isCoprime_comm]
   obtain ⟨p, hpn, hpp, heq⟩ := forall_exists_prime_gt_and_eq_mod this n
   refine ⟨p, hpn, hpp, ?_⟩
   simpa [← ZMod.intCast_eq_intCast_iff] using heq
 
-/-- **Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
+/--
+**Dirichlet's Theorem** on primes in arithmetic progression: if `q` is a positive
 integer and `a : ℕ` is coprime to `q`, then there are infinitely many prime numbers `p`
-such that `p ≡ a mod q`. -/
-theorem forall_exists_prime_gt_and_modEq (n : ℕ) {q a : ℕ} (hq : q ≠ 0) (h : a.Coprime q) :
-    ∃ p > n, p.Prime ∧ p ≡ a [MOD q] := by
+such that `p ≡ a mod q`.
+-/
+theorem forall_exists_prime_gt_and_modEq (n : ℕ) {q a : ℕ} (hq : q ≠ 0) (h : a.Coprime q)
+    : ∃ p > n, p.Prime ∧ p ≡ a [MOD q] := by
   simpa using forall_exists_prime_gt_and_zmodEq n (q := q) (a := a) hq (by simpa)
 
 open Filter in

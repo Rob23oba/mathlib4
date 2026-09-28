@@ -40,34 +40,35 @@ variable {X : Type*} [TopologicalSpace X] {S : Set (Set X)} {t : Set X} {x : X}
 
 namespace Topology.IsCoherentWith
 
-protected theorem isOpen_iff (hS : IsCoherentWith S) :
-    IsOpen t ↔ ∀ s ∈ S, IsOpen ((↑) ⁻¹' t : Set s) :=
+protected theorem isOpen_iff (hS : IsCoherentWith S)
+    : IsOpen t ↔ ∀ s ∈ S, IsOpen ((↑) ⁻¹' t : Set s) :=
   ⟨fun ht _ _ ↦ ht.preimage continuous_subtype_val, hS.1 t⟩
 
-protected theorem isClosed_iff (hS : IsCoherentWith S) :
-    IsClosed t ↔ ∀ s ∈ S, IsClosed ((↑) ⁻¹' t : Set s) := by
+protected theorem isClosed_iff (hS : IsCoherentWith S)
+    : IsClosed t ↔ ∀ s ∈ S, IsClosed ((↑) ⁻¹' t : Set s) := by
   simp only [← isOpen_compl_iff, hS.isOpen_iff, preimage_compl]
 
-protected theorem continuous_iff {Y : Type*} [TopologicalSpace Y] {f : X → Y}
-    (hS : IsCoherentWith S) :
-    Continuous f ↔ ∀ s ∈ S, ContinuousOn f s :=
-  ⟨fun h _ _ ↦ h.continuousOn, fun h ↦ continuous_def.2 fun _u hu ↦ hS.isOpen_iff.2 fun s hs ↦
-    hu.preimage (h s hs).domRestrict⟩
+protected theorem continuous_iff
+    {Y : Type*} [TopologicalSpace Y] {f : X → Y} (hS : IsCoherentWith S)
+    : Continuous f ↔ ∀ s ∈ S, ContinuousOn f s := ⟨
+  fun h _ _ ↦ h.continuousOn,
+  fun h ↦ continuous_def.2 fun _u hu ↦ hS.isOpen_iff.2 fun s hs ↦ hu.preimage (h s hs).domRestrict
+⟩
 
-theorem of_continuous_prop (h : ∀ f : X → Prop, (∀ s ∈ S, ContinuousOn f s) → Continuous f) :
-    IsCoherentWith S where
+theorem of_continuous_prop (h : ∀ f : X → Prop, (∀ s ∈ S, ContinuousOn f s) → Continuous f)
+    : IsCoherentWith S where
   isOpen_of_forall_induced u hu := by
     simp only [continuousOn_iff_continuous_domRestrict, continuous_Prop] at *
     exact h _ hu
 
-theorem of_isClosed (h : ∀ t : Set X, (∀ s ∈ S, IsClosed ((↑) ⁻¹' t : Set s)) → IsClosed t) :
-    IsCoherentWith S :=
+theorem of_isClosed (h : ∀ t : Set X, (∀ s ∈ S, IsClosed ((↑) ⁻¹' t : Set s)) → IsClosed t)
+    : IsCoherentWith S :=
   ⟨fun _t ht ↦ isClosed_compl_iff.1 <| h _ fun s hs ↦ (ht s hs).isClosed_compl⟩
 
-protected theorem enlarge {T} (hS : IsCoherentWith S) (hT : ∀ s ∈ S, ∃ t ∈ T, s ⊆ t) :
-    IsCoherentWith T :=
-  of_continuous_prop fun _f hf ↦ hS.continuous_iff.2 fun s hs ↦
-    let ⟨t, htT, hst⟩ := hT s hs; (hf t htT).mono hst
+protected theorem enlarge {T} (hS : IsCoherentWith S) (hT : ∀ s ∈ S, ∃ t ∈ T, s ⊆ t)
+    : IsCoherentWith T :=
+  of_continuous_prop fun _f hf ↦
+    hS.continuous_iff.2 fun s hs ↦ let ⟨t, htT, hst⟩ := hT s hs; (hf t htT).mono hst
 
 protected theorem mono {T} (hS : IsCoherentWith S) (hT : S ⊆ T) : IsCoherentWith T :=
   hS.enlarge fun s hs ↦ ⟨s, hT hs, Subset.rfl⟩

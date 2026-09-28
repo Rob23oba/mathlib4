@@ -37,7 +37,8 @@ public section
 
 variable {R : Type*} [CommRing R] (S : Type*) [CommRing S] [Algebra R S]
 
-variable {M₁ M₂ M₃ N₁ N₂ N₃ : Type*} [AddCommGroup M₁] [AddCommGroup M₂] [AddCommGroup M₃]
+variable
+  {M₁ M₂ M₃ N₁ N₂ N₃ : Type*} [AddCommGroup M₁] [AddCommGroup M₂] [AddCommGroup M₃]
   [AddCommGroup N₁] [AddCommGroup N₂] [AddCommGroup N₃] [Module R M₁] [Module R M₂] [Module R M₃]
   [Module R N₁] [Module R N₂] [Module R N₃] [Module S N₁] [Module S N₂] [Module S N₃]
   [IsScalarTower R S N₁] [IsScalarTower R S N₂] [IsScalarTower R S N₃]

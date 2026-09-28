@@ -27,7 +27,8 @@ variable {ι M : Type*} [Zero M]
 section LE
 variable [LE M] {f g : ι →₀ M}
 
-instance instLE : LE (ι →₀ M) where le f g := ∀ i, f i ≤ g i
+instance instLE : LE (ι →₀ M) where
+  le f g := ∀ i, f i ≤ g i
 
 lemma le_def : f ≤ g ↔ ∀ i, f i ≤ g i := .rfl
 

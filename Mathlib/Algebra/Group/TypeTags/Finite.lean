@@ -21,18 +21,15 @@ universe u
 
 variable {α : Type u}
 
-instance [Finite α] : Finite (Additive α) :=
-  Finite.of_equiv α (by rfl)
+instance [Finite α] : Finite (Additive α) := Finite.of_equiv α (by rfl)
 
-instance [Finite α] : Finite (Multiplicative α) :=
-  Finite.of_equiv α (by rfl)
+instance [Finite α] : Finite (Multiplicative α) := Finite.of_equiv α (by rfl)
 
 instance [h : Infinite α] : Infinite (Additive α) := h
 
 instance [h : Infinite α] : Infinite (Multiplicative α) := h
 
-instance Additive.fintype : ∀ [Fintype α], Fintype (Additive α) :=
-  Fintype.ofEquiv α Additive.ofMul
+instance Additive.fintype : ∀ [Fintype α], Fintype (Additive α) := Fintype.ofEquiv α Additive.ofMul
 
 instance Multiplicative.fintype : ∀ [Fintype α], Fintype (Multiplicative α) :=
   Fintype.ofEquiv α Multiplicative.ofAdd

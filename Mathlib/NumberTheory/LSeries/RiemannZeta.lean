@@ -47,7 +47,6 @@ proved in `Mathlib/NumberTheory/LSeries/HurwitzZetaEven.lean`.
 
 @[expose] public section
 
-
 open CharZero Set Filter HurwitzZeta
 
 open Complex hiding exp continuous_exp
@@ -63,8 +62,10 @@ noncomputable section
 /-- The completed Riemann zeta function with its poles removed, `Λ(s) + 1 / s - 1 / (s - 1)`. -/
 def completedRiemannZeta₀ (s : ℂ) : ℂ := completedHurwitzZetaEven₀ 0 s
 
-/-- The completed Riemann zeta function, `Λ(s)`, which satisfies
-`Λ(s) = π ^ (-s / 2) Γ(s / 2) ζ(s)` (up to a minor correction at `s = 0`). -/
+/--
+The completed Riemann zeta function, `Λ(s)`, which satisfies
+`Λ(s) = π ^ (-s / 2) Γ(s / 2) ζ(s)` (up to a minor correction at `s = 0`).
+-/
 def completedRiemannZeta (s : ℂ) : ℂ := completedHurwitzZetaEven 0 s
 
 lemma HurwitzZeta.completedHurwitzZetaEven_zero (s : ℂ) :
@@ -91,20 +92,24 @@ theorem differentiable_completedZeta₀ : Differentiable ℂ completedRiemannZet
   differentiable_completedHurwitzZetaEven₀ 0
 
 /-- The completed Riemann zeta function `Λ(s)` is differentiable away from `s = 0` and `s = 1`. -/
-theorem differentiableAt_completedZeta {s : ℂ} (hs : s ≠ 0) (hs' : s ≠ 1) :
-    DifferentiableAt ℂ completedRiemannZeta s :=
+theorem differentiableAt_completedZeta {s : ℂ} (hs : s ≠ 0) (hs' : s ≠ 1)
+    : DifferentiableAt ℂ completedRiemannZeta s :=
   differentiableAt_completedHurwitzZetaEven 0 (Or.inl hs) hs'
 
-/-- Riemann zeta functional equation, formulated for `Λ₀`: for any complex `s` we have
-`Λ₀(1 - s) = Λ₀ s`. -/
-theorem completedRiemannZeta₀_one_sub (s : ℂ) :
-    completedRiemannZeta₀ (1 - s) = completedRiemannZeta₀ s := by
+/--
+Riemann zeta functional equation, formulated for `Λ₀`: for any complex `s` we have
+`Λ₀(1 - s) = Λ₀ s`.
+-/
+theorem completedRiemannZeta₀_one_sub (s : ℂ)
+    : completedRiemannZeta₀ (1 - s) = completedRiemannZeta₀ s := by
   rw [← completedHurwitzZetaEven₀_zero, ← completedCosZeta₀_zero, completedHurwitzZetaEven₀_one_sub]
 
-/-- Riemann zeta functional equation, formulated for `Λ`: for any complex `s` we have
-`Λ (1 - s) = Λ s`. -/
-theorem completedRiemannZeta_one_sub (s : ℂ) :
-    completedRiemannZeta (1 - s) = completedRiemannZeta s := by
+/--
+Riemann zeta functional equation, formulated for `Λ`: for any complex `s` we have
+`Λ (1 - s) = Λ s`.
+-/
+theorem completedRiemannZeta_one_sub (s : ℂ)
+    : completedRiemannZeta (1 - s) = completedRiemannZeta s := by
   rw [← completedHurwitzZetaEven_zero, ← completedCosZeta_zero, completedHurwitzZetaEven_one_sub]
 
 /-- The residue of `Λ(s)` at `s = 1` is equal to `1`. -/
@@ -173,58 +178,71 @@ lemma riemannZeta_eq_mul_completedRiemannZeta₀ (s : ℂ) :
 theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0 :=
   hurwitzZetaEven_neg_two_mul_nat_add_one 0 n
 
-/-- Riemann zeta functional equation, formulated for `ζ`: if `1 - s ∉ ℕ`, then we have
-`ζ (1 - s) = 2 ^ (1 - s) * π ^ (-s) * Γ s * sin (π * (1 - s) / 2) * ζ s`. -/
-theorem riemannZeta_one_sub {s : ℂ} (hs : ∀ n : ℕ, s ≠ -n) (hs' : s ≠ 1) :
-    riemannZeta (1 - s) = 2 * (2 * π) ^ (-s) * Gamma s * cos (π * s / 2) * riemannZeta s := by
+/--
+Riemann zeta functional equation, formulated for `ζ`: if `1 - s ∉ ℕ`, then we have
+`ζ (1 - s) = 2 ^ (1 - s) * π ^ (-s) * Γ s * sin (π * (1 - s) / 2) * ζ s`.
+-/
+theorem riemannZeta_one_sub {s : ℂ} (hs : ∀ n : ℕ, s ≠ -n) (hs' : s ≠ 1)
+    : riemannZeta (1 - s) = 2 * (2 * π) ^ (-s) * Gamma s * cos (π * s / 2) * riemannZeta s := by
   rw [riemannZeta, hurwitzZetaEven_one_sub 0 hs (Or.inr hs'), cosZeta_zero, hurwitzZetaEven_zero]
 
-/-- A formal statement of the **Riemann hypothesis** – constructing a term of this type is worth a
-million dollars. -/
+/--
+A formal statement of the **Riemann hypothesis** – constructing a term of this type is worth a
+million dollars.
+-/
 @[wikidata Q205966]
 def RiemannHypothesis : Prop :=
-  ∀ (s : ℂ) (_ : riemannZeta s = 0) (_ : ¬∃ n : ℕ, s = -2 * (n + 1)) (_ : s ≠ 1), s.re = 1 / 2
+  ∀ (s : ℂ) (_ : riemannZeta s = 0) (_ : ¬ ∃ n : ℕ, s = -2 * (n + 1)) (_ : s ≠ 1), s.re = 1 / 2
 
 /-!
 ## Relating the Mellin transform to the Dirichlet series
 -/
 
-theorem completedZeta_eq_tsum_of_one_lt_re {s : ℂ} (hs : 1 < re s) :
-    completedRiemannZeta s =
-      (π : ℂ) ^ (-s / 2) * Gamma (s / 2) * ∑' n : ℕ, 1 / (n : ℂ) ^ s := by
+theorem completedZeta_eq_tsum_of_one_lt_re {s : ℂ} (hs : 1 < re s)
+    : completedRiemannZeta s = (π : ℂ) ^ (-s / 2) * Gamma (s / 2) * ∑' n : ℕ, 1 / (n : ℂ) ^ s := by
   have := (hasSum_nat_completedCosZeta 0 hs).tsum_eq.symm
   simp only [QuotientAddGroup.mk_zero, completedCosZeta_zero] at this
-  simp only [this, Gammaℝ_def, mul_zero, zero_mul, Real.cos_zero, ofReal_one, mul_one, mul_one_div,
-    ← tsum_mul_left]
+  simp only [
+    this, Gammaℝ_def, mul_zero, zero_mul, Real.cos_zero, ofReal_one, mul_one, mul_one_div,
+    ← tsum_mul_left
+  ]
   congr 1 with n
   split_ifs with h
   · simp only [h, Nat.cast_zero, zero_cpow (Complex.ne_zero_of_one_lt_re hs), div_zero]
   · rfl
 
-/-- The Riemann zeta function agrees with the naive Dirichlet-series definition when the latter
+/--
+The Riemann zeta function agrees with the naive Dirichlet-series definition when the latter
 converges. (Note that this is false without the assumption: when `re s ≤ 1` the sum is divergent,
-and we use a different definition to obtain the analytic continuation to all `s`.) -/
-theorem zeta_eq_tsum_one_div_nat_cpow {s : ℂ} (hs : 1 < re s) :
-    riemannZeta s = ∑' n : ℕ, 1 / (n : ℂ) ^ s := by
-  simpa only [QuotientAddGroup.mk_zero, cosZeta_zero, mul_zero, zero_mul, Real.cos_zero,
-    ofReal_one] using (hasSum_nat_cosZeta 0 hs).tsum_eq.symm
+and we use a different definition to obtain the analytic continuation to all `s`.)
+-/
+theorem zeta_eq_tsum_one_div_nat_cpow {s : ℂ} (hs : 1 < re s)
+    : riemannZeta s = ∑' n : ℕ, 1 / (n : ℂ) ^ s := by
+  simpa only [QuotientAddGroup.mk_zero, cosZeta_zero, mul_zero, zero_mul, Real.cos_zero, ofReal_one]
+    using (hasSum_nat_cosZeta 0 hs).tsum_eq.symm
 
-/-- Alternate formulation of `zeta_eq_tsum_one_div_nat_cpow` with a `+ 1` (to avoid relying
-on mathlib's conventions for `0 ^ s`). -/
-theorem zeta_eq_tsum_one_div_nat_add_one_cpow {s : ℂ} (hs : 1 < re s) :
-    riemannZeta s = ∑' n : ℕ, 1 / (n + 1 : ℂ) ^ s := by
+/--
+Alternate formulation of `zeta_eq_tsum_one_div_nat_cpow` with a `+ 1` (to avoid relying
+on mathlib's conventions for `0 ^ s`).
+-/
+theorem zeta_eq_tsum_one_div_nat_add_one_cpow {s : ℂ} (hs : 1 < re s)
+    : riemannZeta s = ∑' n : ℕ, 1 / (n + 1 : ℂ) ^ s := by
   have := zeta_eq_tsum_one_div_nat_cpow hs
   rw [Summable.tsum_eq_zero_add] at this
   · simpa [zero_cpow (Complex.ne_zero_of_one_lt_re hs)]
   · rwa [Complex.summable_one_div_nat_cpow]
 
-/-- Special case of `zeta_eq_tsum_one_div_nat_cpow` when the argument is in `ℕ`, so the power
-function can be expressed using naïve `pow` rather than `cpow`. -/
-theorem zeta_nat_eq_tsum_of_gt_one {k : ℕ} (hk : 1 < k) :
-    riemannZeta k = ∑' n : ℕ, 1 / (n : ℂ) ^ k := by
-  simp only [zeta_eq_tsum_one_div_nat_cpow
+/--
+Special case of `zeta_eq_tsum_one_div_nat_cpow` when the argument is in `ℕ`, so the power
+function can be expressed using naïve `pow` rather than `cpow`.
+-/
+theorem zeta_nat_eq_tsum_of_gt_one {k : ℕ} (hk : 1 < k)
+    : riemannZeta k = ∑' n : ℕ, 1 / (n : ℂ) ^ k := by
+  simp only [
+    zeta_eq_tsum_one_div_nat_cpow
       (by rwa [← ofReal_natCast, ofReal_re, ← Nat.cast_one, Nat.cast_lt] : 1 < re k),
-    cpow_natCast]
+    cpow_natCast
+  ]
 
 lemma two_mul_riemannZeta_eq_tsum_int_inv_pow_of_even {k : ℕ} (hk : 2 ≤ k) (hk2 : Even k) :
     2 * riemannZeta k = ∑' (n : ℤ), ((n : ℂ) ^ k)⁻¹ := by
@@ -243,20 +261,24 @@ lemma riemannZeta_residue_one : Tendsto (fun s ↦ (s - 1) * riemannZeta s) (�
   exact hurwitzZetaEven_residue_one 0
 
 /-- The residue of `ζ(s)` at `s = 1` is equal to 1, expressed using `tsum`. -/
-theorem tendsto_sub_mul_tsum_nat_cpow :
-    Tendsto (fun s : ℂ ↦ (s - 1) * ∑' (n : ℕ), 1 / (n : ℂ) ^ s) (𝓝[{s | 1 < re s}] 1) (𝓝 1) := by
+theorem tendsto_sub_mul_tsum_nat_cpow
+    : Tendsto (fun s : ℂ ↦ (s - 1) * ∑' (n : ℕ), 1 / (n : ℂ) ^ s) (𝓝[{s | 1 < re s}] 1) (𝓝 1) := by
   refine (tendsto_nhdsWithin_mono_left ?_ riemannZeta_residue_one).congr' ?_
   · simp
   · filter_upwards [eventually_mem_nhdsWithin] with s hs using
       congr_arg _ <| zeta_eq_tsum_one_div_nat_cpow hs
 
-/-- The residue of `ζ(s)` at `s = 1` is equal to 1 expressed using `tsum` and for a
-real variable. -/
-theorem tendsto_sub_mul_tsum_nat_rpow :
-    Tendsto (fun s : ℝ ↦ (s - 1) * ∑' (n : ℕ), 1 / (n : ℝ) ^ s) (𝓝[>] 1) (𝓝 1) := by
+/--
+The residue of `ζ(s)` at `s = 1` is equal to 1 expressed using `tsum` and for a
+real variable.
+-/
+theorem tendsto_sub_mul_tsum_nat_rpow
+    : Tendsto (fun s : ℝ ↦ (s - 1) * ∑' (n : ℕ), 1 / (n : ℝ) ^ s) (𝓝[>] 1) (𝓝 1) := by
   rw [← tendsto_ofReal_iff, ofReal_one]
   have : Tendsto (fun s : ℝ ↦ (s : ℂ)) (𝓝[>] 1) (𝓝[{s | 1 < re s}] 1) :=
     continuous_ofReal.continuousWithinAt.tendsto_nhdsWithin (fun _ _ ↦ by simp_all)
   apply (tendsto_sub_mul_tsum_nat_cpow.comp this).congr fun s ↦ ?_
-  simp only [one_div, Function.comp_apply, ofReal_mul, ofReal_sub, ofReal_one, ofReal_tsum,
-    ofReal_inv, ofReal_cpow (Nat.cast_nonneg _), ofReal_natCast]
+  simp only [
+    one_div, Function.comp_apply, ofReal_mul, ofReal_sub, ofReal_one, ofReal_tsum, ofReal_inv,
+    ofReal_cpow (Nat.cast_nonneg _), ofReal_natCast
+  ]

@@ -17,22 +17,25 @@ public section
 
 section Field
 
-variable {F Γ₀ O : Type*} [Field F] [LinearOrderedCommGroupWithZero Γ₀]
-  [CommRing O] [Algebra O F] {v : Valuation F Γ₀}
+variable
+  {F Γ₀ O : Type*} [Field F] [LinearOrderedCommGroupWithZero Γ₀] [CommRing O] [Algebra O F]
+  {v : Valuation F Γ₀}
 
-instance MonoidWithZeroHom.instLinearOrderedCommGroupWithZeroMrange (v : F →*₀ Γ₀) :
-    LinearOrderedCommGroupWithZero (MonoidHom.mrange v) where
+instance MonoidWithZeroHom.instLinearOrderedCommGroupWithZeroMrange (v : F →*₀ Γ₀)
+    : LinearOrderedCommGroupWithZero (MonoidHom.mrange v) where
   bot := ⟨⊥, by simp [bot_eq_zero]⟩
   bot_le a := by simp [bot_eq_zero, ← Subtype.coe_le_coe]
   isBot_zero a := by simp [← Subtype.coe_le_coe]
   mul_lt_mul_of_pos_left := by
-    simp only [← Subtype.coe_lt_coe, val_mrange_zero, Submonoid.coe_mul, Subtype.forall,
-      MonoidHom.mem_mrange, forall_exists_index, forall_apply_eq_imp_iff]
+    simp only [
+      ← Subtype.coe_lt_coe, val_mrange_zero, Submonoid.coe_mul, Subtype.forall,
+      MonoidHom.mem_mrange, forall_exists_index, forall_apply_eq_imp_iff
+    ]
     rintro a ha b c hbc
     gcongr
 
-instance Valuation.instLinearOrderedCommGroupWithZeroMrange :
-    LinearOrderedCommGroupWithZero (MonoidHom.mrange v) :=
+instance Valuation.instLinearOrderedCommGroupWithZeroMrange
+    : LinearOrderedCommGroupWithZero (MonoidHom.mrange v) :=
   inferInstanceAs (LinearOrderedCommGroupWithZero (MonoidHom.mrange (v : F →*₀ Γ₀)))
 
 namespace Valuation.Integers

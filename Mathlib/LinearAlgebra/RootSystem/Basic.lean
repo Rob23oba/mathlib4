@@ -37,41 +37,42 @@ open AddSubgroup (zmultiples)
 
 noncomputable section
 
-variable {ι R M N : Type*}
-  [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
 
 namespace RootPairing
 
 section reflectionPerm
 
-variable (p : M →ₗ[R] N →ₗ[R] R) (root : ι ↪ M) (coroot : ι ↪ N) (i j : ι)
-  (h : ∀ i, MapsTo (preReflection (root i) (p.flip (coroot i)))
-    (range root) (range root))
+variable
+  (p : M →ₗ[R] N →ₗ[R] R) (root : ι ↪ M) (coroot : ι ↪ N) (i j : ι)
+  (h : ∀ i, MapsTo (preReflection (root i) (p.flip (coroot i))) (range root) (range root))
 include h
 
 set_option backward.privateInPublic true in
-private theorem exist_eq_reflection_of_mapsTo :
-    ∃ k, root k = (preReflection (root i) (p.flip (coroot i))) (root j) :=
+private theorem exist_eq_reflection_of_mapsTo
+    : ∃ k, root k = (preReflection (root i) (p.flip (coroot i))) (root j) :=
   h i (mem_range_self j)
 
 variable (hp : ∀ i, p (root i) (coroot i) = 2)
 include hp
 
 set_option backward.privateInPublic true in
-private theorem choose_choose_eq_of_mapsTo :
-    (exist_eq_reflection_of_mapsTo p root coroot i
-      (exist_eq_reflection_of_mapsTo p root coroot i j h).choose h).choose = j := by
+private theorem choose_choose_eq_of_mapsTo
+    : (exist_eq_reflection_of_mapsTo p root coroot i
+        (exist_eq_reflection_of_mapsTo p root coroot i j h).choose h).choose
+      = j := by
   refine root.injective ?_
-  rw [(exist_eq_reflection_of_mapsTo p root coroot i _ h).choose_spec,
-    (exist_eq_reflection_of_mapsTo p root coroot i j h).choose_spec]
+  rw [
+    (exist_eq_reflection_of_mapsTo p root coroot i _ h).choose_spec,
+    (exist_eq_reflection_of_mapsTo p root coroot i j h).choose_spec
+  ]
   apply involutive_preReflection (x := root i) (hp i)
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
 /-- The bijection on the indexing set induced by reflection. -/
 @[simps]
-protected def equiv_of_mapsTo :
-    ι ≃ ι where
+protected def equiv_of_mapsTo : ι ≃ ι where
   toFun j := (exist_eq_reflection_of_mapsTo p root coroot i j h).choose
   invFun j := (exist_eq_reflection_of_mapsTo p root coroot i j h).choose
   left_inv j := choose_choose_eq_of_mapsTo p root coroot i j h hp
@@ -169,16 +170,17 @@ private lemma coroot_eq_coreflection_of_root_eq' [CharZero R] [IsDomain R]
   exact (hr i).comp <| (hr j).comp (hr i)
 
 set_option backward.isDefEq.respectTransparency false in
-/-- In characteristic zero over an integral domain, to check that two finite families of roots and
-coroots form a root pairing, it is sufficient to check that they are stable under reflections. -/
-def mk' [CharZero R] [IsDomain R]
+/--
+In characteristic zero over an integral domain, to check that two finite families of roots and
+coroots form a root pairing, it is sufficient to check that they are stable under reflections.
+-/
+def mk'
+    [CharZero R] [IsDomain R]
     (p : M →ₗ[R] N →ₗ[R] R) [p.IsPerfPair]
-    (root : ι ↪ M)
-    (coroot : ι ↪ N)
-    (hp : ∀ i, p (root i) (coroot i) = 2)
+    (root : ι ↪ M) (coroot : ι ↪ N) (hp : ∀ i, p (root i) (coroot i) = 2)
     (hr : ∀ i, MapsTo (preReflection (root i) (p.flip (coroot i))) (range root) (range root))
-    (hc : ∀ i, MapsTo (preReflection (coroot i) (p (root i))) (range coroot) (range coroot)) :
-    RootPairing ι R M N where
+    (hc : ∀ i, MapsTo (preReflection (coroot i) (p (root i))) (range coroot) (range coroot))
+    : RootPairing ι R M N where
   toLinearMap := p
   root := root
   coroot := coroot
@@ -250,20 +252,20 @@ private lemma coroot_eq_coreflection_of_root_eq_of_span_eq_top [CharZero R] [IsD
 
 section
 
-variable {k : Type*} [Field k] [CharZero k] [Module k M] [Module k N]
+variable
+  {k : Type*} [Field k] [CharZero k] [Module k M] [Module k N]
   (p : M →ₗ[k] N →ₗ[k] k) [p.IsPerfPair]
-  (root : ι ↪ M)
-  (coroot : ι ↪ N)
-  (hp : ∀ i, p (root i) (coroot i) = 2)
+  (root : ι ↪ M) (coroot : ι ↪ N) (hp : ∀ i, p (root i) (coroot i) = 2)
   (hs : ∀ i, MapsTo (preReflection (root i) (p.flip (coroot i))) (range root) (range root))
   (hsp : span k (range root) = ⊤)
 
-/-- Over a field of characteristic zero, to check that a finite family of roots form a
+/--
+Over a field of characteristic zero, to check that a finite family of roots form a
 crystallographic root system, we do not need to check that the coroots are stable under reflections
 since this follows from the corresponding property for the roots. Likewise, we do not need to
-check that the coroots span. -/
-def mk'' :
-    RootPairing ι k M N :=
+check that the coroots span.
+-/
+def mk'' : RootPairing ι k M N :=
   .mk' p root coroot hp hs <| by
     rintro i - ⟨j, rfl⟩
     use RootPairing.equiv_of_mapsTo p root coroot i hs hp j

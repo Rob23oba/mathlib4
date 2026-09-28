@@ -86,19 +86,21 @@ instance instIsCancelAdd (n : ℕ) : IsCancelAdd (Fin n) where
   add_right_cancel := Nat.casesOn n finZeroElim fun _i _ _ _ ↦ add_right_cancel
 
 /-- Note this is more general than `Fin.addCommGroup` as it applies (vacuously) to `Fin 0` too. -/
-instance instAddLeftCancelSemigroup (n : ℕ) : AddLeftCancelSemigroup (Fin n) :=
-  { Fin.addCommSemigroup n, Fin.instIsCancelAdd n with }
+instance instAddLeftCancelSemigroup (n : ℕ) : AddLeftCancelSemigroup (Fin n) := {
+  Fin.addCommSemigroup n, Fin.instIsCancelAdd n with
+}
 
 /-- Note this is more general than `Fin.addCommGroup` as it applies (vacuously) to `Fin 0` too. -/
-instance instAddRightCancelSemigroup (n : ℕ) : AddRightCancelSemigroup (Fin n) :=
-  { Fin.addCommSemigroup n, Fin.instIsCancelAdd n with }
+instance instAddRightCancelSemigroup (n : ℕ) : AddRightCancelSemigroup (Fin n) := {
+  Fin.addCommSemigroup n, Fin.instIsCancelAdd n with
+}
 
 /-! ### Miscellaneous lemmas -/
 
 open scoped Fin.NatCast Fin.IntCast in
 /-- Variant of `Fin.intCast_def` with `Nat.cast` on the RHS. -/
-theorem intCast_def' {n : Nat} [NeZero n] (x : Int) :
-    (x : Fin n) = if 0 ≤ x then ↑x.natAbs else -↑x.natAbs :=
+theorem intCast_def' {n : Nat} [NeZero n] (x : Int)
+    : (x : Fin n) = if 0 ≤ x then ↑x.natAbs else - ↑x.natAbs :=
   Fin.intCast_def _
 
 lemma coe_sub_one (a : Fin (n + 1)) : ↑(a - 1) = if a = 0 then n else a - 1 := by

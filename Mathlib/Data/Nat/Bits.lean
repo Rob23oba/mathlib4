@@ -32,18 +32,22 @@ namespace Nat
 universe u
 variable {m n : ℕ}
 
-/-- `boddDiv2 n` returns a 2-tuple of type `(Bool, Nat)` where the `Bool` value indicates whether
-`n` is odd or not and the `Nat` value returns `⌊n/2⌋` -/
+/--
+`boddDiv2 n` returns a 2-tuple of type `(Bool, Nat)` where the `Bool` value indicates whether
+`n` is odd or not and the `Nat` value returns `⌊n/2⌋`
+-/
 @[deprecated "use `Nat.bodd` and `Nat.div2` instead" (since := "2026-03-22")]
 def boddDiv2 : ℕ → Bool × ℕ
-  | 0 => (false, 0)
+  | 0 =>
+    (false, 0)
   | succ n =>
     match boddDiv2 n with
     | (false, m) => (true, m)
     | (true, m) => (false, succ m)
 
 /-- `div2 n = ⌊n/2⌋` the greatest integer smaller than `n/2` -/
-@[inline, grind =] def div2 (n : ℕ) : ℕ := n / 2
+@[inline, grind =]
+def div2 (n : ℕ) : ℕ := n / 2
 
 theorem div2_val (n : ℕ) : div2 n = n / 2 := rfl
 
@@ -112,9 +116,11 @@ lemma bit_bodd_div2 (n : Nat) : bit (bodd n) (div2 n) = n :=
 lemma bit_false_zero : bit false 0 = 0 :=
   rfl
 
-/-- `shiftLeft' b m n` performs a left shift of `m` `n` times
+/--
+`shiftLeft' b m n` performs a left shift of `m` `n` times
 and adds the bit `b` as the least significant bit each time.
-Returns the corresponding natural number -/
+Returns the corresponding natural number
+-/
 def shiftLeft' (b : Bool) (m : ℕ) : ℕ → ℕ
   | 0 => m
   | n + 1 => bit b (shiftLeft' b m n)
@@ -131,21 +137,24 @@ lemma shiftLeft'_false : ∀ n, shiftLeft' false m n = m <<< n
 
 lemma binaryRec_decreasing (h : n ≠ 0) : div2 n < n := by grind
 
-/-- `size n` : Returns the size of a natural number in
-bits i.e. the length of its binary representation -/
-def size : ℕ → ℕ :=
-  binaryRec 0 fun _ _ => succ
+/--
+`size n` : Returns the size of a natural number in
+bits i.e. the length of its binary representation
+-/
+def size : ℕ → ℕ := binaryRec 0 fun _ _ => succ
 
-/-- `bits n` returns a list of Bools which correspond to the binary representation of n, where
-the head of the list represents the least significant bit -/
-def bits : ℕ → List Bool :=
-  binaryRec [] fun b _ IH => b :: IH
+/--
+`bits n` returns a list of Bools which correspond to the binary representation of n, where
+the head of the list represents the least significant bit
+-/
+def bits : ℕ → List Bool := binaryRec [] fun b _ IH => b :: IH
 
-/-- `ldiff a b` performs bitwise set difference. For each corresponding
-  pair of bits taken as Booleans, say `aᵢ` and `bᵢ`, it applies the
-  Boolean operation `aᵢ ∧ ¬bᵢ` to obtain the `iᵗʰ` bit of the result. -/
-def ldiff : ℕ → ℕ → ℕ :=
-  bitwise fun a b => a && not b
+/--
+`ldiff a b` performs bitwise set difference. For each corresponding
+pair of bits taken as Booleans, say `aᵢ` and `bᵢ`, it applies the
+Boolean operation `aᵢ ∧ ¬bᵢ` to obtain the `iᵗʰ` bit of the result.
+-/
+def ldiff : ℕ → ℕ → ℕ := bitwise fun a b => a && not b
 
 /-! bitwise ops -/
 
@@ -181,51 +190,52 @@ lemma testBit_bit_succ (m b n) : testBit (bit b n) (succ m) = testBit n m := by
 @[deprecated "`Nat.boddDiv2` has been deprecated" (since := "2026-03-22")]
 theorem boddDiv2_eq (n : ℕ) : boddDiv2 n = (bodd n, div2 n) := by
   induction n with
-  | zero => rfl
+  | zero =>
+    rfl
   | succ n ih =>
     rw [boddDiv2, ih]
     cases hn : n.bodd <;> simp [hn]
 
-@[simp]
-theorem div2_bit0 (n) : div2 (2 * n) = n :=
-  div2_bit false n
+@[simp] theorem div2_bit0 (n) : div2 (2 * n) = n := div2_bit false n
 
 -- simp can prove this
-theorem div2_bit1 (n) : div2 (2 * n + 1) = n :=
-  div2_bit true n
+theorem div2_bit1 (n) : div2 (2 * n + 1) = n := div2_bit true n
 
 /-! ### `bit0` and `bit1` -/
 
 theorem bit_add : ∀ (b : Bool) (n m : ℕ), bit b (n + m) = bit false n + bit b m
-  | true, _, _ => by dsimp [bit]; lia
-  | false, _, _ => by dsimp [bit]; lia
+  | true, _, _ => by
+    dsimp [bit]; lia
+  | false, _, _ => by
+    dsimp [bit]; lia
 
 theorem bit_add' : ∀ (b : Bool) (n m : ℕ), bit b (n + m) = bit b n + bit false m
-  | true, _, _ => by dsimp [bit]; lia
-  | false, _, _ => by dsimp [bit]; lia
+  | true, _, _ => by
+    dsimp [bit]; lia
+  | false, _, _ => by
+    dsimp [bit]; lia
 
-theorem bit_ne_zero (b) {n} (h : n ≠ 0) : bit b n ≠ 0 := by
-  cases b <;> dsimp [bit] <;> lia
+theorem bit_ne_zero (b) {n} (h : n ≠ 0) : bit b n ≠ 0 := by cases b <;> dsimp [bit] <;> lia
 
 @[simp]
-theorem bitCasesOn_bit0 {motive : ℕ → Sort u} (H : ∀ b n, motive (bit b n)) (n : ℕ) :
-    bitCasesOn (2 * n) H = H false n :=
+theorem bitCasesOn_bit0 {motive : ℕ → Sort u} (H : ∀ b n, motive (bit b n)) (n : ℕ)
+    : bitCasesOn (2 * n) H = H false n :=
   bitCasesOn_bit H false n
 
 @[simp]
-theorem bitCasesOn_bit1 {motive : ℕ → Sort u} (H : ∀ b n, motive (bit b n)) (n : ℕ) :
-    bitCasesOn (2 * n + 1) H = H true n :=
+theorem bitCasesOn_bit1 {motive : ℕ → Sort u} (H : ∀ b n, motive (bit b n)) (n : ℕ)
+    : bitCasesOn (2 * n + 1) H = H true n :=
   bitCasesOn_bit H true n
 
-theorem bit_cases_on_injective {motive : ℕ → Sort u} :
-    Function.Injective fun H : ∀ b n, motive (bit b n) => fun n => bitCasesOn n H := by
+theorem bit_cases_on_injective {motive : ℕ → Sort u}
+    : Function.Injective fun H : ∀ b n, motive (bit b n) => fun n => bitCasesOn n H := by
   intro H₁ H₂ h
   ext b n
   simpa only [bitCasesOn_bit] using congr_fun h (bit b n)
 
 @[simp]
-theorem bit_cases_on_inj {motive : ℕ → Sort u} (H₁ H₂ : ∀ b n, motive (bit b n)) :
-    ((fun n => bitCasesOn n H₁) = fun n => bitCasesOn n H₂) ↔ H₁ = H₂ :=
+theorem bit_cases_on_inj {motive : ℕ → Sort u} (H₁ H₂ : ∀ b n, motive (bit b n))
+    : ((fun n => bitCasesOn n H₁) = fun n => bitCasesOn n H₂) ↔ H₁ = H₂ :=
   bit_cases_on_injective.eq_iff
 
 lemma bit_le : ∀ (b : Bool) {m n : ℕ}, m ≤ n → bit b m ≤ bit b n
@@ -236,12 +246,11 @@ lemma bit_lt_bit (a b) (h : m < n) : bit a m < bit b n := calc
   bit a m < 2 * n := by cases a <;> dsimp [bit] <;> lia
         _ ≤ bit b n := by cases b <;> dsimp [bit] <;> lia
 
-@[simp]
-theorem zero_bits : bits 0 = [] := by simp [Nat.bits]
+@[simp] theorem zero_bits : bits 0 = [] := by simp [Nat.bits]
 
 @[simp]
-theorem bits_append_bit (n : ℕ) (b : Bool) (hn : n = 0 → b = true) :
-    (bit b n).bits = b :: n.bits := by
+theorem bits_append_bit (n : ℕ) (b : Bool) (hn : n = 0 → b = true)
+    : (bit b n).bits = b :: n.bits := by
   rw [Nat.bits, Nat.bits, binaryRec_eq]
   simpa
 
@@ -250,11 +259,9 @@ theorem bit0_bits (n : ℕ) (hn : n ≠ 0) : (2 * n).bits = false :: n.bits :=
   bits_append_bit n false fun hn' => absurd hn' hn
 
 @[simp]
-theorem bit1_bits (n : ℕ) : (2 * n + 1).bits = true :: n.bits :=
-  bits_append_bit n true fun _ => rfl
+theorem bit1_bits (n : ℕ) : (2 * n + 1).bits = true :: n.bits := bits_append_bit n true fun _ => rfl
 
-@[simp]
-theorem one_bits : Nat.bits 1 = [true] := bit1_bits 0
+@[simp] theorem one_bits : Nat.bits 1 = [true] := bit1_bits 0
 
 -- TODO Find somewhere this can live.
 -- example : bits 3423 = [true, true, true, true, true, false, true, false, true, false, true, true]

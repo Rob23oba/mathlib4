@@ -83,9 +83,8 @@ lemma MonotoneOn.exists_tendsto_deriv_liminf_lintegral_enorm_le
       _ = ENNReal.ofReal (f b - f a) := by grind
 
 /-- If `f` is monotone on `a..b`, then `f'` is interval integrable on `a..b`. -/
-theorem MonotoneOn.intervalIntegrable_deriv {f : ℝ → ℝ} {a b : ℝ}
-    (hf : MonotoneOn f (uIcc a b)) :
-    IntervalIntegrable (deriv f) volume a b := by
+theorem MonotoneOn.intervalIntegrable_deriv {f : ℝ → ℝ} {a b : ℝ} (hf : MonotoneOn f (uIcc a b))
+    : IntervalIntegrable (deriv f) volume a b := by
   wlog hab : a ≤ b generalizing a b with h
   · exact h (uIcc_comm a b ▸ hf) (by linarith) |>.symm
   rw [uIcc_of_le hab] at hf
@@ -95,11 +94,13 @@ theorem MonotoneOn.intervalIntegrable_deriv {f : ℝ → ℝ} {a b : ℝ}
   have integrable_f_deriv := integrable_of_tendsto hGf hG hG'₀
   exact (intervalIntegrable_iff_integrableOn_Icc_of_le hab).mpr integrable_f_deriv
 
-/-- If `f` is monotone on `a..b`, then `f'` is interval integrable on `a..b` and the integral of
-`f'` on `a..b` is in between `0` and `f b - f a`. -/
-theorem MonotoneOn.intervalIntegral_deriv_mem_uIcc {f : ℝ → ℝ} {a b : ℝ}
-    (hf : MonotoneOn f (uIcc a b)) :
-    ∫ x in a..b, deriv f x ∈ uIcc 0 (f b - f a) := by
+/--
+If `f` is monotone on `a..b`, then `f'` is interval integrable on `a..b` and the integral of
+`f'` on `a..b` is in between `0` and `f b - f a`.
+-/
+theorem MonotoneOn.intervalIntegral_deriv_mem_uIcc
+    {f : ℝ → ℝ} {a b : ℝ} (hf : MonotoneOn f (uIcc a b))
+    : ∫ x in a..b, deriv f x ∈ uIcc 0 (f b - f a) := by
   wlog hab : a ≤ b generalizing a b with h
   · specialize h (uIcc_comm a b ▸ hf) (by linarith)
     have : f b ≤ f a := hf (by simp) (by simp) (by linarith)
@@ -121,18 +122,22 @@ theorem MonotoneOn.intervalIntegral_deriv_mem_uIcc {f : ℝ → ℝ} {a b : ℝ}
     exact hf.derivWithin_nonneg
   constructor
   · apply intervalIntegral.integral_nonneg_of_ae_restrict hab
-    rw [Filter.EventuallyLE, ← restrict_Ioo_eq_restrict_Icc,
-      MeasureTheory.ae_restrict_iff' measurableSet_Ioo]
+    rw [
+      Filter.EventuallyLE, ← restrict_Ioo_eq_restrict_Icc,
+      MeasureTheory.ae_restrict_iff' measurableSet_Ioo
+    ]
     exact Filter.Eventually.of_forall @f_deriv_nonneg
-  · have ebound := lintegral_enorm_le_liminf_of_tendsto
-      ((MeasureTheory.ae_restrict_iff' (by measurability) |>.mpr hGf))
-      (fun n ↦ (hG n).aemeasurable.enorm)
+  · have ebound :=
+      lintegral_enorm_le_liminf_of_tendsto
+        ((MeasureTheory.ae_restrict_iff' (by measurability) |>.mpr hGf))
+        (fun n ↦ (hG n).aemeasurable.enorm)
     grw [hG'] at ebound
-    rw [uIcc_of_le hab,
-        ← MeasureTheory.ofReal_integral_norm_eq_lintegral_enorm integrable_f_deriv,
-        ENNReal.ofReal_le_ofReal_iff (by linarith),
-        integral_Icc_eq_integral_Ioc,
-        ← intervalIntegral.integral_of_le hab] at ebound
+    rw [
+        uIcc_of_le hab, ← MeasureTheory.ofReal_integral_norm_eq_lintegral_enorm integrable_f_deriv,
+        ENNReal.ofReal_le_ofReal_iff (by linarith), integral_Icc_eq_integral_Ioc,
+        ← intervalIntegral.integral_of_le hab
+      ]
+      at ebound
     convert! ebound using 1
     refine intervalIntegral.integral_congr_uIoo ?_
     rw [uIoo_of_le hab]
@@ -140,9 +145,9 @@ theorem MonotoneOn.intervalIntegral_deriv_mem_uIcc {f : ℝ → ℝ} {a b : ℝ}
     exact Eq.symm <| abs_eq_self.mpr <| f_deriv_nonneg hx
 
 /-- If `f` has bounded variation on `uIcc a b`, then `f'` is interval integrable on `a..b`. -/
-theorem BoundedVariationOn.intervalIntegrable_deriv {f : ℝ → ℝ} {a b : ℝ}
-    (hf : BoundedVariationOn f (uIcc a b)) :
-    IntervalIntegrable (deriv f) volume a b := by
+theorem BoundedVariationOn.intervalIntegrable_deriv
+    {f : ℝ → ℝ} {a b : ℝ} (hf : BoundedVariationOn f (uIcc a b))
+    : IntervalIntegrable (deriv f) volume a b := by
   obtain ⟨p, q, hp, hq, rfl⟩ := hf.locallyBoundedVariationOn.exists_monotoneOn_sub_monotoneOn
   have h₂ : ∀ᵐ x, x ≠ max a b := by simp [ae_iff, measure_singleton]
   apply (hp.intervalIntegrable_deriv.sub hq.intervalIntegrable_deriv).congr_ae
@@ -157,7 +162,7 @@ theorem BoundedVariationOn.intervalIntegrable_deriv {f : ℝ → ℝ} {a b : ℝ
   exact (hx₁.sub hx₂).deriv.symm
 
 /-- If `f` is absolutely continuous on `uIcc a b`, then `f'` is interval integrable on `a..b`. -/
-theorem AbsolutelyContinuousOnInterval.intervalIntegrable_deriv {f : ℝ → ℝ} {a b : ℝ}
-    (hf : AbsolutelyContinuousOnInterval f a b) :
-    IntervalIntegrable (deriv f) volume a b :=
+theorem AbsolutelyContinuousOnInterval.intervalIntegrable_deriv
+    {f : ℝ → ℝ} {a b : ℝ} (hf : AbsolutelyContinuousOnInterval f a b)
+    : IntervalIntegrable (deriv f) volume a b :=
   hf.boundedVariationOn.intervalIntegrable_deriv

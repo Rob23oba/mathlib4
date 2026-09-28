@@ -30,10 +30,11 @@ open CategoryTheory Category Limits
 
 namespace HomologicalComplex₂
 
-variable {C I₁ I₂ J : Type*} [Category* C] [Preadditive C]
-    {c₁ : ComplexShape I₁} {c₂ : ComplexShape I₂} (K : HomologicalComplex₂ C c₁ c₂)
-    (c : ComplexShape J) [TotalComplexShape c₁ c₂ c] [TotalComplexShape c₂ c₁ c]
-    [TotalComplexShapeSymmetry c₁ c₂ c]
+variable
+  {C I₁ I₂ J : Type*} [Category* C] [Preadditive C]
+  {c₁ : ComplexShape I₁} {c₂ : ComplexShape I₂} (K : HomologicalComplex₂ C c₁ c₂)
+  (c : ComplexShape J)
+  [TotalComplexShape c₁ c₂ c] [TotalComplexShape c₂ c₁ c] [TotalComplexShapeSymmetry c₁ c₂ c]
 
 instance [K.HasTotal c] : K.flip.HasTotal c := fun j =>
   hasCoproduct_of_equiv_of_iso (K.toGradedObject.mapObjFun (ComplexShape.π c₁ c₂ c) j) _
@@ -55,10 +56,14 @@ attribute [local simp] smul_smul
 set_option backward.isDefEq.respectTransparency false in
 /-- Auxiliary definition for `totalFlipIso`. -/
 noncomputable def totalFlipIsoX (j : J) : (K.flip.total c).X j ≅ (K.total c).X j where
-  hom := K.flip.totalDesc (fun i₂ i₁ h => ComplexShape.σ c₁ c₂ c i₁ i₂ • K.ιTotal c i₁ i₂ j (by
-    rw [← ComplexShape.π_symm c₁ c₂ c i₁ i₂, h]))
-  inv := K.totalDesc (fun i₁ i₂ h => ComplexShape.σ c₁ c₂ c i₁ i₂ • K.flip.ιTotal c i₂ i₁ j (by
-    rw [ComplexShape.π_symm c₁ c₂ c i₁ i₂, h]))
+  hom :=
+    K.flip.totalDesc (fun i₂ i₁ h =>
+      ComplexShape.σ c₁ c₂ c i₁ i₂
+        • K.ιTotal c i₁ i₂ j (by rw [← ComplexShape.π_symm c₁ c₂ c i₁ i₂, h]))
+  inv :=
+    K.totalDesc (fun i₁ i₂ h =>
+      ComplexShape.σ c₁ c₂ c i₁ i₂
+        • K.flip.ιTotal c i₂ i₁ j (by rw [ComplexShape.π_symm c₁ c₂ c i₁ i₂, h]))
   hom_inv_id := by ext; simp
   inv_hom_id := by ext; simp
 
@@ -108,12 +113,16 @@ lemma totalFlipIsoX_hom_D₂ (j j' : J) :
     · rw [K.d₂_eq_zero _ _ _ _ h₂, K.flip.d₁_eq_zero _ _ _ _ h₂, smul_zero, zero_comp]
   · rw [K.D₂_shape _ _ _ h₀, K.flip.D₁_shape c _ _ h₀, zero_comp, comp_zero]
 
-/-- The symmetry isomorphism `K.flip.total c ≅ K.total c` of the total complex of a
-bicomplex when we have `[TotalComplexShapeSymmetry c₁ c₂ c]`. -/
+/--
+The symmetry isomorphism `K.flip.total c ≅ K.total c` of the total complex of a
+bicomplex when we have `[TotalComplexShapeSymmetry c₁ c₂ c]`.
+-/
 noncomputable def totalFlipIso : K.flip.total c ≅ K.total c :=
   HomologicalComplex.Hom.isoOfComponents (K.totalFlipIsoX c) (fun j j' _ => by
-    simp only [total_d, Preadditive.comp_add, totalFlipIsoX_hom_D₁,
-      totalFlipIsoX_hom_D₂, Preadditive.add_comp]
+    simp only [
+      total_d, Preadditive.comp_add, totalFlipIsoX_hom_D₁, totalFlipIsoX_hom_D₂,
+      Preadditive.add_comp
+    ]
     rw [add_comm])
 
 #adaptation_note

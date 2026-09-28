@@ -41,10 +41,12 @@ variable {α : Type*} {M M' N : Matroid α} {e : α} {I C D : Set α}
 
 /-! ### Minors -/
 
-/-- `N` is a minor of `M` if `N = M ／ C ＼ D` for some `C` and `D`.
+/--
+`N` is a minor of `M` if `N = M ／ C ＼ D` for some `C` and `D`.
 The definition itself does not require `C` and `D` to be disjoint,
 or even to be subsets of the ground set. See `Matroid.IsMinor.exists_eq_contract_delete_disjoint`
-for the fact that we can choose `C` and `D` with these properties. -/
+for the fact that we can choose `C` and `D` with these properties.
+-/
 def IsMinor (N M : Matroid α) : Prop := ∃ C D, N = M ／ C ＼ D
 
 /-- `≤m` denotes the minor relation on matroids. -/
@@ -61,9 +63,11 @@ lemma IsMinor.exists_eq_contract_delete_disjoint (h : N ≤m M) :
     disjoint_sdiff_right.mono_left inter_subset_left,
     by simp [delete_eq_delete_iff, inter_assoc, inter_sdiff_assoc]⟩
 
-/-- `N` is a strict minor of `M` if `N` is a minor of `M` and `N ≠ M`.
+/--
+`N` is a strict minor of `M` if `N` is a minor of `M` and `N ≠ M`.
 Equivalently, `N` is obtained from `M` by deleting/contracting subsets of the ground set
-that are not both empty. -/
+that are not both empty.
+-/
 def IsStrictMinor (N M : Matroid α) : Prop := N ≤m M ∧ ¬ M ≤m N
 
 /-- `<m` denotes the strict minor relation on matroids. -/
@@ -89,8 +93,10 @@ lemma IsMinor.eq_of_ground_subset (h : N ≤m M) (hE : M.E ⊆ N.E) : M = N := b
 lemma IsMinor.antisymm (h : N ≤m M) (h' : M ≤m N) : N = M :=
   h'.eq_of_ground_subset h.subset
 
-/-- The minor order is a `PartialOrder` on `Matroid α`.
-We prefer the spelling `N ≤m M` over `N ≤ M` for the dot notation. -/
+/--
+The minor order is a `PartialOrder` on `Matroid α`.
+We prefer the spelling `N ≤m M` over `N ≤ M` for the dot notation.
+-/
 instance (α : Type*) : PartialOrder (Matroid α) where
   le N M := N ≤m M
   lt N M := N <m M

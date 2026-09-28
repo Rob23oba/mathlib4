@@ -32,12 +32,12 @@ prime ideals `p ≤ q` of `R` with `P` a prime of `S` lying above `p`, there exi
 prime `P ≤ Q` of `S` lying above `q`.
 
 The condition only asks for `<` which is easier to prove, use
-`Ideal.exists_ideal_ge_liesOver_of_le` for applying it. -/
+`Ideal.exists_ideal_ge_liesOver_of_le` for applying it.
+-/
 @[stacks 00HV "(1)"]
-class Algebra.HasGoingUp
-    (R S : Type*) [CommRing R] [CommRing S] [Algebra R S] : Prop where
-  exists_ideal_ge_liesOver_of_lt {q : Ideal R} [q.IsPrime] (P : Ideal S) [P.IsPrime] :
-    P.under R < q → ∃ Q, P ≤ Q ∧ Q.IsPrime ∧ Q.LiesOver q
+class Algebra.HasGoingUp (R S : Type*) [CommRing R] [CommRing S] [Algebra R S] : Prop where
+  exists_ideal_ge_liesOver_of_lt {q : Ideal R} [q.IsPrime] (P : Ideal S) [P.IsPrime]
+    : P.under R < q → ∃ Q, P ≤ Q ∧ Q.IsPrime ∧ Q.LiesOver q
 
 variable {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
 

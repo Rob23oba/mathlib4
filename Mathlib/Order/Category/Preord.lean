@@ -18,7 +18,6 @@ This defines `Preord`, the category of preorders with monotone maps.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory
@@ -42,8 +41,7 @@ open Lean.PrettyPrinter.Delaborator in
 @[app_delab Preord.of]
 meta def delabOf : Delab := CategoryTheory.delabOf
 
-instance : CoeSort Preord (Type u) :=
-  ⟨Preord.carrier⟩
+instance : CoeSort Preord (Type u) := ⟨Preord.carrier⟩
 
 attribute [coe] Preord.carrier
 
@@ -64,8 +62,7 @@ instance : ConcreteCategory Preord (· →o ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `Preord` back into a `OrderHom`. -/
-abbrev Hom.hom {X Y : Preord.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := Preord) f
+abbrev Hom.hom {X Y : Preord.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := Preord) f
 
 /-- Typecheck a `OrderHom` as a morphism in `Preord`. -/
 abbrev ofHom {X Y : Type u} [Preorder X] [Preorder Y] (f : X →o Y) : of X ⟶ of Y :=
@@ -73,8 +70,7 @@ abbrev ofHom {X Y : Type u} [Preorder X] [Preorder Y] (f : X →o Y) : of X ⟶ 
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : Preord.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : Preord.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -136,8 +132,7 @@ lemma inv_hom_apply {X Y : Preord} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x :
 lemma hom_inv_apply {X Y : Preord} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited Preord :=
-  ⟨of PUnit⟩
+instance : Inhabited Preord := ⟨of PUnit⟩
 
 /-- Constructs an equivalence between preorders from an order isomorphism between them. -/
 @[simps]
@@ -161,16 +156,15 @@ def dualEquiv : Preord ≌ Preord where
 
 end Preord
 
-/-- The embedding of `Preord` into `Cat`.
--/
+/-- The embedding of `Preord` into `Cat`. -/
 @[simps]
 def preordToCat : Preord.{u} ⥤ Cat where
   obj X := ↧X.1
   map f := f.hom.monotone.functor.toCatHom
 
 instance : preordToCat.{u}.Faithful where
-  map_injective h := by ext x; exact Functor.congr_obj congr(($h).toFunctor) x
+  map_injective h := by ext x; exact Functor.congr_obj (congr(($h).toFunctor)) x
 
 instance : preordToCat.{u}.Full where
-  map_surjective {X Y} f := ⟨⟨f.toFunctor.obj,
-    @CategoryTheory.Functor.monotone X Y _ _ f.toFunctor⟩, rfl⟩
+  map_surjective {X Y} f :=
+    ⟨⟨f.toFunctor.obj, @CategoryTheory.Functor.monotone X Y _ _ f.toFunctor⟩, rfl⟩

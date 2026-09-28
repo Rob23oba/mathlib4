@@ -57,8 +57,7 @@ Let `A` and `B` be `R`-algebras. A Morita equivalence between `A` and `B` is an 
 equivalence between the categories of `A`-modules and `B`-modules.
 -/
 structure MoritaEquivalence
-    (A : Type u₁) [Ring A] [Algebra R A]
-    (B : Type u₂) [Ring B] [Algebra R B] where
+    (A : Type u₁) [Ring A] [Algebra R A] (B : Type u₂) [Ring B] [Algebra R B] where
   /-- The underlying equivalence of categories -/
   eqv : ModuleCat.{max u₁ u₂} A ≌ ModuleCat.{max u₁ u₂} B
   linear : eqv.functor.Linear R := by infer_instance
@@ -67,13 +66,14 @@ namespace MoritaEquivalence
 
 attribute [instance] MoritaEquivalence.linear
 
-instance {A : Type u₁} [Ring A] [Algebra R A] {B : Type u₂} [Ring B] [Algebra R B]
-    (e : MoritaEquivalence R A B) : e.eqv.functor.Additive :=
+instance
+    {A : Type u₁} [Ring A] [Algebra R A]
+    {B : Type u₂} [Ring B] [Algebra R B]
+    (e : MoritaEquivalence R A B)
+    : e.eqv.functor.Additive :=
   e.eqv.functor.additive_of_preserves_binary_products
 
-/--
-For any `R`-algebra `A`, `A` is Morita equivalent to itself.
--/
+/-- For any `R`-algebra `A`, `A` is Morita equivalent to itself. -/
 def refl (A : Type u₁) [Ring A] [Algebra R A] : MoritaEquivalence R A A where
   eqv := CategoryTheory.Equivalence.refl
   linear := Functor.instLinearId
@@ -82,8 +82,11 @@ def refl (A : Type u₁) [Ring A] [Algebra R A] : MoritaEquivalence R A A where
 For any `R`-algebras `A` and `B`, if `A` is Morita equivalent to `B`, then `B` is Morita equivalent
 to `A`.
 -/
-def symm {A : Type u₁} [Ring A] [Algebra R A] {B : Type u₂} [Ring B] [Algebra R B]
-    (e : MoritaEquivalence R A B) : MoritaEquivalence R B A where
+def symm
+    {A : Type u₁} [Ring A] [Algebra R A]
+    {B : Type u₂} [Ring B] [Algebra R B]
+    (e : MoritaEquivalence R A B)
+    : MoritaEquivalence R B A where
   eqv := e.eqv.symm
   linear := e.eqv.inverseLinear R
 
@@ -98,20 +101,18 @@ def symm {A : Type u₁} [Ring A] [Algebra R A] {B : Type u₂} [Ring B] [Algebr
 For any `R`-algebras `A`, `B`, and `C`, if `A` is Morita equivalent to `B` and `B` is Morita
 equivalent to `C`, then `A` is Morita equivalent to `C`.
 -/
-def trans {A B C : Type u₁}
-    [Ring A] [Algebra R A] [Ring B] [Algebra R B] [Ring C] [Algebra R C]
-    (e : MoritaEquivalence R A B) (e' : MoritaEquivalence R B C) :
-    MoritaEquivalence R A C where
+def trans
+    {A B C : Type u₁} [Ring A] [Algebra R A] [Ring B] [Algebra R B] [Ring C] [Algebra R C]
+    (e : MoritaEquivalence R A B) (e' : MoritaEquivalence R B C)
+    : MoritaEquivalence R A C where
   eqv := e.eqv.trans e'.eqv
   linear := e.eqv.functor.instLinearComp e'.eqv.functor
 
 variable {R} in
-/--
-Isomorphic `R`-algebras are Morita equivalent.
--/
-noncomputable def ofAlgEquiv {A : Type u₁} {B : Type u₂}
-    [Ring A] [Algebra R A] [Ring B] [Algebra R B] (f : A ≃ₐ[R] B) :
-    MoritaEquivalence R A B where
+/-- Isomorphic `R`-algebras are Morita equivalent. -/
+noncomputable def ofAlgEquiv
+    {A : Type u₁} {B : Type u₂} [Ring A] [Algebra R A] [Ring B] [Algebra R B] (f : A ≃ₐ[R] B)
+    : MoritaEquivalence R A B where
   eqv := ModuleCat.restrictScalarsEquivalenceOfRingEquiv f.symm.toRingEquiv
   linear := ModuleCat.Algebra.restrictScalarsEquivalenceOfRingEquiv_linear f.symm
 
@@ -122,8 +123,8 @@ Let `A` and `B` be `R`-algebras. We say that `A` and `B` are Morita equivalent i
 `A`-modules and `B`-modules are equivalent as `R`-linear categories.
 -/
 structure IsMoritaEquivalent
-    (A : Type u₁) [Ring A] [Algebra R A]
-    (B : Type u₂) [Ring B] [Algebra R B] : Prop where
+    (A : Type u₁) [Ring A] [Algebra R A] (B : Type u₂) [Ring B] [Algebra R B]
+    : Prop where
   cond : Nonempty <| MoritaEquivalence R A B
 
 namespace IsMoritaEquivalent

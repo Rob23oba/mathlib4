@@ -52,20 +52,21 @@ namespace CategoryTheory
 
 open Category Limits Pretriangulated ZeroObject Preadditive
 
-variable {C D A : Type*} [Category* C] [HasShift C ℤ]
-  [Category* D] [HasZeroObject D] [HasShift D ℤ] [Preadditive D]
-  [∀ (n : ℤ), (CategoryTheory.shiftFunctor D n).Additive] [Pretriangulated D]
-  [Category* A]
+variable
+  {C D A : Type*}
+  [Category* C] [HasShift C ℤ] [Category* D] [HasZeroObject D] [HasShift D ℤ] [Preadditive D]
+  [∀ (n : ℤ), (CategoryTheory.shiftFunctor D n).Additive] [Pretriangulated D] [Category* A]
 
 namespace Functor
 
 variable (F : C ⥤ A)
 
-/-- The kernel of a homological functor `F : C ⥤ A` is the strictly full
+/--
+The kernel of a homological functor `F : C ⥤ A` is the strictly full
 triangulated subcategory consisting of objects `X` such that
-for all `n : ℤ`, `F.obj (X⟦n⟧)` is zero. -/
-def homologicalKernel : ObjectProperty C :=
-  fun X ↦ ∀ (n : ℤ), IsZero (F.obj (X⟦n⟧))
+for all `n : ℤ`, `F.obj (X⟦n⟧)` is zero.
+-/
+def homologicalKernel : ObjectProperty C := fun X ↦ ∀ (n : ℤ), IsZero (F.obj (X⟦n⟧))
 
 lemma mem_homologicalKernel_iff [F.ShiftSequence ℤ] (X : C) :
     F.homologicalKernel X ↔ ∀ (n : ℤ), IsZero ((F.shift n).obj X) := by
@@ -74,21 +75,23 @@ lemma mem_homologicalKernel_iff [F.ShiftSequence ℤ] (X : C) :
 
 section Pretriangulated
 
-variable [HasZeroObject C] [Preadditive C] [∀ (n : ℤ), (CategoryTheory.shiftFunctor C n).Additive]
+variable
+  [HasZeroObject C] [Preadditive C] [∀ (n : ℤ), (CategoryTheory.shiftFunctor C n).Additive]
   [Pretriangulated C] [Abelian A]
 
-/-- A functor from a pretriangulated category to an abelian category is a homological functor
-if it sends distinguished triangles to exact sequences. -/
+/--
+A functor from a pretriangulated category to an abelian category is a homological functor
+if it sends distinguished triangles to exact sequences.
+-/
 class IsHomological : Prop extends F.PreservesZeroMorphisms where
-  exact (T : Triangle C) (hT : T ∈ distTriang C) :
-    ((shortComplexOfDistTriangle T hT).map F).Exact
+  exact (T : Triangle C) (hT : T ∈ distTriang C) : ((shortComplexOfDistTriangle T hT).map F).Exact
 
 lemma map_distinguished_exact [F.IsHomological] (T : Triangle C) (hT : T ∈ distTriang C) :
     ((shortComplexOfDistTriangle T hT).map F).Exact :=
   IsHomological.exact _ hT
 
-instance (L : C ⥤ D) (F : D ⥤ A) [L.CommShift ℤ] [L.IsTriangulated] [F.IsHomological] :
-    (L ⋙ F).IsHomological where
+instance (L : C ⥤ D) (F : D ⥤ A) [L.CommShift ℤ] [L.IsTriangulated] [F.IsHomological]
+    : (L ⋙ F).IsHomological where
   exact T hT := F.map_distinguished_exact _ (L.map_distinguished T hT)
 
 lemma IsHomological.mk' [F.PreservesZeroMorphisms]
@@ -115,21 +118,19 @@ instance : F.homologicalKernel.IsClosedUnderIsomorphisms where
   of_iso e hX n := (hX n).of_iso ((shiftFunctor C n ⋙ F).mapIso e.symm)
 
 instance : F.homologicalKernel.IsTriangulated where
-  exists_zero := ⟨0, isZero_zero C,
-    fun n ↦ (shiftFunctor C n ⋙ F).map_isZero (isZero_zero C)⟩
-  toIsStableUnderShift := ⟨fun a ↦ ⟨fun X hX b ↦
-    (hX (a + b)).of_iso (F.mapIso ((shiftFunctorAdd C a b).app X).symm)⟩⟩
+  exists_zero := ⟨0, isZero_zero C, fun n ↦ (shiftFunctor C n ⋙ F).map_isZero (isZero_zero C)⟩
+  toIsStableUnderShift :=
+    ⟨fun a ↦ ⟨fun X hX b ↦ (hX (a + b)).of_iso (F.mapIso ((shiftFunctorAdd C a b).app X).symm)⟩⟩
   toIsTriangulatedClosed₂ :=
     ObjectProperty.IsTriangulatedClosed₂.mk' (fun T hT h₁ h₃ n ↦
-      (F.map_distinguished_exact _
-        (Triangle.shift_distinguished T hT n)).isZero_of_both_zeros
-          ((h₁ n).eq_of_src _ _) ((h₃ n).eq_of_tgt _ _))
+      (F.map_distinguished_exact _ (Triangle.shift_distinguished T hT n)).isZero_of_both_zeros
+        ((h₁ n).eq_of_src _ _) ((h₃ n).eq_of_tgt _ _))
 
 end
 
 set_option backward.defeqAttrib.useBackward true in
-noncomputable instance (priority := 100) [F.IsHomological] :
-    PreservesLimitsOfShape (Discrete WalkingPair) F := by
+noncomputable instance (priority := 100) [F.IsHomological]
+    : PreservesLimitsOfShape (Discrete WalkingPair) F := by
   suffices ∀ (X₁ X₂ : C), PreservesLimit (pair X₁ X₂) F from
     ⟨fun {X} => preservesLimit_of_iso_diagram F (diagramIsoPair X).symm⟩
   intro X₁ X₂
@@ -143,14 +144,15 @@ noncomputable instance (priority := 100) [F.IsHomological] :
     obtain ⟨g, rfl⟩ := ex.lift' f (by simpa using! hf =≫ biprod.snd)
     dsimp [S] at hf ⊢
     replace hf := hf =≫ biprod.fst
-    simp only [assoc, biprodComparison_fst, zero_comp, ← F.map_comp, biprod.inl_fst,
-      F.map_id, comp_id] at hf
+    simp only [
+        assoc, biprodComparison_fst, zero_comp, ← F.map_comp, biprod.inl_fst, F.map_id, comp_id
+      ]
+      at hf
     rw [hf, zero_comp]
   have : PreservesBinaryBiproduct X₁ X₂ F := preservesBinaryBiproduct_of_mono_biprodComparison _
   apply Limits.preservesBinaryProduct_of_preservesBinaryBiproduct
 
-instance (priority := 100) [F.IsHomological] : F.Additive :=
-  F.additive_of_preserves_binary_products
+instance (priority := 100) [F.IsHomological] : F.Additive := F.additive_of_preserves_binary_products
 
 lemma isHomological_of_localization (L : C ⥤ D)
     [L.CommShift ℤ] [L.IsTriangulated] [L.mapArrow.EssSurj] (F : D ⥤ A)
@@ -168,11 +170,13 @@ end Pretriangulated
 
 section
 
-/-- The connecting homomorphism in the long exact sequence attached to a homological
-functor and a distinguished triangle. -/
+/--
+The connecting homomorphism in the long exact sequence attached to a homological
+functor and a distinguished triangle.
+-/
 noncomputable def homologySequenceδ
-    [F.ShiftSequence ℤ] (T : Triangle C) (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) :
-    (F.shift n₀).obj T.obj₃ ⟶ (F.shift n₁).obj T.obj₁ :=
+    [F.ShiftSequence ℤ] (T : Triangle C) (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁)
+    : (F.shift n₀).obj T.obj₃ ⟶ (F.shift n₁).obj T.obj₁ :=
   F.shiftMap T.mor₃ n₀ n₁ (by rw [add_comm 1, h])
 
 @[reassoc]
@@ -183,10 +187,10 @@ lemma homologySequenceδ_naturality
   dsimp only [homologySequenceδ]
   rw [← shiftMap_comp', ← φ.comm₃, shiftMap_comp]
 
-variable [HasZeroObject C] [Preadditive C] [∀ (n : ℤ), (CategoryTheory.shiftFunctor C n).Additive]
+variable
+  [HasZeroObject C] [Preadditive C] [∀ (n : ℤ), (CategoryTheory.shiftFunctor C n).Additive]
   [Pretriangulated C] [Abelian A] [F.IsHomological]
-variable [F.ShiftSequence ℤ] (T : Triangle C) (hT : T ∈ distTriang C)
-  (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁)
+variable [F.ShiftSequence ℤ] (T : Triangle C) (hT : T ∈ distTriang C) (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁)
 
 section
 include hT
@@ -275,11 +279,14 @@ lemma mem_homologicalKernel_trW_iff {X Y : C} (f : X ⟶ Y) :
 
 open ComposableArrows
 
-/-- The exact sequence with six terms starting from `(F.shift n₀).obj T.obj₁` until
-`(F.shift n₁).obj T.obj₃` when `T` is a distinguished triangle and `F` a homological functor. -/
-@[simp] noncomputable def homologySequenceComposableArrows₅ : ComposableArrows A 5 :=
-  mk₅ ((F.shift n₀).map T.mor₁) ((F.shift n₀).map T.mor₂)
-    (F.homologySequenceδ T n₀ n₁ h) ((F.shift n₁).map T.mor₁) ((F.shift n₁).map T.mor₂)
+/--
+The exact sequence with six terms starting from `(F.shift n₀).obj T.obj₁` until
+`(F.shift n₁).obj T.obj₃` when `T` is a distinguished triangle and `F` a homological functor.
+-/
+@[simp]
+noncomputable def homologySequenceComposableArrows₅ : ComposableArrows A 5 :=
+  mk₅ ((F.shift n₀).map T.mor₁) ((F.shift n₀).map T.mor₂) (F.homologySequenceδ T n₀ n₁ h)
+    ((F.shift n₁).map T.mor₁) ((F.shift n₁).map T.mor₂)
 
 include hT in
 lemma homologySequenceComposableArrows₅_exact :

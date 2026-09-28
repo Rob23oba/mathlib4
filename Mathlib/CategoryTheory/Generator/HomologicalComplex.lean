@@ -35,10 +35,12 @@ variable [HasZeroMorphisms C] [HasZeroObject C]
 variable {α : Type t} {X : α → C} (hX : ObjectProperty.IsSeparating (.ofObj X))
 
 variable (X) in
-/-- If `X : α → C` is a separating family, and `c : ComplexShape ι` has no loop,
+/--
+If `X : α → C` is a separating family, and `c : ComplexShape ι` has no loop,
 then this is a separating family indexed by `α × ι` in `HomologicalComplex C c`,
 which consists of homological complexes that are nonzero in at most
-two (consecutive) degrees. -/
+two (consecutive) degrees.
+-/
 noncomputable def separatingFamily (j : α × ι) : HomologicalComplex C c :=
   evalCompCoyonedaCorepresentative c (X j.1) j.2
 

@@ -24,9 +24,11 @@ L-series, abscissa of convergence
 
 open Complex
 
-/-- The abscissa `x : EReal` of absolute convergence of the L-series associated to `f`:
+/--
+The abscissa `x : EReal` of absolute convergence of the L-series associated to `f`:
 the series converges absolutely at `s` when `re s > x` and does not converge absolutely
-when `re s < x`. -/
+when `re s < x`.
+-/
 noncomputable def LSeries.abscissaOfAbsConv (f : ℕ → ℂ) : EReal :=
   sInf <| Real.toEReal '' {x : ℝ | LSeriesSummable f x}
 

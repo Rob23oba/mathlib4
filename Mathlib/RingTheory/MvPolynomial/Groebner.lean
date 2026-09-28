@@ -61,14 +61,13 @@ variable (m) in
 noncomputable def subLTerm (f : MvPolynomial σ R) : MvPolynomial σ R :=
   f - monomial (m.degree f) (m.leadingCoeff f)
 
-theorem degree_sub_LTerm_le (f : MvPolynomial σ R) :
-    m.degree (m.subLTerm f) ≼[m] m.degree f := by
+theorem degree_sub_LTerm_le (f : MvPolynomial σ R) : m.degree (m.subLTerm f) ≼[m] m.degree f := by
   apply le_trans degree_sub_le
   simp only [sup_le_iff, le_refl, true_and]
   apply degree_monomial_le
 
-theorem degree_sub_LTerm_lt {f : MvPolynomial σ R} (hf : m.degree f ≠ 0) :
-    m.degree (m.subLTerm f) ≺[m] m.degree f := by
+theorem degree_sub_LTerm_lt {f : MvPolynomial σ R} (hf : m.degree f ≠ 0)
+    : m.degree (m.subLTerm f) ≺[m] m.degree f := by
   rw [lt_iff_le_and_ne]
   refine ⟨degree_sub_LTerm_le f, ?_⟩
   classical
@@ -84,17 +83,19 @@ theorem degree_sub_LTerm_lt {f : MvPolynomial σ R} (hf : m.degree f ≠ 0) :
 
 variable (m) in
 /-- Reduce a polynomial modulo a polynomial with unit leading term (for some monomial order) -/
-noncomputable
-def reduce {b : MvPolynomial σ R} (hb : IsUnit (m.leadingCoeff b)) (f : MvPolynomial σ R) :
-    MvPolynomial σ R :=
+noncomputable def reduce
+    {b : MvPolynomial σ R} (hb : IsUnit (m.leadingCoeff b)) (f : MvPolynomial σ R)
+    : MvPolynomial σ R :=
   f - monomial (m.degree f - m.degree b) (hb.unit⁻¹ * m.leadingCoeff f) * b
 
-theorem degree_reduce_lt {f b : MvPolynomial σ R} (hb : IsUnit (m.leadingCoeff b))
-    (hbf : m.degree b ≤ m.degree f) (hf : m.degree f ≠ 0) :
-    m.degree (m.reduce hb f) ≺[m] m.degree f := by
-  have H : m.degree f =
-      m.degree ((monomial (m.degree f - m.degree b)) (hb.unit⁻¹ * m.leadingCoeff f)) +
-        m.degree b := by
+theorem degree_reduce_lt
+    {f b : MvPolynomial σ R}
+    (hb : IsUnit (m.leadingCoeff b)) (hbf : m.degree b ≤ m.degree f) (hf : m.degree f ≠ 0)
+    : m.degree (m.reduce hb f) ≺[m] m.degree f := by
+  have H
+      : m.degree f
+        = m.degree ((monomial (m.degree f - m.degree b)) (hb.unit⁻¹ * m.leadingCoeff f))
+          + m.degree b := by
     classical
     rw [degree_monomial, ite_eq_right]
     · ext d
@@ -106,8 +107,10 @@ theorem degree_reduce_lt {f b : MvPolynomial σ R} (hb : IsUnit (m.leadingCoeff 
   have H' : (m.reduce hb f).coeff (m.degree f) = 0 := by
     simp only [reduce, coeff_sub, sub_eq_zero]
     nth_rewrite 3 [H]
-    rw [coeff_mul_of_degree_add (m := m), leadingCoeff_monomial, mul_comm, ← mul_assoc,
-      IsUnit.mul_val_inv, one_mul, ← leadingCoeff]
+    rw [
+      coeff_mul_of_degree_add (m := m), leadingCoeff_monomial, mul_comm, ← mul_assoc,
+      IsUnit.mul_val_inv, one_mul, ← leadingCoeff
+    ]
   rw [lt_iff_le_and_ne]
   constructor
   · classical
@@ -123,14 +126,16 @@ theorem degree_reduce_lt {f b : MvPolynomial σ R} (hb : IsUnit (m.leadingCoeff 
     rw [H', degree_zero] at K
     exact hf K.symm
 
-/-- Division by a family of multivariate polynomials
-whose leading coefficients are invertible with respect to a monomial order -/
-theorem div {ι : Type*} {b : ι → MvPolynomial σ R}
-    (hb : ∀ i, IsUnit (m.leadingCoeff (b i))) (f : MvPolynomial σ R) :
-    ∃ (g : ι →₀ (MvPolynomial σ R)) (r : MvPolynomial σ R),
-      f = Finsupp.linearCombination _ b g + r ∧
-        (∀ i, m.degree (b i * (g i)) ≼[m] m.degree f) ∧
-        (∀ c ∈ r.support, ∀ i, ¬ (m.degree (b i) ≤ c)) := by
+/--
+Division by a family of multivariate polynomials
+whose leading coefficients are invertible with respect to a monomial order
+-/
+theorem div
+    {ι : Type*} {b : ι → MvPolynomial σ R} (hb : ∀ i, IsUnit (m.leadingCoeff (b i)))
+    (f : MvPolynomial σ R)
+    : ∃ (g : ι →₀ (MvPolynomial σ R)) (r : MvPolynomial σ R),
+      f = Finsupp.linearCombination _ b g + r ∧ (∀ i, m.degree (b i * (g i)) ≼[m] m.degree f)
+        ∧ (∀ c ∈ r.support, ∀ i, ¬(m.degree (b i) ≤ c)) := by
   by_cases! hb' : ∃ i, m.degree (b i) = 0
   · obtain ⟨i, hb0⟩ := hb'
     use Finsupp.single i ((hb i).unit⁻¹ • f), 0
@@ -186,9 +191,10 @@ theorem div {ι : Type*} {b : ι → MvPolynomial σ R}
           exact bot_le
     · exact H'.2.2
   · suffices ∃ (g' : ι →₀ MvPolynomial σ R), ∃ r',
-        (m.subLTerm f = Finsupp.linearCombination (MvPolynomial σ R) b g' + r') ∧
-        (∀ i, m.degree ((b i) * (g' i)) ≼[m] m.degree (m.subLTerm f)) ∧
-        (∀ c ∈ r'.support, ∀ i, ¬ m.degree (b i) ≤ c) by
+      (m.subLTerm f = Finsupp.linearCombination (MvPolynomial σ R) b g' + r')
+        ∧ (∀ i, m.degree ((b i) * (g' i)) ≼[m] m.degree (m.subLTerm f))
+        ∧ (∀ c ∈ r'.support, ∀ i, ¬ m.degree (b i) ≤ c)
+    by
       obtain ⟨g', r', H'⟩ := this
       use g', r' + monomial (m.degree f) (m.leadingCoeff f)
       constructor
@@ -226,25 +232,27 @@ after a `decreasing_by` block with focus dots.
 See https://github.com/leanprover/lean4/issues/12573
 -/
 
-/-- Division by a *set* of multivariate polynomials
-whose leading coefficients are invertible with respect to a monomial order -/
-theorem div_set {B : Set (MvPolynomial σ R)}
-    (hB : ∀ b ∈ B, IsUnit (m.leadingCoeff b)) (f : MvPolynomial σ R) :
-    ∃ (g : B →₀ (MvPolynomial σ R)) (r : MvPolynomial σ R),
-      f = Finsupp.linearCombination _ (fun (b : B) ↦ (b : MvPolynomial σ R)) g + r ∧
-        (∀ (b : B), m.degree ((b : MvPolynomial σ R) * (g b)) ≼[m] m.degree f) ∧
-        (∀ c ∈ r.support, ∀ b ∈ B, ¬ (m.degree b ≤ c)) := by
+/--
+Division by a *set* of multivariate polynomials
+whose leading coefficients are invertible with respect to a monomial order
+-/
+theorem div_set
+    {B : Set (MvPolynomial σ R)} (hB : ∀ b ∈ B, IsUnit (m.leadingCoeff b)) (f : MvPolynomial σ R)
+    : ∃ (g : B →₀ (MvPolynomial σ R)) (r : MvPolynomial σ R),
+      f = Finsupp.linearCombination _ (fun (b : B) ↦ (b : MvPolynomial σ R)) g + r
+        ∧ (∀ (b : B), m.degree ((b : MvPolynomial σ R) * (g b)) ≼[m] m.degree f)
+        ∧ (∀ c ∈ r.support, ∀ b ∈ B, ¬(m.degree b ≤ c)) := by
   obtain ⟨g, r, H⟩ := m.div (b := fun (p : B) ↦ p) (fun b ↦ hB b b.prop) f
   exact ⟨g, r, H.1, H.2.1, fun c hc b hb ↦ H.2.2 c hc ⟨b, hb⟩⟩
 
-/-- Division by a multivariate polynomial
-whose leading coefficient is invertible with respect to a monomial order -/
-theorem div_single {b : MvPolynomial σ R}
-    (hb : IsUnit (m.leadingCoeff b)) (f : MvPolynomial σ R) :
-    ∃ (g : MvPolynomial σ R) (r : MvPolynomial σ R),
-      f = g * b + r ∧
-        (m.degree (b * g) ≼[m] m.degree f) ∧
-        (∀ c ∈ r.support, ¬ (m.degree b ≤ c)) := by
+/--
+Division by a multivariate polynomial
+whose leading coefficient is invertible with respect to a monomial order
+-/
+theorem div_single {b : MvPolynomial σ R} (hb : IsUnit (m.leadingCoeff b)) (f : MvPolynomial σ R)
+    : ∃ (g : MvPolynomial σ R) (r : MvPolynomial σ R),
+      f = g * b + r ∧ (m.degree (b * g) ≼[m] m.degree f)
+        ∧ (∀ c ∈ r.support, ¬(m.degree b ≤ c)) := by
   obtain ⟨g, r, hgr, h1, h2⟩ := div_set (B := {b}) (m := m) (by simp [hb]) f
   specialize h1 ⟨b, by simp⟩
   set q := g ⟨b, by simp⟩
@@ -252,8 +260,10 @@ theorem div_single {b : MvPolynomial σ R}
   simp only at h1
   refine ⟨q, r, ?_, h1, h2⟩
   rw [hgr]
-  simp only [Finsupp.linearCombination, Finsupp.coe_lsum, LinearMap.coe_smulRight, LinearMap.id_coe,
-    id_eq, smul_eq_mul, add_left_inj]
+  simp only [
+    Finsupp.linearCombination, Finsupp.coe_lsum, LinearMap.coe_smulRight, LinearMap.id_coe, id_eq,
+    smul_eq_mul, add_left_inj
+  ]
   rw [Finsupp.sum_eq_single ⟨b, by simp⟩ _ (by simp)]
   simp +contextual
 

@@ -31,7 +31,8 @@ open scoped ENNReal MeasureTheory Topology ProbabilityTheory
 
 namespace ProbabilityTheory
 
-variable {α β Ω : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+variable
+  {α β Ω : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   [MeasurableSpace Ω] [StandardBorelSpace Ω] [Nonempty Ω]
 
 section Measure
@@ -42,17 +43,19 @@ variable {ρ : Measure (α × Ω)} [IsFiniteMeasure ρ]
 
 The conditional kernel of a measure is unique almost everywhere. -/
 
-/-- An s-finite kernel which satisfies the disintegration property of the given measure `ρ` is
+/--
+An s-finite kernel which satisfies the disintegration property of the given measure `ρ` is
 almost everywhere equal to the disintegration kernel of `ρ` when evaluated on a measurable set.
 
 This theorem in the case of finite kernels is weaker than `eq_condKernel_of_measure_eq_compProd`
 which asserts that the kernels are equal almost everywhere and not just on a given measurable
-set. -/
-theorem eq_condKernel_of_measure_eq_compProd' (κ : Kernel α Ω) [IsSFiniteKernel κ]
-    (hκ : ρ = ρ.fst ⊗ₘ κ) {s : Set Ω} (hs : MeasurableSet s) :
-    ∀ᵐ x ∂ρ.fst, κ x s = ρ.condKernel x s := by
-  refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite
-    (Kernel.measurable_coe κ hs) (Kernel.measurable_coe ρ.condKernel hs) (fun t ht _ ↦ ?_)
+set.
+-/
+theorem eq_condKernel_of_measure_eq_compProd'
+    (κ : Kernel α Ω) [IsSFiniteKernel κ] (hκ : ρ = ρ.fst ⊗ₘ κ) {s : Set Ω} (hs : MeasurableSet s)
+    : ∀ᵐ x ∂ρ.fst, κ x s = ρ.condKernel x s := by
+  refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite (Kernel.measurable_coe κ hs)
+    (Kernel.measurable_coe ρ.condKernel hs) (fun t ht _ ↦ ?_)
   conv_rhs => rw [Measure.setLIntegral_condKernel_eq_measure_prod ht hs, hκ]
   exact (Measure.compProd_apply_prod ht hs).symm
 
@@ -77,11 +80,13 @@ lemma eq_condKernel_of_measure_eq_compProd_real {ρ : Measure (α × ℝ)} [IsFi
     rw [measure_iUnion hdisj hf, measure_iUnion hdisj hf]
     exact tsum_congr heq
 
-/-- A finite kernel which satisfies the disintegration property is almost everywhere equal to the
-disintegration kernel. -/
-theorem eq_condKernel_of_measure_eq_compProd (κ : Kernel α Ω) [IsFiniteKernel κ]
-    (hκ : ρ = ρ.fst ⊗ₘ κ) :
-    ∀ᵐ x ∂ρ.fst, κ x = ρ.condKernel x := by
+/--
+A finite kernel which satisfies the disintegration property is almost everywhere equal to the
+disintegration kernel.
+-/
+theorem eq_condKernel_of_measure_eq_compProd
+    (κ : Kernel α Ω) [IsFiniteKernel κ] (hκ : ρ = ρ.fst ⊗ₘ κ)
+    : ∀ᵐ x ∂ρ.fst, κ x = ρ.condKernel x := by
   -- The idea is to transport the question to `ℝ` from `Ω` using `embeddingReal`
   -- and then construct a measure on `α × ℝ`
   let f := embeddingReal Ω
@@ -97,8 +102,10 @@ theorem eq_condKernel_of_measure_eq_compProd (κ : Kernel α Ω) [IsFiniteKernel
     refine eq_condKernel_of_measure_eq_compProd_real (Kernel.map κ f) ?_
     ext s hs
     conv_lhs => rw [hρ'def, hκ]
-    rw [Measure.map_apply (measurable_id.prodMap hf.measurable) hs, hρ',
-      Measure.compProd_apply hs, Measure.compProd_apply (measurable_id.prodMap hf.measurable hs)]
+    rw [
+      Measure.map_apply (measurable_id.prodMap hf.measurable) hs, hρ', Measure.compProd_apply hs,
+      Measure.compProd_apply (measurable_id.prodMap hf.measurable hs)
+    ]
     congr with a
     rw [Kernel.map_apply' _ hf.measurable]
     exacts [rfl, measurable_prodMk_left hs]
@@ -106,9 +113,11 @@ theorem eq_condKernel_of_measure_eq_compProd (κ : Kernel α Ω) [IsFiniteKernel
     filter_upwards [hρ'', this] with x hx h
     rw [Kernel.map_apply _ hf.measurable] at hx
     ext s hs
-    rw [← Set.preimage_image_eq s hf.injective,
+    rw [
+      ← Set.preimage_image_eq s hf.injective,
       ← Measure.map_apply hf.measurable <| hf.measurableSet_image.2 hs, hx,
-      h _ <| hf.measurableSet_image.2 hs]
+      h _ <| hf.measurableSet_image.2 hs
+    ]
   suffices ρ.map (Prod.map id f) = (ρ.fst ⊗ₘ (Kernel.map ρ.condKernel f)) by
     rw [← hρ'] at this
     have heq := eq_condKernel_of_measure_eq_compProd_real _ this
@@ -117,8 +126,10 @@ theorem eq_condKernel_of_measure_eq_compProd (κ : Kernel α Ω) [IsFiniteKernel
     rw [← hx, Kernel.map_apply _ hf.measurable, Measure.map_apply hf.measurable hs]
   ext s hs
   conv_lhs => rw [← ρ.disintegrate ρ.condKernel]
-  rw [Measure.compProd_apply hs, Measure.map_apply (measurable_id.prodMap hf.measurable) hs,
-    Measure.compProd_apply]
+  rw [
+    Measure.compProd_apply hs, Measure.map_apply (measurable_id.prodMap hf.measurable) hs,
+    Measure.compProd_apply
+  ]
   · congr with a
     rw [Kernel.map_apply' _ hf.measurable]
     exacts [rfl, measurable_prodMk_left hs]
@@ -170,12 +181,16 @@ section Kernel
 
 The conditional kernel is unique almost everywhere. -/
 
-/-- A finite kernel which satisfies the disintegration property is almost everywhere equal to the
-disintegration kernel. -/
-theorem eq_condKernel_of_kernel_eq_compProd [CountableOrCountablyGenerated α β]
-    {ρ : Kernel α (β × Ω)} [IsFiniteKernel ρ] {κ : Kernel (α × β) Ω} [IsFiniteKernel κ]
-    (hκ : Kernel.fst ρ ⊗ₖ κ = ρ) (a : α) :
-    ∀ᵐ x ∂(Kernel.fst ρ a), κ (a, x) = Kernel.condKernel ρ (a, x) := by
+/--
+A finite kernel which satisfies the disintegration property is almost everywhere equal to the
+disintegration kernel.
+-/
+theorem eq_condKernel_of_kernel_eq_compProd
+    [CountableOrCountablyGenerated α β]
+    {ρ : Kernel α (β × Ω)} [IsFiniteKernel ρ]
+    {κ : Kernel (α × β) Ω} [IsFiniteKernel κ]
+    (hκ : Kernel.fst ρ ⊗ₖ κ = ρ) (a : α)
+    : ∀ᵐ x ∂(Kernel.fst ρ a), κ (a, x) = Kernel.condKernel ρ (a, x) := by
   filter_upwards [Kernel.condKernel_apply_eq_condKernel ρ a,
     Kernel.apply_eq_measure_condKernel_of_compProd_eq hκ a] with a h1 h2
   rw [h1, h2]

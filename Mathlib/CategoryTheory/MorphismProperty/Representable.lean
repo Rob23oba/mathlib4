@@ -89,7 +89,8 @@ universe v₁ v₂ u₁ u₂
 
 variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D] (F : C ⥤ D)
 
-/-- A morphism `f : X ⟶ Y` in `D` is said to be relatively representable if for any
+/--
+A morphism `f : X ⟶ Y` in `D` is said to be relatively representable if for any
 `g : F.obj a ⟶ Y`, there exists a pullback square of the following form
 ```
 F.obj b --F.map snd--> F.obj a
@@ -100,20 +101,22 @@ F.obj b --F.map snd--> F.obj a
     X ------- f --------> Y
 ```
 -/
-def Functor.relativelyRepresentable : MorphismProperty D :=
-  fun X Y f ↦ ∀ ⦃a : C⦄ (g : F.obj a ⟶ Y), ∃ (b : C) (snd : b ⟶ a)
-    (fst : F.obj b ⟶ X), IsPullback fst (F.map snd) f g
+def Functor.relativelyRepresentable : MorphismProperty D := fun X Y f ↦
+  ∀ ⦃a : C⦄ (g : F.obj a ⟶ Y), ∃ (b : C) (snd : b ⟶ a) (fst : F.obj b ⟶ X),
+    IsPullback fst (F.map snd) f g
 
 namespace Functor.relativelyRepresentable
 
 section
 
 variable {F}
-variable {X Y : D} {f : X ⟶ Y} (hf : F.relativelyRepresentable f)
+variable
+  {X Y : D} {f : X ⟶ Y} (hf : F.relativelyRepresentable f)
   {b : C} {f' : F.obj b ⟶ Y} (hf' : F.relativelyRepresentable f')
   {a : C} (g : F.obj a ⟶ Y) (hg : F.relativelyRepresentable g)
 
-/-- Let `f : X ⟶ Y` be a relatively representable morphism in `D`. Then, for any
+/--
+Let `f : X ⟶ Y` be a relatively representable morphism in `D`. Then, for any
 `g : F.obj a ⟶ Y`, `hf.pullback g` denotes the (choice of) a corresponding object in `C` such that
 there is a pullback square of the following form
 ```
@@ -123,11 +126,12 @@ hf.pullback g --F.map snd--> F.obj a
     |                          |
     v                          v
     X ---------- f ----------> Y
-``` -/
-noncomputable def pullback : C :=
-  (hf g).choose
+```
+-/
+noncomputable def pullback : C := (hf g).choose
 
-/-- Given a representable morphism `f : X ⟶ Y`, then for any `g : F.obj a ⟶ Y`, `hf.snd g`
+/--
+Given a representable morphism `f : X ⟶ Y`, then for any `g : F.obj a ⟶ Y`, `hf.snd g`
 denotes the morphism in `C` giving rise to the following diagram
 ```
 hf.pullback g --F.map (hf.snd g)--> F.obj a
@@ -136,11 +140,12 @@ hf.pullback g --F.map (hf.snd g)--> F.obj a
     |                                 |
     v                                 v
     X -------------- f -------------> Y
-``` -/
-noncomputable abbrev snd : hf.pullback g ⟶ a :=
-  (hf g).choose_spec.choose
+```
+-/
+noncomputable abbrev snd : hf.pullback g ⟶ a := (hf g).choose_spec.choose
 
-/-- Given a relatively representable morphism `f : X ⟶ Y`, then for any `g : F.obj a ⟶ Y`,
+/--
+Given a relatively representable morphism `f : X ⟶ Y`, then for any `g : F.obj a ⟶ Y`,
 `hf.fst g` denotes the first projection in the following diagram, given by the defining property
 of `f` being relatively representable
 ```
@@ -150,14 +155,15 @@ hf.fst g                              g
     |                                 |
     v                                 v
     X -------------- f -------------> Y
-``` -/
-noncomputable abbrev fst : F.obj (hf.pullback g) ⟶ X :=
-  (hf g).choose_spec.choose_spec.choose
+```
+-/
+noncomputable abbrev fst : F.obj (hf.pullback g) ⟶ X := (hf g).choose_spec.choose_spec.choose
 
-/-- When `F` is full, given a representable morphism `f' : F.obj b ⟶ Y`, then `hf'.fst' g` denotes
-the preimage of `hf'.fst g` under `F`. -/
-noncomputable abbrev fst' [Full F] : hf'.pullback g ⟶ b :=
-  F.preimage (hf'.fst g)
+/--
+When `F` is full, given a representable morphism `f' : F.obj b ⟶ Y`, then `hf'.fst' g` denotes
+the preimage of `hf'.fst g` under `F`.
+-/
+noncomputable abbrev fst' [Full F] : hf'.pullback g ⟶ b := F.preimage (hf'.fst g)
 
 lemma map_fst' [Full F] : F.map (hf'.fst' g) = hf'.fst g :=
   F.map_preimage _
@@ -208,8 +214,10 @@ section
 
 variable {c : C} (i : F.obj c ⟶ X) (h : c ⟶ a) (hi : i ≫ f = F.map h ≫ g)
 
-/-- The lift (in `C`) obtained from the universal property of `F.obj (hf.pullback g)`, in the
-case when the cone point is in the image of `F.obj`. -/
+/--
+The lift (in `C`) obtained from the universal property of `F.obj (hf.pullback g)`, in the
+case when the cone point is in the image of `F.obj`.
+-/
 noncomputable def lift [Full F] : c ⟶ hf.pullback g :=
   F.preimage <| PullbackCone.IsLimit.lift (hf.isPullback g).isLimit _ _ hi
 
@@ -229,8 +237,10 @@ section
 
 variable {c : C} (i : c ⟶ b) (h : c ⟶ a) (hi : F.map i ≫ f' = F.map h ≫ g)
 
-/-- Variant of `lift` in the case when the domain of `f` lies in the image of `F.obj`. Thus,
-in this case, one can obtain the lift directly by giving two morphisms in `C`. -/
+/--
+Variant of `lift` in the case when the domain of `f` lies in the image of `F.obj`. Thus,
+in this case, one can obtain the lift directly by giving two morphisms in `C`.
+-/
 noncomputable def lift' [Full F] : c ⟶ hf'.pullback g := hf'.lift _ _ hi
 
 @[reassoc (attr := simp)]
@@ -243,8 +253,10 @@ lemma lift'_snd [Full F] [Faithful F] : hf'.lift' i h hi ≫ hf'.snd g = h := by
 
 end
 
-/-- Given two representable morphisms `f' : F.obj b ⟶ Y` and `g : F.obj a ⟶ Y`, we
-obtain an isomorphism `hf'.pullback g ⟶ hg.pullback f'`. -/
+/--
+Given two representable morphisms `f' : F.obj b ⟶ Y` and `g : F.obj a ⟶ Y`, we
+obtain an isomorphism `hf'.pullback g ⟶ hg.pullback f'`.
+-/
 noncomputable def symmetry [Full F] : hf'.pullback g ⟶ hg.pullback f' :=
   hg.lift' (hf'.snd g) (hf'.fst' g) (hf'.isPullback' _).w.symm
 
@@ -266,8 +278,7 @@ noncomputable def symmetryIso [Full F] [Faithful F] : hf'.pullback g ≅ hg.pull
   hom := hf'.symmetry hg
   inv := hg.symmetry hf'
 
-instance [Full F] [Faithful F] : IsIso (hf'.symmetry hg) :=
-  (hf'.symmetryIso hg).isIso_hom
+instance [Full F] [Faithful F] : IsIso (hf'.symmetry hg) := (hf'.symmetryIso hg).isIso_hom
 
 end
 
@@ -288,9 +299,12 @@ lemma isomorphisms_le : MorphismProperty.isomorphisms D ≤ F.relativelyRepresen
 
 instance isMultiplicative : IsMultiplicative F.relativelyRepresentable where
   id_mem _ := of_isIso F _
-  comp_mem {F G H} f g hf hg := fun X h ↦
-    ⟨hf.pullback (hg.fst h), hf.snd (hg.fst h) ≫ hg.snd h, hf.fst (hg.fst h),
-      by simpa using IsPullback.paste_vert (hf.isPullback (hg.fst h)) (hg.isPullback h)⟩
+  comp_mem {F G H} f g hf hg := fun X h ↦ ⟨
+    hf.pullback (hg.fst h),
+    hf.snd (hg.fst h) ≫ hg.snd h,
+    hf.fst (hg.fst h),
+    by simpa using IsPullback.paste_vert (hf.isPullback (hg.fst h)) (hg.isPullback h)
+  ⟩
 
 instance isStableUnderBaseChange : IsStableUnderBaseChange F.relativelyRepresentable where
   of_isPullback {X Y Y' X' f g f' g'} P₁ hg a h := by
@@ -309,24 +323,29 @@ open Functor.relativelyRepresentable
 
 variable {X Y : D} (P : MorphismProperty C)
 
-/-- Given a morphism property `P` in a category `C`, a functor `F : C ⥤ D` and a morphism
+/--
+Given a morphism property `P` in a category `C`, a functor `F : C ⥤ D` and a morphism
 `f : X ⟶ Y` in `D`. Then `f` satisfies the morphism property `P.relative` with respect to `F` iff:
 * The morphism is representable with respect to `F`
 * For any morphism `g : F.obj a ⟶ Y`, the property `P` holds for any represented pullback of
-  `f` by `g`. -/
-def relative : MorphismProperty D :=
-  fun X Y f ↦ F.relativelyRepresentable f ∧
-    ∀ ⦃a b : C⦄ (g : F.obj a ⟶ Y) (fst : F.obj b ⟶ X) (snd : b ⟶ a)
-      (_ : IsPullback fst (F.map snd) f g), P snd
+  `f` by `g`.
+-/
+def relative : MorphismProperty D := fun X Y f ↦
+  F.relativelyRepresentable f
+    ∧ ∀ ⦃a b : C⦄ (g : F.obj a ⟶ Y) (fst : F.obj b ⟶ X) (snd : b ⟶ a)
+        (_ : IsPullback fst (F.map snd) f g),
+      P snd
 
-/-- Given a morphism property `P` in a category `C`, a morphism `f : F ⟶ G` of presheaves in the
+/--
+Given a morphism property `P` in a category `C`, a morphism `f : F ⟶ G` of presheaves in the
 category `Cᵒᵖ ⥤ Type v` satisfies the morphism property `P.presheaf` iff:
 * The morphism is representable.
 * For any morphism `g : F.obj a ⟶ G`, the property `P` holds for any represented pullback of
   `f` by `g`.
 
 This is implemented as a special case of the more general notion of `P.relative`, to the case when
-the functor `F` is `yoneda`. -/
+the functor `F` is `yoneda`.
+-/
 abbrev presheaf : MorphismProperty (Cᵒᵖ ⥤ Type v₁) := P.relative yoneda
 
 variable {P} {F}
@@ -399,13 +418,14 @@ lemma relative_isStableUnderBaseChange : IsStableUnderBaseChange (P.relative F) 
     ⟨of_isPullback hfBC hg.rep,
       fun _ _ _ _ _ BC ↦ hg.property _ _ _ (IsPullback.paste_horiz BC hfBC)⟩
 
-instance relative_isStableUnderComposition [F.Faithful] [F.Full] [P.IsStableUnderComposition] :
-    IsStableUnderComposition (P.relative F) where
+instance relative_isStableUnderComposition [F.Faithful] [F.Full] [P.IsStableUnderComposition]
+    : IsStableUnderComposition (P.relative F) where
   comp_mem {F G H} f g hf hg := by
     refine ⟨comp_mem _ _ _ hf.1 hg.1, fun Z X p fst snd h ↦ ?_⟩
     rw [← hg.1.lift_snd (fst ≫ f) snd (by simpa using h.w)]
-    refine comp_mem _ _ _ (hf.property (hg.1.fst p) fst _
-      (IsPullback.of_bot ?_ ?_ (hg.1.isPullback p))) (hg.property_snd p)
+    refine comp_mem _ _ _
+      (hf.property (hg.1.fst p) fst _ (IsPullback.of_bot ?_ ?_ (hg.1.isPullback p)))
+      (hg.property_snd p)
     · rw [← Functor.map_comp, lift_snd]
       exact h
     · symm
@@ -414,10 +434,10 @@ instance relative_isStableUnderComposition [F.Faithful] [F.Full] [P.IsStableUnde
 instance relative_respectsIso : RespectsIso (P.relative F) :=
   (relative_isStableUnderBaseChange P).respectsIso
 
-instance relative_isMultiplicative [F.Faithful] [F.Full] [P.IsMultiplicative] [P.RespectsIso] :
-    IsMultiplicative (P.relative F) where
-  id_mem X := relative.of_exists
-    (fun Y g ↦ ⟨Y, g, 𝟙 Y, by simpa using IsPullback.of_id_snd, id_mem _ _⟩)
+instance relative_isMultiplicative [F.Faithful] [F.Full] [P.IsMultiplicative] [P.RespectsIso]
+    : IsMultiplicative (P.relative F) where
+  id_mem X :=
+    relative.of_exists (fun Y g ↦ ⟨Y, g, 𝟙 Y, by simpa using IsPullback.of_id_snd, id_mem _ _⟩)
 
 end
 
@@ -479,10 +499,10 @@ We can then consider the pullback, in `C`, of these two pullbacks. This is the o
 pullback. This is used in `Mathlib/AlgebraicGeometry/Sites/Representability.lean` to show that
 representability is Zariski-local.
 -/
-variable {F : C ⥤ D} [Full F] {A₁ A₂ A₃ : C} {X : D}
-  {f₁ : F.obj A₁ ⟶ X} (hf₁ : F.relativelyRepresentable f₁)
-  (f₂ : F.obj A₂ ⟶ X) (f₃ : F.obj A₃ ⟶ X)
-  [HasPullback (hf₁.fst' f₂) (hf₁.fst' f₃)]
+variable
+  {F : C ⥤ D} [Full F]
+  {A₁ A₂ A₃ : C} {X : D} {f₁ : F.obj A₁ ⟶ X} (hf₁ : F.relativelyRepresentable f₁)
+  (f₂ : F.obj A₂ ⟶ X) (f₃ : F.obj A₃ ⟶ X) [HasPullback (hf₁.fst' f₂) (hf₁.fst' f₃)]
 
 /-- The pullback `(A₁ ×_X A₂) ×_{A₁} (A₁ ×_X A₃)`. -/
 noncomputable def pullback₃ := Limits.pullback (hf₁.fst' f₂) (hf₁.fst' f₃)
@@ -494,8 +514,7 @@ noncomputable def pullback₃.p₂ : hf₁.pullback₃ f₂ f₃ ⟶ A₂ := pul
 noncomputable def pullback₃.p₃ : hf₁.pullback₃ f₂ f₃ ⟶ A₃ := pullback.snd _ _ ≫ hf₁.snd f₃
 
 /-- The morphism `F.obj (A₁ ×_X A₂) ×_{A₁} (A₁ ×_X A₃) ⟶ X`. -/
-noncomputable def pullback₃.π : F.obj (pullback₃ hf₁ f₂ f₃) ⟶ X :=
-  F.map (p₁ hf₁ f₂ f₃) ≫ f₁
+noncomputable def pullback₃.π : F.obj (pullback₃ hf₁ f₂ f₃) ⟶ X := F.map (p₁ hf₁ f₂ f₃) ≫ f₁
 
 @[reassoc (attr := simp)]
 lemma pullback₃.map_p₁_comp : F.map (p₁ hf₁ f₂ f₃) ≫ f₁ = π _ _ _ :=
@@ -513,14 +532,14 @@ lemma pullback₃.map_p₃_comp : F.map (p₃ hf₁ f₂ f₃) ≫ f₃ = π _ _
 
 section
 
-variable [Faithful F] {Z : C} (x₁ : Z ⟶ A₁) (x₂ : Z ⟶ A₂) (x₃ : Z ⟶ A₃)
-  (h₁₂ : F.map x₁ ≫ f₁ = F.map x₂ ≫ f₂)
+variable
+  [Faithful F]
+  {Z : C} (x₁ : Z ⟶ A₁) (x₂ : Z ⟶ A₂) (x₃ : Z ⟶ A₃) (h₁₂ : F.map x₁ ≫ f₁ = F.map x₂ ≫ f₂)
   (h₁₃ : F.map x₁ ≫ f₁ = F.map x₃ ≫ f₃)
 
 /-- The lift obtained from the universal property of `(A₁ ×_X A₂) ×_{A₁} (A₁ ×_X A₃)`. -/
 noncomputable def lift₃ : Z ⟶ pullback₃ hf₁ f₂ f₃ :=
-  pullback.lift (hf₁.lift' x₁ x₂ h₁₂)
-    (hf₁.lift' x₁ x₃ h₁₃) (by simp)
+  pullback.lift (hf₁.lift' x₁ x₂ h₁₂) (hf₁.lift' x₁ x₃ h₁₃) (by simp)
 
 set_option backward.isDefEq.respectTransparency false in
 @[reassoc (attr := simp)]

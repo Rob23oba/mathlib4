@@ -46,8 +46,7 @@ given by quasi-compact covers. The intersection of this precoverage
 with the precoverage defined by jointly surjective families of flat morphisms is
 the fpqc-precoverage.
 -/
-def qcPrecoverage : Precoverage Scheme.{u} :=
-  qcCoverFamily.precoverage
+def qcPrecoverage : Precoverage Scheme.{u} := qcCoverFamily.precoverage
 
 @[simp]
 lemma presieve₀_mem_qcPrecoverage_iff {E : PreZeroHypercover.{w} S} :
@@ -56,9 +55,10 @@ lemma presieve₀_mem_qcPrecoverage_iff {E : PreZeroHypercover.{w} S} :
     E.shrink.presieve₀_mem_precoverage_iff]
   simp
 
-instance : qcPrecoverage.HasIsos := .of_preZeroHypercoverFamily fun X Y f hf ↦ by
-  rw [qcCoverFamily_property, Scheme.quasiCompactCover_iff]
-  infer_instance
+instance : qcPrecoverage.HasIsos :=
+  .of_preZeroHypercoverFamily fun X Y f hf ↦ by
+    rw [qcCoverFamily_property, Scheme.quasiCompactCover_iff]
+    infer_instance
 
 instance : qcPrecoverage.IsStableUnderBaseChange := by
   refine .of_preZeroHypercoverFamily_of_isClosedUnderIsomorphisms ?_ ?_
@@ -107,8 +107,10 @@ section Property
 
 variable {P : MorphismProperty Scheme.{u}}
 
-/-- The `qc`-precoverage of a scheme wrt. to a morphism property `P` is the precoverage
-given by quasi-compact covers satisfying `P`. -/
+/--
+The `qc`-precoverage of a scheme wrt. to a morphism property `P` is the precoverage
+given by quasi-compact covers satisfying `P`.
+-/
 abbrev propQCPrecoverage (P : MorphismProperty Scheme.{u}) : Precoverage Scheme.{u} :=
   qcPrecoverage ⊓ Scheme.precoverage P
 
@@ -128,8 +130,8 @@ lemma zariskiPrecoverage_le_propQCPrecoverage [P.ContainsIdentities] [IsZariskiL
   refine ⟨zariskiPrecoverage_le_qcPrecoverage, precoverage_mono fun X Y f hf ↦ ?_⟩
   apply IsZariskiLocalAtSource.of_isOpenImmersion
 
-instance {S : Scheme.{u}} (𝒰 : Scheme.Cover (propQCPrecoverage P) S) :
-    QuasiCompactCover 𝒰.toPreZeroHypercover := by
+instance {S : Scheme.{u}} (𝒰 : Scheme.Cover (propQCPrecoverage P) S)
+    : QuasiCompactCover 𝒰.toPreZeroHypercover := by
   rw [← Scheme.presieve₀_mem_qcPrecoverage_iff]
   exact 𝒰.mem₀.1
 
@@ -138,41 +140,44 @@ lemma bot_mem_propQCPrecoverage (X : Scheme.{u}) [IsEmpty X] : ⊥ ∈ propQCPre
 
 /-- Forget being quasi-compact. -/
 @[simps toPreZeroHypercover]
-abbrev Cover.forgetQc {S : Scheme.{u}} (𝒰 : Scheme.Cover (propQCPrecoverage P) S) :
-    S.Cover (precoverage P) where
+abbrev Cover.forgetQc {S : Scheme.{u}} (𝒰 : Scheme.Cover (propQCPrecoverage P) S)
+    : S.Cover (precoverage P) where
   __ := 𝒰.toPreZeroHypercover
   mem₀ := 𝒰.mem₀.2
 
-instance {S : Scheme.{u}} (𝒰 : Scheme.Cover (propQCPrecoverage P) S) :
-    QuasiCompactCover 𝒰.forgetQc.toPreZeroHypercover := by
+instance {S : Scheme.{u}} (𝒰 : Scheme.Cover (propQCPrecoverage P) S)
+    : QuasiCompactCover 𝒰.forgetQc.toPreZeroHypercover := by
   dsimp; infer_instance
 
 /-- Construct a cover in the `P`-qc topology from a quasi-compact cover in the `P`-topology. -/
 @[simps toPreZeroHypercover]
-def Cover.ofQuasiCompactCover {S : Scheme.{u}} (𝒰 : Scheme.Cover (precoverage P) S)
-    [qc : QuasiCompactCover 𝒰.1] :
-    Scheme.Cover (propQCPrecoverage P) S where
+def Cover.ofQuasiCompactCover
+    {S : Scheme.{u}} (𝒰 : Scheme.Cover (precoverage P) S) [qc : QuasiCompactCover 𝒰.1]
+    : Scheme.Cover (propQCPrecoverage P) S where
   __ := 𝒰.toPreZeroHypercover
   mem₀ := ⟨Scheme.presieve₀_mem_qcPrecoverage_iff.mpr ‹_›, 𝒰.mem₀⟩
 
-/-- Lift a quasi-compact `P`-cover of a `u`-scheme in an arbitrary universe to universe `u`.
-This is again quasi-compact. -/
-noncomputable def Cover.qculift {S : Scheme.{u}} (𝒰 : Cover.{w} (precoverage P) S)
-    [QuasiCompactCover 𝒰.1] : Scheme.Cover.{u} (precoverage P) S where
+/--
+Lift a quasi-compact `P`-cover of a `u`-scheme in an arbitrary universe to universe `u`.
+This is again quasi-compact.
+-/
+noncomputable def Cover.qculift
+    {S : Scheme.{u}} (𝒰 : Cover.{w} (precoverage P) S) [QuasiCompactCover 𝒰.1]
+    : Scheme.Cover.{u} (precoverage P) S where
   __ := 𝒰.ulift.toPreZeroHypercover.sum (QuasiCompactCover.ulift 𝒰.1)
   mem₀ := by
     rw [presieve₀_mem_precoverage_iff]
     refine ⟨fun x ↦ ⟨.inl x, 𝒰.covers _⟩, fun i ↦ ?_⟩
     induction i <;> exact 𝒰.map_prop _
 
-instance {S : Scheme.{u}} (𝒰 : S.Cover (precoverage P)) [QuasiCompactCover 𝒰.1] :
-    QuasiCompactCover (Scheme.Cover.qculift 𝒰).1 :=
+instance {S : Scheme.{u}} (𝒰 : S.Cover (precoverage P)) [QuasiCompactCover 𝒰.1]
+    : QuasiCompactCover (Scheme.Cover.qculift 𝒰).1 :=
   .of_hom (PreZeroHypercover.sumInr _ _)
 
 instance : Precoverage.Small.{u} (propQCPrecoverage P) where
   zeroHypercoverSmall {S} (𝒰 : S.Cover _) := by
-    refine ⟨𝒰.forgetQc.qculift.I₀, Sum.elim 𝒰.forgetQc.idx (QuasiCompactCover.uliftHom _).s₀,
-      ⟨?_, ?_⟩⟩
+    refine
+      ⟨𝒰.forgetQc.qculift.I₀, Sum.elim 𝒰.forgetQc.idx (QuasiCompactCover.uliftHom _).s₀, ⟨?_, ?_⟩⟩
     · rw [Scheme.presieve₀_mem_qcPrecoverage_iff]
       exact .of_hom (𝒱 := QuasiCompactCover.ulift 𝒰.1) ⟨Sum.inr, fun i ↦ 𝟙 _, by cat_disch⟩
     · rw [Scheme.presieve₀_mem_precoverage_iff]
@@ -193,8 +198,10 @@ lemma Hom.singleton_mem_propQCPrecoverage {X Y : Scheme.{u}} {f : X ⟶ Y} (hf :
   refine ⟨f.singleton_mem_qcPrecoverage, ?_⟩
   grind [singleton_mem_precoverage_iff]
 
-/-- The `P`-`qc`-topology on the category of schemes wrt. to a morphism property `P` is the
-topology generated by quasi-compact covers satisfying `P`. -/
+/--
+The `P`-`qc`-topology on the category of schemes wrt. to a morphism property `P` is the
+topology generated by quasi-compact covers satisfying `P`.
+-/
 abbrev propQCTopology (P : MorphismProperty Scheme.{u}) : GrothendieckTopology Scheme.{u} :=
   (propQCPrecoverage P).toGrothendieck
 

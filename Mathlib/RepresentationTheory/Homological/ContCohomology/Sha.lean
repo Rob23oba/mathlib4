@@ -59,8 +59,10 @@ lattice, which is different from the definition in this PR. See Section 1 of [Fl
 
 universe u v
 
-variable {K : Type u} {V : Type v} [Field K] (f : V → Type u) [∀ v, Field (f v)]
-  [∀ v, Algebra K (f v)] (A : TopRep ℤ (Field.absoluteGaloisGroup K)) (n : ℕ)
+variable
+  {K : Type u} {V : Type v} [Field K]
+  (f : V → Type u) [∀ v, Field (f v)] [∀ v, Algebra K (f v)]
+  (A : TopRep ℤ (Field.absoluteGaloisGroup K)) (n : ℕ)
 
 open CategoryTheory
 

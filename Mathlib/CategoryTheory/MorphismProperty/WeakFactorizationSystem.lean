@@ -29,9 +29,11 @@ namespace CategoryTheory.MorphismProperty
 
 variable {C : Type u} [Category.{v} C] (W₁ W₂ : MorphismProperty C)
 
-/-- Two classes of morphisms `W₁` and `W₂` in a category `C` form a weak
+/--
+Two classes of morphisms `W₁` and `W₂` in a category `C` form a weak
 factorization system if `W₁` is exactly `W₂.llp`, `W₂` is exactly `W₁.rlp`,
-and any morphism can be factored a `i ≫ p` with `W₁ i` and `W₂ p`. -/
+and any morphism can be factored a `i ≫ p` with `W₁ i` and `W₂ p`.
+-/
 class IsWeakFactorizationSystem : Prop where
   rlp : W₁.rlp = W₂
   llp : W₂.llp = W₁

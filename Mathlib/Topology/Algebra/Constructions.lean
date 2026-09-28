@@ -22,7 +22,6 @@ topological space, opposite monoid, units
 
 @[expose] public section
 
-
 variable {M N X : Type*}
 
 open Filter Topology
@@ -38,42 +37,36 @@ instance instTopologicalSpaceMulOpposite [TopologicalSpace M] : TopologicalSpace
 variable [TopologicalSpace M]
 
 @[to_additive (attr := continuity, fun_prop)]
-theorem continuous_unop : Continuous (unop : Mᵐᵒᵖ → M) :=
-  continuous_induced_dom
+theorem continuous_unop : Continuous (unop : Mᵐᵒᵖ → M) := continuous_induced_dom
 
 @[to_additive (attr := continuity, fun_prop)]
-theorem continuous_op : Continuous (op : M → Mᵐᵒᵖ) :=
-  continuous_induced_rng.2 continuous_id
+theorem continuous_op : Continuous (op : M → Mᵐᵒᵖ) := continuous_induced_rng.2 continuous_id
 
 /-- `MulOpposite.op` as a homeomorphism. -/
 @[to_additive (attr := simps!) /-- `AddOpposite.op` as a homeomorphism. -/]
 def opHomeomorph : M ≃ₜ Mᵐᵒᵖ where
   toEquiv := opEquiv
 
-@[to_additive]
-instance instT2Space [T2Space M] : T2Space Mᵐᵒᵖ := opHomeomorph.t2Space
+@[to_additive] instance instT2Space [T2Space M] : T2Space Mᵐᵒᵖ := opHomeomorph.t2Space
 
 @[to_additive]
 instance instDiscreteTopology [DiscreteTopology M] : DiscreteTopology Mᵐᵒᵖ :=
   opHomeomorph.symm.isEmbedding.discreteTopology
 
 @[to_additive]
-instance instCompactSpace [CompactSpace M] : CompactSpace Mᵐᵒᵖ :=
-  opHomeomorph.compactSpace
+instance instCompactSpace [CompactSpace M] : CompactSpace Mᵐᵒᵖ := opHomeomorph.compactSpace
 
 @[to_additive]
-instance instWeaklyLocallyCompactSpace [WeaklyLocallyCompactSpace M] :
-    WeaklyLocallyCompactSpace Mᵐᵒᵖ :=
+instance instWeaklyLocallyCompactSpace [WeaklyLocallyCompactSpace M]
+    : WeaklyLocallyCompactSpace Mᵐᵒᵖ :=
   opHomeomorph.symm.isClosedEmbedding.weaklyLocallyCompactSpace
 
 @[to_additive]
-instance instLocallyCompactSpace [LocallyCompactSpace M] :
-    LocallyCompactSpace Mᵐᵒᵖ :=
+instance instLocallyCompactSpace [LocallyCompactSpace M] : LocallyCompactSpace Mᵐᵒᵖ :=
   opHomeomorph.symm.isClosedEmbedding.locallyCompactSpace
 
 @[to_additive (attr := simp)]
-theorem map_op_nhds (x : M) : map (op : M → Mᵐᵒᵖ) (𝓝 x) = 𝓝 (op x) :=
-  opHomeomorph.map_nhds_eq x
+theorem map_op_nhds (x : M) : map (op : M → Mᵐᵒᵖ) (𝓝 x) = 𝓝 (op x) := opHomeomorph.map_nhds_eq x
 
 @[to_additive (attr := simp)]
 theorem map_unop_nhds (x : Mᵐᵒᵖ) : map (unop : Mᵐᵒᵖ → M) (𝓝 x) = 𝓝 (unop x) :=
@@ -97,19 +90,17 @@ variable [TopologicalSpace M] [Monoid M] [TopologicalSpace N] [Monoid N] [Topolo
 
 /-- The units of a monoid are equipped with a topology, via the embedding into `M × M`. -/
 @[to_additive
-/-- The additive units of a monoid are equipped with a topology, via the embedding into `M × M`. -/]
+  /-- The additive units of a monoid are equipped with a topology, via the embedding into `M × M`. -/]
 instance instTopologicalSpaceUnits : TopologicalSpace Mˣ :=
   TopologicalSpace.induced (embedProduct M) inferInstance
 
-@[to_additive]
-theorem isInducing_embedProduct : IsInducing (embedProduct M) := ⟨rfl⟩
+@[to_additive] theorem isInducing_embedProduct : IsInducing (embedProduct M) := ⟨rfl⟩
 
 @[to_additive]
 theorem isEmbedding_embedProduct : IsEmbedding (embedProduct M) :=
   ⟨isInducing_embedProduct, embedProduct_injective M⟩
 
-@[to_additive]
-instance instT2Space [T2Space M] : T2Space Mˣ := isEmbedding_embedProduct.t2Space
+@[to_additive] instance instT2Space [T2Space M] : T2Space Mˣ := isEmbedding_embedProduct.t2Space
 
 @[to_additive]
 instance instDiscreteTopology [DiscreteTopology M] : DiscreteTopology Mˣ :=
@@ -144,19 +135,18 @@ lemma embedding_val_mk {M : Type*} [DivisionMonoid M] [TopologicalSpace M]
   isEmbedding_val_mk' h fun u ↦ (val_inv_eq_inv_val u).symm
 
 @[to_additive]
-theorem continuous_embedProduct : Continuous (embedProduct M) :=
-  continuous_induced_dom
+theorem continuous_embedProduct : Continuous (embedProduct M) := continuous_induced_dom
 
 @[to_additive (attr := fun_prop)]
-theorem continuous_val : Continuous ((↑) : Mˣ → M) :=
-  (@continuous_embedProduct M _ _).fst
+theorem continuous_val : Continuous ((↑) : Mˣ → M) := (@continuous_embedProduct M _ _).fst
 
 @[to_additive]
-protected theorem continuous_iff {f : X → Mˣ} :
-    Continuous f ↔ Continuous (val ∘ f) ∧ Continuous (fun x => ↑(f x)⁻¹ : X → M) := by
-  simp only [isInducing_embedProduct.continuous_iff, embedProduct_apply, Function.comp_def,
-    continuous_prodMk, opHomeomorph.symm.isInducing.continuous_iff, opHomeomorph_symm_apply,
-    unop_op]
+protected theorem continuous_iff {f : X → Mˣ}
+    : Continuous f ↔ Continuous (val ∘ f) ∧ Continuous (fun x => ↑(f x)⁻¹ : X → M) := by
+  simp only [
+    isInducing_embedProduct.continuous_iff, embedProduct_apply, Function.comp_def,
+    continuous_prodMk, opHomeomorph.symm.isInducing.continuous_iff, opHomeomorph_symm_apply, unop_op
+  ]
 
 @[to_additive (attr := fun_prop)]
 theorem continuous_coe_inv : Continuous (fun u => ↑u⁻¹ : Mˣ → M) :=

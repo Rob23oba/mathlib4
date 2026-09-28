@@ -13,7 +13,8 @@ public import Mathlib.Order.CompleteLattice.Basic
 
 public section
 
-variable {α : Type*} {ι : Sort*} {κ : ι → Sort*}
+variable
+  {α : Type*} {ι : Sort*} {κ : ι → Sort*}
   [CompleteLattice α] [Mul α] [MulLeftMono α] [MulRightMono α]
 
 @[to_additive]

@@ -39,8 +39,10 @@ theorem isOka_isPrincipal : IsOka (Submodule.IsPrincipal (R := R)) where
         rw [← mem_span_singleton', ← hy, mem_colon_span_singleton, mul_comm v, ← mul_assoc]
         exact mul_mem_right _ _ hi
       exact mem_span_singleton'.2 ⟨z, by rw [mul_assoc, mul_comm y]⟩
-    · rw [← span_singleton_mul_span_singleton, ← hx, Ideal.sup_mul, sup_le_iff,
-        span_singleton_mul_span_singleton, mul_comm a, span_singleton_le_iff_mem]
+    · rw [
+        ← span_singleton_mul_span_singleton, ← hx, Ideal.sup_mul, sup_le_iff,
+        span_singleton_mul_span_singleton, mul_comm a, span_singleton_le_iff_mem
+      ]
       exact ⟨mul_le_left, mem_colon_span_singleton.1 <| hy ▸ mem_span_singleton_self y⟩
 
 end Ideal
@@ -48,15 +50,16 @@ end Ideal
 open Ideal
 
 /-- If all prime ideals in a commutative ring are principal, so are all other ideals. -/
-theorem IsPrincipalIdealRing.of_prime (H : ∀ P : Ideal R, P.IsPrime → P.IsPrincipal) :
-    IsPrincipalIdealRing R := by
+theorem IsPrincipalIdealRing.of_prime (H : ∀ P : Ideal R, P.IsPrime → P.IsPrincipal)
+    : IsPrincipalIdealRing R := by
   refine ⟨isOka_isPrincipal.forall_of_forall_prime (fun I hI ↦ exists_maximal_not_isPrincipal ?_) H⟩
   rw [isPrincipalIdealRing_iff, not_forall]
   exact ⟨I, hI⟩
 
-/-- If all prime ideals in a commutative ring that are not `(0)` are principal,
-so are all other ideals. -/
-theorem IsPrincipalIdealRing.of_prime_ne_bot
-    (H : ∀ P : Ideal R, P.IsPrime → P ≠ ⊥ → P.IsPrincipal) :
-    IsPrincipalIdealRing R :=
+/--
+If all prime ideals in a commutative ring that are not `(0)` are principal,
+so are all other ideals.
+-/
+theorem IsPrincipalIdealRing.of_prime_ne_bot (H : ∀ P : Ideal R, P.IsPrime → P ≠ ⊥ → P.IsPrincipal)
+    : IsPrincipalIdealRing R :=
   .of_prime fun P hp ↦ (eq_or_ne P ⊥).elim (· ▸ inferInstance) <| H _ hp

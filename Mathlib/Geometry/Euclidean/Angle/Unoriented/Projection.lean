@@ -17,7 +17,6 @@ This file proves lemmas relating to angles involving orthogonal projections.
 
 public section
 
-
 namespace EuclideanGeometry
 
 variable {V P : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P]

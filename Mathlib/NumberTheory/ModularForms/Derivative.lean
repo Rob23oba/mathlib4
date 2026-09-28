@@ -32,9 +32,7 @@ namespace Derivative
 
 @[expose] public noncomputable section
 
-/--
-Normalized derivative $D = \frac{1}{2\pi i} \frac{d}{dz}$.
--/
+/-- Normalized derivative $D = \frac{1}{2\pi i} \frac{d}{dz}$. -/
 def normalizedDerivOfComplex (F : ℍ → ℂ) (z : ℍ) : ℂ := (2 * π * I)⁻¹ * deriv (F ∘ ofComplex) z
 
 /-- We denote the normalized derivative by `D`. -/
@@ -57,24 +55,22 @@ theorem normalizedDerivOfComplex_mdifferentiable {F : ℍ → ℂ} (hF : MDiff F
 Basic properties of normalized derivative.
 -/
 @[simp]
-theorem normalizedDerivOfComplex_add (F G : ℍ → ℂ) (hF : MDiff F) (hG : MDiff G) :
-    D (F + G) = D F + D G := by
+theorem normalizedDerivOfComplex_add (F G : ℍ → ℂ) (hF : MDiff F) (hG : MDiff G)
+    : D (F + G) = D F + D G := by
   ext z
   have hFz := UpperHalfPlane.mdifferentiableAt_iff.mp (hF z)
   have hGz := UpperHalfPlane.mdifferentiableAt_iff.mp (hG z)
   simp only [normalizedDerivOfComplex, Pi.add_apply]
-  rw [show (F + G) ∘ ofComplex = F ∘ ofComplex + G ∘ ofComplex from rfl,
-    deriv_add hFz hGz, mul_add]
+  rw [show (F + G) ∘ ofComplex = F ∘ ofComplex + G ∘ ofComplex from rfl, deriv_add hFz hGz, mul_add]
 
 @[simp]
-theorem normalizedDerivOfComplex_sub (F G : ℍ → ℂ) (hF : MDiff F) (hG : MDiff G) :
-    D (F - G) = D F - D G := by
+theorem normalizedDerivOfComplex_sub (F G : ℍ → ℂ) (hF : MDiff F) (hG : MDiff G)
+    : D (F - G) = D F - D G := by
   ext z
   have hFz := UpperHalfPlane.mdifferentiableAt_iff.mp (hF z)
   have hGz := UpperHalfPlane.mdifferentiableAt_iff.mp (hG z)
   simp only [normalizedDerivOfComplex, Pi.sub_apply]
-  rw [show (F - G) ∘ ofComplex = F ∘ ofComplex - G ∘ ofComplex from rfl,
-    deriv_sub hFz hGz, mul_sub]
+  rw [show (F - G) ∘ ofComplex = F ∘ ofComplex - G ∘ ofComplex from rfl, deriv_sub hFz hGz, mul_sub]
 
 @[simp]
 theorem normalizedDerivOfComplex_const (c : ℂ) : D (fun _ ↦ c) = 0 := by
@@ -87,32 +83,30 @@ theorem normalizedDerivOfComplex_smul (c : ℂ) (F : ℍ → ℂ) (hF : MDiff F)
   ext z
   have hFz := UpperHalfPlane.mdifferentiableAt_iff.mp (hF z)
   simp only [normalizedDerivOfComplex, Pi.smul_apply, smul_eq_mul]
-  rw [show (c • F) ∘ ofComplex = c • (F ∘ ofComplex) from rfl,
-    deriv_const_smul c hFz, smul_eq_mul]
+  rw [show (c • F) ∘ ofComplex = c • (F ∘ ofComplex) from rfl, deriv_const_smul c hFz, smul_eq_mul]
   ring
 
 @[simp]
-theorem normalizedDerivOfComplex_neg (F : ℍ → ℂ) (hF : MDiff F) : D (-F) = -D F := by
+theorem normalizedDerivOfComplex_neg (F : ℍ → ℂ) (hF : MDiff F) : D (-F) = - D F := by
   have : -F = (-1 : ℂ) • F := by ext; simp
   rw [this, normalizedDerivOfComplex_smul _ _ hF]
   ext
   simp
 
 @[simp]
-theorem normalizedDerivOfComplex_mul (F G : ℍ → ℂ) (hF : MDiff F) (hG : MDiff G) :
-    D (F * G) = D F * G + F * D G := by
+theorem normalizedDerivOfComplex_mul (F G : ℍ → ℂ) (hF : MDiff F) (hG : MDiff G)
+    : D (F * G) = D F * G + F * D G := by
   ext z
   have hFz := UpperHalfPlane.mdifferentiableAt_iff.mp (hF z)
   have hGz := UpperHalfPlane.mdifferentiableAt_iff.mp (hG z)
   simp only [normalizedDerivOfComplex, Pi.add_apply, Pi.mul_apply]
-  rw [show (F * G) ∘ ofComplex = (F ∘ ofComplex) * (G ∘ ofComplex) from rfl,
-    deriv_mul hFz hGz]
+  rw [show (F * G) ∘ ofComplex = (F ∘ ofComplex) * (G ∘ ofComplex) from rfl, deriv_mul hFz hGz]
   simp [Function.comp_apply, ofComplex_apply]
   ring
 
 @[simp]
-theorem normalizedDerivOfComplex_pow (F : ℍ → ℂ) (n : ℕ) (hF : MDiff F) :
-    D (F ^ n) = n * F ^ (n - 1) * D F := by
+theorem normalizedDerivOfComplex_pow (F : ℍ → ℂ) (n : ℕ) (hF : MDiff F)
+    : D (F ^ n) = n * F ^ (n - 1) * D F := by
   ext z
   have hFz := UpperHalfPlane.mdifferentiableAt_iff.mp (hF z)
   simp only [normalizedDerivOfComplex, Pi.mul_apply, Pi.pow_apply]
@@ -120,9 +114,7 @@ theorem normalizedDerivOfComplex_pow (F : ℍ → ℂ) (n : ℕ) (hF : MDiff F) 
   simp [Function.comp_apply, ofComplex_apply]
   ring
 
-/--
-Serre derivative of weight $k$.
--/
+/-- Serre derivative of weight $k$. -/
 def serreDerivative (k : ℂ) (F : ℍ → ℂ) (z : ℍ) : ℂ :=
   D F z - k * 12⁻¹ * EisensteinSeries.E2 z * F z
 
@@ -137,27 +129,27 @@ lemma serreDerivative_eq (k : ℂ) (F : ℍ → ℂ) :
 /-!
 Basic properties of Serre derivative.
 -/
-theorem serreDerivative_add (k : ℂ) {F G : ℍ → ℂ} (hF : MDiff F) (hG : MDiff G) :
-    serreDerivative k (F + G) = serreDerivative k F + serreDerivative k G := by
+theorem serreDerivative_add (k : ℂ) {F G : ℍ → ℂ} (hF : MDiff F) (hG : MDiff G)
+    : serreDerivative k (F + G) = serreDerivative k F + serreDerivative k G := by
   ext z
   simp [serreDerivative, normalizedDerivOfComplex_add F G hF hG]
   ring_nf
 
-theorem serreDerivative_sub (k : ℂ) {F G : ℍ → ℂ} (hF : MDiff F) (hG : MDiff G) :
-    serreDerivative k (F - G) = serreDerivative k F - serreDerivative k G := by
+theorem serreDerivative_sub (k : ℂ) {F G : ℍ → ℂ} (hF : MDiff F) (hG : MDiff G)
+    : serreDerivative k (F - G) = serreDerivative k F - serreDerivative k G := by
   ext z
   simp [serreDerivative, normalizedDerivOfComplex_sub F G hF hG]
   ring_nf
 
-theorem serreDerivative_smul (k c : ℂ) {F : ℍ → ℂ} (hF : MDiff F) :
-    serreDerivative k (c • F) = c • (serreDerivative k F) := by
+theorem serreDerivative_smul (k c : ℂ) {F : ℍ → ℂ} (hF : MDiff F)
+    : serreDerivative k (c • F) = c • (serreDerivative k F) := by
   ext z
   simp [serreDerivative, normalizedDerivOfComplex_smul c F hF, smul_eq_mul]
   ring_nf
 
-theorem serreDerivative_mul (k₁ k₂ : ℂ) {F G : ℍ → ℂ} (hF : MDiff F) (hG : MDiff G) :
-    serreDerivative (k₁ + k₂) (F * G) =
-      (serreDerivative k₁ F) * G + F * (serreDerivative k₂ G) := by
+theorem serreDerivative_mul (k₁ k₂ : ℂ) {F G : ℍ → ℂ} (hF : MDiff F) (hG : MDiff G)
+    : serreDerivative (k₁ + k₂) (F * G)
+      = (serreDerivative k₁ F) * G + F * (serreDerivative k₂ G) := by
   ext z
   simp [serreDerivative, normalizedDerivOfComplex_mul F G hF hG]
   ring_nf
@@ -166,8 +158,8 @@ theorem serreDerivative_mul (k₁ k₂ : ℂ) {F G : ℍ → ℂ} (hF : MDiff F)
 The Serre derivative preserves MDifferentiability.
 If `F : ℍ → ℂ` is MDifferentiable, then `serreDerivative k F` is also MDifferentiable.
 -/
-theorem serreDerivative_mdifferentiable {F : ℍ → ℂ} (k : ℂ) (hF : MDiff F) :
-    MDiff (serreDerivative k F) := by
+theorem serreDerivative_mdifferentiable {F : ℍ → ℂ} (k : ℂ) (hF : MDiff F)
+    : MDiff (serreDerivative k F) := by
   refine (normalizedDerivOfComplex_mdifferentiable hF).sub ?_
   convert!
     (MDifferentiable.mul mdifferentiable_const (E2_mdifferentiable.mul hF) :
@@ -222,18 +214,24 @@ lemma normalizedDerivOfComplex_SL_slash {k : ℤ} {F : ℍ → ℂ} (hF : MDiff 
 Serre derivative is equivariant under the slash action. More precisely,
 $\partial_k (F ∣[k] γ) = (\partial_k F) ∣[k + 2] \gamma$ for all $\gamma \in SL(2, \mathbb{Z})$.
 -/
-theorem serreDerivative_slash_equivariant {k : ℤ} {F : ℍ → ℂ} (hF : MDiff F) {γ : SL(2, ℤ)} :
-    serreDerivative k F ∣[k + 2] γ = serreDerivative k (F ∣[k] γ) := by
+theorem serreDerivative_slash_equivariant {k : ℤ} {F : ℍ → ℂ} (hF : MDiff F) {γ : SL(2, ℤ)}
+    : serreDerivative k F ∣[k + 2] γ = serreDerivative k (F ∣[k] γ) := by
   ext z
-  have hLHS : (serreDerivative (k : ℂ) F ∣[k + 2] γ) z =
-      (D F ∣[k + 2] γ) z - ↑k * 12⁻¹ * ((EisensteinSeries.E2 ∣[(2 : ℤ)] γ) z * (F ∣[k] γ) z) := by
-    grind [ModularForm.SL_slash_apply, serreDerivative_apply, Pi.mul_apply,
-      congr($(ModularForm.mul_slash_SL2 2 k γ EisensteinSeries.E2 F) z)]
-  have hDz : (D (F ∣[k] γ)) z = (D F ∣[k + 2] γ) z -
-      (k * (2 * π * I)⁻¹ * (γ 1 0 / denom γ z) * (F ∣[k] γ) z) := by
+  have hLHS
+      : (serreDerivative (k : ℂ) F ∣[k + 2] γ) z
+        = (D F ∣[k + 2] γ) z
+          - ↑k * 12⁻¹ * ((EisensteinSeries.E2 ∣[(2 : ℤ)] γ) z * (F ∣[k] γ) z) := by
+    grind [
+      ModularForm.SL_slash_apply, serreDerivative_apply, Pi.mul_apply,
+      congr($(ModularForm.mul_slash_SL2 2 k γ EisensteinSeries.E2 F) z)
+    ]
+  have hDz
+      : (D (F ∣[k] γ)) z
+        = (D F ∣[k + 2] γ) z - (k * (2 * π * I)⁻¹ * (γ 1 0 / denom γ z) * (F ∣[k] γ) z) := by
     simp [normalizedDerivOfComplex_SL_slash hF]
-  have hE2z : (EisensteinSeries.E2 ∣[(2 : ℤ)] γ) z =
-      EisensteinSeries.E2 z - 1 / (2 * riemannZeta 2) * EisensteinSeries.D2 γ z := by
+  have hE2z
+      : (EisensteinSeries.E2 ∣[(2 : ℤ)] γ) z
+        = EisensteinSeries.E2 z - 1 / (2 * riemannZeta 2) * EisensteinSeries.D2 γ z := by
     simp [EisensteinSeries.E2_slash_action]
   grind [serreDerivative_apply, EisensteinSeries.D2, riemannZeta_two, I_sq]
 
@@ -241,9 +239,9 @@ theorem serreDerivative_slash_equivariant {k : ℤ} {F : ℍ → ℂ} (hF : MDif
 As a corollary, if `F` is invariant under the slash action of weight `k`, then
 `serreDerivative k F` is invariant under the slash action of weight `k + 2`.
 -/
-theorem serreDerivative_slash_invariant {k : ℤ} {F : ℍ → ℂ} (hF : MDiff F) {γ : SL(2, ℤ)}
-    (h : F ∣[k] γ = F) :
-    serreDerivative k F ∣[k + 2] γ = serreDerivative k F := by
+theorem serreDerivative_slash_invariant
+    {k : ℤ} {F : ℍ → ℂ} (hF : MDiff F) {γ : SL(2, ℤ)} (h : F ∣[k] γ = F)
+    : serreDerivative k F ∣[k + 2] γ = serreDerivative k F := by
   grind [serreDerivative_slash_equivariant]
 
 /-!
@@ -272,10 +270,13 @@ private lemma norm_normalizedDerivOfComplex_le {F : ℍ → ℂ} (hF : MDiff F) 
     _ ≤ (2 * π)⁻¹ * (M / (z.im / 2)) := by gcongr
     _ = M / (π * z.im) := by ring
 
-/-- The normalized derivative `D F` of a holomorphic function `F` that is bounded at infinity
-tends to `0` at infinity. Uses Cauchy estimate. -/
-theorem isZeroAtImInfty_normalizedDerivOfComplex {F : ℍ → ℂ} (hF : MDiff F)
-    (hb : IsBoundedAtImInfty F) : IsZeroAtImInfty (D F) := by
+/--
+The normalized derivative `D F` of a holomorphic function `F` that is bounded at infinity
+tends to `0` at infinity. Uses Cauchy estimate.
+-/
+theorem isZeroAtImInfty_normalizedDerivOfComplex
+    {F : ℍ → ℂ} (hF : MDiff F) (hb : IsBoundedAtImInfty F)
+    : IsZeroAtImInfty (D F) := by
   rw [isBoundedAtImInfty_iff] at hb
   obtain ⟨M, A, hMA⟩ := hb
   rw [isZeroAtImInfty_iff]
@@ -287,26 +288,34 @@ theorem isZeroAtImInfty_normalizedDerivOfComplex {F : ℍ → ℂ} (hF : MDiff F
   rw [div_le_iff₀ (by positivity)]
   nlinarith [(div_le_iff₀ (show (0 : ℝ) < π * ε by positivity)).mp hzε]
 
-/-- The normalized derivative `D F` of a holomorphic function `F` that is bounded at infinity is
-again bounded at infinity. -/
-theorem isBoundedAtImInfty_normalizedDerivOfComplex {F : ℍ → ℂ} (hF : MDiff F)
-    (hb : IsBoundedAtImInfty F) : IsBoundedAtImInfty (D F) :=
+/--
+The normalized derivative `D F` of a holomorphic function `F` that is bounded at infinity is
+again bounded at infinity.
+-/
+theorem isBoundedAtImInfty_normalizedDerivOfComplex
+    {F : ℍ → ℂ} (hF : MDiff F) (hb : IsBoundedAtImInfty F)
+    : IsBoundedAtImInfty (D F) :=
   (isZeroAtImInfty_normalizedDerivOfComplex hF hb).isBoundedAtImInfty
 
-/-- The Serre derivative of a holomorphic function that is bounded at infinity is again bounded at
-infinity. -/
-theorem isBoundedAtImInfty_serreDerivative {F : ℍ → ℂ} (k : ℂ) (hF : MDiff F)
-    (hb : IsBoundedAtImInfty F) : IsBoundedAtImInfty (serreDerivative k F) :=
+/--
+The Serre derivative of a holomorphic function that is bounded at infinity is again bounded at
+infinity.
+-/
+theorem isBoundedAtImInfty_serreDerivative
+    {F : ℍ → ℂ} (k : ℂ) (hF : MDiff F) (hb : IsBoundedAtImInfty F)
+    : IsBoundedAtImInfty (serreDerivative k F) :=
   Asymptotics.IsBigO.sub (isBoundedAtImInfty_normalizedDerivOfComplex hF hb) <|
     ((Filter.const_boundedAtFilter atImInfty (k * 12⁻¹)).mul
-      EisensteinSeries.isBoundedAtImInfty_E2).mul hb
+        EisensteinSeries.isBoundedAtImInfty_E2).mul
+      hb
 
 /--
 The Serre derivative preserves modularity: if `f` is a modular form of weight `k` for a subgroup
 `Γ` of `SL(2, ℤ)`, then `∂ₖ f` is a modular form of weight `k + 2` for `Γ`.
 -/
-noncomputable def serreDerivativeMF {Γ : Subgroup (GL (Fin 2) ℝ)} (k : ℤ)
-    (f : ModularForm Γ k) (hΓ : Γ ≤ 𝒮ℒ := by rfl) : ModularForm Γ (k + 2) where
+noncomputable def serreDerivativeMF
+    {Γ : Subgroup (GL (Fin 2) ℝ)} (k : ℤ) (f : ModularForm Γ k) (hΓ : Γ ≤ 𝒮ℒ := by rfl)
+    : ModularForm Γ (k + 2) where
   toFun := serreDerivative k f
   slash_action_eq' g hg := by
     obtain ⟨γ, rfl⟩ := hΓ hg

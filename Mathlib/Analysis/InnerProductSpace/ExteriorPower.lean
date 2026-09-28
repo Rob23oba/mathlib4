@@ -46,9 +46,11 @@ open scoped RealInnerProductSpace
 
 variable {n : ℕ} {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 
-/-- The inner product on `⋀[ℝ]^n E` as a bilinear map. This is an implementation detail
+/--
+The inner product on `⋀[ℝ]^n E` as a bilinear map. This is an implementation detail
 for constructing the `InnerProductSpace` instance and should not be used directly.
-Use `⟪·, ·⟫` instead. -/
+Use `⟪·, ·⟫` instead.
+-/
 private def innerProductForm : ⋀[ℝ]^n E →ₗ[ℝ] ⋀[ℝ]^n E →ₗ[ℝ] ℝ :=
   pairingDual ℝ E n ∘ₗ map n (innerₗ E)
 
@@ -104,7 +106,8 @@ private lemma innerProductForm_self (x : ⋀[ℝ]^n E) {ι : Type*} [Fintype ι]
     innerProductForm x x = ∑ s, (b.toBasis.exteriorPower n).repr x s ^ 2 := by
   simp_rw [innerProductForm_eq_sum b, pow_two]
 
-@[no_expose] instance [FiniteDimensional ℝ E] : InnerProductSpace.Core ℝ (⋀[ℝ]^n E) where
+@[no_expose]
+instance [FiniteDimensional ℝ E] : InnerProductSpace.Core ℝ (⋀[ℝ]^n E) where
   inner x y := innerProductForm x y
   conj_inner_symm := innerProductForm_symm
   add_left := by simp
@@ -113,16 +116,18 @@ private lemma innerProductForm_self (x : ⋀[ℝ]^n E) {ι : Type*} [Fintype ι]
     rw [innerProductForm_self x (stdOrthonormalBasis ℝ E)]
     exact Finset.sum_nonneg (fun _ _ ↦ sq_nonneg _)
   definite x h := by
-    rw [innerProductForm_self x (stdOrthonormalBasis ℝ E),
-      Finset.sum_eq_zero_iff_of_nonneg (fun _ _ ↦ sq_nonneg _)] at h
+    rw [
+        innerProductForm_self x (stdOrthonormalBasis ℝ E),
+        Finset.sum_eq_zero_iff_of_nonneg (fun _ _ ↦ sq_nonneg _)
+      ]
+      at h
     apply Module.Basis.ext_elem ((stdOrthonormalBasis ℝ E).toBasis.exteriorPower n)
     simpa using h
 
 instance [FiniteDimensional ℝ E] : NormedAddCommGroup (⋀[ℝ]^n E) :=
   InnerProductSpace.Core.toNormedAddCommGroup (𝕜 := ℝ)
 
-instance [FiniteDimensional ℝ E] : InnerProductSpace ℝ (⋀[ℝ]^n E) :=
-  InnerProductSpace.ofCore _
+instance [FiniteDimensional ℝ E] : InnerProductSpace ℝ (⋀[ℝ]^n E) := InnerProductSpace.ofCore _
 
 lemma inner_ιMulti_ιMulti [FiniteDimensional ℝ E] (x y : Fin n → E) :
     ⟪ιMulti ℝ n x, ιMulti ℝ n y⟫ = det (of fun i j ↦ ⟪x j, y i⟫) :=
@@ -139,10 +144,12 @@ section OrthonormalBasis
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
 variable {I : Type*} [Fintype I] [LinearOrder I]
 
-/-- An orthonormal basis of a finite-dimensional real inner product space `E` induces an
-orthonormal basis of `⋀[ℝ]^n E`, indexed by `n`-element subsets of the index type. -/
-def OrthonormalBasis.exteriorPower (b : OrthonormalBasis I ℝ E) (n : ℕ) :
-    OrthonormalBasis (Set.powersetCard I n) ℝ (⋀[ℝ]^n E) :=
+/--
+An orthonormal basis of a finite-dimensional real inner product space `E` induces an
+orthonormal basis of `⋀[ℝ]^n E`, indexed by `n`-element subsets of the index type.
+-/
+def OrthonormalBasis.exteriorPower (b : OrthonormalBasis I ℝ E) (n : ℕ)
+    : OrthonormalBasis (Set.powersetCard I n) ℝ (⋀[ℝ]^n E) :=
   (b.toBasis.exteriorPower n).toOrthonormalBasis <| by
     rw [orthonormal_iff_ite]
     intro i j

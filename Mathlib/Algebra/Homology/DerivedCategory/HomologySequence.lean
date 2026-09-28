@@ -34,10 +34,12 @@ namespace DerivedCategory
 noncomputable def homologyFunctor (n : ℤ) : DerivedCategory C ⥤ C :=
   HomologicalComplexUpToQuasiIso.homologyFunctor C (ComplexShape.up ℤ) n
 
-/-- The homology functor on the derived category is induced by the homology
-functor on the category of cochain complexes. -/
-noncomputable def homologyFunctorFactors (n : ℤ) : Q ⋙ homologyFunctor C n ≅
-    HomologicalComplex.homologyFunctor _ _ n :=
+/--
+The homology functor on the derived category is induced by the homology
+functor on the category of cochain complexes.
+-/
+noncomputable def homologyFunctorFactors (n : ℤ)
+    : Q ⋙ homologyFunctor C n ≅ HomologicalComplex.homologyFunctor _ _ n :=
   HomologicalComplexUpToQuasiIso.homologyFunctorFactors C (ComplexShape.up ℤ) n
 
 -- needed in `homologyMap_comp_eq_zero_of_distTriang`
@@ -50,10 +52,12 @@ lemma homologyFunctorFactors_hom_naturality
     (homologyFunctorFactors C n).hom.app K ≫ HomologicalComplex.homologyMap f n :=
   (homologyFunctorFactors C n).hom.naturality f
 
-/-- The homology functor on the derived category is induced by the homology
-functor on the homotopy category of cochain complexes. -/
-noncomputable def homologyFunctorFactorsh (n : ℤ) : Qh ⋙ homologyFunctor C n ≅
-    HomotopyCategory.homologyFunctor _ _ n :=
+/--
+The homology functor on the derived category is induced by the homology
+functor on the homotopy category of cochain complexes.
+-/
+noncomputable def homologyFunctorFactorsh (n : ℤ)
+    : Qh ⋙ homologyFunctor C n ≅ HomotopyCategory.homologyFunctor _ _ n :=
   HomologicalComplexUpToQuasiIso.homologyFunctorFactorsh C (ComplexShape.up ℤ) n
 
 @[reassoc]
@@ -102,14 +106,15 @@ lemma isIso_iff {K L : DerivedCategory C} (f : K ⟶ L) :
   exact ((MorphismProperty.isomorphisms C).arrow_iso_iff e).1 (hf n)
 
 instance (n : ℤ) : (homologyFunctor C n).IsHomological :=
-  Functor.isHomological_of_localization Qh
-    (homologyFunctor C n) _ (homologyFunctorFactorsh C n)
+  Functor.isHomological_of_localization Qh (homologyFunctor C n) _ (homologyFunctorFactorsh C n)
 
-/-- The functors `homologyFunctor C n : DerivedCategory C ⥤ C` for all `n : ℤ` are part
-of a "shift sequence", i.e. they satisfy compatibilities with shifts. -/
+/--
+The functors `homologyFunctor C n : DerivedCategory C ⥤ C` for all `n : ℤ` are part
+of a "shift sequence", i.e. they satisfy compatibilities with shifts.
+-/
 noncomputable instance : (homologyFunctor C 0).ShiftSequence ℤ :=
-  Functor.ShiftSequence.induced (homologyFunctorFactorsh C 0) ℤ
-    (homologyFunctor C) (homologyFunctorFactorsh C)
+  Functor.ShiftSequence.induced (homologyFunctorFactorsh C 0) ℤ (homologyFunctor C)
+    (homologyFunctorFactorsh C)
 
 lemma shift_homologyFunctor (n : ℤ) :
     (homologyFunctor C 0).shift n = homologyFunctor C n := rfl
@@ -147,11 +152,12 @@ lemma shiftMap_homologyFunctor_map_Q
 
 namespace HomologySequence
 
-/-- The connecting homomorphism on the homology sequence attached to a distinguished
-triangle in the derived category. -/
-noncomputable def δ (T : Triangle (DerivedCategory C))
-    (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁ := by lia) :
-    (homologyFunctor C n₀).obj T.obj₃ ⟶ (homologyFunctor C n₁).obj T.obj₁ :=
+/--
+The connecting homomorphism on the homology sequence attached to a distinguished
+triangle in the derived category.
+-/
+noncomputable def δ (T : Triangle (DerivedCategory C)) (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁ := by lia)
+    : (homologyFunctor C n₀).obj T.obj₃ ⟶ (homologyFunctor C n₁).obj T.obj₁ :=
   (homologyFunctor C 0).shiftMap T.mor₃ n₀ n₁ (by rw [add_comm 1, h])
 
 variable (T : Triangle (DerivedCategory C)) (hT : T ∈ distTriang _) (n₀ n₁ : ℤ)
@@ -208,12 +214,13 @@ open HomologicalComplex
 
 variable {C} (T : Triangle (CochainComplex C ℤ))
 
-/-- If `T` is a triangle in `CochainComplex C ℤ`, this is the connecting homomorphism
-`T.obj₃.homology n₀ ⟶ T.obj₁.homology n₁` in homology when `n₀ + 1 = n₁`. -/
-noncomputable def homologyδOfTriangle (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁ := by lia) :
-    T.obj₃.homology n₀ ⟶ T.obj₁.homology n₁ :=
-  homologyMap T.mor₃ n₀ ≫
-    ((homologyFunctor C (.up ℤ) 0).shiftIso 1 n₀ n₁ (by lia)).hom.app _
+/--
+If `T` is a triangle in `CochainComplex C ℤ`, this is the connecting homomorphism
+`T.obj₃.homology n₀ ⟶ T.obj₁.homology n₁` in homology when `n₀ + 1 = n₁`.
+-/
+noncomputable def homologyδOfTriangle (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁ := by lia)
+    : T.obj₃.homology n₀ ⟶ T.obj₁.homology n₁ :=
+  homologyMap T.mor₃ n₀ ≫ ((homologyFunctor C (.up ℤ) 0).shiftIso 1 n₀ n₁ (by lia)).hom.app _
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

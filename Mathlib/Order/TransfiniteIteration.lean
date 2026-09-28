@@ -38,14 +38,18 @@ universe w u
 
 section
 
-variable {I : Type u} [SupSet I] (φ : I → I)
-  {J : Type w} [LinearOrder J] [SuccOrder J] [WellFoundedLT J]
+variable
+  {I : Type u} [SupSet I] (φ : I → I) {J : Type w} [LinearOrder J] [SuccOrder J] [WellFoundedLT J]
 
-/-- The `j`th-iteration of a function `φ : I → I` when `j : J` belongs to
-a well-ordered type. -/
+/--
+The `j`th-iteration of a function `φ : I → I` when `j : J` belongs to
+a well-ordered type.
+-/
 noncomputable def transfiniteIterate (j : J) : I → I :=
   SuccOrder.limitRecOn j
-    (fun _ _ ↦ id) (fun _ _ g ↦ φ ∘ g) (fun y _ h ↦ ⨆ (x : Set.Iio y), h x.1 x.2)
+    (fun _ _ ↦ id)
+    (fun _ _ g ↦ φ ∘ g)
+    (fun y _ h ↦ ⨆ (x : Set.Iio y), h x.1 x.2)
 
 @[simp]
 lemma transfiniteIterate_bot [OrderBot J] (i₀ : I) :
@@ -71,7 +75,9 @@ end
 
 section
 
-variable {I : Type u} [CompleteLattice I] (φ : I → I) (i₀ : I)
+variable
+  {I : Type u} [CompleteLattice I]
+  (φ : I → I) (i₀ : I)
   {J : Type w} [LinearOrder J] [OrderBot J] [SuccOrder J] [WellFoundedLT J]
 
 lemma monotone_transfiniteIterate (hφ : ∀ (i : I), i ≤ φ i) :

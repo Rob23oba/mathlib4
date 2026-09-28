@@ -32,9 +32,11 @@ open Limits
 
 namespace ObjectProperty
 
-variable {C : Type u} [Category.{v} C] [Abelian C]
+variable
+  {C : Type u} [Category.{v} C] [Abelian C]
   {D : Type u'} [Category.{v'} D]
-  (L : C ⥤ D) (P : ObjectProperty C) [P.IsSerreClass]
+  (L : C ⥤ D)
+  (P : ObjectProperty C) [P.IsSerreClass]
   {E : Type u''} [Category.{v''} E] [Abelian E]
 
 lemma exists_epiModSerre_comp_eq_zero_iff {X Y : C} (f : X ⟶ Y) :
@@ -100,10 +102,14 @@ lemma epiModSerre.isoModSerre_image_ι
 namespace SerreClassLocalization
 
 instance : P.isoModSerre.HasLeftCalculusOfFractions where
-  exists_leftFraction X Y φ :=
-    ⟨{s := pushout.inl φ.f φ.s
-      f := pushout.inr φ.f φ.s,
-      hs := MorphismProperty.pushout_inl _ _ φ.hs}, pushout.condition⟩
+  exists_leftFraction X Y φ := ⟨
+    {
+      s := pushout.inl φ.f φ.s
+      f := pushout.inr φ.f φ.s
+      hs := MorphismProperty.pushout_inl _ _ φ.hs
+    },
+    pushout.condition
+  ⟩
   ext X' X Y f₁ f₂ s hs eq := by
     refine ⟨_, cokernel.π (f₁ - f₂), ?_, ?_⟩
     · rw [isoModSerre_iff_of_epi]
@@ -111,15 +117,19 @@ instance : P.isoModSerre.HasLeftCalculusOfFractions where
     · simpa only [Preadditive.sub_comp, sub_eq_zero] using cokernel.condition (f₁ - f₂)
 
 instance : P.isoModSerre.HasRightCalculusOfFractions where
-  exists_rightFraction X Y φ :=
-    ⟨{s := pullback.fst φ.f φ.s
-      f := pullback.snd φ.f φ.s,
-      hs := MorphismProperty.pullback_fst _ _ φ.hs}, pullback.condition⟩
+  exists_rightFraction X Y φ := ⟨
+    {
+      s := pullback.fst φ.f φ.s
+      f := pullback.snd φ.f φ.s
+      hs := MorphismProperty.pullback_fst _ _ φ.hs
+    },
+    pullback.condition
+  ⟩
   ext X Y Y' f₁ f₂ s hs eq := by
     refine ⟨_, kernel.ι (f₁ - f₂), ?_, ?_⟩
     · rw [isoModSerre_iff_of_mono]
       exact P.prop_of_iso (Abelian.coimageIsoImage (f₁ - f₂)).symm
-        ((exists_comp_isoModSerre_eq_zero_iff P _).1 ⟨_ ,s, hs, by simpa [sub_eq_zero]⟩)
+        ((exists_comp_isoModSerre_eq_zero_iff P _).1 ⟨_, s, hs, by simpa [sub_eq_zero]⟩)
     · simpa only [Preadditive.comp_sub, sub_eq_zero] using kernel.condition (f₁ - f₂)
 
 noncomputable example : Preadditive P.isoModSerre.Localization := inferInstance
@@ -407,12 +417,14 @@ lemma isNormalEpiCategory : IsNormalEpiCategory D where
         (CokernelCofork.isColimitMapCoconeEquiv _ L).1
           (isColimitOfPreserves L hf'.isColimit) }
 
-/-- If `L : C ⥤ D` is a localization functor with respect to a Serre class `P` in
+/--
+If `L : C ⥤ D` is a localization functor with respect to a Serre class `P` in
 the abelian category `C`, then `D` is an abelian category.
 Note that we assume that `D` has already been equipped with a preadditive structure,
 and that `L` is additive. Otherwise, see the results in the file
 `Mathlib/CategoryTheory/Localization/CalculusOfFractions/Preadditive.lean`
-which applies because `P.isoModSerre` has a calculus of left and right fractions. -/
+which applies because `P.isoModSerre` has a calculus of left and right fractions.
+-/
 @[stacks 02MS, instance_reducible]
 def abelian : Abelian D := by
   have := hasFiniteProducts L P
@@ -502,33 +514,33 @@ lemma exactFunctor_comp_iff :
 variable (E)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- When `L : C ⥤ D` is a localization functor with respect to a Serre class
+/--
+When `L : C ⥤ D` is a localization functor with respect to a Serre class
 in the abelian category `C`, this is the functor `(D ⥤ₑ E) ⥤ C ⥤ₑ E`
-obtained by precomposition with `L`. -/
+obtained by precomposition with `L`.
+-/
 def whiskeringLeft : (D ⥤ₑ E) ⥤ C ⥤ₑ E :=
-  ObjectProperty.lift _
-    (ObjectProperty.ι _ ⋙ (Functor.whiskeringLeft _ _ _).obj L) (fun G ↦ by
-      dsimp
-      simpa only [exactFunctor_comp_iff L P] using G.property)
+  ObjectProperty.lift _ (ObjectProperty.ι _ ⋙ (Functor.whiskeringLeft _ _ _).obj L) (fun G ↦ by
+    dsimp
+    simpa only [exactFunctor_comp_iff L P] using G.property)
 
 @[simp]
 lemma whiskeringLeft_obj_obj (G : D ⥤ₑ E) :
     ((whiskeringLeft L P E).obj G).obj = L ⋙ G.obj := rfl
 
-/-- When `L : C ⥤ D` is a localization functor with respect to a Serre class
+/--
+When `L : C ⥤ D` is a localization functor with respect to a Serre class
 in the abelian category `C`, the functor `whiskeringLeft L P E: (D ⥤ₑ E) ⥤ C ⥤ₑ E`
-is fully faithful. -/
-noncomputable def fullyFaithfulWhiskeringLeft :
-    (whiskeringLeft L P E).FullyFaithful :=
+is fully faithful.
+-/
+noncomputable def fullyFaithfulWhiskeringLeft : (whiskeringLeft L P E).FullyFaithful :=
   Functor.FullyFaithful.ofCompFaithful (G := ObjectProperty.ι _)
     ((exactFunctor D E).fullyFaithfulι.comp
       (Localization.fullyFaithfulWhiskeringLeft L P.isoModSerre E))
 
-instance : (whiskeringLeft L P E).Faithful :=
-  (fullyFaithfulWhiskeringLeft L P E).faithful
+instance : (whiskeringLeft L P E).Faithful := (fullyFaithfulWhiskeringLeft L P E).faithful
 
-instance : (whiskeringLeft L P E).Full :=
-  (fullyFaithfulWhiskeringLeft L P E).full
+instance : (whiskeringLeft L P E).Full := (fullyFaithfulWhiskeringLeft L P E).full
 
 /-- Let `L : C ⥤ D` be a localization functor with respect to a Serre class `P`
 in the abelian category `C`. If `G : C ⥤ₑ E` is an exact functor to an abelian

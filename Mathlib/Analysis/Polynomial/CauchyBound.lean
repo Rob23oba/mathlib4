@@ -68,18 +68,19 @@ lemma cauchyBound_smul {x : K} (hx : x ≠ 0) (p : K[X]) : cauchyBound (x • p)
   apply mul_div_mul_left
   simpa
 
-/--
-`cauchyBound` is a bound on the norm of polynomial roots.
--/
-theorem IsRoot.norm_lt_cauchyBound {p : K[X]} (hp : p ≠ 0) {a : K} (h : p.IsRoot a) :
-    ‖a‖₊ < cauchyBound p := by
+/-- `cauchyBound` is a bound on the norm of polynomial roots. -/
+theorem IsRoot.norm_lt_cauchyBound {p : K[X]} (hp : p ≠ 0) {a : K} (h : p.IsRoot a)
+    : ‖a‖₊ < cauchyBound p := by
   rw [IsRoot.def, eval_eq_sum_range, range_add_one] at h
-  simp only [mem_range, lt_self_iff_false, not_false_eq_true, sum_insert, coeff_natDegree,
-    add_eq_zero_iff_eq_neg] at h
+  simp only [
+      mem_range, lt_self_iff_false, not_false_eq_true, sum_insert, coeff_natDegree,
+      add_eq_zero_iff_eq_neg
+    ]
+    at h
   apply_fun nnnorm at h
   simp only [nnnorm_mul, nnnorm_pow, nnnorm_neg] at h
   suffices ‖a‖₊ ^ p.natDegree ≤ (cauchyBound p - 1) * ∑ x ∈ range p.natDegree, ‖a‖₊ ^ x by
-    rcases eq_or_ne ‖a‖₊ 1 with ha | ha
+    rcases eq_or_ne (‖a‖₊) 1 with ha | ha
     · simp only [ha, one_pow, sum_const, card_range, nsmul_eq_mul, mul_one, gt_iff_lt] at this ⊢
       apply lt_of_le_of_ne (by simp)
       intro nh
@@ -89,10 +90,13 @@ theorem IsRoot.norm_lt_cauchyBound {p : K[X]} (hp : p ≠ 0) {a : K} (h : p.IsRo
       simp
     · rw [geom_sum_of_one_lt ha] at this
       calc
-        ‖a‖₊ = ‖a‖₊ - 1 + 1 := (tsub_add_cancel_of_le ha.le).symm
+        ‖a‖₊
+          = ‖a‖₊ - 1 + 1 := (tsub_add_cancel_of_le ha.le).symm
         _ = ‖a‖₊ ^ p.natDegree * (‖a‖₊ - 1) / ‖a‖₊ ^ p.natDegree + 1 := by field
         _ ≤ (cauchyBound p - 1) * ((‖a‖₊ ^ p.natDegree - 1) / (‖a‖₊ - 1)) * (‖a‖₊ - 1)
-            / ‖a‖₊ ^ p.natDegree + 1 := by gcongr
+              / ‖a‖₊ ^ p.natDegree
+            + 1 := by
+          gcongr
         _ = (cauchyBound p - 1) * (‖a‖₊ ^ p.natDegree - 1) / ‖a‖₊ ^ p.natDegree + 1 := by
           congr 2
           have : ‖a‖₊ - 1 ≠ 0 := fun nh ↦ (ha.trans_le (tsub_eq_zero_iff_le.mp nh)).false
@@ -108,7 +112,8 @@ theorem IsRoot.norm_lt_cauchyBound {p : K[X]} (hp : p ≠ 0) {a : K} (h : p.IsRo
         _ = cauchyBound p := by simp [field, tsub_add_cancel_of_le]
   apply le_of_eq at h
   have pld : ‖p.leadingCoeff‖₊ ≠ 0 := by simpa
-  calc ‖a‖₊ ^ p.natDegree
+  calc
+    ‖a‖₊ ^ p.natDegree
     _ = ‖p.leadingCoeff‖₊ * ‖a‖₊ ^ p.natDegree / ‖p.leadingCoeff‖₊ := by
       rw [mul_div_cancel_left₀]
       simpa
@@ -117,8 +122,8 @@ theorem IsRoot.norm_lt_cauchyBound {p : K[X]} (hp : p ≠ 0) {a : K} (h : p.IsRo
       gcongr
       apply nnnorm_sum_le
     _ = (∑ x ∈ range p.natDegree, ‖p.coeff x‖₊ * ‖a‖₊ ^ x) / ‖p.leadingCoeff‖₊ := by simp
-    _ ≤ (∑ x ∈ range p.natDegree, ‖p.leadingCoeff‖₊ * (cauchyBound p - 1) * ‖a‖₊ ^ x) /
-        ‖p.leadingCoeff‖₊ := by
+    _ ≤ (∑ x ∈ range p.natDegree, ‖p.leadingCoeff‖₊ * (cauchyBound p - 1) * ‖a‖₊ ^ x)
+        / ‖p.leadingCoeff‖₊ := by
       gcongr (∑ x ∈ _, ?_ * _) / _
       rw [cauchyBound, add_tsub_cancel_right]
       field_simp

@@ -33,8 +33,7 @@ namespace SimpleGraph
 
 /-- The Cayley graph induced by an operation `[Mul M]` with generators `s` -/
 @[to_additive /-- The Cayley graph induced by an operation `[Add M]` with generators `s` -/]
-def mulCayley {M : Type*} (s : Set M) [Mul M] : SimpleGraph M :=
-  fromRel (∃ g ∈ s, · * g = ·)
+def mulCayley {M : Type*} (s : Set M) [Mul M] : SimpleGraph M := fromRel (∃ g ∈ s, · * g = ·)
 
 variable {M : Type*} (s : Set M)
 
@@ -60,9 +59,8 @@ lemma mulCayley_le_iff (G : SimpleGraph M) :
     · exact h g hg w hvw
 
 @[to_additive]
-instance [Fintype M] [DecidableEq M] [DecidablePred (· ∈ s)] :
-    DecidableRel (mulCayley s).Adj := fun u v =>
-  decidable_of_iff (u ≠ v ∧ ∃ g ∈ s, u * g = v ∨ u = v * g) (mulCayley_adj' s u v).symm
+instance [Fintype M] [DecidableEq M] [DecidablePred (· ∈ s)] : DecidableRel (mulCayley s).Adj :=
+  fun u v => decidable_of_iff (u ≠ v ∧ ∃ g ∈ s, u * g = v ∨ u = v * g) (mulCayley_adj' s u v).symm
 
 variable (M) in
 /-- `mulCayley` is a left (order-)adjoint. -/
@@ -73,8 +71,7 @@ lemma mulCayley_gc :
   simp [mulCayley_le_iff, Set.subset_def]
 
 @[to_additive]
-theorem mulCayley_monotone : Monotone (mulCayley (M := M) ·) :=
-  (mulCayley_gc M).monotone_l
+theorem mulCayley_monotone : Monotone (mulCayley (M := M) ·) := (mulCayley_gc M).monotone_l
 
 @[to_additive (attr := gcongr)]
 theorem mulCayley_mono {U V : Set M} (hUV : U ⊆ V) : mulCayley U ≤ mulCayley V :=
@@ -93,8 +90,8 @@ section Semigroup
 variable [Semigroup M]
 
 @[to_additive (attr := simp)]
-theorem mulCayley_adj_mul_iff_right [IsLeftCancelMul M] {s : Set M} {u v d : M} :
-    (mulCayley s).Adj (d * u) (d * v) ↔ (mulCayley s).Adj u v := by
+theorem mulCayley_adj_mul_iff_right [IsLeftCancelMul M] {s : Set M} {u v d : M}
+    : (mulCayley s).Adj (d * u) (d * v) ↔ (mulCayley s).Adj u v := by
   simp [mulCayley_adj', mul_assoc]
 
 end Semigroup
@@ -133,8 +130,8 @@ theorem mulCayley_inv : mulCayley s⁻¹ = mulCayley s := by
   simp [mulCayley_adj, or_comm]
 
 @[to_additive]
-instance [DecidableEq M] [DecidablePred (· ∈ s)] : DecidableRel (mulCayley s).Adj :=
-  fun u v => decidable_of_iff (u ≠ v ∧ (u⁻¹ * v ∈ s ∨ v⁻¹ * u ∈ s)) (mulCayley_adj s u v).symm
+instance [DecidableEq M] [DecidablePred (· ∈ s)] : DecidableRel (mulCayley s).Adj := fun u v =>
+  decidable_of_iff (u ≠ v ∧ (u⁻¹ * v ∈ s ∨ v⁻¹ * u ∈ s)) (mulCayley_adj s u v).symm
 
 @[to_additive (attr := simp)]
 theorem mulCayley_univ : mulCayley (Set.univ : Set M) = ⊤ := by

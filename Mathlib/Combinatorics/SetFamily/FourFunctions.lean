@@ -64,7 +64,8 @@ open scoped FinsetFamily
 variable {α β : Type*}
 
 section Finset
-variable [DecidableEq α] [CommSemiring β] [LinearOrder β] [IsStrictOrderedRing β]
+variable
+  [DecidableEq α] [CommSemiring β] [LinearOrder β] [IsStrictOrderedRing β]
   {𝒜 : Finset (Finset α)} {a : α} {f f₁ f₂ f₃ f₄ : Finset α → β} {s t u : Finset α}
 
 /-- The `n = 1` case of the Ahlswede-Daykin inequality. Note that we can't just expand everything
@@ -296,8 +297,9 @@ private lemma four_functions_theorem_aux (h₁ : 0 ≤ f₁) (h₂ : 0 ≤ f₂)
 end Finset
 
 section DistribLattice
-variable [DistribLattice α] [CommSemiring β] [LinearOrder β] [IsStrictOrderedRing β]
-  [ExistsAddOfLE β] (f f₁ f₂ f₃ f₄ g μ : α → β)
+variable
+  [DistribLattice α] [CommSemiring β] [LinearOrder β] [IsStrictOrderedRing β] [ExistsAddOfLE β]
+  (f f₁ f₂ f₃ f₄ g μ : α → β)
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The **Four Functions Theorem**, aka **Ahlswede-Daykin Inequality**. -/

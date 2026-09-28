@@ -48,7 +48,8 @@ lemma killingForm_restrict_range_ad [Module.Finite R L] :
   rfl
 
 /-- The orthogonal complement of the inner derivations is a Lie submodule of all derivations. -/
-@[simps!] noncomputable def rangeAdOrthogonal : LieSubmodule R L (LieDerivation R L L) where
+@[simps!]
+noncomputable def rangeAdOrthogonal : LieSubmodule R L (LieDerivation R L L) where
   __ := 𝕀ᗮ
   lie_mem := by
     intro x D hD

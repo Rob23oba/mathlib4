@@ -48,11 +48,13 @@ lemma ab_zero_apply (x : S.X₁) : S.g (S.f x) = 0 := by
 /-- The canonical additive morphism `S.X₁ →+ AddMonoidHom.ker S.g` induced by `S.f`. -/
 @[simps!]
 def abToCycles : S.X₁ →+ AddMonoidHom.ker S.g.hom :=
-    AddMonoidHom.mk' (fun x => ⟨S.f x, S.ab_zero_apply x⟩) (by aesop)
+  AddMonoidHom.mk' (fun x => ⟨S.f x, S.ab_zero_apply x⟩) (by aesop)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The explicit left homology data of a short complex of abelian group that is
-given by a kernel and a quotient given by the `AddMonoidHom` API. -/
+/--
+The explicit left homology data of a short complex of abelian group that is
+given by a kernel and a quotient given by the `AddMonoidHom` API.
+-/
 @[simps]
 def abLeftHomologyData : S.LeftHomologyData where
   K := ↧S.g.hom.ker
@@ -73,9 +75,11 @@ def abLeftHomologyData : S.LeftHomologyData where
 @[simp]
 lemma abLeftHomologyData_f' : S.abLeftHomologyData.f' = AddCommGrpCat.ofHom S.abToCycles := rfl
 
-/-- Given a short complex `S` of abelian groups, this is the isomorphism between
+/--
+Given a short complex `S` of abelian groups, this is the isomorphism between
 the abstract `S.cycles` of the homology API and the more concrete description as
-`AddMonoidHom.ker S.g`. -/
+`AddMonoidHom.ker S.g`.
+-/
 noncomputable def abCyclesIso : S.cycles ≅ ↧(AddMonoidHom.ker S.g.hom) :=
   S.abLeftHomologyData.cyclesIso
 
@@ -91,12 +95,14 @@ lemma abCyclesIso_inv_apply_iCycles (x : AddMonoidHom.ker S.g.hom) :
   rw [← ConcreteCategory.comp_apply, S.abLeftHomologyData.cyclesIso_inv_comp_iCycles]
   rfl
 
-/-- Given a short complex `S` of abelian groups, this is the isomorphism between
+/--
+Given a short complex `S` of abelian groups, this is the isomorphism between
 the abstract `S.homology` of the homology API and the more explicit
 quotient of `AddMonoidHom.ker S.g` by the image of
-`S.abToCycles : S.X₁ →+ AddMonoidHom.ker S.g`. -/
-noncomputable def abHomologyIso : S.homology ≅
-    ↧((AddMonoidHom.ker S.g.hom) ⧸ AddMonoidHom.range S.abToCycles) :=
+`S.abToCycles : S.X₁ →+ AddMonoidHom.ker S.g`.
+-/
+noncomputable def abHomologyIso
+    : S.homology ≅ ↧((AddMonoidHom.ker S.g.hom) ⧸ AddMonoidHom.range S.abToCycles) :=
   S.abLeftHomologyData.homologyIso
 
 set_option backward.isDefEq.respectTransparency.types false in

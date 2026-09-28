@@ -54,14 +54,14 @@ lemma IsMinimalPrime.iff_minimal (p : Ideal R) : IsMinimalPrime p ↔ Minimal Id
   simp [Ideal.IsMinimalPrime]
 
 /-- `I.minimalPrimes` is the set of ideals that are minimal primes over `I`. -/
-protected abbrev Ideal.minimalPrimes : Set (Ideal R) :=
-  {p | I.IsMinimalPrime p}
+protected abbrev Ideal.minimalPrimes : Set (Ideal R) := {p | I.IsMinimalPrime p}
 
 variable (R) in
-/-- `minimalPrimes R` is the set of minimal primes of `R`.
-This is defined as `Ideal.minimalPrimes ⊥`. -/
-abbrev minimalPrimes : Set (Ideal R) :=
-  {p | IsMinimalPrime p}
+/--
+`minimalPrimes R` is the set of minimal primes of `R`.
+This is defined as `Ideal.minimalPrimes ⊥`.
+-/
+abbrev minimalPrimes : Set (Ideal R) := {p | IsMinimalPrime p}
 
 lemma minimalPrimes_eq_minimals : minimalPrimes R = {x | Minimal Ideal.IsPrime x} :=
   congr(Minimal $(by simp))
@@ -69,8 +69,7 @@ lemma minimalPrimes_eq_minimals : minimalPrimes R = {x | Minimal Ideal.IsPrime x
 variable {I J}
 
 @[deprecated "Use `Ideal.IsMinimalPrime.isPrime` instead." (since := "2026-05-08")]
-theorem Ideal.minimalPrimes_isPrime {p : Ideal R} (h : p ∈ minimalPrimes R) : p.IsPrime :=
-  h.1.1
+theorem Ideal.minimalPrimes_isPrime {p : Ideal R} (h : p ∈ minimalPrimes R) : p.IsPrime := h.1.1
 
 theorem Ideal.exists_minimalPrimes_le [J.IsPrime] (e : I ≤ J) : ∃ p ∈ I.minimalPrimes, p ≤ J := by
   set S := { p : (Ideal R)ᵒᵈ | Ideal.IsPrime p ∧ I ≤ OrderDual.ofDual p }
@@ -81,9 +80,11 @@ theorem Ideal.exists_minimalPrimes_le [J.IsPrime] (e : I ≤ J) : ∃ p ∈ I.mi
   swap
   · refine ⟨show J.IsPrime by infer_instance, e⟩
   rintro (c : Set (Ideal R)) hc hc' J' hJ'
-  refine
-    ⟨OrderDual.toDual (sInf c),
-      ⟨Ideal.sInf_isPrime_of_isChain ⟨J', hJ'⟩ hc'.symm fun x hx => (hc hx).1, ?_⟩, ?_⟩
+  refine ⟨
+    OrderDual.toDual (sInf c),
+    ⟨Ideal.sInf_isPrime_of_isChain ⟨J', hJ'⟩ hc'.symm fun x hx => (hc hx).1, ?_⟩,
+    ?_
+  ⟩
   · rw [OrderDual.ofDual_toDual, le_sInf_iff]
     exact fun _ hx => (hc hx).2
   · rintro z hz
@@ -147,8 +148,7 @@ theorem Ideal.minimalPrimes_eq_subsingleton_self [I.IsPrime] : I.minimalPrimes =
   exact ⟨⟨inferInstance, rfl.le⟩, fun _ h _ => h.2⟩
 
 variable (R) in
-theorem IsDomain.minimalPrimes_eq_singleton_bot [IsDomain R] :
-    minimalPrimes R = {⊥} :=
+theorem IsDomain.minimalPrimes_eq_singleton_bot [IsDomain R] : minimalPrimes R = {⊥} :=
   Ideal.minimalPrimes_eq_subsingleton_self
 
 end
@@ -163,8 +163,7 @@ theorem Ideal.minimalPrimes_top : (⊤ : Ideal R).minimalPrimes = ∅ := by
   intro h
   exact h.isPrime.ne_top (top_le_iff.mp h.le)
 
-theorem Ideal.minimalPrimes_eq_empty_iff (I : Ideal R) :
-    I.minimalPrimes = ∅ ↔ I = ⊤ := by
+theorem Ideal.minimalPrimes_eq_empty_iff (I : Ideal R) : I.minimalPrimes = ∅ ↔ I = ⊤ := by
   constructor
   · intro e
     by_contra h

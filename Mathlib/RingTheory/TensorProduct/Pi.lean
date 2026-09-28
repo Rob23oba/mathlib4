@@ -24,8 +24,9 @@ open TensorProduct
 
 namespace Algebra.TensorProduct
 
-variable (R S A : Type*) [CommSemiring R] [CommSemiring S] [Algebra R S] [Semiring A]
-  [Algebra R A] [Algebra S A] [IsScalarTower R S A]
+variable
+  (R S A : Type*) [CommSemiring R] [CommSemiring S] [Algebra R S] [Semiring A] [Algebra R A]
+  [Algebra S A] [IsScalarTower R S A]
 variable {ι : Type*} (B : ι → Type*) [∀ i, Semiring (B i)] [∀ i, Algebra R (B i)]
 
 @[simp]
@@ -42,8 +43,10 @@ lemma piRightHom_mul (x y : A ⊗[R] ∀ i, B i) :
     · simp_all [mul_add]
   · simp_all [add_mul]
 
-/-- The canonical map `A ⊗[R] (∀ i, B i) →ₐ[S] ∀ i, A ⊗[R] B i`. This is an isomorphism
-if `ι` is finite (see `Algebra.TensorProduct.piRight`). -/
+/--
+The canonical map `A ⊗[R] (∀ i, B i) →ₐ[S] ∀ i, A ⊗[R] B i`. This is an isomorphism
+if `ι` is finite (see `Algebra.TensorProduct.piRight`).
+-/
 def piRightHom : A ⊗[R] (∀ i, B i) →ₐ[S] ∀ i, A ⊗[R] B i :=
   AlgHom.ofLinearMap (_root_.TensorProduct.piRightHom R S A B) (by simp) (by simp)
 
@@ -104,10 +107,13 @@ end
 end Algebra.TensorProduct
 
 theorem TensorProduct.piScalarRight_symm_algebraMap
-    (R : Type*) [CommSemiring R] (S : Type*) [CommSemiring S] [Algebra R S]
+    (R : Type*) [CommSemiring R]
+    (S : Type*) [CommSemiring S] [Algebra R S]
     (ι : Type*) [Fintype ι] [DecidableEq ι]
     {N : Type*} [Semiring N] [Algebra R N] [Module S N] [IsScalarTower R S N]
-    (x : ι → R) :
-    (TensorProduct.piScalarRight R S N ι).symm (algebraMap _ _ x) = 1 ⊗ₜ[R] x := by
-  simp [Algebra.algebraMap_eq_smul_one, Pi.smul_def', LinearEquiv.symm_apply_eq,
-    piScalarRight_apply, piScalarRightHom_tmul]
+    (x : ι → R)
+    : (TensorProduct.piScalarRight R S N ι).symm (algebraMap _ _ x) = 1 ⊗ₜ[R] x := by
+  simp [
+    Algebra.algebraMap_eq_smul_one, Pi.smul_def', LinearEquiv.symm_apply_eq, piScalarRight_apply,
+    piScalarRightHom_tmul
+  ]

@@ -20,9 +20,10 @@ public section
 
 open CategoryTheory Functor
 
-variable {C D A : Type*} [Category* C] [Category* D] [Category* A]
-  (J : GrothendieckTopology C) (K : GrothendieckTopology D)
-  (H : C ⥤ D) {F G : Dᵒᵖ ⥤ A} (f : F ⟶ G)
+variable
+  {C D A : Type*} [Category* C] [Category* D] [Category* A]
+  (J : GrothendieckTopology C) (K : GrothendieckTopology D) (H : C ⥤ D)
+  {F G : Dᵒᵖ ⥤ A} (f : F ⟶ G)
 
 namespace CategoryTheory
 
@@ -30,7 +31,6 @@ namespace Presheaf
 
 variable {FA : A → A → Type*} {CA : A → Type*}
 variable [∀ X Y, FunLike (FA X Y) (CA X) (CA Y)] [ConcreteCategory A FA]
-
 
 lemma isLocallyInjective_whisker [H.IsCocontinuous J K] [IsLocallyInjective K f] :
     IsLocallyInjective J (whiskerLeft H.op f) where

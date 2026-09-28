@@ -44,16 +44,20 @@ variable {R Γ₀ : Type*} [Ring R] [LinearOrderedCommGroupWithZero Γ₀]
 
 namespace Valuation
 
-/-- A valuation has rank at most one if its image (defined as `MonoidWithZeroHom.valueGroup₀ v`)
+/--
+A valuation has rank at most one if its image (defined as `MonoidWithZeroHom.valueGroup₀ v`)
 is contained in `ℝ≥0`. Note that this class includes the data
-of an inclusion morphism `MonoidWithZeroHom.valueGroup₀ v → ℝ≥0`. -/
+of an inclusion morphism `MonoidWithZeroHom.valueGroup₀ v → ℝ≥0`.
+-/
 class RankLeOne (v : Valuation R Γ₀) where
   /-- The inclusion morphism from `Γ₀` to `ℝ≥0`. -/
   hom' (v) : v.ValueGroup₀ →*₀ ℝ≥0
   strictMono' : StrictMono hom'
 
-/-- A valuation has rank one if it is nontrivial and its image is contained in `ℝ≥0`.
-  Note that this class includes the data of an inclusion morphism `Γ₀ → ℝ≥0`. -/
+/--
+A valuation has rank one if it is nontrivial and its image is contained in `ℝ≥0`.
+Note that this class includes the data of an inclusion morphism `Γ₀ → ℝ≥0`.
+-/
 class RankOne (v : Valuation R Γ₀) extends RankLeOne v, Valuation.IsNontrivial v
 
 open WithZero
@@ -101,22 +105,25 @@ lemma strictMono : StrictMono (hom v) := hv.strictMono'
 
 lemma nontrivial : ∃ r : R, v r ≠ 0 ∧ v r ≠ 1 := IsNontrivial.exists_val_nontrivial
 
-/-- If `v` is a rank one valuation and `x : Γ₀` has image `0` under `RankOne.hom v`, then
-  `x = 0`. -/
+/--
+If `v` is a rank one valuation and `x : Γ₀` has image `0` under `RankOne.hom v`, then
+`x = 0`.
+-/
 theorem zero_of_hom_zero {x : v.ValueGroup₀} (hx : hom v x = 0) : x = 0 := by
   refine (eq_of_le_of_not_lt (zero_le (a := x)) fun h_lt ↦ ?_).symm
   have hs := strictMono v h_lt
   rw [map_zero, hx] at hs
   exact hs.false
 
-/-- If `v` is a rank one valuation, then `x : Γ₀` has image `0` under `RankOne.hom v` if and
-  only if `x = 0`. -/
+/--
+If `v` is a rank one valuation, then `x : Γ₀` has image `0` under `RankOne.hom v` if and
+only if `x = 0`.
+-/
 theorem hom_eq_zero_iff {x : v.ValueGroup₀} : hom v x = 0 ↔ x = 0 :=
   ⟨fun h ↦ zero_of_hom_zero v h, fun h ↦ by rw [h, map_zero]⟩
 
 /-- A nontrivial unit of `Γ₀`, given that there exists a rank one `v : Valuation R Γ₀`. -/
-def unit : Γ₀ˣ :=
-  Units.mk0 (v (nontrivial v).choose) ((nontrivial v).choose_spec).1
+def unit : Γ₀ˣ := Units.mk0 (v (nontrivial v).choose) ((nontrivial v).choose_spec).1
 
 /-- A proof that `RankOne.unit v ≠ 1`. -/
 theorem unit_ne_one : unit v ≠ 1 := by
@@ -166,8 +173,10 @@ namespace RankLeOne
 
 variable {K : Type*} [DivisionRing K] (v : Valuation K Γ₀) [RankLeOne v]
 
-/-- If a valuation has rank at most one and is non trivial,
-then it has rank one -/
+/--
+If a valuation has rank at most one and is non trivial,
+then it has rank one
+-/
 @[instance_reducible]
 def rankOne_of_exists (H : ∃ x ≠ 0, v x ≠ 1) : RankOne v where
   exists_val_nontrivial := by
@@ -175,8 +184,10 @@ def rankOne_of_exists (H : ∃ x ≠ 0, v x ≠ 1) : RankOne v where
     obtain ⟨x, hx, hx'⟩ := H
     exact hx' (H' x ((ne_zero_iff v).mpr hx))
 
-/-- If a valuation has rank at most one and is non trivial,
-then it has rank one -/
+/--
+If a valuation has rank at most one and is non trivial,
+then it has rank one
+-/
 @[instance_reducible]
 def rankOne_of_nontrivial (H : Nontrivial v.ValueGroup₀ˣ) : RankOne v where
   exists_val_nontrivial := by
@@ -198,9 +209,9 @@ def rankOne_of_nontrivial (H : Nontrivial v.ValueGroup₀ˣ) : RankOne v where
       simp [← hk, h] at hx
     exact h1 (H' k h0)
 
-theorem exists_val_lt {K : Type*} [DivisionRing K] (v : Valuation K Γ₀) [RankLeOne v] :
-    Subsingleton (v.ValueGroup₀ˣ) ∨
-      ∀ {γ : ℝ≥0} (_ : γ ≠ 0), ∃ (x : K), x ≠ 0 ∧ (RankLeOne.hom' v) (v.restrict x) < γ := by
+theorem exists_val_lt {K : Type*} [DivisionRing K] (v : Valuation K Γ₀) [RankLeOne v]
+    : Subsingleton (v.ValueGroup₀ˣ)
+      ∨ ∀ {γ : ℝ≥0} (_ : γ ≠ 0), ∃ (x : K), x ≠ 0 ∧ (RankLeOne.hom' v) (v.restrict x) < γ := by
   simp only [ne_eq, or_iff_not_imp_left, not_subsingleton_iff_nontrivial]
   exact fun H ↦ (rankOne_of_nontrivial v H).exists_val_lt
 
@@ -214,21 +225,22 @@ open ValuativeRel
 
 variable {R : Type*} [Ring R] [ValuativeRel R]
 
-/-- A valuative relation has a rank one valuation when it is both nontrivial
-and the rank is at most one. -/
+/--
+A valuative relation has a rank one valuation when it is both nontrivial
+and the rank is at most one.
+-/
 @[instance_reducible]
-def Valuation.RankOne.ofRankLeOneStruct [ValuativeRel.IsNontrivial R] (e : RankLeOneStruct R) :
-    Valuation.RankOne (valuation R) where
+def Valuation.RankOne.ofRankLeOneStruct [ValuativeRel.IsNontrivial R] (e : RankLeOneStruct R)
+    : Valuation.RankOne (valuation R) where
   hom' := e.emb.comp embedding
   strictMono' := e.strictMono.comp embedding_strictMono
 
-instance [IsNontrivial R] [IsRankLeOne R] :
-    Valuation.RankOne (valuation R) :=
+instance [IsNontrivial R] [IsRankLeOne R] : Valuation.RankOne (valuation R) :=
   Valuation.RankOne.ofRankLeOneStruct IsRankLeOne.nonempty.some
 
 /-- Convert between the rank one statement on valuative relation's induced valuation. -/
-def Valuation.RankOne.rankLeOneStruct (e : Valuation.RankOne (valuation R)) :
-    RankLeOneStruct R where
+def Valuation.RankOne.rankLeOneStruct (e : Valuation.RankOne (valuation R))
+    : RankLeOneStruct R where
   emb := e.hom.comp (ValuativeRel.ValueGroupWithZero.embed (v := valuation R))
   strictMono := e.strictMono.comp (ValueGroupWithZero.embed_strictMono (valuation R))
 

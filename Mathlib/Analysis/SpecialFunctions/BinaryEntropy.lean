@@ -57,9 +57,11 @@ variable {q : ℕ} {p : ℝ}
 
 /-! ### Binary entropy -/
 
-/-- The [binary entropy function](https://en.wikipedia.org/wiki/Binary_entropy_function)
+/--
+The [binary entropy function](https://en.wikipedia.org/wiki/Binary_entropy_function)
 `binEntropy p := - p * log p - (1-p) * log (1 - p)`
-is the Shannon entropy of a Bernoulli random variable with success probability `p`. -/
+is the Shannon entropy of a Bernoulli random variable with success probability `p`.
+-/
 @[pp_nodot] noncomputable def binEntropy (p : ℝ) : ℝ := p * log p⁻¹ + (1 - p) * log (1 - p)⁻¹
 
 @[simp] lemma binEntropy_zero : binEntropy 0 = 0 := by simp [binEntropy]
@@ -202,14 +204,16 @@ lemma deriv_binEntropy (p : ℝ) : deriv binEntropy p = log (1 - p) - log p := b
 
 /-! ### `q`-ary entropy -/
 
-/-- Shannon q-ary Entropy function (measured in Nats, i.e., using natural logs).
+/--
+Shannon q-ary Entropy function (measured in Nats, i.e., using natural logs).
 
 It's the Shannon entropy of a random variable with possible outcomes `{1, ..., q}`
 where outcome `1` has probability `1 - p` and all other outcomes are equally likely.
 
 The usual domain of definition is `p ∈ [0,1]`, i.e., input is a probability.
 
-This is a generalization of the binary entropy function `binEntropy`. -/
+This is a generalization of the binary entropy function `binEntropy`.
+-/
 @[pp_nodot] noncomputable def qaryEntropy (q : ℕ) (p : ℝ) : ℝ := p * log (q - 1 : ℤ) + binEntropy p
 
 @[simp] lemma qaryEntropy_zero (q : ℕ) : qaryEntropy q 0 = 0 := by simp [qaryEntropy]

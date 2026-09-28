@@ -39,8 +39,8 @@ open Fintype (card)
 
 namespace SimpleGraph
 
-variable {α β 𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
-  {G H : SimpleGraph α} {ε δ : 𝕜}
+variable
+  {α β 𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] {G H : SimpleGraph α} {ε δ : 𝕜}
 
 section LocallyLinear
 
@@ -182,30 +182,37 @@ end LocallyLinear
 variable (G ε)
 variable [Fintype α] [DecidableRel G.Adj] [DecidableRel H.Adj]
 
-/-- A simple graph is *`ε`-far from triangle-free* if one must remove at least
-`ε * (card α) ^ 2` edges to make it triangle-free. -/
+/--
+A simple graph is *`ε`-far from triangle-free* if one must remove at least
+`ε * (card α) ^ 2` edges to make it triangle-free.
+-/
 def FarFromTriangleFree : Prop := G.DeleteFar (fun H ↦ H.CliqueFree 3) <| ε * (card α ^ 2 : ℕ)
 
 variable {G ε}
 
 omit [IsStrictOrderedRing 𝕜] in
-theorem farFromTriangleFree_iff :
-    G.FarFromTriangleFree ε ↔ ∀ ⦃H : SimpleGraph α⦄, [DecidableRel H.Adj] → H ≤ G → H.CliqueFree 3 →
-      ε * (card α ^ 2 : ℕ) ≤ #G.edgeFinset - #H.edgeFinset := deleteFar_iff
+theorem farFromTriangleFree_iff
+    : G.FarFromTriangleFree ε
+      ↔ ∀ ⦃H : SimpleGraph α⦄,
+        [DecidableRel H.Adj] → H ≤ G → H.CliqueFree 3
+          → ε * (card α ^ 2 : ℕ) ≤ #G.edgeFinset - #H.edgeFinset :=
+  deleteFar_iff
 
 alias ⟨farFromTriangleFree.le_card_sub_card, _⟩ := farFromTriangleFree_iff
 
-nonrec theorem FarFromTriangleFree.mono (hε : G.FarFromTriangleFree ε) (h : δ ≤ ε) :
-    G.FarFromTriangleFree δ := hε.mono <| by gcongr
+nonrec theorem FarFromTriangleFree.mono (hε : G.FarFromTriangleFree ε) (h : δ ≤ ε)
+    : G.FarFromTriangleFree δ :=
+  hε.mono <| by gcongr
 
 section DecidableEq
 
 variable [DecidableEq α]
 
 omit [IsStrictOrderedRing 𝕜] in
-theorem FarFromTriangleFree.cliqueFinset_nonempty' (hH : H ≤ G) (hG : G.FarFromTriangleFree ε)
-    (hcard : #G.edgeFinset - #H.edgeFinset < ε * (card α ^ 2 : ℕ)) :
-    (H.cliqueFinset 3).Nonempty :=
+theorem FarFromTriangleFree.cliqueFinset_nonempty'
+    (hH : H ≤ G) (hG : G.FarFromTriangleFree ε)
+    (hcard : #G.edgeFinset - #H.edgeFinset < ε * (card α ^ 2 : ℕ))
+    : (H.cliqueFinset 3).Nonempty :=
   nonempty_of_ne_empty <|
     cliqueFinset_eq_empty_iff.not.2 fun hH' => (hG.le_card_sub_card hH hH').not_gt hcard
 
@@ -269,20 +276,23 @@ lemma FarFromTriangleFree.lt_half (hε : G.FarFromTriangleFree ε) : ε < 2⁻¹
 lemma FarFromTriangleFree.lt_one (hG : G.FarFromTriangleFree ε) : ε < 1 :=
   hG.lt_half.trans two_inv_lt_one
 
-theorem FarFromTriangleFree.nonpos (h₀ : G.FarFromTriangleFree ε) (h₁ : G.CliqueFree 3) :
-    ε ≤ 0 := by
+theorem FarFromTriangleFree.nonpos (h₀ : G.FarFromTriangleFree ε) (h₁ : G.CliqueFree 3)
+    : ε ≤ 0 := by
   have := h₀ (empty_subset _)
   rw [coe_empty, Finset.card_empty, cast_zero, deleteEdges_empty] at this
   exact nonpos_of_mul_nonpos_left (this h₁) (cast_pos.2 <| sq_pos_of_pos Fintype.card_pos)
 
-theorem CliqueFree.not_farFromTriangleFree (hG : G.CliqueFree 3) (hε : 0 < ε) :
-    ¬G.FarFromTriangleFree ε := fun h => (h.nonpos hG).not_gt hε
+theorem CliqueFree.not_farFromTriangleFree (hG : G.CliqueFree 3) (hε : 0 < ε)
+    : ¬ G.FarFromTriangleFree ε := fun h =>
+  (h.nonpos hG).not_gt hε
 
-theorem FarFromTriangleFree.not_cliqueFree (hG : G.FarFromTriangleFree ε) (hε : 0 < ε) :
-    ¬G.CliqueFree 3 := fun h => (hG.nonpos h).not_gt hε
+theorem FarFromTriangleFree.not_cliqueFree (hG : G.FarFromTriangleFree ε) (hε : 0 < ε)
+    : ¬ G.CliqueFree 3 := fun h =>
+  (hG.nonpos h).not_gt hε
 
-theorem FarFromTriangleFree.cliqueFinset_nonempty [DecidableEq α]
-    (hG : G.FarFromTriangleFree ε) (hε : 0 < ε) : (G.cliqueFinset 3).Nonempty :=
+theorem FarFromTriangleFree.cliqueFinset_nonempty
+    [DecidableEq α] (hG : G.FarFromTriangleFree ε) (hε : 0 < ε)
+    : (G.cliqueFinset 3).Nonempty :=
   nonempty_of_ne_empty <| cliqueFinset_eq_empty_iff.not.2 <| hG.not_cliqueFree hε
 
 end SimpleGraph

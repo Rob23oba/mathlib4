@@ -67,25 +67,34 @@ namespace CategoryTheory
 
 open Category MonoidalCategory Limits Iso
 
-/-- A monoidal category with binary coproducts is left distributive
-if the left tensor product functor preserves binary coproducts. -/
-class IsMonoidalLeftDistrib (C : Type u) [Category.{v} C]
-    [MonoidalCategory C] [HasBinaryCoproducts C] : Prop where
-  preservesBinaryCoproducts_tensorLeft (X : C) :
-    PreservesColimitsOfShape (Discrete WalkingPair) (tensorLeft X) := by infer_instance
+/--
+A monoidal category with binary coproducts is left distributive
+if the left tensor product functor preserves binary coproducts.
+-/
+class IsMonoidalLeftDistrib
+    (C : Type u) [Category.{v} C] [MonoidalCategory C] [HasBinaryCoproducts C]
+    : Prop where
+  preservesBinaryCoproducts_tensorLeft (X : C)
+      : PreservesColimitsOfShape (Discrete WalkingPair) (tensorLeft X) := by
+    infer_instance
 
-/-- A monoidal category with binary coproducts is right distributive
-if the right tensor product functor preserves binary coproducts. -/
-class IsMonoidalRightDistrib (C : Type u) [Category.{v} C]
-    [MonoidalCategory C] [HasBinaryCoproducts C] : Prop where
-  preservesBinaryCoproducts_tensorRight (X : C) :
-    PreservesColimitsOfShape (Discrete WalkingPair) (tensorRight X) := by infer_instance
+/--
+A monoidal category with binary coproducts is right distributive
+if the right tensor product functor preserves binary coproducts.
+-/
+class IsMonoidalRightDistrib
+    (C : Type u) [Category.{v} C] [MonoidalCategory C] [HasBinaryCoproducts C]
+    : Prop where
+  preservesBinaryCoproducts_tensorRight (X : C)
+      : PreservesColimitsOfShape (Discrete WalkingPair) (tensorRight X) := by
+    infer_instance
 
-/-- A monoidal category with binary coproducts is distributive
-if it is both left and right distributive. -/
-class IsMonoidalDistrib (C : Type u) [Category.{v} C]
-    [MonoidalCategory C] [HasBinaryCoproducts C] extends
-  IsMonoidalLeftDistrib C, IsMonoidalRightDistrib C
+/--
+A monoidal category with binary coproducts is distributive
+if it is both left and right distributive.
+-/
+class IsMonoidalDistrib (C : Type u) [Category.{v} C] [MonoidalCategory C] [HasBinaryCoproducts C]
+  extends IsMonoidalLeftDistrib C, IsMonoidalRightDistrib C
 
 variable {C} [Category.{v} C] [MonoidalCategory C] [HasBinaryCoproducts C]
 
@@ -94,8 +103,7 @@ section IsMonoidalLeftDistrib
 attribute [instance] IsMonoidalLeftDistrib.preservesBinaryCoproducts_tensorLeft
 
 /-- The canonical left distributivity isomorphism -/
-def leftDistrib [IsMonoidalLeftDistrib C] (X Y Z : C) :
-    (X ⊗ Y) ⨿ (X ⊗ Z) ≅ X ⊗ (Y ⨿ Z) :=
+def leftDistrib [IsMonoidalLeftDistrib C] (X Y Z : C) : (X ⊗ Y) ⨿ (X ⊗ Z) ≅ X ⊗ (Y ⨿ Z) :=
   PreservesColimitPair.iso (tensorLeft X) Y Z
 
 end IsMonoidalLeftDistrib
@@ -236,13 +244,11 @@ lemma SymmetricCategory.rightDistrib_of_leftDistrib
   ext <;> simp [leftDistrib_hom, rightDistrib_hom]
 
 /-- A closed monoidal category is left distributive. -/
-instance MonoidalClosed.isMonoidalLeftDistrib [MonoidalClosed C] :
-    IsMonoidalLeftDistrib C where
-  preservesBinaryCoproducts_tensorLeft X := by
-    infer_instance
+instance MonoidalClosed.isMonoidalLeftDistrib [MonoidalClosed C] : IsMonoidalLeftDistrib C where
+  preservesBinaryCoproducts_tensorLeft X := by infer_instance
 
-instance isMonoidalDistrib.of_symmetric_monoidal_closed [SymmetricCategory C] [MonoidalClosed C] :
-    IsMonoidalDistrib C := by
+instance isMonoidalDistrib.of_symmetric_monoidal_closed [SymmetricCategory C] [MonoidalClosed C]
+    : IsMonoidalDistrib C := by
   apply SymmetricCategory.isMonoidalDistrib_of_isMonoidalLeftDistrib
 
 /-- The inverse of distributivity isomorphism from the closed monoidal structure -/
@@ -265,13 +271,14 @@ end Endofunctors
 
 section MonoidalPreadditive
 
-attribute [local instance] preservesBinaryBiproducts_of_preservesBiproducts
+attribute [local instance]
+  preservesBinaryBiproducts_of_preservesBiproducts
   preservesBinaryCoproducts_of_preservesBinaryBiproducts
 
 /-- A preadditive monoidal category with binary biproducts is distributive. -/
-instance IsMonoidalDistrib.of_MonoidalPreadditive_with_binary_coproducts [Preadditive C]
-    [MonoidalPreadditive C] :
-    IsMonoidalDistrib C where
+instance IsMonoidalDistrib.of_MonoidalPreadditive_with_binary_coproducts
+  [Preadditive C] [MonoidalPreadditive C]
+  : IsMonoidalDistrib C where
 
 end MonoidalPreadditive
 

@@ -36,7 +36,8 @@ namespace Echelon
 
 open scoped Finset
 
-/-- A certificate of an echelon form decomposition of `A`, certifying that
+/--
+A certificate of an echelon form decomposition of `A`, certifying that
 `L * (A.submatrix σ id)` is in echelon form by providing a pivot, where `L`
 is lower triangular with nonzero diagonal, and `σ` the permutation on the rows
 of `A`.
@@ -54,10 +55,12 @@ structure Decomposition (A : Matrix m n R) where
   L_lowerTriangular : L.IsLowerTriangular
   L_diag_ne_zero (i : m) : L.diag i ≠ 0
 
-theorem Decomposition.rank_eq {A : Matrix m n R} (cert : Decomposition A) :
-    A.rank = #{i | cert.pivot i ≠ ⊤} := by
-  rw [← cert.isPivotedBy.rank_eq,
-    cert.L.rank_mul_eq_right_of_isLowerTriangular _ cert.L_lowerTriangular cert.L_diag_ne_zero]
+theorem Decomposition.rank_eq {A : Matrix m n R} (cert : Decomposition A)
+    : A.rank = # {i | cert.pivot i ≠ ⊤} := by
+  rw [
+    ← cert.isPivotedBy.rank_eq,
+    cert.L.rank_mul_eq_right_of_isLowerTriangular _ cert.L_lowerTriangular cert.L_diag_ne_zero
+  ]
   exact (A.rank_submatrix cert.σ (.refl _)).symm
 
 end Echelon

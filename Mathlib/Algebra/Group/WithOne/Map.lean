@@ -18,29 +18,31 @@ variable {α β γ : Type*}
 
 namespace WithOne
 
-/-- Lift a map `f : α → β` to `WithOne α → WithOne β`. Implemented using `Option.map`.
+/--
+Lift a map `f : α → β` to `WithOne α → WithOne β`. Implemented using `Option.map`.
 
-Note: the definition previously known as `WithOne.map` is now called `WithOne.mapMulHom`. -/
+Note: the definition previously known as `WithOne.map` is now called `WithOne.mapMulHom`.
+-/
 @[to_additive
-/-- Lift a map `f : α → β` to `WithZero α → WithZero β`. Implemented using `Option.map`.
+  /-- Lift a map `f : α → β` to `WithZero α → WithZero β`. Implemented using `Option.map`.
 
 Note: the definition previously known as `WithZero.map` is now called `WithZero.mapAddHom`. -/]
 def map (f : α → β) : WithOne α → WithOne β := Option.map f
 
 @[to_additive (attr := simp)]
-theorem map_bot (f : α → β) : map f 1 = 1 :=
-  rfl
+theorem map_bot (f : α → β) : map f 1 = 1 := rfl
 
 @[to_additive (attr := simp)]
-theorem map_coe (f : α → β) (a : α) : map f a = f a :=
-  rfl
+theorem map_coe (f : α → β) (a : α) : map f a = f a := rfl
 
-/-- The image of a binary function `f : α → β → γ` as a function
+/--
+The image of a binary function `f : α → β → γ` as a function
 `WithOne α → WithOne β → WithOne γ`.
 
-Mathematically this should be thought of as the image of the corresponding function `α × β → γ`. -/
+Mathematically this should be thought of as the image of the corresponding function `α × β → γ`.
+-/
 @[to_additive
-/-- The image of a binary function `f : α → β → γ` as a function
+  /-- The image of a binary function `f : α → β → γ` as a function
 `WithZero α → WithZero β → WithZero γ`.
 
 Mathematically this should be thought of as the image of the corresponding function `α × β → γ`. -/]

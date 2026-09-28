@@ -30,7 +30,6 @@ matrix
 
 public section
 
-
 variable {m n p R : Type*}
 
 section Semiring
@@ -39,7 +38,8 @@ variable [Semiring R] [Fintype n]
 
 theorem dotProduct_eq (v w : n → R) (h : ∀ u, v ⬝ᵥ u = w ⬝ᵥ u) : v = w := by
   funext x
-  classical rw [← dotProduct_single_one v x, ← dotProduct_single_one w x, h]
+  classical
+  rw [← dotProduct_single_one v x, ← dotProduct_single_one w x, h]
 
 theorem dotProduct_eq_iff {v w : n → R} : (∀ u, v ⬝ᵥ u = w ⬝ᵥ u) ↔ v = w :=
   ⟨fun h => dotProduct_eq v w h, fun h _ => h ▸ rfl⟩
@@ -74,10 +74,9 @@ section Self
 variable [Fintype m] [Fintype n] [Fintype p]
 
 @[simp]
-theorem dotProduct_self_eq_zero [Ring R] [LinearOrder R] [IsStrictOrderedRing R] {v : n → R} :
-    v ⬝ᵥ v = 0 ↔ v = 0 :=
-  (Finset.sum_eq_zero_iff_of_nonneg fun i _ => mul_self_nonneg (v i)).trans <| by
-    simp [funext_iff]
+theorem dotProduct_self_eq_zero [Ring R] [LinearOrder R] [IsStrictOrderedRing R] {v : n → R}
+    : v ⬝ᵥ v = 0 ↔ v = 0 :=
+  (Finset.sum_eq_zero_iff_of_nonneg fun i _ => mul_self_nonneg (v i)).trans <| by simp [funext_iff]
 
 section StarOrderedRing
 
@@ -98,14 +97,14 @@ variable [NoZeroDivisors R]
 /-- Note that this applies to `ℂ` via `RCLike.toStarOrderedRing`. -/
 @[simp]
 theorem dotProduct_star_self_eq_zero {v : n → R} : star v ⬝ᵥ v = 0 ↔ v = 0 :=
-  (Fintype.sum_eq_zero_iff_of_nonneg fun _ => star_mul_self_nonneg _).trans <|
-    by simp [funext_iff, mul_eq_zero]
+  (Fintype.sum_eq_zero_iff_of_nonneg fun _ => star_mul_self_nonneg _).trans <| by
+    simp [funext_iff, mul_eq_zero]
 
 /-- Note that this applies to `ℂ` via `RCLike.toStarOrderedRing`. -/
 @[simp]
 theorem dotProduct_self_star_eq_zero {v : n → R} : v ⬝ᵥ star v = 0 ↔ v = 0 :=
-  (Fintype.sum_eq_zero_iff_of_nonneg fun _ => mul_star_self_nonneg _).trans <|
-    by simp [funext_iff, mul_eq_zero]
+  (Fintype.sum_eq_zero_iff_of_nonneg fun _ => mul_star_self_nonneg _).trans <| by
+    simp [funext_iff, mul_eq_zero]
 
 namespace Matrix
 
@@ -161,8 +160,7 @@ lemma vecMul_self_mul_conjTranspose_eq_zero (A : Matrix m n R) (v : m → R) :
 
 /-- Note that this applies to `ℂ` via `RCLike.toStarOrderedRing`. -/
 @[simp]
-theorem dotProduct_star_self_pos_iff {v : n → R} :
-    0 < star v ⬝ᵥ v ↔ v ≠ 0 := by
+theorem dotProduct_star_self_pos_iff {v : n → R} : 0 < star v ⬝ᵥ v ↔ v ≠ 0 := by
   nontriviality R
   refine (Fintype.sum_pos_iff_of_nonneg fun i => star_mul_self_nonneg _).trans ?_
   simp_rw [Pi.lt_def, Function.ne_iff, Pi.zero_apply]

@@ -64,12 +64,14 @@ section CommRing
 
 variable [CommRing R] [Module R M] [Module R N] (P : RootPairing ι R M N)
 
-/-- We say a finite root pairing is anisotropic if there are no roots / coroots which have length
+/--
+We say a finite root pairing is anisotropic if there are no roots / coroots which have length
 zero w.r.t. the root / coroot forms.
 
 Examples include crystallographic pairings in characteristic zero
 `RootPairing.instIsAnisotropicOfIsCrystallographic` and pairings over ordered scalars.
-`RootPairing.instIsAnisotropicOfLinearOrderedCommRing`. -/
+`RootPairing.instIsAnisotropicOfLinearOrderedCommRing`.
+-/
 class IsAnisotropic : Prop where
   rootForm_root_ne_zero (i : ι) : P.RootForm (P.root i) (P.root i) ≠ 0
   corootForm_coroot_ne_zero (i : ι) : P.CorootForm (P.coroot i) (P.coroot i) ≠ 0
@@ -85,12 +87,13 @@ lemma isAnisotropic_of_isValuedIn (S : Type*)
   rootForm_root_ne_zero i := (P.posRootForm S).form_apply_root_ne_zero i
   corootForm_coroot_ne_zero i := (P.flip.posRootForm S).form_apply_root_ne_zero i
 
-instance instIsAnisotropicOfIsCrystallographic [CharZero R] [P.IsCrystallographic] :
-    IsAnisotropic P :=
+instance instIsAnisotropicOfIsCrystallographic [CharZero R] [P.IsCrystallographic]
+    : IsAnisotropic P :=
   P.isAnisotropic_of_isValuedIn ℤ
 
 /-- The root form of an anisotropic pairing as an invariant form. -/
-@[simps] def toInvariantForm [P.IsAnisotropic] : P.InvariantForm where
+@[simps]
+def toInvariantForm [P.IsAnisotropic] : P.InvariantForm where
   form := P.RootForm
   symm := P.rootForm_symmetric
   ne_zero := IsAnisotropic.rootForm_root_ne_zero
@@ -135,7 +138,8 @@ lemma smul_coroot_eq_of_root_add_root_eq [P.IsAnisotropic] [IsDomain R] [IsTorsi
 
 section DomainAlg
 
-variable (S : Type*) [CommRing S] [IsDomain R] [IsDomain S] [Algebra S R] [FaithfulSMul S R]
+variable
+  (S : Type*) [CommRing S] [IsDomain R] [IsDomain S] [Algebra S R] [FaithfulSMul S R]
   [P.IsValuedIn S] [Module S M] [IsScalarTower S R M] [Module S N] [IsScalarTower S R N]
 
 lemma finrank_range_polarization_eq_finrank_span_coroot [P.IsAnisotropic] :
@@ -190,12 +194,13 @@ end DomainAlg
 
 section LinearOrderedCommRingAlg
 
-variable (S : Type*) [CommRing S] [LinearOrder S] [IsStrictOrderedRing S] [IsDomain R] [Algebra S R]
-  [FaithfulSMul S R] [P.IsValuedIn S] [Module S M] [IsScalarTower S R M] [Module S N]
-  [IsScalarTower S R N]
+variable
+  (S : Type*)
+  [CommRing S] [LinearOrder S] [IsStrictOrderedRing S] [IsDomain R] [Algebra S R] [FaithfulSMul S R]
+  [P.IsValuedIn S] [Module S M] [IsScalarTower S R M] [Module S N] [IsScalarTower S R N]
 
-theorem posRootForm_posForm_pos_of_ne_zero {x : P.rootSpan S} (hx : x ≠ 0) :
-    0 < (P.posRootForm S).posForm x x := by
+theorem posRootForm_posForm_pos_of_ne_zero {x : P.rootSpan S} (hx : x ≠ 0)
+    : 0 < (P.posRootForm S).posForm x x := by
   rw [posRootForm_posForm_apply_apply]
   have := P.isAnisotropic_of_isValuedIn S
   have : ∃ i ∈ Finset.univ, 0 < (P.coroot'In S i) x * (P.coroot'In S i) x := by
@@ -226,8 +231,8 @@ end CommRing
 
 section IsDomain
 
-variable [CommRing R] [IsDomain R] [Module R M] [Module R N] (P : RootPairing ι R M N)
-  [P.IsAnisotropic]
+variable
+  [CommRing R] [IsDomain R] [Module R M] [Module R N] (P : RootPairing ι R M N) [P.IsAnisotropic]
 
 @[simp]
 lemma finrank_rootSpan_map_polarization_eq_finrank_corootSpan :
@@ -304,11 +309,12 @@ lemma ker_corootForm_eq_dualAnnihilator :
   P.flip.ker_rootForm_eq_dualAnnihilator
 
 instance : P.IsBalanced where
-    isPerfectCompl :=
-  { isCompl_left := by
+  isPerfectCompl := {
+    isCompl_left := by
       simpa only [ker_rootForm_eq_dualAnnihilator] using! P.isCompl_rootSpan_ker_rootForm
     isCompl_right := by
-      simpa only [ker_corootForm_eq_dualAnnihilator] using! P.isCompl_corootSpan_ker_corootForm }
+      simpa only [ker_corootForm_eq_dualAnnihilator] using! P.isCompl_corootSpan_ker_corootForm
+  }
 
 /-- See also `RootPairing.rootForm_restrict_nondegenerate_of_ordered`.
 
@@ -403,8 +409,9 @@ end Field
 
 section LinearOrderedCommRing
 
-variable [CommRing R] [LinearOrder R] [IsStrictOrderedRing R]
-  [Module R M] [Module R N] (P : RootPairing ι R M N)
+variable
+  [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] [Module R M] [Module R N]
+  (P : RootPairing ι R M N)
 
 instance instIsAnisotropicOfLinearOrderedCommRing : IsAnisotropic P :=
   P.isAnisotropic_of_isValuedIn R

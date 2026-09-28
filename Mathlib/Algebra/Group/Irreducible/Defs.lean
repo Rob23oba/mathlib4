@@ -25,25 +25,29 @@ assert_not_exists MonoidWithZero IsOrderedMonoid Multiset
 
 variable {M : Type*}
 
-/-- `AddIrreducible p` states that `p` is not an additive unit and cannot be written as a sum of
-additive non-units. -/
+/--
+`AddIrreducible p` states that `p` is not an additive unit and cannot be written as a sum of
+additive non-units.
+-/
 structure AddIrreducible [AddMonoid M] (p : M) : Prop where
   /-- An irreducible element is not an additive unit. -/
-  not_isAddUnit : ¬IsAddUnit p
+  not_isAddUnit : ¬ IsAddUnit p
   /-- If an irreducible element can be written as a sum, then one term is an additive unit. -/
   isAddUnit_or_isAddUnit ⦃a b⦄ : p = a + b → IsAddUnit a ∨ IsAddUnit b
 
 section Monoid
 variable [Monoid M] {p a b : M}
 
-/-- `Irreducible p` states that `p` is non-unit and only factors into units.
+/--
+`Irreducible p` states that `p` is non-unit and only factors into units.
 
 We explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a
-monoid allows us to reuse irreducible for associated elements. -/
+monoid allows us to reuse irreducible for associated elements.
+-/
 @[to_additive (attr := wikidata Q2989575)]
 structure Irreducible (p : M) : Prop where
   /-- An irreducible element is not a unit. -/
-  not_isUnit : ¬IsUnit p
+  not_isUnit : ¬ IsUnit p
   /-- If an irreducible element factors, then one factor is a unit. -/
   isUnit_or_isUnit ⦃a b : M⦄ : p = a * b → IsUnit a ∨ IsUnit b
 

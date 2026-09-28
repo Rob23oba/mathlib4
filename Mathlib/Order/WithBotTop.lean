@@ -24,8 +24,7 @@ variable (ι) in
 abbrev WithBotTop := WithBot (WithTop ι)
 
 /-- The canonical inclusion `ι → WithBotTop ι`. Registered as a coercion. -/
-def WithBotTop.coe : ι → WithBotTop ι :=
-  WithBot.some ∘ WithTop.some
+def WithBotTop.coe : ι → WithBotTop ι := WithBot.some ∘ WithTop.some
 
 namespace WithBotTop
 
@@ -39,8 +38,8 @@ theorem coe_injective : Function.Injective (WithBotTop.coe : ι → _) := by rin
 
 section
 
-variable {motive : (WithBotTop ι) → Sort*}
-  (bot : motive ⊥) (coe : ∀ a : ι, motive a) (top : motive ⊤)
+variable
+  {motive : (WithBotTop ι) → Sort*} (bot : motive ⊥) (coe : ∀ a : ι, motive a) (top : motive ⊤)
 
 /-- A recursor for `WithBotTop` in terms of the coercion. -/
 @[elab_as_elim]

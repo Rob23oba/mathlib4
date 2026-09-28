@@ -74,10 +74,7 @@ def equivHom : G →* Aut (forget k G) where
 
 /-- The representation on `G → k` induced by multiplication on the right in `G`. -/
 def rightRegular : Representation k G (G → k) where
-  toFun s :=
-  { toFun f t := f (t * s)
-    map_add' _ _ := rfl
-    map_smul' _ _ := rfl }
+  toFun s := { toFun f t := f (t * s), map_add' _ _ := rfl, map_smul' _ _ := rfl }
   map_one' := by
     ext
     simp
@@ -90,10 +87,7 @@ lemma rightRegular_apply (s t : G) (f : G → k) : rightRegular s f t = f (t * s
 
 /-- The representation on `G → k` induced by multiplication on the left in `G`. -/
 def leftRegular : Representation k G (G → k) where
-  toFun s :=
-  { toFun f t := f (s⁻¹ * t)
-    map_add' _ _ := rfl
-    map_smul' _ _ := rfl }
+  toFun s := { toFun f t := f (s⁻¹ * t), map_add' _ _ := rfl, map_smul' _ _ := rfl }
   map_one' := by
     ext
     simp
@@ -105,8 +99,7 @@ def leftRegular : Representation k G (G → k) where
 lemma leftRegular_apply (s t : G) (f : G → k) : leftRegular s f t = f (s⁻¹ * t) := rfl
 
 /-- The right regular representation `rightRegular` on `G → k` as a `FDRep k G`. -/
-@[simp]
-def rightFDRep [Finite G] : FDRep k G := FDRep.of rightRegular
+@[simp] def rightFDRep [Finite G] : FDRep k G := FDRep.of rightRegular
 
 end definitions
 
@@ -139,8 +132,10 @@ lemma map_mul_toRightFDRepComp (η : Aut (forget k G)) (f g : G → k) :
   congrm $((CategoryTheory.forget _).congr_map nat) (f ⊗ₜ[k] g)
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The `rightFDRep` component of `η : Aut (forget k G)` gives rise to
-an algebra morphism `(G → k) →ₐ[k] (G → k)`. -/
+/--
+The `rightFDRep` component of `η : Aut (forget k G)` gives rise to
+an algebra morphism `(G → k) →ₐ[k] (G → k)`.
+-/
 def algHomOfRightFDRepComp (η : Aut (forget k G)) : (G → k) →ₐ[k] (G → k) := by
   let α : (G → k) →ₗ[k] (G → k) := (η.hom.hom.app rightFDRep).hom.hom
   let α_inv : (G → k) →ₗ[k] (G → k) := (η.inv.hom.app rightFDRep).hom.hom
@@ -152,8 +147,10 @@ def algHomOfRightFDRepComp (η : Aut (forget k G)) : (G → k) →ₐ[k] (G → 
   apply_fun (fun x ↦ (x.hom.app rightFDRep).hom (1 : G → k)) at this
   exact this
 
-/-- For `v : X` and `G` a finite group, the `G`-equivariant linear map from the right
-regular representation `rightFDRep` to `X` sending `single 1 1` to `v`. -/
+/--
+For `v : X` and `G` a finite group, the `G`-equivariant linear map from the right
+regular representation `rightFDRep` to `X` sending `single 1 1` to `v`.
+-/
 @[simps]
 def sumSMulInv [Fintype G] {X : FDRep k G} (v : X) : (G → k) →ₗ[k] X where
   toFun f := ∑ s : G, (f s) • (X.ρ s⁻¹ v)
@@ -166,8 +163,10 @@ lemma sumSMulInv_single_id [Fintype G] [DecidableEq G] {X : FDRep k G} (v : X) :
   simp
 
 set_option backward.isDefEq.respectTransparency false in
-/-- For `v : X` and `G` a finite group, the representation morphism from the right
-regular representation `rightFDRep` to `X` sending `single 1 1` to `v`. -/
+/--
+For `v : X` and `G` a finite group, the representation morphism from the right
+regular representation `rightFDRep` to `X` sending `single 1 1` to `v`.
+-/
 @[simps]
 def ofRightFDRep [Fintype G] (X : FDRep k G) (v : X) : rightFDRep ⟶ X where
   hom := InducedCategory.homMk (ofHom (sumSMulInv v))
@@ -220,10 +219,12 @@ lemma equivHom_surjective [IsDomain k] : Function.Surjective (equivHom k G) := b
   exact ⟨s, toRightFDRepComp_injective (InducedCategory.hom_ext (hom_ext h.symm))⟩
 
 variable (k G) in
-/-- Tannaka duality for finite groups:
+/--
+Tannaka duality for finite groups:
 
 A finite group `G` is isomorphic to `Aut (forget k G)`, where `k` is any integral domain,
-and `forget k G` is the monoidal forgetful functor `FDRep k G ⥤ FGModuleCat k G`. -/
+and `forget k G` is the monoidal forgetful functor `FDRep k G ⥤ FGModuleCat k G`.
+-/
 def equiv [IsDomain k] : G ≃* Aut (forget k G) :=
   MulEquiv.ofBijective (equivHom k G) ⟨equivHom_injective, equivHom_surjective⟩
 

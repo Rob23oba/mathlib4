@@ -84,8 +84,7 @@ variable [UniformSpace X]
 variable (X) in
 /-- A uniform space is ultrametric if the uniformity `𝓤 X` has a basis of equivalence relations. -/
 class IsUltraUniformity : Prop where
-  hasBasis : (𝓤 X).HasBasis
-    (fun s : SetRel X X => s ∈ 𝓤 X ∧ SetRel.IsSymm s ∧ SetRel.IsTrans s) id
+  hasBasis : (𝓤 X).HasBasis (fun s : SetRel X X => s ∈ 𝓤 X ∧ SetRel.IsSymm s ∧ SetRel.IsTrans s) id
 
 lemma IsUltraUniformity.mk_of_hasBasis {ι : Type*} {p : ι → Prop} {s : ι → SetRel X X}
     (h_basis : (𝓤 X).HasBasis p s) (h_symm : ∀ i, p i → SetRel.IsSymm (s i))

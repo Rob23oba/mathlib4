@@ -25,7 +25,6 @@ measure, mutually singular
 
 @[expose] public section
 
-
 open Set
 
 open MeasureTheory NNReal ENNReal Filter
@@ -36,8 +35,10 @@ namespace Measure
 
 variable {α : Type*} {m0 : MeasurableSpace α} {μ μ₁ μ₂ ν ν₁ ν₂ : Measure α}
 
-/-- Two measures `μ`, `ν` are said to be mutually singular if there exists a measurable set `s`
-such that `μ s = 0` and `ν sᶜ = 0`. -/
+/--
+Two measures `μ`, `ν` are said to be mutually singular if there exists a measurable set `s`
+such that `μ s = 0` and `ν sᶜ = 0`.
+-/
 def MutuallySingular {_ : MeasurableSpace α} (μ ν : Measure α) : Prop :=
   ∃ s : Set α, MeasurableSet s ∧ μ s = 0 ∧ ν sᶜ = 0
 
@@ -46,8 +47,8 @@ scoped[MeasureTheory] infixl:60 " ⟂ₘ " => MeasureTheory.Measure.MutuallySing
 
 namespace MutuallySingular
 
-theorem mk {s t : Set α} (hs : μ s = 0) (ht : ν t = 0) (hst : univ ⊆ s ∪ t) :
-    MutuallySingular μ ν := by
+theorem mk {s t : Set α} (hs : μ s = 0) (ht : ν t = 0) (hst : univ ⊆ s ∪ t)
+    : MutuallySingular μ ν := by
   use toMeasurable μ s, measurableSet_toMeasurable _ _, (measure_toMeasurable _).trans hs
   refine measure_mono_null (fun x hx => (hst trivial).resolve_left fun hxs => hx ?_) ht
   exact subset_toMeasurable _ _ hxs
@@ -75,21 +76,16 @@ lemma restrict_nullSet (h : μ ⟂ₘ ν) : μ.restrict h.nullSet = 0 := by simp
 @[simp]
 lemma restrict_compl_nullSet (h : μ ⟂ₘ ν) : ν.restrict h.nullSetᶜ = 0 := by simp
 
-@[simp]
-theorem zero_right : μ ⟂ₘ 0 :=
-  ⟨∅, MeasurableSet.empty, measure_empty, rfl⟩
+@[simp] theorem zero_right : μ ⟂ₘ 0 := ⟨∅, MeasurableSet.empty, measure_empty, rfl⟩
 
 @[symm]
 theorem symm (h : ν ⟂ₘ μ) : μ ⟂ₘ ν :=
   let ⟨i, hi, his, hit⟩ := h
   ⟨iᶜ, hi.compl, hit, (compl_compl i).symm ▸ his⟩
 
-theorem comm : μ ⟂ₘ ν ↔ ν ⟂ₘ μ :=
-  ⟨fun h => h.symm, fun h => h.symm⟩
+theorem comm : μ ⟂ₘ ν ↔ ν ⟂ₘ μ := ⟨fun h => h.symm, fun h => h.symm⟩
 
-@[simp]
-theorem zero_left : 0 ⟂ₘ μ :=
-  zero_right.symm
+@[simp] theorem zero_left : 0 ⟂ₘ μ := zero_right.symm
 
 theorem mono_ac (h : μ₁ ⟂ₘ ν₁) (hμ : μ₂ ≪ μ₁) (hν : ν₂ ≪ ν₁) : μ₂ ⟂ₘ ν₂ :=
   let ⟨s, hs, h₁, h₂⟩ := h
@@ -131,17 +127,14 @@ theorem add_left_iff : μ₁ + μ₂ ⟂ₘ ν ↔ μ₁ ⟂ₘ ν ∧ μ₂ ⟂
 theorem add_right_iff : μ ⟂ₘ ν₁ + ν₂ ↔ μ ⟂ₘ ν₁ ∧ μ ⟂ₘ ν₂ :=
   comm.trans <| add_left_iff.trans <| and_congr comm comm
 
-theorem add_left (h₁ : ν₁ ⟂ₘ μ) (h₂ : ν₂ ⟂ₘ μ) : ν₁ + ν₂ ⟂ₘ μ :=
-  add_left_iff.2 ⟨h₁, h₂⟩
+theorem add_left (h₁ : ν₁ ⟂ₘ μ) (h₂ : ν₂ ⟂ₘ μ) : ν₁ + ν₂ ⟂ₘ μ := add_left_iff.2 ⟨h₁, h₂⟩
 
-theorem add_right (h₁ : μ ⟂ₘ ν₁) (h₂ : μ ⟂ₘ ν₂) : μ ⟂ₘ ν₁ + ν₂ :=
-  add_right_iff.2 ⟨h₁, h₂⟩
+theorem add_right (h₁ : μ ⟂ₘ ν₁) (h₂ : μ ⟂ₘ ν₂) : μ ⟂ₘ ν₁ + ν₂ := add_right_iff.2 ⟨h₁, h₂⟩
 
 theorem smul (r : ℝ≥0∞) (h : ν ⟂ₘ μ) : r • ν ⟂ₘ μ :=
   h.mono_ac (AbsolutelyContinuous.rfl.smul_left r) AbsolutelyContinuous.rfl
 
-theorem smul_nnreal (r : ℝ≥0) (h : ν ⟂ₘ μ) : r • ν ⟂ₘ μ :=
-  h.smul r
+theorem smul_nnreal (r : ℝ≥0) (h : ν ⟂ₘ μ) : r • ν ⟂ₘ μ := h.smul r
 
 lemma restrict (h : μ ⟂ₘ ν) (s : Set α) : μ.restrict s ⟂ₘ ν := by
   refine ⟨h.nullSet, h.measurableSet_nullSet, ?_, h.measure_compl_nullSet⟩

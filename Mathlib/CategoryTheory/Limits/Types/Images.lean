@@ -28,17 +28,15 @@ section
 
 -- implementation of `HasImage`
 /-- the image of a morphism in Type is just `Set.range f` -/
-def Image : Type u :=
-  Set.range f
+def Image : Type u := Set.range f
 
-instance [Inhabited α] : Inhabited (Image f) where default := ⟨f default, ⟨_, rfl⟩⟩
+instance [Inhabited α] : Inhabited (Image f) where
+  default := ⟨f default, ⟨_, rfl⟩⟩
 
 /-- the inclusion of `Image f` into the target -/
-def Image.ι : Image f ⟶ β :=
-  ↾(Subtype.val)
+def Image.ι : Image f ⟶ β := ↾(Subtype.val)
 
-instance : Mono (Image.ι f) :=
-  (mono_iff_injective _).2 Subtype.val_injective
+instance : Mono (Image.ι f) := (mono_iff_injective _).2 Subtype.val_injective
 
 variable {f}
 
@@ -65,8 +63,7 @@ noncomputable def isImage : IsImage (monoFactorisation f) where
   lift := Image.lift
   lift_fac := Image.lift_fac
 
-instance : HasImage f :=
-  HasImage.mk ⟨_, isImage f⟩
+instance : HasImage f := HasImage.mk ⟨_, isImage f⟩
 
 instance : HasImages (Type u) where
   has_image := by infer_instance
@@ -76,15 +73,17 @@ instance : HasImageMaps (Type u) where
     HasImageMap.transport st (monoFactorisation f.hom) (isImage g.hom)
       (↾fun x => ⟨st.right x.val, ⟨st.left (Classical.choose x.2), by
         rw [elementwise_of% st.w]
-        rw [Classical.choose_spec x.property]⟩⟩) rfl
+        rw [Classical.choose_spec x.property]⟩⟩)
+      rfl
 
-variable {F : ℕᵒᵖ ⥤ Type u} {c : Cone F}
+variable
+  {F : ℕᵒᵖ ⥤ Type u} {c : Cone F}
   (hF : ∀ n, Function.Surjective (F.map (homOfLE (Nat.le_succ n)).op))
 
-private noncomputable def limitOfSurjectionsSurjective.preimage
-    (a : F.obj ⟨0⟩) : (n : ℕ) → F.obj ⟨n⟩
-    | 0 => a
-    | n + 1 => (hF n (preimage a n)).choose
+private noncomputable def limitOfSurjectionsSurjective.preimage (a : F.obj ⟨0⟩)
+    : (n : ℕ) → F.obj ⟨n⟩
+  | 0 => a
+  | n + 1 => (hF n (preimage a n)).choose
 
 include hF in
 open limitOfSurjectionsSurjective in

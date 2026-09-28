@@ -36,7 +36,8 @@ universe v v' u u'
 
 namespace CategoryTheory.Limits
 
-variable {C : Type*} [Category* C] [HasZeroMorphisms C]
+variable
+  {C : Type*} [Category* C] [HasZeroMorphisms C]
   {X₁ X₂ X₃ X₄ : C} {t : X₁ ⟶ X₂} {l : X₁ ⟶ X₃} {r : X₂ ⟶ X₄} {b : X₃ ⟶ X₄}
 
 lemma isIso_kernel_map_of_isPullback [HasKernel t] [HasKernel b]

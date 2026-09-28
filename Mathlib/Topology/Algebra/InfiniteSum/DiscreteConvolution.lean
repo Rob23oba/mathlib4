@@ -106,20 +106,26 @@ variable [Monoid M] [CommSemiring S] [AddCommMonoid E] [AddCommMonoid E'] [AddCo
 variable [Module S E] [Module S E'] [Module S F]
 variable [TopologicalSpace F]
 
-/-- The discrete convolution of `f` and `g` using bilinear map `L`: the value at `x` is the
-sum of `L (f a) (g b)` over all pairs `(a, b)` with `a * b = x`. -/
+/--
+The discrete convolution of `f` and `g` using bilinear map `L`: the value at `x` is the
+sum of `L (f a) (g b)` over all pairs `(a, b)` with `a * b = x`.
+-/
 @[to_additive (dont_translate := S E E' F) addConvolution
   /-- Additive convolution: the value at `x` is the sum of `L (f a) (g b)` over all pairs
   `(a, b)` with `a + b = x`. -/]
-def convolution (L : E →ₗ[S] E' →ₗ[S] F) (f : M → E) (g : M → E') : M → F :=
-  fun x => ∑' ab : mulFiber x, L (f ab.1.1) (g ab.1.2)
+def convolution (L : E →ₗ[S] E' →ₗ[S] F) (f : M → E) (g : M → E') : M → F := fun x =>
+  ∑' ab : mulFiber x, L (f ab.1.1) (g ab.1.2)
 
-/-- Notation for discrete convolution with explicit bilinear map:
-`(f ⋆[L] g) x = ∑' ab : mulFiber x, L (f ab.1.1) (g ab.1.2)`. -/
+/--
+Notation for discrete convolution with explicit bilinear map:
+`(f ⋆[L] g) x = ∑' ab : mulFiber x, L (f ab.1.1) (g ab.1.2)`.
+-/
 scoped notation:67 f:68 " ⋆[" L "] " g:67 => convolution L f g
 
-/-- Notation for additive convolution with explicit bilinear map:
-`(f ⋆₊[L] g) x = ∑' ab : addFiber x, L (f ab.1.1) (g ab.1.2)`. -/
+/--
+Notation for additive convolution with explicit bilinear map:
+`(f ⋆₊[L] g) x = ∑' ab : addFiber x, L (f ab.1.1) (g ab.1.2)`.
+-/
 scoped notation:67 f:68 " ⋆₊[" L "] " g:67 => addConvolution L f g
 
 end Definition
@@ -164,18 +170,22 @@ variable [Monoid M] [CommSemiring S] [AddCommMonoid E] [AddCommMonoid E'] [AddCo
 variable [Module S E] [Module S E'] [Module S F]
 variable [TopologicalSpace F]
 
-/-- The convolution of `f` and `g` with bilinear map `L` exists at `x`: the family
-`ab ↦ L (f ab.1.1) (g ab.1.2)` indexed by `mulFiber x` is summable. -/
+/--
+The convolution of `f` and `g` with bilinear map `L` exists at `x`: the family
+`ab ↦ L (f ab.1.1) (g ab.1.2)` indexed by `mulFiber x` is summable.
+-/
 @[to_additive (dont_translate := S E E' F) AddConvolutionExistsAt
   /-- The additive convolution of `f` and `g` with bilinear map `L` exists at `x`: the family
   `ab ↦ L (f ab.1.1) (g ab.1.2)` indexed by `addFiber x` is summable. -/]
 def ConvolutionExistsAt (L : E →ₗ[S] E' →ₗ[S] F) (f : M → E) (g : M → E') (x : M) : Prop :=
   Summable fun ab : mulFiber x => L (f ab.1.1) (g ab.1.2)
 
-/-- The convolution of `f` and `g` with bilinear map `L` exists at every point, that is,
+/--
+The convolution of `f` and `g` with bilinear map `L` exists at every point, that is,
 `ConvolutionExistsAt L f g x` holds for every `x`.
 
-This does not assert that the resulting function `convolution L f g` is summable over `M`. -/
+This does not assert that the resulting function `convolution L f g` is summable over `M`.
+-/
 @[to_additive (dont_translate := S E E' F) AddConvolutionExists
   /-- The additive convolution of `f` and `g` with bilinear map `L` exists at every point, that
   is, `AddConvolutionExistsAt L f g x` holds for every `x`.
@@ -289,11 +299,14 @@ private def mulFiber_swapEquiv (x : M) : mulFiber x ≃ mulFiber x where
   right_inv := fun ⟨⟨_, _⟩, _⟩ => rfl
 
 @[to_additive (dont_translate := S E) addConvolution_comm]
-theorem convolution_comm (L : E →ₗ[S] E →ₗ[S] E) (f g : M → E) (hL : ∀ x y, L x y = L y x) :
-    f ⋆[L] g = g ⋆[L] f := by
-  unfold convolution; ext x
+theorem convolution_comm (L : E →ₗ[S] E →ₗ[S] E) (f g : M → E) (hL : ∀ x y, L x y = L y x)
+    : f ⋆[L] g = g ⋆[L] f := by
+  unfold convolution
+  ext x
   rw [← (mulFiber_swapEquiv x).tsum_eq]
-  congr 1; funext ⟨⟨a, b⟩, _⟩; exact hL (f b) (g a)
+  congr 1
+  funext ⟨⟨a, b⟩, _⟩
+  exact hL (f b) (g a)
 
 end CommMonoid
 
@@ -308,8 +321,7 @@ variable [Monoid M] [TopologicalSpace R]
 /-- The discrete convolution of two functions using multiplication to combine their values. -/
 @[to_additive (dont_translate := R) addRingConvolution
   /-- The additive-index convolution using multiplication to combine values. -/]
-def ringConvolution (f g : M → R) : M → R :=
-  convolution (.mul ℕ R) f g
+def ringConvolution (f g : M → R) : M → R := convolution (.mul ℕ R) f g
 
 /-- Notation for convolution using multiplication to combine values. -/
 scoped notation:67 f:68 " ⋆ᵣ " g:67 => ringConvolution f g

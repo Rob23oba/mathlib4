@@ -56,8 +56,10 @@ variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {x y z : X} {ι
 
 section LocallyPathConnectedSpace
 
-/-- A topological space is locally path connected if, at every point, path connected
-neighborhoods form a neighborhood basis. -/
+/--
+A topological space is locally path connected if, at every point, path connected
+neighborhoods form a neighborhood basis.
+-/
 class LocallyPathConnectedSpace (X : Type*) [TopologicalSpace X] : Prop where
   /-- Each neighborhood filter has a basis of path-connected neighborhoods. -/
   path_connected_basis : ∀ x : X, (𝓝 x).HasBasis (fun s : Set X => s ∈ 𝓝 x ∧ IsPathConnected s) id
@@ -69,9 +71,10 @@ alias LocPathConnectedSpace.path_connected_basis :=
 
 export LocallyPathConnectedSpace (path_connected_basis)
 
-theorem LocallyPathConnectedSpace.of_bases {p : X → ι → Prop} {s : X → ι → Set X}
-    (h : ∀ x, (𝓝 x).HasBasis (p x) (s x)) (h' : ∀ x i, p x i → IsPathConnected (s x i)) :
-    LocallyPathConnectedSpace X where
+theorem LocallyPathConnectedSpace.of_bases
+    {p : X → ι → Prop} {s : X → ι → Set X}
+    (h : ∀ x, (𝓝 x).HasBasis (p x) (s x)) (h' : ∀ x i, p x i → IsPathConnected (s x i))
+    : LocallyPathConnectedSpace X where
   path_connected_basis x := by
     rw [hasBasis_self]
     intro t ht
@@ -83,13 +86,13 @@ alias LocPathConnectedSpace.of_bases := LocallyPathConnectedSpace.of_bases
 
 variable [LocallyPathConnectedSpace X]
 
-protected theorem IsOpen.pathComponentIn (hF : IsOpen F) (x : X) :
-    IsOpen (pathComponentIn F x) := by
+protected theorem IsOpen.pathComponentIn (hF : IsOpen F) (x : X)
+    : IsOpen (pathComponentIn F x) := by
   rw [isOpen_iff_mem_nhds]
   intro y hy
   let ⟨s, hs⟩ := (path_connected_basis y).mem_iff.mp (hF.mem_nhds (pathComponentIn_subset hy))
-  exact mem_of_superset hs.1.1 <| pathComponentIn_congr hy ▸
-    hs.1.2.subset_pathComponentIn (mem_of_mem_nhds hs.1.1) hs.2
+  exact mem_of_superset hs.1.1 <|
+    pathComponentIn_congr hy ▸ hs.1.2.subset_pathComponentIn (mem_of_mem_nhds hs.1.1) hs.2
 
 /-- In a locally path connected space, each path component is an open set. -/
 protected theorem IsOpen.pathComponent (x : X) : IsOpen (pathComponent x) := by
@@ -126,8 +129,8 @@ theorem pathComponent_eq_connectedComponent (x : X) : pathComponent x = connecte
   (pathComponent_subset_component x).antisymm <|
     (IsClopen.pathComponent x).connectedComponent_subset (mem_pathComponent_self _)
 
-theorem connectedComponent_eq_iff_joined (x y : X) :
-    connectedComponent x = connectedComponent y ↔ Joined x y := by
+theorem connectedComponent_eq_iff_joined (x y : X)
+    : connectedComponent x = connectedComponent y ↔ Joined x y := by
   rw [← mem_pathComponent_iff, pathComponent_eq_connectedComponent, eq_comm]
   exact connectedComponent_eq_iff_mem
 
@@ -155,21 +158,23 @@ lemma connectedComponentsEquivZerothHomotopy_symm_apply (x : X) :
     connectedComponentsEquivZerothHomotopy.symm (.mk x) = ⟦x⟧ :=
   rfl
 
-theorem pathConnected_subset_basis {U : Set X} (h : IsOpen U) (hx : x ∈ U) :
-    (𝓝 x).HasBasis (fun s : Set X => s ∈ 𝓝 x ∧ IsPathConnected s ∧ s ⊆ U) id :=
+theorem pathConnected_subset_basis {U : Set X} (h : IsOpen U) (hx : x ∈ U)
+    : (𝓝 x).HasBasis (fun s : Set X => s ∈ 𝓝 x ∧ IsPathConnected s ∧ s ⊆ U) id :=
   (path_connected_basis x).hasBasis_self_subset (IsOpen.mem_nhds h hx)
 
-theorem isOpen_isPathConnected_basis (x : X) :
-    (𝓝 x).HasBasis (fun s : Set X ↦ IsOpen s ∧ x ∈ s ∧ IsPathConnected s) id := by
+theorem isOpen_isPathConnected_basis (x : X)
+    : (𝓝 x).HasBasis (fun s : Set X ↦ IsOpen s ∧ x ∈ s ∧ IsPathConnected s) id := by
   refine ⟨fun s ↦ ⟨fun hs ↦ ?_, fun ⟨u, hu⟩ ↦ mem_nhds_iff.mpr ⟨u, hu.2, hu.1.1, hu.1.2.1⟩⟩⟩
   have ⟨u, hus, hu, hxu⟩ := mem_nhds_iff.mp hs
-  exact ⟨pathComponentIn u x, ⟨hu.pathComponentIn _, ⟨mem_pathComponentIn_self hxu,
-    isPathConnected_pathComponentIn hxu⟩⟩, pathComponentIn_subset.trans hus⟩
+  exact ⟨
+    pathComponentIn u x,
+    ⟨hu.pathComponentIn _, ⟨mem_pathComponentIn_self hxu, isPathConnected_pathComponentIn hxu⟩⟩,
+    pathComponentIn_subset.trans hus
+  ⟩
 
-theorem Topology.IsOpenEmbedding.locallyPathConnectedSpace {e : Y → X} (he : IsOpenEmbedding e) :
-    LocallyPathConnectedSpace Y :=
-  have (y : Y) :
-      (𝓝 y).HasBasis (fun s ↦ s ∈ 𝓝 (e y) ∧ IsPathConnected s ∧ s ⊆ range e) (e ⁻¹' ·) :=
+theorem Topology.IsOpenEmbedding.locallyPathConnectedSpace {e : Y → X} (he : IsOpenEmbedding e)
+    : LocallyPathConnectedSpace Y :=
+  have (y : Y) : (𝓝 y).HasBasis (fun s ↦ s ∈ 𝓝 (e y) ∧ IsPathConnected s ∧ s ⊆ range e) (e ⁻¹' ·) :=
     he.basis_nhds <| pathConnected_subset_basis he.isOpen_range (mem_range_self _)
   .of_bases this fun x s ⟨_, hs, hse⟩ ↦ by
     rwa [he.isPathConnected_iff, image_preimage_eq_of_subset hse]
@@ -187,8 +192,8 @@ theorem IsOpen.locallyPathConnectedSpace {U : Set X} (h : IsOpen U) : LocallyPat
 @[deprecated (since := "2026-06-21")]
 alias IsOpen.locPathConnectedSpace := IsOpen.locallyPathConnectedSpace
 
-theorem IsOpen.isConnected_iff_isPathConnected {U : Set X} (U_op : IsOpen U) :
-    IsConnected U ↔ IsPathConnected U := by
+theorem IsOpen.isConnected_iff_isPathConnected {U : Set X} (U_op : IsOpen U)
+    : IsConnected U ↔ IsPathConnected U := by
   rw [isConnected_iff_connectedSpace, isPathConnected_iff_pathConnectedSpace]
   have := U_op.locallyPathConnectedSpace
   exact pathConnectedSpace_iff_connectedSpace.symm
@@ -262,17 +267,19 @@ instance Quot.locallyPathConnectedSpace {r : X → X → Prop} : LocallyPathConn
 alias Quot.locPathConnectedSpace := Quot.locallyPathConnectedSpace
 
 /-- Quotients of locally path-connected spaces are locally path-connected. -/
-instance Quotient.locallyPathConnectedSpace {s : Setoid X} :
-    LocallyPathConnectedSpace (Quotient s) :=
+instance Quotient.locallyPathConnectedSpace {s : Setoid X}
+    : LocallyPathConnectedSpace (Quotient s) :=
   isQuotientMap_quotient_mk'.locallyPathConnectedSpace
 
 @[deprecated (since := "2026-06-21")]
 alias Quotient.locPathConnectedSpace := Quotient.locallyPathConnectedSpace
 
 /-- Disjoint unions of locally path-connected spaces are locally path-connected. -/
-instance Sum.locallyPathConnectedSpace [LocallyPathConnectedSpace Y] :
-    LocallyPathConnectedSpace (X ⊕ Y) := by
-  rw [locallyPathConnectedSpace_iff_pathComponentIn_mem_nhds]; intro x u hu hxu; rw [mem_nhds_iff]
+instance Sum.locallyPathConnectedSpace [LocallyPathConnectedSpace Y]
+    : LocallyPathConnectedSpace (X ⊕ Y) := by
+  rw [locallyPathConnectedSpace_iff_pathComponentIn_mem_nhds]
+  intro x u hu hxu
+  rw [mem_nhds_iff]
   obtain x | y := x
   · refine ⟨Sum.inl '' pathComponentIn (Sum.inl ⁻¹' u) x, ?_, ?_, ?_⟩
     · apply IsPathConnected.subset_pathComponentIn
@@ -293,10 +300,12 @@ instance Sum.locallyPathConnectedSpace [LocallyPathConnectedSpace Y] :
 alias Sum.locPathConnectedSpace := Sum.locallyPathConnectedSpace
 
 /-- Disjoint unions of locally path-connected spaces are locally path-connected. -/
-instance Sigma.locallyPathConnectedSpace {X : ι → Type*}
-    [(i : ι) → TopologicalSpace (X i)] [(i : ι) → LocallyPathConnectedSpace (X i)] :
-    LocallyPathConnectedSpace ((i : ι) × X i) := by
-  rw [locallyPathConnectedSpace_iff_pathComponentIn_mem_nhds]; intro x u hu hxu; rw [mem_nhds_iff]
+instance Sigma.locallyPathConnectedSpace
+    {X : ι → Type*} [(i : ι) → TopologicalSpace (X i)] [(i : ι) → LocallyPathConnectedSpace (X i)]
+    : LocallyPathConnectedSpace ((i : ι) × X i) := by
+  rw [locallyPathConnectedSpace_iff_pathComponentIn_mem_nhds]
+  intro x u hu hxu
+  rw [mem_nhds_iff]
   refine ⟨(Sigma.mk x.1) '' pathComponentIn ((Sigma.mk x.1) ⁻¹' u) x.2, ?_, ?_, ?_⟩
   · apply IsPathConnected.subset_pathComponentIn
     · exact (isPathConnected_pathComponentIn (by exact hxu)).image continuous_sigmaMk
@@ -309,76 +318,94 @@ instance Sigma.locallyPathConnectedSpace {X : ι → Type*}
 alias Sigma.locPathConnectedSpace := Sigma.locallyPathConnectedSpace
 
 /-- The product of two locally path-connected spaces is locally path-connected. -/
-instance Prod.locallyPathConnectedSpace [LocallyPathConnectedSpace Y] :
-    LocallyPathConnectedSpace (X × Y) where
-  path_connected_basis := fun (x, y) ↦ hasBasis_self.mpr fun U hU ↦ by
-    obtain ⟨u, hu, v, hv, huv⟩ := mem_nhds_prod_iff.mp hU
-    exact ⟨pathComponentIn u x ×ˢ pathComponentIn v y,
-      prod_mem_nhds (pathComponentIn_mem_nhds hu) (pathComponentIn_mem_nhds hv),
-      (isPathConnected_pathComponentIn (mem_of_mem_nhds hu)).prod
-        (isPathConnected_pathComponentIn (mem_of_mem_nhds hv)),
-      (Set.prod_mono pathComponentIn_subset pathComponentIn_subset).trans huv⟩
+instance Prod.locallyPathConnectedSpace [LocallyPathConnectedSpace Y]
+    : LocallyPathConnectedSpace (X × Y) where
+  path_connected_basis := fun (x, y) ↦
+    hasBasis_self.mpr fun U hU ↦ by
+      obtain ⟨u, hu, v, hv, huv⟩ := mem_nhds_prod_iff.mp hU
+      exact ⟨
+        pathComponentIn u x ×ˢ pathComponentIn v y,
+        prod_mem_nhds (pathComponentIn_mem_nhds hu) (pathComponentIn_mem_nhds hv),
+        (isPathConnected_pathComponentIn (mem_of_mem_nhds hu)).prod
+          (isPathConnected_pathComponentIn (mem_of_mem_nhds hv)),
+        (Set.prod_mono pathComponentIn_subset pathComponentIn_subset).trans huv
+      ⟩
 
-/-- If each `Z i` is locally path-connected and all but finitely many are path-connected, then
-`∀ i, Z i` is locally path-connected. -/
-theorem Pi.locallyPathConnectedSpace_of_finite_not_pathConnectedSpace {Z : ι → Type*}
-    [∀ i, TopologicalSpace (Z i)] [∀ i, LocallyPathConnectedSpace (Z i)]
-    (hfinite : {i | ¬PathConnectedSpace (Z i)}.Finite) :
-    LocallyPathConnectedSpace (∀ i, Z i) where
-  path_connected_basis x := hasBasis_self.mpr fun U hU ↦ by
-    rw [nhds_pi, Filter.mem_pi] at hU
-    obtain ⟨J, hJ, t, ht, htU⟩ := hU
-    let K := J ∪ {i | ¬PathConnectedSpace (Z i)}
-    refine ⟨K.pi fun i ↦ pathComponentIn (t i) (x i),
-      set_pi_mem_nhds (hJ.union hfinite) fun i _ ↦ pathComponentIn_mem_nhds (ht i), ?_,
-      fun f hf ↦ htU fun i hiJ ↦ pathComponentIn_subset (hf i (mem_union_left _ hiJ))⟩
-    classical
-    rw [← univ_pi_piecewise_univ]
-    refine .pi fun i ↦ ?_
-    by_cases hi : i ∈ K
-    · rw [piecewise_eq_of_mem _ _ _ hi]
-      exact isPathConnected_pathComponentIn (mem_of_mem_nhds (ht i))
-    · rw [piecewise_eq_of_notMem _ _ _ hi]
-      have : PathConnectedSpace (Z i) := not_not.mp (not_or.1 hi).2
-      exact isPathConnected_univ
+/--
+If each `Z i` is locally path-connected and all but finitely many are path-connected, then
+`∀ i, Z i` is locally path-connected.
+-/
+theorem Pi.locallyPathConnectedSpace_of_finite_not_pathConnectedSpace
+    {Z : ι → Type*} [∀ i, TopologicalSpace (Z i)] [∀ i, LocallyPathConnectedSpace (Z i)]
+    (hfinite : {i | ¬PathConnectedSpace (Z i)}.Finite)
+    : LocallyPathConnectedSpace (∀ i, Z i) where
+  path_connected_basis x :=
+    hasBasis_self.mpr fun U hU ↦ by
+      rw [nhds_pi, Filter.mem_pi] at hU
+      obtain ⟨J, hJ, t, ht, htU⟩ := hU
+      let K := J ∪ {i | ¬PathConnectedSpace (Z i)}
+      refine ⟨
+        K.pi fun i ↦ pathComponentIn (t i) (x i),
+        set_pi_mem_nhds (hJ.union hfinite) fun i _ ↦ pathComponentIn_mem_nhds (ht i),
+        ?_,
+        fun f hf ↦ htU fun i hiJ ↦ pathComponentIn_subset (hf i (mem_union_left _ hiJ))
+      ⟩
+      classical
+      rw [← univ_pi_piecewise_univ]
+      refine .pi fun i ↦ ?_
+      by_cases hi : i ∈ K
+      · rw [piecewise_eq_of_mem _ _ _ hi]
+        exact isPathConnected_pathComponentIn (mem_of_mem_nhds (ht i))
+      · rw [piecewise_eq_of_notMem _ _ _ hi]
+        have : PathConnectedSpace (Z i) := not_not.mp (not_or.1 hi).2
+        exact isPathConnected_univ
 
 /-- A finite product of locally path-connected spaces is locally path-connected. -/
-instance Pi.locallyPathConnectedSpace_of_finite [Finite ι] {Z : ι → Type*}
-    [∀ i, TopologicalSpace (Z i)] [∀ i, LocallyPathConnectedSpace (Z i)] :
-    LocallyPathConnectedSpace (∀ i, Z i) :=
+instance Pi.locallyPathConnectedSpace_of_finite
+    [Finite ι] {Z : ι → Type*} [∀ i, TopologicalSpace (Z i)] [∀ i, LocallyPathConnectedSpace (Z i)]
+    : LocallyPathConnectedSpace (∀ i, Z i) :=
   locallyPathConnectedSpace_of_finite_not_pathConnectedSpace (toFinite _)
 
-/-- A product of path-connected, locally path-connected spaces is locally path-connected. Note
+/--
+A product of path-connected, locally path-connected spaces is locally path-connected. Note
 that an arbitrary product of locally path-connected spaces need not be locally path-connected, so
 the path-connectedness assumption cannot be dropped entirely (though it can be dropped for
-finitely many factors, see `Pi.locallyPathConnectedSpace_of_finite_not_pathConnectedSpace`). -/
-instance Pi.locallyPathConnectedSpace {Z : ι → Type*} [∀ i, TopologicalSpace (Z i)]
-    [∀ i, LocallyPathConnectedSpace (Z i)] [∀ i, PathConnectedSpace (Z i)] :
-    LocallyPathConnectedSpace (∀ i, Z i) :=
-  locallyPathConnectedSpace_of_finite_not_pathConnectedSpace
-    (finite_empty.subset fun _ hi ↦ hi inferInstance)
+finitely many factors, see `Pi.locallyPathConnectedSpace_of_finite_not_pathConnectedSpace`).
+-/
+instance Pi.locallyPathConnectedSpace
+    {Z : ι → Type*} [∀ i, TopologicalSpace (Z i)] [∀ i, LocallyPathConnectedSpace (Z i)]
+    [∀ i, PathConnectedSpace (Z i)]
+    : LocallyPathConnectedSpace (∀ i, Z i) :=
+  locallyPathConnectedSpace_of_finite_not_pathConnectedSpace (finite_empty.subset fun _ hi ↦
+    hi inferInstance)
 
-/-- A product of spaces is locally path-connected iff it is empty, or every factor is locally
-path-connected and all but finitely many factors are path-connected. -/
-theorem Pi.locallyPathConnectedSpace_iff {Z : ι → Type*} [∀ i, TopologicalSpace (Z i)] :
-    LocallyPathConnectedSpace (∀ i, Z i) ↔
-      IsEmpty (∀ i, Z i) ∨
-        (∀ i, LocallyPathConnectedSpace (Z i)) ∧ {i | ¬PathConnectedSpace (Z i)}.Finite := by
+/--
+A product of spaces is locally path-connected iff it is empty, or every factor is locally
+path-connected and all but finitely many factors are path-connected.
+-/
+theorem Pi.locallyPathConnectedSpace_iff {Z : ι → Type*} [∀ i, TopologicalSpace (Z i)]
+    : LocallyPathConnectedSpace (∀ i, Z i)
+      ↔ IsEmpty (∀ i, Z i)
+        ∨ (∀ i, LocallyPathConnectedSpace (Z i)) ∧ {i | ¬PathConnectedSpace (Z i)}.Finite := by
   refine ⟨fun h ↦ ?_, ?_⟩
   · rcases isEmpty_or_nonempty (∀ i, Z i) with he | hne
     · exact .inl he
     obtain ⟨x⟩ := hne
     classical
     have : ∀ i, Nonempty (Z i) := Classical.nonempty_pi.mp ⟨x⟩
-    refine .inr ⟨fun i ↦ ((isOpenMap_eval i).isQuotientMap (continuous_apply i)
-      (surjective_eval i)).locallyPathConnectedSpace, ?_⟩
-    have hVn : pathComponent x ∈ 𝓝 x :=
-      (IsOpen.pathComponent x).mem_nhds (mem_pathComponent_self x)
+    refine .inr ⟨
+      fun i ↦
+        ((isOpenMap_eval i).isQuotientMap (continuous_apply i)
+          (surjective_eval i)).locallyPathConnectedSpace,
+      ?_
+    ⟩
+    have hVn : pathComponent x ∈ 𝓝 x := (IsOpen.pathComponent x).mem_nhds (mem_pathComponent_self x)
     rw [nhds_pi, Filter.mem_pi] at hVn
     obtain ⟨J, hJ, t, ht, htV⟩ := hVn
     refine hJ.subset fun i hi ↦ by_contra fun hiJ ↦ hi ?_
-    suffices himg : eval i '' pathComponent x = univ from pathConnectedSpace_iff_univ.mpr
-      (himg ▸ isPathConnected_pathComponent.image (continuous_apply i))
+    suffices himg : eval i '' pathComponent x = univ from
+      pathConnectedSpace_iff_univ.mpr
+        (himg ▸ isPathConnected_pathComponent.image (continuous_apply i))
     refine (subset_univ _).antisymm fun z _ ↦ ⟨update x i z, htV fun j hj ↦ ?_, by simp⟩
     rw [update_of_ne (ne_of_mem_of_not_mem hj hiJ)]
     exact mem_of_mem_nhds (ht j)
@@ -386,8 +413,8 @@ theorem Pi.locallyPathConnectedSpace_iff {Z : ι → Type*} [∀ i, TopologicalS
     · exact ⟨he.elim⟩
     · exact locallyPathConnectedSpace_of_finite_not_pathConnectedSpace hfin
 
-instance AlexandrovDiscrete.locallyPathConnectedSpace [AlexandrovDiscrete X] :
-    LocallyPathConnectedSpace X := by
+instance AlexandrovDiscrete.locallyPathConnectedSpace [AlexandrovDiscrete X]
+    : LocallyPathConnectedSpace X := by
   apply LocallyPathConnectedSpace.of_bases nhds_basis_nhdsKer_singleton
   simp only [forall_const, IsPathConnected, mem_nhdsKer_singleton]
   intro x
@@ -407,7 +434,6 @@ instance : DiscreteTopology <| ZerothHomotopy X := by
   grind [ZerothHomotopy.preimage_singleton_eq_pathComponent, IsOpen.pathComponent]
 
 /-- A locally path-connected compact space has finitely many path components. -/
-instance [CompactSpace X] : Finite <| ZerothHomotopy X :=
-  finite_of_compact_of_discrete
+instance [CompactSpace X] : Finite <| ZerothHomotopy X := finite_of_compact_of_discrete
 
 end LocallyPathConnectedSpace

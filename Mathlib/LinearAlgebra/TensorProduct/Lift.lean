@@ -25,15 +25,16 @@ namespace LinearMap
 variable {R M N} (A) [CommSemiring R] [CommSemiring A] [Algebra R A] [AddCommMonoid M]
 variable [AddCommMonoid N] [Module R M] [Module R N] [Module A N] [IsScalarTower R A N]
 
-/-- If `M` is an `R`-module and `N` is an `A`-module, then `A`-linear maps
+/--
+If `M` is an `R`-module and `N` is an `A`-module, then `A`-linear maps
 `A ⊗[R] M →ₗ[A] N` correspond to `R`-linear maps `M →ₗ[R] N` by composing with
-`M → A ⊗[R] M`, `x ↦ 1 ⊗ₜ x`. -/
+`M → A ⊗[R] M`, `x ↦ 1 ⊗ₜ x`.
+-/
 def liftBaseChangeEquiv : (M →ₗ[R] N) ≃ₗ[A] (A ⊗[R] M →ₗ[A] N) :=
   (LinearMap.ringLmapEquivSelf _ _ _).symm.trans (AlgebraTensorModule.lift.equiv _ _ _ _ _ _)
 
 /-- If `N` is an `A`-module, lift a linear map `M →ₗ[R] N` to `A ⊗[R] M →ₗ[A] N`. -/
-abbrev liftBaseChange (l : M →ₗ[R] N) : A ⊗[R] M →ₗ[A] N :=
-  LinearMap.liftBaseChangeEquiv A l
+abbrev liftBaseChange (l : M →ₗ[R] N) : A ⊗[R] M →ₗ[A] N := LinearMap.liftBaseChangeEquiv A l
 
 @[simp]
 lemma liftBaseChange_tmul (l : M →ₗ[R] N) (x y) : l.liftBaseChange A (x ⊗ₜ y) = x • l y := rfl

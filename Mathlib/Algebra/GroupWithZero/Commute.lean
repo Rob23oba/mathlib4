@@ -25,8 +25,8 @@ variable [MonoidWithZero M₀]
 
 namespace Ring
 
-theorem mul_inverse_rev' {a b : M₀} (h : Commute a b) :
-    inverse (a * b) = inverse b * inverse a := by
+theorem mul_inverse_rev' {a b : M₀} (h : Commute a b)
+    : inverse (a * b) = inverse b * inverse a := by
   by_cases hab : IsUnit (a * b)
   · obtain ⟨⟨a, rfl⟩, b, rfl⟩ := h.isUnit_mul_iff.mp hab
     rw [← Units.val_mul, inverse_unit, inverse_unit, inverse_unit, ← Units.val_mul, mul_inv_rev]
@@ -34,8 +34,7 @@ theorem mul_inverse_rev' {a b : M₀} (h : Commute a b) :
   · rw [inverse_non_unit _ hab, inverse_non_unit _ ha, mul_zero]
   · rw [inverse_non_unit _ hab, inverse_non_unit _ hb, zero_mul]
 
-theorem mul_inverse_rev {M₀} [CommMonoidWithZero M₀] (a b : M₀) :
-    (a * b)⁻¹ʳ = b⁻¹ʳ * a⁻¹ʳ :=
+theorem mul_inverse_rev {M₀} [CommMonoidWithZero M₀] (a b : M₀) : (a * b)⁻¹ʳ = b⁻¹ʳ * a⁻¹ʳ :=
   mul_inverse_rev' (Commute.all _ _)
 
 lemma inverse_pow (r : M₀) : ∀ n : ℕ, r⁻¹ʳ ^ n = (r ^ n)⁻¹ʳ
@@ -51,44 +50,31 @@ lemma inverse_pow_mul_eq_iff_eq_mul {a : M₀} (b c : M₀) (ha : IsUnit a) {k :
 end Ring
 
 @[grind ←]
-theorem Commute.ringInverse_ringInverse {a b : M₀} (h : Commute a b) :
-    Commute a⁻¹ʳ b⁻¹ʳ :=
+theorem Commute.ringInverse_ringInverse {a b : M₀} (h : Commute a b) : Commute a⁻¹ʳ b⁻¹ʳ :=
   (Ring.mul_inverse_rev' h.symm).symm.trans <| (congr_arg _ h.symm.eq).trans <|
     Ring.mul_inverse_rev' h
 
 namespace Commute
 
-@[simp]
-theorem zero_right [MulZeroClass G₀] (a : G₀) : Commute a 0 :=
-  SemiconjBy.zero_right a
+@[simp] theorem zero_right [MulZeroClass G₀] (a : G₀) : Commute a 0 := SemiconjBy.zero_right a
 
-@[simp]
-theorem zero_left [MulZeroClass G₀] (a : G₀) : Commute 0 a :=
-  SemiconjBy.zero_left a a
+@[simp] theorem zero_left [MulZeroClass G₀] (a : G₀) : Commute 0 a := SemiconjBy.zero_left a a
 
 variable [GroupWithZero G₀] {a b c : G₀}
 
-@[simp]
-theorem inv_left_iff₀ : Commute a⁻¹ b ↔ Commute a b :=
-  SemiconjBy.inv_symm_left_iff₀
+@[simp] theorem inv_left_iff₀ : Commute a⁻¹ b ↔ Commute a b := SemiconjBy.inv_symm_left_iff₀
 
-theorem inv_left₀ (h : Commute a b) : Commute a⁻¹ b :=
-  inv_left_iff₀.2 h
+theorem inv_left₀ (h : Commute a b) : Commute a⁻¹ b := inv_left_iff₀.2 h
 
 variable (a) in
-theorem inv_left_self₀ : Commute a⁻¹ a :=
-  (Commute.refl a).inv_left₀
+theorem inv_left_self₀ : Commute a⁻¹ a := (Commute.refl a).inv_left₀
 
-@[simp]
-theorem inv_right_iff₀ : Commute a b⁻¹ ↔ Commute a b :=
-  SemiconjBy.inv_right_iff₀
+@[simp] theorem inv_right_iff₀ : Commute a b⁻¹ ↔ Commute a b := SemiconjBy.inv_right_iff₀
 
-theorem inv_right₀ (h : Commute a b) : Commute a b⁻¹ :=
-  inv_right_iff₀.2 h
+theorem inv_right₀ (h : Commute a b) : Commute a b⁻¹ := inv_right_iff₀.2 h
 
 variable (a) in
-theorem inv_right_self₀ : Commute a a⁻¹ :=
-  (Commute.refl a).inv_right₀
+theorem inv_right_self₀ : Commute a a⁻¹ := (Commute.refl a).inv_right₀
 
 @[simp]
 theorem div_right (hab : Commute a b) (hac : Commute a c) : Commute a (b / c) :=

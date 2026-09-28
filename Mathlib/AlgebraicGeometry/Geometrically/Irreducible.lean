@@ -36,8 +36,10 @@ namespace AlgebraicGeometry
 
 variable {X Y Z S : Scheme} (f : X ⟶ S) (g : Y ⟶ S)
 
-/-- We say that morphism `f : X ⟶ Y` is geometrically irreducible if for all `Spec K ⟶ Y` with `K`
-a field, `X ×[Y] Spec K` is irreducible. -/
+/--
+We say that morphism `f : X ⟶ Y` is geometrically irreducible if for all `Spec K ⟶ Y` with `K`
+a field, `X ×[Y] Spec K` is irreducible.
+-/
 @[mk_iff]
 class GeometricallyIrreducible (f : X ⟶ Y) : Prop where
   geometrically_irreducibleSpace : geometrically (IrreducibleSpace ·) f
@@ -61,8 +63,8 @@ instance (V : S.Opens) [GeometricallyIrreducible f] : GeometricallyIrreducible (
   MorphismProperty.of_isPullback (isPullback_morphismRestrict ..).flip ‹_›
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (s : S) [GeometricallyIrreducible f] :
-    GeometricallyIrreducible (f.fiberToSpecResidueField s) :=
+instance (s : S) [GeometricallyIrreducible f]
+    : GeometricallyIrreducible (f.fiberToSpecResidueField s) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 instance (s : S) [GeometricallyIrreducible f] : IrreducibleSpace (f.fiber s) :=
@@ -83,11 +85,13 @@ lemma Scheme.Hom.isIrreducible_preimage
   rw [← f.range_fiberι, ← Set.image_univ]
   exact (IrreducibleSpace.isIrreducible_univ _).image _ (f.fiberι _).continuous.continuousOn
 
-/-- If `f : X ⟶ S` is geometrically irreducible and open,
-then `f` induces an equivalence between the irreducible components of `X` and `S`. -/
+/--
+If `f : X ⟶ S` is geometrically irreducible and open,
+then `f` induces an equivalence between the irreducible components of `X` and `S`.
+-/
 @[simps!]
-def Scheme.Hom.irreducibleComponentsEquiv [GeometricallyIrreducible f] (hf : IsOpenMap f) :
-    irreducibleComponents X ≃ irreducibleComponents S :=
+def Scheme.Hom.irreducibleComponentsEquiv [GeometricallyIrreducible f] (hf : IsOpenMap f)
+    : irreducibleComponents X ≃ irreducibleComponents S :=
   (irreducibleComponentsEquivOfIsPreirreducibleFiber f f.continuous hf
     (fun _ ↦ (f.isIrreducible_preimage hf isIrreducible_singleton).isPreirreducible)
     f.surjective).symm.toEquiv
@@ -103,17 +107,19 @@ lemma GeometricallyIrreducible.irreducibleSpace_of_subsingleton
   have : IrreducibleSpace S := ⟨‹_›⟩
   GeometricallyIrreducible.irreducibleSpace (f := f) fun _ _ ↦ isOpen_discrete _
 
-/-- If `X` is geometrically irreducible and universally open over `S` and `Y` is irreducible,
+/--
+If `X` is geometrically irreducible and universally open over `S` and `Y` is irreducible,
 then `X ×ₛ Y` is irreducible.
 
 The universally open assumption in particular holds when it is flat and locally of finite
-presentation, or when `S` is a field. -/
-instance [GeometricallyIrreducible f] [UniversallyOpen f] [IrreducibleSpace Y] :
-    IrreducibleSpace ↥(pullback f g) :=
+presentation, or when `S` is a field.
+-/
+instance [GeometricallyIrreducible f] [UniversallyOpen f] [IrreducibleSpace Y]
+    : IrreducibleSpace ↥(pullback f g) :=
   GeometricallyIrreducible.irreducibleSpace (pullback.snd _ _) (pullback.snd f g).isOpenMap
 
-instance [GeometricallyIrreducible g] [UniversallyOpen g] [IrreducibleSpace X] :
-    IrreducibleSpace ↥(pullback f g) :=
+instance [GeometricallyIrreducible g] [UniversallyOpen g] [IrreducibleSpace X]
+    : IrreducibleSpace ↥(pullback f g) :=
   GeometricallyIrreducible.irreducibleSpace (pullback.fst _ _) (pullback.fst f g).isOpenMap
 
 lemma GeometricallyIrreducible.iff_geometricallyIrreducible_fiber :
@@ -130,16 +136,19 @@ lemma GeometricallyIrreducible.comp
   infer_instance
 
 set_option backward.isDefEq.respectTransparency false in
-/-- If an open subscheme `U` of `X` surjects onto `S` and `X` is geometrically irreducible over `S`,
-then also `U` is geometrically irreducible over `S`. -/
-instance {U : Scheme.{u}} {f : U ⟶ X} {g : X ⟶ S} [IsOpenImmersion f] [GeometricallyIrreducible g]
-    [Surjective (f ≫ g)] :
-    GeometricallyIrreducible (f ≫ g) := by
+/--
+If an open subscheme `U` of `X` surjects onto `S` and `X` is geometrically irreducible over `S`,
+then also `U` is geometrically irreducible over `S`.
+-/
+instance
+    {U : Scheme.{u}} {f : U ⟶ X} {g : X ⟶ S}
+    [IsOpenImmersion f] [GeometricallyIrreducible g] [Surjective (f ≫ g)]
+    : GeometricallyIrreducible (f ≫ g) := by
   rw [GeometricallyIrreducible.iff_geometricallyIrreducible_fiber]
   intro s
   refine ⟨geometrically_iff_of_isClosedUnderIsomorphisms.mpr fun K _ x ↦ ?_⟩
-  let i : pullback ((f ≫ g).fiberToSpecResidueField s) x ⟶
-      pullback (g.fiberToSpecResidueField s) x :=
+  let i
+      : pullback ((f ≫ g).fiberToSpecResidueField s) x ⟶ pullback (g.fiberToSpecResidueField s) x :=
     pullback.map _ _ _ _ (pullback.map _ _ _ _ f (𝟙 _) (𝟙 _) (by simp) (by simp)) (𝟙 _) (𝟙 _)
       (by simp [Scheme.Hom.fiberToSpecResidueField]) (by simp)
   have : Nonempty ((f ≫ g).fiber s) := by

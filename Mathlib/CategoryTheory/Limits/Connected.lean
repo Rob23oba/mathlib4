@@ -28,7 +28,6 @@ preserved by the functor `(X × -)`.
 
 @[expose] public section
 
-
 noncomputable section
 
 universe v₁ v₂ u₁ u₂
@@ -63,28 +62,30 @@ variable [IsConnected J]
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- When `J` is a connected category, the limit of a
-constant functor `J ⥤ C` with value `X : C` identifies to `X`. -/
+/--
+When `J` is a connected category, the limit of a
+constant functor `J ⥤ C` with value `X : C` identifies to `X`.
+-/
 def isLimitConstCone : IsLimit (constCone J X) where
   lift s := s.π.app (Classical.arbitrary _)
   fac s j := by
     dsimp
     rw [comp_id]
-    exact constant_of_preserves_morphisms _
-      (fun _ _ f ↦ by simpa using s.w f) _ _
+    exact constant_of_preserves_morphisms _ (fun _ _ f ↦ by simpa using s.w f) _ _
   uniq s m hm := by simpa using hm (Classical.arbitrary _)
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- When `J` is a connected category, the colimit of a
-constant functor `J ⥤ C` with value `X : C` identifies to `X`. -/
+/--
+When `J` is a connected category, the colimit of a
+constant functor `J ⥤ C` with value `X : C` identifies to `X`.
+-/
 def isColimitConstCocone : IsColimit (constCocone J X) where
   desc s := s.ι.app (Classical.arbitrary _)
   fac s j := by
     dsimp
     rw [id_comp]
-    exact constant_of_preserves_morphisms _
-      (fun _ _ f ↦ by simpa using (s.w f).symm) _ _
+    exact constant_of_preserves_morphisms _ (fun _ _ f ↦ by simpa using (s.w f).symm) _ _
   uniq s m hm := by simpa using hm (Classical.arbitrary _)
 
 instance hasLimit_const_of_isConnected : HasLimit ((Functor.const J).obj X) :=
@@ -100,58 +101,73 @@ section
 variable [IsConnected J]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- If `J` is connected, `F : J ⥤ C` and `c` is a cone on `F`, then to check that `c` is a
+/--
+If `J` is connected, `F : J ⥤ C` and `c` is a cone on `F`, then to check that `c` is a
 limit it is sufficient to check that `limMap c.π` is an isomorphism. The converse is also
-true, see `Cone.isLimit_iff_isIso_limMap_π`. -/
-def Cone.isLimitOfIsIsoLimMapπ {F : J ⥤ C} [HasLimit F] (c : Cone F)
-    [IsIso (limMap c.π)] : IsLimit c := by
-  refine IsLimit.ofIsoLimit (limit.isLimit _) (Cone.ext ((asIso (limMap c.π)).symm ≪≫
-    (limit.isLimit _).conePointUniqueUpToIso (isLimitConstCone J c.pt)) ?_)
+true, see `Cone.isLimit_iff_isIso_limMap_π`.
+-/
+def Cone.isLimitOfIsIsoLimMapπ {F : J ⥤ C} [HasLimit F] (c : Cone F) [IsIso (limMap c.π)]
+    : IsLimit c := by
+  refine IsLimit.ofIsoLimit (limit.isLimit _)
+    (Cone.ext
+      ((asIso (limMap c.π)).symm
+        ≪≫ (limit.isLimit _).conePointUniqueUpToIso (isLimitConstCone J c.pt))
+      ?_)
   intro j
-  simp only [limit.cone_x, limit.cone_π, Iso.trans_hom, Iso.symm_hom,
-    asIso_inv, assoc, IsIso.eq_inv_comp, limMap_π]
+  simp only [
+    limit.cone_x, limit.cone_π, Iso.trans_hom, Iso.symm_hom, asIso_inv, assoc, IsIso.eq_inv_comp,
+    limMap_π
+  ]
   congr 1
   simp [← Iso.inv_comp_eq_id]
 
 set_option backward.isDefEq.respectTransparency false in
-theorem IsLimit.isIso_limMap_π {F : J ⥤ C} [HasLimit F] {c : Cone F} (hc : IsLimit c) :
-    IsIso (limMap c.π) := by
-  suffices limMap c.π = ((limit.isLimit _).conePointUniqueUpToIso (isLimitConstCone J c.pt) ≪≫
-      hc.conePointUniqueUpToIso (limit.isLimit _)).hom by
-    rw [this]; infer_instance
+theorem IsLimit.isIso_limMap_π {F : J ⥤ C} [HasLimit F] {c : Cone F} (hc : IsLimit c)
+    : IsIso (limMap c.π) := by
+  suffices limMap c.π
+    = ((limit.isLimit _).conePointUniqueUpToIso (isLimitConstCone J c.pt)
+      ≪≫ hc.conePointUniqueUpToIso (limit.isLimit _)).hom
+  by rw [this]; infer_instance
   ext j
-  simp only [limMap_π, limit.cone_x, Iso.trans_hom, assoc,
-    limit.conePointUniqueUpToIso_hom_comp]
+  simp only [limMap_π, limit.cone_x, Iso.trans_hom, assoc, limit.conePointUniqueUpToIso_hom_comp]
   congr 1
   simp [← Iso.inv_comp_eq_id]
 
-theorem Cone.isLimit_iff_isIso_limMap_π {F : J ⥤ C} [HasLimit F] (c : Cone F) :
-    Nonempty (IsLimit c) ↔ IsIso (limMap c.π) :=
+theorem Cone.isLimit_iff_isIso_limMap_π {F : J ⥤ C} [HasLimit F] (c : Cone F)
+    : Nonempty (IsLimit c) ↔ IsIso (limMap c.π) :=
   ⟨fun ⟨h⟩ => IsLimit.isIso_limMap_π h, fun _ => ⟨c.isLimitOfIsIsoLimMapπ⟩⟩
 
 set_option backward.isDefEq.respectTransparency false in
-/-- If `J` is connected, `F : J ⥤ C` and `C` is a cocone on `F`, then to check that `c` is a
+/--
+If `J` is connected, `F : J ⥤ C` and `C` is a cocone on `F`, then to check that `c` is a
 colimit it is sufficient to check that `colimMap c.ι` is an isomorphism. The converse is also
-true, see `Cocone.isColimit_iff_isIso_colimMap_ι`. -/
-def Cocone.isColimitOfIsIsoColimMapι {F : J ⥤ C} [HasColimit F] (c : Cocone F)
-    [IsIso (colimMap c.ι)] : IsColimit c :=
-  IsColimit.ofIsoColimit (colimit.isColimit _) (Cocone.ext (asIso (colimMap c.ι) ≪≫
-    (colimit.isColimit _).coconePointUniqueUpToIso (isColimitConstCocone J c.pt)) (by simp))
+true, see `Cocone.isColimit_iff_isIso_colimMap_ι`.
+-/
+def Cocone.isColimitOfIsIsoColimMapι
+    {F : J ⥤ C} [HasColimit F] (c : Cocone F) [IsIso (colimMap c.ι)]
+    : IsColimit c :=
+  IsColimit.ofIsoColimit (colimit.isColimit _)
+    (Cocone.ext
+      (asIso (colimMap c.ι)
+        ≪≫ (colimit.isColimit _).coconePointUniqueUpToIso (isColimitConstCocone J c.pt))
+      (by simp))
 
 set_option backward.isDefEq.respectTransparency false in
-theorem IsColimit.isIso_colimMap_ι {F : J ⥤ C} [HasColimit F] {c : Cocone F} (hc : IsColimit c) :
-    IsIso (colimMap c.ι) := by
-  suffices colimMap c.ι = ((colimit.isColimit _).coconePointUniqueUpToIso hc ≪≫
-      (isColimitConstCocone J c.pt).coconePointUniqueUpToIso (colimit.isColimit _)).hom by
-    rw [this]; infer_instance
+theorem IsColimit.isIso_colimMap_ι {F : J ⥤ C} [HasColimit F] {c : Cocone F} (hc : IsColimit c)
+    : IsIso (colimMap c.ι) := by
+  suffices colimMap c.ι
+    = ((colimit.isColimit _).coconePointUniqueUpToIso hc
+      ≪≫ (isColimitConstCocone J c.pt).coconePointUniqueUpToIso (colimit.isColimit _)).hom
+  by rw [this]; infer_instance
   ext j
-  simp only [ι_colimMap, colimit.cocone_x, Iso.trans_hom,
-    colimit.comp_coconePointUniqueUpToIso_hom_assoc]
+  simp only [
+    ι_colimMap, colimit.cocone_x, Iso.trans_hom, colimit.comp_coconePointUniqueUpToIso_hom_assoc
+  ]
   congr 1
   simp [← Iso.comp_inv_eq_id]
 
-theorem Cocone.isColimit_iff_isIso_colimMap_ι {F : J ⥤ C} [HasColimit F] (c : Cocone F) :
-    Nonempty (IsColimit c) ↔ IsIso (colimMap c.ι) :=
+theorem Cocone.isColimit_iff_isIso_colimMap_ι {F : J ⥤ C} [HasColimit F] (c : Cocone F)
+    : Nonempty (IsColimit c) ↔ IsIso (colimMap c.ι) :=
   ⟨fun ⟨h⟩ => IsColimit.isIso_colimMap_ι h, fun _ => ⟨c.isColimitOfIsIsoColimMapι⟩⟩
 
 end
@@ -194,7 +210,8 @@ namespace ProdPreservesConnectedLimits
 set_option backward.defeqAttrib.useBackward true in
 /-- (Impl). The obvious natural transformation from (X × K -) to K. -/
 @[simps]
-def γ₂ {K : J ⥤ C} (X : C) : K ⋙ prod.functor.obj X ⟶ K where app _ := Limits.prod.snd
+def γ₂ {K : J ⥤ C} (X : C) : K ⋙ prod.functor.obj X ⟶ K where
+  app _ := Limits.prod.snd
 
 set_option backward.defeqAttrib.useBackward true in
 /-- (Impl). The obvious natural transformation from (X × K -) to X -/
@@ -202,8 +219,10 @@ set_option backward.defeqAttrib.useBackward true in
 def γ₁ {K : J ⥤ C} (X : C) : K ⋙ prod.functor.obj X ⟶ (Functor.const J).obj X where
   app _ := Limits.prod.fst
 
-/-- (Impl).
-Given a cone for (X × K -), produce a cone for K using the natural transformation `γ₂` -/
+/--
+(Impl).
+Given a cone for (X × K -), produce a cone for K using the natural transformation `γ₂`
+-/
 @[simps]
 def forgetCone {X : C} {K : J ⥤ C} (s : Cone (K ⋙ prod.functor.obj X)) : Cone K where
   pt := s.pt

@@ -42,8 +42,10 @@ namespace ZeroAtInftyContinuousMap
 
 variable [TopologicalSpace R]
 
-/-- Extension by zero of a continuous function vanishing at infinity, as a continuous function on
-the one-point compactification. -/
+/--
+Extension by zero of a continuous function vanishing at infinity, as a continuous function on
+the one-point compactification.
+-/
 def toOnePoint [Zero R] (f : C₀(X, R)) : C(OnePoint X, R) :=
   OnePoint.continuousMapMk f.toContinuousMap 0 <| by
     rw [coclosedCompact_eq_cocompact]
@@ -101,16 +103,16 @@ variable (X R S)
 
 /-- `ZeroAtInftyContinuousMap.toOnePoint` as an `AddMonoidHom`. -/
 @[simps]
-def toOnePointAddMonoidHom [AddMonoid R] [ContinuousAdd R] :
-    C₀(X, R) →+ C(OnePoint X, R) where
+def toOnePointAddMonoidHom [AddMonoid R] [ContinuousAdd R] : C₀(X, R) →+ C(OnePoint X, R) where
   toFun := toOnePoint
   map_zero' := toOnePoint_zero
   map_add' := toOnePoint_add
 
 /-- `ZeroAtInftyContinuousMap.toOnePoint` as a `LinearMap`. -/
 @[simps]
-def toOnePointLinearMap [Semiring S] [AddCommMonoid R] [ContinuousAdd R] [Module S R]
-    [ContinuousConstSMul S R] : C₀(X, R) →ₗ[S] C(OnePoint X, R) where
+def toOnePointLinearMap
+    [Semiring S] [AddCommMonoid R] [ContinuousAdd R] [Module S R] [ContinuousConstSMul S R]
+    : C₀(X, R) →ₗ[S] C(OnePoint X, R) where
   toFun := toOnePoint
   map_add' := toOnePoint_add
   map_smul' := toOnePoint_smul
@@ -122,8 +124,8 @@ lemma toAddMonoidHom_toOnePointLinearMap [Semiring S] [AddCommMonoid R] [Continu
 
 /-- `ZeroAtInftyContinuousMap.toOnePoint` as a `NonUnitalRingHom`. -/
 @[simps]
-def toOnePointNonUnitalRingHom [NonUnitalNonAssocSemiring R]
-    [IsTopologicalSemiring R] : C₀(X, R) →ₙ+* C(OnePoint X, R) where
+def toOnePointNonUnitalRingHom [NonUnitalNonAssocSemiring R] [IsTopologicalSemiring R]
+    : C₀(X, R) →ₙ+* C(OnePoint X, R) where
   __ := toOnePointAddMonoidHom X R
   toFun := toOnePoint
   map_mul' := toOnePoint_mul
@@ -135,17 +137,20 @@ lemma toAddMonoidHom_toOnePointNonUnitalRingHom [NonUnitalNonAssocSemiring R]
 
 /-- `ZeroAtInftyContinuousMap.toOnePoint` as a `NonUnitalAlgHom`. -/
 @[simps apply]
-def toOnePointNonUnitalAlgHom [NonUnitalNonAssocSemiring R] [IsTopologicalSemiring R]
-    [Semiring S] [Module S R] [ContinuousConstSMul S R] : C₀(X, R) →ₙₐ[S] C(OnePoint X, R) where
+def toOnePointNonUnitalAlgHom
+    [NonUnitalNonAssocSemiring R] [IsTopologicalSemiring R] [Semiring S] [Module S R]
+    [ContinuousConstSMul S R]
+    : C₀(X, R) →ₙₐ[S] C(OnePoint X, R) where
   __ := toOnePointNonUnitalRingHom X R
   toFun := toOnePoint
   map_smul' := toOnePoint_smul
 
 /-- `ZeroAtInftyContinuousMap.toOnePoint` as a `NonUnitalStarAlgHom`. -/
 @[simps apply]
-def toOnePointNonUnitalStarAlgHom [NonUnitalNonAssocSemiring R]
-    [IsTopologicalSemiring R] [Semiring S] [Module S R] [ContinuousConstSMul S R] [StarRing R]
-    [ContinuousStar R] : C₀(X, R) →⋆ₙₐ[S] C(OnePoint X, R) where
+def toOnePointNonUnitalStarAlgHom
+    [NonUnitalNonAssocSemiring R] [IsTopologicalSemiring R] [Semiring S] [Module S R]
+    [ContinuousConstSMul S R] [StarRing R] [ContinuousStar R]
+    : C₀(X, R) →⋆ₙₐ[S] C(OnePoint X, R) where
   __ := toOnePointNonUnitalAlgHom X R S
   toFun := toOnePoint
   map_star' := toOnePoint_star
@@ -163,12 +168,16 @@ namespace ContinuousMap
 
 variable [TopologicalSpace R] [AddCommGroup R] [IsTopologicalAddGroup R]
 
-/-- The continuous function vanishing at infinity obtained by taking `g : C(OnePoint X, R)` and
-restricting `g` to `X` and subtracting the constant `g ∞`. -/
+/--
+The continuous function vanishing at infinity obtained by taking `g : C(OnePoint X, R)` and
+restricting `g` to `X` and subtracting the constant `g ∞`.
+-/
 def toZeroAtInfty (g : C(OnePoint X, R)) : C₀(X, R) where
   toFun x := g x - g ∞
-  zero_at_infty' := by simpa [coclosedCompact_eq_cocompact] using
-    g.continuous.tendsto (x := ∞) |>.comp tendsto_coe_infty |>.sub <| tendsto_const_nhds (x := g ∞)
+  zero_at_infty' := by
+    simpa [coclosedCompact_eq_cocompact] using
+      g.continuous.tendsto (x := ∞) |>.comp tendsto_coe_infty |>.sub <|
+        tendsto_const_nhds (x := g ∞)
 
 @[simp]
 lemma toZeroAtInfty_apply (g : C(OnePoint X, R)) (x : X) : g.toZeroAtInfty x = g x - g ∞ := rfl
@@ -216,8 +225,8 @@ def toZeroAtInftyAddMonoidHom : C(OnePoint X, R) →+ C₀(X, R) where
 
 /-- `ContinuousMap.toZeroAtInfty` as a `LinearMap`. -/
 @[simps]
-def toZeroAtInftyLinearMap [Semiring S] [Module S R] [ContinuousConstSMul S R] :
-    C(OnePoint X, R) →ₗ[S] C₀(X, R) where
+def toZeroAtInftyLinearMap [Semiring S] [Module S R] [ContinuousConstSMul S R]
+    : C(OnePoint X, R) →ₗ[S] C₀(X, R) where
   toFun := toZeroAtInfty
   map_add' := toZeroAtInfty_add
   map_smul' := toZeroAtInfty_smul
@@ -240,12 +249,14 @@ section AddCommGroup
 variable [AddCommGroup R] [IsTopologicalAddGroup R]
 
 variable (X R) in
-/-- The canonical equivalence `Unitization R C₀(X, R) ≃ C(OnePoint X, R)` mapping `(r, f)` to the
+/--
+The canonical equivalence `Unitization R C₀(X, R) ≃ C(OnePoint X, R)` mapping `(r, f)` to the
 function taking the value `r` at `∞` and `r + f x` at `x : X`. Its inverse maps `g` to
 `(g ∞, fun x ↦ g x - g ∞)`. This is the lift of `ZeroAtInftyContinuousMap.toOnePoint`.
 
 Various bundlings are available including `unitizationAddEquiv`, `unitizationLinearEquiv`,
-`unitizationRingEquiv`, `unitizationAlgEquiv`, `unitizationStarAlgEquiv`. -/
+`unitizationRingEquiv`, `unitizationAlgEquiv`, `unitizationStarAlgEquiv`.
+-/
 def unitizationEquiv : Unitization R C₀(X, R) ≃ C(OnePoint X, R) where
   toFun f := .const _ f.fst + f.snd.toOnePoint
   invFun g := .mk (g ∞, g.toZeroAtInfty)

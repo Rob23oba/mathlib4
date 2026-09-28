@@ -23,9 +23,10 @@ open Topology
 
 namespace LinearMap
 
-variable {R S M N Nₗ M' Nₗ' : Type*} [Ring R] [Ring S] {σ : R →+* S}
-  [AddCommGroup M] [AddCommGroup N] [AddCommGroup Nₗ] [AddCommGroup M'] [AddCommGroup Nₗ']
-  [Module R M] [Module S N] [Module R Nₗ] [Module R M'] [Module R Nₗ']
+variable
+  {R S M N Nₗ M' Nₗ' : Type*} [Ring R] [Ring S]
+  {σ : R →+* S} [AddCommGroup M] [AddCommGroup N] [AddCommGroup Nₗ] [AddCommGroup M']
+  [AddCommGroup Nₗ'] [Module R M] [Module S N] [Module R Nₗ] [Module R M'] [Module R Nₗ']
   {f : M →ₛₗ[σ] N} {fₗ : M →ₗ[R] Nₗ} {gₗ : M' →ₗ[R] Nₗ'}
   [TopologicalSpace M] [TopologicalSpace N] [TopologicalSpace Nₗ]
 
@@ -47,10 +48,12 @@ protected lemma isStrictMap_iff_isHomeomorph_quotKerEquivRange :
     fₗ.ker.isQuotientMap_mkQ.isStrictMap_iff, IsEmbedding.subtypeVal.isStrictMap_iff]
   rfl
 
-/-- The isomorphism of topological modules `M ⧸ f.ker ≃ f.range` given by a strict linear
-map `f : M → N`. This is an avatar of the first isomorphism theorem. -/
-noncomputable def _root_.ContinuousLinearEquiv.quotKerEquivRange
-    (hf : IsStrictMap fₗ) : (M ⧸ fₗ.ker) ≃L[R] fₗ.range :=
+/--
+The isomorphism of topological modules `M ⧸ f.ker ≃ f.range` given by a strict linear
+map `f : M → N`. This is an avatar of the first isomorphism theorem.
+-/
+noncomputable def _root_.ContinuousLinearEquiv.quotKerEquivRange (hf : IsStrictMap fₗ)
+    : (M ⧸ fₗ.ker) ≃L[R] fₗ.range :=
   .ofIsHomeomorph fₗ.quotKerEquivRange (fₗ.isStrictMap_iff_isHomeomorph_quotKerEquivRange.mp hf)
 
 variable [IsTopologicalAddGroup M]

@@ -45,12 +45,16 @@ namespace OnePoint
 
 variable (c : OnePoint ℝ) (f : ℍ → ℂ) (k : ℤ)
 
-/-- We say `f` is bounded at `c` if, for all `g` with `g • ∞ = c`, the function `f ∣[k] g` is
-bounded at `∞`. -/
+/--
+We say `f` is bounded at `c` if, for all `g` with `g • ∞ = c`, the function `f ∣[k] g` is
+bounded at `∞`.
+-/
 def IsBoundedAt : Prop := ∀ g : GL (Fin 2) ℝ, g • ∞ = c → IsBoundedAtImInfty (f ∣[k] g)
 
-/-- We say `f` is zero at `c` if, for all `g` with `g • ∞ = c`, the function `f ∣[k] g` is
-zero at `∞`. -/
+/--
+We say `f` is zero at `c` if, for all `g` with `g • ∞ = c`, the function `f ∣[k] g` is
+zero at `∞`.
+-/
 def IsZeroAt : Prop := ∀ g : GL (Fin 2) ℝ, g • ∞ = c → IsZeroAtImInfty (f ∣[k] g)
 
 variable {c f k} {g : GL (Fin 2) ℝ}

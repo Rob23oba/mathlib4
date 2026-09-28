@@ -36,20 +36,25 @@ public section
 
 open Module Set Function
 
-variable {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
-  (P : RootPairing ι R M N) (S : Type*) {i j : ι}
+variable
+  {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+  (P : RootPairing ι R M N) (S : Type*)
+  {i j : ι}
 
 namespace RootPairing
 
-/-- A root pairing is said to be reduced if any linearly dependent pair of roots is related by a
+/--
+A root pairing is said to be reduced if any linearly dependent pair of roots is related by a
 sign.
 
 TODO Consider redefining this to make it perfectly symmetric between roots and coroots (i.e., so
 that the same demand is made of coroots) and turning `RootPairing.instFlipIsReduced` into a
-convenience constructor. -/
-@[mk_iff] class IsReduced : Prop where
-  eq_or_eq_neg (i j : ι) (h : ¬ LinearIndependent R ![P.root i, P.root j]) :
-    P.root i = P.root j ∨ P.root i = - P.root j
+convenience constructor.
+-/
+@[mk_iff]
+class IsReduced : Prop where
+  eq_or_eq_neg (i j : ι) (h : ¬ LinearIndependent R ![P.root i, P.root j])
+    : P.root i = P.root j ∨ P.root i = - P.root j
 
 lemma isReduced_iff' : P.IsReduced ↔ ∀ i j : ι, i ≠ j →
     ¬ LinearIndependent R ![P.root i, P.root j] → P.root i = - P.root j := by
@@ -201,10 +206,14 @@ lemma coxeterWeight_eq_four_iff_not_linearIndependent :
 
 instance instFlipIsReduced [P.IsReduced] [IsTorsionFree R N] : P.flip.IsReduced := by
   refine ⟨fun i j h ↦ ?_⟩
-  rcases eq_or_ne i j with rfl | hij; · tauto
+  rcases eq_or_ne i j with rfl | hij
+  · tauto
   right
-  rw [← coxeterWeight_eq_four_iff_not_linearIndependent, coxeterWeight_flip,
-    coxeterWeight_eq_four_iff_not_linearIndependent, IsReduced.linearIndependent_iff] at h
+  rw [
+      ← coxeterWeight_eq_four_iff_not_linearIndependent, coxeterWeight_flip,
+      coxeterWeight_eq_four_iff_not_linearIndependent, IsReduced.linearIndependent_iff
+    ]
+    at h
   push Not at h
   simp [P.root_eq_neg_iff.mp (h hij)]
 

@@ -31,17 +31,19 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The equivalence of categories `Subfunctor F ≌ MonoOver F`. -/
 @[simps]
 noncomputable def equivalenceMonoOver : Subfunctor F ≌ MonoOver F where
-  functor :=
-    { obj A := MonoOver.mk A.ι
-      map {A B} f := MonoOver.homMk (Subfunctor.homOfLe (leOfHom f)) }
-  inverse :=
-    { obj X := Subfunctor.range X.arrow
-      map {X Y} f := homOfLE (by
+  functor := {
+    obj A := MonoOver.mk A.ι
+    map {A B} f := MonoOver.homMk (Subfunctor.homOfLe (leOfHom f))
+  }
+  inverse := {
+    obj X := Subfunctor.range X.arrow
+    map {X Y} f :=
+      homOfLE (by
         rw [← MonoOver.w f]
-        apply range_comp_le) }
+        apply range_comp_le)
+  }
   unitIso := NatIso.ofComponents (fun A ↦ eqToIso (by simp))
-  counitIso := NatIso.ofComponents
-    (fun X ↦ MonoOver.isoMk ((asIso (toRange X.arrow)).symm))
+  counitIso := NatIso.ofComponents (fun X ↦ MonoOver.isoMk ((asIso (toRange X.arrow)).symm))
 
 variable {F} in
 @[simp]
@@ -68,12 +70,12 @@ noncomputable def orderIsoSubobject : Subfunctor F ≃o Subobject F where
     constructor
     · intro h
       have : range (Subobject.mk A.ι).arrow ≤ range (Subobject.mk B.ι).arrow :=
-        leOfHom (((equivalenceMonoOver F).trans
-          (ThinSkeleton.equivalence _).symm).inverse.map (homOfLE h))
+        leOfHom (((equivalenceMonoOver F).trans (ThinSkeleton.equivalence _).symm).inverse.map
+          (homOfLE h))
       simpa using this
     · intro h
-      exact leOfHom (((equivalenceMonoOver F).trans
-        (ThinSkeleton.equivalence _).symm).functor.map (homOfLE h))
+      exact leOfHom (((equivalenceMonoOver F).trans (ThinSkeleton.equivalence _).symm).functor.map
+        (homOfLE h))
 
 end Subfunctor
 

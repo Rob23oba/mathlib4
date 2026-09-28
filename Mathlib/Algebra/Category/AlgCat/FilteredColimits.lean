@@ -25,8 +25,10 @@ universe w v u
 
 open CategoryTheory Limits
 
-variable {R : Type u} [CommRing R] {J : Type*} [Category* J] {F : J ⥤ AlgCat.{v} R}
-  [PreservesColimitsOfShape J (forget RingCat.{v})]
+variable
+  {R : Type u} [CommRing R]
+  {J : Type*} [Category* J]
+  {F : J ⥤ AlgCat.{v} R} [PreservesColimitsOfShape J (forget RingCat.{v})]
 
 section
 
@@ -34,9 +36,11 @@ variable {c : Cocone (F ⋙ forget₂ _ RingCat)} [IsFilteredOrEmpty J]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- (Implementation): The algebra instance on the cocone point of the underlying diagram of rings
+/--
+(Implementation): The algebra instance on the cocone point of the underlying diagram of rings
 is induced from the `j`-th inclusion map. Any choice of `j` gives a propositionally equal algebra
-instance. -/
+instance.
+-/
 private abbrev AlgCat.algebraOfIsFiltered (hc : IsColimit c) (j : J) : Algebra R c.pt :=
   (c.ι.app j).hom.comp (algebraMap R (F.obj j)) |>.toAlgebra' <| by
     intro r x
@@ -44,8 +48,10 @@ private abbrev AlgCat.algebraOfIsFiltered (hc : IsColimit c) (j : J) : Algebra R
     simp [← dsimp% c.w hjk, ← dsimp% (c.ι.app k).hom.map_mul, Algebra.commutes']
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The cocone of the underlying diagram of rings lifted to `AlgCat R`. The algebra instance
-on the cocone point is induced from the `j`-th inclusion map. -/
+/--
+The cocone of the underlying diagram of rings lifted to `AlgCat R`. The algebra instance
+on the cocone point is induced from the `j`-th inclusion map.
+-/
 private def AlgCat.coconeOfIsFiltered (hc : IsColimit c) (j : J) : Cocone F where
   pt :=
     letI : Algebra R c.pt := algebraOfIsFiltered hc j
@@ -53,16 +59,18 @@ private def AlgCat.coconeOfIsFiltered (hc : IsColimit c) (j : J) : Cocone F wher
   ι.app k := by
     letI : Algebra R c.pt := algebraOfIsFiltered hc j
     refine AlgCat.ofHom { __ := (c.ι.app k).hom, commutes' r := ?_ }
-    simp [RingHom.algebraMap_toAlgebra', ← c.w (IsFiltered.leftToMax j k),
-      ← c.w (IsFiltered.rightToMax j k)]
+    simp [
+      RingHom.algebraMap_toAlgebra', ← c.w (IsFiltered.leftToMax j k),
+      ← c.w (IsFiltered.rightToMax j k)
+    ]
   ι.naturality k k' f := by
     ext
     exact c.ι.naturality_apply _ _
 
 set_option backward.defeqAttrib.useBackward true in
 /-- The lifted cocone is colimiting. -/
-private def AlgCat.isColimitCoconeOfIsFiltered (hc : IsColimit c) (j : J) :
-    IsColimit (AlgCat.coconeOfIsFiltered hc j) where
+private def AlgCat.isColimitCoconeOfIsFiltered (hc : IsColimit c) (j : J)
+    : IsColimit (AlgCat.coconeOfIsFiltered hc j) where
   desc s := by
     letI : Algebra R c.pt := algebraOfIsFiltered hc j
     refine AlgCat.ofHom { __ := (hc.desc <| Functor.mapCocone _ s).hom, commutes' r := ?_ }
@@ -78,14 +86,17 @@ private def AlgCat.isColimitCoconeOfIsFiltered (hc : IsColimit c) (j : J) :
 
 end
 
-@[no_expose] noncomputable instance [IsFiltered J] :
-    CreatesColimitsOfShape J (forget₂ (AlgCat.{v} R) RingCat.{v}) where
-  CreatesColimit := createsColimitOfReflectsIso fun _ hc ↦
-    ⟨⟨AlgCat.coconeOfIsFiltered hc IsFiltered.nonempty.some, Iso.refl _⟩,
-      AlgCat.isColimitCoconeOfIsFiltered _ _⟩
+@[no_expose]
+noncomputable instance [IsFiltered J]
+    : CreatesColimitsOfShape J (forget₂ (AlgCat.{v} R) RingCat.{v}) where
+  CreatesColimit :=
+    createsColimitOfReflectsIso fun _ hc ↦ ⟨
+      ⟨AlgCat.coconeOfIsFiltered hc IsFiltered.nonempty.some, Iso.refl _⟩,
+      AlgCat.isColimitCoconeOfIsFiltered _ _
+    ⟩
 
-noncomputable instance [IsFiltered J] [HasColimitsOfShape J RingCat.{v}] :
-    HasColimitsOfShape J (AlgCat.{v} R) :=
+noncomputable instance [IsFiltered J] [HasColimitsOfShape J RingCat.{v}]
+    : HasColimitsOfShape J (AlgCat.{v} R) :=
   hasColimitsOfShape_of_hasColimitsOfShape_createsColimitsOfShape (forget₂ _ RingCat.{v})
 
 instance : PreservesFilteredColimits (forget₂ (AlgCat.{v} R) RingCat.{v}) where

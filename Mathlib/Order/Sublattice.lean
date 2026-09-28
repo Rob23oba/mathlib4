@@ -29,8 +29,10 @@ variable {ι : Sort*} (α β γ : Type*) [Lattice α] [Lattice β] [Lattice γ]
 
 /-- A sublattice of a lattice is a set containing the suprema and infima of any of its elements. -/
 structure Sublattice where
-  /-- The underlying set of a sublattice. **Do not use directly**. Instead, use the coercion
-  `Sublattice α → Set α`, which Lean should automatically insert for you in most cases. -/
+  /--
+  The underlying set of a sublattice. **Do not use directly**. Instead, use the coercion
+  `Sublattice α → Set α`, which Lean should automatically insert for you in most cases.
+  -/
   carrier : Set α
   supClosed' : SupClosed carrier
   infClosed' : InfClosed carrier
@@ -71,8 +73,10 @@ lemma inf_mem (ha : a ∈ L) (hb : b ∈ L) : a ⊓ b ∈ L := L.infClosed ha hb
 @[simp] lemma mk_lt_mk (hs_sup hs_inf ht_sup ht_inf) :
     mk s hs_sup hs_inf < mk t ht_sup ht_inf ↔ s ⊂ t := Iff.rfl
 
-/-- Copy of a sublattice with a new `carrier` equal to the old one. Useful to fix definitional
-equalities. -/
+/--
+Copy of a sublattice with a new `carrier` equal to the old one. Useful to fix definitional
+equalities.
+-/
 protected def copy (L : Sublattice α) (s : Set α) (hs : s = L) : Sublattice α where
   carrier := s
   supClosed' := hs.symm ▸ L.supClosed'
@@ -105,8 +109,8 @@ instance instLatticeCoe (L : Sublattice α) : Lattice L :=
   Subtype.coe_injective.lattice _ .rfl .rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
 
 /-- A sublattice of a distributive lattice inherits a distributive lattice structure. -/
-instance instDistribLatticeCoe {α : Type*} [DistribLattice α] (L : Sublattice α) :
-    DistribLattice L :=
+instance instDistribLatticeCoe {α : Type*} [DistribLattice α] (L : Sublattice α)
+    : DistribLattice L :=
   Subtype.coe_injective.distribLattice _ .rfl .rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
 
 /-- The natural lattice hom from a sublattice to the original lattice. -/
@@ -148,23 +152,31 @@ instance instBot : Bot (Sublattice α) where
 
 /-- The inf of two sublattices is their intersection. -/
 instance instInf : Min (Sublattice α) where
-  min L M := { carrier := L ∩ M
-               supClosed' := L.supClosed.inter M.supClosed
-               infClosed' := L.infClosed.inter M.infClosed }
+  min L M := {
+    carrier := L ∩ M
+    supClosed' := L.supClosed.inter M.supClosed
+    infClosed' := L.infClosed.inter M.infClosed
+  }
 
 /-- The inf of sublattices is their intersection. -/
 instance instInfSet : InfSet (Sublattice α) where
-  sInf S := { carrier := ⨅ L ∈ S, L
-              supClosed' := supClosed_sInter <| forall_mem_range.2 fun L ↦ supClosed_sInter <|
-                forall_mem_range.2 fun _ ↦ L.supClosed
-              infClosed' := infClosed_sInter <| forall_mem_range.2 fun L ↦ infClosed_sInter <|
-                forall_mem_range.2 fun _ ↦ L.infClosed }
+  sInf S := {
+    carrier := ⨅ L ∈ S, L
+    supClosed' :=
+      supClosed_sInter <|
+        forall_mem_range.2 fun L ↦ supClosed_sInter <| forall_mem_range.2 fun _ ↦ L.supClosed
+    infClosed' :=
+      infClosed_sInter <|
+        forall_mem_range.2 fun L ↦ infClosed_sInter <| forall_mem_range.2 fun _ ↦ L.infClosed
+  }
 
 instance instInhabited : Inhabited (Sublattice α) := ⟨⊥⟩
 
-/-- The top sublattice is isomorphic to the original lattice.
+/--
+The top sublattice is isomorphic to the original lattice.
 
-This is the sublattice version of `Equiv.Set.univ α`. -/
+This is the sublattice version of `Equiv.Set.univ α`.
+-/
 def topEquiv : (⊤ : Sublattice α) ≃o α where
   toEquiv := Equiv.Set.univ _
   map_rel_iff' := Iff.rfl
@@ -197,8 +209,8 @@ instance instCompleteLattice : CompleteLattice (Sublattice α) where
   le_inf := fun _L _M _N hM hN _a ha ↦ ⟨hM ha, hN ha⟩
   inf_le_left := fun _L _M _a ↦ And.left
   inf_le_right := fun _L _M _a ↦ And.right
-  __ := completeLatticeOfInf (Sublattice α)
-      fun _s ↦ IsGLB.of_image SetLike.coe_subset_coe isGLB_biInf
+  __ :=
+    completeLatticeOfInf (Sublattice α) fun _s ↦ IsGLB.of_image SetLike.coe_subset_coe isGLB_biInf
 
 lemma subsingleton_iff : Subsingleton (Sublattice α) ↔ IsEmpty α :=
   ⟨fun _ ↦ univ_eq_empty_iff.1 <| coe_inj.2 <| Subsingleton.elim ⊤ ⊥,
@@ -362,9 +374,11 @@ def prodEquiv (L : Sublattice α) (M : Sublattice β) : L.prod M ≃o L × M whe
 section Pi
 variable {κ : Type*} {π : κ → Type*} [∀ i, Lattice (π i)]
 
-/-- Arbitrary product of sublattices. Given an index set `s` and a family of sublattices
+/--
+Arbitrary product of sublattices. Given an index set `s` and a family of sublattices
 `L : Π i, Sublattice (α i)`, `pi s L` is the sublattice of dependent functions `f : Π i, α i` such
-that `f i` belongs to `L i` whenever `i ∈ s`. -/
+that `f i` belongs to `L i` whenever `i ∈ s`.
+-/
 @[simps]
 def pi (s : Set κ) (L : ∀ i, Sublattice (π i)) : Sublattice (∀ i, π i) where
   carrier := s.pi fun i ↦ L i
@@ -401,9 +415,7 @@ end Pi
 
 namespace LatticeHom
 
-/--
-The range of `LatticeHom` is a sublattice.
--/
+/-- The range of `LatticeHom` is a sublattice. -/
 def range (f : LatticeHom α β) := (Sublattice.map f ⊤).copy (Set.range f) image_univ.symm
 
 lemma range_coe : (LatticeHom.range f : Set β) = Set.range f := rfl

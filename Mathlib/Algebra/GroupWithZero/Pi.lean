@@ -30,10 +30,12 @@ instance mulZeroClass : MulZeroClass (∀ i, α i) where
   zero_mul := by intros; ext; exact zero_mul _
   mul_zero := by intros; ext; exact mul_zero _
 
-/-- The multiplicative homomorphism including a single `MulZeroClass`
+/--
+The multiplicative homomorphism including a single `MulZeroClass`
 into a dependent family of `MulZeroClass`es, as functions supported at a point.
 
-This is the `MulHom` version of `Pi.single`. -/
+This is the `MulHom` version of `Pi.single`.
+-/
 @[simps]
 def _root_.MulHom.single (i : ι) : α i →ₙ* ∀ i, α i where
   toFun := Pi.single i

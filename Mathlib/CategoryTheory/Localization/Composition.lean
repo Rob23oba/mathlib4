@@ -28,24 +28,28 @@ universe v₁ v₂ v₃ v₄ u₁ u₂ u₃ u₄
 
 namespace CategoryTheory
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃} {E : Type u₄}
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} {C₃ : Type u₃} {E : Type u₄}
   [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} C₃] [Category.{v₄} E]
   {L₁ : C₁ ⥤ C₂} {L₂ : C₂ ⥤ C₃} {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
 
 namespace Localization
 
-/-- Under some conditions on the `MorphismProperty`, functors satisfying the strict
-universal property of the localization are stable under composition -/
+/--
+Under some conditions on the `MorphismProperty`, functors satisfying the strict
+universal property of the localization are stable under composition
+-/
 def StrictUniversalPropertyFixedTarget.comp
     (h₁ : StrictUniversalPropertyFixedTarget L₁ W₁ E)
     (h₂ : StrictUniversalPropertyFixedTarget L₂ W₂ E)
-    (W₃ : MorphismProperty C₁) (hW₃ : W₃.IsInvertedBy (L₁ ⋙ L₂))
-    (hW₁₃ : W₁ ≤ W₃) (hW₂₃ : W₂ ≤ W₃.map L₁) :
-    StrictUniversalPropertyFixedTarget (L₁ ⋙ L₂) W₃ E where
+    (W₃ : MorphismProperty C₁)
+    (hW₃ : W₃.IsInvertedBy (L₁ ⋙ L₂)) (hW₁₃ : W₁ ≤ W₃) (hW₂₃ : W₂ ≤ W₃.map L₁)
+    : StrictUniversalPropertyFixedTarget (L₁ ⋙ L₂) W₃ E where
   inverts := hW₃
-  lift F hF := h₂.lift (h₁.lift F (MorphismProperty.IsInvertedBy.of_le _ _ F hF hW₁₃)) (by
-    refine MorphismProperty.IsInvertedBy.of_le _ _ _ ?_ hW₂₃
-    simpa only [MorphismProperty.IsInvertedBy.map_iff, h₁.fac F] using hF)
+  lift F hF :=
+    h₂.lift (h₁.lift F (MorphismProperty.IsInvertedBy.of_le _ _ F hF hW₁₃)) (by
+      refine MorphismProperty.IsInvertedBy.of_le _ _ _ ?_ hW₂₃
+      simpa only [MorphismProperty.IsInvertedBy.map_iff, h₁.fac F] using hF)
   fac F hF := by rw [Functor.assoc, h₂.fac, h₁.fac]
   uniq _ _ h := h₂.uniq _ _ (h₁.uniq _ _ (by simpa only [Functor.assoc] using h))
 

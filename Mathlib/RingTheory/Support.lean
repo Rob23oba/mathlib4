@@ -248,8 +248,8 @@ lemma Module.exists_localizedMap_away_surjective_of_localizedMap_atPrime_surject
 
 /-- `Supp(M/IM) = Supp(M) ∩ Z(I)`. -/
 @[stacks 00L3 "(1)"]
-theorem Module.support_quotient (I : Ideal R) :
-    support R (M ⧸ (I • ⊤ : Submodule R M)) = support R M ∩ zeroLocus I := by
+theorem Module.support_quotient (I : Ideal R)
+    : support R (M ⧸ (I • ⊤ : Submodule R M)) = support R M ∩ zeroLocus I := by
   apply subset_antisymm
   · refine Set.subset_inter ?_ ?_
     · exact Module.support_subset_of_surjective _ (Submodule.mkQ_surjective _)
@@ -263,9 +263,12 @@ theorem Module.support_quotient (I : Ideal R) :
     let Mₚ := LocalizedModule p.asIdeal.primeCompl M
     set Mₚ' := LocalizedModule p.asIdeal.primeCompl (M ⧸ (I • ⊤ : Submodule R M))
     let Mₚ'' := Mₚ ⧸ I.map (algebraMap R Rₚ) • (⊤ : Submodule Rₚ Mₚ)
-    let e : Mₚ' ≃ₗ[Rₚ] Mₚ'' := (localizedQuotientEquiv _ _).symm ≪≫ₗ
-      Submodule.quotEquivOfEq _ _ (by rw [Submodule.localized,
-        Submodule.localized'_smul, Ideal.localized'_eq_map, Submodule.localized'_top])
+    let e : Mₚ' ≃ₗ[Rₚ] Mₚ'' :=
+      (localizedQuotientEquiv _ _).symm ≪≫ₗ Submodule.quotEquivOfEq _ _ (by
+        rw [
+          Submodule.localized, Submodule.localized'_smul, Ideal.localized'_eq_map,
+          Submodule.localized'_top
+        ])
     have : Nontrivial Mₚ'' := by
       rw [Submodule.Quotient.nontrivial_iff, ne_comm]
       apply Submodule.top_ne_ideal_smul_of_le_jacobson_annihilator
@@ -276,10 +279,11 @@ theorem Module.support_quotient (I : Ideal R) :
 
 open scoped Pointwise in
 @[simp]
-theorem Module.support_quotSMulTop (x : R) :
-    support R (QuotSMulTop x M) = support R M ∩ zeroLocus {x} :=
+theorem Module.support_quotSMulTop (x : R)
+    : support R (QuotSMulTop x M) = support R M ∩ zeroLocus {x} :=
   (x • (⊤ : Submodule R M)).quotEquivOfEq (Ideal.span {x} • ⊤)
-    ((⊤ : Submodule R M).ideal_span_singleton_smul x).symm |>.support_eq.trans <|
-      (support_quotient _).trans <| by rw [zeroLocus_span]
+        ((⊤ : Submodule R M).ideal_span_singleton_smul x).symm
+      |>.support_eq.trans <|
+    (support_quotient _).trans <| by rw [zeroLocus_span]
 
 end Finite

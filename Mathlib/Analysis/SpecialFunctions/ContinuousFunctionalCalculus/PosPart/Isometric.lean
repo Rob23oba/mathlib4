@@ -22,9 +22,9 @@ C⋆-algebra that involve the norm.
 
 public section
 
-variable {A : Type*} [NonUnitalNormedRing A] [NormedSpace ℝ A] [SMulCommClass ℝ A A]
-  [IsScalarTower ℝ A A] [StarRing A]
-  [NonUnitalIsometricContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
+variable
+  {A : Type*} [NonUnitalNormedRing A] [NormedSpace ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A]
+  [StarRing A] [NonUnitalIsometricContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
 
 @[simp]
 lemma CStarAlgebra.norm_posPart_le (a : A) : ‖a⁺‖ ≤ ‖a‖ := by

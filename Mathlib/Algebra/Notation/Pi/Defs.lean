@@ -43,7 +43,8 @@ section One
 variable [∀ i, One (M i)]
 
 @[to_additive]
-instance instOne : One (∀ i, M i) where one _ := 1
+instance instOne : One (∀ i, M i) where
+  one _ := 1
 
 @[to_additive (attr := simp high)]
 lemma one_apply (i : ι) : (1 : ∀ i, M i) i = 1 := rfl
@@ -64,7 +65,8 @@ section Mul
 variable [∀ i, Mul (M i)]
 
 @[to_additive]
-instance instMul : Mul (∀ i, M i) where mul f g i := f i * g i
+instance instMul : Mul (∀ i, M i) where
+  mul f g i := f i * g i
 
 @[to_additive (attr := simp)]
 lemma mul_apply (f g : ∀ i, M i) (i : ι) : (f * g) i = f i * g i := rfl
@@ -86,7 +88,8 @@ section Inv
 variable [∀ i, Inv (G i)]
 
 @[to_additive]
-instance instInv : Inv (∀ i, G i) where inv f i := (f i)⁻¹
+instance instInv : Inv (∀ i, G i) where
+  inv f i := (f i)⁻¹
 
 @[to_additive (attr := simp)]
 lemma inv_apply (f : ∀ i, G i) (i : ι) : f⁻¹ i = (f i)⁻¹ := rfl
@@ -107,7 +110,8 @@ section Div
 variable [∀ i, Div (G i)]
 
 @[to_additive]
-instance instDiv : Div (∀ i, G i) where div f g i := f i / g i
+instance instDiv : Div (∀ i, G i) where
+  div f g i := f i / g i
 
 @[to_additive (attr := simp)]
 lemma div_apply (f g : ∀ i, G i) (i : ι) : (f / g) i = f i / g i := rfl
@@ -130,7 +134,8 @@ section Pow
 variable [∀ i, Pow (M i) α]
 
 @[to_additive (attr := to_additive) instSMul]
-instance instPow : Pow (∀ i, M i) α where pow f a i := f i ^ a
+instance instPow : Pow (∀ i, M i) α where
+  pow f a i := f i ^ a
 
 @[to_additive (attr := simp, to_additive) (reorder := 5 6) smul_apply]
 lemma pow_apply (f : ∀ i, M i) (a : α) (i : ι) : (f ^ a) i = f i ^ a := rfl
@@ -152,10 +157,10 @@ section Star
 
 variable [∀ i, Star (R i)]
 
-instance : Star (∀ i, R i) where star x i := star (x i)
+instance : Star (∀ i, R i) where
+  star x i := star (x i)
 
-@[simp]
-theorem star_apply (x : ∀ i, R i) (i : ι) : star x i = star (x i) := rfl
+@[simp] theorem star_apply (x : ∀ i, R i) (i : ι) : star x i = star (x i) := rfl
 
 @[push ←]
 theorem star_def (x : ∀ i, R i) : star x = fun i => star (x i) := rfl

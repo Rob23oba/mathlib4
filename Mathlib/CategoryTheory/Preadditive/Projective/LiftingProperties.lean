@@ -36,8 +36,8 @@ lemma hasLiftingProperty_of_isZero
     l := Projective.factorThru g p
     fac_left := hZ.eq_of_src _ _ }⟩⟩
 
-instance {X Y P : C} (p : X ⟶ Y) [Epi p] [Projective P] [HasZeroObject C] (i : 0 ⟶ P) :
-    HasLiftingProperty (i : 0 ⟶ P) p :=
+instance {X Y P : C} (p : X ⟶ Y) [Epi p] [Projective P] [HasZeroObject C] (i : 0 ⟶ P)
+    : HasLiftingProperty (i : 0 ⟶ P) p :=
   Projective.hasLiftingProperty_of_isZero i p (isZero_zero C)
 
 end Projective

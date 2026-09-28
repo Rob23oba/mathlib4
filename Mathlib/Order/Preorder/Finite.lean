@@ -127,8 +127,8 @@ lemma Finite.exists_lt_map_eq_of_forall_mem [Infinite α] (hf : ∀ a, f a ∈ t
   exact ⟨a, b, h⟩
 
 /-- If the cofinality of a linear order is finite, it's at most one. -/
-theorem Finite.exists_subsingleton_isCofinal {s : Set α} (hs : s.Finite) (hs' : IsCofinal s) :
-    ∃ t : Set α, t.Subsingleton ∧ IsCofinal t := by
+theorem Finite.exists_subsingleton_isCofinal {s : Set α} (hs : s.Finite) (hs' : IsCofinal s)
+    : ∃ t : Set α, t.Subsingleton ∧ IsCofinal t := by
   obtain rfl | hn := s.eq_empty_or_nonempty
   · use ∅; simpa
   · obtain ⟨a, ha⟩ := hs.exists_maximal hn
@@ -189,11 +189,12 @@ lemma OrderHom.eq_id_of_injective {α : Type*} [LinearOrder α] [Finite α] (f :
     simpa [Set.range_eq_univ] using Finite.surjective_of_injective hf)
 
 /-- A strictly monotone self-map of a finite linear order is the identity. -/
-theorem StrictMono.eq_id {α : Type*} [LinearOrder α] [Finite α] {f : α → α}
-    (hf : StrictMono f) : f = id :=
+theorem StrictMono.eq_id {α : Type*} [LinearOrder α] [Finite α] {f : α → α} (hf : StrictMono f)
+    : f = id :=
   le_antisymm hf.le_id hf.id_le
 
 /-- A strictly monotone self-map of a finite linear order fixes every point. -/
-theorem StrictMono.apply_eq {α : Type*} [LinearOrder α] [Finite α] {f : α → α}
-    {x : α} (hf : StrictMono f) : f x = x :=
+theorem StrictMono.apply_eq
+    {α : Type*} [LinearOrder α] [Finite α] {f : α → α} {x : α} (hf : StrictMono f)
+    : f x = x :=
   congr($hf.eq_id x)

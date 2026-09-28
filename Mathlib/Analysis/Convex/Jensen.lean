@@ -34,45 +34,46 @@ As corollaries, we get:
 
 public section
 
-
 open Finset Set Convex
 
 variable {𝕜 E β ι : Type*}
 
 /-! ### Jensen's inequality -/
 
-
 section Jensen
 
-variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [AddCommGroup E] [AddCommGroup β]
+variable
+  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [AddCommGroup E] [AddCommGroup β]
   [PartialOrder β] [IsOrderedAddMonoid β] [Module 𝕜 E] [Module 𝕜 β] [IsStrictOrderedModule 𝕜 β]
   {s : Set E} {f : E → β} {t : Finset ι} {w : ι → 𝕜} {p : ι → E} {v : 𝕜} {q : E}
 
 /-- Convex **Jensen's inequality**, `Finset.centerMass` version. -/
-theorem ConvexOn.map_centerMass_le (hf : ConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i)
-    (h₁ : 0 < ∑ i ∈ t, w i) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (t.centerMass w p) ≤ t.centerMass w (f ∘ p) := by
+theorem ConvexOn.map_centerMass_le
+    (hf : ConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : 0 < ∑ i ∈ t, w i) (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (t.centerMass w p) ≤ t.centerMass w (f ∘ p) := by
   have hmem' : ∀ i ∈ t, (p i, (f ∘ p) i) ∈ { p : E × β | p.1 ∈ s ∧ f p.1 ≤ p.2 } := fun i hi =>
     ⟨hmem i hi, le_rfl⟩
-  convert! (hf.convex_epigraph.centerMass_mem h₀ h₁ hmem').2 <;>
-    simp only [centerMass, Function.comp, Prod.smul_fst, Prod.fst_sum, Prod.smul_snd, Prod.snd_sum]
+  convert! (hf.convex_epigraph.centerMass_mem h₀ h₁ hmem').2 <;> simp only [
+    centerMass, Function.comp, Prod.smul_fst, Prod.fst_sum, Prod.smul_snd, Prod.snd_sum
+  ]
 
 /-- Concave **Jensen's inequality**, `Finset.centerMass` version. -/
-theorem ConcaveOn.le_map_centerMass (hf : ConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i)
-    (h₁ : 0 < ∑ i ∈ t, w i) (hmem : ∀ i ∈ t, p i ∈ s) :
-    t.centerMass w (f ∘ p) ≤ f (t.centerMass w p) :=
+theorem ConcaveOn.le_map_centerMass
+    (hf : ConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : 0 < ∑ i ∈ t, w i) (hmem : ∀ i ∈ t, p i ∈ s)
+    : t.centerMass w (f ∘ p) ≤ f (t.centerMass w p) :=
   ConvexOn.map_centerMass_le (β := βᵒᵈ) hf h₀ h₁ hmem
 
 /-- Convex **Jensen's inequality**, `Finset.sum` version. -/
-theorem ConvexOn.map_sum_le (hf : ConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
-    (hmem : ∀ i ∈ t, p i ∈ s) : f (∑ i ∈ t, w i • p i) ≤ ∑ i ∈ t, w i • f (p i) := by
+theorem ConvexOn.map_sum_le
+    (hf : ConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) ≤ ∑ i ∈ t, w i • f (p i) := by
   simpa only [centerMass, h₁, inv_one, one_smul] using!
     hf.map_centerMass_le h₀ (h₁.symm ▸ zero_lt_one) hmem
 
 /-- Concave **Jensen's inequality**, `Finset.sum` version. -/
-theorem ConcaveOn.le_map_sum (hf : ConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    (∑ i ∈ t, w i • f (p i)) ≤ f (∑ i ∈ t, w i • p i) :=
+theorem ConcaveOn.le_map_sum
+    (hf : ConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s)
+    : (∑ i ∈ t, w i • f (p i)) ≤ f (∑ i ∈ t, w i • p i) :=
   ConvexOn.map_sum_le (β := βᵒᵈ) hf h₀ h₁ hmem
 
 /-- Convex **Jensen's inequality** where an element plays a distinguished role. -/
@@ -174,67 +175,83 @@ lemma StrictConcaveOn.eq_of_map_sum_eq (hf : StrictConcaveOn 𝕜 s f) (h₀ : �
     ∀ ⦃j⦄, j ∈ t → ∀ ⦃k⦄, k ∈ t → p j = p k :=
   hf.dual.eq_of_le_map_sum h₀ h₁ hmem h_eq
 
-/-- A form of the **equality case of Jensen's equality** for the case of strict convex and positive
-weights. -/
-theorem StrictConvexOn.map_sum_eq_iff_of_pos (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i) ↔ ∀ ⦃j⦄, j ∈ t → ∀ ⦃k⦄, k ∈ t → p j = p k := by
+/--
+A form of the **equality case of Jensen's equality** for the case of strict convex and positive
+weights.
+-/
+theorem StrictConvexOn.map_sum_eq_iff_of_pos
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i)
+      ↔ ∀ ⦃j⦄, j ∈ t → ∀ ⦃k⦄, k ∈ t → p j = p k := by
   refine ⟨fun h j hj k hk ↦ hf.eq_of_le_map_sum h₀ h₁ hmem h.ge hj hk, fun h ↦ ?_⟩
   rcases t.eq_empty_or_nonempty with (rfl | ⟨i, hi⟩)
   · simp at h₁
   · suffices f (∑ k ∈ t, w k • p i) = ∑ k ∈ t, w k • f (p i) by convert this using 3 <;> grind
     simp [← sum_smul, h₁]
 
-/-- A form of the **equality case of Jensen's equality** for the case of strict concave and positive
-weights. -/
-theorem StrictConcaveOn.map_sum_eq_iff_of_pos (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i) ↔ ∀ ⦃j⦄, j ∈ t → ∀ ⦃k⦄, k ∈ t → p j = p k :=
+/--
+A form of the **equality case of Jensen's equality** for the case of strict concave and positive
+weights.
+-/
+theorem StrictConcaveOn.map_sum_eq_iff_of_pos
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i) ↔ ∀ ⦃j⦄, j ∈ t → ∀ ⦃k⦄, k ∈ t → p j = p k :=
   hf.dual.map_sum_eq_iff_of_pos h₀ h₁ hmem
 
-/-- A form of the **equality case of Jensen's equality** for the case of strict convex and
-non-negative weights. -/
-theorem StrictConvexOn.map_sum_eq_iff_of_nonneg (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i) ↔
-      ∀ ⦃j⦄, j ∈ t → w j ≠ 0 → ∀ ⦃k⦄, k ∈ t → w k ≠ 0 → p j = p k := by
-  have :
-      f (∑ i ∈ t with w i ≠ 0, w i • p i) = ∑ i ∈ t with w i ≠ 0, w i • f (p i) ↔
-        ∀ ⦃j : ι⦄, j ∈ {x ∈ t | w x ≠ 0} → ∀ ⦃k : ι⦄, k ∈ {x ∈ t | w x ≠ 0} → p j = p k :=
-    hf.map_sum_eq_iff_of_pos (by grind)
-      (sum_filter_ne_zero _ |>.trans h₁) (hmem _ <| mem_of_mem_filter · ·)
+/--
+A form of the **equality case of Jensen's equality** for the case of strict convex and
+non-negative weights.
+-/
+theorem StrictConvexOn.map_sum_eq_iff_of_nonneg
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i)
+      ↔ ∀ ⦃j⦄, j ∈ t → w j ≠ 0 → ∀ ⦃k⦄, k ∈ t → w k ≠ 0 → p j = p k := by
+  have : f (∑ i ∈ t with w i ≠ 0, w i • p i) = ∑ i ∈ t with w i ≠ 0, w i • f (p i)
+      ↔ ∀ ⦃j : ι⦄, j ∈ {x ∈ t | w x ≠ 0} → ∀ ⦃k : ι⦄, k ∈ {x ∈ t | w x ≠ 0} → p j = p k :=
+    hf.map_sum_eq_iff_of_pos (by grind) (sum_filter_ne_zero _ |>.trans h₁)
+      (hmem _ <| mem_of_mem_filter · ·)
   grind [sum_filter_of_ne, left_ne_zero_of_smul]
 
-/-- A form of the **equality case of Jensen's equality** for the case of strict concave and
-non-negative weights. -/
-theorem StrictConcaveOn.map_sum_eq_iff_of_nonneg (hf : StrictConcaveOn 𝕜 s f)
-    (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i) ↔
-      ∀ ⦃j⦄, j ∈ t → w j ≠ 0 → ∀ ⦃k⦄, k ∈ t → w k ≠ 0 → p j = p k :=
+/--
+A form of the **equality case of Jensen's equality** for the case of strict concave and
+non-negative weights.
+-/
+theorem StrictConcaveOn.map_sum_eq_iff_of_nonneg
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) = ∑ i ∈ t, w i • f (p i)
+      ↔ ∀ ⦃j⦄, j ∈ t → w j ≠ 0 → ∀ ⦃k⦄, k ∈ t → w k ≠ 0 → p j = p k :=
   hf.dual.map_sum_eq_iff_of_nonneg h₀ h₁ hmem
 
-theorem StrictConvexOn.map_sum_lt_iff_of_pos (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i) ↔ ∃ j ∈ t, ∃ k ∈ t, p j ≠ p k := by
+theorem StrictConvexOn.map_sum_lt_iff_of_pos
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i) ↔ ∃ j ∈ t, ∃ k ∈ t, p j ≠ p k := by
   refine ⟨fun h ↦ ?_, hf.map_sum_lt h₀ h₁ hmem⟩
   contrapose! h
   exact hf.map_sum_eq_iff_of_pos h₀ h₁ hmem |>.mpr h |>.not_lt
 
-theorem StrictConcaveOn.lt_map_sum_iff_of_pos (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i) ↔ ∃ j ∈ t, ∃ k ∈ t, p j ≠ p k :=
+theorem StrictConcaveOn.lt_map_sum_iff_of_pos
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i) ↔ ∃ j ∈ t, ∃ k ∈ t, p j ≠ p k :=
   hf.dual.map_sum_lt_iff_of_pos h₀ h₁ hmem
 
-theorem StrictConvexOn.map_sum_lt_iff_of_nonneg (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i) ↔
-      ∃ j ∈ t, ∃ k ∈ t, w j ≠ 0 ∧ w k ≠ 0 ∧ p j ≠ p k := by
+theorem StrictConvexOn.map_sum_lt_iff_of_nonneg
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i)
+      ↔ ∃ j ∈ t, ∃ k ∈ t, w j ≠ 0 ∧ w k ≠ 0 ∧ p j ≠ p k := by
   grind [hf.convexOn.map_sum_le h₀ h₁ hmem |>.not_lt_iff_eq, hf.map_sum_eq_iff_of_nonneg h₀ h₁ hmem]
 
-theorem StrictConcaveOn.lt_map_sum_iff_of_nonneg (hf : StrictConcaveOn 𝕜 s f)
-    (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i) ↔
-      ∃ j ∈ t, ∃ k ∈ t, w j ≠ 0 ∧ w k ≠ 0 ∧ p j ≠ p k :=
+theorem StrictConcaveOn.lt_map_sum_iff_of_nonneg
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i)
+      ↔ ∃ j ∈ t, ∃ k ∈ t, w j ≠ 0 ∧ w k ≠ 0 ∧ p j ≠ p k :=
   hf.dual.map_sum_lt_iff_of_nonneg h₀ h₁ hmem
 
 /-- Canonical form of the **equality case of Jensen's equality**.
@@ -295,59 +312,62 @@ lemma StrictConcaveOn.map_sum_eq_iff' (hf : StrictConcaveOn 𝕜 s f) (h₀ : �
       ∀ j ∈ t, w j ≠ 0 → p j = ∑ i ∈ t, w i • p i := hf.dual.map_sum_eq_iff' h₀ h₁ hmem
 
 /-- Canonical form of the **strict Jensen's inequality**. -/
-theorem StrictConvexOn.map_sum_lt_iff_of_pos' (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i) ↔ ∃ j ∈ t, p j ≠ ∑ i ∈ t, w i • p i := by
+theorem StrictConvexOn.map_sum_lt_iff_of_pos'
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i) ↔ ∃ j ∈ t, p j ≠ ∑ i ∈ t, w i • p i := by
   apply hf.convexOn.map_sum_le (h₀ · · |>.le) h₁ hmem |>.lt_iff_ne.trans
   contrapose!
   exact hf.map_sum_eq_iff h₀ h₁ hmem
 
 /-- Canonical form of the **strict Jensen's inequality**. -/
-theorem StrictConcaveOn.lt_map_sum_iff_of_pos' (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i) ↔ ∃ j ∈ t, p j ≠ ∑ i ∈ t, w i • p i :=
+theorem StrictConcaveOn.lt_map_sum_iff_of_pos'
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 < w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i) ↔ ∃ j ∈ t, p j ≠ ∑ i ∈ t, w i • p i :=
   hf.dual.map_sum_lt_iff_of_pos' h₀ h₁ hmem
 
 /-- Canonical form of the **strict Jensen's inequality**. -/
-theorem StrictConvexOn.map_sum_lt_iff_of_nonneg' (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i)
-    (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i) ↔
-      ∃ j ∈ t, w j ≠ 0 ∧ p j ≠ ∑ i ∈ t, w i • p i := by
-  have :
-      f (∑ i ∈ t with w i ≠ 0, w i • p i) < ∑ i ∈ t with w i ≠ 0, w i • f (p i) ↔
-        ∃ j ∈ {x ∈ t | w x ≠ 0}, p j ≠ ∑ i ∈ t with w i ≠ 0, w i • p i :=
-    hf.map_sum_lt_iff_of_pos' (by grind)
-      (sum_filter_ne_zero _ |>.trans h₁) (hmem _ <| mem_of_mem_filter · ·)
+theorem StrictConvexOn.map_sum_lt_iff_of_nonneg'
+    (hf : StrictConvexOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : f (∑ i ∈ t, w i • p i) < ∑ i ∈ t, w i • f (p i)
+      ↔ ∃ j ∈ t, w j ≠ 0 ∧ p j ≠ ∑ i ∈ t, w i • p i := by
+  have : f (∑ i ∈ t with w i ≠ 0, w i • p i) < ∑ i ∈ t with w i ≠ 0, w i • f (p i)
+      ↔ ∃ j ∈ {x ∈ t | w x ≠ 0}, p j ≠ ∑ i ∈ t with w i ≠ 0, w i • p i :=
+    hf.map_sum_lt_iff_of_pos' (by grind) (sum_filter_ne_zero _ |>.trans h₁)
+      (hmem _ <| mem_of_mem_filter · ·)
   grind [sum_filter_of_ne, left_ne_zero_of_smul]
 
 /-- Canonical form of the **strict Jensen's inequality**. -/
-theorem StrictConcaveOn.lt_map_sum_iff_of_nonneg' (hf : StrictConcaveOn 𝕜 s f)
-    (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (hmem : ∀ i ∈ t, p i ∈ s) :
-    ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i) ↔ ∃ j ∈ t, w j ≠ 0 ∧ p j ≠ ∑ i ∈ t, w i • p i :=
+theorem StrictConcaveOn.lt_map_sum_iff_of_nonneg'
+    (hf : StrictConcaveOn 𝕜 s f) (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1)
+    (hmem : ∀ i ∈ t, p i ∈ s)
+    : ∑ i ∈ t, w i • f (p i) < f (∑ i ∈ t, w i • p i)
+      ↔ ∃ j ∈ t, w j ≠ 0 ∧ p j ≠ ∑ i ∈ t, w i • p i :=
   hf.dual.map_sum_lt_iff_of_nonneg' h₀ h₁ hmem
 
 end Jensen
 
 /-! ### Maximum principle -/
 
-
 section MaximumPrinciple
 
-variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [AddCommGroup E]
-  [AddCommGroup β] [LinearOrder β] [IsOrderedAddMonoid β] [Module 𝕜 E]
-  [Module 𝕜 β] [IsStrictOrderedModule 𝕜 β] {s : Set E} {f : E → β} {w : ι → 𝕜} {p : ι → E}
-  {x y z : E}
+variable
+  [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] [AddCommGroup E] [AddCommGroup β]
+  [LinearOrder β] [IsOrderedAddMonoid β] [Module 𝕜 E] [Module 𝕜 β] [IsStrictOrderedModule 𝕜 β]
+  {s : Set E} {f : E → β} {w : ι → 𝕜} {p : ι → E} {x y z : E}
 
-theorem ConvexOn.le_sup_of_mem_convexHull {t : Finset E} (hf : ConvexOn 𝕜 s f) (hts : ↑t ⊆ s)
-    (hx : x ∈ convexHull 𝕜 (t : Set E)) :
-    f x ≤ t.sup' (coe_nonempty.1 <| convexHull_nonempty_iff.1 ⟨x, hx⟩) f := by
+theorem ConvexOn.le_sup_of_mem_convexHull
+    {t : Finset E} (hf : ConvexOn 𝕜 s f) (hts : ↑t ⊆ s) (hx : x ∈ convexHull 𝕜 (t : Set E))
+    : f x ≤ t.sup' (coe_nonempty.1 <| convexHull_nonempty_iff.1 ⟨x, hx⟩) f := by
   obtain ⟨w, hw₀, hw₁, rfl⟩ := mem_convexHull.1 hx
   exact (hf.map_centerMass_le hw₀ (by positivity) hts).trans
     (centerMass_le_sup hw₀ <| by positivity)
 
-theorem ConvexOn.inf_le_of_mem_convexHull {t : Finset E} (hf : ConcaveOn 𝕜 s f) (hts : ↑t ⊆ s)
-    (hx : x ∈ convexHull 𝕜 (t : Set E)) :
-    t.inf' (coe_nonempty.1 <| convexHull_nonempty_iff.1 ⟨x, hx⟩) f ≤ f x :=
+theorem ConvexOn.inf_le_of_mem_convexHull
+    {t : Finset E} (hf : ConcaveOn 𝕜 s f) (hts : ↑t ⊆ s) (hx : x ∈ convexHull 𝕜 (t : Set E))
+    : t.inf' (coe_nonempty.1 <| convexHull_nonempty_iff.1 ⟨x, hx⟩) f ≤ f x :=
   hf.dual.le_sup_of_mem_convexHull hts hx
 
 /-- If a function `f` is convex on `s`, then the value it takes at some center of mass of points of

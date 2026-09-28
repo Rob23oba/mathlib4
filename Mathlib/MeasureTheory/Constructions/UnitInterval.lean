@@ -29,8 +29,10 @@ theorem volume_def : (volume : Measure I) = volume.comap Subtype.val := rfl
 
 instance : IsProbabilityMeasure (volume : Measure I) where
   measure_univ := by
-    rw [Measure.Subtype.volume_univ nullMeasurableSet_Icc, Real.volume_Icc, sub_zero,
-      ENNReal.ofReal_one]
+    rw [
+      Measure.Subtype.volume_univ nullMeasurableSet_Icc, Real.volume_Icc, sub_zero,
+      ENNReal.ofReal_one
+    ]
 
 lemma measurableEmbedding_coe : MeasurableEmbedding ((↑) : I → ℝ) where
   injective := Subtype.val_injective
@@ -46,8 +48,7 @@ lemma measurePreserving_coe : MeasurePreserving ((↑) : I → ℝ) volume (volu
 instance : NullSingletonClass (volume : Measure I) where
   measure_singleton x := by simp [volume_apply]
 
-@[fun_prop]
-theorem measurable_symm : Measurable σ := continuous_symm.measurable
+@[fun_prop] theorem measurable_symm : Measurable σ := continuous_symm.measurable
 
 /-- `unitInterval.symm` bundled as a measurable equivalence. -/
 @[simps apply]
@@ -116,7 +117,6 @@ lemma volume_Ioc : volume (Ioc x y) = .ofReal (y - x) := by
 lemma volume_uIoc : volume (uIoc x y) = edist y x := by
   simp only [uIoc, volume_apply, image_subtype_val_Ioc, Icc.coe_inf, Icc.coe_sup, Real.volume_Ioc,
     max_sub_min_eq_abs, edist_dist, Subtype.dist_eq, Real.dist_eq]
-
 
 @[simp]
 lemma volume_Ioo : volume (Ioo x y) = .ofReal (y - x) := by

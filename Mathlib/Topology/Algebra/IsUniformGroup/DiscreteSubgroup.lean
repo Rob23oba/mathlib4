@@ -23,20 +23,24 @@ open Filter Topology
 
 variable {G : Type*} [Group G] [TopologicalSpace G]
 
-/-- If `G` has a topology, and `H ≤ K` are subgroups, then `H` as a subgroup of `K` is isomorphic,
+/--
+If `G` has a topology, and `H ≤ K` are subgroups, then `H` as a subgroup of `K` is isomorphic,
 as a topological group, to `H` as a subgroup of `G`. This is `subgroupOfEquivOfLe` upgraded to a
-`ContinuousMulEquiv`. -/
+`ContinuousMulEquiv`.
+-/
 @[to_additive (attr := simps! apply) /-- If `G` has a topology, and `H ≤ K` are
 subgroups, then `H` as a subgroup of `K` is isomorphic, as a topological group, to `H` as a subgroup
 of `G`. This is `addSubgroupOfEquivOfLe` upgraded to a `ContinuousAddEquiv`.-/]
-def Subgroup.subgroupOfContinuousMulEquivOfLe {H K : Subgroup G} (hHK : H ≤ K) :
-    (H.subgroupOf K) ≃ₜ* H :=
+def Subgroup.subgroupOfContinuousMulEquivOfLe {H K : Subgroup G} (hHK : H ≤ K)
+    : (H.subgroupOf K) ≃ₜ* H :=
   (subgroupOfEquivOfLe hHK).toContinuousMulEquiv (by
-    simp only [subgroupOfEquivOfLe, Topology.IsInducing.subtypeVal.isOpen_iff,
-      exists_exists_and_eq_and]
-    simpa [Set.ext_iff] using fun s ↦ exists_congr
-      fun t ↦ and_congr_right fun _ ↦
-        ⟨fun aux g hgh ↦ aux g (hHK hgh) hgh, by grind [Subgroup.mem_subgroupOf]⟩)
+    simp only [
+      subgroupOfEquivOfLe, Topology.IsInducing.subtypeVal.isOpen_iff, exists_exists_and_eq_and
+    ]
+    simpa [Set.ext_iff] using fun s ↦
+      exists_congr fun t ↦
+        and_congr_right fun _ ↦
+          ⟨fun aux g hgh ↦ aux g (hHK hgh) hgh, by grind [Subgroup.mem_subgroupOf]⟩)
 
 @[to_additive (attr := simp)]
 lemma Subgroup.subgroupOfContinuousMulEquivOfLe_symm_apply

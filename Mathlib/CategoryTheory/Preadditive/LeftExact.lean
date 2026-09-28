@@ -26,7 +26,6 @@ preserves kernels. The dual result holds for right exact functors and cokernels.
 
 @[expose] public section
 
-
 universe v₁ v₂ u₁ u₂
 
 noncomputable section
@@ -41,23 +40,27 @@ namespace CategoryTheory
 
 namespace Functor
 
-variable {C : Type u₁} [Category.{v₁} C] [Preadditive C] {D : Type u₂} [Category.{v₂} D]
-  [Preadditive D] (F : C ⥤ D) [PreservesZeroMorphisms F]
+variable
+  {C : Type u₁} [Category.{v₁} C] [Preadditive C]
+  {D : Type u₂} [Category.{v₂} D] [Preadditive D]
+  (F : C ⥤ D) [PreservesZeroMorphisms F]
 
 section FiniteLimits
 
-/-- A functor between preadditive categories which preserves kernels preserves that an
+/--
+A functor between preadditive categories which preserves kernels preserves that an
 arbitrary binary fan is a limit.
 -/
-def isLimitMapConeBinaryFanOfPreservesKernels {X Y Z : C} (π₁ : Z ⟶ X) (π₂ : Z ⟶ Y)
-    [PreservesLimit (parallelPair π₂ 0) F] (i : IsLimit (BinaryFan.mk π₁ π₂)) :
-    IsLimit (F.mapCone (BinaryFan.mk π₁ π₂)) := by
+def isLimitMapConeBinaryFanOfPreservesKernels
+    {X Y Z : C} (π₁ : Z ⟶ X) (π₂ : Z ⟶ Y) [PreservesLimit (parallelPair π₂ 0) F]
+    (i : IsLimit (BinaryFan.mk π₁ π₂))
+    : IsLimit (F.mapCone (BinaryFan.mk π₁ π₂)) := by
   let bc := BinaryBicone.ofLimitCone i
   let presf : PreservesLimit (parallelPair bc.snd 0) F := by simpa
   let hf : IsLimit bc.sndKernelFork := BinaryBicone.isLimitSndKernelFork i
   exact (isLimitMapConeBinaryFanEquiv F π₁ π₂).invFun
     (BinaryBicone.isBilimitOfKernelInl (F.mapBinaryBicone bc)
-    (isLimitMapConeForkEquiv' F bc.inl_snd (isLimitOfPreserves F hf))).isLimit
+      (isLimitMapConeForkEquiv' F bc.inl_snd (isLimitOfPreserves F hf))).isLimit
 
 /-- A kernel-preserving functor between preadditive categories preserves any pair being a limit. -/
 lemma preservesBinaryProduct_of_preservesKernels
@@ -127,18 +130,19 @@ end FiniteLimits
 
 section FiniteColimits
 
-/-- A functor between preadditive categories which preserves cokernels preserves finite coproducts.
+/--
+A functor between preadditive categories which preserves cokernels preserves finite coproducts.
 -/
-def isColimitMapCoconeBinaryCofanOfPreservesCokernels {X Y Z : C} (ι₁ : X ⟶ Z) (ι₂ : Y ⟶ Z)
-    [PreservesColimit (parallelPair ι₂ 0) F] (i : IsColimit (BinaryCofan.mk ι₁ ι₂)) :
-    IsColimit (F.mapCocone (BinaryCofan.mk ι₁ ι₂)) := by
+def isColimitMapCoconeBinaryCofanOfPreservesCokernels
+    {X Y Z : C} (ι₁ : X ⟶ Z) (ι₂ : Y ⟶ Z) [PreservesColimit (parallelPair ι₂ 0) F]
+    (i : IsColimit (BinaryCofan.mk ι₁ ι₂))
+    : IsColimit (F.mapCocone (BinaryCofan.mk ι₁ ι₂)) := by
   let bc := BinaryBicone.ofColimitCocone i
   let presf : PreservesColimit (parallelPair bc.inr 0) F := by simpa
   let hf : IsColimit bc.inrCokernelCofork := BinaryBicone.isColimitInrCokernelCofork i
-  exact
-    (isColimitMapCoconeBinaryCofanEquiv F ι₁ ι₂).invFun
-      (BinaryBicone.isBilimitOfCokernelFst (F.mapBinaryBicone bc)
-          (isColimitMapCoconeCoforkEquiv' F bc.inr_fst (isColimitOfPreserves F hf))).isColimit
+  exact (isColimitMapCoconeBinaryCofanEquiv F ι₁ ι₂).invFun
+    (BinaryBicone.isBilimitOfCokernelFst (F.mapBinaryBicone bc)
+      (isColimitMapCoconeCoforkEquiv' F bc.inr_fst (isColimitOfPreserves F hf))).isColimit
 
 /-- A cokernel-preserving functor between preadditive categories preserves any pair being
 a colimit. -/

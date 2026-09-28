@@ -67,8 +67,7 @@ end prodStdSimplex
 
 section
 
-variable {X₁ X₂ Y₁ Y₂ E B : SSet.{u}}
-  {i : X₁ ⟶ Y₁} {j : X₂ ⟶ Y₂} {p : E ⟶ B}
+variable {X₁ X₂ Y₁ Y₂ E B : SSet.{u}} {i : X₁ ⟶ Y₁} {j : X₂ ⟶ Y₂} {p : E ⟶ B}
 
 lemma innerFibration_pullbackObjObjπ [Mono i] [InnerFibration p]
     (sq₁₃ : MonoidalClosed.internalHom.PullbackObjObj i p) :
@@ -137,20 +136,18 @@ lemma innerAnodyneExtensions.whiskerLeft
   innerAnodyneExtensions_pushoutObjObjι
     (.ofIsInitialLeft (curriedTensor _) (initial.to Z) f initialIsInitial) hf
 
-instance {E B X : SSet.{u}} (p : E ⟶ B) [InnerFibration p] :
-    InnerFibration ((ihom X).map p) :=
-  innerFibration_pullbackObjObjπ (Functor.PullbackObjObj.ofIsInitial
-    MonoidalClosed.internalHom (initial.to X) p initialIsInitial)
+instance {E B X : SSet.{u}} (p : E ⟶ B) [InnerFibration p] : InnerFibration ((ihom X).map p) :=
+  innerFibration_pullbackObjObjπ (Functor.PullbackObjObj.ofIsInitial MonoidalClosed.internalHom
+    (initial.to X) p initialIsInitial)
 
-instance {A B : SSet.{u}} (i : A ⟶ B) [Mono i] (X : SSet.{u}) [Quasicategory X] :
-    InnerFibration ((MonoidalClosed.pre i).app X) :=
-  innerFibration_pullbackObjObjπ (Functor.PullbackObjObj.ofIsTerminal
-    MonoidalClosed.internalHom i (terminal.from X) terminalIsTerminal)
+instance {A B : SSet.{u}} (i : A ⟶ B) [Mono i] (X : SSet.{u}) [Quasicategory X]
+    : InnerFibration ((MonoidalClosed.pre i).app X) :=
+  innerFibration_pullbackObjObjπ (Functor.PullbackObjObj.ofIsTerminal MonoidalClosed.internalHom i
+    (terminal.from X) terminalIsTerminal)
 
 instance (A : SSet.{u}) : Quasicategory ((ihom A).obj (⊤_ _)) := by
   have : IsIso (terminal.from ((ihom A).obj (⊤_ _))) :=
-    isIso_of_isTerminal (IsTerminal.isTerminalObj _ _ terminalIsTerminal)
-      terminalIsTerminal _
+    isIso_of_isTerminal (IsTerminal.isTerminalObj _ _ terminalIsTerminal) terminalIsTerminal _
   infer_instance
 
 instance {A X : SSet.{u}} [Quasicategory X] : Quasicategory ((ihom A).obj X) :=

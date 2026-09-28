@@ -28,9 +28,12 @@ namespace CategoryTheory.Adjunction
 
 open Limits
 
-variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  {D : Type u₂} [Category.{v₂} D]
   {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
-  {E : Type u₃} [Category.{v₃} E] (H : D ⥤ E)
+  {E : Type u₃} [Category.{v₃} E]
+  (H : D ⥤ E)
   (J : Type u) [Category.{v} J]
 
 include adj

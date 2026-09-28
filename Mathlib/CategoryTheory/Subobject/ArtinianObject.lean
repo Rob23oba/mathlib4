@@ -38,25 +38,27 @@ open Limits ZeroObject
 
 variable {C : Type u} [Category.{v} C]
 
-/-- An object `X` in a category `C` is Artinian if `Subobject X`
+/--
+An object `X` in a category `C` is Artinian if `Subobject X`
 satisfies the descending chain condition. This definition is a
 term in `ObjectProperty C` which allows to study the stability
 properties of Artinian objects. For statements regarding
 specific objects, it is advisable to use the type class
-`IsArtinianObject` instead. -/
+`IsArtinianObject` instead.
+-/
 @[stacks 0FCF]
-def isArtinianObject : ObjectProperty C :=
-  fun X ↦ WellFoundedLT (Subobject X)
+def isArtinianObject : ObjectProperty C := fun X ↦ WellFoundedLT (Subobject X)
 
 variable (X Y : C)
 
-/-- An object `X` in a category `C` is Artinian if `Subobject X`
-satisfies the descending chain condition. -/
+/--
+An object `X` in a category `C` is Artinian if `Subobject X`
+satisfies the descending chain condition.
+-/
 @[stacks 0FCF]
 abbrev IsArtinianObject : Prop := isArtinianObject.Is X
 
-instance [IsArtinianObject X] : WellFoundedLT (Subobject X) :=
-  isArtinianObject.prop_of_is X
+instance [IsArtinianObject X] : WellFoundedLT (Subobject X) := isArtinianObject.prop_of_is X
 
 lemma isArtinianObject_iff_antitone_chain_condition :
     IsArtinianObject X ↔ ∀ (f : ℕ →o (Subobject X)ᵒᵈ),
@@ -117,9 +119,13 @@ lemma isArtinianObject_of_isZero (hX : IsZero X) : IsArtinianObject X := by
   exact ⟨0, fun m hm ↦ Subsingleton.elim _ _⟩
 
 instance [HasZeroObject C] : (isArtinianObject (C := C)).ContainsZero where
-  exists_zero := ⟨0, isZero_zero _, by
-    rw [← isArtinianObject.is_iff]
-    exact isArtinianObject_of_isZero (isZero_zero C)⟩
+  exists_zero := ⟨
+    0,
+    isZero_zero _,
+    by
+      rw [← isArtinianObject.is_iff]
+      exact isArtinianObject_of_isZero (isZero_zero C)
+  ⟩
 
 lemma isArtinianObject_of_mono (i : X ⟶ Y) [Mono i] [IsArtinianObject Y] :
     IsArtinianObject X := by
@@ -139,28 +145,28 @@ open Subobject
 
 variable [HasZeroMorphisms C] [HasZeroObject C]
 
-theorem exists_simple_subobject {X : C} [IsArtinianObject X] (h : ¬IsZero X) :
-    ∃ Y : Subobject X, Simple (Y : C) := by
+theorem exists_simple_subobject {X : C} [IsArtinianObject X] (h : ¬ IsZero X)
+    : ∃ Y : Subobject X, Simple (Y : C) := by
   have : Nontrivial (Subobject X) := nontrivial_of_not_isZero h
   obtain ⟨Y, s⟩ := (IsAtomic.eq_bot_or_exists_atom_le (⊤ : Subobject X)).resolve_left top_ne_bot
   exact ⟨Y, (subobject_simple_iff_isAtom _).mpr s.1⟩
 
 /-- Choose an arbitrary simple subobject of a non-zero Artinian object. -/
-noncomputable def simpleSubobject {X : C} [IsArtinianObject X] (h : ¬IsZero X) : C :=
+noncomputable def simpleSubobject {X : C} [IsArtinianObject X] (h : ¬ IsZero X) : C :=
   (exists_simple_subobject h).choose
 
 /-- The monomorphism from the arbitrary simple subobject of a non-zero Artinian object. -/
-noncomputable def simpleSubobjectArrow {X : C} [IsArtinianObject X] (h : ¬IsZero X) :
-    simpleSubobject h ⟶ X :=
+noncomputable def simpleSubobjectArrow {X : C} [IsArtinianObject X] (h : ¬ IsZero X)
+    : simpleSubobject h ⟶ X :=
   (exists_simple_subobject h).choose.arrow
 
 set_option backward.isDefEq.respectTransparency false in
-instance mono_simpleSubobjectArrow {X : C} [IsArtinianObject X] (h : ¬IsZero X) :
-    Mono (simpleSubobjectArrow h) := by
+instance mono_simpleSubobjectArrow {X : C} [IsArtinianObject X] (h : ¬ IsZero X)
+    : Mono (simpleSubobjectArrow h) := by
   dsimp only [simpleSubobjectArrow]
   infer_instance
 
-instance {X : C} [IsArtinianObject X] (h : ¬IsZero X) : Simple (simpleSubobject h) :=
+instance {X : C} [IsArtinianObject X] (h : ¬ IsZero X) : Simple (simpleSubobject h) :=
   (exists_simple_subobject h).choose_spec
 
 end CategoryTheory

@@ -78,7 +78,8 @@ open Finset Function MeasureTheory Preorder ProbabilityTheory
 
 open scoped ENNReal
 
-variable {X : ℕ → Type*} {mX : ∀ n, MeasurableSpace (X n)} {a b c : ℕ}
+variable
+  {X : ℕ → Type*} {mX : ∀ n, MeasurableSpace (X n)} {a b c : ℕ}
   {κ : (n : ℕ) → Kernel (Π i : Iic n, X i) (X (n + 1))}
 
 section partialTraj
@@ -90,7 +91,8 @@ namespace ProbabilityTheory.Kernel
 open MeasurableEquiv
 
 variable (κ) in
-/-- Given a family of kernels `κ n` from `X 0 × ... × X n` to `X (n + 1)` for all `n`,
+/--
+Given a family of kernels `κ n` from `X 0 × ... × X n` to `X (n + 1)` for all `n`,
 construct a kernel from `X 0 × ... × X a` to `X 0 × ... × X b` by iterating `κ`.
 
 The idea is that the input is some trajectory up to time `a`, and the output is the distribution
@@ -100,10 +102,14 @@ of the trajectory up to time `b`. In particular if `b ≤ a`, this is just a det
 This kernel can be extended into a kernel with codomain `Π n, X n` via the Ionescu-Tulcea theorem.
 -/
 noncomputable def partialTraj (a b : ℕ) : Kernel (Π i : Iic a, X i) (Π i : Iic b, X i) :=
-  if h : b ≤ a then deterministic (frestrictLe₂ h) (measurable_frestrictLe₂ h)
-  else @Nat.leRec a (fun b _ ↦ Kernel (Π i : Iic a, X i) (Π i : Iic b, X i)) Kernel.id
-    (fun k _ κ_k ↦ ((Kernel.id ×ₖ ((κ k).map (piSingleton k))) ∘ₖ κ_k).map (IicProdIoc k (k + 1)))
-    b (Nat.le_of_not_ge h)
+  if h : b ≤ a then
+    deterministic (frestrictLe₂ h) (measurable_frestrictLe₂ h)
+  else
+    @Nat.leRec a
+      (fun b _ ↦ Kernel (Π i : Iic a, X i) (Π i : Iic b, X i))
+      Kernel.id
+      (fun k _ κ_k ↦ ((Kernel.id ×ₖ ((κ k).map (piSingleton k))) ∘ₖ κ_k).map (IicProdIoc k (k + 1)))
+      b (Nat.le_of_not_ge h)
 
 section Basic
 
@@ -151,19 +157,19 @@ instance [∀ n, IsFiniteKernel (κ n)] (a b : ℕ) : IsFiniteKernel (partialTra
     | succ k hak => rw [partialTraj_succ_of_le hak]; infer_instance
   · rw [partialTraj_le hba]; infer_instance
 
-instance [∀ n, IsZeroOrMarkovKernel (κ n)] (a b : ℕ) :
-    IsZeroOrMarkovKernel (partialTraj κ a b) := by
+instance [∀ n, IsZeroOrMarkovKernel (κ n)] (a b : ℕ)
+    : IsZeroOrMarkovKernel (partialTraj κ a b) := by
   obtain hab | hba := le_total a b
   · induction b, hab using Nat.le_induction with
     | base => rw [partialTraj_self]; infer_instance
     | succ k hak => rw [partialTraj_succ_of_le hak]; infer_instance
   · rw [partialTraj_le hba]; infer_instance
 
-instance [∀ n, IsMarkovKernel (κ n)] (a b : ℕ) :
-    IsMarkovKernel (partialTraj κ a b) := by
+instance [∀ n, IsMarkovKernel (κ n)] (a b : ℕ) : IsMarkovKernel (partialTraj κ a b) := by
   obtain hab | hba := le_total a b
   · induction b, hab using Nat.le_induction with
-    | base => rw [partialTraj_self]; infer_instance
+    | base =>
+      rw [partialTraj_self]; infer_instance
     | succ k hak =>
       rw [partialTraj_succ_of_le hak]
       have := IsMarkovKernel.map (κ k) (piSingleton k).measurable
@@ -179,15 +185,18 @@ lemma partialTraj_succ_eq_comp (hab : a ≤ b) :
     partialTraj κ a (b + 1) = partialTraj κ b (b + 1) ∘ₖ partialTraj κ a b := by
   rw [partialTraj_succ_self, ← map_comp, partialTraj_succ_of_le hab]
 
-/-- Given the trajectory up to time `a`, `partialTraj κ a b` gives the distribution of
+/--
+Given the trajectory up to time `a`, `partialTraj κ a b` gives the distribution of
 the trajectory up to time `b`. Then plugging this into `partialTraj κ b c` gives
-the distribution of the trajectory up to time `c`. -/
-theorem partialTraj_comp_partialTraj (hab : a ≤ b) (hbc : b ≤ c) :
-    partialTraj κ b c ∘ₖ partialTraj κ a b = partialTraj κ a c := by
+the distribution of the trajectory up to time `c`.
+-/
+theorem partialTraj_comp_partialTraj (hab : a ≤ b) (hbc : b ≤ c)
+    : partialTraj κ b c ∘ₖ partialTraj κ a b = partialTraj κ a c := by
   induction c, hbc using Nat.le_induction with
-  | base => simp
-  | succ k h hk => rw [partialTraj_succ_eq_comp h, comp_assoc, hk,
-      ← partialTraj_succ_eq_comp (hab.trans h)]
+  | base =>
+    simp
+  | succ k h hk =>
+    rw [partialTraj_succ_eq_comp h, comp_assoc, hk, ← partialTraj_succ_eq_comp (hab.trans h)]
 
 /-- This is a specific lemma used in the proof of `partialTraj_eq_prod`. It is the main rewrite step
 and stating it as a separate lemma avoids using extensionality of kernels, which would generate
@@ -265,15 +274,20 @@ lemma partialTraj_succ_map_frestrictLe₂ (a b : ℕ) :
     · rfl
     · fun_prop
 
-/-- If we restrict the distribution of the trajectory up to time `c` to times `≤ b` we get
-the trajectory up to time `b`. -/
-theorem partialTraj_map_frestrictLe₂ (a : ℕ) (hbc : b ≤ c) :
-    (partialTraj κ a c).map (frestrictLe₂ hbc) = partialTraj κ a b := by
+/--
+If we restrict the distribution of the trajectory up to time `c` to times `≤ b` we get
+the trajectory up to time `b`.
+-/
+theorem partialTraj_map_frestrictLe₂ (a : ℕ) (hbc : b ≤ c)
+    : (partialTraj κ a c).map (frestrictLe₂ hbc) = partialTraj κ a b := by
   induction c, hbc using Nat.le_induction with
-  | base => exact map_id ..
+  | base =>
+    exact map_id ..
   | succ k h hk =>
-    rw [← hk, ← frestrictLe₂_comp_frestrictLe₂ h k.le_succ, map_comp_right,
-      partialTraj_succ_map_frestrictLe₂]
+    rw [
+      ← hk, ← frestrictLe₂_comp_frestrictLe₂ h k.le_succ, map_comp_right,
+      partialTraj_succ_map_frestrictLe₂
+    ]
     all_goals fun_prop
 
 lemma partialTraj_map_frestrictLe₂_apply (x₀ : Π i : Iic a, X i) (hbc : b ≤ c) :
@@ -300,11 +314,13 @@ section lmarginalPartialTraj
 
 variable (κ)
 
-/-- This function computes the integral of a function `f` against `partialTraj`,
+/--
+This function computes the integral of a function `f` against `partialTraj`,
 and allows to view it as a function depending on all the variables.
 
 This is inspired by `MeasureTheory.lmarginal`, to be able to write
-`lmarginalPartialTraj κ b c (lmarginalPartialTraj κ a b f) = lmarginalPartialTraj κ a c`. -/
+`lmarginalPartialTraj κ b c (lmarginalPartialTraj κ a b f) = lmarginalPartialTraj κ a c`.
+-/
 noncomputable def lmarginalPartialTraj (a b : ℕ) (f : (Π n, X n) → ℝ≥0∞) (x₀ : Π n, X n) : ℝ≥0∞ :=
   ∫⁻ z : (i : Iic b) → X i, f (updateFinset x₀ _ z) ∂(partialTraj κ a b (frestrictLe a x₀))
 
@@ -361,11 +377,13 @@ lemma measurable_lmarginalPartialTraj (a b : ℕ) {f : (Π n, X n) → ℝ≥0�
   change Measurable fun x₀ ↦ ∫⁻ z : (i : Iic b) → X i, g (z, x₀) ∂η x₀
   fun_prop
 
-/-- Integrating `f` against `partialTraj κ a b` and then against `partialTraj κ b c` is the same
-as integrating `f` against `partialTraj κ a c`. -/
-theorem lmarginalPartialTraj_self (hab : a ≤ b) (hbc : b ≤ c)
-    {f : (Π n, X n) → ℝ≥0∞} (hf : Measurable f) :
-    lmarginalPartialTraj κ a b (lmarginalPartialTraj κ b c f) = lmarginalPartialTraj κ a c f := by
+/--
+Integrating `f` against `partialTraj κ a b` and then against `partialTraj κ b c` is the same
+as integrating `f` against `partialTraj κ a c`.
+-/
+theorem lmarginalPartialTraj_self
+    (hab : a ≤ b) (hbc : b ≤ c) {f : (Π n, X n) → ℝ≥0∞} (hf : Measurable f)
+    : lmarginalPartialTraj κ a b (lmarginalPartialTraj κ b c f) = lmarginalPartialTraj κ a c f := by
   ext x₀
   obtain rfl | hab := eq_or_lt_of_le hab <;> obtain rfl | hbc := eq_or_lt_of_le hbc
   · rw [lmarginalPartialTraj_le κ le_rfl (measurable_lmarginalPartialTraj _ _ hf)]
@@ -386,11 +404,16 @@ namespace DependsOn
 
 /-! ### Lemmas about `lmarginalPartialTraj` and `DependsOn` -/
 
-/-- If `f` only depends on the variables up to rank `a` and `a ≤ b`, integrating `f` against
-`partialTraj κ b c` does nothing. -/
-theorem lmarginalPartialTraj_of_le [∀ n, IsMarkovKernel (κ n)] (c : ℕ) {f : (Π n, X n) → ℝ≥0∞}
-    (mf : Measurable f) (hf : DependsOn f (Iic a)) (hab : a ≤ b) :
-    lmarginalPartialTraj κ b c f = f := by
+/--
+If `f` only depends on the variables up to rank `a` and `a ≤ b`, integrating `f` against
+`partialTraj κ b c` does nothing.
+-/
+theorem lmarginalPartialTraj_of_le
+    [∀ n, IsMarkovKernel (κ n)]
+    (c : ℕ)
+    {f : (Π n, X n) → ℝ≥0∞} (mf : Measurable f) (hf : DependsOn f (Iic a))
+    (hab : a ≤ b)
+    : lmarginalPartialTraj κ b c f = f := by
   ext x
   rw [lmarginalPartialTraj_eq_lintegral_map mf]
   refine @lintegral_eq_const _ _ _ ?_ _ _ (ae_of_all _ fun y ↦ hf fun i hi ↦ ?_)
@@ -399,23 +422,33 @@ theorem lmarginalPartialTraj_of_le [∀ n, IsMarkovKernel (κ n)] (c : ℕ) {f :
   · simp_all only [coe_Iic, Set.mem_Iic, Function.updateFinset, mem_Ioc, dite_eq_right_iff]
     lia
 
-/-- If `f` only depends on the variables uo to rank `a`, integrating beyond rank `a` is the same
-as integrating up to rank `a`. -/
-theorem lmarginalPartialTraj_const_right [∀ n, IsMarkovKernel (κ n)] {d : ℕ} {f : (Π n, X n) → ℝ≥0∞}
-    (mf : Measurable f) (hf : DependsOn f (Iic a)) (hac : a ≤ c) (had : a ≤ d) :
-    lmarginalPartialTraj κ b c f = lmarginalPartialTraj κ b d f := by
+/--
+If `f` only depends on the variables uo to rank `a`, integrating beyond rank `a` is the same
+as integrating up to rank `a`.
+-/
+theorem lmarginalPartialTraj_const_right
+    [∀ n, IsMarkovKernel (κ n)]
+    {d : ℕ} {f : (Π n, X n) → ℝ≥0∞} (mf : Measurable f) (hf : DependsOn f (Iic a))
+    (hac : a ≤ c) (had : a ≤ d)
+    : lmarginalPartialTraj κ b c f = lmarginalPartialTraj κ b d f := by
   wlog hcd : c ≤ d generalizing c d
   · rw [this had hac (le_of_not_ge hcd)]
   obtain hbc | hcb := le_total b c
   · rw [← lmarginalPartialTraj_self hbc hcd mf, hf.lmarginalPartialTraj_of_le d mf hac]
-  · rw [hf.lmarginalPartialTraj_of_le c mf (hac.trans hcb),
-      hf.lmarginalPartialTraj_of_le d mf (hac.trans hcb)]
+  · rw [
+      hf.lmarginalPartialTraj_of_le c mf (hac.trans hcb),
+      hf.lmarginalPartialTraj_of_le d mf (hac.trans hcb)
+    ]
 
-/-- If `f` only depends on variables up to rank `b`, its integral from `a` to `b` only depends on
-variables up to rank `a`. -/
-theorem dependsOn_lmarginalPartialTraj [∀ n, IsSFiniteKernel (κ n)] (a : ℕ) {f : (Π n, X n) → ℝ≥0∞}
-    (hf : DependsOn f (Iic b)) (mf : Measurable f) :
-    DependsOn (lmarginalPartialTraj κ a b f) (Iic a) := by
+/--
+If `f` only depends on variables up to rank `b`, its integral from `a` to `b` only depends on
+variables up to rank `a`.
+-/
+theorem dependsOn_lmarginalPartialTraj
+    [∀ n, IsSFiniteKernel (κ n)]
+    (a : ℕ)
+    {f : (Π n, X n) → ℝ≥0∞} (hf : DependsOn f (Iic b)) (mf : Measurable f)
+    : DependsOn (lmarginalPartialTraj κ a b f) (Iic a) := by
   intro x y hxy
   obtain hba | hab := le_total b a
   · rw [Kernel.lmarginalPartialTraj_le κ hba mf]

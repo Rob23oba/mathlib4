@@ -93,8 +93,10 @@ def overEquiv {X : C} (Y : Over X) : Sieve Y ≃o Sieve Y.left where
   right_inv := functorPushforward_functorPullback_overForget
   map_rel_iff' := by
     rw [Equiv.coe_fn_mk]
-    exact ⟨fun h ↦ by simpa using functorPullback_monotone _ _ h,
-      fun h ↦ functorPushforward_monotone _ _ h⟩
+    exact ⟨
+      fun h ↦ by simpa using functorPullback_monotone _ _ h,
+      fun h ↦ functorPushforward_monotone _ _ h
+    ⟩
 
 @[deprecated (since := "2026-07-08")] alias overEquiv_top := map_top
 @[deprecated (since := "2026-07-08")] alias overEquiv_symm_top := map_top
@@ -235,17 +237,20 @@ variable (J : GrothendieckTopology C)
 
 namespace GrothendieckTopology
 
-/-- The Grothendieck topology on the category `Over X` for any `X : C` that is
-induced by a Grothendieck topology on `C`. -/
+/--
+The Grothendieck topology on the category `Over X` for any `X : C` that is
+induced by a Grothendieck topology on `C`.
+-/
 def over (X : C) : GrothendieckTopology (Over X) where
   sieves Y := Sieve.overEquiv Y ⁻¹' J Y.left
   top_mem' Y := by simp
   pullback_stable' Y₁ Y₂ S₁ f h₁ := by
     rw [Set.mem_preimage, Sieve.overEquiv_pullback]
     exact J.pullback_stable _ h₁
-  transitive' Y S hS R hR := J.transitive hS _ fun Z f hf => by
-    specialize hR ((Sieve.overEquiv_iff _ _).1 hf)
-    rwa [Set.mem_preimage, Sieve.overEquiv_pullback] at hR
+  transitive' Y S hS R hR :=
+    J.transitive hS _ fun Z f hf => by
+      specialize hR ((Sieve.overEquiv_iff _ _).1 hf)
+      rwa [Set.mem_preimage, Sieve.overEquiv_pullback] at hR
 
 lemma mem_over_iff {X : C} {Y : Over X} (S : Sieve Y) :
     S ∈ (J.over X) Y ↔ Sieve.overEquiv _ S ∈ J Y.left := by
@@ -271,13 +276,11 @@ instance (X : C) : (Over.forget X).IsCocontinuous (J.over X) J where
   cover_lift hS := J.overEquiv_symm_mem_over _ _ hS
 
 instance (X : C) : (Over.forget X).IsContinuous (J.over X) J :=
-  Functor.isContinuous_of_coverPreserving
-    (over_forget_compatiblePreserving J X)
+  Functor.isContinuous_of_coverPreserving (over_forget_compatiblePreserving J X)
     (over_forget_coverPreserving J X)
 
 /-- The pullback functor `Sheaf J A ⥤ Sheaf (J.over X) A` -/
-abbrev overPullback (A : Type u') [Category.{v'} A] (X : C) :
-    Sheaf J A ⥤ Sheaf (J.over X) A :=
+abbrev overPullback (A : Type u') [Category.{v'} A] (X : C) : Sheaf J A ⥤ Sheaf (J.over X) A :=
   (Over.forget X).sheafPushforwardContinuous _ _ _
 
 lemma over_map_coverPreserving {X Y : C} (f : X ⟶ Y) :
@@ -311,8 +314,7 @@ lemma over_map_compatiblePreserving {X Y : C} (f : X ⟶ Y) :
       simp
 
 instance {X Y : C} (f : X ⟶ Y) : (Over.map f).IsContinuous (J.over X) (J.over Y) :=
-  Functor.isContinuous_of_coverPreserving
-    (over_map_compatiblePreserving J f)
+  Functor.isContinuous_of_coverPreserving (over_map_compatiblePreserving J f)
     (over_map_coverPreserving J f)
 
 instance {X Y : C} (f : X ⟶ Y) : (Over.map f).IsCocontinuous (J.over _) (J.over _) where
@@ -320,9 +322,12 @@ instance {X Y : C} (f : X ⟶ Y) : (Over.map f).IsCocontinuous (J.over _) (J.ove
     rw [J.mem_over_iff] at hS ⊢
     rwa [Sieve.overEquiv_functorPullback_map]
 
-instance {D : Type*} [Category* D] (K : GrothendieckTopology D)
-    (F : C ⥤ D) (X : C) [F.IsCocontinuous J K] :
-    (Over.post (X := X) F).IsCocontinuous (J.over X) (K.over _) where
+instance
+    {D : Type*} [Category* D]
+    (K : GrothendieckTopology D) (F : C ⥤ D)
+    (X : C)
+    [F.IsCocontinuous J K]
+    : (Over.post (X := X) F).IsCocontinuous (J.over X) (K.over _) where
   cover_lift {U} S hS := by
     rw [GrothendieckTopology.mem_over_iff] at hS ⊢
     rw [Sieve.overEquiv_functorPullback_post]
@@ -338,8 +343,8 @@ lemma _root_.CategoryTheory.CoverPreserving.overPost {D : Type*} [Category* D]
     exact h.cover_preserve hS
 
 set_option backward.defeqAttrib.useBackward true in
-instance {J : GrothendieckTopology C} (X : C) :
-    (Over.forget X).PreservesOneHypercovers (J.over _) J := by
+instance {J : GrothendieckTopology C} (X : C)
+    : (Over.forget X).PreservesOneHypercovers (J.over _) J := by
   intro Y E
   refine ⟨?_, ?_⟩
   · dsimp
@@ -348,31 +353,40 @@ instance {J : GrothendieckTopology C} (X : C) :
   · intro i₁ i₂ W p₁ p₂ w
     have := w =≫ Over.hom _
     simp only [Over.forget_obj, Over.forget_map, Category.assoc, Over.w] at this
-    have := E.mem₁ i₁ i₂ (Over.homMk (U := Over.mk (p₁ ≫ Over.hom _)) p₁)
-      (Over.homMk (U := Over.mk (p₁ ≫ Over.hom _)) p₂ this.symm) (by ext; simpa)
+    have :=
+      E.mem₁ i₁ i₂ (Over.homMk (U := Over.mk (p₁ ≫ Over.hom _)) p₁)
+        (Over.homMk (U := Over.mk (p₁ ≫ Over.hom _)) p₂ this.symm) (by ext; simpa)
     rwa [GrothendieckTopology.mem_over_iff, Sieve.overEquiv_preOneHypercover_sieve₁] at this
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency.types false in
-instance {D : Type*} [Category* D] {J : GrothendieckTopology C} {K : GrothendieckTopology D}
-    (F : C ⥤ D) (X : C) [Functor.PreservesOneHypercovers.{w} F J K] :
-    Functor.PreservesOneHypercovers.{w} (Over.post F) (J.over X) (K.over _) := by
+instance
+    {D : Type*} [Category* D]
+    {J : GrothendieckTopology C} {K : GrothendieckTopology D}
+    (F : C ⥤ D)
+    (X : C)
+    [Functor.PreservesOneHypercovers.{w} F J K]
+    : Functor.PreservesOneHypercovers.{w} (Over.post F) (J.over X) (K.over _) := by
   intro Y E
   let E' := (E.map (Over.forget X) J).map F K
   refine ⟨?_, ?_⟩
   · dsimp [-Over.post_obj]
-    rw [PreZeroHypercover.sieve₀_map, GrothendieckTopology.mem_over_iff,
-      Sieve.functorPushforward_ofArrows, Sieve.overEquiv_ofArrows]
+    rw [
+      PreZeroHypercover.sieve₀_map, GrothendieckTopology.mem_over_iff,
+      Sieve.functorPushforward_ofArrows, Sieve.overEquiv_ofArrows
+    ]
     exact E'.mem₀
   · intro i₁ i₂ W p₁ p₂ w
     simp_rw [GrothendieckTopology.mem_over_iff, Sieve.overEquiv_preOneHypercover_sieve₁,
       ← PreOneHypercover.map_comp, Over.post_forget_eq_forget_comp, PreOneHypercover.map_comp]
     exact E'.mem₁ _ _ _ _ congr($(w).left)
 
-instance {D : Type*} [Category* D] {J : GrothendieckTopology C} {K : GrothendieckTopology D}
-    {F : C ⥤ D} (X : C) (Y : D) (f : F.obj X ⟶ Y)
-    [(Over.post F).IsContinuous (J.over X) (K.over _)] :
-    (Over.post F ⋙ Over.map f).IsContinuous (J.over X) (K.over Y) :=
+instance
+    {D : Type*} [Category* D]
+    {J : GrothendieckTopology C} {K : GrothendieckTopology D} {F : C ⥤ D}
+    (X : C) (Y : D) (f : F.obj X ⟶ Y)
+    [(Over.post F).IsContinuous (J.over X) (K.over _)]
+    : (Over.post F ⋙ Over.map f).IsContinuous (J.over X) (K.over Y) :=
   Functor.isContinuous_comp _ _ _ (K.over _) _
 
 open Limits
@@ -382,8 +396,8 @@ lemma coverPreserving_overPullback [HasPullbacks C] {X Y : C} (f : X ⟶ Y) :
   rw [← (Over.mapPullbackAdj f).isCocontinuous_iff_coverPreserving]
   infer_instance
 
-instance [HasPullbacks C] {X Y : C} (f : X ⟶ Y) :
-    (Over.pullback f).IsContinuous (J.over Y) (J.over X) :=
+instance [HasPullbacks C] {X Y : C} (f : X ⟶ Y)
+    : (Over.pullback f).IsContinuous (J.over Y) (J.over X) :=
   (Over.mapPullbackAdj f).isContinuous_of_isCocontinuous _ _
 
 section
@@ -392,8 +406,7 @@ variable {C : Type u'} [Category* C] [HasBinaryProducts C] {J : GrothendieckTopo
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-theorem coverPreserving_over_star (X : C) :
-    CoverPreserving J (J.over X) (Over.star X) where
+theorem coverPreserving_over_star (X : C) : CoverPreserving J (J.over X) (Over.star X) where
   cover_preserve {U} S hs := by
     refine J.superset_covering ?_ (J.pullback_stable prod.snd hs)
     intro y f hf
@@ -402,8 +415,8 @@ theorem coverPreserving_over_star (X : C) :
     refine ⟨_, _, prod.lift (f ≫ prod.fst) (𝟙 _), hf, Limits.prod.hom_ext ?_ ?_⟩ <;> simp
 
 instance (X : C) : (Over.star X).IsContinuous J (J.over X) :=
-  Functor.isContinuous_of_coverPreserving
-    (compatiblePreservingOfFlat (J.over X) (Over.star X)) (coverPreserving_over_star X)
+  Functor.isContinuous_of_coverPreserving (compatiblePreservingOfFlat (J.over X) (Over.star X))
+    (coverPreserving_over_star X)
 
 end
 
@@ -411,10 +424,11 @@ section
 
 variable (A : Type u') [Category.{v'} A]
 
-/-- The pullback functor `Sheaf (J.over Y) A ⥤ Sheaf (J.over X) A` induced
-by a morphism `f : X ⟶ Y`. -/
-abbrev overMapPullback {X Y : C} (f : X ⟶ Y) :
-    Sheaf (J.over Y) A ⥤ Sheaf (J.over X) A :=
+/--
+The pullback functor `Sheaf (J.over Y) A ⥤ Sheaf (J.over X) A` induced
+by a morphism `f : X ⟶ Y`.
+-/
+abbrev overMapPullback {X Y : C} (f : X ⟶ Y) : Sheaf (J.over Y) A ⥤ Sheaf (J.over X) A :=
   (Over.map f).sheafPushforwardContinuous _ _ _
 
 section
@@ -423,8 +437,7 @@ variable {X Y : C} {f g : X ⟶ Y} (h : f = g)
 
 /-- Two identical morphisms give isomorphic `overMapPullback` functors on sheaves. -/
 @[simps!]
-def overMapPullbackCongr :
-    J.overMapPullback A f ≅ J.overMapPullback A g :=
+def overMapPullbackCongr : J.overMapPullback A f ≅ J.overMapPullback A g :=
   Functor.sheafPushforwardContinuousIso (Over.mapCongr _ _ h) _ _ _
 
 lemma overMapPullbackCongr_eq_eqToIso :
@@ -435,16 +448,16 @@ end
 
 /-- Applying `overMapPullback` to the identity map gives the identity functor. -/
 @[simps!]
-def overMapPullbackId (X : C) :
-    J.overMapPullback A (𝟙 X) ≅ 𝟭 _ :=
+def overMapPullbackId (X : C) : J.overMapPullback A (𝟙 X) ≅ 𝟭 _ :=
   Functor.sheafPushforwardContinuousId' (Over.mapId X) _ _
 
-/-- The composition of two `overMapPullback` functors identifies to
-`overMapPullback` for the composition. -/
+/--
+The composition of two `overMapPullback` functors identifies to
+`overMapPullback` for the composition.
+-/
 @[simps!]
-def overMapPullbackComp {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    J.overMapPullback A g ⋙ J.overMapPullback A f ≅
-      J.overMapPullback A (f ≫ g) :=
+def overMapPullbackComp {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z)
+    : J.overMapPullback A g ⋙ J.overMapPullback A f ≅ J.overMapPullback A (f ≫ g) :=
   Functor.sheafPushforwardContinuousComp' (Over.mapComp f g).symm _ _ _ _
 
 set_option backward.defeqAttrib.useBackward true in
@@ -498,27 +511,27 @@ end GrothendieckTopology
 variable {J}
 
 /-- Given `F : Sheaf J A` and `X : C`, this is the pullback of `F` on `J.over X`. -/
-abbrev Sheaf.over {A : Type u'} [Category.{v'} A] (F : Sheaf J A) (X : C) :
-    Sheaf (J.over X) A := (J.overPullback A X).obj F
+abbrev Sheaf.over {A : Type u'} [Category.{v'} A] (F : Sheaf J A) (X : C) : Sheaf (J.over X) A :=
+  (J.overPullback A X).obj F
 
 variable {A : Type u'} [Category.{v'} A]
 
 set_option backward.defeqAttrib.useBackward true in
 /-- For `f : X ⟶ Y`, `F.over Y` viewed as a sheaf on `Over X` is isomorphic to `F.Over X`. -/
 @[simps! +dsimpLhs]
-def Sheaf.pushforwardOverMapIso (F : Sheaf J A) {X Y : C} (f : X ⟶ Y) :
-    ((Over.map f).sheafPushforwardContinuous A (J.over X) (J.over Y)).obj (F.over Y) ≅
-      F.over X :=
+def Sheaf.pushforwardOverMapIso (F : Sheaf J A) {X Y : C} (f : X ⟶ Y)
+    : ((Over.map f).sheafPushforwardContinuous A (J.over X) (J.over Y)).obj (F.over Y) ≅ F.over X :=
   ObjectProperty.isoMk _ (NatIso.ofComponents (fun _ ↦ Iso.refl _) (by simp))
 
 set_option backward.defeqAttrib.useBackward true in
-/-- For `f : X ⟶ Y`, this is the morphism from `F.over Y` to the pushforward of `F.over X`
-along `Over.pullback f` induced by `Limits.pullback.fst`. -/
+/--
+For `f : X ⟶ Y`, this is the morphism from `F.over Y` to the pushforward of `F.over X`
+along `Over.pullback f` induced by `Limits.pullback.fst`.
+-/
 @[simps]
-noncomputable
-def Sheaf.toPushforwardOverPullback [Limits.HasPullbacks C] (F : Sheaf J A)
-    {X Y : C} (f : X ⟶ Y) :
-    F.over Y ⟶ ((Over.pullback f).sheafPushforwardContinuous A _ _).obj (F.over X) where
+noncomputable def Sheaf.toPushforwardOverPullback
+    [Limits.HasPullbacks C] (F : Sheaf J A) {X Y : C} (f : X ⟶ Y)
+    : F.over Y ⟶ ((Over.pullback f).sheafPushforwardContinuous A _ _).obj (F.over X) where
   hom.app U := F.obj.map (.op <| Limits.pullback.fst _ _)
   hom.naturality := by simp [← Functor.map_comp, ← op_comp]
 
@@ -561,26 +574,28 @@ end
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-instance {X : C} (f : Over X) :
-    f.iteratedSliceEquiv.inverse.IsDenseSubsite (J.over _) ((J.over _).over _) where
+instance {X : C} (f : Over X)
+    : f.iteratedSliceEquiv.inverse.IsDenseSubsite (J.over _) ((J.over _).over _) where
   functorPushforward_mem_iff := by
-    simp [GrothendieckTopology.mem_over_iff, Sieve.overEquiv,
-      ← Over.iteratedSliceBackward_forget_forget f, Sieve.functorPushforward_comp]
+    simp [
+      GrothendieckTopology.mem_over_iff, Sieve.overEquiv,
+      ← Over.iteratedSliceBackward_forget_forget f, Sieve.functorPushforward_comp
+    ]
 
-instance {X : C} (f : Over X) :
-    f.iteratedSliceForward.IsContinuous ((J.over _).over _) (J.over _) :=
+instance {X : C} (f : Over X)
+    : f.iteratedSliceForward.IsContinuous ((J.over _).over _) (J.over _) :=
   inferInstanceAs (f.iteratedSliceEquiv.functor.IsContinuous _ _)
 
-instance {X : C} (f : Over X) :
-    f.iteratedSliceForward.IsCocontinuous ((J.over _).over _) (J.over _) :=
+instance {X : C} (f : Over X)
+    : f.iteratedSliceForward.IsCocontinuous ((J.over _).over _) (J.over _) :=
   inferInstanceAs (f.iteratedSliceEquiv.functor.IsCocontinuous _ _)
 
-instance {X : C} (f : Over X) :
-    f.iteratedSliceBackward.IsContinuous (J.over _) ((J.over _).over _) :=
+instance {X : C} (f : Over X)
+    : f.iteratedSliceBackward.IsContinuous (J.over _) ((J.over _).over _) :=
   inferInstanceAs (f.iteratedSliceEquiv.inverse.IsContinuous _ _)
 
-instance {X : C} (f : Over X) :
-    f.iteratedSliceBackward.IsCocontinuous (J.over _) ((J.over _).over _) :=
+instance {X : C} (f : Over X)
+    : f.iteratedSliceBackward.IsCocontinuous (J.over _) ((J.over _).over _) :=
   inferInstanceAs (f.iteratedSliceEquiv.inverse.IsCocontinuous _ _)
 
 end CategoryTheory

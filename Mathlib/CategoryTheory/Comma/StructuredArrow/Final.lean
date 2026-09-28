@@ -71,10 +71,13 @@ variable {T : Type u₃} [Category.{v₃} T]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- A functor `L : A ⥤ T` is final if there is a final functor `R : B ⥤ T` such that for all
-`b : B`, the canonical functor `CostructuredArrow L (R.obj b) ⥤ Over (R.obj b)` is final. -/
-theorem final_of_final_costructuredArrowToOver (L : A ⥤ T) (R : B ⥤ T) [Final R]
-    [hB : ∀ b : B, Final (CostructuredArrow.toOver L (R.obj b))] : Final L := by
+/--
+A functor `L : A ⥤ T` is final if there is a final functor `R : B ⥤ T` such that for all
+`b : B`, the canonical functor `CostructuredArrow L (R.obj b) ⥤ Over (R.obj b)` is final.
+-/
+theorem final_of_final_costructuredArrowToOver
+    (L : A ⥤ T) (R : B ⥤ T) [Final R] [hB : ∀ b : B, Final (CostructuredArrow.toOver L (R.obj b))]
+    : Final L := by
   let sA : A ≌ AsSmall.{max u₁ u₂ u₃ v₁ v₂ v₃} A := AsSmall.equiv
   let sB : B ≌ AsSmall.{max u₁ u₂ u₃ v₁ v₂ v₃} B := AsSmall.equiv
   let sT : T ≌ AsSmall.{max u₁ u₂ u₃ v₁ v₂ v₃} T := AsSmall.equiv
@@ -84,16 +87,16 @@ theorem final_of_final_costructuredArrowToOver (L : A ⥤ T) (R : B ⥤ T) [Fina
     dsimp only [L', R', CostructuredArrow.toOver] at hB ⊢
     let x := (sB.inverse ⋙ R ⋙ sT.functor).obj b
     let F'' : CostructuredArrow (sA.inverse ⋙ L ⋙ sT.functor) x ⥤ CostructuredArrow (𝟭 _) x :=
-      map₂ (F := sA.inverse) (G := sT.inverse) (whiskerLeft (sA.inverse ⋙ L) sT.unit) (𝟙 _) ⋙
-      pre L (𝟭 T) (R.obj _) ⋙ map₂ (F := sT.functor) (G := sT.functor) (𝟙 _) (𝟙 _)
+      map₂ (F := sA.inverse) (G := sT.inverse) (whiskerLeft (sA.inverse ⋙ L) sT.unit) (𝟙 _)
+        ⋙ pre L (𝟭 T) (R.obj _) ⋙ map₂ (F := sT.functor) (G := sT.functor) (𝟙 _) (𝟙 _)
     apply final_of_natIso (F := F'')
     have hsT (X) : sT.counitInv.app X = 𝟙 _ := rfl
     exact NatIso.ofComponents (fun X => CostructuredArrow.isoMk (Iso.refl _) (by simp [F'', hsT]))
   have := final_of_final_costructuredArrowToOver_small L' R'
   apply final_of_natIso (F := (sA.functor ⋙ L' ⋙ sT.inverse))
-  exact (sA.functor.associator (sA.inverse ⋙ L ⋙ sT.functor) sT.inverse).symm ≪≫
-    ((sA.functor.associator sA.inverse (L ⋙ sT.functor)).symm ≪≫
-      isoWhiskerRight sA.unitIso.symm _ ≪≫ (L ⋙ sT.functor).leftUnitor).compInverseIso
+  exact (sA.functor.associator (sA.inverse ⋙ L ⋙ sT.functor) sT.inverse).symm
+    ≪≫ ((sA.functor.associator sA.inverse (L ⋙ sT.functor)).symm
+      ≪≫ isoWhiskerRight sA.unitIso.symm _ ≪≫ (L ⋙ sT.functor).leftUnitor).compInverseIso
 
 end Functor
 

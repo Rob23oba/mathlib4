@@ -48,10 +48,10 @@ all `i : σ` induced by the injection `P.map : σ → ι`.
 
 If `P` is submersive, this is an isomorphism. See `SubmersivePresentation.cotangentEquiv`.
 -/
-noncomputable def cotangentComplexAux [Finite σ] (P : PreSubmersivePresentation R S ι σ) :
-    P.toExtension.Cotangent →ₗ[S] σ → S :=
-  Finsupp.linearEquivFunOnFinite S S σ ∘ₗ Finsupp.lcomapDomain _ P.map_inj ∘ₗ
-    P.cotangentSpaceBasis.repr.toLinearMap ∘ₗ P.toExtension.cotangentComplex
+noncomputable def cotangentComplexAux [Finite σ] (P : PreSubmersivePresentation R S ι σ)
+    : P.toExtension.Cotangent →ₗ[S] σ → S :=
+  Finsupp.linearEquivFunOnFinite S S σ ∘ₗ Finsupp.lcomapDomain _ P.map_inj
+    ∘ₗ P.cotangentSpaceBasis.repr.toLinearMap ∘ₗ P.toExtension.cotangentComplex
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -123,8 +123,10 @@ lemma cotangentComplexAux_surjective : Function.Surjective P.cotangentComplexAux
   rw [P.cotangentComplexAux_apply]
   simp
 
-/-- The isomorphism of `S`-modules between `I ⧸ I ^ 2` and `σ → S` given
-by `P.relation i ↦ ∂ⱼ (P.relation i)`. -/
+/--
+The isomorphism of `S`-modules between `I ⧸ I ^ 2` and `σ → S` given
+by `P.relation i ↦ ∂ⱼ (P.relation i)`.
+-/
 @[simps! apply]
 noncomputable def cotangentEquiv : P.toExtension.Cotangent ≃ₗ[S] σ → S :=
   LinearEquiv.ofBijective _ ⟨P.cotangentComplexAux_injective, P.cotangentComplexAux_surjective⟩
@@ -165,8 +167,8 @@ inverse of `P.cotangentEquiv`.
 By `SubmersivePresentation.sectionCotangent_comp` this is indeed a section.
 -/
 noncomputable def sectionCotangent : P.toExtension.CotangentSpace →ₗ[S] P.toExtension.Cotangent :=
-  (cotangentEquiv P).symm ∘ₗ (Finsupp.linearEquivFunOnFinite S S σ).toLinearMap ∘ₗ
-    Finsupp.lcomapDomain _ P.map_inj ∘ₗ P.cotangentSpaceBasis.repr.toLinearMap
+  (cotangentEquiv P).symm ∘ₗ (Finsupp.linearEquivFunOnFinite S S σ).toLinearMap
+    ∘ₗ Finsupp.lcomapDomain _ P.map_inj ∘ₗ P.cotangentSpaceBasis.repr.toLinearMap
 
 lemma sectionCotangent_eq_iff (x : P.toExtension.CotangentSpace) (y : P.toExtension.Cotangent) :
     sectionCotangent P x = y ↔
@@ -196,9 +198,10 @@ Given a submersive presentation of `S` as `R`-algebra, any indexing type `κ` co
 the `σ` in `ι` indexes a basis of `Ω[S⁄R]`.
 See `SubmersivePresentation.basisKaehler` for the special case `κ = (Set.range P.map)ᶜ`.
 -/
-noncomputable def basisKaehlerOfIsCompl {κ : Type*} {f : κ → ι}
-    (hf : Function.Injective f) (hcompl : IsCompl (Set.range f) (Set.range P.map)) :
-    Basis κ S Ω[S⁄R] := by
+noncomputable def basisKaehlerOfIsCompl
+    {κ : Type*} {f : κ → ι}
+    (hf : Function.Injective f) (hcompl : IsCompl (Set.range f) (Set.range P.map))
+    : Basis κ S Ω[S⁄R] := by
   apply P.cotangentSpaceBasis.ofSplitExact (sectionCotangent_comp P)
     Extension.exact_cotangentComplex_toKaehler Extension.toKaehler_surjective hf (b := P.map)
   · intro i
@@ -209,8 +212,9 @@ noncomputable def basisKaehlerOfIsCompl {κ : Type*} {f : κ → ι}
     convert! (Pi.basisFun S σ).linearIndependent
     classical
     ext i j
-    simp only [Function.comp_apply, Basis.repr_self, Finsupp.linearEquivFunOnFinite_apply,
-      Pi.basisFun_apply]
+    simp only [
+      Function.comp_apply, Basis.repr_self, Finsupp.linearEquivFunOnFinite_apply, Pi.basisFun_apply
+    ]
     simp [Finsupp.single_eq_pi_single]
   · exact hcompl.2
 
@@ -220,11 +224,12 @@ lemma basisKaehlerOfIsCompl_apply {κ : Type*} {f : κ → ι}
     P.basisKaehlerOfIsCompl hf hcompl k = KaehlerDifferential.D _ _ (P.val (f k)) := by
   simp [basisKaehlerOfIsCompl]
 
-/-- Given a submersive presentation of `S` as `R`-algebra, the images of `dxᵢ`
-for `i` in the complement of `σ` in `ι` form a basis of `Ω[S⁄R]`. -/
+/--
+Given a submersive presentation of `S` as `R`-algebra, the images of `dxᵢ`
+for `i` in the complement of `σ` in `ι` form a basis of `Ω[S⁄R]`.
+-/
 @[stacks 00T7 "(2)"]
-noncomputable def basisKaehler :
-    Basis ((Set.range P.map)ᶜ : Set _) S Ω[S⁄R] :=
+noncomputable def basisKaehler : Basis ((Set.range P.map)ᶜ : Set _) S Ω[S⁄R] :=
   P.basisKaehlerOfIsCompl Subtype.val_injective <| by
     rw [Subtype.range_coe_subtype]
     exact IsCompl.symm isCompl_compl
@@ -236,18 +241,21 @@ lemma basisKaehler_apply (k : ((Set.range P.map)ᶜ : Set _)) :
 
 /-- If `P` is a submersive presentation of `S` as an `R`-algebra, `Ω[S⁄R]` is free. -/
 @[stacks 00T7 "(2)"]
-theorem free_kaehlerDifferential (P : SubmersivePresentation R S ι σ) :
-    Module.Free S Ω[S⁄R] :=
+theorem free_kaehlerDifferential (P : SubmersivePresentation R S ι σ) : Module.Free S Ω[S⁄R] :=
   Module.Free.of_basis P.basisKaehler
 
 attribute [local instance] Fintype.ofFinite in
-/-- If `P` is a submersive presentation of `S` as an `R`-algebra and `S` is nontrivial,
+/--
+If `P` is a submersive presentation of `S` as an `R`-algebra and `S` is nontrivial,
 `Ω[S⁄R]` is free of rank the dimension of `P`, i.e. the number of generators minus the number
-of relations. -/
-theorem rank_kaehlerDifferential [Nontrivial S] [Finite ι]
-    (P : SubmersivePresentation R S ι σ) : Module.rank S Ω[S⁄R] = P.dimension := by
-  simp only [rank_eq_card_basis P.basisKaehler, Fintype.card_compl_set,
-    Presentation.dimension, Nat.card_eq_fintype_card, Set.card_range_of_injective P.map_inj]
+of relations.
+-/
+theorem rank_kaehlerDifferential [Nontrivial S] [Finite ι] (P : SubmersivePresentation R S ι σ)
+    : Module.rank S Ω[S⁄R] = P.dimension := by
+  simp only [
+    rank_eq_card_basis P.basisKaehler, Fintype.card_compl_set, Presentation.dimension,
+    Nat.card_eq_fintype_card, Set.card_range_of_injective P.map_inj
+  ]
 
 end SubmersivePresentation
 
@@ -260,10 +268,12 @@ instance : Module.Free S (Generators.localizationAway S r).toExtension.Cotangent
     Module.Free S ((SubmersivePresentation.localizationAway S r).toExtension.Cotangent)
 
 variable (S) in
-/-- The image of `g * X - 1` in `I/I²` if `I` is the kernel of the canonical presentation
-of the localization of `S` away from `g`. -/
-noncomputable
-abbrev Generators.cMulXSubOneCotangent : (Generators.localizationAway S r).toExtension.Cotangent :=
+/--
+The image of `g * X - 1` in `I/I²` if `I` is the kernel of the canonical presentation
+of the localization of `S` away from `g`.
+-/
+noncomputable abbrev Generators.cMulXSubOneCotangent
+    : (Generators.localizationAway S r).toExtension.Cotangent :=
   Extension.Cotangent.mk ⟨C r * X () - 1, C_mul_X_sub_one_mem_ker _⟩
 
 lemma Generators.cMulXSubOneCotangent_eq :
@@ -287,9 +297,8 @@ This is def-eq to `(SubmersivePresentation.localizationAway T g).basisCotangent`
 is not reducibly def-eq. Hence using the general `SubmersivePresentation.basisCotangent` leads
 to `erw` hell.
 -/
-noncomputable
-def Generators.basisCotangentAway (r : R) [IsLocalization.Away r S] :
-    Module.Basis Unit S (localizationAway S r).toExtension.Cotangent :=
+noncomputable def Generators.basisCotangentAway (r : R) [IsLocalization.Away r S]
+    : Module.Basis Unit S (localizationAway S r).toExtension.Cotangent :=
   (SubmersivePresentation.localizationAway S r).basisCotangent
 
 lemma Generators.basisCotangentAway_apply (x : Unit) :
@@ -299,21 +308,23 @@ lemma Generators.basisCotangentAway_apply (x : Unit) :
 end LocalizationAway
 
 /-- If `S` is `R`-standard smooth, `Ω[S⁄R]` is a free `S`-module. -/
-instance IsStandardSmooth.free_kaehlerDifferential [IsStandardSmooth R S] :
-    Module.Free S Ω[S⁄R] := by
+instance IsStandardSmooth.free_kaehlerDifferential [IsStandardSmooth R S]
+    : Module.Free S Ω[S⁄R] := by
   obtain ⟨_, _, _, _, ⟨P⟩⟩ := ‹IsStandardSmooth R S›
   exact P.free_kaehlerDifferential
 
-instance IsStandardSmooth.subsingleton_h1Cotangent [IsStandardSmooth R S] :
-    Subsingleton (H1Cotangent R S) := by
+instance IsStandardSmooth.subsingleton_h1Cotangent [IsStandardSmooth R S]
+    : Subsingleton (H1Cotangent R S) := by
   obtain ⟨_, _, _, _, ⟨P⟩⟩ := ‹IsStandardSmooth R S›
   exact P.equivH1Cotangent.symm.toEquiv.subsingleton
 
-/-- If `S` is non-trivial and `R`-standard smooth of relative dimension, `Ω[S⁄R]` is a free
-`S`-module of rank `n`. -/
-theorem IsStandardSmoothOfRelativeDimension.rank_kaehlerDifferential [Nontrivial S] (n : ℕ)
-    [IsStandardSmoothOfRelativeDimension n R S] :
-    Module.rank S Ω[S⁄R] = n := by
+/--
+If `S` is non-trivial and `R`-standard smooth of relative dimension, `Ω[S⁄R]` is a free
+`S`-module of rank `n`.
+-/
+theorem IsStandardSmoothOfRelativeDimension.rank_kaehlerDifferential
+    [Nontrivial S] (n : ℕ) [IsStandardSmoothOfRelativeDimension n R S]
+    : Module.rank S Ω[S⁄R] = n := by
   obtain ⟨_, _, _, _, ⟨P, hP⟩⟩ := ‹IsStandardSmoothOfRelativeDimension n R S›
   rw [P.rank_kaehlerDifferential, hP]
 
@@ -327,7 +338,8 @@ lemma IsStandardSmoothOfRelativeDimension.iff_of_isStandardSmooth [Nontrivial S]
   rwa [← P.rank_kaehlerDifferential]
 
 instance IsStandardSmoothOfRelativeDimension.subsingleton_kaehlerDifferential
-    [IsStandardSmoothOfRelativeDimension 0 R S] : Subsingleton Ω[S⁄R] := by
+    [IsStandardSmoothOfRelativeDimension 0 R S]
+    : Subsingleton Ω[S⁄R] := by
   cases subsingleton_or_nontrivial S
   · exact Module.subsingleton S _
   have : IsStandardSmooth R S := IsStandardSmoothOfRelativeDimension.isStandardSmooth 0

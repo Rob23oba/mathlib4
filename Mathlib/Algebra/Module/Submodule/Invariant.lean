@@ -29,13 +29,17 @@ namespace Module.End
 
 variable {R M : Type*} [Semiring R] [AddCommMonoid M] [Module R M] (f g : End R M)
 
-/-- Given an endomorphism, `f` of some module, this is the sublattice of all `f`-invariant
-submodules. -/
+/--
+Given an endomorphism, `f` of some module, this is the sublattice of all `f`-invariant
+submodules.
+-/
 def invtSubmodule : Sublattice (Submodule R M) where
   carrier := {p : Submodule R M | p ≤ p.comap f}
-  supClosed' p hp q hq := sup_le_iff.mpr
-    ⟨le_trans hp <| Submodule.comap_mono le_sup_left,
-    le_trans hq <| Submodule.comap_mono le_sup_right⟩
+  supClosed' p hp q hq :=
+    sup_le_iff.mpr ⟨
+      le_trans hp <| Submodule.comap_mono le_sup_left,
+      le_trans hq <| Submodule.comap_mono le_sup_right
+    ⟩
   infClosed' p hp q hq := by
     simp only [Set.mem_ofPred_eq, Submodule.comap_inf, le_inf_iff]
     exact ⟨inf_le_of_left_le hp, inf_le_of_right_le hq⟩
@@ -45,17 +49,17 @@ lemma mem_invtSubmodule {p : Submodule R M} :
   Iff.rfl
 
 /-- `p` is `f` invariant if and only if `p.map f ≤ p`. -/
-theorem mem_invtSubmodule_iff_map_le {p : Submodule R M} :
-    p ∈ f.invtSubmodule ↔ p.map f ≤ p := Submodule.map_le_iff_le_comap.symm
+theorem mem_invtSubmodule_iff_map_le {p : Submodule R M} : p ∈ f.invtSubmodule ↔ p.map f ≤ p :=
+  Submodule.map_le_iff_le_comap.symm
 
 /-- `p` is `f` invariant if and only if `Set.MapsTo f p p`. -/
-theorem mem_invtSubmodule_iff_mapsTo {p : Submodule R M} :
-    p ∈ f.invtSubmodule ↔ Set.MapsTo f p p := Iff.rfl
+theorem mem_invtSubmodule_iff_mapsTo {p : Submodule R M} : p ∈ f.invtSubmodule ↔ Set.MapsTo f p p :=
+  Iff.rfl
 
 alias ⟨_, _root_.Set.Mapsto.mem_invtSubmodule⟩ := mem_invtSubmodule_iff_mapsTo
 
-theorem mem_invtSubmodule_iff_forall_mem_of_mem {p : Submodule R M} :
-    p ∈ f.invtSubmodule ↔ ∀ x ∈ p, f x ∈ p :=
+theorem mem_invtSubmodule_iff_forall_mem_of_mem {p : Submodule R M}
+    : p ∈ f.invtSubmodule ↔ ∀ x ∈ p, f x ∈ p :=
   Iff.rfl
 
 /-- `p` is `f.symm` invariant if and only if `p ≤ p.map f`. -/
@@ -69,8 +73,10 @@ lemma invtSubmodule_inf_invtSubmodule_le_invtSubmodule_add :
 
 section CommRing
 
-variable {R S : Type*} [Semiring R] [Semiring S] [Module R M] [Module S M]
-  [DistribSMul S R] [SMulCommClass R S M] [IsScalarTower S R M] (f : End R M)
+variable
+  {R S : Type*} [Semiring R] [Semiring S] [Module R M] [Module S M] [DistribSMul S R]
+  [SMulCommClass R S M] [IsScalarTower S R M]
+  (f : End R M)
 
 lemma invtSubmodule_le_invtSubmodule_smul (c : S) : f.invtSubmodule ≤ (c • f).invtSubmodule :=
   fun p hfp _ hx ↦ p.smul_of_tower_mem c (hfp hx)

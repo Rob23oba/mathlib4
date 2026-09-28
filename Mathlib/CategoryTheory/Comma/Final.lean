@@ -123,16 +123,19 @@ end Relative
 instance initial_snd [L.Initial] : (snd L R).Initial :=
   initial_snd_of_isConnected_costructuredArrow L R
 
-instance final_fst [R.Final] : (fst L R).Final :=
-  final_fst_of_isConnected_structuredArrow L R
+instance final_fst [R.Final] : (fst L R).Final := final_fst_of_isConnected_structuredArrow L R
 
-/-- `Comma L R` with `L : A ⥤ T` and `R : B ⥤ T` is connected if `R` is final and `A` is
-connected. -/
+/--
+`Comma L R` with `L : A ⥤ T` and `R : B ⥤ T` is connected if `R` is final and `A` is
+connected.
+-/
 instance isConnected_comma_of_final [IsConnected A] [R.Final] : IsConnected (Comma L R) := by
   rwa [isConnected_iff_of_final (fst L R)]
 
-/-- `Comma L R` with `L : A ⥤ T` and `R : B ⥤ T` is connected if `L` is initial and `B` is
-connected. -/
+/--
+`Comma L R` with `L : A ⥤ T` and `R : B ⥤ T` is connected if `L` is initial and `B` is
+connected.
+-/
 instance isConnected_comma_of_initial [IsConnected B] [L.Initial] : IsConnected (Comma L R) := by
   rwa [isConnected_iff_of_initial (snd L R)]
 
@@ -176,8 +179,10 @@ lemma map_final {A : Type u₁} [Category.{v₁} A] {B : Type u₂} [Category.{v
 
 section Filtered
 
-/-- Let `A` and `B` be filtered categories, `R : B ⥤ T` be final and `L : A ⥤ T`. Then, the
-comma category `Comma L R` is filtered. -/
+/--
+Let `A` and `B` be filtered categories, `R : B ⥤ T` be final and `L : A ⥤ T`. Then, the
+comma category `Comma L R` is filtered.
+-/
 instance isFiltered_of_final [IsFiltered A] [IsFiltered B] [R.Final] : IsFiltered (Comma L R) := by
   have := R.final_iff_isFiltered_structuredArrow.mp inferInstance
   exact isFiltered_of_isFiltered_structuredArrow L R
@@ -189,14 +194,18 @@ lemma isCofiltered_of_initial [IsCofiltered A] [IsCofiltered B] [L.Initial] :
   have := L.initial_iff_isCofiltered_costructuredArrow.mp inferInstance
   exact isCofiltered_of_isCofiltered_costructuredArrow L R
 
-/-- Let `A` and `B` be filtered categories, `R : B ⥤ T` be final and `R : A ⥤ T`. Then, the
-projection `snd L R : Comma L R ⥤ B` is final. -/
+/--
+Let `A` and `B` be filtered categories, `R : B ⥤ T` be final and `R : A ⥤ T`. Then, the
+projection `snd L R : Comma L R ⥤ B` is final.
+-/
 instance final_snd [IsFiltered A] [IsFiltered B] [R.Final] : (snd L R).Final := by
   have := R.final_iff_isFiltered_structuredArrow.mp inferInstance
   exact final_snd_of_isFiltered_structuredArrow L R
 
-/-- Let `A` and `B` be cofiltered categories, `L : A ⥤ T` be initial and `R : B ⥤ T`. Then, the
-projection `fst L R : Comma L R ⥤ A` is initial. -/
+/--
+Let `A` and `B` be cofiltered categories, `L : A ⥤ T` be initial and `R : B ⥤ T`. Then, the
+projection `fst L R : Comma L R ⥤ A` is initial.
+-/
 instance initial_fst [IsCofiltered A] [IsCofiltered B] [L.Initial] : (fst L R).Initial := by
   have := L.initial_iff_isCofiltered_costructuredArrow.mp inferInstance
   exact initial_fst_of_isCofiltered_costructuredArrow L R

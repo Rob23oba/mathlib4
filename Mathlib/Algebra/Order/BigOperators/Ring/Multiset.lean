@@ -31,10 +31,13 @@ section OrderedCommSemiring
 
 variable {α β : Type*} [CommMonoid α] [CommMonoidWithZero β] [PartialOrder β] [PosMulMono β]
 
-theorem Multiset.le_prod_of_submultiplicative_on_pred_of_nonneg (f : α → β) (p : α → Prop)
+theorem Multiset.le_prod_of_submultiplicative_on_pred_of_nonneg
+    (f : α → β)
+    (p : α → Prop)
     (h0 : ∀ a, 0 ≤ f a) (h_one : f 1 ≤ 1) (h_mul : ∀ a b, p a → p b → f (a * b) ≤ f a * f b)
-    (hp_mul : ∀ a b, p a → p b → p (a * b)) (s : Multiset α) (hps : ∀ a, a ∈ s → p a) :
-    f s.prod ≤ (s.map f).prod := by
+    (hp_mul : ∀ a b, p a → p b → p (a * b))
+    (s : Multiset α) (hps : ∀ a, a ∈ s → p a)
+    : f s.prod ≤ (s.map f).prod := by
   revert s
   refine Multiset.induction (by simp [h_one]) ?_
   intro a s hs hpsa
@@ -46,11 +49,15 @@ theorem Multiset.le_prod_of_submultiplicative_on_pred_of_nonneg (f : α → β) 
     exact (h_mul a s.prod (hpsa a (mem_cons_self a s)) hp_prod).trans
       (by gcongr; exacts [h0 _, hs hps])
 
-theorem Multiset.le_prod_of_submultiplicative_of_nonneg (f : α → β) (h0 : ∀ a, 0 ≤ f a)
-    (h_one : f 1 ≤ 1) (h_mul : ∀ a b, f (a * b) ≤ f a * f b) (s : Multiset α) :
-    f s.prod ≤ (s.map f).prod :=
-  le_prod_of_submultiplicative_on_pred_of_nonneg f (fun _ ↦ True) h0 h_one
-    (fun x y _ _ ↦ h_mul x y) (by simp) s (by simp)
+theorem Multiset.le_prod_of_submultiplicative_of_nonneg
+    (f : α → β) (h0 : ∀ a, 0 ≤ f a) (h_one : f 1 ≤ 1) (h_mul : ∀ a b, f (a * b) ≤ f a * f b)
+    (s : Multiset α)
+    : f s.prod ≤ (s.map f).prod :=
+  le_prod_of_submultiplicative_on_pred_of_nonneg f
+    (fun _ ↦ True)
+    h0 h_one
+    (fun x y _ _ ↦ h_mul x y)
+    (by simp) s (by simp)
 
 omit [CommMonoid α] in
 lemma Multiset.mem_le_prod_of_one_le [ZeroLEOneClass β] {f : α → β} (h1 : ∀ a : α, 1 ≤ f a)

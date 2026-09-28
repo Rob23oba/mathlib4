@@ -44,10 +44,12 @@ variable (R K L : Type*) [CommRing R] [Field K] [LieRing L] [LieAlgebra R L] [Li
 
 namespace LieAlgebra
 
-/-- We say a Lie algebra is Killing if its Killing form is non-singular.
+/--
+We say a Lie algebra is Killing if its Killing form is non-singular.
 
 NB: This is not standard terminology (the literature does not seem to name Lie algebras with this
-property). -/
+property).
+-/
 class IsKilling : Prop where
   /-- We say a Lie algebra is Killing if its Killing form is non-singular. -/
   killingCompl_top_eq_bot : LieIdeal.killingCompl R L ⊤ = ⊥
@@ -82,20 +84,22 @@ instance instSemisimple [IsKilling K L] [Module.Finite K L] : IsSemisimple K L :
   · intro I h₁ h₂
     exact h₁.1 <| IsKilling.ideal_eq_bot_of_isLieAbelian I
 
-/-- The converse of this is true in characteristic zero; it is
+/--
+The converse of this is true in characteristic zero; it is
 `LieAlgebra.HasTrivialRadical.instIsKilling`. There are counterexamples
 over fields with positive characteristic.
 
 Note that when the coefficients are a field this instance is redundant since we have
-`LieAlgebra.IsKilling.instSemisimple` and `LieAlgebra.IsSemisimple.instHasTrivialRadical`. -/
+`LieAlgebra.IsKilling.instSemisimple` and `LieAlgebra.IsSemisimple.instHasTrivialRadical`.
+-/
 instance instHasTrivialRadical
-    [Module.Free R L] [Module.Finite R L] [IsDomain R] [IsPrincipalIdealRing R] :
-    HasTrivialRadical R L :=
+    [Module.Free R L] [Module.Finite R L] [IsDomain R] [IsPrincipalIdealRing R]
+    : HasTrivialRadical R L :=
   (hasTrivialRadical_iff_no_abelian_ideals R L).mpr IsKilling.ideal_eq_bot_of_isLieAbelian
 
 theorem isLieAbelian_iff_subsingleton
-    [Module.Free R L] [Module.Finite R L] [IsDomain R] [IsPrincipalIdealRing R] :
-    IsLieAbelian L ↔ Subsingleton L := by
+    [Module.Free R L] [Module.Finite R L] [IsDomain R] [IsPrincipalIdealRing R]
+    : IsLieAbelian L ↔ Subsingleton L := by
   constructor
   · intro h
     rw [isLieAbelian_iff_center_eq_top R] at h

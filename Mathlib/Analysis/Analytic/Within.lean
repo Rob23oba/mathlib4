@@ -32,8 +32,8 @@ open Set Filter Metric
 
 variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
 
-variable {E F : Type*}
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] [NormedAddCommGroup F] [NormedSpace 𝕜 F]
+variable
+  {E F : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E] [NormedAddCommGroup F] [NormedSpace 𝕜 F]
 
 /-!
 ### Basic properties
@@ -210,8 +210,8 @@ lemma AnalyticWithinAt.exists_mem_nhdsWithin_analyticOn
     exact this.congr (h'g.mono (inter_subset_left)) (h'g (inter_subset_left hy))
 
 theorem AnalyticWithinAt.eventually_analyticWithinAt
-    [CompleteSpace F] {f : E → F} {s : Set E} {x : E}
-    (hf : AnalyticWithinAt 𝕜 f s x) : ∀ᶠ y in 𝓝[s] x, AnalyticWithinAt 𝕜 f s y := by
+    [CompleteSpace F] {f : E → F} {s : Set E} {x : E} (hf : AnalyticWithinAt 𝕜 f s x)
+    : ∀ᶠ y in 𝓝[s] x, AnalyticWithinAt 𝕜 f s y := by
   obtain ⟨g, hfg, hga⟩ := analyticWithinAt_iff_exists_analyticAt.mp hf
   simp only [Filter.EventuallyEq, eventually_nhdsWithin_iff] at hfg ⊢
   filter_upwards [hfg.eventually_nhds, hga.eventually_analyticAt] with z hfgz hgaz hz

@@ -43,13 +43,19 @@ be written as `a = v + ∑ cᵢ * logDeriv uᵢ` for `v, cᵢ, uᵢ ∈ K` and `
 written in that way with `v, cᵢ, uᵢ ∈ F`.
 -/
 class IsLiouville : Prop where
-  isLiouville (a : F) (ι : Type) [Fintype ι] (c : ι → F) (hc : ∀ x, (c x)′ = 0)
-    (u : ι → K) (v : K) (h : a = ∑ x, c x * logDeriv (u x) + v′) :
-    ∃ (ι₀ : Type) (_ : Fintype ι₀) (c₀ : ι₀ → F) (_ : ∀ x, (c₀ x)′ = 0)
-      (u₀ : ι₀ → F) (v₀ : F), a = ∑ x, c₀ x * logDeriv (u₀ x) + v₀′
+  isLiouville
+    (a : F)
+    (ι : Type) [Fintype ι]
+    (c : ι → F) (hc : ∀ x, (c x)′ = 0)
+    (u : ι → K) (v : K) (h : a = ∑ x, c x * logDeriv (u x) + v′)
+    : ∃ (ι₀ : Type) (_ : Fintype ι₀) (c₀ : ι₀ → F) (_ : ∀ x, (c₀ x)′ = 0) (u₀ : ι₀ → F) (v₀ : F),
+      a = ∑ x, c₀ x * logDeriv (u₀ x) + v₀′
 
 instance IsLiouville.rfl : IsLiouville F F where
-  isLiouville (a : F) (ι : Type) [Fintype ι] (c : ι → F) (hc : ∀ x, (c x)′ = 0)
+  isLiouville
+      (a : F)
+      (ι : Type) [Fintype ι]
+      (c : ι → F) (hc : ∀ x, (c x)′ = 0)
       (u : ι → F) (v : F) (h : a = ∑ x, c x * logDeriv (u x) + v′) :=
     ⟨ι, _, c, hc, u, v, h⟩
 
@@ -74,9 +80,7 @@ lemma IsLiouville.trans {A : Type*} [Field A] [Algebra K A] [Algebra F A]
       · apply FaithfulSMul.algebraMap_injective
 
 section Algebraic
-/-
-The case of Liouville's theorem for algebraic extensions.
--/
+/- The case of Liouville's theorem for algebraic extensions. -/
 
 variable {F K} [CharZero F]
 
@@ -84,10 +88,12 @@ variable {F K} [CharZero F]
 If `K` is a Liouville extension of `F` and `B` is a finite-dimensional intermediate
 field `K / B / F`, then it's also a Liouville extension of `F`.
 -/
-instance (B : IntermediateField F K)
-    [FiniteDimensional F B] [inst : IsLiouville F K] :
-    IsLiouville F B where
-  isLiouville (a : F) (ι : Type) [Fintype ι] (c : ι → F) (hc : ∀ x, (c x)′ = 0)
+instance (B : IntermediateField F K) [FiniteDimensional F B] [inst : IsLiouville F K]
+    : IsLiouville F B where
+  isLiouville
+      (a : F)
+      (ι : Type) [Fintype ι]
+      (c : ι → F) (hc : ∀ x, (c x)′ = 0)
       (u : ι → B) (v : B) (h : a = ∑ x, c x * logDeriv (u x) + v′) := by
     apply inst.isLiouville a ι c hc (B.val ∘ u) (B.val v)
     dsimp only [coe_val, Function.comp_apply]
@@ -101,7 +107,6 @@ instance (B : IntermediateField F K)
       · apply (deriv_algebraMap v)
     simp_rw [IsScalarTower.algebraMap_apply F B K]
     norm_cast
-
 
 /--
 Transfer an `IsLiouville` instance using an equivalence `K ≃ₐ[F] K'`.
@@ -120,12 +125,15 @@ lemma IsLiouville.equiv {K' : Type*} [Field K'] [Differential K'] [Algebra F K']
 A finite-dimensional Galois extension of `F` is a Liouville extension.
 This is private because it's generalized by all finite-dimensional extensions being Liouville.
 -/
-private local instance isLiouville_of_finiteDimensional_galois [FiniteDimensional F K]
-    [IsGalois F K] : IsLiouville F K where
-  isLiouville (a : F) (ι : Type) [Fintype ι] (c : ι → F) (hc : ∀ x, (c x)′ = 0)
+private local instance isLiouville_of_finiteDimensional_galois
+    [FiniteDimensional F K] [IsGalois F K]
+    : IsLiouville F K where
+  isLiouville
+      (a : F)
+      (ι : Type) [Fintype ι]
+      (c : ι → F) (hc : ∀ x, (c x)′ = 0)
       (u : ι → K) (v : K) (h : a = ∑ x, c x * logDeriv (u x) + v′) := by
-    have : CharZero K := charZero_of_injective_algebraMap
-      (FaithfulSMul.algebraMap_injective F K)
+    have : CharZero K := charZero_of_injective_algebraMap (FaithfulSMul.algebraMap_injective F K)
     -- We sum `e x` over all isomorphisms `e : K ≃ₐ[F] K`.
     -- Because this is a Galois extension each of the relevant values will be in `F`.
     -- We need to divide by `Fintype.card (K ≃ₐ[F] K)` to get the original answer.
@@ -163,8 +171,7 @@ private local instance isLiouville_of_finiteDimensional_galois [FiniteDimensiona
       simp [c₀, Derivation.leibniz_div, hc]
     · -- Proving that this works is mostly straightforward algebraic manipulation,
       apply_fun (algebraMap F K)
-      case inj =>
-        exact FaithfulSMul.algebraMap_injective F K
+      case inj => exact FaithfulSMul.algebraMap_injective F K
       simp only [map_add, map_sum, map_mul, ← logDeriv_algebraMap, hu₀, ← deriv_algebraMap, hv₀]
       unfold u₁ v₁ c₀
       clear c₀ u₁ u₀ hu₀ v₁ v₀ hv₀
@@ -196,17 +203,16 @@ private local instance isLiouville_of_finiteDimensional_galois [FiniteDimensiona
 We lift `isLiouville_of_finiteDimensional_galois` to non-Galois field extensions by using it for the
 normal closure then obtaining it for `F`.
 -/
-instance isLiouville_of_finiteDimensional [FiniteDimensional F K] :
-    IsLiouville F K :=
+instance isLiouville_of_finiteDimensional [FiniteDimensional F K] : IsLiouville F K :=
   let map := IsAlgClosed.lift (M := AlgebraicClosure F) (R := F) (S := K)
   let K' := map.fieldRange
-  have : FiniteDimensional F K' :=
-    LinearMap.finiteDimensional_range map.toLinearMap
+  have : FiniteDimensional F K' := LinearMap.finiteDimensional_range map.toLinearMap
   let K'' := normalClosure F K' (AlgebraicClosure F)
-  let B : IntermediateField F K'' := IntermediateField.restrict
-    (F := K') (IntermediateField.le_normalClosure ..)
-  have kequiv : K ≃ₐ[F] ↥B := (show K ≃ₐ[F] K' from AlgEquiv.ofInjectiveField map).trans
-    (IntermediateField.restrictAlgEquiv _)
+  let B : IntermediateField F K'' :=
+    IntermediateField.restrict (F := K') (IntermediateField.le_normalClosure ..)
+  have kequiv : K ≃ₐ[F] ↥B :=
+    (show K ≃ₐ[F] K' from AlgEquiv.ofInjectiveField map).trans
+      (IntermediateField.restrictAlgEquiv _)
   IsLiouville.equiv kequiv.symm
 
 end Algebraic

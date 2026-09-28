@@ -48,7 +48,6 @@ derivative test, first-derivative test, second-derivative test, calculus
 
 public section
 
-
 open Set
 
 open scoped Topology
@@ -314,17 +313,17 @@ lemma isLocalMin_of_deriv' {f : ℝ → ℝ} {b : ℝ} (h : ContinuousAt f b)
     (fun _ hx => (ha.2 hx).2) (fun x hx => (hc.2 hx).2)
 
 /-- The First Derivative test, maximum version. -/
-theorem isLocalMax_of_deriv {f : ℝ → ℝ} {b : ℝ} (h : ContinuousAt f b)
-    (hd : ∀ᶠ x in 𝓝[≠] b, DifferentiableAt ℝ f x)
-    (h₀ : ∀ᶠ x in 𝓝[<] b, 0 ≤ deriv f x) (h₁ : ∀ᶠ x in 𝓝[>] b, deriv f x ≤ 0) :
-    IsLocalMax f b :=
+theorem isLocalMax_of_deriv
+    {f : ℝ → ℝ} {b : ℝ} (h : ContinuousAt f b) (hd : ∀ᶠ x in 𝓝[≠] b, DifferentiableAt ℝ f x)
+    (h₀ : ∀ᶠ x in 𝓝[<] b, 0 ≤ deriv f x) (h₁ : ∀ᶠ x in 𝓝[>] b, deriv f x ≤ 0)
+    : IsLocalMax f b :=
   isLocalMax_of_deriv' h (nhdsLT_le_nhdsNE _ (by tauto)) (nhdsGT_le_nhdsNE _ (by tauto)) h₀ h₁
 
 /-- The First Derivative test, minimum version. -/
-theorem isLocalMin_of_deriv {f : ℝ → ℝ} {b : ℝ} (h : ContinuousAt f b)
-    (hd : ∀ᶠ x in 𝓝[≠] b, DifferentiableAt ℝ f x)
-    (h₀ : ∀ᶠ x in 𝓝[<] b, deriv f x ≤ 0) (h₁ : ∀ᶠ x in 𝓝[>] b, 0 ≤ deriv f x) :
-    IsLocalMin f b :=
+theorem isLocalMin_of_deriv
+    {f : ℝ → ℝ} {b : ℝ} (h : ContinuousAt f b) (hd : ∀ᶠ x in 𝓝[≠] b, DifferentiableAt ℝ f x)
+    (h₀ : ∀ᶠ x in 𝓝[<] b, deriv f x ≤ 0) (h₁ : ∀ᶠ x in 𝓝[>] b, 0 ≤ deriv f x)
+    : IsLocalMin f b :=
   isLocalMin_of_deriv' h (nhdsLT_le_nhdsNE _ (by tauto)) (nhdsGT_le_nhdsNE _ (by tauto)) h₀ h₁
 
 open Filter SignType
@@ -381,34 +380,41 @@ lemma deriv_pos_left_of_sign_deriv {f : ℝ → ℝ} {x₀ : ℝ}
   rwa [← sub_pos, ← sign_eq_one_iff, ← hx', sign_eq_one_iff] at hx
 
 /-- The First Derivative test with a hypothesis on the sign of the derivative, maximum version. -/
-theorem isLocalMax_of_sign_deriv {f : ℝ → ℝ} {x₀ : ℝ} (h : ContinuousAt f x₀)
-    (hf : ∀ᶠ x in 𝓝[≠] x₀, sign (deriv f x) = sign (x₀ - x)) :
-    IsLocalMax f x₀ := by
+theorem isLocalMax_of_sign_deriv
+    {f : ℝ → ℝ} {x₀ : ℝ}
+    (h : ContinuousAt f x₀) (hf : ∀ᶠ x in 𝓝[≠] x₀, sign (deriv f x) = sign (x₀ - x))
+    : IsLocalMax f x₀ := by
   have hl := deriv_pos_left_of_sign_deriv hf
   have hg := deriv_neg_right_of_sign_deriv hf
-  replace hf := (nhdsLT_sup_nhdsGT x₀) ▸
-    eventually_sup.mpr ⟨hl.mono fun x hx => hx.ne', hg.mono fun x hx => hx.ne⟩
+  replace hf :=
+    (nhdsLT_sup_nhdsGT x₀)
+      ▸ eventually_sup.mpr ⟨hl.mono fun x hx => hx.ne', hg.mono fun x hx => hx.ne⟩
   exact isLocalMax_of_deriv h (hf.mono fun x hx ↦ differentiableAt_of_deriv_ne_zero hx)
     (hl.mono fun _ => le_of_lt) (hg.mono fun _ => le_of_lt)
 
 /-- The First Derivative test with a hypothesis on the sign of the derivative, minimum version. -/
-theorem isLocalMin_of_sign_deriv {f : ℝ → ℝ} {x₀ : ℝ} (h : ContinuousAt f x₀)
-    (hf : ∀ᶠ x in 𝓝[≠] x₀, sign (deriv f x) = sign (x - x₀)) :
-    IsLocalMin f x₀ := by
-  refine neg_neg f ▸ (isLocalMax_of_sign_deriv (f := (-f ·)) h.neg ?foo |>.neg)
+theorem isLocalMin_of_sign_deriv
+    {f : ℝ → ℝ} {x₀ : ℝ}
+    (h : ContinuousAt f x₀) (hf : ∀ᶠ x in 𝓝[≠] x₀, sign (deriv f x) = sign (x - x₀))
+    : IsLocalMin f x₀ := by
+  refine neg_neg f ▸ (isLocalMax_of_sign_deriv (f := (- f ·)) h.neg ?foo |>.neg)
   simpa [Left.sign_neg, -neg_sub, ← neg_sub _ x₀, deriv.neg]
 
-/-- The Second-Derivative Test from calculus, minimum version.
+/--
+The Second-Derivative Test from calculus, minimum version.
 Applies to functions like `x^2 + 1[x ≥ 0]` as well as twice differentiable
-functions. -/
-theorem isLocalMin_of_deriv_deriv_pos (hf : deriv (deriv f) x₀ > 0) (hd : deriv f x₀ = 0)
-    (hc : ContinuousAt f x₀) : IsLocalMin f x₀ :=
+functions.
+-/
+theorem isLocalMin_of_deriv_deriv_pos
+    (hf : deriv (deriv f) x₀ > 0) (hd : deriv f x₀ = 0) (hc : ContinuousAt f x₀)
+    : IsLocalMin f x₀ :=
   isLocalMin_of_sign_deriv hc <| nhdsWithin_le_nhds <|
     eventually_nhdsWithin_sign_eq_of_deriv_pos hf hd
 
 /-- The Second-Derivative Test from calculus, maximum version. -/
-theorem isLocalMax_of_deriv_deriv_neg (hf : deriv (deriv f) x₀ < 0) (hd : deriv f x₀ = 0)
-    (hc : ContinuousAt f x₀) : IsLocalMax f x₀ := by
+theorem isLocalMax_of_deriv_deriv_neg
+    (hf : deriv (deriv f) x₀ < 0) (hd : deriv f x₀ = 0) (hc : ContinuousAt f x₀)
+    : IsLocalMax f x₀ := by
   simpa using isLocalMin_of_deriv_deriv_pos (by simpa) (by simpa) hc.neg |>.neg
 
 end SecondDeriv

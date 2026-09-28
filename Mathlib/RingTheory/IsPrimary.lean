@@ -46,9 +46,11 @@ section CommSemiring
 
 variable {R M : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]
 
-/-- A proper submodule `S : Submodule R M` is primary iff
-  `r • x ∈ S` implies `x ∈ S` or `∃ n : ℕ, r ^ n • (⊤ : Submodule R M) ≤ S`.
-  This generalizes `Ideal.IsPrimary`. -/
+/--
+A proper submodule `S : Submodule R M` is primary iff
+`r • x ∈ S` implies `x ∈ S` or `∃ n : ℕ, r ^ n • (⊤ : Submodule R M) ≤ S`.
+This generalizes `Ideal.IsPrimary`.
+-/
 protected def IsPrimary (S : Submodule R M) : Prop :=
   S ≠ ⊤ ∧ ∀ {r : R} {x : M}, r • x ∈ S → x ∈ S ∨ ∃ n : ℕ, (r ^ n • ⊤ : Submodule R M) ≤ S
 
@@ -96,14 +98,15 @@ theorem IsPrimary.isPrime_radical_colon (hI : S.IsPrimary) : (S.colon .univ).rad
   simp only [mul_pow, mem_colon, Set.mem_univ, true_imp_iff, mul_smul] at hn ⊢
   exact fun p ↦ (h (hn p)).resolve_right (mt mem_radical_of_pow_mem hx)
 
-theorem IsPrimary.radical_colon_singleton_of_notMem (hI : S.IsPrimary) {m : M} (hm : m ∉ S) :
-    (S.colon {m}).radical = (S.colon Set.univ).radical :=
-  le_antisymm (radical_le_radical_iff.mpr fun _ hy ↦
-    (hI.2 (Submodule.mem_colon_singleton.mp hy)).resolve_left hm)
+theorem IsPrimary.radical_colon_singleton_of_notMem (hI : S.IsPrimary) {m : M} (hm : m ∉ S)
+    : (S.colon {m}).radical = (S.colon Set.univ).radical :=
+  le_antisymm
+    (radical_le_radical_iff.mpr fun _ hy ↦
+      (hI.2 (Submodule.mem_colon_singleton.mp hy)).resolve_left hm)
     (radical_mono (Submodule.colon_mono le_rfl (Set.subset_univ {m})))
 
-theorem IsPrimary.radical_colon_singleton_eq_ite (hS : S.IsPrimary) (m : M) [Decidable (m ∈ S)] :
-    radical (S.colon {m}) = if m ∈ S then ⊤ else radical (S.colon Set.univ) := by
+theorem IsPrimary.radical_colon_singleton_eq_ite (hS : S.IsPrimary) (m : M) [Decidable (m ∈ S)]
+    : radical (S.colon {m}) = if m ∈ S then ⊤ else radical (S.colon Set.univ) := by
   split_ifs with hm
   · rwa [radical_eq_top, colon_eq_top_iff_subset, Set.singleton_subset_iff]
   · exact hS.radical_colon_singleton_of_notMem hm

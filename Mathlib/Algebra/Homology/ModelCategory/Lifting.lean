@@ -38,24 +38,22 @@ variable {C : Type*} [Category* C] [Abelian C]
 
 namespace Lifting
 
-variable {A B X Y : CochainComplex C ℤ}
-  {t : A ⟶ X} {i : A ⟶ B} {p : X ⟶ Y} {b : B ⟶ Y}
-  (sq : CommSq t i p b)
-  (hsq : ∀ n, (sq.map (HomologicalComplex.eval _ _ n)).LiftStruct)
-  {Q : CochainComplex C ℤ} {π : B ⟶ Q} {hπ : i ≫ π = 0}
-  (hQ : IsColimit (CokernelCofork.ofπ _ hπ))
-  {K : CochainComplex C ℤ} {ι : K ⟶ X} {hι : ι ≫ p = 0}
-  (hK : IsLimit (KernelFork.ofι _ hι))
+variable
+  {A B X Y : CochainComplex C ℤ} {t : A ⟶ X} {i : A ⟶ B} {p : X ⟶ Y} {b : B ⟶ Y}
+  (sq : CommSq t i p b) (hsq : ∀ n, (sq.map (HomologicalComplex.eval _ _ n)).LiftStruct)
+  {Q : CochainComplex C ℤ} {π : B ⟶ Q} {hπ : i ≫ π = 0} (hQ : IsColimit (CokernelCofork.ofπ _ hπ))
+  {K : CochainComplex C ℤ} {ι : K ⟶ X} {hι : ι ≫ p = 0} (hK : IsLimit (KernelFork.ofι _ hι))
 
 /-- The `0`-cochain from `B` to `X` given by the degreewise liftings. -/
 abbrev cochain₀ : Cochain B X 0 := Cochain.ofHoms (fun n ↦ (hsq n).l)
 
-/-- A `1`-cocycle from `B` to `X` obtained as the boundary of
+/--
+A `1`-cocycle from `B` to `X` obtained as the boundary of
 the `0`-cochain `cochain₀ sq hsq` consisting of the degreewise liftings.
 This is refined below as a `1`-cocycle from `Q` to `K` where `Q` is a
-cokernel of `i : A ⟶ B` and `K` a kernel of `p : X ⟶ Y` (see `cocycle₁`). -/
-def cocycle₁' : Cocycle B X 1 :=
-  Cocycle.mk (δ 0 1 (cochain₀ sq hsq)) 2 (by simp) (by simp [δ_δ])
+cokernel of `i : A ⟶ B` and `K` a kernel of `p : X ⟶ Y` (see `cocycle₁`).
+-/
+def cocycle₁' : Cocycle B X 1 := Cocycle.mk (δ 0 1 (cochain₀ sq hsq)) 2 (by simp) (by simp [δ_δ])
 
 set_option backward.defeqAttrib.useBackward true in
 @[reassoc (attr := simp)]
@@ -98,22 +96,27 @@ lemma π_f_cochain₁_v_ι_f (n m : ℤ) (hnm : n + 1 = m) :
     π.f n ≫ (cochain₁ sq hsq hQ hK).v n m hnm ≫ ι.f m = (cocycle₁' sq hsq).1.v n m hnm :=
   (exists_hom sq hsq hQ hK n m hnm).choose_spec
 
-/-- A `1`-cocycle from a cokernel `Q` of `i : A ⟶ B` to a kernel `K` of
+/--
+A `1`-cocycle from a cokernel `Q` of `i : A ⟶ B` to a kernel `K` of
 `p : X ⟶ Y`. If this is a coboundary, then the square in `CochainComplex C ℤ`
-has a lifting, see the lemma `hasLift` below. -/
+has a lifting, see the lemma `hasLift` below.
+-/
 noncomputable def cocycle₁ : Cocycle Q K 1 :=
   Cocycle.mk (cochain₁ sq hsq hQ hK) 2 (by simp) (by
     have : Epi π := Cofork.IsColimit.epi hQ
     have : Mono ι := Fork.IsLimit.mono hK
     ext n _ rfl
     have := Cochain.congr_v ((cocycle₁' sq hsq).δ_eq_zero 2) n _ rfl
-    rw [Cochain.zero_v, δ_v _ _ (by simp) _ _ _ _ (n + 1) _ (by lia) rfl,
-      Int.negOnePow_even 2 ⟨1, by simp⟩, one_smul] at this ⊢
-    rwa [← cancel_mono (ι.f (n + 2)), ← cancel_epi (π.f n),
-      Preadditive.add_comp, Category.assoc, Category.assoc, Preadditive.comp_add,
-      HomologicalComplex.Hom.comm_assoc,
-      π_f_cochain₁_v_ι_f, zero_comp, comp_zero, ← ι.comm,
-      π_f_cochain₁_v_ι_f_assoc])
+    rw [
+        Cochain.zero_v, δ_v _ _ (by simp) _ _ _ _ (n + 1) _ (by lia) rfl,
+        Int.negOnePow_even 2 ⟨1, by simp⟩, one_smul
+      ]
+      at this ⊢
+    rwa [
+      ← cancel_mono (ι.f (n + 2)), ← cancel_epi (π.f n), Preadditive.add_comp, Category.assoc,
+      Category.assoc, Preadditive.comp_add, HomologicalComplex.Hom.comm_assoc, π_f_cochain₁_v_ι_f,
+      zero_comp, comp_zero, ← ι.comm, π_f_cochain₁_v_ι_f_assoc
+    ])
 
 lemma comp_coe_cocycle₁_comp :
     (Cochain.ofHom π).comp ((cocycle₁ sq hsq hQ hK).1.comp (.ofHom ι)

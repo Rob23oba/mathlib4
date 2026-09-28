@@ -65,9 +65,9 @@ theorem ext_of_singleton [Countable α] {μ ν : Measure α} (h : ∀ a, μ {a} 
 theorem ext_iff_singleton [Countable α] {μ ν : Measure α} : μ = ν ↔ ∀ a, μ {a} = ν {a} :=
   ⟨fun h _ ↦ h ▸ rfl, ext_of_singleton⟩
 
-theorem _root_.MeasureTheory.ext_iff_measureReal_singleton [Countable α]
-    {μ1 μ2 : Measure α} [SigmaFinite μ1] [SigmaFinite μ2] :
-    μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
+theorem _root_.MeasureTheory.ext_iff_measureReal_singleton
+    [Countable α] {μ1 μ2 : Measure α} [SigmaFinite μ1] [SigmaFinite μ2]
+    : μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]
   congr! with x
   rw [measureReal_def, measureReal_def, ENNReal.toReal_eq_toReal_iff]
@@ -76,17 +76,21 @@ theorem _root_.MeasureTheory.ext_iff_measureReal_singleton [Countable α]
 alias ⟨_, ext_of_measureReal_singleton⟩ := MeasureTheory.ext_iff_measureReal_singleton
 
 /-- If `f` is a map with countable codomain, then `μ.map f` is a sum of Dirac measures. -/
-theorem map_eq_sum [Countable β] [MeasurableSingletonClass β] (μ : Measure α) (f : α → β)
-    (hf : Measurable f) : μ.map f = sum fun b : β => μ (f ⁻¹' {b}) • dirac b := by
+theorem map_eq_sum
+    [Countable β] [MeasurableSingletonClass β] (μ : Measure α) (f : α → β) (hf : Measurable f)
+    : μ.map f = sum fun b : β => μ (f ⁻¹' {b}) • dirac b := by
   ext s
   have : ∀ y ∈ s, MeasurableSet (f ⁻¹' {y}) := fun y _ => hf (measurableSet_singleton _)
-  simp [← tsum_measure_preimage_singleton (to_countable s) this, *,
-    tsum_subtype s fun b => μ (f ⁻¹' {b}), ← indicator_mul_right s fun b => μ (f ⁻¹' {b})]
+  simp [
+    ← tsum_measure_preimage_singleton (to_countable s) this, *,
+    tsum_subtype s fun b => μ (f ⁻¹' {b}), ← indicator_mul_right s fun b => μ (f ⁻¹' {b})
+  ]
 
 /-- A measure on a countable type is a sum of Dirac measures. -/
 @[simp]
-theorem sum_smul_dirac [Countable α] [MeasurableSingletonClass α] (μ : Measure α) :
-    (sum fun a => μ {a} • dirac a) = μ := by simpa using (map_eq_sum μ id measurable_id).symm
+theorem sum_smul_dirac [Countable α] [MeasurableSingletonClass α] (μ : Measure α)
+    : (sum fun a => μ {a} • dirac a) = μ := by
+  simpa using (map_eq_sum μ id measurable_id).symm
 
 /-- The sum of scaled Dirac measures applied to a singleton is the coefficient of that singleton. -/
 lemma sum_smul_dirac_singleton [MeasurableSingletonClass α] {f : α → ℝ≥0∞} {a : α} :
@@ -132,16 +136,21 @@ lemma exists_sum_smul_dirac [Countable α] (μ : Measure α) :
       convert! h_points_mem
     rw [← h2, h1]
 
-/-- Given that `α` is a countable, measurable space with all singleton sets measurable,
-write the measure of a set `s` as the sum of the measure of `{x}` for all `x ∈ s`. -/
-theorem tsum_indicator_apply_singleton [Countable α] [MeasurableSingletonClass α] (μ : Measure α)
-    (s : Set α) (hs : MeasurableSet s) : (∑' x : α, s.indicator (fun x => μ {x}) x) = μ s := by
+/--
+Given that `α` is a countable, measurable space with all singleton sets measurable,
+write the measure of a set `s` as the sum of the measure of `{x}` for all `x ∈ s`.
+-/
+theorem tsum_indicator_apply_singleton
+    [Countable α] [MeasurableSingletonClass α] (μ : Measure α) (s : Set α) (hs : MeasurableSet s)
+    : (∑' x : α, s.indicator (fun x => μ {x}) x) = μ s := by
   classical
   calc
-    (∑' x : α, s.indicator (fun x => μ {x}) x) =
-      Measure.sum (fun a => μ {a} • Measure.dirac a) s := by
-      simp only [Measure.sum_apply _ hs, Measure.smul_apply, smul_eq_mul, Measure.dirac_apply,
-        Set.indicator_apply, mul_ite, Pi.one_apply, mul_one, mul_zero]
+    (∑' x : α, s.indicator (fun x => μ {x}) x)
+        = Measure.sum (fun a => μ {a} • Measure.dirac a) s := by
+      simp only [
+        Measure.sum_apply _ hs, Measure.smul_apply, smul_eq_mul, Measure.dirac_apply,
+        Set.indicator_apply, mul_ite, Pi.one_apply, mul_one, mul_zero
+      ]
     _ = μ s := by rw [μ.sum_smul_dirac]
 
 end Measure
@@ -151,8 +160,9 @@ open Measure
 theorem mem_ae_dirac_iff {a : α} (hs : MeasurableSet s) : s ∈ ae (dirac a) ↔ a ∈ s := by
   by_cases a ∈ s <;> simp [mem_ae_iff, dirac_apply', hs.compl, *]
 
-@[simp] theorem ae_dirac_iff {a : α} {p : α → Prop} (hp : MeasurableSet { x | p x }) :
-    (∀ᵐ x ∂dirac a, p x) ↔ p a :=
+@[simp]
+theorem ae_dirac_iff {a : α} {p : α → Prop} (hp : MeasurableSet { x | p x })
+    : (∀ᵐ x ∂dirac a, p x) ↔ p a :=
   mem_ae_dirac_iff hp
 
 @[simp]
@@ -160,12 +170,13 @@ theorem ae_dirac_eq [MeasurableSingletonClass α] (a : α) : ae (dirac a) = pure
   ext s
   simp [mem_ae_iff, imp_false]
 
-theorem ae_eq_dirac' [MeasurableSingletonClass β] {a : α} {f : α → β} (hf : Measurable f) :
-    f =ᵐ[dirac a] const α (f a) :=
+theorem ae_eq_dirac' [MeasurableSingletonClass β] {a : α} {f : α → β} (hf : Measurable f)
+    : f =ᵐ[dirac a] const α (f a) :=
   (ae_dirac_iff <| show MeasurableSet (f ⁻¹' {f a}) from hf <| measurableSet_singleton _).2 rfl
 
-theorem ae_eq_dirac [MeasurableSingletonClass α] {a : α} (f : α → δ) :
-    f =ᵐ[dirac a] const α (f a) := by simp [Filter.EventuallyEq]
+theorem ae_eq_dirac [MeasurableSingletonClass α] {a : α} (f : α → δ)
+    : f =ᵐ[dirac a] const α (f a) := by
+  simp [Filter.EventuallyEq]
 
 @[fun_prop]
 lemma aemeasurable_dirac [MeasurableSingletonClass α] {a : α} {f : α → β} :
@@ -173,8 +184,9 @@ lemma aemeasurable_dirac [MeasurableSingletonClass α] {a : α} {f : α → β} 
   ⟨fun _ ↦ f a, measurable_const, ae_eq_dirac f⟩
 
 @[simp]
-theorem Measure.map_dirac [MeasurableSingletonClass α] [MeasurableSingletonClass β]
-    {f : α → β} (a : α) : (dirac a).map f = dirac (f a) := by
+theorem Measure.map_dirac
+    [MeasurableSingletonClass α] [MeasurableSingletonClass β] {f : α → β} (a : α)
+    : (dirac a).map f = dirac (f a) := by
   classical
   ext s hs
   rw [map_apply_of_aemeasurable (by fun_prop) hs]
@@ -214,15 +226,15 @@ theorem dirac_eq_zero_iff_not_mem (hs : MeasurableSet s) : dirac a s = 0 ↔ a �
   rw [← compl_compl s, ← mem_ae_iff, notMem_compl_iff]
   apply mem_ae_dirac_iff (MeasurableSet.compl_iff.mpr hs)
 
-theorem restrict_dirac' (hs : MeasurableSet s) [Decidable (a ∈ s)] :
-    (Measure.dirac a).restrict s = if a ∈ s then Measure.dirac a else 0 := by
+theorem restrict_dirac' (hs : MeasurableSet s) [Decidable (a ∈ s)]
+    : (Measure.dirac a).restrict s = if a ∈ s then Measure.dirac a else 0 := by
   split_ifs with has
   · apply restrict_eq_self_of_ae_mem
     rw [ae_dirac_iff] <;> assumption
   · rw [restrict_eq_zero, dirac_apply' _ hs, indicator_of_notMem has]
 
-theorem restrict_dirac [MeasurableSingletonClass α] [Decidable (a ∈ s)] :
-    (Measure.dirac a).restrict s = if a ∈ s then Measure.dirac a else 0 := by
+theorem restrict_dirac [MeasurableSingletonClass α] [Decidable (a ∈ s)]
+    : (Measure.dirac a).restrict s = if a ∈ s then Measure.dirac a else 0 := by
   split_ifs with has
   · apply restrict_eq_self_of_ae_mem
     rwa [ae_dirac_eq]
@@ -296,8 +308,9 @@ end dirac_injective
 end MeasureTheory
 
 namespace MeasureTheory.Measure
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  [MeasurableSingletonClass α] {f : β → α} {μ : Measure α} {s : Finset α} {a₁ a₂ : α}
+variable
+  {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} [MeasurableSingletonClass α]
+  {f : β → α} {μ : Measure α} {s : Finset α} {a₁ a₂ : α}
 
 lemma ae_mem_finset_iff : (∀ᵐ a ∂μ, a ∈ s) ↔ μ = ∑ a ∈ s, μ {a} • .dirac a where
   mp hμ := by

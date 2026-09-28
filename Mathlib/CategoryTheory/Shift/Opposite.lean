@@ -61,9 +61,11 @@ variable (C : Type*) [Category* C] (A : Type*) [AddMonoid A] [HasShift C A]
 namespace HasShift
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Construction of the naive shift on the opposite category of a category `C`:
-the shiftfunctor by `n` is `(shiftFunctor C n).op`. -/
-def mkShiftCoreOp : ShiftMkCore Cᵒᵖ A where
+/--
+Construction of the naive shift on the opposite category of a category `C`:
+the shiftfunctor by `n` is `(shiftFunctor C n).op`.
+-/
+def mkShiftCoreOp : ShiftMkCore (Cᵒᵖ) A where
   F n := (shiftFunctor C n).op
   zero := (NatIso.op (shiftFunctorZero C A)).symm
   add a b := (NatIso.op (shiftFunctorAdd C a b)).symm
@@ -77,26 +79,26 @@ def mkShiftCoreOp : ShiftMkCore Cᵒᵖ A where
 
 end HasShift
 
-/-- The category `OppositeShift C A` is the opposite category `Cᵒᵖ` equipped
-with the naive shift: `shiftFunctor (OppositeShift C A) n` is `(shiftFunctor C n).op`. -/
+/--
+The category `OppositeShift C A` is the opposite category `Cᵒᵖ` equipped
+with the naive shift: `shiftFunctor (OppositeShift C A) n` is `(shiftFunctor C n).op`.
+-/
 @[nolint unusedArguments]
 def OppositeShift (A : Type*) [AddMonoid A] [HasShift C A] := Cᵒᵖ
 
 instance : Category (OppositeShift C A) := inferInstanceAs (Category Cᵒᵖ)
 
-instance : HasShift (OppositeShift C A) A :=
-  hasShiftMk Cᵒᵖ A (HasShift.mkShiftCoreOp C A)
+instance : HasShift (OppositeShift C A) A := hasShiftMk (Cᵒᵖ) A (HasShift.mkShiftCoreOp C A)
 
 set_option backward.isDefEq.respectTransparency false in
 instance [HasZeroObject C] : HasZeroObject (OppositeShift C A) := by
   dsimp only [OppositeShift]
   infer_instance
 
-instance [Preadditive C] : Preadditive (OppositeShift C A) :=
-  inferInstanceAs (Preadditive Cᵒᵖ)
+instance [Preadditive C] : Preadditive (OppositeShift C A) := inferInstanceAs (Preadditive Cᵒᵖ)
 
-instance [Preadditive C] (n : A) [(shiftFunctor C n).Additive] :
-    (shiftFunctor (OppositeShift C A) n).Additive := by
+instance [Preadditive C] (n : A) [(shiftFunctor C n).Additive]
+    : (shiftFunctor (OppositeShift C A) n).Additive := by
   change (shiftFunctor C n).op.Additive
   infer_instance
 
@@ -145,8 +147,10 @@ lemma oppositeShiftFunctorAdd'_hom_app :
 
 end
 
-variable {C D : Type*} [Category* C] [Category* D] (A : Type*) [AddMonoid A]
-  [HasShift C A] [HasShift D A] (F : C ⥤ D)
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (A : Type*) [AddMonoid A] [HasShift C A] [HasShift D A]
+  (F : C ⥤ D)
 
 /--
 The functor `F.op`, seen as a functor from `OppositeShift C A` to `OppositeShift D A`.
@@ -161,8 +165,8 @@ variable {F} in
 The natural transformation `τ`, seen as a natural transformation from `OppositeShift.functor F A`
 to `OppositeShift.functor G A`..
 -/
-def OppositeShift.natTrans {G : C ⥤ D} (τ : F ⟶ G) :
-    OppositeShift.functor A G ⟶ OppositeShift.functor A F :=
+def OppositeShift.natTrans {G : C ⥤ D} (τ : F ⟶ G)
+    : OppositeShift.functor A G ⟶ OppositeShift.functor A F :=
   NatTrans.op τ
 
 namespace Functor
@@ -173,21 +177,24 @@ set_option backward.defeqAttrib.useBackward true in
 Given a `CommShift` structure on `F`, this is the corresponding `CommShift` structure on
 `OppositeShift.functor F` (for the naive shifts on the opposite categories).
 -/
-instance commShiftOp [CommShift F A] :
-    CommShift (OppositeShift.functor A F) A where
+instance commShiftOp [CommShift F A] : CommShift (OppositeShift.functor A F) A where
   commShiftIso a := (NatIso.op (F.commShiftIso a)).symm
   commShiftIso_zero := by
     rw [commShiftIso_zero]
     ext
-    simp only [op_obj, comp_obj, Iso.symm_hom, NatIso.op_inv, NatTrans.op_app,
-      CommShift.isoZero_inv_app, op_comp, CommShift.isoZero_hom_app]
+    simp only [
+      op_obj, comp_obj, Iso.symm_hom, NatIso.op_inv, NatTrans.op_app, CommShift.isoZero_inv_app,
+      op_comp, CommShift.isoZero_hom_app
+    ]
     erw [oppositeShiftFunctorZero_inv_app, oppositeShiftFunctorZero_hom_app]
     rfl
   commShiftIso_add a b := by
     rw [commShiftIso_add]
     ext
-    simp only [op_obj, comp_obj, Iso.symm_hom, NatIso.op_inv, NatTrans.op_app,
-      CommShift.isoAdd_inv_app, op_comp, Category.assoc, CommShift.isoAdd_hom_app]
+    simp only [
+      op_obj, comp_obj, Iso.symm_hom, NatIso.op_inv, NatTrans.op_app, CommShift.isoAdd_inv_app,
+      op_comp, Category.assoc, CommShift.isoAdd_hom_app
+    ]
     erw [oppositeShiftFunctorAdd_inv_app, oppositeShiftFunctorAdd_hom_app]
     rfl
 
@@ -200,22 +207,24 @@ Given a `CommShift` structure on `OppositeShift.functor F` (for the naive shifts
 categories), this is the corresponding `CommShift` structure on `F`.
 -/
 @[simps -isSimp, instance_reducible]
-def commShiftUnop
-    [CommShift (OppositeShift.functor A F) A] : CommShift F A where
+def commShiftUnop [CommShift (OppositeShift.functor A F) A] : CommShift F A where
   commShiftIso a := NatIso.removeOp ((OppositeShift.functor A F).commShiftIso a).symm
   commShiftIso_zero := by
     rw [commShiftIso_zero]
     ext
-    simp only [NatIso.removeOp_hom, Iso.symm_hom, NatTrans.removeOp_app,
-      CommShift.isoZero_inv_app, unop_comp, CommShift.isoZero_hom_app]
+    simp only [
+      NatIso.removeOp_hom, Iso.symm_hom, NatTrans.removeOp_app, CommShift.isoZero_inv_app,
+      unop_comp, CommShift.isoZero_hom_app
+    ]
     erw [oppositeShiftFunctorZero_hom_app, oppositeShiftFunctorZero_inv_app]
     rfl
   commShiftIso_add a b := by
     rw [commShiftIso_add]
     ext
-    simp only [NatIso.removeOp_hom, Iso.symm_hom, NatTrans.removeOp_app,
-      CommShift.isoAdd_inv_app, unop_comp, Category.assoc,
-      CommShift.isoAdd_hom_app]
+    simp only [
+      NatIso.removeOp_hom, Iso.symm_hom, NatTrans.removeOp_app, CommShift.isoAdd_inv_app, unop_comp,
+      Category.assoc, CommShift.isoAdd_hom_app
+    ]
     erw [oppositeShiftFunctorAdd_hom_app, oppositeShiftFunctorAdd_inv_app]
     rfl
 
@@ -226,14 +235,18 @@ namespace NatTrans
 variable {F} {G : C ⥤ D} [F.CommShift A] [G.CommShift A]
 
 open Opposite in
-instance commShift_op (τ : F ⟶ G) [NatTrans.CommShift τ A] :
-    NatTrans.CommShift (OppositeShift.natTrans A τ) A where
+instance commShift_op (τ : F ⟶ G) [NatTrans.CommShift τ A]
+    : NatTrans.CommShift (OppositeShift.natTrans A τ) A where
   shift_comm _ := by
     ext
-    rw [← cancel_mono (((OppositeShift.functor A F).commShiftIso _).inv.app _),
-      ← cancel_epi (((OppositeShift.functor A G).commShiftIso _).inv.app _)]
-    simp only [Functor.comp_obj, comp_app, Functor.whiskerRight_app, assoc,
-      Iso.inv_hom_id_app_assoc, Functor.whiskerLeft_app, Iso.hom_inv_id_app, comp_id]
+    rw [
+      ← cancel_mono (((OppositeShift.functor A F).commShiftIso _).inv.app _),
+      ← cancel_epi (((OppositeShift.functor A G).commShiftIso _).inv.app _)
+    ]
+    simp only [
+      Functor.comp_obj, comp_app, Functor.whiskerRight_app, assoc, Iso.inv_hom_id_app_assoc,
+      Functor.whiskerLeft_app, Iso.hom_inv_id_app, comp_id
+    ]
     exact (op_inj_iff _ _).mpr (NatTrans.shift_app_comm τ _ (unop _))
 
 end NatTrans
@@ -241,36 +254,39 @@ end NatTrans
 namespace NatTrans
 
 variable (C) in
-/-- The obvious isomorphism between the identity of `OppositeShift C A` and
+/--
+The obvious isomorphism between the identity of `OppositeShift C A` and
 `OppositeShift.functor (𝟙 C)`.
 -/
 def OppositeShift.natIsoId : 𝟭 (OppositeShift C A) ≅ OppositeShift.functor A (𝟭 C) := Iso.refl _
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/--
-The natural isomorphism `NatTrans.OppositeShift.natIsoId C A` commutes with shifts.
--/
+/-- The natural isomorphism `NatTrans.OppositeShift.natIsoId C A` commutes with shifts. -/
 instance : NatTrans.CommShift (OppositeShift.natIsoId C A).hom A where
   shift_comm _ := by
     ext
     dsimp [OppositeShift.natIsoId, Functor.commShiftOp_iso_eq]
-    simp only [Functor.commShiftIso_id_hom_app, Functor.map_id,
-      comp_id, Functor.commShiftIso_id_inv_app, CategoryTheory.op_id, id_comp]
+    simp only [
+      Functor.commShiftIso_id_hom_app, Functor.map_id, comp_id, Functor.commShiftIso_id_inv_app,
+      CategoryTheory.op_id, id_comp
+    ]
     rfl
 
 variable {E : Type*} [Category* E] [HasShift E A] (G : D ⥤ E)
 
-/-- The obvious isomorphism between `OppositeShift.functor (F ⋙ G)` and the
+/--
+The obvious isomorphism between `OppositeShift.functor (F ⋙ G)` and the
 composition of `OppositeShift.functor F` and `OppositeShift.functor G`.
 -/
-def OppositeShift.natIsoComp : OppositeShift.functor A (F ⋙ G) ≅
-    OppositeShift.functor A F ⋙ OppositeShift.functor A G := Iso.refl _
+def OppositeShift.natIsoComp
+    : OppositeShift.functor A (F ⋙ G) ≅ OppositeShift.functor A F ⋙ OppositeShift.functor A G :=
+  Iso.refl _
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-instance [F.CommShift A] [G.CommShift A] :
-    NatTrans.CommShift (OppositeShift.natIsoComp A F G).hom A where
+instance [F.CommShift A] [G.CommShift A]
+    : NatTrans.CommShift (OppositeShift.natIsoComp A F G).hom A where
   shift_comm _ := by
     ext
     dsimp [OppositeShift.natIsoComp, Functor.commShiftOp_iso_eq]
@@ -286,21 +302,27 @@ The adjunction `adj`, seen as an adjunction between `OppositeShift.functor G`
 and `OppositeShift.functor F`.
 -/
 @[simps -isSimp]
-def OppositeShift.adjunction {F} {G : D ⥤ C} (adj : F ⊣ G) :
-    OppositeShift.functor A G ⊣ OppositeShift.functor A F where
-  unit := (NatTrans.OppositeShift.natIsoId D A).hom ≫
-    OppositeShift.natTrans A adj.counit ≫ (NatTrans.OppositeShift.natIsoComp A G F).hom
-  counit := (NatTrans.OppositeShift.natIsoComp A F G).inv ≫
-    OppositeShift.natTrans A adj.unit ≫ (NatTrans.OppositeShift.natIsoId C A).inv
+def OppositeShift.adjunction {F} {G : D ⥤ C} (adj : F ⊣ G)
+    : OppositeShift.functor A G ⊣ OppositeShift.functor A F where
+  unit :=
+    (NatTrans.OppositeShift.natIsoId D A).hom ≫ OppositeShift.natTrans A adj.counit
+      ≫ (NatTrans.OppositeShift.natIsoComp A G F).hom
+  counit :=
+    (NatTrans.OppositeShift.natIsoComp A F G).inv ≫ OppositeShift.natTrans A adj.unit
+      ≫ (NatTrans.OppositeShift.natIsoId C A).inv
   left_triangle_components _ := by
-    dsimp [OppositeShift.natTrans, NatTrans.OppositeShift.natIsoComp,
-      NatTrans.OppositeShift.natIsoId, OppositeShift.functor]
+    dsimp [
+      OppositeShift.natTrans, NatTrans.OppositeShift.natIsoComp, NatTrans.OppositeShift.natIsoId,
+      OppositeShift.functor
+    ]
     simp only [comp_id, id_comp, Quiver.Hom.unop_op]
     rw [← op_comp, adj.right_triangle_components]
     rfl
   right_triangle_components _ := by
-    dsimp [OppositeShift.natTrans, NatTrans.OppositeShift.natIsoComp,
-      NatTrans.OppositeShift.natIsoId, OppositeShift.functor]
+    dsimp [
+      OppositeShift.natTrans, NatTrans.OppositeShift.natIsoComp, NatTrans.OppositeShift.natIsoId,
+      OppositeShift.functor
+    ]
     simp only [comp_id, id_comp, Quiver.Hom.unop_op]
     rw [← op_comp, adj.left_triangle_components]
     rfl
@@ -314,8 +336,8 @@ If an adjunction `F ⊣ G` is compatible with `CommShift` structures on `F` and 
 the opposite adjunction `OppositeShift.adjunction adj` is compatible with the opposite
 `CommShift` structures.
 -/
-instance commShift_op [F.CommShift A] [G.CommShift A] [adj.CommShift A] :
-    Adjunction.CommShift (OppositeShift.adjunction A adj) A where
+instance commShift_op [F.CommShift A] [G.CommShift A] [adj.CommShift A]
+    : Adjunction.CommShift (OppositeShift.adjunction A adj) A where
   commShift_unit := by dsimp [OppositeShift.adjunction]; infer_instance
   commShift_counit := by dsimp [OppositeShift.adjunction]; infer_instance
 

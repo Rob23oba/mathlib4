@@ -26,11 +26,13 @@ open CategoryTheory
 
 namespace Rep
 
-/-- The map induced by a monoid homomorphism `f : H →* G` on morphisms between
-`G`-representations. -/
+/--
+The map induced by a monoid homomorphism `f : H →* G` on morphisms between
+`G`-representations.
+-/
 @[expose, implicit_reducible]
-def resMap {X Y : Rep k G} (f : H →* G) (p : X ⟶ Y) :
-    of (X := X.V) (X.ρ.comp f) ⟶ of (X := Y.V) (Y.ρ.comp f) :=
+def resMap {X Y : Rep k G} (f : H →* G) (p : X ⟶ Y)
+    : of (X := X.V) (X.ρ.comp f) ⟶ of (X := Y.V) (Y.ρ.comp f) :=
   ofHom ⟨p.hom, fun h ↦ by simpa using! p.hom.2 (f h)⟩
 
 /-- The restriction functor `Rep R G ⥤ Rep R H` for a subgroup `H` of `G`. -/
@@ -66,13 +68,15 @@ lemma resMap_hom_apply {M N : Rep k G} (p : M ⟶ N) (x : M.V) :
 section
 
 instance : (resFunctor (k := k) f).Faithful where
-  map_injective h := by
-    simpa [Rep.hom_ext_iff, Representation.IntertwiningMap.ext_iff] using h
+  map_injective h := by simpa [Rep.hom_ext_iff, Representation.IntertwiningMap.ext_iff] using h
 
-/-- Morphism between `X Y : Rep k G` can be lifted from restrictions associated with `f : H →* G`
-  when `f` is surjective. -/
-abbrev liftHomOfSurj {X Y : Rep k G} (hf : Function.Surjective f) (f' : res f X ⟶ res f Y) :
-    X ⟶ Y := ofHom ⟨f'.hom.toLinearMap, fun g ↦ by obtain ⟨h, rfl⟩ := hf g; simpa using f'.hom.2 h⟩
+/--
+Morphism between `X Y : Rep k G` can be lifted from restrictions associated with `f : H →* G`
+when `f` is surjective.
+-/
+abbrev liftHomOfSurj {X Y : Rep k G} (hf : Function.Surjective f) (f' : res f X ⟶ res f Y)
+    : X ⟶ Y :=
+  ofHom ⟨f'.hom.toLinearMap, fun g ↦ by obtain ⟨h, rfl⟩ := hf g; simpa using f'.hom.2 h⟩
 
 @[simp]
 lemma liftHomOfSurj_toLinearMap {X Y : Rep k G} (hf : Function.Surjective f)
@@ -100,8 +104,8 @@ instance : PreservesLimits (resFunctor.{w} (k := k) f) :=
   preservesLimits_of_reflects_of_preserves _ (forget₂ (Rep.{w} k H) (ModuleCat k))
 
 instance : Limits.PreservesColimits (resFunctor.{w} (k := k) f) :=
-  have : PreservesColimitsOfSize.{w, w} (resFunctor (k := k) f ⋙
-      forget₂ (Rep.{w} k H) (ModuleCat k)) :=
+  have : PreservesColimitsOfSize.{w, w}
+      (resFunctor (k := k) f ⋙ forget₂ (Rep.{w} k H) (ModuleCat k)) :=
     inferInstanceAs (PreservesColimitsOfSize.{w, w} (forget₂ (Rep.{w} k G) (ModuleCat k)))
   preservesColimits_of_reflects_of_preserves _ (forget₂ (Rep.{w} k H) (ModuleCat k))
 
@@ -140,16 +144,21 @@ end ShortComplex
 
 noncomputable section
 
-variable {G : Type v} [Group G] (A : Rep k G) (S : Subgroup G)
-  [S.Normal] [Representation.IsTrivial (A.ρ.comp S.subtype)]
+variable
+  {G : Type v} [Group G]
+  (A : Rep k G) (S : Subgroup G) [S.Normal] [Representation.IsTrivial (A.ρ.comp S.subtype)]
 
-/-- Given a normal subgroup `S ≤ G`, a `G`-representation `ρ` which is trivial on `S` factors
-through `G ⧸ S`. -/
+/--
+Given a normal subgroup `S ≤ G`, a `G`-representation `ρ` which is trivial on `S` factors
+through `G ⧸ S`.
+-/
 abbrev ofQuotient : Rep k (G ⧸ S) := Rep.of (A.ρ.ofQuotient S)
 
-/-- A `G`-representation `A` on which a normal subgroup `S ≤ G` acts trivially induces a
+/--
+A `G`-representation `A` on which a normal subgroup `S ≤ G` acts trivially induces a
 `G ⧸ S`-representation on `A`, and composing this with the quotient map `G → G ⧸ S` gives the
-original representation by definition. Useful for typechecking. -/
+original representation by definition. Useful for typechecking.
+-/
 abbrev resOfQuotientIso : (res (QuotientGroup.mk' S) (A.ofQuotient S)) ≅ A := Iso.refl _
 
 end

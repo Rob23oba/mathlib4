@@ -52,8 +52,9 @@ variable {C D : Type u} [Category.{v} C] [Category.{v} D] (F : C ⥤ D)
 
 /-- Given a functor `C ⥤ D`, we obtain a morphism `nerve C ⟶ nerve D` of simplicial sets. -/
 @[simps -isSimp]
-def nerveMap {C D : Type u} [Category.{v} C] [Category.{v} D] (F : C ⥤ D) : nerve C ⟶ nerve D :=
-  { app _ := ↾fun X ↦ (F.mapComposableArrows _).obj X }
+def nerveMap {C D : Type u} [Category.{v} C] [Category.{v} D] (F : C ⥤ D) : nerve C ⟶ nerve D := {
+  app _ := ↾fun X ↦ (F.mapComposableArrows _).obj X
+}
 
 lemma nerveMap_app_mk₀ (x : C) :
     (nerveMap F).app (op ⦋0⦌) (ComposableArrows.mk₀ x) =
@@ -85,13 +86,15 @@ namespace nerve
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- Nerves of finite non-empty ordinals are representable functors. -/
-def representableBy {n : ℕ} (α : Type u) [Preorder α] (e : α ≃o Fin (n + 1)) :
-    (nerve α).RepresentableBy ⦋n⦌ where
-  homEquiv := SimplexCategory.homEquivFunctor.trans
-    { toFun F := F ⋙ e.symm.monotone.functor
+def representableBy {n : ℕ} (α : Type u) [Preorder α] (e : α ≃o Fin (n + 1))
+    : (nerve α).RepresentableBy ⦋n⦌ where
+  homEquiv :=
+    SimplexCategory.homEquivFunctor.trans {
+      toFun F := F ⋙ e.symm.monotone.functor
       invFun F := F ⋙ e.monotone.functor
       left_inv F := Functor.ext (fun x ↦ by simp)
-      right_inv F := Functor.ext (fun x ↦ by simp) }
+      right_inv F := Functor.ext (fun x ↦ by simp)
+    }
   homEquiv_comp _ _ := rfl
 
 variable {C : Type u} [Category.{v} C] {n : ℕ}
@@ -167,8 +170,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
 /-- Bijection between edges in the nerve of category and morphisms in the category. -/
 @[simps -isSimp]
-def homEquiv {x y : ComposableArrows C 0} :
-    (nerve C).Edge x y ≃ (nerveEquiv x ⟶ nerveEquiv y) where
+def homEquiv {x y : ComposableArrows C 0} : (nerve C).Edge x y ≃ (nerveEquiv x ⟶ nerveEquiv y) where
   toFun e := eqToHom (by simp) ≫ e.edge.hom ≫ eqToHom (by simp)
   invFun f := .mk (ComposableArrows.mk₁ f) (ComposableArrows.ext₀ rfl) (ComposableArrows.ext₀ rfl)
   left_inv e := by cat_disch

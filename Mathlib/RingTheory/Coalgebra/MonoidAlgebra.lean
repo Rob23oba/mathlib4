@@ -31,12 +31,11 @@ open Coalgebra
 
 namespace MonoidAlgebra
 
-variable {R : Type*} [CommSemiring R] {A : Type*} [Semiring A]
-  {X : Type*} [Module R A] [Coalgebra R A]
+variable
+  {R : Type*} [CommSemiring R] {A : Type*} [Semiring A] {X : Type*} [Module R A] [Coalgebra R A]
 
 variable (R A X) in
-@[to_additive]
-instance instCoalgebra : Coalgebra R A[X] := (coeffLinearEquiv R).coalgebra _
+@[to_additive] instance instCoalgebra : Coalgebra R A[X] := (coeffLinearEquiv R).coalgebra _
 
 @[to_additive]
 instance instIsCocomm [IsCocomm R A] : IsCocomm R A[X] := (coeffLinearEquiv R).coalgebraIsCocomm _
@@ -73,29 +72,28 @@ instance instIsCocomm [IsCocomm R A] : IsCocomm R A[T;T⁻¹] := inferInstanceAs
 variable {R A}
 
 @[simp]
-theorem comul_C (a : A) :
-    Coalgebra.comul (R := R) (C a) =
-      TensorProduct.map (lsingle 0) (lsingle 0) (Coalgebra.comul (R := R) a) :=
+theorem comul_C (a : A)
+    : Coalgebra.comul (R := R) (C a)
+      = TensorProduct.map (lsingle 0) (lsingle 0) (Coalgebra.comul (R := R) a) :=
   comul_single _ _
 
 @[simp]
-theorem comul_C_mul_T (a : A) (n : ℤ) :
-    Coalgebra.comul (R := R) (C a * T n) =
-      TensorProduct.map (lsingle n) (lsingle n) (Coalgebra.comul (R := R) a) := by
+theorem comul_C_mul_T (a : A) (n : ℤ)
+    : Coalgebra.comul (R := R) (C a * T n)
+      = TensorProduct.map (lsingle n) (lsingle n) (Coalgebra.comul (R := R) a) := by
   simp [← single_eq_C_mul_T]
 
-theorem comul_C_mul_T_self (a : R) (n : ℤ) :
-    Coalgebra.comul (C a * T n) = T n ⊗ₜ[R] (C a * T n) := by
+theorem comul_C_mul_T_self (a : R) (n : ℤ)
+    : Coalgebra.comul (C a * T n) = T n ⊗ₜ[R] (C a * T n) := by
   simp
 
 @[simp]
-theorem counit_C (a : A) :
-    Coalgebra.counit (R := R) (C a) = Coalgebra.counit (R := R) a :=
+theorem counit_C (a : A) : Coalgebra.counit (R := R) (C a) = Coalgebra.counit (R := R) a :=
   counit_single _ _
 
 @[simp]
-theorem counit_C_mul_T (a : A) (n : ℤ) :
-    Coalgebra.counit (R := R) (C a * T n) = Coalgebra.counit (R := R) a := by
+theorem counit_C_mul_T (a : A) (n : ℤ)
+    : Coalgebra.counit (R := R) (C a * T n) = Coalgebra.counit (R := R) a := by
   simp [← single_eq_C_mul_T]
 
 end LaurentPolynomial

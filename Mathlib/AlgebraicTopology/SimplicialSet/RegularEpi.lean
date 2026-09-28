@@ -21,7 +21,6 @@ open CategoryTheory
 
 namespace SSet
 
-instance : IsRegularEpiCategory SSet.{u} :=
-  inferInstanceAs (IsRegularEpiCategory (_ ⥤ _))
+instance : IsRegularEpiCategory SSet.{u} := inferInstanceAs (IsRegularEpiCategory (_ ⥤ _))
 
 end SSet

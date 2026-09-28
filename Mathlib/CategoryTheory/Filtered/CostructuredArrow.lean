@@ -56,22 +56,29 @@ end Small
 variable {A : Type u₁} [Category.{v₁} A] {B : Type u₂} [Category.{v₂} B]
 variable {T : Type u₃} [Category.{v₃} T]
 
-/-- Given functors `L : A ⥤ T` and `R : B ⥤ T` with a common codomain we can conclude that `A`
+/--
+Given functors `L : A ⥤ T` and `R : B ⥤ T` with a common codomain we can conclude that `A`
 is filtered given that `R` is final, `B` is filtered and each costructured arrow category
-`CostructuredArrow L (R.obj b)` is filtered. -/
-theorem isFiltered_of_isFiltered_costructuredArrow (L : A ⥤ T) (R : B ⥤ T)
-    [IsFiltered B] [Final R] [∀ b, IsFiltered (CostructuredArrow L (R.obj b))] : IsFiltered A := by
+`CostructuredArrow L (R.obj b)` is filtered.
+-/
+theorem isFiltered_of_isFiltered_costructuredArrow
+    (L : A ⥤ T) (R : B ⥤ T)
+    [IsFiltered B] [Final R] [∀ b, IsFiltered (CostructuredArrow L (R.obj b))]
+    : IsFiltered A := by
   let sA : A ≌ AsSmall.{max u₁ u₂ u₃ v₁ v₂ v₃} A := AsSmall.equiv
   let sB : B ≌ AsSmall.{max u₁ u₂ u₃ v₁ v₂ v₃} B := AsSmall.equiv
   let sT : T ≌ AsSmall.{max u₁ u₂ u₃ v₁ v₂ v₃} T := AsSmall.equiv
-  let sC : ∀ b, CostructuredArrow (sA.inverse ⋙ L ⋙ sT.functor)
-      ((sB.inverse ⋙ R ⋙ sT.functor).obj ⟨b⟩) ≌ CostructuredArrow L (R.obj b) := fun b =>
+  let sC
+      : ∀ b,
+        CostructuredArrow (sA.inverse ⋙ L ⋙ sT.functor) ((sB.inverse ⋙ R ⋙ sT.functor).obj ⟨b⟩)
+          ≌ CostructuredArrow L (R.obj b) := fun b =>
     (CostructuredArrow.pre sA.inverse (L ⋙ sT.functor) _).asEquivalence.trans
       (CostructuredArrow.post L sT.functor _).asEquivalence.symm
-  have : ∀ b, IsFiltered (CostructuredArrow _ ((sB.inverse ⋙ R ⋙ sT.functor).obj b)) :=
-    fun b => IsFiltered.of_equivalence (sC b.1).symm
-  have := isFiltered_of_isFiltered_costructuredArrow_small
-    (sA.inverse ⋙ L ⋙ sT.functor) (sB.inverse ⋙ R ⋙ sT.functor)
+  have : ∀ b, IsFiltered (CostructuredArrow _ ((sB.inverse ⋙ R ⋙ sT.functor).obj b)) := fun b =>
+    IsFiltered.of_equivalence (sC b.1).symm
+  have :=
+    isFiltered_of_isFiltered_costructuredArrow_small (sA.inverse ⋙ L ⋙ sT.functor)
+      (sB.inverse ⋙ R ⋙ sT.functor)
   exact IsFiltered.of_equivalence sA.symm
 
 end CategoryTheory

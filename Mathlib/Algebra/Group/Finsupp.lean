@@ -32,8 +32,10 @@ variable [Zero M] [Zero N] [Zero O]
 lemma apply_single [FunLike F M N] [ZeroHomClass F M N] (e : F) (i : ι) (m : M) (b : ι) :
     e (single i m b) = single i (e m) b := apply_single' e (map_zero e) i m b
 
-/-- Composition with a fixed zero-preserving homomorphism is itself a zero-preserving homomorphism
-on functions. -/
+/--
+Composition with a fixed zero-preserving homomorphism is itself a zero-preserving homomorphism
+on functions.
+-/
 @[simps]
 def mapRange.zeroHom (f : ZeroHom M N) : ZeroHom (ι →₀ M) (ι →₀ N) where
   toFun := Finsupp.mapRange f f.map_zero
@@ -50,7 +52,8 @@ end Zero
 section AddZeroClass
 variable [AddZeroClass M] [AddZeroClass N] {f : M → N} {g₁ g₂ : ι →₀ M}
 
-instance instAdd : Add (ι →₀ M) where add := zipWith (· + ·) (add_zero 0)
+instance instAdd : Add (ι →₀ M) where
+  add := zipWith (· + ·) (add_zero 0)
 
 @[simp, norm_cast] lemma coe_add (f g : ι →₀ M) : ⇑(f + g) = f + g := rfl
 
@@ -73,15 +76,18 @@ instance instAddZeroClass : AddZeroClass (ι →₀ M) :=
 instance instIsLeftCancelAdd [IsLeftCancelAdd M] : IsLeftCancelAdd (ι →₀ M) where
   add_left_cancel _ _ _ h := ext fun x => add_left_cancel congr($h x)
 
-/-- When ι is finite and M is an AddMonoid,
-  then Finsupp.equivFunOnFinite gives an AddEquiv -/
-noncomputable def addEquivFunOnFinite {ι : Type*} [Finite ι] :
-    (ι →₀ M) ≃+ (ι → M) where
+/--
+When ι is finite and M is an AddMonoid,
+then Finsupp.equivFunOnFinite gives an AddEquiv
+-/
+noncomputable def addEquivFunOnFinite {ι : Type*} [Finite ι] : (ι →₀ M) ≃+ (ι → M) where
   __ := Finsupp.equivFunOnFinite
   map_add' _ _ := rfl
 
-/-- If `M` is the trivial monoid, then the monoid of finitely supported functions `ι →₀ M` is
-is isomorphic to `M`. -/
+/--
+If `M` is the trivial monoid, then the monoid of finitely supported functions `ι →₀ M` is
+is isomorphic to `M`.
+-/
 @[simps! apply symm_apply]
 noncomputable def uniqueAddEquiv (i : ι) [Subsingleton ι] : (ι →₀ M) ≃+ M where
   toEquiv := uniqueEquiv i
@@ -91,8 +97,10 @@ noncomputable def uniqueAddEquiv (i : ι) [Subsingleton ι] : (ι →₀ M) ≃+
 @[simp↓ high] lemma uniqueAddEquiv_symm_apply_apply (i : ι) [Subsingleton ι] (m : M) (j : ι) :
     (uniqueAddEquiv i).symm m j = m := by simp [Subsingleton.elim j i]
 
-/-- If `M` is the trivial monoid, then the monoid of finitely supported functions `ι →₀ M` is
-is isomorphic to `M`. -/
+/--
+If `M` is the trivial monoid, then the monoid of finitely supported functions `ι →₀ M` is
+is isomorphic to `M`.
+-/
 @[simps!, deprecated uniqueAddEquiv +typeChanged (since := "2026-05-06")]
 noncomputable def _root_.AddEquiv.finsuppUnique {ι : Type*} [Unique ι] : (ι →₀ M) ≃+ M where
   toEquiv := .finsuppUnique
@@ -103,10 +111,12 @@ instance instIsRightCancelAdd [IsRightCancelAdd M] : IsRightCancelAdd (ι →₀
 
 instance instIsCancelAdd [IsCancelAdd M] : IsCancelAdd (ι →₀ M) where
 
-/-- Evaluation of a function `f : ι →₀ M` at a point as an additive monoid homomorphism.
+/--
+Evaluation of a function `f : ι →₀ M` at a point as an additive monoid homomorphism.
 
 See `Finsupp.lapply` in `Mathlib/LinearAlgebra/Finsupp/Defs.lean` for the stronger version as a
-linear map. -/
+linear map.
+-/
 @[simps apply]
 def applyAddHom (a : ι) : (ι →₀ M) →+ M where
   toFun g := g a
@@ -182,8 +192,8 @@ set_option backward.isDefEq.respectTransparency false in
 lemma _root_.AddEquiv.finsuppUnique_symm {M : Type*} [AddZeroClass M] (d : M) :
     AddEquiv.finsuppUnique.symm d = single () d := by ext; simp [AddEquiv.finsuppUnique]
 
-theorem addCommute_iff_inter [DecidableEq ι] {f g : ι →₀ M} :
-    AddCommute f g ↔ ∀ x ∈ f.support ∩ g.support, AddCommute (f x) (g x) where
+theorem addCommute_iff_inter [DecidableEq ι] {f g : ι →₀ M}
+    : AddCommute f g ↔ ∀ x ∈ f.support ∩ g.support, AddCommute (f x) (g x) where
   mp h := fun x _ ↦ Finsupp.ext_iff.1 h x
   mpr h := by
     ext x
@@ -193,14 +203,17 @@ theorem addCommute_iff_inter [DecidableEq ι] {f g : ι →₀ M} :
       · simp_all
     · simp_all
 
-theorem addCommute_of_disjoint {f g : ι →₀ M} (h : Disjoint f.support g.support) :
-    AddCommute f g := by
-  classical simp_all [addCommute_iff_inter, Finset.disjoint_iff_inter_eq_empty]
+theorem addCommute_of_disjoint {f g : ι →₀ M} (h : Disjoint f.support g.support)
+    : AddCommute f g := by
+  classical
+  simp_all [addCommute_iff_inter, Finset.disjoint_iff_inter_eq_empty]
 
-/-- `Finsupp.single` as an `AddMonoidHom`.
+/--
+`Finsupp.single` as an `AddMonoidHom`.
 
 See `Finsupp.lsingle` in `Mathlib/LinearAlgebra/Finsupp/Defs.lean` for the stronger version as a
-linear map. -/
+linear map.
+-/
 @[simps]
 def singleAddHom (a : ι) : M →+ ι →₀ M where
   toFun := single a
@@ -337,9 +350,12 @@ end AddZeroClass
 section AddMonoid
 variable [AddMonoid M]
 
-/-- Note the general `SMul` instance for `Finsupp` doesn't apply as `ℕ` is not distributive
-unless `F i`'s addition is commutative. -/
-instance instNatSMul : SMul ℕ (ι →₀ M) where smul n v := v.mapRange (n • ·) (nsmul_zero _)
+/--
+Note the general `SMul` instance for `Finsupp` doesn't apply as `ℕ` is not distributive
+unless `F i`'s addition is commutative.
+-/
+instance instNatSMul : SMul ℕ (ι →₀ M) where
+  smul n v := v.mapRange (n • ·) (nsmul_zero _)
 
 @[simp, norm_cast] lemma coe_nsmul (n : ℕ) (f : ι →₀ M) : ⇑(n • f) = n • ⇑f := rfl
 
@@ -367,7 +383,8 @@ lemma single_add_single_eq_single_add_single {k l m n : ι} {u v : M} (hu : u �
     simp_rw [DFunLike.ext_iff, coe_add, single_eq_pi_single, ← funext_iff]
     exact Pi.single_add_single_eq_single_add_single hu hv
 
-/-- Composition with a fixed additive homomorphism is itself an additive homomorphism on functions.
+/--
+Composition with a fixed additive homomorphism is itself an additive homomorphism on functions.
 -/
 @[simps]
 def mapRange.addMonoidHom (f : M →+ N) : (ι →₀ M) →+ ι →₀ N where
@@ -415,7 +432,8 @@ lemma mapRange.addEquiv_toEquiv (e : M ≃+ N) :
 
 end AddCommMonoid
 
-instance instNeg [NegZeroClass G] : Neg (ι →₀ G) where neg := mapRange Neg.neg neg_zero
+instance instNeg [NegZeroClass G] : Neg (ι →₀ G) where
+  neg := mapRange Neg.neg neg_zero
 
 @[simp, norm_cast] lemma coe_neg [NegZeroClass G] (g : ι →₀ G) : ⇑(-g) = -g := rfl
 
@@ -426,8 +444,7 @@ lemma mapRange_neg [NegZeroClass G] [NegZeroClass H] {f : G → H} {hf : f 0 = 0
     (hf' : ∀ x, f (-x) = -f x) (v : ι →₀ G) : mapRange f hf (-v) = -mapRange f hf v :=
   ext fun _ => by simp only [hf', neg_apply, mapRange_apply]
 
-instance instSub [SubNegZeroMonoid G] : Sub (ι →₀ G) :=
-  ⟨zipWith Sub.sub (sub_zero _)⟩
+instance instSub [SubNegZeroMonoid G] : Sub (ι →₀ G) := ⟨zipWith Sub.sub (sub_zero _)⟩
 
 @[simp, norm_cast] lemma coe_sub [SubNegZeroMonoid G] (g₁ g₂ : ι →₀ G) : ⇑(g₁ - g₂) = g₁ - g₂ := rfl
 
@@ -451,10 +468,11 @@ lemma mapRange_sub' [SubtractionMonoid H] [FunLike F G H] [AddMonoidHomClass F G
     mapRange f (map_zero f) (v₁ - v₂) = mapRange f (map_zero f) v₁ - mapRange f (map_zero f) v₂ :=
   mapRange_sub (map_sub f) v₁ v₂
 
-/-- Note the general `SMul` instance for `Finsupp` doesn't apply as `ℤ` is not distributive
-unless `F i`'s addition is commutative. -/
-instance instIntSMul : SMul ℤ (ι →₀ G) :=
-  ⟨fun n v => v.mapRange (n • ·) (zsmul_zero _)⟩
+/--
+Note the general `SMul` instance for `Finsupp` doesn't apply as `ℤ` is not distributive
+unless `F i`'s addition is commutative.
+-/
+instance instIntSMul : SMul ℤ (ι →₀ G) := ⟨fun n v => v.mapRange (n • ·) (zsmul_zero _)⟩
 
 instance instAddGroup : AddGroup (ι →₀ G) :=
   fast_instance% DFunLike.coe_injective.addGroup DFunLike.coe coe_zero coe_add coe_neg coe_sub

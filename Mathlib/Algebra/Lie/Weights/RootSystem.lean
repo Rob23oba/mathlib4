@@ -44,8 +44,9 @@ namespace LieAlgebra.IsKilling
 
 open LieModule Module
 
-variable {K L : Type*} [Field K] [CharZero K] [LieRing L] [LieAlgebra K L]
-  [IsKilling K L] [FiniteDimensional K L]
+variable
+  {K L : Type*}
+  [Field K] [CharZero K] [LieRing L] [LieAlgebra K L] [IsKilling K L] [FiniteDimensional K L]
   {H : LieSubalgebra K L} [H.IsCartanSubalgebra] [IsTriangularizable K H L]
 
 variable (α β : Weight K H L)
@@ -69,7 +70,9 @@ set_option backward.privateInPublic.warn false in
 /-- The length of the `α`-chain through `β`. See `chainBotCoeff_add_chainTopCoeff`. -/
 def chainLength (α β : Weight K H L) : ℕ :=
   letI := Classical.propDecidable
-  if hα : α.IsZero then 0 else
+  if hα : α.IsZero then
+    0
+  else
     (chainLength_aux α β hα (chainTop α β).exists_ne_zero.choose_spec.1).choose
 
 lemma chainLength_of_isZero (hα : α.IsZero) : chainLength α β = 0 := dite_eq_left hα
@@ -393,8 +396,10 @@ def reflectRoot (α β : Weight K H L) : Weight K H L where
   genWeightSpace_ne_bot' := by
     by_cases hα : α.IsZero
     · simpa [hα.eq] using β.genWeightSpace_ne_bot
-    rw [sub_eq_neg_add, apply_coroot_eq_cast α β, ← neg_smul, ← Int.cast_neg,
-      Int.cast_smul_eq_zsmul, rootSpace_zsmul_add_ne_bot_iff α β hα]
+    rw [
+      sub_eq_neg_add, apply_coroot_eq_cast α β, ← neg_smul, ← Int.cast_neg, Int.cast_smul_eq_zsmul,
+      rootSpace_zsmul_add_ne_bot_iff α β hα
+    ]
     lia
 
 lemma reflectRoot_isNonZero (α β : Weight K H L) (hβ : β.IsNonZero) :
@@ -409,17 +414,13 @@ lemma reflectRoot_isNonZero (α β : Weight K H L) (hβ : β.IsNonZero) :
 
 variable (H)
 
-/-- The root system of a finite-dimensional Lie algebra with non-degenerate Killing form over a
-field of characteristic zero, relative to a splitting Cartan subalgebra. -/
-def rootSystem :
-    RootPairing H.root K (Dual K H) H :=
-  RootPairing.mk''
-    .id
-    { toFun := (↑)
-      inj' := by
-        intro α β h; ext x; simpa using congr($h x) }
-    { toFun := coroot ∘ (↑)
-      inj' := by rintro ⟨α, hα⟩ ⟨β, hβ⟩ h; simpa using h }
+/--
+The root system of a finite-dimensional Lie algebra with non-degenerate Killing form over a
+field of characteristic zero, relative to a splitting Cartan subalgebra.
+-/
+def rootSystem : RootPairing H.root K (Dual K H) H :=
+  RootPairing.mk'' .id { toFun := (↑), inj' := by intro α β h; ext x; simpa using congr($h x) }
+    { toFun := coroot ∘ (↑), inj' := by rintro ⟨α, hα⟩ ⟨β, hβ⟩ h; simpa using h }
     (fun ⟨α, hα⟩ ↦ by simpa using root_apply_coroot <| by simpa using hα)
     (by
       rintro ⟨α, hα⟩ - ⟨⟨β, hβ⟩, rfl⟩
@@ -471,8 +472,8 @@ instance : (rootSystem H).IsReduced where
     rw [LinearIndependent.pair_iff' ((rootSystem H).ne_zero _), not_forall] at e
     simp only [rootSystem_root_apply, ne_eq, not_not] at e
     obtain ⟨u, hu⟩ := e
-    obtain (h | h) := eq_neg_or_eq_of_eq_smul α β (by simpa using hβ) u
-      (by ext x; congrm $hu.symm x)
+    obtain (h | h) :=
+      eq_neg_or_eq_of_eq_smul α β (by simpa using hβ) u (by ext x; congrm $hu.symm x)
     · right; ext x; simpa [neg_eq_iff_eq_neg] using congr($h.symm x)
     · left; ext x; simpa using congr($h.symm x)
 

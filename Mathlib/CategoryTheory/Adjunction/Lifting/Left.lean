@@ -59,7 +59,6 @@ Please try to keep them in sync.
 
 @[expose] public section
 
-
 namespace CategoryTheory
 
 open Category Limits
@@ -75,25 +74,29 @@ namespace LiftLeftAdjoint
 variable {U : B ⥤ C} {F : C ⥤ B} (R : A ⥤ B) (F' : C ⥤ A)
 variable (adj₁ : F ⊣ U) (adj₂ : F' ⊣ R ⋙ U)
 
-/-- To show that `ε_X` is a coequalizer for `(FUε_X, ε_FUX)`, it suffices to assume it's always a
+/--
+To show that `ε_X` is a coequalizer for `(FUε_X, ε_FUX)`, it suffices to assume it's always a
 coequalizer of something (i.e. a regular epi).
 -/
-def counitCoequalises (h : ∀ X : B, RegularEpi (adj₁.counit.app X)) (X : B) :
-    IsColimit (Cofork.ofπ (adj₁.counit.app X) (adj₁.counit_naturality _)) :=
+def counitCoequalises (h : ∀ X : B, RegularEpi (adj₁.counit.app X)) (X : B)
+    : IsColimit (Cofork.ofπ (adj₁.counit.app X) (adj₁.counit_naturality _)) :=
   Cofork.IsColimit.mk' _ fun s => by
     have := fun Y ↦ h Y |>.epi
     refine ⟨((h X).desc' s.π ?_).1, ?_, ?_⟩
     · rw [← cancel_epi (adj₁.counit.app (h X).W)]
       rw [← adj₁.counit_naturality_assoc (h X).left]
       dsimp
-      rw [← dsimp% s.condition, ← F.map_comp_assoc, ← U.map_comp, RegularEpi.w, U.map_comp,
-        F.map_comp_assoc, s.condition, ← adj₁.counit_naturality_assoc (h X).right]
+      rw [
+        ← dsimp% s.condition, ← F.map_comp_assoc, ← U.map_comp, RegularEpi.w, U.map_comp,
+        F.map_comp_assoc, s.condition, ← adj₁.counit_naturality_assoc (h X).right
+      ]
     · apply ((h X).desc' s.π _).2
     · intro m hm
       rw [← cancel_epi (adj₁.counit.app X)]
       apply hm.trans ((h _).desc' s.π _).2.symm
 
-/-- (Implementation)
+/--
+(Implementation)
 To construct the left adjoint, we use the coequalizer of `F' U ε_Y` with the composite
 
 `F' U F U X ⟶ F' U F U R F' U X ⟶ F' U R F' U X ⟶ F' U X`
@@ -106,23 +109,27 @@ def otherMap (X) : F'.obj (U.obj (F.obj (U.obj X))) ⟶ F'.obj (U.obj X) :=
   F'.map (U.map (F.map (adj₂.unit.app _) ≫ adj₁.counit.app _)) ≫ adj₂.counit.app _
 
 set_option backward.defeqAttrib.useBackward true in
-/-- `(F'Uε_X, otherMap X)` is a reflexive pair: in particular if `A` has reflexive coequalizers then
+/--
+`(F'Uε_X, otherMap X)` is a reflexive pair: in particular if `A` has reflexive coequalizers then
 this pair has a coequalizer.
 -/
-instance (X : B) :
-    IsReflexivePair (F'.map (U.map (adj₁.counit.app X))) (otherMap _ _ adj₁ adj₂ X) :=
+instance (X : B)
+    : IsReflexivePair (F'.map (U.map (adj₁.counit.app X))) (otherMap _ _ adj₁ adj₂ X) :=
   IsReflexivePair.mk' (F'.map (adj₁.unit.app (U.obj X)))
     (by
       rw [← F'.map_comp, adj₁.right_triangle_components]
       apply F'.map_id)
     (by
       dsimp [otherMap]
-      rw [← F'.map_comp_assoc, U.map_comp, adj₁.unit_naturality_assoc,
-        adj₁.right_triangle_components, comp_id, adj₂.left_triangle_components])
+      rw [
+        ← F'.map_comp_assoc, U.map_comp, adj₁.unit_naturality_assoc, adj₁.right_triangle_components,
+        comp_id, adj₂.left_triangle_components
+      ])
 
 variable [HasReflexiveCoequalizers A]
 
-/-- Construct the object part of the desired left adjoint as the coequalizer of `F'Uε_Y` with
+/--
+Construct the object part of the desired left adjoint as the coequalizer of `F'Uε_Y` with
 `otherMap`.
 -/
 noncomputable def constructLeftAdjointObj (Y : B) : A :=
@@ -133,30 +140,35 @@ noncomputable def constructLeftAdjointObj (Y : B) : A :=
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The homset equivalence which helps show that `R` is a right adjoint. -/
 @[simps!]
-noncomputable def constructLeftAdjointEquiv (h : ∀ X : B, RegularEpi (adj₁.counit.app X)) (Y : A)
-    (X : B) : (constructLeftAdjointObj _ _ adj₁ adj₂ X ⟶ Y) ≃ (X ⟶ R.obj Y) :=
+noncomputable def constructLeftAdjointEquiv
+    (h : ∀ X : B, RegularEpi (adj₁.counit.app X)) (Y : A) (X : B)
+    : (constructLeftAdjointObj _ _ adj₁ adj₂ X ⟶ Y) ≃ (X ⟶ R.obj Y) :=
   calc
-    (constructLeftAdjointObj _ _ adj₁ adj₂ X ⟶ Y) ≃
-        { f : F'.obj (U.obj X) ⟶ Y //
-          F'.map (U.map (adj₁.counit.app X)) ≫ f = otherMap _ _ adj₁ adj₂ _ ≫ f } :=
+    (constructLeftAdjointObj _ _ adj₁ adj₂ X ⟶ Y)
+        ≃ {f : F'.obj (U.obj X) ⟶ Y
+          // F'.map (U.map (adj₁.counit.app X)) ≫ f = otherMap _ _ adj₁ adj₂ _ ≫ f} :=
       Cofork.IsColimit.homIso (colimit.isColimit _) _
-    _ ≃ { g : U.obj X ⟶ U.obj (R.obj Y) //
-          U.map (F.map g ≫ adj₁.counit.app _) = U.map (adj₁.counit.app _) ≫ g } := by
+    _ ≃ {g : U.obj X ⟶ U.obj (R.obj Y)
+        // U.map (F.map g ≫ adj₁.counit.app _) = U.map (adj₁.counit.app _) ≫ g} := by
       apply (adj₂.homEquiv _ _).subtypeEquiv _
       intro f
-      rw [← (adj₂.homEquiv _ _).injective.eq_iff, eq_comm, adj₂.homEquiv_naturality_left,
-        otherMap, assoc, adj₂.homEquiv_naturality_left, ← adj₂.counit_naturality,
-        adj₂.homEquiv_naturality_left, adj₂.homEquiv_unit, adj₂.right_triangle_components,
-        comp_id, Functor.comp_map, ← U.map_comp, assoc]
+      rw [
+        ← (adj₂.homEquiv _ _).injective.eq_iff, eq_comm, adj₂.homEquiv_naturality_left, otherMap,
+        assoc, adj₂.homEquiv_naturality_left, ← adj₂.counit_naturality,
+        adj₂.homEquiv_naturality_left, adj₂.homEquiv_unit, adj₂.right_triangle_components, comp_id,
+        Functor.comp_map, ← U.map_comp, assoc
+      ]
       dsimp
       rw [← adj₁.counit_naturality]
       simp [dsimp% adj₂.homEquiv_unit _ _ f]
-    _ ≃ { z : F.obj (U.obj X) ⟶ R.obj Y // _ } := by
+    _ ≃ {z : F.obj (U.obj X) ⟶ R.obj Y // _} := by
       apply (adj₁.homEquiv _ _).symm.subtypeEquiv
       intro g
-      rw [← (adj₁.homEquiv _ _).symm.injective.eq_iff, adj₁.homEquiv_counit,
-        adj₁.homEquiv_counit, adj₁.homEquiv_counit, F.map_comp, assoc, U.map_comp, F.map_comp,
-        assoc, adj₁.counit_naturality, adj₁.counit_naturality_assoc]
+      rw [
+        ← (adj₁.homEquiv _ _).symm.injective.eq_iff, adj₁.homEquiv_counit, adj₁.homEquiv_counit,
+        adj₁.homEquiv_counit, F.map_comp, assoc, U.map_comp, F.map_comp, assoc,
+        adj₁.counit_naturality, adj₁.counit_naturality_assoc
+      ]
       apply eq_comm
     _ ≃ (X ⟶ R.obj Y) := (Cofork.IsColimit.homIso (counitCoequalises adj₁ h X) _).symm
 
@@ -167,8 +179,10 @@ set_option backward.defeqAttrib.useBackward true in
 noncomputable def constructLeftAdjoint (h : ∀ X : B, RegularEpi (adj₁.counit.app X)) : B ⥤ A := by
   refine Adjunction.leftAdjointOfEquiv (fun X Y => constructLeftAdjointEquiv R _ adj₁ adj₂ h Y X) ?_
   intro X Y Y' g h
-  rw [constructLeftAdjointEquiv_apply, constructLeftAdjointEquiv_apply,
-    Equiv.symm_apply_eq, Subtype.ext_iff]
+  rw [
+    constructLeftAdjointEquiv_apply, constructLeftAdjointEquiv_apply, Equiv.symm_apply_eq,
+    Subtype.ext_iff
+  ]
   dsimp
   -- This used to be `rw`, but we need `erw` after https://github.com/leanprover/lean4/pull/2644
   erw [Cofork.IsColimit.homIso_natural, Cofork.IsColimit.homIso_natural]

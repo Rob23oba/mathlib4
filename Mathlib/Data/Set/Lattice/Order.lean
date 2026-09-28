@@ -55,17 +55,17 @@ theorem iUnion_ge_eq_iUnion_nat_add (u : ℕ → Set α) (n : ℕ) : ⋃ i ≥ n
 theorem iInter_ge_eq_iInter_nat_add (u : ℕ → Set α) (n : ℕ) : ⋂ i ≥ n, u i = ⋂ i, u (i + n) :=
   iInf_ge_eq_iInf_nat_add u n
 
-theorem _root_.Monotone.iUnion_nat_add {f : ℕ → Set α} (hf : Monotone f) (k : ℕ) :
-    ⋃ n, f (n + k) = ⋃ n, f n :=
+theorem _root_.Monotone.iUnion_nat_add {f : ℕ → Set α} (hf : Monotone f) (k : ℕ)
+    : ⋃ n, f (n + k) = ⋃ n, f n :=
   hf.iSup_nat_add k
 
-theorem _root_.Antitone.iInter_nat_add {f : ℕ → Set α} (hf : Antitone f) (k : ℕ) :
-    ⋂ n, f (n + k) = ⋂ n, f n :=
+theorem _root_.Antitone.iInter_nat_add {f : ℕ → Set α} (hf : Antitone f) (k : ℕ)
+    : ⋂ n, f (n + k) = ⋂ n, f n :=
   hf.iInf_nat_add k
 
 @[simp]
-theorem iUnion_iInter_ge_nat_add (f : ℕ → Set α) (k : ℕ) :
-    ⋃ n, ⋂ i ≥ n, f (i + k) = ⋃ n, ⋂ i ≥ n, f i :=
+theorem iUnion_iInter_ge_nat_add (f : ℕ → Set α) (k : ℕ)
+    : ⋃ n, ⋂ i ≥ n, f (i + k) = ⋃ n, ⋂ i ≥ n, f i :=
   iSup_iInf_ge_nat_add f k
 
 theorem union_iUnion_nat_succ (u : ℕ → Set α) : (u 0 ∪ ⋃ i, u (i + 1)) = ⋃ i, u i :=
@@ -94,7 +94,7 @@ theorem sSup_iUnion (t : ι → Set β) : sSup (⋃ i, t i) = ⨆ i, sSup (t i) 
   simp_rw [sSup_eq_iSup, iSup_iUnion]
 
 @[to_dual]
-theorem sSup_sUnion (s : Set (Set β)) : sSup (⋃₀ s) = ⨆ t ∈ s, sSup t := by
+theorem sSup_sUnion (s : Set (Set β)) : sSup (⋃₀s) = ⨆ t ∈ s, sSup t := by
   simp only [sUnion_eq_biUnion, sSup_eq_iSup, iSup_iUnion]
 
 @[to_dual]

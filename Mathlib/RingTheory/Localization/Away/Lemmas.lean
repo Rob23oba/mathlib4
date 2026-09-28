@@ -21,14 +21,18 @@ variable {R : Type*} [CommRing R]
 
 namespace IsLocalization.Away
 
-/-- Given a set `s` in a ring `R` and for every `t : s` a set `p t` of fractions in
+/--
+Given a set `s` in a ring `R` and for every `t : s` a set `p t` of fractions in
 a localization of `R` at `t`, this is the function sending a pair `(t, y)`, with
 `t : s` and `y : t a`, to `t` multiplied with a numerator of `y`. The range
-of this function spans the unit ideal, if `s` and every `p t` do. -/
-noncomputable def mulNumerator (s : Set R)
-    {Rₜ : s → Type*} [∀ t, CommRing (Rₜ t)] [∀ t, Algebra R (Rₜ t)]
-    [∀ t, IsLocalization.Away t.val (Rₜ t)]
-    (p : (t : s) → Set (Rₜ t)) (x : (t : s) × p t) : R :=
+of this function spans the unit ideal, if `s` and every `p t` do.
+-/
+noncomputable def mulNumerator
+    (s : Set R)
+    {Rₜ : s → Type*}
+    [∀ t, CommRing (Rₜ t)] [∀ t, Algebra R (Rₜ t)] [∀ t, IsLocalization.Away t.val (Rₜ t)]
+    (p : (t : s) → Set (Rₜ t)) (x : (t : s) × p t)
+    : R :=
   x.1 * (IsLocalization.Away.sec x.1.1 x.2.1).1
 
 lemma span_range_mulNumerator_eq_top {s : Set R}
@@ -71,8 +75,10 @@ end IsLocalization.Away
 
 section saturated
 
-variable {R : Type*} (S : Type*) [CommSemiring R] [CommSemiring S]
-  [Algebra R S] (x : R) [IsLocalization.Away x S] {I J : Ideal R}
+variable
+  {R : Type*} (S : Type*) [CommSemiring R] [CommSemiring S] [Algebra R S]
+  (x : R) [IsLocalization.Away x S]
+  {I J : Ideal R}
 
 lemma Ideal.le_of_map_algebraMap_le (hle : I.map (algebraMap R S) ≤ J.map (algebraMap R S))
     (hxJ : ∀ y : R, x * y ∈ J → y ∈ J) : I ≤ J := by

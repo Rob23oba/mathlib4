@@ -36,7 +36,6 @@ In this file, `f` stands for the inertia degree of `P` over `p`, leaving `p` and
 
 @[expose] public section
 
-
 namespace Ideal
 
 universe u v
@@ -55,7 +54,8 @@ section DecEq
 
 variable {S₁ : Type*} [CommRing S₁] [Algebra R S₁]
 
-/-- The inertia degree of `P : Ideal S` lying over `p : Ideal R` is the degree of the
+/--
+The inertia degree of `P : Ideal S` lying over `p : Ideal R` is the degree of the
 extension `(S / P) : (R / p)`.
 
 We do not assume `P` lies over `p` in the definition; we return `0` instead.
@@ -70,12 +70,13 @@ noncomputable def inertiaDeg' : ℕ :=
   if hPp : comap f P = p then
     letI : Algebra (R ⧸ p) (S ⧸ P) := Quotient.algebraQuotientOfLEComap hPp.ge
     finrank (R ⧸ p) (S ⧸ P)
-  else 0
+  else
+    0
 
 -- Useful for the `nontriviality` tactic using `comap_eq_of_scalar_tower_quotient`.
 @[simp, deprecated "Use `Ideal.inertiaDeg` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_of_subsingleton [hp : p.IsMaximal] [hQ : Subsingleton (S ⧸ P)] :
-    inertiaDeg' p P = 0 := by
+theorem inertiaDeg'_of_subsingleton [hp : p.IsMaximal] [hQ : Subsingleton (S ⧸ P)]
+    : inertiaDeg' p P = 0 := by
   have := Ideal.Quotient.subsingleton_iff.mp hQ
   subst this
   exact dite_eq_right fun h => hp.ne_top <| h.symm.trans comap_top
@@ -85,16 +86,15 @@ set_option linter.deprecated.deprecatedTarget false in
   inertiaDeg'_of_subsingleton
 
 @[simp, deprecated "Use `Ideal.inertiaDeg_eq_of_isMaximal` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_algebraMap [P.LiesOver p] :
-    inertiaDeg' p P = finrank (R ⧸ p) (S ⧸ P) := by
+theorem inertiaDeg'_algebraMap [P.LiesOver p] : inertiaDeg' p P = finrank (R ⧸ p) (S ⧸ P) := by
   rw [inertiaDeg', dite_eq_left (over_def P p).symm]
 
 set_option linter.deprecated.deprecatedTarget false in
 @[deprecated (since := "2026-07-03")] alias inertiaDeg_algebraMap := inertiaDeg'_algebraMap
 
 @[deprecated "Use `inertiaDeg_eq_of_isMaximal` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_eq_inertiaDeg [P.LiesOver p] [p.IsMaximal] [P.IsMaximal] :
-    p.inertiaDeg' P = P.inertiaDeg R := by
+theorem inertiaDeg'_eq_inertiaDeg [P.LiesOver p] [p.IsMaximal] [P.IsMaximal]
+    : p.inertiaDeg' P = P.inertiaDeg R := by
   rw [inertiaDeg'_algebraMap, inertiaDeg_eq_of_isMaximal p P]
 
 set_option linter.deprecated.deprecatedTarget false in
@@ -115,8 +115,8 @@ set_option linter.deprecated.deprecatedTarget false in
 @[deprecated (since := "2026-07-03")] alias inertiaDeg_pos' := inertiaDeg'_pos'
 
 @[deprecated "Use `Ideal.inertiaDeg_pos` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_ne_zero [p.IsMaximal] [Module.Finite R S] [P.LiesOver p] :
-    inertiaDeg' p P ≠ 0 :=
+theorem inertiaDeg'_ne_zero [p.IsMaximal] [Module.Finite R S] [P.LiesOver p]
+    : inertiaDeg' p P ≠ 0 :=
   (Nat.ne_of_lt (inertiaDeg'_pos p P)).symm
 
 set_option linter.deprecated.deprecatedTarget false in
@@ -147,27 +147,31 @@ set_option linter.deprecated.deprecatedTarget false in
 @[deprecated (since := "2026-07-03")] alias inertiaDeg_map_eq := inertiaDeg'_map_eq
 
 @[deprecated "Use `Ideal.inertiaDeg` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_bot [Nontrivial R] [IsDomain S] [Algebra.IsIntegral R S]
-    [hP : P.LiesOver (⊥ : Ideal R)] :
-    (⊥ : Ideal R).inertiaDeg' P = finrank R S := by
+theorem inertiaDeg'_bot
+    [Nontrivial R] [IsDomain S] [Algebra.IsIntegral R S] [hP : P.LiesOver (⊥ : Ideal R)]
+    : (⊥ : Ideal R).inertiaDeg' P = finrank R S := by
   rw [inertiaDeg', dite_eq_left (over_def P (⊥ : Ideal R)).symm]
   replace hP : P = ⊥ := eq_bot_of_liesOver_bot R P
-  rw [Algebra.finrank_eq_of_equiv_equiv (RingEquiv.quotientBot R).symm
-    ((quotEquivOfEq hP).trans (RingEquiv.quotientBot S)).symm]
+  rw [
+    Algebra.finrank_eq_of_equiv_equiv (RingEquiv.quotientBot R).symm
+      ((quotEquivOfEq hP).trans (RingEquiv.quotientBot S)).symm
+  ]
   rfl
 
 set_option linter.deprecated.deprecatedTarget false in
 @[deprecated (since := "2026-07-03")] alias inertiaDeg_bot := inertiaDeg'_bot
 
 @[deprecated "Use `Ideal.inertiaDeg_above_le` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_le_inertiaDeg' {T : Type*} [CommRing T] [Algebra R T] [Algebra S T]
-    [IsScalarTower R S T] [Module.Finite R T] (Q : Ideal T) [P.LiesOver p] [Q.LiesOver P]
-    [p.IsPrime] : inertiaDeg' P Q ≤ inertiaDeg' p Q := by
+theorem inertiaDeg'_le_inertiaDeg'
+    {T : Type*} [CommRing T] [Algebra R T] [Algebra S T] [IsScalarTower R S T] [Module.Finite R T]
+    (Q : Ideal T) [P.LiesOver p] [Q.LiesOver P] [p.IsPrime]
+    : inertiaDeg' P Q ≤ inertiaDeg' p Q := by
   have : Q.LiesOver p := LiesOver.trans Q P p
   rw [inertiaDeg'_algebraMap, inertiaDeg'_algebraMap]
-  have : IsScalarTower (R ⧸ p) (S ⧸ P) (T ⧸ Q) := IsScalarTower.of_algebraMap_eq <| by
-    rintro ⟨x⟩
-    simp [Submodule.Quotient.quot_mk_eq_mk, IsScalarTower.algebraMap_apply R (S ⧸ P) (T ⧸ Q)]
+  have : IsScalarTower (R ⧸ p) (S ⧸ P) (T ⧸ Q) :=
+    IsScalarTower.of_algebraMap_eq <| by
+      rintro ⟨x⟩
+      simp [Submodule.Quotient.quot_mk_eq_mk, IsScalarTower.algebraMap_apply R (S ⧸ P) (T ⧸ Q)]
   exact finrank_top_le_finrank_of_isScalarTower ..
 
 set_option linter.deprecated.deprecatedTarget false in
@@ -221,13 +225,16 @@ section tower
 variable {R S T : Type*} [CommRing R] [CommRing S] [CommRing T]
 variable [Algebra R S] [Algebra S T] [Algebra R T] [IsScalarTower R S T]
 
-/-- Let `T / S / R` be a tower of algebras, `p, P, I` be ideals in `R, S, T`, respectively,
-  and `p` and `P` are maximal. If `p = P ∩ S` and `P = I ∩ S`,
-  then `f (I | p) = f (P | p) * f (I | P)`. -/
+/--
+Let `T / S / R` be a tower of algebras, `p, P, I` be ideals in `R, S, T`, respectively,
+and `p` and `P` are maximal. If `p = P ∩ S` and `P = I ∩ S`,
+then `f (I | p) = f (P | p) * f (I | P)`.
+-/
 @[deprecated "Use `Ideal.inertiaDeg_tower` instead." (since := "2026-08-14")]
-theorem inertiaDeg'_algebra_tower (p : Ideal R) (P : Ideal S) (I : Ideal T) [p.IsMaximal]
-    [P.IsMaximal] [P.LiesOver p] [I.LiesOver P] : inertiaDeg' p I =
-    inertiaDeg' p P * inertiaDeg' P I := by
+theorem inertiaDeg'_algebra_tower
+    (p : Ideal R) (P : Ideal S) (I : Ideal T)
+    [p.IsMaximal] [P.IsMaximal] [P.LiesOver p] [I.LiesOver P]
+    : inertiaDeg' p I = inertiaDeg' p P * inertiaDeg' P I := by
   have h₁ := P.over_def p
   have h₂ := I.over_def P
   have h₃ := (LiesOver.trans I P p).over
@@ -235,8 +242,9 @@ theorem inertiaDeg'_algebra_tower (p : Ideal R) (P : Ideal S) (I : Ideal T) [p.I
   let : Algebra (R ⧸ p) (S ⧸ P) := Ideal.Quotient.algebraQuotientOfLEComap h₁.le
   let : Algebra (S ⧸ P) (T ⧸ I) := Ideal.Quotient.algebraQuotientOfLEComap h₂.le
   let : Algebra (R ⧸ p) (T ⧸ I) := Ideal.Quotient.algebraQuotientOfLEComap h₃.le
-  let : IsScalarTower (R ⧸ p) (S ⧸ P) (T ⧸ I) := IsScalarTower.of_algebraMap_eq <| by
-    rintro ⟨x⟩; exact congr_arg _ (IsScalarTower.algebraMap_apply R S T x)
+  let : IsScalarTower (R ⧸ p) (S ⧸ P) (T ⧸ I) :=
+    IsScalarTower.of_algebraMap_eq <| by
+      rintro ⟨x⟩; exact congr_arg _ (IsScalarTower.algebraMap_apply R S T x)
   exact (finrank_mul_finrank (R ⧸ p) (S ⧸ P) (T ⧸ I)).symm
 
 set_option linter.deprecated.deprecatedTarget false in

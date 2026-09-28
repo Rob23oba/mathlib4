@@ -6,7 +6,6 @@ Authors: Etienne Marion
 module
 
 public import Mathlib.Probability.Distributions.Gaussian.IsGaussianProcess.Def
-
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Independence
 import Mathlib.Probability.Distributions.Gaussian.IsGaussianProcess.Basic
@@ -51,9 +50,9 @@ open scoped ENNReal NNReal RealInnerProductSpace
 
 namespace ProbabilityTheory.IsGaussianProcess
 
-variable {T Ω E : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
-    [NormedAddCommGroup E] [MeasurableSpace E] [BorelSpace E]
-    [SecondCountableTopology E] [CompleteSpace E]
+variable
+  {T Ω E : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} [NormedAddCommGroup E]
+  [MeasurableSpace E] [BorelSpace E] [SecondCountableTopology E] [CompleteSpace E]
 
 section iIndepFun
 

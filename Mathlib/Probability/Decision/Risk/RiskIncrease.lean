@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 module
 
 public import Mathlib.Probability.Decision.Risk.Defs
-
 import Mathlib.Probability.Decision.Risk.Basic
 public import Mathlib.Probability.Kernel.Composition.MapComap
 
@@ -44,14 +43,16 @@ open scoped ENNReal NNReal
 
 namespace ProbabilityTheory
 
-variable {Θ 𝓧 𝓧' 𝓨 : Type*} {mΘ : MeasurableSpace Θ} {m𝓧 : MeasurableSpace 𝓧}
-  {m𝓧' : MeasurableSpace 𝓧'} [MeasurableSpace 𝓨]
+variable
+  {Θ 𝓧 𝓧' 𝓨 : Type*} {mΘ : MeasurableSpace Θ} {m𝓧 : MeasurableSpace 𝓧} {m𝓧' : MeasurableSpace 𝓧'}
+  [MeasurableSpace 𝓨]
   {π : Measure Θ} {P : Kernel Θ 𝓧} {ℓ : Θ → 𝓨 → ℝ≥0∞}
 
-/-- The increase in risk that results from discarding the observation in a Bayesian estimation
-problem. -/
-noncomputable
-def riskIncrease (ℓ : Θ → 𝓨 → ℝ≥0∞) (P : Kernel Θ 𝓧) (π : Measure Θ) : ℝ≥0∞ :=
+/--
+The increase in risk that results from discarding the observation in a Bayesian estimation
+problem.
+-/
+noncomputable def riskIncrease (ℓ : Θ → 𝓨 → ℝ≥0∞) (P : Kernel Θ 𝓧) (π : Measure Θ) : ℝ≥0∞ :=
   bayesRisk ℓ (Kernel.discard 𝓧 ∘ₖ P : Kernel Θ Unit) π - bayesRisk ℓ P π
 
 lemma riskIncrease_eq_iInf_sub' [Nonempty 𝓨] (hℓ : Measurable (uncurry ℓ)) (P : Kernel Θ 𝓧)

@@ -47,18 +47,15 @@ variable {K V V₂ V₃ : Type*}
 
 section Semiring
 
-variable [Semiring K]
-  [AddCommMonoid V] [Module K V]
-  [AddCommMonoid V₂] [Module K V₂]
-  [AddCommMonoid V₃] [Module K V₃]
+variable
+  [Semiring K] [AddCommMonoid V] [Module K V] [AddCommMonoid V₂] [Module K V₂] [AddCommMonoid V₃]
+  [Module K V₃]
 
 /-- A linear map **has Noetherian range** if its range is a Noetherian module. -/
-def HasNoetherianRange (f : V →ₗ[K] V₂) : Prop :=
-  IsNoetherian K f.range
+def HasNoetherianRange (f : V →ₗ[K] V₂) : Prop := IsNoetherian K f.range
 
 /-- A linear map **has finite range** if its range is finitely generated. -/
-def HasFiniteRange (f : V →ₗ[K] V₂) : Prop :=
-  f.range.FG
+def HasFiniteRange (f : V →ₗ[K] V₂) : Prop := f.range.FG
 
 lemma hasNoetherianRange_iff_range {f : V →ₗ[K] V₂} :
     f.HasNoetherianRange ↔ IsNoetherian K f.range :=
@@ -111,10 +108,9 @@ end Semiring
 
 section Ring
 
-variable [Ring K]
-  [AddCommGroup V] [Module K V]
-  [AddCommGroup V₂] [Module K V₂]
-  [AddCommGroup V₃] [Module K V₃]
+variable
+  [Ring K] [AddCommGroup V] [Module K V] [AddCommGroup V₂] [Module K V₂] [AddCommGroup V₃]
+  [Module K V₃]
 
 lemma HasFiniteRange.hasNoetherianRange [IsNoetherianRing K] {u : V →ₗ[K] V₂}
     (h : u.HasFiniteRange) : u.HasNoetherianRange := by
@@ -160,13 +156,12 @@ lemma HasFiniteRange.comp_right [IsNoetherianRing K] {v : V₂ →ₗ[K] V₃} (
     (hf : f.HasFiniteRange) (hg : g.HasFiniteRange) : (f - g).HasFiniteRange :=
   sub_eq_add_neg f g ▸ hf.add hg.neg
 
-theorem hasNoetherianRange_iff_quotient_ker {f : V →ₗ[K] V₂} :
-    f.HasNoetherianRange ↔ IsNoetherian K (V ⧸ f.ker) :=
+theorem hasNoetherianRange_iff_quotient_ker {f : V →ₗ[K] V₂}
+    : f.HasNoetherianRange ↔ IsNoetherian K (V ⧸ f.ker) :=
   f.quotKerEquivRange.isNoetherian_iff.symm
 
 @[simp]
-theorem ker_coFG_iff_hasFiniteRange {f : V →ₗ[K] V₂} :
-    f.ker.CoFG ↔ f.HasFiniteRange :=
+theorem ker_coFG_iff_hasFiniteRange {f : V →ₗ[K] V₂} : f.ker.CoFG ↔ f.HasFiniteRange :=
   range_fg_iff_ker_cofg.symm
 
 alias ⟨HasNoetherianRange.quotient_ker, _⟩ := hasNoetherianRange_iff_quotient_ker
@@ -176,10 +171,9 @@ end Ring
 
 section CommRing
 
-variable [CommRing K]
-  [AddCommGroup V] [Module K V]
-  [AddCommGroup V₂] [Module K V₂]
-  [AddCommGroup V₃] [Module K V₃]
+variable
+  [CommRing K] [AddCommGroup V] [Module K V] [AddCommGroup V₂] [Module K V₂] [AddCommGroup V₃]
+  [Module K V₃]
 
 @[simp] lemma HasNoetherianRange.smul {f : V →ₗ[K] V₂}
     (hf : f.HasNoetherianRange) (c : K) : (c • f).HasNoetherianRange :=
@@ -190,10 +184,12 @@ variable [CommRing K]
   hf.comp_left (lsmul K V₂ c)
 
 variable (K V V₂) in
-/-- `LinearMap.finiteRange` is the submodule of `V →ₗ[K] W` consisting of linear maps satisfying
+/--
+`LinearMap.finiteRange` is the submodule of `V →ₗ[K] W` consisting of linear maps satisfying
 `LinearMap.HasNoetherianRange`. We allow ourself this slightly abusive name because the set of
 linear maps satisfying `LinearMap.HasFiniteRange` is only a submodule over a noetherian ring,
-in which case the two notions agree. -/
+in which case the two notions agree.
+-/
 def finiteRange : Submodule K (V →ₗ[K] V₂) where
   carrier := {u | u.HasNoetherianRange}
   add_mem' hu hv := by simp_all
@@ -212,20 +208,21 @@ end CommRing
 
 section Setoid
 
-variable [CommRing K]
-  [AddCommGroup V] [Module K V]
-  [AddCommGroup V₂] [Module K V₂]
-  [AddCommGroup V₃] [Module K V₃]
+variable
+  [CommRing K] [AddCommGroup V] [Module K V] [AddCommGroup V₂] [Module K V₂] [AddCommGroup V₃]
+  [Module K V₃]
 
 namespace FiniteRangeSetoid
 
-/-- This is the equivalence relation on linear maps such that `u ≈ v` precisely
+/--
+This is the equivalence relation on linear maps such that `u ≈ v` precisely
 when `u - v` is a linear map with noetherian range. We allow ourself this slightly abusive name
 because the more natural definition (`u - v` has finitely generated range) only yields a
 well-behaved relation (more precisely, an additive congruence relation compatible with composition
 on both sides) over a noetherian ring, in which case the two notions agree.
 
-This setoid is declared as an instance in scope `LinearMap.FiniteRangeSetoid`. -/
+This setoid is declared as an instance in scope `LinearMap.FiniteRangeSetoid`.
+-/
 scoped instance setoid : Setoid (V →ₗ[K] V₂) := (LinearMap.finiteRange K V V₂).quotientRel
 
 lemma equiv_iff_hasNoetherianRange {u v : V →ₗ[K] V₂} : u ≈ v ↔ (u - v).HasNoetherianRange :=
@@ -303,28 +300,31 @@ end Setoid
 
 section QuasiInverse
 
-variable [CommRing K]
-  [AddCommGroup V] [Module K V]
-  [AddCommGroup V₂] [Module K V₂]
-  [AddCommGroup V₃] [Module K V₃]
+variable
+  [CommRing K] [AddCommGroup V] [Module K V] [AddCommGroup V₂] [Module K V₂] [AddCommGroup V₃]
+  [Module K V₃]
 
 open scoped LinearMap.FiniteRangeSetoid
 
-/-- `u` is a **left quasi-inverse** to `v` if `u ∘ₗ v ≈ id` modulo
+/--
+`u` is a **left quasi-inverse** to `v` if `u ∘ₗ v ≈ id` modulo
 linear maps with noetherian ranges. Recall that if the scalar ring is noetherian
-(e.g a field), then "noetherian range" can be replaced by "finitely generated range". -/
-def IsLeftQuasiInverse (u : V →ₗ[K] V₂) (v : V₂ →ₗ[K] V) : Prop :=
-  u ∘ₗ v ≈ .id
+(e.g a field), then "noetherian range" can be replaced by "finitely generated range".
+-/
+def IsLeftQuasiInverse (u : V →ₗ[K] V₂) (v : V₂ →ₗ[K] V) : Prop := u ∘ₗ v ≈ .id
 
-/-- `u` is a **right quasi-inverse** to `v` if `v ∘ₗ u ≈ id` modulo
+/--
+`u` is a **right quasi-inverse** to `v` if `v ∘ₗ u ≈ id` modulo
 linear maps with noetherian ranges. Recall that if the scalar ring is noetherian
-(e.g a field), then "noetherian range" can be replaced by "finitely generated range". -/
-def IsRightQuasiInverse (u : V₃ →ₗ[K] V₂) (v : V₂ →ₗ[K] V₃) : Prop :=
-  v ∘ₗ u ≈ .id
+(e.g a field), then "noetherian range" can be replaced by "finitely generated range".
+-/
+def IsRightQuasiInverse (u : V₃ →ₗ[K] V₂) (v : V₂ →ₗ[K] V₃) : Prop := v ∘ₗ u ≈ .id
 
-/-- `u` is a **quasi-inverse** to `v` if `u ∘ₗ v ≈ id` and `v ∘ₗ u ≈ id` modulo
+/--
+`u` is a **quasi-inverse** to `v` if `u ∘ₗ v ≈ id` and `v ∘ₗ u ≈ id` modulo
 linear maps with noetherian ranges. Recall that if the scalar ring is noetherian
-(e.g a field), then "noetherian range" can be replaced by "finitely generated range". -/
+(e.g a field), then "noetherian range" can be replaced by "finitely generated range".
+-/
 def IsQuasiInverse (u : V₃ →ₗ[K] V₂) (v : V₂ →ₗ[K] V₃) : Prop :=
   u.IsLeftQuasiInverse v ∧ u.IsRightQuasiInverse v
 

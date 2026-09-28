@@ -46,21 +46,27 @@ open scoped ENNReal NNReal
 
 namespace ProbabilityTheory
 
-variable {T Ω E : Type*} [PseudoEMetricSpace T] {mΩ : MeasurableSpace Ω} [PseudoEMetricSpace E]
+variable
+  {T Ω E : Type*} [PseudoEMetricSpace T]
+  {mΩ : MeasurableSpace Ω} [PseudoEMetricSpace E]
   {p q : ℝ} {M : ℝ≥0} {P : Measure Ω} {X : T → Ω → E}
 
-/-- A stochastic process `X : T → Ω → E` on an index space `T` and a measurable space `Ω`
+/--
+A stochastic process `X : T → Ω → E` on an index space `T` and a measurable space `Ω`
 with measure `P` is said to satisfy the Kolmogorov condition with exponents `p, q` and constant `M`
 if for all `s, t : T`, the pair `(X s, X t)` is measurable for the Borel sigma-algebra on `E × E`
-and the following condition holds: `∫⁻ ω, edist (X s ω) (X t ω) ^ p ∂P ≤ M * edist s t ^ q`. -/
+and the following condition holds: `∫⁻ ω, edist (X s ω) (X t ω) ^ p ∂P ≤ M * edist s t ^ q`.
+-/
 structure IsKolmogorovProcess (X : T → Ω → E) (P : Measure Ω) (p q : ℝ) (M : ℝ≥0) : Prop where
   measurablePair : ∀ s t : T, Measurable[_, borel (E × E)] fun ω ↦ (X s ω, X t ω)
   kolmogorovCondition : ∀ s t : T, ∫⁻ ω, edist (X s ω) (X t ω) ^ p ∂P ≤ M * edist s t ^ q
   p_pos : 0 < p
   q_pos : 0 < q
 
-/-- Property of being a modification of a stochastic process that satisfies the Kolmogorov
-condition (`IsKolmogorovProcess`). -/
+/--
+Property of being a modification of a stochastic process that satisfies the Kolmogorov
+condition (`IsKolmogorovProcess`).
+-/
 def IsAEKolmogorovProcess (X : T → Ω → E) (P : Measure Ω) (p q : ℝ) (M : ℝ≥0) : Prop :=
   ∃ Y, IsKolmogorovProcess Y P p q M ∧ ∀ t, X t =ᵐ[P] Y t
 
@@ -70,8 +76,7 @@ lemma IsKolmogorovProcess.IsAEKolmogorovProcess (hX : IsKolmogorovProcess X P p 
 namespace IsAEKolmogorovProcess
 
 /-- A process with the property `IsKolmogorovProcess` such that `∀ t, X t =ᵐ[P] h.mk X t`. -/
-protected noncomputable
-def mk (X : T → Ω → E) (h : IsAEKolmogorovProcess X P p q M) : T → Ω → E :=
+protected noncomputable def mk (X : T → Ω → E) (h : IsAEKolmogorovProcess X P p q M) : T → Ω → E :=
   Classical.choose h
 
 lemma IsKolmogorovProcess_mk (h : IsAEKolmogorovProcess X P p q M) :

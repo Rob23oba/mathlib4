@@ -32,8 +32,8 @@ namespace Algebra
 
 namespace FiniteType
 
-theorem baseChangeAux_surj {σ : Type*} {f : MvPolynomial σ R →ₐ[R] A} (hf : Function.Surjective f) :
-    Function.Surjective (Algebra.TensorProduct.map (AlgHom.id B B) f) := by
+theorem baseChangeAux_surj {σ : Type*} {f : MvPolynomial σ R →ₐ[R] A} (hf : Function.Surjective f)
+    : Function.Surjective (Algebra.TensorProduct.map (AlgHom.id B B) f) := by
   change Function.Surjective (TensorProduct.map (AlgHom.id R B) f)
   apply TensorProduct.map_surjective
   · exact Function.RightInverse.surjective (congrFun rfl)

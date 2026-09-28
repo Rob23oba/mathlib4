@@ -32,26 +32,29 @@ variable (C ι : Type*) [Category C] [Category ι] [Abelian C]
 
 open ComposableArrows
 
-/-- A spectral object in an abelian category category `C` indexed by a category `ι`
+/--
+A spectral object in an abelian category category `C` indexed by a category `ι`
 consists of a family of functors `H n : ComposableArrows ι 1 ⥤ C` for all `n : ℤ`, and a
 functorial long exact sequence
 `⋯ ⟶ (H n₀).obj (mk₁ f) ⟶ (H n₀).obj (mk₁ (f ≫ g)) ⟶ (H n₀).obj (mk₁ g) ⟶ (H n₁).obj (mk₁ f) ⟶ ⋯`
 when `n₀ + 1 = n₁` and `f` and `g` are composable morphisms in `ι`. (This will be
-shortened as `H^n₀(f) ⟶ H^n₀(f ≫ g) ⟶ H^n₀(g) ⟶ H^n₁(f)` in the documentation.) -/
+shortened as `H^n₀(f) ⟶ H^n₀(f ≫ g) ⟶ H^n₀(g) ⟶ H^n₁(f)` in the documentation.)
+-/
 structure SpectralObject where
-  /-- A sequence of functors from `ComposableArrows ι 1` to the abelian category.
-  The image of `mk₁ f` will be referred to as `H^n(f)` in the documentation. -/
+  /--
+  A sequence of functors from `ComposableArrows ι 1` to the abelian category.
+  The image of `mk₁ f` will be referred to as `H^n(f)` in the documentation.
+  -/
   H (n : ℤ) : ComposableArrows ι 1 ⥤ C
   /-- The connecting homomorphism of the spectral object. (Use `δ` instead.) -/
-  δ' (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) :
-    functorArrows ι 1 2 2 ⋙ H n₀ ⟶ functorArrows ι 0 1 2 ⋙ H n₁
-  exact₁' (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) (D : ComposableArrows ι 2) :
-    (mk₂ ((δ' n₀ n₁ h).app D) ((H n₁).map ((mapFunctorArrows ι 0 1 0 2 2).app D))).Exact
-  exact₂' (n : ℤ) (D : ComposableArrows ι 2) :
-    (mk₂ ((H n).map ((mapFunctorArrows ι 0 1 0 2 2).app D))
+  δ' (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) : functorArrows ι 1 2 2 ⋙ H n₀ ⟶ functorArrows ι 0 1 2 ⋙ H n₁
+  exact₁' (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) (D : ComposableArrows ι 2)
+    : (mk₂ ((δ' n₀ n₁ h).app D) ((H n₁).map ((mapFunctorArrows ι 0 1 0 2 2).app D))).Exact
+  exact₂' (n : ℤ) (D : ComposableArrows ι 2)
+    : (mk₂ ((H n).map ((mapFunctorArrows ι 0 1 0 2 2).app D))
       ((H n).map ((mapFunctorArrows ι 0 2 1 2 2).app D))).Exact
-  exact₃' (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) (D : ComposableArrows ι 2) :
-    (mk₂ ((H n₀).map ((mapFunctorArrows ι 0 2 1 2 2).app D)) ((δ' n₀ n₁ h).app D)).Exact
+  exact₃' (n₀ n₁ : ℤ) (h : n₀ + 1 = n₁) (D : ComposableArrows ι 2)
+    : (mk₂ ((H n₀).map ((mapFunctorArrows ι 0 2 1 2 2).app D)) ((δ' n₀ n₁ h).app D)).Exact
 
 namespace SpectralObject
 
@@ -60,8 +63,8 @@ variable {C ι} (X : SpectralObject C ι)
 section
 
 /-- The connecting homomorphism of the spectral object. -/
-def δ {i j k : ι} (f : i ⟶ j) (g : j ⟶ k) (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) :
-    (X.H n₀).obj (mk₁ g) ⟶ (X.H n₁).obj (mk₁ f) :=
+def δ {i j k : ι} (f : i ⟶ j) (g : j ⟶ k) (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia)
+    : (X.H n₀).obj (mk₁ g) ⟶ (X.H n₁).obj (mk₁ f) :=
   (X.δ' n₀ n₁ hn₁).app (mk₂ f g)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -81,8 +84,7 @@ end
 
 section
 
-variable {i j k : ι} (f : i ⟶ j) (g : j ⟶ k)
-  (fg : i ⟶ k) (h : f ≫ g = fg)
+variable {i j k : ι} (f : i ⟶ j) (g : j ⟶ k) (fg : i ⟶ k) (h : f ≫ g = fg)
 
 @[reassoc (attr := simp)]
 lemma zero₁ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) :
@@ -102,20 +104,24 @@ lemma zero₃ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) :
   subst h
   exact (X.exact₃' n₀ n₁ hn₁ (mk₂ f g)).zero 0
 
-/-- The (exact) short complex `H^n₀(g) ⟶ H^n₁(f) ⟶ H^n₁(fg)` of a
-spectral object, when `f ≫ g = fg` and `n₀ + 1 = n₁`. -/
+/--
+The (exact) short complex `H^n₀(g) ⟶ H^n₁(f) ⟶ H^n₁(fg)` of a
+spectral object, when `f ≫ g = fg` and `n₀ + 1 = n₁`.
+-/
 @[simps]
 def sc₁ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) : ShortComplex C :=
   ShortComplex.mk _ _ (X.zero₁ f g fg h n₀ n₁ hn₁)
 
-/-- The (exact) short complex `H^n₀(f) ⟶ H^n₀(fg) ⟶ H^n₀(g)` of a
-spectral object, when `f ≫ g = fg`. -/
-@[simps]
-def sc₂ (n₀ : ℤ) : ShortComplex C :=
-  ShortComplex.mk _ _ (X.zero₂ f g fg h n₀)
+/--
+The (exact) short complex `H^n₀(f) ⟶ H^n₀(fg) ⟶ H^n₀(g)` of a
+spectral object, when `f ≫ g = fg`.
+-/
+@[simps] def sc₂ (n₀ : ℤ) : ShortComplex C := ShortComplex.mk _ _ (X.zero₂ f g fg h n₀)
 
-/-- The (exact) short complex `H^n₀(fg) ⟶ H^n₀(g) ⟶ H^n₁(f)`
-of a spectral object, when `f ≫ g = fg` and `n₀ + 1 = n₁`. -/
+/--
+The (exact) short complex `H^n₀(fg) ⟶ H^n₀(g) ⟶ H^n₁(f)`
+of a spectral object, when `f ≫ g = fg` and `n₀ + 1 = n₁`.
+-/
 @[simps]
 def sc₃ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) : ShortComplex C :=
   ShortComplex.mk _ _ (X.zero₃ f g fg h n₀ n₁ hn₁)
@@ -135,14 +141,14 @@ lemma exact₃ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) :
   subst h
   exact ((X.exact₃' n₀ n₁ hn₁ (mk₂ f g))).exact 0
 
-/-- The (exact) sequence
+/--
+The (exact) sequence
 `H^n₀(f) ⟶ H^n₀(fg) ⟶ H^n₀(g) ⟶ H^n₁(f) ⟶ H^n₁(fg) ⟶ H^n₁(g)`
-of a spectral object, when `f ≫ g = fg` and `n₀ + 1 = n₁`. -/
-abbrev composableArrows₅ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) :
-    ComposableArrows C 5 :=
-  mk₅ ((X.H n₀).map (twoδ₂Toδ₁ f g fg h)) ((X.H n₀).map (twoδ₁Toδ₀ f g fg h))
-    (X.δ f g n₀ n₁ hn₁) ((X.H n₁).map (twoδ₂Toδ₁ f g fg h))
-    ((X.H n₁).map (twoδ₁Toδ₀ f g fg h))
+of a spectral object, when `f ≫ g = fg` and `n₀ + 1 = n₁`.
+-/
+abbrev composableArrows₅ (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) : ComposableArrows C 5 :=
+  mk₅ ((X.H n₀).map (twoδ₂Toδ₁ f g fg h)) ((X.H n₀).map (twoδ₁Toδ₀ f g fg h)) (X.δ f g n₀ n₁ hn₁)
+    ((X.H n₁).map (twoδ₂Toδ₁ f g fg h)) ((X.H n₁).map (twoδ₁Toδ₀ f g fg h))
 
 lemma composableArrows₅_exact (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) :
     (X.composableArrows₅ f g fg h n₀ n₁ hn₁).Exact :=
@@ -166,9 +172,9 @@ lemma δ_δ {i j k l : ι} (f : i ⟶ j) (g : j ⟶ k) (h : k ⟶ l)
 structure Hom (X' : SpectralObject C ι) where
   /-- The natural transformation that is part of a morphism between spectral objects. -/
   hom (n : ℤ) : X.H n ⟶ X'.H n
-  comm (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁) {i j k : ι} (f : i ⟶ j) (g : j ⟶ k) :
-    X.δ f g n₀ n₁ hn₁ ≫ (hom n₁).app (mk₁ f) =
-    (hom n₀).app (mk₁ g) ≫ X'.δ f g n₀ n₁ hn₁ := by cat_disch
+  comm (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁) {i j k : ι} (f : i ⟶ j) (g : j ⟶ k)
+      : X.δ f g n₀ n₁ hn₁ ≫ (hom n₁).app (mk₁ f) = (hom n₀).app (mk₁ g) ≫ X'.δ f g n₀ n₁ hn₁ := by
+    cat_disch
 
 attribute [reassoc (attr := simp)] Hom.comm
 
@@ -194,8 +200,9 @@ lemma isZero_H_map_mk₁_of_isIso (n : ℤ) {i₀ i₁ : ι} (f : i₀ ⟶ i₁)
 
 section
 
-variable (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁) {i₀ i₁ i₂ : ι}
-  (f : i₀ ⟶ i₁) (g : i₁ ⟶ i₂) (fg : i₀ ⟶ i₂) (hfg : f ≫ g = fg)
+variable
+  (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁)
+  {i₀ i₁ i₂ : ι} (f : i₀ ⟶ i₁) (g : i₁ ⟶ i₂) (fg : i₀ ⟶ i₂) (hfg : f ≫ g = fg)
   (h₁ : IsZero ((X.H n₀).obj (mk₁ f))) (h₂ : IsZero ((X.H n₁).obj (mk₁ f)))
 
 include h₁ in
@@ -216,9 +223,11 @@ end
 
 section
 
-variable {ι' : Type*} [Preorder ι'] (X' : SpectralObject C ι')
-  (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁) (i₀ i₁ i₂ : ι') (h₀₁ : i₀ ≤ i₁) (h₁₂ : i₁ ≤ i₂)
-  (h₁ : IsZero ((X'.H n₀).obj (mk₁ (homOfLE h₀₁))))
+variable
+  {ι' : Type*} [Preorder ι']
+  (X' : SpectralObject C ι')
+  (n₀ n₁ : ℤ) (hn₁ : n₀ + 1 = n₁)
+  (i₀ i₁ i₂ : ι') (h₀₁ : i₀ ≤ i₁) (h₁₂ : i₁ ≤ i₂) (h₁ : IsZero ((X'.H n₀).obj (mk₁ (homOfLE h₀₁))))
   (h₂ : IsZero ((X'.H n₁).obj (mk₁ (homOfLE h₀₁))))
 
 include h₁ in

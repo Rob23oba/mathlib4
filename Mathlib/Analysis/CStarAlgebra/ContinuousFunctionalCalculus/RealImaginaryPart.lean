@@ -19,7 +19,8 @@ variable {A : Type*} [TopologicalSpace A]
 
 section NonUnital
 
-variable [NonUnitalRing A] [StarRing A] [Module ℂ A] [IsScalarTower ℂ A A] [SMulCommClass ℂ A A]
+variable
+  [NonUnitalRing A] [StarRing A] [Module ℂ A] [IsScalarTower ℂ A A] [SMulCommClass ℂ A A]
   [StarModule ℂ A] [NonUnitalContinuousFunctionalCalculus ℂ A IsStarNormal]
 
 lemma cfcₙ_re_id (a : A) (ha : IsStarNormal a := by cfc_tac) :
@@ -100,7 +101,8 @@ end NonUnital
 
 section Unital
 
-variable [Ring A] [StarRing A] [Algebra ℂ A] [StarModule ℂ A]
+variable
+  [Ring A] [StarRing A] [Algebra ℂ A] [StarModule ℂ A]
   [ContinuousFunctionalCalculus ℂ A IsStarNormal]
 
 lemma cfc_re_id (a : A) (hp : IsStarNormal a := by cfc_tac) :

@@ -33,7 +33,6 @@ sieve, pullback
 
 @[expose] public section
 
-
 universe v₁ u₁
 
 namespace CategoryTheory
@@ -55,8 +54,7 @@ structure Sieve {C : Type u₁} [Category.{v₁} C] (X : C) where
 
 namespace Sieve
 
-instance : CoeFun (Sieve X) fun _ => Presieve X :=
-  ⟨Sieve.arrows⟩
+instance : CoeFun (Sieve X) fun _ => Presieve X := ⟨Sieve.arrows⟩
 
 initialize_simps_projections Sieve (arrows → apply)
 
@@ -98,7 +96,8 @@ protected def inter (S R : Sieve X) : Sieve X where
     rintro _ _ _ ⟨h₁, h₂⟩ g
     simp [h₁, h₂]
 
-/-- Sieves on an object `X` form a complete lattice.
+/--
+Sieves on an object `X` form a complete lattice.
 We generate this directly rather than using the Galois insertion for nicer definitional properties.
 -/
 instance : CompleteLattice (Sieve X) where
@@ -106,12 +105,8 @@ instance : CompleteLattice (Sieve X) where
   le_refl _ _ _ := id
   le_trans _ _ _ S₁₂ S₂₃ _ _ h := S₂₃ _ (S₁₂ _ h)
   le_antisymm _ _ p q := Sieve.ext fun _ _ => ⟨p _, q _⟩
-  top :=
-    { arrows := ⊤
-      downward_closed := fun _ _ => ⟨⟩ }
-  bot :=
-    { arrows := ⊥
-      downward_closed := False.elim }
+  top := { arrows := ⊤, downward_closed := fun _ _ => ⟨⟩ }
+  bot := { arrows := ⊥, downward_closed := False.elim }
   sup := Sieve.union
   inf := Sieve.inter
   sSup := Sieve.sup
@@ -131,33 +126,25 @@ instance : CompleteLattice (Sieve X) where
   bot_le _ _ _ := False.elim
 
 /-- The maximal sieve always exists. -/
-instance sieveInhabited : Inhabited (Sieve X) :=
-  ⟨⊤⟩
+instance sieveInhabited : Inhabited (Sieve X) := ⟨⊤⟩
 
 @[simp]
-theorem sInf_apply {Ss : Set (Sieve X)} {Y} (f : Y ⟶ X) :
-    sInf Ss f ↔ ∀ (S : Sieve X) (_ : S ∈ Ss), S f :=
+theorem sInf_apply {Ss : Set (Sieve X)} {Y} (f : Y ⟶ X)
+    : sInf Ss f ↔ ∀ (S : Sieve X) (_ : S ∈ Ss), S f :=
   Iff.rfl
 
 @[simp]
-theorem sSup_apply {Ss : Set (Sieve X)} {Y} (f : Y ⟶ X) :
-    sSup Ss f ↔ ∃ (S : Sieve X) (_ : S ∈ Ss), S f := by
+theorem sSup_apply {Ss : Set (Sieve X)} {Y} (f : Y ⟶ X)
+    : sSup Ss f ↔ ∃ (S : Sieve X) (_ : S ∈ Ss), S f := by
   simp [sSup, Sieve.sup]
 
-@[simp]
-theorem inter_apply {R S : Sieve X} {Y} (f : Y ⟶ X) : (R ⊓ S) f ↔ R f ∧ S f :=
-  Iff.rfl
+@[simp] theorem inter_apply {R S : Sieve X} {Y} (f : Y ⟶ X) : (R ⊓ S) f ↔ R f ∧ S f := Iff.rfl
 
-@[simp]
-theorem union_apply {R S : Sieve X} {Y} (f : Y ⟶ X) : (R ⊔ S) f ↔ R f ∨ S f :=
-  Iff.rfl
+@[simp] theorem union_apply {R S : Sieve X} {Y} (f : Y ⟶ X) : (R ⊔ S) f ↔ R f ∨ S f := Iff.rfl
 
-theorem top_apply (f : Y ⟶ X) : (⊤ : Sieve X) f :=
-  trivial
+theorem top_apply (f : Y ⟶ X) : (⊤ : Sieve X) f := trivial
 
-@[simp]
-theorem bot_apply (f : Y ⟶ X) : (⊥ : Sieve X) f ↔ False :=
-  .rfl
+@[simp] theorem bot_apply (f : Y ⟶ X) : (⊥ : Sieve X) f ↔ False := .rfl
 
 @[simp]
 lemma arrows_top : (⊤ : Sieve X).arrows = ⊤ := rfl
@@ -182,8 +169,8 @@ def generate (R : Presieve X) : Sieve X where
     rintro Y Z _ ⟨W, g, f, hf, rfl⟩ h
     exact ⟨_, h ≫ g, _, hf, by simp⟩
 
-
-/-- Given a presieve on `X`, and a sieve on each domain of an arrow in the presieve, we can bind to
+/--
+Given a presieve on `X`, and a sieve on each domain of an arrow in the presieve, we can bind to
 produce a sieve on `X`.
 -/
 @[simps]
@@ -193,18 +180,21 @@ def bind (S : Presieve X) (R : ∀ ⦃Y⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y) :
     rintro Y Z f ⟨W, f, h, hh, hf, rfl⟩ g
     exact ⟨_, g ≫ f, _, hh, by simp [hf]⟩
 
-/-- Structure which contains the data and properties for a morphism `h` satisfying
-`Sieve.bind S R h`. -/
-abbrev BindStruct (S : Presieve X) (R : ∀ ⦃Y⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y)
-    {Z : C} (h : Z ⟶ X) :=
+/--
+Structure which contains the data and properties for a morphism `h` satisfying
+`Sieve.bind S R h`.
+-/
+abbrev BindStruct (S : Presieve X) (R : ∀ ⦃Y⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y) {Z : C} (h : Z ⟶ X) :=
   Presieve.BindStruct S (fun _ _ hf ↦ R hf) h
 
 open Order Lattice
 
-theorem generate_le_iff (R : Presieve X) (S : Sieve X) : generate R ≤ S ↔ R ≤ S :=
-  ⟨fun H _ _ hg => H _ ⟨_, 𝟙 _, _, hg, id_comp _⟩, fun ss Y f => by
+theorem generate_le_iff (R : Presieve X) (S : Sieve X) : generate R ≤ S ↔ R ≤ S := ⟨
+  fun H _ _ hg => H _ ⟨_, 𝟙 _, _, hg, id_comp _⟩,
+  fun ss Y f => by
     rintro ⟨Z, f, g, hg, rfl⟩
-    exact S.downward_closed (ss Z _ hg) f⟩
+    exact S.downward_closed (ss Z _ hg) f
+⟩
 
 /-- Show that there is a Galois insertion (generate, underlying presieve). -/
 def giGenerate : GaloisInsertion (generate : Presieve X → Sieve X) arrows where
@@ -213,37 +203,32 @@ def giGenerate : GaloisInsertion (generate : Presieve X → Sieve X) arrows wher
   choice_eq _ _ := rfl
   le_l_u _ _ _ hf := ⟨_, 𝟙 _, _, hf, id_comp _⟩
 
-theorem le_generate (R : Presieve X) : R ≤ generate R :=
-  giGenerate.gc.le_u_l R
+theorem le_generate (R : Presieve X) : R ≤ generate R := giGenerate.gc.le_u_l R
 
-@[simp]
-theorem generate_sieve (S : Sieve X) : generate S = S :=
-  giGenerate.l_u_eq S
+@[simp] theorem generate_sieve (S : Sieve X) : generate S = S := giGenerate.l_u_eq S
 
 @[gcongr]
 theorem generate_mono : Monotone (generate : Presieve X → Sieve X) := giGenerate.gc.monotone_l
 
-@[gcongr]
-theorem arrows_mono : Monotone (arrows : Sieve X → Presieve X) := giGenerate.gc.monotone_u
+@[gcongr] theorem arrows_mono : Monotone (arrows : Sieve X → Presieve X) := giGenerate.gc.monotone_u
 
 /-- If the identity arrow is in a sieve, the sieve is maximal. -/
 theorem id_mem_iff_eq_top : S (𝟙 X) ↔ S = ⊤ :=
   ⟨fun h => top_unique fun Y f _ => by simpa using downward_closed _ h f, fun h => h.symm ▸ trivial⟩
 
 /-- If a presieve contains a split epi, it generates the maximal sieve. -/
-theorem generate_of_contains_isSplitEpi {R : Presieve X} (f : Y ⟶ X) [IsSplitEpi f] (hf : R f) :
-    generate R = ⊤ := by
+theorem generate_of_contains_isSplitEpi {R : Presieve X} (f : Y ⟶ X) [IsSplitEpi f] (hf : R f)
+    : generate R = ⊤ := by
   rw [← id_mem_iff_eq_top]
   exact ⟨_, section_ f, f, hf, by simp⟩
 
 @[simp]
-theorem generate_of_singleton_isSplitEpi (f : Y ⟶ X) [IsSplitEpi f] :
-    generate (Presieve.singleton f) = ⊤ :=
+theorem generate_of_singleton_isSplitEpi (f : Y ⟶ X) [IsSplitEpi f]
+    : generate (Presieve.singleton f) = ⊤ :=
   generate_of_contains_isSplitEpi f (Presieve.singleton_self _)
 
 @[simp]
-theorem generate_top : generate (⊤ : Presieve X) = ⊤ :=
-  generate_of_contains_isSplitEpi (𝟙 _) ⟨⟩
+theorem generate_top : generate (⊤ : Presieve X) = ⊤ := generate_of_contains_isSplitEpi (𝟙 _) ⟨⟩
 
 @[simp]
 lemma generate_bot : generate (⊥ : Presieve X) = ⊥ := by
@@ -285,12 +270,16 @@ lemma ofArrows.exists : ∃ (i : I) (h : W ⟶ Y i), g = h ≫ f i := by
   obtain ⟨_, h, _, ⟨i⟩, rfl⟩ := hg
   exact ⟨i, h, rfl⟩
 
-/-- When `hg : Sieve.ofArrows Y f g`, this is a choice of `i` such that `g`
-factors through `f i`. -/
+/--
+When `hg : Sieve.ofArrows Y f g`, this is a choice of `i` such that `g`
+factors through `f i`.
+-/
 noncomputable def ofArrows.i : I := (ofArrows.exists hg).choose
 
-/-- When `hg : Sieve.ofArrows Y f g`, this is a morphism `h : W ⟶ Y (i hg)` such
-that `h ≫ f (i hg) = g`. -/
+/--
+When `hg : Sieve.ofArrows Y f g`, this is a morphism `h : W ⟶ Y (i hg)` such
+that `h ≫ f (i hg) = g`.
+-/
 noncomputable def ofArrows.h : W ⟶ Y (i hg) := (ofArrows.exists hg).choose_spec.choose
 
 @[reassoc (attr := simp)]
@@ -323,9 +312,11 @@ lemma exists_eq_ofArrows (R : Sieve X) :
 abbrev ofTwoArrows {U V X : C} (i : U ⟶ X) (j : V ⟶ X) : Sieve X :=
   Sieve.ofArrows (Y := pairFunction U V) (fun k ↦ WalkingPair.casesOn k i j)
 
-/-- The sieve of `X : C` that is generated by a family of objects `Y : I → C`:
+/--
+The sieve of `X : C` that is generated by a family of objects `Y : I → C`:
 it consists of morphisms `p : Z ⟶ X` such that there exists a morphism `Z ⟶ Y i`
-for some `i` (note that this does not depend on `p`, only on the object `Z`). -/
+for some `i` (note that this does not depend on `p`, only on the object `Z`).
+-/
 def ofObjects {I : Type*} (Y : I → C) (X : C) : Sieve X where
   arrows Z _ := ∃ (i : I), Nonempty (Z ⟶ Y i)
   downward_closed := by
@@ -358,26 +349,27 @@ lemma ofObjects_mono {I : Type*} {X : I → C} {I' : Type*} {X' : I' → C} {Y :
   obtain ⟨i', h⟩ := h ⟨i, rfl⟩
   exact ⟨i', ⟨h ▸ g⟩⟩
 
-/-- Given a morphism `h : Y ⟶ X`, send a sieve S on X to a sieve on Y
-as the inverse image of S with `_ ≫ h`. That is, `Sieve.pullback S h := (≫ h) '⁻¹ S`. -/
+/--
+Given a morphism `h : Y ⟶ X`, send a sieve S on X to a sieve on Y
+as the inverse image of S with `_ ≫ h`. That is, `Sieve.pullback S h := (≫ h) '⁻¹ S`.
+-/
 @[simps]
 def pullback (h : Y ⟶ X) (S : Sieve X) : Sieve Y where
   arrows _ sl := S (sl ≫ h)
   downward_closed g := by simp [g]
 
-@[simp]
-theorem pullback_id : S.pullback (𝟙 _) = S := by simp [Sieve.ext_iff]
+@[simp] theorem pullback_id : S.pullback (𝟙 _) = S := by simp [Sieve.ext_iff]
+
+@[simp] theorem pullback_top {f : Y ⟶ X} : (⊤ : Sieve X).pullback f = ⊤ := top_unique fun _ _ => id
+
+theorem pullback_comp {f : Y ⟶ X} {g : Z ⟶ Y} (S : Sieve X)
+    : S.pullback (g ≫ f) = (S.pullback f).pullback g := by
+  simp [Sieve.ext_iff]
 
 @[simp]
-theorem pullback_top {f : Y ⟶ X} : (⊤ : Sieve X).pullback f = ⊤ :=
-  top_unique fun _ _ => id
-
-theorem pullback_comp {f : Y ⟶ X} {g : Z ⟶ Y} (S : Sieve X) :
-    S.pullback (g ≫ f) = (S.pullback f).pullback g := by simp [Sieve.ext_iff]
-
-@[simp]
-theorem pullback_inter {f : Y ⟶ X} (S R : Sieve X) :
-    (S ⊓ R).pullback f = S.pullback f ⊓ R.pullback f := by simp [Sieve.ext_iff]
+theorem pullback_inter {f : Y ⟶ X} (S R : Sieve X)
+    : (S ⊓ R).pullback f = S.pullback f ⊓ R.pullback f := by
+  simp [Sieve.ext_iff]
 
 lemma pullback_ofArrows_of_iso
     {I : Type*} {X : C} (Z : I → C) (f : ∀ i, Z i ⟶ X) {X' : C} (e : X' ≅ X) :
@@ -415,7 +407,8 @@ lemma pullback_ofObjects {I : Type*} (X : I → C) {Y Z : C} (f : Z ⟶ Y) :
 lemma ofObjects_id (X : C) : Sieve.ofObjects id X = ⊤ :=
   Sieve.pullback_ofObjects_eq_top _ (𝟙 _)
 
-/-- Push a sieve `R` on `Y` forward along an arrow `f : Y ⟶ X`: `gf : Z ⟶ X` is in the sieve if `gf`
+/--
+Push a sieve `R` on `Y` forward along an arrow `f : Y ⟶ X`: `gf : Z ⟶ X` is in the sieve if `gf`
 factors through some `g : Z ⟶ Y` which is in `R`.
 -/
 @[simps]
@@ -423,15 +416,16 @@ def pushforward (f : Y ⟶ X) (R : Sieve Y) : Sieve X where
   arrows _ gf := ∃ g, g ≫ f = gf ∧ R g
   downward_closed := fun ⟨j, k, z⟩ h => ⟨h ≫ j, by simp [k], by simp [z]⟩
 
-theorem pushforward_apply_comp {R : Sieve Y} {Z : C} {g : Z ⟶ Y} (hg : R g) (f : Y ⟶ X) :
-    R.pushforward f (g ≫ f) :=
+theorem pushforward_apply_comp {R : Sieve Y} {Z : C} {g : Z ⟶ Y} (hg : R g) (f : Y ⟶ X)
+    : R.pushforward f (g ≫ f) :=
   ⟨g, rfl, hg⟩
 
-theorem pushforward_comp {f : Y ⟶ X} {g : Z ⟶ Y} (R : Sieve Z) :
-    R.pushforward (g ≫ f) = (R.pushforward g).pushforward f :=
-  Sieve.ext fun W h =>
-    ⟨fun ⟨f₁, hq, hf₁⟩ => ⟨f₁ ≫ g, by simpa, f₁, rfl, hf₁⟩, fun ⟨y, hy, z, hR, hz⟩ =>
-      ⟨z, by rw [← Category.assoc, hR]; tauto⟩⟩
+theorem pushforward_comp {f : Y ⟶ X} {g : Z ⟶ Y} (R : Sieve Z)
+    : R.pushforward (g ≫ f) = (R.pushforward g).pushforward f :=
+  Sieve.ext fun W h => ⟨
+    fun ⟨f₁, hq, hf₁⟩ => ⟨f₁ ≫ g, by simpa, f₁, rfl, hf₁⟩,
+    fun ⟨y, hy, z, hR, hz⟩ => ⟨z, by rw [← Category.assoc, hR]; tauto⟩
+  ⟩
 
 theorem galoisConnection (f : Y ⟶ X) : GaloisConnection (Sieve.pushforward f) (Sieve.pullback f) :=
   fun _ _ => ⟨fun hR _ g hg => hR _ ⟨g, rfl, hg⟩, fun hS _ _ ⟨h, hg, hh⟩ => hg ▸ hS h hh⟩
@@ -448,8 +442,8 @@ theorem le_pushforward_pullback (f : Y ⟶ X) (R : Sieve Y) : R ≤ (R.pushforwa
 theorem pullback_pushforward_le (f : Y ⟶ X) (R : Sieve X) : (R.pullback f).pushforward f ≤ R :=
   (galoisConnection f).l_u_le _
 
-theorem pushforward_union {f : Y ⟶ X} (S R : Sieve Y) :
-    (S ⊔ R).pushforward f = S.pushforward f ⊔ R.pushforward f :=
+theorem pushforward_union {f : Y ⟶ X} (S R : Sieve Y)
+    : (S ⊔ R).pushforward f = S.pushforward f ⊔ R.pushforward f :=
   (galoisConnection f).l_sup
 
 @[simp]
@@ -463,33 +457,35 @@ lemma pushforward_bot (f : Y ⟶ X) : (⊥ : Sieve Y).pushforward f = ⊥ :=
 lemma pushforward_eq_bot_iff {f : Y ⟶ X} {S : Sieve Y} : S.pushforward f = ⊥ ↔ S = ⊥ := by
   simp [(galoisConnection f).l_eq_bot]
 
-theorem pushforward_le_bind_of_mem (S : Presieve X) (R : ∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y)
-    (f : Y ⟶ X) (h : S f) : (R h).pushforward f ≤ bind S R := by
+theorem pushforward_le_bind_of_mem
+    (S : Presieve X) (R : ∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y) (f : Y ⟶ X) (h : S f)
+    : (R h).pushforward f ≤ bind S R := by
   rintro Z _ ⟨g, rfl, hg⟩
   exact ⟨_, g, f, h, hg, rfl⟩
 
-theorem le_pullback_bind (S : Presieve X) (R : ∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y) (f : Y ⟶ X)
-    (h : S f) : R h ≤ (bind S R).pullback f := by
+theorem le_pullback_bind
+    (S : Presieve X) (R : ∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → Sieve Y) (f : Y ⟶ X) (h : S f)
+    : R h ≤ (bind S R).pullback f := by
   rw [← galoisConnection f]
   apply pushforward_le_bind_of_mem
 
 /-- If `f` is a monomorphism, the pushforward-pullback adjunction on sieves is coreflective. -/
-def galoisCoinsertionOfMono (f : Y ⟶ X) [Mono f] :
-    GaloisCoinsertion (Sieve.pushforward f) (Sieve.pullback f) := by
+def galoisCoinsertionOfMono (f : Y ⟶ X) [Mono f]
+    : GaloisCoinsertion (Sieve.pushforward f) (Sieve.pullback f) := by
   apply (galoisConnection f).toGaloisCoinsertion
   rintro S Z g ⟨g₁, hf, hg₁⟩
   rw [cancel_mono f] at hf
   rwa [← hf]
 
 /-- If `f` is a split epi, the pushforward-pullback adjunction on sieves is reflective. -/
-def galoisInsertionOfIsSplitEpi (f : Y ⟶ X) [IsSplitEpi f] :
-    GaloisInsertion (Sieve.pushforward f) (Sieve.pullback f) := by
+def galoisInsertionOfIsSplitEpi (f : Y ⟶ X) [IsSplitEpi f]
+    : GaloisInsertion (Sieve.pushforward f) (Sieve.pullback f) := by
   apply (galoisConnection f).toGaloisInsertion
   intro S Z g hg
   exact ⟨g ≫ section_ f, by simpa⟩
 
-theorem pullbackArrows_comm {X Y : C} (f : Y ⟶ X) (R : Presieve X) [R.HasPullbacks f] :
-    Sieve.generate (R.pullbackArrows f) = (Sieve.generate R).pullback f := by
+theorem pullbackArrows_comm {X Y : C} (f : Y ⟶ X) (R : Presieve X) [R.HasPullbacks f]
+    : Sieve.generate (R.pullbackArrows f) = (Sieve.generate R).pullback f := by
   ext W g
   constructor
   · rintro ⟨_, h, k, ⟨W, g, hg⟩, rfl⟩
@@ -513,7 +509,6 @@ lemma generate_pushforward {X Y : C} (f : X ⟶ Y) (R : Presieve X) :
   ext
   grind [generate_apply, Presieve.pushforward, pushforward_apply]
 
-
 lemma ofArrows_eq_pullback_of_isPullback {ι : Type*} {S : C} {X : ι → C} (f : (i : ι) → X i ⟶ S)
     {Y : C} {g : Y ⟶ S} {P : ι → C} {p₁ : (i : ι) → P i ⟶ Y} {p₂ : (i : ι) → P i ⟶ X i}
     (h : ∀ (i : ι), IsPullback (p₁ i) (p₂ i) g (f i)) :
@@ -526,7 +521,6 @@ lemma ofArrows_eq_pullback_of_isPullback {ι : Type*} {S : C} {X : ι → C} (f 
   · rintro W u ⟨Z, v, s, ⟨i⟩, heq⟩
     use P i, (h i).lift u v heq.symm, p₁ i, ⟨i⟩
     simp
-
 
 end Sieve
 

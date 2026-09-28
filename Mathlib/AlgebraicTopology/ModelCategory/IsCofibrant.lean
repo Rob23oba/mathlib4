@@ -55,20 +55,21 @@ section
 
 variable (X Y : C) [(cofibrations C).IsStableUnderCobaseChange] [HasBinaryCoproduct X Y]
 
-instance [hY : IsCofibrant Y] :
-    Cofibration (coprod.inl : X ⟶ X ⨿ Y) := by
+instance [hY : IsCofibrant Y] : Cofibration (coprod.inl : X ⟶ X ⨿ Y) := by
   rw [isCofibrant_iff] at hY
   rw [cofibration_iff] at hY ⊢
   exact MorphismProperty.of_isPushout
-    ((IsPushout.of_isColimit_binaryCofan_of_isInitial
-    (colimit.isColimit (pair X Y)) initialIsInitial).flip) hY
+    ((IsPushout.of_isColimit_binaryCofan_of_isInitial (colimit.isColimit (pair X Y))
+      initialIsInitial).flip)
+    hY
 
 instance [hX : IsCofibrant X] : Cofibration (coprod.inr : Y ⟶ X ⨿ Y) := by
   rw [isCofibrant_iff] at hX
   rw [cofibration_iff] at hX ⊢
   exact MorphismProperty.of_isPushout
-    (IsPushout.of_isColimit_binaryCofan_of_isInitial
-    (colimit.isColimit (pair X Y)) initialIsInitial) hX
+    (IsPushout.of_isColimit_binaryCofan_of_isInitial (colimit.isColimit (pair X Y))
+      initialIsInitial)
+    hX
 
 end
 
@@ -102,23 +103,21 @@ lemma isFibrant_of_fibration [(fibrations C).IsStableUnderComposition]
 
 section
 
-variable (X Y : C) [(fibrations C).IsStableUnderBaseChange]
-  [HasBinaryProduct X Y]
+variable (X Y : C) [(fibrations C).IsStableUnderBaseChange] [HasBinaryProduct X Y]
 
-instance [hY : IsFibrant Y] :
-    Fibration (prod.fst : X ⨯ Y ⟶ X) := by
+instance [hY : IsFibrant Y] : Fibration (prod.fst : X ⨯ Y ⟶ X) := by
   rw [isFibrant_iff] at hY
   rw [fibration_iff] at hY ⊢
   exact MorphismProperty.of_isPullback
-    (IsPullback.of_isLimit_binaryFan_of_isTerminal
-      (limit.isLimit (pair X Y)) terminalIsTerminal).flip hY
+    (IsPullback.of_isLimit_binaryFan_of_isTerminal (limit.isLimit (pair X Y))
+      terminalIsTerminal).flip
+    hY
 
 instance [hX : IsFibrant X] : Fibration (prod.snd : X ⨯ Y ⟶ Y) := by
   rw [isFibrant_iff] at hX
   rw [fibration_iff] at hX ⊢
   exact MorphismProperty.of_isPullback
-    (IsPullback.of_isLimit_binaryFan_of_isTerminal
-      (limit.isLimit (pair X Y)) terminalIsTerminal) hX
+    (IsPullback.of_isLimit_binaryFan_of_isTerminal (limit.isLimit (pair X Y)) terminalIsTerminal) hX
 
 end
 

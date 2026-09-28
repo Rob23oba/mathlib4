@@ -26,15 +26,17 @@ universe w v v' u u'
 
 namespace CategoryTheory.Limits
 
-variable (J : Type w) [LinearOrder J] (C : Type u) [Category.{v} C]
-  (K : Type u') [Category.{v'} K]
+variable (J : Type w) [LinearOrder J] (C : Type u) [Category.{v} C] (K : Type u') [Category.{v'} K]
 
-/-- A category `C` has iterations of shape a linearly ordered type `J`
+/--
+A category `C` has iterations of shape a linearly ordered type `J`
 when certain specific shapes of colimits exists: colimits indexed by `J`,
-and by `Set.Iio j` for `j : J`. -/
+and by `Set.Iio j` for `j : J`.
+-/
 class HasIterationOfShape : Prop where
-  hasColimitsOfShape_of_isSuccLimit (j : J) (hj : Order.IsSuccLimit j) :
-    HasColimitsOfShape (Set.Iio j) C := by infer_instance
+  hasColimitsOfShape_of_isSuccLimit (j : J) (hj : Order.IsSuccLimit j)
+      : HasColimitsOfShape (Set.Iio j) C := by
+    infer_instance
   hasColimitsOfShape : HasColimitsOfShape J C := by infer_instance
 
 attribute [instance] HasIterationOfShape.hasColimitsOfShape

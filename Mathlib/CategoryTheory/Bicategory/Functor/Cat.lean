@@ -57,8 +57,7 @@ end
 
 section
 
-variable (f : b₀ ⟶ b₁) (g : b₁ ⟶ b₂) (fg : b₀ ⟶ b₂)
-  (hfg : f ≫ g = fg) (a : X ⟶ Y)
+variable (f : b₀ ⟶ b₁) (g : b₁ ⟶ b₂) (fg : b₀ ⟶ b₂) (hfg : f ≫ g = fg) (a : X ⟶ Y)
 
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/

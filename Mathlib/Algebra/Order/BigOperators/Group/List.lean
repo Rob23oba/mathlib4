@@ -176,7 +176,8 @@ variable [Preorder M] [CanonicallyOrderedMul M]
 @[to_additive /-- See also `List.single_le_sum`. -/]
 theorem le_prod_of_mem {xs : List M} {x : M} (h₁ : x ∈ xs) : x ≤ xs.prod := by
   induction xs with
-  | nil => simp at h₁
+  | nil =>
+    simp at h₁
   | cons y ys ih =>
     simp only [mem_cons] at h₁
     rcases h₁ with (rfl | h₁)
@@ -278,17 +279,17 @@ lemma all_one_of_le_one_le_of_prod_eq_one [CommMonoid M] [PartialOrder M] [IsOrd
 
 section ProdSum
 
-variable {α β : Type*} [Monoid α] [AddMonoid β] [Preorder β] [AddLeftMono β]
-  (l : List α) (f : α → β)
+variable
+  {α β : Type*} [Monoid α] [AddMonoid β] [Preorder β] [AddLeftMono β] (l : List α) (f : α → β)
 
-theorem apply_prod_le_sum_map (h_one : f 1 ≤ 0) (h_mul : ∀ (a b : α), f (a * b) ≤ f a + f b) :
-    f l.prod ≤ (l.map f).sum := by
+theorem apply_prod_le_sum_map (h_one : f 1 ≤ 0) (h_mul : ∀ (a b : α), f (a * b) ≤ f a + f b)
+    : f l.prod ≤ (l.map f).sum := by
   induction l with
   | nil => simp [h_one]
   | cons hd tl IH => grw [prod_cons, h_mul, IH]; simp
 
-theorem sum_map_le_apply_prod (h_one : 0 ≤ f 1) (h_mul : ∀ (a b : α), f a + f b ≤ f (a * b)) :
-    (l.map f).sum ≤ f l.prod :=
+theorem sum_map_le_apply_prod (h_one : 0 ≤ f 1) (h_mul : ∀ (a b : α), f a + f b ≤ f (a * b))
+    : (l.map f).sum ≤ f l.prod :=
   apply_prod_le_sum_map (β := βᵒᵈ) l f h_one h_mul
 
 end ProdSum

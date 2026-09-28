@@ -41,10 +41,11 @@ lemma BddAbove.smul_of_nonneg (hs : BddAbove s) (ha : 0 ≤ a) : BddAbove (a •
 
 end PosSMulMono
 
-
 section
-variable [Preorder α] [Preorder β] [GroupWithZero α] [Zero β] [MulActionWithZero α β]
-  [PosSMulMono α β] [PosSMulReflectLE α β] {s : Set β} {a : α}
+variable
+  [Preorder α] [Preorder β] [GroupWithZero α] [Zero β] [MulActionWithZero α β] [PosSMulMono α β]
+  [PosSMulReflectLE α β]
+  {s : Set β} {a : α}
 
 @[simp] lemma lowerBounds_smul_of_pos (ha : 0 < a) : lowerBounds (a • s) = a • lowerBounds s :=
   (OrderIso.smulRight ha).lowerBounds_image
@@ -62,9 +63,10 @@ end
 
 section OrderedRing
 
-variable [Ring α] [PartialOrder α] [IsOrderedRing α]
-  [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β]
-  [Module α β] [PosSMulMono α β] {s : Set β} {a : α}
+variable
+  [Ring α] [PartialOrder α] [IsOrderedRing α] [AddCommGroup β] [PartialOrder β]
+  [IsOrderedAddMonoid β] [Module α β] [PosSMulMono α β]
+  {s : Set β} {a : α}
 
 lemma smul_lowerBounds_subset_upperBounds_smul (ha : a ≤ 0) :
     a • lowerBounds s ⊆ upperBounds (a • s) :=
@@ -83,10 +85,10 @@ lemma BddAbove.smul_of_nonpos (ha : a ≤ 0) (hs : BddAbove s) : BddBelow (a •
 end OrderedRing
 
 section LinearOrderedField
-variable [Field α] [LinearOrder α] [IsStrictOrderedRing α]
-  [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β]
-  [Module α β] [PosSMulMono α β] {s : Set β}
-  {a : α}
+variable
+  [Field α] [LinearOrder α] [IsStrictOrderedRing α] [AddCommGroup β] [PartialOrder β]
+  [IsOrderedAddMonoid β] [Module α β] [PosSMulMono α β]
+  {s : Set β} {a : α}
 
 @[simp] lemma lowerBounds_smul_of_neg (ha : a < 0) : lowerBounds (a • s) = a • upperBounds s :=
   (OrderIso.smulRightDual β ha).upperBounds_image

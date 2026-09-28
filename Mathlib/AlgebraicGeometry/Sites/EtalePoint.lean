@@ -30,8 +30,7 @@ open CategoryTheory Opposite
 
 namespace AlgebraicGeometry.Scheme
 
-variable {S : Scheme.{u}} {Ω : Type u} [Field Ω] [IsSepClosed Ω]
-  (s : Spec (.of Ω) ⟶ S)
+variable {S : Scheme.{u}} {Ω : Type u} [Field Ω] [IsSepClosed Ω] (s : Spec (.of Ω) ⟶ S)
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_fac_of_etale_of_isSepClosed {X S : Scheme.{u}} (f : X ⟶ S) [Etale f]
@@ -58,55 +57,73 @@ instance : IsCofiltered (Etale.forget S ⋙ coyoneda.obj (op (Over.mk s))).Eleme
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- A morphism `s : Spec (.of Ω) ⟶ S` where `Ω` is a separably closed field
-defines a point for the small étale site of `S`. -/
+/--
+A morphism `s : Spec (.of Ω) ⟶ S` where `Ω` is a separably closed field
+defines a point for the small étale site of `S`.
+-/
 @[simps]
 noncomputable def pointSmallEtale : (smallEtaleTopology S).Point where
   fiber := Etale.forget S ⋙ coyoneda.obj (op (Over.mk s))
   initiallySmall :=
     initiallySmall_of_essentiallySmall_weakly_initial_objectProperty
       (Functor.Elements.precomp (AffineEtale.Spec S)
-        (Etale.forget S ⋙ coyoneda.obj (op (Over.mk s)))).essImage (fun x ↦ by
-      induction x with | @mk X x
-      cases X with | _ Y f
-      obtain ⟨y, hy, rfl⟩ := Over.homMk_surjective x
-      dsimp at y hy
-      obtain ⟨R, j, _, y', rfl⟩ : ∃ (R : CommRingCat) (j : Spec (.of R) ⟶ Y)
-          (_ : IsOpenImmersion j) (y' : _ ⟶ _), y' ≫ j = y := by
-        obtain ⟨R, j, _, hj, _⟩ := exists_affine_mem_range_and_range_subset
-          (x := y.base default) (U := ⊤) (by simp)
-        refine ⟨R, j, inferInstance, _, IsOpenImmersion.lift_fac j y ?_⟩
-        rintro _ ⟨a, rfl⟩
-        rwa [Subsingleton.elim a default]
-      exact ⟨_,
-        ⟨Functor.elementsMk _ (AffineEtale.mk (j ≫ f)) (Over.homMk y'), ⟨Iso.refl _⟩⟩,
-        ⟨⟨MorphismProperty.Over.homMk j rfl (by simp), by cat_disch⟩⟩⟩)
+        (Etale.forget S ⋙ coyoneda.obj (op (Over.mk s)))).essImage
+      (fun x ↦ by
+        induction x with
+        | @mk X x
+        cases X with
+        | _ Y f
+        obtain ⟨y, hy, rfl⟩ := Over.homMk_surjective x
+        dsimp at y hy
+        obtain ⟨R, j, _, y', rfl⟩
+            : ∃ (R : CommRingCat) (j : Spec (.of R) ⟶ Y) (_ : IsOpenImmersion j) (y' : _ ⟶ _),
+              y' ≫ j = y := by
+          obtain ⟨R, j, _, hj, _⟩ :=
+            exists_affine_mem_range_and_range_subset (x := y.base default) (U := ⊤) (by simp)
+          refine ⟨R, j, inferInstance, _, IsOpenImmersion.lift_fac j y ?_⟩
+          rintro _ ⟨a, rfl⟩
+          rwa [Subsingleton.elim a default]
+        exact ⟨
+          _,
+          ⟨Functor.elementsMk _ (AffineEtale.mk (j ≫ f)) (Over.homMk y'), ⟨Iso.refl _⟩⟩,
+          ⟨⟨MorphismProperty.Over.homMk j rfl (by simp), by cat_disch⟩⟩
+        ⟩)
   jointly_surjective {X} R hR φ := by
-    cases X with | _ X f
+    cases X with
+    | _ X f
     obtain ⟨φ : Spec (.of Ω) ⟶ X, rfl : φ ≫ f = s, rfl⟩ := Over.homMk_surjective φ
     obtain ⟨𝒰, h, _, le⟩ := (mem_smallGrothendieckTopology _ _).1 hR
     obtain ⟨i, y, hy⟩ := 𝒰.exists_eq (φ default)
     obtain ⟨l, hl₁, hl₂⟩ := exists_fac_of_etale_of_isSepClosed (𝒰.f i) φ _ hy
     have : 𝒰.f i ≫ f = 𝒰.X i ↘ S := HomIsOver.comp_over (f := 𝒰.f i) (S := S)
-    exact ⟨(𝒰.X i).asOverProp S inferInstance,
-      MorphismProperty.Over.homMk (𝒰.f i), le _ _ ⟨i⟩, Over.homMk l, by cat_disch⟩
+    exact ⟨
+      (𝒰.X i).asOverProp S inferInstance,
+      MorphismProperty.Over.homMk (𝒰.f i),
+      le _ _ ⟨i⟩,
+      Over.homMk l,
+      by cat_disch
+    ⟩
 
 variable {s₀ : S} (hs₀ : s default = s₀)
 
-/-- Given a morphism `s : Spec (.of Ω) ⟶ S` with image `s₀ : S` where `Ω` is a
+/--
+Given a morphism `s : Spec (.of Ω) ⟶ S` with image `s₀ : S` where `Ω` is a
 separably closed field, this is the canonical map
-`(pointSmallEtale s).fiber.obj X ⟶ X.hom ⁻¹' {s₀}` for `X : S.Etale`. -/
+`(pointSmallEtale s).fiber.obj X ⟶ X.hom ⁻¹' {s₀}` for `X : S.Etale`.
+-/
 @[simps]
-noncomputable def pointSmallEtaleFiberObjToPreimage {X : S.Etale}
-    (t : (pointSmallEtale s).fiber.obj X) :
-    X.hom ⁻¹' {s₀} :=
-  ⟨t.left (default : Spec (.of Ω)), by
+noncomputable def pointSmallEtaleFiberObjToPreimage
+    {X : S.Etale} (t : (pointSmallEtale s).fiber.obj X)
+    : X.hom ⁻¹' {s₀} := ⟨
+  t.left (default : Spec (.of Ω)),
+  by
     have := (Over.w t).symm
-    cat_disch⟩
+    cat_disch
+⟩
 
 set_option backward.isDefEq.respectTransparency false in
-instance {Y X : Scheme.{u}} (f : Y ⟶ X) [Etale f] (x : X) :
-    Etale (f.fiberToSpecResidueField x) := by
+instance {Y X : Scheme.{u}} (f : Y ⟶ X) [Etale f] (x : X)
+    : Etale (f.fiberToSpecResidueField x) := by
   dsimp [Hom.fiberToSpecResidueField]
   infer_instance
 
@@ -156,7 +173,6 @@ lemma isConservativeFamilyOfPoints_pointSmallEtale' (S : Scheme.{u}) :
     exact ⟨s, default, by simp [SpecToEquivOfField]⟩)
 
 instance : GrothendieckTopology.HasEnoughPoints.{u} (smallEtaleTopology S) where
-  exists_objectProperty :=
-    ⟨_, inferInstance, isConservativeFamilyOfPoints_pointSmallEtale' S⟩
+  exists_objectProperty := ⟨_, inferInstance, isConservativeFamilyOfPoints_pointSmallEtale' S⟩
 
 end AlgebraicGeometry.Scheme

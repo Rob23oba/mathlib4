@@ -30,15 +30,17 @@ open Filter Set
 
 open scoped Topology
 
-variable {X Y : Type*}
-  [ConditionallyCompleteLinearOrder X] [DenselyOrdered X] [TopologicalSpace X] [OrderTopology X]
-  [LinearOrder Y] [TopologicalSpace Y] [OrderTopology Y]
+variable
+  {X Y : Type*} [ConditionallyCompleteLinearOrder X] [DenselyOrdered X] [TopologicalSpace X]
+  [OrderTopology X] [LinearOrder Y] [TopologicalSpace Y] [OrderTopology Y]
   {f : X → Y} {a b : X} {l : Y}
 
-/-- A continuous function on a closed interval with `f a = f b`
-takes either its maximum or its minimum value at a point in the interior of the interval. -/
-theorem exists_Ioo_extr_on_Icc (hab : a < b) (hfc : ContinuousOn f (Icc a b)) (hfI : f a = f b) :
-    ∃ c ∈ Ioo a b, IsExtrOn f (Icc a b) c := by
+/--
+A continuous function on a closed interval with `f a = f b`
+takes either its maximum or its minimum value at a point in the interior of the interval.
+-/
+theorem exists_Ioo_extr_on_Icc (hab : a < b) (hfc : ContinuousOn f (Icc a b)) (hfI : f a = f b)
+    : ∃ c ∈ Ioo a b, IsExtrOn f (Icc a b) c := by
   have ne : (Icc a b).Nonempty := nonempty_Icc.2 (le_of_lt hab)
   -- Consider absolute min and max points
   obtain ⟨c, cmem, cle⟩ : ∃ c ∈ Icc a b, ∀ x ∈ Icc a b, f c ≤ f x :=
@@ -57,10 +59,12 @@ theorem exists_Ioo_extr_on_Icc (hab : a < b) (hfc : ContinuousOn f (Icc a b)) (h
   · refine ⟨c, ⟨lt_of_le_of_ne cmem.1 <| mt ?_ hc, lt_of_le_of_ne cmem.2 <| mt ?_ hc⟩, Or.inl cle⟩
     exacts [fun h => by rw [h], fun h => by rw [h, hfI]]
 
-/-- A continuous function on a closed interval with `f a = f b`
-has a local extremum at some point of the corresponding open interval. -/
-theorem exists_isLocalExtr_Ioo (hab : a < b) (hfc : ContinuousOn f (Icc a b)) (hfI : f a = f b) :
-    ∃ c ∈ Ioo a b, IsLocalExtr f c :=
+/--
+A continuous function on a closed interval with `f a = f b`
+has a local extremum at some point of the corresponding open interval.
+-/
+theorem exists_isLocalExtr_Ioo (hab : a < b) (hfc : ContinuousOn f (Icc a b)) (hfI : f a = f b)
+    : ∃ c ∈ Ioo a b, IsLocalExtr f c :=
   let ⟨c, cmem, hc⟩ := exists_Ioo_extr_on_Icc hab hfc hfI
   ⟨c, cmem, hc.isLocalExtr <| Icc_mem_nhds cmem.1 cmem.2⟩
 
@@ -84,17 +88,20 @@ lemma exists_isLocalExtr_Ioo_of_tendsto (hab : a < b) (hfc : ContinuousOn f (Ioo
   let ⟨c, cmem, hc⟩ := exists_isExtrOn_Ioo_of_tendsto hab hfc ha hb
   ⟨c, cmem, hc.isLocalExtr <| Ioo_mem_nhds cmem.1 cmem.2⟩
 
-/-- A continuous function on an unordered closed interval with `f a = f b`
-takes either its maximum or its minimum value at a point in the interior of the interval. -/
-theorem exists_uIoo_isExtrOn_uIcc (hab : a ≠ b) (hfc : ContinuousOn f (uIcc a b))
-    (hfI : f a = f b) :
-    ∃ c ∈ uIoo a b, IsExtrOn f (uIcc a b) c :=
+/--
+A continuous function on an unordered closed interval with `f a = f b`
+takes either its maximum or its minimum value at a point in the interior of the interval.
+-/
+theorem exists_uIoo_isExtrOn_uIcc (hab : a ≠ b) (hfc : ContinuousOn f (uIcc a b)) (hfI : f a = f b)
+    : ∃ c ∈ uIoo a b, IsExtrOn f (uIcc a b) c :=
   exists_Ioo_extr_on_Icc (by simp [hab.symm]) hfc (by grind)
 
-/-- A continuous function on a unordered closed interval with `f a = f b`
-has a local extremum at some point of the corresponding unordered open interval. -/
-theorem exists_isLocalExtr_uIoo (hab : a ≠ b) (hfc : ContinuousOn f (uIcc a b)) (hfI : f a = f b) :
-    ∃ c ∈ uIoo a b, IsLocalExtr f c :=
+/--
+A continuous function on a unordered closed interval with `f a = f b`
+has a local extremum at some point of the corresponding unordered open interval.
+-/
+theorem exists_isLocalExtr_uIoo (hab : a ≠ b) (hfc : ContinuousOn f (uIcc a b)) (hfI : f a = f b)
+    : ∃ c ∈ uIoo a b, IsLocalExtr f c :=
   exists_isLocalExtr_Ioo (by simp [hab.symm]) hfc (by grind)
 
 /-- If a function `f` is continuous on an unordered open interval

@@ -38,8 +38,10 @@ open Set
 
 variable {α : Type*}
 
-/-- `memPartition f n` is the partition containing at most `2^(n+1)` sets, where each set contains
-the points that for all `i` belong to one of `f i` or its complement. -/
+/--
+`memPartition f n` is the partition containing at most `2^(n+1)` sets, where each set contains
+the points that for all `i` belong to one of `f i` or its complement.
+-/
 def memPartition (f : ℕ → Set α) : ℕ → Set (Set α)
   | 0 => {univ}
   | n + 1 => {s | ∃ u ∈ memPartition f n, s = u ∩ f n ∨ s = u \ f n}
@@ -104,8 +106,8 @@ lemma finite_memPartition (f : ℕ → Set α) (n : ℕ) : Set.Finite (memPartit
 instance instFinite_memPartition (f : ℕ → Set α) (n : ℕ) : Finite (memPartition f n) :=
   Set.finite_coe_iff.mp (finite_memPartition _ _)
 
-noncomputable
-instance instFintype_memPartition (f : ℕ → Set α) (n : ℕ) : Fintype (memPartition f n) :=
+noncomputable instance instFintype_memPartition (f : ℕ → Set α) (n : ℕ)
+    : Fintype (memPartition f n) :=
   (finite_memPartition f n).fintype
 
 open scoped Classical in

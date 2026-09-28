@@ -31,11 +31,9 @@ literature.
 
 @[expose] public section
 
-
 noncomputable section
 
-open Set Function TopologicalSpace CompactlySupportedContinuousMap
-  MeasureTheory
+open Set Function TopologicalSpace CompactlySupportedContinuousMap MeasureTheory
 
 open scoped BoundedContinuousFunction NNReal ENNReal CompactlySupported
 
@@ -54,10 +52,12 @@ lemma CompactlySupportedContinuousMap.monotone_of_nnreal : Monotone Λ := by
 
 end Monotone
 
-/-- Given a positive linear functional `Λ` on continuous compactly supported functions on `X`
+/--
+Given a positive linear functional `Λ` on continuous compactly supported functions on `X`
 with values in `ℝ≥0`, for `K ⊆ X` compact define `λ(K) = inf {Λf | 1≤f on K}`.
 When `X` is a locally compact T2 space, this will be shown to be a
-content, and will be shown to agree with the Riesz measure on the compact subsets `K ⊆ X`. -/
+content, and will be shown to agree with the Riesz measure on the compact subsets `K ⊆ X`.
+-/
 def rieszContentAux : Compacts X → ℝ≥0 := fun K =>
   sInf (Λ '' { f : C_c(X, ℝ≥0) | ∀ x ∈ K, (1 : ℝ≥0) ≤ f x })
 
@@ -65,10 +65,12 @@ section RieszMonotone
 
 variable [T2Space X] [LocallyCompactSpace X]
 
-/-- For any compact subset `K ⊆ X`, there exist some compactly supported continuous nonnegative
-functions `f` on `X` such that `f ≥ 1` on `K`. -/
-theorem rieszContentAux_image_nonempty (K : Compacts X) :
-    (Λ '' { f : C_c(X, ℝ≥0) | ∀ x ∈ K, (1 : ℝ≥0) ≤ f x }).Nonempty := by
+/--
+For any compact subset `K ⊆ X`, there exist some compactly supported continuous nonnegative
+functions `f` on `X` such that `f ≥ 1` on `K`.
+-/
+theorem rieszContentAux_image_nonempty (K : Compacts X)
+    : (Λ '' { f : C_c(X, ℝ≥0) | ∀ x ∈ K, (1 : ℝ≥0) ≤ f x }).Nonempty := by
   rw [image_nonempty]
   obtain ⟨V, hVcp, hKsubintV⟩ := exists_compact_superset K.2
   have hIsCompact_closure_interior : IsCompact (closure (interior V)) := by
@@ -88,10 +90,12 @@ theorem rieszContentAux_image_nonempty (K : Compacts X) :
   rw [← Real.toNNReal_one, Real.toNNReal_eq_toNNReal_iff (zero_le_one' ℝ) (hfinicc x).1]
   exact hfeq1onK.symm hx
 
-/-- Riesz content `λ` (associated with a positive linear functional `Λ`) is
-monotone: if `K₁ ⊆ K₂` are compact subsets in `X`, then `λ(K₁) ≤ λ(K₂)`. -/
-theorem rieszContentAux_mono {K₁ K₂ : Compacts X} (h : K₁ ≤ K₂) :
-    rieszContentAux Λ K₁ ≤ rieszContentAux Λ K₂ := by
+/--
+Riesz content `λ` (associated with a positive linear functional `Λ`) is
+monotone: if `K₁ ⊆ K₂` are compact subsets in `X`, then `λ(K₁) ≤ λ(K₂)`.
+-/
+theorem rieszContentAux_mono {K₁ K₂ : Compacts X} (h : K₁ ≤ K₂)
+    : rieszContentAux Λ K₁ ≤ rieszContentAux Λ K₂ := by
   unfold rieszContentAux
   gcongr
   apply rieszContentAux_image_nonempty
@@ -100,20 +104,24 @@ end RieszMonotone
 
 section RieszSubadditive
 
-/-- Any compactly supported continuous nonnegative `f` such that `f ≥ 1` on `K` gives an upper bound
-on the content of `K`; namely `λ(K) ≤ Λ f`. -/
-theorem rieszContentAux_le {K : Compacts X} {f : C_c(X, ℝ≥0)} (h : ∀ x ∈ K, (1 : ℝ≥0) ≤ f x) :
-    rieszContentAux Λ K ≤ Λ f :=
+/--
+Any compactly supported continuous nonnegative `f` such that `f ≥ 1` on `K` gives an upper bound
+on the content of `K`; namely `λ(K) ≤ Λ f`.
+-/
+theorem rieszContentAux_le {K : Compacts X} {f : C_c(X, ℝ≥0)} (h : ∀ x ∈ K, (1 : ℝ≥0) ≤ f x)
+    : rieszContentAux Λ K ≤ Λ f :=
   csInf_le (OrderBot.bddBelow _) ⟨f, ⟨h, rfl⟩⟩
 
 variable [T2Space X] [LocallyCompactSpace X]
 
-/-- The Riesz content can be approximated arbitrarily well by evaluating the positive linear
+/--
+The Riesz content can be approximated arbitrarily well by evaluating the positive linear
 functional on test functions: for any `ε > 0`, there exists a compactly supported continuous
-nonnegative function `f` on `X` such that `f ≥ 1` on `K` and such that `λ(K) ≤ Λ f < λ(K) + ε`. -/
-theorem exists_lt_rieszContentAux_add_pos (K : Compacts X) {ε : ℝ≥0} (εpos : 0 < ε) :
-    ∃ f : C_c(X, ℝ≥0), (∀ x ∈ K, (1 : ℝ≥0) ≤ f x) ∧ Λ f < rieszContentAux Λ K + ε := by
-  --choose a test function `f` s.t. `Λf = α < λ(K) + ε`
+nonnegative function `f` on `X` such that `f ≥ 1` on `K` and such that `λ(K) ≤ Λ f < λ(K) + ε`.
+-/
+theorem exists_lt_rieszContentAux_add_pos (K : Compacts X) {ε : ℝ≥0} (εpos : 0 < ε)
+    : ∃ f : C_c(X, ℝ≥0), (∀ x ∈ K, (1 : ℝ≥0) ≤ f x) ∧ Λ f < rieszContentAux Λ K + ε := by
+  -- choose a test function `f` s.t. `Λf = α < λ(K) + ε`
   obtain ⟨α, ⟨⟨f, f_hyp⟩, α_hyp⟩⟩ :=
     exists_lt_of_csInf_lt (rieszContentAux_image_nonempty Λ K)
       (lt_add_of_pos_right (rieszContentAux Λ K) εpos)
@@ -121,30 +129,31 @@ theorem exists_lt_rieszContentAux_add_pos (K : Compacts X) {ε : ℝ≥0} (εpos
   rw [f_hyp.right]
   exact α_hyp
 
-/-- The Riesz content `λ` associated to a given positive linear functional `Λ` is
-finitely subadditive: `λ(K₁ ∪ K₂) ≤ λ(K₁) + λ(K₂)` for any compact subsets `K₁, K₂ ⊆ X`. -/
-theorem rieszContentAux_sup_le (K1 K2 : Compacts X) :
-    rieszContentAux Λ (K1 ⊔ K2) ≤ rieszContentAux Λ K1 + rieszContentAux Λ K2 := by
+/--
+The Riesz content `λ` associated to a given positive linear functional `Λ` is
+finitely subadditive: `λ(K₁ ∪ K₂) ≤ λ(K₁) + λ(K₂)` for any compact subsets `K₁, K₂ ⊆ X`.
+-/
+theorem rieszContentAux_sup_le (K1 K2 : Compacts X)
+    : rieszContentAux Λ (K1 ⊔ K2) ≤ rieszContentAux Λ K1 + rieszContentAux Λ K2 := by
   apply _root_.le_of_forall_pos_le_add
   intro ε εpos
-  --get test functions s.t. `λ(Ki) ≤ Λfi ≤ λ(Ki) + ε/2, i=1,2`
+  -- get test functions s.t. `λ(Ki) ≤ Λfi ≤ λ(Ki) + ε/2, i=1,2`
   obtain ⟨f1, f_test_function_K1⟩ := exists_lt_rieszContentAux_add_pos Λ K1 (half_pos εpos)
   obtain ⟨f2, f_test_function_K2⟩ := exists_lt_rieszContentAux_add_pos Λ K2 (half_pos εpos)
-  --let `f := f1 + f2` test function for the content of `K`
+  -- let `f := f1 + f2` test function for the content of `K`
   have f_test_function_union : ∀ x ∈ K1 ⊔ K2, (1 : ℝ≥0) ≤ (f1 + f2) x := by
     rintro x (x_in_K1 | x_in_K2)
     · exact le_add_right (f_test_function_K1.left x x_in_K1)
     · exact le_add_left (f_test_function_K2.left x x_in_K2)
-  --use that `Λf` is an upper bound for `λ(K1⊔K2)`
+  -- use that `Λf` is an upper bound for `λ(K1⊔K2)`
   apply (rieszContentAux_le Λ f_test_function_union).trans (le_of_lt _)
   rw [map_add]
-  --use that `Λfi` are lower bounds for `λ(Ki) + ε/2`
+  -- use that `Λfi` are lower bounds for `λ(Ki) + ε/2`
   apply lt_of_lt_of_le (_root_.add_lt_add f_test_function_K1.right f_test_function_K2.right)
     (le_of_eq _)
   rw [add_assoc, add_comm (ε / 2), add_assoc, add_halves ε, add_assoc]
 
 end RieszSubadditive
-
 
 section PartitionOfUnity
 
@@ -318,9 +327,11 @@ namespace NNRealRMK
 
 variable [T2Space X] [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X]
 
-/-- `rieszContent` gives a `Content` from `Λ : C_c(X, ℝ≥0) →ₗ[ℝ≥0] ℝ≥0`. Here `rieszContent Λ` is
+/--
+`rieszContent` gives a `Content` from `Λ : C_c(X, ℝ≥0) →ₗ[ℝ≥0] ℝ≥0`. Here `rieszContent Λ` is
 promoted to a measure. It will be later shown that
-`∫ (x : X), f x ∂(rieszMeasure Λ hΛ) = Λ f` for all `f : C_c(X, ℝ≥0)`. -/
+`∫ (x : X), f x ∂(rieszMeasure Λ hΛ) = Λ f` for all `f : C_c(X, ℝ≥0)`.
+-/
 def rieszMeasure := (rieszContent Λ).measure
 
 set_option backward.isDefEq.respectTransparency false in

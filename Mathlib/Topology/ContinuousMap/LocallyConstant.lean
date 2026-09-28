@@ -16,13 +16,14 @@ public import Mathlib.Topology.ContinuousMap.Algebra
 
 @[expose] public section
 
-
 namespace LocallyConstant
 
 variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
 
-/-- The inclusion of locally-constant functions into continuous functions as a multiplicative
-monoid hom. -/
+/--
+The inclusion of locally-constant functions into continuous functions as a multiplicative
+monoid hom.
+-/
 @[to_additive (attr := simps) /-- The inclusion of locally-constant functions into continuous
 functions as an additive monoid hom. -/]
 def toContinuousMapMonoidHom [Monoid Y] [ContinuousMul Y] : LocallyConstant X Y →* C(X, Y) where
@@ -36,8 +37,10 @@ def toContinuousMapMonoidHom [Monoid Y] [ContinuousMul Y] : LocallyConstant X Y 
 
 /-- The inclusion of locally-constant functions into continuous functions as a linear map. -/
 @[simps]
-def toContinuousMapLinearMap (R : Type*) [Semiring R] [AddCommMonoid Y] [Module R Y]
-    [ContinuousAdd Y] [ContinuousConstSMul R Y] : LocallyConstant X Y →ₗ[R] C(X, Y) where
+def toContinuousMapLinearMap
+    (R : Type*)
+    [Semiring R] [AddCommMonoid Y] [Module R Y] [ContinuousAdd Y] [ContinuousConstSMul R Y]
+    : LocallyConstant X Y →ₗ[R] C(X, Y) where
   toFun := (↑)
   __ := toContinuousMapAddMonoidHom
   map_smul' x y := by
@@ -51,8 +54,9 @@ def toContinuousMapLinearMap (R : Type*) [Semiring R] [AddCommMonoid Y] [Module 
 
 /-- The inclusion of locally-constant functions into continuous functions as an algebra map. -/
 @[simps]
-def toContinuousMapAlgHom (R : Type*) [CommSemiring R] [Semiring Y] [Algebra R Y]
-    [IsTopologicalSemiring Y] : LocallyConstant X Y →ₐ[R] C(X, Y) where
+def toContinuousMapAlgHom
+    (R : Type*) [CommSemiring R] [Semiring Y] [Algebra R Y] [IsTopologicalSemiring Y]
+    : LocallyConstant X Y →ₐ[R] C(X, Y) where
   toFun := (↑)
   __ := toContinuousMapMonoidHom
   __ := toContinuousMapAddMonoidHom
@@ -64,9 +68,10 @@ def toContinuousMapAlgHom (R : Type*) [CommSemiring R] [Semiring Y] [Algebra R Y
     [Algebra R Y] [IsTopologicalSemiring Y] :
     (toContinuousMapAlgHom R (X := X) (Y := Y)).toLinearMap = toContinuousMapLinearMap R := rfl
 
-theorem separatesPoints_range_toContinuousMapAlgHom (R : Type*) [CommSemiring R]
-    [TotallySeparatedSpace X] [Semiring Y] [Algebra R Y] [IsTopologicalSemiring Y] [Nontrivial Y] :
-    (toContinuousMapAlgHom R : _ →ₐ[R] C(X, Y)).range.SeparatesPoints := fun _ _ hxy ↦
+theorem separatesPoints_range_toContinuousMapAlgHom
+    (R : Type*) [CommSemiring R] [TotallySeparatedSpace X] [Semiring Y] [Algebra R Y]
+    [IsTopologicalSemiring Y] [Nontrivial Y]
+    : (toContinuousMapAlgHom R : _ →ₐ[R] C(X, Y)).range.SeparatesPoints := fun _ _ hxy ↦
   have ⟨_, hU, _, _⟩ := exists_isClopen_of_totally_separated hxy
   ⟨charFn Y hU, by simp_all [charFn]⟩
 

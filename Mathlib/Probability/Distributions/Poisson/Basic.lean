@@ -9,7 +9,6 @@ public import Mathlib.MeasureTheory.Measure.CharacteristicFunction.Basic
 public import Mathlib.Probability.HasLaw
 public import Mathlib.Probability.ProbabilityMassFunction.Basic
 public import Mathlib.Tactic.CrossRefAttribute
-
 import Mathlib.LinearAlgebra.Complex.FiniteDimensional
 
 /-! # Poisson distributions over ℕ
@@ -37,8 +36,7 @@ namespace ProbabilityTheory
 
 /-- The poisson measure with rate `r : ℝ≥0` as a measure over `ℕ`. -/
 @[wikidata Q205692]
-noncomputable
-def poissonMeasure (r : ℝ≥0) : Measure ℕ :=
+noncomputable def poissonMeasure (r : ℝ≥0) : Measure ℕ :=
   Measure.sum (fun n ↦ ENNReal.ofReal (exp (-r) * r ^ n / (n)!) • (.dirac n))
 
 /-- The Poisson probability distribution with rate `r`. -/
@@ -164,39 +162,47 @@ section Convolution
 
 variable {R : Type*} [AddMonoidWithOne R] {mR : MeasurableSpace R}
 
-private theorem map_cast_poissonMeasure_conv_real (r₁ r₂ : ℝ≥0) :
-    Po(ℝ, r₁) ∗ Po(ℝ, r₂) = Po(ℝ, r₁ + r₂) := by
+private theorem map_cast_poissonMeasure_conv_real (r₁ r₂ : ℝ≥0)
+    : Po(ℝ, r₁) ∗ Po(ℝ, r₂) = Po(ℝ, r₁ + r₂) := by
   apply Measure.ext_of_charFun
   ext t
   simp only [charFun_conv, charFun_map_cast_poissonMeasure, ← Complex.exp_add]
-  congr; push_cast; ring
+  congr
+  push_cast
+  ring
 
-theorem poissonMeasure_conv_poissonMeasure (r₁ r₂ : ℝ≥0) :
-    Po(r₁) ∗ Po(r₂) = Po(r₁ + r₂) := by
+theorem poissonMeasure_conv_poissonMeasure (r₁ r₂ : ℝ≥0) : Po(r₁) ∗ Po(r₂) = Po(r₁ + r₂) := by
   apply (MeasurableEmbedding.natCast (α := ℝ)).map_injective
   rw [← Nat.coe_castAddMonoidHom, Measure.map_conv_addMonoidHom _ (by fun_prop)]
   exact map_cast_poissonMeasure_conv_real _ _
 
-theorem map_cast_poissonMeasure_conv [MeasurableAdd₂ R] (r₁ r₂ : ℝ≥0) :
-    Po(R, r₁) ∗ Po(R, r₂) = Po(R, r₁ + r₂) := by
-  rw [← Nat.coe_castAddMonoidHom, ← Measure.map_conv_addMonoidHom _ (by fun_prop),
-    poissonMeasure_conv_poissonMeasure]
+theorem map_cast_poissonMeasure_conv [MeasurableAdd₂ R] (r₁ r₂ : ℝ≥0)
+    : Po(R, r₁) ∗ Po(R, r₂) = Po(R, r₁ + r₂) := by
+  rw [
+    ← Nat.coe_castAddMonoidHom, ← Measure.map_conv_addMonoidHom _ (by fun_prop),
+    poissonMeasure_conv_poissonMeasure
+  ]
 
-/-- The sum of two independent Poisson random variables with rates `r₁, r₂` is a Poisson
-random variable with rate `r₁ + r₂`. -/
-theorem IndepFun.hasLaw_add_poissonMeasure {Ω : Type*} {mΩ : MeasurableSpace Ω}
-    {P : Measure Ω} {r₁ r₂ : ℝ≥0} {X Y : Ω → ℕ}
-    (hXY : IndepFun X Y P) (hX : HasLaw X Po(r₁) P) (hY : HasLaw Y Po(r₂) P) :
-    HasLaw (X + Y) Po(r₁ + r₂) P := by
+/--
+The sum of two independent Poisson random variables with rates `r₁, r₂` is a Poisson
+random variable with rate `r₁ + r₂`.
+-/
+theorem IndepFun.hasLaw_add_poissonMeasure
+    {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} {r₁ r₂ : ℝ≥0} {X Y : Ω → ℕ}
+    (hXY : IndepFun X Y P) (hX : HasLaw X (Po(r₁)) P) (hY : HasLaw Y (Po(r₂)) P)
+    : HasLaw (X + Y) (Po(r₁ + r₂)) P := by
   rw [← poissonMeasure_conv_poissonMeasure]
   exact hXY.hasLaw_add hX hY
 
-/-- The sum of two independent Poisson random variables with rates `r₁, r₂` taking values in `R`
-is a Poisson random variable with rate `r₁ + r₂`. -/
-theorem IndepFun.hasLaw_add_map_cast_poissonMeasure {Ω : Type*} {mΩ : MeasurableSpace Ω}
-    {P : Measure Ω} [MeasurableAdd₂ R] {r₁ r₂ : ℝ≥0} {X Y : Ω → R}
-    (hXY : IndepFun X Y P) (hX : HasLaw X Po(R, r₁) P) (hY : HasLaw Y Po(R, r₂) P) :
-    HasLaw (X + Y) Po(R, r₁ + r₂) P := by
+/--
+The sum of two independent Poisson random variables with rates `r₁, r₂` taking values in `R`
+is a Poisson random variable with rate `r₁ + r₂`.
+-/
+theorem IndepFun.hasLaw_add_map_cast_poissonMeasure
+    {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} [MeasurableAdd₂ R]
+    {r₁ r₂ : ℝ≥0} {X Y : Ω → R}
+    (hXY : IndepFun X Y P) (hX : HasLaw X (Po(R, r₁)) P) (hY : HasLaw Y (Po(R, r₂)) P)
+    : HasLaw (X + Y) (Po(R, r₁ + r₂)) P := by
   rw [← map_cast_poissonMeasure_conv]
   exact hXY.hasLaw_add hX hY
 
@@ -206,8 +212,7 @@ section PoissonPMF
 
 /-- The pmf of the Poisson distribution depending on its rate, as a function to ℝ -/
 @[deprecated poissonMeasure +typeChanged (since := "2026-03-08")]
-noncomputable
-def poissonPMFReal (r : ℝ≥0) (n : ℕ) : ℝ := exp (-r) * r ^ n / (n)!
+noncomputable def poissonPMFReal (r : ℝ≥0) (n : ℕ) : ℝ := exp (-r) * r ^ n / (n)!
 
 @[deprecated (since := "2026-03-08")]
 alias poissonPMFRealSum := hasSum_one_poissonMeasure
@@ -224,8 +229,7 @@ lemma poissonPMFReal_nonneg {r : ℝ≥0} {n : ℕ} : 0 ≤ poissonPMFReal r n :
 
 /-- The pmf of the Poisson distribution depending on its rate, as a PMF. -/
 @[deprecated poissonMeasure +typeChanged (since := "2026-03-08")]
-noncomputable
-def poissonPMF (r : ℝ≥0) : PMF ℕ := by
+noncomputable def poissonPMF (r : ℝ≥0) : PMF ℕ := by
   refine ⟨fun n ↦ ENNReal.ofReal (poissonPMFReal r n), ?_⟩
   apply ENNReal.hasSum_coe.mpr
   rw [← toNNReal_one]

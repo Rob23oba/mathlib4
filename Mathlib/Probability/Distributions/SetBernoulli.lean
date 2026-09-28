@@ -8,7 +8,6 @@ module
 public import Mathlib.Probability.Distributions.Bernoulli
 public import Mathlib.Probability.ProductMeasure
 public import Mathlib.Probability.HasLaw
-
 import Mathlib.MeasureTheory.MeasurableSpace.NCard
 
 /-!
@@ -34,13 +33,16 @@ open MeasureTheory Measure unitInterval
 open scoped ENNReal Finset
 
 namespace ProbabilityTheory
-variable {ι Ω : Type*} {m : MeasurableSpace Ω} {X Y : Ω → Set ι} {s u : Set ι} {i : ι} {p : I}
-  {P : Measure Ω}
+variable
+  {ι Ω : Type*}
+  {m : MeasurableSpace Ω} {X Y : Ω → Set ι} {s u : Set ι} {i : ι} {p : I} {P : Measure Ω}
 
 variable (u p) in
-/-- The product of bernoulli distributions with parameter `p` on the set `u : Set V` is the measure
+/--
+The product of bernoulli distributions with parameter `p` on the set `u : Set V` is the measure
 on `Set V` such that each element of `u` is taken with probability `p`, and the elements outside of
-`u` are never taken. -/
+`u` are never taken.
+-/
 @[expose]
 noncomputable def setBernoulli : Measure (Set ι) :=
   .comap (fun s i ↦ i ∈ s) <| infinitePi fun i : ι ↦ Ber(i ∈ u, False, p)
@@ -163,9 +165,11 @@ end Countable
 /-! ### Bernoulli random variables -/
 
 variable (X u p P) in
-/-- A random variable `X : Ω → Set ι` is `p`-bernoulli on a set `u : Set ι` if its distribution is
-the product over `u` of `p`-bernoulli distributions. -/
-abbrev IsSetBernoulli : Prop := HasLaw X setBer(u, p) P
+/--
+A random variable `X : Ω → Set ι` is `p`-bernoulli on a set `u : Set ι` if its distribution is
+the product over `u` of `p`-bernoulli distributions.
+-/
+abbrev IsSetBernoulli : Prop := HasLaw X (setBer(u, p)) P
 
 lemma isSetBernoulli_congr (hXY : X =ᵐ[P] Y) : IsSetBernoulli X u p P ↔ IsSetBernoulli Y u p P :=
   hasLaw_congr hXY

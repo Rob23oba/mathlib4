@@ -33,14 +33,17 @@ namespace SSet
 
 variable (X : SSet.{u})
 
-/-- An `n`-simplex of a simplicial set `X` is degenerate if it is in the range
-of `X.map f.op` for some morphism `f : [n] ⟶ [m]` with `m < n`. -/
+/--
+An `n`-simplex of a simplicial set `X` is degenerate if it is in the range
+of `X.map f.op` for some morphism `f : [n] ⟶ [m]` with `m < n`.
+-/
 def degenerate (n : ℕ) : Set (X _⦋n⦌) :=
-  Set.ofPred (fun x ↦ ∃ (m : ℕ) (_ : m < n) (f : ⦋n⦌ ⟶ ⦋m⦌),
-    x ∈ Set.range (X.map f.op))
+  Set.ofPred (fun x ↦ ∃ (m : ℕ) (_ : m < n) (f : ⦋n⦌ ⟶ ⦋m⦌), x ∈ Set.range (X.map f.op))
 
-/-- The set of `n`-dimensional non-degenerate simplices in a simplicial
-set `X` is the complement of `X.degenerate n`. -/
+/--
+The set of `n`-dimensional non-degenerate simplices in a simplicial
+set `X` is the complement of `X.degenerate n`.
+-/
 def nonDegenerate (n : ℕ) : Set (X _⦋n⦌) := (X.degenerate n)ᶜ
 
 @[simp]
@@ -159,13 +162,14 @@ decomposition obtained in the lemma `exists_nonDegenerate`.
 
 section
 
-variable {X} {x : X _⦋n⦌}
-  {m₁ m₂ : ℕ} {f₁ : ⦋n⦌ ⟶ ⦋m₁⦌} (hf₁ : SplitEpi f₁)
-  (y₁ : X.nonDegenerate m₁) (hy₁ : x = X.map f₁.op y₁)
-  (f₂ : ⦋n⦌ ⟶ ⦋m₂⦌) (y₂ : X _⦋m₂⦌) (hy₂ : x = X.map f₂.op y₂)
+variable
+  {X} {x : X _⦋n⦌} {m₁ m₂ : ℕ} {f₁ : ⦋n⦌ ⟶ ⦋m₁⦌} (hf₁ : SplitEpi f₁) (y₁ : X.nonDegenerate m₁)
+  (hy₁ : x = X.map f₁.op y₁) (f₂ : ⦋n⦌ ⟶ ⦋m₂⦌) (y₂ : X _⦋m₂⦌) (hy₂ : x = X.map f₂.op y₂)
 
-/-- The composition of a section of `f₁` and `f₂`. It is proven below that it
-is the identity, see `g_eq_id`. -/
+/--
+The composition of a section of `f₁` and `f₂`. It is proven below that it
+is the identity, see `g_eq_id`.
+-/
 private def g := hf₁.section_ ≫ f₂
 
 variable {f₂ y₁ y₂}
@@ -360,11 +364,12 @@ lemma nonDegenerate_iff_of_isIso (f : X ⟶ Y) [IsIso f] {n : ℕ} (x : X _⦋n�
     degenerate_iff_of_isIso]
 
 attribute [local simp] nonDegenerate_iff_of_isIso in
-/-- The bijection on nondegenerate simplices induced by an isomorphism
-of simplicial sets. -/
+/--
+The bijection on nondegenerate simplices induced by an isomorphism
+of simplicial sets.
+-/
 @[simps]
-def nonDegenerateEquivOfIso (e : X ≅ Y) {n : ℕ} :
-    X.nonDegenerate n ≃ Y.nonDegenerate n where
+def nonDegenerateEquivOfIso (e : X ≅ Y) {n : ℕ} : X.nonDegenerate n ≃ Y.nonDegenerate n where
   toFun := fun ⟨x, hx⟩ ↦ ⟨e.hom.app _ x, by aesop⟩
   invFun := fun ⟨y, hy⟩ ↦ ⟨e.inv.app _ y, by aesop⟩
   left_inv _ := by aesop

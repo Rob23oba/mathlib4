@@ -72,48 +72,63 @@ open scoped Pointwise
 variable {F α β γ : Type*}
 
 section CommMonoid
-variable [CommMonoid α] [CommMonoid β] [CommMonoid γ] {A A₁ A₂ : Set α}
-  {B B₁ B₂ : Set β} {C : Set γ} {f f₁ f₂ : α → β} {g : β → γ} {n : ℕ}
+variable
+  [CommMonoid α] [CommMonoid β] [CommMonoid γ]
+  {A A₁ A₂ : Set α} {B B₁ B₂ : Set β} {C : Set γ} {f f₁ f₂ : α → β} {g : β → γ} {n : ℕ}
 
-/-- An additive `n`-Freiman homomorphism from a set `A` to a set `B` is a map which preserves sums
-of `n` elements. -/
-structure IsAddFreimanHom [AddCommMonoid α] [AddCommMonoid β] (n : ℕ) (A : Set α) (B : Set β)
-    (f : α → β) : Prop where
+/--
+An additive `n`-Freiman homomorphism from a set `A` to a set `B` is a map which preserves sums
+of `n` elements.
+-/
+structure IsAddFreimanHom
+    [AddCommMonoid α] [AddCommMonoid β] (n : ℕ) (A : Set α) (B : Set β) (f : α → β)
+    : Prop where
   mapsTo : MapsTo f A B
   /-- An additive `n`-Freiman homomorphism preserves sums of `n` elements. -/
-  map_sum_eq_map_sum ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
-    (hs : Multiset.card s = n) (ht : Multiset.card t = n) (h : s.sum = t.sum) :
-    (s.map f).sum = (t.map f).sum
+  map_sum_eq_map_sum
+    ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
+    (hs : Multiset.card s = n) (ht : Multiset.card t = n) (h : s.sum = t.sum)
+    : (s.map f).sum = (t.map f).sum
 
-/-- An `n`-Freiman homomorphism from a set `A` to a set `B` is a map which preserves products of `n`
-elements. -/
+/--
+An `n`-Freiman homomorphism from a set `A` to a set `B` is a map which preserves products of `n`
+elements.
+-/
 @[to_additive]
 structure IsMulFreimanHom (n : ℕ) (A : Set α) (B : Set β) (f : α → β) : Prop where
   mapsTo : MapsTo f A B
   /-- An `n`-Freiman homomorphism preserves products of `n` elements. -/
-  map_prod_eq_map_prod ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
-    (hs : Multiset.card s = n) (ht : Multiset.card t = n) (h : s.prod = t.prod) :
-    (s.map f).prod = (t.map f).prod
+  map_prod_eq_map_prod
+    ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
+    (hs : Multiset.card s = n) (ht : Multiset.card t = n) (h : s.prod = t.prod)
+    : (s.map f).prod = (t.map f).prod
 
-/-- An additive `n`-Freiman homomorphism from a set `A` to a set `B` is a bijective map which
-preserves sums of `n` elements. -/
-structure IsAddFreimanIso [AddCommMonoid α] [AddCommMonoid β] (n : ℕ) (A : Set α) (B : Set β)
-    (f : α → β) : Prop where
+/--
+An additive `n`-Freiman homomorphism from a set `A` to a set `B` is a bijective map which
+preserves sums of `n` elements.
+-/
+structure IsAddFreimanIso
+    [AddCommMonoid α] [AddCommMonoid β] (n : ℕ) (A : Set α) (B : Set β) (f : α → β)
+    : Prop where
   bijOn : BijOn f A B
   /-- An additive `n`-Freiman homomorphism preserves sums of `n` elements. -/
-  map_sum_eq_map_sum ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
-    (hs : Multiset.card s = n) (ht : Multiset.card t = n) :
-    (s.map f).sum = (t.map f).sum ↔ s.sum = t.sum
+  map_sum_eq_map_sum
+    ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
+    (hs : Multiset.card s = n) (ht : Multiset.card t = n)
+    : (s.map f).sum = (t.map f).sum ↔ s.sum = t.sum
 
-/-- An `n`-Freiman homomorphism from a set `A` to a set `B` is a map which preserves products of `n`
-elements. -/
+/--
+An `n`-Freiman homomorphism from a set `A` to a set `B` is a map which preserves products of `n`
+elements.
+-/
 @[to_additive]
 structure IsMulFreimanIso (n : ℕ) (A : Set α) (B : Set β) (f : α → β) : Prop where
   bijOn : BijOn f A B
   /-- An `n`-Freiman homomorphism preserves products of `n` elements. -/
-  map_prod_eq_map_prod ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
-    (hs : Multiset.card s = n) (ht : Multiset.card t = n) :
-    (s.map f).prod = (t.map f).prod ↔ s.prod = t.prod
+  map_prod_eq_map_prod
+    ⦃s t : Multiset α⦄ (hsA : ∀ ⦃x⦄, x ∈ s → x ∈ A) (htA : ∀ ⦃x⦄, x ∈ t → x ∈ A)
+    (hs : Multiset.card s = n) (ht : Multiset.card t = n)
+    : (s.map f).prod = (t.map f).prod ↔ s.prod = t.prod
 
 @[to_additive]
 lemma IsMulFreimanIso.isMulFreimanHom (hf : IsMulFreimanIso n A B f) : IsMulFreimanHom n A B f where
@@ -394,7 +409,8 @@ lemma IsMulFreimanHom.snd [CommMonoid α] [CommMonoid β] {A : Set α} {B : Set 
 
 section
 
-variable {α β₁ β₂ : Type*} [CommMonoid α] [CommMonoid β₁] [CommMonoid β₂]
+variable
+  {α β₁ β₂ : Type*} [CommMonoid α] [CommMonoid β₁] [CommMonoid β₂]
   {A : Set α} {B₁ : Set β₁} {B₂ : Set β₂} {f₁ : α → β₁} {f₂ : α → β₂} {n : ℕ}
 
 @[to_additive prodMk]
@@ -409,7 +425,8 @@ end
 
 section
 
-variable {α₁ α₂ β₁ β₂ : Type*} [CommMonoid α₁] [CommMonoid α₂] [CommMonoid β₁] [CommMonoid β₂]
+variable
+  {α₁ α₂ β₁ β₂ : Type*} [CommMonoid α₁] [CommMonoid α₂] [CommMonoid β₁] [CommMonoid β₂]
   {A₁ : Set α₁} {A₂ : Set α₂} {B₁ : Set β₁} {B₂ : Set β₂} {f₁ : α₁ → β₁} {f₂ : α₂ → β₂} {n : ℕ}
 
 @[to_additive prodMap]

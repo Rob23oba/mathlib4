@@ -29,8 +29,8 @@ section
 
 variable {C : Type u} [Category.{v} C]
 
-instance {J : Type v} [SmallCategory J] [IsFiltered J] [HasFiniteLimits C] :
-    HasExactColimitsOfShape J (Ind C) :=
+instance {J : Type v} [SmallCategory J] [IsFiltered J] [HasFiniteLimits C]
+    : HasExactColimitsOfShape J (Ind C) :=
   HasExactColimitsOfShape.domain_of_functor J (Ind.inclusion C)
 
 instance [HasFiniteLimits C] : AB5 (Ind C) where

@@ -68,21 +68,29 @@ assert_not_exists StoneCech
 open Filter Topology Function Set
 open Prod (fst snd)
 
-variable {X Y Z W ι : Type*} [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
-  [TopologicalSpace W] {f : X → Y} {g : Y → Z}
+variable
+  {X Y Z W ι : Type*}
+  [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z] [TopologicalSpace W]
+  {f : X → Y} {g : Y → Z}
 
-/-- A map `f : X → Y` between two topological spaces is said to be **proper** if it is continuous
+/--
+A map `f : X → Y` between two topological spaces is said to be **proper** if it is continuous
 and, for all `ℱ : Filter X`, any cluster point of `map f ℱ` is the image by `f` of a cluster point
-of `ℱ`. -/
+of `ℱ`.
+-/
 @[mk_iff isProperMap_iff_clusterPt, fun_prop]
 structure IsProperMap (f : X → Y) : Prop extends Continuous f where
-  /-- By definition, if `f` is a proper map and `ℱ` is any filter on `X`, then any cluster point of
-  `map f ℱ` is the image by `f` of some cluster point of `ℱ`. -/
-  clusterPt_of_mapClusterPt :
-    ∀ ⦃ℱ : Filter X⦄, ∀ ⦃y : Y⦄, MapClusterPt y ℱ f → ∃ x, f x = y ∧ ClusterPt x ℱ
+  /--
+  By definition, if `f` is a proper map and `ℱ` is any filter on `X`, then any cluster point of
+  `map f ℱ` is the image by `f` of some cluster point of `ℱ`.
+  -/
+  clusterPt_of_mapClusterPt
+    : ∀ ⦃ℱ : Filter X⦄, ∀ ⦃y : Y⦄, MapClusterPt y ℱ f → ∃ x, f x = y ∧ ClusterPt x ℱ
 
-/-- Definition of proper maps. See also `isClosedMap_iff_clusterPt` for a related criterion
-for closed maps. -/
+/--
+Definition of proper maps. See also `isClosedMap_iff_clusterPt` for a related criterion
+for closed maps.
+-/
 add_decl_doc isProperMap_iff_clusterPt
 
 /-- By definition, a proper map is continuous. -/
@@ -223,29 +231,29 @@ lemma IsProperMap.isCompact_preimage (h : IsProperMap f) {K : Set Y} (hK : IsCom
   exact ⟨x, hyK, hx⟩
 
 /-- A map is proper if and only if it is closed and its fibers are compact. -/
-theorem isProperMap_iff_isClosedMap_and_compact_fibers :
-    IsProperMap f ↔ Continuous f ∧ IsClosedMap f ∧ ∀ y, IsCompact (f ⁻¹' {y}) := by
+theorem isProperMap_iff_isClosedMap_and_compact_fibers
+    : IsProperMap f ↔ Continuous f ∧ IsClosedMap f ∧ ∀ y, IsCompact (f ⁻¹' {y}) := by
   constructor <;> intro H
   -- Note: In Bourbaki, the direct implication is proved by going through universally closed maps.
   -- We could do the same (using a `TFAE` cycle) but proving it directly from
   -- `IsProperMap.isCompact_preimage` is nice enough already so we don't bother with that.
   · exact ⟨H.continuous, H.isClosedMap, fun y ↦ H.isCompact_preimage isCompact_singleton⟩
   · rw [isProperMap_iff_clusterPt]
-  -- Let `ℱ : Filter X` and `y` some cluster point of `map f ℱ`.
+    -- Let `ℱ : Filter X` and `y` some cluster point of `map f ℱ`.
     refine ⟨H.1, fun ℱ y hy ↦ ?_⟩
-  -- That means that the singleton `pure y` meets the "closure" of `map f ℱ`, by which we mean
-  -- `Filter.lift' (map f ℱ) closure`. But `f` is closed, so
-  -- `closure (map f ℱ) = map f (closure ℱ)` (see `IsClosedMap.lift'_closure_map_eq`).
-  -- Thus `map f (closure ℱ ⊓ 𝓟 (f ⁻¹' {y})) = map f (closure ℱ) ⊓ 𝓟 {y} ≠ ⊥`, hence
-  -- `closure ℱ ⊓ 𝓟 (f ⁻¹' {y}) ≠ ⊥`.
+    -- That means that the singleton `pure y` meets the "closure" of `map f ℱ`, by which we mean
+    -- `Filter.lift' (map f ℱ) closure`. But `f` is closed, so
+    -- `closure (map f ℱ) = map f (closure ℱ)` (see `IsClosedMap.lift'_closure_map_eq`).
+    -- Thus `map f (closure ℱ ⊓ 𝓟 (f ⁻¹' {y})) = map f (closure ℱ) ⊓ 𝓟 {y} ≠ ⊥`, hence
+    -- `closure ℱ ⊓ 𝓟 (f ⁻¹' {y}) ≠ ⊥`.
     rw [H.2.1.mapClusterPt_iff_lift'_closure H.1] at hy
-  -- Now, applying the compactness of `f ⁻¹' {y}` to the nontrivial filter
-  -- `closure ℱ ⊓ 𝓟 (f ⁻¹' {y})`, we obtain that it has a cluster point `x ∈ f ⁻¹' {y}`.
+    -- Now, applying the compactness of `f ⁻¹' {y}` to the nontrivial filter
+    -- `closure ℱ ⊓ 𝓟 (f ⁻¹' {y})`, we obtain that it has a cluster point `x ∈ f ⁻¹' {y}`.
     rcases H.2.2 y (f := Filter.lift' ℱ closure ⊓ 𝓟 (f ⁻¹' {y})) inf_le_right with ⟨x, hxy, hx⟩
     refine ⟨x, hxy, ?_⟩
-  -- In particular `x` is a cluster point of `closure ℱ`. Since cluster points of `closure ℱ`
-  -- are exactly cluster points of `ℱ` (see `clusterPt_lift'_closure_iff`), this completes
-  -- the proof.
+    -- In particular `x` is a cluster point of `closure ℱ`. Since cluster points of `closure ℱ`
+    -- are exactly cluster points of `ℱ` (see `clusterPt_lift'_closure_iff`), this completes
+    -- the proof.
     rw [← clusterPt_lift'_closure_iff]
     exact hx.mono inf_le_left
 
@@ -304,8 +312,8 @@ theorem Continuous.isProperMap [CompactSpace X] [T2Space Y] (hf : Continuous f) 
   isProperMap_iff_isClosedMap_and_tendsto_cofinite.2 ⟨hf, hf.isClosedMap, by simp⟩
 
 /-- A constant map to a T₁ space is proper if and only if its domain is compact. -/
-theorem isProperMap_const_iff [T1Space Y] (y : Y) :
-    IsProperMap (fun _ : X ↦ y) ↔ CompactSpace X := by
+theorem isProperMap_const_iff [T1Space Y] (y : Y)
+    : IsProperMap (fun _ : X ↦ y) ↔ CompactSpace X := by
   classical
   rw [isProperMap_iff_isClosedMap_and_compact_fibers]
   constructor
@@ -315,43 +323,42 @@ theorem isProperMap_const_iff [T1Space Y] (y : Y) :
     refine ⟨continuous_const, isClosedMap_const, fun y' ↦ ?_⟩
     simp [preimage_const, mem_singleton_iff, apply_ite, isCompact_univ]
 
-theorem isProperMap_const [h : CompactSpace X] [T1Space Y] (y : Y) :
-    IsProperMap (fun _ : X ↦ y) :=
+theorem isProperMap_const [h : CompactSpace X] [T1Space Y] (y : Y) : IsProperMap (fun _ : X ↦ y) :=
   isProperMap_const_iff y |>.mpr h
 
 /-- If `Y` is a compact topological space, then `Prod.fst : X × Y → X` is a proper map. -/
-theorem isProperMap_fst_of_compactSpace [CompactSpace Y] :
-    IsProperMap (Prod.fst : X × Y → X) :=
+theorem isProperMap_fst_of_compactSpace [CompactSpace Y] : IsProperMap (Prod.fst : X × Y → X) :=
   Homeomorph.prodPUnit X |>.isProperMap.comp (isProperMap_id.prodMap (isProperMap_const ()))
 
 /-- If `X` is a compact topological space, then `Prod.snd : X × Y → Y` is a proper map. -/
-theorem isProperMap_snd_of_compactSpace [CompactSpace X] :
-    IsProperMap (Prod.snd : X × Y → Y) :=
+theorem isProperMap_snd_of_compactSpace [CompactSpace X] : IsProperMap (Prod.snd : X × Y → Y) :=
   Homeomorph.punitProd Y |>.isProperMap.comp ((isProperMap_const ()).prodMap isProperMap_id)
 
 /-- If `Y` is a compact topological space, then `Prod.fst : X × Y → X` is a closed map. -/
-theorem isClosedMap_fst_of_compactSpace [CompactSpace Y] :
-    IsClosedMap (Prod.fst : X × Y → X) :=
+theorem isClosedMap_fst_of_compactSpace [CompactSpace Y] : IsClosedMap (Prod.fst : X × Y → X) :=
   isProperMap_fst_of_compactSpace.isClosedMap
 
 /-- If `X` is a compact topological space, then `Prod.snd : X × Y → Y` is a closed map. -/
-theorem isClosedMap_snd_of_compactSpace [CompactSpace X] :
-    IsClosedMap (Prod.snd : X × Y → Y) :=
+theorem isClosedMap_snd_of_compactSpace [CompactSpace X] : IsClosedMap (Prod.snd : X × Y → Y) :=
   isProperMap_snd_of_compactSpace.isClosedMap
 
-/-- A proper map `f : X → Y` is **universally closed**: for any topological space `Z`, the map
+/--
+A proper map `f : X → Y` is **universally closed**: for any topological space `Z`, the map
 `Prod.map f id : X × Z → Y × Z` is closed. We will prove in `isProperMap_iff_universally_closed`
 that proper maps are exactly continuous maps which have this property, but this result should be
-easier to use because it allows `Z` to live in any universe. -/
-theorem IsProperMap.universally_closed (Z) [TopologicalSpace Z] (h : IsProperMap f) :
-    IsClosedMap (Prod.map f id : X × Z → Y × Z) :=
+easier to use because it allows `Z` to live in any universe.
+-/
+theorem IsProperMap.universally_closed (Z) [TopologicalSpace Z] (h : IsProperMap f)
+    : IsClosedMap (Prod.map f id : X × Z → Y × Z) :=
   -- `f × id` is proper as a product of proper maps, hence closed.
   (h.prodMap isProperMap_id).isClosedMap
 
-/-- A function into a compact space with a closed graph is continuous.
+/--
+A function into a compact space with a closed graph is continuous.
 
 For the closed graph theorem of functional analysis, about linear maps between Banach spaces, see
-`LinearMap.continuous_of_isClosed_graph`. -/
+`LinearMap.continuous_of_isClosed_graph`.
+-/
 theorem continuous_of_isClosed_graph [CompactSpace Y] (hf : IsClosed f.graph) : Continuous f := by
   rw [continuous_iff_isClosed]
   intro C hC
@@ -360,6 +367,6 @@ theorem continuous_of_isClosed_graph [CompactSpace Y] (hf : IsClosed f.graph) : 
   simp
 
 /-- A function into a compact Hausdorff space is continuous if and only if its graph is closed. -/
-theorem continuous_iff_isClosed_graph [CompactSpace Y] [T2Space Y] :
-    Continuous f ↔ IsClosed f.graph :=
+theorem continuous_iff_isClosed_graph [CompactSpace Y] [T2Space Y]
+    : Continuous f ↔ IsClosed f.graph :=
   ⟨Continuous.isClosed_graph, continuous_of_isClosed_graph⟩

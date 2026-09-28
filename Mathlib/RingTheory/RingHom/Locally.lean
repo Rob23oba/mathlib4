@@ -60,8 +60,7 @@ the unit ideal, such that `P` holds for all compositions `R →+* Sₜ`.
 We may require `s` to be finite here, for the equivalence, see `locally_iff_finite`.
 -/
 def Locally {R S : Type u} [CommRing R] [CommRing S] (f : R →+* S) : Prop :=
-  ∃ (s : Set S) (_ : Ideal.span s = ⊤),
-    ∀ t ∈ s, P ((algebraMap S (Localization.Away t)).comp f)
+  ∃ (s : Set S) (_ : Ideal.span s = ⊤), ∀ t ∈ s, P ((algebraMap S (Localization.Away t)).comp f)
 
 variable {R S : Type u} [CommRing R] [CommRing S]
 

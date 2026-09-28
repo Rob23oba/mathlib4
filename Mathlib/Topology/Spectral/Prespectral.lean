@@ -92,8 +92,9 @@ lemma Topology.IsOpenEmbedding.prespectralSpace [PrespectralSpace Y]
     · exact hf.toIsInducing.isCompact_preimage' hcV <| Set.SurjOn.subset_range hVf
     · exact hf.injective.mem_set_image.mp (hVf hy)
 
-instance PrespectralSpace.sigma {ι : Type*} (X : ι → Type*) [∀ i, TopologicalSpace (X i)]
-    [∀ i, PrespectralSpace (X i)] : PrespectralSpace (Σ i, X i) :=
+instance PrespectralSpace.sigma
+    {ι : Type*} (X : ι → Type*) [∀ i, TopologicalSpace (X i)] [∀ i, PrespectralSpace (X i)]
+    : PrespectralSpace (Σ i, X i) :=
   .of_isTopologicalBasis (IsTopologicalBasis.sigma fun i ↦ isTopologicalBasis) fun U hU ↦ by
     simp_rw [Set.mem_iUnion] at hU
     obtain ⟨i, V, hV, rfl⟩ := hU
@@ -108,10 +109,12 @@ lemma PrespectralSpace.isBasis_opens [PrespectralSpace X] :
   exact ⟨fun ⟨V, hV, heq⟩ ↦ heq ▸ ⟨V.2, hV⟩, fun h ↦ ⟨⟨s, h.1⟩, h.2, rfl⟩⟩
 
 /-- In a prespectral space, the lattice of opens is determined by its lattice of compact opens. -/
-def PrespectralSpace.opensEquiv [PrespectralSpace X] :
-    Opens X ≃o Order.Ideal (CompactOpens X) where
-  toFun U := ⟨⟨{ V | (V : Set X) ⊆ U }, fun U₁ U₂ h₁ h₂ ↦ subset_trans (α := Set X) h₁ h₂⟩,
-    ⟨⊥, by simp⟩, fun U₁ h₁ U₂ h₂ ↦ ⟨U₁ ⊔ U₂, by aesop, le_sup_left, le_sup_right⟩⟩
+def PrespectralSpace.opensEquiv [PrespectralSpace X] : Opens X ≃o Order.Ideal (CompactOpens X) where
+  toFun U := ⟨
+    ⟨{ V | (V : Set X) ⊆ U }, fun U₁ U₂ h₁ h₂ ↦ subset_trans (α := Set X) h₁ h₂⟩,
+    ⟨⊥, by simp⟩,
+    fun U₁ h₁ U₂ h₂ ↦ ⟨U₁ ⊔ U₂, by aesop, le_sup_left, le_sup_right⟩
+  ⟩
   invFun I := ⨆ U ∈ I, U.toOpens
   left_inv U := by
     apply le_antisymm

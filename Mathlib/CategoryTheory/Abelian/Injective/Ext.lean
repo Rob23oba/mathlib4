@@ -29,16 +29,20 @@ open CategoryTheory CochainComplex HomComplex Abelian Localization
 
 namespace CategoryTheory.InjectiveResolution
 
-variable {C : Type u} [Category.{v} C] [Abelian C] [HasExt.{w} C]
-  {X Y : C} (R : InjectiveResolution Y) {n : ℕ}
+variable
+  {C : Type u} [Category.{v} C] [Abelian C] [HasExt.{w} C]
+  {X Y : C} (R : InjectiveResolution Y)
+  {n : ℕ}
 
 instance : R.cochainComplex.IsKInjective := isKInjective_of_injective _ 0
 
-/-- If `R` is an injective resolution of `Y`, then `Ext X Y n` identifies
+/--
+If `R` is an injective resolution of `Y`, then `Ext X Y n` identifies
 to the type of cohomology classes of degree `n` from `(singleFunctor C 0).obj X`
-to `R.cochainComplex`. -/
-noncomputable def extEquivCohomologyClass :
-    Ext X Y n ≃ CohomologyClass ((singleFunctor C 0).obj X) R.cochainComplex n :=
+to `R.cochainComplex`.
+-/
+noncomputable def extEquivCohomologyClass
+    : Ext X Y n ≃ CohomologyClass ((singleFunctor C 0).obj X) R.cochainComplex n :=
   (SmallShiftedHom.postcompEquiv.{w} R.ι'
       (by rw [HomologicalComplex.mem_quasiIso_iff]; infer_instance)).trans
     CochainComplex.HomComplex.CohomologyClass.equivOfIsKInjective.{w}.symm
@@ -70,15 +74,18 @@ lemma extEquivCohomologyClass_symm_add
   ext
   simp [← CohomologyClass.mk_add, extEquivCohomologyClass_symm_mk_hom, ShiftedHom.map]
 
-/-- If `R` is an injective resolution of `Y`, then `Ext X Y n` identifies
+/--
+If `R` is an injective resolution of `Y`, then `Ext X Y n` identifies
 to the group of cohomology classes of degree `n` from `(singleFunctor C 0).obj X`
-to `R.cochainComplex`. -/
+to `R.cochainComplex`.
+-/
 @[simps!]
-noncomputable def extAddEquivCohomologyClass :
-    Ext X Y n ≃+ CohomologyClass ((singleFunctor C 0).obj X) R.cochainComplex n :=
-  AddEquiv.symm
-    { toEquiv := (R.extEquivCohomologyClass (X := X) (Y := Y) (n := n)).symm
-      map_add' := by simp }
+noncomputable def extAddEquivCohomologyClass
+    : Ext X Y n ≃+ CohomologyClass ((singleFunctor C 0).obj X) R.cochainComplex n :=
+  AddEquiv.symm {
+    toEquiv := (R.extEquivCohomologyClass (X := X) (Y := Y) (n := n)).symm
+    map_add' := by simp
+  }
 
 @[simp]
 lemma extEquivCohomologyClass_symm_sub
@@ -123,15 +130,16 @@ lemma extEquivCohomologyClass_zero :
     R.extEquivCohomologyClass (0 : Ext X Y n) = 0 :=
   R.extAddEquivCohomologyClass.map_zero
 
-/-- Given an injective resolution `R` of an object `Y` of an abelian category,
+/--
+Given an injective resolution `R` of an object `Y` of an abelian category,
 this is a constructor for elements in `Ext X Y n` which takes as an input
-a "cocycle" `f : X ⟶ R.cocomplex.X n`. -/
-noncomputable def extMk {n : ℕ} (f : X ⟶ R.cocomplex.X n) (m : ℕ) (hm : n + 1 = m)
-    (hf : f ≫ R.cocomplex.d n m = 0) :
-    Ext X Y n :=
-  R.extEquivCohomologyClass.symm
-    (.mk (Cocycle.fromSingleMk (f ≫ (R.cochainComplexXIso n n rfl).inv) (zero_add _)
-      m (by lia) (by simp [cochainComplex_d _ _ _ n m rfl rfl, reassoc_of% hf])))
+a "cocycle" `f : X ⟶ R.cocomplex.X n`.
+-/
+noncomputable def extMk
+    {n : ℕ} (f : X ⟶ R.cocomplex.X n) (m : ℕ) (hm : n + 1 = m) (hf : f ≫ R.cocomplex.d n m = 0)
+    : Ext X Y n :=
+  R.extEquivCohomologyClass.symm (.mk (Cocycle.fromSingleMk (f ≫ (R.cochainComplexXIso n n rfl).inv)
+    (zero_add _) m (by lia) (by simp [cochainComplex_d _ _ _ n m rfl rfl, reassoc_of% hf])))
 
 @[simp]
 lemma extEquivCohomologyClass_extMk {n : ℕ} (f : X ⟶ R.cocomplex.X n) (m : ℕ) (hm : n + 1 = m)

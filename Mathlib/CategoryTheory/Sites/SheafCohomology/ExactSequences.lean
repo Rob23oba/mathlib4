@@ -50,30 +50,34 @@ namespace Sheaf
 
 variable [HasSheafify J AddCommGrpCat.{w}] [HasExt.{w'} (Sheaf J AddCommGrpCat.{w})]
 
-variable {S : ShortComplex (Sheaf J AddCommGrpCat.{w})} (hS : S.ShortExact) (n₀ n₁ : ℕ)
-  (h : n₀ + 1 = n₁)
+variable
+  {S : ShortComplex (Sheaf J AddCommGrpCat.{w})} (hS : S.ShortExact) (n₀ n₁ : ℕ) (h : n₀ + 1 = n₁)
 
 namespace H
 
-/-- Given a short exact sequence of sheaves `S`, this is the connecting homomorphism
-`Hⁿ(S.X₃) ⟶ Hⁿ⁺¹(S.X₁)`. -/
-noncomputable def δ : H S.X₃ n₀ →+ H S.X₁ n₁ :=
-  hS.extClass.postcomp _ h
+/--
+Given a short exact sequence of sheaves `S`, this is the connecting homomorphism
+`Hⁿ(S.X₃) ⟶ Hⁿ⁺¹(S.X₁)`.
+-/
+noncomputable def δ : H S.X₃ n₀ →+ H S.X₁ n₁ := hS.extClass.postcomp _ h
 
-variable {S₁ S₂ : ShortComplex (Sheaf J AddCommGrpCat.{w})}
-    (h₁ : S₁.ShortExact) (h₂ : S₂.ShortExact) (f : S₁ ⟶ S₂)
+variable
+  {S₁ S₂ : ShortComplex (Sheaf J AddCommGrpCat.{w})}
+  (h₁ : S₁.ShortExact) (h₂ : S₂.ShortExact) (f : S₁ ⟶ S₂)
 
-theorem δ_naturality (x : H S₁.X₃ n₀) :
-    δ h₂ n₀ n₁ h (map f.τ₃ n₀ x) = map f.τ₁ n₁ (δ h₁ n₀ n₁ h x) := by
+theorem δ_naturality (x : H S₁.X₃ n₀)
+    : δ h₂ n₀ n₁ h (map f.τ₃ n₀ x) = map f.τ₁ n₁ (δ h₁ n₀ n₁ h x) := by
   delta δ H map
   simp [ShortComplex.ShortExact.extClass_naturality h₁ h₂ f]
 
-/-- This is the long exact sequence:
-`Hⁿ(S.X₁) ⟶ Hⁿ(S.X₂) ⟶ Hⁿ(S.X₃) ⟶ Hⁿ⁺¹(S.X₁) ⟶ Hⁿ⁺¹(S.X₂) ⟶ Hⁿ⁺¹(S.X₃)`. -/
-noncomputable abbrev longSequence (h : n₀ + 1 = n₁ := by lia) :
-    ComposableArrows AddCommGrpCat.{w'} 5 := ComposableArrows.mk₅
-  (ofHom (map S.f n₀)) (ofHom (map S.g n₀)) (ofHom (δ hS n₀ n₁ h))
-  (ofHom (map S.f n₁)) (ofHom (map S.g n₁))
+/--
+This is the long exact sequence:
+`Hⁿ(S.X₁) ⟶ Hⁿ(S.X₂) ⟶ Hⁿ(S.X₃) ⟶ Hⁿ⁺¹(S.X₁) ⟶ Hⁿ⁺¹(S.X₂) ⟶ Hⁿ⁺¹(S.X₃)`.
+-/
+noncomputable abbrev longSequence (h : n₀ + 1 = n₁ := by lia)
+    : ComposableArrows AddCommGrpCat.{w'} 5 :=
+  ComposableArrows.mk₅ (ofHom (map S.f n₀)) (ofHom (map S.g n₀)) (ofHom (δ hS n₀ n₁ h))
+    (ofHom (map S.f n₁)) (ofHom (map S.g n₁))
 
 open ComposableArrows
 
@@ -81,8 +85,8 @@ theorem longSequence_exact : (longSequence hS n₀ n₁ h).Exact :=
   Ext.covariantSequence_exact _ hS n₀ n₁ h
 
 /-- The induced homomorphism of long exact equences obtained by applying `H.map` everywhere. -/
-noncomputable abbrev longSequenceHom (h : n₀ + 1 = n₁ := by lia) :
-    longSequence h₁ n₀ n₁ h ⟶ longSequence h₂ n₀ n₁ h := by
+noncomputable abbrev longSequenceHom (h : n₀ + 1 = n₁ := by lia)
+    : longSequence h₁ n₀ n₁ h ⟶ longSequence h₂ n₀ n₁ h := by
   refine ComposableArrows.homMk₅ (ofHom (map f.τ₁ n₀)) (ofHom (map f.τ₂ n₀)) (ofHom (map f.τ₃ n₀))
     (ofHom (map f.τ₁ n₁)) (ofHom (map f.τ₂ n₁)) (ofHom (map f.τ₃ n₁)) ?_ ?_ ?_ ?_ ?_
   any_goals
@@ -105,8 +109,8 @@ lemma longSequenceHom_comp {S₃ : ShortComplex (Sheaf J AddCommGrpCat)} (h₃ :
 
 /-- The long exact sequence of cohomology is functorial -/
 @[implicit_reducible, simps]
-noncomputable def longSequenceFunctor :
-    ShortExactSequence (Sheaf J AddCommGrpCat.{w}) ⥤ ComposableArrows AddCommGrpCat.{w'} 5 where
+noncomputable def longSequenceFunctor
+    : ShortExactSequence (Sheaf J AddCommGrpCat.{w}) ⥤ ComposableArrows AddCommGrpCat.{w'} 5 where
   obj S := longSequence S.property n₀ n₁ h
   map {S₁ S₂} f := longSequenceHom n₀ n₁ S₁.property S₂.property f.hom h
 

@@ -39,9 +39,11 @@ namespace Precylinder
 
 variable {X : C} (P : Precylinder X) {Y : C}
 
-/-- Given a precylinder `P` for `X`, two maps `f` and `g` in `X ⟶ Y` are
+/--
+Given a precylinder `P` for `X`, two maps `f` and `g` in `X ⟶ Y` are
 homotopic relative to `P` when there is a morphism `h : P.I ⟶ Y`
-such that `P.i₀ ≫ h = f` and `P.i₁ ≫ h = g`. -/
+such that `P.i₀ ≫ h = f` and `P.i₁ ≫ h = g`.
+-/
 structure LeftHomotopy (f g : X ⟶ Y) where
   /-- a morphism from the (pre)cylinder object to the target -/
   h : P.I ⟶ Y
@@ -60,47 +62,51 @@ def refl (f : X ⟶ Y) : P.LeftHomotopy f f where
 variable {P}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `f` and `g` are homotopic relative to a precylinder `P`, then `g` and `f`
-are homotopic relative to `P.symm` -/
+/--
+If `f` and `g` are homotopic relative to a precylinder `P`, then `g` and `f`
+are homotopic relative to `P.symm`
+-/
 @[simps]
 def symm {f g : X ⟶ Y} (h : P.LeftHomotopy f g) : P.symm.LeftHomotopy g f where
   h := h.h
 
 set_option backward.isDefEq.respectTransparency false in
-/-- If `f₀` is homotopic to `f₁` relative to a precylinder `P`,
+/--
+If `f₀` is homotopic to `f₁` relative to a precylinder `P`,
 and `f₁` is homotopic to `f₂` relative to `P'`, then
-`f₀` is homotopic to `f₂` relative to `P.trans P'`. -/
+`f₀` is homotopic to `f₂` relative to `P.trans P'`.
+-/
 @[simps]
-noncomputable def trans {f₀ f₁ f₂ : X ⟶ Y}
-    (h : P.LeftHomotopy f₀ f₁) {P' : Precylinder X}
-    (h' : P'.LeftHomotopy f₁ f₂) [HasPushout P.i₁ P'.i₀] :
-    (P.trans P').LeftHomotopy f₀ f₂ where
+noncomputable def trans
+    {f₀ f₁ f₂ : X ⟶ Y} (h : P.LeftHomotopy f₀ f₁)
+    {P' : Precylinder X} (h' : P'.LeftHomotopy f₁ f₂) [HasPushout P.i₁ P'.i₀]
+    : (P.trans P').LeftHomotopy f₀ f₂ where
   h := pushout.desc h.h h'.h (by simp)
 
 /-- Left homotopies are compatible with postcomposition. -/
 @[simps]
-def postcomp {f g : X ⟶ Y} (h : P.LeftHomotopy f g) {Z : C} (p : Y ⟶ Z) :
-    P.LeftHomotopy (f ≫ p) (g ≫ p) where
+def postcomp {f g : X ⟶ Y} (h : P.LeftHomotopy f g) {Z : C} (p : Y ⟶ Z)
+    : P.LeftHomotopy (f ≫ p) (g ≫ p) where
   h := h.h ≫ p
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Left homotopies in a full subcategory identify to left homotopies in the
-ambient category. -/
-noncomputable def fullSubcategoryEquiv {P : ObjectProperty C} {X Y : P.FullSubcategory}
-    {Q : Precylinder X} {f g : X ⟶ Y} :
-    Q.LeftHomotopy f g ≃ (Q.map P.ι).LeftHomotopy f.hom g.hom where
-  toFun h :=
-    { h := h.h.hom
-      h₀ := by
-        dsimp
-        simp only [← h.h₀, ObjectProperty.FullSubcategory.comp_hom]
-      h₁ := by
-        dsimp
-        simp only [← h.h₁, ObjectProperty.FullSubcategory.comp_hom] }
-  invFun h :=
-    { h := P.homMk h.h
-      h₀ := by ext; exact h.h₀
-      h₁ := by ext; exact h.h₁ }
+/--
+Left homotopies in a full subcategory identify to left homotopies in the
+ambient category.
+-/
+noncomputable def fullSubcategoryEquiv
+    {P : ObjectProperty C} {X Y : P.FullSubcategory} {Q : Precylinder X} {f g : X ⟶ Y}
+    : Q.LeftHomotopy f g ≃ (Q.map P.ι).LeftHomotopy f.hom g.hom where
+  toFun h := {
+    h := h.h.hom
+    h₀ := by
+      dsimp
+      simp only [← h.h₀, ObjectProperty.FullSubcategory.comp_hom]
+    h₁ := by
+      dsimp
+      simp only [← h.h₁, ObjectProperty.FullSubcategory.comp_hom]
+  }
+  invFun h := { h := P.homMk h.h, h₀ := by ext; exact h.h₀, h₁ := by ext; exact h.h₁ }
 
 end LeftHomotopy
 
@@ -110,9 +116,11 @@ namespace Cylinder
 
 variable {X Y : C}
 
-/-- Given a cylinder `P` for `X`, two maps `f` and `g` in `X ⟶ Y`
+/--
+Given a cylinder `P` for `X`, two maps `f` and `g` in `X ⟶ Y`
 are homotopic relative to `P` when there is a morphism `h : P.I ⟶ Y`
-such that `P.i₀ ≫ h = f` and `P.i₁ ≫ h = g`. -/
+such that `P.i₀ ≫ h = f` and `P.i₁ ≫ h = g`.
+-/
 abbrev LeftHomotopy [CategoryWithWeakEquivalences C] (P : Cylinder X) (f g : X ⟶ Y) : Type v :=
   P.toPrecylinder.LeftHomotopy f g
 
@@ -126,15 +134,17 @@ variable [CategoryWithWeakEquivalences C] (P : Cylinder X)
 abbrev refl (f : X ⟶ Y) : P.LeftHomotopy f f := Precylinder.LeftHomotopy.refl _ f
 
 variable {P} in
-/-- If `f` and `g` are homotopic relative to a cylinder `P`, then `g` and `f`
-are homotopic relative to `P.symm`. -/
+/--
+If `f` and `g` are homotopic relative to a cylinder `P`, then `g` and `f`
+are homotopic relative to `P.symm`.
+-/
 abbrev symm {f g : X ⟶ Y} (h : P.LeftHomotopy f g) : P.symm.LeftHomotopy g f :=
   Precylinder.LeftHomotopy.symm h
 
 variable {P} in
 /-- Left homotopies are compatible with postcomposition. -/
-abbrev postcomp {f g : X ⟶ Y} (h : P.LeftHomotopy f g) {Z : C} (p : Y ⟶ Z) :
-    P.LeftHomotopy (f ≫ p) (g ≫ p) :=
+abbrev postcomp {f g : X ⟶ Y} (h : P.LeftHomotopy f g) {Z : C} (p : Y ⟶ Z)
+    : P.LeftHomotopy (f ≫ p) (g ≫ p) :=
   Precylinder.LeftHomotopy.postcomp h p
 
 lemma weakEquivalence_iff [(weakEquivalences C).HasTwoOutOfThreeProperty]
@@ -150,14 +160,19 @@ section
 
 variable [ModelCategory C] {P : Cylinder X}
 
-/-- If `f₀ : X ⟶ Y` is homotopic to `f₁` relative to a cylinder `P`,
+/--
+If `f₀ : X ⟶ Y` is homotopic to `f₁` relative to a cylinder `P`,
 and `f₁` is homotopic to `f₂` relative to a good cylinder `P'`,
 then `f₀` is homotopic to `f₂` relative to the cylinder `P.trans P'`
-when `X` is cofibrant. -/
-noncomputable abbrev trans [IsCofibrant X] {f₀ f₁ f₂ : X ⟶ Y}
-    (h : P.LeftHomotopy f₀ f₁) {P' : Cylinder X} [P'.IsGood]
-    (h' : P'.LeftHomotopy f₁ f₂) [HasPushout P.i₁ P'.i₀] :
-    (P.trans P').LeftHomotopy f₀ f₂ :=
+when `X` is cofibrant.
+-/
+noncomputable abbrev trans
+    [IsCofibrant X]
+    {f₀ f₁ f₂ : X ⟶ Y} (h : P.LeftHomotopy f₀ f₁)
+    {P' : Cylinder X} [P'.IsGood]
+    (h' : P'.LeftHomotopy f₁ f₂)
+    [HasPushout P.i₁ P'.i₀]
+    : (P.trans P').LeftHomotopy f₀ f₂ :=
   Precylinder.LeftHomotopy.trans h h'
 
 lemma exists_good_cylinder {f g : X ⟶ Y} (h : P.LeftHomotopy f g) :
@@ -192,8 +207,8 @@ end LeftHomotopy
 end Cylinder
 
 /-- The left homotopy relation on morphisms in a category with weak equivalences. -/
-def LeftHomotopyRel [CategoryWithWeakEquivalences C] : HomRel C :=
-  fun X _ f g ↦ ∃ (P : Cylinder X), Nonempty (P.LeftHomotopy f g)
+def LeftHomotopyRel [CategoryWithWeakEquivalences C] : HomRel C := fun X _ f g ↦
+  ∃ (P : Cylinder X), Nonempty (P.LeftHomotopy f g)
 
 lemma Cylinder.LeftHomotopy.leftHomotopyRel [CategoryWithWeakEquivalences C]
     {X Y : C} {f g : X ⟶ Y}
@@ -287,16 +302,18 @@ end LeftHomotopyRel
 
 variable (X Y Z : C)
 
-/-- In a category with weak equivalences, this is the quotient of the type
-of morphisms `X ⟶ Y` by the equivalence relation generated by left homotopies. -/
+/--
+In a category with weak equivalences, this is the quotient of the type
+of morphisms `X ⟶ Y` by the equivalence relation generated by left homotopies.
+-/
 def LeftHomotopyClass [CategoryWithWeakEquivalences C] :=
   _root_.Quot (LeftHomotopyRel (X := X) (Y := Y))
 
 variable {X Y Z}
 
 /-- Given `f : X ⟶ Y`, this is the class of `f` in the quotient `LeftHomotopyClass X Y`. -/
-def LeftHomotopyClass.mk [CategoryWithWeakEquivalences C] :
-    (X ⟶ Y) → LeftHomotopyClass X Y := Quot.mk _
+def LeftHomotopyClass.mk [CategoryWithWeakEquivalences C] : (X ⟶ Y) → LeftHomotopyClass X Y :=
+  Quot.mk _
 
 lemma LeftHomotopyClass.mk_surjective [CategoryWithWeakEquivalences C] :
     Function.Surjective (mk : (X ⟶ Y) → _) :=
@@ -308,9 +325,9 @@ lemma sound [CategoryWithWeakEquivalences C] {f g : X ⟶ Y} (h : LeftHomotopyRe
     mk f = mk g := Quot.sound h
 
 /-- The postcomposition map `LeftHomotopyClass X Y → (Y ⟶ Z) → LeftHomotopyClass X Z`. -/
-def postcomp [CategoryWithWeakEquivalences C] :
-    LeftHomotopyClass X Y → (Y ⟶ Z) → LeftHomotopyClass X Z :=
-  fun f g ↦ Quot.lift (fun f ↦ mk (f ≫ g)) (fun _ _ h ↦ sound (h.postcomp g)) f
+def postcomp [CategoryWithWeakEquivalences C]
+    : LeftHomotopyClass X Y → (Y ⟶ Z) → LeftHomotopyClass X Z := fun f g ↦
+  Quot.lift (fun f ↦ mk (f ≫ g)) (fun _ _ h ↦ sound (h.postcomp g)) f
 
 @[simp]
 lemma postcomp_mk [CategoryWithWeakEquivalences C] (f : X ⟶ Y) (g : Y ⟶ Z) :

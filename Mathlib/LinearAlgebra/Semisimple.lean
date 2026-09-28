@@ -50,13 +50,17 @@ section CommRing
 
 variable (f : End R M)
 
-/-- A linear endomorphism of an `R`-module `M` is called *semisimple* if the induced `R[X]`-module
+/--
+A linear endomorphism of an `R`-module `M` is called *semisimple* if the induced `R[X]`-module
 structure on `M` is semisimple. This is equivalent to saying that every `f`-invariant `R`-submodule
-of `M` has an `f`-invariant complement: see `Module.End.isSemisimple_iff`. -/
-def IsSemisimple := IsSemisimpleModule R[X] (AEval' f)
+of `M` has an `f`-invariant complement: see `Module.End.isSemisimple_iff`.
+-/
+def IsSemisimple := IsSemisimpleModule (R[X]) (AEval' f)
 
-/-- A weaker version of semisimplicity that only prescribes behaviour on finitely-generated
-submodules. -/
+/--
+A weaker version of semisimplicity that only prescribes behaviour on finitely-generated
+submodules.
+-/
 def IsFinitelySemisimple : Prop :=
   ∀ p (hp : p ∈ invtSubmodule f), Module.Finite R p → IsSemisimple (LinearMap.restrict f hp)
 
@@ -215,10 +219,14 @@ lemma IsSemisimple_smul (t : K) (h : f.IsSemisimple) :
   wlog ht : t ≠ 0; · simp [not_not.mp ht]
   rwa [IsSemisimple_smul_iff ht]
 
-theorem isSemisimple_of_squarefree_aeval_eq_zero {p : K[X]}
-    (hp : Squarefree p) (hpf : aeval f p = 0) : f.IsSemisimple := by
-  rw [← RingHom.mem_ker, ← AEval.annihilator_eq_ker_aeval (M := M), mem_annihilator,
-      ← IsTorsionBy, ← isTorsionBySet_singleton_iff, isTorsionBySet_iff_is_torsion_by_span] at hpf
+theorem isSemisimple_of_squarefree_aeval_eq_zero
+    {p : K[X]} (hp : Squarefree p) (hpf : aeval f p = 0)
+    : f.IsSemisimple := by
+  rw [
+      ← RingHom.mem_ker, ← AEval.annihilator_eq_ker_aeval (M := M), mem_annihilator, ← IsTorsionBy,
+      ← isTorsionBySet_singleton_iff, isTorsionBySet_iff_is_torsion_by_span
+    ]
+    at hpf
   let R := K[X] ⧸ Ideal.span {p}
   have : IsReduced R :=
     (Ideal.isRadical_iff_quotient_reduced _).mp (isRadical_iff_span_singleton.mp hp.isRadical)
@@ -226,8 +234,10 @@ theorem isSemisimple_of_squarefree_aeval_eq_zero {p : K[X]}
   have : IsArtinianRing R := .of_finite K R
   have : IsSemisimpleRing R := IsArtinianRing.isSemisimpleRing_of_isReduced R
   let : Module R (AEval' f) := Module.IsTorsionBySet.module hpf
-  let e : AEval' f →ₛₗ[Ideal.Quotient.mk (Ideal.span {p})] AEval' f :=
-    { AddMonoidHom.id _ with map_smul' := fun _ _ ↦ rfl }
+  let e : AEval' f →ₛₗ[Ideal.Quotient.mk (Ideal.span {p})] AEval' f := {
+    AddMonoidHom.id _ with
+    map_smul' := fun _ _ ↦ rfl
+  }
   exact (e.isSemisimpleModule_iff_of_bijective bijective_id).mpr inferInstance
 
 variable [FiniteDimensional K M]
@@ -248,16 +258,20 @@ protected theorem IsSemisimple.aeval (p : K[X]) : (aeval f p).IsSemisimple :=
   let R := K[X] ⧸ Ideal.span {minpoly K f}
   have : Module.Finite K R :=
     (AdjoinRoot.powerBasis' <| minpoly.monic <| IsIntegral.isIntegral f).finite
-  have : IsReduced R := (Ideal.isRadical_iff_quotient_reduced _).mp <|
-    span_minpoly_eq_annihilator K f ▸ hf.annihilator_isRadical
-  isSemisimple_of_squarefree_aeval_eq_zero ((minpoly.isRadical K _).squarefree <|
-    minpoly.ne_zero <| .of_finite K <| Ideal.Quotient.mkₐ K (.span {minpoly K f}) p) <| by
-      rw [← Ideal.Quotient.liftₐ_comp (.span {minpoly K f}) (aeval f)
-        fun a h ↦ by rwa [Ideal.span, ← minpoly.ker_aeval_eq_span_minpoly] at h, aeval_algHom,
-        AlgHom.comp_apply, AlgHom.comp_apply, ← aeval_algHom_apply, minpoly.aeval, map_zero]
+  have : IsReduced R :=
+    (Ideal.isRadical_iff_quotient_reduced _).mp <|
+      span_minpoly_eq_annihilator K f ▸ hf.annihilator_isRadical
+  isSemisimple_of_squarefree_aeval_eq_zero ((minpoly.isRadical K _).squarefree <| minpoly.ne_zero <|
+      .of_finite K <| Ideal.Quotient.mkₐ K (.span {minpoly K f}) p) <|
+    by
+      rw [
+        ← Ideal.Quotient.liftₐ_comp (.span {minpoly K f}) (aeval f) fun a h ↦ by
+          rwa [Ideal.span, ← minpoly.ker_aeval_eq_span_minpoly] at h,
+        aeval_algHom, AlgHom.comp_apply, AlgHom.comp_apply, ← aeval_algHom_apply, minpoly.aeval,
+        map_zero
+      ]
 
-theorem IsSemisimple.of_mem_adjoin_singleton {a : End K M}
-    (ha : a ∈ K[f]) : a.IsSemisimple := by
+theorem IsSemisimple.of_mem_adjoin_singleton {a : End K M} (ha : a ∈ K[f]) : a.IsSemisimple := by
   rw [adjoin_singleton_eq_range_aeval] at ha; obtain ⟨p, rfl⟩ := ha; exact .aeval hf _
 
 protected theorem IsSemisimple.pow (n : ℕ) : (f ^ n).IsSemisimple :=
@@ -274,8 +288,7 @@ include comm hf hg
 
 set_option backward.isDefEq.respectTransparency false in
 attribute [local simp] Submodule.Quotient.quot_mk_eq_mk in
-theorem IsSemisimple.of_mem_adjoin_pair {a : End K M} (ha : a ∈ K[f, g]) :
-    a.IsSemisimple := by
+theorem IsSemisimple.of_mem_adjoin_pair {a : End K M} (ha : a ∈ K[f, g]) : a.IsSemisimple := by
   let R := K[X] ⧸ Ideal.span {minpoly K f}
   let S := AdjoinRoot ((minpoly K g).map <| algebraMap K R)
   have : Module.Finite K R :=
@@ -284,37 +297,43 @@ theorem IsSemisimple.of_mem_adjoin_pair {a : End K M} (ha : a ∈ K[f, g]) :
     (AdjoinRoot.powerBasis' <| (minpoly.monic <| IsIntegral.isIntegral g).map _).finite
   have : Module.Finite K S := .trans R S
   have : IsArtinianRing R := .of_finite K R
-  have : IsReduced R := (Ideal.isRadical_iff_quotient_reduced _).mp <|
-    span_minpoly_eq_annihilator K f ▸ hf.annihilator_isRadical
+  have : IsReduced R :=
+    (Ideal.isRadical_iff_quotient_reduced _).mp <|
+      span_minpoly_eq_annihilator K f ▸ hf.annihilator_isRadical
   have : IsReduced S := by
     simp_rw [S, AdjoinRoot, ← Ideal.isRadical_iff_quotient_reduced, ← isRadical_iff_span_singleton]
     exact (PerfectField.separable_iff_squarefree.mpr hg.minpoly_squarefree).map.squarefree.isRadical
-  let φ : S →ₐ[K] End K M := Ideal.Quotient.liftₐ _ (eval₂AlgHom (Ideal.Quotient.liftₐ _ (aeval f)
-    fun a ↦ ?_) g ?_) ((Ideal.span_singleton_le_iff_mem _).mpr ?_ : _ ≤ RingHom.ker _)
+  let φ : S →ₐ[K] End K M :=
+    Ideal.Quotient.liftₐ _ (eval₂AlgHom (Ideal.Quotient.liftₐ _ (aeval f) fun a ↦ ?_) g ?_)
+      ((Ideal.span_singleton_le_iff_mem _).mpr ?_ : _ ≤ RingHom.ker _)
   rotate_left 1
   · rw [Ideal.span, ← minpoly.ker_aeval_eq_span_minpoly]; exact id
-  · rintro ⟨p⟩; exact p.induction_on (fun k ↦ by simp [R, commute_algebraMap_left])
+  · rintro ⟨p⟩
+    exact p.induction_on
+      (fun k ↦ by simp [R, commute_algebraMap_left])
       (fun p q hp hq ↦ by simpa [R] using! hp.add_left hq)
       fun n k ↦ by simpa [R, pow_succ, ← mul_assoc _ _ X] using! (·.mul_left comm)
   · simpa only [RingHom.mem_ker, eval₂AlgHom_apply, eval₂_map, AlgHom.comp_algebraMap_of_tower]
       using! minpoly.aeval K g
-  have : K[f, g] ≤ φ.range := adjoin_le fun x ↦ by
-    rintro (hx | hx) <;> rw [hx]
-    · exact ⟨AdjoinRoot.of _ (AdjoinRoot.root _), (eval₂_C _ _).trans (aeval_X f)⟩
-    · exact ⟨AdjoinRoot.root _, eval₂_X _ _⟩
+  have : K[f, g] ≤ φ.range :=
+    adjoin_le fun x ↦ by
+      rintro (hx | hx) <;> rw [hx]
+      · exact ⟨AdjoinRoot.of _ (AdjoinRoot.root _), (eval₂_C _ _).trans (aeval_X f)⟩
+      · exact ⟨AdjoinRoot.root _, eval₂_X _ _⟩
   obtain ⟨p, rfl⟩ := (AlgHom.mem_range _).mp (this ha)
   refine isSemisimple_of_squarefree_aeval_eq_zero
     ((minpoly.isRadical K p).squarefree <| minpoly.ne_zero <| .of_finite K p) ?_
   rw [aeval_algHom, φ.comp_apply, minpoly.aeval, map_zero]
 
-theorem IsSemisimple.add_of_commute : (f + g).IsSemisimple := .of_mem_adjoin_pair
-  comm hf hg <| add_mem (Algebra.subset_adjoin <| .inl rfl) (Algebra.subset_adjoin <| .inr rfl)
+theorem IsSemisimple.add_of_commute : (f + g).IsSemisimple :=
+  .of_mem_adjoin_pair comm hf hg <|
+    add_mem (Algebra.subset_adjoin <| .inl rfl) (Algebra.subset_adjoin <| .inr rfl)
 
-theorem IsSemisimple.sub_of_commute : (f - g).IsSemisimple := .of_mem_adjoin_pair
-  comm hf hg <| sub_mem (subset_adjoin <| .inl rfl) (subset_adjoin <| .inr rfl)
+theorem IsSemisimple.sub_of_commute : (f - g).IsSemisimple :=
+  .of_mem_adjoin_pair comm hf hg <| sub_mem (subset_adjoin <| .inl rfl) (subset_adjoin <| .inr rfl)
 
-theorem IsSemisimple.mul_of_commute : (f * g).IsSemisimple := .of_mem_adjoin_pair
-  comm hf hg <| mul_mem (subset_adjoin <| .inl rfl) (subset_adjoin <| .inr rfl)
+theorem IsSemisimple.mul_of_commute : (f * g).IsSemisimple :=
+  .of_mem_adjoin_pair comm hf hg <| mul_mem (subset_adjoin <| .inl rfl) (subset_adjoin <| .inr rfl)
 
 end PerfectField
 

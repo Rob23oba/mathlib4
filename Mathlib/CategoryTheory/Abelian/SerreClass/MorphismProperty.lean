@@ -38,33 +38,35 @@ namespace CategoryTheory
 
 open Category Limits ZeroObject MorphismProperty
 
-variable {C : Type u} [Category.{v} C] [Abelian C]
-  {D : Type u'} [Category.{v'} D] [Abelian D]
+variable {C : Type u} [Category.{v} C] [Abelian C] {D : Type u'} [Category.{v'} D] [Abelian D]
 
 namespace ObjectProperty
 
 variable (P : ObjectProperty C)
 
-/-- The class of monomorphisms modulo a Serre class: given a
+/--
+The class of monomorphisms modulo a Serre class: given a
 Serre class `P : ObjectProperty C`, this is the class of morphisms `f`
-such that `kernel f` satisfies `P`. -/
+such that `kernel f` satisfies `P`.
+-/
 @[nolint unusedArguments]
-def monoModSerre [P.IsSerreClass] : MorphismProperty C :=
-  fun _ _ f ↦ P (kernel f)
+def monoModSerre [P.IsSerreClass] : MorphismProperty C := fun _ _ f ↦ P (kernel f)
 
-/-- The class of epimorphisms modulo a Serre class: given a
+/--
+The class of epimorphisms modulo a Serre class: given a
 Serre class `P : ObjectProperty C`, this is the class of morphisms `f`
-such that `cokernel f` satisfies `P`. -/
+such that `cokernel f` satisfies `P`.
+-/
 @[nolint unusedArguments]
-def epiModSerre [P.IsSerreClass] : MorphismProperty C :=
-  fun _ _ f ↦ P (cokernel f)
+def epiModSerre [P.IsSerreClass] : MorphismProperty C := fun _ _ f ↦ P (cokernel f)
 
-/-- The class of isomorphisms modulo a Serre class: given a
+/--
+The class of isomorphisms modulo a Serre class: given a
 Serre class `P : ObjectProperty C`, this is the class of morphisms `f`
-such that `kernel f` and `cokernel f` satisfy `P`. -/
+such that `kernel f` and `cokernel f` satisfy `P`.
+-/
 @[nolint unusedArguments]
-def isoModSerre [P.IsSerreClass] : MorphismProperty C :=
-  P.monoModSerre ⊓ P.epiModSerre
+def isoModSerre [P.IsSerreClass] : MorphismProperty C := P.monoModSerre ⊓ P.epiModSerre
 
 variable [P.IsSerreClass]
 
@@ -134,13 +136,11 @@ lemma isoModSerre_of_isIso {X Y : C} (f : X ⟶ Y) [IsIso f] : P.isoModSerre f :
 
 instance : P.monoModSerre.IsMultiplicative where
   id_mem _ := P.monoModSerre_of_mono _
-  comp_mem f g hf hg :=
-    P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 0) hf hg
+  comp_mem f g hf hg := P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 0) hf hg
 
 instance : P.epiModSerre.IsMultiplicative where
   id_mem _ := P.epiModSerre_of_epi _
-  comp_mem f g hf hg :=
-    P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 3) hf hg
+  comp_mem f g hf hg := P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 3) hf hg
 
 instance : P.isoModSerre.IsMultiplicative := by
   dsimp only [isoModSerre]
@@ -159,12 +159,14 @@ instance : P.isoModSerre.IsStableUnderRetracts := by
   infer_instance
 
 instance : P.isoModSerre.HasTwoOutOfThreeProperty where
-  of_postcomp f g hg hfg :=
-    ⟨P.prop_of_mono (kernel.map f (f ≫ g) (𝟙 _) g (by simp)) hfg.1,
-      P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 2) hg.1 hfg.2⟩
-  of_precomp f g hf hfg :=
-    ⟨P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 1) hfg.1 hf.2,
-      P.prop_of_epi (cokernel.map (f ≫ g) g f (𝟙 _) (by simp)) hfg.2⟩
+  of_postcomp f g hg hfg := ⟨
+    P.prop_of_mono (kernel.map f (f ≫ g) (𝟙 _) g (by simp)) hfg.1,
+    P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 2) hg.1 hfg.2
+  ⟩
+  of_precomp f g hf hfg := ⟨
+    P.prop_X₂_of_exact ((kernelCokernelCompSequence_exact f g).exact 1) hfg.1 hf.2,
+    P.prop_of_epi (cokernel.map (f ≫ g) g f (𝟙 _) (by simp)) hfg.2
+  ⟩
 
 lemma le_kernel_of_isoModSerre_isInvertedBy (F : C ⥤ D) [F.PreservesZeroMorphisms]
     (hF : P.isoModSerre.IsInvertedBy F) :

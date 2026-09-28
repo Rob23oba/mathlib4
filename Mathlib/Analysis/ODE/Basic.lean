@@ -44,15 +44,18 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
 def IsIntegralCurveOn (γ : ℝ → E) (v : ℝ → E → E) (s : Set ℝ) : Prop :=
   ∀ t ∈ s, HasDerivWithinAt γ (v t (γ t)) s t
 
-/-- `IsIntegralCurveAt γ v t₀` means `γ : ℝ → E` is a local integral curve of `v` in a neighbourhood
-containing `t₀`. -/
+/--
+`IsIntegralCurveAt γ v t₀` means `γ : ℝ → E` is a local integral curve of `v` in a neighbourhood
+containing `t₀`.
+-/
 def IsIntegralCurveAt (γ : ℝ → E) (v : ℝ → E → E) (t₀ : ℝ) : Prop :=
   ∀ᶠ t in 𝓝 t₀, HasDerivAt γ (v t (γ t)) t
 
-/-- `IsIntegralCurve γ v` means `γ : ℝ → E` is a global integral curve of `v`. That is, `γ t` is
-tangent to `v t (γ t)` for all `t : ℝ`. -/
-def IsIntegralCurve (γ : ℝ → E) (v : ℝ → E → E) : Prop :=
-  ∀ t : ℝ, HasDerivAt γ (v t (γ t)) t
+/--
+`IsIntegralCurve γ v` means `γ : ℝ → E` is a global integral curve of `v`. That is, `γ t` is
+tangent to `v t (γ t)` for all `t : ℝ`.
+-/
+def IsIntegralCurve (γ : ℝ → E) (v : ℝ → E → E) : Prop := ∀ t : ℝ, HasDerivAt γ (v t (γ t)) t
 
 variable {γ : ℝ → E} {v : ℝ → E → E} {s s' : Set ℝ} {t₀ : ℝ}
 

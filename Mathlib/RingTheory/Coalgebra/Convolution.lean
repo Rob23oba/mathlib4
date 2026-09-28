@@ -67,52 +67,61 @@ lemma _root_.Coalgebra.Repr.convMul_apply {a : C} (𝓡 : Coalgebra.Repr R a ι)
     (f g : WithConv (C →ₗ[R] A)) : (f * g) a = ∑ i ∈ 𝓡.index, f (𝓡.left i) * g (𝓡.right i) := by
   simp [convMul_def, ← 𝓡.eq]
 
-/-- Non-unital and non-associative convolution semiring structure on linear maps from a
-coalgebra to a non-unital non-associative algebra. -/
+/--
+Non-unital and non-associative convolution semiring structure on linear maps from a
+coalgebra to a non-unital non-associative algebra.
+-/
 instance convNonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (WithConv (C →ₗ[R] A)) where
   left_distrib f g h := by ext; simp [map_add_right]
   right_distrib f g h := by ext; simp [map_add_left]
   zero_mul f := by ext; simp
   mul_zero f := by ext; simp
 
-instance [Monoid S] [DistribMulAction S A] [SMulCommClass R S A] [IsScalarTower S A A] :
-    IsScalarTower S (WithConv (C →ₗ[R] A)) (WithConv (C →ₗ[R] A)) where
+instance [Monoid S] [DistribMulAction S A] [SMulCommClass R S A] [IsScalarTower S A A]
+    : IsScalarTower S (WithConv (C →ₗ[R] A)) (WithConv (C →ₗ[R] A)) where
   smul_assoc s f g := by ext c; simp [(ℛ R c).convMul_apply, Finset.smul_sum, smul_mul_assoc]
 
-instance [Monoid S] [DistribMulAction S A] [SMulCommClass R S A] [SMulCommClass S A A] :
-    SMulCommClass S (WithConv (C →ₗ[R] A)) (WithConv (C →ₗ[R] A)) where
+instance [Monoid S] [DistribMulAction S A] [SMulCommClass R S A] [SMulCommClass S A A]
+    : SMulCommClass S (WithConv (C →ₗ[R] A)) (WithConv (C →ₗ[R] A)) where
   smul_comm s f g := by ext c; simp [(ℛ R c).convMul_apply, Finset.smul_sum, mul_smul_comm]
 
 @[simp] lemma toSpanSingleton_convMul_toSpanSingleton (x y : A) :
     toConv (toSpanSingleton R A x) * toConv (toSpanSingleton R A y) =
       toConv (toSpanSingleton R A (x * y)) := by ext; simp
 
-theorem _root_.TensorProduct.map_convMul_map {D : Type*} [AddCommMonoid B] [Module R B]
-    [CoalgebraStruct R B] [NonUnitalNonAssocSemiring D] [Module R D] [SMulCommClass R D D]
-    [IsScalarTower R D D] {f h : WithConv (C →ₗ[R] A)} {g k : WithConv (B →ₗ[R] D)} :
-    toConv (f.ofConv ⊗ₘ g.ofConv) * toConv (h.ofConv ⊗ₘ k.ofConv) =
-      toConv ((f * h).ofConv ⊗ₘ (g * k).ofConv) := by
+theorem _root_.TensorProduct.map_convMul_map
+    {D : Type*} [AddCommMonoid B] [Module R B] [CoalgebraStruct R B] [NonUnitalNonAssocSemiring D]
+    [Module R D] [SMulCommClass R D D] [IsScalarTower R D D]
+    {f h : WithConv (C →ₗ[R] A)} {g k : WithConv (B →ₗ[R] D)}
+    : toConv (f.ofConv ⊗ₘ g.ofConv) * toConv (h.ofConv ⊗ₘ k.ofConv)
+      = toConv ((f * h).ofConv ⊗ₘ (g * k).ofConv) := by
   simp_rw [convMul_def, comul_def, mul'_tensor, comp_assoc, AlgebraTensorModule.map_eq,
     ← comp_assoc _ _ (tensorTensorTensorComm R _ _ _ _).toLinearMap]
   nth_rw 2 [← comp_assoc, comp_assoc]
-  simp [AlgebraTensorModule.tensorTensorTensorComm_eq, ← tensorTensorTensorComm_comp_map,
-    ← comp_assoc, map_comp]
+  simp [
+    AlgebraTensorModule.tensorTensorTensorComm_eq, ← tensorTensorTensorComm_comp_map, ← comp_assoc,
+    map_comp
+  ]
 
 end NonUnitalNonAssocSemiring
 
 section NonUnitalNonAssocRing
-variable [NonUnitalNonAssocRing A] [Module R A] [SMulCommClass R A A] [IsScalarTower R A A]
+variable
+  [NonUnitalNonAssocRing A] [Module R A] [SMulCommClass R A A] [IsScalarTower R A A]
   [AddCommMonoid C] [Module R C] [CoalgebraStruct R C]
 
-/-- Non-unital and non-associative convolution ring structure on linear maps from a
-coalgebra to a non-unital and non-associative algebra. -/
+/--
+Non-unital and non-associative convolution ring structure on linear maps from a
+coalgebra to a non-unital and non-associative algebra.
+-/
 instance convNonUnitalNonAssocRing : NonUnitalNonAssocRing (WithConv (C →ₗ[R] A)) where
 
 end NonUnitalNonAssocRing
 
 section NonUnitalSemiring
-variable [NonUnitalSemiring A] [Module R A] [SMulCommClass R A A] [IsScalarTower R A A]
-  [AddCommMonoid C] [Module R C] [Coalgebra R C]
+variable
+  [NonUnitalSemiring A] [Module R A] [SMulCommClass R A A] [IsScalarTower R A A] [AddCommMonoid C]
+  [Module R C] [Coalgebra R C]
 
 lemma nonUnitalAlgHom_comp_convMul_distrib
     [NonUnitalNonAssocSemiring B] [Module R B] [SMulCommClass R B B] [IsScalarTower R B B]
@@ -127,30 +136,37 @@ lemma convMul_comp_coalgHom_distrib [AddCommMonoid B] [Module R B] [CoalgebraStr
       (toConv (f.ofConv.comp h.toLinearMap) * toConv (g.ofConv.comp h.toLinearMap)).ofConv := by
   simp [convMul_def, map_comp, comp_assoc]
 
-/-- Non-unital convolution semiring structure on linear maps from a coalgebra to a
-non-unital algebra. -/
+/--
+Non-unital convolution semiring structure on linear maps from a coalgebra to a
+non-unital algebra.
+-/
 instance convNonUnitalSemiring : NonUnitalSemiring (WithConv (C →ₗ[R] A)) where
-  mul_assoc f g h := toConv_injective.eq_iff.mpr <| calc
-    _ = (μ ∘ₗ rTensor _ μ) ∘ₗ (((f.ofConv ⊗ₘ g.ofConv) ⊗ₘ h.ofConv) ∘ₗ
-        (TensorProduct.assoc R C C C).symm) ∘ₗ lTensor C δ ∘ₗ δ := by
-      ext; simp [comp_assoc, coassoc_symm, convMul_def]
-    _ = (μ ∘ₗ rTensor A μ ∘ₗ ↑(TensorProduct.assoc R A A A).symm) ∘ₗ
-        (f.ofConv ⊗ₘ (g.ofConv ⊗ₘ h.ofConv)) ∘ₗ lTensor C δ ∘ₗ δ := by
-      simp only [map_map_comp_assoc_symm_eq, comp_assoc]
-    _ = (μ ∘ₗ .lTensor _ μ) ∘ₗ (f.ofConv ⊗ₘ (g.ofConv ⊗ₘ h.ofConv)) ∘ₗ (lTensor C δ ∘ₗ δ) := by
-      congr 1
-      ext
-      simp [mul_assoc]
-    _ = μ ∘ₗ (f.ofConv ⊗ₘ μ ∘ₗ (g.ofConv ⊗ₘ h.ofConv) ∘ₗ δ) ∘ₗ δ := by ext; simp
+  mul_assoc f g h :=
+    toConv_injective.eq_iff.mpr <| calc
+      _ = (μ ∘ₗ rTensor _ μ)
+          ∘ₗ (((f.ofConv ⊗ₘ g.ofConv) ⊗ₘ h.ofConv) ∘ₗ (TensorProduct.assoc R C C C).symm)
+          ∘ₗ lTensor C δ ∘ₗ δ := by
+        ext; simp [comp_assoc, coassoc_symm, convMul_def]
+      _ = (μ ∘ₗ rTensor A μ ∘ₗ ↑(TensorProduct.assoc R A A A).symm)
+          ∘ₗ (f.ofConv ⊗ₘ (g.ofConv ⊗ₘ h.ofConv)) ∘ₗ lTensor C δ ∘ₗ δ := by
+        simp only [map_map_comp_assoc_symm_eq, comp_assoc]
+      _ = (μ ∘ₗ .lTensor _ μ) ∘ₗ (f.ofConv ⊗ₘ (g.ofConv ⊗ₘ h.ofConv)) ∘ₗ (lTensor C δ ∘ₗ δ) := by
+        congr 1
+        ext
+        simp [mul_assoc]
+      _ = μ ∘ₗ (f.ofConv ⊗ₘ μ ∘ₗ (g.ofConv ⊗ₘ h.ofConv) ∘ₗ δ) ∘ₗ δ := by ext; simp
 
 end NonUnitalSemiring
 
 section NonUnitalRing
-variable [NonUnitalRing A] [AddCommMonoid C] [Module R A] [SMulCommClass R A A]
-  [IsScalarTower R A A] [Module R C] [Coalgebra R C]
+variable
+  [NonUnitalRing A] [AddCommMonoid C] [Module R A] [SMulCommClass R A A] [IsScalarTower R A A]
+  [Module R C] [Coalgebra R C]
 
-/-- Non-unital convolution ring structure on linear maps from a coalgebra to a
-non-unital algebra. -/
+/--
+Non-unital convolution ring structure on linear maps from a coalgebra to a
+non-unital algebra.
+-/
 instance convNonUnitalRing : NonUnitalRing (WithConv (C →ₗ[R] A)) where
 
 end NonUnitalRing
@@ -171,7 +187,8 @@ end CoalgebraStruct
 variable [Coalgebra R C]
 
 /-- Convolution unit on linear maps from a coalgebra to an algebra. -/
-instance convOne : One (WithConv (C →ₗ[R] A)) where one := toConv (Algebra.linearMap R A ∘ₗ counit)
+instance convOne : One (WithConv (C →ₗ[R] A)) where
+  one := toConv (Algebra.linearMap R A ∘ₗ counit)
 
 lemma convOne_def : (1 : WithConv (C →ₗ[R] A)) = toConv (Algebra.linearMap R A ∘ₗ counit) := rfl
 
@@ -184,8 +201,8 @@ instance convSemiring : Semiring (WithConv (C →ₗ[R] A)) where
   mul_one f := by ext; simp [convOne_def, ← map_comp_lTensor]
 
 /-- Convolution algebra structure on linear maps from a coalgebra to an algebra. -/
-instance convAlgebra [CommSemiring S] [Algebra S A] [SMulCommClass R S A] :
-    Algebra S (WithConv (C →ₗ[R] A)) :=
+instance convAlgebra [CommSemiring S] [Algebra S A] [SMulCommClass R S A]
+    : Algebra S (WithConv (C →ₗ[R] A)) :=
   .ofModule smul_mul_assoc mul_smul_comm
 
 @[simp]
@@ -195,11 +212,13 @@ lemma convAlgebraMap_apply [CommSemiring S] [Algebra S A] [SMulCommClass R S A] 
 end Semiring
 
 section CommSemiring
-variable [CommSemiring A] [AddCommMonoid C] [Algebra R A] [Module R C] [Coalgebra R C]
-  [IsCocomm R C]
+variable
+  [CommSemiring A] [AddCommMonoid C] [Algebra R A] [Module R C] [Coalgebra R C] [IsCocomm R C]
 
-/-- Commutative convolution semiring structure on linear maps from a cocommutative coalgebra to an
-algebra. -/
+/--
+Commutative convolution semiring structure on linear maps from a cocommutative coalgebra to an
+algebra.
+-/
 instance convCommSemiring : CommSemiring (WithConv (C →ₗ[R] A)) where
   mul_comm f g := by ext x; rw [convMul_apply, ← comm_comul R x, map_comm, mul'_comm, convMul_apply]
 
@@ -216,8 +235,10 @@ end Ring
 section CommRing
 variable [CommRing A] [AddCommMonoid C] [Algebra R A] [Module R C] [Coalgebra R C] [IsCocomm R C]
 
-/-- Commutative convolution ring structure on linear maps from a cocommutative coalgebra to an
-algebra. -/
+/--
+Commutative convolution ring structure on linear maps from a cocommutative coalgebra to an
+algebra.
+-/
 instance convCommRing : CommRing (WithConv (C →ₗ[R] A)) where
 
 end CommRing

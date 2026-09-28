@@ -25,13 +25,12 @@ namespace CategoryTheory
 
 open CategoryTheory.Functor
 
-variable {C : Type*} [Category* C]
-  {D : Type*} [Category* D]
-  {E : Type*} [Category* E]
+variable {C : Type*} [Category* C] {D : Type*} [Category* D] {E : Type*} [Category* E]
 
 section ReflectsIso
 
-/-- Define what it means for a functor `F : C ⥤ D` to reflect isomorphisms: for any
+/--
+Define what it means for a functor `F : C ⥤ D` to reflect isomorphisms: for any
 morphism `f : A ⟶ B`, if `F.map f` is an isomorphism then `f` is as well.
 Note that we do not assume or require that `F` is faithful.
 -/
@@ -42,8 +41,9 @@ class Functor.ReflectsIsomorphisms (F : C ⥤ D) : Prop where
 attribute [to_dual self] Functor.ReflectsIsomorphisms.reflects Functor.ReflectsIsomorphisms.mk
 
 /-- If `F` reflects isos and `F.map f` is an iso, then `f` is an iso. -/
-theorem isIso_of_reflects_iso {A B : C} (f : A ⟶ B) (F : C ⥤ D) [IsIso (F.map f)]
-    [F.ReflectsIsomorphisms] : IsIso f :=
+theorem isIso_of_reflects_iso
+    {A B : C} (f : A ⟶ B) (F : C ⥤ D) [IsIso (F.map f)] [F.ReflectsIsomorphisms]
+    : IsIso f :=
   ReflectsIsomorphisms.reflects F f
 
 lemma isIso_iff_of_reflects_iso {A B : C} (f : A ⟶ B) (F : C ⥤ D) [F.ReflectsIsomorphisms] :
@@ -55,16 +55,15 @@ lemma Functor.FullyFaithful.reflectsIsomorphisms {F : C ⥤ D} (hF : F.FullyFait
   reflects _ _ := hF.isIso_of_isIso_map _
 
 instance (priority := 100) reflectsIsomorphisms_of_full_and_faithful
-    (F : C ⥤ D) [F.Full] [F.Faithful] :
-    F.ReflectsIsomorphisms :=
+    (F : C ⥤ D) [F.Full] [F.Faithful]
+    : F.ReflectsIsomorphisms :=
   (Functor.FullyFaithful.ofFullyFaithful F).reflectsIsomorphisms
 
-instance reflectsIsomorphisms_comp (F : C ⥤ D) (G : D ⥤ E)
-    [F.ReflectsIsomorphisms] [G.ReflectsIsomorphisms] :
-    (F ⋙ G).ReflectsIsomorphisms :=
-  ⟨fun f (hf : IsIso (G.map _)) => by
-    have := isIso_of_reflects_iso (F.map f) G
-    exact isIso_of_reflects_iso f F⟩
+instance reflectsIsomorphisms_comp
+    (F : C ⥤ D) (G : D ⥤ E) [F.ReflectsIsomorphisms] [G.ReflectsIsomorphisms]
+    : (F ⋙ G).ReflectsIsomorphisms := ⟨fun f (hf : IsIso (G.map _)) => by
+  have := isIso_of_reflects_iso (F.map f) G
+  exact isIso_of_reflects_iso f F⟩
 
 set_option backward.defeqAttrib.useBackward true in
 lemma reflectsIsomorphisms_of_comp (F : C ⥤ D) (G : D ⥤ E)
@@ -74,8 +73,8 @@ lemma reflectsIsomorphisms_of_comp (F : C ⥤ D) (G : D ⥤ E)
     dsimp
     infer_instance
 
-instance (F : D ⥤ E) [F.ReflectsIsomorphisms] :
-    ((whiskeringRight C D E).obj F).ReflectsIsomorphisms where
+instance (F : D ⥤ E) [F.ReflectsIsomorphisms]
+    : ((whiskeringRight C D E).obj F).ReflectsIsomorphisms where
   reflects {X Y} f _ := by
     rw [NatTrans.isIso_iff_isIso_app]
     intro Z

@@ -44,8 +44,7 @@ variable {R : Type u} {S : Type v} [CommRing R] [CommRing S]
 
 /-- A ring homomorphism `R →+* S` is standard smooth if `S` is standard smooth as `R`-algebra. -/
 @[algebraize RingHom.IsStandardSmooth.toAlgebra]
-def IsStandardSmooth (f : R →+* S) : Prop :=
-  @Algebra.IsStandardSmooth _ _ _ _ f.toAlgebra
+def IsStandardSmooth (f : R →+* S) : Prop := @Algebra.IsStandardSmooth _ _ _ _ f.toAlgebra
 
 lemma isStandardSmooth_algebraMap [Algebra R S] :
     (algebraMap R S).IsStandardSmooth ↔ Algebra.IsStandardSmooth R S := by
@@ -55,8 +54,10 @@ lemma isStandardSmooth_algebraMap [Algebra R S] :
 lemma IsStandardSmooth.toAlgebra {f : R →+* S} (hf : IsStandardSmooth f) :
     @Algebra.IsStandardSmooth R S _ _ f.toAlgebra := hf
 
-/-- A ring homomorphism `R →+* S` is standard smooth of relative dimension `n` if
-`S` is standard smooth of relative dimension `n` as `R`-algebra. -/
+/--
+A ring homomorphism `R →+* S` is standard smooth of relative dimension `n` if
+`S` is standard smooth of relative dimension `n` as `R`-algebra.
+-/
 @[algebraize RingHom.IsStandardSmoothOfRelativeDimension.toAlgebra]
 def IsStandardSmoothOfRelativeDimension (f : R →+* S) : Prop :=
   @Algebra.IsStandardSmoothOfRelativeDimension n _ _ _ _ f.toAlgebra
@@ -195,18 +196,24 @@ lemma isStandardSmoothOfRelativeDimension_stableUnderCompositionWithLocalization
 
 set_option backward.isDefEq.respectTransparency false in
 variable (R S) in
-/-- Every standard smooth homomorphism `R → S` factors into `R -> R[X₁,...,Xₙ] → S`
-where `n` is the relative dimension and `R[X₁,...,Xₙ] → S` is etale. -/
+/--
+Every standard smooth homomorphism `R → S` factors into `R -> R[X₁,...,Xₙ] → S`
+where `n` is the relative dimension and `R[X₁,...,Xₙ] → S` is etale.
+-/
 theorem _root_.Algebra.IsStandardSmoothOfRelativeDimension.exists_etale_mvPolynomial
-    [Algebra R S] [Algebra.IsStandardSmoothOfRelativeDimension n R S] :
-    ∃ g : MvPolynomial (Fin n) R →ₐ[R] S, g.Etale := by
+    [Algebra R S] [Algebra.IsStandardSmoothOfRelativeDimension n R S]
+    : ∃ g : MvPolynomial (Fin n) R →ₐ[R] S, g.Etale := by
   classical
   let := Fintype.ofFinite
   obtain ⟨ι, σ, _, _, P, e⟩ :=
     Algebra.IsStandardSmoothOfRelativeDimension.out (R := R) (S := S) (n := n)
-  let e₀ : σ ⊕ Fin n ≃ ι := ((Equiv.ofInjective _ P.map_inj).sumCongr
-      (Finite.equivFinOfCardEq (by rw [Nat.card_coe_set_eq, Set.ncard_compl,
-        Set.ncard_range_of_injective P.map_inj, ← e, Algebra.Presentation.dimension])).symm).trans
+  let e₀ : σ ⊕ Fin n ≃ ι :=
+    ((Equiv.ofInjective _ P.map_inj).sumCongr
+        (Finite.equivFinOfCardEq (by
+          rw [
+            Nat.card_coe_set_eq, Set.ncard_compl, Set.ncard_range_of_injective P.map_inj, ← e,
+            Algebra.Presentation.dimension
+          ])).symm).trans
       (Equiv.Set.sumCompl _)
   let e : MvPolynomial σ (MvPolynomial (Fin n) R) ≃ₐ[R] P.Ring :=
     (MvPolynomial.sumAlgEquiv R _ _).symm.trans (MvPolynomial.renameEquiv _ e₀)
@@ -215,54 +222,66 @@ theorem _root_.Algebra.IsStandardSmoothOfRelativeDimension.exists_etale_mvPolyno
   have := IsScalarTower.of_algebraMap_eq' φ.comp_algebraMap.symm
   have : IsScalarTower R (MvPolynomial (Fin n) R) S := .to₁₂₄ _ _ P.Ring _
   refine ⟨IsScalarTower.toAlgHom _ _ _, ?_⟩
-  have H : (MvPolynomial.aeval fun x ↦ (algebraMap P.Ring S) (e (MvPolynomial.X x))).toRingHom =
-      (algebraMap P.Ring S).comp e.toRingHom := by
+  have H
+      : (MvPolynomial.aeval fun x ↦ (algebraMap P.Ring S) (e (MvPolynomial.X x))).toRingHom
+        = (algebraMap P.Ring S).comp e.toRingHom := by
     ext
     · simp [e, IsScalarTower.algebraMap_eq R (MvPolynomial (Fin n) R) S]
     · simp [e, @RingHom.algebraMap_toAlgebra (MvPolynomial (Fin n) R) S, φ]
     · simp [e]
-  let P' : Algebra.PreSubmersivePresentation (MvPolynomial (Fin n) R) S σ σ :=
-  { toGenerators := .ofSurjective (algebraMap _ _ <| e <| .X ·) <| by
-      convert! P.algebraMap_surjective.comp e.surjective
-      congrm $H
+  let P' : Algebra.PreSubmersivePresentation (MvPolynomial (Fin n) R) S σ σ := {
+    toGenerators :=
+      .ofSurjective (algebraMap _ _ <| e <| .X ·) <| by
+        convert! P.algebraMap_surjective.comp e.surjective
+        congrm $H
     relation := e.symm ∘ P.relation
     span_range_relation_eq_ker := by
-      rw [Set.range_comp, ← AlgEquiv.coe_toRingEquiv e.symm, AlgEquiv.symm_toRingEquiv,
-        ← Ideal.map_span, P.span_range_relation_eq_ker, Ideal.map_symm]
+      rw [
+        Set.range_comp, ← AlgEquiv.coe_toRingEquiv e.symm, AlgEquiv.symm_toRingEquiv,
+        ← Ideal.map_span, P.span_range_relation_eq_ker, Ideal.map_symm
+      ]
       exact congr(RingHom.ker $H).symm
     map := _
-    map_inj := Function.injective_id }
-  let P' : Algebra.SubmersivePresentation (MvPolynomial (Fin n) R) S σ σ :=
-  { __ := P'
+    map_inj := Function.injective_id
+  }
+  let P' : Algebra.SubmersivePresentation (MvPolynomial (Fin n) R) S σ σ := {
+    __ := P'
     jacobian_isUnit := by
       convert! P.jacobian_isUnit using 1
       simp_rw [Algebra.PreSubmersivePresentation.jacobian_eq_jacobiMatrix_det, map_det]
       congr 1
       ext i j
       trans algebraMap P.Ring S (e ((e.symm (P.relation j)).pderiv i))
-      · simpa [Algebra.PreSubmersivePresentation.jacobiMatrix_apply, P',
-          Algebra.Generators.ofSurjective] using congr($H _)
+      · simpa [
+            Algebra.PreSubmersivePresentation.jacobiMatrix_apply, P',
+            Algebra.Generators.ofSurjective
+          ]
+          using congr($H _)
       suffices e ((e.symm (P.relation j)).pderiv i) = (P.relation j).pderiv (P.map i) by
         simp [Algebra.PreSubmersivePresentation.jacobiMatrix_apply, this]
-      simp [e, ← MvPolynomial.pderiv_rename e₀.injective, show e₀ (Sum.inl i) = P.map i from rfl] }
+      simp [e, ← MvPolynomial.pderiv_rename e₀.injective, show e₀ (Sum.inl i) = P.map i from rfl]
+  }
   exact etale_algebraMap.mpr (Algebra.Etale.iff_isStandardSmoothOfRelativeDimension_zero.mpr
     ⟨_, _, _, inferInstance, P', by simp [Algebra.Presentation.dimension]⟩)
 
-/-- Every standard smooth homomorphism `R → S` factors into `R -> R[X₁,...,Xₙ] → S`
-where `n` is the relative dimension and `R[X₁,...,Xₙ] → S` is etale. -/
+/--
+Every standard smooth homomorphism `R → S` factors into `R -> R[X₁,...,Xₙ] → S`
+where `n` is the relative dimension and `R[X₁,...,Xₙ] → S` is etale.
+-/
 theorem IsStandardSmoothOfRelativeDimension.exists_etale_mvPolynomial
-    {f : R →+* S} {n : ℕ} (hf : f.IsStandardSmoothOfRelativeDimension n) :
-    ∃ g : MvPolynomial (Fin n) R →+* S, g.comp MvPolynomial.C = f ∧ g.Etale := by
+    {f : R →+* S} {n : ℕ} (hf : f.IsStandardSmoothOfRelativeDimension n)
+    : ∃ g : MvPolynomial (Fin n) R →+* S, g.comp MvPolynomial.C = f ∧ g.Etale := by
   algebraize [f]
   obtain ⟨g, hg⟩ := Algebra.IsStandardSmoothOfRelativeDimension.exists_etale_mvPolynomial n R S
   exact ⟨_, g.comp_algebraMap, hg⟩
 
-theorem IsStandardSmooth.exists_etale_mvPolynomial
-    {f : R →+* S} (hf : f.IsStandardSmooth) :
-    ∃ n, ∃ g : MvPolynomial (Fin n) R →+* S, g.comp MvPolynomial.C = f ∧ g.Etale := by
+theorem IsStandardSmooth.exists_etale_mvPolynomial {f : R →+* S} (hf : f.IsStandardSmooth)
+    : ∃ n, ∃ g : MvPolynomial (Fin n) R →+* S, g.comp MvPolynomial.C = f ∧ g.Etale := by
   obtain ⟨_, _, _, _, ⟨P⟩⟩ := hf
   let := f.toAlgebra
-  exact ⟨_, RingHom.IsStandardSmoothOfRelativeDimension.exists_etale_mvPolynomial
-    ⟨_, _, _, ‹_›, P, rfl⟩⟩
+  exact ⟨
+    _,
+    RingHom.IsStandardSmoothOfRelativeDimension.exists_etale_mvPolynomial ⟨_, _, _, ‹_›, P, rfl⟩
+  ⟩
 
 end RingHom

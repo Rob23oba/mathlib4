@@ -32,7 +32,9 @@ open Category
 
 namespace Localization
 
-variable {C : Type u₁} [Category.{v₁} C] (W : MorphismProperty C)
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  (W : MorphismProperty C)
   {D : Type u₂} [Category.{v₂} D]
   {D' : Type u₃} [Category.{v₃} D']
 
@@ -40,9 +42,11 @@ section
 
 variable (L : C ⥤ D) [L.IsLocalization W] (X Y : C)
 
-/-- This property holds if the type of morphisms between `X` and `Y`
+/--
+This property holds if the type of morphisms between `X` and `Y`
 in the localized category with respect to `W : MorphismProperty C`
-is small. -/
+is small.
+-/
 -- After https://github.com/leanprover/lean4/pull/12286 and
 -- https://github.com/leanprover/lean4/pull/12423, the universe `w` would default to a
 -- universe output parameter. See Note [universe output parameters and typeclass caching].
@@ -96,20 +100,23 @@ lemma hasSmallLocalizedHom_iff_source {X' : C} (f : X ⟶ X') (hf : W f) (Y : C)
 
 end
 
-/-- The type of morphisms from `X` to `Y` in the localized category
+/--
+The type of morphisms from `X` to `Y` in the localized category
 with respect to `W : MorphismProperty C` that is shrunk to `Type w`
-when `HasSmallLocalizedHom.{w} W X Y` holds. -/
+when `HasSmallLocalizedHom.{w} W X Y` holds.
+-/
 def SmallHom (X Y : C) [HasSmallLocalizedHom.{w} W X Y] : Type w :=
   Shrink.{w} (W.Q.obj X ⟶ W.Q.obj Y)
 
 namespace SmallHom
 
-/-- The canonical bijection `SmallHom.{w} W X Y ≃ (L.obj X ⟶ L.obj Y)`
+/--
+The canonical bijection `SmallHom.{w} W X Y ≃ (L.obj X ⟶ L.obj Y)`
 when `L` is a localization functor for `W : MorphismProperty C` and
-that `HasSmallLocalizedHom.{w} W X Y` holds. -/
-noncomputable def equiv (L : C ⥤ D) [L.IsLocalization W] {X Y : C}
-    [HasSmallLocalizedHom.{w} W X Y] :
-    SmallHom.{w} W X Y ≃ (L.obj X ⟶ L.obj Y) :=
+that `HasSmallLocalizedHom.{w} W X Y` holds.
+-/
+noncomputable def equiv (L : C ⥤ D) [L.IsLocalization W] {X Y : C} [HasSmallLocalizedHom.{w} W X Y]
+    : SmallHom.{w} W X Y ≃ (L.obj X ⟶ L.obj Y) :=
   letI := small_of_hasSmallLocalizedHom.{w} W W.Q X Y
   (equivShrink _).symm.trans (homEquiv W W.Q L)
 
@@ -125,8 +132,7 @@ lemma equiv_equiv_symm (L : C ⥤ D) [L.IsLocalization W]
   apply homEquiv_eq
 
 /-- The element in `SmallHom W X Y` induced by `f : X ⟶ Y`. -/
-noncomputable def mk {X Y : C} [HasSmallLocalizedHom.{w} W X Y] (f : X ⟶ Y) :
-    SmallHom.{w} W X Y :=
+noncomputable def mk {X Y : C} [HasSmallLocalizedHom.{w} W X Y] (f : X ⟶ Y) : SmallHom.{w} W X Y :=
   (equiv.{w} W W.Q).symm (W.Q.map f)
 
 set_option backward.isDefEq.respectTransparency false in
@@ -139,8 +145,8 @@ lemma equiv_mk (L : C ⥤ D) [L.IsLocalization W] {X Y : C}
 variable {W}
 
 /-- The formal inverse in `SmallHom W X Y` of a morphism `f : Y ⟶ X` such that `W f`. -/
-noncomputable def mkInv {X Y : C} (f : Y ⟶ X) (hf : W f) [HasSmallLocalizedHom.{w} W X Y] :
-    SmallHom.{w} W X Y :=
+noncomputable def mkInv {X Y : C} (f : Y ⟶ X) (hf : W f) [HasSmallLocalizedHom.{w} W X Y]
+    : SmallHom.{w} W X Y :=
   (equiv.{w} W W.Q).symm (Localization.isoOfHom W.Q W f hf).inv
 
 set_option backward.isDefEq.respectTransparency false in
@@ -152,10 +158,11 @@ lemma equiv_mkInv (L : C ⥤ D) [L.IsLocalization W] {X Y : C} (f : Y ⟶ X) (hf
     Equiv.trans_apply, Equiv.symm_apply_apply, homEquiv_isoOfHom_inv]
 
 /-- The composition on `SmallHom W`. -/
-noncomputable def comp {X Y Z : C} [HasSmallLocalizedHom.{w} W X Y]
-    [HasSmallLocalizedHom.{w} W Y Z] [HasSmallLocalizedHom.{w} W X Z]
-    (α : SmallHom.{w} W X Y) (β : SmallHom.{w} W Y Z) :
-    SmallHom.{w} W X Z :=
+noncomputable def comp
+    {X Y Z : C} [HasSmallLocalizedHom.{w} W X Y] [HasSmallLocalizedHom.{w} W Y Z]
+    [HasSmallLocalizedHom.{w} W X Z]
+    (α : SmallHom.{w} W X Y) (β : SmallHom.{w} W Y Z)
+    : SmallHom.{w} W X Z :=
   (equiv W W.Q).symm (equiv W W.Q α ≫ equiv W W.Q β)
 
 set_option backward.isDefEq.respectTransparency false in
@@ -218,9 +225,9 @@ end
 section ChangeOfUniverse
 
 /-- Up to an equivalence, the type `SmallHom.{w} W X Y n` does not depend on the universe `w`. -/
-noncomputable def chgUniv {X Y : C}
-    [HasSmallLocalizedHom.{w} W X Y] [HasSmallLocalizedHom.{w''} W X Y] :
-    SmallHom.{w} W X Y ≃ SmallHom.{w''} W X Y :=
+noncomputable def chgUniv
+    {X Y : C} [HasSmallLocalizedHom.{w} W X Y] [HasSmallLocalizedHom.{w''} W X Y]
+    : SmallHom.{w} W X Y ≃ SmallHom.{w''} W X Y :=
   (equiv.{w} W W.Q).trans (equiv.{w''} W W.Q).symm
 
 lemma equiv_chgUniv (L : C ⥤ D) [L.IsLocalization W] {X Y : C}
@@ -242,22 +249,26 @@ namespace LocalizerMorphism
 
 open Localization
 
-variable {C₁ : Type u₁} [Category.{v₁} C₁] {W₁ : MorphismProperty C₁}
-  {C₂ : Type u₂} [Category.{v₂} C₂] {W₂ : MorphismProperty C₂}
-  {D₁ : Type u₃} [Category.{v₃} D₁] {D₂ : Type u₄} [Category.{v₄} D₂]
-  (Φ : LocalizerMorphism W₁ W₂) (L₁ : C₁ ⥤ D₁) [L₁.IsLocalization W₁]
+variable
+  {C₁ : Type u₁} [Category.{v₁} C₁]
+  {W₁ : MorphismProperty C₁} {C₂ : Type u₂} [Category.{v₂} C₂]
+  {W₂ : MorphismProperty C₂} {D₁ : Type u₃} [Category.{v₃} D₁]
+  {D₂ : Type u₄} [Category.{v₄} D₂]
+  (Φ : LocalizerMorphism W₁ W₂)
+  (L₁ : C₁ ⥤ D₁) [L₁.IsLocalization W₁]
   (L₂ : C₂ ⥤ D₂) [L₂.IsLocalization W₂]
 
 section
 
 variable {X Y : C₁}
 
-variable [HasSmallLocalizedHom.{w} W₁ X Y]
+variable
+  [HasSmallLocalizedHom.{w} W₁ X Y]
   [HasSmallLocalizedHom.{w'} W₂ (Φ.functor.obj X) (Φ.functor.obj Y)]
 
 /-- The action of a localizer morphism on `SmallHom`. -/
-noncomputable def smallHomMap (f : SmallHom.{w} W₁ X Y) :
-    SmallHom.{w'} W₂ (Φ.functor.obj X) (Φ.functor.obj Y) :=
+noncomputable def smallHomMap (f : SmallHom.{w} W₁ X Y)
+    : SmallHom.{w'} W₂ (Φ.functor.obj X) (Φ.functor.obj Y) :=
   (SmallHom.equiv W₂ W₂.Q).symm
     (Iso.homCongr ((CatCommSq.iso Φ.functor W₁.Q W₂.Q _).symm.app _)
       ((CatCommSq.iso Φ.functor W₁.Q W₂.Q _).symm.app _)
@@ -306,7 +317,8 @@ section
 
 variable {X Y Z : C₁}
 
-variable [HasSmallLocalizedHom.{w} W₁ X Y] [HasSmallLocalizedHom.{w} W₁ Y Z]
+variable
+  [HasSmallLocalizedHom.{w} W₁ X Y] [HasSmallLocalizedHom.{w} W₁ Y Z]
   [HasSmallLocalizedHom.{w} W₁ X Z]
   [HasSmallLocalizedHom.{w'} W₂ (Φ.functor.obj X) (Φ.functor.obj Y)]
   [HasSmallLocalizedHom.{w'} W₂ (Φ.functor.obj Y) (Φ.functor.obj Z)]
@@ -322,16 +334,17 @@ end
 
 section
 
-variable {X Y : C₁} [HasSmallLocalizedHom.{w} W₁ X Y] {X' Y' : C₂}
-  [HasSmallLocalizedHom.{w'} W₂ X' X']
-  [HasSmallLocalizedHom.{w'} W₂ X' Y']
+variable
+  {X Y : C₁} [HasSmallLocalizedHom.{w} W₁ X Y]
+  {X' Y' : C₂} [HasSmallLocalizedHom.{w'} W₂ X' X'] [HasSmallLocalizedHom.{w'} W₂ X' Y']
   [HasSmallLocalizedHom.{w'} W₂ Y' Y']
   (eX : Φ.functor.obj X ≅ X') (eY : Φ.functor.obj Y ≅ Y')
 
-/-- The action of a localizer morphism `Φ` on `SmallHom`. In this version, we allow
-the replacement of objects `Φ.functor.obj` by isomorphic objects. -/
-noncomputable def smallHomMap' (f : SmallHom.{w} W₁ X Y) :
-    SmallHom.{w'} W₂ X' Y' :=
+/--
+The action of a localizer morphism `Φ` on `SmallHom`. In this version, we allow
+the replacement of objects `Φ.functor.obj` by isomorphic objects.
+-/
+noncomputable def smallHomMap' (f : SmallHom.{w} W₁ X Y) : SmallHom.{w'} W₂ X' Y' :=
   have := hasSmallLocalizedHom_of_isos.{w'} W₂ eX.symm eY.symm
   have := hasSmallLocalizedHom_of_isos.{w'} W₂ eX.symm (Iso.refl Y')
   have := hasSmallLocalizedHom_of_isos.{w'} W₂ eY.symm (Iso.refl Y')
@@ -357,9 +370,10 @@ end
 
 section
 
-variable {X Y Z : C₁} [HasSmallLocalizedHom.{w} W₁ X Y] [HasSmallLocalizedHom.{w} W₁ Y Z]
-  [HasSmallLocalizedHom.{w} W₁ X Z] {X' Y' Z' : C₂}
-  [HasSmallLocalizedHom.{w'} W₂ X' X'] [HasSmallLocalizedHom.{w'} W₂ Y' Y']
+variable
+  {X Y Z : C₁} [HasSmallLocalizedHom.{w} W₁ X Y] [HasSmallLocalizedHom.{w} W₁ Y Z]
+  [HasSmallLocalizedHom.{w} W₁ X Z]
+  {X' Y' Z' : C₂} [HasSmallLocalizedHom.{w'} W₂ X' X'] [HasSmallLocalizedHom.{w'} W₂ Y' Y']
   [HasSmallLocalizedHom.{w'} W₂ Z' Z'] [HasSmallLocalizedHom.{w'} W₂ X' Y']
   [HasSmallLocalizedHom.{w'} W₂ Y' Z'] [HasSmallLocalizedHom.{w'} W₂ X' Z']
   (eX : Φ.functor.obj X ≅ X') (eY : Φ.functor.obj Y ≅ Y') (eZ : Φ.functor.obj Z ≅ Z')

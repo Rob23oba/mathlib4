@@ -34,12 +34,16 @@ namespace IsGrothendieckAbelian
 
 attribute [local instance] IsFiltered.isConnected
 
-variable {C : Type u} [Category.{v} C] [Abelian C] [IsGrothendieckAbelian.{w} C]
-  {X : C} {J : Type w} [SmallCategory J] (F : J ⥤ MonoOver X)
+variable
+  {C : Type u} [Category.{v} C] [Abelian C] [IsGrothendieckAbelian.{w} C]
+  {X : C} {J : Type w} [SmallCategory J]
+  (F : J ⥤ MonoOver X)
 
 section
 
-variable [IsFiltered J] {c : Cocone (F ⋙ MonoOver.forget _ ⋙ Over.forget _)}
+variable
+  [IsFiltered J]
+  {c : Cocone (F ⋙ MonoOver.forget _ ⋙ Over.forget _)}
   (hc : IsColimit c) (f : c.pt ⟶ X) (hf : ∀ (j : J), c.ι.app j ≫ f = (F.obj j).obj.hom)
 
 include hc hf
@@ -83,21 +87,23 @@ lemma subobjectMk_of_isColimit_eq_iSup :
 end
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Let `X : C` be an object in a Grothendieck abelian category,
+/--
+Let `X : C` be an object in a Grothendieck abelian category,
 `F : J ⥤ MonoOver X` a functor from a filtered category, `c` a cocone for
 the composition `F ⋙ MonoOver.forget _ : J ⥤ Over X`. We assume
 that `c.pt.hom : c.pt.left ⟶ X` is a monomorphism and that the corresponding
 subobject of `X` is the supremum of the subobjects given by `(F.obj j).obj.hom`,
 then `c` becomes a colimit cocone after the application of
-the forget functor `Over X ⥤ C`. (See also `subobjectMk_of_isColimit_eq_iSup`.) -/
+the forget functor `Over X ⥤ C`. (See also `subobjectMk_of_isColimit_eq_iSup`.)
+-/
 noncomputable def isColimitMapCoconeOfSubobjectMkEqISup
-    [IsFiltered J] (c : Cocone (F ⋙ MonoOver.forget _)) [Mono c.pt.hom]
-    (h : Subobject.mk c.pt.hom = ⨆ j, Subobject.mk (F.obj j).obj.hom) :
-    IsColimit ((Over.forget _).mapCocone c) := by
+    [IsFiltered J]
+    (c : Cocone (F ⋙ MonoOver.forget _)) [Mono c.pt.hom]
+    (h : Subobject.mk c.pt.hom = ⨆ j, Subobject.mk (F.obj j).obj.hom)
+    : IsColimit ((Over.forget _).mapCocone c) := by
   let f : colimit (F ⋙ MonoOver.forget X ⋙ Over.forget X) ⟶ X :=
-    colimit.desc _ (Cocone.mk X
-      { app j := (F.obj j).obj.hom
-        naturality {j j'} g := by simp [MonoOver.forget] })
+    colimit.desc _
+      (Cocone.mk X { app j := (F.obj j).obj.hom, naturality {j j'} g := by simp [MonoOver.forget] })
   haveI := mono_of_isColimit_monoOver F (colimit.isColimit _) f (by simp [f])
   have := subobjectMk_of_isColimit_eq_iSup F (colimit.isColimit _) f (by simp [f])
   rw [← h] at this

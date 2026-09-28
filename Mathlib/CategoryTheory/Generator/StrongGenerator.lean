@@ -39,18 +39,19 @@ namespace CategoryTheory
 
 open Limits
 
-
 namespace ObjectProperty
 
 variable {C : Type u} [Category.{v} C] (P : ObjectProperty C)
 
-/-- A property `P : ObjectProperty C` is a strong generator
+/--
+A property `P : ObjectProperty C` is a strong generator
 if it is separating and for any proper subobject `A ⊂ X`, there exists
 a morphism `G ⟶ X` which does not factor through `A` from an object
-such that `P G` holds. -/
+such that `P G` holds.
+-/
 def IsStrongGenerator : Prop :=
-  P.IsSeparating ∧ ∀ ⦃X : C⦄ (A : Subobject X),
-    (∀ (G : C) (_ : P G) (f : G ⟶ X), Subobject.Factors A f) → A = ⊤
+  P.IsSeparating
+    ∧ ∀ ⦃X : C⦄ (A : Subobject X), (∀ (G : C) (_ : P G) (f : G ⟶ X), Subobject.Factors A f) → A = ⊤
 
 variable {P}
 

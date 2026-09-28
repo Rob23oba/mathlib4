@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Pow
 public import Mathlib.Data.ENat.SuccOrder
-
 import Mathlib.Data.Nat.Cast.Order.Basic
 
 /-!
@@ -34,8 +33,15 @@ variable {x y z : ℕ∞}
 
 instance : Pow ℕ∞ ℕ∞ where
   pow
-    | x, some y => x ^ y
-    | x, ⊤ => if x = 0 then 0 else if x = 1 then 1 else ⊤
+    | x, some y =>
+      x ^ y
+    | x, ⊤ =>
+      if x = 0 then
+        0
+      else if x = 1 then
+        1
+      else
+        ⊤
 
 lemma epow_def {x y : ℕ∞} :
     x ^ y = if y < ⊤ then x ^ y.toNat else if x = 0 then 0 else if x = 1 then 1 else ⊤ := by

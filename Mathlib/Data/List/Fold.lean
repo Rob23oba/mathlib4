@@ -60,13 +60,13 @@ lemma foldl1_eq_foldr1 {f : α → α → α} [ha : Std.Associative f] {a b : α
   induction l generalizing a <;> simp [*, ha.assoc]
 
 /-- **First Bird–Wadler duality theorem**. -/
-theorem foldl_eq_foldr_of_commute {f : α → α → α} [Std.Associative f] (ha : ∀ x, f a x = f x a) :
-    l.foldl f a = l.foldr f a := by
+theorem foldl_eq_foldr_of_commute {f : α → α → α} [Std.Associative f] (ha : ∀ x, f a x = f x a)
+    : l.foldl f a = l.foldr f a := by
   induction l <;> simp [*, foldl_assoc]
 
 /-- **First Bird–Wadler duality theorem** for commutative functions. -/
-theorem foldl_eq_foldr {f : α → α → α} [hf : Std.Commutative f] [Std.Associative f] :
-    l.foldl f a = l.foldr f a :=
+theorem foldl_eq_foldr {f : α → α → α} [hf : Std.Commutative f] [Std.Associative f]
+    : l.foldl f a = l.foldr f a :=
   foldl_eq_foldr_of_commute (hf.comm a)
 
 /-- **Second Bird–Wadler duality theorem**. -/

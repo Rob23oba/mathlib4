@@ -37,16 +37,24 @@ More precisely, `Module.AEval R M a` has elements `Module.AEval.of R M a m` for 
 and the action of `f` is `f • (of R M a m) = of R M a ((aeval a f) • m)`.
 -/
 @[nolint unusedArguments]
-def AEval (R M : Type*) {A : Type*} [CommSemiring R] [Semiring A] [Algebra R A]
-    [AddCommMonoid M] [Module A M] [Module R M] [IsScalarTower R A M] (_ : A) := M
-  deriving AddCommMonoid, Module R
+def AEval
+    (R M : Type*)
+    {A : Type*} [CommSemiring R] [Semiring A] [Algebra R A] [AddCommMonoid M] [Module A M]
+    [Module R M] [IsScalarTower R A M] (_ : A) :=
+  M
+deriving AddCommMonoid, Module R
 
-instance AEval.instAddCommGroup {R A M} [CommSemiring R] [Semiring A] (a : A) [Algebra R A]
-    [AddCommGroup M] [Module A M] [Module R M] [IsScalarTower R A M] :
-    AddCommGroup <| AEval R M a := inferInstanceAs (AddCommGroup M)
+instance AEval.instAddCommGroup
+    {R A M} [CommSemiring R] [Semiring A]
+    (a : A)
+    [Algebra R A] [AddCommGroup M] [Module A M] [Module R M] [IsScalarTower R A M]
+    : AddCommGroup <| AEval R M a :=
+  inferInstanceAs (AddCommGroup M)
 
-variable {R A M} [CommSemiring R] [Semiring A] (a : A) [Algebra R A] [AddCommMonoid M] [Module A M]
-  [Module R M] [IsScalarTower R A M]
+variable
+  {R A M} [CommSemiring R] [Semiring A]
+  (a : A)
+  [Algebra R A] [AddCommMonoid M] [Module A M] [Module R M] [IsScalarTower R A M]
 
 namespace AEval
 
@@ -57,11 +65,8 @@ noncomputable instance instModulePolynomial : Module R[X] <| AEval R M a :=
   compHom M (aeval a).toRingHom
 
 variable (R M)
-/--
-The canonical linear equivalence between `M` and `Module.AEval R M a` as an `R`-module.
--/
-def of : M ≃ₗ[R] AEval R M a :=
-  LinearEquiv.refl _ _
+/-- The canonical linear equivalence between `M` and `Module.AEval R M a` as an `R`-module. -/
+def of : M ≃ₗ[R] AEval R M a := LinearEquiv.refl _ _
 
 variable {R M}
 
@@ -92,21 +97,27 @@ instance instFinitePolynomial [Module.Finite R M] : Module.Finite R[X] <| AEval 
   Finite.of_restrictScalars_finite R _ _
 
 /-- Construct an `R[X]`-linear map out of `AEval R M a` from an `R`-linear map out of `M`. -/
-def _root_.LinearMap.ofAEval {N} [AddCommMonoid N] [Module R N] [Module R[X] N]
-    [IsScalarTower R R[X] N] (f : M →ₗ[R] N) (hf : ∀ m : M, f (a • m) = (X : R[X]) • f m) :
-    AEval R M a →ₗ[R[X]] N where
+def _root_.LinearMap.ofAEval
+    {N} [AddCommMonoid N] [Module R N] [Module (R[X]) N] [IsScalarTower R (R[X]) N]
+    (f : M →ₗ[R] N) (hf : ∀ m : M, f (a • m) = (X : R[X]) • f m)
+    : AEval R M a →ₗ[R[X]] N where
   __ := f ∘ₗ (of R M a).symm
-  map_smul' p := p.induction_on (fun k m ↦ by simp [C_eq_algebraMap])
-    (fun p q hp hq m ↦ by simp_all [add_smul]) fun n k h m ↦ by
-      simp_rw [RingHom.id_apply, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
-        LinearMap.comp_apply, LinearEquiv.coe_toLinearMap] at h ⊢
-      simp_rw [pow_succ, ← mul_assoc, mul_smul _ X, ← hf, ← of_symm_X_smul, ← h]
+  map_smul' p :=
+    p.induction_on
+      (fun k m ↦ by simp [C_eq_algebraMap])
+      (fun p q hp hq m ↦ by simp_all [add_smul])
+      fun n k h m ↦ by
+        simp_rw [RingHom.id_apply, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
+          LinearMap.comp_apply, LinearEquiv.coe_toLinearMap] at h ⊢
+        simp_rw [pow_succ, ← mul_assoc, mul_smul _ X, ← hf, ← of_symm_X_smul, ← h]
 
-/-- Construct an `R[X]`-linear equivalence out of `AEval R M a` from an `R`-linear map out of `M`.
+/--
+Construct an `R[X]`-linear equivalence out of `AEval R M a` from an `R`-linear map out of `M`.
 -/
-def _root_.LinearEquiv.ofAEval {N} [AddCommMonoid N] [Module R N] [Module R[X] N]
-    [IsScalarTower R R[X] N] (f : M ≃ₗ[R] N) (hf : ∀ m : M, f (a • m) = (X : R[X]) • f m) :
-    AEval R M a ≃ₗ[R[X]] N where
+def _root_.LinearEquiv.ofAEval
+    {N} [AddCommMonoid N] [Module R N] [Module (R[X]) N] [IsScalarTower R (R[X]) N]
+    (f : M ≃ₗ[R] N) (hf : ∀ m : M, f (a • m) = (X : R[X]) • f m)
+    : AEval R M a ≃ₗ[R[X]] N where
   __ := LinearMap.ofAEval a f hf
   invFun := (of R M a) ∘ f.symm
   left_inv x := by simp [LinearMap.ofAEval]
@@ -133,17 +144,22 @@ variable (R M)
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The natural order isomorphism between the two ways to represent invariant submodules. -/
-noncomputable def mapSubmodule :
-    (Algebra.lsmul R R M a).invtSubmodule ≃o Submodule R[X] (AEval R M a) where
-  toFun p :=
-    { toAddSubmonoid := (p : Submodule R M).toAddSubmonoid.map (of R M a)
-      smul_mem' := by
-        rintro f - ⟨m : M, h : m ∈ (p : Submodule R M), rfl⟩
-        simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
-          AddSubmonoid.mem_map, Submodule.mem_toAddSubmonoid]
-        exact ⟨aeval a f • m, aeval_apply_smul_mem_of_le_comap' h f a p.2, of_aeval_smul a f m⟩ }
-  invFun q := ⟨(Submodule.orderIsoMapComap (of R M a)).symm (q.restrictScalars R), fun m hm ↦ by
-    simpa [← X_smul_of] using! q.smul_mem (X : R[X]) hm⟩
+noncomputable def mapSubmodule
+    : (Algebra.lsmul R R M a).invtSubmodule ≃o Submodule (R[X]) (AEval R M a) where
+  toFun p := {
+    toAddSubmonoid := (p : Submodule R M).toAddSubmonoid.map (of R M a)
+    smul_mem' := by
+      rintro f - ⟨m : M, h : m ∈ (p : Submodule R M), rfl⟩
+      simp only [
+        AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup, AddSubmonoid.mem_map,
+        Submodule.mem_toAddSubmonoid
+      ]
+      exact ⟨aeval a f • m, aeval_apply_smul_mem_of_le_comap' h f a p.2, of_aeval_smul a f m⟩
+  }
+  invFun q := ⟨
+    (Submodule.orderIsoMapComap (of R M a)).symm (q.restrictScalars R),
+    fun m hm ↦ by simpa [← X_smul_of] using! q.smul_mem (X : R[X]) hm
+  ⟩
   left_inv p := by ext; simp
   right_inv q := by ext; aesop
   map_rel_iff' {p p'} := ⟨fun h x hx ↦ by aesop (rule_sets := [SetLike!]), fun h x hx ↦ by aesop⟩
@@ -160,18 +176,18 @@ variable {R M}
 variable (p : Submodule R M) (hp : p ∈ (Algebra.lsmul R R M a).invtSubmodule)
 
 /-- The natural `R`-linear equivalence between the two ways to represent an invariant submodule. -/
-def equiv_mapSubmodule :
-    p ≃ₗ[R] mapSubmodule R M a ⟨p, hp⟩ where
+def equiv_mapSubmodule : p ≃ₗ[R] mapSubmodule R M a ⟨p, hp⟩ where
   toFun x := ⟨of R M a x, by simp⟩
   invFun x := ⟨((of R M _).symm (x : AEval R M a)), by obtain ⟨x, hx⟩ := x; simpa using hx⟩
   map_add' x y := rfl
   map_smul' t x := rfl
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The natural `R[X]`-linear equivalence between the two ways to represent an invariant submodule.
+/--
+The natural `R[X]`-linear equivalence between the two ways to represent an invariant submodule.
 -/
-noncomputable def restrict_equiv_mapSubmodule :
-    (AEval R p <| (Algebra.lsmul R R M a).restrict hp) ≃ₗ[R[X]] mapSubmodule R M a ⟨p, hp⟩ :=
+noncomputable def restrict_equiv_mapSubmodule
+    : (AEval R p <| (Algebra.lsmul R R M a).restrict hp) ≃ₗ[R[X]] mapSubmodule R M a ⟨p, hp⟩ :=
   LinearEquiv.ofAEval ((Algebra.lsmul R R M a).restrict hp) (equiv_mapSubmodule a p hp)
     (fun x ↦ by simp [equiv_mapSubmodule, X_smul_of])
 

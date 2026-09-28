@@ -35,14 +35,17 @@ universe u v
 
 namespace Algebra
 
-variable {R : Type u} {A : Type v} {B : Type*} [CommRing R] [CommRing A] [Algebra R A]
-  [CommRing B] [Algebra R B]
+variable
+  {R : Type u} {A : Type v} {B : Type*}
+  [CommRing R] [CommRing A] [Algebra R A] [CommRing B] [Algebra R B]
 
 section
 
 variable (R A) in
-/-- An `R`-algebra `A` is formally etale if both `Ω[A⁄R]` and `H¹(L_{A/R})` are zero.
-For the infinitesimal lifting definition, see `FormallyEtale.iff_comp_bijective`. -/
+/--
+An `R`-algebra `A` is formally etale if both `Ω[A⁄R]` and `H¹(L_{A/R})` are zero.
+For the infinitesimal lifting definition, see `FormallyEtale.iff_comp_bijective`.
+-/
 @[mk_iff, stacks 00UQ]
 class FormallyEtale : Prop where
   subsingleton_kaehlerDifferential : Subsingleton Ω[A⁄R]
@@ -57,18 +60,17 @@ namespace FormallyEtale
 
 section
 
-instance (priority := 100) [FormallyEtale R A] :
-    FormallyUnramified R A := ⟨inferInstance⟩
+instance (priority := 100) [FormallyEtale R A] : FormallyUnramified R A := ⟨inferInstance⟩
 
 instance (priority := 100) [FormallyEtale R A] : FormallySmooth R A :=
   ⟨inferInstance, inferInstance⟩
 
-theorem iff_formallyUnramified_and_formallySmooth :
-    FormallyEtale R A ↔ FormallyUnramified R A ∧ FormallySmooth R A :=
+theorem iff_formallyUnramified_and_formallySmooth
+    : FormallyEtale R A ↔ FormallyUnramified R A ∧ FormallySmooth R A :=
   ⟨fun _ ↦ ⟨inferInstance, inferInstance⟩, fun ⟨_, _⟩ ↦ ⟨inferInstance, inferInstance⟩⟩
 
-theorem of_formallyUnramified_and_formallySmooth [FormallyUnramified R A]
-    [FormallySmooth R A] : FormallyEtale R A :=
+theorem of_formallyUnramified_and_formallySmooth [FormallyUnramified R A] [FormallySmooth R A]
+    : FormallyEtale R A :=
   FormallyEtale.iff_formallyUnramified_and_formallySmooth.mpr ⟨‹_›, ‹_›⟩
 
 instance : FormallyEtale R R := of_formallyUnramified_and_formallySmooth
@@ -83,15 +85,20 @@ An `R`-algebra `A` is formally etale iff "for every `R`-algebra `B`,
 every square-zero ideal `I : Ideal B` and `f : A →ₐ[R] B ⧸ I`, there exists
 a unique lift `A →ₐ[R] B`".
 -/
-theorem iff_comp_bijective :
-   FormallyEtale R A ↔ ∀ ⦃B : Type max u v⦄ [CommRing B] [Algebra R B] (I : Ideal B), I ^ 2 = ⊥ →
-      Function.Bijective ((Ideal.Quotient.mkₐ R I).comp : (A →ₐ[R] B) → A →ₐ[R] B ⧸ I) :=
-  ⟨fun _ _ ↦ comp_bijective R A, fun H ↦
-    have : FormallyUnramified R A := FormallyUnramified.iff_comp_injective_of_small.{max u v}.mpr
-      (by aesop (add safe Function.Bijective.injective))
-    have : FormallySmooth R A := FormallySmooth.of_comp_surjective
-      (by aesop (add safe Function.Bijective.surjective))
-   .of_formallyUnramified_and_formallySmooth⟩
+theorem iff_comp_bijective
+    : FormallyEtale R A
+      ↔ ∀ ⦃B : Type max u v⦄ [CommRing B] [Algebra R B] (I : Ideal B),
+        I ^ 2 = ⊥
+          → Function.Bijective ((Ideal.Quotient.mkₐ R I).comp : (A →ₐ[R] B) → A →ₐ[R] B ⧸ I) := ⟨
+  fun _ _ ↦ comp_bijective R A,
+  fun H ↦
+    have : FormallyUnramified R A :=
+      FormallyUnramified.iff_comp_injective_of_small.{max u v}.mpr (by
+        aesop (add safe Function.Bijective.injective))
+    have : FormallySmooth R A :=
+      FormallySmooth.of_comp_surjective (by aesop (add safe Function.Bijective.surjective))
+    .of_formallyUnramified_and_formallySmooth
+⟩
 
 end
 
@@ -111,8 +118,7 @@ section Comp
 variable [Algebra A B] [IsScalarTower R A B]
 
 variable (R A B) in
-theorem comp [FormallyEtale R A] [FormallyEtale A B] :
-    FormallyEtale R B :=
+theorem comp [FormallyEtale R A] [FormallyEtale A B] : FormallyEtale R B :=
   FormallyEtale.iff_formallyUnramified_and_formallySmooth.mpr
     ⟨FormallyUnramified.comp R A B, FormallySmooth.comp R A B⟩
 
@@ -140,7 +146,6 @@ lemma iff_of_surjective
     and_iff_right (FormallyUnramified.of_surjective (Algebra.ofId R S) h)]
 
 section BaseChange
-
 
 instance [FormallyEtale R A] : FormallyEtale B (B ⊗[R] A) :=
   .of_formallyUnramified_and_formallySmooth
@@ -201,7 +206,8 @@ section
 
 variable (R A) in
 /-- An `R`-algebra `A` is étale if it is formally étale and of finite presentation. -/
-@[mk_iff, stacks 00U1 "Note that this is a different definition from this Stacks entry, but
+@[mk_iff,
+  stacks 00U1 "Note that this is a different definition from this Stacks entry, but
 <https://stacks.math.columbia.edu/tag/00UR> shows that it is equivalent to the definition here."]
 class Etale : Prop where
   formallyEtale : FormallyEtale R A := by infer_instance
@@ -255,21 +261,21 @@ theorem of_isLocalizationAway (r : R) [IsLocalization.Away r A] : Etale R A wher
 
 instance (s : A) [Algebra.Etale R A] : Algebra.Etale R (Localization.Away s) where
 
-instance (R S : Type u) [CommRing R] [CommRing S] :
-    letI : Algebra (R × S) S := (RingHom.snd R S).toAlgebra
-    Algebra.Etale (R × S) S := by
+instance (R S : Type u) [CommRing R] [CommRing S]
+    : letI : Algebra (R × S) S := (RingHom.snd R S).toAlgebra
+      Algebra.Etale (R × S) S := by
   algebraize [RingHom.snd R S]
   exact Algebra.Etale.of_isLocalizationAway (0, 1)
 
-instance (S : Type*) [CommRing S] :
-    letI : Algebra (R × S) R := (RingHom.fst R S).toAlgebra
-    Algebra.Etale (R × S) R := by
+instance (S : Type*) [CommRing S]
+    : letI : Algebra (R × S) R := (RingHom.fst R S).toAlgebra
+      Algebra.Etale (R × S) R := by
   algebraize [RingHom.fst R S]
   exact Algebra.Etale.of_isLocalizationAway (1, 0)
 
-instance (S : Type*) [CommRing S] :
-    letI : Algebra (R × S) S := (RingHom.snd R S).toAlgebra
-    Algebra.Etale (R × S) S := by
+instance (S : Type*) [CommRing S]
+    : letI : Algebra (R × S) S := (RingHom.snd R S).toAlgebra
+      Algebra.Etale (R × S) S := by
   algebraize [RingHom.snd R S]
   exact Algebra.Etale.of_isLocalizationAway (0, 1)
 

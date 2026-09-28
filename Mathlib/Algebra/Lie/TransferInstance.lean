@@ -37,19 +37,21 @@ lemma AddEquiv.bracket_def (e : M ≃+ L) (x y : M) :
     ⁅x, y⁆ = e.symm ⁅e x, e y⁆ := rfl
 
 /-- Transfer `LieAlgebra` across a `LinearEquiv` -/
-protected abbrev LinearEquiv.lieAlgebra (e : M ≃ₗ[R] L) :
-    letI := e.toAddEquiv.lieRing
-    LieAlgebra R M :=
+protected abbrev LinearEquiv.lieAlgebra (e : M ≃ₗ[R] L)
+    : letI := e.toAddEquiv.lieRing
+      LieAlgebra R M :=
   letI := e.toAddEquiv.lieRing
   { lie_smul _ _ _ := by simp [AddEquiv.bracket_def] }
 
 variable (R) in
-/-- An equivalence `e : M ≃ₗ[R] L` gives a Lie algebra equivalence `M ≃ₗ⁅R⁆ L` where the Lie bracket
-on `M` is the one obtained by transporting a Lie Bracket on `L` back along `e`. -/
-def LinearEquiv.lieEquiv (e : M ≃ₗ[R] L) :
-    letI := e.toAddEquiv.lieRing
-    letI := e.lieAlgebra
-    M ≃ₗ⁅R⁆ L :=
+/--
+An equivalence `e : M ≃ₗ[R] L` gives a Lie algebra equivalence `M ≃ₗ⁅R⁆ L` where the Lie bracket
+on `M` is the one obtained by transporting a Lie Bracket on `L` back along `e`.
+-/
+def LinearEquiv.lieEquiv (e : M ≃ₗ[R] L)
+    : letI := e.toAddEquiv.lieRing
+      letI := e.lieAlgebra
+      M ≃ₗ⁅R⁆ L :=
   letI := e.toAddEquiv.lieRing
   letI := e.lieAlgebra
   { e with map_lie' := by simp [AddEquiv.bracket_def] }

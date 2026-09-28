@@ -19,9 +19,9 @@ public section
 
 open ContinuousMap
 
-variable {X Y R E : Type*} [TopologicalSpace X] [TopologicalSpace Y]
-    [AddCommGroup E] [TopologicalSpace E] [IsTopologicalAddGroup E]
-    [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Module R E]
+variable
+  {X Y R E : Type*} [TopologicalSpace X] [TopologicalSpace Y] [AddCommGroup E] [TopologicalSpace E]
+  [IsTopologicalAddGroup E] [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Module R E]
 
 section Defs
 
@@ -50,18 +50,17 @@ section NoContinuousSMul
 
 /-- Inherit `FunLike` structure from `C(X, R) →L[R] E`. -/
 @[macro_inline]
-instance : FunLike (AbstractMeasure X R E) C(X, R) E :=
-  inferInstanceAs (FunLike (C(X, R) →L[R] E) C(X, R) E)
+instance : FunLike (AbstractMeasure X R E) (C(X, R)) E :=
+  inferInstanceAs (FunLike (C(X, R) →L[R] E) (C(X, R)) E)
 
 /-- Inherit `ContinuousLinearMapClass` structure from `C(X, R) →L[R] E`. -/
-instance : ContinuousLinearMapClass (AbstractMeasure X R E) R C(X, R) E :=
-  inferInstanceAs (ContinuousLinearMapClass (C(X, R) →L[R] E) R C(X, R) E)
+instance : ContinuousLinearMapClass (AbstractMeasure X R E) R (C(X, R)) E :=
+  inferInstanceAs (ContinuousLinearMapClass (C(X, R) →L[R] E) R (C(X, R)) E)
 
 /-- Inherit `AddCommGroup` structure from `C(X, R) →L[R] E`. -/
-instance : AddCommGroup (AbstractMeasure X R E) :=
-  inferInstanceAs (AddCommGroup (C(X, R) →L[R] E))
+instance : AddCommGroup (AbstractMeasure X R E) := inferInstanceAs (AddCommGroup (C(X, R) →L[R] E))
 
-instance isAddApply : IsAddApply (AbstractMeasure X R E) C(X, R) E where
+instance isAddApply : IsAddApply (AbstractMeasure X R E) (C(X, R)) E where
 
 omit [IsTopologicalAddGroup E] in
 @[ext] lemma ext {μ ν : AbstractMeasure X R E} (hμν : ∀ f : C(X, R), μ f = ν f) :
@@ -75,14 +74,12 @@ section ContinuousSMul
 variable [ContinuousSMul R E]
 
 /-- Inherit `R`-module structure from `C(X, R) →L[R] E`. -/
-instance : Module R (AbstractMeasure X R E) :=
-  inferInstanceAs (Module R (C(X, R) →L[R] E))
+instance : Module R (AbstractMeasure X R E) := inferInstanceAs (Module R (C(X, R) →L[R] E))
 
-instance isSMulApply : IsSMulApply R (AbstractMeasure X R E) C(X, R) E where
+instance isSMulApply : IsSMulApply R (AbstractMeasure X R E) (C(X, R)) E where
 
 /-- The defining equivalence between measures and continuous linear maps on continuous functions. -/
-def toCLMEquiv : AbstractMeasure X R E ≃ₗ[R] C(X, R) →L[R] E :=
-  LinearEquiv.refl _ _
+def toCLMEquiv : AbstractMeasure X R E ≃ₗ[R] C(X, R) →L[R] E := LinearEquiv.refl _ _
 
 @[simp] lemma coe_toCLMEquiv (μ : AbstractMeasure X R E) (f : C(X, R)) :
     toCLMEquiv μ f = μ f :=
@@ -94,8 +91,7 @@ def toCLMEquiv : AbstractMeasure X R E ≃ₗ[R] C(X, R) →L[R] E :=
 
 variable (R) in
 /-- The Dirac measure, "evaluation at `x`". -/
-def dirac (x : X) : D(X, R) :=
-  toCLMEquiv.symm (ContinuousMap.evalCLM R x)
+def dirac (x : X) : D(X, R) := toCLMEquiv.symm (ContinuousMap.evalCLM R x)
 
 @[simp] lemma dirac_apply (x : X) (f : C(X, R)) : dirac R x f = f x := (rfl)
 
@@ -127,13 +123,16 @@ lemma map_id (μ : AbstractMeasure X R E) :
 
 end Map
 
-/-- A homeomorphism between topological spaces gives an isomorphism between their modules of
-measures. -/
-def arrowCongrLeft (φ : X ≃ₜ Y) : AbstractMeasure X R E ≃ₗ[R] AbstractMeasure Y R E :=
-  { map φ with
-    invFun := map φ.symm
-    left_inv μ := by apply DFunLike.ext; simp
-    right_inv μ := by apply DFunLike.ext; simp }
+/--
+A homeomorphism between topological spaces gives an isomorphism between their modules of
+measures.
+-/
+def arrowCongrLeft (φ : X ≃ₜ Y) : AbstractMeasure X R E ≃ₗ[R] AbstractMeasure Y R E := {
+  map φ with
+  invFun := map φ.symm
+  left_inv μ := by apply DFunLike.ext; simp
+  right_inv μ := by apply DFunLike.ext; simp
+}
 
 @[simp]
 lemma arrowCongrLeft_symm (φ : X ≃ₜ Y) :
@@ -157,14 +156,18 @@ section Prod
 
 -- note we define `contractSnd` first, because `f.curry` only works one way round
 
-/-- Send a measure `ν` on `Y` and a function `f` on `X × Y` to the function on `X` given by
-`x ↦ ν (f (x, ·))`, or more suggestively, `x ↦ ∫ f(x, y) dμ(y)`. -/
+/--
+Send a measure `ν` on `Y` and a function `f` on `X × Y` to the function on `X` given by
+`x ↦ ν (f (x, ·))`, or more suggestively, `x ↦ ∫ f(x, y) dμ(y)`.
+-/
 def contractSnd : D(Y, R) →ₗ[R] C(X × Y, R) →ₗ[R] C(X, R) :=
-  LinearMap.mk₂ R (fun ν f ↦ comp ν f.curry) ?_ ?_ ?_ ?_ where finally
-    all_goals intros; ext; simp
+  LinearMap.mk₂ R (fun ν f ↦ comp ν f.curry) ?_ ?_ ?_ ?_
+where finally all_goals intros; ext; simp
 
-/-- Send a measure `μ` on `X` and a function `f` on `X × Y` to the function on `Y` given by
-`y ↦ μ (f (·, y))`, or more suggestively, `y ↦ ∫ f(x, y) dμ(x)`. -/
+/--
+Send a measure `μ` on `X` and a function `f` on `X × Y` to the function on `Y` given by
+`y ↦ μ (f (·, y))`, or more suggestively, `y ↦ ∫ f(x, y) dμ(x)`.
+-/
 def contractFst : D(X, R) →ₗ[R] C(X × Y, R) →ₗ[R] C(Y, R) :=
   ((prodSwap.compCLM R R).toLinearMap.lcomp R _).comp contractSnd
 
@@ -192,11 +195,14 @@ variable [LocallyCompactSpace X] [LocallyCompactSpace Y]
 
 /-- `AbstractMeasure.contractSnd` bundled with continuity in the function argument. -/
 def contractSndCLM : D(Y, R) →ₗ[R] C(X × Y, R) →L[R] C(X, R) where
-  toFun ν := ⟨contractSnd ν, by
-    refine continuous_of_continuous_uncurry _ (ν.continuous.comp ?_)
-    apply continuous_of_continuous_uncurry
-    rw [← (Homeomorph.prodAssoc C(X × Y, R) X Y).symm.comp_continuous_iff']
-    exact ContinuousEval.continuous_eval⟩
+  toFun ν := ⟨
+    contractSnd ν,
+    by
+      refine continuous_of_continuous_uncurry _ (ν.continuous.comp ?_)
+      apply continuous_of_continuous_uncurry
+      rw [← (Homeomorph.prodAssoc (C(X × Y, R)) X Y).symm.comp_continuous_iff']
+      exact ContinuousEval.continuous_eval
+  ⟩
   map_add' _ _ := ContinuousLinearMap.coe_injective.eq_iff.mp <| contractSnd.map_add _ _
   map_smul' _ _ := ContinuousLinearMap.coe_injective.eq_iff.mp <| contractSnd.map_smul _ _
 
@@ -204,8 +210,10 @@ def contractSndCLM : D(Y, R) →ₗ[R] C(X × Y, R) →L[R] C(X, R) where
 def contractFstCLM : D(X, R) →ₗ[R] C(X × Y, R) →L[R] C(Y, R) :=
   ((ContinuousMap.prodSwap.compCLM R R).lcomp _).comp contractSndCLM
 
-/-- "Left-handed" version of the natural product map on measures (acting on functions
-as first integrating along `X`, and then integrating the result along `Y`). -/
+/--
+"Left-handed" version of the natural product map on measures (acting on functions
+as first integrating along `X`, and then integrating the result along `Y`).
+-/
 def prodMk : D(X, R) →ₗ[R] D(Y, R) →ₗ[R] D(X × Y, R) :=
   (ContinuousLinearMap.llcomp _ _ _ R).comp contractFstCLM
 
@@ -224,8 +232,10 @@ lemma prodMk_prod_apply (f : C(X, R)) (g : C(Y, R)) :
   simp_rw [ContinuousMap.smul_apply, smul_eq_mul, mul_comm (g y) (f x)]
   rfl
 
-/-- "Right-handed" version of the natural product map on measures (acting on functions
-as first integrating along `Y`, and then integrating the result along `X`). -/
+/--
+"Right-handed" version of the natural product map on measures (acting on functions
+as first integrating along `Y`, and then integrating the result along `X`).
+-/
 def prodMk' : D(X, R) →ₗ[R] D(Y, R) →ₗ[R] D(X × Y, R) :=
   ((ContinuousLinearMap.llcomp R _ _ R).comp contractSndCLM).flip
 
@@ -247,8 +257,8 @@ end LocallyCompact
 
 section Profinite
 
-variable [CompactSpace X] [CompactSpace Y] [T2Space X] [T2Space Y] [TotallyDisconnectedSpace X]
-  [T0Space R]
+variable
+  [CompactSpace X] [CompactSpace Y] [T2Space X] [T2Space Y] [TotallyDisconnectedSpace X] [T0Space R]
 
 /-- For profinite spaces, the two product structures on measures agree. -/
 lemma prodMk_eq_prodMk' : prodMk μ ν = prodMk' μ ν := by

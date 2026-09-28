@@ -63,13 +63,14 @@ variable {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] (x : M) (f : D
 
 namespace Module
 
-/-- Given an element `x` in a module `M` and a linear form `f` on `M`, we define the endomorphism
+/--
+Given an element `x` in a module `M` and a linear form `f` on `M`, we define the endomorphism
 of `M` for which `y ↦ y - (f y) • x`.
 
 One is typically interested in this endomorphism when `f x = 2`; this definition exists to allow the
-user defer discharging this proof obligation. See also `Module.reflection`. -/
-def preReflection : End R M :=
-  LinearMap.id - f.smulRight x
+user defer discharging this proof obligation. See also `Module.reflection`.
+-/
+def preReflection : End R M := LinearMap.id - f.smulRight x
 
 lemma preReflection_apply :
     preReflection x f y = y - (f y) • x := by
@@ -94,12 +95,15 @@ lemma preReflection_preReflection (g : Dual R M) (h : f x = 2) :
     smul_smul, sub_mul, comp_apply, map_sub, map_smul, add_smul]
   abel
 
-/-- Given an element `x` in a module `M` and a linear form `f` on `M` for which `f x = 2`, we define
+/--
+Given an element `x` in a module `M` and a linear form `f` on `M` for which `f x = 2`, we define
 the endomorphism of `M` for which `y ↦ y - (f y) • x`.
 
-It is an involutive endomorphism of `M` fixing the kernel of `f` for which `x ↦ -x`. -/
-def reflection (h : f x = 2) : M ≃ₗ[R] M :=
-  { preReflection x f, (involutive_preReflection h).toPerm with }
+It is an involutive endomorphism of `M` fixing the kernel of `f` for which `x ↦ -x`.
+-/
+def reflection (h : f x = 2) : M ≃ₗ[R] M := {
+  preReflection x f, (involutive_preReflection h).toPerm with
+}
 
 lemma reflection_apply (h : f x = 2) :
     reflection h y = y - (f y) • x :=

@@ -23,7 +23,8 @@ of `HomotopyCategory C (.up ℤ)` consisting of bounded below cochain complexes.
 
 open CategoryTheory Limits ZeroObject Pretriangulated HomotopicalAlgebra
 
-variable (C D : Type*) [Category* C] [Category* D] [Preadditive C] [Preadditive D]
+variable
+  (C D : Type*) [Category* C] [Category* D] [Preadditive C] [Preadditive D]
   (A : Type*) [Category* A] [Abelian A]
 
 namespace CochainComplex
@@ -79,9 +80,11 @@ end CochainComplex
 
 namespace HomotopyCategory
 
-/-- The property of objects in `HomotopyCategory C (.up ℤ)` whose
+/--
+The property of objects in `HomotopyCategory C (.up ℤ)` whose
 underlying cochain complex is bounded below. (Note: this property of
-objects is not closed under isomorphisms.) -/
+objects is not closed under isomorphisms.)
+-/
 def plus : ObjectProperty (HomotopyCategory C (.up ℤ)) :=
   (CochainComplex.plus C).strictMap (quotient _ _)
 
@@ -96,38 +99,40 @@ lemma plus_quotient_obj_iff (K : CochainComplex C ℤ) :
   exact h
 
 instance [HasZeroObject C] : (plus C).ContainsZero where
-  exists_zero :=
-    ⟨(HomotopyCategory.quotient _ _).obj 0, Functor.map_isZero _ (isZero_zero _), by
+  exists_zero := ⟨
+    (HomotopyCategory.quotient _ _).obj 0,
+    Functor.map_isZero _ (isZero_zero _),
+    by
       simp only [plus_quotient_obj_iff]
-      exact ⟨0, inferInstance⟩⟩
+      exact ⟨0, inferInstance⟩
+  ⟩
 
 instance : (plus C).IsStableUnderShift ℤ where
-  isStableUnderShiftBy n :=
-    { le_shift K hK := by
-        obtain ⟨K : CochainComplex _ _, rfl⟩ := K.quotient_obj_surjective
-        simp only [plus_quotient_obj_iff] at hK
-        obtain ⟨q, _⟩ := hK
-        rw [ObjectProperty.prop_shift_iff, shift_quotient_obj,
-          plus_quotient_obj_iff]
-        exact ⟨q - n, K.isStrictlyGE_shift q n (q - n) (by lia)⟩ }
+  isStableUnderShiftBy n := {
+    le_shift K hK := by
+      obtain ⟨K : CochainComplex _ _, rfl⟩ := K.quotient_obj_surjective
+      simp only [plus_quotient_obj_iff] at hK
+      obtain ⟨q, _⟩ := hK
+      rw [ObjectProperty.prop_shift_iff, shift_quotient_obj, plus_quotient_obj_iff]
+      exact ⟨q - n, K.isStrictlyGE_shift q n (q - n) (by lia)⟩
+  }
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-instance [HasZeroObject C] [HasBinaryBiproducts C] :
-    (plus C).IsTriangulatedClosed₃ where
+instance [HasZeroObject C] [HasBinaryBiproducts C] : (plus C).IsTriangulatedClosed₃ where
   ext₃' T hT h₁ h₂ := by
-    obtain ⟨n₁, _⟩ : (CochainComplex.plus C) T.obj₁.as := by
-      rwa [← plus_quotient_obj_iff]
-    obtain ⟨n₂, _⟩ : (CochainComplex.plus C) T.obj₂.as := by
-      rwa [← plus_quotient_obj_iff]
+    obtain ⟨n₁, _⟩ : (CochainComplex.plus C) T.obj₁.as := by rwa [← plus_quotient_obj_iff]
+    obtain ⟨n₂, _⟩ : (CochainComplex.plus C) T.obj₂.as := by rwa [← plus_quotient_obj_iff]
     obtain ⟨f : T.obj₁.as ⟶ T.obj₂.as, hf⟩ := (quotient _ _).map_surjective T.mor₁
-    refine ⟨_, ?_,
+    refine ⟨
+      _,
+      ?_,
       ⟨Triangle.π₃.mapIso (isoTriangleOfIso₁₂ T _ hT (mappingCone_triangleh_distinguished f)
-        (Iso.refl _) (Iso.refl _) ?_)⟩⟩
+        (Iso.refl _) (Iso.refl _) ?_)⟩
+    ⟩
     · dsimp
       simp only [plus_quotient_obj_iff]
-      exact ⟨min (n₁ - 1) n₂, CochainComplex.isStrictlyGE_mappingCone f n₁ n₂ _
-        (by simp) (by simp)⟩
+      exact ⟨min (n₁ - 1) n₂, CochainComplex.isStrictlyGE_mappingCone f n₁ n₂ _ (by simp) (by simp)⟩
     · simp [hf]
 
 instance [HasZeroObject C] [HasBinaryBiproducts C] : (plus C).IsTriangulated where
@@ -138,18 +143,23 @@ abbrev Plus := (plus C).FullSubcategory
 
 namespace Plus
 
-/-- The inclusion of the homotopy category of bounded below cochain complexes
-in the homotopy category category of all cochain complexes. -/
+/--
+The inclusion of the homotopy category of bounded below cochain complexes
+in the homotopy category category of all cochain complexes.
+-/
 abbrev ι : Plus C ⥤ HomotopyCategory C (.up ℤ) := (plus C).ι
 
-/-- The inclusion functor
-`HomotopyCategory.ι C : HomotopyCategory.Plus C ⥤ HomotopyCategory C (.up ℤ)` is fully faithful. -/
+/--
+The inclusion functor
+`HomotopyCategory.ι C : HomotopyCategory.Plus C ⥤ HomotopyCategory C (.up ℤ)` is fully faithful.
+-/
 abbrev fullyFaithfulι : (ι C).FullyFaithful := ObjectProperty.fullyFaithfulι _
 
-/-- The class of quasi-isomorphisms in the homotopy category of bounded below cochain
-complexes. -/
-def quasiIso : MorphismProperty (Plus A) :=
-  (HomotopyCategory.quasiIso A _).inverseImage (ι A)
+/--
+The class of quasi-isomorphisms in the homotopy category of bounded below cochain
+complexes.
+-/
+def quasiIso : MorphismProperty (Plus A) := (HomotopyCategory.quasiIso A _).inverseImage (ι A)
 deriving MorphismProperty.IsMultiplicative
 
 lemma quasiIso_iff {K L : Plus A} (f : K ⟶ L) :
@@ -158,8 +168,10 @@ lemma quasiIso_iff {K L : Plus A} (f : K ⟶ L) :
 instance : (quasiIso A).IsCompatibleWithShift ℤ where
   condition a := by
     ext X Y f
-    simp only [quasiIso_iff, ← MorphismProperty.IsCompatibleWithShift.iff
-      (HomotopyCategory.quasiIso _ _) f.hom a]
+    simp only [
+      quasiIso_iff,
+      ← MorphismProperty.IsCompatibleWithShift.iff (HomotopyCategory.quasiIso _ _) f.hom a
+    ]
     exact (HomotopyCategory.quasiIso _ _).arrow_mk_iso_iff
       (Arrow.isoOfNatIso ((ι A).commShiftIso a) (Arrow.mk f))
 
@@ -167,22 +179,25 @@ instance : (quasiIso A).RespectsIso := by
   dsimp only [quasiIso]
   infer_instance
 
-/-- The full and essentially surjective functor
-`CochainComplex.Plus C ⥤ HomotopyCategory.Plus C`. -/
+/--
+The full and essentially surjective functor
+`CochainComplex.Plus C ⥤ HomotopyCategory.Plus C`.
+-/
 @[implicit_reducible, simps!]
 def quotient : CochainComplex.Plus C ⥤ Plus C :=
-  ObjectProperty.lift _
-    (CochainComplex.Plus.ι C ⋙ HomotopyCategory.quotient C (.up ℤ)) (by
-      rintro ⟨K, h⟩
-      simpa [plus_quotient_obj_iff])
+  ObjectProperty.lift _ (CochainComplex.Plus.ι C ⋙ HomotopyCategory.quotient C (.up ℤ)) (by
+    rintro ⟨K, h⟩
+    simpa [plus_quotient_obj_iff])
 
-/-- The functor
+/--
+The functor
 `HomotopyCategory.Plus.quotient C : CochainComplex.Plus C ⥤ HomotopyCategory.Plus C`
 is induced by the functor `HomotopyCategory.quotient C (.up ℤ)` from `CochainComplex C ℤ`
-to `HomotopyCategory C (.up ℤ)`. -/
+to `HomotopyCategory C (.up ℤ)`.
+-/
 @[simps! -isSimp]
-def quotientCompιIso :
-    quotient C ⋙ ι C ≅ CochainComplex.Plus.ι C ⋙ HomotopyCategory.quotient C (.up ℤ) :=
+def quotientCompιIso
+    : quotient C ⋙ ι C ≅ CochainComplex.Plus.ι C ⋙ HomotopyCategory.quotient C (.up ℤ) :=
   ObjectProperty.liftCompιIso ..
 
 noncomputable instance : (quotient C).CommShift ℤ := ObjectProperty.commShiftLift ..
@@ -225,26 +240,33 @@ variable [HasZeroObject C] [HasBinaryBiproducts C]
 set_option backward.isDefEq.respectTransparency.types false in
 open HomologicalComplex in
 set_option backward.defeqAttrib.useBackward true in
-instance :
-    (quotient C).IsLocalization
+instance
+    : (quotient C).IsLocalization
       ((homotopyEquivalences C (.up ℤ)).inverseImage (CochainComplex.Plus.ι C)) :=
   Functor.isLocalization_of_essSurj_of_full_of_exists_cylinders _ _
     (fun _ _ f hf ↦ by
-      simpa [← isIso_iff_of_reflects_iso _ (HomotopyCategory.Plus.ι C),
-        ← inverseImage_quotient_isomorphisms] using! hf) (by
-    rintro K L f₀ f₁ hf
-    obtain ⟨f₀, rfl⟩ := ObjectProperty.homMk_surjective f₀
-    obtain ⟨f₁, rfl⟩ := ObjectProperty.homMk_surjective f₁
-    replace hf := homotopyOfEq f₀ f₁ ((HomotopyCategory.Plus.ι _).congr_map hf)
-    exact ⟨K.precylinder, Precylinder.LeftHomotopy.fullSubcategoryEquiv.symm
-      { h := cylinder.desc _ _ hf }, ⟨cylinder.homotopyEquiv _ (fun n ↦ ⟨n - 1, by simp⟩), rfl⟩⟩)
+      simpa [
+          ← isIso_iff_of_reflects_iso _ (HomotopyCategory.Plus.ι C),
+          ← inverseImage_quotient_isomorphisms
+        ]
+        using! hf)
+    (by
+      rintro K L f₀ f₁ hf
+      obtain ⟨f₀, rfl⟩ := ObjectProperty.homMk_surjective f₀
+      obtain ⟨f₁, rfl⟩ := ObjectProperty.homMk_surjective f₁
+      replace hf := homotopyOfEq f₀ f₁ ((HomotopyCategory.Plus.ι _).congr_map hf)
+      exact ⟨
+        K.precylinder,
+        Precylinder.LeftHomotopy.fullSubcategoryEquiv.symm { h := cylinder.desc _ _ hf },
+        ⟨cylinder.homotopyEquiv _ (fun n ↦ ⟨n - 1, by simp⟩), rfl⟩
+      ⟩)
 
 open HomologicalComplex in
-instance {H : Type*} [Category* H] (L : Plus A ⥤ H) [L.IsLocalization (quasiIso A)] :
-    (quotient A ⋙ L).IsLocalization (CochainComplex.Plus.quasiIso A) := by
+instance {H : Type*} [Category* H] (L : Plus A ⥤ H) [L.IsLocalization (quasiIso A)]
+    : (quotient A ⋙ L).IsLocalization (CochainComplex.Plus.quasiIso A) := by
   refine Functor.IsLocalization.comp _ _
-    ((homotopyEquivalences A (.up ℤ)).inverseImage (CochainComplex.Plus.ι A))
-    (quasiIso A) _ ?_ ?_ ?_
+    ((homotopyEquivalences A (.up ℤ)).inverseImage (CochainComplex.Plus.ι A)) (quasiIso A) _ ?_ ?_
+    ?_
   · intro _ _ f hf
     refine Localization.inverts L (quasiIso A) _ ?_
     simpa [quasiIso, quotient_map_mem_quasiIso_iff]
@@ -252,24 +274,27 @@ instance {H : Type*} [Category* H] (L : Plus A ⥤ H) [L.IsLocalization (quasiIs
     exact homotopyEquivalences_le_quasiIso _ _ _ hf
   · rw [quasiIso_map_quotient_eq_quasiIso]
 
-/-- The collection of all single functors `C ⥤ HomotopyCategory.Plus C` for `n : ℤ`
-along with their compatibilities with shifts. -/
+/--
+The collection of all single functors `C ⥤ HomotopyCategory.Plus C` for `n : ℤ`
+along with their compatibilities with shifts.
+-/
 noncomputable def singleFunctors : SingleFunctors C (Plus C) ℤ :=
   SingleFunctors.lift (HomotopyCategory.singleFunctors C) (ι C)
-    (fun n ↦ (plus C).lift (singleFunctor C n)
-    (fun X ↦ by
-      rw [← quotient_obj_singleFunctors_obj, plus_quotient_obj_iff]
-      exact ⟨n, inferInstance⟩))
+    (fun n ↦
+      (plus C).lift (singleFunctor C n) (fun X ↦ by
+        rw [← quotient_obj_singleFunctors_obj, plus_quotient_obj_iff]
+        exact ⟨n, inferInstance⟩))
     (fun _ ↦ Iso.refl _)
 
 /-- The single functor `C ⥤ HomotopyCategory.Plus C`. -/
-noncomputable abbrev singleFunctor (n : ℤ) : C ⥤ Plus C :=
-  (singleFunctors C).functor n
+noncomputable abbrev singleFunctor (n : ℤ) : C ⥤ Plus C := (singleFunctors C).functor n
 
-/-- The single functor `C ⥤ HomotopyCategory.Plus C` is induced by
-`HomotopyCategory.singleFunctor C n : C ⥤ HomotopyCategory C (.up ℤ)`. -/
-noncomputable def singleFunctorCompιIso (n : ℤ) :
-    singleFunctor C n ⋙ ι C ≅ HomotopyCategory.singleFunctor C n :=
+/--
+The single functor `C ⥤ HomotopyCategory.Plus C` is induced by
+`HomotopyCategory.singleFunctor C n : C ⥤ HomotopyCategory C (.up ℤ)`.
+-/
+noncomputable def singleFunctorCompιIso (n : ℤ)
+    : singleFunctor C n ⋙ ι C ≅ HomotopyCategory.singleFunctor C n :=
   Iso.refl _
 
 instance (n : ℤ) : (singleFunctor C n).Additive := by
@@ -290,58 +315,67 @@ variable {C D}
 variable (F : C ⥤ D) [F.Additive]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- The functor between bounded below homotopy categories that is induced
-by an additive functor. -/
+/--
+The functor between bounded below homotopy categories that is induced
+by an additive functor.
+-/
 @[implicit_reducible]
 def mapHomotopyCategoryPlus : HomotopyCategory.Plus C ⥤ HomotopyCategory.Plus D :=
   (HomotopyCategory.plus D).lift
-    (HomotopyCategory.Plus.ι C ⋙ F.mapHomotopyCategory (ComplexShape.up ℤ)) (by
+    (HomotopyCategory.Plus.ι C ⋙ F.mapHomotopyCategory (ComplexShape.up ℤ))
+    (by
       rintro ⟨X, hX⟩
       obtain ⟨K, rfl⟩ := HomotopyCategory.quotient_obj_surjective X
       dsimp
       simp only [HomotopyCategory.plus_quotient_obj_iff] at hX ⊢
       obtain ⟨n, _⟩ := hX
-      exact ⟨n, inferInstanceAs (CochainComplex.IsStrictlyGE
-        ((F.mapHomologicalComplex _).obj K) n)⟩)
+      exact
+        ⟨n, inferInstanceAs (CochainComplex.IsStrictlyGE ((F.mapHomologicalComplex _).obj K) n)⟩)
 
-noncomputable instance :
-    F.mapHomotopyCategoryPlus.CommShift ℤ :=
-  inferInstanceAs (((HomotopyCategory.plus D).lift (HomotopyCategory.Plus.ι C ⋙
-    F.mapHomotopyCategory (.up ℤ)) _).CommShift ℤ)
+noncomputable instance : F.mapHomotopyCategoryPlus.CommShift ℤ :=
+  inferInstanceAs (((HomotopyCategory.plus D).lift
+      (HomotopyCategory.Plus.ι C ⋙ F.mapHomotopyCategory (.up ℤ)) _).CommShift
+    ℤ)
 
-instance [HasZeroObject C] [HasBinaryBiproducts C] [HasZeroObject D] [HasBinaryBiproducts D] :
-    (F.mapHomotopyCategoryPlus).IsTriangulated := by
+instance [HasZeroObject C] [HasBinaryBiproducts C] [HasZeroObject D] [HasBinaryBiproducts D]
+    : (F.mapHomotopyCategoryPlus).IsTriangulated := by
   dsimp only [mapHomotopyCategoryPlus]
   infer_instance
 
 instance [Full F] [Faithful F] : Full F.mapHomotopyCategoryPlus where
-  map_surjective f :=
-    ⟨ObjectProperty.homMk ((F.mapHomotopyCategory _).preimage f.hom), by
+  map_surjective f := ⟨
+    ObjectProperty.homMk ((F.mapHomotopyCategory _).preimage f.hom),
+    by
       ext
-      exact (F.mapHomotopyCategory _).map_preimage f.hom⟩
+      exact (F.mapHomotopyCategory _).map_preimage f.hom
+  ⟩
 
 instance [Full F] [Faithful F] : Faithful F.mapHomotopyCategoryPlus where
   map_injective h := by
     ext
     exact (F.mapHomotopyCategory _).map_injective ((ObjectProperty.ι _).congr_map h)
 
-/-- The functor `F.mapHomotopyCategoryPlus : HomotopyCategory.Plus C ⥤ HomotopyCategory.Plus D`
-is induced by `F.mapHomotopyCategory (.up ℤ)`. -/
+/--
+The functor `F.mapHomotopyCategoryPlus : HomotopyCategory.Plus C ⥤ HomotopyCategory.Plus D`
+is induced by `F.mapHomotopyCategory (.up ℤ)`.
+-/
 @[simps! -isSimp]
-def mapHomotopyCategoryPlusCompι :
-    F.mapHomotopyCategoryPlus ⋙ HomotopyCategory.Plus.ι D ≅
-    HomotopyCategory.Plus.ι C ⋙ F.mapHomotopyCategory (.up ℤ) :=
+def mapHomotopyCategoryPlusCompι
+    : F.mapHomotopyCategoryPlus ⋙ HomotopyCategory.Plus.ι D
+      ≅ HomotopyCategory.Plus.ι C ⋙ F.mapHomotopyCategory (.up ℤ) :=
   Iso.refl _
 
 instance : NatTrans.CommShift F.mapHomotopyCategoryPlusCompι.hom ℤ :=
   ObjectProperty.commShift_liftCompιIso_hom ..
 
-/-- The functor `F.mapHomotopyCategoryPlus : HomotopyCategory.Plus C ⥤ HomotopyCategory.Plus D`
-is induced by `F.mapCochainComplexPlus`. -/
+/--
+The functor `F.mapHomotopyCategoryPlus : HomotopyCategory.Plus C ⥤ HomotopyCategory.Plus D`
+is induced by `F.mapCochainComplexPlus`.
+-/
 @[simps! -isSimp]
-def quotientCompMapHomotopyCategoryPlusIso :
-    HomotopyCategory.Plus.quotient C ⋙ F.mapHomotopyCategoryPlus ≅
-    F.mapCochainComplexPlus ⋙ HomotopyCategory.Plus.quotient D :=
+def quotientCompMapHomotopyCategoryPlusIso
+    : HomotopyCategory.Plus.quotient C ⋙ F.mapHomotopyCategoryPlus
+      ≅ F.mapCochainComplexPlus ⋙ HomotopyCategory.Plus.quotient D :=
   Iso.refl _
 
 @[reassoc]
@@ -370,16 +404,17 @@ instance : NatTrans.CommShift F.quotientCompMapHomotopyCategoryPlusIso.hom ℤ :
     rw [whiskerRight_quotientCompMapHomotopyCategoryPlusIso_hom_ι]
     infer_instance)
 
-/-- Given additive functors that are related by an isomorphism `F ⋙ G ≅ H`, this is
+/--
+Given additive functors that are related by an isomorphism `F ⋙ G ≅ H`, this is
 the corresponding isomorphism on the corresponding functor between
-the bounded below homotopy categories. -/
-def mapHomotopyCategoryPlusCompIso {E : Type*} [Category* E] [Preadditive E]
-    {F : C ⥤ D} {G : D ⥤ E} {H : C ⥤ E} (e : F ⋙ G ≅ H)
-    [F.Additive] [G.Additive] [H.Additive] :
-    F.mapHomotopyCategoryPlus ⋙ G.mapHomotopyCategoryPlus ≅ H.mapHomotopyCategoryPlus :=
+the bounded below homotopy categories.
+-/
+def mapHomotopyCategoryPlusCompIso
+    {E : Type*} [Category* E] [Preadditive E]
+    {F : C ⥤ D} {G : D ⥤ E} {H : C ⥤ E} (e : F ⋙ G ≅ H) [F.Additive] [G.Additive] [H.Additive]
+    : F.mapHomotopyCategoryPlus ⋙ G.mapHomotopyCategoryPlus ≅ H.mapHomotopyCategoryPlus :=
   ((HomotopyCategory.plus _).fullyFaithfulι.whiskeringRight _).preimageIso
-    (isoWhiskerLeft (HomotopyCategory.Plus.ι C)
-      (mapHomotopyCategoryCompIso e (.up ℤ)))
+    (isoWhiskerLeft (HomotopyCategory.Plus.ι C) (mapHomotopyCategoryCompIso e (.up ℤ)))
 
 end Functor
 
@@ -387,10 +422,12 @@ namespace NatTrans
 
 variable {C D} {F₁ F₂ F₃ : C ⥤ D} [F₁.Additive] [F₂.Additive] [F₃.Additive]
 
-/-- The natural transformation `F₁.mapHomotopyCategoryPlus ⟶ F₂.mapHomotopyCategoryPlus`
-induced by a natural transformation `F₁ ⟶ F₂`. -/
-def mapHomotopyCategoryPlus (τ : F₁ ⟶ F₂) :
-    F₁.mapHomotopyCategoryPlus ⟶ F₂.mapHomotopyCategoryPlus where
+/--
+The natural transformation `F₁.mapHomotopyCategoryPlus ⟶ F₂.mapHomotopyCategoryPlus`
+induced by a natural transformation `F₁ ⟶ F₂`.
+-/
+def mapHomotopyCategoryPlus (τ : F₁ ⟶ F₂)
+    : F₁.mapHomotopyCategoryPlus ⟶ F₂.mapHomotopyCategoryPlus where
   app K := ObjectProperty.homMk ((NatTrans.mapHomotopyCategory τ _).app _)
   naturality {K₁ K₂} f := by
     ext : 1

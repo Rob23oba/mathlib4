@@ -25,9 +25,10 @@ variable {ι : Type*} [LinearOrder ι] [LocallyFiniteOrder ι] [DecidableLE ι] 
 
 /-- Gluing `Ioc a b` and `Ioc b c` into `Ioc a c`. -/
 def IocProdIoc (a b c : ι) (x : (Π i : Ioc a b, X i) × (Π i : Ioc b c, X i)) (i : Ioc a c) : X i :=
-  if h : i ≤ b
-    then x.1 ⟨i, mem_Ioc.2 ⟨(mem_Ioc.1 i.2).1, h⟩⟩
-    else x.2 ⟨i, mem_Ioc.2 ⟨not_le.1 h, (mem_Ioc.1 i.2).2⟩⟩
+  if h : i ≤ b then
+    x.1 ⟨i, mem_Ioc.2 ⟨(mem_Ioc.1 i.2).1, h⟩⟩
+  else
+    x.2 ⟨i, mem_Ioc.2 ⟨not_le.1 h, (mem_Ioc.1 i.2).2⟩⟩
 
 @[fun_prop]
 lemma measurable_IocProdIoc [∀ i, MeasurableSpace (X i)] {a b c : ι} :
@@ -39,12 +40,15 @@ lemma measurable_IocProdIoc [∀ i, MeasurableSpace (X i)] {a b c : ι} :
 
 variable [LocallyFiniteOrderBot ι]
 
-/-- Gluing `Iic a` and `Ioc a b` into `Iic b`. If `b < a`, this is just a projection on the first
-coordinate followed by a restriction, see `IicProdIoc_le`. -/
+/--
+Gluing `Iic a` and `Ioc a b` into `Iic b`. If `b < a`, this is just a projection on the first
+coordinate followed by a restriction, see `IicProdIoc_le`.
+-/
 def IicProdIoc (a b : ι) (x : (Π i : Iic a, X i) × (Π i : Ioc a b, X i)) (i : Iic b) : X i :=
-  if h : i ≤ a
-    then x.1 ⟨i, mem_Iic.2 h⟩
-    else x.2 ⟨i, mem_Ioc.2 ⟨not_le.1 h, mem_Iic.1 i.2⟩⟩
+  if h : i ≤ a then
+    x.1 ⟨i, mem_Iic.2 h⟩
+  else
+    x.2 ⟨i, mem_Ioc.2 ⟨not_le.1 h, mem_Iic.1 i.2⟩⟩
 
 /-- When `IicProdIoc` is only partially applied (i.e. `IicProdIoc a b x` but not
 `IicProdIoc a b x i`) `simp [IicProdIoc]` won't unfold the definition.
@@ -89,19 +93,23 @@ lemma measurable_IicProdIoc {m n : ι} : Measurable (IicProdIoc (X := X) m n) :=
 
 namespace MeasurableEquiv
 
-/-- Gluing `Iic a` and `Ioc a b` into `Iic b`. This version requires `a ≤ b` to get a measurable
-equivalence. -/
-def IicProdIoc {a b : ι} (hab : a ≤ b) :
-    ((Π i : Iic a, X i) × (Π i : Ioc a b, X i)) ≃ᵐ Π i : Iic b, X i where
-  toFun x i := if h : i ≤ a then x.1 ⟨i, mem_Iic.2 h⟩
-    else x.2 ⟨i, mem_Ioc.2 ⟨not_le.1 h, mem_Iic.1 i.2⟩⟩
+/--
+Gluing `Iic a` and `Ioc a b` into `Iic b`. This version requires `a ≤ b` to get a measurable
+equivalence.
+-/
+def IicProdIoc {a b : ι} (hab : a ≤ b)
+    : ((Π i : Iic a, X i) × (Π i : Ioc a b, X i)) ≃ᵐ Π i : Iic b, X i where
+  toFun x i :=
+    if h : i ≤ a then
+      x.1 ⟨i, mem_Iic.2 h⟩
+    else
+      x.2 ⟨i, mem_Ioc.2 ⟨not_le.1 h, mem_Iic.1 i.2⟩⟩
   invFun x := ⟨fun i ↦ x ⟨i.1, Iic_subset_Iic.2 hab i.2⟩, fun i ↦ x ⟨i.1, Ioc_subset_Iic_self i.2⟩⟩
   left_inv := fun x ↦ by
     ext i
     · simp [mem_Iic.1 i.2]
     · simp [not_le.2 (mem_Ioc.1 i.2).1]
-  right_inv := fun x ↦ funext fun i ↦ by
-    by_cases hi : i.1 ≤ a <;> simp [hi]
+  right_inv := fun x ↦ funext fun i ↦ by by_cases hi : i.1 ≤ a <;> simp [hi]
   measurable_toFun := by
     refine .of_eval (fun x ↦ ?_)
     by_cases h : x ≤ a
@@ -115,13 +123,16 @@ lemma coe_IicProdIoc_symm {a b : ι} (hab : a ≤ b) :
     ⇑(IicProdIoc (X := X) hab).symm =
     fun x ↦ (frestrictLe₂ hab x, restrict₂ Ioc_subset_Iic_self x) := rfl
 
-/-- Gluing `Iic a` and `Ioi a` into `ℕ`, version as a measurable equivalence
-on dependent functions. -/
-def IicProdIoi (a : ι) :
-    ((Π i : Iic a, X i) × (Π i : Set.Ioi a, X i)) ≃ᵐ (Π n, X n) where
-  toFun := fun x i ↦ if hi : i ≤ a
-    then x.1 ⟨i, mem_Iic.2 hi⟩
-    else x.2 ⟨i, Set.mem_Ioi.2 (not_le.1 hi)⟩
+/--
+Gluing `Iic a` and `Ioi a` into `ℕ`, version as a measurable equivalence
+on dependent functions.
+-/
+def IicProdIoi (a : ι) : ((Π i : Iic a, X i) × (Π i : Set.Ioi a, X i)) ≃ᵐ (Π n, X n) where
+  toFun := fun x i ↦
+    if hi : i ≤ a then
+      x.1 ⟨i, mem_Iic.2 hi⟩
+    else
+      x.2 ⟨i, Set.mem_Ioi.2 (not_le.1 hi)⟩
   invFun := fun x ↦ (fun i ↦ x i, fun i ↦ x i)
   left_inv := fun x ↦ by
     ext i
@@ -130,7 +141,7 @@ def IicProdIoi (a : ι) :
   right_inv := fun x ↦ by simp
   measurable_toFun := by
     refine .of_eval (fun i ↦ ?_)
-    by_cases hi : i ≤ a <;> simp only [Equiv.coe_fn_mk, hi, ↓reduceDIte]
+    by_cases hi : i ≤ a <;> simp only [Equiv.coe_fn_mk, hi, ↓ reduceDIte]
     · exact measurable_fst.eval
     · exact measurable_snd.eval
 
@@ -151,7 +162,8 @@ def MeasurableEquiv.piSingleton (a : ℕ) : X (a + 1) ≃ᵐ Π i : Ioc a (a + 1
   measurable_toFun := by
     simp_rw [eqRec_eq_cast]
     refine .of_eval (fun i ↦ (MeasurableEquiv.cast _ ?_).measurable)
-    cases Nat.mem_Ioc_succ' i; rfl
+    cases Nat.mem_Ioc_succ' i
+    rfl
 
 end Nat
 

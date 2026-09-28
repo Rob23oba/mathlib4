@@ -36,8 +36,10 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Pullback
 
-/-- A `Triplet` over `f : X ⟶ S` and `g : Y ⟶ S` is a triple of points `x : X`, `y : Y`,
-`s : S` such that `f x = s = f y`. -/
+/--
+A `Triplet` over `f : X ⟶ S` and `g : Y ⟶ S` is a triple of points `x : X`, `y : Y`,
+`s : S` such that `f x = s = f y`.
+-/
 structure Triplet {X Y S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) where
   /-- The point of `X`. -/
   x : X
@@ -71,15 +73,18 @@ def tensor (T : Triplet f g) : CommRingCat :=
     ((S.residueFieldCongr T.hy).inv ≫ g.residueFieldMap T.y)
 
 instance (T : Triplet f g) : Nontrivial T.tensor :=
-  CommRingCat.nontrivial_of_isPushout_of_isField (Field.toIsField _)
-    (IsPushout.of_hasPushout _ _)
+  CommRingCat.nontrivial_of_isPushout_of_isField (Field.toIsField _) (IsPushout.of_hasPushout _ _)
 
-/-- Given `x : X` and `y : Y` such that `f x = s = g y`, this is the
-canonical map `κ(x) ⟶ κ(x) ⊗[κ(s)] κ(y)`. -/
+/--
+Given `x : X` and `y : Y` such that `f x = s = g y`, this is the
+canonical map `κ(x) ⟶ κ(x) ⊗[κ(s)] κ(y)`.
+-/
 def tensorInl (T : Triplet f g) : X.residueField T.x ⟶ T.tensor := pushout.inl _ _
 
-/-- Given `x : X` and `y : Y` such that `f x = s = g y`, this is the
-canonical map `κ(y) ⟶ κ(x) ⊗[κ(s)] κ(y)`. -/
+/--
+Given `x : X` and `y : Y` such that `f x = s = g y`, this is the
+canonical map `κ(y) ⟶ κ(x) ⊗[κ(s)] κ(y)`.
+-/
 def tensorInr (T : Triplet f g) : Y.residueField T.y ⟶ T.tensor := pushout.inr _ _
 
 lemma isPullback_SpecMap_tensor (T : Triplet f g) : CategoryTheory.IsPullback
@@ -90,10 +95,11 @@ lemma isPullback_SpecMap_tensor (T : Triplet f g) : CategoryTheory.IsPullback
 
 section Congr
 
-/-- Given propositionally equal triplets `T₁` and `T₂` over `f` and `g`, the corresponding
-`T₁.tensor` and `T₂.tensor` are isomorphic. -/
-def tensorCongr {T₁ T₂ : Triplet f g} (e : T₁ = T₂) :
-    T₁.tensor ≅ T₂.tensor :=
+/--
+Given propositionally equal triplets `T₁` and `T₂` over `f` and `g`, the corresponding
+`T₁.tensor` and `T₂.tensor` are isomorphic.
+-/
+def tensorCongr {T₁ T₂ : Triplet f g} (e : T₁ = T₂) : T₁.tensor ≅ T₂.tensor :=
   eqToIso (by subst e; rfl)
 
 @[simp]
@@ -136,12 +142,13 @@ lemma SpecMap_tensorInl_fromSpecResidueField :
     ← residueFieldCongr_fromSpecResidueField T.hy.symm]
   simp only [← Category.assoc, ← Spec.map_comp, pushout.condition]
 
-/-- Given `x : X`, `y : Y` and `s : S` such that `f x = s = g y`,
-this is `Spec (κ(x) ⊗[κ(s)] κ(y)) ⟶ X ×ₛ Y`. -/
+/--
+Given `x : X`, `y : Y` and `s : S` such that `f x = s = g y`,
+this is `Spec (κ(x) ⊗[κ(s)] κ(y)) ⟶ X ×ₛ Y`.
+-/
 def SpecTensorTo : Spec T.tensor ⟶ pullback f g :=
   pullback.lift (Spec.map T.tensorInl ≫ X.fromSpecResidueField T.x)
-    (Spec.map T.tensorInr ≫ Y.fromSpecResidueField T.y)
-    (SpecMap_tensorInl_fromSpecResidueField _)
+    (Spec.map T.tensorInr ≫ Y.fromSpecResidueField T.y) (SpecMap_tensorInl_fromSpecResidueField _)
 
 @[simp]
 lemma fst_SpecTensorTo_apply (p : Spec T.tensor) :
@@ -167,12 +174,18 @@ lemma specTensorTo_snd :
     T.SpecTensorTo ≫ pullback.snd f g = Spec.map T.tensorInr ≫ Y.fromSpecResidueField T.y :=
   pullback.lift_snd _ _ _
 
-/-- Given `t : X ×[S] Y`, it maps to `X` and `Y` with same image in `S`, yielding a
-`Triplet f g`. -/
+/--
+Given `t : X ×[S] Y`, it maps to `X` and `Y` with same image in `S`, yielding a
+`Triplet f g`.
+-/
 @[simps]
-def ofPoint (t : ↑(pullback f g)) : Triplet f g :=
-  ⟨pullback.fst f g t, pullback.snd f g t, _, rfl,
-    congr($(pullback.condition (f := f) (g := g)) t).symm⟩
+def ofPoint (t : ↑(pullback f g)) : Triplet f g := ⟨
+  pullback.fst f g t,
+  pullback.snd f g t,
+  _,
+  rfl,
+  congr($(pullback.condition (f := f) (g := g)) t).symm
+⟩
 
 @[simp]
 lemma ofPoint_SpecTensorTo (T : Triplet f g) (p : Spec T.tensor) :
@@ -189,13 +202,13 @@ lemma residueFieldCongr_inv_residueFieldMap_ofPoint (t : ↑(pullback f g)) :
           g.residueFieldMap (Triplet.ofPoint t).y) ≫ (pullback.snd f g).residueFieldMap t := by
   simp [← residueFieldMap_comp, Scheme.Hom.residueFieldMap_congr pullback.condition]
 
-/-- Given `t : X ×[S] Y` with projections to `X`, `Y` and `S` denoted by `x`, `y` and `s`
-respectively, this is the canonical map `κ(x) ⊗[κ(s)] κ(y) ⟶ κ(t)`. -/
-def ofPointTensor (t : ↑(pullback f g)) :
-    (Triplet.ofPoint t).tensor ⟶ (pullback f g).residueField t :=
-  pushout.desc
-    ((pullback.fst f g).residueFieldMap t)
-    ((pullback.snd f g).residueFieldMap t)
+/--
+Given `t : X ×[S] Y` with projections to `X`, `Y` and `S` denoted by `x`, `y` and `s`
+respectively, this is the canonical map `κ(x) ⊗[κ(s)] κ(y) ⟶ κ(t)`.
+-/
+def ofPointTensor (t : ↑(pullback f g))
+    : (Triplet.ofPoint t).tensor ⟶ (pullback f g).residueField t :=
+  pushout.desc ((pullback.fst f g).residueFieldMap t) ((pullback.snd f g).residueFieldMap t)
     (residueFieldCongr_inv_residueFieldMap_ofPoint t)
 
 set_option backward.isDefEq.respectTransparency false in
@@ -213,10 +226,12 @@ lemma ofPointTensor_SpecTensorTo (t : ↑(pullback f g)) :
     rw [← pushout.inr_desc _ _ (residueFieldCongr_inv_residueFieldMap_ofPoint t), Spec.map_comp]
     rfl
 
-/-- If `t` is a point in `X ×[S] Y` above `(x, y, s)`, then this is the image of the unique
-point of `Spec κ(s)` in `Spec κ(x) ⊗[κ(s)] κ(y)`. -/
+/--
+If `t` is a point in `X ×[S] Y` above `(x, y, s)`, then this is the image of the unique
+point of `Spec κ(s)` in `Spec κ(x) ⊗[κ(s)] κ(y)`.
+-/
 def SpecOfPoint (t : ↑(pullback f g)) : Spec (Triplet.ofPoint t).tensor :=
-    Spec.map (ofPointTensor t) (⊥ : PrimeSpectrum _)
+  Spec.map (ofPointTensor t) (⊥ : PrimeSpectrum _)
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -268,11 +283,12 @@ def carrierEquiv : ↑(pullback f g) ≃ Σ T : Triplet f g, Spec T.tensor where
     intro ⟨T, p⟩
     apply carrierEquiv_eq_iff.mpr
     use T.ofPoint_SpecTensorTo p
-    have : Spec.map (Hom.residueFieldMap T.SpecTensorTo p) (⊥ : PrimeSpectrum _) =
-        (⊥ : PrimeSpectrum _) :=
+    have : Spec.map (Hom.residueFieldMap T.SpecTensorTo p) (⊥ : PrimeSpectrum _)
+        = (⊥ : PrimeSpectrum _) :=
       (PrimeSpectrum.instUnique).uniq _
-    simp only [SpecOfPoint, Triplet.tensorCongr_inv, ← this, ← Scheme.Hom.comp_apply,
-      ← Scheme.Hom.comp_apply]
+    simp only [
+      SpecOfPoint, Triplet.tensorCongr_inv, ← this, ← Scheme.Hom.comp_apply, ← Scheme.Hom.comp_apply
+    ]
     simp [Triplet.Spec_ofPointTensor_SpecTensorTo]
 
 @[simp]
@@ -312,12 +328,15 @@ lemma _root_.AlgebraicGeometry.Scheme.isEmpty_pullback_iff {f : X ⟶ S} {g : Y 
   obtain ⟨z, -⟩ := exists_preimage_pullback x y e
   exact ⟨z⟩
 
-instance (priority := low) [Nonempty X] [Nonempty Y] [Subsingleton S] :
-    Nonempty ↑(pullback f g) := by
+instance (priority := low) [Nonempty X] [Nonempty Y] [Subsingleton S]
+    : Nonempty ↑(pullback f g) := by
   have : Nonempty S := .map f ‹_›
   rw [← not_isEmpty_iff, AlgebraicGeometry.Scheme.isEmpty_pullback_iff, Set.not_disjoint_iff]
-  exact ⟨Nonempty.some ‹_›, Function.surjective_to_subsingleton _ _,
-    Function.surjective_to_subsingleton _ _⟩
+  exact ⟨
+    Nonempty.some ‹_›,
+    Function.surjective_to_subsingleton _ _,
+    Function.surjective_to_subsingleton _ _
+  ⟩
 
 variable (f g)
 
@@ -376,8 +395,8 @@ lemma range_map {X' Y' S' : Scheme.{u}} (f' : X' ⟶ S') (g' : Y' ⟶ S') (i₁ 
 
 end Pullback
 
-instance isJointlySurjectivePreserving (P : MorphismProperty Scheme.{u}) :
-    IsJointlySurjectivePreserving P where
+instance isJointlySurjectivePreserving (P : MorphismProperty Scheme.{u})
+    : IsJointlySurjectivePreserving P where
   exists_preimage_fst_triplet_of_prop {X Y S} f g _ hg x y hxy := by
     obtain ⟨a, b, h⟩ := Pullback.exists_preimage_pullback x y hxy
     use a
@@ -395,12 +414,14 @@ lemma pullbackComparison_forget_surjective {X Y S : Scheme.{u}} (f : X ⟶ S) (g
   · simp only [Function.comp_apply, Types.pullbackIsoPullback_hom_snd]
     rwa [← types_comp_apply (g := pullback.snd _ _), pullbackComparison_comp_snd]
 
-instance {X Y S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S) :
-    Epi (pullbackComparison Scheme.forgetToTop f g) := by
+instance {X Y S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
+    : Epi (pullbackComparison Scheme.forgetToTop f g) := by
   refine (CategoryTheory.forget TopCat).epi_of_epi_map ?_
-  rw [← CategoryTheory.epi_comp_iff_of_isIso _
-    (pullbackComparison (CategoryTheory.forget TopCat) (forgetToTop.map f) (forgetToTop.map g)),
-    ← _root_.CategoryTheory.Limits.pullbackComparison_comp, epi_iff_surjective]
+  rw [
+    ← CategoryTheory.epi_comp_iff_of_isIso _
+      (pullbackComparison (CategoryTheory.forget TopCat) (forgetToTop.map f) (forgetToTop.map g)),
+    ← _root_.CategoryTheory.Limits.pullbackComparison_comp, epi_iff_surjective
+  ]
   apply Scheme.pullbackComparison_forget_surjective _ _
 
 lemma exists_preimage_of_isPullback {P X Y Z : Scheme.{u}} {fst : P ⟶ X} {snd : P ⟶ Y}
@@ -435,13 +456,13 @@ instance : MorphismProperty.IsStableUnderBaseChange @Surjective := by
   rw [hg, Set.preimage_univ]
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [Surjective g] :
-    Surjective (pullback.fst f g) :=
+instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [Surjective g]
+    : Surjective (pullback.fst f g) :=
   MorphismProperty.pullback_fst _ _ inferInstance
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [Surjective f] :
-    Surjective (pullback.snd f g) :=
+instance {X Y Z : Scheme.{u}} (f : X ⟶ Z) (g : Y ⟶ Z) [Surjective f]
+    : Surjective (pullback.snd f g) :=
   MorphismProperty.pullback_snd _ _ inferInstance
 
 end AlgebraicGeometry.Surjective

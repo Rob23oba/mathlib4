@@ -32,8 +32,8 @@ open scoped MonObj
 attribute [local simp] leftUnitor_hom
 
 /-- Every object is a module over a monoid object via the trivial action. -/
-@[reducible] def ModObj.trivialAction (M : C) [MonObj M] (X : C) :
-    ModObj M X where
+@[reducible]
+def ModObj.trivialAction (M : C) [MonObj M] (X : C) : ModObj M X where
   smul := snd M X
 
 attribute [local instance] ModObj.trivialAction in
@@ -51,12 +51,14 @@ namespace Hom
 
 /-- Morphisms `Y ⟶ M` act on morphisms `Y ⟶ X` via the internal scalar multiplication. -/
 @[to_additive (attr := simps! -isSimp)
-/-- Morphisms `Y ⟶ M` act on morphisms `Y ⟶ X` via the internal additive action. -/]
+  /-- Morphisms `Y ⟶ M` act on morphisms `Y ⟶ X` via the internal additive action. -/]
 instance (Y : C) : SMul (Y ⟶ M) (Y ⟶ X) where
   smul m x := lift m x ≫ γ[M, X]
 
-/-- If `M` is a monoid object acting on `X`, then morphisms into `M` act on
-morphisms into `X`. -/
+/--
+If `M` is a monoid object acting on `X`, then morphisms into `M` act on
+morphisms into `X`.
+-/
 @[to_additive /-- If `M` is an additive monoid object acting on `X`, then morphisms into `M` act on
 morphisms into `X`. -/]
 instance mulAction (Z : C) : MulAction (Z ⟶ M) (Z ⟶ X) where
@@ -78,9 +80,9 @@ lemma IsModHom.map_smul (f : X ⟶ Y) [IsModHom M f] {Z : C} (m : Z ⟶ M) (x : 
 
 /-- An `M`-equivariant morphism induces an equivariant function on hom types. -/
 @[to_additive (attr := simps)
-/-- A `φ`-equivariant morphism induces an equivariant morphism on hom types. -/]
-def IsModHom.mulActionHom (f : X ⟶ Y) [IsModHom M f] (Z : C) :
-    MulActionHom (id (α := Z ⟶ M)) (Z ⟶ X) (Z ⟶ Y) where
+  /-- A `φ`-equivariant morphism induces an equivariant morphism on hom types. -/]
+def IsModHom.mulActionHom (f : X ⟶ Y) [IsModHom M f] (Z : C)
+    : MulActionHom (id (α := Z ⟶ M)) (Z ⟶ X) (Z ⟶ Y) where
   toFun := (· ≫ f)
   map_smul' := map_smul f
 
@@ -88,8 +90,7 @@ namespace ModObj
 
 variable (M X) in
 /-- The morphism `(m, x) ↦ (m • x, x)`. -/
-def leftSMul : M ⊗ X ⟶ X ⊗ X :=
-  lift γ[M, X] (snd _ _)
+def leftSMul : M ⊗ X ⟶ X ⊗ X := lift (γ[M, X]) (snd _ _)
 
 @[reassoc (attr := simp)]
 lemma leftSMul_fst : leftSMul M X ≫ fst _ _ = γ[M, X] := by

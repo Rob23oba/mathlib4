@@ -32,7 +32,6 @@ TODO: define distributive categories, and show that they satisfy `MonoCoprod`, s
 
 @[expose] public section
 
-
 noncomputable section
 
 universe u
@@ -60,8 +59,8 @@ instance (priority := 100) monoCoprodOfHasZeroMorphisms [HasZeroMorphisms C] : M
 
 namespace MonoCoprod
 
-theorem binaryCofan_inr {A B : C} [MonoCoprod C] (c : BinaryCofan A B) (hc : IsColimit c) :
-    Mono c.inr := by
+theorem binaryCofan_inr {A B : C} [MonoCoprod C] (c : BinaryCofan A B) (hc : IsColimit c)
+    : Mono c.inr := by
   have hc' : IsColimit (BinaryCofan.mk c.inr c.inl) :=
     BinaryCofan.IsColimit.mk _
       (fun f₁ f₂ => BinaryCofan.IsColimit.desc (s := c) hc f₂ f₁)
@@ -75,12 +74,11 @@ instance {A B : C} [MonoCoprod C] [HasBinaryCoproduct A B] : Mono (coprod.inl : 
 instance {A B : C} [MonoCoprod C] [HasBinaryCoproduct A B] : Mono (coprod.inr : B ⟶ A ⨿ B) :=
   binaryCofan_inr _ (colimit.isColimit _)
 
-theorem mono_inl_iff {A B : C} {c₁ c₂ : BinaryCofan A B} (hc₁ : IsColimit c₁) (hc₂ : IsColimit c₂) :
-    Mono c₁.inl ↔ Mono c₂.inl := by
-  suffices
-    ∀ (c₁ c₂ : BinaryCofan A B) (_ : IsColimit c₁) (_ : IsColimit c₂) (_ : Mono c₁.inl),
-      Mono c₂.inl
-    by exact ⟨fun h₁ => this _ _ hc₁ hc₂ h₁, fun h₂ => this _ _ hc₂ hc₁ h₂⟩
+theorem mono_inl_iff {A B : C} {c₁ c₂ : BinaryCofan A B} (hc₁ : IsColimit c₁) (hc₂ : IsColimit c₂)
+    : Mono c₁.inl ↔ Mono c₂.inl := by
+  suffices ∀ (c₁ c₂ : BinaryCofan A B) (_ : IsColimit c₁) (_ : IsColimit c₂) (_ : Mono c₁.inl),
+    Mono c₂.inl
+  by exact ⟨fun h₁ => this _ _ hc₁ hc₂ h₁, fun h₂ => this _ _ hc₂ hc₁ h₂⟩
   intro c₁ c₂ hc₁ hc₂ _
   simpa only [IsColimit.comp_coconePointUniqueUpToIso_hom] using!
     mono_comp c₁.inl (hc₁.coconePointUniqueUpToIso hc₂).hom
@@ -93,12 +91,12 @@ theorem mk' (h : ∀ A B : C, ∃ (c : BinaryCofan A B) (_ : IsColimit c), Mono 
 set_option backward.defeqAttrib.useBackward true in
 instance monoCoprodType : MonoCoprod (Type u) :=
   MonoCoprod.mk' fun A B => by
-    refine ⟨BinaryCofan.mk (↾(Sum.inl : A → A ⊕ B))
-      (↾Sum.inr), ?_, ?_⟩
+    refine ⟨BinaryCofan.mk (↾(Sum.inl : A → A ⊕ B)) (↾Sum.inr), ?_, ?_⟩
     · exact BinaryCofan.IsColimit.mk _
-        (fun f₁ f₂ => ↾fun x => by
-          rcases x with x | x
-          exacts [f₁ x, f₂ x])
+        (fun f₁ f₂ =>
+          ↾fun x => by
+            rcases x with x | x
+            exacts [f₁ x, f₂ x])
         (fun f₁ f₂ => by rfl)
         (fun f₁ f₂ => by rfl)
         (fun f₁ f₂ m h₁ h₂ => by
@@ -112,14 +110,16 @@ instance monoCoprodType : MonoCoprod (Type u) :=
 
 section
 
-variable {I₁ I₂ : Type*} {X : I₁ ⊕ I₂ → C} (c : Cofan X)
-  (c₁ : Cofan (X ∘ Sum.inl)) (c₂ : Cofan (X ∘ Sum.inr))
-  (hc : IsColimit c) (hc₁ : IsColimit c₁) (hc₂ : IsColimit c₂)
+variable
+  {I₁ I₂ : Type*} {X : I₁ ⊕ I₂ → C} (c : Cofan X) (c₁ : Cofan (X ∘ Sum.inl))
+  (c₂ : Cofan (X ∘ Sum.inr)) (hc : IsColimit c) (hc₁ : IsColimit c₁) (hc₂ : IsColimit c₂)
 include hc hc₁ hc₂
 
-/-- Given a family of objects `X : I₁ ⊕ I₂ → C`, a cofan of `X`, and two colimit cofans
+/--
+Given a family of objects `X : I₁ ⊕ I₂ → C`, a cofan of `X`, and two colimit cofans
 of `X ∘ Sum.inl` and `X ∘ Sum.inr`, this is a cofan for `c₁.pt` and `c₂.pt` whose
-point is `c.pt`. -/
+point is `c.pt`.
+-/
 @[simp]
 def binaryCofanSum : BinaryCofan c₁.pt c₂.pt :=
   BinaryCofan.mk (Cofan.IsColimit.desc hc₁ (fun i₁ => c.inj (Sum.inl i₁)))
@@ -128,9 +128,12 @@ def binaryCofanSum : BinaryCofan c₁.pt c₂.pt :=
 set_option backward.isDefEq.respectTransparency false in
 /-- The binary cofan `binaryCofanSum c c₁ c₂ hc₁ hc₂` is colimit. -/
 def isColimitBinaryCofanSum : IsColimit (binaryCofanSum c c₁ c₂ hc₁ hc₂) :=
-  BinaryCofan.IsColimit.mk _ (fun f₁ f₂ => Cofan.IsColimit.desc hc (fun i => match i with
-      | Sum.inl i₁ => c₁.inj i₁ ≫ f₁
-      | Sum.inr i₂ => c₂.inj i₂ ≫ f₂))
+  BinaryCofan.IsColimit.mk _
+    (fun f₁ f₂ =>
+      Cofan.IsColimit.desc hc (fun i =>
+        match i with
+        | Sum.inl i₁ => c₁.inj i₁ ≫ f₁
+        | Sum.inr i₂ => c₂.inj i₂ ≫ f₂))
     (fun f₁ f₂ => Cofan.IsColimit.hom_ext hc₁ _ _ (by simp))
     (fun f₁ f₂ => Cofan.IsColimit.hom_ext hc₂ _ _ (by simp))
     (fun f₁ f₂ m hm₁ hm₂ => by
@@ -180,8 +183,9 @@ lemma mono_of_injective_aux (hι : Function.Injective ι) (c : Cofan X) (c₁ : 
   exact IsColimit.ofIsoColimit ((IsColimit.ofCoconeEquiv (Cocone.equivalenceOfReindexing
     (Discrete.equivalence e) (Iso.refl _))).symm hc) (Cocone.ext (Iso.refl _))
 
-variable (hι : Function.Injective ι) (c : Cofan X) (c₁ : Cofan (X ∘ ι))
-  (hc : IsColimit c) (hc₁ : IsColimit c₁)
+variable
+  (hι : Function.Injective ι)
+  (c : Cofan X) (c₁ : Cofan (X ∘ ι)) (hc : IsColimit c) (hc₁ : IsColimit c₁)
 include hι
 
 include hc in
@@ -218,9 +222,10 @@ lemma mono_inj (c : Cofan X) (h : IsColimit c) (i : I)
   exact mono_of_injective X ι hι c (Cofan.mk (X i) (fun _ ↦ 𝟙 _)) h
     (Cofan.IsColimit.mk _ (fun s => s.inj ()))
 
-instance mono_ι [HasCoproduct X] (i : I)
-    [HasCoproduct (fun (k : ((Set.range (fun _ : Unit ↦ i))ᶜ : Set I)) => X k.1)] :
-    Mono (Sigma.ι X i) :=
+instance mono_ι
+    [HasCoproduct X]
+    (i : I) [HasCoproduct (fun (k : ((Set.range (fun _ : Unit ↦ i))ᶜ : Set I)) => X k.1)]
+    : Mono (Sigma.ι X i) :=
   mono_inj X _ (colimit.isColimit _) i
 
 end
@@ -231,9 +236,9 @@ section Preservation
 
 variable {D : Type*} [Category* D] (F : C ⥤ D)
 
-theorem monoCoprod_of_preservesCoprod_of_reflectsMono [MonoCoprod D]
-    [PreservesColimitsOfShape (Discrete WalkingPair) F]
-    [ReflectsMonomorphisms F] : MonoCoprod C where
+theorem monoCoprod_of_preservesCoprod_of_reflectsMono
+    [MonoCoprod D] [PreservesColimitsOfShape (Discrete WalkingPair) F] [ReflectsMonomorphisms F]
+    : MonoCoprod C where
   binaryCofan_inl {A B} c h := by
     let c' := BinaryCofan.mk (F.map c.inl) (F.map c.inr)
     apply mono_of_mono_map F
@@ -242,25 +247,27 @@ theorem monoCoprod_of_preservesCoprod_of_reflectsMono [MonoCoprod D]
     apply mapIsColimitOfPreservesOfIsColimit F
     apply IsColimit.ofIsoColimit h
     refine Cocone.ext (φ := eqToIso rfl) ?_
-    rintro ⟨(j₁ | j₂)⟩ <;> simp only [eqToIso_refl, Iso.refl_hom,
-      Category.comp_id, BinaryCofan.mk_inl, BinaryCofan.mk_inr]
+    rintro ⟨(j₁ | j₂)⟩ <;> simp only [
+      eqToIso_refl, Iso.refl_hom, Category.comp_id, BinaryCofan.mk_inl, BinaryCofan.mk_inr
+    ]
 
 end Preservation
 
 section Concrete
 
-instance {FC : outParam <| C → C → Type*} {CC : outParam <| C → Type*}
+instance
+    {FC : outParam <| C → C → Type*} {CC : outParam <| C → Type*}
     [outParam <| ∀ X Y, FunLike (FC X Y) (CC X) (CC Y)] [ConcreteCategory C FC]
-    [PreservesColimitsOfShape (Discrete WalkingPair) (forget C)]
-    [ReflectsMonomorphisms (forget C)] : MonoCoprod C :=
+    [PreservesColimitsOfShape (Discrete WalkingPair) (forget C)] [ReflectsMonomorphisms (forget C)]
+    : MonoCoprod C :=
   monoCoprod_of_preservesCoprod_of_reflectsMono (forget C)
 
 end Concrete
 
 end MonoCoprod
 
-instance (A : C) [HasCoproducts.{u} C] [MonoCoprod C] :
-    (sigmaConst.{u}.obj A).PreservesMonomorphisms where
+instance (A : C) [HasCoproducts.{u} C] [MonoCoprod C]
+    : (sigmaConst.{u}.obj A).PreservesMonomorphisms where
   preserves {J I} ι hι := by
     rw [mono_iff_injective] at hι
     exact MonoCoprod.mono_map'_of_injective (fun (i : I) ↦ A) ι hι

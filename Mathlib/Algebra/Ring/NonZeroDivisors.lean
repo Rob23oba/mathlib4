@@ -25,8 +25,8 @@ section Monoid
 variable {R : Type*} [Monoid R] {r : R}
 
 @[to_additive]
-theorem IsLeftRegular.pow_injective [IsMulTorsionFree R]
-    (hx : IsLeftRegular r) (hx' : r ≠ 1) : Function.Injective (fun n ↦ r ^ n) := by
+theorem IsLeftRegular.pow_injective [IsMulTorsionFree R] (hx : IsLeftRegular r) (hx' : r ≠ 1)
+    : Function.Injective (fun n ↦ r ^ n) := by
   intro n m hnm
   have main {n m} (h₁ : n ≤ m) (h₂ : r ^ n = r ^ m) : n = m := by
     obtain ⟨l, rfl⟩ := Nat.exists_eq_add_of_le h₁
@@ -38,26 +38,35 @@ theorem IsLeftRegular.pow_injective [IsMulTorsionFree R]
   · exact (main h hnm.symm).symm
 
 @[to_additive]
-theorem IsRightRegular.pow_injective {M : Type*} [Monoid M] [IsMulTorsionFree M] {x : M}
-    (hx : IsRightRegular x) (hx' : x ≠ 1) : Function.Injective (fun n ↦ x ^ n) :=
+theorem IsRightRegular.pow_injective
+    {M : Type*} [Monoid M] [IsMulTorsionFree M] {x : M} (hx : IsRightRegular x) (hx' : x ≠ 1)
+    : Function.Injective (fun n ↦ x ^ n) :=
   MulOpposite.unop_injective.comp <| (isLeftRegular_op.mpr hx).pow_injective <|
     (MulOpposite.op_eq_one_iff x).not.mpr hx'
 
-theorem IsMulTorsionFree.pow_right_injective {M : Type*} [CancelMonoid M] [IsMulTorsionFree M]
-    {x : M} (hx : x ≠ 1) : Function.Injective (fun n ↦ x ^ n) :=
+theorem IsMulTorsionFree.pow_right_injective
+    {M : Type*} [CancelMonoid M] [IsMulTorsionFree M] {x : M} (hx : x ≠ 1)
+    : Function.Injective (fun n ↦ x ^ n) :=
   IsLeftRegular.pow_injective (IsLeftRegular.all x) hx
 
 @[simp]
-theorem IsMulTorsionFree.pow_right_inj {M : Type*} [CancelMonoid M] [IsMulTorsionFree M] {x : M}
-    (hx : x ≠ 1) {n m : ℕ} : x ^ n = x ^ m ↔ n = m := (pow_right_injective hx).eq_iff
+theorem IsMulTorsionFree.pow_right_inj
+    {M : Type*} [CancelMonoid M] [IsMulTorsionFree M] {x : M} (hx : x ≠ 1) {n m : ℕ}
+    : x ^ n = x ^ m ↔ n = m :=
+  (pow_right_injective hx).eq_iff
 
-theorem IsMulTorsionFree.pow_right_injective₀ {M : Type*} [MonoidWithZero M] [IsLeftCancelMulZero M]
-    [IsMulTorsionFree M] {x : M} (hx : x ≠ 1) (hx' : x ≠ 0) : Function.Injective (fun n ↦ x ^ n) :=
+theorem IsMulTorsionFree.pow_right_injective₀
+    {M : Type*} [MonoidWithZero M] [IsLeftCancelMulZero M] [IsMulTorsionFree M]
+    {x : M} (hx : x ≠ 1) (hx' : x ≠ 0)
+    : Function.Injective (fun n ↦ x ^ n) :=
   IsLeftRegular.pow_injective (IsLeftCancelMulZero.mul_left_cancel_of_ne_zero hx') hx
 
 @[simp]
-theorem IsMulTorsionFree.pow_right_inj₀ {M : Type*} [MonoidWithZero M] [IsLeftCancelMulZero M]
-    [IsMulTorsionFree M] {x : M} (hx : x ≠ 1) (hx' : x ≠ 0) {n m : ℕ} : x ^ n = x ^ m ↔ n = m :=
+theorem IsMulTorsionFree.pow_right_inj₀
+    {M : Type*} [MonoidWithZero M] [IsLeftCancelMulZero M] [IsMulTorsionFree M]
+    {x : M} (hx : x ≠ 1) (hx' : x ≠ 0)
+    {n m : ℕ}
+    : x ^ n = x ^ m ↔ n = m :=
   (pow_right_injective₀ hx hx').eq_iff
 
 variable [Finite R]

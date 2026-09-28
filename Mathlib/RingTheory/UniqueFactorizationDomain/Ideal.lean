@@ -24,9 +24,10 @@ variable {α : Type*}
 
 open UniqueFactorizationMonoid in
 /-- Every non-zero prime ideal in a unique factorization domain contains a prime element. -/
-theorem Ideal.IsPrime.exists_mem_prime_of_ne_bot {R : Type*} [CommSemiring R]
-    [UniqueFactorizationMonoid R] {I : Ideal R} (hI₂ : I.IsPrime) (hI : I ≠ ⊥) :
-    ∃ x ∈ I, Prime x := by
+theorem Ideal.IsPrime.exists_mem_prime_of_ne_bot
+    {R : Type*} [CommSemiring R] [UniqueFactorizationMonoid R]
+    {I : Ideal R} (hI₂ : I.IsPrime) (hI : I ≠ ⊥)
+    : ∃ x ∈ I, Prime x := by
   obtain ⟨a : R, ha₁ : a ∈ I, ha₂ : a ≠ 0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hI
   replace ha₁ : (factors a).prod ∈ I := by
     obtain ⟨u : Rˣ, hu : (factors a).prod * u = a⟩ := factors_prod ha₂

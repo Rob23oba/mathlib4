@@ -74,8 +74,8 @@ lemma radical_pos (n) : 0 < radical n := pos_of_ne_zero radical_ne_zero
 theorem primeFactors_radical (n : ℕ) : (radical n).primeFactors = n.primeFactors := by
   rw [radical_eq_prod_primeFactors, primeFactors_prod_primeFactors]
 
-theorem radical_dvd_iff {n k : ℕ} (hk : k ≠ 0) :
-    radical n ∣ k ↔ n.primeFactors ⊆ k.primeFactors := by
+theorem radical_dvd_iff {n k : ℕ} (hk : k ≠ 0)
+    : radical n ∣ k ↔ n.primeFactors ⊆ k.primeFactors := by
   rw [radical_eq_prod_primeFactors, prod_primeFactors_dvd_iff hk]
 
 theorem dvd_radical_pow_self {n : ℕ} (hn : n ≠ 0) : n ∣ radical n ^ n := by
@@ -89,13 +89,15 @@ open Positivity
 attribute [local instance] monadLiftOptionMetaM in
 /-- Positivity extension for radical. Proves radicals are nonzero. -/
 @[positivity UniqueFactorizationMonoid.radical _]
-meta def evalRadical : PositivityExt where eval {u α} _ _ e := do
-  match e with
-  | ~q(@radical _ $inst $inst' $inst'' $n) =>
-    have _ := ← synthInstanceQ q(Nontrivial $α)
-    assertInstancesCommute
-    return .nonzero q(radical_ne_zero)
-  | _ => throwError "not radical"
+meta def evalRadical : PositivityExt where
+  eval {u α} _ _ e := do
+    match e with
+    | ~q(@radical _ $inst $inst' $inst'' $n) =>
+      have _ := ← synthInstanceQ q(Nontrivial $α)
+      assertInstancesCommute
+      return .nonzero q(radical_ne_zero)
+    | _ =>
+      throwError "not radical"
 
 example : 0 < radical 100 := by positivity
 

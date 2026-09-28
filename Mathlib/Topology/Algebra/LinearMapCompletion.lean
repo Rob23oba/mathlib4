@@ -25,9 +25,10 @@ lifted to a continuous semilinear map between the completions of those modules.
 
 @[expose] public section
 
-variable {α β : Type*} {R S : Type*} [UniformSpace α] [AddCommGroup α] [IsUniformAddGroup α]
-  [Semiring S] [Module S α] [UniformContinuousConstSMul S α] [Semiring R] [UniformSpace β]
-  [AddCommGroup β] [IsUniformAddGroup β] [Module R β] [UniformContinuousConstSMul R β]
+variable
+  {α β : Type*} {R S : Type*} [UniformSpace α] [AddCommGroup α] [IsUniformAddGroup α] [Semiring S]
+  [Module S α] [UniformContinuousConstSMul S α] [Semiring R] [UniformSpace β] [AddCommGroup β]
+  [IsUniformAddGroup β] [Module R β] [UniformContinuousConstSMul R β]
   {σ : S →+* R}
 
 namespace ContinuousLinearMap
@@ -49,7 +50,8 @@ noncomputable def completion (f : α →SL[σ] β) : Completion α →SL[σ] Com
     | hp =>
       exact isClosed_eq (continuous_map.comp <| continuous_const_smul r)
         (continuous_map.fun_const_smul _)
-    | ih x => simp [← Completion.coe_smul]
+    | ih x =>
+      simp [← Completion.coe_smul]
 
 @[simp]
 lemma toAddMonoidHom_completion (f : α →SL[σ] β) :
@@ -59,8 +61,8 @@ lemma coe_completion (f : α →SL[σ] β) :
     f.completion = Completion.map f := rfl
 
 @[simp]
-theorem completion_apply_coe (f : α →SL[σ] β) (a : α) :
-    f.completion a = f a := by simp [coe_completion, map_coe]
+theorem completion_apply_coe (f : α →SL[σ] β) (a : α) : f.completion a = f a := by
+  simp [coe_completion, map_coe]
 
 end completion
 
@@ -68,14 +70,16 @@ section fromCompletion
 
 variable [T0Space β] [CompleteSpace β]
 
-/-- Extension of a linear function to a linear function over the completion. This is the continuous
-linear version of `UniformSpace.Completion.extension`. -/
-noncomputable def fromCompletion (f : α →SL[σ] β) :
-    Completion α →SL[σ] β where
+/--
+Extension of a linear function to a linear function over the completion. This is the continuous
+linear version of `UniformSpace.Completion.extension`.
+-/
+noncomputable def fromCompletion (f : α →SL[σ] β) : Completion α →SL[σ] β where
   __ := f.toAddMonoidHom.extension f.continuous
-  map_smul' c a := induction_on a
-      (isClosed_eq (continuous_extension.comp (continuous_const_smul c)) (by dsimp; fun_prop)) <| by
-    simp [← Completion.coe_smul, AddMonoidHom.extension_coe f.toAddMonoidHom f.continuous]
+  map_smul' c a :=
+    induction_on a
+        (isClosed_eq (continuous_extension.comp (continuous_const_smul c)) (by dsimp; fun_prop)) <|
+      by simp [← Completion.coe_smul, AddMonoidHom.extension_coe f.toAddMonoidHom f.continuous]
 
 @[simp]
 lemma toAddMonoidHom_fromCompletion (f : α →SL[σ] β) :

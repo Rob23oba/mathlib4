@@ -42,16 +42,15 @@ variable {κ : Type uκ} {R : Type uR} {M : Type uM}
 section CommSemiring
 variable [CommSemiring R] [AddCommMonoid M] [Module R M]
 
-/-- `SymmetricAlgebra.equivMvPolynomial` gives an algebra isomorphism between the symmetric algebra
+/--
+`SymmetricAlgebra.equivMvPolynomial` gives an algebra isomorphism between the symmetric algebra
 over a free module and multivariate polynomials over a basis. This is analogous to
-`TensorAlgebra.equivFreeAlgebra`. -/
-noncomputable def equivMvPolynomial (b : Basis κ R M) :
-    SymmetricAlgebra R M ≃ₐ[R] MvPolynomial κ R :=
-  .ofAlgHom
-    (SymmetricAlgebra.lift <| Basis.constr b R .X)
-    (MvPolynomial.aeval fun i ↦ ι R M (b i))
-    (MvPolynomial.algHom_ext fun i ↦ by simp)
-    (algHom_ext <| b.ext fun i ↦ by simp)
+`TensorAlgebra.equivFreeAlgebra`.
+-/
+noncomputable def equivMvPolynomial (b : Basis κ R M)
+    : SymmetricAlgebra R M ≃ₐ[R] MvPolynomial κ R :=
+  .ofAlgHom (SymmetricAlgebra.lift <| Basis.constr b R .X) (MvPolynomial.aeval fun i ↦ ι R M (b i))
+    (MvPolynomial.algHom_ext fun i ↦ by simp) (algHom_ext <| b.ext fun i ↦ by simp)
 
 @[simp]
 lemma equivMvPolynomial_ι_apply (b : Basis κ R M) (i : κ) :
@@ -63,14 +62,14 @@ lemma equivMvPolynomial_symm_X (b : Basis κ R M) (i : κ) :
     (equivMvPolynomial b).symm (MvPolynomial.X i) = ι R M (b i) :=
   (equivMvPolynomial b).toEquiv.symm_apply_eq.mpr <| equivMvPolynomial_ι_apply b i |>.symm
 
-theorem IsSymmetricAlgebra.mvPolynomial (I : Type*) (b : Basis I R M) :
-    IsSymmetricAlgebra (Basis.constr b R (.X : I → MvPolynomial I R)) :=
+theorem IsSymmetricAlgebra.mvPolynomial (I : Type*) (b : Basis I R M)
+    : IsSymmetricAlgebra (Basis.constr b R (.X : I → MvPolynomial I R)) :=
   (SymmetricAlgebra.equivMvPolynomial b).bijective
 
 /-- A basis on `M` can be lifted to a basis on `SymmetricAlgebra R M`. -/
 @[simps! repr_apply]
-noncomputable def _root_.Module.Basis.symmetricAlgebra (b : Basis κ R M) :
-    Basis (κ →₀ ℕ) R (SymmetricAlgebra R M) :=
+noncomputable def _root_.Module.Basis.symmetricAlgebra (b : Basis κ R M)
+    : Basis (κ →₀ ℕ) R (SymmetricAlgebra R M) :=
   (MvPolynomial.basisMonomials κ R).map (SymmetricAlgebra.equivMvPolynomial b).symm.toLinearEquiv
 
 /-- `SymmetricAlgebra R M` is free when `M` is. -/
@@ -78,10 +77,12 @@ instance instModuleFree [Module.Free R M] : Module.Free R (SymmetricAlgebra R M)
   let ⟨⟨_I, b⟩⟩ := Module.Free.exists_basis (R := R) (M := M)
   .of_basis b.symmetricAlgebra
 
-/-- The `SymmetricAlgebra` of a free module over a commutative semiring with no zero-divisors has
-no zero-divisors. -/
-instance instNoZeroDivisors [NoZeroDivisors R] [Module.Free R M] :
-    NoZeroDivisors (SymmetricAlgebra R M) :=
+/--
+The `SymmetricAlgebra` of a free module over a commutative semiring with no zero-divisors has
+no zero-divisors.
+-/
+instance instNoZeroDivisors [NoZeroDivisors R] [Module.Free R M]
+    : NoZeroDivisors (SymmetricAlgebra R M) :=
   have ⟨⟨_, b⟩⟩ := ‹Module.Free R M›
   (equivMvPolynomial b).toMulEquiv.noZeroDivisors
 

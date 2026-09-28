@@ -8,7 +8,6 @@ module
 public import Mathlib.Basic.NNReal.Basic
 public import Mathlib.Basic.Real.ENatENNReal
 public import Mathlib.Data.ENat.Lattice
-
 import Mathlib.Basic.ENNReal.Operations
 
 /-!
@@ -47,12 +46,14 @@ namespace ENat
 variable {r s : ℝ≥0∞} {n : ℕ∞}
 
 /-- `⌊r⌋ₑ` is the greatest extended natural `n` such that `n ≤ r`. -/
-@[expose] noncomputable def floor : ℝ≥0∞ → ℕ∞
+@[expose]
+noncomputable def floor : ℝ≥0∞ → ℕ∞
   | ∞ => ⊤
   | (r : ℝ≥0) => ⌊r⌋₊
 
 /-- `⌈r⌉ₑ` is the least extended natural `n` such that `r ≤ n` -/
-@[expose] noncomputable def ceil : ℝ≥0∞ → ℕ∞
+@[expose]
+noncomputable def ceil : ℝ≥0∞ → ℕ∞
   | ∞ => ⊤
   | (r : ℝ≥0) => ⌈r⌉₊
 
@@ -256,16 +257,22 @@ alias ⟨_, natCeil_pos⟩ := ENat.ceil_pos
 
 /-- Extension for the `positivity` tactic: `ENat.ceil` is positive if its input is. -/
 @[positivity ⌈_⌉ₑ]
-meta def evalENatCeil : PositivityExt where eval {u α} _zα pα? e :=
-  match pα? with | none => pure .none | some _ => do
-  match u, α, e with
-  | 0, ~q(ℕ∞), ~q(ENat.ceil $r) =>
-    match ← core q(inferInstance) (some q(inferInstance)) r with
-    | .positive pr =>
-      assertInstancesCommute
-      pure (.positive q(natCeil_pos $pr))
-    | _ => pure .none
-  | _, _, _ => throwError "failed to match on ENat.ceil application"
+meta def evalENatCeil : PositivityExt where
+  eval {u α} _zα pα? e :=
+    match pα? with
+    | none =>
+      pure .none
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℕ∞), ~q(ENat.ceil $r) =>
+        match ← core (q(inferInstance)) (some q(inferInstance)) r with
+        | .positive pr =>
+          assertInstancesCommute
+          pure (.positive q(natCeil_pos $pr))
+        | _ =>
+          pure .none
+      | _, _, _ =>
+        throwError "failed to match on ENat.ceil application"
 
 example {r : ℝ≥0∞} (hr : 0 < r) : 0 < ⌈r⌉ₑ := by positivity
 

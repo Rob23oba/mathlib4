@@ -19,7 +19,6 @@ categories of sheaves. We also show that `G` preserves sheafification.
 
 @[expose] public section
 
-
 namespace CategoryTheory
 
 open GrothendieckTopology Limits Opposite CategoryTheory.Functor
@@ -31,22 +30,27 @@ variable {D : Type u₂} [Category.{v₂} D]
 variable {E : Type*} [Category* E]
 variable {F : D ⥤ E} {G : E ⥤ D}
 
-/-- The forgetful functor from `Sheaf J D` to sheaves of types, for a concrete category `D`
-whose forgetful functor preserves the correct limits. -/
-abbrev sheafForget {FD : D → D → Type*} {CD : D → Type*}
-    [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory D FD]
-    [HasSheafCompose J (forget D)] : Sheaf J D ⥤ Sheaf J (Type _) :=
+/--
+The forgetful functor from `Sheaf J D` to sheaves of types, for a concrete category `D`
+whose forgetful functor preserves the correct limits.
+-/
+abbrev sheafForget
+    {FD : D → D → Type*} {CD : D → Type*}
+    [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory D FD] [HasSheafCompose J (forget D)]
+    : Sheaf J D ⥤ Sheaf J (Type _) :=
   sheafCompose J (forget D)
 
 namespace Sheaf
 
 noncomputable section
 
-/-- An adjunction `adj : G ⊣ F` with `F : D ⥤ E` and `G : E ⥤ D` induces an adjunction
+/--
+An adjunction `adj : G ⊣ F` with `F : D ⥤ E` and `G : E ⥤ D` induces an adjunction
 between `Sheaf J D` and `Sheaf J E`, in contexts where one can sheafify `D`-valued presheaves,
-and postcomposing with `F` preserves the property of being a sheaf. -/
-def adjunction [HasWeakSheafify J D] [HasSheafCompose J F] (adj : G ⊣ F) :
-    composeAndSheafify J G ⊣ sheafCompose J F :=
+and postcomposing with `F` preserves the property of being a sheaf.
+-/
+def adjunction [HasWeakSheafify J D] [HasSheafCompose J F] (adj : G ⊣ F)
+    : composeAndSheafify J G ⊣ sheafCompose J F :=
   Adjunction.restrictFullyFaithful ((adj.whiskerRight Cᵒᵖ).comp (sheafificationAdjunction J D))
     (fullyFaithfulSheafToPresheaf J E) (Functor.FullyFaithful.id _) (Iso.refl _) (Iso.refl _)
 
@@ -110,11 +114,14 @@ instance [G.IsLeftAdjoint] : J.PreservesSheafification G :=
 
 section ForgetToType
 
-variable [HasWeakSheafify J D] {FD : D → D → Type*} {CD : D → Type (max u₁ v₁)}
-    [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory D FD] [HasSheafCompose J (forget D)]
+variable
+  [HasWeakSheafify J D]
+  {FD : D → D → Type*} {CD : D → Type (max u₁ v₁)}
+  [∀ X Y, FunLike (FD X Y) (CD X) (CD Y)] [ConcreteCategory D FD] [HasSheafCompose J (forget D)]
 
-example [(forget D).IsRightAdjoint] :
-    (sheafForget.{_, _, _, _, _, max u₁ v₁} (D := D) J).IsRightAdjoint := by infer_instance
+example [(forget D).IsRightAdjoint]
+    : (sheafForget.{_, _, _, _, _, max u₁ v₁} (D := D) J).IsRightAdjoint := by
+  infer_instance
 
 end ForgetToType
 

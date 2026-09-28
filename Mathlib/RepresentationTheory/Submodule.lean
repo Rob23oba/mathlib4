@@ -17,15 +17,17 @@ public import Mathlib.RepresentationTheory.Basic
 
 open scoped MonoidAlgebra
 
-variable {k G V : Type*} [CommSemiring k] [Monoid G] [AddCommMonoid V] [Module k V]
+variable
+  {k G V : Type*} [CommSemiring k] [Monoid G] [AddCommMonoid V] [Module k V]
   (ρ : Representation k G V)
 
 namespace Representation
 
-/-- Given a representation `ρ` of a group, `ρ.invtSubmodule` is the sublattice of all
-`ρ`-invariant submodules. -/
-def invtSubmodule : Sublattice (Submodule k V) :=
-  ⨅ g, Module.End.invtSubmodule (ρ g)
+/--
+Given a representation `ρ` of a group, `ρ.invtSubmodule` is the sublattice of all
+`ρ`-invariant submodules.
+-/
+def invtSubmodule : Sublattice (Submodule k V) := ⨅ g, Module.End.invtSubmodule (ρ g)
 
 lemma mem_invtSubmodule {p : Submodule k V} :
     p ∈ ρ.invtSubmodule ↔ ∀ g, p ∈ Module.End.invtSubmodule (ρ g) := by
@@ -66,28 +68,34 @@ lemma asAlgebraHom_mem_of_forall_mem (p : Submodule k V) (hp : ∀ g, ∀ v ∈ 
   apply x.induction_on <;> aesop
 
 /-- The natural order isomorphism between the two ways to represent invariant submodules. -/
-noncomputable def mapSubmodule : ρ.invtSubmodule ≃o Submodule k[G] ρ.asModule where
-  toFun p :=
-    { toAddSubmonoid := (p : Submodule k V).toAddSubmonoid.map ρ.asModuleEquiv.symm
-      smul_mem' := by
-        simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
-          AddSubmonoid.mem_map, Submodule.mem_toAddSubmonoid, forall_exists_index, and_imp,
-          forall_apply_eq_imp_iff₂]
-        refine fun x v hv ↦ ⟨ρ.asModuleEquiv (x • ρ.asModuleEquiv.symm v), ?_, rfl⟩
-        simpa using ρ.asAlgebraHom_mem_of_forall_mem p (ρ.mem_invtSubmodule.mp p.property) v hv x }
-  invFun q := ⟨(Submodule.orderIsoMapComap ρ.asModuleEquiv.symm).symm (q.restrictScalars k), by
-    rw [invtSubmodule, Sublattice.mem_iInf]
-    intro g v hv
-    simp only [Submodule.orderIsoMapComap_symm_apply, Submodule.mem_comap] at hv ⊢
-    convert! q.smul_mem (MonoidAlgebra.of k G g) hv using 1
-    rw [LinearEquiv.coe_coe, ← asModuleEquiv_symm_map_rho]⟩
+noncomputable def mapSubmodule : ρ.invtSubmodule ≃o Submodule (k[G]) ρ.asModule where
+  toFun p := {
+    toAddSubmonoid := (p : Submodule k V).toAddSubmonoid.map ρ.asModuleEquiv.symm
+    smul_mem' := by
+      simp only [
+        AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup, AddSubmonoid.mem_map,
+        Submodule.mem_toAddSubmonoid, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂
+      ]
+      refine fun x v hv ↦ ⟨ρ.asModuleEquiv (x • ρ.asModuleEquiv.symm v), ?_, rfl⟩
+      simpa using ρ.asAlgebraHom_mem_of_forall_mem p (ρ.mem_invtSubmodule.mp p.property) v hv x
+  }
+  invFun q := ⟨
+    (Submodule.orderIsoMapComap ρ.asModuleEquiv.symm).symm (q.restrictScalars k),
+    by
+      rw [invtSubmodule, Sublattice.mem_iInf]
+      intro g v hv
+      simp only [Submodule.orderIsoMapComap_symm_apply, Submodule.mem_comap] at hv ⊢
+      convert! q.smul_mem (MonoidAlgebra.of k G g) hv using 1
+      rw [LinearEquiv.coe_coe, ← asModuleEquiv_symm_map_rho]
+  ⟩
   left_inv p := by ext; simp
   right_inv q := by ext; aesop
-  map_rel_iff' {p q} :=
-    ⟨fun h x hx ↦ by
-      suffices ρ.asModuleEquiv.symm x ∈
-        (q : Submodule k V).toAddSubmonoid.map ρ.asModuleEquiv.symm by simpa using this
+  map_rel_iff' {p q} := ⟨
+    fun h x hx ↦ by
+      suffices ρ.asModuleEquiv.symm x ∈ (q : Submodule k V).toAddSubmonoid.map ρ.asModuleEquiv.symm
+      by simpa using this
       exact h <| by simpa using hx,
-    fun h x hx ↦ by aesop⟩
+    fun h x hx ↦ by aesop
+  ⟩
 
 end Representation

@@ -44,16 +44,17 @@ section Module
 
 variable {η : Type*} {ιs : η → Type*} {Ms : η → Type*}
 
-theorem linearIndependent_single [Semiring R] [∀ i, AddCommMonoid (Ms i)] [∀ i, Module R (Ms i)]
-    [DecidableEq η] (v : ∀ j, ιs j → Ms j) (hs : ∀ i, LinearIndependent R (v i)) :
-    LinearIndependent R fun ji : Σ j, ιs j ↦ Pi.single ji.1 (v ji.1 ji.2) := by
+theorem linearIndependent_single
+    [Semiring R] [∀ i, AddCommMonoid (Ms i)] [∀ i, Module R (Ms i)] [DecidableEq η]
+    (v : ∀ j, ιs j → Ms j) (hs : ∀ i, LinearIndependent R (v i))
+    : LinearIndependent R fun ji : Σ j, ιs j ↦ Pi.single ji.1 (v ji.1 ji.2) := by
   convert! (DFinsupp.linearIndependent_single _ hs).map_injOn _ DFinsupp.injective_pi_lapply.injOn
 
-theorem linearIndependent_single_one (ι R : Type*) [Semiring R] [DecidableEq ι] :
-    LinearIndependent R (fun i : ι ↦ Pi.single i (1 : R)) := by
+theorem linearIndependent_single_one (ι R : Type*) [Semiring R] [DecidableEq ι]
+    : LinearIndependent R (fun i : ι ↦ Pi.single i (1 : R)) := by
   rw [← linearIndependent_equiv (Equiv.sigmaPUnit ι)]
-  exact Pi.linearIndependent_single (fun (_ : ι) (_ : Unit) ↦ (1 : R))
-    <| by simp +contextual [Fintype.linearIndependent_iffₛ]
+  exact Pi.linearIndependent_single (fun (_ : ι) (_ : Unit) ↦ (1 : R)) <| by
+    simp +contextual [Fintype.linearIndependent_iffₛ]
 
 lemma linearIndependent_single_of_ne_zero [Ring R] [IsDomain R] [AddCommGroup M] [Module R M]
     [IsTorsionFree R M] [DecidableEq ι] {v : ι → M} (hv : ∀ i, v i ≠ 0) :
@@ -69,46 +70,49 @@ variable [Fintype η]
 
 open LinearEquiv
 
-/-- `Pi.basis (s : ∀ j, Basis (ιs j) R (Ms j))` is the `Σ j, ιs j`-indexed basis on `Π j, Ms j`
+/--
+`Pi.basis (s : ∀ j, Basis (ιs j) R (Ms j))` is the `Σ j, ιs j`-indexed basis on `Π j, Ms j`
 given by `s j` on each component.
 
 For the standard basis over `R` on the finite-dimensional space `η → R` see `Pi.basisFun`.
 -/
-protected noncomputable def basis (s : ∀ j, Basis (ιs j) R (Ms j)) :
-    Basis (Σ j, ιs j) R (∀ j, Ms j) :=
+protected noncomputable def basis (s : ∀ j, Basis (ιs j) R (Ms j))
+    : Basis (Σ j, ιs j) R (∀ j, Ms j) :=
   Basis.ofRepr
-    ((LinearEquiv.piCongrRight fun j => (s j).repr) ≪≫ₗ
-      (Finsupp.sigmaFinsuppLEquivPiFinsupp R).symm)
+    ((LinearEquiv.piCongrRight fun j => (s j).repr)
+      ≪≫ₗ (Finsupp.sigmaFinsuppLEquivPiFinsupp R).symm)
 
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
-theorem basis_repr_single [DecidableEq η] (s : ∀ j, Basis (ιs j) R (Ms j)) (j i) :
-    (Pi.basis s).repr (Pi.single j (s j i)) = Finsupp.single ⟨j, i⟩ 1 := by
+theorem basis_repr_single [DecidableEq η] (s : ∀ j, Basis (ιs j) R (Ms j)) (j i)
+    : (Pi.basis s).repr (Pi.single j (s j i)) = Finsupp.single ⟨j, i⟩ 1 := by
   classical
   ext ⟨j', i'⟩
   by_cases hj : j = j'
   · subst hj
-    simp only [Pi.basis, LinearEquiv.trans_apply,
-      LinearEquiv.piCongrRight, Finsupp.sigmaFinsuppLEquivPiFinsupp_symm_apply,
-      Basis.repr_symm_apply, LinearEquiv.coe_mk]
+    simp only [
+      Pi.basis, LinearEquiv.trans_apply, LinearEquiv.piCongrRight,
+      Finsupp.sigmaFinsuppLEquivPiFinsupp_symm_apply, Basis.repr_symm_apply, LinearEquiv.coe_mk
+    ]
     symm
     simp [Finsupp.single_apply]
-  simp only [Pi.basis, LinearEquiv.trans_apply, Finsupp.sigmaFinsuppLEquivPiFinsupp_symm_apply,
-    LinearEquiv.piCongrRight]
+  simp only [
+    Pi.basis, LinearEquiv.trans_apply, Finsupp.sigmaFinsuppLEquivPiFinsupp_symm_apply,
+    LinearEquiv.piCongrRight
+  ]
   dsimp
-  rw [Pi.single_eq_of_ne (Ne.symm hj), map_zero, Finsupp.zero_apply,
-    Finsupp.single_eq_of_ne]
+  rw [Pi.single_eq_of_ne (Ne.symm hj), map_zero, Finsupp.zero_apply, Finsupp.single_eq_of_ne]
   rintro ⟨⟩
   contradiction
 
 @[simp]
-theorem basis_apply [DecidableEq η] (s : ∀ j, Basis (ιs j) R (Ms j)) (ji) :
-    Pi.basis s ji = Pi.single ji.1 (s ji.1 ji.2) :=
+theorem basis_apply [DecidableEq η] (s : ∀ j, Basis (ιs j) R (Ms j)) (ji)
+    : Pi.basis s ji = Pi.single ji.1 (s ji.1 ji.2) :=
   Basis.apply_eq_iff.mpr (by simp)
 
 @[simp]
-theorem basis_repr (s : ∀ j, Basis (ιs j) R (Ms j)) (x) (ji) :
-    (Pi.basis s).repr x ji = (s ji.1).repr (x ji.1) ji.2 :=
+theorem basis_repr (s : ∀ j, Basis (ιs j) R (Ms j)) (x) (ji)
+    : (Pi.basis s).repr x ji = (s ji.1).repr (x ji.1) ji.2 :=
   rfl
 
 end Fintype
@@ -119,12 +123,10 @@ variable [Finite η]
 variable (R η)
 
 /-- The basis on `η → R` where the `i`th basis vector is `Function.update 0 i 1`. -/
-noncomputable def basisFun : Basis η R (η → R) :=
-  Basis.ofEquivFun (LinearEquiv.refl _ _)
+noncomputable def basisFun : Basis η R (η → R) := Basis.ofEquivFun (LinearEquiv.refl _ _)
 
 @[simp]
-theorem basisFun_apply [DecidableEq η] (i) :
-    basisFun R η i = Pi.single i 1 := by
+theorem basisFun_apply [DecidableEq η] (i) : basisFun R η i = Pi.single i 1 := by
   simp only [basisFun, Basis.coe_ofEquivFun, LinearEquiv.refl_symm, LinearEquiv.refl_apply]
 
 @[simp]
@@ -139,8 +141,7 @@ variable {η}
 /-- The `R`-submodule of `η → R` consisting of functions supported in the subset `s`. -/
 -- Note: `Set` has no computational content, but Lean still attempts to compile it.
 -- See https://github.com/leanprover/lean4/issues/14084.
-noncomputable def spanSubset (s : Set η) : Submodule R (η → R) :=
-  .span R (Pi.basisFun R η '' s)
+noncomputable def spanSubset (s : Set η) : Submodule R (η → R) := .span R (Pi.basisFun R η '' s)
 
 variable {R} {s : Set η}
 
@@ -179,8 +180,7 @@ lemma AlgHom.eq_piEvalAlgHom {k G : Type*} [CommSemiring k] [NoZeroDivisors k] [
 
 namespace Module
 
-variable (ι R M : Type*) [Finite ι] [CommSemiring R]
-  [AddCommMonoid M] [Module R M]
+variable (ι R M : Type*) [Finite ι] [CommSemiring R] [AddCommMonoid M] [Module R M]
 
 /-- The natural linear equivalence: `Mⁱ ≃ Hom(Rⁱ, M)` for an `R`-module `M`. -/
 noncomputable def piEquiv : (ι → M) ≃ₗ[R] ((ι → R) →ₗ[R] M) := Basis.constr (Pi.basisFun R ι) R
@@ -206,14 +206,18 @@ namespace Module.Free
 variable {ι : Type*} (R : Type*) (M : Type*) [Semiring R] [AddCommMonoid M] [Module R M]
 
 /-- The product of finitely many free modules is free. -/
-instance _root_.Module.Free.pi (M : ι → Type*) [Finite ι] [∀ i : ι, AddCommMonoid (M i)]
-    [∀ i : ι, Module R (M i)] [∀ i : ι, Module.Free R (M i)] : Module.Free R (∀ i, M i) :=
+instance _root_.Module.Free.pi
+    (M : ι → Type*) [Finite ι] [∀ i : ι, AddCommMonoid (M i)] [∀ i : ι, Module R (M i)]
+    [∀ i : ι, Module.Free R (M i)]
+    : Module.Free R (∀ i, M i) :=
   let ⟨_⟩ := nonempty_fintype ι
   .of_basis <| Pi.basis fun i => Module.Free.chooseBasis R (M i)
 
 variable (ι) in
-/-- The product of finitely many free modules is free (non-dependent version to help with typeclass
-search). -/
+/--
+The product of finitely many free modules is free (non-dependent version to help with typeclass
+search).
+-/
 instance _root_.Module.Free.function [Finite ι] [Module.Free R M] : Module.Free R (ι → M) :=
   Free.pi _ _
 

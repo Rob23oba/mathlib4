@@ -36,12 +36,10 @@ variable {X Y Z : Scheme.{u}}
 namespace Scheme.IdealSheafData
 
 /-- The pullback of an ideal sheaf. -/
-def comap (I : Y.IdealSheafData) (f : X ⟶ Y) : X.IdealSheafData :=
-  (pullback.fst f I.subschemeι).ker
+def comap (I : Y.IdealSheafData) (f : X ⟶ Y) : X.IdealSheafData := (pullback.fst f I.subschemeι).ker
 
 /-- The subscheme associated to the pullback ideal sheaf is isomorphic to the fibred product. -/
-def comapIso (I : Y.IdealSheafData) (f : X ⟶ Y) :
-    (I.comap f).subscheme ≅ pullback f I.subschemeι :=
+def comapIso (I : Y.IdealSheafData) (f : X ⟶ Y) : (I.comap f).subscheme ≅ pullback f I.subschemeι :=
   (asIso (pullback.fst f I.subschemeι).toImage).symm
 
 @[reassoc (attr := simp)]
@@ -95,8 +93,7 @@ lemma _root_.AlgebraicGeometry.isPullback_of_isClosedImmersion
   rw [ker_fst_of_isClosedImmersion, h']
 
 /-- The pushforward of an ideal sheaf. -/
-def map (I : X.IdealSheafData) (f : X ⟶ Y) : Y.IdealSheafData :=
-  (I.subschemeι ≫ f).ker
+def map (I : X.IdealSheafData) (f : X ⟶ Y) : Y.IdealSheafData := (I.subschemeι ≫ f).ker
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma le_map_iff_comap_le {I : X.IdealSheafData} {f : X ⟶ Y} {J : Y.IdealSheafData} :
@@ -203,8 +200,8 @@ lemma ideal_comap_of_isOpenImmersion
   simp
 
 /-- If `J ≤ I.map f`, then `f` restricts to a map `I ⟶ J` between the closed subschemes. -/
-def subschemeMap (I : X.IdealSheafData) (J : Y.IdealSheafData)
-    (f : X ⟶ Y) (H : J ≤ I.map f) : I.subscheme ⟶ J.subscheme :=
+def subschemeMap (I : X.IdealSheafData) (J : Y.IdealSheafData) (f : X ⟶ Y) (H : J ≤ I.map f)
+    : I.subscheme ⟶ J.subscheme :=
   IsClosedImmersion.lift J.subschemeι (I.subschemeι ≫ f) (by simpa using! H)
 
 @[reassoc (attr := simp)]

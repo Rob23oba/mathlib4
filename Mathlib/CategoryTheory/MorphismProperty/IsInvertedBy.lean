@@ -29,9 +29,11 @@ namespace MorphismProperty
 
 variable {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
 
-/-- If `P : MorphismProperty C` and `F : C ⥤ D`, then
+/--
+If `P : MorphismProperty C` and `F : C ⥤ D`, then
 `P.IsInvertedBy F` means that all morphisms in `P` are mapped by `F`
-to isomorphisms in `D`. -/
+to isomorphisms in `D`.
+-/
 def IsInvertedBy (P : MorphismProperty C) (F : C ⥤ D) : Prop :=
   ∀ ⦃X Y : C⦄ (f : X ⟶ Y) (_ : P f), IsIso (F.map f)
 
@@ -42,9 +44,11 @@ lemma of_le (P Q : MorphismProperty C) (F : C ⥤ D) (hQ : Q.IsInvertedBy F) (h 
   fun _ _ _ hf => hQ _ (h _ hf)
 
 set_option backward.defeqAttrib.useBackward true in
-theorem of_comp {C₁ C₂ C₃ : Type*} [Category* C₁] [Category* C₂] [Category* C₃]
-    (W : MorphismProperty C₁) (F : C₁ ⥤ C₂) (hF : W.IsInvertedBy F) (G : C₂ ⥤ C₃) :
-    W.IsInvertedBy (F ⋙ G) := fun X Y f hf => by
+theorem of_comp
+    {C₁ C₂ C₃ : Type*} [Category* C₁] [Category* C₂] [Category* C₃]
+    (W : MorphismProperty C₁) (F : C₁ ⥤ C₂) (hF : W.IsInvertedBy F)
+    (G : C₂ ⥤ C₃)
+    : W.IsInvertedBy (F ⋙ G) := fun X Y f hf => by
   have := hF f hf
   dsimp
   infer_instance
@@ -58,29 +62,29 @@ lemma of_comp_of_reflectsIsomorphisms
     exact h _ hf
 
 set_option backward.defeqAttrib.useBackward true in
-theorem op {W : MorphismProperty C} {L : C ⥤ D} (h : W.IsInvertedBy L) : W.op.IsInvertedBy L.op :=
-  fun X Y f hf => by
+theorem op {W : MorphismProperty C} {L : C ⥤ D} (h : W.IsInvertedBy L)
+    : W.op.IsInvertedBy L.op := fun X Y f hf => by
   have := h f.unop hf
   dsimp
   infer_instance
 
 set_option backward.defeqAttrib.useBackward true in
-theorem rightOp {W : MorphismProperty C} {L : Cᵒᵖ ⥤ D} (h : W.op.IsInvertedBy L) :
-    W.IsInvertedBy L.rightOp := fun X Y f hf => by
+theorem rightOp {W : MorphismProperty C} {L : Cᵒᵖ ⥤ D} (h : W.op.IsInvertedBy L)
+    : W.IsInvertedBy L.rightOp := fun X Y f hf => by
   have := h f.op hf
   dsimp
   infer_instance
 
 set_option backward.defeqAttrib.useBackward true in
-theorem leftOp {W : MorphismProperty C} {L : C ⥤ Dᵒᵖ} (h : W.IsInvertedBy L) :
-    W.op.IsInvertedBy L.leftOp := fun X Y f hf => by
+theorem leftOp {W : MorphismProperty C} {L : C ⥤ Dᵒᵖ} (h : W.IsInvertedBy L)
+    : W.op.IsInvertedBy L.leftOp := fun X Y f hf => by
   have := h f.unop hf
   dsimp
   infer_instance
 
 set_option backward.defeqAttrib.useBackward true in
-theorem unop {W : MorphismProperty C} {L : Cᵒᵖ ⥤ Dᵒᵖ} (h : W.op.IsInvertedBy L) :
-    W.IsInvertedBy L.unop := fun X Y f hf => by
+theorem unop {W : MorphismProperty C} {L : Cᵒᵖ ⥤ Dᵒᵖ} (h : W.op.IsInvertedBy L)
+    : W.IsInvertedBy L.unop := fun X Y f hf => by
   have := h f.op hf
   dsimp
   infer_instance
@@ -136,12 +140,13 @@ lemma FunctorsInverting.hom_ext {W : MorphismProperty C} {F₁ F₂ : FunctorsIn
   ObjectProperty.hom_ext _ (NatTrans.ext h)
 
 /-- A constructor for `W.FunctorsInverting D` -/
-def FunctorsInverting.mk {W : MorphismProperty C} {D : Type*} [Category* D] (F : C ⥤ D)
-    (hF : W.IsInvertedBy F) : W.FunctorsInverting D :=
+def FunctorsInverting.mk
+    {W : MorphismProperty C} {D : Type*} [Category* D] (F : C ⥤ D) (hF : W.IsInvertedBy F)
+    : W.FunctorsInverting D :=
   ⟨F, hF⟩
 
-theorem IsInvertedBy.iff_of_iso (W : MorphismProperty C) {F₁ F₂ : C ⥤ D} (e : F₁ ≅ F₂) :
-    W.IsInvertedBy F₁ ↔ W.IsInvertedBy F₂ := by
+theorem IsInvertedBy.iff_of_iso (W : MorphismProperty C) {F₁ F₂ : C ⥤ D} (e : F₁ ≅ F₂)
+    : W.IsInvertedBy F₁ ↔ W.IsInvertedBy F₂ := by
   dsimp [IsInvertedBy]
   simp only [NatIso.isIso_map_iff e]
 

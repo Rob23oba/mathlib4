@@ -25,12 +25,11 @@ open CategoryTheory CategoryTheory.Functor
 
 namespace CategoryTheory
 
-variable {C : Type*} [Category* C]
-  {D : Type*} [Category* D]
+variable {C : Type*} [Category* C] {D : Type*} [Category* D]
 
 instance (priority := 100) reflectsIsomorphisms_of_reflectsMonomorphisms_of_reflectsEpimorphisms
-    [Balanced C] (F : C ⥤ D) [ReflectsMonomorphisms F] [ReflectsEpimorphisms F] :
-    F.ReflectsIsomorphisms where
+    [Balanced C] (F : C ⥤ D) [ReflectsMonomorphisms F] [ReflectsEpimorphisms F]
+    : F.ReflectsIsomorphisms where
   reflects f hf := by
     have : Epi f := epi_of_epi_map F inferInstance
     have : Mono f := mono_of_mono_map F inferInstance

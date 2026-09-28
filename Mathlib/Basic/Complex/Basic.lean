@@ -29,7 +29,6 @@ open Set Function
 
 /-! ### Definition and basic arithmetic -/
 
-
 /-- Complex numbers consist of two `Real`s: a real part `re` and an imaginary part `im`. -/
 @[wikidata Q11567]
 structure Complex : Type where
@@ -44,8 +43,7 @@ namespace Complex
 
 open scoped ComplexConjugate
 
-noncomputable instance : DecidableEq ℂ :=
-  Classical.decEq _
+noncomputable instance : DecidableEq ℂ := Classical.decEq _
 
 /-- The equivalence between the complex numbers and `ℝ × ℝ`. -/
 @[simps apply]
@@ -70,131 +68,83 @@ theorem re_surjective : Surjective re := fun x => ⟨⟨x, 0⟩, rfl⟩
 
 theorem im_surjective : Surjective im := fun y => ⟨⟨0, y⟩, rfl⟩
 
-@[simp]
-theorem range_re : range re = univ :=
-  re_surjective.range_eq
+@[simp] theorem range_re : range re = univ := re_surjective.range_eq
 
-@[simp]
-theorem range_im : range im = univ :=
-  im_surjective.range_eq
+@[simp] theorem range_im : range im = univ := im_surjective.range_eq
 
 /-- The natural inclusion of the real numbers into the complex numbers. -/
-@[coe, instance_reducible]
-def ofReal (r : ℝ) : ℂ :=
-  ⟨r, 0⟩
-instance : Coe ℝ ℂ :=
-  ⟨ofReal⟩
+@[coe, instance_reducible] def ofReal (r : ℝ) : ℂ := ⟨r, 0⟩
+instance : Coe ℝ ℂ := ⟨ofReal⟩
+
+@[simp, norm_cast] theorem ofReal_re (r : ℝ) : Complex.re (r : ℂ) = r := rfl
+
+@[simp, norm_cast] theorem ofReal_im (r : ℝ) : (r : ℂ).im = 0 := rfl
+
+theorem ofReal_def (r : ℝ) : (r : ℂ) = ⟨r, 0⟩ := rfl
 
 @[simp, norm_cast]
-theorem ofReal_re (r : ℝ) : Complex.re (r : ℂ) = r :=
-  rfl
-
-@[simp, norm_cast]
-theorem ofReal_im (r : ℝ) : (r : ℂ).im = 0 :=
-  rfl
-
-theorem ofReal_def (r : ℝ) : (r : ℂ) = ⟨r, 0⟩ :=
-  rfl
-
-@[simp, norm_cast]
-theorem ofReal_inj {z w : ℝ} : (z : ℂ) = w ↔ z = w :=
-  ⟨congrArg re, by apply congrArg⟩
+theorem ofReal_inj {z w : ℝ} : (z : ℂ) = w ↔ z = w := ⟨congrArg re, by apply congrArg⟩
 
 theorem ofReal_injective : Function.Injective ((↑) : ℝ → ℂ) := fun _ _ => congrArg re
 
 instance canLift : CanLift ℂ ℝ (↑) fun z => z.im = 0 where
   prf z hz := ⟨z.re, ext rfl hz.symm⟩
 
-/-- The product of a set on the real axis and a set on the imaginary axis of the complex plane,
-denoted by `s ×ℂ t`. -/
-def reProdIm (s t : Set ℝ) : Set ℂ :=
-  re ⁻¹' s ∩ im ⁻¹' t
+/--
+The product of a set on the real axis and a set on the imaginary axis of the complex plane,
+denoted by `s ×ℂ t`.
+-/
+def reProdIm (s t : Set ℝ) : Set ℂ := re ⁻¹' s ∩ im ⁻¹' t
 
-@[inherit_doc]
-infixl:72 " ×ℂ " => reProdIm
+@[inherit_doc] infixl:72 " ×ℂ " => reProdIm
 
-theorem mem_reProdIm {z : ℂ} {s t : Set ℝ} : z ∈ s ×ℂ t ↔ z.re ∈ s ∧ z.im ∈ t :=
-  Iff.rfl
+theorem mem_reProdIm {z : ℂ} {s t : Set ℝ} : z ∈ s ×ℂ t ↔ z.re ∈ s ∧ z.im ∈ t := Iff.rfl
 
-instance : Zero ℂ :=
-  ⟨(0 : ℝ)⟩
+instance : Zero ℂ := ⟨(0 : ℝ)⟩
 
-instance : Inhabited ℂ :=
-  ⟨0⟩
+instance : Inhabited ℂ := ⟨0⟩
 
-@[simp]
-theorem zero_re : (0 : ℂ).re = 0 :=
-  rfl
+@[simp] theorem zero_re : (0 : ℂ).re = 0 := rfl
 
-@[simp]
-theorem zero_im : (0 : ℂ).im = 0 :=
-  rfl
+@[simp] theorem zero_im : (0 : ℂ).im = 0 := rfl
 
-@[simp, norm_cast]
-theorem ofReal_zero : ((0 : ℝ) : ℂ) = 0 :=
-  rfl
+@[simp, norm_cast] theorem ofReal_zero : ((0 : ℝ) : ℂ) = 0 := rfl
 
-@[simp]
-theorem ofReal_eq_zero {z : ℝ} : (z : ℂ) = 0 ↔ z = 0 :=
-  ofReal_inj
+@[simp] theorem ofReal_eq_zero {z : ℝ} : (z : ℂ) = 0 ↔ z = 0 := ofReal_inj
 
-theorem ofReal_ne_zero {z : ℝ} : (z : ℂ) ≠ 0 ↔ z ≠ 0 :=
-  not_congr ofReal_eq_zero
+theorem ofReal_ne_zero {z : ℝ} : (z : ℂ) ≠ 0 ↔ z ≠ 0 := not_congr ofReal_eq_zero
 
-instance : One ℂ :=
-  ⟨(1 : ℝ)⟩
+instance : One ℂ := ⟨(1 : ℝ)⟩
 
-@[simp]
-theorem one_re : (1 : ℂ).re = 1 :=
-  rfl
+@[simp] theorem one_re : (1 : ℂ).re = 1 := rfl
 
-@[simp]
-theorem one_im : (1 : ℂ).im = 0 :=
-  rfl
+@[simp] theorem one_im : (1 : ℂ).im = 0 := rfl
+
+@[simp, norm_cast] theorem ofReal_one : ((1 : ℝ) : ℂ) = 1 := rfl
+
+@[simp] theorem ofReal_eq_one {z : ℝ} : (z : ℂ) = 1 ↔ z = 1 := ofReal_inj
+
+theorem ofReal_ne_one {z : ℝ} : (z : ℂ) ≠ 1 ↔ z ≠ 1 := not_congr ofReal_eq_one
+
+instance : Add ℂ := ⟨fun z w => ⟨z.re + w.re, z.im + w.im⟩⟩
+
+@[simp] theorem add_re (z w : ℂ) : (z + w).re = z.re + w.re := rfl
+
+@[simp] theorem add_im (z w : ℂ) : (z + w).im = z.im + w.im := rfl
 
 @[simp, norm_cast]
-theorem ofReal_one : ((1 : ℝ) : ℂ) = 1 :=
-  rfl
+theorem ofReal_add (r s : ℝ) : ((r + s : ℝ) : ℂ) = r + s := Complex.ext_iff.2 <| by simp [ofReal]
 
-@[simp]
-theorem ofReal_eq_one {z : ℝ} : (z : ℂ) = 1 ↔ z = 1 :=
-  ofReal_inj
+instance : Neg ℂ := ⟨fun z => ⟨-z.re, -z.im⟩⟩
 
-theorem ofReal_ne_one {z : ℝ} : (z : ℂ) ≠ 1 ↔ z ≠ 1 :=
-  not_congr ofReal_eq_one
+@[simp] theorem neg_re (z : ℂ) : (-z).re = -z.re := rfl
 
-instance : Add ℂ :=
-  ⟨fun z w => ⟨z.re + w.re, z.im + w.im⟩⟩
-
-@[simp]
-theorem add_re (z w : ℂ) : (z + w).re = z.re + w.re :=
-  rfl
-
-@[simp]
-theorem add_im (z w : ℂ) : (z + w).im = z.im + w.im :=
-  rfl
+@[simp] theorem neg_im (z : ℂ) : (-z).im = -z.im := rfl
 
 @[simp, norm_cast]
-theorem ofReal_add (r s : ℝ) : ((r + s : ℝ) : ℂ) = r + s :=
-  Complex.ext_iff.2 <| by simp [ofReal]
+theorem ofReal_neg (r : ℝ) : ((-r : ℝ) : ℂ) = -r := Complex.ext_iff.2 <| by simp [ofReal]
 
-instance : Neg ℂ :=
-  ⟨fun z => ⟨-z.re, -z.im⟩⟩
-
-@[simp]
-theorem neg_re (z : ℂ) : (-z).re = -z.re :=
-  rfl
-
-@[simp]
-theorem neg_im (z : ℂ) : (-z).im = -z.im :=
-  rfl
-
-@[simp, norm_cast]
-theorem ofReal_neg (r : ℝ) : ((-r : ℝ) : ℂ) = -r :=
-  Complex.ext_iff.2 <| by simp [ofReal]
-
-instance : Sub ℂ :=
-  ⟨fun z w => ⟨z.re - w.re, z.im - w.im⟩⟩
+instance : Sub ℂ := ⟨fun z w => ⟨z.re - w.re, z.im - w.im⟩⟩
 
 /--
 `mulAux` is an auxiliary definition for defining multiplication and scalar multiplication on `ℂ`
@@ -205,23 +155,18 @@ This makes sure that `Module.restrictScalars ℝ ℂ ℂ = Complex.instModule` d
 def mulAux {R : Type*} [SMul R ℝ] (re : R) (im : ℝ) (z : ℂ) : ℂ :=
   ⟨re • z.re - im * z.im, re • z.im + im * z.re⟩
 
-instance : Mul ℂ :=
-  ⟨fun z w => mulAux z.re z.im w⟩
+instance : Mul ℂ := ⟨fun z w => mulAux z.re z.im w⟩
 
-theorem mk_mul_mk (x₁ x₂ y₁ y₂ : ℝ) :
-    (⟨x₁, y₁⟩ : ℂ) * ⟨x₂, y₂⟩ = ⟨x₁ * x₂ - y₁ * y₂, x₁ * y₂ + y₁ * x₂⟩ := (rfl)
-
-@[simp]
-theorem mul_re (z w : ℂ) : (z * w).re = z.re * w.re - z.im * w.im :=
+theorem mk_mul_mk (x₁ x₂ y₁ y₂ : ℝ)
+    : (⟨x₁, y₁⟩ : ℂ) * ⟨x₂, y₂⟩ = ⟨x₁ * x₂ - y₁ * y₂, x₁ * y₂ + y₁ * x₂⟩ :=
   (rfl)
 
-@[simp]
-theorem mul_im (z w : ℂ) : (z * w).im = z.re * w.im + z.im * w.re :=
-  (rfl)
+@[simp] theorem mul_re (z w : ℂ) : (z * w).re = z.re * w.re - z.im * w.im := (rfl)
+
+@[simp] theorem mul_im (z w : ℂ) : (z * w).im = z.re * w.im + z.im * w.re := (rfl)
 
 @[simp, norm_cast]
-theorem ofReal_mul (r s : ℝ) : ((r * s : ℝ) : ℂ) = r * s :=
-  Complex.ext_iff.2 <| by simp [ofReal]
+theorem ofReal_mul (r s : ℝ) : ((r * s : ℝ) : ℂ) = r * s := Complex.ext_iff.2 <| by simp [ofReal]
 
 theorem re_ofReal_mul (r : ℝ) (z : ℂ) : (r * z).re = r * z.re := by simp [ofReal]
 
@@ -235,25 +180,16 @@ theorem ofReal_mul' (r : ℝ) (z : ℂ) : ↑r * z = ⟨r * z.re, r * z.im⟩ :=
 
 /-! ### The imaginary unit, `I` -/
 
-
 /-- The imaginary unit. -/
-def I : ℂ :=
-  ⟨0, 1⟩
+def I : ℂ := ⟨0, 1⟩
 
-@[simp]
-theorem I_re : I.re = 0 :=
-  rfl
+@[simp] theorem I_re : I.re = 0 := rfl
 
-@[simp]
-theorem I_im : I.im = 1 :=
-  rfl
+@[simp] theorem I_im : I.im = 1 := rfl
 
-@[simp]
-theorem I_mul_I : I * I = -1 :=
-  Complex.ext_iff.2 <| by simp
+@[simp] theorem I_mul_I : I * I = -1 := Complex.ext_iff.2 <| by simp
 
-theorem I_mul (z : ℂ) : I * z = ⟨-z.im, z.re⟩ :=
-  Complex.ext_iff.2 <| by simp
+theorem I_mul (z : ℂ) : I * z = ⟨-z.im, z.re⟩ := Complex.ext_iff.2 <| by simp
 
 @[simp] lemma I_ne_zero : (I : ℂ) ≠ 0 := mt (congr_arg im) zero_ne_one.symm
 
@@ -261,8 +197,7 @@ theorem mk_eq_add_mul_I (a b : ℝ) : Complex.mk a b = a + b * I :=
   Complex.ext_iff.2 <| by simp [ofReal]
 
 @[simp]
-theorem re_add_im (z : ℂ) : (z.re : ℂ) + z.im * I = z :=
-  Complex.ext_iff.2 <| by simp [ofReal]
+theorem re_add_im (z : ℂ) : (z.re : ℂ) + z.im * I = z := Complex.ext_iff.2 <| by simp [ofReal]
 
 theorem mul_I_re (z : ℂ) : (z * I).re = -z.im := by simp
 
@@ -278,28 +213,29 @@ theorem equivRealProd_symm_apply (p : ℝ × ℝ) : equivRealProd.symm p = p.1 +
 
 /-- The natural `AddEquiv` from `ℂ` to `ℝ × ℝ`. -/
 @[simps! +simpRhs apply symm_apply_re symm_apply_im]
-def equivRealProdAddHom : ℂ ≃+ ℝ × ℝ :=
-  { equivRealProd with map_add' := by simp }
+def equivRealProdAddHom : ℂ ≃+ ℝ × ℝ := { equivRealProd with map_add' := by simp }
 
-theorem equivRealProdAddHom_symm_apply (p : ℝ × ℝ) :
-    equivRealProdAddHom.symm p = p.1 + p.2 * I := equivRealProd_symm_apply p
+theorem equivRealProdAddHom_symm_apply (p : ℝ × ℝ) : equivRealProdAddHom.symm p = p.1 + p.2 * I :=
+  equivRealProd_symm_apply p
 
 /-! ### Commutative ring instance and lemmas -/
 
-
-/-- We use a nonstandard formula for the `ℕ` and `ℤ` actions to make sure there is no
+/--
+We use a nonstandard formula for the `ℕ` and `ℤ` actions to make sure there is no
 diamond from the other actions they inherit through the `ℝ`-action on `ℂ` and action transitivity
-defined in `Mathlib.LinearAlgebra.Complex.Module`. -/
-instance : Nontrivial ℂ :=
-  domain_nontrivial re rfl rfl
+defined in `Mathlib.LinearAlgebra.Complex.Module`.
+-/
+instance : Nontrivial ℂ := domain_nontrivial re rfl rfl
 
 namespace SMul
 
 -- instance made scoped to avoid situations like instance synthesis
 -- of `SMul ℂ ℂ` trying to proceed via `SMul ℂ ℝ`.
-/-- Scalar multiplication by `R` on `ℝ` extends to `ℂ`. This is used here and in
+/--
+Scalar multiplication by `R` on `ℝ` extends to `ℂ`. This is used here and in
 `Mathlib/LinearAlgebra/Complex/Module.lean` to transfer instances from `ℝ` to `ℂ`, but is not
-needed outside, so we make it scoped. -/
+needed outside, so we make it scoped.
+-/
 scoped instance instSMulRealComplex {R : Type*} [SMul R ℝ] : SMul R ℂ where
   smul r x := mulAux r 0 x
 
@@ -317,9 +253,7 @@ theorem smul_re (r : R) (z : ℂ) : (r • z).re = r • z.re :=
 theorem smul_im (r : R) (z : ℂ) : (r • z).im = r • z.im :=
   show r • z.im + 0 * z.re = r • z.im by simp
 
-@[simp]
-theorem real_smul {x : ℝ} {z : ℂ} : x • z = x * z :=
-  rfl
+@[simp] theorem real_smul {x : ℝ} {z : ℂ} : x • z = x * z := rfl
 
 end SMul
 
@@ -337,10 +271,14 @@ instance addCommGroup : AddCommGroup ℂ where
 
 /-! ### Casts -/
 
-instance instNatCast : NatCast ℂ where natCast n := ofReal n
-instance instIntCast : IntCast ℂ where intCast n := ofReal n
-instance instNNRatCast : NNRatCast ℂ where nnratCast q := ofReal q
-instance instRatCast : RatCast ℂ where ratCast q := ofReal q
+instance instNatCast : NatCast ℂ where
+  natCast n := ofReal n
+instance instIntCast : IntCast ℂ where
+  intCast n := ofReal n
+instance instNNRatCast : NNRatCast ℂ where
+  nnratCast q := ofReal q
+instance instRatCast : RatCast ℂ where
+  ratCast q := ofReal q
 
 @[simp, norm_cast] lemma ofReal_ofNat (n : ℕ) [n.AtLeastTwo] : ofReal ofNat(n) = ofNat(n) := rfl
 @[simp, norm_cast] lemma ofReal_natCast (n : ℕ) : ofReal n = n := rfl
@@ -365,55 +303,61 @@ instance instRatCast : RatCast ℂ where ratCast q := ofReal q
 @[simp] lemma im_ofScientific (m : ℕ) (s : Bool) (e : ℕ) :
     (OfScientific.ofScientific m s e : ℂ).im = 0 := rfl
 
-
 /-! ### Ring structure -/
 
-instance addGroupWithOne : AddGroupWithOne ℂ :=
-  { Complex.addCommGroup with
-    natCast_zero := by ext <;> simp
-    natCast_succ _ := by ext <;> simp
-    intCast_ofNat _ := by ext <;> simp
-    intCast_negSucc _ := by ext <;> simp }
+instance addGroupWithOne : AddGroupWithOne ℂ := {
+  Complex.addCommGroup with
+  natCast_zero := by ext <;> simp
+  natCast_succ _ := by ext <;> simp
+  intCast_ofNat _ := by ext <;> simp
+  intCast_negSucc _ := by ext <;> simp
+}
 
-instance commRing : CommRing ℂ :=
-  { addGroupWithOne with
-    npow := @npowRec _ ⟨(1 : ℂ)⟩ ⟨(· * ·)⟩
-    add_comm := by intros; ext <;> simp <;> ring
-    left_distrib := by intros; ext <;> simp [mul_re, mul_im] <;> ring
-    right_distrib := by intros; ext <;> simp [mul_re, mul_im] <;> ring
-    zero_mul := by intros; ext <;> simp
-    mul_zero := by intros; ext <;> simp
-    mul_assoc := by intros; ext <;> simp <;> ring
-    one_mul := by intros; ext <;> simp
-    mul_one := by intros; ext <;> simp
-    mul_comm := by intros; ext <;> simp <;> ring }
+instance commRing : CommRing ℂ := {
+  addGroupWithOne with
+  npow := @npowRec _ ⟨(1 : ℂ)⟩ ⟨(· * ·)⟩
+  add_comm := by intros; ext <;> simp <;> ring
+  left_distrib := by intros; ext <;> simp [mul_re, mul_im] <;> ring
+  right_distrib := by intros; ext <;> simp [mul_re, mul_im] <;> ring
+  zero_mul := by intros; ext <;> simp
+  mul_zero := by intros; ext <;> simp
+  mul_assoc := by intros; ext <;> simp <;> ring
+  one_mul := by intros; ext <;> simp
+  mul_one := by intros; ext <;> simp
+  mul_comm := by intros; ext <;> simp <;> ring
+}
 
 section computable_shortcuts
 
-/-- This shortcut instance ensures we do not find `Ring` via the noncomputable `Complex.field`
-instance. -/
-instance : Ring ℂ :=
-  delta% inferInstance
+/--
+This shortcut instance ensures we do not find `Ring` via the noncomputable `Complex.field`
+instance.
+-/
+instance : Ring ℂ := delta% inferInstance
 
-/-- This shortcut instance ensures we do not find `NonUnitalCommRing` via the noncomputable
-`instCommCStarAlgebraComplex` instance. -/
-instance : NonUnitalCommRing ℂ :=
-  delta% inferInstance
+/--
+This shortcut instance ensures we do not find `NonUnitalCommRing` via the noncomputable
+`instCommCStarAlgebraComplex` instance.
+-/
+instance : NonUnitalCommRing ℂ := delta% inferInstance
 
-/-- This shortcut instance ensures we do not find `CommSemiring` via the noncomputable
-`Complex.field` instance. -/
-instance : CommSemiring ℂ :=
-  delta% inferInstance
+/--
+This shortcut instance ensures we do not find `CommSemiring` via the noncomputable
+`Complex.field` instance.
+-/
+instance : CommSemiring ℂ := delta% inferInstance
 
-/-- This shortcut instance ensures we do not find `Semiring` via the noncomputable
-`Complex.field` instance. -/
-instance : Semiring ℂ :=
-  delta% inferInstance
+/--
+This shortcut instance ensures we do not find `Semiring` via the noncomputable
+`Complex.field` instance.
+-/
+instance : Semiring ℂ := delta% inferInstance
 
-/-- This shortcut instance ensures we do not find `AddCommMonoid` via the noncomputable
-`Complex.instNormedField` instance. -/
-instance : AddCommMonoid ℂ :=
-  delta% inferInstance
+/--
+This shortcut instance ensures we do not find `AddCommMonoid` via the noncomputable
+`Complex.instNormedField` instance.
+-/
+instance : AddCommMonoid ℂ := delta% inferInstance
 
 end computable_shortcuts
 
@@ -423,9 +367,7 @@ def reAddGroupHom : ℂ →+ ℝ where
   map_zero' := zero_re
   map_add' := add_re
 
-@[simp]
-theorem coe_reAddGroupHom : (reAddGroupHom : ℂ → ℝ) = re :=
-  rfl
+@[simp] theorem coe_reAddGroupHom : (reAddGroupHom : ℂ → ℝ) = re := rfl
 
 /-- The "imaginary part" map, considered as an additive group homomorphism. -/
 def imAddGroupHom : ℂ →+ ℝ where
@@ -433,9 +375,7 @@ def imAddGroupHom : ℂ →+ ℝ where
   map_zero' := zero_im
   map_add' := add_im
 
-@[simp]
-theorem coe_imAddGroupHom : (imAddGroupHom : ℂ → ℝ) = im :=
-  rfl
+@[simp] theorem coe_imAddGroupHom : (imAddGroupHom : ℂ → ℝ) = im := rfl
 
 lemma re_nsmul (n : ℕ) (z : ℂ) : (n • z).re = n • z.re := smul_re ..
 lemma im_nsmul (n : ℕ) (z : ℂ) : (n • z).im = n • z.im := smul_im ..
@@ -452,56 +392,45 @@ lemma im_zsmul (n : ℤ) (z : ℂ) : (n • z).im = n • z.im := smul_im ..
 
 /-! ### Complex conjugation -/
 
-
-/-- This defines the complex conjugate as the `star` operation of the `StarRing ℂ`. It
+/--
+This defines the complex conjugate as the `star` operation of the `StarRing ℂ`. It
 is recommended to use the ring endomorphism version `starRingEnd`, available under the
-notation `conj` in the scope `ComplexConjugate`. -/
+notation `conj` in the scope `ComplexConjugate`.
+-/
 instance : StarRing ℂ where
   star z := ⟨z.re, -z.im⟩
   star_involutive x := by simp only [eta, neg_neg]
   star_mul a b := by ext <;> simp [add_comm] <;> ring
   star_add a b := by ext <;> simp [add_comm]
 
-@[simp]
-theorem conj_re (z : ℂ) : (conj z).re = z.re :=
-  rfl
+@[simp] theorem conj_re (z : ℂ) : (conj z).re = z.re := rfl
 
-@[simp]
-theorem conj_im (z : ℂ) : (conj z).im = -z.im :=
-  rfl
+@[simp] theorem conj_im (z : ℂ) : (conj z).im = -z.im := rfl
 
-@[simp]
-theorem conj_ofReal (r : ℝ) : conj (r : ℂ) = r :=
-  Complex.ext_iff.2 <| by simp
+@[simp] theorem conj_ofReal (r : ℝ) : conj (r : ℂ) = r := Complex.ext_iff.2 <| by simp
 
-@[simp]
-theorem conj_I : conj I = -I :=
-  Complex.ext_iff.2 <| by simp
+@[simp] theorem conj_I : conj I = -I := Complex.ext_iff.2 <| by simp
 
 theorem conj_natCast (n : ℕ) : conj (n : ℂ) = n := map_natCast _ _
 
-theorem conj_ofNat (n : ℕ) [n.AtLeastTwo] : conj (ofNat(n) : ℂ) = ofNat(n) :=
-  map_ofNat _ _
+theorem conj_ofNat (n : ℕ) [n.AtLeastTwo] : conj (ofNat(n) : ℂ) = ofNat(n) := map_ofNat _ _
 
 theorem conj_neg_I : conj (-I) = I := by simp
 
 theorem conj_eq_iff_real {z : ℂ} : conj z = z ↔ ∃ r : ℝ, z = r :=
-  ⟨fun h => ⟨z.re, ext rfl <| eq_zero_of_neg_eq congr(im $h)⟩, fun ⟨h, e⟩ => by
-    rw [e, conj_ofReal]⟩
+  ⟨fun h => ⟨z.re, ext rfl <| eq_zero_of_neg_eq congr(im $h)⟩, fun ⟨h, e⟩ => by rw [e, conj_ofReal]⟩
 
 theorem conj_eq_iff_re {z : ℂ} : conj z = z ↔ (z.re : ℂ) = z :=
   conj_eq_iff_real.trans ⟨by rintro ⟨r, rfl⟩; simp [ofReal], fun h => ⟨_, h.symm⟩⟩
 
-theorem conj_eq_iff_im {z : ℂ} : conj z = z ↔ z.im = 0 :=
-  ⟨fun h => add_self_eq_zero.mp (neg_eq_iff_add_eq_zero.mp congr(im $h)), fun h =>
-    ext rfl (neg_eq_iff_add_eq_zero.mpr (add_self_eq_zero.mpr h))⟩
+theorem conj_eq_iff_im {z : ℂ} : conj z = z ↔ z.im = 0 := ⟨
+  fun h => add_self_eq_zero.mp (neg_eq_iff_add_eq_zero.mp congr(im $h)),
+  fun h => ext rfl (neg_eq_iff_add_eq_zero.mpr (add_self_eq_zero.mpr h))
+⟩
 
-@[simp]
-theorem star_def : (Star.star : ℂ → ℂ) = conj :=
-  rfl
+@[simp] theorem star_def : (Star.star : ℂ → ℂ) = conj := rfl
 
 /-! ### Norm squared -/
-
 
 /-- The norm squared function. -/
 @[pp_nodot]
@@ -513,30 +442,21 @@ def normSq : ℂ →*₀ ℝ where
     simp only [mul_re, mul_im]
     ring
 
-theorem normSq_apply (z : ℂ) : normSq z = z.re * z.re + z.im * z.im :=
-  rfl
+theorem normSq_apply (z : ℂ) : normSq z = z.re * z.re + z.im * z.im := rfl
+
+@[simp] theorem normSq_ofReal (r : ℝ) : normSq r = r * r := by simp [normSq, ofReal]
+
+@[simp] theorem normSq_natCast (n : ℕ) : normSq n = n * n := normSq_ofReal _
+
+@[simp] theorem normSq_intCast (z : ℤ) : normSq z = z * z := normSq_ofReal _
+
+@[simp] theorem normSq_ratCast (q : ℚ) : normSq q = q * q := normSq_ofReal _
 
 @[simp]
-theorem normSq_ofReal (r : ℝ) : normSq r = r * r := by
-  simp [normSq, ofReal]
-
-@[simp]
-theorem normSq_natCast (n : ℕ) : normSq n = n * n := normSq_ofReal _
-
-@[simp]
-theorem normSq_intCast (z : ℤ) : normSq z = z * z := normSq_ofReal _
-
-@[simp]
-theorem normSq_ratCast (q : ℚ) : normSq q = q * q := normSq_ofReal _
-
-@[simp]
-theorem normSq_ofNat (n : ℕ) [n.AtLeastTwo] :
-    normSq (ofNat(n) : ℂ) = ofNat(n) * ofNat(n) :=
+theorem normSq_ofNat (n : ℕ) [n.AtLeastTwo] : normSq (ofNat(n) : ℂ) = ofNat(n) * ofNat(n) :=
   normSq_natCast _
 
-@[simp]
-theorem normSq_mk (x y : ℝ) : normSq ⟨x, y⟩ = x * x + y * y :=
-  rfl
+@[simp] theorem normSq_mk (x y : ℝ) : normSq ⟨x, y⟩ = x * x + y * y := rfl
 
 theorem normSq_add_mul_I (x y : ℝ) : normSq (x + y * I) = x ^ 2 + y ^ 2 := by
   rw [← mk_eq_add_mul_I, normSq_mk, sq, sq]
@@ -548,30 +468,26 @@ theorem normSq_zero : normSq 0 = 0 := by simp
 
 theorem normSq_one : normSq 1 = 1 := by simp
 
-@[simp]
-theorem normSq_I : normSq I = 1 := by simp [normSq]
+@[simp] theorem normSq_I : normSq I = 1 := by simp [normSq]
 
-theorem normSq_nonneg (z : ℂ) : 0 ≤ normSq z :=
-  add_nonneg (mul_self_nonneg _) (mul_self_nonneg _)
+theorem normSq_nonneg (z : ℂ) : 0 ≤ normSq z := add_nonneg (mul_self_nonneg _) (mul_self_nonneg _)
 
-theorem normSq_eq_zero {z : ℂ} : normSq z = 0 ↔ z = 0 :=
-  ⟨fun h =>
+theorem normSq_eq_zero {z : ℂ} : normSq z = 0 ↔ z = 0 := ⟨
+  fun h =>
     ext (eq_zero_of_mul_self_add_mul_self_eq_zero h)
       (eq_zero_of_mul_self_add_mul_self_eq_zero <| (add_comm _ _).trans h),
-    fun h => h.symm ▸ normSq_zero⟩
+  fun h => h.symm ▸ normSq_zero
+⟩
 
 @[simp]
 theorem normSq_pos {z : ℂ} : 0 < normSq z ↔ z ≠ 0 :=
   (normSq_nonneg z).lt_iff_ne.trans <| not_congr (eq_comm.trans normSq_eq_zero)
 
-@[simp]
-theorem normSq_neg (z : ℂ) : normSq (-z) = normSq z := by simp [normSq]
+@[simp] theorem normSq_neg (z : ℂ) : normSq (-z) = normSq z := by simp [normSq]
 
-@[simp]
-theorem normSq_conj (z : ℂ) : normSq (conj z) = normSq z := by simp [normSq]
+@[simp] theorem normSq_conj (z : ℂ) : normSq (conj z) = normSq z := by simp [normSq]
 
-theorem normSq_mul (z w : ℂ) : normSq (z * w) = normSq z * normSq w :=
-  normSq.map_mul z w
+theorem normSq_mul (z w : ℂ) : normSq (z * w) = normSq z * normSq w := normSq.map_mul z w
 
 theorem normSq_add (z w : ℂ) : normSq (z + w) = normSq z + normSq w + 2 * (z * conj w).re := by
   simp [normSq]; ring
@@ -622,43 +538,41 @@ lemma ofReal_comp_zsmul (n : ℤ) (f : α → ℝ) : ofReal ∘ (n • f) = n �
 @[simp] lemma ofReal_comp_pow (f : α → ℝ) (n : ℕ) : ofReal ∘ (f ^ n) = (ofReal ∘ f) ^ n :=
   map_comp_pow ofRealHom ..
 
-@[simp]
-theorem I_sq : I ^ 2 = -1 := by rw [sq, I_mul_I]
+@[simp] theorem I_sq : I ^ 2 = -1 := by rw [sq, I_mul_I]
 
 @[simp]
 lemma I_pow_three : I ^ 3 = -I := by rw [pow_succ, I_sq, neg_one_mul]
 
-@[simp]
-theorem I_pow_four : I ^ 4 = 1 := by rw [(by simp : 4 = 2 * 2), pow_mul, I_sq, neg_one_sq]
+@[simp] theorem I_pow_four : I ^ 4 = 1 := by rw [(by simp : 4 = 2 * 2), pow_mul, I_sq, neg_one_sq]
 
 lemma I_pow_eq_pow_mod (n : ℕ) : I ^ n = I ^ (n % 4) := by
   conv_lhs => rw [← Nat.div_add_mod n 4]
   simp [pow_add, pow_mul, I_pow_four]
 
 open Qq in
-/-- Reduce `Complex.I ^ n` to `Complex.I ^ (n % 4)` when `n` is a literal natural number at
+/--
+Reduce `Complex.I ^ n` to `Complex.I ^ (n % 4)` when `n` is a literal natural number at
 least `4`. Combined with `Nat.reduceMod` this normalises every literal power of `I` to one of
-`I ^ 0`, `I ^ 1`, `I ^ 2`, `I ^ 3`, which the existing `@[simp]` lemmas dispatch. -/
-simproc I_pow_eq_pow_mod' (I ^ _) := .ofQ fun u a e =>
-  match u, a, e with
-  | 1, ~q(ℂ), ~q(I ^ ($n : ℕ)) => do
-    let some n' := n.nat? | return .continue
-    if n' < 4 then return .continue
-    -- we don't reduce `n % 4`, further, since `Nat.reduceMod` will handle that
-    return .visit <| .mk q(I ^ ($n % 4)) <| .some q(I_pow_eq_pow_mod $n)
-  | _, _, _ => return .continue
+`I ^ 0`, `I ^ 1`, `I ^ 2`, `I ^ 3`, which the existing `@[simp]` lemmas dispatch.
+-/
+simproc I_pow_eq_pow_mod' (I ^ _) :=
+  .ofQ fun u a e =>
+    match u, a, e with
+    | 1, ~q(ℂ), ~q(I ^ ($n : ℕ)) => do
+      let some n' := n.nat?
+        | return .continue
+      if n' < 4 then return .continue
+      -- we don't reduce `n % 4`, further, since `Nat.reduceMod` will handle that
+      return .visit <| .mk q(I ^ ($n % 4)) <| .some q(I_pow_eq_pow_mod $n)
+    | _, _, _ =>
+      return .continue
 
-@[simp]
-theorem sub_re (z w : ℂ) : (z - w).re = z.re - w.re :=
-  rfl
+@[simp] theorem sub_re (z w : ℂ) : (z - w).re = z.re - w.re := rfl
 
-@[simp]
-theorem sub_im (z w : ℂ) : (z - w).im = z.im - w.im :=
-  rfl
+@[simp] theorem sub_im (z w : ℂ) : (z - w).im = z.im - w.im := rfl
 
 @[simp, norm_cast]
-theorem ofReal_sub (r s : ℝ) : ((r - s : ℝ) : ℂ) = r - s :=
-  Complex.ext_iff.2 <| by simp [ofReal]
+theorem ofReal_sub (r s : ℝ) : ((r - s : ℝ) : ℂ) = r - s := Complex.ext_iff.2 <| by simp [ofReal]
 
 @[simp, norm_cast]
 theorem ofReal_pow (r : ℝ) (n : ℕ) : ((r ^ n : ℝ) : ℂ) = (r : ℂ) ^ n := by
@@ -674,30 +588,25 @@ theorem normSq_sub (z w : ℂ) : normSq (z - w) = normSq z + normSq w - 2 * (z *
 
 /-! ### Inversion -/
 
+@[no_expose] noncomputable instance : Inv ℂ := ⟨fun z => conj z * ((normSq z)⁻¹ : ℝ)⟩
 
-@[no_expose]
-noncomputable instance : Inv ℂ :=
-  ⟨fun z => conj z * ((normSq z)⁻¹ : ℝ)⟩
+theorem inv_def (z : ℂ) : z⁻¹ = conj z * ((normSq z)⁻¹ : ℝ) := (rfl)
 
-theorem inv_def (z : ℂ) : z⁻¹ = conj z * ((normSq z)⁻¹ : ℝ) :=
-  (rfl)
-
-@[simp]
-theorem inv_re (z : ℂ) : z⁻¹.re = z.re / normSq z := by simp [inv_def, division_def, ofReal]
+@[simp] theorem inv_re (z : ℂ) : z⁻¹.re = z.re / normSq z := by simp [inv_def, division_def, ofReal]
 
 @[simp]
 theorem inv_im (z : ℂ) : z⁻¹.im = -z.im / normSq z := by simp [inv_def, division_def, ofReal]
 
 @[simp, norm_cast]
-theorem ofReal_inv (r : ℝ) : ((r⁻¹ : ℝ) : ℂ) = (r : ℂ)⁻¹ :=
-  Complex.ext_iff.2 <| by simp [ofReal]
+theorem ofReal_inv (r : ℝ) : ((r⁻¹ : ℝ) : ℂ) = (r : ℂ)⁻¹ := Complex.ext_iff.2 <| by simp [ofReal]
 
-protected theorem inv_zero : (0⁻¹ : ℂ) = 0 := by
-  rw [← ofReal_zero, ← ofReal_inv, inv_zero]
+protected theorem inv_zero : (0⁻¹ : ℂ) = 0 := by rw [← ofReal_zero, ← ofReal_inv, inv_zero]
 
 protected theorem mul_inv_cancel {z : ℂ} (h : z ≠ 0) : z * z⁻¹ = 1 := by
-  rw [inv_def, ← mul_assoc, mul_conj, ← ofReal_mul, mul_inv_cancel₀ (mt normSq_eq_zero.1 h),
-    ofReal_one]
+  rw [
+    inv_def, ← mul_assoc, mul_conj, ← ofReal_mul, mul_inv_cancel₀ (mt normSq_eq_zero.1 h),
+    ofReal_one
+  ]
 
 noncomputable instance instDivInvMonoid : DivInvMonoid ℂ where
 
@@ -725,8 +634,7 @@ lemma ofReal_nnqsmul (q : ℚ≥0) (r : ℝ) : ofReal (q • r) = q • r := by 
 @[simp, norm_cast]
 lemma ofReal_qsmul (q : ℚ) (r : ℝ) : ofReal (q • r) = q • r := by simp [Rat.smul_def]
 
-theorem conj_inv (x : ℂ) : conj x⁻¹ = (conj x)⁻¹ :=
-  star_inv₀ _
+theorem conj_inv (x : ℂ) : conj x⁻¹ = (conj x)⁻¹ := star_inv₀ _
 
 @[simp, norm_cast]
 theorem ofReal_div (r s : ℝ) : ((r / s : ℝ) : ℂ) = r / s := map_div₀ ofRealHom r s
@@ -735,12 +643,9 @@ theorem ofReal_div (r s : ℝ) : ((r / s : ℝ) : ℂ) = r / s := map_div₀ ofR
 theorem ofReal_zpow (r : ℝ) (n : ℤ) : ((r ^ n : ℝ) : ℂ) = (r : ℂ) ^ n := map_zpow₀ ofRealHom r n
 
 @[simp]
-theorem div_I (z : ℂ) : z / I = -(z * I) :=
-  (div_eq_iff_mul_eq I_ne_zero).2 <| by simp [mul_assoc]
+theorem div_I (z : ℂ) : z / I = -(z * I) := (div_eq_iff_mul_eq I_ne_zero).2 <| by simp [mul_assoc]
 
-@[simp]
-theorem inv_I : I⁻¹ = -I := by
-  rw [inv_eq_one_div, div_I, one_mul]
+@[simp] theorem inv_I : I⁻¹ = -I := by rw [inv_eq_one_div, div_I, one_mul]
 
 lemma I_zpow_eq_zpow_mod (m : ℤ) : I ^ m = I ^ (m % 4) := by
   conv_lhs => rw [← Int.mul_ediv_add_emod m 4]
@@ -785,7 +690,6 @@ lemma div_ofNat_im (z : ℂ) (n : ℕ) [n.AtLeastTwo] :
 
 /-! ### Characteristic zero -/
 
-
 instance instCharZero : CharZero ℂ :=
   charZero_of_inj_zero fun n h => by rwa [← ofReal_natCast, ofReal_eq_zero, Nat.cast_eq_zero] at h
 
@@ -797,10 +701,13 @@ theorem re_eq_add_conj (z : ℂ) : (z.re : ℂ) = (z + conj z) / 2 := by
 
 /-- A complex number `z` minus its conjugate `conj z` is `2i` times its imaginary part. -/
 theorem im_eq_sub_conj (z : ℂ) : (z.im : ℂ) = (z - conj z) / (2 * I) := by
-  simp only [sub_conj, ofReal_mul, ofReal_ofNat, mul_right_comm,
-    mul_div_cancel_left₀ _ (mul_ne_zero two_ne_zero I_ne_zero : 2 * I ≠ 0)]
+  simp only [
+    sub_conj, ofReal_mul, ofReal_ofNat, mul_right_comm,
+    mul_div_cancel_left₀ _ (mul_ne_zero two_ne_zero I_ne_zero : 2 * I ≠ 0)
+  ]
 
-/-- Show the imaginary number ⟨x, y⟩ as an `"x + y*I"` string
+/--
+Show the imaginary number ⟨x, y⟩ as an `"x + y*I"` string
 
 Note that the Real numbers used for x and y will show as Cauchy sequences due to the way Real
 numbers are represented.

@@ -69,12 +69,16 @@ variable {α : Type*} {M : Matroid α} {I B X Y : Set α} {n : ℕ∞} {e f : α
 
 section Basic
 
-/-- The rank `Matroid.eRank M` of `M` is the `ℕ∞`-valued cardinality of each base of `M`.
-(See `Matroid.cRank` for a worse-behaved cardinal-valued version) -/
+/--
+The rank `Matroid.eRank M` of `M` is the `ℕ∞`-valued cardinality of each base of `M`.
+(See `Matroid.cRank` for a worse-behaved cardinal-valued version)
+-/
 noncomputable def eRank (M : Matroid α) : ℕ∞ := ⨆ B : {B // M.IsBase B}, B.1.encard
 
-/-- The rank `Matroid.eRk M X` of a set `X` is the `ℕ∞`-valued cardinality of each basis of `X`.
-(See `Matroid.cRk` for a worse-behaved cardinal-valued version) -/
+/--
+The rank `Matroid.eRk M X` of a set `X` is the `ℕ∞`-valued cardinality of each basis of `X`.
+(See `Matroid.cRk` for a worse-behaved cardinal-valued version)
+-/
 noncomputable def eRk (M : Matroid α) (X : Set α) : ℕ∞ := (M ↾ X).eRank
 
 lemma eRank_def (M : Matroid α) : M.eRank = M.eRk M.E := by

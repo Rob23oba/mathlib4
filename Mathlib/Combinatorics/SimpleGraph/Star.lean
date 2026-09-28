@@ -34,8 +34,7 @@ namespace SimpleGraph
 variable {V : Type*} (r : V)
 
 /-- The star graph on `V` centered at `r`: every non-center vertex is adjacent to `r`. -/
-def starGraph (r : V) : SimpleGraph V :=
-  .fromRel fun v _ ↦ v = r
+def starGraph (r : V) : SimpleGraph V := .fromRel fun v _ ↦ v = r
 
 instance [DecidableEq V] (r : V) : DecidableRel (starGraph r).Adj :=
   inferInstanceAs (DecidableRel fun x y ↦ x ≠ y ∧ (x = r ∨ y = r))
@@ -103,10 +102,8 @@ lemma degree_starGraph_center [Fintype V] [DecidableEq V] {r : V} :
     (starGraph r).degree r = Fintype.card V - 1 := by
   simp
 
-theorem starGraph_inl_unitMk : starGraph (.inl ()) = completeBipartiteGraph Unit V := by
-  grind
+theorem starGraph_inl_unitMk : starGraph (.inl ()) = completeBipartiteGraph Unit V := by grind
 
-theorem starGraph_inr_unitMk : starGraph (.inr ()) = completeBipartiteGraph V Unit := by
-  grind
+theorem starGraph_inr_unitMk : starGraph (.inr ()) = completeBipartiteGraph V Unit := by grind
 
 end SimpleGraph

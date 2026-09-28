@@ -16,7 +16,6 @@ The ring of integers is integrally closed inside the original ring.
 
 public section
 
-
 universe u v w
 
 namespace Valuation
@@ -75,11 +74,9 @@ variable (hv : Integers v O)
 include hv in
 theorem isIntegrallyClosed : IsIntegrallyClosed O := by
   have : IsFractionRing O K := hv.isFractionRing
-  exact
-    (IsIntegrallyClosed.integralClosure_eq_bot_iff K).mp (Valuation.Integers.integralClosure hv)
+  exact (IsIntegrallyClosed.integralClosure_eq_bot_iff K).mp (Valuation.Integers.integralClosure hv)
 
-instance isIntegrallyClosed_integers (v : Valuation K Γ₀) :
-    IsIntegrallyClosed v.integer :=
+instance isIntegrallyClosed_integers (v : Valuation K Γ₀) : IsIntegrallyClosed v.integer :=
   (Valuation.integer.integers v).isIntegrallyClosed
 
 end FractionField

@@ -32,11 +32,12 @@ section Def
 variable {R n : Type*} [Zero R] [One R] [DecidableEq n]
 
 variable (R) in
-/-- The swap matrix `swap R i j` is the identity matrix with the
+/--
+The swap matrix `swap R i j` is the identity matrix with the
 `i`-th and `j`-th rows modified such that multiplying by it on the
-left (resp. right) corresponds to swapping the `i`-th and `j`-th row (resp. column). -/
-def swap (i j : n) : Matrix n n R :=
-  (Equiv.swap i j).permMatrix R
+left (resp. right) corresponds to swapping the `i`-th and `j`-th row (resp. column).
+-/
+def swap (i j : n) : Matrix n n R := (Equiv.swap i j).permMatrix R
 
 lemma swap_comm (i j : n) :
     swap R i j = swap R j i := by
@@ -46,8 +47,7 @@ lemma swap_comm (i j : n) :
 lemma transpose_swap (i j : n) : (swap R i j).transpose = swap R i j := by
   simp [swap]
 
-theorem isSymm_swap (i j : n) : (swap R i j).IsSymm :=
-  transpose_swap i j
+theorem isSymm_swap (i j : n) : (swap R i j).IsSymm := transpose_swap i j
 
 @[simp]
 lemma conjTranspose_swap {R : Type*} [NonAssocSemiring R] [StarRing R] (i j : n) :

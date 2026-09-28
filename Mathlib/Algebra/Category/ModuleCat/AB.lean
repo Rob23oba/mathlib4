@@ -27,8 +27,7 @@ open CategoryTheory
 variable (R : Type u) [Ring R]
 
 instance : AB5 (ModuleCat.{u} R) where
-  ofShape J _ _ :=
-    HasExactColimitsOfShape.domain_of_functor J (forget₂ (ModuleCat R) AddCommGrpCat)
+  ofShape J _ _ := HasExactColimitsOfShape.domain_of_functor J (forget₂ (ModuleCat R) AddCommGrpCat)
 
 attribute [local instance] Abelian.hasFiniteBiproducts
 

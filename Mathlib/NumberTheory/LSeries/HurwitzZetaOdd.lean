@@ -103,13 +103,16 @@ lemma jacobiTheta₂'_functional_equation' (z τ : ℂ) :
   congr 2
   rw [neg_sub, ← sub_eq_neg_add, mul_comm _ (_ * I), ← mul_assoc]
 
-/-- Odd Hurwitz zeta kernel (function whose Mellin transform will be the odd part of the completed
+/--
+Odd Hurwitz zeta kernel (function whose Mellin transform will be the odd part of the completed
 Hurwitz zeta function). See `oddKernel_def` for the defining formula, and `hasSum_int_oddKernel`
 for an expression as a sum over `ℤ`.
 -/
-@[irreducible] def oddKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
+@[irreducible]
+def oddKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
   (show Function.Periodic (fun a : ℝ ↦ re (jacobiTheta₂'' a (I * x))) 1 by
-    simp [jacobiTheta₂''_add_left]).lift a
+      simp [jacobiTheta₂''_add_left]).lift
+    a
 
 lemma oddKernel_def (a x : ℝ) : ↑(oddKernel a x) = jacobiTheta₂'' a (I * x) := by
   simp [oddKernel, ← conj_eq_iff_re, jacobiTheta₂''_conj]
@@ -125,12 +128,16 @@ lemma oddKernel_undef (a : UnitAddCircle) {x : ℝ} (hx : x ≤ 0) : oddKernel a
     mul_zero, mul_zero] <;>
   simpa
 
-/-- Auxiliary function appearing in the functional equation for the odd Hurwitz zeta kernel, equal
+/--
+Auxiliary function appearing in the functional equation for the odd Hurwitz zeta kernel, equal
 to `∑ (n : ℕ), 2 * n * sin (2 * π * n * a) * exp (-π * n ^ 2 * x)`. See `hasSum_nat_sinKernel`
-for the defining sum. -/
-@[irreducible] def sinKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
+for the defining sum.
+-/
+@[irreducible]
+def sinKernel (a : UnitAddCircle) (x : ℝ) : ℝ :=
   (show Function.Periodic (fun ξ : ℝ ↦ re (jacobiTheta₂' ξ (I * x) / (-2 * π))) 1 by
-    simp [jacobiTheta₂'_add_left]).lift a
+      simp [jacobiTheta₂'_add_left]).lift
+    a
 
 lemma sinKernel_def (a x : ℝ) : ↑(sinKernel ↑a x) = jacobiTheta₂' a (I * x) / (-2 * π) := by
   simp [sinKernel, re_eq_add_conj, jacobiTheta₂'_conj, map_ofNat]
@@ -302,10 +309,12 @@ section FEPair
 def hurwitzOddFEPair (a : UnitAddCircle) : WeakFEPair ℂ where
   f := ofReal ∘ oddKernel a
   g := ofReal ∘ sinKernel a
-  hf_int := (continuous_ofReal.comp_continuousOn (continuousOn_oddKernel a)).locallyIntegrableOn
-    measurableSet_Ioi
-  hg_int := (continuous_ofReal.comp_continuousOn (continuousOn_sinKernel a)).locallyIntegrableOn
-    measurableSet_Ioi
+  hf_int :=
+    (continuous_ofReal.comp_continuousOn (continuousOn_oddKernel a)).locallyIntegrableOn
+      measurableSet_Ioi
+  hg_int :=
+    (continuous_ofReal.comp_continuousOn (continuousOn_sinKernel a)).locallyIntegrableOn
+      measurableSet_Ioi
   k := 3 / 2
   hk := by simp
   ε := 1
@@ -332,7 +341,8 @@ end FEPair
 ## Definition of the completed odd Hurwitz zeta function
 -/
 
-/-- The entire function of `s` which agrees with
+/--
+The entire function of `s` which agrees with
 `1 / 2 * Gamma ((s + 1) / 2) * π ^ (-(s + 1) / 2) * ∑' (n : ℤ), sgn (n + a) / |n + a| ^ s`
 for `1 < re s`.
 -/
@@ -344,7 +354,8 @@ lemma differentiable_completedHurwitzZetaOdd (a : UnitAddCircle) :
   ((isStrong_hurwitzOddFEPair a).differentiable_Λ.comp
     ((differentiable_id.add_const 1).div_const 2)).div_const 2
 
-/-- The entire function of `s` which agrees with
+/--
+The entire function of `s` which agrees with
 ` Gamma ((s + 1) / 2) * π ^ (-(s + 1) / 2) * ∑' (n : ℕ), sin (2 * π * a * n) / n ^ s`
 for `1 < re s`.
 -/
@@ -371,12 +382,17 @@ lemma completedSinZeta_neg (a : UnitAddCircle) (s : ℂ) :
     integral_neg, neg_div]
 
 /-- Functional equation for the odd Hurwitz zeta function. -/
-theorem completedHurwitzZetaOdd_one_sub (a : UnitAddCircle) (s : ℂ) :
-    completedHurwitzZetaOdd a (1 - s) = completedSinZeta a s := by
-  rw [completedHurwitzZetaOdd, completedSinZeta,
-    (by { push_cast; ring } : (1 - s + 1) / 2 = ↑(3 / 2 : ℝ) - (s + 1) / 2),
+theorem completedHurwitzZetaOdd_one_sub (a : UnitAddCircle) (s : ℂ)
+    : completedHurwitzZetaOdd a (1 - s) = completedSinZeta a s := by
+  rw [
+    completedHurwitzZetaOdd, completedSinZeta,
+    (by {
+        push_cast; ring
+      }
+      : (1 - s + 1) / 2 = ↑(3 / 2 : ℝ) - (s + 1) / 2),
     ← hurwitzOddFEPair_k, (hurwitzOddFEPair a).functional_equation ((s + 1) / 2),
-    hurwitzOddFEPair_ε, one_smul]
+    hurwitzOddFEPair_ε, one_smul
+  ]
 
 /-- Functional equation for the odd Hurwitz zeta function (alternative form). -/
 lemma completedSinZeta_one_sub (a : UnitAddCircle) (s : ℂ) :
@@ -453,8 +469,10 @@ lemma hasSum_int_completedHurwitzZetaOdd (a : ℝ) {s : ℂ} (hs : 1 < re s) :
 ## Non-completed zeta functions
 -/
 
-/-- The odd part of the Hurwitz zeta function, i.e. the meromorphic function of `s` which agrees
-with `1 / 2 * ∑' (n : ℤ), sign (n + a) / |n + a| ^ s` for `1 < re s` -/
+/--
+The odd part of the Hurwitz zeta function, i.e. the meromorphic function of `s` which agrees
+with `1 / 2 * ∑' (n : ℤ), sign (n + a) / |n + a| ^ s` for `1 < re s`
+-/
 noncomputable def hurwitzZetaOdd (a : UnitAddCircle) (s : ℂ) :=
   completedHurwitzZetaOdd a s / Gammaℝ (s + 1)
 
@@ -468,10 +486,11 @@ lemma differentiable_hurwitzZetaOdd (a : UnitAddCircle) :
   (differentiable_completedHurwitzZetaOdd a).mul <| differentiable_Gammaℝ_inv.comp <|
     differentiable_id.add <| differentiable_const _
 
-/-- The sine zeta function, i.e. the meromorphic function of `s` which agrees
-with `∑' (n : ℕ), sin (2 * π * a * n) / n ^ s` for `1 < re s`. -/
-noncomputable def sinZeta (a : UnitAddCircle) (s : ℂ) :=
-  completedSinZeta a s / Gammaℝ (s + 1)
+/--
+The sine zeta function, i.e. the meromorphic function of `s` which agrees
+with `∑' (n : ℕ), sin (2 * π * a * n) / n ^ s` for `1 < re s`.
+-/
+noncomputable def sinZeta (a : UnitAddCircle) (s : ℂ) := completedSinZeta a s / Gammaℝ (s + 1)
 
 lemma sinZeta_neg (a : UnitAddCircle) (s : ℂ) :
     sinZeta (-a) s = -sinZeta a s := by
@@ -484,8 +503,10 @@ lemma differentiableAt_sinZeta (a : UnitAddCircle) :
     differentiable_id.add <| differentiable_const _
 
 /-- Formula for `hurwitzZetaOdd` as a Dirichlet series in the convergence range (sum over `ℤ`). -/
-theorem hasSum_int_hurwitzZetaOdd (a : ℝ) {s : ℂ} (hs : 1 < re s) :
-    HasSum (fun n : ℤ ↦ SignType.sign (n + a) / (↑|n + a| : ℂ) ^ s / 2) (hurwitzZetaOdd a s) := by
+theorem hasSum_int_hurwitzZetaOdd (a : ℝ) {s : ℂ} (hs : 1 < re s)
+    : HasSum
+      (fun n : ℤ ↦ SignType.sign (n + a) / (↑ |n + a| : ℂ) ^ s / 2)
+      (hurwitzZetaOdd a s) := by
   refine ((hasSum_int_completedHurwitzZetaOdd a hs).div_const (Gammaℝ _)).congr_fun fun n ↦ ?_
   have : 0 < re (s + 1) := by rw [add_re, one_re]; positivity
   simp [div_right_comm _ _ (Gammaℝ _), mul_div_cancel_left₀ _ (Gammaℝ_ne_zero_of_re_pos this)]
@@ -516,13 +537,16 @@ lemma hasSum_nat_hurwitzZetaOdd_of_mem_Icc {a : ℝ} (ha : a ∈ Icc 0 1) {s : �
       div_zero, div_zero]
 
 /-- Formula for `sinZeta` as a Dirichlet series in the convergence range, with sum over `ℤ`. -/
-theorem hasSum_int_sinZeta (a : ℝ) {s : ℂ} (hs : 1 < re s) :
-    HasSum (fun n : ℤ ↦ -I * n.sign * cexp (2 * π * I * a * n) / ↑|n| ^ s / 2) (sinZeta a s) := by
+theorem hasSum_int_sinZeta (a : ℝ) {s : ℂ} (hs : 1 < re s)
+    : HasSum
+      (fun n : ℤ ↦ -I * n.sign * cexp (2 * π * I * a * n) / ↑ |n| ^ s / 2)
+      (sinZeta a s) := by
   rw [sinZeta]
   refine ((hasSum_int_completedSinZeta a hs).div_const (Gammaℝ (s + 1))).congr_fun fun n ↦ ?_
   have : 0 < re (s + 1) := by rw [add_re, one_re]; positivity
-  simp only [mul_assoc, div_right_comm _ _ (Gammaℝ _),
-    mul_div_cancel_left₀ _ (Gammaℝ_ne_zero_of_re_pos this)]
+  simp only [
+    mul_assoc, div_right_comm _ _ (Gammaℝ _), mul_div_cancel_left₀ _ (Gammaℝ_ne_zero_of_re_pos this)
+  ]
 
 /-- Formula for `sinZeta` as a Dirichlet series in the convergence range, with sum over `ℕ`. -/
 lemma hasSum_nat_sinZeta (a : ℝ) {s : ℂ} (hs : 1 < re s) :
@@ -544,13 +568,13 @@ lemma LSeriesHasSum_sin (a : ℝ) {s : ℂ} (hs : 1 < re s) :
   (hasSum_nat_sinZeta a hs).congr_fun (LSeries.term_of_ne_zero' (ne_zero_of_one_lt_re hs) _)
 
 /-- The trivial zeroes of the odd Hurwitz zeta function. -/
-theorem hurwitzZetaOdd_neg_two_mul_nat_sub_one (a : UnitAddCircle) (n : ℕ) :
-    hurwitzZetaOdd a (-2 * n - 1) = 0 := by
+theorem hurwitzZetaOdd_neg_two_mul_nat_sub_one (a : UnitAddCircle) (n : ℕ)
+    : hurwitzZetaOdd a (-2 * n - 1) = 0 := by
   rw [hurwitzZetaOdd, Gammaℝ_eq_zero_iff.mpr ⟨n, by rw [neg_mul, sub_add_cancel]⟩, div_zero]
 
 /-- The trivial zeroes of the sine zeta function. -/
-theorem sinZeta_neg_two_mul_nat_sub_one (a : UnitAddCircle) (n : ℕ) :
-    sinZeta a (-2 * n - 1) = 0 := by
+theorem sinZeta_neg_two_mul_nat_sub_one (a : UnitAddCircle) (n : ℕ)
+    : sinZeta a (-2 * n - 1) = 0 := by
   rw [sinZeta, Gammaℝ_eq_zero_iff.mpr ⟨n, by rw [neg_mul, sub_add_cancel]⟩, div_zero]
 
 /-- If `s` is not in `-ℕ`, then `hurwitzZetaOdd a (1 - s)` is an explicit multiple of

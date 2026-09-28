@@ -236,18 +236,18 @@ lemma preimage_subtype_val_Ico (a b : {x // p x}) : (↑) ⁻¹' (Ico a.1 b) = I
 lemma preimage_subtype_val_Ioo (a b : {x // p x}) : (↑) ⁻¹' (Ioo a.1 b) = Ioo a b := rfl
 
 @[to_dual self]
-theorem image_subtype_val_Icc_subset (a b : {x // p x}) :
-    Subtype.val '' Icc a b ⊆ Icc a.val b.val :=
+theorem image_subtype_val_Icc_subset (a b : {x // p x})
+    : Subtype.val '' Icc a b ⊆ Icc a.val b.val :=
   image_subset_iff.mpr fun _ m => m
 
 @[to_dual (reorder := a b) (rename := a ↔ b)]
-theorem image_subtype_val_Ico_subset (a b : {x // p x}) :
-    Subtype.val '' Ico a b ⊆ Ico a.val b.val :=
+theorem image_subtype_val_Ico_subset (a b : {x // p x})
+    : Subtype.val '' Ico a b ⊆ Ico a.val b.val :=
   image_subset_iff.mpr fun _ m => m
 
 @[to_dual self]
-theorem image_subtype_val_Ioo_subset (a b : {x // p x}) :
-    Subtype.val '' Ioo a b ⊆ Ioo a.val b.val :=
+theorem image_subtype_val_Ioo_subset (a b : {x // p x})
+    : Subtype.val '' Ioo a b ⊆ Ioo a.val b.val :=
   image_subset_iff.mpr fun _ m => m
 
 @[to_dual]

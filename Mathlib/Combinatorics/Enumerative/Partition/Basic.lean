@@ -76,12 +76,14 @@ def ofComposition (n : ℕ) (c : Composition n) : Partition n where
 
 theorem ofComposition_surj {n : ℕ} : Function.Surjective (ofComposition n) := by
   rintro ⟨b, hb₁, hb₂⟩
-  induction b using Quotient.inductionOn with | _ b => ?_
+  induction b using Quotient.inductionOn with
+  | _ b => ?_
   exact ⟨⟨b, hb₁, by simpa using hb₂⟩, Partition.ext rfl⟩
 
 -- The argument `n` is kept explicit here since it is useful in tactic mode proofs to generate the
 -- proof obligation `l.sum = n`.
-/-- Given a multiset which sums to `n`, construct a partition of `n` with the same multiset, but
+/--
+Given a multiset which sums to `n`, construct a partition of `n` with the same multiset, but
 without the zeros.
 -/
 @[simps]
@@ -93,8 +95,7 @@ def ofSums (n : ℕ) (l : Multiset ℕ) (hl : l.sum = n) : Partition n where
     rwa [← filter_add_not (· = 0) l, sum_add, lz, zero_add] at hl
 
 /-- A `Multiset ℕ` induces a partition on its sum. -/
-@[simps!]
-def ofMultiset (l : Multiset ℕ) : Partition l.sum := ofSums _ l rfl
+@[simps!] def ofMultiset (l : Multiset ℕ) : Partition l.sum := ofSums _ l rfl
 
 /-- An element `s` of `Sym σ n` induces a partition given by its multiplicities. -/
 def ofSym {n : ℕ} {σ : Type*} (s : Sym σ n) [DecidableEq σ] : n.Partition where
@@ -115,18 +116,22 @@ variable {n : ℕ} {σ τ : Type*} [DecidableEq σ] [DecidableEq τ]
   congr; funext i
   rw [← Multiset.count_map_eq_count' e _ e.injective]
 
-/-- An equivalence between `σ` and `τ` induces an equivalence between the subtypes of `Sym σ n` and
-`Sym τ n` corresponding to a given partition. -/
-def ofSymShapeEquiv (μ : Partition n) (e : σ ≃ τ) :
-    {x : Sym σ n // ofSym x = μ} ≃ {x : Sym τ n // ofSym x = μ} where
+/--
+An equivalence between `σ` and `τ` induces an equivalence between the subtypes of `Sym σ n` and
+`Sym τ n` corresponding to a given partition.
+-/
+def ofSymShapeEquiv (μ : Partition n) (e : σ ≃ τ)
+    : {x : Sym σ n // ofSym x = μ} ≃ {x : Sym τ n // ofSym x = μ} where
   toFun := fun x => ⟨Sym.equivCongr e x, by simp [ofSym_map, x.2]⟩
   invFun := fun x => ⟨Sym.equivCongr e.symm x, by simp [ofSym_map, x.2]⟩
   left_inv := by intro x; simp
   right_inv := by intro x; simp
 
-/-- Convert a `Partition n` to a member of `(Finset.Icc 1 n).finsuppAntidiag n`
+/--
+Convert a `Partition n` to a member of `(Finset.Icc 1 n).finsuppAntidiag n`
 (see `Nat.Partition.toFinsuppAntidiag_mem_finsuppAntidiag` for the proof).
-`p.toFinsuppAntidiag i` is defined as `i` times the number of occurrence of `i` in `p`. -/
+`p.toFinsuppAntidiag i` is defined as `i` times the number of occurrence of `i` in `p`.
+-/
 def toFinsuppAntidiag {n : ℕ} (p : Partition n) : ℕ →₀ ℕ where
   toFun m := p.parts.count m * m
   support := p.parts.toFinset
@@ -145,10 +150,9 @@ theorem toFinsuppAntidiag_injective (n : ℕ) : Function.Injective (toFinsuppAnt
   · grind [Multiset.count_eq_zero]
   · exact Nat.eq_of_mul_eq_mul_right h0 <| funext_iff.mp hcount m
 
-theorem toFinsuppAntidiag_mem_finsuppAntidiag {n : ℕ} (p : Partition n) :
-    p.toFinsuppAntidiag ∈ (Finset.Icc 1 n).finsuppAntidiag n := by
-  have hp : p.parts.toFinset ⊆ Finset.Icc 1 n := by
-    grind
+theorem toFinsuppAntidiag_mem_finsuppAntidiag {n : ℕ} (p : Partition n)
+    : p.toFinsuppAntidiag ∈ (Finset.Icc 1 n).finsuppAntidiag n := by
+  have hp : p.parts.toFinset ⊆ Finset.Icc 1 n := by grind
   suffices ∑ m ∈ Finset.Icc 1 n, Multiset.count m p.parts * m = n by simpa [toFinsuppAntidiag, hp]
   convert! ← p.parts_sum
   rw [Finset.sum_multiset_count]
@@ -183,20 +187,22 @@ instance UniquePartitionOne : Unique (Partition 1) where
 @[simp] lemma ofSym_one (s : Sym σ 1) : ofSym s = indiscrete 1 := by
   ext; simp
 
-/-- The number of times a positive integer `i` appears in the partition `ofSums n l hl` is the same
+/--
+The number of times a positive integer `i` appears in the partition `ofSums n l hl` is the same
 as the number of times it appears in the multiset `l`.
 (For `i = 0`, `Partition.non_zero` combined with `Multiset.count_eq_zero_of_notMem` gives that
 this is `0` instead.)
 -/
-theorem count_ofSums_of_ne_zero {n : ℕ} {l : Multiset ℕ} (hl : l.sum = n) {i : ℕ} (hi : i ≠ 0) :
-    (ofSums n l hl).parts.count i = l.count i :=
+theorem count_ofSums_of_ne_zero {n : ℕ} {l : Multiset ℕ} (hl : l.sum = n) {i : ℕ} (hi : i ≠ 0)
+    : (ofSums n l hl).parts.count i = l.count i :=
   count_filter_of_pos hi
 
-theorem count_ofSums_zero {n : ℕ} {l : Multiset ℕ} (hl : l.sum = n) :
-    (ofSums n l hl).parts.count 0 = 0 :=
+theorem count_ofSums_zero {n : ℕ} {l : Multiset ℕ} (hl : l.sum = n)
+    : (ofSums n l hl).parts.count 0 = 0 :=
   count_filter_of_neg fun h => h rfl
 
-/-- Show there are finitely many partitions by considering the surjection from compositions to
+/--
+Show there are finitely many partitions by considering the surjection from compositions to
 partitions.
 -/
 instance (n : ℕ) : Fintype (Partition n) :=
@@ -214,8 +220,7 @@ def countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=
 def odds (n : ℕ) : Finset n.Partition := restricted n (¬ Even ·)
 
 /-- The finset of those partitions in which each part is used at most once. -/
-def distincts (n : ℕ) : Finset n.Partition :=
-  Finset.univ.filter fun c => c.parts.Nodup
+def distincts (n : ℕ) : Finset n.Partition := Finset.univ.filter fun c => c.parts.Nodup
 
 theorem countRestricted_two (n : ℕ) : countRestricted n 2 = distincts n := by
   congrm Finset.univ.filter fun x ↦ ?_
@@ -223,14 +228,15 @@ theorem countRestricted_two (n : ℕ) : countRestricted n 2 = distincts n := by
   grind [Multiset.count_eq_zero]
 
 /-- The finset of those partitions in which every part is odd and used at most once. -/
-def oddDistincts (n : ℕ) : Finset n.Partition :=
-  odds n ∩ distincts n
+def oddDistincts (n : ℕ) : Finset n.Partition := odds n ∩ distincts n
 
-/-- If `1 ≤ a` and `a ≤ n`, partitions of `n` containing `a` as a part are equivalent to
+/--
+If `1 ≤ a` and `a ≤ n`, partitions of `n` containing `a` as a part are equivalent to
 partitions of `n - a`. The forward map removes one occurrence of `a`, and the inverse adds `a` as
-a part. -/
-def partitionWithPartEquiv {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n) :
-    {p : n.Partition // a ∈ p.parts} ≃ (n - a).Partition where
+a part.
+-/
+def partitionWithPartEquiv {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n)
+    : {p : n.Partition // a ∈ p.parts} ≃ (n - a).Partition where
   toFun p := by
     refine ⟨p.1.parts.erase a, ?_, ?_⟩
     · intro _ hi
@@ -243,14 +249,15 @@ def partitionWithPartEquiv {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n) :
   right_inv q := Partition.ext <| erase_cons_head a q.parts
 
 @[simp]
-theorem partitionWithPartEquiv_apply_parts {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n)
-    (p : {p : n.Partition // a ∈ p.parts}) :
-    (partitionWithPartEquiv ha1 ha p).parts = p.1.parts.erase a := by
+theorem partitionWithPartEquiv_apply_parts
+    {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n) (p : {p : n.Partition // a ∈ p.parts})
+    : (partitionWithPartEquiv ha1 ha p).parts = p.1.parts.erase a := by
   dsimp [partitionWithPartEquiv]
 
 @[simp]
-theorem partitionWithPartEquiv_symm_apply_parts {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n)
-    (p : (n - a).Partition) : ((partitionWithPartEquiv ha1 ha).symm p).1.parts = a ::ₘ p.parts := by
+theorem partitionWithPartEquiv_symm_apply_parts
+    {n a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ n) (p : (n - a).Partition)
+    : ((partitionWithPartEquiv ha1 ha).symm p).1.parts = a ::ₘ p.parts := by
   dsimp [partitionWithPartEquiv]
 
 end Partition

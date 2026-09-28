@@ -30,16 +30,19 @@ Projective space, collinearity, projective geometry
 
 @[expose] public section
 
-variable {K V : Type*} [DivisionRing K] [AddCommGroup V] [Module K V]
+variable
+  {K V : Type*} [DivisionRing K] [AddCommGroup V] [Module K V]
   (M : Submodule K V) (S : Set (Projectivization K V))
 
 namespace Projectivization
 
-/-- If there exists a submodule of dimension at most `2` containing all points in
-  `S`, then `S` is collinear. The finite-dimensionality is required so that this notion is
-  meaningful even when `V` is infinite-dimensional. -/
-def IsCollinear : Prop := ∃ (M : Subspace K V), Module.Finite K M.submodule ∧
-  Module.finrank K M.submodule ≤ 2 ∧ S ⊆ M
+/--
+If there exists a submodule of dimension at most `2` containing all points in
+`S`, then `S` is collinear. The finite-dimensionality is required so that this notion is
+meaningful even when `V` is infinite-dimensional.
+-/
+def IsCollinear : Prop :=
+  ∃ (M : Subspace K V), Module.Finite K M.submodule ∧ Module.finrank K M.submodule ≤ 2 ∧ S ⊆ M
 
 lemma IsCollinear_iff : IsCollinear S ↔ ∃ (M : Subspace K V), Module.Finite K M.submodule ∧
   Module.finrank K M.submodule ≤ 2 ∧ S ⊆ M := Iff.rfl

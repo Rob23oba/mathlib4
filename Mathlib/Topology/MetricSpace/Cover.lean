@@ -36,16 +36,20 @@ variable {X Y : Type*}
 section PseudoEMetricSpace
 variable [PseudoEMetricSpace X] [PseudoEMetricSpace Y] {ε δ : ℝ≥0} {s t N N₁ N₂ : Set X} {x : X}
 
-instance : SetRel.IsRefl {(x, y) : X × X | edist x y ≤ ε} where refl := by simp
-instance : SetRel.IsSymm {(x, y) : X × X | edist x y ≤ ε} where symm := by simp [edist_comm]
+instance : SetRel.IsRefl {(x, y) : X × X | edist x y ≤ ε} where
+  refl := by simp
+instance : SetRel.IsSymm {(x, y) : X × X | edist x y ≤ ε} where
+  symm := by simp [edist_comm]
 
-/-- A set `N` is an *`ε`-cover* of a set `s` if every point of `s` lies at distance at most `ε` of
+/--
+A set `N` is an *`ε`-cover* of a set `s` if every point of `s` lies at distance at most `ε` of
 some point of `N`.
 
 This is also called an *`ε`-net* in the literature.
 
-[R. Vershynin, *High Dimensional Probability*][vershynin2018high], 4.2.1. -/
-def IsCover (ε : ℝ≥0) (s N : Set X) : Prop := SetRel.IsCover {(x, y) | edist x y ≤ ε} s N
+[R. Vershynin, *High Dimensional Probability*][vershynin2018high], 4.2.1.
+-/
+def IsCover (ε : ℝ≥0) (s N : Set X) : Prop := SetRel.IsCover ({(x, y) | edist x y ≤ ε}) s N
 
 @[simp] protected nonrec lemma IsCover.empty : IsCover ε ∅ N := .empty
 

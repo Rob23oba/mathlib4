@@ -37,15 +37,14 @@ variable {κ : Type uκ} {R : Type uR} {M : Type uM}
 section CommSemiring
 variable [CommSemiring R] [AddCommMonoid M] [Module R M]
 
-/-- A basis provides an algebra isomorphism with the free algebra, replacing each basis vector
-with its index. -/
-noncomputable def equivFreeAlgebra (b : Basis κ R M) :
-    TensorAlgebra R M ≃ₐ[R] FreeAlgebra R κ :=
+/--
+A basis provides an algebra isomorphism with the free algebra, replacing each basis vector
+with its index.
+-/
+noncomputable def equivFreeAlgebra (b : Basis κ R M) : TensorAlgebra R M ≃ₐ[R] FreeAlgebra R κ :=
   AlgEquiv.ofAlgHom
     (TensorAlgebra.lift _ (Finsupp.linearCombination _ (FreeAlgebra.ι _) ∘ₗ b.repr.toLinearMap))
-    (FreeAlgebra.lift _ (ι R ∘ b))
-    (by ext; simp)
-    (hom_ext <| b.ext fun i => by simp)
+    (FreeAlgebra.lift _ (ι R ∘ b)) (by ext; simp) (hom_ext <| b.ext fun i => by simp)
 
 @[simp]
 lemma equivFreeAlgebra_ι_apply (b : Basis κ R M) (i : κ) :
@@ -59,8 +58,8 @@ lemma equivFreeAlgebra_symm_ι (b : Basis κ R M) (i : κ) :
 
 /-- A basis on `M` can be lifted to a basis on `TensorAlgebra R M` -/
 @[simps! repr_apply]
-noncomputable def _root_.Module.Basis.tensorAlgebra (b : Basis κ R M) :
-    Basis (FreeMonoid κ) R (TensorAlgebra R M) :=
+noncomputable def _root_.Module.Basis.tensorAlgebra (b : Basis κ R M)
+    : Basis (FreeMonoid κ) R (TensorAlgebra R M) :=
   (FreeAlgebra.basisFreeMonoid R κ).map (equivFreeAlgebra b).symm.toLinearEquiv
 
 /-- `TensorAlgebra R M` is free when `M` is. -/
@@ -68,10 +67,12 @@ instance instModuleFree [Module.Free R M] : Module.Free R (TensorAlgebra R M) :=
   let ⟨⟨_κ, b⟩⟩ := Module.Free.exists_basis (R := R) (M := M)
   .of_basis b.tensorAlgebra
 
-/-- The `TensorAlgebra` of a free module over a commutative semiring with no zero-divisors has
-no zero-divisors. -/
-instance instNoZeroDivisors [NoZeroDivisors R] [Module.Free R M] :
-    NoZeroDivisors (TensorAlgebra R M) :=
+/--
+The `TensorAlgebra` of a free module over a commutative semiring with no zero-divisors has
+no zero-divisors.
+-/
+instance instNoZeroDivisors [NoZeroDivisors R] [Module.Free R M]
+    : NoZeroDivisors (TensorAlgebra R M) :=
   have ⟨⟨_, b⟩⟩ := ‹Module.Free R M›
   (equivFreeAlgebra b).toMulEquiv.noZeroDivisors
 

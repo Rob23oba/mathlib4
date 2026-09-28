@@ -12,7 +12,6 @@ public import Mathlib.Algebra.Order.Monoid.WithTop
 public import Mathlib.Algebra.Regular.Basic
 import Mathlib.Tactic.Basify.Attr
 
-
 /-!
 # Linearly ordered commutative additive groups and monoids with a top element adjoined
 
@@ -32,21 +31,25 @@ public section
 
 variable {G α : Type*}
 
-/-- A linearly ordered commutative monoid with an additively absorbing `⊤` element.
-  Instances should include number systems with an infinite element adjoined. -/
-class LinearOrderedAddCommMonoidWithTop (α : Type*) extends
-    AddCommMonoid α, LinearOrder α, IsOrderedAddMonoid α, OrderTop α where
+/--
+A linearly ordered commutative monoid with an additively absorbing `⊤` element.
+Instances should include number systems with an infinite element adjoined.
+-/
+class LinearOrderedAddCommMonoidWithTop (α : Type*)
+    extends AddCommMonoid α, LinearOrder α, IsOrderedAddMonoid α, OrderTop α where
   /-- In a `LinearOrderedAddCommMonoidWithTop`, the `⊤` element is invariant under addition. -/
   protected top_add' : ∀ x : α, ⊤ + x = ⊤
   protected isAddLeftRegular_of_ne_top ⦃x : α⦄ : x ≠ ⊤ → IsAddLeftRegular x
 
-/-- A linearly ordered commutative group with an additively absorbing `⊤` element.
-  Instances should include number systems with an infinite element adjoined. -/
+/--
+A linearly ordered commutative group with an additively absorbing `⊤` element.
+Instances should include number systems with an infinite element adjoined.
+-/
 -- We do not extend `LinearOrderedAddCommMonoidWithTop` as that would bring in the unnecessary
 -- `isAddLeftRegular_of_ne_top` field.
 class LinearOrderedAddCommGroupWithTop (α : Type*)
     extends AddCommMonoid α, LinearOrder α, IsOrderedAddMonoid α, OrderTop α, SubNegMonoid α,
-    Nontrivial α where
+      Nontrivial α where
   /-- In a `LinearOrderedAddCommMonoidWithTop`, the `⊤` element is invariant under addition. -/
   protected top_add' (x : α) : ⊤ + x = ⊤
   neg_top : -(⊤ : α) = ⊤
@@ -56,12 +59,9 @@ section LinearOrderedAddCommMonoidWithTop
 variable [LinearOrderedAddCommMonoidWithTop α] {a b c : α}
 
 @[simp, basify_simp]
-theorem top_add (a : α) : ⊤ + a = ⊤ :=
-  LinearOrderedAddCommMonoidWithTop.top_add' a
+theorem top_add (a : α) : ⊤ + a = ⊤ := LinearOrderedAddCommMonoidWithTop.top_add' a
 
-@[simp, basify_simp]
-theorem add_top (a : α) : a + ⊤ = ⊤ :=
-  Trans.trans (add_comm _ _) (top_add _)
+@[simp, basify_simp] theorem add_top (a : α) : a + ⊤ = ⊤ := Trans.trans (add_comm _ _) (top_add _)
 
 @[simp] lemma IsAddRegular.of_ne_top (ha : a ≠ ⊤) : IsAddRegular a := by
   simpa using LinearOrderedAddCommMonoidWithTop.isAddLeftRegular_of_ne_top ha
@@ -233,8 +233,9 @@ end LinearOrderedAddCommGroupWithTop
 
 namespace WithTop
 
-instance linearOrderedAddCommMonoidWithTop [AddCancelCommMonoid α] [LinearOrder α]
-    [IsOrderedAddMonoid α] : LinearOrderedAddCommMonoidWithTop (WithTop α) where
+instance linearOrderedAddCommMonoidWithTop
+    [AddCancelCommMonoid α] [LinearOrder α] [IsOrderedAddMonoid α]
+    : LinearOrderedAddCommMonoidWithTop (WithTop α) where
   top_add' := WithTop.top_add
   isAddLeftRegular_of_ne_top _a ha _b _c := WithTop.add_left_cancel ha
 
@@ -244,14 +245,19 @@ variable [AddCommGroup G] {x y : WithTop G}
 instance instNeg : Neg (WithTop G) where
   neg := .map fun a ↦ -a
 
-/-- If `G` has subtraction, we can extend the subtraction to `WithTop G`, by setting `x - ⊤ = ⊤` and
+/--
+If `G` has subtraction, we can extend the subtraction to `WithTop G`, by setting `x - ⊤ = ⊤` and
 `⊤ - x = ⊤`. This definition is only registered as an instance on additive commutative groups, to
-avoid conflicting with the instance `WithTop.instSub` on types with a bottom element. -/
+avoid conflicting with the instance `WithTop.instSub` on types with a bottom element.
+-/
 instance instSub : Sub (WithTop G) where
   sub
-  | _, ⊤ => ⊤
-  | ⊤, (b : G) => ⊤
-  | (a : G), (b : G) => (a - b : G)
+    | _, ⊤ =>
+      ⊤
+    | ⊤, (b : G) =>
+      ⊤
+    | (a : G), (b : G) =>
+      (a - b : G)
 
 @[simp, norm_cast] lemma coe_neg (a : G) : (↑(-a) : WithTop G) = -a := rfl
 @[simp, norm_cast] lemma coe_sub (a b : G) : (↑(a - b) : WithTop G) = ↑a - ↑b := rfl
@@ -269,6 +275,7 @@ instance [LinearOrder G] [IsOrderedAddMonoid G] : LinearOrderedAddCommGroupWithT
   sub_eq_add_neg a b := by cases a <;> cases b <;> simp [← coe_sub, ← coe_neg, sub_eq_add_neg]
   neg_top := WithTop.map_top _
   zsmul := zsmulRec
-  add_neg_cancel_of_ne_top | (a : G), _ => mod_cast add_neg_cancel a
+  add_neg_cancel_of_ne_top
+    | (a : G), _ => mod_cast add_neg_cancel a
 
 end WithTop.LinearOrderedAddCommGroup

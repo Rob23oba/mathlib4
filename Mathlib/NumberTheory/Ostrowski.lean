@@ -51,7 +51,7 @@ private lemma tendsto_const_rpow_inv {C : ℝ} (hC : 0 < C) :
   ((continuous_iff_continuousAt.mpr fun _ ↦ continuousAt_const_rpow hC.ne').tendsto'
     0 1 (rpow_zero C)).comp <| tendsto_inv_atTop_zero.comp tendsto_natCast_atTop_atTop
 
---extends the lemma `tendsto_rpow_div` when the function has natural input
+-- extends the lemma `tendsto_rpow_div` when the function has natural input
 private lemma tendsto_nat_rpow_inv :
     Tendsto (fun k : ℕ ↦ (k : ℝ) ^ (k : ℝ)⁻¹) atTop (𝓝 1) := by
   simp_rw [← one_div]
@@ -114,9 +114,10 @@ def padic (p : ℕ) [Fact p.Prime] : AbsoluteValue ℚ ℝ where
   toFun x := (padicNorm p x : ℝ)
   map_mul' := by simp only [padicNorm.mul, Rat.cast_mul, forall_const]
   nonneg' x := cast_nonneg.mpr <| padicNorm.nonneg x
-  eq_zero' _ :=
-    ⟨fun H ↦ padicNorm.zero_of_padicNorm_eq_zero <| cast_eq_zero.mp H,
-      fun H ↦ cast_eq_zero.mpr <| H ▸ padicNorm.zero (p := p)⟩
+  eq_zero' _ := ⟨
+    fun H ↦ padicNorm.zero_of_padicNorm_eq_zero <| cast_eq_zero.mp H,
+    fun H ↦ cast_eq_zero.mpr <| H ▸ padicNorm.zero (p := p)
+  ⟩
   add_le' := mod_cast padicNorm.triangle_ineq
 
 @[simp] lemma padic_eq_padicNorm (p : ℕ) [Fact p.Prime] (r : ℚ) : padic p r = padicNorm p r := rfl
@@ -220,8 +221,7 @@ lemma exists_pos_eq_pow_neg : ∃ t : ℝ, 0 < t ∧ f p = p ^ (-t) := by
 
 include hf_nontriv bdd in
 /-- If `f` is bounded and not trivial, then it is equivalent to a p-adic absolute value. -/
-theorem equiv_padic_of_bounded :
-    ∃! p, ∃ (_ : Fact p.Prime), f.IsEquiv (padic p) := by
+theorem equiv_padic_of_bounded : ∃! p, ∃ (_ : Fact p.Prime), f.IsEquiv (padic p) := by
   obtain ⟨p, ⟨hp0, hp1⟩, hmin⟩ := exists_minimal_nat_zero_lt_and_lt_one hf_nontriv bdd
   have hp := is_prime_of_minimal_nat_zero_lt_and_lt_one hp0 hp1 hmin
   have : Fact p.Prime := ⟨hp⟩
@@ -232,8 +232,10 @@ theorem equiv_padic_of_bounded :
     · simp [ht.ne']
     · rcases Nat.exists_eq_pow_mul_and_not_dvd hn p hp.ne_one with ⟨_, m, hpm, rfl⟩
       have := (padicNorm.nat_eq_one_iff m).mpr hpm
-      simp_all [← rpow_natCast, ← rpow_mul, mul_comm t, mul_inv_cancel_right₀ ht.ne',
-        eq_one_of_not_dvd bdd hp0 hp1 hmin hpm]
+      simp_all [
+        ← rpow_natCast, ← rpow_mul, mul_comm t, mul_inv_cancel_right₀ ht.ne',
+        eq_one_of_not_dvd bdd hp0 hp1 hmin hpm
+      ]
   · by_contra! hpq
     apply hq.elim.ne_one
     rw [ne_comm, ← Nat.coprime_primes hp hq.elim, hp.coprime_iff_not_dvd] at hpq
@@ -250,8 +252,10 @@ section Archimedean
 Every unbounded absolute value on `ℚ` is equivalent to the standard absolute value.
 -/
 
-/-- The standard absolute value on `ℚ`. We name it `real` because it corresponds to the
-unique real place of `ℚ`. -/
+/--
+The standard absolute value on `ℚ`. We name it `real` because it corresponds to the
+unique real place of `ℚ`.
+-/
 def real : AbsoluteValue ℚ ℝ where
   toFun x := |x|
   map_mul' := by simp
@@ -400,8 +404,10 @@ private lemma eq_of_eq_pow {s t : ℝ} (hfm : f m = m ^ s) (hfn : f n = n ^ t) :
 -- ## Archimedean case: end goal
 
 include notbdd in
-/-- If `f` is not bounded and not trivial, then it is equivalent to the standard absolute value on
-`ℚ`. -/
+/--
+If `f` is not bounded and not trivial, then it is equivalent to the standard absolute value on
+`ℚ`.
+-/
 theorem equiv_real_of_unbounded : f.IsEquiv real := by
   obtain ⟨m, hm⟩ := Classical.exists_not_of_not_forall notbdd
   have hfm1 : 1 < f m := lt_of_not_ge hm
@@ -421,8 +427,10 @@ theorem equiv_real_of_unbounded : f.IsEquiv real := by
     have hfm : f m = m ^ s := by
       rw [rpow_logb (by positivity) (by norm_cast; omega) (zero_lt_one.trans hfm1)]
     have hfn : f n = n ^ logb n (f n) := by
-      rw [rpow_logb (by positivity) (by norm_cast; omega)
-        (map_pos_of_ne_zero f (by exact_mod_cast ne_zero_of_lt h))]
+      rw [
+        rpow_logb (by positivity) (by norm_cast; omega)
+          (map_pos_of_ne_zero f (by exact_mod_cast ne_zero_of_lt h))
+      ]
     rw [hfn, ← eq_of_eq_pow oneltm h notbdd hfm hfn]
 
 end Archimedean
@@ -431,10 +439,12 @@ end Archimedean
 ### The main result
 -/
 
-/-- **Ostrowski's Theorem**: every absolute value (with values in `ℝ`) on `ℚ` is equivalent
-to either the standard absolute value or a `p`-adic absolute value for a prime `p`. -/
-theorem equiv_real_or_padic (f : AbsoluteValue ℚ ℝ) (hf_nontriv : f.IsNontrivial) :
-    f ≈ real ∨ ∃! p, ∃ (_ : Fact p.Prime), f ≈ (padic p) := by
+/--
+**Ostrowski's Theorem**: every absolute value (with values in `ℝ`) on `ℚ` is equivalent
+to either the standard absolute value or a `p`-adic absolute value for a prime `p`.
+-/
+theorem equiv_real_or_padic (f : AbsoluteValue ℚ ℝ) (hf_nontriv : f.IsNontrivial)
+    : f ≈ real ∨ ∃! p, ∃ (_ : Fact p.Prime), f ≈ (padic p) := by
   by_cases bdd : ∀ n : ℕ, f n ≤ 1
   · exact .inr <| equiv_padic_of_bounded hf_nontriv bdd
   · exact .inl <| equiv_real_of_unbounded bdd

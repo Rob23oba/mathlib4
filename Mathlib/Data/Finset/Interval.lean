@@ -27,14 +27,14 @@ out of `Finset α` in terms of `Finset.insert`
 
 public section
 
-
 variable {α β : Type*}
 
 namespace Finset
 
 section Decidable
 
-/-- `LocallyFiniteOrder` instance for `Finset α`.
+/--
+`LocallyFiniteOrder` instance for `Finset α`.
 
 We provide an optimized definition for `Finset.Icc (s : Finset α) t`,
 then define the other intervals based on `Icc`.
@@ -43,12 +43,16 @@ We do not define, e.g., `Finset.Ico` based on `Finset.ssubsets`,
 because it would require more code without performance gain.
 -/
 instance instLocallyFiniteOrder [DecidableEq α] : LocallyFiniteOrder (Finset α) :=
-  .ofIcc _ (fun s t ↦
-    if s ⊆ t then
-      (t \ s).powerset.attach.map ⟨fun u ↦ u.1.disjUnion s <|
-        disjoint_sdiff_self_left.mono_left <| mem_powerset.mp u.2, fun u₁ u₂ h ↦ by
-          simpa only [disjUnion_inj_left, Subtype.ext_iff] using h⟩
-    else ∅) fun s t u ↦ by
+  .ofIcc _
+    (fun s t ↦
+      if s ⊆ t then
+        (t \ s).powerset.attach.map ⟨
+          fun u ↦ u.1.disjUnion s <| disjoint_sdiff_self_left.mono_left <| mem_powerset.mp u.2,
+          fun u₁ u₂ h ↦ by simpa only [disjUnion_inj_left, Subtype.ext_iff] using h
+        ⟩
+      else
+        ∅)
+    fun s t u ↦ by
       by_cases hst : s ⊆ t
       · suffices (∃ a ⊆ t, Disjoint a s ∧ a ∪ s = u) ↔ s ⊆ u ∧ u ⊆ t by
           simpa [hst, subset_sdiff, and_assoc]
@@ -57,7 +61,7 @@ instance instLocallyFiniteOrder [DecidableEq α] : LocallyFiniteOrder (Finset α
           exact ⟨subset_union_right, union_subset hut hst⟩
         · rintro ⟨hsu, hut⟩
           exact ⟨u \ s, sdiff_subset.trans hut, disjoint_sdiff_self_left, sdiff_union_of_subset hsu⟩
-      · suffices s ⊆ u → ¬u ⊆ t by simpa [hst]
+      · suffices s ⊆ u → ¬ u ⊆ t by simpa [hst]
         exact fun hsu hut ↦ hst (hsu.trans hut)
 
 variable [DecidableEq α] (s t : Finset α)

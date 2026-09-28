@@ -40,20 +40,22 @@ lemma num_neg (g : GL (Fin 2) ℝ) (z : ℂ) : num (-g) z = -(num g z) := by
 lemma denom_neg (g : GL (Fin 2) ℝ) (z : ℂ) : denom (-g) z = -(denom g z) := by
   simp [denom]; ring
 
-theorem linear_ne_zero_of_im {cd : Fin 2 → ℝ} {z : ℂ} (hz : z.im ≠ 0) (h : cd ≠ 0) :
-    (cd 0 : ℂ) * z + cd 1 ≠ 0 := by
+theorem linear_ne_zero_of_im {cd : Fin 2 → ℝ} {z : ℂ} (hz : z.im ≠ 0) (h : cd ≠ 0)
+    : (cd 0 : ℂ) * z + cd 1 ≠ 0 := by
   contrapose h
   have : cd 0 = 0 := by
     -- we will need this twice
     apply_fun Complex.im at h
-    simpa only [Complex.add_im, Complex.mul_im, Complex.ofReal_im, zero_mul, add_zero,
-      Complex.zero_im, mul_eq_zero, hz, or_false] using! h
+    simpa only [
+        Complex.add_im, Complex.mul_im, Complex.ofReal_im, zero_mul, add_zero, Complex.zero_im,
+        mul_eq_zero, hz, or_false
+      ]
+      using! h
   simp only [this, zero_mul, Complex.ofReal_zero, zero_add, Complex.ofReal_eq_zero] at h
   ext i
   fin_cases i <;> assumption
 
-theorem linear_ne_zero {cd : Fin 2 → ℝ} (τ : ℍ) (h : cd ≠ 0) :
-    (cd 0 : ℂ) * τ + cd 1 ≠ 0 :=
+theorem linear_ne_zero {cd : Fin 2 → ℝ} (τ : ℍ) (h : cd ≠ 0) : (cd 0 : ℂ) * τ + cd 1 ≠ 0 :=
   linear_ne_zero_of_im τ.im_ne_zero h
 
 theorem denom_ne_zero_of_im (g : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0) : denom g z ≠ 0 := by
@@ -64,12 +66,12 @@ theorem denom_ne_zero_of_im (g : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0) : d
 theorem denom_ne_zero (g : GL (Fin 2) ℝ) (z : ℍ) : denom g z ≠ 0 :=
   denom_ne_zero_of_im g z.im_ne_zero
 
-theorem normSq_denom_pos (g : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0) :
-    0 < Complex.normSq (denom g z) :=
+theorem normSq_denom_pos (g : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0)
+    : 0 < Complex.normSq (denom g z) :=
   Complex.normSq_pos.mpr (denom_ne_zero_of_im g hz)
 
-theorem normSq_denom_ne_zero (g : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0) :
-    Complex.normSq (denom g z) ≠ 0 :=
+theorem normSq_denom_ne_zero (g : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0)
+    : Complex.normSq (denom g z) ≠ 0 :=
   ne_of_gt (normSq_denom_pos g hz)
 
 lemma denom_cocycle (g h : GL (Fin 2) ℝ) {z : ℂ} (hz : z.im ≠ 0) :
@@ -158,8 +160,7 @@ lemma denom_cocycle' (g h : GL (Fin 2) ℝ) (z : ℍ) :
     denom (g * h) z = σ h (denom g (smulAux h z)) * denom h z := by
   simpa [smulAux, smulAux', denom, σ_sq] using denom_cocycle g h z.im_ne_zero
 
-theorem mul_smul' (g h : GL (Fin 2) ℝ) (z : ℍ) :
-    smulAux (g * h) z = smulAux g (smulAux h z) := by
+theorem mul_smul' (g h : GL (Fin 2) ℝ) (z : ℍ) : smulAux (g * h) z = smulAux g (smulAux h z) := by
   ext : 1
   simp only [smulAux, coe_mk, smulAux', map_div₀, σ_num, σ_denom, σ_mul]
   generalize hu : σ g (σ h z) = u
@@ -167,18 +168,24 @@ theorem mul_smul' (g h : GL (Fin 2) ℝ) (z : ℍ) :
   have hu' : (num h u / denom h u).im ≠ 0 := by
     rw [moebius_im]
     exact div_ne_zero (mul_ne_zero h.det_ne_zero hu) (normSq_denom_ne_zero _ hu)
-  rw [div_eq_div_iff (denom_ne_zero_of_im _ hu) (denom_ne_zero_of_im _ hu'),
-    denom, mul_div, div_add' _ _ _ (denom_ne_zero_of_im _ hu), mul_div]
+  rw [
+    div_eq_div_iff (denom_ne_zero_of_im _ hu) (denom_ne_zero_of_im _ hu'), denom, mul_div,
+    div_add' _ _ _ (denom_ne_zero_of_im _ hu), mul_div
+  ]
   conv_rhs => rw [num]
   rw [mul_div, div_add' _ _ _ (denom_ne_zero_of_im _ hu), div_mul_eq_mul_div]
   congr 1
-  simp only [num, denom, Units.val_mul, mul_apply, Fin.sum_univ_succ,
-    Finset.univ_unique, Fin.default_eq_zero, Finset.sum_singleton, Fin.succ_zero_eq_one,
-    Complex.ofReal_add, Complex.ofReal_mul]
+  simp only [
+    num, denom, Units.val_mul, mul_apply, Fin.sum_univ_succ, Finset.univ_unique,
+    Fin.default_eq_zero, Finset.sum_singleton, Fin.succ_zero_eq_one, Complex.ofReal_add,
+    Complex.ofReal_mul
+  ]
   ring
 
-/-- Action of `GL (Fin 2) ℝ` on the upper half-plane, with `GL(2, ℝ)⁺` acting by Moebius
-transformations in the usual way, extended to all of `GL (Fin 2) ℝ` using complex conjugation. -/
+/--
+Action of `GL (Fin 2) ℝ` on the upper half-plane, with `GL(2, ℝ)⁺` acting by Moebius
+transformations in the usual way, extended to all of `GL (Fin 2) ℝ` using complex conjugation.
+-/
 instance glAction : MulAction (GL (Fin 2) ℝ) ℍ where
   smul := smulAux
   one_smul z := by
@@ -211,10 +218,12 @@ theorem re_smul : (g • z).re = (num g z / denom g z).re := by
 
 theorem im_smul : (g • z).im = |(num g z / denom g z).im| := by
   change (smulAux' g z).im = _
-  simp only [smulAux', σ, DFunLike.ite_apply, ContinuousAlgEquiv.refl_apply, apply_ite, moebius_im,
+  simp only [
+    smulAux', σ, DFunLike.ite_apply, ContinuousAlgEquiv.refl_apply, apply_ite, moebius_im,
     Complex.conjCAE_apply, Complex.conj_im, ← neg_div, ← neg_mul, abs_div, abs_mul,
     abs_of_pos (show 0 < (z : ℂ).im from z.coe_im ▸ z.im_pos),
-    abs_of_nonneg <| Complex.normSq_nonneg _]
+    abs_of_nonneg <| Complex.normSq_nonneg _
+  ]
   split_ifs with h <;> [rw [abs_of_pos h]; rw [abs_of_nonpos (not_lt.mp h)]]
 
 lemma im_smul_eq_div_normSq : (g • z).im = |g.det.val| * z.im / Complex.normSq (denom g z) :=
@@ -224,7 +233,8 @@ theorem c_mul_im_sq_le_normSq_denom : (g 1 0 * z.im) ^ 2 ≤ Complex.normSq (den
   set c := g 1 0
   set d := g 1 1
   calc
-    (c * z.im) ^ 2 ≤ (c * z.im) ^ 2 + (c * z.re + d) ^ 2 := by nlinarith
+    (c * z.im) ^ 2
+      ≤ (c * z.im) ^ 2 + (c * z.re + d) ^ 2 := by nlinarith
     _ = Complex.normSq (denom g z) := by simp [denom, Complex.normSq]; ring
 
 @[simp]
@@ -239,17 +249,12 @@ lemma num_one : num 1 z = z := by simp [num]
 lemma denom_one : denom 1 z = 1 := by
   simp [denom]
 
-@[simp]
-theorem num_scalar (u : ℝˣ) (z : ℍ) : num (.scalar (Fin 2) u) z = u * z := by
-  simp [num]
+@[simp] theorem num_scalar (u : ℝˣ) (z : ℍ) : num (.scalar (Fin 2) u) z = u * z := by simp [num]
+
+@[simp] theorem denom_scalar (u : ℝˣ) (z : ℍ) : denom (.scalar (Fin 2) u) z = u := by simp [denom]
 
 @[simp]
-theorem denom_scalar (u : ℝˣ) (z : ℍ) : denom (.scalar (Fin 2) u) z = u := by
-  simp [denom]
-
-@[simp]
-theorem glScalar_smul (u : ℝˣ) (z : ℍ) :
-    GeneralLinearGroup.scalar (Fin 2) u • z = z := by
+theorem glScalar_smul (u : ℝˣ) (z : ℍ) : GeneralLinearGroup.scalar (Fin 2) u • z = z := by
   rw [glPos_smul_def]
   · simp
   · simp [sq_pos_iff]
@@ -265,74 +270,75 @@ end GLAction
 
 section PGLAction
 
-instance : MulAction PGL(2, ℝ) ℍ :=
-  Matrix.ProjGenLinGroup.mulActionOfGL glScalar_smul
+instance : MulAction (PGL(2, ℝ)) ℍ := Matrix.ProjGenLinGroup.mulActionOfGL glScalar_smul
 
 @[simp]
-theorem pglMk_smul (g : GL (Fin 2) ℝ) (z : ℍ) :
-    ProjGenLinGroup.mk g • z = g • z :=
+theorem pglMk_smul (g : GL (Fin 2) ℝ) (z : ℍ) : ProjGenLinGroup.mk g • z = g • z :=
   ProjGenLinGroup.mk_smul ..
 
-instance : MulAction.IsPretransitive PGL(2, ℝ) ℍ :=
-  .of_smul_eq .mk <| pglMk_smul _ _
+instance : MulAction.IsPretransitive (PGL(2, ℝ)) ℍ := .of_smul_eq .mk <| pglMk_smul _ _
 
 end PGLAction
 
 section SLAction
 
-noncomputable instance SLAction {R : Type*} [CommRing R] [Algebra R ℝ] : MulAction SL(2, R) ℍ :=
+noncomputable instance SLAction {R : Type*} [CommRing R] [Algebra R ℝ] : MulAction (SL(2, R)) ℍ :=
   MulAction.compHom ℍ <| SpecialLinearGroup.mapGL ℝ
 
-theorem coe_specialLinearGroup_apply {R : Type*} [CommRing R] [Algebra R ℝ] (g : SL(2, R)) (z : ℍ) :
-    ↑(g • z) =
-      (((algebraMap R ℝ (g 0 0) : ℂ) * z + (algebraMap R ℝ (g 0 1) : ℂ)) /
-      ((algebraMap R ℝ (g 1 0) : ℂ) * z + (algebraMap R ℝ (g 1 1) : ℂ))) := by
+theorem coe_specialLinearGroup_apply {R : Type*} [CommRing R] [Algebra R ℝ] (g : SL(2, R)) (z : ℍ)
+    : ↑(g • z)
+      = (((algebraMap R ℝ (g 0 0) : ℂ) * z + (algebraMap R ℝ (g 0 1) : ℂ))
+        / ((algebraMap R ℝ (g 1 0) : ℂ) * z + (algebraMap R ℝ (g 1 1) : ℂ))) := by
   rw [MulAction.compHom_smul_def, coe_smul_of_det_pos (by simp)]
   rfl
 
-theorem specialLinearGroup_apply {R : Type*} [CommRing R] [Algebra R ℝ] (g : SL(2, R)) (z : ℍ) :
-    g • z = mk
-      (((algebraMap R ℝ (g 0 0) : ℂ) * z + (algebraMap R ℝ (g 0 1) : ℂ)) /
-      ((algebraMap R ℝ (g 1 0) : ℂ) * z + (algebraMap R ℝ (g 1 1) : ℂ)))
-      (coe_specialLinearGroup_apply g z ▸ (g • z).im_pos) := by
+theorem specialLinearGroup_apply {R : Type*} [CommRing R] [Algebra R ℝ] (g : SL(2, R)) (z : ℍ)
+    : g • z
+      = mk
+        (((algebraMap R ℝ (g 0 0) : ℂ) * z + (algebraMap R ℝ (g 0 1) : ℂ))
+          / ((algebraMap R ℝ (g 1 0) : ℂ) * z + (algebraMap R ℝ (g 1 1) : ℂ)))
+        (coe_specialLinearGroup_apply g z ▸ (g • z).im_pos) := by
   ext; simp [coe_specialLinearGroup_apply]
 
 /-! these next few lemmas are *not* flagged `@simp` because of the constructors on the RHS;
 instead we use the versions with coercions to `ℂ` as simp lemmas instead. -/
 
-theorem modular_S_smul (z : ℍ) :
-    ModularGroup.S • z = mk (-z : ℂ)⁻¹ z.im_inv_neg_coe_pos := by
+theorem modular_S_smul (z : ℍ) : ModularGroup.S • z = mk (-z : ℂ)⁻¹ z.im_inv_neg_coe_pos := by
   rw [specialLinearGroup_apply]
   simp [ModularGroup.S, neg_div, inv_neg]
 
 theorem modular_T_zpow_smul (z : ℍ) (n : ℤ) : ModularGroup.T ^ n • z = (n : ℝ) +ᵥ z := by
   rw [UpperHalfPlane.ext_iff, coe_vadd, add_comm, coe_specialLinearGroup_apply]
-  simp [ModularGroup.coe_T_zpow,
-    of_apply, cons_val_zero, Complex.ofReal_one, one_mul, cons_val_one,
-    zero_mul, zero_add, div_one]
+  simp [
+    ModularGroup.coe_T_zpow, of_apply, cons_val_zero, Complex.ofReal_one, one_mul, cons_val_one,
+    zero_mul, zero_add, div_one
+  ]
 
 theorem modular_T_smul (z : ℍ) : ModularGroup.T • z = (1 : ℝ) +ᵥ z := by
   simpa only [zpow_one, Int.cast_one] using modular_T_zpow_smul z 1
 
 set_option backward.isDefEq.respectTransparency false in
-theorem exists_SL2_smul_eq_of_apply_zero_one_eq_zero (g : SL(2, ℝ)) (hc : g 1 0 = 0) :
-    ∃ (u : { x : ℝ // 0 < x }) (v : ℝ), (g • · : ℍ → ℍ) = (v +ᵥ ·) ∘ (u • ·) := by
+theorem exists_SL2_smul_eq_of_apply_zero_one_eq_zero (g : SL(2, ℝ)) (hc : g 1 0 = 0)
+    : ∃ (u : {x : ℝ // 0 < x}) (v : ℝ), (g • · : ℍ → ℍ) = (v +ᵥ ·) ∘ (u • ·) := by
   obtain ⟨a, b, ha, rfl⟩ := g.fin_two_exists_eq_mk_of_apply_zero_one_eq_zero hc
   refine ⟨⟨_, mul_self_pos.mpr ha⟩, b * a, ?_⟩
-  ext1 ⟨z, hz⟩; ext1
+  ext1 ⟨z, hz⟩
+  ext1
   suffices ↑a * z * a + b * a = b * a + a * a * z by simpa [specialLinearGroup_apply, add_mul]
   ring
 
 set_option backward.isDefEq.respectTransparency false in
-theorem exists_SL2_smul_eq_of_apply_zero_one_ne_zero (g : SL(2, ℝ)) (hc : g 1 0 ≠ 0) :
-    ∃ (u : { x : ℝ // 0 < x }) (v w : ℝ),
-      (g • · : ℍ → ℍ) =
-        (w +ᵥ ·) ∘ (ModularGroup.S • · : ℍ → ℍ) ∘ (v +ᵥ · : ℍ → ℍ) ∘ (u • · : ℍ → ℍ) := by
+theorem exists_SL2_smul_eq_of_apply_zero_one_ne_zero (g : SL(2, ℝ)) (hc : g 1 0 ≠ 0)
+    : ∃ (u : {x : ℝ // 0 < x}) (v w : ℝ),
+      (g • · : ℍ → ℍ)
+        = (w +ᵥ ·) ∘ (ModularGroup.S • · : ℍ → ℍ) ∘ (v +ᵥ · : ℍ → ℍ) ∘ (u • · : ℍ → ℍ) := by
   have h_denom (z : ℍ) := denom_ne_zero g z
-  induction g using Matrix.SpecialLinearGroup.fin_two_induction with | _ a b c d h => ?_
+  induction g using Matrix.SpecialLinearGroup.fin_two_induction with
+  | _ a b c d h => ?_
   replace hc : c ≠ 0 := by simpa using! hc
   refine ⟨⟨_, mul_self_pos.mpr hc⟩, c * d, a / c, ?_⟩
-  ext1 ⟨z, hz⟩; ext1
+  ext1 ⟨z, hz⟩
+  ext1
   suffices (↑a * z + b) / (↑c * z + d) = a / c - (c * d + ↑c * ↑c * z)⁻¹ by
     simpa [modular_S_smul, coe_specialLinearGroup_apply]
   replace hc : (c : ℂ) ≠ 0 := by norm_cast
@@ -345,9 +351,10 @@ end SLAction
 section toSL2R
 
 /-- Map from `ℍ` to `SL(2, ℝ)`, giving a continuous section of the map `g ↦ g • I`. -/
-noncomputable def toSL2R (z : ℍ) : SL(2, ℝ) :=
-  ⟨!![√z.im, z.re / √z.im; 0, 1 / √z.im], by
-    simp [mul_inv_cancel₀ (Real.sqrt_ne_zero'.mpr z.im_pos)]⟩
+noncomputable def toSL2R (z : ℍ) : SL(2, ℝ) := ⟨
+  !![√z.im, z.re / √z.im; 0, 1 / √z.im],
+  by simp [mul_inv_cancel₀ (Real.sqrt_ne_zero'.mpr z.im_pos)]
+⟩
 
 lemma toSL2R_apply (z : ℍ) : z.toSL2R =
   ⟨!![√z.im, z.re / √z.im; 0, 1 / √z.im], by
@@ -365,7 +372,7 @@ lemma toSL2R_apply (z : ℍ) : z.toSL2R =
     Real.sqrt_mul_self z.im_pos.le, re_add_im, div_eq_mul_inv]
 
 /-- `SL(2, ℝ)` acts transitively on the upper half-plane. -/
-instance isPretransitiveSL2R : MulAction.IsPretransitive SL(2, ℝ) ℍ :=
+instance isPretransitiveSL2R : MulAction.IsPretransitive (SL(2, ℝ)) ℍ :=
   .of_orbit fun z ↦ ⟨_, toSL2R_smul_I z⟩
 
 /-- `GL(2, ℝ)` acts transitively on the upper half-plane. -/
@@ -376,9 +383,11 @@ end toSL2R
 
 section J
 
-/-- The matrix `[-1, 0; 0, 1]`, which defines an anti-holomorphic involution of `ℍ` via
-`τ ↦ -conj τ`. -/
-def J : GL (Fin 2) ℝ := .mkOfDetNeZero !![-1, 0; 0, 1] (by simp)
+/--
+The matrix `[-1, 0; 0, 1]`, which defines an anti-holomorphic involution of `ℍ` via
+`τ ↦ -conj τ`.
+-/
+def J : GL (Fin 2) ℝ := .mkOfDetNeZero (!![-1, 0; 0, 1]) (by simp)
 
 lemma coe_J_smul (τ : ℍ) : (↑(J • τ) : ℂ) = -conj ↑τ := by
   simp [UpperHalfPlane.coe_smul, σ, J, show ¬(1 : ℝ) < 0 by simp, num, denom]
@@ -424,8 +433,8 @@ def coeHom : SL(2, ℤ) →* GL(2, ℝ)⁺ := toGLPos.comp <| map <| Int.castRin
 lemma coeHom_apply (g : SL(2, ℤ)) : coeHom g = coe g := rfl
 
 @[deprecated "use GL(2, ℝ)" (since := "2026-04-29")]
-theorem coe_apply_complex {g : SL(2, ℤ)} {i j : Fin 2} :
-    (Units.val <| Subtype.val <| coe g) i j = (Subtype.val g i j : ℂ) :=
+theorem coe_apply_complex {g : SL(2, ℤ)} {i j : Fin 2}
+    : (Units.val <| Subtype.val <| coe g) i j = (Subtype.val g i j : ℂ) :=
   rfl
 
 @[deprecated "use GL(2, ℝ)" (since := "2026-04-29")]
@@ -438,14 +447,13 @@ lemma coe_one : coe 1 = 1 := by
 
 /-- Multiplication action of `SL(2, ℤ)` on `GL(2, ℝ)⁺`. -/
 @[reducible, deprecated "use GL(2, ℝ)" (since := "2026-04-29")]
-def SLOnGLPos : SMul SL(2, ℤ) GL(2, ℝ)⁺ :=
-  ⟨fun s g => s * g⟩
+def SLOnGLPos : SMul (SL(2, ℤ)) GL(2, ℝ)⁺ := ⟨fun s g => s * g⟩
 
 attribute [local instance] SLOnGLPos
 
 @[deprecated "use GL(2, ℝ)" (since := "2026-04-29")]
-theorem SLOnGLPos_smul_apply (s : SL(2, ℤ)) (g : GL(2, ℝ)⁺) (z : ℍ) :
-    (s • g) • z = ((s : GL(2, ℝ)⁺) * g) • z :=
+theorem SLOnGLPos_smul_apply (s : SL(2, ℤ)) (g : GL(2, ℝ)⁺) (z : ℍ)
+    : (s • g) • z = ((s : GL(2, ℝ)⁺) * g) • z :=
   rfl
 
 @[deprecated "use GL(2, ℝ)" (since := "2026-04-29")]
@@ -460,8 +468,7 @@ section SLModularAction
 
 variable (g : SL(2, ℤ)) (z : ℍ)
 
-@[simp]
-theorem sl_moeb : g • z = (g : GL (Fin 2) ℝ) • z := rfl
+@[simp] theorem sl_moeb : g • z = (g : GL (Fin 2) ℝ) • z := rfl
 
 @[simp high]
 theorem SL_neg_smul : -g • z = g • z := by

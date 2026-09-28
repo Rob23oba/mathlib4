@@ -43,15 +43,18 @@ variable [PreirreducibleSpace X] [Nonempty Y]
 
 namespace PartialMap
 
-/-- Composition of partial maps. The domain of `f.comp g` is the preimage of `g.domain` under `f`,
-viewed as an open subscheme of `X`. Requires `f.hom` to be dominant so that the domain is dense. -/
+/--
+Composition of partial maps. The domain of `f.comp g` is the preimage of `g.domain` under `f`,
+viewed as an open subscheme of `X`. Requires `f.hom` to be dominant so that the domain is dense.
+-/
 @[simps]
-noncomputable def comp (f : X.PartialMap Y) [IsDominant f.hom] (g : Y.PartialMap Z) :
-    X.PartialMap Z where
+noncomputable def comp (f : X.PartialMap Y) [IsDominant f.hom] (g : Y.PartialMap Z)
+    : X.PartialMap Z where
   domain := f.domain.ι ''ᵁ f.hom ⁻¹ᵁ g.domain
-  dense_domain := (f.domain.ι ''ᵁ f.hom ⁻¹ᵁ g.domain).2.dense <| by
-    simpa [← Set.nonempty_preimage_iff] using
-      f.hom.denseRange.inter_open_nonempty _ g.domain.2 g.dense_domain.nonempty
+  dense_domain :=
+    (f.domain.ι ''ᵁ f.hom ⁻¹ᵁ g.domain).2.dense <| by
+      simpa [← Set.nonempty_preimage_iff] using
+        f.hom.denseRange.inter_open_nonempty _ g.domain.2 g.dense_domain.nonempty
   hom := (f.domain.ι.isoImage _).inv ≫ f.hom ∣_ g.domain ≫ g.hom
 
 set_option backward.isDefEq.respectTransparency false in
@@ -108,8 +111,9 @@ lemma comp_equiv_of_equiv (f₁ f₂ : X.PartialMap Y) [IsDominant f₁.hom] [Is
   equivalence_rel.trans (comp_equiv_of_equiv_left hf _) (comp_equiv_of_equiv_right _ hg)
 
 set_option backward.defeqAttrib.useBackward true in
-instance isDominant_comp_hom (f : X.PartialMap Y) [IsDominant f.hom] (g : Y.PartialMap Z)
-    [IsDominant g.hom] : IsDominant (f.comp g).hom := by
+instance isDominant_comp_hom
+    (f : X.PartialMap Y) [IsDominant f.hom] (g : Y.PartialMap Z) [IsDominant g.hom]
+    : IsDominant (f.comp g).hom := by
   dsimp only [comp_domain, comp_hom]
   have := IsZariskiLocalAtTarget.restrict ‹IsDominant f.hom› g.domain
   infer_instance
@@ -151,8 +155,10 @@ namespace RationalMap
 
 -- If better def-eqs are required, consider refactoring this by using `Quotient.liftOn₂`
 -- and a bundled structure `DominantPartialMap`.
-/-- Composition of rational maps. Requires `f` to be dominant, so that we may choose
-a dominant representative. -/
+/--
+Composition of rational maps. Requires `f` to be dominant, so that we may choose
+a dominant representative.
+-/
 noncomputable def comp (f : X ⤏ Y) [f.IsDominant] (g : Y ⤏ Z) : X ⤏ Z :=
   Quotient.liftOn g (PartialMap.toRationalMap ∘ f.representative.comp) <| fun _ _ h ↦ by
     rw [Function.comp_apply, Function.comp_apply, PartialMap.toRationalMap_eq_iff]
@@ -191,11 +197,15 @@ lemma comp_assoc {X₁ X₂ X₃ Y : Scheme.{u}} [PreirreducibleSpace X₁] [Irr
   apply PartialMap.comp_equiv_of_equiv_right
   rw [toRationalMap_representative]
 
-instance isOver_comp {S : Scheme.{u}} [IrreducibleSpace Y] [Nonempty Z] [X.Over S] [Y.Over S]
-    [Z.Over S] (f : X ⤏ Y) [f.IsDominant] [f.IsOver S] (g : Y ⤏ Z) [g.IsDominant] [g.IsOver S] :
-    (f.comp g).IsOver S := by
-  rw [isOver_iff, ← comp_toRationalMap, comp_assoc, comp_toRationalMap,
-    isOver_iff.mp ‹g.IsOver S›, comp_toRationalMap, RationalMap.isOver_iff.mp ‹f.IsOver S›]
+instance isOver_comp
+    {S : Scheme.{u}} [IrreducibleSpace Y] [Nonempty Z] [X.Over S] [Y.Over S] [Z.Over S]
+    (f : X ⤏ Y) [f.IsDominant] [f.IsOver S]
+    (g : Y ⤏ Z) [g.IsDominant] [g.IsOver S]
+    : (f.comp g).IsOver S := by
+  rw [
+    isOver_iff, ← comp_toRationalMap, comp_assoc, comp_toRationalMap, isOver_iff.mp ‹g.IsOver S›,
+    comp_toRationalMap, RationalMap.isOver_iff.mp ‹f.IsOver S›
+  ]
 
 end RationalMap
 

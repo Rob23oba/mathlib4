@@ -38,25 +38,28 @@ attribute [local simp] XIsoOfEq_hom_naturality smul_smul
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The natural isomorphism `(K⟦n⟧).sc' i j k ≅ K.sc' i' j' k'` when `n + i = i'`,
-`n + j = j'` and `n + k = k'`. -/
+/--
+The natural isomorphism `(K⟦n⟧).sc' i j k ≅ K.sc' i' j' k'` when `n + i = i'`,
+`n + j = j'` and `n + k = k'`.
+-/
 @[simps!]
-def shiftShortComplexFunctor' (n i j k i' j' k' : ℤ)
-    (hi : n + i = i') (hj : n + j = j') (hk : n + k = k') :
-    (CategoryTheory.shiftFunctor (CochainComplex C ℤ) n) ⋙ shortComplexFunctor' C _ i j k ≅
-      shortComplexFunctor' C _ i' j' k' :=
-  NatIso.ofComponents (fun K => ShortComplex.isoMk
-      (n.negOnePow • ((shiftEval C n i i' hi).app K))
-      ((shiftEval C n j j' hj).app K) (n.negOnePow • ((shiftEval C n k k' hk).app K))
-      (by simp) (by simp))
-      (fun f ↦ by ext <;> simp)
+def shiftShortComplexFunctor'
+    (n i j k i' j' k' : ℤ) (hi : n + i = i') (hj : n + j = j') (hk : n + k = k')
+    : (CategoryTheory.shiftFunctor (CochainComplex C ℤ) n) ⋙ shortComplexFunctor' C _ i j k
+      ≅ shortComplexFunctor' C _ i' j' k' :=
+  NatIso.ofComponents
+    (fun K =>
+      ShortComplex.isoMk (n.negOnePow • ((shiftEval C n i i' hi).app K))
+        ((shiftEval C n j j' hj).app K) (n.negOnePow • ((shiftEval C n k k' hk).app K)) (by simp)
+        (by simp))
+    (fun f ↦ by ext <;> simp)
 
 /-- The natural isomorphism `(K⟦n⟧).sc i ≅ K.sc i'` when `n + i = i'`. -/
 @[simps!]
-noncomputable def shiftShortComplexFunctorIso (n i i' : ℤ) (hi : n + i = i') :
-    shiftFunctor C n ⋙ shortComplexFunctor C _ i ≅ shortComplexFunctor C _ i' :=
-  shiftShortComplexFunctor' C n _ i _ _ i' _
-    (by simp only [prev]; lia) hi (by simp only [next]; lia)
+noncomputable def shiftShortComplexFunctorIso (n i i' : ℤ) (hi : n + i = i')
+    : shiftFunctor C n ⋙ shortComplexFunctor C _ i ≅ shortComplexFunctor C _ i' :=
+  shiftShortComplexFunctor' C n _ i _ _ i' _ (by simp only [prev]; lia) hi
+    (by simp only [next]; lia)
 
 variable {C}
 
@@ -86,14 +89,14 @@ namespace ShiftSequence
 
 variable (C) in
 /-- The natural isomorphism `(K⟦n⟧).homology a ≅ K.homology a'` when `n + a = a'`. -/
-noncomputable def shiftIso (n a a' : ℤ) (ha' : n + a = a') :
-    (CategoryTheory.shiftFunctor _ n) ⋙ homologyFunctor C (ComplexShape.up ℤ) a ≅
-      homologyFunctor C (ComplexShape.up ℤ) a' :=
-  Functor.isoWhiskerLeft _ (homologyFunctorIso C (ComplexShape.up ℤ) a) ≪≫
-    (Functor.associator _ _ _).symm ≪≫
-    Functor.isoWhiskerRight (shiftShortComplexFunctorIso C n a a' ha')
-      (ShortComplex.homologyFunctor C) ≪≫
-    (homologyFunctorIso C (ComplexShape.up ℤ) a').symm
+noncomputable def shiftIso (n a a' : ℤ) (ha' : n + a = a')
+    : (CategoryTheory.shiftFunctor _ n) ⋙ homologyFunctor C (ComplexShape.up ℤ) a
+      ≅ homologyFunctor C (ComplexShape.up ℤ) a' :=
+  Functor.isoWhiskerLeft _ (homologyFunctorIso C (ComplexShape.up ℤ) a)
+    ≪≫ (Functor.associator _ _ _).symm
+    ≪≫ Functor.isoWhiskerRight (shiftShortComplexFunctorIso C n a a' ha')
+      (ShortComplex.homologyFunctor C)
+    ≪≫ (homologyFunctorIso C (ComplexShape.up ℤ) a').symm
 
 set_option backward.defeqAttrib.useBackward true in
 lemma shiftIso_hom_app (n a a' : ℤ) (ha' : n + a = a') (K : CochainComplex C ℤ) :
@@ -111,22 +114,24 @@ end ShiftSequence
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-noncomputable instance :
-    (homologyFunctor C (ComplexShape.up ℤ) 0).ShiftSequence ℤ where
+noncomputable instance : (homologyFunctor C (ComplexShape.up ℤ) 0).ShiftSequence ℤ where
   sequence n := homologyFunctor C (ComplexShape.up ℤ) n
   isoZero := Iso.refl _
   shiftIso n a a' ha' := ShiftSequence.shiftIso C n a a' ha'
   shiftIso_zero a := by
     ext K
     dsimp [homologyMap]
-    simp only [ShiftSequence.shiftIso_hom_app, comp_id,
-      shiftShortComplexFunctorIso_zero_add_hom_app]
+    simp only [
+      ShiftSequence.shiftIso_hom_app, comp_id, shiftShortComplexFunctorIso_zero_add_hom_app
+    ]
   shiftIso_add n m a a' a'' ha' ha'' := by
     ext K
     dsimp [homologyMap]
-    simp only [ShiftSequence.shiftIso_hom_app, id_comp,
-      ← ShortComplex.homologyMap_comp, shiftFunctorAdd'_eq_shiftFunctorAdd,
-      shiftShortComplexFunctorIso_add'_hom_app n m _ rfl a a' a'' ha' ha'' K]
+    simp only [
+      ShiftSequence.shiftIso_hom_app, id_comp, ← ShortComplex.homologyMap_comp,
+      shiftFunctorAdd'_eq_shiftFunctorAdd,
+      shiftShortComplexFunctorIso_add'_hom_app n m _ rfl a a' a'' ha' ha'' K
+    ]
 
 lemma quasiIsoAt_shift_iff {K L : CochainComplex C ℤ} (φ : K ⟶ L) (n i j : ℤ) (h : n + i = j) :
     QuasiIsoAt (φ⟦n⟧') i ↔ QuasiIsoAt φ j := by
@@ -144,8 +149,7 @@ lemma quasiIso_shift_iff {K L : CochainComplex C ℤ} (φ : K ⟶ L) (n : ℤ) :
   · intro h i
     exact h (n + i)
 
-instance {K L : CochainComplex C ℤ} (φ : K ⟶ L) (n : ℤ) [QuasiIso φ] :
-    QuasiIso (φ⟦n⟧') := by
+instance {K L : CochainComplex C ℤ} (φ : K ⟶ L) (n : ℤ) [QuasiIso φ] : QuasiIso (φ⟦n⟧') := by
   rw [quasiIso_shift_iff]
   infer_instance
 
@@ -188,11 +192,9 @@ namespace HomotopyCategory
 
 variable [CategoryWithHomology C]
 
-noncomputable instance :
-    (homologyFunctor C (ComplexShape.up ℤ) 0).ShiftSequence ℤ :=
+noncomputable instance : (homologyFunctor C (ComplexShape.up ℤ) 0).ShiftSequence ℤ :=
   Functor.ShiftSequence.induced (homologyFunctorFactors C (ComplexShape.up ℤ) 0) ℤ
-    (homologyFunctor C (ComplexShape.up ℤ))
-    (homologyFunctorFactors C (ComplexShape.up ℤ))
+    (homologyFunctor C (ComplexShape.up ℤ)) (homologyFunctorFactors C (ComplexShape.up ℤ))
 
 variable {C}
 

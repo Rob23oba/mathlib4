@@ -11,7 +11,6 @@ public import Mathlib.Data.Nat.ModEq
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Interval.Finset.Nat
 public import Mathlib.Order.ConditionallyCompleteLattice.Indexed
-
 import Mathlib.Tactic.Rify
 
 /-!
@@ -50,8 +49,10 @@ which reduces the proof obligations later that would arise with `Nat.card`.
 
 open Finset
 
-/-- The Schnirelmann density is defined as the infimum of $|A ∩ {1, ..., n}| / n$ as n ranges over
-the positive naturals. -/
+/--
+The Schnirelmann density is defined as the infimum of $|A ∩ {1, ..., n}| / n$ as n ranges over
+the positive naturals.
+-/
 noncomputable def schnirelmannDensity (A : Set ℕ) [DecidablePred (· ∈ A)] : ℝ :=
   ⨅ n : {n : ℕ // 0 < n}, #{a ∈ Ioc 0 n | a ∈ A} / n
 
@@ -289,14 +290,16 @@ alias schnirelmannDensity_setOf_Odd := schnirelmannDensity_setOfPred_Odd
 
 open scoped Pointwise
 
-/-- If two sets `A` and `B` have Schnirelmann densities with sum at least 1, and both sets
+/--
+If two sets `A` and `B` have Schnirelmann densities with sum at least 1, and both sets
 contain zero, then every natural number is sum of an element of `A` and an element of `B`.
 Note that we cannot omit the assumption that both sets contain zero, as shown by the
 counterexample `A = B = Odd`.
 -/
-theorem add_eq_univ_of_one_le_schirelmannDensity_add_schnirelmannDensity {A B : Set ℕ}
-    [DecidablePred (· ∈ A)] [DecidablePred (· ∈ B)] (hA : 0 ∈ A) (hB : 0 ∈ B)
-    (h : 1 ≤ schnirelmannDensity A + schnirelmannDensity B) : A + B = .univ := by
+theorem add_eq_univ_of_one_le_schirelmannDensity_add_schnirelmannDensity
+    {A B : Set ℕ} [DecidablePred (· ∈ A)] [DecidablePred (· ∈ B)]
+    (hA : 0 ∈ A) (hB : 0 ∈ B) (h : 1 ≤ schnirelmannDensity A + schnirelmannDensity B)
+    : A + B = .univ := by
   rw [Set.eq_univ_iff_forall]
   rintro (_ | m)
   · exact ⟨0, hA, 0, ⟨hB, rfl⟩⟩
@@ -310,14 +313,16 @@ theorem add_eq_univ_of_one_le_schirelmannDensity_add_schnirelmannDensity {A B : 
     | .inr y => n - y
   let sA := {a ∈ Ioc 0 n | a ∈ A}
   let sB := {b ∈ Ioc 0 n | b ∈ B}
-  have hc : #(image f (disjSum sA sB)) < #(disjSum sA sB) := calc
-    #(image f (disjSum sA sB)) ≤ #(Ioo 0 n) := by gcongr; grind [mem_disjSum]
-    _ < n := by simp [Nat.card_Ioo, n]
-    _ ≤ #(disjSum sA sB) := by
-      rw [card_disjSum]
-      rify
-      nlinarith [@schnirelmannDensity_mul_le_card_filter A _ n,
-        @schnirelmannDensity_mul_le_card_filter B _ n]
-  obtain ⟨a | b, ha, a | b, hb, _, hxy⟩ := exists_ne_map_eq_of_card_image_lt hc <;>
-  simp only [sA, sB, inl_mem_disjSum, mem_filter, mem_Ioc, inr_mem_disjSum] at ha hb <;>
-  first | grind [inr_mem_disjSum] | exact ⟨a, by simp [*], b, by simp [*], by grind⟩
+  have hc : #(image f (disjSum sA sB)) < #(disjSum sA sB) :=
+    calc
+      #(image f (disjSum sA sB))
+        ≤ #(Ioo 0 n) := by gcongr; grind [mem_disjSum]
+      _ < n := by simp [Nat.card_Ioo, n]
+      _ ≤ #(disjSum sA sB) := by
+        rw [card_disjSum]
+        rify
+        nlinarith [@schnirelmannDensity_mul_le_card_filter A _ n,
+          @schnirelmannDensity_mul_le_card_filter B _ n]
+  obtain ⟨a | b, ha, a | b, hb, _, hxy⟩ := exists_ne_map_eq_of_card_image_lt hc
+    <;> simp only [sA, sB, inl_mem_disjSum, mem_filter, mem_Ioc, inr_mem_disjSum] at ha hb
+    <;> first | grind [inr_mem_disjSum] | exact ⟨a, by simp [*], b, by simp [*], by grind⟩

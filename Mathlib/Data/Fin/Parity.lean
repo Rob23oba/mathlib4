@@ -29,14 +29,18 @@ open Fin.CommRing
 
 variable {n : ℕ} {k : Fin n}
 
-theorem even_succAbove_add_predAbove (i : Fin (n + 1)) (j : Fin n) :
-    Even (i.succAbove j + j.predAbove i : ℕ) ↔ Odd (i + j : ℕ) := by
+theorem even_succAbove_add_predAbove (i : Fin (n + 1)) (j : Fin n)
+    : Even (i.succAbove j + j.predAbove i : ℕ) ↔ Odd (i + j : ℕ) := by
   rcases lt_or_ge j.castSucc i with hji | hij
   · have : 1 ≤ (i : ℕ) := (Nat.zero_le j).trans_lt hji
-    simp [succAbove_of_castSucc_lt _ _ hji, predAbove_of_castSucc_lt _ _ hji, this, iff_comm,
-      parity_simps]
-  · simp [succAbove_of_le_castSucc _ _ hij, predAbove_of_le_castSucc _ _ hij,
-      ← Nat.not_even_iff_odd, not_iff, not_iff_comm, parity_simps]
+    simp [
+      succAbove_of_castSucc_lt _ _ hji, predAbove_of_castSucc_lt _ _ hji, this, iff_comm,
+      parity_simps
+    ]
+  · simp [
+      succAbove_of_le_castSucc _ _ hij, predAbove_of_le_castSucc _ _ hij, ← Nat.not_even_iff_odd,
+      not_iff, not_iff_comm, parity_simps
+    ]
 
 lemma neg_one_pow_succAbove_add_predAbove {R : Type*} [Monoid R] [HasDistribNeg R]
     (i : Fin (n + 1)) (j : Fin n) :

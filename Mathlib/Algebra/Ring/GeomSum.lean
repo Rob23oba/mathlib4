@@ -141,8 +141,9 @@ lemma geom_sum₂_comm (x y : R) (n : ℕ) :
     ∑ i ∈ range n, x ^ i * y ^ (n - 1 - i) = ∑ i ∈ range n, y ^ i * x ^ (n - 1 - i) :=
   (Commute.all x y).geom_sum₂_comm n
 
-variable [PartialOrder R] [AddLeftReflectLE R] [AddLeftMono R] [ExistsAddOfLE R] [Sub R]
-  [OrderedSub R] {x y : R}
+variable
+  [PartialOrder R] [AddLeftReflectLE R] [AddLeftMono R] [ExistsAddOfLE R] [Sub R] [OrderedSub R]
+  {x y : R}
 
 lemma geom_sum₂_mul_of_ge (hxy : y ≤ x) (n : ℕ) :
     (∑ i ∈ range n, x ^ i * y ^ (n - 1 - i)) * (x - y) = x ^ n - y ^ n := by
@@ -209,13 +210,12 @@ lemma sub_one_dvd_pow_sub_one (x : R) (n : ℕ) : x - 1 ∣ x ^ n - 1 := by
 lemma pow_one_sub_dvd_pow_mul_sub_one (x : R) (m n : ℕ) : x ^ m - 1 ∣ x ^ (m * n) - 1 := by
   rw [pow_mul]; exact sub_one_dvd_pow_sub_one (x ^ m) n
 
-theorem dvd_pow_sub_one_of_dvd {r : R} {a b : ℕ} (h : a ∣ b) :
-    r ^ a - 1 ∣ r ^ b - 1 := by
+theorem dvd_pow_sub_one_of_dvd {r : R} {a b : ℕ} (h : a ∣ b) : r ^ a - 1 ∣ r ^ b - 1 := by
   obtain ⟨n, rfl⟩ := h
   exact pow_one_sub_dvd_pow_mul_sub_one r a n
 
-theorem dvd_pow_pow_sub_self_of_dvd {r : R} {p a b : ℕ} (h : a ∣ b) :
-    r ^ p ^ a - r ∣ r ^ p ^ b - r := by
+theorem dvd_pow_pow_sub_self_of_dvd {r : R} {p a b : ℕ} (h : a ∣ b)
+    : r ^ p ^ a - r ∣ r ^ p ^ b - r := by
   by_cases hp₀ : p = 0
   · by_cases hb₀ : b = 0
     · rw [hp₀, hb₀, pow_zero, pow_one, sub_self]
@@ -223,8 +223,10 @@ theorem dvd_pow_pow_sub_self_of_dvd {r : R} {p a b : ℕ} (h : a ∣ b) :
     have ha₀ : a ≠ 0 := by rintro rfl; rw [zero_dvd_iff] at h; tauto
     rw [hp₀, zero_pow ha₀, zero_pow hb₀]
   have hp (c) : 1 ≤ p ^ c := Nat.pow_pos <| pos_of_ne_zero hp₀
-  rw [← Nat.sub_add_cancel (hp a), ← Nat.sub_add_cancel (hp b), pow_succ', pow_succ',
-    ← mul_sub_one, ← mul_sub_one]
+  rw [
+    ← Nat.sub_add_cancel (hp a), ← Nat.sub_add_cancel (hp b), pow_succ', pow_succ', ← mul_sub_one,
+    ← mul_sub_one
+  ]
   refine mul_dvd_mul_left _ <| dvd_pow_sub_one_of_dvd <| Int.natCast_dvd_natCast.mp ?_
   push_cast [hp a, hp b]
   exact dvd_pow_sub_one_of_dvd h
@@ -299,8 +301,8 @@ end Ring
 section CommRing
 variable [CommRing R]
 
-theorem pow_sub_one_mul_geom_sum_eq_pow_sub_one_mul_geom_sum {x : R} {m n : ℕ} :
-    (x ^ m - 1) * ∑ k ∈ range n, x ^ k = (x ^ n - 1) * ∑ k ∈ range m, x ^ k := by
+theorem pow_sub_one_mul_geom_sum_eq_pow_sub_one_mul_geom_sum {x : R} {m n : ℕ}
+    : (x ^ m - 1) * ∑ k ∈ range n, x ^ k = (x ^ n - 1) * ∑ k ∈ range m, x ^ k := by
   grind [geom_sum_mul]
 
 lemma geom_sum₂_mul (x y : R) (n : ℕ) :

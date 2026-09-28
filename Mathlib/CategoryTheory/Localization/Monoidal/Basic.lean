@@ -33,14 +33,18 @@ namespace CategoryTheory
 
 open Category MonoidalCategory
 
-variable {C D : Type*} [Category* C] [Category* D] (L : C ⥤ D) (W : MorphismProperty C)
+variable
+  {C D : Type*} [Category* C] [Category* D]
+  (L : C ⥤ D) (W : MorphismProperty C)
   [MonoidalCategory C]
 
 namespace MorphismProperty
 
-/-- A class of morphisms `W` in a monoidal category is monoidal if it is multiplicative
+/--
+A class of morphisms `W` in a monoidal category is monoidal if it is multiplicative
 and stable under left and right whiskering. Under this condition, the localized
-category can be equipped with a monoidal category structure, see `LocalizedMonoidal`. -/
+category can be equipped with a monoidal category structure, see `LocalizedMonoidal`.
+-/
 class IsMonoidal : Prop extends W.IsMultiplicative where
   whiskerLeft (X : C) {Y₁ Y₂ : C} (g : Y₁ ⟶ Y₂) (hg : W g) : W (X ◁ g)
   whiskerRight {X₁ X₂ : C} (f : X₁ ⟶ X₂) (hf : W f) (Y : C) : W (f ▷ Y)
@@ -66,42 +70,51 @@ lemma tensorHom_mem {X₁ X₂ : C} (f : X₁ ⟶ X₂) {Y₁ Y₂ : C} (g : Y�
   rw [tensorHom_def]
   exact comp_mem _ _ _ (whiskerRight_mem _ _ hf _) (whiskerLeft_mem _ _ _ hg)
 
-/-- The inverse image under a monoidal functor of a monoidal morphism property which respects
-isomorphisms is monoidal. -/
-instance {C' : Type*} [Category* C'] [MonoidalCategory C'] (F : C' ⥤ C) [F.Monoidal]
-    [W.RespectsIso] : (W.inverseImage F).IsMonoidal := .mk' _ fun f g hf hg ↦ by
-  simp only [inverseImage_iff] at hf hg ⊢
-  rw [Functor.Monoidal.map_tensor _ f g]
-  apply MorphismProperty.RespectsIso.precomp
-  apply MorphismProperty.RespectsIso.postcomp
-  exact tensorHom_mem _ _ _ hf hg
+/--
+The inverse image under a monoidal functor of a monoidal morphism property which respects
+isomorphisms is monoidal.
+-/
+instance {C' : Type*} [Category* C'] [MonoidalCategory C'] (F : C' ⥤ C) [F.Monoidal] [W.RespectsIso]
+    : (W.inverseImage F).IsMonoidal :=
+  .mk' _ fun f g hf hg ↦ by
+    simp only [inverseImage_iff] at hf hg ⊢
+    rw [Functor.Monoidal.map_tensor _ f g]
+    apply MorphismProperty.RespectsIso.precomp
+    apply MorphismProperty.RespectsIso.postcomp
+    exact tensorHom_mem _ _ _ hf hg
 
 end MorphismProperty
 
-/-- Given a monoidal category `C`, a localization functor `L : C ⥤ D` with respect
+/--
+Given a monoidal category `C`, a localization functor `L : C ⥤ D` with respect
 to `W : MorphismProperty C` which satisfies `W.IsMonoidal`, and a choice
 of object `unit : D` with an isomorphism `L.obj (𝟙_ C) ≅ unit`, this is a
-type synonym for `D` on which we define the localized monoidal category structure. -/
+type synonym for `D` on which we define the localized monoidal category structure.
+-/
 @[nolint unusedArguments]
-def LocalizedMonoidal (L : C ⥤ D) (W : MorphismProperty C)
-    [W.IsMonoidal] [L.IsLocalization W] {unit : D} (_ : L.obj (𝟙_ C) ≅ unit) :=
+def LocalizedMonoidal
+    (L : C ⥤ D) (W : MorphismProperty C) [W.IsMonoidal] [L.IsLocalization W]
+    {unit : D} (_ : L.obj (𝟙_ C) ≅ unit) :=
   D
 
 variable [W.IsMonoidal] [L.IsLocalization W] {unit : D} (ε : L.obj (𝟙_ C) ≅ unit)
 
 namespace Localization
 
-instance : Category (LocalizedMonoidal L W ε) :=
-  inferInstanceAs (Category D)
+instance : Category (LocalizedMonoidal L W ε) := inferInstanceAs (Category D)
 
 namespace Monoidal
 
-/-- The monoidal functor from a monoidal category `C` to
-its localization `LocalizedMonoidal L W ε`. -/
+/--
+The monoidal functor from a monoidal category `C` to
+its localization `LocalizedMonoidal L W ε`.
+-/
 def toMonoidalCategory : C ⥤ LocalizedMonoidal L W ε := L
 
-/-- The isomorphism `ε : L.obj (𝟙_ C) ≅ unit`,
-as `(toMonoidalCategory L W ε).obj (𝟙_ C) ≅ unit`. -/
+/--
+The isomorphism `ε : L.obj (𝟙_ C) ≅ unit`,
+as `(toMonoidalCategory L W ε).obj (𝟙_ C) ≅ unit`.
+-/
 abbrev ε' : (toMonoidalCategory L W ε).obj (𝟙_ C) ≅ unit := ε
 
 local notation "L'" => toMonoidalCategory L W ε
@@ -121,57 +134,59 @@ lemma isInvertedBy₂ :
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The localized tensor product, as a bifunctor. -/
-noncomputable def tensorBifunctor :
-    LocalizedMonoidal L W ε ⥤ LocalizedMonoidal L W ε ⥤ LocalizedMonoidal L W ε :=
+noncomputable def tensorBifunctor
+    : LocalizedMonoidal L W ε ⥤ LocalizedMonoidal L W ε ⥤ LocalizedMonoidal L W ε :=
   Localization.lift₂ _ (isInvertedBy₂ L W ε) L L
 
-noncomputable instance : Lifting₂ L' L' W W (curriedTensor C ⋙ (Functor.whiskeringRight C C
-    (LocalizedMonoidal L W ε)).obj L') (tensorBifunctor L W ε) :=
+noncomputable instance
+    : Lifting₂ L' L' W W
+      (curriedTensor C ⋙ (Functor.whiskeringRight C C (LocalizedMonoidal L W ε)).obj L')
+      (tensorBifunctor L W ε) :=
   inferInstanceAs (Lifting₂ L L W W (curriedTensor C ⋙ (Functor.whiskeringRight C C D).obj L')
     (Localization.lift₂ _ (isInvertedBy₂ L W ε) L L))
 
-/-- The bifunctor `tensorBifunctor` on `LocalizedMonoidal L W ε` is induced by
-`curriedTensor C`. -/
-noncomputable abbrev tensorBifunctorIso :
-    (((Functor.whiskeringLeft₂ D).obj L').obj L').obj (tensorBifunctor L W ε) ≅
-      (Functor.postcompose₂.obj L').obj (curriedTensor C) :=
-  Lifting₂.iso L' L' W W (curriedTensor C ⋙ (Functor.whiskeringRight C C
-    (LocalizedMonoidal L W ε)).obj L') (tensorBifunctor L W ε)
+/--
+The bifunctor `tensorBifunctor` on `LocalizedMonoidal L W ε` is induced by
+`curriedTensor C`.
+-/
+noncomputable abbrev tensorBifunctorIso
+    : (((Functor.whiskeringLeft₂ D).obj L').obj L').obj (tensorBifunctor L W ε)
+      ≅ (Functor.postcompose₂.obj L').obj (curriedTensor C) :=
+  Lifting₂.iso L' L' W W
+    (curriedTensor C ⋙ (Functor.whiskeringRight C C (LocalizedMonoidal L W ε)).obj L')
+    (tensorBifunctor L W ε)
 
 set_option backward.isDefEq.respectTransparency false in
-noncomputable instance (X : C) :
-    Lifting L' W (tensorLeft X ⋙ L') ((tensorBifunctor L W ε).obj ((L').obj X)) := by
+noncomputable instance (X : C)
+    : Lifting L' W (tensorLeft X ⋙ L') ((tensorBifunctor L W ε).obj ((L').obj X)) := by
   apply Lifting₂.liftingLift₂ (hF := isInvertedBy₂ L W ε)
 
 set_option backward.isDefEq.respectTransparency false in
-noncomputable instance (Y : C) :
-    Lifting L' W (tensorRight Y ⋙ L') ((tensorBifunctor L W ε).flip.obj ((L').obj Y)) := by
+noncomputable instance (Y : C)
+    : Lifting L' W (tensorRight Y ⋙ L') ((tensorBifunctor L W ε).flip.obj ((L').obj Y)) := by
   apply Lifting₂.liftingLift₂Flip (hF := isInvertedBy₂ L W ε)
 
 /-- The left unitor in the localized monoidal category `LocalizedMonoidal L W ε`. -/
 noncomputable def leftUnitor : (tensorBifunctor L W ε).obj unit ≅ 𝟭 _ :=
-  (tensorBifunctor L W ε).mapIso ε.symm ≪≫
-    Localization.liftNatIso L' W (tensorLeft (𝟙_ C) ⋙ L') L'
-      ((tensorBifunctor L W ε).obj ((L').obj (𝟙_ _))) _
-        (Functor.isoWhiskerRight (leftUnitorNatIso C) _ ≪≫ L.leftUnitor)
+  (tensorBifunctor L W ε).mapIso ε.symm ≪≫ Localization.liftNatIso L' W (tensorLeft (𝟙_ C) ⋙ L') L'
+    ((tensorBifunctor L W ε).obj ((L').obj (𝟙_ _))) _
+    (Functor.isoWhiskerRight (leftUnitorNatIso C) _ ≪≫ L.leftUnitor)
 
 /-- The right unitor in the localized monoidal category `LocalizedMonoidal L W ε`. -/
 noncomputable def rightUnitor : (tensorBifunctor L W ε).flip.obj unit ≅ 𝟭 _ :=
-  (tensorBifunctor L W ε).flip.mapIso ε.symm ≪≫
-    Localization.liftNatIso L' W (tensorRight (𝟙_ C) ⋙ L') L'
-      ((tensorBifunctor L W ε).flip.obj ((L').obj (𝟙_ _))) _
-        (Functor.isoWhiskerRight (rightUnitorNatIso C) _ ≪≫ L.leftUnitor)
+  (tensorBifunctor L W ε).flip.mapIso ε.symm ≪≫ Localization.liftNatIso L' W
+    (tensorRight (𝟙_ C) ⋙ L') L' ((tensorBifunctor L W ε).flip.obj ((L').obj (𝟙_ _))) _
+    (Functor.isoWhiskerRight (rightUnitorNatIso C) _ ≪≫ L.leftUnitor)
 
 /-- The associator in the localized monoidal category `LocalizedMonoidal L W ε`. -/
-noncomputable def associator :
-    bifunctorComp₁₂ (tensorBifunctor L W ε) (tensorBifunctor L W ε) ≅
-      bifunctorComp₂₃ (tensorBifunctor L W ε) (tensorBifunctor L W ε) :=
-  Localization.associator L' L' L' L' L' L' W W W W W
-    (curriedAssociatorNatIso C) (tensorBifunctor L W ε) (tensorBifunctor L W ε)
-    (tensorBifunctor L W ε) (tensorBifunctor L W ε)
+noncomputable def associator
+    : bifunctorComp₁₂ (tensorBifunctor L W ε) (tensorBifunctor L W ε)
+      ≅ bifunctorComp₂₃ (tensorBifunctor L W ε) (tensorBifunctor L W ε) :=
+  Localization.associator L' L' L' L' L' L' W W W W W (curriedAssociatorNatIso C)
+    (tensorBifunctor L W ε) (tensorBifunctor L W ε) (tensorBifunctor L W ε) (tensorBifunctor L W ε)
 
-noncomputable instance monoidalCategoryStruct :
-    MonoidalCategoryStruct (LocalizedMonoidal L W ε) where
+noncomputable instance monoidalCategoryStruct
+    : MonoidalCategoryStruct (LocalizedMonoidal L W ε) where
   tensorObj X Y := ((tensorBifunctor L W ε).obj X).obj Y
   whiskerLeft X _ _ g := ((tensorBifunctor L W ε).obj X).map g
   whiskerRight f Y := ((tensorBifunctor L W ε).map f).app Y
@@ -180,8 +195,10 @@ noncomputable instance monoidalCategoryStruct :
   leftUnitor Y := (leftUnitor L W ε).app Y
   rightUnitor X := (rightUnitor L W ε).app X
 
-/-- The compatibility isomorphism of the monoidal functor `toMonoidalCategory L W ε`
-with respect to the tensor product. -/
+/--
+The compatibility isomorphism of the monoidal functor `toMonoidalCategory L W ε`
+with respect to the tensor product.
+-/
 noncomputable def μ (X Y : C) : (L').obj X ⊗ (L').obj Y ≅ (L').obj (X ⊗ Y) :=
   ((tensorBifunctorIso L W ε).app X).app Y
 
@@ -262,15 +279,15 @@ lemma id_tensorHom_id (X₁ X₂ : LocalizedMonoidal L W ε) : 𝟙 X₁ ⊗ₘ 
   simp +instances [monoidalCategoryStruct]
 
 @[reassoc]
-theorem whiskerLeft_comp (Q : LocalizedMonoidal L W ε) {X Y Z : LocalizedMonoidal L W ε}
-    (f : X ⟶ Y) (g : Y ⟶ Z) :
-    Q ◁ (f ≫ g) = Q ◁ f ≫ Q ◁ g := by
+theorem whiskerLeft_comp
+    (Q : LocalizedMonoidal L W ε) {X Y Z : LocalizedMonoidal L W ε} (f : X ⟶ Y) (g : Y ⟶ Z)
+    : Q ◁ (f ≫ g) = Q ◁ f ≫ Q ◁ g := by
   simp only [← id_tensorHom, ← tensor_comp, comp_id]
 
 @[reassoc]
-theorem whiskerRight_comp (Q : LocalizedMonoidal L W ε) {X Y Z : LocalizedMonoidal L W ε}
-    (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (f ≫ g) ▷ Q = f ▷ Q ≫ g ▷ Q := by
+theorem whiskerRight_comp
+    (Q : LocalizedMonoidal L W ε) {X Y Z : LocalizedMonoidal L W ε} (f : X ⟶ Y) (g : Y ⟶ Z)
+    : (f ≫ g) ▷ Q = f ▷ Q ≫ g ▷ Q := by
   simp only [← tensorHom_id, ← tensor_comp, comp_id]
 
 lemma whiskerLeft_id (X Y : LocalizedMonoidal L W ε) :
@@ -442,8 +459,7 @@ lemma triangle (X Y : LocalizedMonoidal L W ε) :
   · exact triangle_aux₂ _ _ _ e₁ e₂
   · exact triangle_aux₃ _ _ _ e₁ e₂
 
-noncomputable instance :
-    MonoidalCategory (LocalizedMonoidal L W ε) where
+noncomputable instance : MonoidalCategory (LocalizedMonoidal L W ε) where
   tensorHom_def := by intros; simp +instances [monoidalCategoryStruct]
   id_tensorHom_id := by
     intros
@@ -468,12 +484,13 @@ end Localization
 open Localization.Monoidal
 
 noncomputable instance : (toMonoidalCategory L W ε).Monoidal :=
-  Functor.CoreMonoidal.toMonoidal
-    { εIso := ε.symm
-      μIso X Y := μ L W ε X Y
-      associativity X Y Z := by simp [associator_hom_app L W ε X Y Z]
-      left_unitality Y := leftUnitor_hom_app L W ε Y
-      right_unitality X := rightUnitor_hom_app L W ε X }
+  Functor.CoreMonoidal.toMonoidal {
+    εIso := ε.symm
+    μIso X Y := μ L W ε X Y
+    associativity X Y Z := by simp [associator_hom_app L W ε X Y Z]
+    left_unitality Y := leftUnitor_hom_app L W ε Y
+    right_unitality X := rightUnitor_hom_app L W ε X
+  }
 
 local notation "L'" => toMonoidalCategory L W ε
 
@@ -494,6 +511,5 @@ lemma associator_inv (X Y Z : C) :
           (Functor.OplaxMonoidal.δ (L') (X ⊗ Y) Z) ≫
             (Functor.OplaxMonoidal.δ (L') X Y) ▷ ((L').obj Z) := by
   simp
-
 
 end CategoryTheory

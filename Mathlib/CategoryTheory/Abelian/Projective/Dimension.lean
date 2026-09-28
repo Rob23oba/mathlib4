@@ -37,20 +37,24 @@ open Abelian Limits ZeroObject
 
 variable {C : Type u} [Category.{v} C] [Abelian C]
 
-/-- An object `X` in an abelian category has projective dimension `< n` if
+/--
+An object `X` in an abelian category has projective dimension `< n` if
 all `Ext X Y i` vanish when `n ≤ i`. See also `HasProjectiveDimensionLE`.
 (Do not use the `subsingleton'` field directly. Use the constructor
 `HasProjectiveDimensionLT.mk`, and the lemmas `hasProjectiveDimensionLT_iff` and
-`Ext.eq_zero_of_hasProjectiveDimensionLT`.) -/
-class HasProjectiveDimensionLT (X : C) (n : ℕ) : Prop where mk' ::
-  subsingleton' (i : ℕ) (hi : n ≤ i) ⦃Y : C⦄ :
-    letI := HasExt.standard C
-    Subsingleton (Ext.{max u v} X Y i)
+`Ext.eq_zero_of_hasProjectiveDimensionLT`.)
+-/
+class HasProjectiveDimensionLT (X : C) (n : ℕ) : Prop where
+  mk' ::
+  subsingleton' (i : ℕ) (hi : n ≤ i) ⦃Y : C⦄
+    : letI := HasExt.standard C
+      Subsingleton (Ext.{max u v} X Y i)
 
-/-- An object `X` in an abelian category has projective dimension `≤ n` if
-all `Ext X Y i` vanish when `n + 1 ≤ i` -/
-abbrev HasProjectiveDimensionLE (X : C) (n : ℕ) : Prop :=
-  HasProjectiveDimensionLT X (n + 1)
+/--
+An object `X` in an abelian category has projective dimension `≤ n` if
+all `Ext X Y i` vanish when `n + 1 ≤ i`
+-/
+abbrev HasProjectiveDimensionLE (X : C) (n : ℕ) : Prop := HasProjectiveDimensionLT X (n + 1)
 
 namespace HasProjectiveDimensionLT
 
@@ -95,8 +99,7 @@ lemma Limits.IsZero.hasProjectiveDimensionLT_zero (hX : IsZero X) :
   intro i hi Y e
   rw [← e.mk₀_id_comp, hX.eq_of_src (𝟙 X) 0, Ext.mk₀_zero, Ext.zero_comp]
 
-instance : HasProjectiveDimensionLT (0 : C) 0 :=
-  (isZero_zero C).hasProjectiveDimensionLT_zero
+instance : HasProjectiveDimensionLT (0 : C) 0 := (isZero_zero C).hasProjectiveDimensionLT_zero
 
 lemma isZero_of_hasProjectiveDimensionLT_zero [HasProjectiveDimensionLT X 0] : IsZero X := by
   let := HasExt.standard C
@@ -116,16 +119,13 @@ lemma hasProjectiveDimensionLT_of_ge (m : ℕ) (h : n ≤ m)
   intro i hi Y e
   exact e.eq_zero_of_hasProjectiveDimensionLT n (by lia)
 
-instance [HasProjectiveDimensionLT X n] (k : ℕ) :
-    HasProjectiveDimensionLT X (n + k) :=
+instance [HasProjectiveDimensionLT X n] (k : ℕ) : HasProjectiveDimensionLT X (n + k) :=
   hasProjectiveDimensionLT_of_ge X n (n + k) (by lia)
 
-instance [HasProjectiveDimensionLT X n] (k : ℕ) :
-    HasProjectiveDimensionLT X (k + n) :=
+instance [HasProjectiveDimensionLT X n] (k : ℕ) : HasProjectiveDimensionLT X (k + n) :=
   hasProjectiveDimensionLT_of_ge X n (k + n) (by lia)
 
-instance [HasProjectiveDimensionLT X n] :
-    HasProjectiveDimensionLT X n.succ :=
+instance [HasProjectiveDimensionLT X n] : HasProjectiveDimensionLT X n.succ :=
   inferInstanceAs (HasProjectiveDimensionLT X (n + 1))
 
 instance [Projective X] : HasProjectiveDimensionLT X 1 := by
@@ -229,8 +229,8 @@ end ShortExact
 
 end ShortComplex
 
-instance (X Y : C) (n : ℕ) [HasProjectiveDimensionLT X n] [HasProjectiveDimensionLT Y n] :
-    HasProjectiveDimensionLT (X ⊞ Y) n :=
+instance (X Y : C) (n : ℕ) [HasProjectiveDimensionLT X n] [HasProjectiveDimensionLT Y n]
+    : HasProjectiveDimensionLT (X ⊞ Y) n :=
   (ShortComplex.Splitting.ofHasBinaryBiproduct X Y).shortExact.hasProjectiveDimensionLT_X₂ n ‹_› ‹_›
 
 lemma hasProjectiveDimensionLT_of_enoughInjectives [HasExt.{w} C] [EnoughInjectives C] (X : C)

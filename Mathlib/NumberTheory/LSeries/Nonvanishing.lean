@@ -42,7 +42,8 @@ this product would have to tend to 0 as `x → 0`, which is a contradiction.
 
 @[expose] public section
 
-/- NB: Many lemmas (and some defs) in this file are private, since they concern properties of
+/-
+NB: Many lemmas (and some defs) in this file are private, since they concern properties of
 hypothetical objects which we eventually deduce cannot exist. We have only made public the lemmas
 whose hypotheses do not turn out to be contradictory.
 -/
@@ -72,8 +73,10 @@ We then show that for a quadratic character `χ`, this arithmetic function is mu
 and takes nonnegative real values.
 -/
 
-/-- The complex-valued arithmetic function that is the convolution of the constant
-function `1` with `χ`. -/
+/--
+The complex-valued arithmetic function that is the convolution of the constant
+function `1` with `χ`.
+-/
 noncomputable def zetaMul (χ : DirichletCharacter ℂ N) : ArithmeticFunction ℂ :=
   .zeta * toArithmeticFunction (χ ·)
 
@@ -123,8 +126,10 @@ To do that, we package the contradictory properties in a (private) structure
 This entire section is private.
 -/
 
-/-- The object we're trying to show doesn't exist: A nontrivial quadratic Dirichlet character
-whose L-function vanishes at `s = 1`. -/
+/--
+The object we're trying to show doesn't exist: A nontrivial quadratic Dirichlet character
+whose L-function vanishes at `s = 1`.
+-/
 private structure BadChar (N : ℕ) [NeZero N] where
   /-- The character we want to show cannot exist. -/
   χ : DirichletCharacter ℂ N
@@ -136,11 +141,12 @@ variable [NeZero N]
 
 namespace BadChar
 
-/-- The product of the Riemann zeta function with the L-function of `B.χ`.
+/--
+The product of the Riemann zeta function with the L-function of `B.χ`.
 We will show that `B.F (-2) = 0` but also that `B.F (-2)` must be positive,
-giving the desired contradiction. -/
-private noncomputable
-def F (B : BadChar N) : ℂ → ℂ :=
+giving the desired contradiction.
+-/
+private noncomputable def F (B : BadChar N) : ℂ → ℂ :=
   Function.update (fun s : ℂ ↦ riemannZeta s * LFunction B.χ s) 1 (deriv (LFunction B.χ) 1)
 
 private lemma F_differentiableAt_of_ne (B : BadChar N) {s : ℂ} (hs : s ≠ 1) :
@@ -197,20 +203,23 @@ private lemma F_neg_two (B : BadChar N) : B.F (-2 : ℝ) = 0 := by
 
 end BadChar
 
-/-- If `χ` is a nontrivial quadratic Dirichlet character, then `L(χ, 1) ≠ 0`. This is private
-since it is later superseded by `LFunction_apply_one_ne_zero`. -/
-private theorem LFunction_apply_one_ne_zero_of_quadratic {χ : DirichletCharacter ℂ N}
-    (hχ : χ ^ 2 = 1) (χ_ne : χ ≠ 1) :
-    χ.LFunction 1 ≠ 0 := by
+/--
+If `χ` is a nontrivial quadratic Dirichlet character, then `L(χ, 1) ≠ 0`. This is private
+since it is later superseded by `LFunction_apply_one_ne_zero`.
+-/
+private theorem LFunction_apply_one_ne_zero_of_quadratic
+    {χ : DirichletCharacter ℂ N} (hχ : χ ^ 2 = 1) (χ_ne : χ ≠ 1)
+    : χ.LFunction 1 ≠ 0 := by
   intro hL
   -- construct a "bad character" and put together a contradiction.
   let B : BadChar N := { χ := χ, χ_sq := hχ, hχ := hL, χ_ne := χ_ne }
   refine B.F_neg_two.not_gt ?_
   refine ArithmeticFunction.LSeries_positive_of_differentiable_of_eqOn (zetaMul_nonneg hχ)
     (χ.isMultiplicative_zetaMul.map_one ▸ zero_lt_one) B.F_differentiable ?_
-    (fun _ ↦ B.F_eq_LSeries) _
-  exact LSeries.abscissaOfAbsConv_le_of_forall_lt_LSeriesSummable
-    fun _ a ↦ χ.LSeriesSummable_zetaMul a
+    (fun _ ↦ B.F_eq_LSeries)
+    _
+  exact LSeries.abscissaOfAbsConv_le_of_forall_lt_LSeriesSummable fun _ a ↦
+    χ.LSeriesSummable_zetaMul a
 
 end quadratic
 
@@ -382,24 +391,28 @@ private lemma LFunction_ne_zero_of_not_quadratic_or_ne_one {t : ℝ} (h : χ ^ 2
   exact isLittleO_irrefl (.of_forall (fun _ ↦ one_ne_zero)) <|
     H.of_norm_right.trans_isLittleO <| isLittleO_id_one.mono nhdsWithin_le_nhds
 
-/-- If `χ` is a Dirichlet character, then `L(χ, s)` does not vanish when `s.re = 1`
-except when `χ` is trivial and `s = 1` (then `L(χ, s)` has a simple pole at `s = 1`). -/
-theorem LFunction_ne_zero_of_re_eq_one {s : ℂ} (hs : s.re = 1) (hχs : χ ≠ 1 ∨ s ≠ 1) :
-    LFunction χ s ≠ 0 := by
+/--
+If `χ` is a Dirichlet character, then `L(χ, s)` does not vanish when `s.re = 1`
+except when `χ` is trivial and `s = 1` (then `L(χ, s)` has a simple pole at `s = 1`).
+-/
+theorem LFunction_ne_zero_of_re_eq_one {s : ℂ} (hs : s.re = 1) (hχs : χ ≠ 1 ∨ s ≠ 1)
+    : LFunction χ s ≠ 0 := by
   by_cases h : χ ^ 2 = 1 ∧ s = 1
   · exact h.2 ▸ LFunction_apply_one_ne_zero_of_quadratic h.1 <| hχs.neg_resolve_right h.2
-  · have hs' : s = 1 + I * s.im := by
-      conv_lhs => rw [← re_add_im s, hs, ofReal_one, mul_comm]
+  · have hs' : s = 1 + I * s.im := by conv_lhs => rw [← re_add_im s, hs, ofReal_one, mul_comm]
     rw [not_and_or, ← ne_eq, ← ne_eq, hs', add_ne_left] at h
     replace h : χ ^ 2 ≠ 1 ∨ s.im ≠ 0 :=
       h.imp_right (fun H ↦ by exact_mod_cast right_ne_zero_of_mul H)
     exact hs'.symm ▸ χ.LFunction_ne_zero_of_not_quadratic_or_ne_one h
 
-/-- If `χ` is a Dirichlet character, then `L(χ, s)` does not vanish for `s.re ≥ 1`
-except when `χ` is trivial and `s = 1` (then `L(χ, s)` has a simple pole at `s = 1`). -/
-theorem LFunction_ne_zero_of_one_le_re ⦃s : ℂ⦄ (hχs : χ ≠ 1 ∨ s ≠ 1) (hs : 1 ≤ s.re) :
-    LFunction χ s ≠ 0 :=
-  hs.eq_or_lt.casesOn (fun hs ↦ LFunction_ne_zero_of_re_eq_one χ hs.symm hχs)
+/--
+If `χ` is a Dirichlet character, then `L(χ, s)` does not vanish for `s.re ≥ 1`
+except when `χ` is trivial and `s = 1` (then `L(χ, s)` has a simple pole at `s = 1`).
+-/
+theorem LFunction_ne_zero_of_one_le_re ⦃s : ℂ⦄ (hχs : χ ≠ 1 ∨ s ≠ 1) (hs : 1 ≤ s.re)
+    : LFunction χ s ≠ 0 :=
+  hs.eq_or_lt.casesOn
+    (fun hs ↦ LFunction_ne_zero_of_re_eq_one χ hs.symm hχs)
     fun hs ↦ LFunction_eq_LSeries χ hs ▸ LSeries_ne_zero_of_one_lt_re χ hs
 
 -- Interesting special case:

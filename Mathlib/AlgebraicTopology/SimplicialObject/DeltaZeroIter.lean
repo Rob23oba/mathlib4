@@ -26,10 +26,11 @@ namespace CategoryTheory.SimplicialObject
 
 variable {C : Type*} [Category* C] (X : SimplicialObject C)
 
-/-- If `X` is a simplicial object and `n + i = m`, this is the morphism
-`X _⦋m⦌ ⟶ X _⦋n⦌` obtained by iterating `i` times the face map `X.δ 0`. -/
-def δ₀Iter {n m : ℕ} (i : ℕ) (hi : n + i = m := by lia) :
-    X _⦋m⦌ ⟶ X _⦋n⦌ :=
+/--
+If `X` is a simplicial object and `n + i = m`, this is the morphism
+`X _⦋m⦌ ⟶ X _⦋n⦌` obtained by iterating `i` times the face map `X.δ 0`.
+-/
+def δ₀Iter {n m : ℕ} (i : ℕ) (hi : n + i = m := by lia) : X _⦋m⦌ ⟶ X _⦋n⦌ :=
   X.map (SimplexCategory.δ₀Iter i hi).op
 
 @[simp]
@@ -81,10 +82,11 @@ lemma σ_δ₀Iter' (i : ℕ) {n m : ℕ} (j : Fin (m + 1)) (j' : Fin (n + 1))
   simp [σ, δ₀Iter, ← Functor.map_comp, ← op_comp,
     SimplexCategory.δ₀Iter_σ' i j j']
 
-/-- If `X` is a simplicial object and `n + i = m`, this is the morphism
-`X _⦋n⦌ ⟶ X _⦋m⦌` obtained by iterating `i` times the degeneracy map `X.σ 0`. -/
-def σ₀Iter {n m : ℕ} (i : ℕ) (hi : n + i = m := by lia) :
-    X _⦋n⦌ ⟶ X _⦋m⦌ :=
+/--
+If `X` is a simplicial object and `n + i = m`, this is the morphism
+`X _⦋n⦌ ⟶ X _⦋m⦌` obtained by iterating `i` times the degeneracy map `X.σ 0`.
+-/
+def σ₀Iter {n m : ℕ} (i : ℕ) (hi : n + i = m := by lia) : X _⦋n⦌ ⟶ X _⦋m⦌ :=
   X.map (SimplexCategory.σ₀Iter i hi).op
 
 @[simp]

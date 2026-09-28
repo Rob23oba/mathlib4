@@ -25,8 +25,10 @@ public meta section
 namespace Mathlib.Tactic.Contrapose
 open Lean.Parser.Tactic
 
-/-- An option to turn off the feature that `contrapose` negates both sides of `↔` goals.
-This may be useful for teaching. -/
+/--
+An option to turn off the feature that `contrapose` negates both sides of `↔` goals.
+This may be useful for teaching.
+-/
 register_option contrapose.negate_iff : Bool := {
   defValue := true
   descr := "contrapose a goal `a ↔ b` into the goal `¬ a ↔ ¬ b`"
@@ -92,45 +94,57 @@ macro_rules
 open Lean Meta Elab.Tactic
 
 elab_rules : tactic
-| `(tactic| contrapose) => liftMetaTactic fun g => withReducible do
-  let target ← g.getType'
-  match target with
-  | mkApp2 (.const ``Iff _) p q =>
-    if ← contrapose.negate_iff.getM then
-      -- we use reducible `whnf`, so that `a ≠ b` is recognized as a negation
-      match (← whnf p).not?, (← whnf q).not? with
-      | none, none => g.apply (mkApp2 (.const ``contrapose_iff₁ []) p q)
-      | some p, none => g.apply (mkApp2 (.const ``contrapose_iff₂ []) p q)
-      | none, some q => g.apply (mkApp2 (.const ``contrapose_iff₃ []) p q)
-      | some p, some q => g.apply (mkApp2 (.const ``contrapose_iff₄ []) p q)
-    else
-      throwTacticEx `contrapose g "contraposing `↔` relations has been disabled.\n\
-        To enable it, use `set_option contrapose.negate_iff true`."
-  | .forallE _ p q _ =>
-    if q.hasLooseBVars then
-      throwTacticEx `contrapose g m!"the goal `{target}` is a dependent arrow"
-    unless ← Meta.isProp p do
-      throwTacticEx `contrapose g m!"hypothesis `{p}` is not a proposition"
-    unless ← Meta.isProp q do
-      throwTacticEx `contrapose g m!"conclusion `{q}` is not a proposition"
-    match (← whnf p).not?, (← whnf q).not? with
-    | none, none => g.apply (mkApp2 (.const ``contrapose₁ []) p q)
-    | some p, none => g.apply (mkApp2 (.const ``contrapose₂ []) p q)
-    | none, some q => g.apply (mkApp2 (.const ``contrapose₃ []) p q)
-    | some p, some q => g.apply (mkApp2 (.const ``contrapose₄ []) p q)
-  | _ =>
-    throwTacticEx `contrapose g m!"the goal `{target}` is not of the form `_ → _` or `_ ↔ _`"
+  | `(tactic| contrapose) =>
+    liftMetaTactic fun g =>
+      withReducible do
+        let target ← g.getType'
+        match target with
+        | mkApp2 (.const ``Iff _) p q =>
+          if ← contrapose.negate_iff.getM then
+            -- we use reducible `whnf`, so that `a ≠ b` is recognized as a negation
+            match (← whnf p).not?, (← whnf q).not? with
+            | none, none =>
+              g.apply (mkApp2 (.const ``contrapose_iff₁ []) p q)
+            | some p, none =>
+              g.apply (mkApp2 (.const ``contrapose_iff₂ []) p q)
+            | none, some q =>
+              g.apply (mkApp2 (.const ``contrapose_iff₃ []) p q)
+            | some p, some q =>
+              g.apply (mkApp2 (.const ``contrapose_iff₄ []) p q)
+          else
+            throwTacticEx `contrapose g
+              "contraposing `↔` relations has been disabled.\n\
+                To enable it, use `set_option contrapose.negate_iff true`."
+        | .forallE _ p q _ =>
+          if q.hasLooseBVars then
+            throwTacticEx `contrapose g m!"the goal `{target}` is a dependent arrow"
+          unless ← Meta.isProp p do
+            throwTacticEx `contrapose g m!"hypothesis `{p}` is not a proposition"
+          unless ← Meta.isProp q do
+            throwTacticEx `contrapose g m!"conclusion `{q}` is not a proposition"
+          match (← whnf p).not?, (← whnf q).not? with
+          | none, none =>
+            g.apply (mkApp2 (.const ``contrapose₁ []) p q)
+          | some p, none =>
+            g.apply (mkApp2 (.const ``contrapose₂ []) p q)
+          | none, some q =>
+            g.apply (mkApp2 (.const ``contrapose₃ []) p q)
+          | some p, some q =>
+            g.apply (mkApp2 (.const ``contrapose₄ []) p q)
+        | _ =>
+          throwTacticEx `contrapose g m!"the goal `{target}` is not of the form `_ → _` or `_ ↔ _`"
 
 @[tactic_alt contrapose]
-syntax (name := contrapose!)
-  "contrapose!" optConfig (ppSpace colGt ident (" with " ident)?)? : tactic
+syntax (name := contrapose!) "contrapose!" optConfig (ppSpace colGt ident (" with " ident)?)?
+  : tactic
 
 local elab "try_push_neg" cfg:optConfig : tactic => do
   Push.push (← Push.elabPushConfig cfg) none (.const ``Not) (.targets #[] true)
     (ifUnchanged := .silent)
 
 macro_rules
-  | `(tactic| contrapose! $cfg) => `(tactic| (contrapose; try_push_neg $cfg))
+  | `(tactic| contrapose! $cfg) =>
+    `(tactic| (contrapose; try_push_neg $cfg))
   | `(tactic| contrapose! $cfg:optConfig $e) =>
     `(tactic| (revert $e:ident; contrapose! $cfg; intro $e:ident))
   | `(tactic| contrapose! $cfg:optConfig $e with $e') =>

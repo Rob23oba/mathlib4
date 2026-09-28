@@ -39,8 +39,11 @@ variable {R M M' : Type*} [AddCommGroup M] [AddCommGroup M']
 
 section LinearOrder
 
-variable [CommRing R] [LinearOrder R] [Module R M] (Q : QuadraticForm R M)
-  [Module R M'] {Q' : QuadraticForm R M'} {V : Submodule R M}
+variable
+  [CommRing R] [LinearOrder R] [Module R M]
+  (Q : QuadraticForm R M)
+  [Module R M']
+  {Q' : QuadraticForm R M'} {V : Submodule R M}
 
 section Equiv
 variable {Q}
@@ -56,19 +59,26 @@ variable {Q}
 end Equiv
 
 open scoped Classical in
-/-- For quadratic forms on finite-dimensional spaces, the maximal finrank of a positive-definite
-subspace of `M`. (Defined as `0` if `M` is infinite-dimensional). -/
+/--
+For quadratic forms on finite-dimensional spaces, the maximal finrank of a positive-definite
+subspace of `M`. (Defined as `0` if `M` is infinite-dimensional).
+-/
 /-
 Note the proof of nonemptiness needed for `max'` is a little fiddly since we are not assuming
 `Nontrivial R`, and the `⊥` submodule of a module over the zero ring has finrank 1, not 0.
 -/
-def sigPos : ℕ := max' {r ∈ Iic (Module.finrank R M) |
-    ∃ V : Submodule R M, Module.finrank R V = r ∧ (Q.restrict V).PosDef}
-  ⟨Module.finrank R (⊥ : Submodule R M), by
-    simp only [mem_filter, mem_Iic]
-    refine ⟨?_, ⟨⊥, rfl, fun x hx' ↦ (hx' <| Subsingleton.elim x 0).elim⟩⟩
-    nontriviality R
-    simp [finrank_bot]⟩
+def sigPos : ℕ :=
+  max'
+    ({r ∈ Iic (Module.finrank R M) |
+      ∃ V : Submodule R M, Module.finrank R V = r ∧ (Q.restrict V).PosDef})
+    ⟨
+      Module.finrank R (⊥ : Submodule R M),
+      by
+        simp only [mem_filter, mem_Iic]
+        refine ⟨?_, ⟨⊥, rfl, fun x hx' ↦ (hx' <| Subsingleton.elim x 0).elim⟩⟩
+        nontriviality R
+        simp [finrank_bot]
+    ⟩
 
 lemma sigPos_le_finrank : sigPos Q ≤ Module.finrank R M := by
   classical
@@ -93,8 +103,10 @@ lemma le_sigPos_of_posDef [Module.Finite R M] [StrongRankCondition R]
     Module.finrank R V ≤ sigPos Q :=
   (sigPos_isGreatest Q).2 ⟨V, by tauto⟩
 
-/-- For quadratic forms on finite-dimensional spaces, the maximal finrank of a negative-definite
-subspace of `M`. (Defined as `0` if `M` is infinite-dimensional). -/
+/--
+For quadratic forms on finite-dimensional spaces, the maximal finrank of a negative-definite
+subspace of `M`. (Defined as `0` if `M` is infinite-dimensional).
+-/
 def sigNeg : ℕ := sigPos (-Q)
 
 /-- Defining property of `sigNeg`. -/
@@ -138,8 +150,7 @@ end LinearOrder
 section Field
 namespace QuadraticForm
 
-variable {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
-  [Module 𝕜 M] [Module 𝕜 M'] {Q : QuadraticForm 𝕜 M}
+variable {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [Module 𝕜 M] [Module 𝕜 M'] {Q : QuadraticForm 𝕜 M}
 
 /-- Key lemma for Sylvester's law of inertia: the sum of `sigPos Q` and the dimension of any
 negative-semidefinite subspace is bounded above by the dimension of the whole space. -/

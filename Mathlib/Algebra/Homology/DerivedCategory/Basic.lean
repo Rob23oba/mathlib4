@@ -68,15 +68,19 @@ open CategoryTheory Limits Pretriangulated
 
 variable (C : Type u) [Category.{v} C] [Abelian C]
 
-/-- The assumption that a localized category for
+/--
+The assumption that a localized category for
 `(HomologicalComplex.quasiIso C (ComplexShape.up ℤ))` has been chosen, and that the morphisms
-in this chosen category are in `Type w`. -/
-abbrev HasDerivedCategory := MorphismProperty.HasLocalization.{w}
-  (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))
+in this chosen category are in `Type w`.
+-/
+abbrev HasDerivedCategory :=
+  MorphismProperty.HasLocalization.{w} (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))
 
-/-- The derived category obtained using the constructed localized category of cochain complexes
+/--
+The derived category obtained using the constructed localized category of cochain complexes
 with respect to quasi-isomorphisms. This should be used only while proving statements
-which do not involve the derived category. -/
+which do not involve the derived category.
+-/
 @[instance_reducible]
 def HasDerivedCategory.standard : HasDerivedCategory.{max u v} C :=
   MorphismProperty.HasLocalization.standard _
@@ -95,13 +99,11 @@ variable {C}
 def Q : CochainComplex C ℤ ⥤ DerivedCategory C := HomologicalComplexUpToQuasiIso.Q
 
 set_option backward.isDefEq.respectTransparency false in
-instance : (Q (C := C)).IsLocalization
-    (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) := by
+instance : (Q (C := C)).IsLocalization (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) := by
   dsimp only [Q, DerivedCategory]
   infer_instance
 
-instance {K L : CochainComplex C ℤ} (f : K ⟶ L) [QuasiIso f] :
-    IsIso (Q.map f) :=
+instance {K L : CochainComplex C ℤ} (f : K ⟶ L) [QuasiIso f] : IsIso (Q.map f) :=
   Localization.inverts Q (HomologicalComplex.quasiIso C (ComplexShape.up ℤ)) _
     (inferInstanceAs (QuasiIso f))
 
@@ -143,11 +145,9 @@ instance : Preadditive (DerivedCategory C) :=
 instance : (Qh (C := C)).Additive :=
   Localization.functor_additive Qh (HomotopyCategory.subcategoryAcyclic C).trW
 
-instance : (Q (C := C)).Additive :=
-  Functor.additive_of_iso (quotientCompQhIso C)
+instance : (Q (C := C)).Additive := Functor.additive_of_iso (quotientCompQhIso C)
 
-instance : HasZeroObject (DerivedCategory C) :=
-  Q.hasZeroObject_of_additive
+instance : HasZeroObject (DerivedCategory C) := Q.hasZeroObject_of_additive
 
 instance : HasShift (DerivedCategory C) ℤ :=
   HasShift.localized Qh (HomotopyCategory.subcategoryAcyclic C).trW ℤ
@@ -155,39 +155,32 @@ instance : HasShift (DerivedCategory C) ℤ :=
 instance : (Qh (C := C)).CommShift ℤ :=
   Functor.CommShift.localized Qh (HomotopyCategory.subcategoryAcyclic C).trW ℤ
 
-instance : (Q (C := C)).CommShift ℤ :=
-  Functor.CommShift.ofIso (quotientCompQhIso C) ℤ
+instance : (Q (C := C)).CommShift ℤ := Functor.CommShift.ofIso (quotientCompQhIso C) ℤ
 
 instance : NatTrans.CommShift (quotientCompQhIso C).hom ℤ :=
   Functor.CommShift.ofIso_compatibility (quotientCompQhIso C) ℤ
 
 instance (n : ℤ) : (shiftFunctor (DerivedCategory C) n).Additive := by
-  rw [Localization.functor_additive_iff
-    Qh (HomotopyCategory.subcategoryAcyclic C).trW]
+  rw [Localization.functor_additive_iff Qh (HomotopyCategory.subcategoryAcyclic C).trW]
   exact Functor.additive_of_iso (Qh.commShiftIso n)
 
 instance : Pretriangulated (DerivedCategory C) :=
-  Triangulated.Localization.pretriangulated
-    Qh (HomotopyCategory.subcategoryAcyclic C).trW
+  Triangulated.Localization.pretriangulated Qh (HomotopyCategory.subcategoryAcyclic C).trW
 
 instance : (Qh (C := C)).IsTriangulated :=
-  Triangulated.Localization.isTriangulated_functor
-    Qh (HomotopyCategory.subcategoryAcyclic C).trW
+  Triangulated.Localization.isTriangulated_functor Qh (HomotopyCategory.subcategoryAcyclic C).trW
 
 instance : IsTriangulated (DerivedCategory C) :=
-  Triangulated.Localization.isTriangulated
-    Qh (HomotopyCategory.subcategoryAcyclic C).trW
+  Triangulated.Localization.isTriangulated Qh (HomotopyCategory.subcategoryAcyclic C).trW
 
 instance : (Qh (C := C)).mapArrow.EssSurj :=
   Localization.essSurj_mapArrow _ (HomotopyCategory.subcategoryAcyclic C).trW
 
 instance {D : Type*} [Category* D] : ((Functor.whiskeringLeft _ _ D).obj (Qh (C := C))).Full :=
-  inferInstanceAs
-    (Localization.whiskeringLeftFunctor' _ (HomotopyCategory.quasiIso _ _) D).Full
+  inferInstanceAs (Localization.whiskeringLeftFunctor' _ (HomotopyCategory.quasiIso _ _) D).Full
 
 instance {D : Type*} [Category* D] : ((Functor.whiskeringLeft _ _ D).obj (Qh (C := C))).Faithful :=
-  inferInstanceAs
-    (Localization.whiskeringLeftFunctor' _ (HomotopyCategory.quasiIso _ _) D).Faithful
+  inferInstanceAs (Localization.whiskeringLeftFunctor' _ (HomotopyCategory.quasiIso _ _) D).Faithful
 
 instance : (Qh : _ ⥤ DerivedCategory C).EssSurj :=
   Localization.essSurj _ (HomotopyCategory.quasiIso _ _)
@@ -232,14 +225,18 @@ end
 
 variable (C)
 
-/-- The single functors `C ⥤ DerivedCategory C` for all `n : ℤ` along with
-their compatibilities with shifts. -/
+/--
+The single functors `C ⥤ DerivedCategory C` for all `n : ℤ` along with
+their compatibilities with shifts.
+-/
 @[implicit_reducible]
 def singleFunctors : SingleFunctors C (DerivedCategory C) ℤ :=
   (CochainComplex.singleFunctors C).postcomp Q
 
-/-- The single functor `C ⥤ DerivedCategory C` which sends `X : C` to the
-single cochain complex with `X` sitting in degree `n : ℤ`. -/
+/--
+The single functor `C ⥤ DerivedCategory C` which sends `X : C` to the
+single cochain complex with `X` sitting in degree `n : ℤ`.
+-/
 abbrev singleFunctor (n : ℤ) := (singleFunctors C).functor n
 
 set_option backward.defeqAttrib.useBackward true in
@@ -247,37 +244,40 @@ instance (n : ℤ) : (singleFunctor C n).Additive := by
   dsimp [singleFunctor, singleFunctors]
   infer_instance
 
-@[simp] theorem Q_obj_single_obj (n : ℤ) (X : C) :
-    Q.obj ((HomologicalComplex.single C _ n).obj X) = (singleFunctor C n).obj X :=
+@[simp]
+theorem Q_obj_single_obj (n : ℤ) (X : C)
+    : Q.obj ((HomologicalComplex.single C _ n).obj X) = (singleFunctor C n).obj X :=
   rfl
 
 @[simp]
 lemma Q_map_single_map (n : ℤ) {X Y : C} (f : X ⟶ Y) :
     Q.map ((HomologicalComplex.single C _ n).map f) = (singleFunctor C n).map f := rfl
 
-/-- The isomorphism
+/--
+The isomorphism
 `DerivedCategory.singleFunctors C ≅ (HomotopyCategory.singleFunctors C).postcomp Qh` given
-by the definition of `DerivedCategory.singleFunctors`. -/
-def singleFunctorsPostcompQhIso :
-    singleFunctors C ≅ (HomotopyCategory.singleFunctors C).postcomp Qh :=
-  SingleFunctors.postcompIsoOfIso _ (quotientCompQhIso C).symm ≪≫
-    (SingleFunctors.postcompPostcompIso _ _ _).symm
+by the definition of `DerivedCategory.singleFunctors`.
+-/
+def singleFunctorsPostcompQhIso
+    : singleFunctors C ≅ (HomotopyCategory.singleFunctors C).postcomp Qh :=
+  SingleFunctors.postcompIsoOfIso _ (quotientCompQhIso C).symm
+    ≪≫ (SingleFunctors.postcompPostcompIso _ _ _).symm
 
-/-- The isomorphism
-`DerivedCategory.singleFunctors C ≅ (CochainComplex.singleFunctors C).postcomp Q`. -/
+/--
+The isomorphism
+`DerivedCategory.singleFunctors C ≅ (CochainComplex.singleFunctors C).postcomp Q`.
+-/
 @[simps! hom_hom inv_hom]
-def singleFunctorsPostcompQIso :
-    singleFunctors C ≅ (CochainComplex.singleFunctors C).postcomp Q :=
+def singleFunctorsPostcompQIso : singleFunctors C ≅ (CochainComplex.singleFunctors C).postcomp Q :=
   Iso.refl _
 
 /-- The isomorphism `singleFunctor C n ≅ CochainComplex.singleFunctor C n ⋙ Q`. -/
 @[simps! -isSimp]
-def singleFunctorIsoCompQ (n : ℤ) :
-    singleFunctor C n ≅ CochainComplex.singleFunctor C n ⋙ Q := Iso.refl _
+def singleFunctorIsoCompQ (n : ℤ) : singleFunctor C n ≅ CochainComplex.singleFunctor C n ⋙ Q :=
+  Iso.refl _
 
 /-- The isomorphism `singleFunctor C n ≅ HomotopyCategory.singleFunctor C n ⋙ Qh`. -/
-def singleFunctorIsoCompQh (n : ℤ) :
-    singleFunctor C n ≅ HomotopyCategory.singleFunctor C n ⋙ Qh :=
+def singleFunctorIsoCompQh (n : ℤ) : singleFunctor C n ≅ HomotopyCategory.singleFunctor C n ⋙ Qh :=
   (SingleFunctors.evaluation _ _ n).mapIso (singleFunctorsPostcompQhIso C)
 
 lemma isIso_Q_map_iff_quasiIso {K L : CochainComplex C ℤ} (φ : K ⟶ L) :

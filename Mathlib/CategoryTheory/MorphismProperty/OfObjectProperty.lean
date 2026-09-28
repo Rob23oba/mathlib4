@@ -24,8 +24,10 @@ namespace CategoryTheory.MorphismProperty
 
 variable {C : Type*} [Category* C]
 
-/-- Given two object properties `P` and `Q`, the property of morphisms whose source
-satisfies `P` and target satisfies `Q`. -/
+/--
+Given two object properties `P` and `Q`, the property of morphisms whose source
+satisfies `P` and target satisfies `Q`.
+-/
 def ofObjectProperty (P Q : ObjectProperty C) : MorphismProperty C := fun X Y _ => P X ∧ Q Y
 
 variable (P Q : ObjectProperty C)

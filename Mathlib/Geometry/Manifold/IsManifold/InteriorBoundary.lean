@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Geometry.Manifold.LocalDiffeomorph
 public import Mathlib.Geometry.Manifold.Notation
-
 import Mathlib.Analysis.Calculus.LocalExtr.Basic
 import Mathlib.Analysis.LocallyConvex.Separation
 
@@ -82,21 +81,26 @@ open Set Function
 open scoped Topology Manifold
 
 -- Let `M` be a manifold with corners over the pair `(E, H)`.
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
-  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners 𝕜 E H}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners 𝕜 E H} {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
 namespace ModelWithCorners
 
 variable (I) in
-/-- `p ∈ M` is an interior point of a manifold `M` if and only if its image in the extended chart
-lies in the interior of the model space. -/
+/--
+`p ∈ M` is an interior point of a manifold `M` if and only if its image in the extended chart
+lies in the interior of the model space.
+-/
 def IsInteriorPoint (x : M) := extChartAt I x x ∈ interior (range I)
 
 variable (I) in
-/-- `p ∈ M` is a boundary point of a manifold `M` if and only if its image in the extended chart
-lies on the boundary of the model space. -/
+/--
+`p ∈ M` is a boundary point of a manifold `M` if and only if its image in the extended chart
+lies on the boundary of the model space.
+-/
 def IsBoundaryPoint (x : M) := extChartAt I x x ∈ frontier (range I)
 
 variable (M) in
@@ -161,12 +165,17 @@ lemma _root_.range_mem_nhds_isInteriorPoint {x : M} (h : I.IsInteriorPoint x) :
   rw [mem_nhds_iff]
   exact ⟨interior (range I), interior_subset, isOpen_interior, h⟩
 
-/-- Type class for manifold without boundary. This differs from `ModelWithCorners.Boundaryless`,
-which states that the `ModelWithCorners` maps to the whole model vector space. -/
-class _root_.BoundarylessManifold {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+/--
+Type class for manifold without boundary. This differs from `ModelWithCorners.Boundaryless`,
+which states that the `ModelWithCorners` maps to the whole model vector space.
+-/
+class _root_.BoundarylessManifold
+    {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
-    {H : Type*} [TopologicalSpace H] (I : ModelWithCorners 𝕜 E H)
-    (M : Type*) [TopologicalSpace M] [ChartedSpace H M] : Prop where
+    {H : Type*} [TopologicalSpace H]
+    (I : ModelWithCorners 𝕜 E H)
+    (M : Type*) [TopologicalSpace M] [ChartedSpace H M]
+    : Prop where
   isInteriorPoint' : ∀ x : M, IsInteriorPoint I x
 
 section Boundaryless
@@ -343,8 +352,8 @@ open ModelWithCorners
 
 variable
   {E' : Type*} [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
-  {H' : Type*} [TopologicalSpace H'] {I' : ModelWithCorners 𝕜 E' H'}
-  {N : Type*} [TopologicalSpace N] [ChartedSpace H' N]
+  {H' : Type*} [TopologicalSpace H']
+  {I' : ModelWithCorners 𝕜 E' H'} {N : Type*} [TopologicalSpace N] [ChartedSpace H' N]
   {n : WithTop ℕ∞}
 
 /-- If a function `f` is differentiable at `x` with surjective `mfderiv I I' f x` and `x` is an
@@ -393,7 +402,6 @@ lemma IsLocalDiffeomorphAt.isInteriorPoint_iff (hn : n ≠ 0) {f : M → N} {x :
 lemma IsLocalDiffeomorphAt.isBoundaryPoint_iff (hn : n ≠ 0) {f : M → N} {x : M}
     (hf : IsLocalDiffeomorphAt I I' n f x) : I.IsBoundaryPoint x ↔ I'.IsBoundaryPoint (f x) := by
   simp [isBoundaryPoint_iff_not_isInteriorPoint, hf.isInteriorPoint_iff hn]
-
 
 lemma IsLocalDiffeomorphOn.preimage_interior_inter (hn : n ≠ 0) {f : M → N} {s : Set M}
     (hf : IsLocalDiffeomorphOn I I' n f s) : f ⁻¹' I'.interior N ∩ s = I.interior M ∩ s := by
@@ -473,8 +481,8 @@ lemma boundary_open {u : Opens M} : I.boundary u = (↑) ⁻¹' I.boundary M := 
   simp [← I.compl_interior, I.interior_open]
 
 /-- Open subsets of boundaryless manifolds are boundaryless. -/
-instance BoundarylessManifold.open [BoundarylessManifold I M] (u : Opens M) :
-    BoundarylessManifold I u :=
+instance BoundarylessManifold.open [BoundarylessManifold I M] (u : Opens M)
+    : BoundarylessManifold I u :=
   ⟨fun _ ↦ I.isInteriorPoint_iff_isInteriorPoint_val.2 BoundarylessManifold.isInteriorPoint⟩
 
 end opens
@@ -529,8 +537,8 @@ lemma boundary_of_boundaryless_right [BoundarylessManifold J N] :
   rw [this, empty_union]
 
 /-- The product of two boundaryless manifolds is boundaryless. -/
-instance BoundarylessManifold.prod [BoundarylessManifold I M] [BoundarylessManifold J N] :
-    BoundarylessManifold (I.prod J) (M × N) := by
+instance BoundarylessManifold.prod [BoundarylessManifold I M] [BoundarylessManifold J N]
+    : BoundarylessManifold (I.prod J) (M × N) := by
   apply Boundaryless.of_boundary_eq_empty
   simp only [boundary_prod, Boundaryless.boundary_eq_empty, union_empty_iff]
   -- These are simp lemmas, but `simp` does not apply them on its own:
@@ -598,8 +606,8 @@ lemma boundary_disjointUnion : ModelWithCorners.boundary (I := I) (M ⊕ M') =
 
 /-- If `M` and `M'` are boundaryless, so is their disjoint union `M ⊔ M'`. -/
 instance boundaryless_disjointUnion
-    [hM : BoundarylessManifold I M] [hM' : BoundarylessManifold I M'] :
-    BoundarylessManifold I (M ⊕ M') := by
+    [hM : BoundarylessManifold I M] [hM' : BoundarylessManifold I M']
+    : BoundarylessManifold I (M ⊕ M') := by
   rw [← Boundaryless.iff_boundary_eq_empty] at hM hM' ⊢
   simp [boundary_disjointUnion, hM, hM']
 

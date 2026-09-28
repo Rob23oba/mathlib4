@@ -38,20 +38,16 @@ section Inv
 variable {ι : Sort*} [Inv α]
 
 @[to_additive (attr := simp)]
-theorem iInter_inv (s : ι → Set α) : (⋂ i, s i)⁻¹ = ⋂ i, (s i)⁻¹ :=
-  preimage_iInter
+theorem iInter_inv (s : ι → Set α) : (⋂ i, s i)⁻¹ = ⋂ i, (s i)⁻¹ := preimage_iInter
 
 @[to_additive (attr := simp)]
-theorem sInter_inv (S : Set (Set α)) : (⋂₀ S)⁻¹ = ⋂ s ∈ S, s⁻¹ :=
-  preimage_sInter
+theorem sInter_inv (S : Set (Set α)) : (⋂₀S)⁻¹ = ⋂ s ∈ S, s⁻¹ := preimage_sInter
 
 @[to_additive (attr := simp)]
-theorem iUnion_inv (s : ι → Set α) : (⋃ i, s i)⁻¹ = ⋃ i, (s i)⁻¹ :=
-  preimage_iUnion
+theorem iUnion_inv (s : ι → Set α) : (⋃ i, s i)⁻¹ = ⋃ i, (s i)⁻¹ := preimage_iUnion
 
 @[to_additive (attr := simp)]
-theorem sUnion_inv (S : Set (Set α)) : (⋃₀ S)⁻¹ = ⋃ s ∈ S, s⁻¹ :=
-  preimage_sUnion
+theorem sUnion_inv (S : Set (Set α)) : (⋃₀S)⁻¹ = ⋃ s ∈ S, s⁻¹ := preimage_sUnion
 
 end Inv
 
@@ -60,13 +56,10 @@ section Mul
 
 variable {ι : Sort*} {κ : ι → Sort*} [Mul α] {s t : Set α} {a b : α}
 
-@[to_additive]
-theorem iUnion_mul_left_image : ⋃ a ∈ s, (a * ·) '' t = s * t :=
-  iUnion_image_left _
+@[to_additive] theorem iUnion_mul_left_image : ⋃ a ∈ s, (a * ·) '' t = s * t := iUnion_image_left _
 
 @[to_additive]
-theorem iUnion_mul_right_image : ⋃ a ∈ t, (· * a) '' s = s * t :=
-  iUnion_image_right _
+theorem iUnion_mul_right_image : ⋃ a ∈ t, (· * a) '' s = s * t := iUnion_image_right _
 
 @[to_additive]
 theorem iUnion_mul (s : ι → Set α) (t : Set α) : (⋃ i, s i) * t = ⋃ i, s i * t :=
@@ -77,21 +70,20 @@ theorem mul_iUnion (s : Set α) (t : ι → Set α) : (s * ⋃ i, t i) = ⋃ i, 
   image2_iUnion_right ..
 
 @[to_additive]
-theorem sUnion_mul (S : Set (Set α)) (t : Set α) : ⋃₀ S * t = ⋃ s ∈ S, s * t :=
-  image2_sUnion_left ..
+theorem sUnion_mul (S : Set (Set α)) (t : Set α) : ⋃₀S * t = ⋃ s ∈ S, s * t := image2_sUnion_left ..
 
 @[to_additive]
-theorem mul_sUnion (s : Set α) (T : Set (Set α)) : s * ⋃₀ T = ⋃ t ∈ T, s * t :=
+theorem mul_sUnion (s : Set α) (T : Set (Set α)) : s * ⋃₀T = ⋃ t ∈ T, s * t :=
   image2_sUnion_right ..
 
 @[to_additive]
-theorem iUnion₂_mul (s : ∀ i, κ i → Set α) (t : Set α) :
-    (⋃ (i) (j), s i j) * t = ⋃ (i) (j), s i j * t :=
+theorem iUnion₂_mul (s : ∀ i, κ i → Set α) (t : Set α)
+    : (⋃ (i) (j), s i j) * t = ⋃ (i) (j), s i j * t :=
   image2_iUnion₂_left ..
 
 @[to_additive]
-theorem mul_iUnion₂ (s : Set α) (t : ∀ i, κ i → Set α) :
-    (s * ⋃ (i) (j), t i j) = ⋃ (i) (j), s * t i j :=
+theorem mul_iUnion₂ (s : Set α) (t : ∀ i, κ i → Set α)
+    : (s * ⋃ (i) (j), t i j) = ⋃ (i) (j), s * t i j :=
   image2_iUnion₂_right ..
 
 @[to_additive]
@@ -111,31 +103,27 @@ lemma sInter_mul_subset (S : Set (Set α)) (t : Set α) :
     ⋂₀ S * t ⊆ ⋂ s ∈ S, s * t := image2_sInter_left_subset S t (fun a b => a * b)
 
 @[to_additive]
-theorem iInter₂_mul_subset (s : ∀ i, κ i → Set α) (t : Set α) :
-    (⋂ (i) (j), s i j) * t ⊆ ⋂ (i) (j), s i j * t :=
+theorem iInter₂_mul_subset (s : ∀ i, κ i → Set α) (t : Set α)
+    : (⋂ (i) (j), s i j) * t ⊆ ⋂ (i) (j), s i j * t :=
   image2_iInter₂_subset_left ..
 
 @[to_additive]
-theorem mul_iInter₂_subset (s : Set α) (t : ∀ i, κ i → Set α) :
-    (s * ⋂ (i) (j), t i j) ⊆ ⋂ (i) (j), s * t i j :=
+theorem mul_iInter₂_subset (s : Set α) (t : ∀ i, κ i → Set α)
+    : (s * ⋂ (i) (j), t i j) ⊆ ⋂ (i) (j), s * t i j :=
   image2_iInter₂_subset_right ..
 
 end Mul
 
 /-! ### Set subtraction/division -/
 
-
 section Div
 
 variable {ι : Sort*} {κ : ι → Sort*} [Div α] {s t : Set α} {a : α}
 
-@[to_additive]
-theorem iUnion_div_left_image : ⋃ a ∈ s, (a / ·) '' t = s / t :=
-  iUnion_image_left _
+@[to_additive] theorem iUnion_div_left_image : ⋃ a ∈ s, (a / ·) '' t = s / t := iUnion_image_left _
 
 @[to_additive]
-theorem iUnion_div_right_image : ⋃ a ∈ t, (· / a) '' s = s / t :=
-  iUnion_image_right _
+theorem iUnion_div_right_image : ⋃ a ∈ t, (· / a) '' s = s / t := iUnion_image_right _
 
 @[to_additive]
 theorem iUnion_div (s : ι → Set α) (t : Set α) : (⋃ i, s i) / t = ⋃ i, s i / t :=
@@ -146,21 +134,20 @@ theorem div_iUnion (s : Set α) (t : ι → Set α) : (s / ⋃ i, t i) = ⋃ i, 
   image2_iUnion_right ..
 
 @[to_additive]
-theorem sUnion_div (S : Set (Set α)) (t : Set α) : ⋃₀ S / t = ⋃ s ∈ S, s / t :=
-  image2_sUnion_left ..
+theorem sUnion_div (S : Set (Set α)) (t : Set α) : ⋃₀S / t = ⋃ s ∈ S, s / t := image2_sUnion_left ..
 
 @[to_additive]
-theorem div_sUnion (s : Set α) (T : Set (Set α)) : s / ⋃₀ T = ⋃ t ∈ T, s / t :=
+theorem div_sUnion (s : Set α) (T : Set (Set α)) : s / ⋃₀T = ⋃ t ∈ T, s / t :=
   image2_sUnion_right ..
 
 @[to_additive]
-theorem iUnion₂_div (s : ∀ i, κ i → Set α) (t : Set α) :
-    (⋃ (i) (j), s i j) / t = ⋃ (i) (j), s i j / t :=
+theorem iUnion₂_div (s : ∀ i, κ i → Set α) (t : Set α)
+    : (⋃ (i) (j), s i j) / t = ⋃ (i) (j), s i j / t :=
   image2_iUnion₂_left ..
 
 @[to_additive]
-theorem div_iUnion₂ (s : Set α) (t : ∀ i, κ i → Set α) :
-    (s / ⋃ (i) (j), t i j) = ⋃ (i) (j), s / t i j :=
+theorem div_iUnion₂ (s : Set α) (t : ∀ i, κ i → Set α)
+    : (s / ⋃ (i) (j), t i j) = ⋃ (i) (j), s / t i j :=
   image2_iUnion₂_right ..
 
 @[to_additive]
@@ -172,21 +159,21 @@ theorem div_iInter_subset (s : Set α) (t : ι → Set α) : (s / ⋂ i, t i) �
   image2_iInter_subset_right ..
 
 @[to_additive]
-theorem sInter_div_subset (S : Set (Set α)) (t : Set α) : ⋂₀ S / t ⊆ ⋂ s ∈ S, s / t :=
+theorem sInter_div_subset (S : Set (Set α)) (t : Set α) : ⋂₀S / t ⊆ ⋂ s ∈ S, s / t :=
   image2_sInter_subset_left ..
 
 @[to_additive]
-theorem div_sInter_subset (s : Set α) (T : Set (Set α)) : s / ⋂₀ T ⊆ ⋂ t ∈ T, s / t :=
+theorem div_sInter_subset (s : Set α) (T : Set (Set α)) : s / ⋂₀T ⊆ ⋂ t ∈ T, s / t :=
   image2_sInter_subset_right ..
 
 @[to_additive]
-theorem iInter₂_div_subset (s : ∀ i, κ i → Set α) (t : Set α) :
-    (⋂ (i) (j), s i j) / t ⊆ ⋂ (i) (j), s i j / t :=
+theorem iInter₂_div_subset (s : ∀ i, κ i → Set α) (t : Set α)
+    : (⋂ (i) (j), s i j) / t ⊆ ⋂ (i) (j), s i j / t :=
   image2_iInter₂_subset_left ..
 
 @[to_additive]
-theorem div_iInter₂_subset (s : Set α) (t : ∀ i, κ i → Set α) :
-    (s / ⋂ (i) (j), t i j) ⊆ ⋂ (i) (j), s / t i j :=
+theorem div_iInter₂_subset (s : Set α) (t : ∀ i, κ i → Set α)
+    : (s / ⋂ (i) (j), t i j) ⊆ ⋂ (i) (j), s / t i j :=
   image2_iInter₂_subset_right ..
 
 end Div

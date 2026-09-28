@@ -34,8 +34,10 @@ lemma end_cons {a b c : V} (p : Path a b) (e : b ⟶ c) : (p.cons e).end = c := 
 
 /-- The list of vertices in a path, including the start and end vertices. -/
 def vertices {a : V} : ∀ {b : V}, Path a b → List V
-  | _, nil => [a]
-  | _, cons p e => (p.vertices).concat (p.cons e).end
+  | _, nil =>
+    [a]
+  | _, cons p e =>
+    (p.vertices).concat (p.cons e).end
 
 @[simp]
 lemma vertices_nil (a : V) : (nil : Path a a).vertices = [a] := rfl
@@ -174,11 +176,12 @@ variable {a b : V} (p : Path a b)
 
 open List
 
-/-- Given a path `p : Path a b` and an index `n ≤ p.length`,
-    we can split `p = p₁.comp p₂` with `p₁.length = n`. -/
-theorem exists_eq_comp_of_le_length {n : ℕ} (hn : n ≤ p.length) :
-    ∃ (v : V) (p₁ : Path a v) (p₂ : Path v b),
-      p = p₁.comp p₂ ∧ p₁.length = n := by
+/--
+Given a path `p : Path a b` and an index `n ≤ p.length`,
+we can split `p = p₁.comp p₂` with `p₁.length = n`.
+-/
+theorem exists_eq_comp_of_le_length {n : ℕ} (hn : n ≤ p.length)
+    : ∃ (v : V) (p₁ : Path a v) (p₂ : Path v b), p = p₁.comp p₂ ∧ p₁.length = n := by
   induction p generalizing n with
   | nil =>
     obtain ⟨rfl⟩ : n = 0 := by simpa using hn
@@ -190,10 +193,12 @@ theorem exists_eq_comp_of_le_length {n : ℕ} (hn : n ≤ p.length) :
       exact ⟨d, p₁, p₂.cons e, by simp [hp], hl⟩
     · exact ⟨c, p'.cons e, Path.nil, by simp, by simp⟩
 
-/-- `split_at_vertex` decomposes a path `p` at the vertex sitting in
-    position `i` of its `vertices` -/
-theorem exists_eq_comp_and_length_eq_of_lt_length (n : ℕ) (hn : n < p.vertices.length) :
-    ∃ (v : V) (p₁ : Path a v) (p₂ : Path v b),
+/--
+`split_at_vertex` decomposes a path `p` at the vertex sitting in
+position `i` of its `vertices`
+-/
+theorem exists_eq_comp_and_length_eq_of_lt_length (n : ℕ) (hn : n < p.vertices.length)
+    : ∃ (v : V) (p₁ : Path a v) (p₂ : Path v b),
       p = p₁.comp p₂ ∧ p₁.length = n ∧ v = p.vertices[n] := by
   have hn_le_len : n ≤ p.length := by
     rw [vertices_length] at hn
@@ -201,36 +206,43 @@ theorem exists_eq_comp_and_length_eq_of_lt_length (n : ℕ) (hn : n < p.vertices
   obtain ⟨v, p₁, p₂, rfl, rfl⟩ := p.exists_eq_comp_of_le_length hn_le_len
   exact ⟨v, p₁, p₂, rfl, rfl, by simp⟩
 
-/-- If a vertex `v` occurs in the list of vertices of a path `p : Path a b`, then `p` can be
-decomposed as a concatenation of a subpath from `a` to `v` and a subpath from `v` to `b`. -/
-theorem exists_eq_comp_of_mem_vertices {v : V} (hv : v ∈ p.vertices) :
-    ∃ (p₁ : Path a v) (p₂ : Path v b), p = p₁.comp p₂ := by
+/--
+If a vertex `v` occurs in the list of vertices of a path `p : Path a b`, then `p` can be
+decomposed as a concatenation of a subpath from `a` to `v` and a subpath from `v` to `b`.
+-/
+theorem exists_eq_comp_of_mem_vertices {v : V} (hv : v ∈ p.vertices)
+    : ∃ (p₁ : Path a v) (p₂ : Path v b), p = p₁.comp p₂ := by
   obtain ⟨n, hn, rfl⟩ : ∃ n, ∃ hn : n < p.vertices.length, v = p.vertices[n] :=
     exists_mem_iff_getElem.mp ⟨v, hv, rfl⟩
   obtain ⟨v, p₁, p₂, hp, hv, rfl⟩ := p.exists_eq_comp_and_length_eq_of_lt_length n hn
   exact ⟨p₁, p₂, hp⟩
 
 /-- Split a path at the *last* occurrence of a vertex. -/
-theorem exists_eq_comp_and_notMem_tail_of_mem_vertices {v : V} (hv : v ∈ p.vertices) :
-    ∃ (p₁ : Path a v) (p₂ : Path v b),
-      p = p₁.comp p₂ ∧ v ∉ p₂.vertices.tail := by
+theorem exists_eq_comp_and_notMem_tail_of_mem_vertices {v : V} (hv : v ∈ p.vertices)
+    : ∃ (p₁ : Path a v) (p₂ : Path v b), p = p₁.comp p₂ ∧ v ∉ p₂.vertices.tail := by
   induction p with
   | nil =>
-    have hxa : v = a := by
-      simpa [vertices_nil, List.mem_singleton] using hv
+    have hxa : v = a := by simpa [vertices_nil, List.mem_singleton] using hv
     subst hxa
-    exact ⟨Path.nil, Path.nil, by simp only [comp_nil],
-      by simp only [vertices_nil, tail_cons, not_mem_nil, not_false_eq_true]⟩
+    exact ⟨
+      Path.nil,
+      Path.nil,
+      by simp only [comp_nil],
+      by simp only [vertices_nil, tail_cons, not_mem_nil, not_false_eq_true]
+    ⟩
   | cons pPrev e ih =>
     have hv' : v ∈ pPrev.vertices ∨ v = (pPrev.cons e).end := by
       simpa using (mem_vertices_cons pPrev e).1 hv
-    have h_case₁ : v = (pPrev.cons e).end → ∃ (p₁ : Path a v) (p₂ : Path v (pPrev.cons e).end),
-        pPrev.cons e = p₁.comp p₂ ∧ v ∉ p₂.vertices.tail := by
+    have h_case₁
+        : v = (pPrev.cons e).end
+          → ∃ (p₁ : Path a v) (p₂ : Path v (pPrev.cons e).end),
+            pPrev.cons e = p₁.comp p₂ ∧ v ∉ p₂.vertices.tail := by
       rintro rfl
       exact ⟨pPrev.cons e, Path.nil, by simp [comp_nil], by simp [vertices_nil]⟩
-    have h_case₂ : v ∈ pPrev.vertices → v ≠ (pPrev.cons e).end →
-        ∃ (p₁ : Path a v) (p₂ : Path v (pPrev.cons e).end),
-          pPrev.cons e = p₁.comp p₂ ∧ v ∉ p₂.vertices.tail := by
+    have h_case₂
+        : v ∈ pPrev.vertices → v ≠ (pPrev.cons e).end
+          → ∃ (p₁ : Path a v) (p₂ : Path v (pPrev.cons e).end),
+            pPrev.cons e = p₁.comp p₂ ∧ v ∉ p₂.vertices.tail := by
       intro hxPrev hxe_ne
       obtain ⟨q₁, q₂, h_prev, h_not_tail⟩ := ih hxPrev
       let q₂' : Path v (pPrev.cons e).end := q₂.cons e
@@ -241,7 +253,8 @@ theorem exists_eq_comp_and_notMem_tail_of_mem_vertices {v : V} (hv : v ∈ p.ver
       by_cases h_eq_end : v = (pPrev.cons e).end
       · exact h_case₁ h_eq_end
       · exact h_case₂ h_in_prefix h_eq_end
-    | inr h_eq_end => exact h_case₁ h_eq_end
+    | inr h_eq_end =>
+      exact h_case₁ h_eq_end
 
 end
 

@@ -48,32 +48,44 @@ abbrev δ {n : ℕ} (i : Fin (n + 2)) : FreeSimplexQuiver.mk n ⟶ .mk (n + 1) :
 abbrev σ {n : ℕ} (i : Fin (n + 1)) : FreeSimplexQuiver.mk (n + 1) ⟶ .mk n :=
   FreeSimplexQuiver.Hom.σ i
 
-/-- `FreeSimplexQuiver.homRel` is the relation on morphisms freely generated on the
-five simplicial identities. -/
+/--
+`FreeSimplexQuiver.homRel` is the relation on morphisms freely generated on the
+five simplicial identities.
+-/
 inductive homRel : HomRel (Paths FreeSimplexQuiver)
-  | δ_comp_δ {n : ℕ} {i j : Fin (n + 2)} (H : i ≤ j) : homRel
-    ((Paths.of FreeSimplexQuiver).map (δ i) ≫ (Paths.of FreeSimplexQuiver).map (δ j.succ))
-    ((Paths.of FreeSimplexQuiver).map (δ j) ≫ (Paths.of FreeSimplexQuiver).map (δ i.castSucc))
-  | δ_comp_σ_of_le {n : ℕ} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : i ≤ j.castSucc) : homRel
-    ((Paths.of FreeSimplexQuiver).map (δ i.castSucc) ≫ (Paths.of FreeSimplexQuiver).map (σ j.succ))
-    ((Paths.of FreeSimplexQuiver).map (σ j) ≫ (Paths.of FreeSimplexQuiver).map (δ i))
-  | δ_comp_σ_self {n : ℕ} {i : Fin (n + 1)} : homRel
-    ((Paths.of FreeSimplexQuiver).map (δ i.castSucc) ≫ (Paths.of FreeSimplexQuiver).map (σ i)) (𝟙 _)
-  | δ_comp_σ_succ {n : ℕ} {i : Fin (n + 1)} : homRel
-    ((Paths.of FreeSimplexQuiver).map (δ i.succ) ≫ (Paths.of FreeSimplexQuiver).map (σ i)) (𝟙 _)
-  | δ_comp_σ_of_gt {n : ℕ} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : j.castSucc < i) : homRel
-    ((Paths.of FreeSimplexQuiver).map (δ i.succ) ≫ (Paths.of FreeSimplexQuiver).map (σ j.castSucc))
-    ((Paths.of FreeSimplexQuiver).map (σ j) ≫ (Paths.of FreeSimplexQuiver).map (δ i))
-  | σ_comp_σ {n : ℕ} {i j : Fin (n + 1)} (H : i ≤ j) : homRel
-    ((Paths.of FreeSimplexQuiver).map (σ i.castSucc) ≫ (Paths.of FreeSimplexQuiver).map (σ j))
-    ((Paths.of FreeSimplexQuiver).map (σ j.succ) ≫ (Paths.of FreeSimplexQuiver).map (σ i))
+  | δ_comp_δ {n : ℕ} {i j : Fin (n + 2)} (H : i ≤ j)
+    : homRel ((Paths.of FreeSimplexQuiver).map (δ i) ≫ (Paths.of FreeSimplexQuiver).map (δ j.succ))
+      ((Paths.of FreeSimplexQuiver).map (δ j) ≫ (Paths.of FreeSimplexQuiver).map (δ i.castSucc))
+  | δ_comp_σ_of_le {n : ℕ} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : i ≤ j.castSucc)
+    : homRel
+      ((Paths.of FreeSimplexQuiver).map (δ i.castSucc)
+        ≫ (Paths.of FreeSimplexQuiver).map (σ j.succ))
+      ((Paths.of FreeSimplexQuiver).map (σ j) ≫ (Paths.of FreeSimplexQuiver).map (δ i))
+  | δ_comp_σ_self {n : ℕ} {i : Fin (n + 1)}
+    : homRel
+      ((Paths.of FreeSimplexQuiver).map (δ i.castSucc) ≫ (Paths.of FreeSimplexQuiver).map (σ i))
+      (𝟙 _)
+  | δ_comp_σ_succ {n : ℕ} {i : Fin (n + 1)}
+    : homRel ((Paths.of FreeSimplexQuiver).map (δ i.succ) ≫ (Paths.of FreeSimplexQuiver).map (σ i))
+      (𝟙 _)
+  | δ_comp_σ_of_gt {n : ℕ} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : j.castSucc < i)
+    : homRel
+      ((Paths.of FreeSimplexQuiver).map (δ i.succ)
+        ≫ (Paths.of FreeSimplexQuiver).map (σ j.castSucc))
+      ((Paths.of FreeSimplexQuiver).map (σ j) ≫ (Paths.of FreeSimplexQuiver).map (δ i))
+  | σ_comp_σ {n : ℕ} {i j : Fin (n + 1)} (H : i ≤ j)
+    : homRel
+      ((Paths.of FreeSimplexQuiver).map (σ i.castSucc) ≫ (Paths.of FreeSimplexQuiver).map (σ j))
+      ((Paths.of FreeSimplexQuiver).map (σ j.succ) ≫ (Paths.of FreeSimplexQuiver).map (σ i))
 
 end FreeSimplexQuiver
 
-/-- SimplexCategory is the category presented by generators and relation by the simplicial
-identities. -/
+/--
+SimplexCategory is the category presented by generators and relation by the simplicial
+identities.
+-/
 def SimplexCategoryGenRel := Quotient FreeSimplexQuiver.homRel
-  deriving Category
+deriving Category
 
 /-- `SimplexCategoryGenRel.mk` is the main constructor for objects of `SimplexCategoryGenRel`. -/
 def SimplexCategoryGenRel.mk (n : ℕ) : SimplexCategoryGenRel where
@@ -177,12 +189,13 @@ lemma hom_induction' (P : MorphismProperty SimplexCategoryGenRel)
     · simpa using! (δ_comp g i hrec)
     · simpa using! (σ_comp g i hrec)
 
-/-- An induction principle for reasoning about objects in `SimplexCategoryGenRel`. This should be
-used instead of identifying an object with `mk` of its `len`. -/
+/--
+An induction principle for reasoning about objects in `SimplexCategoryGenRel`. This should be
+used instead of identifying an object with `mk` of its `len`.
+-/
 @[elab_as_elim, cases_eliminator]
-protected def rec {P : SimplexCategoryGenRel → Sort*}
-    (H : ∀ n : ℕ, P (.mk n)) :
-    ∀ x : SimplexCategoryGenRel, P x := by
+protected def rec {P : SimplexCategoryGenRel → Sort*} (H : ∀ n : ℕ, P (.mk n))
+    : ∀ x : SimplexCategoryGenRel, P x := by
   intro x
   exact H x.len
 
@@ -199,20 +212,18 @@ end InductionPrinciples
 section SimplicialIdentities
 
 @[reassoc]
-theorem δ_comp_δ {n} {i j : Fin (n + 2)} (H : i ≤ j) :
-    δ i ≫ δ j.succ = δ j ≫ δ i.castSucc := by
+theorem δ_comp_δ {n} {i j : Fin (n + 2)} (H : i ≤ j) : δ i ≫ δ j.succ = δ j ≫ δ i.castSucc := by
   apply CategoryTheory.Quotient.sound
   exact FreeSimplexQuiver.homRel.δ_comp_δ H
 
 @[reassoc]
-theorem δ_comp_σ_of_le {n} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : i ≤ j.castSucc) :
-    δ i.castSucc ≫ σ j.succ = σ j ≫ δ i := by
+theorem δ_comp_σ_of_le {n} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : i ≤ j.castSucc)
+    : δ i.castSucc ≫ σ j.succ = σ j ≫ δ i := by
   apply CategoryTheory.Quotient.sound
   exact FreeSimplexQuiver.homRel.δ_comp_σ_of_le H
 
 @[reassoc]
-theorem δ_comp_σ_self {n} {i : Fin (n + 1)} :
-    δ i.castSucc ≫ σ i = 𝟙 (mk n) := by
+theorem δ_comp_σ_self {n} {i : Fin (n + 1)} : δ i.castSucc ≫ σ i = 𝟙 (mk n) := by
   apply CategoryTheory.Quotient.sound
   exact FreeSimplexQuiver.homRel.δ_comp_σ_self
 
@@ -222,14 +233,13 @@ theorem δ_comp_σ_succ {n} {i : Fin (n + 1)} : δ i.succ ≫ σ i = 𝟙 (mk n)
   exact FreeSimplexQuiver.homRel.δ_comp_σ_succ
 
 @[reassoc]
-theorem δ_comp_σ_of_gt {n} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : j.castSucc < i) :
-    δ i.succ ≫ σ j.castSucc = σ j ≫ δ i := by
+theorem δ_comp_σ_of_gt {n} {i : Fin (n + 2)} {j : Fin (n + 1)} (H : j.castSucc < i)
+    : δ i.succ ≫ σ j.castSucc = σ j ≫ δ i := by
   apply CategoryTheory.Quotient.sound
   exact FreeSimplexQuiver.homRel.δ_comp_σ_of_gt H
 
 @[reassoc]
-theorem σ_comp_σ {n} {i j : Fin (n + 1)} (H : i ≤ j) :
-    σ i.castSucc ≫ σ j = σ j.succ ≫ σ i := by
+theorem σ_comp_σ {n} {i j : Fin (n + 1)} (H : i ≤ j) : σ i.castSucc ≫ σ j = σ j.succ ≫ σ i := by
   apply CategoryTheory.Quotient.sound
   exact FreeSimplexQuiver.homRel.σ_comp_σ H
 
@@ -245,16 +255,21 @@ lemma σ_comp_σ_nat {n} (i j : ℕ) (hi : i < n + 1) (hj : j < n + 1) (H : i �
 
 end SimplicialIdentities
 
-/-- The canonical functor from `SimplexCategoryGenRel` to SimplexCategory, which exists as the
-simplicial identities hold in `SimplexCategory`. -/
+/--
+The canonical functor from `SimplexCategoryGenRel` to SimplexCategory, which exists as the
+simplicial identities hold in `SimplexCategory`.
+-/
 def toSimplexCategory : SimplexCategoryGenRel ⥤ SimplexCategory :=
   CategoryTheory.Quotient.lift _
-    (Paths.lift
-      { obj := .mk
-        map f := match f with
-          | FreeSimplexQuiver.Hom.δ i => SimplexCategory.δ i
-          | FreeSimplexQuiver.Hom.σ i => SimplexCategory.σ i })
-    (fun _ _ _ _ h ↦ match h with
+    (Paths.lift {
+      obj := .mk
+      map f :=
+        match f with
+        | FreeSimplexQuiver.Hom.δ i => SimplexCategory.δ i
+        | FreeSimplexQuiver.Hom.σ i => SimplexCategory.σ i
+    })
+    (fun _ _ _ _ h ↦
+      match h with
       | .δ_comp_δ H => SimplexCategory.δ_comp_δ H
       | .δ_comp_σ_of_le H => SimplexCategory.δ_comp_σ_of_le H
       | .δ_comp_σ_self => SimplexCategory.δ_comp_σ_self

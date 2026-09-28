@@ -24,7 +24,6 @@ public import Mathlib.AlgebraicGeometry.Over
 
 -- Explicit universe annotations were used in this file to improve performance https://github.com/leanprover-community/mathlib4/issues/12737
 
-
 noncomputable section
 
 open TopologicalSpace CategoryTheory Opposite CategoryTheory.Limits
@@ -42,9 +41,7 @@ variable {X : Scheme.{u}} (U : X.Opens)
 namespace Scheme.Opens
 
 /-- Open subset of a scheme as a scheme. -/
-@[coe]
-def toScheme {X : Scheme.{u}} (U : X.Opens) : Scheme.{u} :=
-  X.restrict U.isOpenEmbedding
+@[coe] def toScheme {X : Scheme.{u}} (U : X.Opens) : Scheme.{u} := X.restrict U.isOpenEmbedding
 
 instance : CoeOut X.Opens Scheme := ⟨toScheme⟩
 
@@ -56,7 +53,8 @@ lemma ι_apply (x : U) : U.ι x = x.val := rfl
 
 instance : IsOpenImmersion U.ι := inferInstanceAs (IsOpenImmersion (X.ofRestrict _))
 
-@[simps! over] instance : U.toScheme.CanonicallyOver X where
+@[simps! over]
+instance : U.toScheme.CanonicallyOver X where
   hom := U.ι
 
 lemma ι_comp_over (S : Scheme.{u}) [X.Over S] : U.ι ≫ X ↘ S = U.toScheme ↘ S := rfl
@@ -142,13 +140,11 @@ lemma nonempty_iff : Nonempty U.toScheme ↔ (U : Set X).Nonempty := by
 
 attribute [-simp] eqToHom_op in
 /-- The global sections of the restriction is isomorphic to the sections on the open set. -/
-@[simps!]
-def topIso : Γ(U, ⊤) ≅ Γ(X, U) :=
-  X.presheaf.mapIso (eqToIso U.ι_image_top.symm).op
+@[simps!] def topIso : Γ(U, ⊤) ≅ Γ(X, U) := X.presheaf.mapIso (eqToIso U.ι_image_top.symm).op
 
 /-- The stalks of an open subscheme are isomorphic to the stalks of the original scheme. -/
-def stalkIso {X : Scheme.{u}} (U : X.Opens) (x : U) :
-    U.toScheme.presheaf.stalk x ≅ X.presheaf.stalk x.1 :=
+def stalkIso {X : Scheme.{u}} (U : X.Opens) (x : U)
+    : U.toScheme.presheaf.stalk x ≅ X.presheaf.stalk x.1 :=
   X.restrictStalkIso (Opens.isOpenEmbedding _) _
 
 @[reassoc (attr := simp)]
@@ -179,8 +175,9 @@ end Scheme.Opens
 
 /-- If `U` is a family of open sets that covers `X`, then `X.restrict U` forms an `X.open_cover`. -/
 @[simps! I₀ X f]
-def Scheme.openCoverOfIsOpenCover {s : Type*} (X : Scheme.{u}) (U : s → X.Opens)
-    (hU : IsOpenCover U) : X.OpenCover where
+def Scheme.openCoverOfIsOpenCover
+    {s : Type*} (X : Scheme.{u}) (U : s → X.Opens) (hU : IsOpenCover U)
+    : X.OpenCover where
   I₀ := s
   X i := U i
   f i := (U i).ι
@@ -198,12 +195,10 @@ def Scheme.openCoverOfIsOpenCover {s : Type*} (X : Scheme.{u}) (U : s → X.Open
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The open sets of an open subscheme corresponds to the open sets containing in the subset. -/
 @[simps!]
-def opensRestrict :
-    Scheme.Opens U ≃ { V : X.Opens // V ≤ U } :=
+def opensRestrict : Scheme.Opens U ≃ {V : X.Opens // V ≤ U} :=
   (IsOpenImmersion.opensEquiv (U.ι)).trans (Equiv.subtypeEquivProp (by simp))
 
-instance ΓRestrictAlgebra {X : Scheme.{u}} (U : X.Opens) :
-    Algebra Γ(X, ⊤) Γ(U, ⊤) :=
+instance ΓRestrictAlgebra {X : Scheme.{u}} (U : X.Opens) : Algebra (Γ(X, ⊤)) Γ(U, ⊤) :=
   U.ι.appTop.hom.toAlgebra
 
 set_option backward.isDefEq.respectTransparency false in
@@ -237,8 +232,8 @@ lemma Scheme.Opens.mem_basicOpen_toScheme {U : X.Opens} {V : Scheme.Opens U} {r 
   exact congr(x ∈ $(U.ι.preimage_basicOpen r)).to_iff.symm
 
 /-- If `U ≤ V`, then `U` is also a subscheme of `V`. -/
-protected noncomputable
-def Scheme.homOfLE (X : Scheme.{u}) {U V : X.Opens} (e : U ≤ V) : (U : Scheme.{u}) ⟶ V :=
+protected noncomputable def Scheme.homOfLE (X : Scheme.{u}) {U V : X.Opens} (e : U ≤ V)
+    : (U : Scheme.{u}) ⟶ V :=
   IsOpenImmersion.lift V.ι U.ι (by simpa using e)
 
 @[reassoc (attr := simp)]
@@ -257,24 +252,24 @@ lemma Scheme.homOfLE_homOfLE (X : Scheme.{u}) {U V W : X.Opens} (e₁ : U ≤ V)
     X.homOfLE e₁ ≫ X.homOfLE e₂ = X.homOfLE (e₁.trans e₂) := by
   rw [← cancel_mono W.ι, Category.assoc, Scheme.homOfLE_ι, Scheme.homOfLE_ι, Scheme.homOfLE_ι]
 
-theorem Scheme.homOfLE_base {U V : X.Opens} (e : U ≤ V) :
-    (X.homOfLE e).base = (Opens.toTopCat _).map (homOfLE e) := by
-  ext a; refine Subtype.ext ?_ -- Porting note: `ext` did not pick up `Subtype.ext`
+theorem Scheme.homOfLE_base {U V : X.Opens} (e : U ≤ V)
+    : (X.homOfLE e).base = (Opens.toTopCat _).map (homOfLE e) := by
+  ext a
+  refine Subtype.ext ?_ -- Porting note: `ext` did not pick up `Subtype.ext`
   congrm $(X.homOfLE_ι e) a
 
-theorem Scheme.homOfLE_apply' {U V : X.Opens} (e : U ≤ V) (x : X) (hx : x ∈ U) :
-    X.homOfLE e ⟨x, hx⟩ = ⟨x, e hx⟩ := by
+theorem Scheme.homOfLE_apply' {U V : X.Opens} (e : U ≤ V) (x : X) (hx : x ∈ U)
+    : X.homOfLE e ⟨x, hx⟩ = ⟨x, e hx⟩ := by
   rw [homOfLE_base]
   rfl
 
 @[simp]
-theorem Scheme.homOfLE_apply {U V : X.Opens} (e : U ≤ V) (x : U) :
-    (X.homOfLE e x).1 = x := by
+theorem Scheme.homOfLE_apply {U V : X.Opens} (e : U ≤ V) (x : U) : (X.homOfLE e x).1 = x := by
   rw [Scheme.homOfLE_apply']
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem Scheme.ι_image_homOfLE_eq_ι_image_inf {U V : X.Opens} (e : U ≤ V) (W : Opens V) :
-    U.ι ''ᵁ X.homOfLE e ⁻¹ᵁ W = V.ι ''ᵁ W ⊓ U := by
+theorem Scheme.ι_image_homOfLE_eq_ι_image_inf {U V : X.Opens} (e : U ≤ V) (W : Opens V)
+    : U.ι ''ᵁ X.homOfLE e ⁻¹ᵁ W = V.ι ''ᵁ W ⊓ U := by
   ext x
   constructor
   · rintro ⟨⟨y, hyU⟩, hyW, rfl⟩
@@ -282,14 +277,14 @@ theorem Scheme.ι_image_homOfLE_eq_ι_image_inf {U V : X.Opens} (e : U ≤ V) (W
   · rintro ⟨⟨y, hyW, rfl⟩, hyU⟩
     exact ⟨⟨y.1, hyU⟩, by simpa [homOfLE_apply'] using hyW, rfl⟩
 
-theorem Scheme.ι_image_homOfLE_le_ι_image {U V : X.Opens} (e : U ≤ V) (W : Opens V) :
-    U.ι ''ᵁ X.homOfLE e ⁻¹ᵁ W ≤ V.ι ''ᵁ W := by
+theorem Scheme.ι_image_homOfLE_le_ι_image {U V : X.Opens} (e : U ≤ V) (W : Opens V)
+    : U.ι ''ᵁ X.homOfLE e ⁻¹ᵁ W ≤ V.ι ''ᵁ W := by
   simp [Scheme.ι_image_homOfLE_eq_ι_image_inf]
 
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
-theorem Scheme.homOfLE_app {U V : X.Opens} (e : U ≤ V) (W : Opens V) :
-    (X.homOfLE e).app W = X.presheaf.map (homOfLE <| X.ι_image_homOfLE_le_ι_image e W).op := by
+theorem Scheme.homOfLE_app {U V : X.Opens} (e : U ≤ V) (W : Opens V)
+    : (X.homOfLE e).app W = X.presheaf.map (homOfLE <| X.ι_image_homOfLE_le_ι_image e W).op := by
   have e₁ := Scheme.Hom.congr_app (X.homOfLE_ι e) (V.ι ''ᵁ W)
   have : V.ι ⁻¹ᵁ V.ι ''ᵁ W = W := W.map_functor_eq (U := V)
   have e₂ := (X.homOfLE e).naturality (eqToIso this).hom.op
@@ -301,13 +296,14 @@ theorem Scheme.homOfLE_app {U V : X.Opens} (e : U ≤ V) (W : Opens V) :
 
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
-theorem Scheme.homOfLE_appLE {U V : X.Opens} (e : U ≤ V) (W : Opens V) (W' : Opens U) (e') :
-    (X.homOfLE e).appLE W W' e' = X.presheaf.map
-      (homOfLE ((U.ι.image_mono e').trans (Scheme.ι_image_homOfLE_le_ι_image ..))).op := by
+theorem Scheme.homOfLE_appLE {U V : X.Opens} (e : U ≤ V) (W : Opens V) (W' : Opens U) (e')
+    : (X.homOfLE e).appLE W W' e'
+      = X.presheaf.map (homOfLE ((U.ι.image_mono e').trans
+        (Scheme.ι_image_homOfLE_le_ι_image ..))).op := by
   simp [Scheme.Hom.appLE, Scheme.homOfLE_app, ← Functor.map_comp, ← op_comp]
 
-theorem Scheme.homOfLE_appTop {U V : X.Opens} (e : U ≤ V) :
-    (X.homOfLE e).appTop = X.presheaf.map (homOfLE <| X.ι_image_homOfLE_le_ι_image e ⊤).op :=
+theorem Scheme.homOfLE_appTop {U V : X.Opens} (e : U ≤ V)
+    : (X.homOfLE e).appTop = X.presheaf.map (homOfLE <| X.ι_image_homOfLE_le_ι_image e ⊤).op :=
   homOfLE_app ..
 
 instance (X : Scheme.{u}) {U V : X.Opens} (e : U ≤ V) : IsOpenImmersion (X.homOfLE e) := by
@@ -333,8 +329,8 @@ lemma Scheme.opensRange_homOfLE {U V : X.Opens} (e : U ≤ V) :
   V.ι.image_injective (by simp [← Hom.opensRange_comp, Hom.image_preimage_eq_opensRange_inf, e])
 
 /-- The open cover of `⋃ Vᵢ` by `Vᵢ`. -/
-def Scheme.Opens.iSupOpenCover {J : Type*} {X : Scheme} (U : J → X.Opens) :
-    (⨆ i, U i).toScheme.OpenCover where
+def Scheme.Opens.iSupOpenCover {J : Type*} {X : Scheme} (U : J → X.Opens)
+    : (⨆ i, U i).toScheme.OpenCover where
   I₀ := J
   X i := U i
   f j := X.homOfLE (le_iSup _ _)
@@ -362,8 +358,10 @@ def Scheme.restrictFunctor : X.Opens ⥤ Over X where
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- The functor that restricts to open subschemes and then takes global section is
-isomorphic to the structure sheaf. -/
+/--
+The functor that restricts to open subschemes and then takes global section is
+isomorphic to the structure sheaf.
+-/
 @[simps!]
 def Scheme.restrictFunctorΓ : X.restrictFunctor.op ⋙ (Over.forget X).op ⋙ Scheme.Γ ≅ X.presheaf :=
   NatIso.ofComponents
@@ -375,19 +373,21 @@ def Scheme.restrictFunctorΓ : X.restrictFunctor.op ⋙ (Over.forget X).op ⋙ S
       congr 1)
 
 /-- `X ∣_ U ∣_ V` is isomorphic to `X ∣_ V ∣_ U` -/
-noncomputable
-def Scheme.restrictRestrictComm (X : Scheme.{u}) (U V : X.Opens) :
-    (U.ι ⁻¹ᵁ V).toScheme ≅ V.ι ⁻¹ᵁ U :=
+noncomputable def Scheme.restrictRestrictComm (X : Scheme.{u}) (U V : X.Opens)
+    : (U.ι ⁻¹ᵁ V).toScheme ≅ V.ι ⁻¹ᵁ U :=
   IsOpenImmersion.isoOfRangeEq (Opens.ι _ ≫ U.ι) (Opens.ι _ ≫ V.ι) <| by
-    simp only [Hom.comp_base, TopCat.coe_comp, Set.range_comp, Opens.range_ι, Opens.map_coe,
-      Set.image_preimage_eq_inter_range, Set.inter_comm (U : Set X)]
+    simp only [
+      Hom.comp_base, TopCat.coe_comp, Set.range_comp, Opens.range_ι, Opens.map_coe,
+      Set.image_preimage_eq_inter_range, Set.inter_comm (U : Set X)
+    ]
 
-/-- If `f : X ⟶ Y` is an open immersion, then for any `U : X.Opens`,
-we have the isomorphism `U ≅ f ''ᵁ U`. -/
-noncomputable
-def Scheme.Hom.isoImage
-    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Opens) :
-    U.toScheme ≅ f ''ᵁ U :=
+/--
+If `f : X ⟶ Y` is an open immersion, then for any `U : X.Opens`,
+we have the isomorphism `U ≅ f ''ᵁ U`.
+-/
+noncomputable def Scheme.Hom.isoImage
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] (U : X.Opens)
+    : U.toScheme ≅ f ''ᵁ U :=
   IsOpenImmersion.isoOfRangeEq (Opens.ι _ ≫ f) (Opens.ι _) (by simp [Set.range_comp])
 
 @[reassoc (attr := simp)]
@@ -420,8 +420,8 @@ lemma Scheme.Opens.isoImage_ι_inv_ι {X : Scheme.{u}} (U : Opens X) (V : Opens 
   simp [← cancel_mono U.ι]
 
 /-- If `f : X ⟶ Y` is an open immersion, then `X` is isomorphic to its image in `Y`. -/
-def Scheme.Hom.isoOpensRange {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] :
-    X ≅ f.opensRange :=
+def Scheme.Hom.isoOpensRange {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f]
+    : X ≅ f.opensRange :=
   IsOpenImmersion.isoOfRangeEq f f.opensRange.ι (by simp)
 
 @[reassoc (attr := simp)]
@@ -451,9 +451,8 @@ lemma Scheme.ι_toIso_inv (X : Scheme.{u}) : Opens.ι _ ≫ X.topIso.inv = 𝟙 
   X.topIso.hom_inv_id
 
 /-- If `U = V`, then `X ∣_ U` is isomorphic to `X ∣_ V`. -/
-noncomputable
-def Scheme.isoOfEq (X : Scheme.{u}) {U V : X.Opens} (e : U = V) :
-    (U : Scheme.{u}) ≅ V :=
+noncomputable def Scheme.isoOfEq (X : Scheme.{u}) {U V : X.Opens} (e : U = V)
+    : (U : Scheme.{u}) ≅ V :=
   IsOpenImmersion.isoOfRangeEq U.ι V.ι (by rw [e])
 
 @[reassoc (attr := simp)]
@@ -480,8 +479,9 @@ lemma Scheme.isoOfEq_rfl (X : Scheme.{u}) (U : X.Opens) : X.isoOfEq (refl U) = I
 end
 
 /-- The restriction of an isomorphism onto an open set. -/
-noncomputable def Scheme.Hom.preimageIso {X Y : Scheme.{u}} (f : X ⟶ Y) [IsIso (C := Scheme) f]
-    (U : Y.Opens) : (f ⁻¹ᵁ U).toScheme ≅ U := by
+noncomputable def Scheme.Hom.preimageIso
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsIso (C := Scheme) f] (U : Y.Opens)
+    : (f ⁻¹ᵁ U).toScheme ≅ U := by
   apply IsOpenImmersion.isoOfRangeEq (f := (f ⁻¹ᵁ U).ι ≫ f) U.ι _
   dsimp
   rw [Set.range_comp, Opens.range_ι, Opens.range_ι]
@@ -498,8 +498,8 @@ lemma Scheme.Hom.preimageIso_inv_ι {X Y : Scheme.{u}} (f : X ⟶ Y) [IsIso (C :
   IsOpenImmersion.isoOfRangeEq_inv_fac _ _ _
 
 /-- If `U ≤ V` are opens of `X`, the restriction of `U` to `V` is isomorphic to `U`. -/
-noncomputable def Scheme.Opens.isoOfLE {X : Scheme.{u}} {U V : X.Opens} (hUV : U ≤ V) :
-    (V.ι ⁻¹ᵁ U).toScheme ≅ U :=
+noncomputable def Scheme.Opens.isoOfLE {X : Scheme.{u}} {U V : X.Opens} (hUV : U ≤ V)
+    : (V.ι ⁻¹ᵁ U).toScheme ≅ U :=
   IsOpenImmersion.isoOfRangeEq ((V.ι ⁻¹ᵁ U).ι ≫ V.ι) U.ι <| by
     have : V.ι ''ᵁ (V.ι ⁻¹ᵁ U) = U := by simpa [Scheme.Hom.image_preimage_eq_opensRange_inf]
     rw [Scheme.Hom.comp_base, TopCat.coe_comp, Scheme.Opens.range_ι, Set.range_comp, ← this]
@@ -517,9 +517,9 @@ lemma Scheme.Opens.isoOfLE_inv_ι {X : Scheme.{u}} {U V : X.Opens} (hUV : U ≤ 
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- For `f : R`, `D(f)` as an open subscheme of `Spec R` is isomorphic to `Spec R[1/f]`. -/
-def basicOpenIsoSpecAway {R : CommRingCat.{u}} (f : R) :
-    Scheme.Opens.toScheme (X := Spec R) (PrimeSpectrum.basicOpen f) ≅
-      Spec (.of <| Localization.Away f) :=
+def basicOpenIsoSpecAway {R : CommRingCat.{u}} (f : R)
+    : Scheme.Opens.toScheme (X := Spec R) (PrimeSpectrum.basicOpen f)
+      ≅ Spec (.of <| Localization.Away f) :=
   IsOpenImmersion.isoOfRangeEq (Scheme.Opens.ι _) (Spec.map (CommRingCat.ofHom (algebraMap _ _)))
     (by
       simp only [Scheme.Opens.range_ι]
@@ -550,19 +550,19 @@ lemma basicOpenIsoSpecAway_inv_homOfLE {R : CommRingCat.{u}} (f g x : R) (hx : x
 section MorphismRestrict
 
 /-- Given a morphism `f : X ⟶ Y` and an open set `U ⊆ Y`, we have `X ×[Y] U ≅ X |_{f ⁻¹ U}` -/
-def pullbackRestrictIsoRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    pullback f U.ι ≅ f ⁻¹ᵁ U := by
+def pullbackRestrictIsoRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : pullback f U.ι ≅ f ⁻¹ᵁ U := by
   refine IsOpenImmersion.isoOfRangeEq (pullback.fst f _) (Scheme.Opens.ι _) ?_
   simp [IsOpenImmersion.range_pullbackFst]
 
 @[simp, reassoc]
-theorem pullbackRestrictIsoRestrict_inv_fst {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    (pullbackRestrictIsoRestrict f U).inv ≫ pullback.fst f _ = (f ⁻¹ᵁ U).ι := by
+theorem pullbackRestrictIsoRestrict_inv_fst {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : (pullbackRestrictIsoRestrict f U).inv ≫ pullback.fst f _ = (f ⁻¹ᵁ U).ι := by
   delta pullbackRestrictIsoRestrict; simp
 
 @[reassoc (attr := simp)]
-theorem pullbackRestrictIsoRestrict_hom_ι {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    (pullbackRestrictIsoRestrict f U).hom ≫ (f ⁻¹ᵁ U).ι = pullback.fst f _ := by
+theorem pullbackRestrictIsoRestrict_hom_ι {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : (pullbackRestrictIsoRestrict f U).hom ≫ (f ⁻¹ᵁ U).ι = pullback.fst f _ := by
   delta pullbackRestrictIsoRestrict; simp
 
 /-- The restriction of a morphism `X ⟶ Y` onto `X |_{f ⁻¹ U} ⟶ Y |_ U`. -/
@@ -573,20 +573,20 @@ def morphismRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) : (f ⁻¹�
 infixl:85 " ∣_ " => morphismRestrict
 
 @[reassoc (attr := simp)]
-theorem pullbackRestrictIsoRestrict_hom_morphismRestrict {X Y : Scheme.{u}} (f : X ⟶ Y)
-    (U : Y.Opens) : (pullbackRestrictIsoRestrict f U).hom ≫ f ∣_ U = pullback.snd _ _ :=
+theorem pullbackRestrictIsoRestrict_hom_morphismRestrict
+    {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : (pullbackRestrictIsoRestrict f U).hom ≫ f ∣_ U = pullback.snd _ _ :=
   Iso.hom_inv_id_assoc _ _
 
 @[reassoc (attr := simp)]
-theorem morphismRestrict_ι {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    f ∣_ U ≫ U.ι = (f ⁻¹ᵁ U).ι ≫ f := by
+theorem morphismRestrict_ι {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : f ∣_ U ≫ U.ι = (f ⁻¹ᵁ U).ι ≫ f := by
   delta morphismRestrict
   rw [Category.assoc, pullback.condition.symm, pullbackRestrictIsoRestrict_inv_fst_assoc]
 
-theorem isPullback_morphismRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    IsPullback (f ∣_ U) (f ⁻¹ᵁ U).ι U.ι f := by
-  apply IsOpenImmersion.isPullback <;>
-  simp
+theorem isPullback_morphismRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : IsPullback (f ∣_ U) (f ⁻¹ᵁ U).ι U.ι f := by
+  apply IsOpenImmersion.isPullback <;> simp
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma isPullback_opens_inf_le {X : Scheme} {U V W : X.Opens} (hU : U ≤ W) (hV : V ≤ W) :
@@ -612,22 +612,24 @@ lemma morphismRestrict_id {X : Scheme.{u}} (U : X.Opens) : 𝟙 X ∣_ U = 𝟙 
   rfl
 
 set_option backward.isDefEq.respectTransparency false in
-theorem morphismRestrict_comp {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) (U : Opens Z) :
-    (f ≫ g) ∣_ U = f ∣_ g ⁻¹ᵁ U ≫ g ∣_ U := by
+theorem morphismRestrict_comp {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) (U : Opens Z)
+    : (f ≫ g) ∣_ U = f ∣_ g ⁻¹ᵁ U ≫ g ∣_ U := by
   delta morphismRestrict
   rw [← pullbackRightPullbackFstIso_inv_snd_snd]
   simp_rw [← Category.assoc]
   congr 1
   rw [← cancel_mono (pullback.fst _ _)]
   simp_rw [Category.assoc]
-  rw [pullbackRestrictIsoRestrict_inv_fst, pullbackRightPullbackFstIso_inv_snd_fst, ←
-    pullback.condition, pullbackRestrictIsoRestrict_inv_fst_assoc,
-    pullbackRestrictIsoRestrict_inv_fst_assoc]
+  rw [
+    pullbackRestrictIsoRestrict_inv_fst, pullbackRightPullbackFstIso_inv_snd_fst,
+    ← pullback.condition, pullbackRestrictIsoRestrict_inv_fst_assoc,
+    pullbackRestrictIsoRestrict_inv_fst_assoc
+  ]
   rfl
 
 @[reassoc]
-theorem morphismRestrict_homOfLE {X Y : Scheme.{u}} (f : X ⟶ Y) (U V : Y.Opens) (e : U ≤ V) :
-    (f ∣_ U) ≫ Y.homOfLE e = X.homOfLE (f.preimage_mono e) ≫ (f ∣_ V) := by
+theorem morphismRestrict_homOfLE {X Y : Scheme.{u}} (f : X ⟶ Y) (U V : Y.Opens) (e : U ≤ V)
+    : (f ∣_ U) ≫ Y.homOfLE e = X.homOfLE (f.preimage_mono e) ≫ (f ∣_ V) := by
   simp [← cancel_mono V.ι]
 
 @[reassoc (attr := simp)]
@@ -640,69 +642,74 @@ instance {X Y : Scheme.{u}} (f : X ⟶ Y) [IsIso f] (U : Y.Opens) : IsIso (f ∣
   delta morphismRestrict; infer_instance
 
 @[simp]
-theorem morphismRestrict_base_coe {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (x) :
-    ((f ∣_ U) x).1 = f x.1 :=
+theorem morphismRestrict_base_coe {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (x)
+    : ((f ∣_ U) x).1 = f x.1 :=
   congr((Scheme.Hom.toLRSHom $(morphismRestrict_ι f U)).base x)
 
-theorem morphismRestrict_base {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    ⇑(f ∣_ U) = U.1.restrictPreimage f :=
+theorem morphismRestrict_base {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : ⇑(f ∣_ U) = U.1.restrictPreimage f :=
   funext fun x => Subtype.ext (morphismRestrict_base_coe f U x)
 
-theorem image_morphismRestrict_preimage {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : Opens U) :
-    (f ⁻¹ᵁ U).ι ''ᵁ ((f ∣_ U) ⁻¹ᵁ V) = f ⁻¹ᵁ (U.ι ''ᵁ V) :=
+theorem image_morphismRestrict_preimage {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : Opens U)
+    : (f ⁻¹ᵁ U).ι ''ᵁ ((f ∣_ U) ⁻¹ᵁ V) = f ⁻¹ᵁ (U.ι ''ᵁ V) :=
   IsOpenImmersion.image_preimage_eq_preimage_image_of_isPullback (isPullback_morphismRestrict f U) V
 
 set_option backward.isDefEq.respectTransparency false in
 open Scheme in
-theorem morphismRestrict_app {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : U.toScheme.Opens) :
-    (f ∣_ U).app V = f.app (U.ι ''ᵁ V) ≫
-        X.presheaf.map (eqToHom (image_morphismRestrict_preimage f U V)).op := by
+theorem morphismRestrict_app {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : U.toScheme.Opens)
+    : (f ∣_ U).app V
+      = f.app (U.ι ''ᵁ V)
+        ≫ X.presheaf.map (eqToHom (image_morphismRestrict_preimage f U V)).op := by
   obtain ⟨V, rfl⟩ : ∃ V', U.ι ⁻¹ᵁ U.ι ''ᵁ V' = V := ⟨_, U.ι.preimage_image_eq V⟩
   simpa [← Functor.map_comp_assoc, ← Functor.map_comp] using!
     congr(Y.presheaf.map (eqToHom (congr_arg (U.ι ''ᵁ ·) (U.ι.preimage_image_eq V).symm)).op ≫
       $(Scheme.Hom.congr_app (morphismRestrict_ι f U) (U.ι ''ᵁ V)))
 
-theorem morphismRestrict_appTop {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    (f ∣_ U).appTop = f.app (U.ι ''ᵁ ⊤) ≫
-        X.presheaf.map (eqToHom (image_morphismRestrict_preimage f U ⊤)).op :=
+theorem morphismRestrict_appTop {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens)
+    : (f ∣_ U).appTop
+      = f.app (U.ι ''ᵁ ⊤) ≫ X.presheaf.map (eqToHom (image_morphismRestrict_preimage f U ⊤)).op :=
   morphismRestrict_app ..
 
 @[simp]
-theorem morphismRestrict_app' {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : Opens U) :
-    (f ∣_ U).app V = f.appLE _ _ (image_morphismRestrict_preimage f U V).le :=
+theorem morphismRestrict_app' {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : Opens U)
+    : (f ∣_ U).app V = f.appLE _ _ (image_morphismRestrict_preimage f U V).le :=
   morphismRestrict_app f U V
 
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
-theorem morphismRestrict_appLE {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V W e) :
-    (f ∣_ U).appLE V W e = f.appLE (U.ι ''ᵁ V) ((f ⁻¹ᵁ U).ι ''ᵁ W)
-      ((Set.image_mono e).trans (image_morphismRestrict_preimage f U V).le) := by
-  rw [Scheme.Hom.appLE, morphismRestrict_app', Scheme.Opens.toScheme_presheaf_map,
-    Scheme.Hom.appLE_map]
+theorem morphismRestrict_appLE {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V W e)
+    : (f ∣_ U).appLE V W e
+      = f.appLE (U.ι ''ᵁ V) ((f ⁻¹ᵁ U).ι ''ᵁ W)
+        ((Set.image_mono e).trans (image_morphismRestrict_preimage f U V).le) := by
+  rw [
+    Scheme.Hom.appLE, morphismRestrict_app', Scheme.Opens.toScheme_presheaf_map,
+    Scheme.Hom.appLE_map
+  ]
 
 @[reassoc]
 theorem morphismRestrict_homOfLE_isoImage_ι_hom
-    {X : Scheme.{u}} {U V : X.Opens} (e : U ≤ V) (W : Opens V) :
-    X.homOfLE e ∣_ W ≫ (V.ι.isoImage W).hom =
-      (U.ι.isoImage (X.homOfLE e ⁻¹ᵁ W)).hom ≫ X.homOfLE (X.ι_image_homOfLE_le_ι_image e W) := by
+    {X : Scheme.{u}} {U V : X.Opens} (e : U ≤ V) (W : Opens V)
+    : X.homOfLE e ∣_ W ≫ (V.ι.isoImage W).hom
+      = (U.ι.isoImage (X.homOfLE e ⁻¹ᵁ W)).hom ≫ X.homOfLE (X.ι_image_homOfLE_le_ι_image e W) := by
   simp [← cancel_mono (V.ι ''ᵁ W).ι]
 
 @[reassoc]
-theorem isoImage_ι_inv_morphismRestrict_homOfLE {X : Scheme.{u}} {U V : X.Opens}
-    (e : U ≤ V) (W : Opens V) :
-    (U.ι.isoImage (X.homOfLE e ⁻¹ᵁ W)).inv ≫ X.homOfLE e ∣_ W =
-      X.homOfLE (X.ι_image_homOfLE_le_ι_image e W) ≫ (V.ι.isoImage W).inv := by
+theorem isoImage_ι_inv_morphismRestrict_homOfLE
+    {X : Scheme.{u}} {U V : X.Opens} (e : U ≤ V) (W : Opens V)
+    : (U.ι.isoImage (X.homOfLE e ⁻¹ᵁ W)).inv ≫ X.homOfLE e ∣_ W
+      = X.homOfLE (X.ι_image_homOfLE_le_ι_image e W) ≫ (V.ι.isoImage W).inv := by
   simp [← cancel_mono (V.ι.isoImage W).hom, morphismRestrict_homOfLE_isoImage_ι_hom]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Restricting a morphism onto the image of an open immersion is isomorphic to the base change
-along the immersion. -/
-def morphismRestrictOpensRange {X Y U : Scheme.{u}} (f : X ⟶ Y) (g : U ⟶ Y) [IsOpenImmersion g] :
-    Arrow.mk (f ∣_ g.opensRange) ≅ Arrow.mk (pullback.snd f g) := by
+/--
+Restricting a morphism onto the image of an open immersion is isomorphic to the base change
+along the immersion.
+-/
+def morphismRestrictOpensRange {X Y U : Scheme.{u}} (f : X ⟶ Y) (g : U ⟶ Y) [IsOpenImmersion g]
+    : Arrow.mk (f ∣_ g.opensRange) ≅ Arrow.mk (pullback.snd f g) := by
   let V : Y.Opens := g.opensRange
-  let e :=
-    IsOpenImmersion.isoOfRangeEq g V.ι Subtype.range_coe.symm
+  let e := IsOpenImmersion.isoOfRangeEq g V.ι Subtype.range_coe.symm
   let t : pullback f g ⟶ pullback f V.ι :=
     pullback.map _ _ _ _ (𝟙 _) e.hom (𝟙 _) (by rw [Category.comp_id, Category.id_comp])
       (by rw [Category.comp_id, IsOpenImmersion.isoOfRangeEq_hom_fac])
@@ -710,14 +717,18 @@ def morphismRestrictOpensRange {X Y U : Scheme.{u}} (f : X ⟶ Y) (g : U ⟶ Y) 
   refine Arrow.isoMk (asIso t ≪≫ pullbackRestrictIsoRestrict f V) e ?_
   rw [Iso.trans_hom, asIso_hom, ← Iso.comp_inv_eq, ← cancel_mono g]
   dsimp
-  rw [Category.assoc, Category.assoc, Category.assoc, IsOpenImmersion.isoOfRangeEq_inv_fac,
-    ← pullback.condition, morphismRestrict_ι,
-    pullbackRestrictIsoRestrict_hom_ι_assoc, pullback.lift_fst_assoc, Category.comp_id]
+  rw [
+    Category.assoc, Category.assoc, Category.assoc, IsOpenImmersion.isoOfRangeEq_inv_fac,
+    ← pullback.condition, morphismRestrict_ι, pullbackRestrictIsoRestrict_hom_ι_assoc,
+    pullback.lift_fst_assoc, Category.comp_id
+  ]
 
-/-- The restrictions onto two equal open sets are isomorphic. This currently has bad defeqs when
-unfolded, but it should not matter for now. Replace this definition if better defeqs are needed. -/
-def morphismRestrictEq {X Y : Scheme.{u}} (f : X ⟶ Y) {U V : Y.Opens} (e : U = V) :
-    Arrow.mk (f ∣_ U) ≅ Arrow.mk (f ∣_ V) :=
+/--
+The restrictions onto two equal open sets are isomorphic. This currently has bad defeqs when
+unfolded, but it should not matter for now. Replace this definition if better defeqs are needed.
+-/
+def morphismRestrictEq {X Y : Scheme.{u}} (f : X ⟶ Y) {U V : Y.Opens} (e : U = V)
+    : Arrow.mk (f ∣_ U) ≅ Arrow.mk (f ∣_ V) :=
   eqToIso (by subst e; rfl)
 
 @[reassoc]
@@ -735,8 +746,8 @@ lemma morphismRestrict_morphismRestrict_ι_isoImage_hom
   simp [← cancel_mono (Scheme.Opens.ι _)]
 
 /-- Restricting a morphism twice is isomorphic to one restriction. -/
-def morphismRestrictRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : U.toScheme.Opens) :
-    Arrow.mk (f ∣_ U ∣_ V) ≅ Arrow.mk (f ∣_ U.ι ''ᵁ V) := by
+def morphismRestrictRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V : U.toScheme.Opens)
+    : Arrow.mk (f ∣_ U ∣_ V) ≅ Arrow.mk (f ∣_ U.ι ''ᵁ V) := by
   refine Arrow.isoMk' _ _ ((Scheme.Opens.ι _).isoImage _ ≪≫ Scheme.isoOfEq _ ?_)
     ((Scheme.Opens.ι _).isoImage _) ?_
   · exact image_morphismRestrict_preimage f U V
@@ -744,25 +755,28 @@ def morphismRestrictRestrict {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (V :
 
 set_option backward.isDefEq.respectTransparency false in
 /-- Restricting a morphism twice onto a basic open set is isomorphic to one restriction. -/
-def morphismRestrictRestrictBasicOpen {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (r : Γ(Y, U)) :
-    Arrow.mk (f ∣_ U ∣_
-          U.toScheme.basicOpen (Y.presheaf.map (eqToHom U.isOpenEmbedding_obj_top).op r)) ≅
-      Arrow.mk (f ∣_ Y.basicOpen r) := by
+def morphismRestrictRestrictBasicOpen {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (r : Γ(Y, U))
+    : Arrow.mk
+        (f ∣_ U ∣_ U.toScheme.basicOpen (Y.presheaf.map (eqToHom U.isOpenEmbedding_obj_top).op r))
+      ≅ Arrow.mk (f ∣_ Y.basicOpen r) := by
   refine morphismRestrictRestrict _ _ _ ≪≫ morphismRestrictEq _ ?_
   simp [Scheme.Opens.ι_image_basicOpen]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The stalk map of a restriction of a morphism is isomorphic to the stalk map of the original map.
+/--
+The stalk map of a restriction of a morphism is isomorphic to the stalk map of the original map.
 -/
-def morphismRestrictStalkMap {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (x) :
-    Arrow.mk ((f ∣_ U).stalkMap x) ≅ Arrow.mk (f.stalkMap x.1) := Arrow.isoMk' _ _
-  (U.stalkIso ((f ∣_ U) x) ≪≫
-    (TopCat.Presheaf.stalkCongr _ <| Inseparable.of_eq <| morphismRestrict_base_coe f U x))
-  ((f ⁻¹ᵁ U).stalkIso x) <| TopCat.Presheaf.stalk_hom_ext _ fun V hxV ↦ by
-    simp [Scheme.Hom.germ_stalkMap_assoc, Scheme.Hom.appLE]
+def morphismRestrictStalkMap {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) (x)
+    : Arrow.mk ((f ∣_ U).stalkMap x) ≅ Arrow.mk (f.stalkMap x.1) :=
+  Arrow.isoMk' _ _
+      (U.stalkIso ((f ∣_ U) x)
+        ≪≫ (TopCat.Presheaf.stalkCongr _ <| Inseparable.of_eq <| morphismRestrict_base_coe f U x))
+      ((f ⁻¹ᵁ U).stalkIso x) <|
+    TopCat.Presheaf.stalk_hom_ext _ fun V hxV ↦ by
+      simp [Scheme.Hom.germ_stalkMap_assoc, Scheme.Hom.appLE]
 
-instance {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) [IsOpenImmersion f] :
-    IsOpenImmersion (f ∣_ U) := by
+instance {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) [IsOpenImmersion f]
+    : IsOpenImmersion (f ∣_ U) := by
   delta morphismRestrict
   exact PresheafedSpace.IsOpenImmersion.comp _ _
 
@@ -843,25 +857,27 @@ lemma coe_resLE_apply (x : V) : (f.resLE U V e x).1 = f x := by
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The stalk map of `f.resLE U V` at `x : V` is the stalk map of `f` at `x`. -/
-def resLEStalkMap (x : V) :
-    Arrow.mk ((f.resLE U V e).stalkMap x) ≅ Arrow.mk (f.stalkMap x) :=
-  Arrow.isoMk (U.stalkIso _ ≪≫
-      (Y.presheaf.stalkCongr <| Inseparable.of_eq <| by simp)) (V.stalkIso x) <| by
-    dsimp
-    rw [Category.assoc, ← Iso.eq_inv_comp, ← Category.assoc, ← Iso.comp_inv_eq,
-      Opens.stalkIso_inv, Opens.stalkIso_inv, ← stalkMap_comp,
-      stalkMap_congr_hom _ _ (resLE_comp_ι f e), stalkMap_comp]
-    simp
+def resLEStalkMap (x : V) : Arrow.mk ((f.resLE U V e).stalkMap x) ≅ Arrow.mk (f.stalkMap x) :=
+  Arrow.isoMk (U.stalkIso _ ≪≫ (Y.presheaf.stalkCongr <| Inseparable.of_eq <| by simp))
+      (V.stalkIso x) <|
+    by
+      dsimp
+      rw [
+        Category.assoc, ← Iso.eq_inv_comp, ← Category.assoc, ← Iso.comp_inv_eq, Opens.stalkIso_inv,
+        Opens.stalkIso_inv, ← stalkMap_comp, stalkMap_congr_hom _ _ (resLE_comp_ι f e),
+        stalkMap_comp
+      ]
+      simp
 
 end Scheme.Hom
 
 set_option backward.isDefEq.respectTransparency false in
 /-- `f.resLE U V` induces `f.appLE U V` on global sections. -/
-noncomputable def arrowResLEAppIso (f : X ⟶ Y) (U : Y.Opens) (V : X.Opens) (e : V ≤ f ⁻¹ᵁ U) :
-    Arrow.mk ((f.resLE U V e).appTop) ≅ Arrow.mk (f.appLE U V e) :=
+noncomputable def arrowResLEAppIso (f : X ⟶ Y) (U : Y.Opens) (V : X.Opens) (e : V ≤ f ⁻¹ᵁ U)
+    : Arrow.mk ((f.resLE U V e).appTop) ≅ Arrow.mk (f.appLE U V e) :=
   Arrow.isoMk U.topIso V.topIso <| by
-  simp only [Scheme.Opens.topIso_hom, eqToHom_op, Arrow.mk_hom, Scheme.Hom.map_appLE]
-  rw [Scheme.Hom.appTop, ← Scheme.Hom.appLE_eq_app, Scheme.Hom.resLE_appLE, Scheme.Hom.appLE_map]
+    simp only [Scheme.Opens.topIso_hom, eqToHom_op, Arrow.mk_hom, Scheme.Hom.map_appLE]
+    rw [Scheme.Hom.appTop, ← Scheme.Hom.appLE_eq_app, Scheme.Hom.resLE_appLE, Scheme.Hom.appLE_map]
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma Scheme.Hom.isPullback_resLE
@@ -889,13 +905,16 @@ set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The restriction of an open cover to an open subset. -/
 @[simps! I₀ X f]
-noncomputable
-def Scheme.OpenCover.restrict {X : Scheme.{u}} (𝒰 : Scheme.OpenCover.{v} X) (U : Opens X) :
-    U.toScheme.OpenCover := by
+noncomputable def Scheme.OpenCover.restrict
+    {X : Scheme.{u}} (𝒰 : Scheme.OpenCover.{v} X) (U : Opens X)
+    : U.toScheme.OpenCover := by
   refine Cover.copy (𝒰.pullback₁ U.ι) 𝒰.I₀ _ (𝒰.f · ∣_ U) (Equiv.refl _)
-    (fun i ↦ IsOpenImmersion.isoOfRangeEq (Opens.ι _) (pullback.snd _ _) ?_) ?_
-  · dsimp only [Precoverage.ZeroHypercover.pullback₁_toPreZeroHypercover,
-      PreZeroHypercover.pullback₁_I₀, Equiv.refl_apply, PreZeroHypercover.pullback₁_X]
+    (fun i ↦ IsOpenImmersion.isoOfRangeEq (Opens.ι _) (pullback.snd _ _) ?_)
+    ?_
+  · dsimp only [
+      Precoverage.ZeroHypercover.pullback₁_toPreZeroHypercover, PreZeroHypercover.pullback₁_I₀,
+      Equiv.refl_apply, PreZeroHypercover.pullback₁_X
+    ]
     rw [IsOpenImmersion.range_pullbackSnd U.ι (𝒰.f i), Opens.opensRange_ι]
     exact Subtype.range_val
   · intro i

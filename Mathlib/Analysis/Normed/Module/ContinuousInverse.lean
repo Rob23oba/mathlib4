@@ -75,20 +75,22 @@ public section
 
 open Function Set
 
-variable {R : Type*} [Semiring R] {E E' F F' G : Type*}
-  [TopologicalSpace E] [AddCommMonoid E] [Module R E]
-  [TopologicalSpace E'] [AddCommMonoid E'] [Module R E']
-  [TopologicalSpace F] [AddCommMonoid F] [Module R F]
+variable
+  {R : Type*} [Semiring R]
+  {E E' F F' G : Type*} [TopologicalSpace E] [AddCommMonoid E] [Module R E] [TopologicalSpace E']
+  [AddCommMonoid E'] [Module R E'] [TopologicalSpace F] [AddCommMonoid F] [Module R F]
   [TopologicalSpace F'] [AddCommMonoid F'] [Module R F']
 
 noncomputable section
 
 /-- A continuous linear map admits a left inverse which is a continuous linear map itself. -/
-@[expose] protected def ContinuousLinearMap.HasLeftInverse (f : E →L[R] F) : Prop :=
+@[expose]
+protected def ContinuousLinearMap.HasLeftInverse (f : E →L[R] F) : Prop :=
   ∃ g : F →L[R] E, LeftInverse g f
 
 /-- A continuous linear map admits a right inverse which is a continuous linear map itself. -/
-@[expose] protected def ContinuousLinearMap.HasRightInverse (f : E →L[R] F) : Prop :=
+@[expose]
+protected def ContinuousLinearMap.HasRightInverse (f : E →L[R] F) : Prop :=
   ∃ g : F →L[R] E, RightInverse g f
 
 namespace ContinuousLinearMap
@@ -106,8 +108,7 @@ lemma leftInverse_leftInverse (h : f.HasLeftInverse) : LeftInverse h.leftInverse
 lemma injective (h : f.HasLeftInverse) : Injective f :=
   h.leftInverse_leftInverse.injective
 
-example (h : f.HasLeftInverse) (x : E) : h.leftInverse (f x) = x :=
-  h.leftInverse_leftInverse x
+example (h : f.HasLeftInverse) (x : E) : h.leftInverse (f x) = x := h.leftInverse_leftInverse x
 
 lemma congr {g : E →L[R] F} (hf : f.HasLeftInverse) (hfg : g = f) :
     g.HasLeftInverse :=
@@ -177,10 +178,12 @@ protected lemma inr : (ContinuousLinearMap.inr R F G).HasLeftInverse := by
 
 section NontriviallyNormedField
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {E F : Type*}
-  [TopologicalSpace E] [AddCommGroup E] [Module 𝕜 E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
-  [TopologicalSpace F] [AddCommGroup F] [Module 𝕜 F] [IsTopologicalAddGroup F] [ContinuousSMul 𝕜 F]
-  [T2Space F] {f : E →L[𝕜] F}
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+  {E F : Type*} [TopologicalSpace E] [AddCommGroup E] [Module 𝕜 E] [IsTopologicalAddGroup E]
+  [ContinuousSMul 𝕜 E] [TopologicalSpace F] [AddCommGroup F] [Module 𝕜 F] [IsTopologicalAddGroup F]
+  [ContinuousSMul 𝕜 F] [T2Space F]
+  {f : E →L[𝕜] F}
 
 /-- If `f : E → F` is injective and `F` is finite-dimensional,
 `f` has a continuous left inverse. -/
@@ -199,9 +202,10 @@ end NontriviallyNormedField
 section Ring
 
 -- The next lemmas assume we are working over a ring.
-variable {R E F : Type*} [Ring R]
-  [TopologicalSpace E] [AddCommGroup E] [Module R E]
-  [TopologicalSpace F] [AddCommGroup F] [Module R F] {f : E →L[R] F}
+variable
+  {R E F : Type*} [Ring R] [TopologicalSpace E] [AddCommGroup E] [Module R E] [TopologicalSpace F]
+  [AddCommGroup F] [Module R F]
+  {f : E →L[R] F}
 
 set_option backward.isDefEq.respectTransparency false in
 /-- If `f` has a continuous left inverse, its range admits a closed complement. -/
@@ -229,8 +233,7 @@ lemma isClosed_range (hf : f.HasLeftInverse) [IsTopologicalAddGroup F] :
   exact ((f.comp hf.leftInverse) - (ContinuousLinearMap.id R F)).isClosed_ker
 
 /-- Choice of a closed complement of `range f` -/
-def complement (h : f.HasLeftInverse) : Submodule R F :=
-  h.closedComplemented_range.complement
+def complement (h : f.HasLeftInverse) : Submodule R F := h.closedComplemented_range.complement
 
 lemma isClosed_complement (h : f.HasLeftInverse) : IsClosed (X := F) h.complement :=
   h.closedComplemented_range.isClosed_complement
@@ -245,9 +248,9 @@ end Ring
 
 section
 
-variable {R E F : Type*} [NontriviallyNormedField R]
-  [NormedAddCommGroup E] [NormedSpace R E] [CompleteSpace E]
-  [NormedAddCommGroup F] [NormedSpace R F] [CompleteSpace F]
+variable
+  {R E F : Type*} [NontriviallyNormedField R] [NormedAddCommGroup E] [NormedSpace R E]
+  [CompleteSpace E] [NormedAddCommGroup F] [NormedSpace R F] [CompleteSpace F]
 
 /-- A continuous linear map between Banach spaces has a continuous left inverse if it is injective,
 has closed range and its range has a closed complement. -/
@@ -342,10 +345,12 @@ protected lemma snd : (ContinuousLinearMap.snd R F G).HasRightInverse := by
 
 section NontriviallyNormedField
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {E F : Type*}
-  [TopologicalSpace E] [AddCommGroup E] [Module 𝕜 E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
-  [TopologicalSpace F] [AddCommGroup F] [Module 𝕜 F] [IsTopologicalAddGroup F] [ContinuousSMul 𝕜 F]
-  [T2Space F] {f : E →L[𝕜] F}
+variable
+  {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+  {E F : Type*} [TopologicalSpace E] [AddCommGroup E] [Module 𝕜 E] [IsTopologicalAddGroup E]
+  [ContinuousSMul 𝕜 E] [TopologicalSpace F] [AddCommGroup F] [Module 𝕜 F] [IsTopologicalAddGroup F]
+  [ContinuousSMul 𝕜 F] [T2Space F]
+  {f : E →L[𝕜] F}
 
 /-- If `f : E → F` is surjective and `F` is finite-dimensional,
 `f` has a continuous right inverse. -/

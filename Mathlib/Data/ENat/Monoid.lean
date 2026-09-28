@@ -9,7 +9,6 @@ public import Mathlib.Algebra.Order.Ring.Nat
 public import Mathlib.Algebra.Order.Ring.WithTop
 public import Mathlib.Data.ENat.Basic
 import Mathlib.Tactic.Basify.Attr
-
 import Mathlib.Algebra.Group.Nat.Units
 import Mathlib.Data.Nat.Cast.Order.Basic
 
@@ -19,10 +18,8 @@ import Mathlib.Data.Nat.Cast.Order.Basic
 
 @[expose] public section
 
-deriving instance
-  AddMonoidWithOne, CommSemiring, LinearOrderedAddCommMonoidWithTop,
-  OrderedSub, CanonicallyOrderedAdd, IsOrderedRing,
-  CharZero, NoZeroDivisors
+deriving instance AddMonoidWithOne, CommSemiring, LinearOrderedAddCommMonoidWithTop, OrderedSub,
+    CanonicallyOrderedAdd, IsOrderedRing, CharZero, NoZeroDivisors
   for ENat
 
 namespace ENat
@@ -37,12 +34,10 @@ variable {a b c m n : ℕ∞}
 @[simp, basify_simp] theorem top_mul (hm : m ≠ 0) : ⊤ * m = ⊤ := WithTop.top_mul hm
 
 /-- A version of `mul_top` where the RHS is stated as an `ite` -/
-@[basify_simp]
-theorem mul_top' : m * ⊤ = if m = 0 then 0 else ⊤ := WithTop.mul_top' m
+@[basify_simp] theorem mul_top' : m * ⊤ = if m = 0 then 0 else ⊤ := WithTop.mul_top' m
 
 /-- A version of `top_mul` where the RHS is stated as an `ite` -/
-@[basify_simp]
-theorem top_mul' : ⊤ * m = if m = 0 then 0 else ⊤ := WithTop.top_mul' m
+@[basify_simp] theorem top_mul' : ⊤ * m = if m = 0 then 0 else ⊤ := WithTop.top_mul' m
 
 @[simp] lemma top_pow {n : ℕ} (hn : n ≠ 0) : (⊤ : ℕ∞) ^ n = ⊤ := WithTop.top_pow hn
 
@@ -54,8 +49,9 @@ lemma pow_ne_top_iff {n : ℕ} : a ^ n ≠ ⊤ ↔ a ≠ ⊤ ∨ n = 0 := WithTo
 
 lemma eq_top_of_pow (n : ℕ) (ha : a ^ n = ⊤) : a = ⊤ := WithTop.eq_top_of_pow n ha
 
-@[simp] theorem lift_add (a b : ℕ∞) (h : a + b < ⊤) :
-    lift (a + b) h = lift a (add_lt_top.1 h).1 + lift b (add_lt_top.1 h).2 := by
+@[simp]
+theorem lift_add (a b : ℕ∞) (h : a + b < ⊤)
+    : lift (a + b) h = lift a (add_lt_top.1 h).1 + lift b (add_lt_top.1 h).2 := by
   apply natCast_inj.1
   simp
 
@@ -70,7 +66,8 @@ def toNatHom : MonoidWithZeroHom ℕ∞ ℕ where
 
 lemma toNatHom_apply (n : ℕ) : toNatHom n = toNat n := rfl
 
-@[simp] theorem toNat_mul (a b : ℕ∞) : (a * b).toNat = a.toNat * b.toNat := by
+@[simp]
+theorem toNat_mul (a b : ℕ∞) : (a * b).toNat = a.toNat * b.toNat := by
   cases a <;> cases b
   · simp
   · rename_i b; cases b <;> simp
@@ -213,39 +210,48 @@ end AddMonoidWithOne
 
 /-- A version of `WithTop.map` for `AddMonoidHom`s. -/
 @[simps -fullyApplied]
-protected def _root_.AddMonoidHom.ENatMap {N : Type*} [AddZeroClass N]
-    (f : ℕ →+ N) : ℕ∞ →+ WithTop N :=
-  { ZeroHom.ENatMap f.toZeroHom, AddHom.ENatMap f.toAddHom with toFun := ENat.map f }
+protected def _root_.AddMonoidHom.ENatMap {N : Type*} [AddZeroClass N] (f : ℕ →+ N)
+    : ℕ∞ →+ WithTop N := {
+  ZeroHom.ENatMap f.toZeroHom, AddHom.ENatMap f.toAddHom with
+  toFun := ENat.map f
+}
 
 /-- A version of `ENat.map` for `MonoidWithZeroHom`s. -/
 @[simps -fullyApplied]
-protected def _root_.MonoidWithZeroHom.ENatMap {S : Type*} [MulZeroOneClass S] [DecidableEq S]
-    [Nontrivial S] (f : ℕ →*₀ S)
-    (hf : Function.Injective f) : ℕ∞ →*₀ WithTop S :=
-  { f.toZeroHom.ENatMap, f.toMonoidHom.toOneHom.ENatMap with
-    toFun := ENat.map f
-    map_mul' := fun x y => by
-      have : ∀ z, map f z = 0 ↔ z = 0 := fun z =>
-        (WithTop.map_injective hf).eq_iff' f.toZeroHom.ENatMap.map_zero
-      rcases Decidable.eq_or_ne x 0 with (rfl | hx)
-      · simp
-      rcases Decidable.eq_or_ne y 0 with (rfl | hy)
-      · simp
-      induction x with
-      | top => simp [hy, this]
-      | coe x =>
-        induction y with
-        | top =>
-          have : (f x : WithTop S) ≠ 0 := by simpa [hf.eq_iff' (map_zero f)] using hx
-          simp [mul_top hx, WithTop.mul_top this]
-        | coe y => simp [← Nat.cast_mul, -natCast_mul] }
+protected def _root_.MonoidWithZeroHom.ENatMap
+    {S : Type*} [MulZeroOneClass S] [DecidableEq S] [Nontrivial S]
+    (f : ℕ →*₀ S) (hf : Function.Injective f)
+    : ℕ∞ →*₀ WithTop S := {
+  f.toZeroHom.ENatMap, f.toMonoidHom.toOneHom.ENatMap with
+  toFun := ENat.map f
+  map_mul' := fun x y => by
+    have : ∀ z, map f z = 0 ↔ z = 0 := fun z =>
+      (WithTop.map_injective hf).eq_iff' f.toZeroHom.ENatMap.map_zero
+    rcases Decidable.eq_or_ne x 0 with (rfl | hx)
+    · simp
+    rcases Decidable.eq_or_ne y 0 with (rfl | hy)
+    · simp
+    induction x with
+    | top =>
+      simp [hy, this]
+    | coe x =>
+      induction y with
+      | top =>
+        have : (f x : WithTop S) ≠ 0 := by simpa [hf.eq_iff' (map_zero f)] using hx
+        simp [mul_top hx, WithTop.mul_top this]
+      | coe y =>
+        simp [← Nat.cast_mul, -natCast_mul]
+}
 
 /-- A version of `ENat.map` for `RingHom`s. -/
 @[simps -fullyApplied]
-protected def _root_.RingHom.ENatMap {S : Type*} [CommSemiring S] [PartialOrder S]
-    [CanonicallyOrderedAdd S]
-    [DecidableEq S] [Nontrivial S] (f : ℕ →+* S) (hf : Function.Injective f) : ℕ∞ →+* WithTop S :=
-  { MonoidWithZeroHom.ENatMap f.toMonoidWithZeroHom hf, f.toAddMonoidHom.ENatMap with }
+protected def _root_.RingHom.ENatMap
+    {S : Type*}
+    [CommSemiring S] [PartialOrder S] [CanonicallyOrderedAdd S] [DecidableEq S] [Nontrivial S]
+    (f : ℕ →+* S) (hf : Function.Injective f)
+    : ℕ∞ →+* WithTop S := {
+  MonoidWithZeroHom.ENatMap f.toMonoidWithZeroHom hf, f.toAddMonoidHom.ENatMap with
+}
 
 @[simp]
 lemma map_natCast_mul {R : Type*} [NonAssocSemiring R] [DecidableEq R] [CharZero R] (a b : ℕ∞) :

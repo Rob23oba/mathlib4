@@ -59,12 +59,12 @@ open scoped ENNReal
 
 namespace BoundedContinuousFunction
 
-variable {E F : Type*} [SeminormedAddCommGroup E] [InnerProductSpace ℝ E]
-  [SeminormedAddCommGroup F] [NormedSpace ℝ F]
+variable
+  {E F : Type*}
+  [SeminormedAddCommGroup E] [InnerProductSpace ℝ E] [SeminormedAddCommGroup F] [NormedSpace ℝ F]
 
 /-- The bounded continuous map `x ↦ exp(⟪x, t⟫ * I)`. -/
-noncomputable
-def innerProbChar (t : E) : E →ᵇ ℂ :=
+noncomputable def innerProbChar (t : E) : E →ᵇ ℂ :=
   char continuous_probChar (L := innerₗ E) continuous_inner t
 
 lemma innerProbChar_apply (t x : E) : innerProbChar t x = exp (⟪x, t⟫ * I) := rfl
@@ -74,8 +74,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 lemma innerProbChar_zero : innerProbChar (0 : E) = 1 := by simp [innerProbChar]
 
 /-- The bounded continuous map `x ↦ exp (L x * I)`, for a continuous linear form `L`. -/
-noncomputable
-def probCharDual (L : StrongDual ℝ F) : F →ᵇ ℂ :=
+noncomputable def probCharDual (L : StrongDual ℝ F) : F →ᵇ ℂ :=
   char continuous_probChar
     (L := isBoundedBilinearMap_apply.symm.toContinuousLinearMap.toLinearMap₁₂)
     isBoundedBilinearMap_apply.symm.continuous L
@@ -90,31 +89,36 @@ end BoundedContinuousFunction
 
 namespace MeasureTheory
 
-variable {W : Type*} [AddCommGroup W] [Module ℝ W] [TopologicalSpace W]
-    {e : AddChar ℝ Circle}
+variable {W : Type*} [AddCommGroup W] [Module ℝ W] [TopologicalSpace W] {e : AddChar ℝ Circle}
 
 section ext
 
-variable {V : Type*} [AddCommGroup V] [Module ℝ V] [PseudoEMetricSpace V] [MeasurableSpace V]
-    [BorelSpace V] [CompleteSpace V] [SecondCountableTopology V] {L : V →ₗ[ℝ] W →ₗ[ℝ] ℝ}
+variable
+  {V : Type*} [AddCommGroup V] [Module ℝ V] [PseudoEMetricSpace V] [MeasurableSpace V]
+  [BorelSpace V] [CompleteSpace V] [SecondCountableTopology V]
+  {L : V →ₗ[ℝ] W →ₗ[ℝ] ℝ}
 
-/-- If the integrals of `char` with respect to two finite measures `P` and `P'` coincide, then
-`P = P'`. -/
-theorem ext_of_integral_char_eq (he : Continuous e) (he' : e ≠ 1)
-    (hL' : ∀ v ≠ 0, L v ≠ 0) (hL : Continuous fun p : V × W ↦ L p.1 p.2)
+/--
+If the integrals of `char` with respect to two finite measures `P` and `P'` coincide, then
+`P = P'`.
+-/
+theorem ext_of_integral_char_eq
+    (he : Continuous e)
+    (he' : e ≠ 1) (hL' : ∀ v ≠ 0, L v ≠ 0)
+    (hL : Continuous fun p : V × W ↦ L p.1 p.2)
     {P P' : Measure V} [IsFiniteMeasure P] [IsFiniteMeasure P']
-    (h : ∀ w, ∫ v, char he hL w v ∂P = ∫ v, char he hL w v ∂P') :
-    P = P' := by
+    (h : ∀ w, ∫ v, char he hL w v ∂P = ∫ v, char he hL w v ∂P')
+    : P = P' := by
   apply ext_of_forall_mem_subalgebra_integral_eq_of_pseudoEMetric_complete_countable
-      (separatesPoints_charPoly he he' hL hL')
+    (separatesPoints_charPoly he he' hL hL')
   intro _ hg
   simp only [mem_charPoly] at hg
   obtain ⟨w, hw⟩ := hg
   rw [hw]
-  have hsum (P : Measure V) [IsFiniteMeasure P] :
-      ∫ v, w.coeff.sum (fun a z ↦ z * e (L v a)) ∂P =
-        w.coeff.sum (fun a z ↦ ∫ v, z * e (L v a) ∂P) :=
-    integral_finsetSum _ fun a ha ↦ ((char he hL a).integrable P).const_mul  _
+  have hsum (P : Measure V) [IsFiniteMeasure P]
+      : ∫ v, w.coeff.sum (fun a z ↦ z * e (L v a)) ∂P
+        = w.coeff.sum (fun a z ↦ ∫ v, z * e (L v a) ∂P) :=
+    integral_finsetSum _ fun a ha ↦ ((char he hL a).integrable P).const_mul _
   rw [hsum P, hsum P']
   apply Finset.sum_congr rfl fun i _ => ?_
   simp only [MeasureTheory.integral_const_mul, mul_eq_mul_left_iff]
@@ -226,8 +230,9 @@ lemma charFun_map_mul_comp {X : Type*} {mX : MeasurableSpace X} {μ : Measure X}
     charFun (μ.map (fun x ↦ r * (f x))) t = charFun (μ.map f) (r * t) :=
   charFun_map_smul_comp hf r t
 
-variable {E : Type*} [MeasurableSpace E] {μ ν : Measure E} {t : E}
-  [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+variable
+  {E : Type*} [MeasurableSpace E]
+  {μ ν : Measure E} {t : E} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 
 @[simp]
 lemma charFun_dirac [OpensMeasurableSpace E] {x : E} (t : E) :
@@ -252,14 +257,15 @@ lemma charFun_map_const_add [BorelSpace E] (r t : E) :
 
 variable [BorelSpace E] [SecondCountableTopology E]
 
-/-- If the characteristic functions `charFun` of two finite measures `μ` and `ν` on
-a complete second-countable inner product space coincide, then `μ = ν`. -/
-theorem Measure.ext_of_charFun [CompleteSpace E]
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : charFun μ = charFun ν) :
-    μ = ν := by
+/--
+If the characteristic functions `charFun` of two finite measures `μ` and `ν` on
+a complete second-countable inner product space coincide, then `μ = ν`.
+-/
+theorem Measure.ext_of_charFun
+    [CompleteSpace E] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : charFun μ = charFun ν)
+    : μ = ν := by
   simp_rw [funext_iff, charFun_eq_integral_innerProbChar] at h
-  refine ext_of_integral_char_eq continuous_probChar probChar_ne_one (L := innerₗ E)
-    ?_ ?_ h
+  refine ext_of_integral_char_eq continuous_probChar probChar_ne_one (L := innerₗ E) ?_ ?_ h
   · exact fun v hv ↦ DFunLike.ne_iff.mpr ⟨v, inner_self_ne_zero.mpr hv⟩
   · exact continuous_inner
 
@@ -272,9 +278,10 @@ lemma charFun_conv [IsFiniteMeasure μ] [IsFiniteMeasure ν] (t : E) :
   · simp [inner_add_left, add_mul, Complex.exp_add, integral_const_mul, integral_mul_const]
   · exact (integrable_const (1 : ℝ)).mono (by fun_prop) (by simp)
 
-variable {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F]
-    [InnerProductSpace ℝ E] [InnerProductSpace ℝ F] {mE : MeasurableSpace E}
-    {mF : MeasurableSpace F}
+variable
+  {E F : Type*}
+  [NormedAddCommGroup E] [NormedAddCommGroup F] [InnerProductSpace ℝ E] [InnerProductSpace ℝ F]
+  {mE : MeasurableSpace E} {mF : MeasurableSpace F}
 
 /-- The characteristic function of a product of measures is a product of
 characteristic functions. This is the version for Hilbert spaces, see `charFunDual_prod`
@@ -287,8 +294,9 @@ lemma charFun_prod {μ : Measure E} {ν : Measure F} [SFinite μ] [SFinite ν]
     integral_map_equiv]
   simp [ofReal_add, add_mul, Complex.exp_add]
 
-variable [CompleteSpace E] [CompleteSpace F] [SecondCountableTopology E] [SecondCountableTopology F]
-    [BorelSpace E] [BorelSpace F]
+variable
+  [CompleteSpace E] [CompleteSpace F] [SecondCountableTopology E] [SecondCountableTopology F]
+  [BorelSpace E] [BorelSpace F]
 
 /-- The characteristic function of a measure is a product of
 characteristic functions if and only if it is a product measure.
@@ -304,8 +312,10 @@ lemma charFun_eq_prod_iff {μ : Measure E} {ν : Measure F} {ξ : Measure (E × 
     rw [MeasurableEquiv.coe_toLp, h, charFun_prod]
   mpr h := by rw [h]; exact charFun_prod
 
-variable {ι : Type*} [Fintype ι] {E : ι → Type*} [∀ i, NormedAddCommGroup (E i)]
-    [∀ i, InnerProductSpace ℝ (E i)] {mE : ∀ i, MeasurableSpace (E i)}
+variable
+  {ι : Type*} [Fintype ι]
+  {E : ι → Type*} [∀ i, NormedAddCommGroup (E i)] [∀ i, InnerProductSpace ℝ (E i)]
+  {mE : ∀ i, MeasurableSpace (E i)}
 
 /-- The characteristic function of a product of measures is a product of
 characteristic functions. This is the version for Hilbert spaces, see `charFunDual_pi`
@@ -335,14 +345,16 @@ end InnerProductSpace
 
 section NormedSpace
 
-variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] {mE : MeasurableSpace E}
-  [NormedAddCommGroup F] [NormedSpace ℝ F] {mF : MeasurableSpace F}
-  {μ : Measure E} {ν : Measure F}
+variable
+  {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {mE : MeasurableSpace E} [NormedAddCommGroup F] [NormedSpace ℝ F]
+  {mF : MeasurableSpace F} {μ : Measure E} {ν : Measure F}
 
-/-- The characteristic function of a measure in a normed space, function from `StrongDual ℝ E` to
-`ℂ` with `charFunDual μ L = ∫ v, exp (L v * I) ∂μ`. -/
-noncomputable
-def charFunDual (μ : Measure E) (L : StrongDual ℝ E) : ℂ := ∫ v, probCharDual L v ∂μ
+/--
+The characteristic function of a measure in a normed space, function from `StrongDual ℝ E` to
+`ℂ` with `charFunDual μ L = ∫ v, exp (L v * I) ∂μ`.
+-/
+noncomputable def charFunDual (μ : Measure E) (L : StrongDual ℝ E) : ℂ := ∫ v, probCharDual L v ∂μ
 
 lemma charFunDual_apply (L : StrongDual ℝ E) : charFunDual μ L = ∫ v, exp (L v * I) ∂μ := rfl
 
@@ -459,12 +471,13 @@ lemma charFunDual_pi' (p : ℝ≥0∞) [Fact (1 ≤ p)] {ι : Type*} [Fintype ι
 variable [BorelSpace E] [SecondCountableTopology E]
 
 /-- If two finite measures have the same characteristic function, then they are equal. -/
-theorem Measure.ext_of_charFunDual [CompleteSpace E]
+theorem Measure.ext_of_charFunDual
+    [CompleteSpace E]
     {μ ν : Measure E} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h : charFunDual μ = charFunDual ν) :
-    μ = ν := by
-  refine ext_of_integral_char_eq continuous_probChar probChar_ne_one
-    ?_ ?_ (fun L ↦ funext_iff.mp h L)
+    (h : charFunDual μ = charFunDual ν)
+    : μ = ν := by
+  refine ext_of_integral_char_eq continuous_probChar probChar_ne_one ?_ ?_
+    (fun L ↦ funext_iff.mp h L)
   · exact fun v hv ↦ DFunLike.ne_iff.mpr <| SeparatingDual.exists_ne_zero hv
   · exact isBoundedBilinearMap_apply.symm.continuous
 

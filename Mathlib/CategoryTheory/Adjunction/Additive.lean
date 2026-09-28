@@ -30,8 +30,9 @@ namespace Adjunction
 
 open CategoryTheory CategoryTheory.Functor
 
-variable {C : Type u₁} {D : Type u₂} [Category.{v₁} C] [Category.{v₂} D] [Preadditive C]
-  [Preadditive D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
+variable
+  {C : Type u₁} {D : Type u₂} [Category.{v₁} C] [Category.{v₂} D] [Preadditive C] [Preadditive D]
+  {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
 
 include adj
 
@@ -45,16 +46,18 @@ lemma left_adjoint_additive [G.Additive] : F.Additive where
 variable [F.Additive]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If we have an adjunction `adj : F ⊣ G` of functors between preadditive categories,
+/--
+If we have an adjunction `adj : F ⊣ G` of functors between preadditive categories,
 and if `F` is additive, then the hom set equivalence upgrades to an `AddEquiv`.
 Note that `F` is additive if and only if `G` is, by `Adjunction.right_adjoint_additive` and
 `Adjunction.left_adjoint_additive`.
 -/
-def homAddEquiv (X : C) (Y : D) : AddEquiv (F.obj X ⟶ Y) (X ⟶ G.obj Y) :=
-  { adj.homEquiv _ _ with
-    map_add' _ _ := by
-      have := adj.right_adjoint_additive
-      simp [homEquiv_apply] }
+def homAddEquiv (X : C) (Y : D) : AddEquiv (F.obj X ⟶ Y) (X ⟶ G.obj Y) := {
+  adj.homEquiv _ _ with
+  map_add' _ _ := by
+    have := adj.right_adjoint_additive
+    simp [homEquiv_apply]
+}
 
 @[simp]
 lemma homAddEquiv_apply (X : C) (Y : D) (f : F.obj X ⟶ Y) :
@@ -101,24 +104,27 @@ lemma homAddEquiv_symm_neg (X : C) (Y : D) (f : X ⟶ G.obj Y) :
   map_neg (adj.homAddEquiv X Y).symm _
 
 open Opposite in
-/-- If we have an adjunction `adj : F ⊣ G` of functors between preadditive categories,
+/--
+If we have an adjunction `adj : F ⊣ G` of functors between preadditive categories,
 and if `F` is additive, then the hom set equivalence upgrades to an isomorphism between
 `G ⋙ preadditiveYoneda` and `preadditiveYoneda ⋙ F`, once we throw in the necessary
 universe lifting functors.
 Note that `F` is additive if and only if `G` is, by `Adjunction.right_adjoint_additive` and
 `Adjunction.left_adjoint_additive`.
 -/
-def compPreadditiveYonedaIso :
-    G ⋙ preadditiveYoneda ⋙ (whiskeringRight _ _ _).obj AddCommGrpCat.uliftFunctor.{max v₁ v₂} ≅
-      preadditiveYoneda ⋙ (whiskeringLeft _ _ _).obj F.op ⋙
-        (whiskeringRight _ _ _).obj AddCommGrpCat.uliftFunctor.{max v₁ v₂} :=
+def compPreadditiveYonedaIso
+    : G ⋙ preadditiveYoneda ⋙ (whiskeringRight _ _ _).obj AddCommGrpCat.uliftFunctor.{max v₁ v₂}
+      ≅ preadditiveYoneda ⋙ (whiskeringLeft _ _ _).obj F.op
+        ⋙ (whiskeringRight _ _ _).obj AddCommGrpCat.uliftFunctor.{max v₁ v₂} :=
   NatIso.ofComponents
-    (fun Y ↦ NatIso.ofComponents
-      (fun X ↦ (AddEquiv.ulift.trans ((adj.homAddEquiv (unop X) Y).symm.trans
-        AddEquiv.ulift.symm)).toAddCommGrpIso)
-      (fun g ↦ by
-        ext ⟨y⟩
-        exact AddEquiv.ulift.injective (adj.homEquiv_naturality_left_symm g.unop y)))
+    (fun Y ↦
+      NatIso.ofComponents
+        (fun X ↦
+          (AddEquiv.ulift.trans ((adj.homAddEquiv (unop X) Y).symm.trans
+            AddEquiv.ulift.symm)).toAddCommGrpIso)
+        (fun g ↦ by
+          ext ⟨y⟩
+          exact AddEquiv.ulift.injective (adj.homEquiv_naturality_left_symm g.unop y)))
     (fun f ↦ by
       ext _ ⟨x⟩
       exact AddEquiv.ulift.injective ((adj.homEquiv_naturality_right_symm x f)))

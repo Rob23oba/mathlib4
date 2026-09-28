@@ -30,15 +30,17 @@ namespace CategoryTheory
 -- declare the `v`'s first; see note [category theory universes].
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
-/-- `Functor C D` represents a functor between categories `C` and `D`.
+/--
+`Functor C D` represents a functor between categories `C` and `D`.
 
 To apply a functor `F` to an object use `F.obj X`, and to a morphism use `F.map f`.
 
 The axiom `map_id` expresses preservation of identities, and
-`map_comp` expresses functoriality. -/
+`map_comp` expresses functoriality.
+-/
 @[stacks 001B, wikidata Q864475]
-structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] :
-    Type max v₁ v₂ u₁ u₂ where
+structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
+    : Type max v₁ v₂ u₁ u₂ where
   /-- The action of a functor on objects. -/
   obj : C → D
   /-- The action of a functor on morphisms. -/
@@ -86,8 +88,7 @@ protected def id : C ⥤ C where
 /-- Notation for the identity functor on a category. -/
 scoped[CategoryTheory] notation "𝟭" => Functor.id -- Type this as `\sb1`
 
-instance : Inhabited (C ⥤ C) :=
-  ⟨Functor.id C⟩
+instance : Inhabited (C ⥤ C) := ⟨Functor.id C⟩
 
 variable {C}
 
@@ -101,20 +102,16 @@ end
 
 section
 
-variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
-  {E : Type u₃} [Category.{v₃} E]
+variable
+  {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D] {E : Type u₃} [Category.{v₃} E]
 
 /-- The prefunctor between the underlying quivers. -/
-@[simps]
-def toPrefunctor (F : C ⥤ D) : Prefunctor C D := { F with }
+@[simps] def toPrefunctor (F : C ⥤ D) : Prefunctor C D := { F with }
 
 @[to_dual self]
-theorem congr_map (F : C ⥤ D) {X Y : C} {f g : X ⟶ Y}
-    (h : f = g) : F.map f = F.map g := by
-  rw [h]
+theorem congr_map (F : C ⥤ D) {X Y : C} {f g : X ⟶ Y} (h : f = g) : F.map f = F.map g := by rw [h]
 
-/-- `F ⋙ G` is the composition of a functor `F` and a functor `G` (`F` first, then `G`).
--/
+/-- `F ⋙ G` is the composition of a functor `F` and a functor `G` (`F` first, then `G`). -/
 @[simps (attr := grind =) obj, implicit_reducible]
 def comp (F : C ⥤ D) (G : D ⥤ E) : C ⥤ E where
   obj X := G.obj (F.obj X)
@@ -124,8 +121,8 @@ def comp (F : C ⥤ D) (G : D ⥤ E) : C ⥤ E where
 scoped[CategoryTheory] infixr:80 " ⋙ " => Functor.comp
 
 @[simp, grind =, to_dual self]
-theorem comp_map (F : C ⥤ D) (G : D ⥤ E) {X Y : C} (f : X ⟶ Y) :
-    (F ⋙ G).map f = G.map (F.map f) := rfl
+theorem comp_map (F : C ⥤ D) (G : D ⥤ E) {X Y : C} (f : X ⟶ Y) : (F ⋙ G).map f = G.map (F.map f) :=
+  rfl
 
 -- These are not simp lemmas because rewriting along equalities between functors
 -- is not necessarily a good idea.
@@ -135,14 +132,14 @@ protected theorem comp_id (F : C ⥤ D) : F ⋙ 𝟭 D = F := rfl
 protected theorem id_comp (F : C ⥤ D) : 𝟭 C ⋙ F = F := rfl
 
 @[simp, to_dual self]
-theorem map_dite (F : C ⥤ D) {X Y : C} {P : Prop} [Decidable P]
-    (f : P → (X ⟶ Y)) (g : ¬P → (X ⟶ Y)) :
-    F.map (if h : P then f h else g h) = if h : P then F.map (f h) else F.map (g h) := by
+theorem map_dite (F : C ⥤ D) {X Y : C} {P : Prop} [Decidable P] (f : P → (X ⟶ Y)) (g : ¬P → (X ⟶ Y))
+    : F.map (if h : P then f h else g h) = if h : P then F.map (f h) else F.map (g h) := by
   cat_disch
 
 @[simp]
-theorem toPrefunctor_comp (F : C ⥤ D) (G : D ⥤ E) :
-    F.toPrefunctor.comp G.toPrefunctor = (F ⋙ G).toPrefunctor := rfl
+theorem toPrefunctor_comp (F : C ⥤ D) (G : D ⥤ E)
+    : F.toPrefunctor.comp G.toPrefunctor = (F ⋙ G).toPrefunctor :=
+  rfl
 
 lemma toPrefunctor_injective {F G : C ⥤ D} (h : F.toPrefunctor = G.toPrefunctor) :
     F = G := by

@@ -23,8 +23,10 @@ public meta section
 namespace Mathlib.Meta.NormNum
 open Lean Lean.Meta Qq Ordinal
 
-/- The `guard_msgs` in this file are for checking whether the current default extensions have been
-updated and the extensions in this file are no longer needed. -/
+/-
+The `guard_msgs` in this file are for checking whether the current default extensions have been
+updated and the extensions in this file are no longer needed.
+-/
 
 /-- info: 12 * 5 -/
 #guard_msgs in
@@ -38,7 +40,8 @@ lemma isNat_ordinalMul.{u} : ∀ {a b : Ordinal.{u}} {an bn rn : ℕ},
 @[norm_num (_ : Ordinal) * (_ : Ordinal)]
 def evalOrdinalMul : NormNumExt where
   eval {u α} e := do
-    let some u' := u.dec | throwError "level is not succ"
+    let some u' := u.dec
+      | throwError "level is not succ"
     haveI' : u =QL u' + 1 := ⟨⟩
     match α, e with
     | ~q(Ordinal.{u'}), ~q(($a : Ordinal) * ($b : Ordinal)) =>
@@ -48,7 +51,8 @@ def evalOrdinalMul : NormNumExt where
       have rn : Q(ℕ) := mkRawNatLit (an.natLit! * bn.natLit!)
       have : ($an * $bn) =Q $rn := ⟨⟩
       pure (.isNat i rn q(isNat_ordinalMul $pa $pb (.refl $rn)))
-    | _, _ => throwError "not multiplication on ordinals"
+    | _, _ =>
+      throwError "not multiplication on ordinals"
 
 /-- info: 5 ≤ 12 -/
 #guard_msgs in
@@ -90,7 +94,8 @@ def evalOrdinalLE : NormNumExt where
       else
         have : decide ($an ≤ $bn) =Q false := ⟨⟩
         pure (.isFalse q(isNat_ordinalLE_false $pa $pb $this))
-    | _, _ => throwError "not inequality on ordinals"
+    | _, _ =>
+      throwError "not inequality on ordinals"
 
 /-- The `norm_num` extension for strict inequality on ordinals. -/
 @[norm_num (_ : Ordinal) < (_ : Ordinal)]
@@ -108,7 +113,8 @@ def evalOrdinalLT : NormNumExt where
       else
         have : decide ($an < $bn) =Q false := ⟨⟩
         pure (.isFalse q(isNat_ordinalLT_false $pa $pb $this))
-    | _, _ => throwError "not strict inequality on ordinals"
+    | _, _ =>
+      throwError "not strict inequality on ordinals"
 
 /-- info: 12 - 5 -/
 #guard_msgs in
@@ -122,7 +128,8 @@ lemma isNat_ordinalSub.{u} : ∀ {a b : Ordinal.{u}} {an bn rn : ℕ},
 @[norm_num (_ : Ordinal) - (_ : Ordinal)]
 def evalOrdinalSub : NormNumExt where
   eval {u α} e := do
-    let some u' := u.dec | throwError "level is not succ"
+    let some u' := u.dec
+      | throwError "level is not succ"
     haveI' : u =QL u' + 1 := ⟨⟩
     match α, e with
     | ~q(Ordinal.{u'}), ~q(($a : Ordinal) - ($b : Ordinal)) =>
@@ -132,7 +139,8 @@ def evalOrdinalSub : NormNumExt where
       have rn : Q(ℕ) := mkRawNatLit (an.natLit! - bn.natLit!)
       have : ($an - $bn) =Q $rn := ⟨⟩
       pure (.isNat i rn q(isNat_ordinalSub $pa $pb (.refl $rn)))
-    | _, _ => throwError "not subtration on ordinals"
+    | _, _ =>
+      throwError "not subtration on ordinals"
 
 /-- info: 12 / 5 -/
 #guard_msgs in
@@ -146,7 +154,8 @@ lemma isNat_ordinalDiv.{u} : ∀ {a b : Ordinal.{u}} {an bn rn : ℕ},
 @[norm_num (_ : Ordinal) / (_ : Ordinal)]
 def evalOrdinalDiv : NormNumExt where
   eval {u α} e := do
-    let some u' := u.dec | throwError "level is not succ"
+    let some u' := u.dec
+      | throwError "level is not succ"
     haveI' : u =QL u' + 1 := ⟨⟩
     match α, e with
     | ~q(Ordinal.{u'}), ~q(($a : Ordinal) / ($b : Ordinal)) =>
@@ -156,7 +165,8 @@ def evalOrdinalDiv : NormNumExt where
       have rn : Q(ℕ) := mkRawNatLit (an.natLit! / bn.natLit!)
       have : ($an / $bn) =Q $rn := ⟨⟩
       pure (.isNat i rn q(isNat_ordinalDiv $pa $pb (.refl $rn)))
-    | _, _ => throwError "not division on ordinals"
+    | _, _ =>
+      throwError "not division on ordinals"
 
 /-- info: 12 % 5 -/
 #guard_msgs in
@@ -170,7 +180,8 @@ lemma isNat_ordinalMod.{u} : ∀ {a b : Ordinal.{u}} {an bn rn : ℕ},
 @[norm_num (_ : Ordinal) % (_ : Ordinal)]
 def evalOrdinalMod : NormNumExt where
   eval {u α} e := do
-    let some u' := u.dec | throwError "level is not succ"
+    let some u' := u.dec
+      | throwError "level is not succ"
     haveI' : u =QL u' + 1 := ⟨⟩
     match α, e with
     | ~q(Ordinal.{u'}), ~q(($a : Ordinal) % ($b : Ordinal)) =>
@@ -180,7 +191,8 @@ def evalOrdinalMod : NormNumExt where
       have rn : Q(ℕ) := mkRawNatLit (an.natLit! % bn.natLit!)
       have : ($an % $bn) =Q $rn := ⟨⟩
       pure (.isNat i rn q(isNat_ordinalMod $pa $pb (.refl $rn)))
-    | _, _ => throwError "not modulo on ordinals"
+    | _, _ =>
+      throwError "not modulo on ordinals"
 
 lemma isNat_ordinalOPow.{u} : ∀ {a b : Ordinal.{u}} {an bn rn : ℕ},
     IsNat a an → IsNat b bn → an ^ bn = rn → IsNat (a ^ b) rn
@@ -190,7 +202,8 @@ lemma isNat_ordinalOPow.{u} : ∀ {a b : Ordinal.{u}} {an bn rn : ℕ},
 @[norm_num (_ : Ordinal) ^ (_ : Ordinal)]
 def evalOrdinalOPow : NormNumExt where
   eval {u α} e := do
-    let some u' := u.dec | throwError "level is not succ"
+    let some u' := u.dec
+      | throwError "level is not succ"
     haveI' : u =QL u' + 1 := ⟨⟩
     match α, e with
     | ~q(Ordinal.{u'}), ~q(($a : Ordinal) ^ ($b : Ordinal)) =>
@@ -200,7 +213,8 @@ def evalOrdinalOPow : NormNumExt where
       have rn : Q(ℕ) := mkRawNatLit (an.natLit! ^ bn.natLit!)
       have : ($an ^ $bn) =Q $rn := ⟨⟩
       pure (.isNat i rn q(isNat_ordinalOPow $pa $pb (.refl $rn)))
-    | _, _ => throwError "not homogeneous power on ordinals"
+    | _, _ =>
+      throwError "not homogeneous power on ordinals"
 
 /-- info: 12 ^ 2 -/
 #guard_msgs in
@@ -214,7 +228,8 @@ lemma isNat_ordinalNPow.{u} : ∀ {a : Ordinal.{u}} {b an bn rn : ℕ},
 @[norm_num (_ : Ordinal) ^ (_ : ℕ)]
 def evalOrdinalNPow : NormNumExt where
   eval {u α} e := do
-    let some u' := u.dec | throwError "level is not succ"
+    let some u' := u.dec
+      | throwError "level is not succ"
     haveI' : u =QL u' + 1 := ⟨⟩
     match α, e with
     | ~q(Ordinal.{u'}), ~q(($a : Ordinal) ^ ($b : ℕ)) =>
@@ -224,6 +239,7 @@ def evalOrdinalNPow : NormNumExt where
       have rn : Q(ℕ) := mkRawNatLit (an.natLit! ^ bn.natLit!)
       have : ($an ^ $bn) =Q $rn := ⟨⟩
       pure (.isNat i rn q(isNat_ordinalNPow $pa $pb (.refl $rn)))
-    | _, _ => throwError "not natural power on ordinals"
+    | _, _ =>
+      throwError "not natural power on ordinals"
 
 end Mathlib.Meta.NormNum

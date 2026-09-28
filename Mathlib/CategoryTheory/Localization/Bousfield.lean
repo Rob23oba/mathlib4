@@ -49,19 +49,23 @@ section
 
 variable (P : ObjectProperty C)
 
-/-- Given `P : ObjectProperty C`, this is the class of morphisms `f : X ⟶ Y`
+/--
+Given `P : ObjectProperty C`, this is the class of morphisms `f : X ⟶ Y`
 such that for all `Z : C` such that `P Z`, the precomposition with `f` induces
 a bijection `(Y ⟶ Z) ≃ (X ⟶ Z)`. (One of the applications of this notion
-is the left Bousfield localization of model categories.) -/
+is the left Bousfield localization of model categories.)
+-/
 def isLocal : MorphismProperty C := fun _ _ f =>
   ∀ Z, P Z → Function.Bijective (fun (g : _ ⟶ Z) => f ≫ g)
 
 variable {P} in
-/-- The bijection `(Y ⟶ Z) ≃ (X ⟶ Z)` induced by `f : X ⟶ Y` when `P.isLocal f`
-and `P Z`. -/
+/--
+The bijection `(Y ⟶ Z) ≃ (X ⟶ Z)` induced by `f : X ⟶ Y` when `P.isLocal f`
+and `P Z`.
+-/
 @[simps! apply]
-noncomputable def isLocal.homEquiv {X Y : C} {f : X ⟶ Y} (hf : P.isLocal f) (Z : C) (hZ : P Z) :
-    (Y ⟶ Z) ≃ (X ⟶ Z) :=
+noncomputable def isLocal.homEquiv {X Y : C} {f : X ⟶ Y} (hf : P.isLocal f) (Z : C) (hZ : P Z)
+    : (Y ⟶ Z) ≃ (X ⟶ Z) :=
   Equiv.ofBijective _ (hf Z hZ)
 
 lemma isoClosure_isLocal : P.isoClosure.isLocal = P.isLocal := by
@@ -81,8 +85,7 @@ lemma isoClosure_isLocal : P.isoClosure.isLocal = P.isLocal := by
 
 instance : P.isLocal.IsMultiplicative where
   id_mem X Z _ := by simpa [id_comp] using! Function.bijective_id
-  comp_mem f g hf hg Z hZ := by
-    simpa using! Function.Bijective.comp (hf Z hZ) (hg Z hZ)
+  comp_mem f g hf hg Z hZ := by simpa using! Function.Bijective.comp (hf Z hZ) (hg Z hZ)
 
 instance : P.isLocal.HasTwoOutOfThreeProperty where
   of_postcomp f g hg hfg Z hZ := by
@@ -129,19 +132,23 @@ section
 
 variable (P : ObjectProperty C)
 
-/-- Given `P : ObjectProperty C`, this is the class of morphisms `g : Y ⟶ Z`
+/--
+Given `P : ObjectProperty C`, this is the class of morphisms `g : Y ⟶ Z`
 such that for all `X : C` such that `P X`, the postcomposition with `g` induces
 a bijection `(X ⟶ Y) ≃ (X ⟶ Z)`. (One of the applications of this notion
-is the right Bousfield localization of model categories.) -/
+is the right Bousfield localization of model categories.)
+-/
 def isColocal : MorphismProperty C := fun _ _ g =>
   ∀ X, P X → Function.Bijective (fun (f : X ⟶ _) => f ≫ g)
 
 variable {P} in
-/-- The bijection `(X ⟶ Y) ≃ (X ⟶ Z)` induced by `g : Y ⟶ Z` when `P.isColocal g`
-and `P X`. -/
+/--
+The bijection `(X ⟶ Y) ≃ (X ⟶ Z)` induced by `g : Y ⟶ Z` when `P.isColocal g`
+and `P X`.
+-/
 @[simps! apply]
-noncomputable def isColocal.homEquiv {Y Z : C} {g : Y ⟶ Z} (hg : P.isColocal g) (X : C) (hX : P X) :
-    (X ⟶ Y) ≃ (X ⟶ Z) :=
+noncomputable def isColocal.homEquiv {Y Z : C} {g : Y ⟶ Z} (hg : P.isColocal g) (X : C) (hX : P X)
+    : (X ⟶ Y) ≃ (X ⟶ Z) :=
   Equiv.ofBijective _ (hg X hX)
 
 lemma isoClosure_isColocal : P.isoClosure.isColocal = P.isColocal := by

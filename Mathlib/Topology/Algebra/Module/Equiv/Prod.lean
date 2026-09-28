@@ -24,7 +24,8 @@ public import Mathlib.Topology.Algebra.Module.Equiv.Basic
 
 assert_not_exists TrivialStar
 
-variable {R : Type*} [Semiring R]
+variable
+  {R : Type*} [Semiring R]
   {M₁ : Type*} [TopologicalSpace M₁] [AddCommMonoid M₁] [Module R M₁]
   {M₂ : Type*} [TopologicalSpace M₂] [AddCommMonoid M₂] [Module R M₂]
   {M₃ : Type*} [TopologicalSpace M₃] [AddCommMonoid M₃] [Module R M₃]
@@ -35,24 +36,22 @@ namespace ContinuousLinearEquiv
 section prodCongr
 
 /-- Product of two continuous linear equivalences. The map comes from `Equiv.prodCongr`. -/
-def prodCongr (e : M₁ ≃L[R] M₂) (e' : M₃ ≃L[R] M₄) :
-    (M₁ × M₃) ≃L[R] M₂ × M₄ where
+def prodCongr (e : M₁ ≃L[R] M₂) (e' : M₃ ≃L[R] M₄) : (M₁ × M₃) ≃L[R] M₂ × M₄ where
   __ := e.toLinearEquiv.prodCongr e'.toLinearEquiv
 
 @[simp, norm_cast]
-theorem prodCongr_apply (e : M₁ ≃L[R] M₂)
-    (e' : M₃ ≃L[R] M₄) (x) : e.prodCongr e' x = (e x.1, e' x.2) :=
+theorem prodCongr_apply (e : M₁ ≃L[R] M₂) (e' : M₃ ≃L[R] M₄) (x)
+    : e.prodCongr e' x = (e x.1, e' x.2) :=
   rfl
 
 @[simp, norm_cast]
-theorem coe_prodCongr (e : M₁ ≃L[R] M₂)
-    (e' : M₃ ≃L[R] M₄) :
-    (e.prodCongr e' : M₁ × M₃ →L[R] M₂ × M₄) = (e : M₁ →L[R] M₂).prodMap (e' : M₃ →L[R] M₄) :=
+theorem coe_prodCongr (e : M₁ ≃L[R] M₂) (e' : M₃ ≃L[R] M₄)
+    : (e.prodCongr e' : M₁ × M₃ →L[R] M₂ × M₄) = (e : M₁ →L[R] M₂).prodMap (e' : M₃ →L[R] M₄) :=
   rfl
 
 @[simp]
-theorem prodCongr_symm (e : M₁ ≃L[R] M₂)
-    (e' : M₃ ≃L[R] M₄) : (e.prodCongr e').symm = e.symm.prodCongr e'.symm :=
+theorem prodCongr_symm (e : M₁ ≃L[R] M₂) (e' : M₃ ≃L[R] M₄)
+    : (e.prodCongr e').symm = e.symm.prodCongr e'.symm :=
   rfl
 
 end prodCongr
@@ -71,8 +70,8 @@ def prodComm : (M₁ × M₂) ≃L[R] M₂ × M₁ where
 
 /-- Composition of a map on a product with the exchange of the product factors -/
 theorem _root_.ContinuousLinearMap.coprod_comp_prodComm
-    [ContinuousAdd M₃] (f : M₁ →L[R] M₃) (g : M₂ →L[R] M₃) :
-    f.coprod g ∘L ContinuousLinearEquiv.prodComm R M₂ M₁ = g.coprod f := by
+    [ContinuousAdd M₃] (f : M₁ →L[R] M₃) (g : M₂ →L[R] M₃)
+    : f.coprod g ∘L ContinuousLinearEquiv.prodComm R M₂ M₁ = g.coprod f := by
   ext <;> simp
 
 end prodComm
@@ -81,14 +80,18 @@ section prodAssoc
 
 variable (R M₁ M₂ M₃)
 
-/-- The product of topological modules is associative up to continuous linear isomorphism.
-This is `LinearEquiv.prodAssoc` prodAssoc as a continuous linear equivalence. -/
+/--
+The product of topological modules is associative up to continuous linear isomorphism.
+This is `LinearEquiv.prodAssoc` prodAssoc as a continuous linear equivalence.
+-/
 def prodAssoc : ((M₁ × M₂) × M₃) ≃L[R] M₁ × M₂ × M₃ where
   toLinearEquiv := LinearEquiv.prodAssoc R M₁ M₂ M₃
-  continuous_toFun := (continuous_fst.comp continuous_fst).prodMk
-    ((continuous_snd.comp continuous_fst).prodMk continuous_snd)
-  continuous_invFun := (continuous_fst.prodMk (continuous_fst.comp continuous_snd)).prodMk
-    (continuous_snd.comp continuous_snd)
+  continuous_toFun :=
+    (continuous_fst.comp continuous_fst).prodMk
+      ((continuous_snd.comp continuous_fst).prodMk continuous_snd)
+  continuous_invFun :=
+    (continuous_fst.prodMk (continuous_fst.comp continuous_snd)).prodMk
+      (continuous_snd.comp continuous_snd)
 
 @[simp]
 lemma prodAssoc_toLinearEquiv :
@@ -112,14 +115,16 @@ section prodProdProdComm
 
 variable (R M₁ M₂ M₃ M₄)
 
-/-- The product of topological modules is four-way commutative up to continuous linear isomorphism.
-This is `LinearEquiv.prodProdProdComm` prodAssoc as a continuous linear equivalence. -/
+/--
+The product of topological modules is four-way commutative up to continuous linear isomorphism.
+This is `LinearEquiv.prodProdProdComm` prodAssoc as a continuous linear equivalence.
+-/
 def prodProdProdComm : ((M₁ × M₂) × M₃ × M₄) ≃L[R] (M₁ × M₃) × M₂ × M₄ where
   toLinearEquiv := LinearEquiv.prodProdProdComm R M₁ M₂ M₃ M₄
 
 @[simp]
-theorem prodProdProdComm_symm :
-    (prodProdProdComm R M₁ M₂ M₃ M₄).symm = prodProdProdComm R M₁ M₃ M₂ M₄ :=
+theorem prodProdProdComm_symm
+    : (prodProdProdComm R M₁ M₂ M₃ M₄).symm = prodProdProdComm R M₁ M₃ M₂ M₄ :=
   rfl
 
 @[simp]
@@ -143,8 +148,10 @@ section Unique
 variable (R M₁ M₂) [Unique M₂]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The natural equivalence `M × N ≃L[R] M` for any `Unique` type `N`.
-This is `Equiv.prodUnique` as a continuous linear equivalence. -/
+/--
+The natural equivalence `M × N ≃L[R] M` for any `Unique` type `N`.
+This is `Equiv.prodUnique` as a continuous linear equivalence.
+-/
 def prodUnique : (M₁ × M₂) ≃L[R] M₁ where
   toLinearEquiv := LinearEquiv.prodUnique
 
@@ -158,8 +165,10 @@ lemma prodUnique_apply (x : M₁ × M₂) : prodUnique R M₁ M₂ x = x.1 := rf
 lemma prodUnique_symm_apply (x : M₁) : (prodUnique R M₁ M₂).symm x = (x, default) := rfl
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The natural equivalence `N × M ≃L[R] M` for any `Unique` type `N`.
-This is `Equiv.uniqueProd` as a continuous linear equivalence. -/
+/--
+The natural equivalence `N × M ≃L[R] M` for any `Unique` type `N`.
+This is `Equiv.uniqueProd` as a continuous linear equivalence.
+-/
 def uniqueProd : (M₂ × M₁) ≃L[R] M₁ where
   toLinearEquiv := LinearEquiv.uniqueProd
 

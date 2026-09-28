@@ -170,40 +170,44 @@ The key property of Hilbert polynomials. If `F` is a field with characteristic `
 `d : ℕ`, then for any large enough `n : ℕ`, `(Polynomial.hilbertPoly p d).eval (n : F)` equals the
 coefficient of `Xⁿ` in the power series expansion of `p/(1 - X)ᵈ`.
 -/
-theorem coeff_mul_invOneSubPow_eq_hilbertPoly_eval
-    {p : F[X]} (d : ℕ) {n : ℕ} (hn : p.natDegree < n) :
-    (p * invOneSubPow F d : F⟦X⟧).coeff n = (hilbertPoly p d).eval (n : F) := by
-  delta hilbertPoly; induction d with
-  | zero => simp only [invOneSubPow_zero, Units.val_one, mul_one, coeff_coe, eval_zero]
-            exact coeff_eq_zero_of_natDegree_lt hn
+theorem coeff_mul_invOneSubPow_eq_hilbertPoly_eval {p : F[X]} (d : ℕ) {n : ℕ} (hn : p.natDegree < n)
+    : (p * invOneSubPow F d : F⟦X⟧).coeff n = (hilbertPoly p d).eval (n : F) := by
+  delta hilbertPoly
+  induction d with
+  | zero =>
+    simp only [invOneSubPow_zero, Units.val_one, mul_one, coeff_coe, eval_zero]
+    exact coeff_eq_zero_of_natDegree_lt hn
   | succ d hd =>
-      simp only [eval_finsetSum, eval_smul, smul_eq_mul]
-      rw [← Finset.sum_coe_sort]
-      have h_le (i : p.support) : (i : ℕ) ≤ n :=
-        le_trans (le_natDegree_of_ne_zero <| mem_support_iff.1 i.2) hn.le
-      have h (i : p.support) : eval ↑n (preHilbertPoly F d ↑i) = (n + d - ↑i).choose d := by
-        rw [preHilbertPoly_eq_choose_add_sub _ _ (Nat.le_add_right_of_le (h_le i)),
-          Nat.sub_add_comm (h_le i)]
-      simp_rw [h]
-      rw [Finset.sum_coe_sort _ (fun x => (p.coeff ↑x) * (_ + d - ↑x).choose _),
-        PowerSeries.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk,
-        invOneSubPow_val_eq_mk_sub_one_add_choose_of_pos _ _ (zero_lt_succ d)]
-      simp only [coeff_coe, coeff_mk]
-      symm
-      refine Finset.sum_subset_zero_on_sdiff (fun s hs ↦ ?_) (fun x hx ↦ ?_) (fun x hx ↦ ?_)
-      · rw [Finset.mem_range_succ_iff]
-        exact h_le ⟨s, hs⟩
-      · simp only [Finset.mem_sdiff, mem_support_iff, not_not] at hx
-        rw [hx.2, zero_mul]
-      · rw [add_comm, Nat.add_sub_assoc (h_le ⟨x, hx⟩), succ_eq_add_one, add_tsub_cancel_right]
+    simp only [eval_finsetSum, eval_smul, smul_eq_mul]
+    rw [← Finset.sum_coe_sort]
+    have h_le (i : p.support) : (i : ℕ) ≤ n :=
+      le_trans (le_natDegree_of_ne_zero <| mem_support_iff.1 i.2) hn.le
+    have h (i : p.support) : eval ↑n (preHilbertPoly F d ↑i) = (n + d - ↑i).choose d := by
+      rw [
+        preHilbertPoly_eq_choose_add_sub _ _ (Nat.le_add_right_of_le (h_le i)),
+        Nat.sub_add_comm (h_le i)
+      ]
+    simp_rw [h]
+    rw [
+      Finset.sum_coe_sort _ (fun x => (p.coeff ↑x) * (_ + d - ↑x).choose _), PowerSeries.coeff_mul,
+      Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk,
+      invOneSubPow_val_eq_mk_sub_one_add_choose_of_pos _ _ (zero_lt_succ d)
+    ]
+    simp only [coeff_coe, coeff_mk]
+    symm
+    refine Finset.sum_subset_zero_on_sdiff (fun s hs ↦ ?_) (fun x hx ↦ ?_) (fun x hx ↦ ?_)
+    · rw [Finset.mem_range_succ_iff]
+      exact h_le ⟨s, hs⟩
+    · simp only [Finset.mem_sdiff, mem_support_iff, not_not] at hx
+      rw [hx.2, zero_mul]
+    · rw [add_comm, Nat.add_sub_assoc (h_le ⟨x, hx⟩), succ_eq_add_one, add_tsub_cancel_right]
 
-/--
-The polynomial satisfying the key property of `Polynomial.hilbertPoly p d` is unique.
--/
-theorem existsUnique_hilbertPoly (p : F[X]) (d : ℕ) :
-    ∃! h : F[X], ∃ N : ℕ, ∀ n > N,
-      (p * invOneSubPow F d : F⟦X⟧).coeff n = h.eval (n : F) := by
-  use hilbertPoly p d; constructor
+/-- The polynomial satisfying the key property of `Polynomial.hilbertPoly p d` is unique. -/
+theorem existsUnique_hilbertPoly (p : F[X]) (d : ℕ)
+    : ∃! h : F[X], ∃ N : ℕ, ∀ n > N,
+        (p * invOneSubPow F d : F⟦X⟧).coeff n = h.eval (n : F) := by
+  use hilbertPoly p d
+  constructor
   · use p.natDegree
     exact fun n => coeff_mul_invOneSubPow_eq_hilbertPoly_eval d
   · rintro h ⟨N, hhN⟩
@@ -219,9 +223,9 @@ we have `PowerSeries.coeff F n (p * invOneSubPow F d) = h.eval (n : F)`, then `h
 `Polynomial.hilbertPoly p d`.
 -/
 theorem eq_hilbertPoly_of_forall_coeff_eq_eval
-    {p h : F[X]} {d : ℕ} (N : ℕ) (hhN : ∀ n > N,
-    PowerSeries.coeff (R := F) n (p * invOneSubPow F d) = h.eval (n : F)) :
-    h = hilbertPoly p d :=
+    {p h : F[X]} {d : ℕ}
+    (N : ℕ) (hhN : ∀ n > N, PowerSeries.coeff (R := F) n (p * invOneSubPow F d) = h.eval (n : F))
+    : h = hilbertPoly p d :=
   ExistsUnique.unique (existsUnique_hilbertPoly p d) ⟨N, hhN⟩
     ⟨p.natDegree, fun _ x => coeff_mul_invOneSubPow_eq_hilbertPoly_eval d x⟩
 
@@ -252,8 +256,8 @@ lemma hilbertPoly_eq_zero_of_le_rootMultiplicity_one
       hilbertPoly_mul_one_sub_pow_add, hilbertPoly]
 
 theorem natDegree_hilbertPoly_of_ne_zero_of_rootMultiplicity_lt
-    {p : F[X]} {d : ℕ} (hp : p ≠ 0) (hpd : p.rootMultiplicity 1 < d) :
-    (hilbertPoly p d).natDegree = d - p.rootMultiplicity 1 - 1 := by
+    {p : F[X]} {d : ℕ} (hp : p ≠ 0) (hpd : p.rootMultiplicity 1 < d)
+    : (hilbertPoly p d).natDegree = d - p.rootMultiplicity 1 - 1 := by
   rcases exists_eq_pow_rootMultiplicity_mul_and_not_dvd p hp 1 with ⟨q, hq1, hq2⟩
   have heq : p = q * (-1) ^ p.rootMultiplicity 1 * (1 - X) ^ p.rootMultiplicity 1 := by
     simp only [mul_assoc, ← mul_pow, neg_mul, one_mul, neg_sub]
@@ -266,15 +270,16 @@ theorem natDegree_hilbertPoly_of_ne_zero_of_rootMultiplicity_lt
     apply le_trans (natDegree_smul_le _ _)
     rw [natDegree_preHilbertPoly]
   · have : (fun (x : ℕ) (a : F) => a) = fun x a => a * 1 ^ x := by simp only [one_pow, mul_one]
-    simp only [finsetSum_coeff, coeff_smul, smul_eq_mul, coeff_preHilbertPoly_self,
-      ← Finset.sum_mul, ← sum_def _ (fun _ a => a), this, ← eval_eq_sum, eval_mul, eval_pow,
-      eval_neg, eval_one, _root_.mul_eq_zero, pow_eq_zero_iff', neg_eq_zero, one_ne_zero, ne_eq,
-      false_and, or_false, inv_eq_zero, cast_eq_zero, not_or]
+    simp only [
+      finsetSum_coeff, coeff_smul, smul_eq_mul, coeff_preHilbertPoly_self, ← Finset.sum_mul,
+      ← sum_def _ (fun _ a => a), this, ← eval_eq_sum, eval_mul, eval_pow, eval_neg, eval_one,
+      _root_.mul_eq_zero, pow_eq_zero_iff', neg_eq_zero, one_ne_zero, ne_eq, false_and, or_false,
+      inv_eq_zero, cast_eq_zero, not_or
+    ]
     exact ⟨(not_iff_not.2 dvd_iff_isRoot).1 hq2, factorial_ne_zero _⟩
 
-theorem natDegree_hilbertPoly_of_ne_zero
-    {p : F[X]} {d : ℕ} (hh : hilbertPoly p d ≠ 0) :
-    (hilbertPoly p d).natDegree = d - p.rootMultiplicity 1 - 1 := by
+theorem natDegree_hilbertPoly_of_ne_zero {p : F[X]} {d : ℕ} (hh : hilbertPoly p d ≠ 0)
+    : (hilbertPoly p d).natDegree = d - p.rootMultiplicity 1 - 1 := by
   have hp : p ≠ 0 := by
     intro h
     rw [h] at hh

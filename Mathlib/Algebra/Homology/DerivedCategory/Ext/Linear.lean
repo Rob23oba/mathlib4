@@ -31,8 +31,7 @@ namespace Ext
 
 section Ring
 
-variable {R : Type t} [Ring R] {C : Type u} [Category.{v} C] [Abelian C] [Linear R C]
-  [HasExt.{w} C]
+variable {R : Type t} [Ring R] {C : Type u} [Category.{v} C] [Abelian C] [Linear R C] [HasExt.{w} C]
 
 variable {X Y : C} {n : ℕ}
 
@@ -69,13 +68,15 @@ lemma smul_comp {X Y Z : C} {a b : ℕ} (α : Ext X Y a) (β : Ext Y Z b)
   aesop
 
 open DerivedCategory in
-/-- When an instance of `[HasDerivedCategory.{w'} C]` is available, this is the `R`-linear
+/--
+When an instance of `[HasDerivedCategory.{w'} C]` is available, this is the `R`-linear
 equivalence between `Ext.{w} X Y n` and a type of morphisms in the derived category
-of the `R`-linear abelian category `C`. -/
+of the `R`-linear abelian category `C`.
+-/
 @[simps]
-noncomputable def homLinearEquiv [HasDerivedCategory.{w'} C] :
-    Ext X Y n ≃ₗ[R]
-      ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) where
+noncomputable def homLinearEquiv [HasDerivedCategory.{w'} C]
+    : Ext X Y n ≃ₗ[R]
+        ShiftedHom ((singleFunctor C 0).obj X) ((singleFunctor C 0).obj Y) (n : ℤ) where
   __ := homAddEquiv
   map_smul' := by simp
 
@@ -85,8 +86,7 @@ lemma mk₀_smul (r : R) (f : X ⟶ Y) : mk₀ (r • f) = r • mk₀ f := by
 
 /-- The linear equivalence `Ext X Y 0 ≃ₜ[R] (X ⟶ Y)`. -/
 @[simps! symm_apply]
-noncomputable def linearEquiv₀ :
-    Ext X Y 0 ≃ₗ[R] (X ⟶ Y) where
+noncomputable def linearEquiv₀ : Ext X Y 0 ≃ₗ[R] (X ⟶ Y) where
   toAddEquiv := addEquiv₀
   map_smul' m x := homEquiv₀.symm.injective (by simp [mk₀_smul])
 
@@ -103,26 +103,29 @@ variable {C : Type u} [Category.{v} C] [Abelian C] [HasExt.{w} C]
 
 /-- The composition of `Ext`, as a bilinear map. -/
 @[simps!]
-noncomputable def bilinearCompOfLinear (R : Type t) [CommRing R] [Linear R C] (X Y Z : C)
-    (a b c : ℕ) (h : a + b = c) :
-    Ext X Y a →ₗ[R] Ext Y Z b →ₗ[R] Ext X Z c where
-  toFun α :=
-    { toFun β := α.comp β h
-      map_add' := by simp
-      map_smul' := by simp }
+noncomputable def bilinearCompOfLinear
+    (R : Type t) [CommRing R] [Linear R C] (X Y Z : C) (a b c : ℕ) (h : a + b = c)
+    : Ext X Y a →ₗ[R] Ext Y Z b →ₗ[R] Ext X Z c where
+  toFun α := { toFun β := α.comp β h, map_add' := by simp, map_smul' := by simp }
   map_add' := by aesop
   map_smul' := by aesop
 
 /-- The postcomposition `Ext X Y a →ₗ[R] Ext X Z b` with `β : Ext Y Z n` when `a + n = b`. -/
-noncomputable abbrev postcompOfLinear {Y Z : C} {n : ℕ} (β : Ext Y Z n)
-    (R : Type t) [CommRing R] [Linear R C] (X : C) {a b : ℕ} (h : a + n = b) :
-    Ext X Y a →ₗ[R] Ext X Z b :=
+noncomputable abbrev postcompOfLinear
+    {Y Z : C} {n : ℕ} (β : Ext Y Z n)
+    (R : Type t) [CommRing R] [Linear R C]
+    (X : C)
+    {a b : ℕ} (h : a + n = b)
+    : Ext X Y a →ₗ[R] Ext X Z b :=
   (bilinearCompOfLinear R X Y Z a n b h).flip β
 
 /-- The precomposition `Ext Y Z a →ₗ[R] Ext X Z b` with `α : Ext X Y n` when `n + a = b`. -/
-noncomputable abbrev precompOfLinear {X Y : C} {n : ℕ} (α : Ext X Y n)
-    (R : Type t) [CommRing R] [Linear R C] (Z : C) {a b : ℕ} (h : n + a = b) :
-    Ext Y Z a →ₗ[R] Ext X Z b :=
+noncomputable abbrev precompOfLinear
+    {X Y : C} {n : ℕ} (α : Ext X Y n)
+    (R : Type t) [CommRing R] [Linear R C]
+    (Z : C)
+    {a b : ℕ} (h : n + a = b)
+    : Ext Y Z a →ₗ[R] Ext X Z b :=
   bilinearCompOfLinear R X Y Z n a b h α
 
 end CommRing

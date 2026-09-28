@@ -40,8 +40,8 @@ gives the q-expansion with a Riemann zeta factor, which we simplify using the fo
 
 public section
 
-open Set Metric TopologicalSpace Function Filter Complex ArithmeticFunction
-  ModularForm EisensteinSeries
+open Set Metric TopologicalSpace Function Filter Complex ArithmeticFunction ModularForm
+  EisensteinSeries
 
 open scoped Real Nat ArithmeticFunction.sigma Topology
 
@@ -75,47 +75,61 @@ private lemma aux_IsBigO_mul (k l : ℕ) (p : ℝ) {f : ℕ → ℂ}
   ring
 
 open BoundedContinuousFunction in
-/-- The infinite sum of `k`-th iterated derivative of the complex exponential multiplied by a
-function that grows polynomially is absolutely and uniformly convergent. -/
-theorem summableLocallyUniformlyOn_iteratedDerivWithin_smul_cexp (k l : ℕ) {f : ℕ → ℂ} {p : ℝ}
-    (hp : 0 < p) (hf : f =O[atTop] (fun n ↦ ((n ^ l) : ℝ))) :
-    SummableLocallyUniformlyOn (fun n ↦ (f n) •
-      iteratedDerivWithin k (fun z ↦ cexp (2 * π * I * z / p) ^ n) ℍₒ) ℍₒ := by
+/--
+The infinite sum of `k`-th iterated derivative of the complex exponential multiplied by a
+function that grows polynomially is absolutely and uniformly convergent.
+-/
+theorem summableLocallyUniformlyOn_iteratedDerivWithin_smul_cexp
+    (k l : ℕ) {f : ℕ → ℂ} {p : ℝ} (hp : 0 < p) (hf : f =O[atTop] (fun n ↦ ((n ^ l) : ℝ)))
+    : SummableLocallyUniformlyOn
+      (fun n ↦ (f n) • iteratedDerivWithin k (fun z ↦ cexp (2 * π * I * z / p) ^ n) ℍₒ)
+      ℍₒ := by
   apply SummableLocallyUniformlyOn_of_locally_bounded isOpen_upperHalfPlaneSet
   intro K hK hKc
   have : CompactSpace K := isCompact_univ_iff.mp (isCompact_iff_isCompact_univ.mp hKc)
   let c : ContinuousMap K ℂ := ⟨fun r : K ↦ Complex.exp (2 * π * I * r / p), by fun_prop⟩
   let r : ℝ := ‖mkOfCompact c‖
   have hr : ‖r‖ < 1 := by
-    simp only [norm_norm, r, norm_lt_iff_of_compact Real.zero_lt_one, mkOfCompact_apply,
-      ContinuousMap.coe_mk, c]
+    simp only [
+      norm_norm, r, norm_lt_iff_of_compact Real.zero_lt_one, mkOfCompact_apply,
+      ContinuousMap.coe_mk, c
+    ]
     intro x
-    have h1 : cexp (2 * π * I * (x / p)) = cexp (2 * π * I * x / p) := by
-      ring_nf
+    have h1 : cexp (2 * π * I * (x / p)) = cexp (2 * π * I * x / p) := by ring_nf
     simpa using h1 ▸ norm_exp_two_pi_I_lt_one ⟨((x : ℂ) / p), by aesop⟩
-  refine ⟨fun n ↦ ‖f n‖ * (2 * π * n / |p|) ^ k * |r| ^ n, by
-    simpa using (summable_norm_mul_geometric_of_norm_lt_one' hr
-      (Asymptotics.isBigO_norm_left.mpr (aux_IsBigO_mul k l p hf))), fun n z hz ↦ ?_⟩
+  refine ⟨
+    fun n ↦ ‖f n‖ * (2 * π * n / |p|) ^ k * |r| ^ n,
+    by
+      simpa using
+        (summable_norm_mul_geometric_of_norm_lt_one' hr
+          (Asymptotics.isBigO_norm_left.mpr (aux_IsBigO_mul k l p hf))),
+    fun n z hz ↦ ?_
+  ⟩
   have h0 := pow_le_pow_left₀ (norm_nonneg _) (norm_coe_le_norm (mkOfCompact c) ⟨z, hz⟩) n
-  simp only [norm_mkOfCompact, mkOfCompact_apply, ContinuousMap.coe_mk, ← exp_nsmul', Pi.smul_apply,
-    iteratedDerivWithin_cexp_aux k n p isOpen_upperHalfPlaneSet (hK hz), smul_eq_mul,
-    norm_mul, norm_pow, Complex.norm_div, norm_ofNat, norm_real, Real.norm_eq_abs, norm_I, mul_one,
-    norm_natCast, abs_norm, ge_iff_le, Real.abs_pi, r, c] at *
+  simp only [
+      norm_mkOfCompact, mkOfCompact_apply, ContinuousMap.coe_mk, ← exp_nsmul', Pi.smul_apply,
+      iteratedDerivWithin_cexp_aux k n p isOpen_upperHalfPlaneSet (hK hz), smul_eq_mul, norm_mul,
+      norm_pow, Complex.norm_div, norm_ofNat, norm_real, Real.norm_eq_abs, norm_I, mul_one,
+      norm_natCast, abs_norm, ge_iff_le, Real.abs_pi, r, c
+    ]
+    at *
   rw [← mul_assoc]
   gcongr
   convert! h0
   rw [← norm_pow, ← exp_nsmul']
 
-/-- This is a version of `summableLocallyUniformlyOn_iteratedDerivWithin_smul_cexp` for level one
-and q-expansion coefficients all `1`. -/
-theorem summableLocallyUniformlyOn_iteratedDerivWithin_cexp (k : ℕ) :
-    SummableLocallyUniformlyOn
-      (fun n ↦ iteratedDerivWithin k (fun z ↦ cexp (2 * π * I * z) ^ n) ℍₒ) ℍₒ := by
+/--
+This is a version of `summableLocallyUniformlyOn_iteratedDerivWithin_smul_cexp` for level one
+and q-expansion coefficients all `1`.
+-/
+theorem summableLocallyUniformlyOn_iteratedDerivWithin_cexp (k : ℕ)
+    : SummableLocallyUniformlyOn
+      (fun n ↦ iteratedDerivWithin k (fun z ↦ cexp (2 * π * I * z) ^ n) ℍₒ)
+      ℍₒ := by
   have h0 : (fun n : ℕ ↦ (1 : ℂ)) =O[atTop] fun n ↦ ((n ^ 1) : ℝ) := by
     simp only [Asymptotics.isBigO_iff, norm_one, norm_pow, Real.norm_natCast, eventually_atTop]
     exact ⟨1, 1, fun b hb ↦ by norm_cast; simp [hb]⟩
-  simpa using summableLocallyUniformlyOn_iteratedDerivWithin_smul_cexp k 1 (p := 1)
-    (by simp) h0
+  simpa using summableLocallyUniformlyOn_iteratedDerivWithin_smul_cexp k 1 (p := 1) (by simp) h0
 
 lemma differentiableAt_iteratedDerivWithin_cexp (n a : ℕ) {s : Set ℂ} (hs : IsOpen s)
     {r : ℂ} (hr : r ∈ s) : DifferentiableAt ℂ
@@ -169,18 +183,22 @@ private lemma iteratedDerivWithin_tsum_exp_aux_eq {k : ℕ} (hk : 1 ≤ k) (z : 
   simpa [this, UpperHalfPlane.coe] using
     iteratedDerivWithin_cexp_aux k n 1 isOpen_upperHalfPlaneSet z.2
 
-/-- This is one key identity relating infinite series to q-expansions which shows that
+/--
+This is one key identity relating infinite series to q-expansions which shows that
 `∑' n, 1 / (z + n) ^ (k + 1) = ((-2 π I) ^ (k + 1) / k !) * ∑' n, n ^ k q ^n` where
-`q = cexp (2 π I z)`. -/
-theorem EisensteinSeries.qExpansion_identity {k : ℕ} (hk : 1 ≤ k) (z : ℍ) :
-    ∑' n : ℤ, 1 / ((z : ℂ) + n) ^ (k + 1) = ((-2 * π * I) ^ (k + 1) / k !) *
-    ∑' n : ℕ, n ^ k * cexp (2 * π * I * z) ^ n := by
-  have : (-1) ^ k * k ! * ∑' n : ℤ, 1 / ((z : ℂ) + n) ^ (k + 1) =
-    -(2 * π * I) ^ (k + 1) * ∑' n : ℕ, n ^ k * cexp (2 * π * I * z) ^ n := by
-    rw [← iteratedDerivWithin_tsum_exp_aux_eq hk z,
-      ← iteratedDerivWithin_cot_pi_mul_eq_mul_tsum_div_pow hk (by simpa using z.2)]
-    exact iteratedDerivWithin_congr (fun x hx ↦ by (simpa using pi_mul_cot_pi_q_exp ⟨x, hx⟩))
-      (by simpa using z.2)
+`q = cexp (2 π I z)`.
+-/
+theorem EisensteinSeries.qExpansion_identity {k : ℕ} (hk : 1 ≤ k) (z : ℍ)
+    : ∑' n : ℤ, 1 / ((z : ℂ) + n) ^ (k + 1)
+      = ((-2 * π * I) ^ (k + 1) / k !) * ∑' n : ℕ, n ^ k * cexp (2 * π * I * z) ^ n := by
+  have : (-1) ^ k * k ! * ∑' n : ℤ, 1 / ((z : ℂ) + n) ^ (k + 1)
+      = - (2 * π * I) ^ (k + 1) * ∑' n : ℕ, n ^ k * cexp (2 * π * I * z) ^ n := by
+    rw [
+      ← iteratedDerivWithin_tsum_exp_aux_eq hk z,
+      ← iteratedDerivWithin_cot_pi_mul_eq_mul_tsum_div_pow hk (by simpa using z.2)
+    ]
+    exact iteratedDerivWithin_congr (fun x hx ↦ by (simpa using pi_mul_cot_pi_q_exp ⟨x, hx⟩)) (by
+      simpa using z.2)
   simp_rw [(eq_inv_mul_iff_mul_eq₀ (by simp [Nat.factorial_ne_zero])).mpr this, ← tsum_mul_left]
   congr
   ext n
@@ -198,12 +216,14 @@ lemma summable_pow_mul_cexp (k : ℕ) (e : ℕ+) (z : ℍ) :
     (by simp [← Complex.isBigO_ofReal_right, Asymptotics.isBigO_refl])).summable he).congr
   grind [ofReal_one, iteratedDerivWithin_zero, Pi.smul_apply, smul_eq_mul]
 
-/-- This is a version of `EisensteinSeries.qExpansion_identity` for positive naturals,
+/--
+This is a version of `EisensteinSeries.qExpansion_identity` for positive naturals,
 which shows that  `∑' n, 1 / (z + n) ^ (k + 1) = ((-2 π I) ^ (k + 1) / k !) * ∑' n : ℕ+, n ^ k q ^n`
-where `q = cexp (2 π I z)`. -/
-theorem EisensteinSeries.qExpansion_identity_pnat {k : ℕ} (hk : 1 ≤ k) (z : ℍ) :
-    ∑' n : ℤ, 1 / ((z : ℂ) + n) ^ (k + 1) = ((-2 * π * I) ^ (k + 1) / k !) *
-    ∑' n : ℕ+, n ^ k * cexp (2 * π * I * z) ^ (n : ℕ) := by
+where `q = cexp (2 π I z)`.
+-/
+theorem EisensteinSeries.qExpansion_identity_pnat {k : ℕ} (hk : 1 ≤ k) (z : ℍ)
+    : ∑' n : ℤ, 1 / ((z : ℂ) + n) ^ (k + 1)
+      = ((-2 * π * I) ^ (k + 1) / k !) * ∑' n : ℕ+, n ^ k * cexp (2 * π * I * z) ^ (n : ℕ) := by
   rw [EisensteinSeries.qExpansion_identity hk z, ← tsum_zero_pnat_eq_tsum_nat]
   · simp [show k ≠ 0 by grind]
   · apply (summable_pow_mul_cexp k 1 z).congr
@@ -350,12 +370,13 @@ lemma EisensteinSeries.E_qExpansion_coeff_zero {k : ℕ} (hk : 3 ≤ k) (hk2 : E
   simpa using E_qExpansion_coeff hk hk2 0
 
 /-- Normalised Eisenstein series of even weight `k ≥ 3` are non-zero. -/
-theorem EisensteinSeries.E_ne_zero {k : ℕ} (hk : 3 ≤ k) (hk2 : Even k) : E hk ≠ 0 :=
-  fun h ↦ one_ne_zero <| (E_qExpansion_coeff_zero hk hk2).symm.trans (by simp [h, qExpansion_zero])
+theorem EisensteinSeries.E_ne_zero {k : ℕ} (hk : 3 ≤ k) (hk2 : Even k) : E hk ≠ 0 := fun h ↦
+  one_ne_zero <| (E_qExpansion_coeff_zero hk hk2).symm.trans (by simp [h, qExpansion_zero])
 
 /-- The normalised Eisenstein series `E k` tends to `1` at `i∞`. -/
-theorem EisensteinSeries.tendsto_E_atImInfty {k : ℕ} (hk : 3 ≤ k := by norm_num)
-    (hk2 : Even k := by norm_num) : Tendsto (E hk : ℍ → ℂ) atImInfty (𝓝 1) := by
+theorem EisensteinSeries.tendsto_E_atImInfty
+    {k : ℕ} (hk : 3 ≤ k := by norm_num) (hk2 : Even k := by norm_num)
+    : Tendsto (E hk : ℍ → ℂ) atImInfty (𝓝 1) := by
   simpa [E_qExpansion_coeff_zero hk hk2] using
     ModularFormClass.tendsto_atImInfty (E hk) one_pos one_mem_strictPeriods_SL
 

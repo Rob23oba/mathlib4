@@ -19,8 +19,8 @@ public section
 variable {𝕜 R M : Type*}
 
 section Semiring
-variable [Semiring R] [Invertible (2 : R)] [Lattice M] [AddCommGroup M] [Module R M]
-  [IsOrderedAddMonoid M]
+variable
+  [Semiring R] [Invertible (2 : R)] [Lattice M] [AddCommGroup M] [Module R M] [IsOrderedAddMonoid M]
 
 variable (R) in
 lemma inf_eq_half_smul_add_sub_abs_sub (x y : M) : x ⊓ y = (⅟2 : R) • (x + y - |y - x|) := by
@@ -35,19 +35,23 @@ lemma sup_eq_half_smul_add_add_abs_sub (x y : M) : x ⊔ y = (⅟2 : R) • (x +
 end Semiring
 
 section Ring
-variable [Ring R] [LinearOrder R] [IsOrderedRing R] [AddCommGroup M] [LinearOrder M]
-  [IsOrderedAddMonoid M] [Module R M] [PosSMulMono R M]
+variable
+  [Ring R] [LinearOrder R] [IsOrderedRing R] [AddCommGroup M] [LinearOrder M] [IsOrderedAddMonoid M]
+  [Module R M] [PosSMulMono R M]
 
 @[simp]
 theorem abs_smul (a : R) (b : M) : |a • b| = |a| • |b| := by
-  obtain ha | ha := le_total a 0 <;> obtain hb | hb := le_total b 0 <;>
-    simp [*, abs_of_nonneg, abs_of_nonpos, smul_nonneg, smul_nonpos_of_nonneg_of_nonpos,
-      smul_nonpos_of_nonpos_of_nonneg, smul_nonneg_of_nonpos_of_nonpos]
+  obtain ha | ha := le_total a 0 <;> obtain hb | hb := le_total b 0
+    <;> simp [
+      *, abs_of_nonneg, abs_of_nonpos, smul_nonneg, smul_nonpos_of_nonneg_of_nonpos,
+      smul_nonpos_of_nonpos_of_nonneg, smul_nonneg_of_nonpos_of_nonpos
+    ]
 
 end Ring
 
 section DivisionSemiring
-variable [DivisionSemiring 𝕜] [NeZero (2 : 𝕜)] [Lattice M] [AddCommGroup M] [Module 𝕜 M]
+variable
+  [DivisionSemiring 𝕜] [NeZero (2 : 𝕜)] [Lattice M] [AddCommGroup M] [Module 𝕜 M]
   [IsOrderedAddMonoid M]
 
 variable (𝕜) in

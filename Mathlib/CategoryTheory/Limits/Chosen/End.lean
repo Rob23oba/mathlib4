@@ -41,8 +41,10 @@ variable {J C : Type*} [Category* C] [Category* J] (F : Jᵒᵖ ⥤ J ⥤ C) [Ch
 /-- The chosen coend of a functor `Jᵒᵖ ⥤ J ⥤ C`. -/
 def chosenCoend : C := (ChosenCoendsOfShape.cowedge F).pt
 
-/-- Given `F : Jᵒᵖ ⥤ J ⥤ C`, this is the inclusion `(F.obj (op j)).obj j ⟶ chosenCoend F`
-for any `j : J`. -/
+/--
+Given `F : Jᵒᵖ ⥤ J ⥤ C`, this is the inclusion `(F.obj (op j)).obj j ⟶ chosenCoend F`
+for any `j : J`.
+-/
 def chosenCoend.ι (j : J) : (F.obj (op j)).obj j ⟶ chosenCoend F :=
   (ChosenCoendsOfShape.cowedge F).π j
 
@@ -64,7 +66,8 @@ lemma chosenCoend.hom_ext {X : C} {f g : chosenCoend F ⟶ X}
   · simpa using! _ ≫= h _
   · exact h _
 
-variable {X : C} (f : ∀ j, (F.obj (op j)).obj j ⟶ X)
+variable
+  {X : C} (f : ∀ j, (F.obj (op j)).obj j ⟶ X)
   (hf : ∀ ⦃i j : J⦄ (g : i ⟶ j), (F.map g.op).app i ≫ f i = (F.obj (op j)).map g ≫ f j)
 
 /-- Constructor for morphisms out of the chosen coend of a functor. -/
@@ -77,8 +80,9 @@ lemma chosenCoend.ι_desc (j : J) : chosenCoend.ι F j ≫ chosenCoend.desc f hf
 
 /-- A natural transformation of bifunctors induces a map on chosen coends. -/
 def chosenCoend.map {G : Jᵒᵖ ⥤ J ⥤ C} (f : F ⟶ G) : chosenCoend F ⟶ chosenCoend G :=
-  chosenCoend.desc (fun x ↦ (f.app (op x)).app x ≫ chosenCoend.ι _ _) (fun j j' φ ↦ by
-    simp [chosenCoend.condition])
+  chosenCoend.desc
+    (fun x ↦ (f.app (op x)).app x ≫ chosenCoend.ι _ _)
+    (fun j j' φ ↦ by simp [chosenCoend.condition])
 
 @[reassoc (attr := simp)]
 lemma chosenCoend.ι_map {G : Jᵒᵖ ⥤ J ⥤ C} (f : F ⟶ G) (j : J) :
@@ -117,10 +121,11 @@ variable {J C : Type*} [Category* C] [Category* J] (F : Jᵒᵖ ⥤ J ⥤ C) [Ch
 /-- The chosen end of a functor `Jᵒᵖ ⥤ J ⥤ C`. -/
 def chosenEnd : C := (ChosenEndsOfShape.wedge F).pt
 
-/-- Given `F : Jᵒᵖ ⥤ J ⥤ C`, this is the projection `chosenEnd F ⟶ (F.obj (op j)).obj j`
-for any `j : J`. -/
-def chosenEnd.π (j : J) : chosenEnd F ⟶ (F.obj (op j)).obj j :=
-  (ChosenEndsOfShape.wedge F).ι j
+/--
+Given `F : Jᵒᵖ ⥤ J ⥤ C`, this is the projection `chosenEnd F ⟶ (F.obj (op j)).obj j`
+for any `j : J`.
+-/
+def chosenEnd.π (j : J) : chosenEnd F ⟶ (F.obj (op j)).obj j := (ChosenEndsOfShape.wedge F).ι j
 
 @[reassoc]
 lemma chosenEnd.condition {i j : J} (f : i ⟶ j) :
@@ -135,12 +140,12 @@ lemma chosenEnd.hom_ext {X : C} {f g : X ⟶ chosenEnd F}
     (h : ∀ j, f ≫ chosenEnd.π F j = g ≫ chosenEnd.π F j) : f = g :=
   Wedge.IsLimit.hom_ext (ChosenEndsOfShape.isEnd F) h
 
-variable {X : C} (f : ∀ j, X ⟶ (F.obj (op j)).obj j)
+variable
+  {X : C} (f : ∀ j, X ⟶ (F.obj (op j)).obj j)
   (hf : ∀ ⦃i j : J⦄ (g : i ⟶ j), f i ≫ (F.obj (op i)).map g = f j ≫ (F.map g.op).app j)
 
 /-- Constructor for morphisms into the chosen end of a functor. -/
-def chosenEnd.lift : X ⟶ chosenEnd F :=
-  Wedge.IsLimit.lift (ChosenEndsOfShape.isEnd F) f hf
+def chosenEnd.lift : X ⟶ chosenEnd F := Wedge.IsLimit.lift (ChosenEndsOfShape.isEnd F) f hf
 
 @[reassoc (attr := simp)]
 lemma chosenEnd.lift_π (j : J) : chosenEnd.lift f hf ≫ chosenEnd.π F j = f j := by
@@ -148,11 +153,13 @@ lemma chosenEnd.lift_π (j : J) : chosenEnd.lift f hf ≫ chosenEnd.π F j = f j
 
 /-- A natural transformation of bifunctors induces a map on chosen ends. -/
 def chosenEnd.map {G : Jᵒᵖ ⥤ J ⥤ C} (f : F ⟶ G) : chosenEnd F ⟶ chosenEnd G :=
-  chosenEnd.lift (fun x ↦ chosenEnd.π F x ≫ (f.app (op x)).app x) (fun j j' φ ↦ by
-    have e := (f.app (op j)).naturality φ
-    simp only [Category.assoc]
-    rw [← e, reassoc_of% chosenEnd.condition F φ]
-    simp)
+  chosenEnd.lift
+    (fun x ↦ chosenEnd.π F x ≫ (f.app (op x)).app x)
+    (fun j j' φ ↦ by
+      have e := (f.app (op j)).naturality φ
+      simp only [Category.assoc]
+      rw [← e, reassoc_of% chosenEnd.condition F φ]
+      simp)
 
 @[reassoc (attr := simp)]
 lemma chosenEnd.map_π {G : Jᵒᵖ ⥤ J ⥤ C} (f : F ⟶ G) (j : J) :

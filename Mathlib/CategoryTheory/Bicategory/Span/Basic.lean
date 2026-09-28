@@ -32,13 +32,13 @@ in `Wᵣ`.
 
 namespace CategoryTheory
 
-variable {C : Type*} [Category* C]
-  (Wₗ : MorphismProperty C)
-  (Wᵣ : MorphismProperty C)
+variable {C : Type*} [Category* C] (Wₗ : MorphismProperty C) (Wᵣ : MorphismProperty C)
 
-/-- A (Wₗ, Wᵣ)-span from c to c' is the data of an
+/--
+A (Wₗ, Wᵣ)-span from c to c' is the data of an
 object `a : C`, together with a morphism `a ⟶ c` in Wₗ,
-and a morphism `a ⟶ c'` in Wᵣ. -/
+and a morphism `a ⟶ c'` in Wᵣ.
+-/
 structure Span (c c' : C) where
   /-- the apex of the span -/
   apex : C
@@ -53,8 +53,10 @@ namespace Span
 
 variable {Wₗ Wᵣ} {c c' : C}
 
-/-- A morphism of spans is a morphism between the apices compatible
-with the projections. -/
+/--
+A morphism of spans is a morphism between the apices compatible
+with the projections.
+-/
 structure Hom (S₁ S₂ : Span Wₗ Wᵣ c c') : Type _ where
   /-- the map between the apices -/
   hom : S₁.apex ⟶ S₂.apex
@@ -80,19 +82,22 @@ lemma hom_ext {S S' : Span Wₗ Wᵣ c c'} {f g : S ⟶ S'} (h : f.hom = g.hom) 
   grind
 
 set_option mathlib.tactic.category.grind true in
-/-- Construct an isomorphism of spans from an isomorphism between the
-apices that is compatible with the projections. -/
+/--
+Construct an isomorphism of spans from an isomorphism between the
+apices that is compatible with the projections.
+-/
 @[simps (attr := grind =), implicit_reducible]
-def mkIso {S S' : Span Wₗ Wᵣ c c'} (e : S.apex ≅ S'.apex)
-    (hₗ : e.hom ≫ S'.l = S.l := by cat_disch)
-    (hᵣ : e.hom ≫ S'.r = S.r := by cat_disch) :
-    S ≅ S' where
+def mkIso
+    {S S' : Span Wₗ Wᵣ c c'} (e : S.apex ≅ S'.apex)
+    (hₗ : e.hom ≫ S'.l = S.l := by cat_disch) (hᵣ : e.hom ≫ S'.r = S.r := by cat_disch)
+    : S ≅ S' where
   hom.hom := e.hom
   inv.hom := e.inv
 
-variable [Wₗ.ContainsIdentities] [Wᵣ.ContainsIdentities] [Wₗ.HasPullbacksAgainst Wᵣ]
-    [Wₗ.IsStableUnderBaseChangeAgainst Wᵣ] [Wᵣ.IsStableUnderBaseChangeAgainst Wₗ]
-    [Wₗ.IsStableUnderComposition] [Wᵣ.IsStableUnderComposition]
+variable
+  [Wₗ.ContainsIdentities] [Wᵣ.ContainsIdentities] [Wₗ.HasPullbacksAgainst Wᵣ]
+  [Wₗ.IsStableUnderBaseChangeAgainst Wᵣ] [Wᵣ.IsStableUnderBaseChangeAgainst Wₗ]
+  [Wₗ.IsStableUnderComposition] [Wᵣ.IsStableUnderComposition]
 
 open Limits in
 instance {c c' c'' : C} (S₁ : Span Wₗ Wᵣ c c') (S₂ : Span Wₗ Wᵣ c' c'') : HasPullback S₁.r S₂.l :=
@@ -107,8 +112,7 @@ instance (S₁ : Span Wₗ Wᵣ c c') : Wᵣ.IsStableUnderBaseChangeAlong S₁.l
 
 /-- The identity span, where both legs are identity morphisms. -/
 @[simps (attr := grind =), implicit_reducible]
-def id (c : C) :
-    Span Wₗ Wᵣ c c where
+def id (c : C) : Span Wₗ Wᵣ c c where
   apex := c
   l := 𝟙 _
   r := 𝟙 _
@@ -116,7 +120,8 @@ def id (c : C) :
   wr := MorphismProperty.ContainsIdentities.id_mem _
 
 open Limits MorphismProperty in
-/-- The composition of two spans: if the relevant pullback exists and if the
+/--
+The composition of two spans: if the relevant pullback exists and if the
 morphism properties are stable under the relevant base change, it is given by the
 total span
 ```
@@ -130,24 +135,23 @@ c     c'    c''
 where the top diamond is a pullback square
 -/
 @[simps (attr := grind =), implicit_reducible]
-noncomputable def comp {c c' c'' : C}
-    (S₁ : Span Wₗ Wᵣ c c') (S₂ : Span Wₗ Wᵣ c' c'') :
-    Span Wₗ Wᵣ c c'' where
+noncomputable def comp {c c' c'' : C} (S₁ : Span Wₗ Wᵣ c c') (S₂ : Span Wₗ Wᵣ c' c'')
+    : Span Wₗ Wᵣ c c'' where
   apex := pullback S₁.r S₂.l
   l := pullback.fst S₁.r S₂.l ≫ S₁.l
   r := pullback.snd S₁.r S₂.l ≫ S₂.r
   wl :=
-    IsStableUnderComposition.comp_mem
-      _ _ (IsStableUnderBaseChangeAlong.of_isPullback
-      (.flip <| .of_hasPullback S₁.r S₂.l) S₂.wl) S₁.wl
+    IsStableUnderComposition.comp_mem _ _
+      (IsStableUnderBaseChangeAlong.of_isPullback (.flip <| .of_hasPullback S₁.r S₂.l) S₂.wl) S₁.wl
   wr :=
-    IsStableUnderComposition.comp_mem
-    _ _ (IsStableUnderBaseChangeAlong.of_isPullback
-      (.of_hasPullback S₁.r S₂.l) S₁.wr) S₂.wr
+    IsStableUnderComposition.comp_mem _ _
+      (IsStableUnderBaseChangeAlong.of_isPullback (.of_hasPullback S₁.r S₂.l) S₁.wr) S₂.wr
 
 variable (C) in
-/-- The bicategory of spans of `C` with left/right legs satisfying given
-morphism properties. This is a one-field structure wrapper around `C`. -/
+/--
+The bicategory of spans of `C` with left/right legs satisfying given
+morphism properties. This is a one-field structure wrapper around `C`.
+-/
 structure SpanBicat (Wₗ Wᵣ : MorphismProperty C) : Type _ where
   /-- the underlying object of `C` of a term in `SpanBicat C _ _` -/
   of : C
@@ -187,9 +191,9 @@ lemma hom₂_ext {X Y : SpanBicat C Wₗ Wᵣ} {S S' : X ⟶ Y} {f g : S ⟶ S'}
   Span.hom_ext h
 
 /-- Constructor for 1-morphisms in `SpanBicat C _ _` -/
-abbrev mkHom {X Y : SpanBicat C Wₗ Wᵣ} {apex : C} (l : apex ⟶ X.of) (r : apex ⟶ Y.of)
-    (wl : Wₗ l) (wr : Wᵣ r) :
-    X ⟶ Y where
+abbrev mkHom
+    {X Y : SpanBicat C Wₗ Wᵣ} {apex : C} (l : apex ⟶ X.of) (r : apex ⟶ Y.of) (wl : Wₗ l) (wr : Wᵣ r)
+    : X ⟶ Y where
   apex := apex
   l := l
   r := r
@@ -198,19 +202,17 @@ abbrev mkHom {X Y : SpanBicat C Wₗ Wᵣ} {apex : C} (l : apex ⟶ X.of) (r : a
 
 /-- Constructor for 2-morphisms in `SpanBicat C _ _` -/
 @[simps, implicit_reducible]
-def mkHom₂ {X Y : SpanBicat C Wₗ Wᵣ} {S S' : X ⟶ Y}
-    (e : S.apex ⟶ S'.apex)
-    (hₗ : e ≫ S'.l = S.l := by cat_disch)
-    (hᵣ : e ≫ S'.r = S.r := by cat_disch) :
-    S ⟶ S' where
+def mkHom₂
+    {X Y : SpanBicat C Wₗ Wᵣ} {S S' : X ⟶ Y} (e : S.apex ⟶ S'.apex)
+    (hₗ : e ≫ S'.l = S.l := by cat_disch) (hᵣ : e ≫ S'.r = S.r := by cat_disch)
+    : S ⟶ S' where
   hom := e
 
 /-- Constructor for 2-isomorphisms in `SpanBicat C _ _` -/
-abbrev mkIso₂ {X Y : SpanBicat C Wₗ Wᵣ} {S S' : X ⟶ Y}
-    (e : S.apex ≅ S'.apex)
-    (hₗ : e.hom ≫ S'.l = S.l := by cat_disch)
-    (hᵣ : e.hom ≫ S'.r = S.r := by cat_disch) :
-    S ≅ S' where
+abbrev mkIso₂
+    {X Y : SpanBicat C Wₗ Wᵣ} {S S' : X ⟶ Y} (e : S.apex ≅ S'.apex)
+    (hₗ : e.hom ≫ S'.l = S.l := by cat_disch) (hᵣ : e.hom ≫ S'.r = S.r := by cat_disch)
+    : S ≅ S' where
   hom.hom := e.hom
   inv.hom := e.inv
   inv.hom_l := by grind
@@ -234,12 +236,10 @@ the commutative square `πₗ ≫ S₁.r = πᵣ ≫ S₂.l` and the fact that t
 variable {X Y Z : SpanBicat C Wₗ Wᵣ} (S₁ : X ⟶ Y) (S₂ : Y ⟶ Z)
 
 /-- The left projection `πₗ : (S₁ ≫ S₂).apex ⟶ S₁.apex`. -/
-@[no_expose] noncomputable def πₗ :
-    (S₁ ≫ S₂).apex ⟶ S₁.apex := Limits.pullback.fst _ _
+@[no_expose] noncomputable def πₗ : (S₁ ≫ S₂).apex ⟶ S₁.apex := Limits.pullback.fst _ _
 
 /-- The right projection `πᵣ : (S₁ ≫ S₂).apex ⟶ S₂.apex`. -/
-@[no_expose] noncomputable def πᵣ :
-    (S₁ ≫ S₂).apex ⟶ S₂.apex := Limits.pullback.snd _ _
+@[no_expose] noncomputable def πᵣ : (S₁ ≫ S₂).apex ⟶ S₂.apex := Limits.pullback.snd _ _
 
 @[simp, reassoc, grind =] lemma comp_l : (S₁ ≫ S₂).l = πₗ S₁ S₂ ≫ S₁.l := (rfl)
 
@@ -250,8 +250,7 @@ variable {X Y Z : SpanBicat C Wₗ Wᵣ} (S₁ : X ⟶ Y) (S₂ : Y ⟶ Z)
 
 /-- The pullback cone that defines the apex for the composition of spans. -/
 @[simps! (attr := grind =) pt, implicit_reducible]
-noncomputable def compPullbackCone :
-    Limits.PullbackCone S₁.r S₂.l :=
+noncomputable def compPullbackCone : Limits.PullbackCone S₁.r S₂.l :=
   Limits.PullbackCone.mk (πₗ _ _) (πᵣ _ _) (comp_comm _ _)
 
 @[simp, grind =]
@@ -262,10 +261,12 @@ lemma compPullbackCone_fst :
 lemma compPullbackCone_snd :
   (compPullbackCone S₁ S₂).snd = πᵣ S₁ S₂ := rfl
 
-/-- The pullback cone that defines the apex for the composition of spans is a limit
-cone. -/
-@[no_expose] noncomputable def isLimitCompPullbackCone :
-    Limits.IsLimit (compPullbackCone S₁ S₂) :=
+/--
+The pullback cone that defines the apex for the composition of spans is a limit
+cone.
+-/
+@[no_expose]
+noncomputable def isLimitCompPullbackCone : Limits.IsLimit (compPullbackCone S₁ S₂) :=
   Limits.PullbackCone.IsLimit.mk (comp_comm S₁ S₂)
     (fun x ↦ Limits.pullback.lift x.fst x.snd x.condition)
     (fun x ↦ by simp [πₗ])
@@ -281,12 +282,14 @@ lemma comp_hom_ext_apex {c : C} {f g : c ⟶ (S₁ ≫ S₂).apex}
     f = g := by
   apply Limits.PullbackCone.IsLimit.hom_ext (isLimitCompPullbackCone S₁ S₂) <;> grind
 
-/-- A restatement of the universal property of `(S₁ ≫ S₂).apex` as coming from a pullback.
-This is the main intended way to produce morphisms towards the apex of a composition of spans. -/
+/--
+A restatement of the universal property of `(S₁ ≫ S₂).apex` as coming from a pullback.
+This is the main intended way to produce morphisms towards the apex of a composition of spans.
+-/
 @[no_expose]
-noncomputable def compLiftApex {c : C} (fₗ : c ⟶ S₁.apex) (fᵣ : c ⟶ S₂.apex)
-    (hₘ : fₗ ≫ S₁.r = fᵣ ≫ S₂.l := by cat_disch) :
-    c ⟶ (S₁ ≫ S₂).apex :=
+noncomputable def compLiftApex
+    {c : C} (fₗ : c ⟶ S₁.apex) (fᵣ : c ⟶ S₂.apex) (hₘ : fₗ ≫ S₁.r = fᵣ ≫ S₂.l := by cat_disch)
+    : c ⟶ (S₁ ≫ S₂).apex :=
   Limits.PullbackCone.IsLimit.lift (isLimitCompPullbackCone S₁ S₂) fₗ fᵣ hₘ
 
 @[reassoc (attr := simp), grind =]
@@ -301,14 +304,16 @@ lemma compLiftApex_πᵣ {c : C} (fₗ : c ⟶ S₁.apex) (fᵣ : c ⟶ S₂.ape
     compLiftApex fₗ fᵣ hₘ ≫ πᵣ S₁ S₂ = fᵣ := by
   simp [← compPullbackCone_snd, compLiftApex]
 
-/-- A restatement of the universal property of S₁ ≫ S₂ as coming from a pullback.
-This is the main intended way to produce morphisms towards a composition of spans. -/
+/--
+A restatement of the universal property of S₁ ≫ S₂ as coming from a pullback.
+This is the main intended way to produce morphisms towards a composition of spans.
+-/
 @[simps (attr := grind =), implicit_reducible]
-noncomputable def compLift {S : X ⟶ Z} (fₗ : S.apex ⟶ S₁.apex) (fᵣ : S.apex ⟶ S₂.apex)
-    (hₗ : fₗ ≫ S₁.l = S.l := by cat_disch)
-    (hₘ : fₗ ≫ S₁.r = fᵣ ≫ S₂.l := by cat_disch)
-    (hᵣ : fᵣ ≫ S₂.r = S.r := by cat_disch) :
-    S ⟶ (S₁ ≫ S₂) where
+noncomputable def compLift
+    {S : X ⟶ Z} (fₗ : S.apex ⟶ S₁.apex) (fᵣ : S.apex ⟶ S₂.apex)
+    (hₗ : fₗ ≫ S₁.l = S.l := by cat_disch) (hₘ : fₗ ≫ S₁.r = fᵣ ≫ S₂.l := by cat_disch)
+    (hᵣ : fᵣ ≫ S₂.r = S.r := by cat_disch)
+    : S ⟶ (S₁ ≫ S₂) where
   hom := compLiftApex fₗ fᵣ
 
 section
@@ -336,31 +341,30 @@ end compAPI
 /-- The associator isomorphisms for the bicategory structure on spans. -/
 @[no_expose]
 noncomputable def associator
-    {c₁ c₂ c₃ c₄ : SpanBicat C Wₗ Wᵣ}
-    (S₁ : c₁ ⟶ c₂) (S₂ : c₂ ⟶ c₃) (S₃ : c₃ ⟶ c₄) :
-    (S₁ ≫ S₂) ≫ S₃ ≅ S₁ ≫ (S₂ ≫ S₃) where
+    {c₁ c₂ c₃ c₄ : SpanBicat C Wₗ Wᵣ} (S₁ : c₁ ⟶ c₂) (S₂ : c₂ ⟶ c₃) (S₃ : c₃ ⟶ c₄)
+    : (S₁ ≫ S₂) ≫ S₃ ≅ S₁ ≫ (S₂ ≫ S₃) where
   hom := compLift (πₗ .. ≫ πₗ ..) (compLiftApex (πₗ .. ≫ πᵣ ..) (πᵣ ..) (by grind))
   inv := compLift (compLiftApex (πₗ ..) (πᵣ .. ≫ πₗ ..)) (πᵣ .. ≫ πᵣ ..)
 
 /-- The right unitor for the bicategory structure on spans. -/
 @[no_expose]
-noncomputable def rightUnitor {c c' : SpanBicat C Wₗ Wᵣ} (S₁ : c ⟶ c') :
-    S₁ ≫ (𝟙 c') ≅ S₁ where
+noncomputable def rightUnitor {c c' : SpanBicat C Wₗ Wᵣ} (S₁ : c ⟶ c') : S₁ ≫ (𝟙 c') ≅ S₁ where
   hom.hom := πₗ _ _
   inv := compLift (𝟙 _) S₁.r
 
 /-- The left unitor for the bicategory structure on spans. -/
 @[no_expose]
-noncomputable def leftUnitor {c c' : SpanBicat C Wₗ Wᵣ} (S₁ : c ⟶ c') :
-    (𝟙 c) ≫ S₁ ≅ S₁ where
+noncomputable def leftUnitor {c c' : SpanBicat C Wₗ Wᵣ} (S₁ : c ⟶ c') : (𝟙 c) ≫ S₁ ≅ S₁ where
   hom.hom := πᵣ _ S₁
   hom.hom_l := by grind
   inv := compLift S₁.l (𝟙 _)
   hom_inv_id := by grind
 
 attribute [local ext] Span.hom_ext in
-/- @[simps] lemmas generated by this instance are unfortunately very poor, and we must
-register them by hand as we do below. -/
+/-
+@[simps] lemmas generated by this instance are unfortunately very poor, and we must
+register them by hand as we do below.
+-/
 noncomputable instance : Bicategory (SpanBicat C Wₗ Wᵣ) where
   homCategory := inferInstance
   whiskerLeft {_ _ _} S₀ {S₁ S₂} f := compLift (πₗ ..) (πᵣ .. ≫ f.hom)
@@ -466,11 +470,12 @@ lemma hom_inv_id_hom {S S' : X ⟶ Y} (e : S ≅ S') :
 lemma inv_hom_id_hom {S S' : X ⟶ Y} (e : S ≅ S') :
     e.inv.hom ≫ e.hom.hom = 𝟙 _ := by simp [← hom₂_comp_hom]
 
-/-- Extract the isomorphism between the apices from the data of an isomorphism of 1-morphisms
-in `SpanBicat C _ _`. -/
+/--
+Extract the isomorphism between the apices from the data of an isomorphism of 1-morphisms
+in `SpanBicat C _ _`.
+-/
 @[simps]
-abbrev apexIso {S S' : X ⟶ Y} (e : S ≅ S') :
-    S.apex ≅ S'.apex where
+abbrev apexIso {S S' : X ⟶ Y} (e : S ≅ S') : S.apex ≅ S'.apex where
   hom := e.hom.hom
   inv := e.inv.hom
 
@@ -491,18 +496,20 @@ lemma eqToHom_hom (S S' : X ⟶ Y) (h : S = S') :
   subst h
   simp
 
-instance : IsIso (𝟙 X:).r := by dsimp; infer_instance
+instance : IsIso (𝟙 X :).r := by dsimp; infer_instance
 
-instance : IsIso (𝟙 X:).l := by dsimp; infer_instance
+instance : IsIso (𝟙 X :).l := by dsimp; infer_instance
 
 instance (S : X ⟶ Y) : IsIso (πᵣ (𝟙 _) S) := by
-  have := IsPullback.isIso_snd_of_isIso
-    (IsPullback.of_isLimit <| SpanBicat.isLimitCompPullbackCone (𝟙 _) S)
+  have :=
+    IsPullback.isIso_snd_of_isIso (IsPullback.of_isLimit <|
+      SpanBicat.isLimitCompPullbackCone (𝟙 _) S)
   exact this
 
 instance (S : X ⟶ Y) : IsIso (πₗ S (𝟙 _)) := by
-  have := IsPullback.isIso_fst_of_isIso
-    (IsPullback.of_isLimit <| SpanBicat.isLimitCompPullbackCone S (𝟙 _))
+  have :=
+    IsPullback.isIso_fst_of_isIso (IsPullback.of_isLimit <|
+      SpanBicat.isLimitCompPullbackCone S (𝟙 _))
   exact this
 
 end

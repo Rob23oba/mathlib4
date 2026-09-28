@@ -26,25 +26,29 @@ variable {ι ι' : Type*} {c : ComplexShape ι} {c' : ComplexShape ι'}
 
 namespace HomologicalComplex
 
-variable {C : Type*} [Category* C] [HasZeroMorphisms C]
-  (K : HomologicalComplex C c') (e : c.Embedding c') [e.IsRelIff]
+variable
+  {C : Type*} [Category* C] [HasZeroMorphisms C]
+  (K : HomologicalComplex C c')
+  (e : c.Embedding c') [e.IsRelIff]
 
 namespace restriction
 
-variable (i j k : ι) (hi : c.prev j = i) (hk : c.next j = k)
-  {i' j' k' : ι'} (hi' : e.f i = i') (hj' : e.f j = j') (hk' : e.f k = k')
-  (hi'' : c'.prev j' = i') (hk'' : c'.next j' = k')
+variable
+  (i j k : ι) (hi : c.prev j = i) (hk : c.next j = k)
+  {i' j' k' : ι'} (hi' : e.f i = i') (hj' : e.f j = j') (hk' : e.f k = k') (hi'' : c'.prev j' = i')
+  (hk'' : c'.next j' = k')
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The isomorphism `(K.restriction e).sc' i j k ≅ K.sc' i' j' k'` when
+/--
+The isomorphism `(K.restriction e).sc' i j k ≅ K.sc' i' j' k'` when
 `e` is an embedding of complex shapes, `i'`, `j`, `k`' are the respective
-images of `i`, `j`, `k` by `e.f`, `j` is the previous index of `i`, etc. -/
+images of `i`, `j`, `k` by `e.f`, `j` is the previous index of `i`, etc.
+-/
 @[simps!]
 def sc'Iso : (K.restriction e).sc' i j k ≅ K.sc' i' j' k' :=
   ShortComplex.isoMk (K.restrictionXIso e hi') (K.restrictionXIso e hj') (K.restrictionXIso e hk')
-    (by subst hi' hj'; simp [restrictionXIso])
-    (by subst hj' hk'; simp [restrictionXIso])
+    (by subst hi' hj'; simp [restrictionXIso]) (by subst hj' hk'; simp [restrictionXIso])
 
 include hi hk hi' hj' hk' hi'' hk'' in
 lemma hasHomology [K.HasHomology j'] : (K.restriction e).HasHomology j :=
@@ -54,23 +58,25 @@ lemma hasHomology [K.HasHomology j'] : (K.restriction e).HasHomology j :=
 
 end restriction
 
-variable (i j k : ι) (hi : c.prev j = i) (hk : c.next j = k)
-  {i' j' k' : ι'} (hi' : e.f i = i') (hj' : e.f j = j') (hk' : e.f k = k')
-  (hi'' : c'.prev j' = i') (hk'' : c'.next j' = k')
-  [K.HasHomology j'] [(K.restriction e).HasHomology j]
+variable
+  (i j k : ι) (hi : c.prev j = i) (hk : c.next j = k)
+  {i' j' k' : ι'} (hi' : e.f i = i') (hj' : e.f j = j') (hk' : e.f k = k') (hi'' : c'.prev j' = i')
+  (hk'' : c'.next j' = k') [K.HasHomology j'] [(K.restriction e).HasHomology j]
 
-/-- The isomorphism `(K.restriction e).cycles j ≅ K.cycles j'` when `e.f j = j'`
-and the successors `k` and `k'` of `j` and `j'` satisfy `e.f k = k'`. -/
-noncomputable def restrictionCyclesIso :
-    (K.restriction e).cycles j ≅ K.cycles j' where
+/--
+The isomorphism `(K.restriction e).cycles j ≅ K.cycles j'` when `e.f j = j'`
+and the successors `k` and `k'` of `j` and `j'` satisfy `e.f k = k'`.
+-/
+noncomputable def restrictionCyclesIso : (K.restriction e).cycles j ≅ K.cycles j' where
   hom :=
     K.liftCycles ((K.restriction e).iCycles j ≫ (K.restrictionXIso e hj').hom) _ hk'' (by
-      rw [assoc, ← cancel_mono (K.restrictionXIso e hk').inv, assoc, assoc, ← restriction_d_eq,
-        iCycles_d, zero_comp])
+      rw [
+        assoc, ← cancel_mono (K.restrictionXIso e hk').inv, assoc, assoc, ← restriction_d_eq,
+        iCycles_d, zero_comp
+      ])
   inv :=
     (K.restriction e).liftCycles (K.iCycles j' ≫ (K.restrictionXIso e hj').inv) _ hk (by
-      rw [assoc, restriction_d_eq _ _ hj' hk', Iso.inv_hom_id_assoc,
-        iCycles_d_assoc, zero_comp])
+      rw [assoc, restriction_d_eq _ _ hj' hk', Iso.inv_hom_id_assoc, iCycles_d_assoc, zero_comp])
   hom_inv_id := by simp [← cancel_mono ((K.restriction e).iCycles j)]
   inv_hom_id := by simp [← cancel_mono (K.iCycles j')]
 
@@ -86,18 +92,19 @@ lemma restrictionCyclesIso_inv_iCycles :
       K.iCycles j' ≫ (K.restrictionXIso e hj').inv := by
   simp [restrictionCyclesIso]
 
-/-- The isomorphism `(K.restriction e).opcycles j ≅ K.opcycles j'` when `e.f j = j'`
-and the predecessors `i` and `i'` of `j` and `j'` satisfy `e.f i = i'`. -/
-noncomputable def restrictionOpcyclesIso :
-    (K.restriction e).opcycles j ≅ K.opcycles j' where
+/--
+The isomorphism `(K.restriction e).opcycles j ≅ K.opcycles j'` when `e.f j = j'`
+and the predecessors `i` and `i'` of `j` and `j'` satisfy `e.f i = i'`.
+-/
+noncomputable def restrictionOpcyclesIso : (K.restriction e).opcycles j ≅ K.opcycles j' where
   hom :=
     (K.restriction e).descOpcycles ((K.restrictionXIso e hj').hom ≫ K.pOpcycles j') _ hi (by
-      rw [restriction_d_eq _ _ hi' hj', assoc, assoc, Iso.inv_hom_id_assoc,
-        d_pOpcycles, comp_zero])
+      rw [restriction_d_eq _ _ hi' hj', assoc, assoc, Iso.inv_hom_id_assoc, d_pOpcycles, comp_zero])
   inv :=
     K.descOpcycles ((K.restrictionXIso e hj').inv ≫ (K.restriction e).pOpcycles j) _ hi'' (by
-      rw [← cancel_epi (K.restrictionXIso e hi').hom, ← restriction_d_eq_assoc,
-        comp_zero, d_pOpcycles])
+      rw [
+        ← cancel_epi (K.restrictionXIso e hi').hom, ← restriction_d_eq_assoc, comp_zero, d_pOpcycles
+      ])
   hom_inv_id := by simp [← cancel_epi ((K.restriction e).pOpcycles j)]
   inv_hom_id := by simp [← cancel_epi (K.pOpcycles j')]
 
@@ -113,16 +120,17 @@ lemma pOpcycles_restrictionOpcyclesIso_inv :
       (K.restrictionXIso e hj').inv ≫ (K.restriction e).pOpcycles j := by
   simp [restrictionOpcyclesIso]
 
-/-- The isomorphism `(K.restriction e).homology j ≅ K.homology j'` when `e.f j = j'`,
+/--
+The isomorphism `(K.restriction e).homology j ≅ K.homology j'` when `e.f j = j'`,
 the predecessors `i` and `i'` of `j` and `j'` satisfy `e.f i = i'`,
-and the successors `k` and `k'` of `j` and `j'` satisfy `e.f k = k'` -/
-noncomputable def restrictionHomologyIso :
-    (K.restriction e).homology j ≅ K.homology j' :=
+and the successors `k` and `k'` of `j` and `j'` satisfy `e.f k = k'`
+-/
+noncomputable def restrictionHomologyIso : (K.restriction e).homology j ≅ K.homology j' :=
   have : ((K.restriction e).sc' i j k).HasHomology := by subst hi hk; assumption
   have : (K.sc' i' j' k').HasHomology := by subst hi'' hk''; assumption
-  (K.restriction e).homologyIsoSc' i j k hi hk ≪≫
-    ShortComplex.homologyMapIso (restriction.sc'Iso K e i j k hi' hj' hk' hi'' hk'') ≪≫
-    (K.homologyIsoSc' i' j' k' hi'' hk'').symm
+  (K.restriction e).homologyIsoSc' i j k hi hk
+    ≪≫ ShortComplex.homologyMapIso (restriction.sc'Iso K e i j k hi' hj' hk' hi'' hk'')
+    ≪≫ (K.homologyIsoSc' i' j' k' hi'' hk'').symm
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in

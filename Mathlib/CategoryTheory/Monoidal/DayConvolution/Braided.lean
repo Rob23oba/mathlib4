@@ -30,24 +30,29 @@ open Opposite
 
 noncomputable section
 
-variable {C : Type u₁} [Category.{v₁} C] {V : Type u₂} [Category.{v₂} V]
-  [MonoidalCategory C] [BraidedCategory C]
-  [MonoidalCategory V] [BraidedCategory V]
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  {V : Type u₂} [Category.{v₂} V] [MonoidalCategory C] [BraidedCategory C] [MonoidalCategory V]
+  [BraidedCategory V]
   (F G : C ⥤ V)
 
 section
 
 variable [DayConvolution F G] [DayConvolution G F]
 
-/-- The natural transformation `F ⊠ G ⟶ (tensor C) ⋙ (G ⊛ F)` that corepresents
-the braiding morphism `F ⊛ G ⟶ G ⊛ F`. -/
+/--
+The natural transformation `F ⊠ G ⟶ (tensor C) ⋙ (G ⊛ F)` that corepresents
+the braiding morphism `F ⊛ G ⟶ G ⊛ F`.
+-/
 @[simps]
 def braidingHomCorepresenting : F ⊠ G ⟶ tensor C ⋙ G ⊛ F where
   app _ := (β_ _ _).hom ≫ (unit G F).app (_, _) ≫ (G ⊛ F).map (β_ _ _).hom
   naturality {x y} f := by simp [tensorHom_def, ← Functor.map_comp]
 
-/-- The natural transformation `F ⊠ G ⟶ (tensor C) ⋙ (G ⊛ F)` that corepresents
-the braiding morphism `F ⊛ G ⟶ G ⊛ F`. -/
+/--
+The natural transformation `F ⊠ G ⟶ (tensor C) ⋙ (G ⊛ F)` that corepresents
+the braiding morphism `F ⊛ G ⟶ G ⊛ F`.
+-/
 @[simps]
 def braidingInvCorepresenting : G ⊠ F ⟶ tensor C ⋙ F ⊛ G where
   app _ := (β_ _ _).inv ≫ (unit F G).app (_, _) ≫ (F ⊛ G).map (β_ _ _).inv
@@ -198,9 +203,10 @@ end
 
 section
 
-variable {C : Type u₁} [Category.{v₁} C] {V : Type u₂} [Category.{v₂} V]
-  [MonoidalCategory C] [SymmetricCategory C]
-  [MonoidalCategory V] [SymmetricCategory V]
+variable
+  {C : Type u₁} [Category.{v₁} C]
+  {V : Type u₂} [Category.{v₂} V] [MonoidalCategory C] [SymmetricCategory C] [MonoidalCategory V]
+  [SymmetricCategory V]
   (F G : C ⥤ V)
 
 set_option backward.defeqAttrib.useBackward true in

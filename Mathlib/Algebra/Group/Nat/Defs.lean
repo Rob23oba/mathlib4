@@ -68,14 +68,14 @@ These also prevent non-computable instances being used to construct these instan
 
 set_option linter.style.whitespace false -- manual alignment is not recognised
 
-instance instAddCommMonoid    : AddCommMonoid ℕ    := by infer_instance
-instance instAddMonoid        : AddMonoid ℕ        := by infer_instance
-instance instMonoid           : Monoid ℕ           := by infer_instance
-instance instCommSemigroup    : CommSemigroup ℕ    := by infer_instance
-instance instSemigroup        : Semigroup ℕ        := by infer_instance
+instance instAddCommMonoid : AddCommMonoid ℕ := by infer_instance
+instance instAddMonoid : AddMonoid ℕ := by infer_instance
+instance instMonoid : Monoid ℕ := by infer_instance
+instance instCommSemigroup : CommSemigroup ℕ := by infer_instance
+instance instSemigroup : Semigroup ℕ := by infer_instance
 instance instAddCommSemigroup : AddCommSemigroup ℕ := by infer_instance
-instance instAddSemigroup     : AddSemigroup ℕ     := by infer_instance
-instance instOne              : One ℕ              := inferInstance
+instance instAddSemigroup : AddSemigroup ℕ := by infer_instance
+instance instOne : One ℕ := inferInstance
 
 set_option linter.style.whitespace true
 

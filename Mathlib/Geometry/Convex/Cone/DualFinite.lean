@@ -38,10 +38,12 @@ variable [AddCommGroup N] [Module R N]
 variable {p : M →ₗ[R] N →ₗ[R] R}
 
 variable (p) in
-/-- A cone is dually finitely generated (`DualFG`) if it is the dual of a finite set. Equivalently,
+/--
+A cone is dually finitely generated (`DualFG`) if it is the dual of a finite set. Equivalently,
 the cone can be written as the intersection of finitely many halfspace. It is also known as an
 H-cone. This is the counterpart to `FG` (finitely generated) which states that the cone is the span
-of a finite set, or a V-cone. -/
+of a finite set, or a V-cone.
+-/
 def DualFG (C : PointedCone R N) : Prop := ∃ s : Finset M, dual p s = C
 
 /-- The top cone is dually finitely generated. -/

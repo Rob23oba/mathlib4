@@ -35,16 +35,16 @@ namespace SimpleGraph
 
 variable {V : Type u} (G : SimpleGraph V)
 
-theorem ConnectedComponent.card_le_card_of_le [Finite V] {G G' : SimpleGraph V} (h : G ≤ G') :
-    Nat.card G'.ConnectedComponent ≤ Nat.card G.ConnectedComponent :=
+theorem ConnectedComponent.card_le_card_of_le [Finite V] {G G' : SimpleGraph V} (h : G ≤ G')
+    : Nat.card G'.ConnectedComponent ≤ Nat.card G.ConnectedComponent :=
   Nat.card_le_card_of_surjective _ <| ConnectedComponent.surjective_map_ofLE h
 
 section Fintype
 
 variable [DecidableEq V] [Fintype V] [DecidableRel G.Adj]
 
-theorem reachable_iff_exists_finsetWalkLength_nonempty (u v : V) :
-    G.Reachable u v ↔ ∃ n : Fin (Fintype.card V), (G.finsetWalkLength n u v).Nonempty := by
+theorem reachable_iff_exists_finsetWalkLength_nonempty (u v : V)
+    : G.Reachable u v ↔ ∃ n : Fin (Fintype.card V), (G.finsetWalkLength n u v).Nonempty := by
   constructor
   · intro r
     refine r.elim_path fun p => ?_
@@ -59,15 +59,15 @@ instance : DecidableRel G.Reachable := fun u v =>
 instance : Fintype G.ConnectedComponent :=
   fast_instance% @Quotient.fintype _ _ G.reachableSetoid (inferInstance : DecidableRel G.Reachable)
 
-instance : Decidable G.Preconnected :=
-  inferInstanceAs <| Decidable (∀ u v, G.Reachable u v)
+instance : Decidable G.Preconnected := inferInstanceAs <| Decidable (∀ u v, G.Reachable u v)
 
 instance : Decidable G.Connected :=
   decidable_of_iff (G.Preconnected ∧ (Finset.univ : Finset V).Nonempty) <| by
     rw [connected_iff, ← Finset.univ_nonempty_iff]
 
 instance instDecidableMemSupp (c : G.ConnectedComponent) (v : V) : Decidable (v ∈ c.supp) :=
-  c.recOn (fun w ↦ decidable_of_iff (G.Reachable v w) <| by simp)
+  c.recOn
+    (fun w ↦ decidable_of_iff (G.Reachable v w) <| by simp)
     (fun _ _ _ _ ↦ Subsingleton.elim _ _)
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -82,8 +82,10 @@ lemma disjiUnion_supp_toFinset_eq_supp_toFinset {G' : SimpleGraph V} (h : G ≤ 
 
 end Fintype
 
-/-- The odd components are the connected components of odd cardinality. This definition excludes
-infinite components. -/
+/--
+The odd components are the connected components of odd cardinality. This definition excludes
+infinite components.
+-/
 abbrev oddComponents : Set G.ConnectedComponent := {c : G.ConnectedComponent | Odd c.supp.ncard}
 
 set_option backward.isDefEq.respectTransparency.types false in

@@ -29,8 +29,10 @@ variable (C : Type u) [SemilatticeInf C] [OrderTop C]
 
 namespace SemilatticeInf
 
-/-- Cartesian monoidal structure for the preorder category of a meet-semilattice with
-a greatest element. -/
+/--
+Cartesian monoidal structure for the preorder category of a meet-semilattice with
+a greatest element.
+-/
 noncomputable scoped instance cartesianMonoidalCategory : CartesianMonoidalCategory C :=
   .ofChosenFiniteProducts ⟨_, Preorder.isTerminalTop C⟩ fun X Y ↦ ⟨_, Preorder.isLimitBinaryFan X Y⟩
 

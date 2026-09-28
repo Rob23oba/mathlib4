@@ -42,13 +42,13 @@ open SampleableExt
 
 meta instance Rat.Arbitrary : Arbitrary Rat where
   arbitrary := do
-    let d ← choose Int (-(← getSize)) (← getSize)
-      (le_trans (Int.neg_nonpos_of_nonneg (Int.natCast_nonneg _)) (Int.natCast_nonneg _))
+    let d ←
+      choose Int (-(← getSize)) (← getSize)
+        (le_trans (Int.neg_nonpos_of_nonneg (Int.natCast_nonneg _)) (Int.natCast_nonneg _))
     let n ← choose Nat 0 (← getSize) (Nat.zero_le _)
     return Rat.divInt d n
 
 meta instance Rat.sampleableExt : SampleableExt Rat := by infer_instance
-
 
 meta instance PNat.Arbitrary : Arbitrary PNat where
   arbitrary := do

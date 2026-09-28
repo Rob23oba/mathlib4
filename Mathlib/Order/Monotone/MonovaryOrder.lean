@@ -24,18 +24,21 @@ variable {ι α β : Type*}
 section
 variable [LinearOrder α] [LinearOrder β] (f : ι → α) (g : ι → β) {s : Set ι}
 
-/-- If `f : ι → α` and `g : ι → β` are monovarying, then `MonovaryOrder f g` is a linear order on
+/--
+If `f : ι → α` and `g : ι → β` are monovarying, then `MonovaryOrder f g` is a linear order on
 `ι` that makes `f` and `g` simultaneously monotone.
-We define `i < j` if `f i < f j`, or if `f i = f j` and `g i < g j`, breaking ties arbitrarily. -/
+We define `i < j` if `f i < f j`, or if `f i = f j` and `g i < g j`, breaking ties arbitrarily.
+-/
 def MonovaryOrder (i j : ι) : Prop :=
   Prod.Lex (· < ·) (Prod.Lex (· < ·) WellOrderingRel) (f i, g i, i) (f j, g j, j)
 
 instance : IsStrictTotalOrder ι (MonovaryOrder f g) where
-  toTrichotomous := Std.trichotomous_of_rel_or_eq_or_rel_swap fun {a b} ↦ by
-    convert! trichotomous_of (Prod.Lex (· < ·) <| Prod.Lex (· < ·) WellOrderingRel) _ _
-    · simp only [Prod.ext_iff, ← and_assoc, imp_and, iff_and_self]
-      exact ⟨congr_arg _, congr_arg _⟩
-    · infer_instance
+  toTrichotomous :=
+    Std.trichotomous_of_rel_or_eq_or_rel_swap fun {a b} ↦ by
+      convert! trichotomous_of (Prod.Lex (· < ·) <| Prod.Lex (· < ·) WellOrderingRel) _ _
+      · simp only [Prod.ext_iff, ← and_assoc, imp_and, iff_and_self]
+        exact ⟨congr_arg _, congr_arg _⟩
+      · infer_instance
   irrefl i := by rw [MonovaryOrder]; exact irrefl _
   trans i j k := by rw [MonovaryOrder]; exact _root_.trans
 

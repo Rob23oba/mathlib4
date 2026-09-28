@@ -24,33 +24,23 @@ variable [Monoid M] {n : ℕ} {a b : M} {u u₁ u₂ : Mˣ}
 
 namespace Commute
 
-@[to_additive]
-theorem units_inv_right : Commute a u → Commute a ↑u⁻¹ :=
-  SemiconjBy.units_inv_right
+@[to_additive] theorem units_inv_right : Commute a u → Commute a ↑u⁻¹ := SemiconjBy.units_inv_right
 
 @[to_additive (attr := simp)]
-theorem units_inv_right_iff : Commute a ↑u⁻¹ ↔ Commute a u :=
-  SemiconjBy.units_inv_right_iff
+theorem units_inv_right_iff : Commute a ↑u⁻¹ ↔ Commute a u := SemiconjBy.units_inv_right_iff
 
 @[to_additive]
-theorem units_inv_left : Commute (↑u) a → Commute (↑u⁻¹) a :=
-  SemiconjBy.units_inv_symm_left
+theorem units_inv_left : Commute (↑u) a → Commute (↑u⁻¹) a := SemiconjBy.units_inv_symm_left
 
 @[to_additive (attr := simp)]
-theorem units_inv_left_iff : Commute (↑u⁻¹) a ↔ Commute (↑u) a :=
-  SemiconjBy.units_inv_symm_left_iff
+theorem units_inv_left_iff : Commute (↑u⁻¹) a ↔ Commute (↑u) a := SemiconjBy.units_inv_symm_left_iff
 
-@[to_additive]
-theorem units_val : Commute u₁ u₂ → Commute (u₁ : M) u₂ :=
-  SemiconjBy.units_val
+@[to_additive] theorem units_val : Commute u₁ u₂ → Commute (u₁ : M) u₂ := SemiconjBy.units_val
 
-@[to_additive]
-theorem units_of_val : Commute (u₁ : M) u₂ → Commute u₁ u₂ :=
-  SemiconjBy.units_of_val
+@[to_additive] theorem units_of_val : Commute (u₁ : M) u₂ → Commute u₁ u₂ := SemiconjBy.units_of_val
 
 @[to_additive (attr := simp)]
-theorem units_val_iff : Commute (u₁ : M) u₂ ↔ Commute u₁ u₂ :=
-  SemiconjBy.units_val_iff
+theorem units_val_iff : Commute (u₁ : M) u₂ ↔ Commute u₁ u₂ := SemiconjBy.units_val_iff
 
 end Commute
 
@@ -72,9 +62,10 @@ def Units.rightOfMul (u : Mˣ) (a b : M) (hu : a * b = u) (hc : Commute a b) : M
   u.leftOfMul b a (hc.eq ▸ hu) hc.symm
 
 @[to_additive]
-theorem Commute.isUnit_mul_iff (h : Commute a b) : IsUnit (a * b) ↔ IsUnit a ∧ IsUnit b :=
-  ⟨fun ⟨u, hu⟩ => ⟨(u.leftOfMul a b hu.symm h).isUnit, (u.rightOfMul a b hu.symm h).isUnit⟩,
-  fun H => H.1.mul H.2⟩
+theorem Commute.isUnit_mul_iff (h : Commute a b) : IsUnit (a * b) ↔ IsUnit a ∧ IsUnit b := ⟨
+  fun ⟨u, hu⟩ => ⟨(u.leftOfMul a b hu.symm h).isUnit, (u.rightOfMul a b hu.symm h).isUnit⟩,
+  fun H => H.1.mul H.2
+⟩
 
 @[to_additive (attr := simp)]
 theorem isUnit_mul_self_iff : IsUnit (a * a) ↔ IsUnit a :=
@@ -90,7 +81,7 @@ lemma Commute.units_zpow_left (h : Commute ↑u a) (m : ℤ) : Commute ↑(u ^ m
 
 /-- If a natural power of `x` is a unit, then `x` is a unit. -/
 @[to_additive
-/-- If a natural multiple of `x` is an additive unit, then `x` is an additive unit. -/]
+  /-- If a natural multiple of `x` is an additive unit, then `x` is an additive unit. -/]
 def Units.ofPow (u : Mˣ) (x : M) {n : ℕ} (hn : n ≠ 0) (hu : x ^ n = u) : Mˣ :=
   u.leftOfMul x (x ^ (n - 1))
     (by rwa [← _root_.pow_succ', Nat.sub_add_cancel (Nat.succ_le_of_lt <| Nat.pos_of_ne_zero hn)])

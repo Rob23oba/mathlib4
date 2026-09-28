@@ -23,9 +23,10 @@ set_option backward.isDefEq.respectTransparency false in
 variable (R A) in
 /-- Left multiplication by a unitary as a linear isometric equivalence. -/
 noncomputable def mulLeft : unitary A →* A ≃ₗᵢ[R] A where
-  toFun u :=
-    { __ := (toUnits u).mulLeftLinearEquiv R A
-      norm_map' _ := CStarRing.norm_coe_unitary_mul _ _ }
+  toFun u := {
+    __ := (toUnits u).mulLeftLinearEquiv R A
+    norm_map' _ := CStarRing.norm_coe_unitary_mul _ _
+  }
   map_one' := by ext; simp
   map_mul' _ _ := by ext; simp
 

@@ -8,7 +8,6 @@ module
 public import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 public import Mathlib.InformationTheory.KullbackLeibler.Basic
 public import Mathlib.Probability.Kernel.Composition.MeasureComp
-
 import Mathlib.Analysis.Convex.Approximation
 import Mathlib.Analysis.Convex.Deriv
 import Mathlib.InformationTheory.KullbackLeibler.ChainRule
@@ -42,8 +41,10 @@ open scoped ENNReal
 
 namespace ConvexOn
 
-variable {𝓧 𝓨 : Type*} {m m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨}
-  {μ ν : Measure 𝓧} [IsFiniteMeasure μ] [IsFiniteMeasure ν] {f : ℝ → ℝ} {g : 𝓧 → 𝓨}
+variable
+  {𝓧 𝓨 : Type*} {m m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨} {μ ν : Measure 𝓧}
+  [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+  {f : ℝ → ℝ} {g : 𝓧 → 𝓨}
 
 lemma map_condExp_rnDeriv_le (hm : m ≤ m𝓧) (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont_at : ContinuousWithinAt f (Ici 0) 0)
@@ -125,8 +126,10 @@ end ConvexOn
 
 namespace InformationTheory
 
-variable {𝓧 𝓨 : Type*} {m m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨} {μ ν : Measure 𝓧}
-  [IsFiniteMeasure μ] [IsFiniteMeasure ν] {g : 𝓧 → 𝓨}
+variable
+  {𝓧 𝓨 : Type*} {m m𝓧 : MeasurableSpace 𝓧} {m𝓨 : MeasurableSpace 𝓨} {μ ν : Measure 𝓧}
+  [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+  {g : 𝓧 → 𝓨}
 
 lemma integrable_llr_map (hμν : μ ≪ ν) (hg : Measurable g)
     (h_int : Integrable (llr μ ν) μ) :
@@ -159,11 +162,13 @@ variable (μ ν) in
 /-- **Data processing inequality** for the Kullback-Leibler divergence and measurable functions. -/
 theorem klDiv_map_le (hg : Measurable g) : klDiv (μ.map g) (ν.map g) ≤ klDiv μ ν := by
   by_cases hμν : μ ≪ ν
-  swap; · simp [hμν]
+  swap
+  · simp [hμν]
   by_cases h_int : Integrable (llr μ ν) μ
-  swap; · simp [klDiv_of_not_integrable h_int]
+  swap
+  · simp [klDiv_of_not_integrable h_int]
   rw [klDiv_map_of_ac hμν hg h_int, klDiv_eq_integral_klFun]
-  simp only [hμν, h_int, and_self, ↓reduceIte]
+  simp only [hμν, h_int, and_self, ↓ reduceIte]
   conv_rhs => rw [← integral_condExp hg.comap_le]
   gcongr 1
   have hf : StronglyMeasurable klFun := by fun_prop
@@ -183,12 +188,13 @@ theorem klDiv_trim_le (hm : m ≤ m𝓧) : klDiv (μ.trim hm) (ν.trim hm) ≤ k
 
 variable (μ ν) in
 /-- The **Data Processing Inequality** for the Kullback-Leibler divergence and a Markov kernel. -/
-theorem klDiv_comp_right_le (κ : Kernel 𝓧 𝓨) [IsMarkovKernel κ] :
-    klDiv (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ klDiv μ ν :=
-  calc klDiv (κ ∘ₘ μ) (κ ∘ₘ ν)
-  _ ≤ klDiv (μ ⊗ₘ κ) (ν ⊗ₘ κ) := by
-    rw [← Measure.snd_compProd, ← Measure.snd_compProd]
-    exact klDiv_map_le _ _ measurable_snd
-  _ = klDiv μ ν := klDiv_compProd_left μ ν κ
+theorem klDiv_comp_right_le (κ : Kernel 𝓧 𝓨) [IsMarkovKernel κ]
+    : klDiv (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ klDiv μ ν :=
+  calc
+    klDiv (κ ∘ₘ μ) (κ ∘ₘ ν)
+    _ ≤ klDiv (μ ⊗ₘ κ) (ν ⊗ₘ κ) := by
+      rw [← Measure.snd_compProd, ← Measure.snd_compProd]
+      exact klDiv_map_le _ _ measurable_snd
+    _ = klDiv μ ν := klDiv_compProd_left μ ν κ
 
 end InformationTheory

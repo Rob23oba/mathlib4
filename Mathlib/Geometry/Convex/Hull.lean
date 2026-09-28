@@ -20,13 +20,14 @@ public section
 open Set
 
 namespace Convexity
-variable {R X Y : Type*} [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [ConvexSpace R X]
-  [ConvexSpace R Y] {C s t : Set X} {x y : X}
+variable
+  {R X Y : Type*}
+  [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [ConvexSpace R X] [ConvexSpace R Y]
+  {C s t : Set X} {x y : X}
 
 variable (R) in
 /-- The convex hull of a set `s` is the minimal convex set that includes `s`. -/
-def convexHull : ClosureOperator (Set X) :=
-  .ofCompletePred (IsConvexSet R) (fun _ ↦ .sInter)
+def convexHull : ClosureOperator (Set X) := .ofCompletePred (IsConvexSet R) (fun _ ↦ .sInter)
 
 set_option backward.isDefEq.respectTransparency.types false in
 lemma subset_convexHull_iff : t ⊆ convexHull R s ↔ ∀ C, s ⊆ C → IsConvexSet R C → t ⊆ C := by

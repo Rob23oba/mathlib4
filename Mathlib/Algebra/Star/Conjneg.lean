@@ -71,7 +71,8 @@ lemma sum_conjneg [Fintype G] (f : G → R) : ∑ a, conjneg f a = ∑ a, conj (
   ext; simp [starRingEnd_apply]
 
 /-- `conjneg` bundled as a ring homomorphism. -/
-@[simps] def conjnegRingHom : (G → R) →+* (G → R) where
+@[simps]
+def conjnegRingHom : (G → R) →+* (G → R) where
   toFun := conjneg
   map_zero' := conjneg_zero
   map_one' := conjneg_one

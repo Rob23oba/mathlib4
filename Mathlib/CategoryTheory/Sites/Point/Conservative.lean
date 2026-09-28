@@ -38,36 +38,35 @@ namespace CategoryTheory
 
 open Limits Opposite
 
-variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-  (P : ObjectProperty (GrothendieckTopology.Point.{w} J))
+variable
+  {C : Type u} [Category.{v} C]
+  {J : GrothendieckTopology C} (P : ObjectProperty (GrothendieckTopology.Point.{w} J))
 
 namespace ObjectProperty
 
-/-- Let `P : ObjectProperty J.Point` a family of points of a
+/--
+Let `P : ObjectProperty J.Point` a family of points of a
 site `(C, J)`). We say that it is a conservative family of points
 if the corresponding fiber functors `Sheaf J (Type w) ⥤ Type w`
-jointly reflect isomorphisms. -/
+jointly reflect isomorphisms.
+-/
 @[stacks 00YK "(1)"]
 structure IsConservativeFamilyOfPoints : Prop where
-  jointlyReflectIsomorphisms_type :
-    JointlyReflectIsomorphisms
-      (fun (Φ : P.FullSubcategory) ↦ Φ.obj.sheafFiber (A := Type w))
+  jointlyReflectIsomorphisms_type
+    : JointlyReflectIsomorphisms (fun (Φ : P.FullSubcategory) ↦ Φ.obj.sheafFiber (A := Type w))
 
 namespace IsConservativeFamilyOfPoints
 
-variable {P} (hP : P.IsConservativeFamilyOfPoints)
-  (A : Type u') [Category.{v'} A] [LocallySmall.{w} C]
+variable
+  {P} (hP : P.IsConservativeFamilyOfPoints) (A : Type u') [Category.{v'} A] [LocallySmall.{w} C]
 
 section
 
 variable
   [HasColimitsOfSize.{w, w} A]
-  {FC : A → A → Type*} {CC : A → Type w}
-  [∀ (X Y : A), FunLike (FC X Y) (CC X) (CC Y)]
-  [ConcreteCategory.{w} A FC]
-  [(forget A).ReflectsIsomorphisms]
-  [PreservesFilteredColimitsOfSize.{w, w} (forget A)]
-  [hJ : J.HasSheafCompose (forget A)]
+  {FC : A → A → Type*} {CC : A → Type w} [∀ (X Y : A), FunLike (FC X Y) (CC X) (CC Y)]
+  [ConcreteCategory.{w} A FC] [(forget A).ReflectsIsomorphisms]
+  [PreservesFilteredColimitsOfSize.{w, w} (forget A)] [hJ : J.HasSheafCompose (forget A)]
 
 include hP hJ in
 @[stacks 00YK "(1)"]
@@ -229,11 +228,13 @@ private lemma mk'.isLocallySurjective
       refine Eq.trans (congr_arg _ ht)
         (Φ.obj.toPresheafFiber_naturality_apply f _ v y).symm
 
-/- Let `P` be family of points of a site `(C, J)`, we show that `P` is a conservative
+/-
+Let `P` be family of points of a site `(C, J)`, we show that `P` is a conservative
 family of points if the following condition is satisfied (SGA 4 IV 6.5 (a)):
 for any sieve `S : Sieve X`, if the family of maps `Φ.map.fiber.map f`
 for all morphisms `f` in the sieve `S` is jointly surjective for any `Φ` in `P`,
-then `S` is a covering sieve for `J`. -/
+then `S` is a covering sieve for `J`.
+-/
 lemma mk' [HasSheafify J (Type w)]
     (hP : ∀ ⦃X : C⦄ (S : Sieve X) (_ : ∀ (Φ : P.FullSubcategory) (x : Φ.obj.fiber.obj X),
       ∃ (Y : C) (g : Y ⟶ X) (_ : S g) (y : Φ.obj.fiber.obj Y), Φ.obj.fiber.map g y = x),
@@ -254,11 +255,13 @@ end ObjectProperty
 
 namespace GrothendieckTopology
 
-/-- A site has enough points (relatively to a universe `w`)
-if it has a `w`-small conservative family of points. -/
+/--
+A site has enough points (relatively to a universe `w`)
+if it has a `w`-small conservative family of points.
+-/
 class HasEnoughPoints (J : GrothendieckTopology C) : Prop where
-  exists_objectProperty (J) :
-    ∃ (P : ObjectProperty (Point.{w} J)),
+  exists_objectProperty (J)
+    : ∃ (P : ObjectProperty (Point.{w} J)),
       ObjectProperty.Small.{w} P ∧ P.IsConservativeFamilyOfPoints
 
 end GrothendieckTopology

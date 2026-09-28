@@ -51,19 +51,27 @@ namespace ProbabilityTheory
 
 variable {ι Ω E : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
 
-/-- A pre-localizing sequence is a sequence of stopping times that tends almost surely to
-infinity. -/
-structure IsPreLocalizingSequence [Preorder ι] [TopologicalSpace ι] [OrderTopology ι]
-    (𝓕 : Filtration ι mΩ) (τ : ℕ → Ω → WithTop ι) (P : Measure Ω := by volume_tac) :
-    Prop where
+/--
+A pre-localizing sequence is a sequence of stopping times that tends almost surely to
+infinity.
+-/
+structure IsPreLocalizingSequence
+    [Preorder ι] [TopologicalSpace ι] [OrderTopology ι]
+    (𝓕 : Filtration ι mΩ) (τ : ℕ → Ω → WithTop ι)
+    (P : Measure Ω := by volume_tac)
+    : Prop where
   isStoppingTime : ∀ n, IsStoppingTime 𝓕 (τ n)
   tendsto_top : ∀ᵐ ω ∂P, Tendsto (τ · ω) atTop (𝓝 ⊤)
 
-/-- A localizing sequence is a sequence of stopping times that is almost surely increasing and
-tends almost surely to infinity. -/
-structure IsLocalizingSequence [Preorder ι] [TopologicalSpace ι] [OrderTopology ι]
+/--
+A localizing sequence is a sequence of stopping times that is almost surely increasing and
+tends almost surely to infinity.
+-/
+structure IsLocalizingSequence
+    [Preorder ι] [TopologicalSpace ι] [OrderTopology ι]
     (𝓕 : Filtration ι mΩ) (τ : ℕ → Ω → WithTop ι)
-    (P : Measure Ω := by volume_tac) extends IsPreLocalizingSequence 𝓕 τ P where
+    (P : Measure Ω := by volume_tac)
+    extends IsPreLocalizingSequence 𝓕 τ P where
   mono : ∀ᵐ ω ∂P, Monotone (τ · ω)
 
 lemma isLocalizingSequence_const_top [Preorder ι] [TopologicalSpace ι] [OrderTopology ι]
@@ -87,24 +95,26 @@ protected lemma IsLocalizingSequence.min [TopologicalSpace ι] [OrderTopology ι
 
 variable [OrderBot ι]
 
-/-- A stochastic process `X` is said to satisfy a property `p` locally with respect to a
+/--
+A stochastic process `X` is said to satisfy a property `p` locally with respect to a
 filtration `𝓕` if there exists a localizing sequence `(τ_n)` such that for all `n`, the stopped
-process `fun i ↦ {ω | ⊥ < τ n ω}.indicator (X i)` satisfies `p`. -/
-def Locally [TopologicalSpace ι] [OrderTopology ι] [Zero E]
-    (p : (ι → Ω → E) → Prop) (𝓕 : Filtration ι mΩ)
-    (X : ι → Ω → E) (P : Measure Ω := by volume_tac) : Prop :=
-  ∃ τ : ℕ → Ω → WithTop ι, IsLocalizingSequence 𝓕 τ P ∧
-    ∀ n, p (stoppedProcess (fun i ↦ {ω | ⊥ < τ n ω}.indicator (X i)) (τ n))
+process `fun i ↦ {ω | ⊥ < τ n ω}.indicator (X i)` satisfies `p`.
+-/
+def Locally
+    [TopologicalSpace ι] [OrderTopology ι] [Zero E]
+    (p : (ι → Ω → E) → Prop) (𝓕 : Filtration ι mΩ) (X : ι → Ω → E)
+    (P : Measure Ω := by volume_tac)
+    : Prop :=
+  ∃ τ : ℕ → Ω → WithTop ι,
+    IsLocalizingSequence 𝓕 τ P
+      ∧ ∀ n, p (stoppedProcess (fun i ↦ {ω | ⊥ < τ n ω}.indicator (X i)) (τ n))
 
 namespace Locally
 
 variable [TopologicalSpace ι] [OrderTopology ι]
 
 /-- A localizing sequence, witness of the local property of the stochastic process. -/
-noncomputable
-def localSeq [Zero E] (hX : Locally p 𝓕 X P) :
-    ℕ → Ω → WithTop ι :=
-  hX.choose
+noncomputable def localSeq [Zero E] (hX : Locally p 𝓕 X P) : ℕ → Ω → WithTop ι := hX.choose
 
 lemma isLocalizingSequence_localSeq [Zero E] (hX : Locally p 𝓕 X P) :
     IsLocalizingSequence 𝓕 hX.localSeq P :=
@@ -137,12 +147,15 @@ end Locally
 
 variable [Zero E]
 
-/-- A property of stochastic processes is said to be stable if it is preserved under taking
-the stopped process by a stopping time. -/
-def IsStable
-    (𝓕 : Filtration ι mΩ) (p : (ι → Ω → E) → Prop) : Prop :=
-  ∀ X : ι → Ω → E, p X → ∀ τ : Ω → WithTop ι, IsStoppingTime 𝓕 τ →
-    p (stoppedProcess (fun i ↦ {ω | ⊥ < τ ω}.indicator (X i)) τ)
+/--
+A property of stochastic processes is said to be stable if it is preserved under taking
+the stopped process by a stopping time.
+-/
+def IsStable (𝓕 : Filtration ι mΩ) (p : (ι → Ω → E) → Prop) : Prop :=
+  ∀ X : ι → Ω → E,
+    p X
+      → ∀ τ : Ω → WithTop ι,
+        IsStoppingTime 𝓕 τ → p (stoppedProcess (fun i ↦ {ω | ⊥ < τ ω}.indicator (X i)) τ)
 
 protected lemma IsStable.and (hp : IsStable 𝓕 p) (hq : IsStable 𝓕 q) :
     IsStable 𝓕 (fun X ↦ p X ∧ q X) :=
@@ -184,7 +197,8 @@ end LinearOrder
 
 section ConditionallyCompleteLinearOrderBot
 
-variable [ConditionallyCompleteLinearOrderBot ι] [TopologicalSpace ι] [OrderTopology ι]
+variable
+  [ConditionallyCompleteLinearOrderBot ι] [TopologicalSpace ι] [OrderTopology ι]
   {𝓕 : Filtration ι mΩ} {X : ι → Ω → E} {p q : (ι → Ω → E) → Prop}
 
 lemma IsPreLocalizingSequence.isLocalizingSequence_biInf
@@ -257,8 +271,10 @@ private lemma isPreLocalizingSequence_of_isLocalizingSequence_aux'
         <| measurableSet_lt ((hσ n).isStoppingTime i).measurable' measurable_const
   · exact ⟨0, measure_ne_top P _⟩
 
-/-- Auxiliary definition for `isPreLocalizingSequence_of_isLocalizingSequence` which constructs a
-strictly increasing sequence from a given sequence. -/
+/--
+Auxiliary definition for `isPreLocalizingSequence_of_isLocalizingSequence` which constructs a
+strictly increasing sequence from a given sequence.
+-/
 private def mkStrictMonoAux (x : ℕ → ℕ) : ℕ → ℕ
   | 0 => x 0
   | n + 1 => max (x (n + 1)) (mkStrictMonoAux x n) + 1

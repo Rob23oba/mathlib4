@@ -43,16 +43,16 @@ open LinearMap
 
 namespace CategoryTheory
 
-/-- A category is called `R`-linear if `P ⟶ Q` is an `R`-module such that composition is
-`R`-linear in both variables. -/
+/--
+A category is called `R`-linear if `P ⟶ Q` is an `R`-module such that composition is
+`R`-linear in both variables.
+-/
 class Linear (R : Type w) [Semiring R] (C : Type u) [Category.{v} C] [Preadditive C] where
   homModule : ∀ X Y : C, Module R (X ⟶ Y) := by infer_instance
   /-- compatibility of the scalar multiplication with the post-composition -/
-  smul_comp : ∀ (X Y Z : C) (r : R) (f : X ⟶ Y) (g : Y ⟶ Z), (r • f) ≫ g = r • f ≫ g := by
-    cat_disch
+  smul_comp : ∀ (X Y Z : C) (r : R) (f : X ⟶ Y) (g : Y ⟶ Z), (r • f) ≫ g = r • f ≫ g := by cat_disch
   /-- compatibility of the scalar multiplication with the pre-composition -/
-  comp_smul : ∀ (X Y Z : C) (f : X ⟶ Y) (r : R) (g : Y ⟶ Z), f ≫ (r • g) = r • f ≫ g := by
-    cat_disch
+  comp_smul : ∀ (X Y Z : C) (f : X ⟶ Y) (r : R) (g : Y ⟶ Z), f ≫ (r • g) = r • f ≫ g := by cat_disch
 
 attribute [instance_reducible, instance] Linear.homModule
 
@@ -79,8 +79,7 @@ section End
 
 variable {R : Type w}
 
-instance [Semiring R] [Linear R C] (X : C) : Module R (End X) :=
-  inferInstanceAs <| Module R (X ⟶ X)
+instance [Semiring R] [Linear R C] (X : C) : Module R (End X) := inferInstanceAs <| Module R (X ⟶ X)
 
 instance [CommSemiring R] [Linear R C] (X : C) : Algebra R (End X) :=
   Algebra.ofModule (fun _ _ _ => comp_smul _ _ _ _ _ _) fun _ _ _ => smul_comp _ _ _ _ _ _
@@ -103,12 +102,13 @@ instance inducedCategory : Linear.{w, v} R (InducedCategory C F) where
   comp_smul _ _ _ _ _ _ := by ext; apply comp_smul
 
 variable {F} in
-/-- The linear equivalence `(X ⟶ Y) ≃+ (F X ⟶ F Y)` when `F : D → C` and
-`C` is a `R`-linear category. -/
+/--
+The linear equivalence `(X ⟶ Y) ≃+ (F X ⟶ F Y)` when `F : D → C` and
+`C` is a `R`-linear category.
+-/
 @[simps!]
-def _root_.CategoryTheory.InducedCategory.homLinearEquiv
-    {X Y : InducedCategory C F} :
-    (X ⟶ Y) ≃ₗ[R] (F X ⟶ F Y) where
+def _root_.CategoryTheory.InducedCategory.homLinearEquiv {X Y : InducedCategory C F}
+    : (X ⟶ Y) ≃ₗ[R] (F X ⟶ F Y) where
   toAddEquiv := InducedCategory.homAddEquiv
   map_smul' := by cat_disch
 
@@ -133,42 +133,49 @@ def rightComp (X : C) {Y Z : C} (g : Y ⟶ Z) : (X ⟶ Y) →ₗ[R] X ⟶ Z wher
   map_add' := by simp
   map_smul' := by simp
 
-instance {X Y : C} (f : X ⟶ Y) [Epi f] (r : R) [Invertible r] : Epi (r • f) :=
-  ⟨fun g g' H => by
-    rw [smul_comp, smul_comp, ← comp_smul, ← comp_smul, cancel_epi] at H
-    simpa [smul_smul] using congr(⅟r • $H)⟩
+instance {X Y : C} (f : X ⟶ Y) [Epi f] (r : R) [Invertible r] : Epi (r • f) := ⟨fun g g' H => by
+  rw [smul_comp, smul_comp, ← comp_smul, ← comp_smul, cancel_epi] at H
+  simpa [smul_smul] using congr(⅟r • $H)⟩
 
-instance {X Y : C} (f : X ⟶ Y) [Mono f] (r : R) [Invertible r] : Mono (r • f) :=
-  ⟨fun g g' H => by
-    rw [comp_smul, comp_smul, ← smul_comp, ← smul_comp, cancel_mono] at H
-    simpa [smul_smul] using congr(⅟r • $H)⟩
+instance {X Y : C} (f : X ⟶ Y) [Mono f] (r : R) [Invertible r] : Mono (r • f) := ⟨fun g g' H => by
+  rw [comp_smul, comp_smul, ← smul_comp, ← smul_comp, cancel_mono] at H
+  simpa [smul_smul] using congr(⅟r • $H)⟩
 
-/-- Given isomorphic objects `X ≅ Y, W ≅ Z` in a `k`-linear category, we have a `k`-linear
-isomorphism between `Hom(X, W)` and `Hom(Y, Z).` -/
-def homCongr (k : Type*) {C : Type*} [Category* C] [Semiring k] [Preadditive C] [Linear k C]
-    {X Y W Z : C} (f₁ : X ≅ Y) (f₂ : W ≅ Z) : (X ⟶ W) ≃ₗ[k] Y ⟶ Z :=
-  {
-    (rightComp k Y f₂.hom).comp
-      (leftComp k W
-        f₁.symm.hom) with
-    invFun := (leftComp k W f₁.hom).comp (rightComp k Y f₂.symm.hom)
-    left_inv := fun x => by
-      simp only [Iso.symm_hom, LinearMap.toFun_eq_coe, LinearMap.coe_comp, Function.comp_apply,
-        leftComp_apply, rightComp_apply, Category.assoc, Iso.hom_inv_id, Category.comp_id,
-        Iso.hom_inv_id_assoc]
-    right_inv := fun x => by
-      simp only [Iso.symm_hom, LinearMap.coe_comp, Function.comp_apply, rightComp_apply,
-        leftComp_apply, LinearMap.toFun_eq_coe, Iso.inv_hom_id_assoc, Category.assoc,
-        Iso.inv_hom_id, Category.comp_id] }
+/--
+Given isomorphic objects `X ≅ Y, W ≅ Z` in a `k`-linear category, we have a `k`-linear
+isomorphism between `Hom(X, W)` and `Hom(Y, Z).`
+-/
+def homCongr
+    (k : Type*)
+    {C : Type*} [Category* C] [Semiring k] [Preadditive C] [Linear k C]
+    {X Y W Z : C} (f₁ : X ≅ Y) (f₂ : W ≅ Z)
+    : (X ⟶ W) ≃ₗ[k] Y ⟶ Z := {
+  (rightComp k Y f₂.hom).comp (leftComp k W f₁.symm.hom) with
+  invFun := (leftComp k W f₁.hom).comp (rightComp k Y f₂.symm.hom)
+  left_inv := fun x => by
+    simp only [
+      Iso.symm_hom, LinearMap.toFun_eq_coe, LinearMap.coe_comp, Function.comp_apply, leftComp_apply,
+      rightComp_apply, Category.assoc, Iso.hom_inv_id, Category.comp_id, Iso.hom_inv_id_assoc
+    ]
+  right_inv := fun x => by
+    simp only [
+      Iso.symm_hom, LinearMap.coe_comp, Function.comp_apply, rightComp_apply, leftComp_apply,
+      LinearMap.toFun_eq_coe, Iso.inv_hom_id_assoc, Category.assoc, Iso.inv_hom_id, Category.comp_id
+    ]
+}
 
-theorem homCongr_apply (k : Type*) {C : Type*} [Category* C] [Semiring k] [Preadditive C]
-    [Linear k C] {X Y W Z : C} (f₁ : X ≅ Y) (f₂ : W ≅ Z) (f : X ⟶ W) :
-    homCongr k f₁ f₂ f = (f₁.inv ≫ f) ≫ f₂.hom :=
+theorem homCongr_apply
+    (k : Type*)
+    {C : Type*} [Category* C] [Semiring k] [Preadditive C] [Linear k C]
+    {X Y W Z : C} (f₁ : X ≅ Y) (f₂ : W ≅ Z) (f : X ⟶ W)
+    : homCongr k f₁ f₂ f = (f₁.inv ≫ f) ≫ f₂.hom :=
   rfl
 
-theorem homCongr_symm_apply (k : Type*) {C : Type*} [Category* C] [Semiring k] [Preadditive C]
-    [Linear k C] {X Y W Z : C} (f₁ : X ≅ Y) (f₂ : W ≅ Z) (f : Y ⟶ Z) :
-    (homCongr k f₁ f₂).symm f = f₁.hom ≫ f ≫ f₂.inv :=
+theorem homCongr_symm_apply
+    (k : Type*)
+    {C : Type*} [Category* C] [Semiring k] [Preadditive C] [Linear k C]
+    {X Y W Z : C} (f₁ : X ≅ Y) (f₂ : W ≅ Z) (f : Y ⟶ Z)
+    : (homCongr k f₁ f₂).symm f = f₁.hom ≫ f ≫ f₂.inv :=
   rfl
 
 variable {R}

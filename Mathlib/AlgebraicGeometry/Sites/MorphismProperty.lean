@@ -30,18 +30,22 @@ namespace AlgebraicGeometry
 
 namespace Scheme
 
-/-- A morphism property of schemes is said to preserve joint surjectivity, if
+/--
+A morphism property of schemes is said to preserve joint surjectivity, if
 for any pair of morphisms `f : X ⟶ S` and `g : Y ⟶ S` where `g` satisfies `P`,
 any pair of points `x : X` and `y : Y` with `f x = g y` can be lifted to a point
 of `X ×[S] Y`.
 
 In later files, this will be automatic, since this holds for any morphism `g`
 (see `AlgebraicGeometry.Scheme.isJointlySurjectivePreserving`). But at
-this early stage in the import tree, we only know it for open immersions. -/
+this early stage in the import tree, we only know it for open immersions.
+-/
 class IsJointlySurjectivePreserving (P : MorphismProperty Scheme.{u}) where
-  exists_preimage_fst_triplet_of_prop {X Y S : Scheme.{u}} {f : X ⟶ S} {g : Y ⟶ S} [HasPullback f g]
-    (hg : P g) (x : X) (y : Y) (h : f x = g y) :
-    ∃ a : ↑(pullback f g), pullback.fst f g a = x
+  exists_preimage_fst_triplet_of_prop
+    {X Y S : Scheme.{u}} {f : X ⟶ S} {g : Y ⟶ S} [HasPullback f g]
+    (hg : P g)
+    (x : X) (y : Y) (h : f x = g y)
+    : ∃ a : ↑(pullback f g), pullback.fst f g a = x
 
 variable {P : MorphismProperty Scheme.{u}}
 
@@ -58,8 +62,10 @@ lemma IsJointlySurjectivePreserving.exists_preimage_snd_triplet_of_prop
 set_option backward.isDefEq.respectTransparency.types false in
 instance : IsJointlySurjectivePreserving @IsOpenImmersion where
   exists_preimage_fst_triplet_of_prop {X Y S f g} _ hg x y h := by
-    rw [← show _ = (pullback.fst _ _ : pullback f g ⟶ _).base from
-        PreservesPullback.iso_hom_fst Scheme.forgetToTop f g]
+    rw [
+      ← show _ = (pullback.fst _ _ : pullback f g ⟶ _).base from
+        PreservesPullback.iso_hom_fst Scheme.forgetToTop f g
+    ]
     have : x ∈ Set.range (pullback.fst f.base g.base) := by
       rw [TopCat.pullback_fst_range f.base g.base]
       use y
@@ -73,10 +79,11 @@ abbrev jointlySurjectivePrecoverage : Precoverage Scheme.{u} :=
 
 variable (P : MorphismProperty Scheme.{u})
 
-/-- The precoverage on `Scheme` induced by `P` is given by jointly surjective families of
-`P`-morphisms. -/
-def precoverage : Precoverage Scheme.{u} :=
-  jointlySurjectivePrecoverage ⊓ P.precoverage
+/--
+The precoverage on `Scheme` induced by `P` is given by jointly surjective families of
+`P`-morphisms.
+-/
+def precoverage : Precoverage Scheme.{u} := jointlySurjectivePrecoverage ⊓ P.precoverage
 
 @[simp]
 lemma ofArrows_mem_precoverage_iff {S : Scheme.{u}} {ι : Type*} {X : ι → Scheme.{u}}
@@ -108,20 +115,23 @@ instance [P.ContainsIdentities] [P.RespectsIso] : (precoverage P).HasIsos := by
 instance [P.HasPullbacks] : (precoverage P).HasPullbacks where
   hasPullbacks_of_mem _ hR := ⟨fun hg ↦ P.hasPullback _ (hR.2 hg)⟩
 
-instance [IsJointlySurjectivePreserving P] [P.IsStableUnderBaseChange] :
-    (precoverage P).IsStableUnderBaseChange where
+instance [IsJointlySurjectivePreserving P] [P.IsStableUnderBaseChange]
+    : (precoverage P).IsStableUnderBaseChange where
   mem_coverings_of_isPullback {ι} S X f hf Y g T p₁ p₂ H := by
     rw [ofArrows_mem_precoverage_iff] at hf ⊢
     refine ⟨fun x ↦ ?_, fun i ↦ P.of_isPullback (H i).flip (hf.2 i)⟩
     obtain ⟨i, y, hy⟩ := hf.1 (g x)
     have := (H i).hasPullback
-    obtain ⟨w, hw⟩ := IsJointlySurjectivePreserving.exists_preimage_fst_triplet_of_prop (hf.2 i)
-      (f := g) x y hy.symm
+    obtain ⟨w, hw⟩ :=
+      IsJointlySurjectivePreserving.exists_preimage_fst_triplet_of_prop (hf.2 i) (f := g) x y
+        hy.symm
     use i, (H i).isoPullback.inv w
     simpa [← Scheme.Hom.comp_apply]
 
-/-- The Zariski precoverage on the category of schemes is the precoverage defined by
-jointly surjective families of open immersions. -/
+/--
+The Zariski precoverage on the category of schemes is the precoverage defined by
+jointly surjective families of open immersions.
+-/
 abbrev zariskiPrecoverage : Precoverage Scheme.{u} := precoverage @IsOpenImmersion
 
 end AlgebraicGeometry.Scheme

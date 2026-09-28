@@ -36,8 +36,10 @@ namespace MorphismProperty
 
 variable {P Q : MorphismProperty C}
 
-/-- This is the precoverage on `C` where covering presieves are those where every
-morphism satisfies `P`. -/
+/--
+This is the precoverage on `C` where covering presieves are those where every
+morphism satisfies `P`.
+-/
 def precoverage (P : MorphismProperty C) : Precoverage C where
   coverings X := {S | ∀ ⦃Y : C⦄ ⦃f : Y ⟶ X⦄, S f → P f}
 
@@ -89,11 +91,13 @@ lemma comap_precoverage {D : Type*} [Category* D] (P : MorphismProperty D) (F : 
   obtain ⟨ι, Y, f, rfl⟩ := R.exists_eq_ofArrows
   simp
 
-/-- If `P` is stable under base change, this is the coverage on `C` where covering presieves
-are those where every morphism satisfies `P`. -/
+/--
+If `P` is stable under base change, this is the coverage on `C` where covering presieves
+are those where every morphism satisfies `P`.
+-/
 @[simps toPrecoverage]
-def coverage (P : MorphismProperty C) [P.IsStableUnderBaseChange] [P.HasPullbacks] :
-    Coverage C where
+def coverage (P : MorphismProperty C) [P.IsStableUnderBaseChange] [P.HasPullbacks]
+    : Coverage C where
   __ := precoverage P
   pullback X Y f S hS := by
     have : S.HasPullbacks f := ⟨fun {W} h hh ↦ P.hasPullback _ (hS hh)⟩
@@ -102,22 +106,26 @@ def coverage (P : MorphismProperty C) [P.IsStableUnderBaseChange] [P.HasPullback
     have := S.hasPullback f h
     exact P.pullback_snd _ _ (hS h)
 
-/-- If `P` is stable under base change, it induces a Grothendieck topology: the one associated
-to `coverage P`. -/
-abbrev grothendieckTopology (P : MorphismProperty C) [P.IsStableUnderBaseChange] [P.HasPullbacks] :
-    GrothendieckTopology C :=
+/--
+If `P` is stable under base change, it induces a Grothendieck topology: the one associated
+to `coverage P`.
+-/
+abbrev grothendieckTopology (P : MorphismProperty C) [P.IsStableUnderBaseChange] [P.HasPullbacks]
+    : GrothendieckTopology C :=
   P.coverage.toGrothendieck
 
 section HasPullbacks
 
 variable [P.IsStableUnderBaseChange] [HasPullbacks C]
 
-/-- If `P` is a multiplicative morphism property which is stable under base change on a category
+/--
+If `P` is a multiplicative morphism property which is stable under base change on a category
 `C` with pullbacks, then `P` induces a pretopology, where coverings are given by presieves whose
-elements satisfy `P`. -/
+elements satisfy `P`.
+-/
 @[simps! toPrecoverage]
-def pretopology (P : MorphismProperty C) [P.IsMultiplicative] [P.IsStableUnderBaseChange] :
-    Pretopology C :=
+def pretopology (P : MorphismProperty C) [P.IsMultiplicative] [P.IsStableUnderBaseChange]
+    : Pretopology C :=
   (precoverage P).toPretopology
 
 /-- If `P` is also multiplicative, the coverage induced by `P` is the pretopology induced by `P`. -/
@@ -133,9 +141,9 @@ lemma grothendieckTopology_eq_toGrothendieck_pretopology [P.IsMultiplicative] :
 
 section
 
-variable {P Q : MorphismProperty C}
-  [P.IsMultiplicative] [P.IsStableUnderBaseChange]
-  [Q.IsMultiplicative] [Q.IsStableUnderBaseChange]
+variable
+  {P Q : MorphismProperty C}
+  [P.IsMultiplicative] [P.IsStableUnderBaseChange] [Q.IsMultiplicative] [Q.IsStableUnderBaseChange]
 
 lemma pretopology_monotone (hPQ : P ≤ Q) : P.pretopology ≤ Q.pretopology :=
   precoverage_monotone hPQ
@@ -153,8 +161,8 @@ end HasPullbacks
 end MorphismProperty
 
 /-- The weakest morphism property satisfied by all morphisms in covering families. -/
-def Precoverage.morphismProperty (K : Precoverage C) : MorphismProperty C :=
-  fun _ Y f ↦ ∃ R ∈ K Y, R f
+def Precoverage.morphismProperty (K : Precoverage C) : MorphismProperty C := fun _ Y f ↦
+  ∃ R ∈ K Y, R f
 
 @[simp]
 lemma MorphismProperty.morphismProperty_precoverage (P : MorphismProperty C) :

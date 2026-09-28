@@ -8,7 +8,6 @@ module
 public import Mathlib.Data.Fintype.Pi
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 
-
 /-!
 # Products over `univ.pi`
 

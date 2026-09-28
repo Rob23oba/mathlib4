@@ -48,8 +48,10 @@ namespace InformationTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {x : ℝ}
 
-/-- The function `x : ℝ ↦ x * log x + 1 - x`.
-The Kullback-Leibler divergence is an f-divergence for this function. -/
+/--
+The function `x : ℝ ↦ x * log x + 1 - x`.
+The Kullback-Leibler divergence is an f-divergence for this function.
+-/
 noncomputable def klFun (x : ℝ) : ℝ := x * log x + 1 - x
 
 lemma klFun_apply (x : ℝ) : klFun x = x * log x + 1 - x := rfl

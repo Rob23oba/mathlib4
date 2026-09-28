@@ -52,14 +52,15 @@ namespace AddSubgroup
 section Monoid
 variable [Monoid M] [AddGroup A] [DistribMulAction M A] {a : M}
 
-/-- The action on an additive subgroup corresponding to applying the action to every element.
+/--
+The action on an additive subgroup corresponding to applying the action to every element.
 
-This is available as an instance in the `Pointwise` locale. -/
+This is available as an instance in the `Pointwise` locale.
+-/
 @[instance_reducible]
 protected def pointwiseMulAction : MulAction M (AddSubgroup A) where
   smul a S := S.map (DistribMulAction.toAddMonoidEnd _ A a)
-  one_smul S :=
-    (congr_arg (fun f : AddMonoid.End A => S.map f) (map_one _)).trans S.map_id
+  one_smul S := (congr_arg (fun f : AddMonoid.End A => S.map f) (map_one _)).trans S.map_id
   mul_smul _ _ S :=
     (congr_arg (fun f : AddMonoid.End A => S.map f) (map_mul _ _ _)).trans (S.map_map _ _).symm
 
@@ -85,8 +86,8 @@ lemma mem_smul_pointwise_iff_exists (m : A) (a : M) (S : AddSubgroup A) :
     m ∈ a • S ↔ ∃ s : A, s ∈ S ∧ a • s = m :=
   (Set.mem_smul_set : m ∈ a • (S : Set A) ↔ _)
 
-instance pointwise_isCentralScalar [DistribMulAction Mᵐᵒᵖ A] [IsCentralScalar M A] :
-    IsCentralScalar M (AddSubgroup A) :=
+instance pointwise_isCentralScalar [DistribMulAction Mᵐᵒᵖ A] [IsCentralScalar M A]
+    : IsCentralScalar M (AddSubgroup A) :=
   ⟨fun _ S => (congr_arg fun f => S.map f) <| AddMonoidHom.ext <| op_smul_eq_smul _⟩
 
 -- TODO: Check that these lemmas are useful and uncomment.

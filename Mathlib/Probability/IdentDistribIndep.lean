@@ -29,9 +29,9 @@ open MeasureTheory
 
 namespace ProbabilityTheory
 
-variable {Ω Ω' ι E F : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
-    {mE : MeasurableSpace E} {mF : MeasurableSpace F}
-    {μ : Measure Ω} {ν : Measure Ω'}
+variable
+  {Ω Ω' ι E F : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'} {mE : MeasurableSpace E}
+  {mF : MeasurableSpace F} {μ : Measure Ω} {ν : Measure Ω'}
 
 /-- If `X` and `Y` are independent random variables on `Ω`, `Z` and `W` are independent random
 variables on `Ω'`, such that `X` and `Z` are identically distributed and `Y` and `W` are identically

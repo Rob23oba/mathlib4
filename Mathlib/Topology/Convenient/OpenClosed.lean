@@ -23,8 +23,7 @@ public section
 
 open Topology
 
-variable {ι : Type*} {X : ι → Type*} [∀ i, TopologicalSpace (X i)]
-  {Y : Type*} [TopologicalSpace Y]
+variable {ι : Type*} {X : ι → Type*} [∀ i, TopologicalSpace (X i)] {Y : Type*} [TopologicalSpace Y]
 
 section
 

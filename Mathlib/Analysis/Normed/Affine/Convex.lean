@@ -31,13 +31,12 @@ open scoped Convex Pointwise Topology
 section SeminormedAddCommGroup
 variable [SeminormedAddCommGroup E] [NormedSpace ℝ E] [PseudoMetricSpace P] [NormedAddTorsor E P]
 
-theorem Wbtw.dist_add_dist {x y z : P} (h : Wbtw ℝ x y z) :
-    dist x y + dist y z = dist x z := by
+theorem Wbtw.dist_add_dist {x y z : P} (h : Wbtw ℝ x y z) : dist x y + dist y z = dist x z := by
   obtain ⟨a, ⟨ha₀, ha₁⟩, rfl⟩ := h
   simp [abs_of_nonneg, ha₀, ha₁, sub_mul]
 
-theorem dist_add_dist_of_mem_segment {x y z : E} (h : y ∈ [x -[ℝ] z]) :
-    dist x y + dist y z = dist x z :=
+theorem dist_add_dist_of_mem_segment {x y z : E} (h : y ∈ [x -[ℝ] z])
+    : dist x y + dist y z = dist x z :=
   (mem_segment_iff_wbtw.1 h).dist_add_dist
 
 end SeminormedAddCommGroup
@@ -89,11 +88,12 @@ lemma exists_mem_interior_convexHull_affineBasis (hs : s ∈ 𝓝 x) :
       _ ⊆ ball 0 ε := closedBall_subset_ball (by linarith)
       _ ⊆ s := hεs
 
-/-- We can intercalate a convex polytope between a compact convex set and one of its neighborhoods.
+/--
+We can intercalate a convex polytope between a compact convex set and one of its neighborhoods.
 -/
 theorem Convex.exists_subset_interior_convexHull_finset_of_isCompact
-    (hs₁ : Convex ℝ s) (hs₂ : IsCompact s) (ht : t ∈ 𝓝ˢ s) :
-    ∃ u : Finset E, s ⊆ interior (convexHull ℝ u) ∧ convexHull ℝ u ⊆ t := by
+    (hs₁ : Convex ℝ s) (hs₂ : IsCompact s) (ht : t ∈ 𝓝ˢ s)
+    : ∃ u : Finset E, s ⊆ interior (convexHull ℝ u) ∧ convexHull ℝ u ⊆ t := by
   classical
   rcases mem_nhdsSet_iff_exists.1 ht with ⟨U, hU₁, hU₂, hU₃⟩
   rcases compact_open_separated_add_left hs₂ hU₁ hU₂ with ⟨V, hV₁, hV₂⟩

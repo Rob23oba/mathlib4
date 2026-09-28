@@ -41,16 +41,21 @@ open MvPolynomial
 
 name_poly_vars s, t, u over R
 
-/-- The polynomial map on coordinate vectors giving
+/--
+The polynomial map on coordinate vectors giving
 `(x(P) * x(Q) : x(P) + x(Q) : 1) ↦ (x(P+Q) * x(P-Q) : x(P+Q) + x(P-Q) : 1)`
-for points `P`, `Q` on the Weierstrass curve `W`. -/
-@[expose] noncomputable def addSubMap : Fin 3 → MvPolynomial (Fin 3) R :=
+for points `P`, `Q` on the Weierstrass curve `W`.
+-/
+@[expose]
+noncomputable def addSubMap : Fin 3 → MvPolynomial (Fin 3) R :=
   ![s ^ 2 - C W.b₄ * s * u - C W.b₆ * t * u - C W.b₈ * u ^ 2,
     C 2 * t * s + C W.b₂ * s * u + C W.b₄ * t * u + C W.b₆ * u ^ 2,
     t ^ 2 - C 4 * s * u]
 
-/-- The coefficient polynomials in linear combinations of the polynomials in `addSubMap`
-that result in the fourth powers of the variables, multiplied by `W.Δ`. -/
+/--
+The coefficient polynomials in linear combinations of the polynomials in `addSubMap`
+that result in the fourth powers of the variables, multiplied by `W.Δ`.
+-/
 noncomputable def addSubMapCoeff : Fin 3 × Fin 3 → MvPolynomial (Fin 3) R :=
   ![![C (-W.b₂ ^ 2 * W.b₈ + 9 * W.b₂ * W.b₄ * W.b₆ - 8 * W.b₄ ^ 3 - 27 * W.b₆ ^ 2) * s ^ 2 +
         C (2 * W.b₂ * W.b₄ * W.b₈ - 2 * W.b₄ ^ 2 * W.b₆ - 10 * W.b₆ * W.b₈) * s * t +
@@ -141,10 +146,12 @@ namespace WeierstrassCurve.Affine.Point
 
 variable {R : Type*} [CommRing R] {W' : Affine R}
 
-/-- This map sends a pair `P`, `Q` of nonsingular points in affine coordinates on `W`
+/--
+This map sends a pair `P`, `Q` of nonsingular points in affine coordinates on `W`
 to a triple projectively equivalent to `![x(P) * x(Q), x(P) + x(Q), 1]`.
 
-In more geometric terms, this is the map `Sym² W → Sym² ℙ¹ ≃ ℙ²` induced by `x : W → ℙ¹`. -/
+In more geometric terms, this is the map `Sym² W → Sym² ℙ¹ ≃ ℙ²` induced by `x : W → ℙ¹`.
+-/
 noncomputable def sym2x (P Q : W'.Point) : Fin 3 → R :=
   letI Px := P.xRep
   letI Qx := Q.xRep
@@ -209,8 +216,10 @@ lemma addSubMap_sym2x_some_some {xP yP xQ yQ : F} (hP : W.Nonsingular xP yP)
   fin_cases i <;> simp [addSubMap]
   ring
 
-/- The explicit evaluation of `addSubMap` on `sym2x` of two equal nonzero points.
-The result involves the numerator and denominator of the duplication map on `x`-coordinates. -/
+/-
+The explicit evaluation of `addSubMap` on `sym2x` of two equal nonzero points.
+The result involves the numerator and denominator of the duplication map on `x`-coordinates.
+-/
 lemma addSubMap_sym2x_some_self {x y : F} (h : W.Nonsingular x y) :
     (addSubMap W · |>.eval <| sym2x (some x y h) (some x y h)) =
       ![x ^ 4 - W.b₄ * x ^ 2 - 2 * W.b₆ * x - W.b₈,
@@ -221,8 +230,10 @@ lemma addSubMap_sym2x_some_self {x y : F} (h : W.Nonsingular x y) :
 
 variable [DecidableEq F]
 
-/- This lemma can be deduced easily from the more general result that follows (it is used in its
-proof for the special case `P = Q`), so can be private. -/
+/-
+This lemma can be deduced easily from the more general result that follows (it is used in its
+proof for the special case `P = Q`), so can be private.
+-/
 private lemma sym2x_add_self_zero (P : W.Point) :
     ∃ t : F, t ≠ 0 ∧ t • sym2x (P + P) 0 = (addSubMap W · |>.eval <| sym2x P P) := by
   match P with

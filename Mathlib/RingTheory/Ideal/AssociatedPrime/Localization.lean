@@ -25,10 +25,13 @@ This file mainly proves the relation between `Ass(S⁻¹M)` and `Ass(M)`
 
 public section
 
-variable {R : Type*} [CommRing R] (S : Submonoid R) {R' : Type*} [CommRing R'] [Algebra R R']
-  [hSR' : IsLocalization S R']
+variable
+  {R : Type*} [CommRing R]
+  (S : Submonoid R)
+  {R' : Type*} [CommRing R'] [Algebra R R'] [hSR' : IsLocalization S R']
 
-variable {M M' : Type*} [AddCommGroup M] [Module R M] [AddCommGroup M'] [Module R M']
+variable
+  {M M' : Type*} [AddCommGroup M] [Module R M] [AddCommGroup M'] [Module R M']
   (f : M →ₗ[R] M') [IsLocalizedModule S f] [Module R' M'] [IsScalarTower R R' M']
 
 open IsLocalRing LinearMap Submodule

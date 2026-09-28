@@ -8,7 +8,6 @@ module
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Tactic.Zify
-
 import Mathlib.Algebra.BigOperators.Associated
 
 /-!
@@ -23,7 +22,6 @@ While in terms of semantics they could be in the `Basic.lean` file, importing
 
 public section
 
-
 open Finset Nat
 
 namespace Nat
@@ -36,7 +34,8 @@ theorem prod_factorial_pos : 0 < ∏ i ∈ s, (f i)! := prod_pos fun _ _ ↦ fac
 
 theorem prod_factorial_dvd_factorial_sum : (∏ i ∈ s, (f i)!) ∣ (∑ i ∈ s, f i)! := by
   induction s using Finset.cons_induction_on with
-  | empty => simp
+  | empty =>
+    simp
   | cons a s has ih =>
     rw [prod_cons, Finset.sum_cons]
     exact (mul_dvd_mul_left _ ih).trans (Nat.factorial_mul_factorial_dvd_factorial_add _ _)

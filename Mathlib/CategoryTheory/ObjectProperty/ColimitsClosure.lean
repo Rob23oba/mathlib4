@@ -29,23 +29,28 @@ namespace CategoryTheory.ObjectProperty
 
 open Limits
 
-variable {C : Type u} [Category.{v} C] (P : ObjectProperty C)
+variable
+  {C : Type u} [Category.{v} C]
+  (P : ObjectProperty C)
   {α : Type t} (J : α → Type u') [∀ a, Category.{v'} (J a)]
 
-/-- The closure of a property of objects of a category under colimits of
-shape `J a` for a family of categories `J`. -/
+/--
+The closure of a property of objects of a category under colimits of
+shape `J a` for a family of categories `J`.
+-/
 inductive colimitsClosure : ObjectProperty C
   | of_mem (X : C) (hX : P X) : colimitsClosure X
   | of_isoClosure {X Y : C} (e : X ≅ Y) (hX : colimitsClosure X) : colimitsClosure Y
-  | of_colimitPresentation {X : C} {a : α} (pres : ColimitPresentation (J a) X)
-      (h : ∀ j, colimitsClosure (pres.diag.obj j)) : colimitsClosure X
+  | of_colimitPresentation
+    {X : C} {a : α}
+    (pres : ColimitPresentation (J a) X) (h : ∀ j, colimitsClosure (pres.diag.obj j))
+    : colimitsClosure X
 
 @[simp]
 lemma le_colimitsClosure : P ≤ P.colimitsClosure J :=
   fun X hX ↦ .of_mem X hX
 
-instance [P.Nonempty] : (P.colimitsClosure J).Nonempty :=
-  .mono (P.le_colimitsClosure J)
+instance [P.Nonempty] : (P.colimitsClosure J).Nonempty := .mono (P.le_colimitsClosure J)
 
 instance : (P.colimitsClosure J).IsClosedUnderIsomorphisms where
   of_iso e hX := .of_isoClosure e hX
@@ -90,8 +95,10 @@ lemma colimitsClosure_isoClosure :
   rw [isoClosure_le_iff]
   exact le_colimitsClosure P J
 
-/-- The closure of a property of objects of a category under colimits of
-shape `J` for a category `J`. -/
+/--
+The closure of a property of objects of a category under colimits of
+shape `J` for a category `J`.
+-/
 abbrev colimitClosure (J : Type*) [Category* J] : ObjectProperty C :=
   P.colimitsClosure (fun (_ : Unit) ↦ J)
 
@@ -109,9 +116,10 @@ lemma colimitsClosure_eq_unop_limitsClosure :
     rw [op_monotone_iff]
     apply le_colimitsClosure
 
-instance [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] [Small.{w} α]
-    [∀ a, Small.{w} (J a)] [∀ a, LocallySmall.{w} (J a)] :
-    ObjectProperty.EssentiallySmall.{w} (P.colimitsClosure J) := by
+instance
+    [ObjectProperty.EssentiallySmall.{w} P] [LocallySmall.{w} C] [Small.{w} α]
+    [∀ a, Small.{w} (J a)] [∀ a, LocallySmall.{w} (J a)]
+    : ObjectProperty.EssentiallySmall.{w} (P.colimitsClosure J) := by
   rw [colimitsClosure_eq_unop_limitsClosure]
   have (a : α) : Small.{w} (J a)ᵒᵖ := Opposite.small
   infer_instance

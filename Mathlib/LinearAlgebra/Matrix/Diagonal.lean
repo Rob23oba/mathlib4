@@ -22,7 +22,6 @@ matrix, diagonal, linear map
 
 public section
 
-
 noncomputable section
 
 open LinearMap Matrix Set Submodule Matrix
@@ -38,13 +37,13 @@ variable {n : Type*} [Fintype n] [DecidableEq n] {R : Type v} [CommSemiring R]
 theorem proj_diagonal (i : n) (w : n → R) : (proj i).comp (toLin' (diagonal w)) = w i • proj i :=
   LinearMap.ext fun _ => mulVec_diagonal _ _ _
 
-theorem diagonal_comp_single (w : n → R) (i : n) :
-    (diagonal w).toLin'.comp (LinearMap.single R (fun _ : n => R) i) =
-      w i • LinearMap.single R (fun _ : n => R) i :=
+theorem diagonal_comp_single (w : n → R) (i : n)
+    : (diagonal w).toLin'.comp (LinearMap.single R (fun _ : n => R) i)
+      = w i • LinearMap.single R (fun _ : n => R) i :=
   LinearMap.ext fun x => (diagonal_mulVec_single w _ _).trans (Pi.single_smul' i (w i) x)
 
-theorem diagonal_toLin' (w : n → R) :
-    toLin' (diagonal w) = LinearMap.pi fun i => w i • LinearMap.proj i :=
+theorem diagonal_toLin' (w : n → R)
+    : toLin' (diagonal w) = LinearMap.pi fun i => w i • LinearMap.proj i :=
   LinearMap.ext fun _ => funext fun _ => mulVec_diagonal _ _ _
 
 end CommSemiring
@@ -54,19 +53,20 @@ section Semifield
 variable {m : Type*} [Fintype m] {K : Type u} [Semifield K]
 
 -- maybe try to relax the universe constraint
-theorem ker_diagonal_toLin' [DecidableEq m] (w : m → K) :
-    ker (toLin' (diagonal w)) =
-      ⨆ i ∈ { i | w i = 0 }, LinearMap.range (LinearMap.single K (fun _ => K) i) := by
+theorem ker_diagonal_toLin' [DecidableEq m] (w : m → K)
+    : ker (toLin' (diagonal w))
+      = ⨆ i ∈ { i | w i = 0 }, LinearMap.range (LinearMap.single K (fun _ => K) i) := by
   rw [← comap_bot]
   simpa [← ker_comp, proj_diagonal, ker_smul', ← iInf_ker_proj] using
     (iSup_range_single_eq_iInf_ker_proj K _ isCompl_compl {i | w i = 0}.toFinite).symm
 
-theorem range_diagonal [DecidableEq m] (w : m → K) :
-    LinearMap.range (toLin' (diagonal w)) =
-      ⨆ i ∈ { i | w i ≠ 0 }, LinearMap.range (LinearMap.single K (fun _ => K) i) := by
+theorem range_diagonal [DecidableEq m] (w : m → K)
+    : LinearMap.range (toLin' (diagonal w))
+      = ⨆ i ∈ { i | w i ≠ 0 }, LinearMap.range (LinearMap.single K (fun _ => K) i) := by
   dsimp only [mem_ofPred_eq]
   rw [← Submodule.map_top, ← iSup_range_single, Submodule.map_iSup]
-  congr; funext i
+  congr
+  funext i
   rw [← LinearMap.range_comp, diagonal_comp_single, ← range_smul']
 
 end Semifield
@@ -79,9 +79,9 @@ section Field
 
 variable {m : Type*} [Fintype m] {K : Type u} [Field K]
 
-theorem rank_diagonal [DecidableEq m] [DecidableEq K] (w : m → K) :
-    LinearMap.rank (toLin' (diagonal w)) = Fintype.card { i // w i ≠ 0 } := by
-  have hIJ : IsCompl { i : m | w i ≠ 0 } { i : m | w i = 0 } := isCompl_compl.symm
+theorem rank_diagonal [DecidableEq m] [DecidableEq K] (w : m → K)
+    : LinearMap.rank (toLin' (diagonal w)) = Fintype.card {i // w i ≠ 0} := by
+  have hIJ : IsCompl ({ i : m | w i ≠ 0 }) { i : m | w i = 0 } := isCompl_compl.symm
   have B₁ := iSup_range_single_eq_iInf_ker_proj K (fun _ : m => K) hIJ (Set.toFinite _)
   rw [LinearMap.rank, range_diagonal, B₁, ← @rank_fun' K]
   exact iInfKerProjEquiv K (fun _ ↦ K) hIJ.disjoint hIJ.codisjoint.top_le |>.rank_eq

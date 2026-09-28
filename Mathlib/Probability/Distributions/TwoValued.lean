@@ -8,7 +8,6 @@ module
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.Probability.CondVar
 
-
 /-!
 # Distributions on two values
 
@@ -46,7 +45,6 @@ lemma integral_one_sub_of_ae_eq_zero_or_one (hXmeas : AEMeasurable X μ)
     _ = μ.real {ω | X ω = 0} := by simp
 
 end MeasureTheory
-
 
 namespace ProbabilityTheory
 variable {Ω : Type*} {m : MeasurableSpace Ω} {X Y : Ω → ℝ} {μ : Measure ℝ}

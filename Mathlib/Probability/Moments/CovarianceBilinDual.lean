@@ -41,7 +41,6 @@ The hypothesis that `μ` has a second moment is written as `MemLp id 2 μ` in th
 
 @[expose] public section
 
-
 open MeasureTheory ProbabilityTheory NormedSpace
 open scoped ENNReal NNReal Real Topology
 
@@ -55,14 +54,14 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E]
 
 open scoped Classical in
 /-- Linear map from the dual to `Lp` equal to `MemLp.toLp` if `MemLp id p μ` and to 0 otherwise. -/
-noncomputable
-def toLpₗ (μ : Measure E) (p : ℝ≥0∞) :
-    StrongDual 𝕜 E →ₗ[𝕜] Lp 𝕜 p μ :=
-  if h_Lp : MemLp id p μ then
-  { toFun := fun L ↦ MemLp.toLp L (h_Lp.continuousLinearMap_comp L)
+noncomputable def toLpₗ (μ : Measure E) (p : ℝ≥0∞) : StrongDual 𝕜 E →ₗ[𝕜] Lp 𝕜 p μ :=
+  if h_Lp : MemLp id p μ then {
+    toFun := fun L ↦ MemLp.toLp L (h_Lp.continuousLinearMap_comp L)
     map_add' u v := by push_cast; rw [MemLp.toLp_add]
-    map_smul' c L := by push_cast; rw [MemLp.toLp_const_smul]; rfl }
-  else 0
+    map_smul' c L := by push_cast; rw [MemLp.toLp_const_smul]; rfl
+  }
+  else
+    0
 
 @[simp]
 lemma toLpₗ_apply (h_Lp : MemLp id p μ) (L : StrongDual 𝕜 E) :
@@ -141,11 +140,12 @@ section ContinuousLinearMap
 
 variable {𝕜 : Type*} [RCLike 𝕜] [NormedSpace 𝕜 E] [OpensMeasurableSpace E]
 
-/-- Continuous linear map from the dual to `Lp` equal to `MemLp.toLp` if `MemLp id p μ`
-and to 0 otherwise. -/
-noncomputable
-def toLp (μ : Measure E) (p : ℝ≥0∞) [Fact (1 ≤ p)] :
-    StrongDual 𝕜 E →L[𝕜] Lp 𝕜 p μ where
+/--
+Continuous linear map from the dual to `Lp` equal to `MemLp.toLp` if `MemLp id p μ`
+and to 0 otherwise.
+-/
+noncomputable def toLp (μ : Measure E) (p : ℝ≥0∞) [Fact (1 ≤ p)]
+    : StrongDual 𝕜 E →L[𝕜] Lp 𝕜 p μ where
   toLinearMap := StrongDual.toLpₗ μ p
   cont := by
     refine LinearMap.continuous_of_locally_bounded _ fun s hs ↦ ?_
@@ -177,10 +177,12 @@ section Centered
 
 variable [NormedSpace ℝ E] [OpensMeasurableSpace E]
 
-/-- Continuous bilinear form with value `∫ x, L₁ x * L₂ x ∂μ` on `(L₁, L₂)`.
-This is equal to the covariance only if `μ` is centered. -/
-noncomputable
-def uncenteredCovarianceBilinDual (μ : Measure E) : StrongDual ℝ E →L[ℝ] StrongDual ℝ E →L[ℝ] ℝ :=
+/--
+Continuous bilinear form with value `∫ x, L₁ x * L₂ x ∂μ` on `(L₁, L₂)`.
+This is equal to the covariance only if `μ` is centered.
+-/
+noncomputable def uncenteredCovarianceBilinDual (μ : Measure E)
+    : StrongDual ℝ E →L[ℝ] StrongDual ℝ E →L[ℝ] ℝ :=
   ContinuousLinearMap.bilinearComp (isBoundedBilinearMap_inner (𝕜 := ℝ)).toContinuousLinearMap
     (StrongDual.toLp μ 2) (StrongDual.toLp μ 2)
 
@@ -237,10 +239,12 @@ section Covariance
 
 variable [NormedSpace ℝ E] [BorelSpace E]
 
-/-- Continuous bilinear form with value `∫ x, (L₁ x - μ[L₁]) * (L₂ x - μ[L₂]) ∂μ` on `(L₁, L₂)`
-if `MemLp id 2 μ`. If not, we set it to zero. -/
-noncomputable
-def covarianceBilinDual (μ : Measure E) : StrongDual ℝ E →L[ℝ] StrongDual ℝ E →L[ℝ] ℝ :=
+/--
+Continuous bilinear form with value `∫ x, (L₁ x - μ[L₁]) * (L₂ x - μ[L₂]) ∂μ` on `(L₁, L₂)`
+if `MemLp id 2 μ`. If not, we set it to zero.
+-/
+noncomputable def covarianceBilinDual (μ : Measure E)
+    : StrongDual ℝ E →L[ℝ] StrongDual ℝ E →L[ℝ] ℝ :=
   uncenteredCovarianceBilinDual (μ.map (fun x ↦ x - ∫ x, x ∂μ))
 
 omit [BorelSpace E] in

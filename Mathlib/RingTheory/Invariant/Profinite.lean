@@ -101,13 +101,8 @@ lemma Algebra.IsInvariant.exists_smul_of_under_eq_of_profinite
 
 attribute [local instance] Subgroup.finiteIndex_of_finite_quotient
 
-omit
-  [CompactSpace G]
-  [TotallyDisconnectedSpace G]
-  [IsTopologicalGroup G]
-  [TopologicalSpace B]
-  [DiscreteTopology B]
-  [ContinuousSMul G B] in
+omit [CompactSpace G] [TotallyDisconnectedSpace G] [IsTopologicalGroup G] [TopologicalSpace B]
+  [DiscreteTopology B] [ContinuousSMul G B] in
 lemma Ideal.Quotient.stabilizerHomSurjectiveAuxFunctor_aux
     (Q : Ideal B)
     {N N' : OpenNormalSubgroup G} (e : N ≤ N')
@@ -123,49 +118,59 @@ lemma Ideal.Quotient.stabilizerHomSurjectiveAuxFunctor_aux
   simpa only [Ideal.pointwise_smul_eq_comap,
     ← Ideal.comap_coe (F := RingEquiv _ _), Ideal.comap_comap] using! hx
 
-/-- (Implementation)
+/--
+(Implementation)
 The functor taking an open normal subgroup `N ≤ G` to the set of lifts of `σ` in `G ⧸ N`.
-We will show that its inverse limit is nonempty to conclude that there exists a lift in `G`. -/
+We will show that its inverse limit is nonempty to conclude that there exists a lift in `G`.
+-/
 def Ideal.Quotient.stabilizerHomSurjectiveAuxFunctor
-    (P : Ideal A) (Q : Ideal B) [Q.LiesOver P] (σ : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) :
-    OpenNormalSubgroup G ⥤ Type u where
+    (P : Ideal A) (Q : Ideal B) [Q.LiesOver P] (σ : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q)
+    : OpenNormalSubgroup G ⥤ Type u where
   obj N :=
     letI B' := FixedPoints.subalgebra A B N.1.1
-    letI f : (B' ⧸ Q.under B') →ₐ[A ⧸ P] B ⧸ Q :=
-    { toRingHom := Ideal.quotientMap _ B'.subtype le_rfl,
-      commutes' := Quotient.ind fun _ ↦ rfl }
-    { σ' // f.comp (Ideal.Quotient.stabilizerHom
-      (Q.under B') P (G ⧸ N.1.1) σ').toAlgHom = σ.toAlgHom.comp f }
-  map {N N'} i := ↾fun x ↦ ⟨⟨(QuotientGroup.map _ _ (.id _) (leOfHom i)) x.1,
-      Ideal.Quotient.stabilizerHomSurjectiveAuxFunctor_aux Q i.le x.1.1 x.1.2⟩, by
-    have h : FixedPoints.subalgebra A B N'.1.1 ≤ FixedPoints.subalgebra A B N.1.1 :=
-      fun x hx n ↦ hx ⟨_, i.le n.2⟩
-    obtain ⟨⟨x, hx⟩, hx'⟩ := x
-    obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective x
-    ext g
-    obtain ⟨g, rfl⟩ := Ideal.Quotient.mk_surjective g
-    congrm $hx' (Ideal.Quotient.mk _ (Subalgebra.inclusion h g))⟩
+    letI f : (B' ⧸ Q.under B') →ₐ[A ⧸ P] B ⧸ Q := {
+      toRingHom := Ideal.quotientMap _ B'.subtype le_rfl
+      commutes' := Quotient.ind fun _ ↦ rfl
+    }
+    {σ' // f.comp (Ideal.Quotient.stabilizerHom (Q.under B') P (G ⧸ N.1.1) σ').toAlgHom
+      = σ.toAlgHom.comp f}
+  map {N N'} i :=
+    ↾fun x ↦ ⟨⟨(QuotientGroup.map _ _ (.id _) (leOfHom i)) x.1,
+        Ideal.Quotient.stabilizerHomSurjectiveAuxFunctor_aux Q i.le x.1.1 x.1.2⟩, by
+      have h : FixedPoints.subalgebra A B N'.1.1 ≤ FixedPoints.subalgebra A B N.1.1 :=
+        fun x hx n ↦ hx ⟨_, i.le n.2⟩
+      obtain ⟨⟨x, hx⟩, hx'⟩ := x
+      obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective x
+      ext g
+      obtain ⟨g, rfl⟩ := Ideal.Quotient.mk_surjective g
+      congrm $hx' (Ideal.Quotient.mk _ (Subalgebra.inclusion h g))⟩
   map_id N := by ext ⟨⟨⟨x⟩, hx⟩, hx'⟩; rfl
   map_comp f g := by ext ⟨⟨⟨x⟩, hx⟩, hx'⟩; rfl
 
 open Ideal.Quotient in
-instance (P : Ideal A) (Q : Ideal B) [Q.LiesOver P]
-    (σ : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) (N : OpenNormalSubgroup G) :
-    Finite ((stabilizerHomSurjectiveAuxFunctor P Q σ).obj N) := by
+instance
+    (P : Ideal A) (Q : Ideal B) [Q.LiesOver P]
+    (σ : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) (N : OpenNormalSubgroup G)
+    : Finite ((stabilizerHomSurjectiveAuxFunctor P Q σ).obj N) := by
   dsimp [stabilizerHomSurjectiveAuxFunctor]
   infer_instance
 
 open Ideal.Quotient in
-instance (P : Ideal A) (Q : Ideal B) [Q.IsPrime] [Q.LiesOver P]
-    [Algebra.IsInvariant A B G] (σ : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) (N : OpenNormalSubgroup G) :
-    Nonempty ((stabilizerHomSurjectiveAuxFunctor P Q σ).obj N) := by
-  have : IsScalarTower (A ⧸ P) (FixedPoints.subalgebra A B N.1.1 ⧸
-    Q.under (FixedPoints.subalgebra A B N.1.1)) (B ⧸ Q) := IsScalarTower.of_algebraMap_eq
-    (Quotient.ind fun x ↦ rfl)
-  obtain ⟨σ', hσ'⟩ := Ideal.Quotient.exists_algEquiv_fixedPoint_quotient_under (G ⧸ N.1.1) P
-    (Q.under (FixedPoints.subalgebra A B N.1.1)) σ
-  obtain ⟨τ, rfl⟩ := Ideal.Quotient.stabilizerHom_surjective (G ⧸ N.1.1) P
-    (Q.under (FixedPoints.subalgebra A B N.1.1)) σ'
+instance
+    (P : Ideal A) (Q : Ideal B) [Q.IsPrime] [Q.LiesOver P] [Algebra.IsInvariant A B G]
+    (σ : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) (N : OpenNormalSubgroup G)
+    : Nonempty ((stabilizerHomSurjectiveAuxFunctor P Q σ).obj N) := by
+  have : IsScalarTower (A ⧸ P)
+      (FixedPoints.subalgebra A B N.1.1 ⧸
+        Q.under (FixedPoints.subalgebra A B N.1.1))
+      (B ⧸ Q) :=
+    IsScalarTower.of_algebraMap_eq (Quotient.ind fun x ↦ rfl)
+  obtain ⟨σ', hσ'⟩ :=
+    Ideal.Quotient.exists_algEquiv_fixedPoint_quotient_under (G ⧸ N.1.1) P
+      (Q.under (FixedPoints.subalgebra A B N.1.1)) σ
+  obtain ⟨τ, rfl⟩ :=
+    Ideal.Quotient.stabilizerHom_surjective (G ⧸ N.1.1) P
+      (Q.under (FixedPoints.subalgebra A B N.1.1)) σ'
   refine ⟨τ, ?_⟩
   ext x
   obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
@@ -173,36 +178,39 @@ instance (P : Ideal A) (Q : Ideal B) [Q.IsPrime] [Q.LiesOver P]
 
 /-- The stabilizer subgroup of `Q` surjects onto `Aut((B/Q)/(A/P))`. -/
 theorem Ideal.Quotient.stabilizerHom_surjective_of_profinite
-    (P : Ideal A) (Q : Ideal B) [Q.IsPrime] [Q.LiesOver P]
-    [Algebra.IsInvariant A B G] :
-    Function.Surjective (Ideal.Quotient.stabilizerHom Q P G) := by
+    (P : Ideal A) (Q : Ideal B) [Q.IsPrime] [Q.LiesOver P] [Algebra.IsInvariant A B G]
+    : Function.Surjective (Ideal.Quotient.stabilizerHom Q P G) := by
   intro σ
   let B' := FixedPoints.subalgebra A B
-  obtain ⟨s, hs⟩ := nonempty_sections_of_finite_cofiltered_system
-    (stabilizerHomSurjectiveAuxFunctor (G := G) P Q σ)
-  let a := (ProfiniteGrp.of G).isoLimittoFiniteQuotientFunctor.inv.hom
-    ⟨fun N ↦ (s N).1.1, (fun {N N'} f ↦ congr($(hs f).1.1))⟩
+  obtain ⟨s, hs⟩ :=
+    nonempty_sections_of_finite_cofiltered_system (stabilizerHomSurjectiveAuxFunctor (G := G) P Q σ)
+  let a :=
+    (ProfiniteGrp.of G).isoLimittoFiniteQuotientFunctor.inv.hom
+      ⟨fun N ↦ (s N).1.1, (fun {N N'} f ↦ congr($(hs f).1.1))⟩
   have (N : OpenNormalSubgroup G) : QuotientGroup.mk (s := N.1.1) a = (s N).1 :=
-    congr_fun (congr_arg Subtype.val (ConcreteCategory.congr_hom (ProfiniteGrp.of
-      G).isoLimittoFiniteQuotientFunctor.inv_hom_id
-        _)) N
+    congr_fun
+      (congr_arg Subtype.val
+        (ConcreteCategory.congr_hom (ProfiniteGrp.of G).isoLimittoFiniteQuotientFunctor.inv_hom_id
+          _))
+      N
   refine ⟨⟨a, ?_⟩, ?_⟩
   · ext x
-    obtain ⟨N, hN⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
-      (stabilizer_isOpen G x) (one_mem _)
+    obtain ⟨N, hN⟩ :=
+      ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one (stabilizer_isOpen G x) (one_mem _)
     lift x to B' N.1.1 using fun g ↦ hN g.2
     change x ∈ (a • Q).under (B' N.1.1) ↔ x ∈ Q.under (B' N.1.1)
     rw [← (s N).1.2]
-    simp only [Ideal.comap_comap, Ideal.pointwise_smul_eq_comap, ← Ideal.comap_coe
-          (F := RingEquiv _ _)]
+    simp only [
+      Ideal.comap_comap, Ideal.pointwise_smul_eq_comap, ← Ideal.comap_coe (F := RingEquiv _ _)
+    ]
     congr! 2
     ext y
     rw [← this]
     rfl
   · ext x
     obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
-    obtain ⟨N, hN⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
-      (stabilizer_isOpen G x) (one_mem _)
+    obtain ⟨N, hN⟩ :=
+      ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one (stabilizer_isOpen G x) (one_mem _)
     lift x to B' N.1.1 using fun g ↦ hN g.2
     change Ideal.Quotient.mk Q (QuotientGroup.mk (s := N) a • x).1 = _
     rw [this]

@@ -25,7 +25,8 @@ open CategoryTheory Limits HomologicalComplex
 
 namespace ChainComplex
 
-variable {C : Type*} [Category* C] [Preadditive C] [HasZeroObject C] [HasBinaryBiproducts C]
+variable
+  {C : Type*} [Category* C] [Preadditive C] [HasZeroObject C] [HasBinaryBiproducts C]
   (S : ShortComplex (ChainComplex C ℕ))
 
 set_option backward.isDefEq.respectTransparency false in

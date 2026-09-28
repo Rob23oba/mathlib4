@@ -41,7 +41,8 @@ lemma Module.Finite.compactSpace [CompactSpace R] [Module.Finite R M] : CompactS
   ⟨Submodule.isCompact_of_fg (Module.Finite.fg_top (R := R))⟩
 
 instance (priority := low) IsNoetherianRing.isClosed_ideal
-    {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsNoetherianRing R] [CompactSpace R] [T2Space R] (I : Ideal R) :
-    IsClosed (X := R) I :=
+    {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [IsNoetherianRing R]
+    [CompactSpace R] [T2Space R]
+    (I : Ideal R)
+    : IsClosed (X := R) I :=
   (Ideal.isCompact_of_fg (IsNoetherian.noetherian I)).isClosed

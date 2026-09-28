@@ -41,25 +41,37 @@ variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] [CompactSpace Y
 
 namespace TopologicalSpace.Clopens
 
-theorem exists_prod_subset (W : Clopens (X × Y)) {a : X × Y} (h : a ∈ W) :
-    ∃ U : Clopens X, a.1 ∈ U ∧ ∃ V : Clopens Y, a.2 ∈ V ∧ U ×ˢ V ≤ W := by
+theorem exists_prod_subset (W : Clopens (X × Y)) {a : X × Y} (h : a ∈ W)
+    : ∃ U : Clopens X, a.1 ∈ U ∧ ∃ V : Clopens Y, a.2 ∈ V ∧ U ×ˢ V ≤ W := by
   have hp : Continuous (fun y : Y ↦ (a.1, y)) := .prodMk_right _
   let V : Set Y := {y | (a.1, y) ∈ W}
   have hV : IsCompact V := (W.2.1.preimage hp).isCompact
   let U : Set X := {x | MapsTo (Prod.mk x) V W}
   have hUV : U ×ˢ V ⊆ W := fun ⟨_, _⟩ hw ↦ hw.1 hw.2
-  exact ⟨⟨U, (ContinuousMap.isClopen_setOfPred_mapsTo hV W.2).preimage
-    (ContinuousMap.id (X × Y)).curry.2⟩, by simp [U, V, MapsTo], ⟨V, W.2.preimage hp⟩, h, hUV⟩
+  exact ⟨
+    ⟨
+      U,
+      (ContinuousMap.isClopen_setOfPred_mapsTo hV W.2).preimage (ContinuousMap.id (X × Y)).curry.2
+    ⟩,
+    by simp [U, V, MapsTo],
+    ⟨V, W.2.preimage hp⟩,
+    h,
+    hUV
+  ⟩
 
 variable [CompactSpace X]
 
-/-- Every clopen set in a product of two compact spaces
-is a union of finitely many clopen boxes. -/
-theorem exists_finset_eq_sup_prod (W : Clopens (X × Y)) :
-    ∃ (I : Finset (Clopens X × Clopens Y)), W = I.sup fun i ↦ i.1 ×ˢ i.2 := by
+/--
+Every clopen set in a product of two compact spaces
+is a union of finitely many clopen boxes.
+-/
+theorem exists_finset_eq_sup_prod (W : Clopens (X × Y))
+    : ∃ (I : Finset (Clopens X × Clopens Y)), W = I.sup fun i ↦ i.1 ×ˢ i.2 := by
   choose! U hxU V hxV hUV using fun x ↦ W.exists_prod_subset (a := x)
-  rcases W.2.1.isCompact.elim_nhds_subcover (fun x ↦ U x ×ˢ V x) (fun x hx ↦
-    (U x ×ˢ V x).2.isOpen.mem_nhds ⟨hxU x hx, hxV x hx⟩) with ⟨I, hIW, hWI⟩
+  rcases W.2.1.isCompact.elim_nhds_subcover
+      (fun x ↦ U x ×ˢ V x)
+      (fun x hx ↦ (U x ×ˢ V x).2.isOpen.mem_nhds ⟨hxU x hx, hxV x hx⟩)
+    with ⟨I, hIW, hWI⟩
   classical
   use I.image fun x ↦ (U x, V x)
   rw [Finset.sup_image]
@@ -72,12 +84,11 @@ lemma surjective_finset_sup_prod :
     Surjective fun I : Finset (Clopens X × Clopens Y) ↦ I.sup fun i ↦ i.1 ×ˢ i.2 := fun W ↦
   let ⟨I, hI⟩ := W.exists_finset_eq_sup_prod; ⟨I, hI.symm⟩
 
-instance countable_prod [Countable (Clopens X)]
-    [Countable (Clopens Y)] : Countable (Clopens (X × Y)) :=
+instance countable_prod [Countable (Clopens X)] [Countable (Clopens Y)]
+    : Countable (Clopens (X × Y)) :=
   surjective_finset_sup_prod.countable
 
-instance finite_prod [Finite (Clopens X)] [Finite (Clopens Y)] :
-    Finite (Clopens (X × Y)) := by
+instance finite_prod [Finite (Clopens X)] [Finite (Clopens Y)] : Finite (Clopens (X × Y)) := by
   cases nonempty_fintype (Clopens X)
   cases nonempty_fintype (Clopens Y)
   exact .of_surjective _ surjective_finset_sup_prod

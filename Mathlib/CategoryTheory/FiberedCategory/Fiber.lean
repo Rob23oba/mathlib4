@@ -34,7 +34,7 @@ namespace Functor
 variable {𝒮 : Type u₁} {𝒳 : Type u₂} [Category.{v₁} 𝒮] [Category.{v₂} 𝒳]
 
 /-- `Fiber p S` is the type of elements of `𝒳` mapping to `S` via `p`. -/
-def Fiber (p : 𝒳 ⥤ 𝒮) (S : 𝒮) := { a : 𝒳 // p.obj a = S }
+def Fiber (p : 𝒳 ⥤ 𝒮) (S : 𝒮) := {a : 𝒳 // p.obj a = S}
 
 namespace Fiber
 
@@ -65,11 +65,14 @@ lemma fiberInclusion_obj_inj : (fiberInclusion : Fiber p S ⥤ _).obj.Injective 
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- For fixed `S : 𝒮` this is the natural isomorphism between `fiberInclusion ⋙ p` and the constant
-function valued at `S`. -/
+/--
+For fixed `S : 𝒮` this is the natural isomorphism between `fiberInclusion ⋙ p` and the constant
+function valued at `S`.
+-/
 @[simps!]
 def fiberInclusionCompIsoConst : fiberInclusion ⋙ p ≅ (const (Fiber p S)).obj S :=
-  NatIso.ofComponents (fun X ↦ eqToIso X.2)
+  NatIso.ofComponents
+    (fun X ↦ eqToIso X.2)
     (fun φ ↦ by simp [IsHomLift.fac' p (𝟙 S) (fiberInclusion.map φ)])
 
 lemma fiberInclusion_comp_eq_const : fiberInclusion ⋙ p = (const (Fiber p S)).obj S :=
@@ -85,8 +88,8 @@ lemma fiberInclusion_mk {p : 𝒳 ⥤ 𝒮} {S : 𝒮} {a : 𝒳} (ha : p.obj a 
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The morphism in the fiber over `S` corresponding to a morphism in `𝒳` lifting `𝟙 S`. -/
-def homMk (p : 𝒳 ⥤ 𝒮) (S : 𝒮) {a b : 𝒳} (φ : a ⟶ b) [IsHomLift p (𝟙 S) φ] :
-    mk (domain_eq p (𝟙 S) φ) ⟶ mk (codomain_eq p (𝟙 S) φ) :=
+def homMk (p : 𝒳 ⥤ 𝒮) (S : 𝒮) {a b : 𝒳} (φ : a ⟶ b) [IsHomLift p (𝟙 S) φ]
+    : mk (domain_eq p (𝟙 S) φ) ⟶ mk (codomain_eq p (𝟙 S) φ) :=
   ⟨φ, inferInstance⟩
 
 @[simp]
@@ -106,21 +109,27 @@ lemma homMk_comp {a b c : 𝒳} (φ : a ⟶ b) (ψ : b ⟶ c) [IsHomLift p (𝟙
 
 section
 
-variable {p : 𝒳 ⥤ 𝒮} {S : 𝒮} {C : Type u₃} [Category.{v₃} C] {F : C ⥤ 𝒳}
-  (hF : F ⋙ p = (const C).obj S)
+variable
+  {p : 𝒳 ⥤ 𝒮} {S : 𝒮} {C : Type u₃} [Category.{v₃} C] {F : C ⥤ 𝒳} (hF : F ⋙ p = (const C).obj S)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given a functor `F : C ⥤ 𝒳` such that `F ⋙ p` is constant at some `S : 𝒮`, then
-we get an induced functor `C ⥤ Fiber p S` that `F` factors through. -/
+/--
+Given a functor `F : C ⥤ 𝒳` such that `F ⋙ p` is constant at some `S : 𝒮`, then
+we get an induced functor `C ⥤ Fiber p S` that `F` factors through.
+-/
 def inducedFunctor : C ⥤ Fiber p S where
   obj x := ⟨F.obj x, by simp only [← comp_obj, hF, const_obj_obj]⟩
-  map φ := ⟨F.map φ, of_commsq _ _ _ (congr_obj hF _) (congr_obj hF _) <|
-    by simpa using (eqToIso hF).hom.naturality φ⟩
+  map φ := ⟨
+    F.map φ,
+    of_commsq _ _ _ (congr_obj hF _) (congr_obj hF _) <| by
+      simpa using (eqToIso hF).hom.naturality φ
+  ⟩
 
-/-- Given a functor `F : C ⥤ 𝒳` such that `F ⋙ p` is constant at some `S : 𝒮`, then
-we get a natural isomorphism between `inducedFunctor _ ⋙ fiberInclusion` and `F`. -/
-@[simps!]
-def inducedFunctorCompIsoSelf : (inducedFunctor hF) ⋙ fiberInclusion ≅ F := .refl _
+/--
+Given a functor `F : C ⥤ 𝒳` such that `F ⋙ p` is constant at some `S : 𝒮`, then
+we get a natural isomorphism between `inducedFunctor _ ⋙ fiberInclusion` and `F`.
+-/
+@[simps!] def inducedFunctorCompIsoSelf : (inducedFunctor hF) ⋙ fiberInclusion ≅ F := .refl _
 
 lemma inducedFunctor_comp : (inducedFunctor hF) ⋙ fiberInclusion = F := rfl
 

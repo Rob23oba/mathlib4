@@ -34,26 +34,19 @@ open Bicategory CategoryTheory.Functor
 -- intended to be used with explicit universe parameters
 set_option linter.checkUnivs false in
 /-- Category of categories. -/
-@[implicit_reducible]
-def Cat :=
-  Bundled Category.{v, u}
+@[implicit_reducible] def Cat := Bundled Category.{v, u}
 
 namespace Cat
 
-instance : Inhabited Cat :=
-  ⟨⟨Type u, CategoryTheory.types⟩⟩
+instance : Inhabited Cat := ⟨⟨Type u, CategoryTheory.types⟩⟩
 
 -- TODO: maybe this coercion should be defined to be `objects.obj`?
-instance : CoeSort Cat (Type u) :=
-  ⟨Bundled.α⟩
+instance : CoeSort Cat (Type u) := ⟨Bundled.α⟩
 
-instance str (C : Cat.{v, u}) : Category.{v, u} C :=
-  Bundled.str C
+instance str (C : Cat.{v, u}) : Category.{v, u} C := Bundled.str C
 
 /-- Construct a bundled `Cat` from the underlying type and the typeclass. -/
-@[implicit_reducible]
-def of (C : Type u) [Category.{v} C] : Cat.{v, u} :=
-  Bundled.of C
+@[implicit_reducible] def of (C : Type u) [Category.{v} C] : Cat.{v, u} := Bundled.of C
 
 open Lean.PrettyPrinter.Delaborator in
 /-- This prints `CategoryTheory.Cat.of X` as `↧X`. -/
@@ -80,8 +73,9 @@ instance : Quiver (Cat.{v, u}) where
 
 /-- The 1-morphism in `Cat` corresponding to a functor. -/
 @[simps, implicit_reducible]
-def _root_.CategoryTheory.Functor.toCatHom {C D : Type u} [Category.{v} C] [Category.{v} D]
-    (F : C ⥤ D) : Cat.of C ⟶ Cat.of D where
+def _root_.CategoryTheory.Functor.toCatHom
+    {C D : Type u} [Category.{v} C] [Category.{v} D] (F : C ⥤ D)
+    : Cat.of C ⟶ Cat.of D where
   toFunctor := F
 
 @[ext]
@@ -93,8 +87,8 @@ The equivalence between the type of functors between two categories and
 the type of 1-morphisms in Cat between the objects corresponding to those categories.
 -/
 @[simps]
-def _root_.CategoryTheory.Functor.equivCatHom (C D : Type u) [Category.{v} C] [Category.{v} D] :
-    C ⥤ D ≃ ((Cat.of C) ⟶ (Cat.of D)) where
+def _root_.CategoryTheory.Functor.equivCatHom (C D : Type u) [Category.{v} C] [Category.{v} D]
+    : C ⥤ D ≃ ((Cat.of C) ⟶ (Cat.of D)) where
   toFun := Functor.toCatHom
   invFun := Cat.Hom.toFunctor
   left_inv _ := rfl
@@ -105,8 +99,7 @@ The equivalence between the type of 1-morphisms in Cat between two objects
 and the type of functors between the categories corresponding to those objects.
 -/
 @[simps! apply symm_apply]
-def Hom.equivFunctor (C D : Cat.{v, u}) :
-    (C ⟶ D) ≃ C ⥤ D := (equivCatHom _ _).symm
+def Hom.equivFunctor (C D : Cat.{v, u}) : (C ⟶ D) ≃ C ⥤ D := (equivCatHom _ _).symm
 
 #adaptation_note /-- Removed `private`:
 `ofNatTrans` was marked `private` in #31807,
@@ -127,8 +120,9 @@ instance instQuiver {C D : Cat.{v, u}} : Quiver (C ⟶ D) where
 
 /-- The 2-morphism in `Cat` corresponding to a natural transformation between functors. -/
 @[simps]
-def _root_.CategoryTheory.NatTrans.toCatHom₂ {C D : Type u} [Category.{v} C]
-    [Category.{v} D] {F G : C ⥤ D} (η : F ⟶ G) : F.toCatHom ⟶ G.toCatHom where
+def _root_.CategoryTheory.NatTrans.toCatHom₂
+    {C D : Type u} [Category.{v} C] [Category.{v} D] {F G : C ⥤ D} (η : F ⟶ G)
+    : F.toCatHom ⟶ G.toCatHom where
   toNatTrans := η
 
 instance instCategory {X Y : Cat.{v, u}} : Category (X ⟶ Y) where
@@ -163,8 +157,8 @@ lemma _root_.CategoryTheory.Cat.Hom₂.ext {C D : Cat.{v, u}} {F G : C ⟶ D} {�
 
 /-- The 2-iso in Cat corresponding to a natural isomorphism. -/
 @[simps]
-def isoMk {C D : Type u} [Category.{v} C] [Category.{v} D] {F G : C ⥤ D} (e : F ≅ G) :
-    F.toCatHom ≅ G.toCatHom where
+def isoMk {C D : Type u} [Category.{v} C] [Category.{v} D] {F G : C ⥤ D} (e : F ≅ G)
+    : F.toCatHom ≅ G.toCatHom where
   hom := e.hom.toCatHom₂
   inv := e.inv.toCatHom₂
   hom_inv_id := congrArg NatTrans.toCatHom₂ e.hom_inv_id
@@ -186,12 +180,10 @@ lemma isoMk_toNatIso {X Y : Cat.{v, u}} {F G : X ⟶ Y} (e : F ≅ G) :
 lemma toNatIso_isoMk {C D : Type u} [Category.{v} C] [Category.{v} D] {F G : C ⥤ D} (e : F ≅ G) :
     Hom.toNatIso (isoMk e) = e := rfl
 
-instance {X Y : Cat.{v, u}} {F G : X ⟶ Y} (e : F ≅ G) :
-    IsIso e.hom.toNatTrans :=
+instance {X Y : Cat.{v, u}} {F G : X ⟶ Y} (e : F ≅ G) : IsIso e.hom.toNatTrans :=
   (toNatIso e).isIso_hom
 
-instance {X Y : Cat.{v, u}} {F G : X ⟶ Y} (e : F ≅ G) :
-    IsIso e.inv.toNatTrans :=
+instance {X Y : Cat.{v, u}} {F G : X ⟶ Y} (e : F ≅ G) : IsIso e.inv.toNatTrans :=
   (toNatIso e).isIso_inv
 
 @[reassoc (attr := simp)]
@@ -225,8 +217,7 @@ instance bicategory : Bicategory.{max v u, max v u} Cat.{v, u} where
   homCategory := fun _ _ => Hom.instCategory
   whiskerLeft F _ _ η := (Functor.whiskerLeft F.toFunctor η.toNatTrans).toCatHom₂
   whiskerRight η H := (Functor.whiskerRight η.toNatTrans H.toFunctor).toCatHom₂
-  associator F G H := Hom.isoMk
-    (Functor.associator F.toFunctor G.toFunctor H.toFunctor)
+  associator F G H := Hom.isoMk (Functor.associator F.toFunctor G.toFunctor H.toFunctor)
   leftUnitor F := Hom.isoMk (Functor.leftUnitor F.toFunctor)
   rightUnitor F := Hom.isoMk (Functor.rightUnitor F.toFunctor)
 
@@ -237,15 +228,12 @@ instance bicategory.strict : Bicategory.Strict Cat.{v, u} where
   assoc := by intros; rfl
 
 /-- Category structure on `Cat` -/
-instance category : LargeCategory.{max v u} Cat.{v, u} :=
-  StrictBicategory.category Cat.{v, u}
+instance category : LargeCategory.{max v u} Cat.{v, u} := StrictBicategory.category Cat.{v, u}
 
 @[simp, push_cast]
 lemma Hom.id_toFunctor {C : Cat.{v, u}} : (𝟙 C : C ⟶ C).toFunctor = 𝟭 C := rfl
 
-@[simp]
-theorem Hom.id_obj {C : Cat.{v, u}} (X : C) : (𝟙 C : C ⟶ C).toFunctor.obj X = X := by
-  simp
+@[simp] theorem Hom.id_obj {C : Cat.{v, u}} (X : C) : (𝟙 C : C ⟶ C).toFunctor.obj X = X := by simp
 
 @[simp]
 theorem Hom.id_map {C : Cat.{v, u}} {X Y : C} (f : X ⟶ Y) : (𝟙 C : C ⟶ C).toFunctor.map f = f := by
@@ -255,30 +243,32 @@ theorem Hom.id_map {C : Cat.{v, u}} {X Y : C} (f : X ⟶ Y) : (𝟙 C : C ⟶ C)
 lemma Hom.comp_toFunctor {C D E : Cat.{v, u}} (F : C ⟶ D) (G : D ⟶ E) :
   (F ≫ G).toFunctor = F.toFunctor ⋙ G.toFunctor := rfl
 
-theorem Hom.comp_obj {C D E : Cat.{v, u}} (F : C ⟶ D) (G : D ⟶ E) (X : C) :
-    (F ≫ G).toFunctor.obj X = G.toFunctor.obj (F.toFunctor.obj X) := by
+theorem Hom.comp_obj {C D E : Cat.{v, u}} (F : C ⟶ D) (G : D ⟶ E) (X : C)
+    : (F ≫ G).toFunctor.obj X = G.toFunctor.obj (F.toFunctor.obj X) := by
   simp
 
 @[simp]
-theorem Hom.comp_map {C D E : Cat.{v, u}} (F : C ⟶ D) (G : D ⟶ E) {X Y : C} (f : X ⟶ Y) :
-    (F ≫ G).toFunctor.map f = G.toFunctor.map (F.toFunctor.map f) := by
+theorem Hom.comp_map {C D E : Cat.{v, u}} (F : C ⟶ D) (G : D ⟶ E) {X Y : C} (f : X ⟶ Y)
+    : (F ≫ G).toFunctor.map f = G.toFunctor.map (F.toFunctor.map f) := by
   simp
 
 @[simp]
-theorem Hom₂.id_app {C D : Cat.{v, u}} (F : C ⟶ D) (X : C) :
-    (𝟙 F : F ⟶ F).toNatTrans.app X = 𝟙 (F.toFunctor.obj X) := by
+theorem Hom₂.id_app {C D : Cat.{v, u}} (F : C ⟶ D) (X : C)
+    : (𝟙 F : F ⟶ F).toNatTrans.app X = 𝟙 (F.toFunctor.obj X) := by
   simp
 
 @[simp, reassoc]
-theorem Hom₂.comp_app {C D : Cat.{v, u}} {F G H : C ⟶ D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
-    (α ≫ β).toNatTrans.app X = α.toNatTrans.app X ≫ β.toNatTrans.app X := rfl
+theorem Hom₂.comp_app {C D : Cat.{v, u}} {F G H : C ⟶ D} (α : F ⟶ G) (β : G ⟶ H) (X : C)
+    : (α ≫ β).toNatTrans.app X = α.toNatTrans.app X ≫ β.toNatTrans.app X :=
+  rfl
 
 @[simp]
-theorem Hom₂.eqToHom_toNatTrans {C D : Cat.{v, u}} {F G : C ⟶ D} (h : F = G) :
-  (eqToHom h).toNatTrans = eqToHom congr(($h).toFunctor) := by cases h; simp
+theorem Hom₂.eqToHom_toNatTrans {C D : Cat.{v, u}} {F G : C ⟶ D} (h : F = G)
+    : (eqToHom h).toNatTrans = eqToHom congr(($h).toFunctor) := by
+  cases h; simp
 
-theorem eqToHom_app {C D : Cat.{v, u}} (F G : C ⟶ D) (h : F = G) (X : C) :
-    (eqToHom h).toNatTrans.app X = eqToHom congr(($h).toFunctor.obj X) := by
+theorem eqToHom_app {C D : Cat.{v, u}} (F G : C ⟶ D) (h : F = G) (X : C)
+    : (eqToHom h).toNatTrans.app X = eqToHom congr(($h).toFunctor.obj X) := by
   simp
 
 @[simp, push_cast]
@@ -353,15 +343,18 @@ lemma associator_inv_app {B C D E : Cat} (F : B ⟶ C) (G : C ⟶ D) (H : D ⟶ 
 theorem id_eq_id (X : Cat.{u, v}) : (𝟙 X : X ⟶ X).toFunctor = 𝟭 X := rfl
 
 /-- Composition in the category of categories equals functor composition. -/
-theorem comp_eq_comp {X Y Z : Cat} (F : X ⟶ Y) (G : Y ⟶ Z) :
-    (F ≫ G).toFunctor = F.toFunctor ⋙ G.toFunctor := rfl
+theorem comp_eq_comp {X Y Z : Cat} (F : X ⟶ Y) (G : Y ⟶ Z)
+    : (F ≫ G).toFunctor = F.toFunctor ⋙ G.toFunctor :=
+  rfl
 
 @[simp] theorem of_α (C) [Category* C] : (of C).α = C := rfl
 
 @[simp] theorem coe_of (C : Cat.{v, u}) : ↧C = C := rfl
 
-/-- Functor that gets the set of objects of a category. It is not
-called `forget`, because it is not a faithful functor. -/
+/--
+Functor that gets the set of objects of a category. It is not
+called `forget`, because it is not a faithful functor.
+-/
 def objects : Cat.{v, u} ⥤ Type u where
   obj C := C
   map F := ↾F.toFunctor.obj
@@ -380,26 +373,29 @@ def equivOfIso {C D : Cat} (γ : C ≅ D) : C ≌ D where
   unitIso := eqToIso congr($(γ.hom_inv_id).toFunctor).symm
   counitIso := eqToIso <| congr($(γ.inv_hom_id).toFunctor)
 
-/-- Under certain hypotheses, an equivalence of categories actually
-defines an isomorphism in `Cat`. -/
+/--
+Under certain hypotheses, an equivalence of categories actually
+defines an isomorphism in `Cat`.
+-/
 @[simps]
-def isoOfEquiv {C D : Cat.{v, u}} (e : C ≌ D)
-    (h₁ : ∀ (X : C), e.inverse.obj (e.functor.obj X) = X)
+def isoOfEquiv
+    {C D : Cat.{v, u}} (e : C ≌ D) (h₁ : ∀ (X : C), e.inverse.obj (e.functor.obj X) = X)
     (h₂ : ∀ (Y : D), e.functor.obj (e.inverse.obj Y) = Y)
     (h₃ : ∀ (X : C), e.unitIso.hom.app X = eqToHom (h₁ X).symm := by cat_disch)
-    (h₄ : ∀ (Y : D), e.counitIso.hom.app Y = eqToHom (h₂ Y) := by cat_disch) :
-    C ≅ D where
+    (h₄ : ∀ (Y : D), e.counitIso.hom.app Y = eqToHom (h₂ Y) := by cat_disch)
+    : C ≅ D where
   hom := e.functor.toCatHom
   inv := e.inverse.toCatHom
-  hom_inv_id := congrArg Functor.toCatHom
-    (Functor.ext_of_iso e.unitIso (fun X ↦ (h₁ X).symm) h₃).symm
+  hom_inv_id :=
+    congrArg Functor.toCatHom (Functor.ext_of_iso e.unitIso (fun X ↦ (h₁ X).symm) h₃).symm
   inv_hom_id := congrArg Functor.toCatHom (Functor.ext_of_iso e.counitIso h₂ h₄)
 
 end
 
 end Cat
 
-/-- Embedding `Type` into `Cat` as discrete categories.
+/--
+Embedding `Type` into `Cat` as discrete categories.
 
 This ought to be modelled as a 2-functor!
 -/
@@ -422,11 +418,14 @@ def typeToCat : Type u ⥤ Cat where
 instance : Functor.Faithful typeToCat.{u} where
   map_injective {_X} {_Y} _f _g h := by
     ext x
-    exact congrArg Discrete.as (Functor.congr_obj congr(($h).toFunctor) ⟨x⟩)
+    exact congrArg Discrete.as (Functor.congr_obj (congr(($h).toFunctor)) ⟨x⟩)
 
 instance : Functor.Full typeToCat.{u} where
-  map_surjective F := ⟨↾(Discrete.as ∘ F.toFunctor.obj ∘ Discrete.mk), by
-    ext
-    exact Functor.ext (by cat_disch) fun _ _ _ ↦ Discrete.hom_eq⟩
+  map_surjective F := ⟨
+    ↾(Discrete.as ∘ F.toFunctor.obj ∘ Discrete.mk),
+    by
+      ext
+      exact Functor.ext (by cat_disch) fun _ _ _ ↦ Discrete.hom_eq
+  ⟩
 
 end CategoryTheory

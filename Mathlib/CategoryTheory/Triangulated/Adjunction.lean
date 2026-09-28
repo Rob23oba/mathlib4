@@ -41,15 +41,14 @@ namespace CategoryTheory
 
 open Category Limits Preadditive Pretriangulated Adjunction
 
-variable {C D : Type*} [Category* C] [Category* D] [HasZeroObject C] [HasZeroObject D]
-  [Preadditive C] [Preadditive D] [HasShift C ℤ] [HasShift D ℤ]
-  [∀ (n : ℤ), (shiftFunctor C n).Additive] [∀ (n : ℤ), (shiftFunctor D n).Additive]
-  [Pretriangulated C] [Pretriangulated D]
+variable
+  {C D : Type*} [Category* C] [Category* D] [HasZeroObject C] [HasZeroObject D] [Preadditive C]
+  [Preadditive D] [HasShift C ℤ] [HasShift D ℤ] [∀ (n : ℤ), (shiftFunctor C n).Additive]
+  [∀ (n : ℤ), (shiftFunctor D n).Additive] [Pretriangulated C] [Pretriangulated D]
 
 namespace Adjunction
 
-variable {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) [F.CommShift ℤ] [G.CommShift ℤ]
-  [adj.CommShift ℤ]
+variable {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) [F.CommShift ℤ] [G.CommShift ℤ] [adj.CommShift ℤ]
 
 set_option backward.defeqAttrib.useBackward true in
 include adj in
@@ -162,16 +161,16 @@ lemma mk' [F.IsTriangulated] : adj.IsTriangulated where
 lemma mk'' [G.IsTriangulated] : adj.IsTriangulated where
   leftAdjoint_isTriangulated := adj.isTriangulated_leftAdjoint
 
-/-- The identity adjunction is triangulated.
--/
+/-- The identity adjunction is triangulated. -/
 instance id : (Adjunction.id (C := C)).IsTriangulated where
 
-variable {E : Type*} [Category* E] {F' : D ⥤ E} {G' : E ⥤ D} (adj' : F' ⊣ G') [HasZeroObject E]
-  [Preadditive E] [HasShift E ℤ] [∀ (n : ℤ), (shiftFunctor E n).Additive] [Pretriangulated E]
-  [F'.CommShift ℤ] [G'.CommShift ℤ] [adj'.CommShift ℤ]
+variable
+  {E : Type*} [Category* E]
+  {F' : D ⥤ E} {G' : E ⥤ D} (adj' : F' ⊣ G')
+  [HasZeroObject E] [Preadditive E] [HasShift E ℤ] [∀ (n : ℤ), (shiftFunctor E n).Additive]
+  [Pretriangulated E] [F'.CommShift ℤ] [G'.CommShift ℤ] [adj'.CommShift ℤ]
 
-/-- A composition of triangulated adjunctions is triangulated.
--/
+/-- A composition of triangulated adjunctions is triangulated. -/
 instance comp [adj.IsTriangulated] [adj'.IsTriangulated] : (adj.comp adj').IsTriangulated where
 
 end IsTriangulated
@@ -196,7 +195,6 @@ instance [E.IsTriangulated] : E.inverse.IsTriangulated := inferInstance
 instance [h : E.functor.IsTriangulated] : E.symm.inverse.IsTriangulated := h
 instance [h : E.inverse.IsTriangulated] : E.symm.functor.IsTriangulated := h
 
-
 /-- Constructor for `Equivalence.IsTriangulated`. -/
 lemma mk' (h : E.functor.IsTriangulated) : E.IsTriangulated where
   rightAdjoint_isTriangulated := E.toAdjunction.isTriangulated_rightAdjoint
@@ -205,25 +203,21 @@ lemma mk' (h : E.functor.IsTriangulated) : E.IsTriangulated where
 lemma mk'' (h : E.inverse.IsTriangulated) : E.IsTriangulated where
   leftAdjoint_isTriangulated := (mk' E.symm h).rightAdjoint_isTriangulated
 
-/--
-The identity equivalence is triangulated.
--/
+/-- The identity equivalence is triangulated. -/
 instance refl : (Equivalence.refl (C := C)).IsTriangulated := by
   dsimp [Equivalence.IsTriangulated]
   rw [refl_toAdjunction]
   infer_instance
 
-/-- If the equivalence `E` is triangulated, so is the equivalence `E.symm`.
--/
+/-- If the equivalence `E` is triangulated, so is the equivalence `E.symm`. -/
 instance symm [E.IsTriangulated] : E.symm.IsTriangulated where
 
-variable {D' : Type*} [Category* D'] [HasZeroObject D'] [Preadditive D'] [HasShift D' ℤ]
-  [∀ (n : ℤ), (shiftFunctor D' n).Additive] [Pretriangulated D'] {E' : D ≌ D'}
-  [E'.functor.CommShift ℤ] [E'.inverse.CommShift ℤ] [E'.CommShift ℤ]
+variable
+  {D' : Type*} [Category* D'] [HasZeroObject D'] [Preadditive D'] [HasShift D' ℤ]
+  [∀ (n : ℤ), (shiftFunctor D' n).Additive] [Pretriangulated D']
+  {E' : D ≌ D'} [E'.functor.CommShift ℤ] [E'.inverse.CommShift ℤ] [E'.CommShift ℤ]
 
-/--
-If equivalences `E : C ≌ D` and `E' : D ≌ F` are triangulated, so is `E.trans E'`.
--/
+/-- If equivalences `E : C ≌ D` and `E' : D ≌ F` are triangulated, so is `E.trans E'`. -/
 instance trans [E.IsTriangulated] [E'.IsTriangulated] : (E.trans E').IsTriangulated := by
   dsimp [Equivalence.IsTriangulated]
   rw [trans_toAdjunction]

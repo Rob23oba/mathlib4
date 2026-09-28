@@ -46,10 +46,14 @@ noncomputable section
 
 namespace LieAlgebra
 
-/-- A basis for a semisimple Lie algebra distinguishes a natural Cartan subalgebra and a base
-for the associated root system. -/
+/--
+A basis for a semisimple Lie algebra distinguishes a natural Cartan subalgebra and a base
+for the associated root system.
+-/
 @[ext]
-structure Basis (ι : Type*) {R L : Type*} [Finite ι] [CommRing R] [LieRing L] [LieAlgebra R L]
+structure Basis
+    (ι : Type*)
+    {R L : Type*} [Finite ι] [CommRing R] [LieRing L] [LieAlgebra R L]
     (H : LieSubalgebra R L) where
   /-- The Cartan matrix. -/
   A : Matrix ι ι ℤ
@@ -66,14 +70,15 @@ structure Basis (ι : Type*) {R L : Type*} [Finite ι] [CommRing R] [LieRing L] 
   sl2 (i : ι) : IsSl2Triple (h i) (e i) (f i)
   lie_h_h (i j : ι) : ⁅h i, h j⁆ = 0
   lie_h_e (i j : ι) : ⁅h j, e i⁆ = A i j • e i
-  lie_h_f (i j : ι) : ⁅h j, f i⁆ = -A i j • f i
+  lie_h_f (i j : ι) : ⁅h j, f i⁆ = - A i j • f i
   lie_e_f_ne (i j : ι) (hij : i ≠ j) : ⁅e i, f j⁆ = 0
 
 namespace Basis
 
 section CommRing
 
-variable {ι R L : Type*} [Finite ι] [CommRing R] [LieRing L] [LieAlgebra R L]
+variable
+  {ι R L : Type*} [Finite ι] [CommRing R] [LieRing L] [LieAlgebra R L]
   {H : LieSubalgebra R L} (b : Basis ι H)
 
 @[simp] lemma A_diag_eq_two [IsAddTorsionFree L] (i : ι) : b.A i i = 2 := by
@@ -95,9 +100,12 @@ theorem isLieAbelian_cartan : IsLieAbelian H := by
   rintro - ⟨i, rfl⟩ - ⟨j, rfl⟩
   exact b.lie_h_h i j
 
-/-- A basis has a natural involution obtained by interchanging the roles of `e` and `f` and
-negating `h`. -/
-@[simps -fullyApplied] def symm : Basis ι H where
+/--
+A basis has a natural involution obtained by interchanging the roles of `e` and `f` and
+negating `h`.
+-/
+@[simps -fullyApplied]
+def symm : Basis ι H where
   A := b.A
   h := -b.h
   e := b.f
@@ -256,8 +264,10 @@ lemma iSup_cartan_borelLower_borelUpper_eq_top :
 
 variable [Fintype ι]
 
-/-- These elements constitute a base for the root system of the Lie algebra relative to the
-associated Cartan subalgebra. -/
+/--
+These elements constitute a base for the root system of the Lie algebra relative to the
+associated Cartan subalgebra.
+-/
 def baseSupp (i : ι) : Dual R H :=
   ∑ j, b.A i j •
     ((Basis.span b.linInd).map (LinearEquiv.ofEq _ _ b.coe_cartan_eq_span).symm).coord j

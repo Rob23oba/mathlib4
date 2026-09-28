@@ -43,12 +43,13 @@ lemma measurable_coe : Measurable UpperHalfPlane.coe :=
 
 /-- The invariant measure on the upper half-plane, defined by `dx dy / y ^ 2`. -/
 instance : MeasureSpace ℍ :=
-  ⟨(volume.comap UpperHalfPlane.coe).withDensity
-    fun z ↦ ↑((1 / NNReal.mk z.im z.im_pos.le : ℝ≥0) ^ 2)⟩
+  ⟨(volume.comap UpperHalfPlane.coe).withDensity fun z ↦
+    ↑((1 / NNReal.mk z.im z.im_pos.le : ℝ≥0) ^ 2)⟩
 
-theorem volume_def :
-    (volume : Measure ℍ) = (volume.comap UpperHalfPlane.coe).withDensity fun z ↦
-      ↑((1 / NNReal.mk z.im z.im_pos.le : ℝ≥0) ^ 2) :=
+theorem volume_def
+    : (volume : Measure ℍ)
+      = (volume.comap UpperHalfPlane.coe).withDensity fun z ↦
+        ↑((1 / NNReal.mk z.im z.im_pos.le : ℝ≥0) ^ 2) :=
   rfl
 
 instance : IsFiniteMeasureOnCompacts (volume.comap UpperHalfPlane.coe) :=
@@ -94,12 +95,12 @@ instance : SMulInvariantMeasure (GL (Fin 2) ℝ) ℍ volume := by
   -- We want to apply the Jacobian change-of-variable formula.
   have hinj : Set.InjOn (fun z ↦ ↑(g • ofComplex z) : ℂ → ℂ) (UpperHalfPlane.coe '' s) :=
     .image_of_comp <| by simp
-  have main := MeasureTheory.lintegral_image_eq_lintegral_abs_det_fderiv_mul
-      volume (measurableEmbedding_coe.measurableSet_image.mpr hs)
+  have main :=
+    MeasureTheory.lintegral_image_eq_lintegral_abs_det_fderiv_mul volume
+      (measurableEmbedding_coe.measurableSet_image.mpr hs)
       (Set.forall_mem_image.mpr fun z hz ↦
         (hasStrictFDerivAt_smul g _).hasFDerivAt.hasFDerivWithinAt)
-      hinj
-      (fun z ↦ ↑((1 / ‖z.im‖₊) ^ 2 : NNReal))
+      hinj (fun z ↦ ↑((1 / ‖z.im‖₊) ^ 2 : NNReal))
   convert! main using 1
   · simp [Set.image_image]
   · apply setLIntegral_congr_fun (measurableEmbedding_coe.measurableSet_image.mpr hs)

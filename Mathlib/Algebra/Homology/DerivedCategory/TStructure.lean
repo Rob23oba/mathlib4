@@ -34,24 +34,30 @@ set_option backward.isDefEq.respectTransparency false in
 noncomputable def TStructure.t : TStructure (DerivedCategory C) where
   le n X := ∃ (K : CochainComplex C ℤ) (_ : X ≅ DerivedCategory.Q.obj K), K.IsStrictlyLE n
   ge n X := ∃ (K : CochainComplex C ℤ) (_ : X ≅ DerivedCategory.Q.obj K), K.IsStrictlyGE n
-  le_isClosedUnderIsomorphisms n :=
-    { of_iso := by
-        rintro X Y e ⟨K, e', _⟩
-        exact ⟨K, e.symm ≪≫ e', inferInstance⟩ }
-  ge_isClosedUnderIsomorphisms n :=
-    { of_iso := by
-        rintro X Y e ⟨K, e', _⟩
-        exact ⟨K, e.symm ≪≫ e', inferInstance⟩ }
+  le_isClosedUnderIsomorphisms n := {
+    of_iso := by
+      rintro X Y e ⟨K, e', _⟩
+      exact ⟨K, e.symm ≪≫ e', inferInstance⟩
+  }
+  ge_isClosedUnderIsomorphisms n := {
+    of_iso := by
+      rintro X Y e ⟨K, e', _⟩
+      exact ⟨K, e.symm ≪≫ e', inferInstance⟩
+  }
   le_shift := by
     rintro n a n' h X ⟨K, e, _⟩
-    exact ⟨(shiftFunctor (CochainComplex C ℤ) a).obj K,
+    exact ⟨
+      (shiftFunctor (CochainComplex C ℤ) a).obj K,
       (shiftFunctor (DerivedCategory C) a).mapIso e ≪≫ (Q.commShiftIso a).symm.app K,
-      K.isStrictlyLE_shift n a n' h⟩
+      K.isStrictlyLE_shift n a n' h
+    ⟩
   ge_shift := by
     rintro n a n' h X ⟨K, e, _⟩
-    exact ⟨(shiftFunctor (CochainComplex C ℤ) a).obj K,
+    exact ⟨
+      (shiftFunctor (CochainComplex C ℤ) a).obj K,
       (shiftFunctor (DerivedCategory C) a).mapIso e ≪≫ (Q.commShiftIso a).symm.app K,
-      K.isStrictlyGE_shift n a n' h⟩
+      K.isStrictlyGE_shift n a n' h
+    ⟩
   zero' X Y f := by
     rintro ⟨K, e₁, _⟩ ⟨L, e₂, _⟩
     rw [← cancel_epi e₁.inv, ← cancel_mono e₂.hom, comp_zero, zero_comp]
@@ -65,26 +71,34 @@ noncomputable def TStructure.t : TStructure (DerivedCategory C) where
   exists_triangle_zero_one X := by
     obtain ⟨K, ⟨e₂⟩⟩ : ∃ K, Nonempty (Q.obj K ≅ X) := ⟨_, ⟨Q.objObjPreimageIso X⟩⟩
     have h := K.shortComplexTruncLE_shortExact 0
-    refine ⟨Q.obj (K.truncLE 0), Q.obj (K.truncGE 1),
-      ⟨_, Iso.refl _, inferInstance⟩, ⟨_, Iso.refl _, inferInstance⟩,
-      Q.map (K.ιTruncLE 0) ≫ e₂.hom, e₂.inv ≫ Q.map (K.πTruncGE 1),
+    refine ⟨
+      Q.obj (K.truncLE 0),
+      Q.obj (K.truncGE 1),
+      ⟨_, Iso.refl _, inferInstance⟩,
+      ⟨_, Iso.refl _, inferInstance⟩,
+      Q.map (K.ιTruncLE 0) ≫ e₂.hom,
+      e₂.inv ≫ Q.map (K.πTruncGE 1),
       inv (Q.map (K.shortComplexTruncLEX₃ToTruncGE 0 1 (by lia))) ≫ (triangleOfSES h).mor₃,
-      isomorphic_distinguished _ (triangleOfSES_distinguished h) _ (Iso.symm ?_)⟩
+      isomorphic_distinguished _ (triangleOfSES_distinguished h) _ (Iso.symm ?_)
+    ⟩
     refine Triangle.isoMk _ _ (Iso.refl _) e₂
       (asIso (Q.map (K.shortComplexTruncLEX₃ToTruncGE 0 1 (by lia)))) ?_ ?_ (by simp)
     · dsimp
       rw [id_comp]
       rfl
     · dsimp
-      rw [← Q.map_comp, CochainComplex.g_shortComplexTruncLEX₃ToTruncGE ..,
-        Iso.hom_inv_id_assoc]
+      rw [← Q.map_comp, CochainComplex.g_shortComplexTruncLEX₃ToTruncGE .., Iso.hom_inv_id_assoc]
 
-/-- Given `X : DerivedCategory C` and `n : ℤ`, this property means
-that `X` is `≤ n` for the canonical t-structure. -/
+/--
+Given `X : DerivedCategory C` and `n : ℤ`, this property means
+that `X` is `≤ n` for the canonical t-structure.
+-/
 abbrev IsLE (X : DerivedCategory C) (n : ℤ) : Prop := TStructure.t.IsLE X n
 
-/-- Given `X : DerivedCategory C` and `n : ℤ`, this property means
-that `X` is `≥ n` for the canonical t-structure. -/
+/--
+Given `X : DerivedCategory C` and `n : ℤ`, this property means
+that `X` is `≥ n` for the canonical t-structure.
+-/
 abbrev IsGE (X : DerivedCategory C) (n : ℤ) : Prop := TStructure.t.IsGE X n
 
 lemma isGE_iff (X : DerivedCategory C) (n : ℤ) :
@@ -145,13 +159,11 @@ lemma isLE_Q_obj_iff (K : CochainComplex C ℤ) (n : ℤ) :
   simp only [isLE_iff, CochainComplex.isLE_iff,
     HomologicalComplex.exactAt_iff_isZero_homology, eq]
 
-instance (K : CochainComplex C ℤ) (n : ℤ) [K.IsGE n] :
-    (Q.obj K).IsGE n := by
+instance (K : CochainComplex C ℤ) (n : ℤ) [K.IsGE n] : (Q.obj K).IsGE n := by
   rw [isGE_Q_obj_iff]
   infer_instance
 
-instance (K : CochainComplex C ℤ) (n : ℤ) [K.IsLE n] :
-    (Q.obj K).IsLE n := by
+instance (K : CochainComplex C ℤ) (n : ℤ) [K.IsLE n] : (Q.obj K).IsLE n := by
   rw [isLE_Q_obj_iff]
   infer_instance
 

@@ -37,14 +37,10 @@ namespace ProbabilityTheory
 section ExponentialPDF
 
 /-- The pdf of the exponential distribution depending on its rate -/
-noncomputable
-def exponentialPDFReal (r x : ℝ) : ℝ :=
-  gammaPDFReal 1 r x
+noncomputable def exponentialPDFReal (r x : ℝ) : ℝ := gammaPDFReal 1 r x
 
 /-- The pdf of the exponential distribution, as a function valued in `ℝ≥0∞` -/
-noncomputable
-def exponentialPDF (r x : ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal (exponentialPDFReal r x)
+noncomputable def exponentialPDF (r x : ℝ) : ℝ≥0∞ := ENNReal.ofReal (exponentialPDFReal r x)
 
 lemma exponentialPDF_eq (r x : ℝ) :
     exponentialPDF r x = ENNReal.ofReal (if 0 ≤ x then r * exp (-(r * x)) else 0) := by
@@ -92,8 +88,7 @@ open MeasureTheory
 
 /-- Measure defined by the exponential distribution -/
 @[wikidata Q237193]
-noncomputable
-def expMeasure (r : ℝ) : Measure ℝ := gammaMeasure 1 r
+noncomputable def expMeasure (r : ℝ) : Measure ℝ := gammaMeasure 1 r
 
 lemma isProbabilityMeasure_expMeasure {r : ℝ} (hr : 0 < r) :
     IsProbabilityMeasure (expMeasure r) := isProbabilityMeasure_gammaMeasure zero_lt_one hr

@@ -42,9 +42,12 @@ open Set Filter
 
 namespace Filter
 
-/-- The class of functions `f` such that `Tendsto f cofinite cofinite`, it is equivalent to
-`f` having finite fibers, see `Filter.tendstoCofinite_iff_finite_preimage_singleton`. -/
-@[mk_iff] class TendstoCofinite (f : α → β) : Prop where
+/--
+The class of functions `f` such that `Tendsto f cofinite cofinite`, it is equivalent to
+`f` having finite fibers, see `Filter.tendstoCofinite_iff_finite_preimage_singleton`.
+-/
+@[mk_iff]
+class TendstoCofinite (f : α → β) : Prop where
   tendsto_cofinite (f) : Tendsto f cofinite cofinite
 
 lemma TendstoCofinite.finite_preimage [TendstoCofinite f] {s : Set β} (hs : s.Finite) :
@@ -55,9 +58,11 @@ lemma TendstoCofinite.finite_preimage [TendstoCofinite f] {s : Set β} (hs : s.F
 lemma TendstoCofinite.finite_preimage_singleton [TendstoCofinite f] (b : β) :
     Set.Finite (f ⁻¹' {b}) := by simpa using TendstoCofinite.finite_preimage f (by simp)
 
-theorem tendstoCofinite_iff_finite_preimage_singleton : TendstoCofinite f ↔
-    ∀ b : β, Set.Finite (f ⁻¹' {b}) := ⟨fun _ ↦ TendstoCofinite.finite_preimage_singleton f,
-  fun h ↦ ⟨Tendsto.cofinite_of_finite_preimage_singleton h⟩⟩
+theorem tendstoCofinite_iff_finite_preimage_singleton
+    : TendstoCofinite f ↔ ∀ b : β, Set.Finite (f ⁻¹' {b}) := ⟨
+  fun _ ↦ TendstoCofinite.finite_preimage_singleton f,
+  fun h ↦ ⟨Tendsto.cofinite_of_finite_preimage_singleton h⟩
+⟩
 
 variable {f} in
 lemma tendstoCofinite_of_injective (h : f.Injective) : TendstoCofinite f := ⟨h.tendsto_cofinite⟩
@@ -84,11 +89,13 @@ lemma equiv (e : α ≃ β) : TendstoCofinite e := ⟨e.injective.tendsto_cofini
 
 variable [TendstoCofinite f]
 
-/-- Given `f : α → β` with `Filter.TendstoCofinite f` and `v : α → M`,
+/--
+Given `f : α → β` with `Filter.TendstoCofinite f` and `v : α → M`,
 `Filter.TendstoCofinite.mapDomain f v : β → M` is the function whose value at `b : β` is
-the sum of `v x` over all `x` such that `f x = b`. -/
-noncomputable def mapDomain (v : α → M) : β → M :=
-  fun i ↦ (finite_preimage_singleton f i).toFinset.sum v
+the sum of `v x` over all `x` such that `f x = b`.
+-/
+noncomputable def mapDomain (v : α → M) : β → M := fun i ↦
+  (finite_preimage_singleton f i).toFinset.sum v
 
 @[simp]
 lemma mapDomain_add (u v : α → M) : mapDomain f (u + v) = mapDomain f u + mapDomain f v := by
@@ -107,18 +114,19 @@ end TendstoCofinite
 end Filter
 
 @[instance]
-theorem Finsupp.mapDomain_tendstoCofinite [TendstoCofinite f] :
-    TendstoCofinite (mapDomain (M := ℕ) f) := by
+theorem Finsupp.mapDomain_tendstoCofinite [TendstoCofinite f]
+    : TendstoCofinite (mapDomain (M := ℕ) f) := by
   classical
   refine (tendstoCofinite_iff_finite_preimage_singleton _).mpr fun x ↦ ?_
   let s := Finset.sup x.support (fun t ↦ (TendstoCofinite.finite_preimage_singleton f t).toFinset)
   let e : s ↪ α := Function.Embedding.subtype (fun u ↦ u ∈ s)
   refine Set.Finite.subset (Set.Finite.image (embDomain e) <| finite_of_degree_le (degree x)) ?_
-  simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff, Set.mem_image,
-    Set.mem_ofPred_eq]
+  simp only [
+    Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff, Set.mem_image, Set.mem_ofPred_eq
+  ]
   refine fun y hy ↦ ⟨y.comapDomain e e.injective.injOn, ?_, embDomain_comapDomain ?_⟩
   · rw [← hy, degree_mapDomain]
     exact degree_comapDomain_le_of_canonicallyOrderedAdd ..
   · suffices y.support ⊆ s by simpa [e]
-    simpa [← hy, mapDomain, sum, Finset.subset_iff, single_apply, s] using
-      fun i hi ↦ ⟨i, by simp [hi]⟩
+    simpa [← hy, mapDomain, sum, Finset.subset_iff, single_apply, s] using fun i hi ↦
+      ⟨i, by simp [hi]⟩

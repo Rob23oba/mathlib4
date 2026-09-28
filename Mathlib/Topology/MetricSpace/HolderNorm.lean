@@ -44,19 +44,21 @@ section PseudoEMetricSpace
 
 variable [PseudoEMetricSpace X] [PseudoEMetricSpace Y] {r : ℝ≥0} {f : X → Y}
 
-/-- The `r`-Hölder (semi-)norm in `ℝ≥0∞` of a function `f` is the least non-negative real
+/--
+The `r`-Hölder (semi-)norm in `ℝ≥0∞` of a function `f` is the least non-negative real
 number `C` for which `f` is `r`-Hölder continuous with constant `C`. This is `∞` if no such
-non-negative real exists. -/
-noncomputable
-def eHolderNorm (r : ℝ≥0) (f : X → Y) : ℝ≥0∞ := ⨅ (C) (_ : HolderWith C r f), C
+non-negative real exists.
+-/
+noncomputable def eHolderNorm (r : ℝ≥0) (f : X → Y) : ℝ≥0∞ := ⨅ (C) (_ : HolderWith C r f), C
 
 /-- The `r`-Hölder (semi)norm in `ℝ≥0`. -/
-noncomputable
-def nnHolderNorm (r : ℝ≥0) (f : X → Y) : ℝ≥0 := (eHolderNorm r f).toNNReal
+noncomputable def nnHolderNorm (r : ℝ≥0) (f : X → Y) : ℝ≥0 := (eHolderNorm r f).toNNReal
 
-/-- A function `f` is `MemHolder r f` if it is Hölder continuous. Namely, `f` has a finite
+/--
+A function `f` is `MemHolder r f` if it is Hölder continuous. Namely, `f` has a finite
 `r`-Hölder constant. This is equivalent to `f` having finite Hölder norm.
-c.f. `memHolder_iff`. -/
+c.f. `memHolder_iff`.
+-/
 def MemHolder (r : ℝ≥0) (f : X → Y) : Prop := ∃ C, HolderWith C r f
 
 lemma HolderWith.memHolder {C : ℝ≥0} (hf : HolderWith C r f) : MemHolder r f := ⟨C, hf⟩

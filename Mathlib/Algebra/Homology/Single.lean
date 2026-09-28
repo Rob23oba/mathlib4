@@ -33,15 +33,18 @@ namespace HomologicalComplex
 
 variable {ι : Type*} [DecidableEq ι] (c : ComplexShape ι)
 
-/-- The functor `V ⥤ HomologicalComplex V c` creating a chain complex supported in a single degree.
+/--
+The functor `V ⥤ HomologicalComplex V c` creating a chain complex supported in a single degree.
 -/
 noncomputable def single (j : ι) : V ⥤ HomologicalComplex V c where
-  obj A :=
-    { X := fun i => if i = j then A else 0
-      d := fun _ _ => 0 }
-  map f :=
-    { f := fun i => if h : i = j then eqToHom (by dsimp; rw [ite_eq_left h]) ≫ f ≫
-              eqToHom (by dsimp; rw [ite_eq_left h]) else 0 }
+  obj A := { X := fun i => if i = j then A else 0, d := fun _ _ => 0 }
+  map f := {
+    f := fun i =>
+      if h : i = j then
+        eqToHom (by dsimp; rw [ite_eq_left h]) ≫ f ≫ eqToHom (by dsimp; rw [ite_eq_left h])
+      else
+        0
+  }
   map_id A := by
     ext
     dsimp
@@ -75,8 +78,8 @@ lemma isZero_single_obj_X (j : ι) (A : V) (i : ι) (hi : i ≠ j) :
   exact Limits.isZero_zero V
 
 /-- The object in degree `i` of `(single V c h).obj A` is just `A` when `i = j`. -/
-noncomputable def singleObjXIsoOfEq (j : ι) (A : V) (i : ι) (hi : i = j) :
-    ((single V c j).obj A).X i ≅ A :=
+noncomputable def singleObjXIsoOfEq (j : ι) (A : V) (i : ι) (hi : i = j)
+    : ((single V c j).obj A).X i ≅ A :=
   eqToIso (by subst hi; simp [single])
 
 /-- The object in degree `j` of `(single V c h).obj A` is just `A`. -/
@@ -88,9 +91,8 @@ lemma single_obj_d (j : ι) (A : V) (k l : ι) :
     ((single V c j).obj A).d k l = 0 := rfl
 
 @[reassoc]
-theorem single_map_f_self (j : ι) {A B : V} (f : A ⟶ B) :
-    ((single V c j).map f).f j = (singleObjXSelf c j A).hom ≫
-      f ≫ (singleObjXSelf c j B).inv := by
+theorem single_map_f_self (j : ι) {A B : V} (f : A ⟶ B)
+    : ((single V c j).map f).f j = (singleObjXSelf c j A).hom ≫ f ≫ (singleObjXSelf c j B).inv := by
   dsimp [single]
   rw [dite_eq_left rfl]
   rfl
@@ -128,24 +130,29 @@ lemma to_single_hom_ext {K : HomologicalComplex V c} {j : ι} {A : V}
 
 instance (j : ι) : (single V c j).Faithful where
   map_injective {A B f g} w := by
-    rw [← cancel_mono (singleObjXSelf c j B).inv,
-      ← cancel_epi (singleObjXSelf c j A).hom, ← single_map_f_self,
-      ← single_map_f_self, w]
+    rw [
+      ← cancel_mono (singleObjXSelf c j B).inv, ← cancel_epi (singleObjXSelf c j A).hom,
+      ← single_map_f_self, ← single_map_f_self, w
+    ]
 
 instance (j : ι) : (single V c j).Full where
-  map_surjective {A B} f :=
-    ⟨(singleObjXSelf c j A).inv ≫ f.f j ≫ (singleObjXSelf c j B).hom, by
+  map_surjective {A B} f := ⟨
+    (singleObjXSelf c j A).inv ≫ f.f j ≫ (singleObjXSelf c j B).hom,
+    by
       ext
-      simp [single_map_f_self]⟩
+      simp [single_map_f_self]
+  ⟩
 
 /-- Constructor for morphisms to a single homological complex. -/
-noncomputable def mkHomToSingle {K : HomologicalComplex V c} {j : ι} {A : V} (φ : K.X j ⟶ A)
-    (hφ : ∀ (i : ι), c.Rel i j → K.d i j ≫ φ = 0) :
-    K ⟶ (single V c j).obj A where
+noncomputable def mkHomToSingle
+    {K : HomologicalComplex V c} {j : ι} {A : V}
+    (φ : K.X j ⟶ A) (hφ : ∀ (i : ι), c.Rel i j → K.d i j ≫ φ = 0)
+    : K ⟶ (single V c j).obj A where
   f i :=
-    if hi : i = j
-      then (K.XIsoOfEq hi).hom ≫ φ ≫ (singleObjXIsoOfEq c j A i hi).inv
-      else 0
+    if hi : i = j then
+      (K.XIsoOfEq hi).hom ≫ φ ≫ (singleObjXIsoOfEq c j A i hi).inv
+    else
+      0
   comm' i k hik := by
     dsimp
     rw [comp_zero]
@@ -164,13 +171,15 @@ lemma mkHomToSingle_f {K : HomologicalComplex V c} {j : ι} {A : V} (φ : K.X j 
   rfl
 
 /-- Constructor for morphisms from a single homological complex. -/
-noncomputable def mkHomFromSingle {K : HomologicalComplex V c} {j : ι} {A : V} (φ : A ⟶ K.X j)
-    (hφ : ∀ (k : ι), c.Rel j k → φ ≫ K.d j k = 0) :
-    (single V c j).obj A ⟶ K where
+noncomputable def mkHomFromSingle
+    {K : HomologicalComplex V c} {j : ι} {A : V}
+    (φ : A ⟶ K.X j) (hφ : ∀ (k : ι), c.Rel j k → φ ≫ K.d j k = 0)
+    : (single V c j).obj A ⟶ K where
   f i :=
-    if hi : i = j
-      then (singleObjXIsoOfEq c j A i hi).hom ≫ φ ≫ (K.XIsoOfEq hi).inv
-      else 0
+    if hi : i = j then
+      (singleObjXIsoOfEq c j A i hi).hom ≫ φ ≫ (K.XIsoOfEq hi).inv
+    else
+      0
   comm' i k hik := by
     dsimp
     rw [zero_comp]
@@ -213,23 +222,24 @@ lemma single₀_map_f_zero {A B : V} (f : A ⟶ B) :
   dsimp [HomologicalComplex.singleObjXSelf, HomologicalComplex.singleObjXIsoOfEq]
   rw [comp_id, id_comp]
 
-
 @[simp]
 lemma single₀ObjXSelf (X : V) :
     HomologicalComplex.singleObjXSelf (ComplexShape.down ℕ) 0 X = Iso.refl _ := rfl
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Morphisms from an `ℕ`-indexed chain complex `C`
+/--
+Morphisms from an `ℕ`-indexed chain complex `C`
 to a single object chain complex with `X` concentrated in degree 0
 are the same as morphisms `f : C.X 0 ⟶ X` such that `C.d 1 0 ≫ f = 0`.
 -/
 @[simps apply_coe]
-noncomputable def toSingle₀Equiv (C : ChainComplex V ℕ) (X : V) :
-    (C ⟶ (single₀ V).obj X) ≃ { f : C.X 0 ⟶ X // C.d 1 0 ≫ f = 0 } where
+noncomputable def toSingle₀Equiv (C : ChainComplex V ℕ) (X : V)
+    : (C ⟶ (single₀ V).obj X) ≃ {f : C.X 0 ⟶ X // C.d 1 0 ≫ f = 0} where
   toFun φ := ⟨φ.f 0, by rw [← φ.comm 1 0, HomologicalComplex.single_obj_d, comp_zero]⟩
-  invFun f := HomologicalComplex.mkHomToSingle f.1 (fun i hi => by
-    obtain rfl : i = 1 := by simpa using hi.symm
-    exact f.2)
+  invFun f :=
+    HomologicalComplex.mkHomToSingle f.1 (fun i hi => by
+      obtain rfl : i = 1 := by simpa using hi.symm
+      exact f.2)
   left_inv φ := by cat_disch
   right_inv f := by simp
 
@@ -240,12 +250,13 @@ lemma toSingle₀Equiv_symm_apply_f_zero {C : ChainComplex V ℕ} {X : V}
   simp [toSingle₀Equiv]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Morphisms from a single object chain complex with `X` concentrated in degree 0
+/--
+Morphisms from a single object chain complex with `X` concentrated in degree 0
 to an `ℕ`-indexed chain complex `C` are the same as morphisms `f : X → C.X 0`.
 -/
 @[simps apply]
-noncomputable def fromSingle₀Equiv (C : ChainComplex V ℕ) (X : V) :
-    ((single₀ V).obj X ⟶ C) ≃ (X ⟶ C.X 0) where
+noncomputable def fromSingle₀Equiv (C : ChainComplex V ℕ) (X : V)
+    : ((single₀ V).obj X ⟶ C) ≃ (X ⟶ C.X 0) where
   toFun f := f.f 0
   invFun f := HomologicalComplex.mkHomFromSingle f (fun i hi => by simp at hi)
   left_inv := by cat_disch
@@ -291,16 +302,19 @@ lemma single₀ObjXSelf (X : V) :
     HomologicalComplex.singleObjXSelf (ComplexShape.up ℕ) 0 X = Iso.refl _ := rfl
 
 set_option backward.isDefEq.respectTransparency false in
-/-- Morphisms from a single object cochain complex with `X` concentrated in degree 0
+/--
+Morphisms from a single object cochain complex with `X` concentrated in degree 0
 to an `ℕ`-indexed cochain complex `C`
-are the same as morphisms `f : X ⟶ C.X 0` such that `f ≫ C.d 0 1 = 0`. -/
+are the same as morphisms `f : X ⟶ C.X 0` such that `f ≫ C.d 0 1 = 0`.
+-/
 @[simps apply_coe]
-noncomputable def fromSingle₀Equiv (C : CochainComplex V ℕ) (X : V) :
-    ((single₀ V).obj X ⟶ C) ≃ { f : X ⟶ C.X 0 // f ≫ C.d 0 1 = 0 } where
+noncomputable def fromSingle₀Equiv (C : CochainComplex V ℕ) (X : V)
+    : ((single₀ V).obj X ⟶ C) ≃ {f : X ⟶ C.X 0 // f ≫ C.d 0 1 = 0} where
   toFun φ := ⟨φ.f 0, by rw [φ.comm 0 1, HomologicalComplex.single_obj_d, zero_comp]⟩
-  invFun f := HomologicalComplex.mkHomFromSingle f.1 (fun i hi => by
-    obtain rfl : i = 1 := by simpa using hi.symm
-    exact f.2)
+  invFun f :=
+    HomologicalComplex.mkHomFromSingle f.1 (fun i hi => by
+      obtain rfl : i = 1 := by simpa using hi.symm
+      exact f.2)
   left_inv φ := by cat_disch
   right_inv := by cat_disch
 
@@ -311,12 +325,13 @@ lemma fromSingle₀Equiv_symm_apply_f_zero {C : CochainComplex V ℕ} {X : V}
   simp [fromSingle₀Equiv]
 
 set_option backward.isDefEq.respectTransparency.types false in
-/-- Morphisms to a single object cochain complex with `X` concentrated in degree 0
+/--
+Morphisms to a single object cochain complex with `X` concentrated in degree 0
 to an `ℕ`-indexed cochain complex `C` are the same as morphisms `f : C.X 0 ⟶ X`.
 -/
 @[simps apply]
-noncomputable def toSingle₀Equiv (C : CochainComplex V ℕ) (X : V) :
-    (C ⟶ (single₀ V).obj X) ≃ (C.X 0 ⟶ X) where
+noncomputable def toSingle₀Equiv (C : CochainComplex V ℕ) (X : V)
+    : (C ⟶ (single₀ V).obj X) ≃ (C.X 0 ⟶ X) where
   toFun f := f.f 0
   invFun f := HomologicalComplex.mkHomToSingle f (fun i hi => by simp at hi)
   left_inv := by cat_disch

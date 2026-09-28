@@ -36,12 +36,14 @@ public section
 
 open TensorProduct
 
-/-- An `R`-algebra `S` is a local isomorphism if source locally (in the geometric sense),
-it is a standard open immersion. -/
+/--
+An `R`-algebra `S` is a local isomorphism if source locally (in the geometric sense),
+it is a standard open immersion.
+-/
 @[stacks 096E "(1) in the algebra formulation", mk_iff]
 class Algebra.IsLocalIso (R S : Type*) [CommSemiring R] [CommSemiring S] [Algebra R S] : Prop where
-  exists_notMem_isStandardOpenImmersion (q : Ideal S) [q.IsPrime] :
-    ∃ g ∉ q, IsStandardOpenImmersion R (Localization.Away g)
+  exists_notMem_isStandardOpenImmersion (q : Ideal S) [q.IsPrime]
+    : ∃ g ∉ q, IsStandardOpenImmersion R (Localization.Away g)
 
 namespace Algebra.IsLocalIso
 
@@ -172,9 +174,11 @@ lemma iff_of_algEquiv [Algebra R T] (e : S ≃ₐ[R] T) : IsLocalIso R S ↔ IsL
   ⟨fun _ ↦ .of_algEquiv e, fun _ ↦ .of_algEquiv e.symm⟩
 
 instance [Algebra R T] [IsLocalIso R S] : IsLocalIso T (T ⊗[R] S) := by
-  rw [iff_span_isStandardOpenImmersion_eq_top, _root_.eq_top_iff,
+  rw [
+    iff_span_isStandardOpenImmersion_eq_top, _root_.eq_top_iff,
     ← Ideal.map_top Algebra.TensorProduct.includeRight, ← span_isStandardOpenImmersion_eq_top R S,
-    Ideal.map_le_iff_le_comap, Ideal.span_le]
+    Ideal.map_le_iff_le_comap, Ideal.span_le
+  ]
   intro g hg
   apply Ideal.subset_span
   simp only [Set.mem_ofPred_eq] at hg ⊢

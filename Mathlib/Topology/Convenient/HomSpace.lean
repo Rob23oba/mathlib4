@@ -33,17 +33,21 @@ universe v v' v'' t u
 
 @[expose] public section
 
-variable {ι : Type t} {X : ι → Type u} [∀ i, TopologicalSpace (X i)]
-  {Y : Type v} [TopologicalSpace Y] {Z : Type v'} [TopologicalSpace Z]
+variable
+  {ι : Type t} {X : ι → Type u} [∀ i, TopologicalSpace (X i)]
+  {Y : Type v} [TopologicalSpace Y]
+  {Z : Type v'} [TopologicalSpace Z]
   {T : Type v''} [TopologicalSpace T]
 
 namespace Topology.ContinuousMapGeneratedBy
 
-/-- Given a continuous map `f : X i → Z`, this is the map
+/--
+Given a continuous map `f : X i → Z`, this is the map
 `ContinuousMapGeneratedBy X Z T → C(X i, T)` given by the precomposition with `f`.
-This is used in order to define a topology on `ContinuousMapGeneratedBy X Z T`. -/
-def precomp {i : ι} (f : C(X i, Z)) : ContinuousMapGeneratedBy X Z T → C(X i, T) :=
-  fun g ↦ ⟨_, g.prop f⟩
+This is used in order to define a topology on `ContinuousMapGeneratedBy X Z T`.
+-/
+def precomp {i : ι} (f : C(X i, Z)) : ContinuousMapGeneratedBy X Z T → C(X i, T) := fun g ↦
+  ⟨_, g.prop f⟩
 
 @[simp]
 lemma precomp_apply {i : ι} (f : C(X i, Z)) (g : ContinuousMapGeneratedBy X Z T) :
@@ -91,21 +95,25 @@ lemma continuousGeneratedBy_dom_prod_iff [∀ i j, IsGeneratedBy X (X i × X j)]
 
 variable [∀ i, LocallyCompactSpace (X i)] [∀ i j, IsGeneratedBy X (X i × X j)]
 
-/-- The bijection between the type of `X`-continuous maps `Y × Z → T` and the type of
-`X`-continuous maps `Z → ContinuousMapGeneratedBy X Y T`. -/
-def curryEquiv :
-  ContinuousMapGeneratedBy X (Y × Z) T ≃
-    ContinuousMapGeneratedBy X Z (ContinuousMapGeneratedBy X Y T) where
-  toFun g :=
-    { toFun z := g.comp ⟨fun y ↦ (y, z), (Continuous.prodMk_left z).continuousGeneratedBy⟩
-      prop := by
-        simpa only [continuousGeneratedBy_iff_uncurry,
-          continuousGeneratedBy_dom_prod_iff] using! g.prop }
-  invFun g :=
-    { toFun x := g x.2 x.1
-      prop := by
-        simpa only [continuousGeneratedBy_iff_uncurry,
-          continuousGeneratedBy_dom_prod_iff] using! g.prop }
+/--
+The bijection between the type of `X`-continuous maps `Y × Z → T` and the type of
+`X`-continuous maps `Z → ContinuousMapGeneratedBy X Y T`.
+-/
+def curryEquiv
+    : ContinuousMapGeneratedBy X (Y × Z) T
+      ≃ ContinuousMapGeneratedBy X Z (ContinuousMapGeneratedBy X Y T) where
+  toFun g := {
+    toFun z := g.comp ⟨fun y ↦ (y, z), (Continuous.prodMk_left z).continuousGeneratedBy⟩
+    prop := by
+      simpa only [continuousGeneratedBy_iff_uncurry, continuousGeneratedBy_dom_prod_iff] using!
+        g.prop
+  }
+  invFun g := {
+    toFun x := g x.2 x.1
+    prop := by
+      simpa only [continuousGeneratedBy_iff_uncurry, continuousGeneratedBy_dom_prod_iff] using!
+        g.prop
+  }
 
 @[simp]
 lemma curryEquiv_apply_apply (g : ContinuousMapGeneratedBy X (Y × Z) T) (y : Y) (z : Z) :
@@ -117,18 +125,19 @@ lemma curryEquiv_symm_apply (g : ContinuousMapGeneratedBy X Z (ContinuousMapGene
     curryEquiv.symm g (y, z) = g z y := rfl
 
 /-- The evaluation `Y × ContinuousMapGeneratedBy X Y Z → Z` as a `X`-continuous map. -/
-def ev : ContinuousMapGeneratedBy X (Y × ContinuousMapGeneratedBy X Y Z) Z :=
-  curryEquiv.symm .id
+def ev : ContinuousMapGeneratedBy X (Y × ContinuousMapGeneratedBy X Y Z) Z := curryEquiv.symm .id
 
 @[simp]
 lemma ev_apply (y : Y) (f : ContinuousMapGeneratedBy X Y Z) :
     ev (y, f) = f y := rfl
 
-/-- Given a `X`-continuous map `p : Z → T`, this is the postcomposition with `p`
+/--
+Given a `X`-continuous map `p : Z → T`, this is the postcomposition with `p`
 `ContinuousMapGeneratedBy X Y Z → ContinuousMapGeneratedBy X Y T`
-as a `X`-continuous map. -/
-def postcomp (p : ContinuousMapGeneratedBy X Z T) :
-    ContinuousMapGeneratedBy X (ContinuousMapGeneratedBy X Y Z)
+as a `X`-continuous map.
+-/
+def postcomp (p : ContinuousMapGeneratedBy X Z T)
+    : ContinuousMapGeneratedBy X (ContinuousMapGeneratedBy X Y Z)
       (ContinuousMapGeneratedBy X Y T) :=
   curryEquiv (p.comp ev)
 

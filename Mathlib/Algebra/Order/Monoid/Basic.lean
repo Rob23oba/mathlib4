@@ -16,7 +16,6 @@ This file develops some additional material on ordered monoids.
 
 @[expose] public section
 
-
 open Function
 
 universe u
@@ -59,20 +58,24 @@ lemma StrictMono.isOrderedCancelMonoid [IsOrderedCancelMonoid α] [CommMonoid β
   le_of_mul_le_mul_left a b c h := by simpa [← hf.le_iff_le, mul] using h
 
 -- TODO find a better home for the next two constructions.
-/-- The order embedding sending `b` to `a * b`, for some fixed `a`.
-See also `OrderIso.mulLeft` when working in an ordered group. -/
+/--
+The order embedding sending `b` to `a * b`, for some fixed `a`.
+See also `OrderIso.mulLeft` when working in an ordered group.
+-/
 @[to_additive (attr := simps!)
       /-- The order embedding sending `b` to `a + b`, for some fixed `a`.
        See also `OrderIso.addLeft` when working in an additive ordered group. -/]
-def OrderEmbedding.mulLeft {α : Type*} [Mul α] [LinearOrder α]
-    [MulLeftStrictMono α] (m : α) : α ↪o α :=
+def OrderEmbedding.mulLeft {α : Type*} [Mul α] [LinearOrder α] [MulLeftStrictMono α] (m : α)
+    : α ↪o α :=
   OrderEmbedding.ofStrictMono (fun n => m * n) mul_right_strictMono
 
-/-- The order embedding sending `b` to `b * a`, for some fixed `a`.
-See also `OrderIso.mulRight` when working in an ordered group. -/
+/--
+The order embedding sending `b` to `b * a`, for some fixed `a`.
+See also `OrderIso.mulRight` when working in an ordered group.
+-/
 @[to_additive (attr := simps!)
       /-- The order embedding sending `b` to `b + a`, for some fixed `a`.
        See also `OrderIso.addRight` when working in an additive ordered group. -/]
-def OrderEmbedding.mulRight {α : Type*} [Mul α] [LinearOrder α]
-    [MulRightStrictMono α] (m : α) : α ↪o α :=
+def OrderEmbedding.mulRight {α : Type*} [Mul α] [LinearOrder α] [MulRightStrictMono α] (m : α)
+    : α ↪o α :=
   OrderEmbedding.ofStrictMono (fun n => n * m) mul_left_strictMono

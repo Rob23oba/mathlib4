@@ -33,11 +33,8 @@ variable {R : Type*} [CommRing R]
 variable [IsNoetherianRing R] [Ring.KrullDimLE 1 R]
 
 open scoped nonZeroDivisors
-/--
-Order of vanishing function as a monoid homomorphism
--/
-noncomputable
-def ordMonoidHom : R⁰ →* Multiplicative ℕ where
+/-- Order of vanishing function as a monoid homomorphism -/
+noncomputable def ordMonoidHom : R⁰ →* Multiplicative ℕ where
   toFun x := .ofAdd (Ring.ord R x).toNat
   map_one' := by simp [OneMemClass.coe_one, isUnit_one, ord_of_isUnit]
   map_mul' x y := by simp [ord_mul, ENat.toNat_add (ord_ne_top x.2) (ord_ne_top y.2)]
@@ -170,18 +167,21 @@ lemma ordFrac_eq_intValuation {x : R} (h : x ≠ 0) : (ordFrac R) ((algebraMap R
   rw [ordFrac_eq_ord R h,
       ordMonoidWithZeroHom_eq_intValuation (mem_nonZeroDivisors_of_ne_zero h)]
 
-theorem ordFrac_eq_inverse_comp_valuation :
-    ordFrac R = MonoidWithZeroHom.comp MonoidWithZero.inverse
-    ((IsDiscreteValuationRing.maximalIdeal R).valuation K).toMonoidWithZeroHom := by
+theorem ordFrac_eq_inverse_comp_valuation
+    : ordFrac R
+      = MonoidWithZeroHom.comp MonoidWithZero.inverse
+        ((IsDiscreteValuationRing.maximalIdeal R).valuation K).toMonoidWithZeroHom := by
   ext a
   by_cases ha : a = 0
   · simp_all
   obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := R) a
-  simp_all [ordFrac_eq_intValuation _, IsDedekindDomain.HeightOneSpectrum.valuation_of_algebraMap,
-    IsDiscreteValuationRing.intValuation_maximalIdeal]
+  simp_all [
+    ordFrac_eq_intValuation _, IsDedekindDomain.HeightOneSpectrum.valuation_of_algebraMap,
+    IsDiscreteValuationRing.intValuation_maximalIdeal
+  ]
 
-theorem ordFrac_eq_valuation_inv (x : K) :
-    ordFrac R x = ((IsDiscreteValuationRing.maximalIdeal R).valuation K x)⁻¹ := by
+theorem ordFrac_eq_valuation_inv (x : K)
+    : ordFrac R x = ((IsDiscreteValuationRing.maximalIdeal R).valuation K x)⁻¹ := by
   simp [ordFrac_eq_inverse_comp_valuation]
 
 lemma ordFrac_irreducible
@@ -208,14 +208,14 @@ condition that `x + y ≠ 0` is used to guarantee that all the elements we're ta
 are nonzero, meaning none of them will be `0` in `ℤᵐ⁰`. This allows us to use `ord_add` (which
 uses the ordering on `ℕ∞`), since these orders correspond on non `⊤` elements.
 -/
-theorem ordFrac_add (x y : K) (h1 : x + y ≠ 0) :
-    min (Ring.ordFrac R x) (Ring.ordFrac R y) ≤ Ring.ordFrac R (x + y) := by
+theorem ordFrac_add (x y : K) (h1 : x + y ≠ 0)
+    : min (Ring.ordFrac R x) (Ring.ordFrac R y) ≤ Ring.ordFrac R (x + y) := by
   simp only [ordFrac_eq_valuation_inv]
   grw [Valuation.map_add, min_inv_inv_le]
   simpa [WithZero.pos_iff_ne_zero]
 
-theorem associated_of_ordFrac_eq (x y : K)
-    (h : ordFrac R x = ordFrac R y) : ∃ u : Rˣ, u • x = y := by
+theorem associated_of_ordFrac_eq (x y : K) (h : ordFrac R x = ordFrac R y)
+    : ∃ u : Rˣ, u • x = y := by
   rw [ordFrac_eq_valuation_inv, ordFrac_eq_valuation_inv, inv_inj] at h
   exact IsDiscreteValuationRing.associated_of_valuation_eq _ _ h
 

@@ -82,38 +82,46 @@ lemma mem_set_smul (x : M) [SMulCommClass R R N] :
 -- should be true.
 /-- A subset of a ring `R` has a multiplicative action on submodules of a module over `R`. -/
 @[instance_reducible]
-protected noncomputable def pointwiseSetMulAction [SMulCommClass R R M] :
-    MulAction (Set R) (Submodule R M) where
-  one_smul x := show {(1 : R)} • x = x from SetLike.ext fun m =>
-    (mem_singleton_set_smul _ _ _).trans ⟨by rintro ⟨_, h, rfl⟩; rwa [one_smul],
-      fun h => ⟨m, h, (one_smul _ _).symm⟩⟩
-  mul_smul s t x := le_antisymm
-    (set_smul_le _ _ _ <| by rintro _ _ ⟨_, _, _, _, rfl⟩ _; rw [mul_smul]; aesop)
-    (set_smul_le _ _ _ fun r m hr hm ↦ by
-      have : SMulCommClass R R x := ⟨fun r s m => Subtype.ext <| smul_comm _ _ _⟩
-      obtain ⟨c, hc1, rfl⟩ := mem_set_smul _ _ _ |>.mp hm
-      rw [Finsupp.sum, AddSubmonoid.coe_finsetSum]
-      simp only [SetLike.val_smul, Finset.smul_sum, smul_smul]
-      exact Submodule.sum_mem _ fun r' hr' ↦
-        mem_set_smul_of_mem_mem (Set.mul_mem_mul hr (hc1 hr')) (c _).2)
+protected noncomputable def pointwiseSetMulAction [SMulCommClass R R M]
+    : MulAction (Set R) (Submodule R M) where
+  one_smul x :=
+    show {(1 : R)} • x = x from
+      SetLike.ext fun m =>
+        (mem_singleton_set_smul _ _ _).trans
+          ⟨by rintro ⟨_, h, rfl⟩; rwa [one_smul], fun h => ⟨m, h, (one_smul _ _).symm⟩⟩
+  mul_smul s t x :=
+    le_antisymm (set_smul_le _ _ _ <| by rintro _ _ ⟨_, _, _, _, rfl⟩ _; rw [mul_smul]; aesop)
+      (set_smul_le _ _ _ fun r m hr hm ↦ by
+        have : SMulCommClass R R x := ⟨fun r s m => Subtype.ext <| smul_comm _ _ _⟩
+        obtain ⟨c, hc1, rfl⟩ := mem_set_smul _ _ _ |>.mp hm
+        rw [Finsupp.sum, AddSubmonoid.coe_finsetSum]
+        simp only [SetLike.val_smul, Finset.smul_sum, smul_smul]
+        exact Submodule.sum_mem _ fun r' hr' ↦
+          mem_set_smul_of_mem_mem (Set.mul_mem_mul hr (hc1 hr')) (c _).2)
 
 scoped[Pointwise] attribute [instance] Submodule.pointwiseSetMulAction
 
 -- This cannot be generalized to `Set S` because `MulAction` can't be generalized already.
 /-- In a ring, sets acts on submodules. -/
 @[instance_reducible]
-protected noncomputable def pointwiseSetDistribMulAction [SMulCommClass R R M] :
-    DistribMulAction (Set R) (Submodule R M) where
+protected noncomputable def pointwiseSetDistribMulAction [SMulCommClass R R M]
+    : DistribMulAction (Set R) (Submodule R M) where
   smul_zero s := set_smul_bot s
-  smul_add s x y := le_antisymm
-    (set_smul_le _ _ _ <| by
-      rintro r m hr hm
-      rw [add_eq_sup, Submodule.mem_sup] at hm
-      obtain ⟨a, ha, b, hb, rfl⟩ := hm
-      rw [smul_add, add_eq_sup, Submodule.mem_sup]
-      exact ⟨r • a, mem_set_smul_of_mem_mem (mem1 := hr) (mem2 := ha),
-        r • b, mem_set_smul_of_mem_mem (mem1 := hr) (mem2 := hb), rfl⟩)
-    (sup_le_iff.mpr ⟨smul_mono_right _ le_sup_left, smul_mono_right _ le_sup_right⟩)
+  smul_add s x y :=
+    le_antisymm
+      (set_smul_le _ _ _ <| by
+        rintro r m hr hm
+        rw [add_eq_sup, Submodule.mem_sup] at hm
+        obtain ⟨a, ha, b, hb, rfl⟩ := hm
+        rw [smul_add, add_eq_sup, Submodule.mem_sup]
+        exact ⟨
+          r • a,
+          mem_set_smul_of_mem_mem (mem1 := hr) (mem2 := ha),
+          r • b,
+          mem_set_smul_of_mem_mem (mem1 := hr) (mem2 := hb),
+          rfl
+        ⟩)
+      (sup_le_iff.mpr ⟨smul_mono_right _ le_sup_left, smul_mono_right _ le_sup_right⟩)
 
 scoped[Pointwise] attribute [instance] Submodule.pointwiseSetDistribMulAction
 

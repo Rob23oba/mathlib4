@@ -30,20 +30,21 @@ section
 
 variable {C : Type u}
 
-/-- A wrapper for promoting any category to a bicategory,
+/--
+A wrapper for promoting any category to a bicategory,
 with the only 2-morphisms being equalities.
 -/
 @[ext]
 structure LocallyDiscrete (C : Type u) where
-  /-- A wrapper for promoting any category to a bicategory,
+  /--
+  A wrapper for promoting any category to a bicategory,
   with the only 2-morphisms being equalities.
   -/
   as : C
 
 namespace LocallyDiscrete
 
-@[simp]
-theorem mk_as (a : LocallyDiscrete C) : mk a.as = a := rfl
+@[simp] theorem mk_as (a : LocallyDiscrete C) : mk a.as = a := rfl
 
 /-- `LocallyDiscrete C` is equivalent to the original type `C`. -/
 @[simps]
@@ -53,11 +54,9 @@ def locallyDiscreteEquiv : LocallyDiscrete C ≃ C where
   left_inv := by cat_disch
   right_inv := by cat_disch
 
-instance [DecidableEq C] : DecidableEq (LocallyDiscrete C) :=
-  locallyDiscreteEquiv.decidableEq
+instance [DecidableEq C] : DecidableEq (LocallyDiscrete C) := locallyDiscreteEquiv.decidableEq
 
-instance [Inhabited C] : Inhabited (LocallyDiscrete C) :=
-  ⟨⟨default⟩⟩
+instance [Inhabited C] : Inhabited (LocallyDiscrete C) := ⟨⟨default⟩⟩
 
 instance categoryStruct [CategoryStruct.{v} C] : CategoryStruct (LocallyDiscrete C) where
   Hom a b := Discrete (a.as ⟶ b.as)
@@ -82,15 +81,15 @@ instance subsingleton2Hom {a b : LocallyDiscrete C} (f g : a ⟶ b) : Subsinglet
   instSubsingletonDiscreteHom f g
 
 /-- Extract the equation from a 2-morphism in a locally discrete 2-category. -/
-theorem eq_of_hom {X Y : LocallyDiscrete C} {f g : X ⟶ Y} (η : f ⟶ g) : f = g :=
-  Discrete.ext η.1
+theorem eq_of_hom {X Y : LocallyDiscrete C} {f g : X ⟶ Y} (η : f ⟶ g) : f = g := Discrete.ext η.1
 
 end LocallyDiscrete
 
 variable (C)
 variable [Category.{v} C]
 
-/-- The locally discrete bicategory on a category is a bicategory in which the objects and the
+/--
+The locally discrete bicategory on a category is a bicategory in which the objects and the
 1-morphisms are the same as those in the underlying category, and the 2-morphisms are the
 equalities between 1-morphisms.
 -/
@@ -114,8 +113,8 @@ namespace Bicategory
 /-- A bicategory is locally discrete if the categories of 1-morphisms are discrete. -/
 abbrev IsLocallyDiscrete (B : Type*) [Bicategory B] := ∀ (b c : B), IsDiscrete (b ⟶ c)
 
-instance (C : Type*) [Category* C] : IsLocallyDiscrete (LocallyDiscrete C) :=
-  fun _ _ ↦ Discrete.isDiscrete _
+instance (C : Type*) [Category* C] : IsLocallyDiscrete (LocallyDiscrete C) := fun _ _ ↦
+  Discrete.isDiscrete _
 
 instance (B : Type*) [Bicategory B] [IsLocallyDiscrete B] : Strict B where
   id_comp f := obj_ext_of_isDiscrete (leftUnitor f).hom
@@ -137,9 +136,7 @@ namespace Quiver.Hom
 variable {C : Type u} [CategoryStruct.{v} C]
 
 /-- The 1-morphism in `LocallyDiscrete C` associated to a given morphism `f : a ⟶ b` in `C` -/
-@[simps]
-def toLoc {a b : C} (f : a ⟶ b) : LocallyDiscrete.mk a ⟶ LocallyDiscrete.mk b :=
-  ⟨f⟩
+@[simps] def toLoc {a b : C} (f : a ⟶ b) : LocallyDiscrete.mk a ⟶ LocallyDiscrete.mk b := ⟨f⟩
 
 @[simp]
 lemma id_toLoc (a : C) : (𝟙 a).toLoc = 𝟙 (LocallyDiscrete.mk a) :=

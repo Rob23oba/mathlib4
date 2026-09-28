@@ -35,9 +35,9 @@ public section
 namespace ContinuousLinearMap
 
 @[grind =]
-theorem isIdempotentElem_toLinearMap_iff {R M : Type*} [Semiring R] [TopologicalSpace M]
-    [AddCommMonoid M] [Module R M] {f : M →L[R] M} :
-    IsIdempotentElem f.toLinearMap ↔ IsIdempotentElem f := by
+theorem isIdempotentElem_toLinearMap_iff
+    {R M : Type*} [Semiring R] [TopologicalSpace M] [AddCommMonoid M] [Module R M] {f : M →L[R] M}
+    : IsIdempotentElem f.toLinearMap ↔ IsIdempotentElem f := by
   simp only [IsIdempotentElem, Module.End.mul_eq_comp, ← toLinearMap_comp, mul_def, coe_inj]
 
 alias ⟨_, IsIdempotentElem.toLinearMap⟩ := isIdempotentElem_toLinearMap_iff
@@ -88,18 +88,19 @@ lemma commute_iff {f T : M →L[R] M}
 
 variable [IsTopologicalAddGroup M]
 
-/-- An idempotent operator `f` commutes with a unit operator `T` if and only if
-`T (range f) = range f` and `T (ker f) = ker f`. -/
-theorem commute_iff_of_isUnit {f T : M →L[R] M} (hT : IsUnit T)
-    (hf : IsIdempotentElem f) :
-    Commute f T ↔ f.range.map (T : M →ₗ[R] M) = f.range ∧ f.ker.map (T : M →ₗ[R] M) = f.ker := by
+/--
+An idempotent operator `f` commutes with a unit operator `T` if and only if
+`T (range f) = range f` and `T (ker f) = ker f`.
+-/
+theorem commute_iff_of_isUnit {f T : M →L[R] M} (hT : IsUnit T) (hf : IsIdempotentElem f)
+    : Commute f T ↔ f.range.map (T : M →ₗ[R] M) = f.range ∧ f.ker.map (T : M →ₗ[R] M) = f.ker := by
   have := hT.map ContinuousLinearMap.toLinearMapRingHom
   lift T to (M →L[R] M)ˣ using hT
   simpa [Commute, SemiconjBy, Module.End.mul_eq_comp, ← toLinearMap_comp] using!
     LinearMap.IsIdempotentElem.commute_iff_of_isUnit this hf.toLinearMap
 
-theorem isClosed_range [T1Space M] {p : M →L[R] M}
-    (hp : IsIdempotentElem p) : IsClosed (p.range : Set M) :=
+theorem isClosed_range [T1Space M] {p : M →L[R] M} (hp : IsIdempotentElem p)
+    : IsClosed (p.range : Set M) :=
   LinearMap.IsIdempotentElem.range_eq_ker hp.toLinearMap ▸ isClosed_ker (.id R M - p)
 
 end IsIdempotentElem

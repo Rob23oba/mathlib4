@@ -31,12 +31,9 @@ namespace Finset
 variable {α β γ : Type*} (s : Finset α) (t : Finset β)
 
 /-- Disjoint sum of finsets. -/
-def disjSum : Finset (α ⊕ β) :=
-  ⟨s.1.disjSum t.1, s.2.disjSum t.2⟩
+def disjSum : Finset (α ⊕ β) := ⟨s.1.disjSum t.1, s.2.disjSum t.2⟩
 
-@[simp]
-theorem val_disjSum : (s.disjSum t).1 = s.1.disjSum t.1 :=
-  rfl
+@[simp] theorem val_disjSum : (s.disjSum t).1 = s.1.disjSum t.1 := rfl
 
 @[simp]
 theorem empty_disjSum : (∅ : Finset α).disjSum t = t.map Embedding.inr :=
@@ -46,18 +43,16 @@ theorem empty_disjSum : (∅ : Finset α).disjSum t = t.map Embedding.inr :=
 theorem disjSum_empty : s.disjSum (∅ : Finset β) = s.map Embedding.inl :=
   val_inj.1 <| Multiset.disjSum_zero _
 
-@[simp]
-theorem card_disjSum : (s.disjSum t).card = s.card + t.card :=
-  Multiset.card_disjSum _ _
+@[simp] theorem card_disjSum : (s.disjSum t).card = s.card + t.card := Multiset.card_disjSum _ _
 
 theorem disjoint_map_inl_map_inr : Disjoint (s.map Embedding.inl) (t.map Embedding.inr) := by
   simp_rw [disjoint_left, mem_map]
   rintro x ⟨a, _, rfl⟩ ⟨b, _, ⟨⟩⟩
 
 @[simp]
-theorem map_inl_disjUnion_map_inr :
-    (s.map Embedding.inl).disjUnion (t.map Embedding.inr) (disjoint_map_inl_map_inr _ _) =
-      s.disjSum t :=
+theorem map_inl_disjUnion_map_inr
+    : (s.map Embedding.inl).disjUnion (t.map Embedding.inr) (disjoint_map_inl_map_inr _ _)
+      = s.disjSum t :=
   rfl
 
 variable {s t} {s₁ s₂ : Finset α} {t₁ t₂ : Finset β} {a : α} {b : β} {x : α ⊕ β}
@@ -65,39 +60,34 @@ variable {s t} {s₁ s₂ : Finset α} {t₁ t₂ : Finset β} {a : α} {b : β}
 theorem mem_disjSum : x ∈ s.disjSum t ↔ (∃ a, a ∈ s ∧ inl a = x) ∨ ∃ b, b ∈ t ∧ inr b = x :=
   Multiset.mem_disjSum
 
-@[simp]
-theorem inl_mem_disjSum : inl a ∈ s.disjSum t ↔ a ∈ s :=
-  Multiset.inl_mem_disjSum
+@[simp] theorem inl_mem_disjSum : inl a ∈ s.disjSum t ↔ a ∈ s := Multiset.inl_mem_disjSum
 
-@[simp]
-theorem inr_mem_disjSum : inr b ∈ s.disjSum t ↔ b ∈ t :=
-  Multiset.inr_mem_disjSum
+@[simp] theorem inr_mem_disjSum : inr b ∈ s.disjSum t ↔ b ∈ t := Multiset.inr_mem_disjSum
 
-@[simp]
-theorem disjSum_eq_empty : s.disjSum t = ∅ ↔ s = ∅ ∧ t = ∅ := by simp [Finset.ext_iff]
+@[simp] theorem disjSum_eq_empty : s.disjSum t = ∅ ↔ s = ∅ ∧ t = ∅ := by simp [Finset.ext_iff]
 
 theorem disjSum_mono (hs : s₁ ⊆ s₂) (ht : t₁ ⊆ t₂) : s₁.disjSum t₁ ⊆ s₂.disjSum t₂ :=
   val_le_iff.1 <| Multiset.disjSum_mono (val_le_iff.2 hs) (val_le_iff.2 ht)
 
-theorem disjSum_mono_left (t : Finset β) : Monotone fun s : Finset α => s.disjSum t :=
-  fun _ _ hs => disjSum_mono hs Subset.rfl
+theorem disjSum_mono_left (t : Finset β) : Monotone fun s : Finset α => s.disjSum t := fun _ _ hs =>
+  disjSum_mono hs Subset.rfl
 
 theorem disjSum_mono_right (s : Finset α) : Monotone (s.disjSum : Finset β → Finset (α ⊕ β)) :=
   fun _ _ => disjSum_mono Subset.rfl
 
-theorem disjSum_ssubset_disjSum_of_ssubset_of_subset (hs : s₁ ⊂ s₂) (ht : t₁ ⊆ t₂) :
-    s₁.disjSum t₁ ⊂ s₂.disjSum t₂ :=
+theorem disjSum_ssubset_disjSum_of_ssubset_of_subset (hs : s₁ ⊂ s₂) (ht : t₁ ⊆ t₂)
+    : s₁.disjSum t₁ ⊂ s₂.disjSum t₂ :=
   val_lt_iff.1 <| disjSum_lt_disjSum_of_lt_of_le (val_lt_iff.2 hs) (val_le_iff.2 ht)
 
-theorem disjSum_ssubset_disjSum_of_subset_of_ssubset (hs : s₁ ⊆ s₂) (ht : t₁ ⊂ t₂) :
-    s₁.disjSum t₁ ⊂ s₂.disjSum t₂ :=
+theorem disjSum_ssubset_disjSum_of_subset_of_ssubset (hs : s₁ ⊆ s₂) (ht : t₁ ⊂ t₂)
+    : s₁.disjSum t₁ ⊂ s₂.disjSum t₂ :=
   val_lt_iff.1 <| disjSum_lt_disjSum_of_le_of_lt (val_le_iff.2 hs) (val_lt_iff.2 ht)
 
 theorem disjSum_strictMono_left (t : Finset β) : StrictMono fun s : Finset α => s.disjSum t :=
   fun _ _ hs => disjSum_ssubset_disjSum_of_ssubset_of_subset hs Subset.rfl
 
-theorem disjSum_strictMono_right (s : Finset α) :
-    StrictMono (s.disjSum : Finset β → Finset (α ⊕ β)) := fun _ _ =>
+theorem disjSum_strictMono_right (s : Finset α)
+    : StrictMono (s.disjSum : Finset β → Finset (α ⊕ β)) := fun _ _ =>
   disjSum_ssubset_disjSum_of_subset_of_ssubset Subset.rfl
 
 @[simp] lemma disjSum_inj {α β : Type*} {s₁ s₂ : Finset α} {t₁ t₂ : Finset β} :
@@ -237,12 +227,11 @@ def sumEquiv {α β : Type*} : Finset (α ⊕ β) ≃o Finset α × Finset β wh
 lemma sumEquiv_symm_apply {α β : Type*} (s : Finset α × Finset β) :
     sumEquiv.symm s = disjSum s.1 s.2 := rfl
 
-theorem map_disjSum (f : α ⊕ β ↪ γ) :
-    (s.disjSum t).map f =
-      (s.map (.trans .inl f)).disjUnion (t.map (.trans .inr f)) (by
+theorem map_disjSum (f : α ⊕ β ↪ γ)
+    : (s.disjSum t).map f
+      = (s.map (.trans .inl f)).disjUnion (t.map (.trans .inr f)) (by
         as_aux_lemma =>
-          simpa only [← map_map]
-            using (Finset.disjoint_map f).2 (disjoint_map_inl_map_inr _ _)) :=
+          simpa only [← map_map] using (Finset.disjoint_map f).2 (disjoint_map_inl_map_inr _ _)) :=
   val_injective <| Multiset.map_disjSum _
 
 lemma fold_disjSum (s : Finset α) (t : Finset β) (f : α ⊕ β → γ) (b₁ b₂ : γ) (op : γ → γ → γ)

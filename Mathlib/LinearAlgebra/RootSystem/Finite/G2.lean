@@ -51,13 +51,16 @@ noncomputable section
 open FaithfulSMul Function Set Submodule
 open List hiding mem_toFinset
 
-variable {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
   (P : RootPairing ι R M N)
 
 namespace RootPairing
 
-/-- A data-bearing typeclass which distinguishes a pair of roots whose pairing is `-3`. This is a
-sufficient condition for the span of this pair of roots to be a `𝔤₂` root system. -/
+/--
+A data-bearing typeclass which distinguishes a pair of roots whose pairing is `-3`. This is a
+sufficient condition for the span of this pair of roots to be a `𝔤₂` root system.
+-/
 class EmbeddedG2 extends P.IsCrystallographic, P.IsReduced where
   /-- The distinguished long root of an embedded `𝔤₂` root pairing. -/
   long : ι
@@ -69,15 +72,19 @@ class EmbeddedG2 extends P.IsCrystallographic, P.IsReduced where
 class IsG2 : Prop extends P.IsCrystallographic, P.IsReduced, P.IsIrreducible where
   exists_pairingIn_neg_three : ∃ i j, P.pairingIn ℤ i j = -3
 
-/-- A prop-valued typeclass stating that a crystallographic, reduced, irreducible root system is not
-`𝔤₂`. -/
+/--
+A prop-valued typeclass stating that a crystallographic, reduced, irreducible root system is not
+`𝔤₂`.
+-/
 class IsNotG2 : Prop extends P.IsCrystallographic, P.IsReduced, P.IsIrreducible where
   pairingIn_mem_zero_one_two (i j : ι) : P.pairingIn ℤ i j ∈ ({-2, -1, 0, 1, 2} : Set ℤ)
 
 section IsG2
 
-/-- By making an arbitrary choice of roots pairing to `-3`, we can obtain an embedded `𝔤₂` root
-system just from the knowledge that such a pairs exists. -/
+/--
+By making an arbitrary choice of roots pairing to `-3`, we can obtain an embedded `𝔤₂` root
+system just from the knowledge that such a pairs exists.
+-/
 @[instance_reducible]
 def IsG2.toEmbeddedG2 [P.IsG2] : P.EmbeddedG2 where
   long := (IsG2.exists_pairingIn_neg_three (P := P)).choose
@@ -201,8 +208,10 @@ namespace EmbeddedG2
 
 /-- A pair of roots which pair to `+3` are also sufficient to distinguish an embedded `𝔤₂`. -/
 @[simps, instance_reducible]
-def ofPairingInThree [CharZero R] [P.IsCrystallographic] [P.IsReduced] (long short : ι)
-    (h : P.pairingIn ℤ long short = 3) : P.EmbeddedG2 where
+def ofPairingInThree
+    [CharZero R] [P.IsCrystallographic] [P.IsReduced]
+    (long short : ι) (h : P.pairingIn ℤ long short = 3)
+    : P.EmbeddedG2 where
   long := P.reflectionPerm long long
   short := short
   pairingIn_long_short := by simp [h]
@@ -250,13 +259,14 @@ abbrev threeShortAddLongRoot : M := P.root (threeShortAddLong P)
 abbrev threeShortAddTwoLongRoot : M := P.root (threeShortAddTwoLong P)
 
 /-- The list of all 12 roots belonging to the embedded `𝔤₂`. -/
-abbrev allRoots : List M :=
-  [ longRoot P, -longRoot P,
-    shortRoot P, -shortRoot P,
-    shortAddLongRoot P, -shortAddLongRoot P,
-    twoShortAddLongRoot P, -twoShortAddLongRoot P,
-    threeShortAddLongRoot P, -threeShortAddLongRoot P,
-    threeShortAddTwoLongRoot P, -threeShortAddTwoLongRoot P ]
+abbrev allRoots : List M := [
+  longRoot P, - longRoot P,
+  shortRoot P, - shortRoot P,
+  shortAddLongRoot P, - shortAddLongRoot P,
+  twoShortAddLongRoot P, - twoShortAddLongRoot P,
+  threeShortAddLongRoot P, - threeShortAddLongRoot P,
+  threeShortAddTwoLongRoot P, - threeShortAddTwoLongRoot P
+]
 
 lemma allRoots_subset_range_root [DecidableEq M] :
     ↑(allRoots P).toFinset ⊆ range P.root := by
@@ -305,9 +315,10 @@ lemma linearIndependent_short_long :
   simp [P.linearIndependent_iff_coxeterWeightIn_ne_four ℤ, coxeterWeightIn]
 
 /-- The coefficients of each root in the `𝔤₂` root pairing, relative to the base. -/
-abbrev allCoeffs : List (Fin 2 → ℤ) :=
-  [![0, 1], ![0, -1], ![1, 0], ![-1, 0], ![1, 1], ![-1, -1],
-    ![2, 1], ![-2, -1], ![3, 1], ![-3, -1], ![3, 2], ![-3, -2]]
+abbrev allCoeffs : List (Fin 2 → ℤ) := [
+  ![0, 1], ![0, -1], ![1, 0], ![-1, 0], ![1, 1], ![-1, -1],
+  ![2, 1], ![-2, -1], ![3, 1], ![-3, -1], ![3, 2], ![-3, -2]
+]
 
 lemma allRoots_eq_map_allCoeffs :
     allRoots P = allCoeffs.map (Fintype.linearCombination ℤ ![shortRoot P, longRoot P]) := by
@@ -535,9 +546,11 @@ variable [P.IsIrreducible]
   have aux := isOrthogonal_short_and_long P hk
   rcases hij with rfl | rfl <;> tauto
 
-/-- The distinguished basis carried by an `EmbeddedG2`.
+/--
+The distinguished basis carried by an `EmbeddedG2`.
 
-In fact this is a `RootPairing.Base`. TODO Upgrade to this stronger statement. -/
+In fact this is a `RootPairing.Base`. TODO Upgrade to this stronger statement.
+-/
 def basis : Module.Basis (Fin 2) R M :=
   have : LinearIndependent R ![EmbeddedG2.shortRoot P, EmbeddedG2.longRoot P] := by
     have := pairing_long_short P
@@ -568,14 +581,16 @@ lemma mem_allRoots (i : ι) :
 
 open scoped Classical in
 /-- The natural labelling of `RootPairing.EmbeddedG2.allRoots`. -/
-@[simps] def indexEquivAllRoots : ι ≃ (allRoots P).toFinset :=
-  { toFun i := ⟨P.root i, List.mem_toFinset.mpr <| mem_allRoots P i⟩
-    invFun x := (allRoots_subset_range_root P x.property).choose
-    left_inv i := by simp
-    right_inv := by
-      rintro ⟨x, hx⟩
-      simp only [Subtype.mk.injEq]
-      exact (allRoots_subset_range_root P hx).choose_spec }
+@[simps]
+def indexEquivAllRoots : ι ≃ (allRoots P).toFinset := {
+  toFun i := ⟨P.root i, List.mem_toFinset.mpr <| mem_allRoots P i⟩
+  invFun x := (allRoots_subset_range_root P x.property).choose
+  left_inv i := by simp
+  right_inv := by
+    rintro ⟨x, hx⟩
+    simp only [Subtype.mk.injEq]
+    exact (allRoots_subset_range_root P hx).choose_spec
+}
 
 include P in
 lemma card_index_eq_twelve :

@@ -55,25 +55,28 @@ open scoped NNReal ENNReal MeasureTheory Topology ProbabilityTheory
 
 namespace ProbabilityTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {κ : Kernel α (β × ℝ)} {ν : Kernel α β}
+variable
+  {α β : Type*}
+  {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {κ : Kernel α (β × ℝ)} {ν : Kernel α β}
 
 section stieltjesOfMeasurableRat
 
 variable {f : α × β → ℚ → ℝ}
 
-/-- a function `f : α × β → ℚ → ℝ` is called a rational conditional kernel CDF of `κ` with respect
+/--
+a function `f : α × β → ℚ → ℝ` is called a rational conditional kernel CDF of `κ` with respect
 to `ν` if is measurable, if `fun b ↦ f (a, b) x` is `(ν a)`-integrable for all `a : α` and `x : ℝ`
 and for all measurable sets `s : Set β`, `∫ b in s, f (a, b) x ∂(ν a) = (κ a).real (s ×ˢ Iic x)`.
 Also the `ℚ → ℝ` function `f (a, b)` should satisfy the properties of a Stieltjes function for
-`(ν a)`-almost all `b : β`. -/
-structure IsRatCondKernelCDF (f : α × β → ℚ → ℝ) (κ : Kernel α (β × ℝ)) (ν : Kernel α β) :
-    Prop where
+`(ν a)`-almost all `b : β`.
+-/
+structure IsRatCondKernelCDF (f : α × β → ℚ → ℝ) (κ : Kernel α (β × ℝ)) (ν : Kernel α β)
+    : Prop where
   measurable : Measurable f
   isRatStieltjesPoint_ae (a : α) : ∀ᵐ b ∂(ν a), IsRatStieltjesPoint f (a, b)
   integrable (a : α) (q : ℚ) : Integrable (fun b ↦ f (a, b) q) (ν a)
-  setIntegral (a : α) {s : Set β} (_hs : MeasurableSet s) (q : ℚ) :
-    ∫ b in s, f (a, b) q ∂(ν a) = (κ a).real (s ×ˢ Iic (q : ℝ))
+  setIntegral (a : α) {s : Set β} (_hs : MeasurableSet s) (q : ℚ)
+    : ∫ b in s, f (a, b) q ∂(ν a) = (κ a).real (s ×ˢ Iic (q : ℝ))
 
 lemma IsRatCondKernelCDF.mono (hf : IsRatCondKernelCDF f κ ν) (a : α) :
     ∀ᵐ b ∂(ν a), Monotone (f (a, b)) := by
@@ -215,30 +218,36 @@ section isRatCondKernelCDFAux
 
 variable {f : α × β → ℚ → ℝ}
 
-/-- This property implies `IsRatCondKernelCDF`. The measurability, integrability and integral
+/--
+This property implies `IsRatCondKernelCDF`. The measurability, integrability and integral
 conditions are the same, but the limit properties of `IsRatCondKernelCDF` are replaced by
-limits of integrals. -/
-structure IsRatCondKernelCDFAux (f : α × β → ℚ → ℝ) (κ : Kernel α (β × ℝ)) (ν : Kernel α β) :
-    Prop where
+limits of integrals.
+-/
+structure IsRatCondKernelCDFAux (f : α × β → ℚ → ℝ) (κ : Kernel α (β × ℝ)) (ν : Kernel α β)
+    : Prop where
   measurable : Measurable f
   mono' (a : α) {q r : ℚ} (_hqr : q ≤ r) : ∀ᵐ c ∂(ν a), f (a, c) q ≤ f (a, c) r
   nonneg' (a : α) (q : ℚ) : ∀ᵐ c ∂(ν a), 0 ≤ f (a, c) q
   le_one' (a : α) (q : ℚ) : ∀ᵐ c ∂(ν a), f (a, c) q ≤ 1
-  /- Same as `Tendsto (fun q : ℚ ↦ ∫ c, f (a, c) q ∂(ν a)) atBot (𝓝 0)` but slightly easier
+  /-
+  Same as `Tendsto (fun q : ℚ ↦ ∫ c, f (a, c) q ∂(ν a)) atBot (𝓝 0)` but slightly easier
   to prove in the current applications of this definition (some integral convergence lemmas
-  currently apply only to `ℕ`, not `ℚ`) -/
-  tendsto_integral_of_antitone (a : α) (seq : ℕ → ℚ) (_hs : Antitone seq)
-    (_hs_tendsto : Tendsto seq atTop atBot) :
-    Tendsto (fun m ↦ ∫ c, f (a, c) (seq m) ∂(ν a)) atTop (𝓝 0)
-  /- Same as `Tendsto (fun q : ℚ ↦ ∫ c, f (a, c) q ∂(ν a)) atTop (𝓝 ((ν a).real univ))` but
+  currently apply only to `ℕ`, not `ℚ`)
+  -/
+  tendsto_integral_of_antitone
+    (a : α) (seq : ℕ → ℚ) (_hs : Antitone seq) (_hs_tendsto : Tendsto seq atTop atBot)
+    : Tendsto (fun m ↦ ∫ c, f (a, c) (seq m) ∂(ν a)) atTop (𝓝 0)
+  /-
+  Same as `Tendsto (fun q : ℚ ↦ ∫ c, f (a, c) q ∂(ν a)) atTop (𝓝 ((ν a).real univ))` but
   slightly easier to prove in the current applications of this definition (some integral convergence
-  lemmas currently apply only to `ℕ`, not `ℚ`) -/
-  tendsto_integral_of_monotone (a : α) (seq : ℕ → ℚ) (_hs : Monotone seq)
-    (_hs_tendsto : Tendsto seq atTop atTop) :
-    Tendsto (fun m ↦ ∫ c, f (a, c) (seq m) ∂(ν a)) atTop (𝓝 ((ν a).real univ))
+  lemmas currently apply only to `ℕ`, not `ℚ`)
+  -/
+  tendsto_integral_of_monotone
+    (a : α) (seq : ℕ → ℚ) (_hs : Monotone seq) (_hs_tendsto : Tendsto seq atTop atTop)
+    : Tendsto (fun m ↦ ∫ c, f (a, c) (seq m) ∂(ν a)) atTop (𝓝 ((ν a).real univ))
   integrable (a : α) (q : ℚ) : Integrable (fun c ↦ f (a, c) q) (ν a)
-  setIntegral (a : α) {A : Set β} (_hA : MeasurableSet A) (q : ℚ) :
-    ∫ c in A, f (a, c) q ∂(ν a) = (κ a).real (A ×ˢ Iic ↑q)
+  setIntegral (a : α) {A : Set β} (_hA : MeasurableSet A) (q : ℚ)
+    : ∫ c in A, f (a, c) q ∂(ν a) = (κ a).real (A ×ˢ Iic ↑q)
 
 lemma IsRatCondKernelCDFAux.measurable_right (hf : IsRatCondKernelCDFAux f κ ν) (a : α) (q : ℚ) :
     Measurable (fun t ↦ f (a, t) q) := by
@@ -395,18 +404,20 @@ section IsCondKernelCDF
 
 variable {f : α × β → StieltjesFunction ℝ}
 
-/-- A function `f : α × β → StieltjesFunction ℝ` is called a conditional kernel CDF of `κ` with
+/--
+A function `f : α × β → StieltjesFunction ℝ` is called a conditional kernel CDF of `κ` with
 respect to `ν` if it is measurable, tends to 0 at -∞ and to 1 at +∞ for all `p : α × β`,
 `fun b ↦ f (a, b) x` is `(ν a)`-integrable for all `a : α` and `x : ℝ` and for all
-measurable sets `s : Set β`, `∫ b in s, f (a, b) x ∂(ν a) = (κ a).real (s ×ˢ Iic x)`. -/
-structure IsCondKernelCDF (f : α × β → StieltjesFunction ℝ) (κ : Kernel α (β × ℝ))
-    (ν : Kernel α β) : Prop where
+measurable sets `s : Set β`, `∫ b in s, f (a, b) x ∂(ν a) = (κ a).real (s ×ˢ Iic x)`.
+-/
+structure IsCondKernelCDF (f : α × β → StieltjesFunction ℝ) (κ : Kernel α (β × ℝ)) (ν : Kernel α β)
+    : Prop where
   measurable (x : ℝ) : Measurable fun p ↦ f p x
   integrable (a : α) (x : ℝ) : Integrable (fun b ↦ f (a, b) x) (ν a)
   tendsto_atTop_one (p : α × β) : Tendsto (f p) atTop (𝓝 1)
   tendsto_atBot_zero (p : α × β) : Tendsto (f p) atBot (𝓝 0)
-  setIntegral (a : α) {s : Set β} (_hs : MeasurableSet s) (x : ℝ) :
-    ∫ b in s, f (a, b) x ∂(ν a) = (κ a).real (s ×ˢ Iic x)
+  setIntegral (a : α) {s : Set β} (_hs : MeasurableSet s) (x : ℝ)
+    : ∫ b in s, f (a, b) x ∂(ν a) = (κ a).real (s ×ˢ Iic x)
 
 lemma IsCondKernelCDF.nonneg (hf : IsCondKernelCDF f κ ν) (p : α × β) (x : ℝ) : 0 ≤ f p x :=
   Monotone.le_of_tendsto (f p).mono (hf.tendsto_atBot_zero p) x
@@ -444,23 +455,25 @@ end IsCondKernelCDF
 
 section ToKernel
 
-variable {_ : MeasurableSpace β} {f : α × β → StieltjesFunction ℝ}
-  {κ : Kernel α (β × ℝ)} {ν : Kernel α β}
+variable
+  {_ : MeasurableSpace β} {f : α × β → StieltjesFunction ℝ} {κ : Kernel α (β × ℝ)} {ν : Kernel α β}
 
-/-- A function `f : α × β → StieltjesFunction ℝ` with the property `IsCondKernelCDF f κ ν` gives a
-Markov kernel from `α × β` to `ℝ`, by taking for each `p : α × β` the measure defined by `f p`. -/
-noncomputable
-def IsCondKernelCDF.toKernel (f : α × β → StieltjesFunction ℝ) (hf : IsCondKernelCDF f κ ν) :
-    Kernel (α × β) ℝ where
+/--
+A function `f : α × β → StieltjesFunction ℝ` with the property `IsCondKernelCDF f κ ν` gives a
+Markov kernel from `α × β` to `ℝ`, by taking for each `p : α × β` the measure defined by `f p`.
+-/
+noncomputable def IsCondKernelCDF.toKernel
+    (f : α × β → StieltjesFunction ℝ) (hf : IsCondKernelCDF f κ ν)
+    : Kernel (α × β) ℝ where
   toFun p := (f p).measure
-  measurable' := StieltjesFunction.measurable_measure hf.measurable
-    hf.tendsto_atBot_zero hf.tendsto_atTop_one
+  measurable' :=
+    StieltjesFunction.measurable_measure hf.measurable hf.tendsto_atBot_zero hf.tendsto_atTop_one
 
 lemma IsCondKernelCDF.toKernel_apply {hf : IsCondKernelCDF f κ ν} (p : α × β) :
     hf.toKernel f p = (f p).measure := rfl
 
-instance instIsMarkovKernel_toKernel {hf : IsCondKernelCDF f κ ν} :
-    IsMarkovKernel (hf.toKernel f) :=
+instance instIsMarkovKernel_toKernel {hf : IsCondKernelCDF f κ ν}
+    : IsMarkovKernel (hf.toKernel f) :=
   ⟨fun _ ↦ (f _).isProbabilityMeasure (hf.tendsto_atBot_zero _) (hf.tendsto_atTop_one _)⟩
 
 lemma IsCondKernelCDF.toKernel_Iic {hf : IsCondKernelCDF f κ ν} (p : α × β) (x : ℝ) :

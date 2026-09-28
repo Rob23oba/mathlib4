@@ -63,9 +63,11 @@ section
 
 variable {S X : C} (πX : X ⟶ S)
 
-/-- Given a family of morphisms `f i : A i ⟶ B i` and a morphism `πX : X ⟶ S`,
+/--
+Given a family of morphisms `f i : A i ⟶ B i` and a morphism `πX : X ⟶ S`,
 this type parametrizes the commutative squares with a morphism `f i` on the left
-and `πX` on the right. -/
+and `πX` on the right.
+-/
 structure FunctorObjIndex where
   /-- an element in the index type -/
   i : I
@@ -85,27 +87,30 @@ abbrev functorObjSrcFamily (x : FunctorObjIndex f πX) : C := A x.i
 /-- The family of objects `B x.i` parametrized by `x : FunctorObjIndex f πX`. -/
 abbrev functorObjTgtFamily (x : FunctorObjIndex f πX) : C := B x.i
 
-/-- The family of the morphisms `f x.i : A x.i ⟶ B x.i`
-parametrized by `x : FunctorObjIndex f πX`. -/
-abbrev functorObjLeftFamily (x : FunctorObjIndex f πX) :
-    functorObjSrcFamily f πX x ⟶ functorObjTgtFamily f πX x := f x.i
+/--
+The family of the morphisms `f x.i : A x.i ⟶ B x.i`
+parametrized by `x : FunctorObjIndex f πX`.
+-/
+abbrev functorObjLeftFamily (x : FunctorObjIndex f πX)
+    : functorObjSrcFamily f πX x ⟶ functorObjTgtFamily f πX x :=
+  f x.i
 
 /-- The top morphism in the pushout square in the definition of `pushoutObj f πX`. -/
 noncomputable abbrev functorObjTop : ∐ functorObjSrcFamily f πX ⟶ X :=
   Limits.Sigma.desc (fun x => x.t)
 
 /-- The left morphism in the pushout square in the definition of `pushoutObj f πX`. -/
-noncomputable abbrev functorObjLeft :
-    ∐ functorObjSrcFamily f πX ⟶ ∐ functorObjTgtFamily f πX :=
+noncomputable abbrev functorObjLeft : ∐ functorObjSrcFamily f πX ⟶ ∐ functorObjTgtFamily f πX :=
   Limits.Sigma.map (functorObjLeftFamily f πX)
 
 variable [HasPushout (functorObjTop f πX) (functorObjLeft f πX)]
 
-/-- The functor `SmallObject.functor f : Arrow C ⥤ Arrow C` that is part of
+/--
+The functor `SmallObject.functor f : Arrow C ⥤ Arrow C` that is part of
 the small object argument for a family of morphisms `f`, on an object given
-as a morphism `πX : X ⟶ S`. -/
-noncomputable abbrev functorObj : C :=
-  pushout (functorObjTop f πX) (functorObjLeft f πX)
+as a morphism `πX : X ⟶ S`.
+-/
+noncomputable abbrev functorObj : C := pushout (functorObjTop f πX) (functorObjLeft f πX)
 
 /-- The canonical morphism `X ⟶ functorObj f πX`. -/
 noncomputable abbrev ιFunctorObj : X ⟶ functorObj f πX := pushout.inl _ _
@@ -143,11 +148,12 @@ lemma ιFunctorObj_πFunctorObj : ιFunctorObj f πX ≫ πFunctorObj f πX = π
   simp [ιFunctorObj, πFunctorObj]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The morphism `ιFunctorObj f πX : X ⟶ functorObj f πX` is obtained by
-attaching `f`-cells. -/
+/--
+The morphism `ιFunctorObj f πX : X ⟶ functorObj f πX` is obtained by
+attaching `f`-cells.
+-/
 @[simps]
-noncomputable def attachCellsιFunctorObj :
-    AttachCells.{max v w} f (ιFunctorObj f πX) where
+noncomputable def attachCellsιFunctorObj : AttachCells.{max v w} f (ιFunctorObj f πX) where
   ι := FunctorObjIndex f πX
   π x := x.i
   isColimit₁ := coproductIsCoproduct _
@@ -164,12 +170,10 @@ section Small
 variable [LocallySmall.{t} C] [Small.{t} I]
 
 instance : Small.{t} (FunctorObjIndex f πX) := by
-  let φ (x : FunctorObjIndex f πX) :
-    Σ (i : Shrink.{t} I),
-      Shrink.{t} ((A ((equivShrink _).symm i) ⟶ X) ×
-        (B ((equivShrink _).symm i) ⟶ S)) :=
-        ⟨equivShrink _ x.i, equivShrink _
-          ⟨eqToHom (by simp) ≫ x.t, eqToHom (by simp) ≫ x.b⟩⟩
+  let φ (x : FunctorObjIndex f πX)
+      : Σ (i : Shrink.{t} I),
+        Shrink.{t} ((A ((equivShrink _).symm i) ⟶ X) × (B ((equivShrink _).symm i) ⟶ S)) :=
+    ⟨equivShrink _ x.i, equivShrink _ ⟨eqToHom (by simp) ≫ x.t, eqToHom (by simp) ≫ x.b⟩⟩
   have hφ : Function.Injective φ := by
     rintro ⟨i₁, t₁, b₁, _⟩ ⟨i₂, t₂, b₂, _⟩ h
     obtain rfl : i₁ = i₂ := by simpa [φ] using congr($(h).fst)
@@ -181,27 +185,31 @@ instance : Small.{t} (attachCellsιFunctorObj f πX).ι := by
   dsimp
   infer_instance
 
-/-- The morphism `ιFunctorObj f πX : X ⟶ functorObj f πX` is obtained by
+/--
+The morphism `ιFunctorObj f πX : X ⟶ functorObj f πX` is obtained by
 attaching `f`-cells, and the index type can be chosen to be in `Type t`
 if the category is `t`-locally small and the index type for `f`
-is `t`-small. -/
-noncomputable def attachCellsιFunctorObjOfSmall :
-    AttachCells.{t} f (ιFunctorObj f πX) :=
+is `t`-small.
+-/
+noncomputable def attachCellsιFunctorObjOfSmall : AttachCells.{t} f (ιFunctorObj f πX) :=
   (attachCellsιFunctorObj f πX).reindex (equivShrink.{t} _).symm
 
 end Small
 
 section
 
-variable {S T X Y : C} {πX : X ⟶ S} {πY : Y ⟶ T} (τ : Arrow.mk πX ⟶ Arrow.mk πY)
+variable
+  {S T X Y : C} {πX : X ⟶ S} {πY : Y ⟶ T} (τ : Arrow.mk πX ⟶ Arrow.mk πY)
   [HasColimitsOfShape (Discrete (FunctorObjIndex f πX)) C]
   [HasColimitsOfShape (Discrete (FunctorObjIndex f πY)) C]
 
-/-- The canonical morphism `∐ (functorObjSrcFamily f πX) ⟶ ∐ (functorObjSrcFamily f πY)`
-induced by a morphism `Arrow.mk πX ⟶ Arrow.mk πY`. -/
-noncomputable def functorMapSrc :
-    ∐ (functorObjSrcFamily f πX) ⟶ ∐ functorObjSrcFamily f πY :=
-  Sigma.map' (fun x => FunctorObjIndex.mk x.i (x.t ≫ τ.left) (x.b ≫ τ.right) (by simp))
+/--
+The canonical morphism `∐ (functorObjSrcFamily f πX) ⟶ ∐ (functorObjSrcFamily f πY)`
+induced by a morphism `Arrow.mk πX ⟶ Arrow.mk πY`.
+-/
+noncomputable def functorMapSrc : ∐ (functorObjSrcFamily f πX) ⟶ ∐ functorObjSrcFamily f πY :=
+  Sigma.map'
+    (fun x => FunctorObjIndex.mk x.i (x.t ≫ τ.left) (x.b ≫ τ.right) (by simp))
     (fun _ => 𝟙 _)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -224,11 +232,13 @@ lemma functorMapSrc_functorObjTop :
   ext ⟨i, t, b, w⟩
   simp [ι_functorMapSrc_assoc f τ i t b w _ rfl]
 
-/-- The canonical morphism `∐ functorObjTgtFamily f πX ⟶ ∐ functorObjTgtFamily f πY`
-induced by a morphism `Arrow.mk πX ⟶ Arrow.mk πY`. -/
-noncomputable def functorMapTgt :
-    ∐ functorObjTgtFamily f πX ⟶ ∐ functorObjTgtFamily f πY :=
-  Sigma.map' (fun x => FunctorObjIndex.mk x.i (x.t ≫ τ.left) (x.b ≫ τ.right) (by simp))
+/--
+The canonical morphism `∐ functorObjTgtFamily f πX ⟶ ∐ functorObjTgtFamily f πY`
+induced by a morphism `Arrow.mk πX ⟶ Arrow.mk πY`.
+-/
+noncomputable def functorMapTgt : ∐ functorObjTgtFamily f πX ⟶ ∐ functorObjTgtFamily f πY :=
+  Sigma.map'
+    (fun x => FunctorObjIndex.mk x.i (x.t ≫ τ.left) (x.b ≫ τ.right) (by simp))
     (fun _ => 𝟙 _)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -251,15 +261,17 @@ lemma functorMap_comm :
   ext ⟨i, t, b, w⟩
   simp [ι_functorMapTgt f τ i t b w _ rfl, ι_functorMapSrc_assoc f τ i t b w _ rfl]
 
-variable [HasPushout (functorObjTop f πX) (functorObjLeft f πX)]
+variable
+  [HasPushout (functorObjTop f πX) (functorObjLeft f πX)]
   [HasPushout (functorObjTop f πY) (functorObjLeft f πY)]
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The functor `SmallObject.functor f S : Arrow S ⥤ Arrow S` that is part of
-the small object argument for a family of morphisms `f`, on morphisms. -/
+/--
+The functor `SmallObject.functor f S : Arrow S ⥤ Arrow S` that is part of
+the small object argument for a family of morphisms `f`, on morphisms.
+-/
 noncomputable def functorMap : functorObj f πX ⟶ functorObj f πY :=
-  pushout.map _ _ _ _ τ.left (functorMapTgt f τ) (functorMapSrc f τ) (by simp)
-    (functorMap_comm f τ)
+  pushout.map _ _ _ _ τ.left (functorMapTgt f τ) (functorMapSrc f τ) (by simp) (functorMap_comm f τ)
 
 @[reassoc (attr := simp)]
 lemma functorMap_π : functorMap f τ ≫ πFunctorObj f πY = πFunctorObj f πX ≫ τ.right := by
@@ -306,14 +318,16 @@ lemma ιFunctorObj_extension' {X' S' Z' : C} (πX' : X' ⟶ S') (ι' : X' ⟶ Z'
 
 end
 
-variable [HasPushouts C]
-  [∀ {X S : C} (πX : X ⟶ S), HasColimitsOfShape (Discrete (FunctorObjIndex f πX)) C]
+variable
+  [HasPushouts C] [∀ {X S : C} (πX : X ⟶ S), HasColimitsOfShape (Discrete (FunctorObjIndex f πX)) C]
 
 set_option backward.isDefEq.respectTransparency false in
 set_option backward.defeqAttrib.useBackward true in
-/-- The functor `Arrow C ⥤ Arrow C` that is constructed in order to apply the small
+/--
+The functor `Arrow C ⥤ Arrow C` that is constructed in order to apply the small
 object argument to a family of morphisms `f i : A i ⟶ B i`, see the introduction
-of the file `Mathlib/CategoryTheory/SmallObject/Construction.lean` -/
+of the file `Mathlib/CategoryTheory/SmallObject/Construction.lean`
+-/
 @[simps! obj map]
 noncomputable def functor : Arrow C ⥤ Arrow C where
   obj π := Arrow.mk (πFunctorObj f π.hom)
@@ -328,11 +342,12 @@ noncomputable def functor : Arrow C ⥤ Arrow C where
       simp only [functorMap, Arrow.comp_left, Arrow.mk_left]
       ext ⟨i, t, b, w⟩
       · simp
-      · simp [ι_functorMapTgt_assoc f τ i t b w _ rfl _ rfl,
+      · simp [
+          ι_functorMapTgt_assoc f τ i t b w _ rfl _ rfl,
           ι_functorMapTgt_assoc f (τ ≫ τ') i t b w _ rfl _ rfl,
-          ι_functorMapTgt_assoc f τ' i (t ≫ τ.left) (b ≫ τ.right)
-            (by simp [reassoc_of% w]) (b ≫ τ.right ≫ τ'.right) (by simp)
-            (t ≫ (τ ≫ τ').left) (by simp)]
+          ι_functorMapTgt_assoc f τ' i (t ≫ τ.left) (b ≫ τ.right) (by simp [reassoc_of% w])
+            (b ≫ τ.right ≫ τ'.right) (by simp) (t ≫ (τ ≫ τ').left) (by simp)
+        ]
     · dsimp
 
 set_option backward.isDefEq.respectTransparency.types false in

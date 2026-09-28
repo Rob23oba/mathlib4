@@ -33,10 +33,12 @@ section CommSemiring
 
 variable {R : Type*} [CommSemiring R]
 
-/-- Given a polynomial `p` and a number `n ≥ natDegree p`,
+/--
+Given a polynomial `p` and a number `n ≥ natDegree p`,
 returns a homogeneous bivariate polynomial `q` of degree `n` such that `q(x, 1) = p(x)`.
 
-It is defined as `∑ k + l = n, a_k X_0^k X_1^l`, where `a_k` is the `k`th coefficient of `p`. -/
+It is defined as `∑ k + l = n, a_k X_0^k X_1^l`, where `a_k` is the `k`th coefficient of `p`.
+-/
 noncomputable def homogenize (p : R[X]) (n : ℕ) : MvPolynomial (Fin 2) R :=
   ∑ kl ∈ antidiagonal n, .monomial (fun₀ | 0 => kl.1 | 1 => kl.2) (p.coeff kl.1)
 
@@ -240,10 +242,11 @@ section projectivize
 
 variable {R : Type*} [CommSemiring R]
 
-/-- Given a polynomial `p : R[X]`, this is the vector `![p₀, p₁]` of homogeneous bivariate
-polynomials of degree `p.natDegree` such that `p(x) = p₀(x,1)/p₁(x,1)` and `p₁` is a monomial. -/
-noncomputable
-def toTupleMvPolynomial (p : R[X]) : Fin 2 → MvPolynomial (Fin 2) R :=
+/--
+Given a polynomial `p : R[X]`, this is the vector `![p₀, p₁]` of homogeneous bivariate
+polynomials of degree `p.natDegree` such that `p(x) = p₀(x,1)/p₁(x,1)` and `p₁` is a monomial.
+-/
+noncomputable def toTupleMvPolynomial (p : R[X]) : Fin 2 → MvPolynomial (Fin 2) R :=
   ![p.homogenize p.natDegree, (MvPolynomial.X 1) ^ p.natDegree]
 
 lemma toTupleMvPolynomial_zero_eq (p : R[X]) :

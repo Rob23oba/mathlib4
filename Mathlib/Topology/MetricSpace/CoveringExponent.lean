@@ -38,9 +38,11 @@ namespace Metric
 
 variable {T : Type*} [PseudoEMetricSpace T] {A B : Set T} {c : ℝ≥0∞} {ε : ℝ≥0} {d : ℝ}
 
-/-- A set `A` in a pseudoemetric space has bounded covering number with constant `c` and exponent
+/--
+A set `A` in a pseudoemetric space has bounded covering number with constant `c` and exponent
 `d` if it has finite diameter and for all `ε ∈ (0, diam(A)]`, the covering number of `A`
-at scale `ε` is bounded by `c * ε^{-d}`. -/
+at scale `ε` is bounded by `c * ε^{-d}`.
+-/
 structure HasCoveringExponent (A : Set T) (c : ℝ≥0∞) (d : ℝ) : Prop where
   ediam_lt_top : Metric.ediam A < ∞
   coveringNumber_le : ∀ ε : ℝ≥0, ε ≤ Metric.ediam A → coveringNumber ε A ≤ c * (ε : ℝ≥0∞)⁻¹ ^ d

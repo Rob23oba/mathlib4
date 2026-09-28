@@ -34,7 +34,8 @@ universe v₁ v₂ v₃ v₄ u₁ u₂ u₃ u₄
 
 namespace CategoryTheory
 
-variable {C₁ : Type u₁} {C₂ : Type u₂} {H : Type u₃}
+variable
+  {C₁ : Type u₁} {C₂ : Type u₂} {H : Type u₃}
   [Category.{v₁} C₁] [Category.{v₂} C₂] [Category.{v₃} H]
   {D₂ : Type u₄} [Category.{v₄} D₂]
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
@@ -43,11 +44,13 @@ namespace LocalizerMorphism
 
 variable (Φ : LocalizerMorphism W₁ W₂) (F : C₂ ⥤ H)
 
-/-- Given a localizer morphism `Φ : LocalizerMorphism W₁ W₂` between
+/--
+Given a localizer morphism `Φ : LocalizerMorphism W₁ W₂` between
 morphism properties on `C₁` and `C₂`, and a functor `C₂ ⥤ H`, this
 is the property that `W₁` is inverted by `Φ.functor ⋙ F`.
 In case `Φ` is a (left/right) derivability structure, this allows
-the construction of a derived functor for `F` relatively to `W₂`. -/
+the construction of a derived functor for `F` relatively to `W₂`.
+-/
 abbrev Derives : Prop := W₁.IsInvertedBy (Φ.functor ⋙ F)
 
 namespace Derives

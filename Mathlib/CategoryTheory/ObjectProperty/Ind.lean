@@ -41,9 +41,9 @@ open Limits Opposite
 variable {C : Type u} [Category.{v} C] {P : ObjectProperty C}
 
 /-- `X` satisfies `ind P` if `X` is a filtered colimit of `Xᵢ` for `Xᵢ` in `P`. -/
-def ind (P : ObjectProperty C) : ObjectProperty C :=
-  fun X ↦ ∃ (J : Type w) (_ : SmallCategory J) (_ : IsFiltered J)
-    (pres : ColimitPresentation J X), ∀ i, P (pres.diag.obj i)
+def ind (P : ObjectProperty C) : ObjectProperty C := fun X ↦
+  ∃ (J : Type w) (_ : SmallCategory J) (_ : IsFiltered J) (pres : ColimitPresentation J X), ∀ i,
+    P (pres.diag.obj i)
 
 variable (P) in
 lemma le_ind : P ≤ ind.{w} P := by
@@ -140,9 +140,10 @@ private lemma ind_pi_of_ind {ι : Type w} [P.IsClosedUnderLimitsOfShape (Discret
   exact ⟨∀ j, J j, inferInstance, inferInstance,
     { diag := _, ι := _, isColimit := hc }, fun i ↦ P.prop_limit _ fun a ↦ hpres a.1 _⟩
 
-instance isClosedUnderLimitsOfShape_ind_discrete {ι : Type*} [Small.{w} ι]
-    [P.IsClosedUnderLimitsOfShape (Discrete ι)] [HasProductsOfShape ι C] [IsIPCOfShape.{w} ι C] :
-    (ind.{w} P).IsClosedUnderLimitsOfShape (Discrete ι) := by
+instance isClosedUnderLimitsOfShape_ind_discrete
+    {ι : Type*} [Small.{w} ι] [P.IsClosedUnderLimitsOfShape (Discrete ι)] [HasProductsOfShape ι C]
+    [IsIPCOfShape.{w} ι C]
+    : (ind.{w} P).IsClosedUnderLimitsOfShape (Discrete ι) := by
   refine .mk' fun X ⟨Y, h⟩ ↦ ?_
   let e := equivShrink ι
   have : HasProductsOfShape (Shrink.{w} ι) C :=

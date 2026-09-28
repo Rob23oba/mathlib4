@@ -16,7 +16,6 @@ This file defines `HeytAlg`, the category of Heyting algebras.
 
 @[expose] public section
 
-
 universe u
 
 open CategoryTheory Order
@@ -33,8 +32,7 @@ initialize_simps_projections HeytAlg (carrier → coe, -str)
 
 namespace HeytAlg
 
-instance : CoeSort HeytAlg (Type _) :=
-  ⟨HeytAlg.carrier⟩
+instance : CoeSort HeytAlg (Type _) := ⟨HeytAlg.carrier⟩
 
 attribute [coe] HeytAlg.carrier
 
@@ -63,18 +61,16 @@ instance : ConcreteCategory HeytAlg (HeytingHom · ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `HeytAlg` back into a `HeytingHom`. -/
-abbrev Hom.hom {X Y : HeytAlg.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := HeytAlg) f
+abbrev Hom.hom {X Y : HeytAlg.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := HeytAlg) f
 
 /-- Typecheck a `HeytingHom` as a morphism in `HeytAlg`. -/
-abbrev ofHom {X Y : Type u} [HeytingAlgebra X] [HeytingAlgebra Y] (f : HeytingHom X Y) :
-    of X ⟶ of Y :=
+abbrev ofHom {X Y : Type u} [HeytingAlgebra X] [HeytingAlgebra Y] (f : HeytingHom X Y)
+    : of X ⟶ of Y :=
   ConcreteCategory.ofHom (C := HeytAlg) f
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : HeytAlg.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : HeytAlg.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -146,8 +142,7 @@ lemma inv_hom_apply {X Y : HeytAlg} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x 
 lemma hom_inv_apply {X Y : HeytAlg} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited HeytAlg :=
-  ⟨of PUnit⟩
+instance : Inhabited HeytAlg := ⟨of PUnit⟩
 
 @[simps]
 instance hasForgetToLat : HasForget₂ HeytAlg BddDistLat where

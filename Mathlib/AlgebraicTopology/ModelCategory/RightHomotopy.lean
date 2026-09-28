@@ -42,9 +42,11 @@ namespace PrepathObject
 
 variable {Y : C} (P : PrepathObject Y) {X : C}
 
-/-- Given a pre-path object `P` for `Y`, two maps `f` and `g` in `X ⟶ Y` are
+/--
+Given a pre-path object `P` for `Y`, two maps `f` and `g` in `X ⟶ Y` are
 homotopic relative to `P` when there is a morphism `h : X ⟶ P.P`
-such that `h ≫ P.p₀ = f` and `h ≫ P.p₁ = g`. -/
+such that `h ≫ P.p₀ = f` and `h ≫ P.p₁ = g`.
+-/
 structure RightHomotopy (f g : X ⟶ Y) where
   /-- a morphism from the source to the pre-path object -/
   h : X ⟶ P.P
@@ -63,47 +65,51 @@ def refl (f : X ⟶ Y) : P.RightHomotopy f f where
 variable {P}
 
 set_option backward.defeqAttrib.useBackward true in
-/-- If `f` and `g` are homotopic relative to a pre-path object `P`, then `g` and `f`
-are homotopic relative to `P.symm` -/
+/--
+If `f` and `g` are homotopic relative to a pre-path object `P`, then `g` and `f`
+are homotopic relative to `P.symm`
+-/
 @[simps]
 def symm {f g : X ⟶ Y} (h : P.RightHomotopy f g) : P.symm.RightHomotopy g f where
   h := h.h
 
 set_option backward.isDefEq.respectTransparency false in
-/-- If `f₀` is homotopic to `f₁` relative to a pre-path object `P`,
+/--
+If `f₀` is homotopic to `f₁` relative to a pre-path object `P`,
 and `f₁` is homotopic to `f₂` relative to `P'`, then
-`f₀` is homotopic to `f₂` relative to `P.trans P'`. -/
+`f₀` is homotopic to `f₂` relative to `P.trans P'`.
+-/
 @[simps]
-noncomputable def trans {f₀ f₁ f₂ : X ⟶ Y}
-    (h : P.RightHomotopy f₀ f₁) {P' : PrepathObject Y}
-    (h' : P'.RightHomotopy f₁ f₂) [HasPullback P.p₁ P'.p₀] :
-    (P.trans P').RightHomotopy f₀ f₂ where
+noncomputable def trans
+    {f₀ f₁ f₂ : X ⟶ Y} (h : P.RightHomotopy f₀ f₁)
+    {P' : PrepathObject Y} (h' : P'.RightHomotopy f₁ f₂) [HasPullback P.p₁ P'.p₀]
+    : (P.trans P').RightHomotopy f₀ f₂ where
   h := pullback.lift h.h h'.h (by simp)
 
 /-- Right homotopies are compatible with precomposition. -/
 @[simps]
-def precomp {f g : X ⟶ Y} (h : P.RightHomotopy f g) {Z : C} (i : Z ⟶ X) :
-    P.RightHomotopy (i ≫ f) (i ≫ g) where
+def precomp {f g : X ⟶ Y} (h : P.RightHomotopy f g) {Z : C} (i : Z ⟶ X)
+    : P.RightHomotopy (i ≫ f) (i ≫ g) where
   h := i ≫ h.h
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Right homotopies in a full subcategory identify to right homotopies in the
-ambient category. -/
-noncomputable def fullSubcategoryEquiv {P : ObjectProperty C} {X Y : P.FullSubcategory}
-    {Q : PrepathObject Y} {f g : X ⟶ Y} :
-    Q.RightHomotopy f g ≃ (Q.map P.ι).RightHomotopy f.hom g.hom where
-  toFun h :=
-    { h := h.h.hom
-      h₀ := by
-        dsimp
-        simp only [← h.h₀, ObjectProperty.FullSubcategory.comp_hom]
-      h₁ := by
-        dsimp
-        simp only [← h.h₁, ObjectProperty.FullSubcategory.comp_hom] }
-  invFun h :=
-    { h := P.homMk h.h
-      h₀ := by ext; exact h.h₀
-      h₁ := by ext; exact h.h₁ }
+/--
+Right homotopies in a full subcategory identify to right homotopies in the
+ambient category.
+-/
+noncomputable def fullSubcategoryEquiv
+    {P : ObjectProperty C} {X Y : P.FullSubcategory} {Q : PrepathObject Y} {f g : X ⟶ Y}
+    : Q.RightHomotopy f g ≃ (Q.map P.ι).RightHomotopy f.hom g.hom where
+  toFun h := {
+    h := h.h.hom
+    h₀ := by
+      dsimp
+      simp only [← h.h₀, ObjectProperty.FullSubcategory.comp_hom]
+    h₁ := by
+      dsimp
+      simp only [← h.h₁, ObjectProperty.FullSubcategory.comp_hom]
+  }
+  invFun h := { h := P.homMk h.h, h₀ := by ext; exact h.h₀, h₁ := by ext; exact h.h₁ }
 
 end RightHomotopy
 
@@ -113,9 +119,11 @@ namespace PathObject
 
 variable {X Y : C}
 
-/-- Given a path object `P` for `X`, two maps `f` and `g` in `X ⟶ Y`
+/--
+Given a path object `P` for `X`, two maps `f` and `g` in `X ⟶ Y`
 are homotopic relative to `P` when there is a morphism `h : P.I ⟶ Y`
-such that `P.i₀ ≫ h = f` and `P.i₁ ≫ h = g`. -/
+such that `P.i₀ ≫ h = f` and `P.i₁ ≫ h = g`.
+-/
 abbrev RightHomotopy [CategoryWithWeakEquivalences C] (P : PathObject Y) (f g : X ⟶ Y) : Type v :=
   P.toPrepathObject.RightHomotopy f g
 
@@ -129,15 +137,17 @@ variable [CategoryWithWeakEquivalences C] (P : PathObject Y)
 abbrev refl (f : X ⟶ Y) : P.RightHomotopy f f := PrepathObject.RightHomotopy.refl _ f
 
 variable {P} in
-/-- If `f` and `g` are homotopic relative to a path object `P`, then `g` and `f`
-are homotopic relative to `P.symm`. -/
+/--
+If `f` and `g` are homotopic relative to a path object `P`, then `g` and `f`
+are homotopic relative to `P.symm`.
+-/
 abbrev symm {f g : X ⟶ Y} (h : P.RightHomotopy f g) : P.symm.RightHomotopy g f :=
   PrepathObject.RightHomotopy.symm h
 
 variable {P} in
 /-- Right homotopies are compatible with precomposition. -/
-abbrev precomp {f g : X ⟶ Y} (h : P.RightHomotopy f g) {Z : C} (i : Z ⟶ X) :
-    P.RightHomotopy (i ≫ f) (i ≫ g) :=
+abbrev precomp {f g : X ⟶ Y} (h : P.RightHomotopy f g) {Z : C} (i : Z ⟶ X)
+    : P.RightHomotopy (i ≫ f) (i ≫ g) :=
   PrepathObject.RightHomotopy.precomp h i
 
 lemma weakEquivalence_iff [(weakEquivalences C).HasTwoOutOfThreeProperty]
@@ -153,14 +163,19 @@ section
 
 variable [ModelCategory C] {P : PathObject Y}
 
-/-- If `f₀ : X ⟶ Y` is homotopic to `f₁` relative to a path object `P`,
+/--
+If `f₀ : X ⟶ Y` is homotopic to `f₁` relative to a path object `P`,
 and `f₁` is homotopic to `f₂` relative to a good path object `P'`,
 then `f₀` is homotopic to `f₂` relative to the path object `P.trans P'`
-when `Y` is fibrant. -/
-noncomputable abbrev trans [IsFibrant Y] {f₀ f₁ f₂ : X ⟶ Y}
-    (h : P.RightHomotopy f₀ f₁) {P' : PathObject Y} [P'.IsGood]
-    (h' : P'.RightHomotopy f₁ f₂) [HasPullback P.p₁ P'.p₀] :
-    (P.trans P').RightHomotopy f₀ f₂ :=
+when `Y` is fibrant.
+-/
+noncomputable abbrev trans
+    [IsFibrant Y]
+    {f₀ f₁ f₂ : X ⟶ Y} (h : P.RightHomotopy f₀ f₁)
+    {P' : PathObject Y} [P'.IsGood]
+    (h' : P'.RightHomotopy f₁ f₂)
+    [HasPullback P.p₁ P'.p₀]
+    : (P.trans P').RightHomotopy f₀ f₂ :=
   PrepathObject.RightHomotopy.trans h h'
 
 lemma exists_good_pathObject {f g : X ⟶ Y} (h : P.RightHomotopy f g) :
@@ -195,8 +210,8 @@ end RightHomotopy
 end PathObject
 
 /-- The right homotopy relation on morphisms in a category with weak equivalences. -/
-def RightHomotopyRel [CategoryWithWeakEquivalences C] : HomRel C :=
-  fun _ Y f g ↦ ∃ (P : PathObject Y), Nonempty (P.RightHomotopy f g)
+def RightHomotopyRel [CategoryWithWeakEquivalences C] : HomRel C := fun _ Y f g ↦
+  ∃ (P : PathObject Y), Nonempty (P.RightHomotopy f g)
 
 lemma PathObject.RightHomotopy.rightHomotopyRel [CategoryWithWeakEquivalences C]
     {X Y : C} {f g : X ⟶ Y}
@@ -291,16 +306,18 @@ end RightHomotopyRel
 
 variable (X Y Z : C)
 
-/-- In a category with weak equivalences, this is the quotient of the type
-of morphisms `X ⟶ Y` by the equivalence relation generated by right homotopies. -/
+/--
+In a category with weak equivalences, this is the quotient of the type
+of morphisms `X ⟶ Y` by the equivalence relation generated by right homotopies.
+-/
 def RightHomotopyClass [CategoryWithWeakEquivalences C] :=
   _root_.Quot (RightHomotopyRel (X := X) (Y := Y))
 
 variable {X Y Z}
 
 /-- Given `f : X ⟶ Y`, this is the class of `f` in the quotient `RightHomotopyClass X Y`. -/
-def RightHomotopyClass.mk [CategoryWithWeakEquivalences C] :
-    (X ⟶ Y) → RightHomotopyClass X Y := Quot.mk _
+def RightHomotopyClass.mk [CategoryWithWeakEquivalences C] : (X ⟶ Y) → RightHomotopyClass X Y :=
+  Quot.mk _
 
 lemma RightHomotopyClass.mk_surjective [CategoryWithWeakEquivalences C] :
     Function.Surjective (mk : (X ⟶ Y) → _) :=
@@ -312,9 +329,9 @@ lemma sound [CategoryWithWeakEquivalences C] {f g : X ⟶ Y} (h : RightHomotopyR
     mk f = mk g := Quot.sound h
 
 /-- The precomposition map `RightHomotopyClass Y Z → (X ⟶ Y) → RightHomotopyClass X Z`. -/
-def precomp [CategoryWithWeakEquivalences C] :
-    RightHomotopyClass Y Z → (X ⟶ Y) → RightHomotopyClass X Z :=
-  fun g f ↦ Quot.lift (fun g ↦ mk (f ≫ g)) (fun _ _ h ↦ sound (h.precomp f)) g
+def precomp [CategoryWithWeakEquivalences C]
+    : RightHomotopyClass Y Z → (X ⟶ Y) → RightHomotopyClass X Z := fun g f ↦
+  Quot.lift (fun g ↦ mk (f ≫ g)) (fun _ _ h ↦ sound (h.precomp f)) g
 
 @[simp]
 lemma precomp_mk [CategoryWithWeakEquivalences C] (f : X ⟶ Y) (g : Y ⟶ Z) :
@@ -331,8 +348,8 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The left homotopy in the opposite category that is deduced from a right homotopy. -/
 @[simps]
 protected def PrepathObject.RightHomotopy.op
-    {X Y : C} {P : PrepathObject Y} {f g : X ⟶ Y} (h : P.RightHomotopy f g) :
-    P.op.LeftHomotopy f.op g.op where
+    {X Y : C} {P : PrepathObject Y} {f g : X ⟶ Y} (h : P.RightHomotopy f g)
+    : P.op.LeftHomotopy f.op g.op where
   h := h.h.op
   h₀ := Quiver.Hom.unop_inj (by simp)
   h₁ := Quiver.Hom.unop_inj (by simp)
@@ -341,8 +358,8 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The left homotopy that is deduced from a right homotopy in the opposite category. -/
 @[simps]
 protected def PrepathObject.RightHomotopy.unop
-    {X Y : Cᵒᵖ} {P : PrepathObject Y} {f g : X ⟶ Y} (h : P.RightHomotopy f g) :
-    P.unop.LeftHomotopy f.unop g.unop where
+    {X Y : Cᵒᵖ} {P : PrepathObject Y} {f g : X ⟶ Y} (h : P.RightHomotopy f g)
+    : P.unop.LeftHomotopy f.unop g.unop where
   h := h.h.unop
   h₀ := Quiver.Hom.op_inj (by simp)
   h₁ := Quiver.Hom.op_inj (by simp)
@@ -351,8 +368,8 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The right homotopy in the opposite category that is deduced from a left homotopy. -/
 @[simps]
 protected def Precylinder.LeftHomotopy.op
-    {X Y : C} {P : Precylinder X} {f g : X ⟶ Y} (h : P.LeftHomotopy f g) :
-    P.op.RightHomotopy f.op g.op where
+    {X Y : C} {P : Precylinder X} {f g : X ⟶ Y} (h : P.LeftHomotopy f g)
+    : P.op.RightHomotopy f.op g.op where
   h := h.h.op
   h₀ := Quiver.Hom.unop_inj (by simp)
   h₁ := Quiver.Hom.unop_inj (by simp)
@@ -361,8 +378,8 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The right homotopy that is deduced from a left homotopy in the opposite category. -/
 @[simps]
 protected def Precylinder.LeftHomotopy.unop
-    {X Y : Cᵒᵖ} {P : Precylinder X} {f g : X ⟶ Y} (h : P.LeftHomotopy f g) :
-    P.unop.RightHomotopy f.unop g.unop where
+    {X Y : Cᵒᵖ} {P : Precylinder X} {f g : X ⟶ Y} (h : P.LeftHomotopy f g)
+    : P.unop.RightHomotopy f.unop g.unop where
   h := h.h.unop
   h₀ := Quiver.Hom.op_inj (by simp)
   h₁ := Quiver.Hom.op_inj (by simp)

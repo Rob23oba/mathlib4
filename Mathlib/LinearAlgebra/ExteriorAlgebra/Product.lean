@@ -30,10 +30,10 @@ open TensorProduct
 namespace ExteriorAlgebra
 
 /-- The auxiliary linear map for lifting to a morphism from `ExteriorAlgebra R (M × N)`. -/
-private noncomputable def prodEquivTensorForwardAux :
-    (M × N) →ₗ[R] ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) :=
-  (GradedTensorProduct.includeLeft _ _).toLinearMap.comp ((ι R).comp (LinearMap.fst R M N)) +
-    (GradedTensorProduct.includeRight _ _).toLinearMap.comp ((ι R).comp (LinearMap.snd R M N))
+private noncomputable def prodEquivTensorForwardAux
+    : (M × N) →ₗ[R] ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) :=
+  (GradedTensorProduct.includeLeft _ _).toLinearMap.comp ((ι R).comp (LinearMap.fst R M N))
+    + (GradedTensorProduct.includeRight _ _).toLinearMap.comp ((ι R).comp (LinearMap.snd R M N))
 
 variable {M N} in
 private lemma prodEquivTensorForwardAux_apply_mul (m : M × N) :
@@ -47,11 +47,13 @@ private lemma prodEquivTensorForwardAux_apply_mul (m : M × N) :
   simp [a, b, mul_one, one_mul, Units.neg_smul, one_smul, GradedTensorProduct.tmul,
     TensorProduct.zero_tmul, TensorProduct.tmul_zero, map_zero]
 
-/-- The forward function for the equivalence between `ExteriorAlgebra R (M × N)` and
-graded tensor product of the two exterior algebras, lift from `(x, y) ↦ x ⊗ 1 + 1 ⊗ y`. -/
+/--
+The forward function for the equivalence between `ExteriorAlgebra R (M × N)` and
+graded tensor product of the two exterior algebras, lift from `(x, y) ↦ x ⊗ 1 + 1 ⊗ y`.
+-/
 @[no_expose]
-noncomputable def prodEquivTensorForward :
-    ExteriorAlgebra R (M × N) →ₐ[R] ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) :=
+noncomputable def prodEquivTensorForward
+    : ExteriorAlgebra R (M × N) →ₐ[R] ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) :=
   ExteriorAlgebra.lift R ⟨prodEquivTensorForwardAux R M N, prodEquivTensorForwardAux_apply_mul R⟩
 
 lemma prodEquivTensorForward_ι_apply (m : M × N) :
@@ -74,10 +76,12 @@ lemma map_inl_inr_anticomm (i j : ℕ) (a : ⋀[R]^i M) (b : ⋀[R]^j N) :
     exact ιMulti_mul_ιMulti_anticomm R _ _
   all_goals simp +contextual [add_mul, mul_add]
 
-/-- The inverse function for the equivalence between `ExteriorAlgebra R (M × N)` and
-graded tensor product of the two exterior algebras, lift form universal property. -/
-noncomputable def prodEquivTensorInverse :
-    ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) →ₐ[R] ExteriorAlgebra R (M × N) :=
+/--
+The inverse function for the equivalence between `ExteriorAlgebra R (M × N)` and
+graded tensor product of the two exterior algebras, lift form universal property.
+-/
+noncomputable def prodEquivTensorInverse
+    : ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) →ₐ[R] ExteriorAlgebra R (M × N) :=
   GradedTensorProduct.lift _ _ (ExteriorAlgebra.map (LinearMap.inl R M N))
     (ExteriorAlgebra.map (LinearMap.inr R M N)) (map_inl_inr_anticomm R)
 
@@ -104,10 +108,12 @@ lemma prodEquivTensor_forward_comp_inverse :
   · simp
   · simp
 
-/-- The equivalence `ExteriorAlgebra R (M × N) ≃ₐ[R] ExteriorAlgebra R M ⊗ ExteriorAlgebra R N`,
-with the right side given graded multiplication. -/
-noncomputable def prodEquivTensor :
-    ExteriorAlgebra R (M × N) ≃ₐ[R] ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) :=
+/--
+The equivalence `ExteriorAlgebra R (M × N) ≃ₐ[R] ExteriorAlgebra R M ⊗ ExteriorAlgebra R N`,
+with the right side given graded multiplication.
+-/
+noncomputable def prodEquivTensor
+    : ExteriorAlgebra R (M × N) ≃ₐ[R] ((fun (i : ℕ) => ⋀[R]^i M) ᵍ⊗[R] (fun (i : ℕ) => ⋀[R]^i N)) :=
   AlgEquiv.ofAlgHom (prodEquivTensorForward R M N) (prodEquivTensorInverse R M N)
     (prodEquivTensor_forward_comp_inverse R M N) (prodEquivTensor_inverse_comp_forward R M N)
 

@@ -59,22 +59,24 @@ lemma isCardinalPresentable (hX : HasCardinalLT X κ) [Fact κ.IsRegular] :
             fun x ↦ by simpa [φ] using IsCardinalFiltered.coeq_condition φ hX x⟩
         refine ⟨l, b, by ext x; simp [← hl x, hk]⟩⟩⟩⟩
 
-/-- Given `X : Type u` and `κ : Cardinal.{u} X`, this is the preordered type
-of subsets of `X` of cardinality `< κ`. -/
-protected abbrev Set := { A : Set X // HasCardinalLT A κ }
+/--
+Given `X : Type u` and `κ : Cardinal.{u} X`, this is the preordered type
+of subsets of `X` of cardinality `< κ`.
+-/
+protected abbrev Set := {A : Set X // HasCardinalLT A κ}
 
 namespace Set
 
-instance [Fact κ.IsRegular] :
-    IsCardinalFiltered (HasCardinalLT.Set X κ) κ :=
-  isCardinalFiltered_preorder _ _
-    (fun ι A hι ↦ ⟨⟨⋃ (i : ι), (A i).val,
-      hasCardinalLT_iUnion _
-        (by rwa [hasCardinalLT_iff_cardinal_mk_lt]) (fun i ↦ (A i).prop)⟩,
-      le_iSup (fun i ↦ (A i).1)⟩)
+instance [Fact κ.IsRegular] : IsCardinalFiltered (HasCardinalLT.Set X κ) κ :=
+  isCardinalFiltered_preorder _ _ (fun ι A hι ↦ ⟨
+    ⟨
+      ⋃ (i : ι), (A i).val,
+      hasCardinalLT_iUnion _ (by rwa [hasCardinalLT_iff_cardinal_mk_lt]) (fun i ↦ (A i).prop)
+    ⟩,
+    le_iSup (fun i ↦ (A i).1)
+  ⟩)
 
-instance [Fact κ.IsRegular] :
-    IsFiltered (HasCardinalLT.Set X κ) :=
+instance [Fact κ.IsRegular] : IsFiltered (HasCardinalLT.Set X κ) :=
   isFiltered_of_isCardinalFiltered _ κ
 
 lemma isFiltered_of_aleph0_le (hκ : Cardinal.aleph0 ≤ κ) :
@@ -86,8 +88,10 @@ lemma isFiltered_of_aleph0_le (hκ : Cardinal.aleph0 ≤ κ) :
         Set.subset_union_left, Set.subset_union_right⟩⟩
     exact isFilteredOrEmpty_of_directed_le _
 
-/-- The functor `HasCardinalLT.Set X κ ⥤ Type u` which sends a subset of `X`
-of cardinality `κ` to the corresponding subtype. -/
+/--
+The functor `HasCardinalLT.Set X κ ⥤ Type u` which sends a subset of `X`
+of cardinality `κ` to the corresponding subtype.
+-/
 @[simps! +dsimpLhs]
 def functor : HasCardinalLT.Set X κ ⥤ Type u :=
   Monotone.functor (f := Subtype.val) (by tauto) ⋙ Set.functorToTypes (X := X)
@@ -100,11 +104,12 @@ def cocone : Cocone (Set.functor X κ) where
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
-/-- Any type `X` is the (filtered) colimit of its subsets of cardinality `< κ`
+/--
+Any type `X` is the (filtered) colimit of its subsets of cardinality `< κ`
 when `κ` is an infinite cardinal. (This colimit is `κ`-filtered when `κ` is
-a regular cardinal.) -/
-noncomputable def isColimitCocone
-    (hκ : Cardinal.aleph0 ≤ κ) : IsColimit (cocone X κ) := by
+a regular cardinal.)
+-/
+noncomputable def isColimitCocone (hκ : Cardinal.aleph0 ≤ κ) : IsColimit (cocone X κ) := by
   have := isFiltered_of_aleph0_le X κ hκ
   refine Types.FilteredColimit.isColimitOf' _ _ (fun x ↦ ?_) ?_
   · exact ⟨⟨{x}, hasCardinalLT_of_finite _ _ hκ⟩, ⟨x, by simp⟩, rfl⟩
@@ -155,13 +160,19 @@ lemma isStrongGenerator_punit :
     obtain ⟨f, hf⟩ := hi₂ PUnit ⟨.unit⟩ (↾fun _ ↦ y)
     exact ⟨f .unit, ConcreteCategory.congr_hom hf .unit⟩
 
-instance (κ : Cardinal.{u}) [Fact κ.IsRegular] :
-    IsCardinalLocallyPresentable (Type u) κ := by
+instance (κ : Cardinal.{u}) [Fact κ.IsRegular] : IsCardinalLocallyPresentable (Type u) κ := by
   rw [IsCardinalLocallyPresentable.iff_exists_isStrongGenerator]
-  exact ⟨.singleton PUnit, inferInstance, isStrongGenerator_punit, by
-    simp only [ObjectProperty.singleton_le_iff,
-      CategoryTheory.isCardinalPresentable_iff, isCardinalPresentable_iff]
-    exact hasCardinalLT_of_finite _ _ (Cardinal.IsRegular.aleph0_le Fact.out)⟩
+  exact ⟨
+    .singleton PUnit,
+    inferInstance,
+    isStrongGenerator_punit,
+    by
+      simp only [
+        ObjectProperty.singleton_le_iff, CategoryTheory.isCardinalPresentable_iff,
+        isCardinalPresentable_iff
+      ]
+      exact hasCardinalLT_of_finite _ _ (Cardinal.IsRegular.aleph0_le Fact.out)
+  ⟩
 
 instance : IsLocallyPresentable.{u} (Type u) where
   exists_cardinal := ⟨_, Cardinal.fact_isRegular_aleph0, inferInstance⟩

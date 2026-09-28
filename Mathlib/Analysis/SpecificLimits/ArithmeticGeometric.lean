@@ -38,11 +38,13 @@ open scoped Topology
 
 variable {R : Type*} {a b u₀ : R}
 
-/-- Arithmetic-geometric sequence with starting value `u₀` and recurrence relation
-`u (n + 1) = a * u n + b`. -/
+/--
+Arithmetic-geometric sequence with starting value `u₀` and recurrence relation
+`u (n + 1) = a * u n + b`.
+-/
 def arithGeom [Mul R] [Add R] (a b u₀ : R) : ℕ → R
-| 0 => u₀
-| n + 1 => a * arithGeom a b u₀ n + b
+  | 0 => u₀
+  | n + 1 => a * arithGeom a b u₀ n + b
 
 @[simp] lemma arithGeom_zero [Mul R] [Add R] : arithGeom a b u₀ 0 = u₀ := rfl
 

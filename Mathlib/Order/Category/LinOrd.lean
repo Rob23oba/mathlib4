@@ -15,7 +15,6 @@ This defines `LinOrd`, the category of linear orders with monotone maps.
 
 @[expose] public section
 
-
 open CategoryTheory
 
 universe u
@@ -44,8 +43,7 @@ instance : ConcreteCategory LinOrd (· →o ·) where
   ofHom := Hom._mkInternal
 
 /-- Turn a morphism in `LinOrd` back into a `OrderHom`. -/
-abbrev Hom.hom {X Y : LinOrd.{u}} (f : Hom X Y) :=
-  ConcreteCategory.hom (C := LinOrd) f
+abbrev Hom.hom {X Y : LinOrd.{u}} (f : Hom X Y) := ConcreteCategory.hom (C := LinOrd) f
 
 /-- Typecheck a `OrderHom` as a morphism in `LinOrd`. -/
 abbrev ofHom {X Y : Type u} [LinearOrder X] [LinearOrder Y] (f : X →o Y) : of X ⟶ of Y :=
@@ -53,8 +51,7 @@ abbrev ofHom {X Y : Type u} [LinearOrder X] [LinearOrder Y] (f : X →o Y) : of 
 
 variable {R} in
 /-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (X Y : LinOrd.{u}) (f : Hom X Y) :=
-  f.hom
+def Hom.Simps.hom (X Y : LinOrd.{u}) (f : Hom X Y) := f.hom
 
 initialize_simps_projections Hom (hom' → hom)
 
@@ -122,8 +119,7 @@ lemma inv_hom_apply {X Y : LinOrd} (e : X ≅ Y) (x : X) : e.inv (e.hom x) = x :
 lemma hom_inv_apply {X Y : LinOrd} (e : X ≅ Y) (s : Y) : e.hom (e.inv s) = s := by
   simp
 
-instance : Inhabited LinOrd :=
-  ⟨of PUnit⟩
+instance : Inhabited LinOrd := ⟨of PUnit⟩
 
 instance hasForgetToLat : HasForget₂ LinOrd Lat where
   forget₂.obj X := ↧X
@@ -151,6 +147,6 @@ def dualEquiv : LinOrd ≌ LinOrd where
 
 end LinOrd
 
-theorem linOrd_dual_comp_forget_to_Lat :
-    LinOrd.dual ⋙ forget₂ LinOrd Lat = forget₂ LinOrd Lat ⋙ Lat.dual :=
+theorem linOrd_dual_comp_forget_to_Lat
+    : LinOrd.dual ⋙ forget₂ LinOrd Lat = forget₂ LinOrd Lat ⋙ Lat.dual :=
   rfl

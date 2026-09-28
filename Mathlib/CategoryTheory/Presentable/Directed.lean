@@ -59,8 +59,10 @@ of `κ`-bounded diagrams with a unique terminal object in `J` shall be a possibl
 choice for `α`.
 -/
 
-/-- If `κ` is a cardinal, this structure contains the data of a `κ`-bounded diagram
-in a category `J`. -/
+/--
+If `κ` is a cardinal, this structure contains the data of a `κ`-bounded diagram
+in a category `J`.
+-/
 @[ext]
 structure Diagram where
   /-- the morphisms which belong to the diagram -/
@@ -76,10 +78,12 @@ namespace Diagram
 
 variable {J κ}
 
-/-- Given a `κ`-bounded diagram `D` in a category `J`, an object `e : J`
+/--
+Given a `κ`-bounded diagram `D` in a category `J`, an object `e : J`
 is terminal if `𝟙 e` belongs to `D` and for any object `j` of `D`,
 there is a unique morphism `j ⟶ e` in `D`, such that these unique morphisms
-are compatible with precomposition with morphisms in `D`. -/
+are compatible with precomposition with morphisms in `D`.
+-/
 structure IsTerminal (D : Diagram J κ) (e : J) where
   prop_id : D.W (𝟙 e)
   /-- the unique map to the terminal object in the diagram -/
@@ -108,29 +112,35 @@ instance : Subsingleton (D.IsTerminal e) where
     cases h₂
     aesop
 
-/-- Constructor for `Diagram.IsTerminal` for which no data is provided,
-but only its existence. -/
-noncomputable def ofExistsUnique (prop_id : D.W (𝟙 e))
-    (h₁ : ∀ ⦃j : J⦄ (_ : D.P j), ∃ (lift : j ⟶ e), D.W lift)
+/--
+Constructor for `Diagram.IsTerminal` for which no data is provided,
+but only its existence.
+-/
+noncomputable def ofExistsUnique
+    (prop_id : D.W (𝟙 e)) (h₁ : ∀ ⦃j : J⦄ (_ : D.P j), ∃ (lift : j ⟶ e), D.W lift)
     (h₂ : ∀ ⦃j : J⦄ (_ : D.P j) (l₁ l₂ : j ⟶ e), D.W l₁ → D.W l₂ → l₁ = l₂)
     (h₃ : ∀ ⦃i j : J⦄ (f : i ⟶ j) (_ : D.W f), ∃ (li : i ⟶ e) (lj : j ⟶ e),
-      D.W li ∧ D.W lj ∧ f ≫ lj = li) :
-    D.IsTerminal e where
+      D.W li ∧ D.W lj ∧ f ≫ lj = li)
+    : D.IsTerminal e where
   prop_id := prop_id
   lift hj := (h₁ hj).choose
   hlift hj := (h₁ hj).choose_spec
   uniq hj φ hφ := h₂ hj (h₁ hj).choose φ (h₁ hj).choose_spec hφ
   comm _ hf := by
     obtain ⟨li, lj, hli, hlj, fac⟩ := h₃ _ hf
-    rw [h₂ (D.src hf) _ li (h₁ (D.src hf)).choose_spec hli,
-      h₂ (D.tgt hf) _ lj (h₁ (D.tgt hf)).choose_spec hlj, fac]
+    rw [
+      h₂ (D.src hf) _ li (h₁ (D.src hf)).choose_spec hli,
+      h₂ (D.tgt hf) _ lj (h₁ (D.tgt hf)).choose_spec hlj, fac
+    ]
 
 end IsTerminal
 
 end Diagram
 
-/-- If `κ` is a cardinal, this structure contains the data of a `κ`-bounded diagram
-with a unique terminal object in a category `J`. -/
+/--
+If `κ` is a cardinal, this structure contains the data of a `κ`-bounded diagram
+with a unique terminal object in a category `J`.
+-/
 structure DiagramWithUniqueTerminal extends Diagram J κ where
   /-- the terminal object -/
   top : J
@@ -176,8 +186,10 @@ lemma functorMap_comp {D₁ D₂ D₃ : DiagramWithUniqueTerminal J κ} (h₁₂
 
 end
 
-/-- The functor which sends a `κ`-bounded diagram with a unique terminal object to
-its terminal object. -/
+/--
+The functor which sends a `κ`-bounded diagram with a unique terminal object to
+its terminal object.
+-/
 @[simps]
 def functor : DiagramWithUniqueTerminal J κ ⥤ J where
   obj D := D.top
@@ -195,25 +207,27 @@ def Diagram.single (j : J) : Diagram J κ where
   tgt := by rintro _ _ _ ⟨⟩; exact ⟨⟨⟩⟩
   hW :=
     (hasCardinalLT_of_finite _ κ (Cardinal.IsRegular.aleph0_le Fact.out)).of_surjective
-        (fun (_ : Unit) ↦ ⟨Arrow.mk (𝟙 j), ⟨⟨⟩⟩⟩) (by
-      rintro ⟨f, hf⟩
-      refine ⟨⟨⟩, ?_⟩
-      ext
-      exact ((MorphismProperty.ofHoms_iff _ _).1
-        ((MorphismProperty.arrow_mk_mem_toSet_iff _ _).1 hf)).choose_spec.symm)
+      (fun (_ : Unit) ↦ ⟨Arrow.mk (𝟙 j), ⟨⟨⟩⟩⟩)
+      (by
+        rintro ⟨f, hf⟩
+        refine ⟨⟨⟩, ?_⟩
+        ext
+        exact ((MorphismProperty.ofHoms_iff _ _).1
+          ((MorphismProperty.arrow_mk_mem_toSet_iff _ _).1 hf)).choose_spec.symm)
   hP :=
     (hasCardinalLT_of_finite _ κ (Cardinal.IsRegular.aleph0_le Fact.out)).of_surjective
-      (fun (_ : Unit) ↦ ⟨j, by simp⟩) (fun ⟨k, hk⟩ ↦ ⟨⟨⟩, by aesop⟩)
+      (fun (_ : Unit) ↦ ⟨j, by simp⟩)
+      (fun ⟨k, hk⟩ ↦ ⟨⟨⟩, by aesop⟩)
 
 instance (j : J) : Finite (Subtype (Diagram.single (κ := κ) j).P) :=
-  Finite.of_surjective (fun (_ : Unit) ↦ ⟨j, by simp⟩)
-    (by rintro ⟨_, ⟨⟩⟩; exact ⟨⟨⟩, rfl⟩)
+  Finite.of_surjective (fun (_ : Unit) ↦ ⟨j, by simp⟩) (by rintro ⟨_, ⟨⟩⟩; exact ⟨⟨⟩, rfl⟩)
 
 variable {J κ} in
-/-- The diagram with a unique terminal object containing a single object
-(and its identity morphism). -/
-noncomputable def DiagramWithUniqueTerminal.single (j : J) :
-    DiagramWithUniqueTerminal J κ where
+/--
+The diagram with a unique terminal object containing a single object
+(and its identity morphism).
+-/
+noncomputable def DiagramWithUniqueTerminal.single (j : J) : DiagramWithUniqueTerminal J κ where
   toDiagram := .single j
   top := j
   isTerminal := by
@@ -233,8 +247,7 @@ noncomputable def DiagramWithUniqueTerminal.single (j : J) :
 variable {J κ} in
 /-- The union of a `κ`-bounded family of `κ`-bounded diagrams. -/
 @[simps]
-def Diagram.iSup {ι : Type*} (D : ι → Diagram J κ) (hι : HasCardinalLT ι κ) :
-    Diagram J κ where
+def Diagram.iSup {ι : Type*} (D : ι → Diagram J κ) (hι : HasCardinalLT ι κ) : Diagram J κ where
   W := ⨆ (i : ι), (D i).W
   P := ⨆ (i : ι), (D i).P
   src hf := by
@@ -251,8 +264,7 @@ def Diagram.iSup {ι : Type*} (D : ι → Diagram J κ) (hι : HasCardinalLT ι 
 variable {J κ} in
 /-- The union of two `κ`-bounded diagrams. -/
 @[simps]
-def Diagram.sup (D₁ D₂ : Diagram J κ) :
-    Diagram J κ where
+def Diagram.sup (D₁ D₂ : Diagram J κ) : Diagram J κ where
   W := D₁.W ⊔ D₂.W
   P := D₁.P ⊔ D₂.P
   src := by
@@ -266,8 +278,7 @@ def Diagram.sup (D₁ D₂ : Diagram J κ) :
   hW := .sup D₁.hW D₂.hW (Cardinal.IsRegular.aleph0_le Fact.out)
   hP := .sup D₁.hP D₂.hP (Cardinal.IsRegular.aleph0_le Fact.out)
 
-variable [IsCardinalFiltered J κ]
-  (hJ : ∀ (e : J), ∃ (m : J) (_ : e ⟶ m), IsEmpty (m ⟶ e))
+variable [IsCardinalFiltered J κ] (hJ : ∀ (e : J), ∃ (m : J) (_ : e ⟶ m), IsEmpty (m ⟶ e))
 
 include hJ in
 lemma isCardinalFiltered_aux
@@ -316,20 +327,20 @@ lemma isCardinalFiltered_aux
 
 section
 
-variable {J κ} {ι : Type w} (D : ι → DiagramWithUniqueTerminal J κ) (hι : HasCardinalLT ι κ)
+variable
+  {J κ} {ι : Type w} (D : ι → DiagramWithUniqueTerminal J κ) (hι : HasCardinalLT ι κ)
   {m : J} (u : (i : ι) → (D i).top ⟶ m)
 
 variable (m) in
 /-- Auxiliary definition for `isCardinalFiltered`. -/
-@[simps!]
-def D₁ : Diagram J κ :=
-  (Diagram.iSup (fun i ↦ (D i).toDiagram) hι).sup (.single m)
+@[simps!] def D₁ : Diagram J κ := (Diagram.iSup (fun i ↦ (D i).toDiagram) hι).sup (.single m)
 
 /-- Auxiliary definition for `isCardinalFiltered`. -/
 @[simps!]
 def D₂ : Diagram J κ where
-  W := (D₁ D hι m).W ⊔ MorphismProperty.ofHoms
-    fun (x : (Σ (i : ι), (Subtype (D i).P))) ↦ (D x.1).isTerminal.lift x.2.2 ≫ u x.1
+  W :=
+    (D₁ D hι m).W ⊔ MorphismProperty.ofHoms fun (x : (Σ (i : ι), (Subtype (D i).P))) ↦
+      (D x.1).isTerminal.lift x.2.2 ≫ u x.1
   P := (D₁ D hι m).P
   src := by
     simp only [D₁_W, D₁_P]
@@ -347,8 +358,10 @@ def D₂ : Diagram J κ where
       exact Or.inl ⟨i, (D i).tgt hf⟩
     · exact Or.inr rfl
     · exact Or.inr rfl
-  hW := .sup (D₁ _ _ _).hW (MorphismProperty.hasCardinalLT_ofHoms _
-    ((hasCardinalLT_sigma _ _ hι (fun i ↦ (D i).hP)))) (Cardinal.IsRegular.aleph0_le Fact.out)
+  hW :=
+    .sup (D₁ _ _ _).hW
+      (MorphismProperty.hasCardinalLT_ofHoms _ ((hasCardinalLT_sigma _ _ hι (fun i ↦ (D i).hP))))
+      (Cardinal.IsRegular.aleph0_le Fact.out)
   hP := (D₁ _ _ _).hP
 
 omit [IsCardinalFiltered J κ] in
@@ -423,14 +436,11 @@ lemma isCardinalFiltered : IsCardinalFiltered (DiagramWithUniqueTerminal J κ) �
 
 section
 
-variable {κ J} (D : DiagramWithUniqueTerminal J κ) {m₁ : J}
-  (φ : (∀ (x : Subtype D.P), x.val ⟶ m₁))
+variable {κ J} (D : DiagramWithUniqueTerminal J κ) {m₁ : J} (φ : (∀ (x : Subtype D.P), x.val ⟶ m₁))
 
 variable (m₁) in
 /-- Auxiliary definition for `final_functor`. -/
-@[simps!]
-def D₃ : Diagram J κ :=
-  D.toDiagram.sup (.single m₁)
+@[simps!] def D₃ : Diagram J κ := D.toDiagram.sup (.single m₁)
 
 /-- Auxiliary definition for `final_functor`. -/
 @[simps!]
@@ -445,8 +455,9 @@ def D₄ : Diagram J κ where
     rintro i j f (hf | ⟨⟨j, hj⟩⟩)
     · exact (D₃ D m₁).tgt hf
     · exact Or.inr ⟨⟨⟩⟩
-  hW := .sup (D₃ D m₁).hW (MorphismProperty.hasCardinalLT_ofHoms _ D.hP)
-    (Cardinal.IsRegular.aleph0_le Fact.out)
+  hW :=
+    .sup (D₃ D m₁).hW (MorphismProperty.hasCardinalLT_ofHoms _ D.hP)
+      (Cardinal.IsRegular.aleph0_le Fact.out)
   hP := (D₃ D m₁).hP
 
 end

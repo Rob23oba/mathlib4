@@ -60,18 +60,15 @@ protected def sigma (M : (i : ι) → Matroid (α i)) : Matroid ((i : ι) × α 
   E := univ.sigma (fun i ↦ (M i).E)
   Indep I := ∀ i, (M i).Indep (Sigma.mk i ⁻¹' I)
   IsBase B := ∀ i, (M i).IsBase (Sigma.mk i ⁻¹' B)
-
   indep_iff' I := by
     refine ⟨fun h ↦ ?_, fun ⟨B, hB, hIB⟩ i ↦ (hB i).indep.subset (preimage_mono hIB)⟩
     choose Bs hBs using fun i ↦ (h i).exists_isBase_superset
     refine ⟨univ.sigma Bs, fun i ↦ by simpa using (hBs i).1, ?_⟩
     rw [← univ_sigma_preimage_mk I]
     refine sigma_mono rfl.subset fun i ↦ (hBs i).2
-
   exists_isBase := by
     choose B hB using fun i ↦ (M i).exists_isBase
     exact ⟨univ.sigma B, by simpa⟩
-
   isBase_exchange B₁ B₂ h₁ h₂ := by
     simp only [mem_sdiff, Sigma.exists, and_imp, Sigma.forall]
     intro i e he₁ he₂
@@ -80,12 +77,15 @@ protected def sigma (M : (i : ι) → Matroid (α i)) : Matroid ((i : ι) × α 
     refine ⟨i, f, ⟨hf₁, hf₂⟩, fun j ↦ ?_⟩
     rw [← union_singleton, preimage_union, preimage_sdiff]
     obtain (rfl | hne) := eq_or_ne i j
-    · simpa only [show ∀ x, {⟨i,x⟩} = Sigma.mk i '' {x} by simp,
-        preimage_image_eq _ sigma_mk_injective, union_singleton]
-    rw [preimage_singleton_eq_empty.2 (by simpa), preimage_singleton_eq_empty.2 (by simpa),
-      sdiff_empty, union_empty]
+    · simpa only [
+        show ∀ x, {⟨i, x⟩} = Sigma.mk i '' {x} by simp, preimage_image_eq _ sigma_mk_injective,
+        union_singleton
+      ]
+    rw [
+      preimage_singleton_eq_empty.2 (by simpa), preimage_singleton_eq_empty.2 (by simpa),
+      sdiff_empty, union_empty
+    ]
     exact h₁ j
-
   maximality X _ I hI hIX := by
     choose Js hJs using
       fun i ↦ (hI i).subset_isBasis'_of_subset (preimage_mono (f := Sigma.mk i) hIX)
@@ -101,7 +101,6 @@ protected def sigma (M : (i : ι) → Matroid (α i)) : Matroid ((i : ι) × α 
     rw [sigma_subset_iff] at hJS
     rw [(hJs i).1.eq_of_subset_indep (hS i) (hJS <| mem_univ i)]
     exact preimage_mono hSX
-
   subset_ground B hB := by
     rw [← univ_sigma_preimage_mk B]
     apply sigma_mono Subset.rfl fun i ↦ (hB i).subset_ground
@@ -152,8 +151,10 @@ section sum'
 
 variable {α ι : Type*} {M : ι → Matroid α}
 
-/-- The sum of an indexed family `M : ι → Matroid α` of matroids on the same type,
-as a matroid on the product type `ι × α`. -/
+/--
+The sum of an indexed family `M : ι → Matroid α` of matroids on the same type,
+as a matroid on the product type `ι × α`.
+-/
 protected def sum' (M : ι → Matroid α) : Matroid (ι × α) :=
   (Matroid.sigma M).mapEquiv <| Equiv.sigmaEquivProd ι α
 
@@ -195,10 +196,12 @@ open scoped Function -- required for scoped `on` notation
 
 variable {α ι : Type*} {M : ι → Matroid α}
 
-/-- The sum of an indexed collection of matroids on `α` with pairwise disjoint ground sets,
-as a matroid on `α` -/
-protected def disjointSigma (M : ι → Matroid α) (h : Pairwise (Disjoint on fun i ↦ (M i).E)) :
-    Matroid α :=
+/--
+The sum of an indexed collection of matroids on `α` with pairwise disjoint ground sets,
+as a matroid on `α`
+-/
+protected def disjointSigma (M : ι → Matroid α) (h : Pairwise (Disjoint on fun i ↦ (M i).E))
+    : Matroid α :=
   (Matroid.sigma (fun i ↦ (M i).restrictSubtype (M i).E)).mapEmbedding
     (Function.Embedding.sigmaSet h)
 

@@ -69,17 +69,19 @@ lemma IsCardinalFilteredGenerator.of_isDense_ι
   simpa using IsCardinalFilteredGenerator.of_isDense P.ι κ
 
 instance ObjectProperty.isCardinalFiltered_costructuredArrow_colimitsCardinalClosure_ι
-    (P : ObjectProperty C) (κ : Cardinal.{w}) [Fact κ.IsRegular]
-    [HasColimitsOfSize.{w, w} C] (X : C) :
-    IsCardinalFiltered (CostructuredArrow (P.colimitsCardinalClosure κ).ι X) κ where
+    (P : ObjectProperty C)
+    (κ : Cardinal.{w}) [Fact κ.IsRegular] [HasColimitsOfSize.{w, w} C]
+    (X : C)
+    : IsCardinalFiltered (CostructuredArrow (P.colimitsCardinalClosure κ).ι X) κ where
   nonempty_cocone {J} _ K hJ := ⟨by
     have := ObjectProperty.isClosedUnderColimitsOfShape_colimitsCardinalClosure P κ J hJ
     exact colimit.cocone K⟩
 
 instance ObjectProperty.isFiltered_costructuredArrow_colimitsCardinalClosure_ι
-    (P : ObjectProperty C) (κ : Cardinal.{w}) [Fact κ.IsRegular]
-    [HasColimitsOfSize.{w, w} C] (X : C) :
-    IsFiltered (CostructuredArrow (P.colimitsCardinalClosure κ).ι X) :=
+    (P : ObjectProperty C)
+    (κ : Cardinal.{w}) [Fact κ.IsRegular] [HasColimitsOfSize.{w, w} C]
+    (X : C)
+    : IsFiltered (CostructuredArrow (P.colimitsCardinalClosure κ).ι X) :=
   isFiltered_of_isCardinalFiltered _ κ
 
 variable {κ : Cardinal.{w}} [Fact κ.IsRegular]

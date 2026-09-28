@@ -29,16 +29,21 @@ namespace CategoryTheory
 
 open Category CategoryTheory.Functor
 
-variable {C₁ C₂ C₃ C₄ C₅ C₆ : Type*} [Category* C₁] [Category* C₂] [Category* C₃] [Category* C₄]
-  [Category* C₅] [Category* C₆]
+variable
+  {C₁ C₂ C₃ C₄ C₅ C₆ : Type*}
+  [Category* C₁] [Category* C₂] [Category* C₃] [Category* C₄] [Category* C₅] [Category* C₆]
 
-/-- `CatCommSq T L R B` expresses that there is a 2-commutative square of functors, where
+/--
+`CatCommSq T L R B` expresses that there is a 2-commutative square of functors, where
 the functors `T`, `L`, `R` and `B` are respectively the left, top, right and bottom functors
-of the square. -/
+of the square.
+-/
 @[ext]
 class CatCommSq (T : C₁ ⥤ C₂) (L : C₁ ⥤ C₃) (R : C₂ ⥤ C₄) (B : C₃ ⥤ C₄) where
-  /-- Assuming `[CatCommSq T L R B]`, `iso T L R B` is the isomorphism `T ⋙ R ≅ L ⋙ B`
-  given by the 2-commutative square. -/
+  /--
+  Assuming `[CatCommSq T L R B]`, `iso T L R B` is the isomorphism `T ⋙ R ≅ L ⋙ B`
+  given by the 2-commutative square.
+  -/
   iso (T) (L) (R) (B) : T ⋙ R ≅ L ⋙ B
 
 variable (T : C₁ ⥤ C₂) (L : C₁ ⥤ C₃) (R : C₂ ⥤ C₄) (B : C₃ ⥤ C₄)
@@ -67,34 +72,38 @@ lemma iso_inv_naturality [h : CatCommSq T L R B] {x y : C₁} (f : x ⟶ y) :
 
 /-- Horizontal composition of 2-commutative squares -/
 @[simps!, instance_reducible]
-def hComp (T₁ : C₁ ⥤ C₂) (T₂ : C₂ ⥤ C₃) (V₁ : C₁ ⥤ C₄) (V₂ : C₂ ⥤ C₅) (V₃ : C₃ ⥤ C₆)
-    (B₁ : C₄ ⥤ C₅) (B₂ : C₅ ⥤ C₆) [CatCommSq T₁ V₁ V₂ B₁] [CatCommSq T₂ V₂ V₃ B₂] :
-    CatCommSq (T₁ ⋙ T₂) V₁ V₃ (B₁ ⋙ B₂) where
-  iso := associator _ _ _ ≪≫ isoWhiskerLeft T₁ (iso T₂ V₂ V₃ B₂) ≪≫
-    (associator _ _ _).symm ≪≫ isoWhiskerRight (iso T₁ V₁ V₂ B₁) B₂ ≪≫
-    associator _ _ _
+def hComp
+    (T₁ : C₁ ⥤ C₂) (T₂ : C₂ ⥤ C₃) (V₁ : C₁ ⥤ C₄) (V₂ : C₂ ⥤ C₅) (V₃ : C₃ ⥤ C₆) (B₁ : C₄ ⥤ C₅)
+    (B₂ : C₅ ⥤ C₆) [CatCommSq T₁ V₁ V₂ B₁] [CatCommSq T₂ V₂ V₃ B₂]
+    : CatCommSq (T₁ ⋙ T₂) V₁ V₃ (B₁ ⋙ B₂) where
+  iso :=
+    associator _ _ _ ≪≫ isoWhiskerLeft T₁ (iso T₂ V₂ V₃ B₂) ≪≫ (associator _ _ _).symm
+      ≪≫ isoWhiskerRight (iso T₁ V₁ V₂ B₁) B₂ ≪≫ associator _ _ _
 
 /-- A variant of `hComp` where both squares can be explicitly provided. -/
-abbrev hComp' {T₁ : C₁ ⥤ C₂} {T₂ : C₂ ⥤ C₃} {V₁ : C₁ ⥤ C₄} {V₂ : C₂ ⥤ C₅} {V₃ : C₃ ⥤ C₆}
-    {B₁ : C₄ ⥤ C₅} {B₂ : C₅ ⥤ C₆} (S₁ : CatCommSq T₁ V₁ V₂ B₁) (S₂ : CatCommSq T₂ V₂ V₃ B₂) :
-    CatCommSq (T₁ ⋙ T₂) V₁ V₃ (B₁ ⋙ B₂) :=
+abbrev hComp'
+    {T₁ : C₁ ⥤ C₂} {T₂ : C₂ ⥤ C₃} {V₁ : C₁ ⥤ C₄} {V₂ : C₂ ⥤ C₅} {V₃ : C₃ ⥤ C₆} {B₁ : C₄ ⥤ C₅}
+    {B₂ : C₅ ⥤ C₆} (S₁ : CatCommSq T₁ V₁ V₂ B₁) (S₂ : CatCommSq T₂ V₂ V₃ B₂)
+    : CatCommSq (T₁ ⋙ T₂) V₁ V₃ (B₁ ⋙ B₂) :=
   letI := S₁
   letI := S₂
   hComp _ _ _ V₂ _ _ _
 
 /-- Vertical composition of 2-commutative squares -/
 @[simps!, instance_reducible]
-def vComp (L₁ : C₁ ⥤ C₂) (L₂ : C₂ ⥤ C₃) (H₁ : C₁ ⥤ C₄) (H₂ : C₂ ⥤ C₅) (H₃ : C₃ ⥤ C₆)
-    (R₁ : C₄ ⥤ C₅) (R₂ : C₅ ⥤ C₆) [CatCommSq H₁ L₁ R₁ H₂] [CatCommSq H₂ L₂ R₂ H₃] :
-    CatCommSq H₁ (L₁ ⋙ L₂) (R₁ ⋙ R₂) H₃ where
-  iso := (associator _ _ _).symm ≪≫ isoWhiskerRight (iso H₁ L₁ R₁ H₂) R₂ ≪≫
-      associator _ _ _ ≪≫ isoWhiskerLeft L₁ (iso H₂ L₂ R₂ H₃) ≪≫
-      (associator _ _ _).symm
+def vComp
+    (L₁ : C₁ ⥤ C₂) (L₂ : C₂ ⥤ C₃) (H₁ : C₁ ⥤ C₄) (H₂ : C₂ ⥤ C₅) (H₃ : C₃ ⥤ C₆) (R₁ : C₄ ⥤ C₅)
+    (R₂ : C₅ ⥤ C₆) [CatCommSq H₁ L₁ R₁ H₂] [CatCommSq H₂ L₂ R₂ H₃]
+    : CatCommSq H₁ (L₁ ⋙ L₂) (R₁ ⋙ R₂) H₃ where
+  iso :=
+    (associator _ _ _).symm ≪≫ isoWhiskerRight (iso H₁ L₁ R₁ H₂) R₂ ≪≫ associator _ _ _
+      ≪≫ isoWhiskerLeft L₁ (iso H₂ L₂ R₂ H₃) ≪≫ (associator _ _ _).symm
 
 /-- A variant of `vComp` where both squares can be explicitly provided. -/
-abbrev vComp' {L₁ : C₁ ⥤ C₂} {L₂ : C₂ ⥤ C₃} {H₁ : C₁ ⥤ C₄} {H₂ : C₂ ⥤ C₅} {H₃ : C₃ ⥤ C₆}
-    {R₁ : C₄ ⥤ C₅} {R₂ : C₅ ⥤ C₆} (S₁ : CatCommSq H₁ L₁ R₁ H₂) (S₂ : CatCommSq H₂ L₂ R₂ H₃) :
-    CatCommSq H₁ (L₁ ⋙ L₂) (R₁ ⋙ R₂) H₃ :=
+abbrev vComp'
+    {L₁ : C₁ ⥤ C₂} {L₂ : C₂ ⥤ C₃} {H₁ : C₁ ⥤ C₄} {H₂ : C₂ ⥤ C₅} {H₃ : C₃ ⥤ C₆} {R₁ : C₄ ⥤ C₅}
+    {R₂ : C₅ ⥤ C₆} (S₁ : CatCommSq H₁ L₁ R₁ H₂) (S₂ : CatCommSq H₂ L₂ R₂ H₃)
+    : CatCommSq H₁ (L₁ ⋙ L₂) (R₁ ⋙ R₂) H₃ :=
   letI := S₁
   letI := S₂
   vComp _ _ _ H₂ _ _ _
@@ -106,11 +115,11 @@ variable (T : C₁ ≌ C₂) (L : C₁ ⥤ C₃) (R : C₂ ⥤ C₄) (B : C₃ �
 /-- Horizontal inverse of a 2-commutative square -/
 @[simps!, instance_reducible]
 def hInv (_ : CatCommSq T.functor L R B.functor) : CatCommSq T.inverse R L B.inverse where
-  iso := isoWhiskerLeft _ (L.rightUnitor.symm ≪≫ isoWhiskerLeft L B.unitIso ≪≫
-      (associator _ _ _).symm ≪≫
-      isoWhiskerRight (iso T.functor L R B.functor).symm B.inverse ≪≫
-      associator _ _ _) ≪≫ (associator _ _ _).symm ≪≫
-      isoWhiskerRight T.counitIso _ ≪≫ leftUnitor _
+  iso :=
+    isoWhiskerLeft _
+        (L.rightUnitor.symm ≪≫ isoWhiskerLeft L B.unitIso ≪≫ (associator _ _ _).symm
+          ≪≫ isoWhiskerRight (iso T.functor L R B.functor).symm B.inverse ≪≫ associator _ _ _)
+      ≪≫ (associator _ _ _).symm ≪≫ isoWhiskerRight T.counitIso _ ≪≫ leftUnitor _
 
 set_option backward.defeqAttrib.useBackward true in
 lemma hInv_hInv (h : CatCommSq T.functor L R B.functor) :
@@ -128,9 +137,11 @@ lemma hInv_hInv (h : CatCommSq T.functor L R B.functor) :
   simp only [Functor.map_comp, Equivalence.fun_inv_map, assoc,
     Equivalence.counitInv_functor_comp, comp_id, Iso.inv_hom_id_app_assoc]
 
-/-- In a square of categories, when the top and bottom functors are part
+/--
+In a square of categories, when the top and bottom functors are part
 of equivalence of categories, it is equivalent to show 2-commutativity for
-the functors of these equivalences or for their inverses. -/
+the functors of these equivalences or for their inverses.
+-/
 def hInvEquiv : CatCommSq T.functor L R B.functor ≃ CatCommSq T.inverse R L B.inverse where
   toFun := hInv T L R B
   invFun := hInv T.symm R L B.symm
@@ -146,12 +157,13 @@ variable (T : C₁ ⥤ C₂) (L : C₁ ≌ C₃) (R : C₂ ≌ C₄) (B : C₃ �
 /-- Vertical inverse of a 2-commutative square -/
 @[simps!, instance_reducible]
 def vInv (_ : CatCommSq T L.functor R.functor B) : CatCommSq B L.inverse R.inverse T where
-  iso := isoWhiskerRight (B.leftUnitor.symm ≪≫ isoWhiskerRight L.counitIso.symm B ≪≫
-      associator _ _ _ ≪≫
-      isoWhiskerLeft L.inverse (iso T L.functor R.functor B).symm) R.inverse ≪≫
-      associator _ _ _ ≪≫ isoWhiskerLeft _ (associator _ _ _) ≪≫
-      (associator _ _ _).symm ≪≫ isoWhiskerLeft _ R.unitIso.symm ≪≫
-      rightUnitor _
+  iso :=
+    isoWhiskerRight
+        (B.leftUnitor.symm ≪≫ isoWhiskerRight L.counitIso.symm B ≪≫ associator _ _ _
+          ≪≫ isoWhiskerLeft L.inverse (iso T L.functor R.functor B).symm)
+        R.inverse
+      ≪≫ associator _ _ _ ≪≫ isoWhiskerLeft _ (associator _ _ _) ≪≫ (associator _ _ _).symm
+      ≪≫ isoWhiskerLeft _ R.unitIso.symm ≪≫ rightUnitor _
 
 lemma vInv_vInv (h : CatCommSq T L.functor R.functor B) :
     vInv B L.symm R.symm T (vInv T L R B h) = h := by
@@ -168,9 +180,11 @@ lemma vInv_vInv (h : CatCommSq T L.functor R.functor B) :
     Iso.inv_hom_id, NatTrans.id_app, L.functor.map_id]
   simp
 
-/-- In a square of categories, when the left and right functors are part
+/--
+In a square of categories, when the left and right functors are part
 of equivalence of categories, it is equivalent to show 2-commutativity for
-the functors of these equivalences or for their inverses. -/
+the functors of these equivalences or for their inverses.
+-/
 def vInvEquiv : CatCommSq T L.functor R.functor B ≃ CatCommSq B L.inverse R.inverse T where
   toFun := vInv T L R B
   invFun := vInv B L.symm R.symm T

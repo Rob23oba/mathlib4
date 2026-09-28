@@ -39,8 +39,10 @@ local notation "ℍₒ" => upperHalfPlaneSet
 
 namespace ModularForm
 
-/-- The q term inside the product defining the eta function. It is defined as
-`eta_q n z = e ^ (2 π i (n + 1) z)`. -/
+/--
+The q term inside the product defining the eta function. It is defined as
+`eta_q n z = e ^ (2 π i (n + 1) z)`.
+-/
 noncomputable abbrev eta_q (n : ℕ) (z : ℂ) := (𝕢 1 z) ^ (n + 1)
 
 lemma eta_q_eq_cexp (n : ℕ) (z : ℂ) : eta_q n z = cexp (2 * π * I * (n + 1) * z) := by
@@ -129,10 +131,12 @@ lemma logDeriv_one_sub_mul_cexp_comp (r : ℂ) {g : ℂ → ℂ} (hg : Different
   rw [logDeriv_comp (by fun_prop) (hg y), logDeriv_one_sub_cexp]
   ring
 
-private theorem one_sub_eta_logDeriv_eq (z : ℂ) (n : ℕ) :
-    logDeriv (1 - eta_q n ·) z = 2 * π * I * (n + 1) * -eta_q n z / (1 - eta_q n z) := by
-  have h2 : (fun x ↦ 1 - cexp (2 * ↑π * I * (n + 1) * x)) =
-      ((fun z ↦ 1 - 1 * cexp z) ∘ fun x ↦ 2 * ↑π * I * (n + 1) * x) := by aesop
+private theorem one_sub_eta_logDeriv_eq (z : ℂ) (n : ℕ)
+    : logDeriv (1 - eta_q n ·) z = 2 * π * I * (n + 1) * - eta_q n z / (1 - eta_q n z) := by
+  have h2
+      : (fun x ↦ 1 - cexp (2 * ↑π * I * (n + 1) * x))
+        = ((fun z ↦ 1 - 1 * cexp z) ∘ fun x ↦ 2 * ↑π * I * (n + 1) * x) := by
+    aesop
   simp_rw [eta_q_eq_cexp, h2, logDeriv_one_sub_mul_cexp_comp 1
     (g := fun x ↦ (2 * π * I * (n + 1) * x)) (by fun_prop), deriv_const_mul_id]
   simp
@@ -148,8 +152,8 @@ lemma differentiableAt_eta_tprod {z : ℂ} (hz : z ∈ ℍₒ) :
   exact (differentiableOn_tprod_one_sub_pow.differentiableAt
     (Metric.isOpen_ball.mem_nhds hq)).comp z (by fun_prop)
 
-theorem differentiableAt_eta_of_mem_upperHalfPlaneSet {z : ℂ} (hz : z ∈ ℍₒ) :
-    DifferentiableAt ℂ eta z :=
+theorem differentiableAt_eta_of_mem_upperHalfPlaneSet {z : ℂ} (hz : z ∈ ℍₒ)
+    : DifferentiableAt ℂ eta z :=
   .mul (by fun_prop) (differentiableAt_eta_tprod hz)
 
 lemma logDeriv_qParam (h : ℝ) (z : ℂ) : logDeriv (𝕢 h) z = 2 * π * I / h := by

@@ -130,17 +130,21 @@ namespace ProbabilityTheory
 
 section Kernel
 
-variable {Ω Ω' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
-  {ν : Measure Ω'} {κ : Kernel Ω' Ω} {X : Ω → ℝ} {c : ℝ≥0}
+variable
+  {Ω Ω' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'} {ν : Measure Ω'}
+  {κ : Kernel Ω' Ω} {X : Ω → ℝ} {c : ℝ≥0}
 
 /-! ### Sub-Gaussian with respect to a kernel and a measure -/
 
-/-- A random variable `X` has a sub-Gaussian moment-generating function with parameter `c`
+/--
+A random variable `X` has a sub-Gaussian moment-generating function with parameter `c`
 with respect to a kernel `κ` and a measure `ν` if for `ν`-almost all `ω'`, for all `t : ℝ`,
 the moment-generating function of `X` with respect to `κ ω'` is bounded by `exp (c * t ^ 2 / 2)`.
-This implies in particular that `X` has expectation 0. -/
-structure Kernel.HasSubgaussianMGF (X : Ω → ℝ) (c : ℝ≥0)
-    (κ : Kernel Ω' Ω) (ν : Measure Ω' := by volume_tac) : Prop where
+This implies in particular that `X` has expectation 0.
+-/
+structure Kernel.HasSubgaussianMGF
+    (X : Ω → ℝ) (c : ℝ≥0) (κ : Kernel Ω' Ω) (ν : Measure Ω' := by volume_tac)
+    : Prop where
   integrable_exp_mul : ∀ t, Integrable (fun ω ↦ exp (t * X ω)) (κ ∘ₘ ν)
   mgf_le : ∀ᵐ ω' ∂ν, ∀ t, mgf X (κ ω') t ≤ exp (c * t ^ 2 / 2)
 
@@ -531,11 +535,14 @@ section Conditional
 
 /-! ### Conditionally sub-Gaussian moment-generating function -/
 
-variable {Ω : Type*} {m mΩ : MeasurableSpace Ω} {hm : m ≤ mΩ} [StandardBorelSpace Ω]
-  {μ : Measure Ω} [IsFiniteMeasure μ] {X : Ω → ℝ} {c : ℝ≥0}
+variable
+  {Ω : Type*} {m mΩ : MeasurableSpace Ω} {hm : m ≤ mΩ} [StandardBorelSpace Ω]
+  {μ : Measure Ω} [IsFiniteMeasure μ]
+  {X : Ω → ℝ} {c : ℝ≥0}
 
 variable (m) (hm) in
-/-- A random variable `X` has a conditionally sub-Gaussian moment-generating function
+/--
+A random variable `X` has a conditionally sub-Gaussian moment-generating function
 with parameter `c` with respect to a sigma-algebra `m` and a measure `μ` if for all `t : ℝ`,
 `exp (t * X)` is `μ`-integrable and the moment-generating function of `X` conditioned on `m` is
 almost surely bounded by `exp (c * t ^ 2 / 2)` for all `t : ℝ`.
@@ -543,9 +550,10 @@ This implies in particular that `X` has expectation 0.
 
 The actual definition uses `Kernel.HasSubgaussianMGF`: `HasCondSubgaussianMGF` is defined as
 sub-Gaussian with respect to the conditional expectation kernel for `m` and the restriction of `μ`
-to the sigma-algebra `m`. -/
-def HasCondSubgaussianMGF (X : Ω → ℝ) (c : ℝ≥0)
-    (μ : Measure Ω := by volume_tac) [IsFiniteMeasure μ] : Prop :=
+to the sigma-algebra `m`.
+-/
+def HasCondSubgaussianMGF (X : Ω → ℝ) (c : ℝ≥0) (μ : Measure Ω := by volume_tac) [IsFiniteMeasure μ]
+    : Prop :=
   Kernel.HasSubgaussianMGF X c (condExpKernel μ m) (μ.trim hm)
 
 namespace HasCondSubgaussianMGF
@@ -592,7 +600,8 @@ end Conditional
 
 variable {Ω : Type*} {m mΩ : MeasurableSpace Ω} {μ : Measure Ω} {X : Ω → ℝ} {c : ℝ≥0}
 
-/-- A random variable `X` has a sub-Gaussian moment-generating function with parameter `c`
+/--
+A random variable `X` has a sub-Gaussian moment-generating function with parameter `c`
 with respect to a measure `μ` if for all `t : ℝ`, `exp (t * X)` is `μ`-integrable and
 the moment-generating function of `X` is bounded by `exp (c * t ^ 2 / 2)` for all `t : ℝ`.
 This implies in particular that `X` has expectation 0.
@@ -600,7 +609,8 @@ This implies in particular that `X` has expectation 0.
 This is equivalent to `Kernel.HasSubgaussianMGF X c (Kernel.const Unit μ) (Measure.dirac ())`,
 as proved in `HasSubgaussianMGF_iff_kernel`.
 Properties about sub-Gaussian moment-generating functions should be proved first for
-`Kernel.HasSubgaussianMGF` when possible. -/
+`Kernel.HasSubgaussianMGF` when possible.
+-/
 structure HasSubgaussianMGF (X : Ω → ℝ) (c : ℝ≥0) (μ : Measure Ω := by volume_tac) : Prop where
   integrable_exp_mul : ∀ t : ℝ, Integrable (fun ω ↦ exp (t * X ω)) μ
   mgf_le : ∀ t : ℝ, mgf X μ t ≤ exp (c * t ^ 2 / 2)

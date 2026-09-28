@@ -103,14 +103,11 @@ lemma preimage_ofTopology (s : Set X) : ofTopology ⁻¹' s = toTopology t '' s 
 In this section we transfer some instances from `X` to `WithTopology X t`.
 -/
 
-instance [Nonempty X] : Nonempty (WithTopology X t) :=
-  (WithTopology.equiv X t).nonempty
+instance [Nonempty X] : Nonempty (WithTopology X t) := (WithTopology.equiv X t).nonempty
 
-instance [Inhabited X] : Inhabited (WithTopology X t) :=
-  ⟨toTopology t default⟩
+instance [Inhabited X] : Inhabited (WithTopology X t) := ⟨toTopology t default⟩
 
-instance [Subsingleton X] : Subsingleton (WithTopology X t) :=
-  (WithTopology.equiv X t).subsingleton
+instance [Subsingleton X] : Subsingleton (WithTopology X t) := (WithTopology.equiv X t).subsingleton
 
 instance [Unique X] : Unique (WithTopology X t) := .mk' _
 
@@ -137,8 +134,7 @@ instance [LE X] [DecidableLE X] : DecidableLE (WithTopology X t) := fun x y ↦
 instance [LT X] [DecidableLT X] : DecidableLT (WithTopology X t) := fun x y ↦
   inferInstanceAs (Decidable (x.ofTopology < y.ofTopology))
 
-instance [Preorder X] : Preorder (WithTopology X t) :=
-  .lift ofTopology
+instance [Preorder X] : Preorder (WithTopology X t) := .lift ofTopology
 
 instance [PartialOrder X] : PartialOrder (WithTopology X t) :=
   ofTopology_injective t |>.partialOrder _ .rfl .rfl

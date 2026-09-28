@@ -41,8 +41,10 @@ variable {R X : C} {p₁ p₂ : R ⟶ X}
 class JointlyMono₂ {R X₁ X₂ : C} (p₁ : R ⟶ X₁) (p₂ : R ⟶ X₂) : Prop where
   right_cancellation : ∀ ⦃Y : C⦄ (f g : Y ⟶ R), f ≫ p₁ = g ≫ p₁ → f ≫ p₂ = g ≫ p₂ → f = g
 
-/-- A reflexive relation is a jointly monic pair of parallel morphisms `p₁, p₂ : R ⟶ X`, together
-with a section `r : X ⟶ R` of both `p₁` and `p₂`. -/
+/--
+A reflexive relation is a jointly monic pair of parallel morphisms `p₁, p₂ : R ⟶ X`, together
+with a section `r : X ⟶ R` of both `p₁` and `p₂`.
+-/
 structure ReflexiveRelation {R X : C} (p₁ p₂ : R ⟶ X) extends JointlyMono₂ p₁ p₂ where
   /-- `r` is the morphism witnessing reflexivity -/
   r : X ⟶ R
@@ -52,8 +54,10 @@ structure ReflexiveRelation {R X : C} (p₁ p₂ : R ⟶ X) extends JointlyMono�
 attribute [reassoc (attr := simp), elementwise (attr := simp)]
   ReflexiveRelation.reflexivity₁ ReflexiveRelation.reflexivity₂
 
-/-- A symmetric relation is a jointly monic pair of parallel morphisms `p₁, p₂ : R ⟶ X` together
-with a morphism `s : R ⟶ R` which interchanges `p₁` and `p₂`. -/
+/--
+A symmetric relation is a jointly monic pair of parallel morphisms `p₁, p₂ : R ⟶ X` together
+with a morphism `s : R ⟶ R` which interchanges `p₁` and `p₂`.
+-/
 structure SymmetricRelation {R X : C} (p₁ p₂ : R ⟶ X) extends JointlyMono₂ p₁ p₂ where
   /-- `s` is the morphism witnessing symmetry -/
   s : R ⟶ R
@@ -63,9 +67,11 @@ structure SymmetricRelation {R X : C} (p₁ p₂ : R ⟶ X) extends JointlyMono�
 attribute [reassoc (attr := simp), elementwise (attr := simp)]
   SymmetricRelation.symmetry₁ SymmetricRelation.symmetry₂
 
-/-- A transitive relation is a jointly monic pair of parallel morphisms `p₁, p₂ : R ⟶ X`, together
+/--
+A transitive relation is a jointly monic pair of parallel morphisms `p₁, p₂ : R ⟶ X`, together
 with a limiting pullback cone `c` for `p₁` and `p₂` and a map `c.pt ⟶ R` which factors the two
-projections `c.pt ⟶ X` through `R`. -/
+projections `c.pt ⟶ X` through `R`.
+-/
 structure TransitiveRelation {R X : C} (p₁ p₂ : R ⟶ X) extends JointlyMono₂ p₁ p₂ where
   /-- `c` is a pullback cone for `p₁` and `p₂` -/
   c : PullbackCone p₂ p₁
@@ -82,8 +88,8 @@ attribute [reassoc (attr := simp), elementwise (attr := simp)]
   TransitiveRelation.transitivity₁ TransitiveRelation.transitivity₂
 
 /-- An equivalence relation is a reflexive, symmetric and transitive relation. -/
-structure EquivalenceRelation {R X : C} (p₁ p₂ : R ⟶ X) extends ReflexiveRelation p₁ p₂,
-  SymmetricRelation p₁ p₂, TransitiveRelation p₁ p₂
+structure EquivalenceRelation {R X : C} (p₁ p₂ : R ⟶ X)
+  extends ReflexiveRelation p₁ p₂, SymmetricRelation p₁ p₂, TransitiveRelation p₁ p₂
 
 /-- Reinterpret an equivalence relation as a reflexive relation. -/
 add_decl_doc EquivalenceRelation.toReflexiveRelation
@@ -103,9 +109,12 @@ lemma EquivalenceRelation.isEquivalenceRelation (h : EquivalenceRelation p₁ p�
   nonempty_equivalenceRelation := ⟨h⟩
 
 /-- A kernel pair gives rise to an equivalence relation. -/
-noncomputable def IsKernelPair.equivalenceRelation {X Y : C} (f : X ⟶ Y) {R : C} (p₁ p₂ : R ⟶ X)
-    {t : PullbackCone p₂ p₁} (ht : IsLimit t) (h : IsKernelPair f p₁ p₂) :
-    EquivalenceRelation p₁ p₂ where
+noncomputable def IsKernelPair.equivalenceRelation
+    {X Y : C} (f : X ⟶ Y)
+    {R : C} (p₁ p₂ : R ⟶ X)
+    {t : PullbackCone p₂ p₁} (ht : IsLimit t)
+    (h : IsKernelPair f p₁ p₂)
+    : EquivalenceRelation p₁ p₂ where
   right_cancellation A a b h₁ h₂ := h.hom_ext h₁ h₂
   r := h.lift (𝟙 _) (𝟙 _) (by simp)
   s := h.lift p₂ p₁ h.w.symm
@@ -113,29 +122,36 @@ noncomputable def IsKernelPair.equivalenceRelation {X Y : C} (f : X ⟶ Y) {R : 
   isLimit := ht
   t := h.lift (t.fst ≫ p₁) (t.snd ≫ p₂) (by simp [reassoc_of% t.condition, h.w])
 
-/-- Given a functor `F : C ⥤ D`, if `F.map p₁` and `F.map p₂` form a jointly monic pair of
-morphisms, then `F` preserves reflexive relations. -/
-def ReflexiveRelation.map (e : ReflexiveRelation p₁ p₂) (F : C ⥤ D)
-    [JointlyMono₂ (F.map p₁) (F.map p₂)] :
-    ReflexiveRelation (F.map p₁) (F.map p₂) where
+/--
+Given a functor `F : C ⥤ D`, if `F.map p₁` and `F.map p₂` form a jointly monic pair of
+morphisms, then `F` preserves reflexive relations.
+-/
+def ReflexiveRelation.map
+    (e : ReflexiveRelation p₁ p₂) (F : C ⥤ D) [JointlyMono₂ (F.map p₁) (F.map p₂)]
+    : ReflexiveRelation (F.map p₁) (F.map p₂) where
   r := F.map e.r
   reflexivity₁ := by simp [← F.map_comp]
   reflexivity₂ := by simp [← F.map_comp]
 
-/-- Given a functor `F : C ⥤ D`, if `F.map p₁` and `F.map p₂` form a jointly monic pair of
-morphisms, then `F` preserves symmetric relations. -/
-def SymmetricRelation.map (e : SymmetricRelation p₁ p₂) (F : C ⥤ D)
-    [JointlyMono₂ (F.map p₁) (F.map p₂)] :
-    SymmetricRelation (F.map p₁) (F.map p₂) where
+/--
+Given a functor `F : C ⥤ D`, if `F.map p₁` and `F.map p₂` form a jointly monic pair of
+morphisms, then `F` preserves symmetric relations.
+-/
+def SymmetricRelation.map
+    (e : SymmetricRelation p₁ p₂) (F : C ⥤ D) [JointlyMono₂ (F.map p₁) (F.map p₂)]
+    : SymmetricRelation (F.map p₁) (F.map p₂) where
   s := F.map e.s
   symmetry₁ := by simp [← F.map_comp]
   symmetry₂ := by simp [← F.map_comp]
 
-/-- Given a functor `F : C ⥤ D`, if `F.map p₁` and `F.map p₂` form a jointly monic pair of
-morphisms, and if `F` preserves pullbacks, then `F` preserves reflexive relations. -/
-noncomputable def TransitiveRelation.map (e : TransitiveRelation p₁ p₂) (F : C ⥤ D)
-    [JointlyMono₂ (F.map p₁) (F.map p₂)] [PreservesLimitsOfShape WalkingCospan F] :
-    TransitiveRelation (F.map p₁) (F.map p₂) where
+/--
+Given a functor `F : C ⥤ D`, if `F.map p₁` and `F.map p₂` form a jointly monic pair of
+morphisms, and if `F` preserves pullbacks, then `F` preserves reflexive relations.
+-/
+noncomputable def TransitiveRelation.map
+    (e : TransitiveRelation p₁ p₂)
+    (F : C ⥤ D) [JointlyMono₂ (F.map p₁) (F.map p₂)] [PreservesLimitsOfShape WalkingCospan F]
+    : TransitiveRelation (F.map p₁) (F.map p₂) where
   t := F.map e.t
   c := e.c.map F
   isLimit := isLimitPullbackConeMapOfIsLimit F e.c.condition (.ofIsoLimit e.isLimit e.c.eta)
@@ -168,36 +184,45 @@ lemma jointlyMono₂ :
     · congrm $h₁ y
     · congrm $h₂ y
 
-/-- Standard reflexive relations on types are internal reflexive relations in the category of
-types. -/
-def ReflexiveRelation.ofRefl {X : Type w} {φ : X → X → Prop} (hφ : Std.Refl φ) :
-    ReflexiveRelation (p₁OfRel φ) (p₂OfRel φ) where
+/--
+Standard reflexive relations on types are internal reflexive relations in the category of
+types.
+-/
+def ReflexiveRelation.ofRefl {X : Type w} {φ : X → X → Prop} (hφ : Std.Refl φ)
+    : ReflexiveRelation (p₁OfRel φ) (p₂OfRel φ) where
   __ := jointlyMono₂ φ
   r := (↾(fun x => ⟨⟨x, x⟩, hφ.refl x⟩))
 
-/-- Standard symmetric relations on types are internal symmetric relations in the category of
-types. -/
-def SymmetricRelation.ofSymmetric {X : Type w} {φ : X → X → Prop} [Std.Symm φ] :
-    SymmetricRelation (p₁OfRel φ) (p₂OfRel φ) where
+/--
+Standard symmetric relations on types are internal symmetric relations in the category of
+types.
+-/
+def SymmetricRelation.ofSymmetric {X : Type w} {φ : X → X → Prop} [Std.Symm φ]
+    : SymmetricRelation (p₁OfRel φ) (p₂OfRel φ) where
   __ := jointlyMono₂ φ
   s := ↾(fun ⟨⟨x₁, x₂⟩, h⟩ => ⟨⟨x₂, x₁⟩, symm h⟩)
 
-/-- Standard transitive relations on types are internal transitive relations in the category of
-types. -/
-def TransitiveRelation.ofIsTrans {X : Type w} {φ : X → X → Prop} (hφ : IsTrans _ φ) :
-    TransitiveRelation (p₁OfRel φ) (p₂OfRel φ) where
+/--
+Standard transitive relations on types are internal transitive relations in the category of
+types.
+-/
+def TransitiveRelation.ofIsTrans {X : Type w} {φ : X → X → Prop} (hφ : IsTrans _ φ)
+    : TransitiveRelation (p₁OfRel φ) (p₂OfRel φ) where
   __ := jointlyMono₂ φ
   c := Types.pullbackCone _ _
   isLimit := (Types.pullbackLimitCone _ _).isLimit
-  t := ↾(fun ⟨⟨⟨⟨x₁, _⟩, h⟩, ⟨⟨_, x₂'⟩, h'⟩⟩, h₁₂⟩ => by
-    dsimp at h₁₂
-    rw [← h₁₂] at h'
-    refine ⟨⟨x₁, x₂'⟩, hφ.trans _ _ _ h h'⟩)
+  t :=
+    ↾(fun ⟨⟨⟨⟨x₁, _⟩, h⟩, ⟨⟨_, x₂'⟩, h'⟩⟩, h₁₂⟩ => by
+      dsimp at h₁₂
+      rw [← h₁₂] at h'
+      refine ⟨⟨x₁, x₂'⟩, hφ.trans _ _ _ h h'⟩)
 
-/-- Standard equivalence relations on types are internal equivalence relations in the category of
-types. -/
-def EquivalenceRelation.ofEquivalence {X : Type w} {φ : X → X → Prop} (hφ : Equivalence φ) :
-    EquivalenceRelation (p₁OfRel φ) (p₂OfRel φ) where
+/--
+Standard equivalence relations on types are internal equivalence relations in the category of
+types.
+-/
+def EquivalenceRelation.ofEquivalence {X : Type w} {φ : X → X → Prop} (hφ : Equivalence φ)
+    : EquivalenceRelation (p₁OfRel φ) (p₂OfRel φ) where
   __ := ReflexiveRelation.ofRefl hφ.stdRefl
   __ := let := hφ.stdSymm; SymmetricRelation.ofSymmetric
   __ := TransitiveRelation.ofIsTrans hφ.isTrans
@@ -252,11 +277,13 @@ variable {R A : C} (p₁ p₂ : R ⟶ A)
 
 section Effective
 
-/-- An effective equivalence relation is an equivalence relation `p₁, p₂ : R ⟶ A` together with a
+/--
+An effective equivalence relation is an equivalence relation `p₁, p₂ : R ⟶ A` together with a
 morphism `π : A ⟶ B` such that the resulting square is both a pullback square and a pushout
-square. -/
-structure EffectiveEquivalenceRelation {R A : C} (p₁ p₂ : R ⟶ A) extends EquivalenceRelation p₁ p₂
-    where
+square.
+-/
+structure EffectiveEquivalenceRelation {R A : C} (p₁ p₂ : R ⟶ A)
+    extends EquivalenceRelation p₁ p₂ where
   /-- `B` is the "quotient" of the relation -/
   B : C
   /-- `π` is the "quotient map" of the relation -/
@@ -268,36 +295,41 @@ structure EffectiveEquivalenceRelation {R A : C} (p₁ p₂ : R ⟶ A) extends E
 class IsEffectiveEquivalenceRelation {R A : C} (p₁ p₂ : R ⟶ A) : Prop where
   nonempty_effectiveEquivalenceRelation : Nonempty (EffectiveEquivalenceRelation p₁ p₂)
 
-/-- Given an effective equivalence relation structure `e` on `p₁, p₂ : R ⟶ A`, the morphism
-`e.π : A ⟶ e.B` makes `e.B` a coequalizer of `p₁` and `p₂`. -/
-noncomputable def EffectiveEquivalenceRelation.isCoequalizer {R A : C} (p₁ p₂ : R ⟶ A)
-    (e : EffectiveEquivalenceRelation p₁ p₂) :
-    IsColimit (Cofork.ofπ e.π e.isPushout.w) :=
+/--
+Given an effective equivalence relation structure `e` on `p₁, p₂ : R ⟶ A`, the morphism
+`e.π : A ⟶ e.B` makes `e.B` a coequalizer of `p₁` and `p₂`.
+-/
+noncomputable def EffectiveEquivalenceRelation.isCoequalizer
+    {R A : C} (p₁ p₂ : R ⟶ A) (e : EffectiveEquivalenceRelation p₁ p₂)
+    : IsColimit (Cofork.ofπ e.π e.isPushout.w) :=
   e.isPushout.isLimitFork
 
-instance (e : EffectiveEquivalenceRelation p₁ p₂) :
-    IsRegularEpi e.π where
+instance (e : EffectiveEquivalenceRelation p₁ p₂) : IsRegularEpi e.π where
   regularEpi := ⟨Cofork.IsColimit.regularEpi e.isCoequalizer⟩
 
-/-- A universally effective equivalence relation is an effective equivalence relation
+/--
+A universally effective equivalence relation is an effective equivalence relation
 `p₁, p₂ : R ⟶ A` such that the corresponding morphism `π : A ⟶ B` is a universal effective
-epimorphism. -/
+epimorphism.
+-/
 structure UniversallyEffectiveEquivalenceRelation {R A : C} (p₁ p₂ : R ⟶ A)
     extends EffectiveEquivalenceRelation p₁ p₂ where
-  universally_effectiveEpi_π : MorphismProperty.universally (fun _ _ f => EffectiveEpi f)
-    toEffectiveEquivalenceRelation.π
+  universally_effectiveEpi_π
+    : MorphismProperty.universally (fun _ _ f => EffectiveEpi f) toEffectiveEquivalenceRelation.π
 
 /-- The typeclass associated with the structure `UniversallyEffectiveEquivalenceRelation`. -/
 class IsUniversallyEffectiveEquivalenceRelation {R A : C} (p₁ p₂ : R ⟶ A) : Prop where
-  nonempty_universallyEffectiveEquivalenceRelation :
-    Nonempty (UniversallyEffectiveEquivalenceRelation p₁ p₂)
+  nonempty_universallyEffectiveEquivalenceRelation
+    : Nonempty (UniversallyEffectiveEquivalenceRelation p₁ p₂)
 
 variable (C) in
-/-- A category `C` is a universally exact category if all equivalence relations in `C` are
-universally effective equivalence relations. -/
+/--
+A category `C` is a universally exact category if all equivalence relations in `C` are
+universally effective equivalence relations.
+-/
 class IsUniversallyEffectiveEquivalenceRelationCategory where
-  isUniversallyEffectiveEquivalenceRelation (p₁ p₂ : R ⟶ A) [IsEquivalenceRelation p₁ p₂] :
-    IsUniversallyEffectiveEquivalenceRelation p₁ p₂
+  isUniversallyEffectiveEquivalenceRelation (p₁ p₂ : R ⟶ A) [IsEquivalenceRelation p₁ p₂]
+    : IsUniversallyEffectiveEquivalenceRelation p₁ p₂
 
 end Effective
 

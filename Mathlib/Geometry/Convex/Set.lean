@@ -6,7 +6,6 @@ Authors: Yaël Dillies
 module
 
 public import Mathlib.Geometry.Convex.ConvexSpace.Prod
-
 public import Mathlib.Data.Set.Finite.Lattice
 import Mathlib.Order.ConditionallyCompleteLattice.Basic
 
@@ -31,15 +30,18 @@ namespace Convexity
 variable {ι I R K X Y : Type*}
 
 section Semiring
-variable [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [ConvexSpace R X] [ConvexSpace R Y]
+variable
+  [Semiring R] [PartialOrder R] [IsStrictOrderedRing R] [ConvexSpace R X] [ConvexSpace R Y]
   {f : X → Y} {w : StdSimplex R X} {s t : Set X} {x y : X}
 
 variable (R s) in
-/-- A set `s` in a convex space is convex if all convex combinations of points in `s` lie themselves
+/--
+A set `s` in a convex space is convex if all convex combinations of points in `s` lie themselves
 in `s`.
 
 When the scalars form a field, this is equivalent to the definition in terms of binary combinations.
-See `IsConvexSet.of_convexCombPair_mem`. -/
+See `IsConvexSet.of_convexCombPair_mem`.
+-/
 def IsConvexSet : Prop := ∀ ⦃w : StdSimplex R X⦄, ↑w.weights.support ⊆ s → w.sConvexComb ∈ s
 
 lemma IsConvexSet.of_sConvexComb_mem
@@ -132,10 +134,11 @@ protected lemma IsConvexSet.image (hf : IsAffineMap R f) (hs : IsConvexSet R s) 
 
 /-- A convex subset of a convex space is a convex space. -/
 @[expose, implicit_reducible]
-def ConvexSpace.subtype (s : Set X) (hs : IsConvexSet R s) : ConvexSpace R s := .mk
-  (fun w ↦ ⟨w.iConvexComb (↑), hs.iConvexComb_mem <| by simp⟩)
-  (fun x ↦ by simp)
-  (fun w ↦ by ext; simp [iConvexComb_assoc])
+def ConvexSpace.subtype (s : Set X) (hs : IsConvexSet R s) : ConvexSpace R s :=
+  .mk
+    (fun w ↦ ⟨w.iConvexComb (↑), hs.iConvexComb_mem <| by simp⟩)
+    (fun x ↦ by simp)
+    (fun w ↦ by ext; simp [iConvexComb_assoc])
 
 lemma isAffineMap_subtypeVal (s : Set X) (hs : IsConvexSet R s) :
     letI : ConvexSpace R s := .subtype s hs
@@ -179,8 +182,9 @@ protected lemma IsConvexSet.pi {X : ι → Type*} [∀ i, ConvexSpace R (X i)] {
 end Semiring
 
 section Field
-variable [Field K] [LinearOrder K] [IsStrictOrderedRing K] [ConvexSpace K X] {w : StdSimplex K X}
-  {s t : Set X} {x y : X}
+variable
+  [Field K] [LinearOrder K] [IsStrictOrderedRing K] [ConvexSpace K X]
+  {w : StdSimplex K X} {s t : Set X} {x y : X}
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- Convexity of a set can be checked via binary combinations if the scalars form a field. -/

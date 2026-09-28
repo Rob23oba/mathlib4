@@ -27,10 +27,12 @@ open scoped FinsetFamily
 
 namespace Nat
 
-/-- Statement of Graham's conjecture (which is now a theorem in the literature).
+/--
+Statement of Graham's conjecture (which is now a theorem in the literature).
 
 Graham's conjecture states that if $0 < a_1 < \dots a_n$ are integers, then
-$\max_{i, j} \frac{a_i}{\gcd(a_i, a_j)} \ge n$. -/
+$\max_{i, j} \frac{a_i}{\gcd(a_i, a_j)} \ge n$.
+-/
 def GrahamConjecture (n : ℕ) (f : ℕ → ℕ) : Prop :=
   n ≠ 0 → StrictMonoOn f (Set.Iio n) → ∃ i < n, ∃ j < n, (f i).gcd (f j) * n ≤ f i
 

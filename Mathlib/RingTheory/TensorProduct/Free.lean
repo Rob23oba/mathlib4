@@ -45,15 +45,17 @@ variable [CommSemiring R] [Semiring A] [Algebra R A]
 variable [AddCommMonoid M] [Module R M] (b : Basis ι R M)
 
 variable (A) in
-/-- Given an `R`-algebra `A` and an `R`-basis of `M`, this is an `R`-linear isomorphism
-`A ⊗[R] M ≃ (ι →₀ A)` (which is in fact `A`-linear). -/
+/--
+Given an `R`-algebra `A` and an `R`-basis of `M`, this is an `R`-linear isomorphism
+`A ⊗[R] M ≃ (ι →₀ A)` (which is in fact `A`-linear).
+-/
 noncomputable def basisAux : A ⊗[R] M ≃ₗ[R] ι →₀ A :=
-  _root_.TensorProduct.congr (Finsupp.uniqueLinearEquiv R A ()).symm b.repr ≪≫ₗ
-    (finsuppTensorFinsupp R R A R PUnit ι).trans
+  _root_.TensorProduct.congr (Finsupp.uniqueLinearEquiv R A ()).symm b.repr
+    ≪≫ₗ (finsuppTensorFinsupp R R A R PUnit ι).trans
       (Finsupp.lcongr (Equiv.uniqueProd ι PUnit) (_root_.TensorProduct.rid R A))
 
-theorem basisAux_tmul (a : A) (m : M) :
-    basisAux A b (a ⊗ₜ m) = a • Finsupp.mapRange (algebraMap R A) (map_zero _) (b.repr m) := by
+theorem basisAux_tmul (a : A) (m : M)
+    : basisAux A b (a ⊗ₜ m) = a • Finsupp.mapRange (algebraMap R A) (map_zero _) (b.repr m) := by
   ext
   simp [basisAux, ← Algebra.commutes, Algebra.smul_def]
 
@@ -68,16 +70,15 @@ noncomputable def basis : Basis ι A (A ⊗[R] M) where
   repr := { basisAux A b with map_smul' := basisAux_map_smul b }
 
 @[simp]
-theorem basis_repr_tmul (a : A) (m : M) :
-    (basis A b).repr (a ⊗ₜ m) = a • Finsupp.mapRange (algebraMap R A) (map_zero _) (b.repr m) :=
+theorem basis_repr_tmul (a : A) (m : M)
+    : (basis A b).repr (a ⊗ₜ m) = a • Finsupp.mapRange (algebraMap R A) (map_zero _) (b.repr m) :=
   basisAux_tmul b _ _
 
-theorem basis_repr_symm_apply (a : A) (i : ι) :
-    (basis A b).repr.symm (Finsupp.single i a) = a ⊗ₜ b.repr.symm (Finsupp.single i 1) := by
+theorem basis_repr_symm_apply (a : A) (i : ι)
+    : (basis A b).repr.symm (Finsupp.single i a) = a ⊗ₜ b.repr.symm (Finsupp.single i 1) := by
   simp [basis, Equiv.uniqueProd_symm_apply, basisAux]
 
-@[simp]
-theorem basis_apply (i : ι) : basis A b i = 1 ⊗ₜ b i := basis_repr_symm_apply b 1 i
+@[simp] theorem basis_apply (i : ι) : basis A b i = 1 ⊗ₜ b i := basis_repr_symm_apply b 1 i
 
 theorem basis_repr_symm_apply' (a : A) (i : ι) : a • basis A b i = a ⊗ₜ b i := by
   simpa using basis_repr_symm_apply b a i
@@ -108,10 +109,10 @@ end baseChange
 
 end Basis
 
-instance instFree (R A M : Type*)
-    [CommSemiring R] [AddCommMonoid M] [Module R M] [Module.Free R M]
-    [CommSemiring A] [Algebra R A] :
-    Module.Free A (A ⊗[R] M) :=
+instance instFree
+    (R A M : Type*)
+    [CommSemiring R] [AddCommMonoid M] [Module R M] [Module.Free R M] [CommSemiring A] [Algebra R A]
+    : Module.Free A (A ⊗[R] M) :=
   Module.Free.of_basis <| Algebra.TensorProduct.basis A (Module.Free.chooseBasis R M)
 
 end TensorProduct
@@ -122,10 +123,9 @@ namespace LinearMap
 
 open Algebra.TensorProduct
 
-variable {R M₁ M₂ ι ι₂ : Type*} (A : Type*)
-  [Fintype ι] [Finite ι₂] [DecidableEq ι]
-  [CommSemiring R] [CommSemiring A] [Algebra R A]
-  [AddCommMonoid M₁] [Module R M₁] [AddCommMonoid M₂] [Module R M₂]
+variable
+  {R M₁ M₂ ι ι₂ : Type*} (A : Type*) [Fintype ι] [Finite ι₂] [DecidableEq ι] [CommSemiring R]
+  [CommSemiring A] [Algebra R A] [AddCommMonoid M₁] [Module R M₁] [AddCommMonoid M₂] [Module R M₂]
 
 @[simp]
 lemma toMatrix_baseChange (f : M₁ →ₗ[R] M₂) (b₁ : Basis ι R M₁) (b₂ : Basis ι₂ R M₂) :

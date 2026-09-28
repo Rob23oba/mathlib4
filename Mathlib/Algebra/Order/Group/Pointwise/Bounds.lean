@@ -26,8 +26,7 @@ open scoped Pointwise
 variable {ι G M : Type*}
 
 section Mul
-variable [Mul M] [Preorder M] [MulLeftMono M]
-  [MulRightMono M] {f g : ι → M} {s t : Set M} {a b : M}
+variable [Mul M] [Preorder M] [MulLeftMono M] [MulRightMono M] {f g : ι → M} {s t : Set M} {a b : M}
 
 @[to_additive]
 lemma mul_mem_upperBounds_mul (ha : a ∈ upperBounds s) (hb : b ∈ upperBounds t) :
@@ -68,48 +67,31 @@ lemma BddBelow.range_mul (hf : BddBelow (range f)) (hg : BddBelow (range g)) :
 end Mul
 
 section Group
-variable [Group G] [Preorder G] [MulLeftMono G]
-  [MulRightMono G] {s t : Set G} {a b : G}
+variable [Group G] [Preorder G] [MulLeftMono G] [MulRightMono G] {s t : Set G} {a b : G}
 
 @[to_additive (attr := simp)]
-theorem bddAbove_inv : BddAbove s⁻¹ ↔ BddBelow s :=
-  (OrderIso.inv G).bddAbove_preimage
+theorem bddAbove_inv : BddAbove s⁻¹ ↔ BddBelow s := (OrderIso.inv G).bddAbove_preimage
 
 @[to_additive (attr := simp)]
-theorem bddBelow_inv : BddBelow s⁻¹ ↔ BddAbove s :=
-  (OrderIso.inv G).bddBelow_preimage
+theorem bddBelow_inv : BddBelow s⁻¹ ↔ BddAbove s := (OrderIso.inv G).bddBelow_preimage
 
-@[to_additive]
-theorem BddAbove.inv (h : BddAbove s) : BddBelow s⁻¹ :=
-  bddBelow_inv.2 h
+@[to_additive] theorem BddAbove.inv (h : BddAbove s) : BddBelow s⁻¹ := bddBelow_inv.2 h
 
-@[to_additive]
-theorem BddBelow.inv (h : BddBelow s) : BddAbove s⁻¹ :=
-  bddAbove_inv.2 h
+@[to_additive] theorem BddBelow.inv (h : BddBelow s) : BddAbove s⁻¹ := bddAbove_inv.2 h
 
 @[to_additive (attr := simp)]
-theorem isLUB_inv : IsLUB s⁻¹ a ↔ IsGLB s a⁻¹ :=
-  (OrderIso.inv G).isLUB_preimage
+theorem isLUB_inv : IsLUB s⁻¹ a ↔ IsGLB s a⁻¹ := (OrderIso.inv G).isLUB_preimage
 
-@[to_additive]
-theorem isLUB_inv' : IsLUB s⁻¹ a⁻¹ ↔ IsGLB s a :=
-  (OrderIso.inv G).isLUB_preimage'
+@[to_additive] theorem isLUB_inv' : IsLUB s⁻¹ a⁻¹ ↔ IsGLB s a := (OrderIso.inv G).isLUB_preimage'
 
-@[to_additive]
-theorem IsGLB.inv (h : IsGLB s a) : IsLUB s⁻¹ a⁻¹ :=
-  isLUB_inv'.2 h
+@[to_additive] theorem IsGLB.inv (h : IsGLB s a) : IsLUB s⁻¹ a⁻¹ := isLUB_inv'.2 h
 
 @[to_additive (attr := simp)]
-theorem isGLB_inv : IsGLB s⁻¹ a ↔ IsLUB s a⁻¹ :=
-  (OrderIso.inv G).isGLB_preimage
+theorem isGLB_inv : IsGLB s⁻¹ a ↔ IsLUB s a⁻¹ := (OrderIso.inv G).isGLB_preimage
 
-@[to_additive]
-theorem isGLB_inv' : IsGLB s⁻¹ a⁻¹ ↔ IsLUB s a :=
-  (OrderIso.inv G).isGLB_preimage'
+@[to_additive] theorem isGLB_inv' : IsGLB s⁻¹ a⁻¹ ↔ IsLUB s a := (OrderIso.inv G).isGLB_preimage'
 
-@[to_additive]
-theorem IsLUB.inv (h : IsLUB s a) : IsGLB s⁻¹ a⁻¹ :=
-  isGLB_inv'.2 h
+@[to_additive] theorem IsLUB.inv (h : IsLUB s a) : IsGLB s⁻¹ a⁻¹ := isGLB_inv'.2 h
 
 @[to_additive]
 lemma BddBelow.range_inv {α : Type*} {f : α → G} (hf : BddBelow (range f)) :

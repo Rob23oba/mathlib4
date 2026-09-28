@@ -26,11 +26,13 @@ variable {C : Type*} [Category* C]
 
 variable {P Q W : MorphismProperty C}
 
-/-- `P` descends along `Q` if whenever `Q` holds for `X ⟶ Z`,
-`P` holds for `X ×[Z] Y ⟶ X` implies `P` holds for `Y ⟶ Z`. -/
+/--
+`P` descends along `Q` if whenever `Q` holds for `X ⟶ Z`,
+`P` holds for `X ×[Z] Y ⟶ X` implies `P` holds for `Y ⟶ Z`.
+-/
 class DescendsAlong (P Q : MorphismProperty C) : Prop where
-  of_isPullback {A X Y Z : C} {fst : A ⟶ X} {snd : A ⟶ Y} {f : X ⟶ Z} {g : Y ⟶ Z} :
-    IsPullback fst snd f g → Q f → P fst → P g
+  of_isPullback {A X Y Z : C} {fst : A ⟶ X} {snd : A ⟶ Y} {f : X ⟶ Z} {g : Y ⟶ Z}
+    : IsPullback fst snd f g → Q f → P fst → P g
 
 section DescendsAlong
 
@@ -80,32 +82,31 @@ lemma DescendsAlong.mk' [P.RespectsIso]
     apply H hf
     rwa [← P.cancel_left_of_respectsIso h.isoPullback.hom, h.isoPullback_hom_fst]
 
-instance [Q.IsStableUnderBaseChange] [P.HasOfPrecompProperty Q] [P.RespectsRight Q] :
-    P.DescendsAlong Q where
+instance [Q.IsStableUnderBaseChange] [P.HasOfPrecompProperty Q] [P.RespectsRight Q]
+    : P.DescendsAlong Q where
   of_isPullback {A X Y Z fst snd f g} h hf hfst := by
     apply P.of_precomp (W' := Q) _ _ (Q.of_isPullback h hf)
     rw [← h.1.1]
     exact RespectsRight.postcomp _ hf _ hfst
 
 /-- If `P` descends along `Q`, then `P.diagonal` descends along `Q`. -/
-instance [HasPullbacks C] (P Q : MorphismProperty C) [P.DescendsAlong Q] [P.RespectsIso]
-    [Q.IsStableUnderBaseChange] :
-    DescendsAlong (diagonal P) Q := by
+instance
+    [HasPullbacks C]
+    (P Q : MorphismProperty C) [P.DescendsAlong Q] [P.RespectsIso] [Q.IsStableUnderBaseChange]
+    : DescendsAlong (diagonal P) Q := by
   apply DescendsAlong.mk'
   introv hf hfst
-  have heq : pullback.fst (pullback.fst (pullback.snd g g ≫ g) f) (pullback.diagonal g) =
-      (pullbackSymmetry _ _).hom ≫
-      (pullbackRightPullbackFstIso _ _ _).hom ≫
-      (pullback.congrHom (by simp) rfl).hom ≫
-      (pullbackSymmetry _ _).hom ≫
-      pullback.diagonal (pullback.fst f g) ≫
-      (diagonalObjPullbackFstIso f g).hom := by
+  have heq
+      : pullback.fst (pullback.fst (pullback.snd g g ≫ g) f) (pullback.diagonal g)
+        = (pullbackSymmetry _ _).hom ≫ (pullbackRightPullbackFstIso _ _ _).hom
+          ≫ (pullback.congrHom (by simp) rfl).hom ≫ (pullbackSymmetry _ _).hom
+          ≫ pullback.diagonal (pullback.fst f g) ≫ (diagonalObjPullbackFstIso f g).hom := by
     apply pullback.hom_ext
     apply pullback.hom_ext <;> simp [pullback.condition]
     simp [pullback.condition]
   rw [diagonal_iff]
   apply MorphismProperty.of_pullback_fst_of_descendsAlong (P := P) (Q := Q)
-      (f := pullback.fst (pullback.snd g g ≫ g) f)
+    (f := pullback.fst (pullback.snd g g ≫ g) f)
   · exact MorphismProperty.pullback_fst _ _ hf
   · rw [heq]
     iterate 4 rw [cancel_left_of_respectsIso (P := P)]
@@ -139,11 +140,13 @@ lemma faithful_overPullback_of_isomorphisms_descendAlong
 
 end DescendsAlong
 
-/-- `P` codescends along `Q` if whenever `Q` holds for `Z ⟶ X`,
-`P` holds for `X ⟶ X ∐[Z] Y` implies `P` holds for `Z ⟶ Y`. -/
+/--
+`P` codescends along `Q` if whenever `Q` holds for `Z ⟶ X`,
+`P` holds for `X ⟶ X ∐[Z] Y` implies `P` holds for `Z ⟶ Y`.
+-/
 class CodescendsAlong (P Q : MorphismProperty C) : Prop where
-  of_isPushout {Z X Y A : C} {f : Z ⟶ X} {g : Z ⟶ Y} {inl : X ⟶ A} {inr : Y ⟶ A} :
-    IsPushout f g inl inr → Q f → P inl → P g
+  of_isPushout {Z X Y A : C} {f : Z ⟶ X} {g : Z ⟶ Y} {inl : X ⟶ A} {inr : Y ⟶ A}
+    : IsPushout f g inl inr → Q f → P inl → P g
 
 section CodescendsAlong
 
@@ -179,8 +182,8 @@ lemma CodescendsAlong.of_le [P.CodescendsAlong Q] (hle : W ≤ Q) : P.Codescends
 instance CodescendsAlong.top : (⊤ : MorphismProperty C).CodescendsAlong Q where
   of_isPushout _ _ _ := trivial
 
-instance CodescendsAlong.inf [P.CodescendsAlong Q] [W.CodescendsAlong Q] :
-    (P ⊓ W).CodescendsAlong Q where
+instance CodescendsAlong.inf [P.CodescendsAlong Q] [W.CodescendsAlong Q]
+    : (P ⊓ W).CodescendsAlong Q where
   of_isPushout h hg hfst :=
     ⟨CodescendsAlong.of_isPushout h hg hfst.1, CodescendsAlong.of_isPushout h hg hfst.2⟩
 
@@ -193,8 +196,8 @@ lemma CodescendsAlong.mk' [P.RespectsIso]
     apply H hf
     rwa [← P.cancel_right_of_respectsIso _ h.isoPushout.inv, h.inl_isoPushout_inv]
 
-instance [Q.IsStableUnderCobaseChange] [P.HasOfPostcompProperty Q] [P.RespectsLeft Q] :
-    P.CodescendsAlong Q where
+instance [Q.IsStableUnderCobaseChange] [P.HasOfPostcompProperty Q] [P.RespectsLeft Q]
+    : P.CodescendsAlong Q where
   of_isPushout {X Y Z A f g inl inr} h hf hinl := by
     apply P.of_postcomp (W' := Q) g inr (Q.of_isPushout h.flip hf)
     rw [← h.1.1]

@@ -49,8 +49,9 @@ variable {p : ℕ} [Fact p.Prime]
 
 section Preliminaries
 
-variable {R : Type*} [NormedCommRing R] [Algebra ℤ_[p] R] [IsUltrametricDist R] [CompleteSpace R]
-  [IsBoundedSMul ℤ_[p] R]
+variable
+  {R : Type*} [NormedCommRing R] [Algebra (ℤ_[p]) R] [IsUltrametricDist R] [CompleteSpace R]
+  [IsBoundedSMul (ℤ_[p]) R]
 
 /-- Reformulation of `PadicInt.ext_mahler` in terms of the type synonym `D(ℤ_[p], R)`. -/
 lemma AbstractMeasure.ext_mahler {μ : D(ℤ_[p], R)}
@@ -64,8 +65,9 @@ namespace AbstractMeasure
 
 section Definitions
 
-variable {R : Type*} [CommRing R] [TopologicalSpace R]
-  [Algebra ℤ_[p] R] [ContinuousSMul ℤ_[p] R] [IsTopologicalRing R]
+variable
+  {R : Type*} [CommRing R] [TopologicalSpace R] [Algebra (ℤ_[p]) R] [ContinuousSMul (ℤ_[p]) R]
+  [IsTopologicalRing R]
 
 /--
 The Amice transform, sending a measure `μ` on `ℤ_[p]` to the power series with `n`-th
@@ -86,8 +88,9 @@ end Definitions
 
 section Injectivity
 
-variable {R : Type*} [NormedCommRing R] [Algebra ℤ_[p] R] [IsUltrametricDist R] [CompleteSpace R]
-  [IsBoundedSMul ℤ_[p] R]
+variable
+  {R : Type*} [NormedCommRing R] [Algebra (ℤ_[p]) R] [IsUltrametricDist R] [CompleteSpace R]
+  [IsBoundedSMul (ℤ_[p]) R]
 
 lemma injective_amiceTransform : Function.Injective (amiceTransform : D(ℤ_[p], R) → _) := by
   rw [injective_iff_map_eq_zero]
@@ -116,8 +119,10 @@ private def invTransformₗ (F : ℤ_[p]⟦X⟧) : C(ℤ_[p], ℤ_[p]) →ₗ[�
     simp only [map_add, ZeroAtInftyContinuousMap.coe_add, Pi.add_apply, add_mul]
     rw [Summable.tsum_add] <;> apply invTransformSummable
   map_smul' r f := by
-    simp only [map_smul, ZeroAtInftyContinuousMap.coe_smul, Pi.smul_apply, smul_eq_mul, mul_assoc,
-      RingHom.id_apply]
+    simp only [
+      map_smul, ZeroAtInftyContinuousMap.coe_smul, Pi.smul_apply, smul_eq_mul, mul_assoc,
+      RingHom.id_apply
+    ]
     simp_rw [← smul_eq_mul]
     rw [Summable.tsum_const_smul]
     exact invTransformSummable F f
@@ -132,7 +137,9 @@ def invTransform (F : ℤ_[p]⟦X⟧) : D(ℤ_[p], ℤ_[p]) :=
     apply IsUltrametricDist.norm_tsum_le_of_forall_le
     intro i
     grw [norm_mul, (F.coeff i).norm_le_one, mul_one, one_mul, ← ge_iff_le]
-    calc ‖f‖ = ‖PadicInt.mahlerEquiv ℤ_[p] f‖ := by rw [← (PadicInt.mahlerEquiv ℤ_[p]).norm_map]
+    calc
+      ‖f‖
+        = ‖PadicInt.mahlerEquiv ℤ_[p] f‖ := by rw [← (PadicInt.mahlerEquiv ℤ_[p]).norm_map]
       _ = ‖(PadicInt.mahlerEquiv ℤ_[p] f).toBCF‖ := by
         rw [← ZeroAtInftyContinuousMap.norm_toBCF_eq_norm]
       _ ≥ _ := BoundedContinuousFunction.norm_coe_le_norm ..

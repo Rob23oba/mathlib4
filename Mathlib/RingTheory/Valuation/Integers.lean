@@ -47,28 +47,30 @@ variable {R : Type u} {Γ₀ : Type v} [CommRing R] [LinearOrderedCommGroupWithZ
 variable (v : Valuation R Γ₀)
 variable (O : Type w) [CommRing O] [Algebra O R]
 
-/-- Given a valuation v : R → Γ₀ and a ring homomorphism O →+* R, we say that O is the integers of v
-if f is injective, and its range is exactly `v.integer`. -/
+/--
+Given a valuation v : R → Γ₀ and a ring homomorphism O →+* R, we say that O is the integers of v
+if f is injective, and its range is exactly `v.integer`.
+-/
 structure Integers : Prop where
   hom_inj : Function.Injective (algebraMap O R)
   map_le_one : ∀ x, v (algebraMap O R x) ≤ 1
   exists_of_le_one : ∀ ⦃r⦄, v r ≤ 1 → ∃ x, algebraMap O R x = r
 
 -- typeclass shortcut
-instance : Algebra v.integer R :=
-  inferInstance
+instance : Algebra v.integer R := inferInstance
 
-theorem integer.integers : v.Integers v.integer :=
-  { hom_inj := Subtype.coe_injective
-    map_le_one := fun r => r.2
-    exists_of_le_one := fun r hr => ⟨⟨r, hr⟩, rfl⟩ }
+theorem integer.integers : v.Integers v.integer := {
+  hom_inj := Subtype.coe_injective
+  map_le_one := fun r => r.2
+  exists_of_le_one := fun r hr => ⟨⟨r, hr⟩, rfl⟩
+}
 
 namespace Integers
 
 variable {v O}
 
-theorem one_of_isUnit' {x : O} (hx : IsUnit x) (H : ∀ x, v (algebraMap O R x) ≤ 1) :
-    v (algebraMap O R x) = 1 :=
+theorem one_of_isUnit' {x : O} (hx : IsUnit x) (H : ∀ x, v (algebraMap O R x) ≤ 1)
+    : v (algebraMap O R x) = 1 :=
   let ⟨u, hu⟩ := hx
   le_antisymm (H _) <| by
     grw [← v.map_one, ← (algebraMap O R).map_one, ← u.mul_inv, ← mul_one (v (algebraMap O R x)), hu,
@@ -81,20 +83,27 @@ theorem one_of_isUnit (hv : Integers v O) {x : O} (hx : IsUnit x) : v (algebraMa
 Let `O` be the integers of the valuation `v` on some commutative ring `R`. For every element `x` in
 `O`, `x` is a unit in `O` if and only if the image of `x` in `R` is a unit and has valuation 1.
 -/
-theorem isUnit_of_one (hv : Integers v O) {x : O} (hx : IsUnit (algebraMap O R x))
-    (hvx : v (algebraMap O R x) = 1) : IsUnit x :=
+theorem isUnit_of_one
+    (hv : Integers v O) {x : O} (hx : IsUnit (algebraMap O R x)) (hvx : v (algebraMap O R x) = 1)
+    : IsUnit x :=
   let ⟨u, hu⟩ := hx
   have h1 : v u ≤ 1 := hu.symm ▸ hv.2 x
   have h2 : v (u⁻¹ : Rˣ) ≤ 1 := by
     rw [← one_mul (v _), ← hvx, ← v.map_mul, ← hu, u.mul_inv, hu, hvx, v.map_one]
   let ⟨r1, hr1⟩ := hv.3 h1
   let ⟨r2, hr2⟩ := hv.3 h2
-  ⟨⟨r1, r2, hv.1 <| by rw [map_mul, map_one, hr1, hr2, Units.mul_inv],
-      hv.1 <| by rw [map_mul, map_one, hr1, hr2, Units.inv_mul]⟩,
-    hv.1 <| hr1.trans hu⟩
+  ⟨
+    ⟨
+      r1,
+      r2,
+      hv.1 <| by rw [map_mul, map_one, hr1, hr2, Units.mul_inv],
+      hv.1 <| by rw [map_mul, map_one, hr1, hr2, Units.inv_mul]
+    ⟩,
+    hv.1 <| hr1.trans hu
+  ⟩
 
-theorem le_of_dvd (hv : Integers v O) {x y : O} (h : x ∣ y) :
-    v (algebraMap O R y) ≤ v (algebraMap O R x) := by
+theorem le_of_dvd (hv : Integers v O) {x y : O} (h : x ∣ y)
+    : v (algebraMap O R y) ≤ v (algebraMap O R x) := by
   obtain ⟨z, rfl⟩ := h
   grw [← mul_one (v (algebraMap O R x)), map_mul, v.map_mul, hv.2 z]
 
@@ -109,8 +118,10 @@ lemma nontrivial_iff (hv : v.Integers O) : Nontrivial O ↔ Nontrivial R := by
 
 end Integers
 
-theorem IsTrivialOn.of_le_one {k : Type*} [Field k] [Algebra k R] (v : Valuation R Γ₀)
-    (hle : ∀ (x : k), v (algebraMap k R x) ≤ 1) : v.IsTrivialOn k where
+theorem IsTrivialOn.of_le_one
+    {k : Type*} [Field k] [Algebra k R]
+    (v : Valuation R Γ₀) (hle : ∀ (x : k), v (algebraMap k R x) ≤ 1)
+    : v.IsTrivialOn k where
   eq_one a ha := Valuation.Integers.one_of_isUnit' (IsUnit.mk0 a ha) hle
 
 lemma integers_nontrivial (v : Valuation R Γ₀) :
@@ -126,8 +137,8 @@ variable {v : Valuation F Γ₀} {O : Type w} [CommRing O] [Algebra O F]
 
 namespace Integers
 
-theorem dvd_of_le (hv : Integers v O) {x y : O}
-    (h : v (algebraMap O F x) ≤ v (algebraMap O F y)) : y ∣ x :=
+theorem dvd_of_le (hv : Integers v O) {x y : O} (h : v (algebraMap O F x) ≤ v (algebraMap O F y))
+    : y ∣ x :=
   by_cases
     (fun hy : algebraMap O F y = 0 =>
       have hx : x = 0 :=
@@ -135,17 +146,17 @@ theorem dvd_of_le (hv : Integers v O) {x y : O}
           (algebraMap O F).map_zero.symm ▸ (v.zero_iff.1 <| le_zero_iff.1 (v.map_zero ▸ hy ▸ h))
       hx.symm ▸ dvd_zero y)
     fun hy : algebraMap O F y ≠ 0 =>
-    have : v ((algebraMap O F y)⁻¹ * algebraMap O F x) ≤ 1 := by
-      grw [← v.map_one, ← inv_mul_cancel₀ hy, v.map_mul, v.map_mul, h]
-    let ⟨z, hz⟩ := hv.3 this
-    ⟨z, hv.1 <| ((algebraMap O F).map_mul y z).symm ▸ hz.symm ▸ (mul_inv_cancel_left₀ hy _).symm⟩
+      have : v ((algebraMap O F y)⁻¹ * algebraMap O F x) ≤ 1 := by
+        grw [← v.map_one, ← inv_mul_cancel₀ hy, v.map_mul, v.map_mul, h]
+      let ⟨z, hz⟩ := hv.3 this
+      ⟨z, hv.1 <| ((algebraMap O F).map_mul y z).symm ▸ hz.symm ▸ (mul_inv_cancel_left₀ hy _).symm⟩
 
-theorem dvd_iff_le (hv : Integers v O) {x y : O} :
-    x ∣ y ↔ v (algebraMap O F y) ≤ v (algebraMap O F x) :=
+theorem dvd_iff_le (hv : Integers v O) {x y : O}
+    : x ∣ y ↔ v (algebraMap O F y) ≤ v (algebraMap O F x) :=
   ⟨hv.le_of_dvd, hv.dvd_of_le⟩
 
-theorem le_iff_dvd (hv : Integers v O) {x y : O} :
-    v (algebraMap O F x) ≤ v (algebraMap O F y) ↔ y ∣ x :=
+theorem le_iff_dvd (hv : Integers v O) {x y : O}
+    : v (algebraMap O F x) ≤ v (algebraMap O F y) ↔ y ∣ x :=
   ⟨hv.dvd_of_le, hv.le_of_dvd⟩
 
 /--
@@ -179,8 +190,8 @@ lemma valuation_irreducible_pos (hv : Integers v O) {ϖ : O} (h : Irreducible ϖ
     0 < v (algebraMap O F ϖ) :=
   hv.valuation_pos_iff_ne_zero.mpr h.ne_zero
 
-theorem dvdNotUnit_iff_lt (hv : Integers v O) {x y : O} :
-    DvdNotUnit x y ↔ v (algebraMap O F y) < v (algebraMap O F x) := by
+theorem dvdNotUnit_iff_lt (hv : Integers v O) {x y : O}
+    : DvdNotUnit x y ↔ v (algebraMap O F y) < v (algebraMap O F x) := by
   rw [lt_iff_le_not_ge, hv.le_iff_dvd, hv.le_iff_dvd]
   refine ⟨?_, And.elim dvdNotUnit_of_dvd_of_not_dvd⟩
   rintro ⟨hx0, d, hdu, rfl⟩
@@ -192,10 +203,9 @@ theorem dvdNotUnit_iff_lt (hv : Integers v O) {x y : O} :
   refine one_le_of_le_mul_left₀ ?_ hdu
   simp [hv.valuation_pos_iff_ne_zero, hx0]
 
-theorem eq_algebraMap_or_inv_eq_algebraMap (hv : Integers v O) (x : F) :
-    ∃ a : O, x = algebraMap O F a ∨ x⁻¹ = algebraMap O F a := by
-  rcases val_le_one_or_val_inv_le_one v x with h | h <;>
-  obtain ⟨a, ha⟩ := exists_of_le_one hv h
+theorem eq_algebraMap_or_inv_eq_algebraMap (hv : Integers v O) (x : F)
+    : ∃ a : O, x = algebraMap O F a ∨ x⁻¹ = algebraMap O F a := by
+  rcases val_le_one_or_val_inv_le_one v x with h | h <;> obtain ⟨a, ha⟩ := exists_of_le_one hv h
   exacts [⟨a, Or.inl ha.symm⟩, ⟨a, Or.inr ha.symm⟩]
 
 lemma coe_span_singleton_eq_setOfPred_le_v_algebraMap (hv : Integers v O) (x : O) :
@@ -285,9 +295,8 @@ lemma not_denselyOrdered_of_isPrincipalIdealRing [IsPrincipalIdealRing O] (hv : 
 end Integers
 
 open Integers in
-theorem Integer.not_isUnit_iff_valuation_lt_one {x : v.integer} : ¬IsUnit x ↔ v x < 1 := by
-  rw [← not_le, not_iff_not, isUnit_iff_valuation_eq_one (F := F) (Γ₀ := Γ₀),
-    le_antisymm_iff]
+theorem Integer.not_isUnit_iff_valuation_lt_one {x : v.integer} : ¬ IsUnit x ↔ v x < 1 := by
+  rw [← not_le, not_iff_not, isUnit_iff_valuation_eq_one (F := F) (Γ₀ := Γ₀), le_antisymm_iff]
   exacts [and_iff_right x.2, integer.integers v]
 
 namespace integer
@@ -316,18 +325,18 @@ variable {R : Type u} {Γ₀ : Type v} [Ring R] [LinearOrderedCommGroupWithZero 
 variable (v : Valuation R Γ₀)
 local notation "𝓞" => v.integer
 
-/-- The `v.integer`-submodule of `R` of elements whose valuation is less than or equal to a
-certain value. -/
+/--
+The `v.integer`-submodule of `R` of elements whose valuation is less than or equal to a
+certain value.
+-/
 def leSubmodule (γ : Γ₀) : Submodule 𝓞 R where
   __ := leAddSubgroup v γ
-  smul_mem' r x h := by
-    simpa [Subring.smul_def] using mul_le_of_le_one_of_le r.prop h
+  smul_mem' r x h := by simpa [Subring.smul_def] using mul_le_of_le_one_of_le r.prop h
 
 /-- The `v.integer`-submodule of `R` of elements whose valuation is less than a certain unit. -/
 def ltSubmodule (γ : Γ₀ˣ) : Submodule 𝓞 R where
   __ := ltAddSubgroup v γ
-  smul_mem' r x h := by
-    simpa [Subring.smul_def] using mul_lt_of_le_one_of_lt r.prop h
+  smul_mem' r x h := by simpa [Subring.smul_def] using mul_lt_of_le_one_of_lt r.prop h
 
 lemma leSubmodule_monotone : Monotone (leSubmodule v) :=
   leAddSubgroup_monotone v
@@ -373,8 +382,10 @@ lemma ltSubmodule_v_le_of_mem {K : Type*} [Field K] {v : Valuation K Γ₀}
 -- the ideals do not use the submodules due to `Submodule.comap _ (Algebra.linearMap _ _)`
 -- requiring commutativity
 
-/-- The ideal of elements of the valuation subring whose valuation is less than or equal to a
-certain value. -/
+/--
+The ideal of elements of the valuation subring whose valuation is less than or equal to a
+certain value.
+-/
 def leIdeal (γ : Γ₀) : Ideal 𝓞 where
   __ := AddSubgroup.addSubgroupOf (leAddSubgroup v γ) v.integer.toAddSubgroup
   smul_mem' r x h :=

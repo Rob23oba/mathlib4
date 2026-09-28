@@ -8,7 +8,6 @@ module
 public import Mathlib.RingTheory.Bialgebra.Basic
 public import Mathlib.Algebra.Module.Projective
 public import Mathlib.LinearAlgebra.SesquilinearForm.Basic
-
 import Mathlib.RingTheory.Coalgebra.CoassocSimps
 
 /-!
@@ -70,8 +69,9 @@ public section
 open TensorProduct LinearMap Coalgebra
 open scoped RingTheory.LinearMap
 
-variable {R A : Type*} [CommSemiring R] [NonUnitalNonAssocSemiring A] [Module R A]
-  [SMulCommClass R A A] [IsScalarTower R A A]
+variable
+  {R A : Type*} [CommSemiring R] [NonUnitalNonAssocSemiring A] [Module R A] [SMulCommClass R A A]
+  [IsScalarTower R A A]
 
 local notation3 "α" => (TensorProduct.assoc R _ _ _).toLinearMap
 local notation3 "α⁻¹" => (TensorProduct.assoc R _ _ _).symm.toLinearMap
@@ -96,7 +96,8 @@ lemma Coalgebra.IsFrobenius.left_def : left R A = lT A μ[R] ∘ₗ α ∘ₗ rT
 
 lemma Coalgebra.IsFrobenius.right_def : right R A = rT A μ[R] ∘ₗ α⁻¹ ∘ₗ lT A δ := rfl
 
-/-- A coalgebra with an algebra structure is said to be **Frobenius** when
+/--
+A coalgebra with an algebra structure is said to be **Frobenius** when
 the Frobenius equation is satisfied, i.e., `IsFrobenius.left` and `IsFrobenius.right` are equal,
 in other words,
 
@@ -107,7 +108,8 @@ being equal to `comul ∘ mul'`.
 
 When the Frobenius equations are satisfied, the bilinear form `mul.compr₂ counit` is
 nondegenerate and bijective (see `IsFrobenius.nondegenerate_compr₂_mul_counit` and
-`IsFrobenius.bijective_compr₂_mul_counit`). -/
+`IsFrobenius.bijective_compr₂_mul_counit`).
+-/
 class Coalgebra.IsFrobenius : Prop where
   /-- The Frobenius equation. -/
   left_eq_right : IsFrobenius.left R A = IsFrobenius.right R A
@@ -142,8 +144,9 @@ When our coalgebra is unital and satisfies the Frobenius equations, we get that 
 nondegenerate, and that it is finite and projective. -/
 
 section nonAssoc
-variable {A : Type*} [NonAssocSemiring A] [Module R A] [Coalgebra R A]
-  [SMulCommClass R A A] [IsScalarTower R A A] [IsFrobenius R A]
+variable
+  {A : Type*} [NonAssocSemiring A] [Module R A] [Coalgebra R A] [SMulCommClass R A A]
+  [IsScalarTower R A A] [IsFrobenius R A]
 
 private lemma sum_counit_mul_left_smul_of_comul_one {S : Finset (A × A)}
     (hS : δ (1 : A) = ∑ i ∈ S, i.1 ⊗ₜ[R] i.2) (a : A) :
@@ -165,7 +168,8 @@ instance instFinite : Module.Finite R A := by
 instance instProjective : Module.Projective R A := by
   have ⟨S, hS⟩ := exists_finset (R := R) (δ (1 : A))
   refine Module.projective_def'.mpr ⟨∑ p ∈ S, (ε ∘ₗ mulRight R p.1).smulRight (.single p.2 1), ?_⟩
-  ext; simp [sum_counit_mul_left_smul_of_comul_one hS]
+  ext
+  simp [sum_counit_mul_left_smul_of_comul_one hS]
 
 /-- The bilinear form `(mul R A).compr₂ counit` is separating left.
 This is the simplified version, see `nondegenerate_compr₂_mul_counit`. -/

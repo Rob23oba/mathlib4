@@ -24,46 +24,37 @@ open Complex InnerProductSpace
 
 open scoped ComplexConjugate Topology
 
-variable
-  {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
-  {f : ℂ → F} {x : ℂ}
+variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] {f : ℂ → F} {x : ℂ}
 
 /-!
 ## Harmonicity of Analytic Functions on the Complex Plane
 -/
 
-/--
-Continuously complex-differentiable functions on ℂ are harmonic.
--/
+/-- Continuously complex-differentiable functions on ℂ are harmonic. -/
 theorem ContDiffAt.harmonicAt (h : ContDiffAt ℂ 2 f x) : HarmonicAt f x := by
   refine ⟨h.restrict_scalars ℝ, ?_⟩
   filter_upwards [h.restrictScalars_iteratedFDeriv_eventuallyEq (𝕜 := ℝ)] with a ha
-  have : (iteratedFDeriv ℂ 2 f a) (I • ![1, 1])
-      = (∏ i, I) • ((iteratedFDeriv ℂ 2 f a) ![1, 1]) :=
+  have : (iteratedFDeriv ℂ 2 f a) (I • ![1, 1]) = (∏ i, I) • ((iteratedFDeriv ℂ 2 f a) ![1, 1]) :=
     (iteratedFDeriv ℂ 2 f a).map_smul_univ (fun _ ↦ I) ![1, 1]
-  simp_all [laplacian_eq_iteratedFDeriv_complexPlane f, ← ha,
-    ContinuousMultilinearMap.coe_restrictScalars]
+  simp_all [
+    laplacian_eq_iteratedFDeriv_complexPlane f, ← ha, ContinuousMultilinearMap.coe_restrictScalars
+  ]
 
 /-- Analytic functions on ℂ are harmonic. -/
 theorem AnalyticAt.harmonicAt [CompleteSpace F] (h : AnalyticAt ℂ f x) : HarmonicAt f x :=
   h.contDiffAt.harmonicAt
 
-/--
-If `f : ℂ → ℂ` is complex-analytic, then its real part is harmonic.
--/
-theorem AnalyticAt.harmonicAt_re {f : ℂ → ℂ} (h : AnalyticAt ℂ f x) :
-    HarmonicAt (fun z ↦ (f z).re) x := h.harmonicAt.comp_CLM reCLM
+/-- If `f : ℂ → ℂ` is complex-analytic, then its real part is harmonic. -/
+theorem AnalyticAt.harmonicAt_re {f : ℂ → ℂ} (h : AnalyticAt ℂ f x)
+    : HarmonicAt (fun z ↦ (f z).re) x :=
+  h.harmonicAt.comp_CLM reCLM
 
-/--
-If `f : ℂ → ℂ` is complex-analytic, then its imaginary part is harmonic.
--/
-theorem AnalyticAt.harmonicAt_im {f : ℂ → ℂ} (h : AnalyticAt ℂ f x) :
-    HarmonicAt (fun z ↦ (f z).im) x :=
+/-- If `f : ℂ → ℂ` is complex-analytic, then its imaginary part is harmonic. -/
+theorem AnalyticAt.harmonicAt_im {f : ℂ → ℂ} (h : AnalyticAt ℂ f x)
+    : HarmonicAt (fun z ↦ (f z).im) x :=
   h.harmonicAt.comp_CLM imCLM
 
-/--
-If `f : ℂ → ℂ` is complex-analytic, then its complex conjugate is harmonic.
--/
+/-- If `f : ℂ → ℂ` is complex-analytic, then its complex conjugate is harmonic. -/
 theorem AnalyticAt.harmonicAt_conj {f : ℂ → ℂ} (h : AnalyticAt ℂ f x) : HarmonicAt (conj f) x :=
   (harmonicAt_comp_CLE_iff conjCLE).2 h.harmonicAt
 
@@ -103,12 +94,9 @@ private lemma analyticAt_harmonicAt_log_normSq {z : ℂ} {g : ℂ → ℂ} (h₁
       rw [← Complex.log_conj]
       simp [Complex.slitPlane_arg_ne_pi hx.1]
 
-/--
-If `f : ℂ → ℂ` is complex-analytic without zero, then `log ‖f‖` is harmonic.
--/
-theorem AnalyticAt.harmonicAt_log_norm {f : ℂ → ℂ} {z : ℂ} (h₁f : AnalyticAt ℂ f z)
-    (h₂f : f z ≠ 0) :
-    HarmonicAt (Real.log ‖f ·‖) z := by
+/-- If `f : ℂ → ℂ` is complex-analytic without zero, then `log ‖f‖` is harmonic. -/
+theorem AnalyticAt.harmonicAt_log_norm {f : ℂ → ℂ} {z : ℂ} (h₁f : AnalyticAt ℂ f z) (h₂f : f z ≠ 0)
+    : HarmonicAt (Real.log ‖f ·‖) z := by
   have : (Real.log ‖f ·‖) = (2 : ℝ)⁻¹ • (Real.log ∘ Complex.normSq ∘ f) := by
     funext z
     simp only [Pi.smul_apply, Function.comp_apply, smul_eq_mul]

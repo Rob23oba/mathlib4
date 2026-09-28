@@ -8,7 +8,6 @@ module
 public import Mathlib.MeasureTheory.Constructions.Polish.Basic
 public import Mathlib.MeasureTheory.Constructions.UnitInterval
 public import Mathlib.Probability.Kernel.Defs
-
 import Mathlib.Analysis.SpecialFunctions.Sigmoid
 import Mathlib.Probability.CDF
 
@@ -38,8 +37,9 @@ open MeasureTheory ProbabilityTheory Set ENNReal unitInterval Filter Function
 
 open scoped Topology
 
-variable {X Y : Type*} {mX : MeasurableSpace X} [Nonempty Y] {mY : MeasurableSpace Y}
-    [StandardBorelSpace Y]
+variable
+  {X Y : Type*} {mX : MeasurableSpace X} [Nonempty Y]
+  {mY : MeasurableSpace Y} [StandardBorelSpace Y]
 
 namespace ProbabilityTheory.Kernel
 
@@ -108,14 +108,15 @@ private lemma exists_measurable_map_eq_unitInterval_aux (κ : Kernel X I) [IsMar
     gcongr
     simp
 
-theorem exists_measurable_map_eq_unitInterval (κ : Kernel X Y) [IsMarkovKernel κ] :
-    ∃ (f : X → I → Y), Measurable (uncurry f) ∧ ∀ a, volume.map (f a) = κ a := by
+theorem exists_measurable_map_eq_unitInterval (κ : Kernel X Y) [IsMarkovKernel κ]
+    : ∃ (f : X → I → Y), Measurable (uncurry f) ∧ ∀ a, volume.map (f a) = κ a := by
   let g := sigmoid ∘ embeddingReal Y
   have hg := measurableEmbedding_sigmoid_comp_embeddingReal Y
   have hκg : IsMarkovKernel (κ.map g) := IsMarkovKernel.map κ hg.measurable
   have hg'κ : κ = (κ.map g).map hg.invFun := by
-    rw [← map_comp_right _ hg.measurable (by fun_prop), LeftInverse.id hg.leftInverse_invFun,
-      map_id]
+    rw [
+      ← map_comp_right _ hg.measurable (by fun_prop), LeftInverse.id hg.leftInverse_invFun, map_id
+    ]
   obtain ⟨f', hf', hf'κ⟩ := (κ.map g).exists_measurable_map_eq_unitInterval_aux
   refine ⟨fun a u ↦ hg.invFun (f' a u), by fun_prop, fun a ↦ ?_⟩
   rw [hg'κ, map_apply _ (by fun_prop), ← hf'κ, Measure.map_map (by fun_prop) (by fun_prop)]
@@ -123,8 +124,8 @@ theorem exists_measurable_map_eq_unitInterval (κ : Kernel X Y) [IsMarkovKernel 
 
 end ProbabilityTheory.Kernel
 
-theorem MeasureTheory.Measure.exists_measurable_map_eq (μ : Measure Y) [IsProbabilityMeasure μ] :
-    ∃ (f : I → Y), Measurable f ∧ volume.map f = μ := by
+theorem MeasureTheory.Measure.exists_measurable_map_eq (μ : Measure Y) [IsProbabilityMeasure μ]
+    : ∃ (f : I → Y), Measurable f ∧ volume.map f = μ := by
   obtain ⟨f, hf_meas, hf_map⟩ := Kernel.exists_measurable_map_eq_unitInterval (Kernel.const Unit μ)
   specialize hf_map ()
   exact ⟨f (), by fun_prop, by simpa⟩

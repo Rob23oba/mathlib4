@@ -56,8 +56,10 @@ open scoped NNReal
 
 namespace NNReal
 
-/-- Taking a nonnegative power of a nonnegative number. This is defined as a standalone definition
-in order to speed up automation such as `cfc_cont_tac`. -/
+/--
+Taking a nonnegative power of a nonnegative number. This is defined as a standalone definition
+in order to speed up automation such as `cfc_cont_tac`.
+-/
 noncomputable abbrev nnrpow (a : ℝ≥0) (b : ℝ≥0) : ℝ≥0 := a ^ (b : ℝ)
 
 @[simp] lemma nnrpow_def (a b : ℝ≥0) : nnrpow a b = a ^ (b : ℝ) := rfl
@@ -77,19 +79,20 @@ namespace CFC
 
 section NonUnital
 
-variable {A : Type*} [PartialOrder A] [NonUnitalRing A] [TopologicalSpace A] [StarRing A]
-  [Module ℝ A] [SMulCommClass ℝ A A] [IsScalarTower ℝ A A] [StarOrderedRing A]
-  [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-  [NonnegSpectrumClass ℝ A]
-
+variable
+  {A : Type*} [PartialOrder A] [NonUnitalRing A] [TopologicalSpace A] [StarRing A] [Module ℝ A]
+  [SMulCommClass ℝ A A] [IsScalarTower ℝ A A] [StarOrderedRing A]
+  [NonUnitalContinuousFunctionalCalculus ℝ A IsSelfAdjoint] [NonnegSpectrumClass ℝ A]
 
 /- ## `nnrpow` -/
 
 /-- Real powers of operators, based on the non-unital continuous functional calculus. -/
 noncomputable def nnrpow (a : A) (y : ℝ≥0) : A := cfcₙ (NNReal.nnrpow · y) a
 
-/-- Enable `a ^ y` notation for `CFC.nnrpow`. This is a low-priority instance to make sure it does
-not take priority over other instances when they are available. -/
+/--
+Enable `a ^ y` notation for `CFC.nnrpow`. This is a low-priority instance to make sure it does
+not take priority over other instances when they are available.
+-/
 noncomputable instance (priority := 100) : Pow A ℝ≥0 where
   pow a y := nnrpow a y
 
@@ -175,16 +178,17 @@ lemma nnrpow_inv_eq (a b : A) {x : ℝ≥0} (hx : x ≠ 0) (ha : 0 ≤ a := by c
 
 section prod
 
-variable {B : Type*} [PartialOrder B] [NonUnitalRing B] [TopologicalSpace B] [StarRing B]
-  [Module ℝ B] [SMulCommClass ℝ B B] [IsScalarTower ℝ B B]
+variable
+  {B : Type*} [PartialOrder B] [NonUnitalRing B] [TopologicalSpace B] [StarRing B] [Module ℝ B]
+  [SMulCommClass ℝ B B] [IsScalarTower ℝ B B]
   [NonUnitalContinuousFunctionalCalculus ℝ B IsSelfAdjoint]
-  [NonUnitalContinuousFunctionalCalculus ℝ (A × B) IsSelfAdjoint]
-  [IsSemitopologicalRing B] [T2Space B]
-  [NonnegSpectrumClass ℝ B] [NonnegSpectrumClass ℝ (A × B)]
-  [StarOrderedRing B]
+  [NonUnitalContinuousFunctionalCalculus ℝ (A × B) IsSelfAdjoint] [IsSemitopologicalRing B]
+  [T2Space B] [NonnegSpectrumClass ℝ B] [NonnegSpectrumClass ℝ (A × B)] [StarOrderedRing B]
 
-/- Note that there is higher-priority instance of `Pow (A × B) ℝ≥0` coming from the `Pow` instance
-for products, hence the direct use of `nnrpow` here. -/
+/-
+Note that there is higher-priority instance of `Pow (A × B) ℝ≥0` coming from the `Pow` instance
+for products, hence the direct use of `nnrpow` here.
+-/
 lemma nnrpow_map_prod {a : A} {b : B} {x : ℝ≥0}
     (ha : 0 ≤ a := by cfc_tac) (hb : 0 ≤ b := by cfc_tac) :
     nnrpow (a, b) x = (a ^ x, b ^ x) := by
@@ -202,17 +206,20 @@ end prod
 
 section pi
 
-variable {ι : Type*} {C : ι → Type*} [∀ i, PartialOrder (C i)] [∀ i, NonUnitalRing (C i)]
-  [∀ i, TopologicalSpace (C i)] [∀ i, StarRing (C i)]
-  [∀ i, StarOrderedRing (C i)] [StarOrderedRing (∀ i, C i)]
+variable
+  {ι : Type*} {C : ι → Type*}
+  [∀ i, PartialOrder (C i)] [∀ i, NonUnitalRing (C i)] [∀ i, TopologicalSpace (C i)]
+  [∀ i, StarRing (C i)] [∀ i, StarOrderedRing (C i)] [StarOrderedRing (∀ i, C i)]
   [∀ i, Module ℝ (C i)] [∀ i, SMulCommClass ℝ (C i) (C i)] [∀ i, IsScalarTower ℝ (C i) (C i)]
   [∀ i, NonUnitalContinuousFunctionalCalculus ℝ (C i) IsSelfAdjoint]
   [NonUnitalContinuousFunctionalCalculus ℝ (∀ i, C i) IsSelfAdjoint]
-  [∀ i, IsSemitopologicalRing (C i)] [∀ i, T2Space (C i)]
-  [NonnegSpectrumClass ℝ (∀ i, C i)] [∀ i, NonnegSpectrumClass ℝ (C i)]
+  [∀ i, IsSemitopologicalRing (C i)] [∀ i, T2Space (C i)] [NonnegSpectrumClass ℝ (∀ i, C i)]
+  [∀ i, NonnegSpectrumClass ℝ (C i)]
 
-/- Note that there is higher-priority instance of `Pow (∀ i, C i) ℝ≥0` coming from the `Pow`
-instance for pi types, hence the direct use of `nnrpow` here. -/
+/-
+Note that there is higher-priority instance of `Pow (∀ i, C i) ℝ≥0` coming from the `Pow`
+instance for pi types, hence the direct use of `nnrpow` here.
+-/
 lemma nnrpow_map_pi {c : ∀ i, C i} {x : ℝ≥0} (hc : ∀ i, 0 ≤ c i := by cfc_tac) :
     nnrpow c x = fun i => (c i) ^ x := by
   simp only [nnrpow_def]
@@ -306,12 +313,12 @@ lemma sqrt_eq_real_sqrt (a : A) (ha : 0 ≤ a := by cfc_tac) :
 
 section prod
 
-variable {B : Type*} [PartialOrder B] [NonUnitalRing B] [TopologicalSpace B] [StarRing B]
-  [Module ℝ B] [SMulCommClass ℝ B B] [IsScalarTower ℝ B B] [StarOrderedRing B]
+variable
+  {B : Type*} [PartialOrder B] [NonUnitalRing B] [TopologicalSpace B] [StarRing B] [Module ℝ B]
+  [SMulCommClass ℝ B B] [IsScalarTower ℝ B B] [StarOrderedRing B]
   [NonUnitalContinuousFunctionalCalculus ℝ B IsSelfAdjoint]
-  [NonUnitalContinuousFunctionalCalculus ℝ (A × B) IsSelfAdjoint]
-  [IsSemitopologicalRing B] [T2Space B]
-  [NonnegSpectrumClass ℝ B] [NonnegSpectrumClass ℝ (A × B)]
+  [NonUnitalContinuousFunctionalCalculus ℝ (A × B) IsSelfAdjoint] [IsSemitopologicalRing B]
+  [T2Space B] [NonnegSpectrumClass ℝ B] [NonnegSpectrumClass ℝ (A × B)]
 
 lemma sqrt_map_prod {a : A} {b : B} (ha : 0 ≤ a := by cfc_tac) (hb : 0 ≤ b := by cfc_tac) :
     sqrt (a, b) = (sqrt a, sqrt b) := by
@@ -322,14 +329,15 @@ end prod
 
 section pi
 
-variable {ι : Type*} {C : ι → Type*} [∀ i, PartialOrder (C i)] [∀ i, NonUnitalRing (C i)]
-  [∀ i, TopologicalSpace (C i)] [∀ i, StarRing (C i)]
-  [∀ i, StarOrderedRing (C i)] [StarOrderedRing (∀ i, C i)]
+variable
+  {ι : Type*} {C : ι → Type*}
+  [∀ i, PartialOrder (C i)] [∀ i, NonUnitalRing (C i)] [∀ i, TopologicalSpace (C i)]
+  [∀ i, StarRing (C i)] [∀ i, StarOrderedRing (C i)] [StarOrderedRing (∀ i, C i)]
   [∀ i, Module ℝ (C i)] [∀ i, SMulCommClass ℝ (C i) (C i)] [∀ i, IsScalarTower ℝ (C i) (C i)]
   [∀ i, NonUnitalContinuousFunctionalCalculus ℝ (C i) IsSelfAdjoint]
   [NonUnitalContinuousFunctionalCalculus ℝ (∀ i, C i) IsSelfAdjoint]
-  [∀ i, IsSemitopologicalRing (C i)] [∀ i, T2Space (C i)]
-  [NonnegSpectrumClass ℝ (∀ i, C i)] [∀ i, NonnegSpectrumClass ℝ (C i)]
+  [∀ i, IsSemitopologicalRing (C i)] [∀ i, T2Space (C i)] [NonnegSpectrumClass ℝ (∀ i, C i)]
+  [∀ i, NonnegSpectrumClass ℝ (C i)]
 
 lemma sqrt_map_pi {c : ∀ i, C i} (hc : ∀ i, 0 ≤ c i := by cfc_tac) :
     sqrt c = fun i => sqrt (c i) := by
@@ -338,7 +346,8 @@ lemma sqrt_map_pi {c : ∀ i, C i} (hc : ∀ i, 0 ≤ c i := by cfc_tac) :
 
 end pi
 
-/-- For an element `a` in a C⋆-algebra, TFAE:
+/--
+For an element `a` in a C⋆-algebra, TFAE:
 1. `0 ≤ a`
 2. `a = sqrt a * sqrt a`
 3. `a = b * b` for some nonnegative `b`
@@ -347,9 +356,11 @@ end pi
 6. `a = b * star b` for some `b`
 7. `a = a⁺`
 8. `a` is self-adjoint and `a⁻ = 0`
-9. `a` is self-adjoint and has nonnegative spectrum -/
-theorem _root_.CStarAlgebra.nonneg_TFAE {a : A} :
-    [ 0 ≤ a,
+9. `a` is self-adjoint and has nonnegative spectrum
+-/
+theorem _root_.CStarAlgebra.nonneg_TFAE {a : A}
+    : [
+      0 ≤ a,
       a = sqrt a * sqrt a,
       ∃ b : A, 0 ≤ b ∧ a = b * b,
       ∃ b : A, IsSelfAdjoint b ∧ a = b * b,
@@ -357,7 +368,8 @@ theorem _root_.CStarAlgebra.nonneg_TFAE {a : A} :
       ∃ b : A, a = b * star b,
       a = a⁺,
       IsSelfAdjoint a ∧ a⁻ = 0,
-      IsSelfAdjoint a ∧ QuasispectrumRestricts a ContinuousMap.realToNNReal ].TFAE := by
+      IsSelfAdjoint a ∧ QuasispectrumRestricts a ContinuousMap.realToNNReal
+    ].TFAE := by
   tfae_have 1 ↔ 9 := nonneg_iff_isSelfAdjoint_and_quasispectrumRestricts
   tfae_have 1 ↔ 7 := eq_comm.eq ▸ (CFC.posPart_eq_self a).symm
   tfae_have 1 ↔ 8 := ⟨fun h => ⟨h.isSelfAdjoint, negPart_eq_zero_iff a |>.mpr h⟩,
@@ -370,18 +382,21 @@ theorem _root_.CStarAlgebra.nonneg_TFAE {a : A} :
   tfae_have 6 → 1 := fun ⟨b, hb⟩ => hb ▸ mul_star_self_nonneg _
   tfae_finish
 
-theorem _root_.CStarAlgebra.nonneg_iff_eq_sqrt_mul_sqrt {a : A} :
-    0 ≤ a ↔ a = sqrt a * sqrt a := CStarAlgebra.nonneg_TFAE.out 1 2
-theorem _root_.CStarAlgebra.nonneg_iff_exists_nonneg_and_eq_mul_self {a : A} :
-    0 ≤ a ↔ ∃ b, 0 ≤ b ∧ a = b * b := CStarAlgebra.nonneg_TFAE.out 1 3
-theorem _root_.CStarAlgebra.nonneg_iff_exists_isSelfAdjoint_and_eq_mul_self {a : A} :
-    0 ≤ a ↔ ∃ b, IsSelfAdjoint b ∧ a = b * b := CStarAlgebra.nonneg_TFAE.out 1 4
-theorem _root_.CStarAlgebra.nonneg_iff_eq_star_mul_self {a : A} :
-    0 ≤ a ↔ ∃ b, a = star b * b := CStarAlgebra.nonneg_TFAE.out 1 5
-theorem _root_.CStarAlgebra.nonneg_iff_eq_mul_star_self {a : A} :
-    0 ≤ a ↔ ∃ b, a = b * star b := CStarAlgebra.nonneg_TFAE.out 1 6
-theorem _root_.CStarAlgebra.nonneg_iff_isSelfAdjoint_and_negPart_eq_zero {a : A} :
-    0 ≤ a ↔ IsSelfAdjoint a ∧ a⁻ = 0 := CStarAlgebra.nonneg_TFAE.out 1 8
+theorem _root_.CStarAlgebra.nonneg_iff_eq_sqrt_mul_sqrt {a : A} : 0 ≤ a ↔ a = sqrt a * sqrt a :=
+  CStarAlgebra.nonneg_TFAE.out 1 2
+theorem _root_.CStarAlgebra.nonneg_iff_exists_nonneg_and_eq_mul_self {a : A}
+    : 0 ≤ a ↔ ∃ b, 0 ≤ b ∧ a = b * b :=
+  CStarAlgebra.nonneg_TFAE.out 1 3
+theorem _root_.CStarAlgebra.nonneg_iff_exists_isSelfAdjoint_and_eq_mul_self {a : A}
+    : 0 ≤ a ↔ ∃ b, IsSelfAdjoint b ∧ a = b * b :=
+  CStarAlgebra.nonneg_TFAE.out 1 4
+theorem _root_.CStarAlgebra.nonneg_iff_eq_star_mul_self {a : A} : 0 ≤ a ↔ ∃ b, a = star b * b :=
+  CStarAlgebra.nonneg_TFAE.out 1 5
+theorem _root_.CStarAlgebra.nonneg_iff_eq_mul_star_self {a : A} : 0 ≤ a ↔ ∃ b, a = b * star b :=
+  CStarAlgebra.nonneg_TFAE.out 1 6
+theorem _root_.CStarAlgebra.nonneg_iff_isSelfAdjoint_and_negPart_eq_zero {a : A}
+    : 0 ≤ a ↔ IsSelfAdjoint a ∧ a⁻ = 0 :=
+  CStarAlgebra.nonneg_TFAE.out 1 8
 
 end sqrt
 
@@ -389,17 +404,19 @@ end NonUnital
 
 section Unital
 
-variable {A : Type*} [PartialOrder A] [Ring A] [StarRing A] [TopologicalSpace A]
-  [StarOrderedRing A] [Algebra ℝ A] [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint]
-  [NonnegSpectrumClass ℝ A]
+variable
+  {A : Type*} [PartialOrder A] [Ring A] [StarRing A] [TopologicalSpace A] [StarOrderedRing A]
+  [Algebra ℝ A] [ContinuousFunctionalCalculus ℝ A IsSelfAdjoint] [NonnegSpectrumClass ℝ A]
 
 /- ## `rpow` -/
 
 /-- Real powers of operators, based on the unital continuous functional calculus. -/
 noncomputable def rpow (a : A) (y : ℝ) : A := cfc (fun x : ℝ≥0 => x ^ y) a
 
-/-- Enable `a ^ y` notation for `CFC.rpow`. This is a low-priority instance to make sure it does
-not take priority over other instances when they are available (such as `Pow ℝ ℝ`). -/
+/--
+Enable `a ^ y` notation for `CFC.rpow`. This is a low-priority instance to make sure it does
+not take priority over other instances when they are available (such as `Pow ℝ ℝ`).
+-/
 noncomputable instance (priority := 100) : Pow A ℝ where
   pow a y := rpow a y
 
@@ -564,16 +581,17 @@ lemma isUnit_rpow_iff (a : A) (y : ℝ) (hy : y ≠ 0) (ha : 0 ≤ a := by cfc_t
 section prod
 
 variable [IsSemitopologicalRing A] [T2Space A]
-variable {B : Type*} [PartialOrder B] [Ring B] [StarRing B] [TopologicalSpace B]
-  [StarOrderedRing B]
+variable
+  {B : Type*} [PartialOrder B] [Ring B] [StarRing B] [TopologicalSpace B] [StarOrderedRing B]
   [Algebra ℝ B] [ContinuousFunctionalCalculus ℝ B IsSelfAdjoint]
-  [ContinuousFunctionalCalculus ℝ (A × B) IsSelfAdjoint]
-  [IsSemitopologicalRing B] [T2Space B] [StarOrderedRing (A × B)]
-  [NonnegSpectrumClass ℝ B] [NonnegSpectrumClass ℝ (A × B)]
+  [ContinuousFunctionalCalculus ℝ (A × B) IsSelfAdjoint] [IsSemitopologicalRing B] [T2Space B]
+  [StarOrderedRing (A × B)] [NonnegSpectrumClass ℝ B] [NonnegSpectrumClass ℝ (A × B)]
 
 set_option backward.isDefEq.respectTransparency false in
-/- Note that there is higher-priority instance of `Pow (A × B) ℝ` coming from the `Pow` instance for
-products, hence the direct use of `rpow` here. -/
+/-
+Note that there is higher-priority instance of `Pow (A × B) ℝ` coming from the `Pow` instance for
+products, hence the direct use of `rpow` here.
+-/
 lemma rpow_map_prod {a : A} {b : B} {x : ℝ} (ha : IsUnit a) (hb : IsUnit b)
     (ha' : 0 ≤ a := by cfc_tac) (hb' : 0 ≤ b := by cfc_tac) :
     rpow (a, b) x = (a ^ x, b ^ x) := by
@@ -594,17 +612,18 @@ end prod
 section pi
 
 variable [IsSemitopologicalRing A] [T2Space A]
-variable {ι : Type*} {C : ι → Type*} [∀ i, PartialOrder (C i)] [∀ i, Ring (C i)]
-  [∀ i, StarRing (C i)] [∀ i, TopologicalSpace (C i)] [∀ i, StarOrderedRing (C i)]
-  [StarOrderedRing (∀ i, C i)]
+variable
+  {ι : Type*} {C : ι → Type*} [∀ i, PartialOrder (C i)] [∀ i, Ring (C i)] [∀ i, StarRing (C i)]
+  [∀ i, TopologicalSpace (C i)] [∀ i, StarOrderedRing (C i)] [StarOrderedRing (∀ i, C i)]
   [∀ i, Algebra ℝ (C i)] [∀ i, ContinuousFunctionalCalculus ℝ (C i) IsSelfAdjoint]
-  [ContinuousFunctionalCalculus ℝ (∀ i, C i) IsSelfAdjoint]
-  [∀ i, IsSemitopologicalRing (C i)] [∀ i, T2Space (C i)]
-  [NonnegSpectrumClass ℝ (∀ i, C i)] [∀ i, NonnegSpectrumClass ℝ (C i)]
+  [ContinuousFunctionalCalculus ℝ (∀ i, C i) IsSelfAdjoint] [∀ i, IsSemitopologicalRing (C i)]
+  [∀ i, T2Space (C i)] [NonnegSpectrumClass ℝ (∀ i, C i)] [∀ i, NonnegSpectrumClass ℝ (C i)]
 
 set_option backward.isDefEq.respectTransparency false in
-/- Note that there is a higher-priority instance of `Pow (∀ i, B i) ℝ` coming from the `Pow`
-instance for pi types, hence the direct use of `rpow` here. -/
+/-
+Note that there is a higher-priority instance of `Pow (∀ i, B i) ℝ` coming from the `Pow`
+instance for pi types, hence the direct use of `rpow` here.
+-/
 lemma rpow_map_pi {c : ∀ i, C i} {x : ℝ} (hc : ∀ i, IsUnit (c i))
     (hc' : ∀ i, 0 ≤ c i := by cfc_tac) :
     rpow c x = fun i => (c i) ^ x := by
@@ -799,7 +818,8 @@ lemma sqrt_ringInverse {a : A} : sqrt a⁻¹ʳ = (sqrt a)⁻¹ʳ := by
       · simp [inverse_non_unit _ hunit]
     · simp [inverse_non_unit _ ha', inverse_non_unit _ H]
 
-/-- For an element `a` in a C⋆-algebra, TFAE:
+/--
+For an element `a` in a C⋆-algebra, TFAE:
 1. `a` is strictly positive,
 2. `sqrt a` is strictly positive and `a = sqrt a * sqrt a`,
 3. `sqrt a` is invertible and `a = sqrt a * sqrt a`,
@@ -808,17 +828,20 @@ lemma sqrt_ringInverse {a : A} : sqrt a⁻¹ʳ = (sqrt a)⁻¹ʳ := by
 6. `a = star b * b` for some invertible `b`,
 7. `a = b * star b` for some invertible `b`,
 8. `0 ≤ a` and `a` is invertible,
-9. `a` is self-adjoint and has positive spectrum. -/
-theorem _root_.CStarAlgebra.isStrictlyPositive_TFAE {a : A} :
-    [IsStrictlyPositive a,
-     IsStrictlyPositive (sqrt a) ∧ a = sqrt a * sqrt a,
-     IsUnit (sqrt a) ∧ a = sqrt a * sqrt a,
-     ∃ b, IsStrictlyPositive b ∧ a = b * b,
-     ∃ b, IsUnit b ∧ IsSelfAdjoint b ∧ a = b * b,
-     ∃ b, IsUnit b ∧ a = star b * b,
-     ∃ b, IsUnit b ∧ a = b * star b,
-     0 ≤ a ∧ IsUnit a,
-     IsSelfAdjoint a ∧ ∀ x ∈ spectrum ℝ a, 0 < x].TFAE := by
+9. `a` is self-adjoint and has positive spectrum.
+-/
+theorem _root_.CStarAlgebra.isStrictlyPositive_TFAE {a : A}
+    : [
+      IsStrictlyPositive a,
+      IsStrictlyPositive (sqrt a) ∧ a = sqrt a * sqrt a,
+      IsUnit (sqrt a) ∧ a = sqrt a * sqrt a,
+      ∃ b, IsStrictlyPositive b ∧ a = b * b,
+      ∃ b, IsUnit b ∧ IsSelfAdjoint b ∧ a = b * b,
+      ∃ b, IsUnit b ∧ a = star b * b,
+      ∃ b, IsUnit b ∧ a = b * star b,
+      0 ≤ a ∧ IsUnit a,
+      IsSelfAdjoint a ∧ ∀ x ∈ spectrum ℝ a, 0 < x
+    ].TFAE := by
   tfae_have 1 ↔ 8 := IsStrictlyPositive.iff_of_unital
   tfae_have 1 ↔ 9 := ⟨fun h => ⟨h.isSelfAdjoint,
       StarOrderedRing.isStrictlyPositive_iff_spectrum_pos a |>.mp h⟩,
@@ -833,25 +856,27 @@ theorem _root_.CStarAlgebra.isStrictlyPositive_TFAE {a : A} :
   tfae_finish
 
 theorem _root_.CStarAlgebra.isStrictlyPositive_iff_isStrictlyPositive_sqrt_and_eq_sqrt_mul_sqrt
-    {a : A} : IsStrictlyPositive a ↔ IsStrictlyPositive (sqrt a) ∧ a = sqrt a * sqrt a :=
+    {a : A}
+    : IsStrictlyPositive a ↔ IsStrictlyPositive (sqrt a) ∧ a = sqrt a * sqrt a :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 2
-theorem _root_.CStarAlgebra.isStrictlyPositive_iff_isUnit_sqrt_and_eq_sqrt_mul_sqrt
-    {a : A} : IsStrictlyPositive a ↔ IsUnit (sqrt a) ∧ a = sqrt a * sqrt a :=
+theorem _root_.CStarAlgebra.isStrictlyPositive_iff_isUnit_sqrt_and_eq_sqrt_mul_sqrt {a : A}
+    : IsStrictlyPositive a ↔ IsUnit (sqrt a) ∧ a = sqrt a * sqrt a :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 3
-theorem _root_.CStarAlgebra.isStrictlyPositive_iff_exists_isStrictlyPositive_and_eq_mul_self
-    {a : A} : IsStrictlyPositive a ↔ ∃ b, IsStrictlyPositive b ∧ a = b * b :=
+theorem _root_.CStarAlgebra.isStrictlyPositive_iff_exists_isStrictlyPositive_and_eq_mul_self {a : A}
+    : IsStrictlyPositive a ↔ ∃ b, IsStrictlyPositive b ∧ a = b * b :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 4
 theorem _root_.CStarAlgebra.isStrictlyPositive_iff_exists_isUnit_and_isSelfAdjoint_and_eq_mul_self
-    {a : A} : IsStrictlyPositive a ↔ ∃ b, IsUnit b ∧ IsSelfAdjoint b ∧ a = b * b :=
+    {a : A}
+    : IsStrictlyPositive a ↔ ∃ b, IsUnit b ∧ IsSelfAdjoint b ∧ a = b * b :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 5
-theorem _root_.CStarAlgebra.isStrictlyPositive_iff_eq_star_mul_self
-    {a : A} : IsStrictlyPositive a ↔ ∃ b, IsUnit b ∧ a = star b * b :=
+theorem _root_.CStarAlgebra.isStrictlyPositive_iff_eq_star_mul_self {a : A}
+    : IsStrictlyPositive a ↔ ∃ b, IsUnit b ∧ a = star b * b :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 6
-theorem _root_.CStarAlgebra.isStrictlyPositive_iff_eq_mul_star_self
-    {a : A} : IsStrictlyPositive a ↔ ∃ b, IsUnit b ∧ a = b * star b :=
+theorem _root_.CStarAlgebra.isStrictlyPositive_iff_eq_mul_star_self {a : A}
+    : IsStrictlyPositive a ↔ ∃ b, IsUnit b ∧ a = b * star b :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 7
-theorem _root_.CStarAlgebra.isStrictlyPositive_iff_isSelfAdjoint_and_spectrum_pos
-    {a : A} : IsStrictlyPositive a ↔ IsSelfAdjoint a ∧ ∀ x ∈ spectrum ℝ a, 0 < x :=
+theorem _root_.CStarAlgebra.isStrictlyPositive_iff_isSelfAdjoint_and_spectrum_pos {a : A}
+    : IsStrictlyPositive a ↔ IsSelfAdjoint a ∧ ∀ x ∈ spectrum ℝ a, 0 < x :=
   CStarAlgebra.isStrictlyPositive_TFAE.out 1 9
 
 end unital_vs_nonunital

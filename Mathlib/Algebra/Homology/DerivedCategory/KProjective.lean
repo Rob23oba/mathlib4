@@ -63,7 +63,9 @@ end IsKProjective
 
 namespace HomComplex.CohomologyClass
 
-variable (K L : CochainComplex C ℤ) (n : ℤ)
+variable
+  (K L : CochainComplex C ℤ)
+  (n : ℤ)
   [HasSmallLocalizedShiftedHom.{w} (HomologicalComplex.quasiIso C (.up ℤ)) ℤ K L]
 
 lemma bijective_toSmallShiftedHom_of_isKProjective [K.IsKProjective] :
@@ -79,13 +81,14 @@ lemma bijective_toSmallShiftedHom_of_isKProjective [K.IsKProjective] :
   simp [toHom_mk, ShiftedHom.map]
 
 variable {K L n} in
-/-- When `K` is a K-projective cochain complex, cohomology classes
+/--
+When `K` is a K-projective cochain complex, cohomology classes
 in `CohomologyClass K L n` identify to elements in a type `SmallShiftedHom` relatively
-to quasi-isomorphisms. -/
+to quasi-isomorphisms.
+-/
 @[simps! -isSimp]
-noncomputable def equivOfIsKProjective [K.IsKProjective] :
-    CohomologyClass K L n ≃
-      SmallShiftedHom.{w} (HomologicalComplex.quasiIso C (.up ℤ)) K L n :=
+noncomputable def equivOfIsKProjective [K.IsKProjective]
+    : CohomologyClass K L n ≃ SmallShiftedHom.{w} (HomologicalComplex.quasiIso C (.up ℤ)) K L n :=
   Equiv.ofBijective _ (bijective_toSmallShiftedHom_of_isKProjective _ _ _)
 
 end HomComplex.CohomologyClass

@@ -29,13 +29,16 @@ namespace Matrix
 variable {R : Type*}
 variable {m m₁ m₂ n n₁ n₂ : Type*}
 
-/-- Concatenate together two matrices A₁[m₁ × N] and A₂[m₂ × N] with the same columns (N) to get a
-bigger matrix indexed by [(m₁ ⊕ m₂) × N] -/
-def fromRows (A₁ : Matrix m₁ n R) (A₂ : Matrix m₂ n R) : Matrix (m₁ ⊕ m₂) n R :=
-  of (Sum.elim A₁ A₂)
+/--
+Concatenate together two matrices A₁[m₁ × N] and A₂[m₂ × N] with the same columns (N) to get a
+bigger matrix indexed by [(m₁ ⊕ m₂) × N]
+-/
+def fromRows (A₁ : Matrix m₁ n R) (A₂ : Matrix m₂ n R) : Matrix (m₁ ⊕ m₂) n R := of (Sum.elim A₁ A₂)
 
-/-- Concatenate together two matrices B₁[m × n₁] and B₂[m × n₂] with the same rows (M) to get a
-bigger matrix indexed by [m × (n₁ ⊕ n₂)] -/
+/--
+Concatenate together two matrices B₁[m × n₁] and B₂[m × n₂] with the same rows (M) to get a
+bigger matrix indexed by [m × (n₁ ⊕ n₂)]
+-/
 def fromCols (B₁ : Matrix m n₁ R) (B₂ : Matrix m n₂ R) : Matrix m (n₁ ⊕ n₂) R :=
   of fun i => Sum.elim (B₁ i) (B₂ i)
 

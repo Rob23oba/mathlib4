@@ -38,8 +38,8 @@ section UniformSpace
 
 open scoped Uniformity
 
-variable {R : Type*} [CommRing R] [UniformSpace R] [IsUniformAddGroup R]
-  {I : Ideal R} (hI : IsAdic I)
+variable
+  {R : Type*} [CommRing R] [UniformSpace R] [IsUniformAddGroup R] {I : Ideal R} (hI : IsAdic I)
 
 include hI in
 /-- `IsPrecomplete I R` is equivalent to being complete in the adic topology. -/
@@ -86,15 +86,17 @@ theorem IsPrecomplete.congr_ringEquiv : IsPrecomplete (I.map e) S ↔ IsPrecompl
   let : WithIdeal R := ⟨I⟩
   let : WithIdeal S := ⟨I.map e⟩
   rw [iff_comm, IsAdic.isPrecomplete_iff (by rfl), IsAdic.isPrecomplete_iff (by rfl)]
-  exact completeSpace_congr (e := WithIdeal.uniformEquiv e rfl) (by
-    simpa using UniformEquiv.isUniformEmbedding ..)
+  exact completeSpace_congr (e := WithIdeal.uniformEquiv e rfl)
+    (by simpa using UniformEquiv.isUniformEmbedding ..)
 
 theorem IsHausdorff.congr_ringEquiv : IsHausdorff (I.map e) S ↔ IsHausdorff I R := by
   let : WithIdeal R := ⟨I⟩
   let : WithIdeal S := ⟨I.map e⟩
   rw [iff_comm, IsAdic.isHausdorff_iff rfl, IsAdic.isHausdorff_iff rfl]
-  exact ⟨fun _ ↦ (WithIdeal.uniformEquiv e rfl).toHomeomorph.t2Space, fun _ ↦
-    (WithIdeal.uniformEquiv e rfl).toHomeomorph.symm.t2Space⟩
+  exact ⟨
+    fun _ ↦ (WithIdeal.uniformEquiv e rfl).toHomeomorph.t2Space,
+    fun _ ↦ (WithIdeal.uniformEquiv e rfl).toHomeomorph.symm.t2Space
+  ⟩
 
 theorem IsAdicComplete.congr_ringEquiv : IsAdicComplete (I.map e) S ↔ IsAdicComplete I R := by
   simp [isAdicComplete_iff, IsHausdorff.congr_ringEquiv, IsPrecomplete.congr_ringEquiv]

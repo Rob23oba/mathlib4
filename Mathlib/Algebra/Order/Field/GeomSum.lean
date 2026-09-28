@@ -22,8 +22,10 @@ variable {K : Type*}
 open Finset
 
 section Semifield
-variable [Semifield K] [LinearOrder K] [IsStrictOrderedRing K] [CanonicallyOrderedAdd K]
-  [Sub K] [OrderedSub K] {x y : K}
+variable
+  [Semifield K] [LinearOrder K] [IsStrictOrderedRing K] [CanonicallyOrderedAdd K] [Sub K]
+  [OrderedSub K]
+  {x y : K}
 
 lemma geom₂_sum_of_gt (h : y < x) (n : ℕ) :
     ∑ i ∈ range n, x ^ i * y ^ (n - 1 - i) = (x ^ n - y ^ n) / (x - y) :=

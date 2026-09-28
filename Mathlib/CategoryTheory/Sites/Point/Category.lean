@@ -32,8 +32,10 @@ variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 
 namespace GrothendieckTopology.Point
 
-/-- A morphism between points of a site consists of a morphism
-between the functors `Point.fiber`, in the opposite direction. -/
+/--
+A morphism between points of a site consists of a morphism
+between the functors `Point.fiber`, in the opposite direction.
+-/
 @[ext]
 structure Hom (Φ₁ Φ₂ : Point.{w} J) where
   /-- a natural transformation, in the opposite direction -/
@@ -55,18 +57,18 @@ lemma id_hom (Φ : Point.{w} J) : Hom.hom (𝟙 Φ) = 𝟙 _ := rfl
 lemma comp_hom {Φ₁ Φ₂ Φ₃ : Point.{w} J} (f : Φ₁ ⟶ Φ₂) (g : Φ₂ ⟶ Φ₃) :
     (f ≫ g).hom = g.hom ≫ f.hom := rfl
 
-variable {A : Type u'} [Category.{v'} A]
-  [HasColimitsOfSize.{w, w} A]
+variable {A : Type u'} [Category.{v'} A] [HasColimitsOfSize.{w, w} A]
 
 namespace Hom
 
 variable {Φ₁ Φ₂ Φ₃ : Point.{w} J} (f : Φ₁ ⟶ Φ₂) (g : Φ₂ ⟶ Φ₃)
 
-/-- The natural transformation on fibers of presheaves that is induced
-by a morphism of points of a site. -/
+/--
+The natural transformation on fibers of presheaves that is induced
+by a morphism of points of a site.
+-/
 @[simps]
-noncomputable def presheafFiber :
-    Φ₂.presheafFiber (A := A) ⟶ Φ₁.presheafFiber where
+noncomputable def presheafFiber : Φ₂.presheafFiber (A := A) ⟶ Φ₁.presheafFiber where
   app P := Φ₂.presheafFiberDesc (fun X x ↦ Φ₁.toPresheafFiber X (f.hom.app X x) P)
 
 @[simp]
@@ -79,10 +81,11 @@ lemma presheafFiber_comp :
     (f ≫ g).presheafFiber (A := A) = g.presheafFiber ≫ f.presheafFiber := by
   cat_disch
 
-/-- The natural transformation on fibers of sheaves that is induced
-by a morphism of points of a site. -/
-noncomputable abbrev sheafFiber :
-    Φ₂.sheafFiber (A := A) ⟶ Φ₁.sheafFiber :=
+/--
+The natural transformation on fibers of sheaves that is induced
+by a morphism of points of a site.
+-/
+noncomputable abbrev sheafFiber : Φ₂.sheafFiber (A := A) ⟶ Φ₁.sheafFiber :=
   Functor.whiskerLeft _ f.presheafFiber
 
 @[simp]

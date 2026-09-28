@@ -73,8 +73,10 @@ private lemma hasSmallLocalizedShiftedHom_K_S'_X₁ :
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
-/-- The class in `Ext S.X₃ S.X₁ 1` that is attached to a short exact
-short complex `S` in an abelian category. -/
+/--
+The class in `Ext S.X₃ S.X₁ 1` that is attached to a short exact
+short complex `S` in an abelian category.
+-/
 noncomputable def extClass : Ext.{w} S.X₃ S.X₁ 1 := by
   have := hS.hasSmallLocalizedHom_S'_X₃_K
   have := hS.hasSmallLocalizedShiftedHom_K_S'_X₁

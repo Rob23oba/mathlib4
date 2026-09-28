@@ -78,8 +78,8 @@ lemma RelCWComplex.Subcomplex.disjoint_openCell_subcomplex_of_not_mem [RelCWComp
 open scoped Classical in
 /-- A subcomplex is again a CW complex. -/
 @[simps]
-instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D]
-    (E : Subcomplex C) : RelCWComplex E D where
+instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D] (E : Subcomplex C)
+    : RelCWComplex E D where
   cell n := E.I n
   map n i := map (C := C) n i
   source_eq n i := source_eq (C := C) n i
@@ -117,8 +117,8 @@ instance RelCWComplex.Subcomplex.instRelCWComplex [T2Space X] [RelCWComplex C D]
   union' := union_closedCell E
 
 /-- A subcomplex is again a CW complex. -/
-instance CWComplex.Subcomplex.instCWComplex [T2Space X] [CWComplex C] (E : Subcomplex C) :
-    CWComplex (E : Set X) :=
+instance CWComplex.Subcomplex.instCWComplex [T2Space X] [CWComplex C] (E : Subcomplex C)
+    : CWComplex (E : Set X) :=
   RelCWComplex.toCWComplex (E : Set X)
 
 @[simp]
@@ -147,24 +147,26 @@ lemma RelCWComplex.Subcomplex.cellFrontier_eq [T2Space X] [RelCWComplex C D] (E 
   rfl
 
 @[alias_in CWComplex.Subcomplex]
-instance RelCWComplex.Subcomplex.finiteType_subcomplex_of_finiteType [T2Space X]
-    [RelCWComplex C D] [FiniteType C] (E : Subcomplex C) : FiniteType (E : Set X) where
+instance RelCWComplex.Subcomplex.finiteType_subcomplex_of_finiteType
+    [T2Space X] [RelCWComplex C D] [FiniteType C] (E : Subcomplex C)
+    : FiniteType (E : Set X) where
   finite_cell n :=
     let _ := FiniteType.finite_cell (C := C) (D := D) n
     Subtype.finite
 
 @[alias_in CWComplex.Subcomplex]
 instance RelCWComplex.Subcomplex.finiteDimensional_subcomplex_of_finiteDimensional
-    [T2Space X] [RelCWComplex C D] [FiniteDimensional C] (E : Subcomplex C) :
-    FiniteDimensional (E : Set X) where
+    [T2Space X] [RelCWComplex C D] [FiniteDimensional C] (E : Subcomplex C)
+    : FiniteDimensional (E : Set X) where
   eventually_isEmpty_cell := by
     filter_upwards [FiniteDimensional.eventually_isEmpty_cell (C := C) (D := D)] with n hn
     simp [isEmpty_subtype]
 
 /-- A subcomplex of a finite CW complex is again finite. -/
 @[alias_in CWComplex.Subcomplex]
-instance RelCWComplex.Subcomplex.finite_subcomplex_of_finite [T2Space X] [RelCWComplex C D]
-    [Finite C] (E : Subcomplex C) : Finite (E : Set X) :=
+instance RelCWComplex.Subcomplex.finite_subcomplex_of_finite
+    [T2Space X] [RelCWComplex C D] [Finite C] (E : Subcomplex C)
+    : Finite (E : Set X) :=
   finite_of_finiteDimensional_finiteType _
 
 end Topology

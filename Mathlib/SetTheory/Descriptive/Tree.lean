@@ -22,12 +22,14 @@ sequences that are stable under taking prefixes.
 
 namespace Descriptive
 
-/-- A tree is a set of finite sequences, implemented as `List A`, that is stable under
-  taking prefixes. For the definition we use the equivalent property `x ++ [a] ∈ T → x ∈ T`,
-  which is more convenient to check. We define `tree A` as a complete sublattice of
-  `Set (List A)`, which coerces to the type of trees on `A`. -/
+/--
+A tree is a set of finite sequences, implemented as `List A`, that is stable under
+taking prefixes. For the definition we use the equivalent property `x ++ [a] ∈ T → x ∈ T`,
+which is more convenient to check. We define `tree A` as a complete sublattice of
+`Set (List A)`, which coerces to the type of trees on `A`.
+-/
 def tree (A : Type*) : CompleteSublattice (Set (List A)) :=
-  CompleteSublattice.mk' {T | ∀ ⦃x : List A⦄ ⦃a : A⦄, x ++ [a] ∈ T → x ∈ T}
+  CompleteSublattice.mk' ({T | ∀ ⦃x : List A⦄ ⦃a : A⦄, x ++ [a] ∈ T → x ∈ T})
     (by rintro S hS x a ⟨t, ht, hx⟩; use t, ht, hS ht hx)
     (by rintro S hS x a h T hT; exact hS hT <| h T hT)
 
@@ -74,7 +76,7 @@ variable (T) (x y : List A)
 
 /-- The residual tree obtained by regarding the node x as new root -/
 def subAt : tree A :=
-  ⟨(x ++ ·)⁻¹' T, fun _ a _ ↦ mem_of_append (y := [a]) (by rwa [List.append_assoc])⟩
+  ⟨(x ++ ·) ⁻¹' T, fun _ a _ ↦ mem_of_append (y := [a]) (by rwa [List.append_assoc])⟩
 
 @[simp] lemma mem_subAt : y ∈ subAt T x ↔ x ++ y ∈ T := Iff.rfl
 
@@ -86,18 +88,20 @@ def subAt : tree A :=
   Set.preimage_mono h
 
 /-- A variant of `List.drop` that takes values in `subAt` -/
-@[simps] def drop (n : ℕ) (x : T) : subAt T (Tree.take n x).val :=
-  ⟨x.val.drop n, by simp⟩
+@[simps] def drop (n : ℕ) (x : T) : subAt T (Tree.take n x).val := ⟨x.val.drop n, by simp⟩
 
 -- ### `pullSub`
 
-/-- Adjoint of `subAt`, given by pasting x before the root of T. Explicitly,
-  elements are prefixes of x or x with an element of T appended -/
+/--
+Adjoint of `subAt`, given by pasting x before the root of T. Explicitly,
+elements are prefixes of x or x with an element of T appended
+-/
 def pullSub : tree A where
   val := { y | y.take x.length <+: x ∧ y.drop x.length ∈ T }
-  property := fun y a ⟨h1, h2⟩ ↦
-    ⟨((y.prefix_append [a]).take x.length).trans h1,
-    mem_of_prefix ((y.prefix_append [a]).drop x.length) h2⟩
+  property := fun y a ⟨h1, h2⟩ ↦ ⟨
+    ((y.prefix_append [a]).take x.length).trans h1,
+    mem_of_prefix ((y.prefix_append [a]).drop x.length) h2
+  ⟩
 
 variable {T x y}
 
@@ -117,7 +121,6 @@ lemma mem_pullSub_long (hl : x.length ≤ y.length) : y ∈ pullSub T x ↔ ∃ 
 
 @[simp] lemma mem_pullSub_self : x ∈ pullSub T x ↔ [] ∈ T := by
   simpa using mem_pullSub_append (y := [])
-
 
 variable (T x y)
 

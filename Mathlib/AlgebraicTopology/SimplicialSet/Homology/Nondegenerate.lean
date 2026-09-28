@@ -28,19 +28,22 @@ when `X` has dimension `< d`.
 
 universe w v u
 
-open CategoryTheory Limits HomologicalComplex
-  AlgebraicTopology.DoldKan
+open CategoryTheory Limits HomologicalComplex AlgebraicTopology.DoldKan
 
 open scoped Simplicial
 
 namespace SSet
 
-variable {C : Type u} [Category.{v} C] [HasCoproducts.{w} C] [Preadditive C]
-  (X Y : SSet.{w}) (f : X ⟶ Y) (R : C)
+variable
+  {C : Type u} [Category.{v} C] [HasCoproducts.{w} C] [Preadditive C]
+  (X Y : SSet.{w}) (f : X ⟶ Y)
+  (R : C)
 
-/-- The normalized chain complex of a simplicial set `X` with coefficients in `R`.
+/--
+The normalized chain complex of a simplicial set `X` with coefficients in `R`.
 In degree `n`, it consists of a coproduct of copies of `R` indexed by the
-nondegenerate `n`-simplices of `X`. -/
+nondegenerate `n`-simplices of `X`.
+-/
 noncomputable def normalizedChainComplex : ChainComplex C ℕ :=
   (X.splitting.map (sigmaConst.obj R)).nondegComplex
 
@@ -84,8 +87,8 @@ lemma toNormalizedChainComplex_f_fromNormalizedChainComplex_f (n : ℕ) :
   simp [← HomologicalComplex.comp_f]
 
 /-- The homotopy equivalence from `X.chainComplex R` to `X.normalizedChainComplex R`. -/
-noncomputable def homotopyEquivNormalizedChainComplex :
-    HomotopyEquiv (X.chainComplex R) (X.normalizedChainComplex R) :=
+noncomputable def homotopyEquivNormalizedChainComplex
+    : HomotopyEquiv (X.chainComplex R) (X.normalizedChainComplex R) :=
   SimplicialObject.Splitting.homotopyEquivNondegComplex _
 
 @[simp]
@@ -100,11 +103,12 @@ section
 
 variable {R} {n : ℕ}
 
-/-- The map `R ⟶ (X.normalizedChainComplex R).X n` for any `x : X _⦋n⦌`. Note that
-this is zero if `x` is a degenerate simplex, see `ιNormalizedChainComplex_eq_zero`. -/
+/--
+The map `R ⟶ (X.normalizedChainComplex R).X n` for any `x : X _⦋n⦌`. Note that
+this is zero if `x` is a degenerate simplex, see `ιNormalizedChainComplex_eq_zero`.
+-/
 @[no_expose]
-noncomputable def ιNormalizedChainComplex (x : X _⦋n⦌) :
-    R ⟶ (X.normalizedChainComplex R).X n :=
+noncomputable def ιNormalizedChainComplex (x : X _⦋n⦌) : R ⟶ (X.normalizedChainComplex R).X n :=
   X.ιChainComplex x ≫ (X.toNormalizedChainComplex R).f n
 
 @[reassoc (attr := simp)]
@@ -144,9 +148,11 @@ lemma ιNormalizedChainComplex_eq_zero (x : X _⦋n⦌) (hx : x ∈ X.degenerate
     · simp
 
 variable (R n) in
-/-- The cofan given by the inclusions
+/--
+The cofan given by the inclusions
 `X.ιNormalizedChainComplex x : R ⟶ (X.normalizedChainComplex R).X n` for all
-nondegenerate `n`-simplices `x` of a simplicial set `X`. -/
+nondegenerate `n`-simplices `x` of a simplicial set `X`.
+-/
 noncomputable abbrev cofanNormalizedChainComplex : Cofan (fun (_ : X.nonDegenerate n) ↦ R) :=
   Cofan.mk _ (fun x ↦ X.ιNormalizedChainComplex x.val)
 
@@ -162,14 +168,16 @@ private lemma ιNormalizedChainComplex_eq_ι (x : X _⦋n⦌) (hx : x ∈ X.nonD
 
 set_option backward.isDefEq.respectTransparency false in
 variable (R n) in
-/-- `(X.normalizedChainComplex R).X n` identifies to the coproduct of copies
-of `R` indexed by the nondegenerate `n`-simplices of the simplicial set `X`. -/
+/--
+`(X.normalizedChainComplex R).X n` identifies to the coproduct of copies
+of `R` indexed by the nondegenerate `n`-simplices of the simplicial set `X`.
+-/
 @[no_expose]
-noncomputable def isColimitCofanNormalizedChainComplex :
-    IsColimit (X.cofanNormalizedChainComplex R n) :=
+noncomputable def isColimitCofanNormalizedChainComplex
+    : IsColimit (X.cofanNormalizedChainComplex R n) :=
   IsColimit.ofIsoColimit (coproductIsCoproduct _)
-    (Cofan.ext (Iso.refl _) (fun ⟨x, hx⟩ ↦ by
-      simpa using (X.ιNormalizedChainComplex_eq_ι R n x hx).symm))
+    (Cofan.ext (Iso.refl _)
+      (fun ⟨x, hx⟩ ↦ by simpa using (X.ιNormalizedChainComplex_eq_ι R n x hx).symm))
 
 @[ext]
 lemma normalizedChainComplex_hom_ext {T : C} {f g : (X.normalizedChainComplex R).X n ⟶ T}
@@ -196,10 +204,12 @@ lemma chainComplexMap_PInfty :
     chainComplexMap f R ≫ PInfty = PInfty ≫ chainComplexMap f R :=
   (natTransPInfty _).naturality _
 
-/-- The morphism `X.normalizedChainComplex R ⟶ Y.normalizedChainComplex R` induced
-by a morphism a simplicial sets `X ⟶ Y`. -/
-noncomputable def normalizedChainComplexMap :
-    X.normalizedChainComplex R ⟶ Y.normalizedChainComplex R :=
+/--
+The morphism `X.normalizedChainComplex R ⟶ Y.normalizedChainComplex R` induced
+by a morphism a simplicial sets `X ⟶ Y`.
+-/
+noncomputable def normalizedChainComplexMap
+    : X.normalizedChainComplex R ⟶ Y.normalizedChainComplex R :=
   X.fromNormalizedChainComplex R ≫ chainComplexMap f R ≫ Y.toNormalizedChainComplex R
 
 @[reassoc (attr := simp)]
@@ -217,19 +227,23 @@ lemma ι_normalizedChainComplexMap_f {n : ℕ} (x : X _⦋n⦌) :
     X.ιChainComplex x ≫=
       (eval _ _ n).congr_map (toNormalizedChainComplex_normalizedChainComplexMap f R)
 
-/-- Given `R : C`, this is the functor `SSet.{w} ⥤ ChainComplex C ℕ` which sends
-a simplicial set `X` to `X.normalizedChainComplex R`. -/
+/--
+Given `R : C`, this is the functor `SSet.{w} ⥤ ChainComplex C ℕ` which sends
+a simplicial set `X` to `X.normalizedChainComplex R`.
+-/
 @[simps]
 noncomputable def normalizedChainComplexFunctorObj : SSet.{w} ⥤ ChainComplex C ℕ where
   obj X := X.normalizedChainComplex R
   map f := normalizedChainComplexMap f R
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The morphism `X.toNormalizedChainComplex R` for any simplicial set `X`,
-as a natural transformation. -/
+/--
+The morphism `X.toNormalizedChainComplex R` for any simplicial set `X`,
+as a natural transformation.
+-/
 @[simps]
-noncomputable def toNormalizedChainComplexNatTrans :
-    (chainComplexFunctor C).obj R ⟶ normalizedChainComplexFunctorObj R where
+noncomputable def toNormalizedChainComplexNatTrans
+    : (chainComplexFunctor C).obj R ⟶ normalizedChainComplexFunctorObj R where
   app X := X.toNormalizedChainComplex R
 
 end

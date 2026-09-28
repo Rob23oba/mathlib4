@@ -38,7 +38,8 @@ open Finsupp
 namespace Nat
 variable {a b n : ℕ}
 
-/-- Flooring root of a natural number. This divides the valuation of every prime number rounding
+/--
+Flooring root of a natural number. This divides the valuation of every prime number rounding
 down.
 
 Eg if `n = 2`, `a = 2^3 * 3^2 * 5`, then `floorRoot n a = 2 * 3`.
@@ -98,7 +99,8 @@ lemma pow_dvd_iff_dvd_floorRoot : a ^ n ∣ b ↔ a ∣ floorRoot n b := by
 
 lemma floorRoot_pow_dvd : floorRoot n a ^ n ∣ a := pow_dvd_iff_dvd_floorRoot.2 dvd_rfl
 
-/-- Ceiling root of a natural number. This divides the valuation of every prime number rounding up.
+/--
+Ceiling root of a natural number. This divides the valuation of every prime number rounding up.
 
 Eg if `n = 3`, `a = 2^4 * 3^2 * 5`, then `ceilRoot n a = 2^2 * 3 * 5`.
 

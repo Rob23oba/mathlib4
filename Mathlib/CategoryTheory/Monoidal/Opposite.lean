@@ -19,7 +19,6 @@ set_option backward.defeqAttrib.useBackward true
 
 @[expose] public section
 
-
 universe v₁ v₂ u₁ u₂
 
 variable {C : Type u₁}
@@ -28,29 +27,29 @@ namespace CategoryTheory
 
 open CategoryTheory.MonoidalCategory
 
-/-- The type of objects of the opposite (or "reverse") monoidal category.
-Use the notation `Cᴹᵒᵖ`. -/
+/--
+The type of objects of the opposite (or "reverse") monoidal category.
+Use the notation `Cᴹᵒᵖ`.
+-/
 structure MonoidalOpposite (C : Type u₁) where
-  /-- The object of `MonoidalOpposite C` that represents `x : C`. -/ mop ::
-  /-- The object of `C` represented by `x : MonoidalOpposite C`. -/ unmop : C
+  /-- The object of `MonoidalOpposite C` that represents `x : C`. -/
+  mop ::
+  /-- The object of `C` represented by `x : MonoidalOpposite C`. -/
+  unmop : C
 
 namespace MonoidalOpposite
 
-@[inherit_doc]
-notation:max C "ᴹᵒᵖ" => MonoidalOpposite C
+@[inherit_doc] notation:max C "ᴹᵒᵖ" => MonoidalOpposite C
 
 theorem mop_injective : Function.Injective (mop : C → Cᴹᵒᵖ) := @mop.inj C
 
-theorem unmop_injective : Function.Injective (unmop : Cᴹᵒᵖ → C) :=
-  fun _ _ h => congrArg mop h
+theorem unmop_injective : Function.Injective (unmop : Cᴹᵒᵖ → C) := fun _ _ h => congrArg mop h
 
 theorem mop_inj_iff (x y : C) : mop x = mop y ↔ x = y := mop_injective.eq_iff
 
-@[simp]
-theorem unmop_inj_iff (x y : Cᴹᵒᵖ) : unmop x = unmop y ↔ x = y := unmop_injective.eq_iff
+@[simp] theorem unmop_inj_iff (x y : Cᴹᵒᵖ) : unmop x = unmop y ↔ x = y := unmop_injective.eq_iff
 
-@[simp]
-theorem mop_unmop (X : Cᴹᵒᵖ) : mop (unmop X) = X := rfl
+@[simp] theorem mop_unmop (X : Cᴹᵒᵖ) : mop (unmop X) = X := rfl
 
 -- can't be simp bc after putting the lhs in whnf it's `X = X`
 theorem unmop_mop (X : C) : unmop (mop X) = X := rfl
@@ -80,45 +79,33 @@ namespace Quiver.Hom
 
 open MonoidalOpposite renaming mop → mop', unmop → unmop'
 
-theorem mop_inj {X Y : C} :
-    Function.Injective (Quiver.Hom.mop : (X ⟶ Y) → (mop' X ⟶ mop' Y)) :=
+theorem mop_inj {X Y : C} : Function.Injective (Quiver.Hom.mop : (X ⟶ Y) → (mop' X ⟶ mop' Y)) :=
   fun _ _ H => congr($(H).unmop)
 
-theorem unmop_inj {X Y : Cᴹᵒᵖ} :
-    Function.Injective (Quiver.Hom.unmop : (X ⟶ Y) → (unmop' X ⟶ unmop' Y)) :=
-  fun _ _ H => congr($(H).mop)
+theorem unmop_inj {X Y : Cᴹᵒᵖ}
+    : Function.Injective (Quiver.Hom.unmop : (X ⟶ Y) → (unmop' X ⟶ unmop' Y)) := fun _ _ H =>
+  congr($(H).mop)
 
-@[simp]
-theorem unmop_mop {X Y : C} {f : X ⟶ Y} : f.mop.unmop = f :=
-  rfl
+@[simp] theorem unmop_mop {X Y : C} {f : X ⟶ Y} : f.mop.unmop = f := rfl
 
-@[simp]
-theorem mop_unmop {X Y : Cᴹᵒᵖ} {f : X ⟶ Y} : f.unmop.mop = f :=
-  rfl
+@[simp] theorem mop_unmop {X Y : Cᴹᵒᵖ} {f : X ⟶ Y} : f.unmop.mop = f := rfl
 
 end Quiver.Hom
 
 namespace CategoryTheory
 
-@[simp]
-theorem mop_comp {X Y Z : C} {f : X ⟶ Y} {g : Y ⟶ Z} :
-    (f ≫ g).mop = f.mop ≫ g.mop := rfl
+@[simp] theorem mop_comp {X Y Z : C} {f : X ⟶ Y} {g : Y ⟶ Z} : (f ≫ g).mop = f.mop ≫ g.mop := rfl
+
+@[simp] theorem mop_id {X : C} : (𝟙 X).mop = 𝟙 (mop X) := rfl
 
 @[simp]
-theorem mop_id {X : C} : (𝟙 X).mop = 𝟙 (mop X) := rfl
+theorem unmop_comp {X Y Z : Cᴹᵒᵖ} {f : X ⟶ Y} {g : Y ⟶ Z} : (f ≫ g).unmop = f.unmop ≫ g.unmop := rfl
 
-@[simp]
-theorem unmop_comp {X Y Z : Cᴹᵒᵖ} {f : X ⟶ Y} {g : Y ⟶ Z} :
-    (f ≫ g).unmop = f.unmop ≫ g.unmop := rfl
+@[simp] theorem unmop_id {X : Cᴹᵒᵖ} : (𝟙 X).unmop = 𝟙 (unmop X) := rfl
 
-@[simp]
-theorem unmop_id {X : Cᴹᵒᵖ} : (𝟙 X).unmop = 𝟙 (unmop X) := rfl
+@[simp] theorem unmop_id_mop {X : C} : (𝟙 (mop X)).unmop = 𝟙 X := rfl
 
-@[simp]
-theorem unmop_id_mop {X : C} : (𝟙 (mop X)).unmop = 𝟙 X := rfl
-
-@[simp]
-theorem mop_id_unmop {X : Cᴹᵒᵖ} : (𝟙 (unmop X)).mop = 𝟙 X := rfl
+@[simp] theorem mop_id_unmop {X : Cᴹᵒᵖ} : (𝟙 (unmop X)).mop = 𝟙 X := rfl
 
 -- aesop prefers this lemma as a safe apply over Quiver.Hom.unmop_inj
 lemma MonoidalOpposite.hom_ext {x y : Cᴹᵒᵖ} {f g : x ⟶ y} (h : f.unmop = g.unmop) :
@@ -148,10 +135,8 @@ end Iso
 
 namespace IsIso
 
-instance {X Y : C} (f : X ⟶ Y) [IsIso f] : IsIso f.mop :=
-  (mopFunctor C).map_isIso f
-instance {X Y : Cᴹᵒᵖ} (f : X ⟶ Y) [IsIso f] : IsIso f.unmop :=
-  (unmopFunctor C).map_isIso f
+instance {X Y : C} (f : X ⟶ Y) [IsIso f] : IsIso f.mop := (mopFunctor C).map_isIso f
+instance {X Y : Cᴹᵒᵖ} (f : X ⟶ Y) [IsIso f] : IsIso f.unmop := (unmopFunctor C).map_isIso f
 
 end IsIso
 
@@ -237,8 +222,9 @@ end OppositeLemmas
 
 theorem op_tensor_op {W X Y Z : C} (f : W ⟶ X) (g : Y ⟶ Z) : f.op ⊗ₘ g.op = (f ⊗ₘ g).op := rfl
 
-theorem unop_tensor_unop {W X Y Z : Cᵒᵖ} (f : W ⟶ X) (g : Y ⟶ Z) :
-    f.unop ⊗ₘ g.unop = (f ⊗ₘ g).unop := rfl
+theorem unop_tensor_unop {W X Y Z : Cᵒᵖ} (f : W ⟶ X) (g : Y ⟶ Z)
+    : f.unop ⊗ₘ g.unop = (f ⊗ₘ g).unop :=
+  rfl
 
 set_option backward.isDefEq.respectTransparency.types false in
 set_option backward.defeqAttrib.useBackward true in
@@ -323,10 +309,11 @@ variable (C)
 set_option backward.defeqAttrib.useBackward true in
 set_option linter.style.whitespace false in -- manual alignment is not recognised
 /-- The (identity) equivalence between `C` and its monoidal opposite. -/
-@[simps] def MonoidalOpposite.mopEquiv : C ≌ Cᴹᵒᵖ where
-  functor   := mopFunctor C
-  inverse   := unmopFunctor C
-  unitIso   := Iso.refl _
+@[simps]
+def MonoidalOpposite.mopEquiv : C ≌ Cᴹᵒᵖ where
+  functor := mopFunctor C
+  inverse := unmopFunctor C
+  unitIso := Iso.refl _
   counitIso := Iso.refl _
 
 /-- The (identity) equivalence between `Cᴹᵒᵖ` and `C`. -/
@@ -336,12 +323,13 @@ set_option linter.style.whitespace false in -- manual alignment is not recognise
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
 set_option backward.isDefEq.respectTransparency.types false in
 /-- The equivalence between `C` and its monoidal opposite's monoidal opposite. -/
-@[simps!] def MonoidalOpposite.mopMopEquivalence : Cᴹᵒᵖᴹᵒᵖ ≌ C :=
+@[simps!]
+def MonoidalOpposite.mopMopEquivalence : Cᴹᵒᵖᴹᵒᵖ ≌ C :=
   .trans (MonoidalOpposite.unmopEquiv Cᴹᵒᵖ) (MonoidalOpposite.unmopEquiv C)
 
 @[simps!]
-instance MonoidalOpposite.mopMopEquivalenceFunctorMonoidal :
-    (MonoidalOpposite.mopMopEquivalence C).functor.Monoidal where
+instance MonoidalOpposite.mopMopEquivalenceFunctorMonoidal
+    : (MonoidalOpposite.mopMopEquivalence C).functor.Monoidal where
   ε := 𝟙 _
   δ X Y := 𝟙 _
   μ X Y := 𝟙 _
@@ -353,8 +341,8 @@ instance MonoidalOpposite.mopMopEquivalenceFunctorMonoidal :
 
 set_option backward.isDefEq.respectTransparency false in
 @[simps!]
-instance MonoidalOpposite.mopMopEquivalenceInverseMonoidal :
-    (MonoidalOpposite.mopMopEquivalence C).inverse.Monoidal where
+instance MonoidalOpposite.mopMopEquivalenceInverseMonoidal
+    : (MonoidalOpposite.mopMopEquivalence C).inverse.Monoidal where
   ε := 𝟙 _
   δ X Y := 𝟙 _
   μ X Y := 𝟙 _
@@ -366,54 +354,52 @@ instance MonoidalOpposite.mopMopEquivalenceInverseMonoidal :
 
 set_option backward.isDefEq.respectTransparency.types false in
 instance : (mopMopEquivalence C).IsMonoidal where
-  leftAdjoint_ε := by
-    simp [ε, η, mopMopEquivalence, Equivalence.trans, unmopEquiv, ε]
-  leftAdjoint_μ X Y := by
-    simp [μ, δ, mopMopEquivalence, Equivalence.trans, unmopEquiv, μ]
+  leftAdjoint_ε := by simp [ε, η, mopMopEquivalence, Equivalence.trans, unmopEquiv, ε]
+  leftAdjoint_μ X Y := by simp [μ, δ, mopMopEquivalence, Equivalence.trans, unmopEquiv, μ]
 
 /-- The identification `mop X ⊗ mop Y = mop (Y ⊗ X)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorIso :
-    tensor Cᴹᵒᵖ ≅ (unmopFunctor C).prod (unmopFunctor C) ⋙
-      Prod.swap C C ⋙ tensor C ⋙ mopFunctor C :=
+def MonoidalOpposite.tensorIso
+    : tensor Cᴹᵒᵖ
+      ≅ (unmopFunctor C).prod (unmopFunctor C) ⋙ Prod.swap C C ⋙ tensor C ⋙ mopFunctor C :=
   Iso.refl _
 
 variable {C}
 
 /-- The identification `X ⊗ - = mop (- ⊗ unmop X)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorLeftIso (X : Cᴹᵒᵖ) :
-    tensorLeft X ≅ unmopFunctor C ⋙ tensorRight (unmop X) ⋙ mopFunctor C :=
+def MonoidalOpposite.tensorLeftIso (X : Cᴹᵒᵖ)
+    : tensorLeft X ≅ unmopFunctor C ⋙ tensorRight (unmop X) ⋙ mopFunctor C :=
   Iso.refl _
 
 /-- The identification `mop X ⊗ - = mop (- ⊗ X)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorLeftMopIso (X : C) :
-    tensorLeft (mop X) ≅ unmopFunctor C ⋙ tensorRight X ⋙ mopFunctor C :=
+def MonoidalOpposite.tensorLeftMopIso (X : C)
+    : tensorLeft (mop X) ≅ unmopFunctor C ⋙ tensorRight X ⋙ mopFunctor C :=
   Iso.refl _
 
 /-- The identification `unmop X ⊗ - = unmop (mop - ⊗ X)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorLeftUnmopIso (X : Cᴹᵒᵖ) :
-    tensorLeft (unmop X) ≅ mopFunctor C ⋙ tensorRight X ⋙ unmopFunctor C :=
+def MonoidalOpposite.tensorLeftUnmopIso (X : Cᴹᵒᵖ)
+    : tensorLeft (unmop X) ≅ mopFunctor C ⋙ tensorRight X ⋙ unmopFunctor C :=
   Iso.refl _
 
 /-- The identification `- ⊗ X = mop (unmop X ⊗ -)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorRightIso (X : Cᴹᵒᵖ) :
-    tensorRight X ≅ unmopFunctor C ⋙ tensorLeft (unmop X) ⋙ mopFunctor C :=
+def MonoidalOpposite.tensorRightIso (X : Cᴹᵒᵖ)
+    : tensorRight X ≅ unmopFunctor C ⋙ tensorLeft (unmop X) ⋙ mopFunctor C :=
   Iso.refl _
 
 /-- The identification `- ⊗ mop X = mop (- ⊗ unmop X)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorRightMopIso (X : C) :
-    tensorRight (mop X) ≅ unmopFunctor C ⋙ tensorLeft X ⋙ mopFunctor C :=
+def MonoidalOpposite.tensorRightMopIso (X : C)
+    : tensorRight (mop X) ≅ unmopFunctor C ⋙ tensorLeft X ⋙ mopFunctor C :=
   Iso.refl _
 
 /-- The identification `- ⊗ unmop X = unmop (X ⊗ mop -)` as a natural isomorphism. -/
 @[simps!]
-def MonoidalOpposite.tensorRightUnmopIso (X : Cᴹᵒᵖ) :
-    tensorRight (unmop X) ≅ mopFunctor C ⋙ tensorLeft X ⋙ unmopFunctor C :=
+def MonoidalOpposite.tensorRightUnmopIso (X : Cᴹᵒᵖ)
+    : tensorRight (unmop X) ≅ mopFunctor C ⋙ tensorLeft X ⋙ unmopFunctor C :=
   Iso.refl _
 
 @[simps]

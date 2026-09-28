@@ -32,14 +32,18 @@ open MeasureTheory.Measure
 open scoped NNReal Pointwise ENNReal
 
 namespace MeasureTheory
-variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A] [TopologicalSpace A]
-  [IsTopologicalAddGroup A] [LocallyCompactSpace A] [ContinuousConstSMul G A] {g : G}
+variable
+  {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A] [TopologicalSpace A]
+  [IsTopologicalAddGroup A] [LocallyCompactSpace A] [ContinuousConstSMul G A]
+  {g : G}
 
 variable (A) in
 set_option backward.isDefEq.respectTransparency false in
-/-- The distributive Haar character of a group `G` acting distributively on a group `A` is the
+/--
+The distributive Haar character of a group `G` acting distributively on a group `A` is the
 unique positive real number `Δ(g)` such that `μ (g • s) = Δ(g) * μ s` for all Haar
-measures `μ : Measure A`, set `s : Set A` and `g : G`. -/
+measures `μ : Measure A`, set `s : Set A` and `g : G`.
+-/
 @[simps -isSimp]
 noncomputable def distribHaarChar : G →* ℝ≥0 :=
   letI := borel A

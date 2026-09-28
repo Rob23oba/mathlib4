@@ -49,29 +49,31 @@ set_option backward.defeqAttrib.useBackward true in
 /-- The inverse functor of the equivalence `(C ≌ D) ≌ (D ≌ C)ᵒᵖ`. -/
 @[simps!]
 def symmEquivInverse : (D ≌ C)ᵒᵖ ⥤ (C ≌ D) :=
-  Functor.leftOp
-    { obj e := Opposite.op e.symm
-      map {e f} α := Quiver.Hom.op <| mkHom <|
-        conjugateEquiv e.symm.toAdjunction f.symm.toAdjunction |>.invFun <| asNatTrans α
-      map_comp _ _ := Quiver.Hom.unop_inj (by cat_disch) }
+  Functor.leftOp {
+    obj e := Opposite.op e.symm
+    map {e f} α :=
+      Quiver.Hom.op <| mkHom <| conjugateEquiv e.symm.toAdjunction f.symm.toAdjunction |>.invFun <|
+        asNatTrans α
+    map_comp _ _ := Quiver.Hom.unop_inj (by cat_disch)
+  }
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Taking the symmetric of an equivalence induces an equivalence of categories
-`(C ≌ D) ≌ (D ≌ C)ᵒᵖ`. -/
+/--
+Taking the symmetric of an equivalence induces an equivalence of categories
+`(C ≌ D) ≌ (D ≌ C)ᵒᵖ`.
+-/
 @[simps]
 def symmEquiv : (C ≌ D) ≌ (D ≌ C)ᵒᵖ where
   functor := symmEquivFunctor _ _
   inverse := symmEquivInverse _ _
   counitIso :=
-    NatIso.ofComponents (fun e ↦ Iso.op <| Iso.refl _) <| fun _ ↦
-      (by simp [symm, symmEquivInverse])
+    NatIso.ofComponents (fun e ↦ Iso.op <| Iso.refl _) <| fun _ ↦ (by simp [symm, symmEquivInverse])
   unitIso :=
     NatIso.ofComponents (fun e ↦ Iso.refl _) <| fun _ ↦ by
       ext c
       simp [symm, symmEquivInverse]
-  functor_unitIso_comp X := by
-    simp [symm, symmEquivInverse]
+  functor_unitIso_comp X := by simp [symm, symmEquivInverse]
 
 #adaptation_note
 /-- `respectTransparency.types true` changes the auto-generated lemmas' signature -/
@@ -85,8 +87,8 @@ variable {C D}
 
 /-- The `inverse` functor sends an equivalence to its inverse. -/
 @[simps!]
-def inverseFunctorObjIso (e : C ≌ D) :
-    (inverseFunctor C D).obj e ≅ Opposite.op e.inverse := Iso.refl _
+def inverseFunctorObjIso (e : C ≌ D) : (inverseFunctor C D).obj e ≅ Opposite.op e.inverse :=
+  Iso.refl _
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- We can compare the way we obtain a natural isomorphism `e.inverse ≅ f.inverse` from
@@ -99,22 +101,22 @@ lemma inverseFunctorMapIso_symm_eq_isoInverseOfIsoFunctor {e f : C ≌ D} (α : 
 
 /-- An "unopped" version of the equivalence `inverseFunctorObj'`. -/
 @[simps!]
-def inverseFunctorObj' (e : C ≌ D) :
-    Opposite.unop ((inverseFunctor C D).obj e) ≅ e.inverse :=
+def inverseFunctorObj' (e : C ≌ D) : Opposite.unop ((inverseFunctor C D).obj e) ≅ e.inverse :=
   Iso.refl _
 
 variable (C D) in
 /-- Promoting `Equivalence.congrLeft` to a functor. -/
 @[simps!]
 def congrLeftFunctor (E : Type*) [Category* E] : (C ≌ D) ⥤ ((C ⥤ E) ≌ (D ⥤ E))ᵒᵖ :=
-  Functor.rightOp
-    { obj f := f.unop.congrLeft
-      map {e f} α := mkHom <| (whiskeringLeft _ _ _).map <|
-        conjugateEquiv e.unop.toAdjunction f.unop.toAdjunction <| asNatTrans <|
-          Quiver.Hom.unop α
-      map_comp _ _ := by
-        ext
-        simp [← map_comp] }
+  Functor.rightOp {
+    obj f := f.unop.congrLeft
+    map {e f} α :=
+      mkHom <| (whiskeringLeft _ _ _).map <|
+        conjugateEquiv e.unop.toAdjunction f.unop.toAdjunction <| asNatTrans <| Quiver.Hom.unop α
+    map_comp _ _ := by
+      ext
+      simp [← map_comp]
+  }
 
 end Equivalence
 

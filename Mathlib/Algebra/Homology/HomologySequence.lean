@@ -39,9 +39,10 @@ namespace HomologicalComplex
 
 section HasZeroMorphisms
 
-variable {C ι : Type*} [Category* C] [HasZeroMorphisms C] {c : ComplexShape ι}
-  (K L : HomologicalComplex C c) (φ : K ⟶ L) (i j : ι)
-  [K.HasHomology i] [K.HasHomology j] [L.HasHomology i] [L.HasHomology j]
+variable
+  {C ι : Type*} [Category* C] [HasZeroMorphisms C]
+  {c : ComplexShape ι} (K L : HomologicalComplex C c) (φ : K ⟶ L)
+  (i j : ι) [K.HasHomology i] [K.HasHomology j] [L.HasHomology i] [L.HasHomology j]
 
 /-- The morphism `K.opcycles i ⟶ K.cycles j` that is induced by `K.d i j`. -/
 noncomputable def opcyclesToCycles : K.opcycles i ⟶ K.cycles j :=
@@ -87,37 +88,38 @@ lemma opcyclesToCycles_naturality :
 variable (C c)
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The natural transformation `K.opcyclesToCycles i j : K.opcycles i ⟶ K.cycles j` for all
-`K : HomologicalComplex C c`. -/
+/--
+The natural transformation `K.opcyclesToCycles i j : K.opcycles i ⟶ K.cycles j` for all
+`K : HomologicalComplex C c`.
+-/
 @[simps]
-noncomputable def natTransOpCyclesToCycles [CategoryWithHomology C] :
-    opcyclesFunctor C c i ⟶ cyclesFunctor C c j where
+noncomputable def natTransOpCyclesToCycles [CategoryWithHomology C]
+    : opcyclesFunctor C c i ⟶ cyclesFunctor C c j where
   app K := K.opcyclesToCycles i j
 
 end HasZeroMorphisms
 
 section Preadditive
 
-variable {C ι : Type*} [Category* C] [Preadditive C] {c : ComplexShape ι}
-  (K : HomologicalComplex C c) (i j : ι) (hij : c.Rel i j)
+variable
+  {C ι : Type*} [Category* C] [Preadditive C]
+  {c : ComplexShape ι} (K : HomologicalComplex C c)
+  (i j : ι) (hij : c.Rel i j)
 
 namespace HomologySequence
 
 /-- The diagram `K.homology i ⟶ K.opcycles i ⟶ K.cycles j ⟶ K.homology j`. -/
 @[simp]
-noncomputable def composableArrows₃ [K.HasHomology i] [K.HasHomology j] :
-    ComposableArrows C 3 :=
+noncomputable def composableArrows₃ [K.HasHomology i] [K.HasHomology j] : ComposableArrows C 3 :=
   ComposableArrows.mk₃ (K.homologyι i) (K.opcyclesToCycles i j) (K.homologyπ j)
 
 set_option backward.defeqAttrib.useBackward true in
-instance [K.HasHomology i] [K.HasHomology j] :
-    Mono ((composableArrows₃ K i j).map' 0 1) := by
+instance [K.HasHomology i] [K.HasHomology j] : Mono ((composableArrows₃ K i j).map' 0 1) := by
   dsimp
   infer_instance
 
 set_option backward.defeqAttrib.useBackward true in
-instance [K.HasHomology i] [K.HasHomology j] :
-    Epi ((composableArrows₃ K i j).map' 2 3) := by
+instance [K.HasHomology i] [K.HasHomology j] : Epi ((composableArrows₃ K i j).map' 2 3) := by
   -- Disable `Fin.reduceFinMk`, otherwise `Precomp.obj_succ` does not fire. (https://github.com/leanprover-community/mathlib4/issues/27382)
   dsimp [-Fin.reduceFinMk]
   infer_instance
@@ -154,15 +156,18 @@ variable (C)
 attribute [local simp] homologyMap_comp cyclesMap_comp opcyclesMap_comp
 
 set_option backward.defeqAttrib.useBackward true in
-/-- The functor `HomologicalComplex C c ⥤ ComposableArrows C 3` that maps `K` to the
-diagram `K.homology i ⟶ K.opcycles i ⟶ K.cycles j ⟶ K.homology j`. -/
+/--
+The functor `HomologicalComplex C c ⥤ ComposableArrows C 3` that maps `K` to the
+diagram `K.homology i ⟶ K.opcycles i ⟶ K.cycles j ⟶ K.homology j`.
+-/
 @[simps]
-noncomputable def composableArrows₃Functor [CategoryWithHomology C] :
-    HomologicalComplex C c ⥤ ComposableArrows C 3 where
+noncomputable def composableArrows₃Functor [CategoryWithHomology C]
+    : HomologicalComplex C c ⥤ ComposableArrows C 3 where
   obj K := composableArrows₃ K i j
-  map {K L} φ := ComposableArrows.homMk₃ (homologyMap φ i) (opcyclesMap φ i) (cyclesMap φ j)
-    -- Disable `Fin.reduceFinMk`, otherwise `Precomp.obj_succ` does not fire. (https://github.com/leanprover-community/mathlib4/issues/27382)
-    (homologyMap φ j) (by simp) (by simp [-Fin.reduceFinMk]) (by simp [-Fin.reduceFinMk])
+  map {K L} φ :=
+    ComposableArrows.homMk₃ (homologyMap φ i) (opcyclesMap φ i) (cyclesMap φ j)
+      -- Disable `Fin.reduceFinMk`, otherwise `Precomp.obj_succ` does not fire. (https://github.com/leanprover-community/mathlib4/issues/27382)
+      (homologyMap φ j) (by simp) (by simp [-Fin.reduceFinMk]) (by simp [-Fin.reduceFinMk])
 
 end HomologySequence
 
@@ -218,20 +223,21 @@ lemma cycles_left_exact (S : ShortComplex (HomologicalComplex C c)) (hS : S.Exac
         iCycles_d, comp_zero]
     · rw [← cancel_mono (S.X₂.iCycles i), liftCycles_comp_cyclesMap, liftCycles_i, H.2])
 
-variable {S : ShortComplex (HomologicalComplex C c)}
-  (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j)
+variable {S : ShortComplex (HomologicalComplex C c)} (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j)
 
 namespace HomologySequence
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Given a short exact short complex `S : HomologicalComplex C c`, and degrees `i` and `j`
+/--
+Given a short exact short complex `S : HomologicalComplex C c`, and degrees `i` and `j`
 such that `c.Rel i j`, this is the snake diagram whose four lines are respectively
 obtained by applying the functors `homologyFunctor C c i`, `opcyclesFunctor C c i`,
 `cyclesFunctor C c j`, `homologyFunctor C c j` to `S`. Applying the snake lemma to this
-gives the homology sequence of `S`. -/
+gives the homology sequence of `S`.
+-/
 @[simps]
-noncomputable def snakeInput (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j) :
-    ShortComplex.SnakeInput C where
+noncomputable def snakeInput (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j)
+    : ShortComplex.SnakeInput C where
   L₀ := (homologyFunctor C c i).mapShortComplex.obj S
   L₁ := (opcyclesFunctor C c i).mapShortComplex.obj S
   L₂ := (cyclesFunctor C c j).mapShortComplex.obj S
@@ -274,16 +280,19 @@ namespace CategoryTheory
 
 open HomologicalComplex HomologySequence
 
-variable {C ι : Type*} [Category* C] [Abelian C] {c : ComplexShape ι}
-  {S : ShortComplex (HomologicalComplex C c)}
-  (hS : S.ShortExact) (i j : ι) (hij : c.Rel i j)
+variable
+  {C ι : Type*} [Category* C] [Abelian C]
+  {c : ComplexShape ι} {S : ShortComplex (HomologicalComplex C c)} (hS : S.ShortExact)
+  (i j : ι) (hij : c.Rel i j)
 
 namespace ShortComplex
 
 namespace ShortExact
 
-/-- The connecting homomorphism `S.X₃.homology i ⟶ S.X₁.homology j` for a short exact
-short complex `S`. -/
+/--
+The connecting homomorphism `S.X₃.homology i ⟶ S.X₁.homology j` for a short exact
+short complex `S`.
+-/
 noncomputable def δ : S.X₃.homology i ⟶ S.X₁.homology j := (snakeInput hS i j hij).δ
 
 @[reassoc (attr := simp)]
@@ -351,14 +360,16 @@ theorem mono_δ (hi : IsZero (S.X₂.homology i)) : Mono (hS.δ i j hij) :=
 theorem epi_δ (hj : IsZero (S.X₂.homology j)) : Epi (hS.δ i j hij) :=
   (HomologicalComplex.HomologySequence.snakeInput _ _ _ _).epi_δ hj
 
-theorem isIso_δ (hi : IsZero (S.X₂.homology i)) (hj : IsZero (S.X₂.homology j)) :
-    IsIso (hS.δ i j hij) :=
+theorem isIso_δ (hi : IsZero (S.X₂.homology i)) (hj : IsZero (S.X₂.homology j))
+    : IsIso (hS.δ i j hij) :=
   (HomologicalComplex.HomologySequence.snakeInput _ _ _ _).isIso_δ hi hj
 
-/-- If `c.Rel i j` and `Hᵢ(X₂), Hⱼ(X₂)` are trivial, `δ` defines an isomorphism
-`Hᵢ(X₃) ≅ Hⱼ(X₁)`. -/
-noncomputable def δIso (hi : IsZero (S.X₂.homology i)) (hj : IsZero (S.X₂.homology j)) :
-    S.X₃.homology i ≅ S.X₁.homology j :=
+/--
+If `c.Rel i j` and `Hᵢ(X₂), Hⱼ(X₂)` are trivial, `δ` defines an isomorphism
+`Hᵢ(X₃) ≅ Hⱼ(X₁)`.
+-/
+noncomputable def δIso (hi : IsZero (S.X₂.homology i)) (hj : IsZero (S.X₂.homology j))
+    : S.X₃.homology i ≅ S.X₁.homology j :=
   @asIso _ _ _ _ (hS.δ i j hij) (hS.isIso_δ i j hij hi hj)
 
 end ShortExact

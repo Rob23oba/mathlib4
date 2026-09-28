@@ -33,8 +33,9 @@ open MeasureTheory Measure ProbabilityTheory
 
 namespace ProbabilityTheory
 
-variable {ι Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
-    {𝓧 : ι → Type*} {m𝓧 : ∀ i, MeasurableSpace (𝓧 i)} {X : Π i, Ω → 𝓧 i}
+variable
+  {ι Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} {𝓧 : ι → Type*}
+  {m𝓧 : ∀ i, MeasurableSpace (𝓧 i)} {X : Π i, Ω → 𝓧 i}
 
 /-- If random variables are independent then their joint distribution is the product measure. This
 is a version where the random variable `ω ↦ (Xᵢ(ω))ᵢ` is almost everywhere measurable.

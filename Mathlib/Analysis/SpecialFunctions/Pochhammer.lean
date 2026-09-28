@@ -33,7 +33,6 @@ This file proves analysis theorems for Pochhammer polynomials.
 
 public section
 
-
 section DescPochhammer
 
 variable {n : ℕ} {𝕜 : Type*} {k : 𝕜} [NontriviallyNormedField 𝕜]
@@ -67,8 +66,8 @@ lemma monotoneOn_deriv_descPochhammer_eval (n : ℕ) :
     exact ha.le.trans' (mod_cast Nat.le_pred_of_lt hj.2)
 
 /-- `descPochhammer ℝ n` is convex on `[n-1, ∞)`. -/
-theorem convexOn_descPochhammer_eval (n : ℕ) :
-    ConvexOn ℝ (Set.Ici (n - 1 : ℝ)) (descPochhammer ℝ n).eval := by
+theorem convexOn_descPochhammer_eval (n : ℕ)
+    : ConvexOn ℝ (Set.Ici (n - 1 : ℝ)) (descPochhammer ℝ n).eval := by
   rcases n.eq_zero_or_pos with h_eq | _
   · simp [h_eq, convexOn_const, convex_Ici]
   · apply MonotoneOn.convexOn_of_deriv (convex_Ici (n - 1 : ℝ))
@@ -94,21 +93,25 @@ private lemma convexOn_piecewise_Ici_descPochhammer_eval_zero (hn : n ≠ 0) :
 
 /-- Special case of **Jensen's inequality** for `Nat.descFactorial`. -/
 theorem descPochhammer_eval_le_sum_descFactorial
-    (hn : n ≠ 0) {ι : Type*} {t : Finset ι} (p : ι → ℕ) (w : ι → ℝ)
-    (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (h_avg : n - 1 ≤ ∑ i ∈ t, w i * p i) :
-    (descPochhammer ℝ n).eval (∑ i ∈ t, w i * p i)
-      ≤ ∑ i ∈ t, w i * (p i).descFactorial n := by
+    (hn : n ≠ 0)
+    {ι : Type*} {t : Finset ι} (p : ι → ℕ) (w : ι → ℝ) (h₀ : ∀ i ∈ t, 0 ≤ w i)
+    (h₁ : ∑ i ∈ t, w i = 1) (h_avg : n - 1 ≤ ∑ i ∈ t, w i * p i)
+    : (descPochhammer ℝ n).eval (∑ i ∈ t, w i * p i) ≤ ∑ i ∈ t, w i * (p i).descFactorial n := by
   let f : ℝ → ℝ := (Set.Ici (n - 1 : ℝ)).piecewise (descPochhammer ℝ n).eval 0
   suffices h_jensen : f (∑ i ∈ t, w i • p i) ≤ ∑ i ∈ t, w i • f (p i) by
-    simpa only [smul_eq_mul, f, Set.piecewise_eq_of_mem (Set.Ici (n - 1 : ℝ)) _ _ h_avg,
-      piecewise_Ici_descPochhammer_eval_zero_eq_descFactorial] using h_jensen
+    simpa only [
+        smul_eq_mul, f, Set.piecewise_eq_of_mem (Set.Ici (n - 1 : ℝ)) _ _ h_avg,
+        piecewise_Ici_descPochhammer_eval_zero_eq_descFactorial
+      ]
+      using h_jensen
   exact ConvexOn.map_sum_le (convexOn_piecewise_Ici_descPochhammer_eval_zero hn) h₀ h₁ (by simp)
 
 /-- Special case of **Jensen's inequality** for `Nat.choose`. -/
 theorem descPochhammer_eval_div_factorial_le_sum_choose
-    (hn : n ≠ 0) {ι : Type*} {t : Finset ι} (p : ι → ℕ) (w : ι → ℝ)
-    (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (h_avg : n - 1 ≤ ∑ i ∈ t, w i * p i) :
-    (descPochhammer ℝ n).eval (∑ i ∈ t, w i * p i) / n.factorial
+    (hn : n ≠ 0)
+    {ι : Type*} {t : Finset ι} (p : ι → ℕ) (w : ι → ℝ) (h₀ : ∀ i ∈ t, 0 ≤ w i)
+    (h₁ : ∑ i ∈ t, w i = 1) (h_avg : n - 1 ≤ ∑ i ∈ t, w i * p i)
+    : (descPochhammer ℝ n).eval (∑ i ∈ t, w i * p i) / n.factorial
       ≤ ∑ i ∈ t, w i * (p i).choose n := by
   simp_rw [Nat.cast_choose_eq_descPochhammer_div,
     mul_div, ← Finset.sum_div, descPochhammer_eval_eq_descFactorial]

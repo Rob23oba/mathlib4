@@ -30,14 +30,15 @@ namespace Abelian
 
 namespace SpectralObject
 
-variable {C ι ι' : Type*} [Category* C] [Abelian C] [Category* ι] [Preorder ι']
+variable
+  {C ι ι' : Type*} [Category* C] [Abelian C] [Category* ι] [Preorder ι']
   (X : SpectralObject C ι) (X' : SpectralObject C ι')
 
 section
 
 variable
-  {i₀' i₀ i₁ i₂ i₃ i₃' : ι} (f₁ : i₀ ⟶ i₁)
-  (f₁' : i₀' ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃) (f₃' : i₂ ⟶ i₃')
+  {i₀' i₀ i₁ i₂ i₃ i₃' : ι}
+  (f₁ : i₀ ⟶ i₁) (f₁' : i₀' ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃) (f₃' : i₂ ⟶ i₃')
   (n₀ n₁ n₂ n₃ : ℤ)
 
 lemma epi_map (α : mk₃ f₁ f₂ f₃ ⟶ mk₃ f₁ f₂ f₃') (n₀ n₁ n₂ n₃ : ℤ)
@@ -61,10 +62,9 @@ end
 
 section
 
-variable {i₀ i₁ i₂ i₃ i₄ i₅ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃)
-  (f₄ : i₃ ⟶ i₄) (f₅ : i₄ ⟶ i₅)
-  (f₂₃ : i₁ ⟶ i₃) (h₂₃ : f₂ ≫ f₃ = f₂₃)
-  (f₃₄ : i₂ ⟶ i₄) (h₃₄ : f₃ ≫ f₄ = f₃₄)
+variable
+  {i₀ i₁ i₂ i₃ i₄ i₅ : ι} (f₁ : i₀ ⟶ i₁) (f₂ : i₁ ⟶ i₂) (f₃ : i₂ ⟶ i₃) (f₄ : i₃ ⟶ i₄) (f₅ : i₄ ⟶ i₅)
+  (f₂₃ : i₁ ⟶ i₃) (h₂₃ : f₂ ≫ f₃ = f₂₃) (f₃₄ : i₂ ⟶ i₄) (h₃₄ : f₃ ≫ f₄ = f₃₄)
   (n₀ n₁ n₂ n₃ : ℤ)
 
 @[reassoc (attr := simp)]
@@ -76,8 +76,8 @@ lemma d_map_fourδ₄Toδ₃ (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ +
     X.toCycles_πE_d_assoc f₁ f₂ f₃ f₄ f₅ _ rfl f₃₄ h₃₄ n₀ n₁ n₂ n₃,
     X.πE_map f₁ f₂ f₃ f₁ f₂ f₃₄ (fourδ₄Toδ₃ f₁ f₂ f₃ f₄ f₃₄ h₃₄) (𝟙 _) n₁ n₂ n₃]
 
-instance (hn₂ : n₁ + 1 = n₂) (hn₃ : n₂ + 1 = n₃) :
-    Epi (X.map f₁ f₂ f₃ f₁ f₂ f₃₄ (fourδ₄Toδ₃ f₁ f₂ f₃ f₄ f₃₄ h₃₄) n₁ n₂ n₃ hn₂ hn₃) :=
+instance (hn₂ : n₁ + 1 = n₂) (hn₃ : n₂ + 1 = n₃)
+    : Epi (X.map f₁ f₂ f₃ f₁ f₂ f₃₄ (fourδ₄Toδ₃ f₁ f₂ f₃ f₄ f₃₄ h₃₄) n₁ n₂ n₃ hn₂ hn₃) :=
   X.epi_map _ _ _ _ _ _ _ _ _ rfl rfl rfl hn₂ hn₃ rfl
 
 set_option backward.defeqAttrib.useBackward true in
@@ -108,8 +108,8 @@ lemma map_fourδ₁Toδ₀_d (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ +
     X.d_ιE_fromOpcycles f₁ f₂ f₃ f₄ f₅ f₂₃ h₂₃ _ rfl _ rfl n₀ n₁ n₂ n₃ hn₁ hn₂ hn₃, X.map_ιE_assoc
     f₂₃ f₄ f₅ f₃ f₄ f₅ (fourδ₁Toδ₀ f₂ f₃ f₄ f₅ f₂₃ h₂₃) (𝟙 _) n₀ n₁ n₂ (by cat_disch) hn₁ hn₂]
 
-instance (hn₁ : n₀ + 1 = n₁) (hn₂ : n₁ + 1 = n₂) :
-    Mono (X.map f₂₃ f₄ f₅ f₃ f₄ f₅ (fourδ₁Toδ₀ f₂ f₃ f₄ f₅ f₂₃ h₂₃) n₀ n₁ n₂ hn₁ hn₂) :=
+instance (hn₁ : n₀ + 1 = n₁) (hn₂ : n₁ + 1 = n₂)
+    : Mono (X.map f₂₃ f₄ f₅ f₃ f₄ f₅ (fourδ₁Toδ₀ f₂ f₃ f₄ f₅ f₂₃ h₂₃) n₀ n₁ n₂ hn₁ hn₂) :=
   X.mono_map _ _ _ _ _ _ _ _ _ rfl rfl rfl _ _ rfl
 
 set_option backward.defeqAttrib.useBackward true in
@@ -134,19 +134,24 @@ end
 
 section
 
-variable (i₀ i₁ i₂ i₃ i₄ i₅ : ι') (hi₀₁ : i₀ ≤ i₁)
-  (hi₁₂ : i₁ ≤ i₂) (hi₂₃ : i₂ ≤ i₃) (hi₃₄ : i₃ ≤ i₄) (hi₄₅ : i₄ ≤ i₅)
+variable
+  (i₀ i₁ i₂ i₃ i₄ i₅ : ι')
+  (hi₀₁ : i₀ ≤ i₁) (hi₁₂ : i₁ ≤ i₂) (hi₂₃ : i₂ ≤ i₃) (hi₃₄ : i₃ ≤ i₄) (hi₄₅ : i₄ ≤ i₅)
 
-/-- For a spectral object indexed by a preorder, this is the map
-`E^{n₁}(i₀ ≤ i₂ ≤ i₃ ≤ i₄) ⟶ E^{n₁}(i₁ ≤ i₂ ≤ i₃ ≤ i₄)`. -/
-noncomputable abbrev mapFourδ₁Toδ₀' (n₀ n₁ n₂ : ℤ)
-    (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :=
+/--
+For a spectral object indexed by a preorder, this is the map
+`E^{n₁}(i₀ ≤ i₂ ≤ i₃ ≤ i₄) ⟶ E^{n₁}(i₁ ≤ i₂ ≤ i₃ ≤ i₄)`.
+-/
+noncomputable abbrev mapFourδ₁Toδ₀'
+    (n₀ n₁ n₂ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :=
   X'.map _ _ _ _ _ _ (fourδ₁Toδ₀' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄) n₀ n₁ n₂ hn₁ hn₂
 
-/-- For a spectral object indexed by a preorder, this is the map
-`E^{n₁}(i₀ ≤ i₁ ≤ i₂ ≤ i₃) ⟶ E^{n₁}(i₀ ≤ i₁ ≤ i₂ ≤ i₄)`. -/
-noncomputable abbrev mapFourδ₄Toδ₃' (n₀ n₁ n₂ : ℤ)
-    (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :=
+/--
+For a spectral object indexed by a preorder, this is the map
+`E^{n₁}(i₀ ≤ i₁ ≤ i₂ ≤ i₃) ⟶ E^{n₁}(i₀ ≤ i₁ ≤ i₂ ≤ i₄)`.
+-/
+noncomputable abbrev mapFourδ₄Toδ₃'
+    (n₀ n₁ n₂ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :=
   X'.map _ _ _ _ _ _ (fourδ₄Toδ₃' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄) n₀ n₁ n₂ hn₁ hn₂
 
 @[reassoc]
@@ -184,13 +189,15 @@ lemma isIso_mapFourδ₁Toδ₀' (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n�
     IsIso (X'.mapFourδ₁Toδ₀' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄ n₀ n₁ n₂ hn₁ hn₂) :=
   X'.isIso_map_fourδ₁Toδ₀_of_isZero _ _ _ _ _ _ _ _ _ h
 
-/-- For a spectral object indexed by a preorder, this is the isomorphism
+/--
+For a spectral object indexed by a preorder, this is the isomorphism
 `E^{n₁}(i₀ ≤ i₂ ≤ i₃ ≤ i₄) ≅ E^{n₁}(i₁ ≤ i₂ ≤ i₃ ≤ i₄)`
-when `H^{n₁ + 1}(i₀ ≤ i₁)` is a zero object. -/
+when `H^{n₁ + 1}(i₀ ≤ i₁)` is a zero object.
+-/
 @[simps! hom]
-noncomputable def isoMapFourδ₁Toδ₀' (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :
-    X'.E (homOfLE (hi₀₁.trans hi₁₂)) (homOfLE hi₂₃) (homOfLE hi₃₄) n₀ n₁ n₂ hn₁ hn₂ ≅
-      X'.E (homOfLE hi₁₂) (homOfLE hi₂₃) (homOfLE hi₃₄) n₀ n₁ n₂ hn₁ hn₂ :=
+noncomputable def isoMapFourδ₁Toδ₀' (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia)
+    : X'.E (homOfLE (hi₀₁.trans hi₁₂)) (homOfLE hi₂₃) (homOfLE hi₃₄) n₀ n₁ n₂ hn₁ hn₂
+      ≅ X'.E (homOfLE hi₁₂) (homOfLE hi₂₃) (homOfLE hi₃₄) n₀ n₁ n₂ hn₁ hn₂ :=
   have := X'.isIso_mapFourδ₁Toδ₀' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄ n₀ n₁ n₂ h hn₁ hn₂
   asIso (X'.mapFourδ₁Toδ₀' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄ n₀ n₁ n₂ hn₁ hn₂)
 
@@ -217,13 +224,15 @@ lemma isIso_mapFourδ₄Toδ₃' (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n�
     IsIso (X'.mapFourδ₄Toδ₃' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄ n₀ n₁ n₂ hn₁ hn₂) :=
   X'.isIso_map_fourδ₄Toδ₃_of_isZero (h := h) ..
 
-/-- For a spectral object indexed by a preorder, this is the isomorphism
+/--
+For a spectral object indexed by a preorder, this is the isomorphism
 `E^{n₁}(i₀ ≤ i₁ ≤ i₂ ≤ i₃) ≅ E^{n₁}(i₀ ≤ i₁ ≤ i₂ ≤ i₄)`
-when `H^{n₁-1}(i₃ ≤ i₄)` is a zero object. -/
+when `H^{n₁-1}(i₃ ≤ i₄)` is a zero object.
+-/
 @[simps! hom]
-noncomputable def isoMapFourδ₄Toδ₃' (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :
-    X'.E (homOfLE hi₀₁) (homOfLE hi₁₂) (homOfLE hi₂₃) n₀ n₁ n₂ hn₁ hn₂ ≅
-      X'.E (homOfLE hi₀₁) (homOfLE hi₁₂) (homOfLE (hi₂₃.trans hi₃₄)) n₀ n₁ n₂ hn₁ hn₂ :=
+noncomputable def isoMapFourδ₄Toδ₃' (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia)
+    : X'.E (homOfLE hi₀₁) (homOfLE hi₁₂) (homOfLE hi₂₃) n₀ n₁ n₂ hn₁ hn₂
+      ≅ X'.E (homOfLE hi₀₁) (homOfLE hi₁₂) (homOfLE (hi₂₃.trans hi₃₄)) n₀ n₁ n₂ hn₁ hn₂ :=
   have := X'.isIso_mapFourδ₄Toδ₃' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄ n₀ n₁ n₂ h hn₁ hn₂
   asIso (X'.mapFourδ₄Toδ₃' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄ n₀ n₁ n₂ hn₁ hn₂)
 
@@ -243,13 +252,14 @@ end
 
 section
 
-variable (i₀ i₁ i₂ i₃ i₄ : ι') (hi₀₁ : i₀ ≤ i₁)
-  (hi₁₂ : i₁ ≤ i₂) (hi₂₃ : i₂ ≤ i₃) (hi₃₄ : i₃ ≤ i₄)
+variable (i₀ i₁ i₂ i₃ i₄ : ι') (hi₀₁ : i₀ ≤ i₁) (hi₁₂ : i₁ ≤ i₂) (hi₂₃ : i₂ ≤ i₃) (hi₃₄ : i₃ ≤ i₄)
 
-/-- For a spectral object indexed by a preorder, this is the map
-`E^{n₁}(i₀ ≤ i₁ ≤ i₃ ≤ i₄) ⟶ E^{n₁}(i₀ ≤ i₂ ≤ i₃ ≤ i₄)`. -/
-noncomputable abbrev mapFourδ₂Toδ₁' (n₀ n₁ n₂ : ℤ)
-    (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :=
+/--
+For a spectral object indexed by a preorder, this is the map
+`E^{n₁}(i₀ ≤ i₁ ≤ i₃ ≤ i₄) ⟶ E^{n₁}(i₀ ≤ i₂ ≤ i₃ ≤ i₄)`.
+-/
+noncomputable abbrev mapFourδ₂Toδ₁'
+    (n₀ n₁ n₂ : ℤ) (hn₁ : n₀ + 1 = n₁ := by lia) (hn₂ : n₁ + 1 = n₂ := by lia) :=
   X'.map _ _ _ _ _ _ (fourδ₂Toδ₁' i₀ i₁ i₂ i₃ i₄ hi₀₁ hi₁₂ hi₂₃ hi₃₄) n₀ n₁ n₂ hn₁ hn₂
 
 lemma isIso_mapFourδ₂Toδ₁' (n₀ n₁ n₂ : ℤ)

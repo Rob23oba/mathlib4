@@ -37,20 +37,24 @@ namespace Quotient
 section List
 variable {ι : Type*} [DecidableEq ι] {α : ι → Sort*} {S : ∀ i, Setoid (α i)} {β : Sort*}
 
-/-- Given a collection of setoids indexed by a type `ι`, a list `l` of indices, and a function that
-  for each `i ∈ l` gives a term of the corresponding quotient type, then there is a corresponding
-  term in the quotient of the product of the setoids indexed by `l`. -/
+/--
+Given a collection of setoids indexed by a type `ι`, a list `l` of indices, and a function that
+for each `i ∈ l` gives a term of the corresponding quotient type, then there is a corresponding
+term in the quotient of the product of the setoids indexed by `l`.
+-/
 def listChoice {l : List ι} (q : ∀ i ∈ l, Quotient (S i)) : @Quotient (∀ i ∈ l, α i) piSetoid :=
   match l with
-  | [] => ⟦nofun⟧
-  | i :: _ => Quotient.liftOn₂ (List.Pi.head (i := i) q)
-    (listChoice (List.Pi.tail q))
-    (⟦List.Pi.cons _ _ · ·⟧)
-    (fun _ _ _ _ ha hl ↦ Quotient.sound (List.Pi.forall_rel_cons_ext ha hl))
+  | [] =>
+    ⟦nofun⟧
+  | i :: _ =>
+    Quotient.liftOn₂ (List.Pi.head (i := i) q) (listChoice (List.Pi.tail q))
+      (⟦List.Pi.cons _ _ · ·⟧)
+      (fun _ _ _ _ ha hl ↦ Quotient.sound (List.Pi.forall_rel_cons_ext ha hl))
 
 theorem listChoice_mk {l : List ι} (a : ∀ i ∈ l, α i) : listChoice (S := S) (⟦a · ·⟧) = ⟦a⟧ :=
   match l with
-  | [] => Quotient.sound nofun
+  | [] =>
+    Quotient.sound nofun
   | i :: l => by
     unfold listChoice List.Pi.tail
     rw [listChoice_mk]
@@ -98,23 +102,27 @@ lemma induction_on_fintype_pi {C : (∀ i, Quotient (S i)) → Prop}
     (q : ∀ i, Quotient (S i)) (f : ∀ a : ∀ i, α i, C (⟦a ·⟧)) : C q :=
   ind_fintype_pi f q
 
-/-- Given a collection of setoids indexed by a fintype `ι` and a function that for each `i : ι`
-  gives a term of the corresponding quotient type, then there is corresponding term in the quotient
-  of the product of the setoids.
-  See `Quotient.choice` for the noncomputable general version. -/
-def finChoice (q : ∀ i, Quotient (S i)) :
-    @Quotient (∀ i, α i) piSetoid := by
-  let e := Equiv.subtypeQuotientEquivQuotientSubtype (fun l : List ι ↦ ∀ i, i ∈ l)
-    (fun s : Multiset ι ↦ ∀ i, i ∈ s) (fun i ↦ Iff.rfl) (fun _ _ ↦ Iff.rfl) ⟨_, Finset.mem_univ⟩
-  refine e.liftOn
-    (fun l ↦ (listChoice fun i _ ↦ q i).map (fun a i ↦ a i (l.2 i)) ?_) ?_
+/--
+Given a collection of setoids indexed by a fintype `ι` and a function that for each `i : ι`
+gives a term of the corresponding quotient type, then there is corresponding term in the quotient
+of the product of the setoids.
+See `Quotient.choice` for the noncomputable general version.
+-/
+def finChoice (q : ∀ i, Quotient (S i)) : @Quotient (∀ i, α i) piSetoid := by
+  let e :=
+    Equiv.subtypeQuotientEquivQuotientSubtype
+      (fun l : List ι ↦ ∀ i, i ∈ l)
+      (fun s : Multiset ι ↦ ∀ i, i ∈ s)
+      (fun i ↦ Iff.rfl)
+      (fun _ _ ↦ Iff.rfl)
+      ⟨_, Finset.mem_univ⟩
+  refine e.liftOn (fun l ↦ (listChoice fun i _ ↦ q i).map (fun a i ↦ a i (l.2 i)) ?_) ?_
   · exact fun _ _ h i ↦ h i _
   intro _ _ _
   refine ind_fintype_pi (fun a ↦ ?_) q
   simp_rw [listChoice_mk, Quotient.map_mk]
 
-theorem finChoice_eq (a : ∀ i, α i) :
-    finChoice (S := S) (⟦a ·⟧) = ⟦a⟧ := by
+theorem finChoice_eq (a : ∀ i, α i) : finChoice (S := S) (⟦a ·⟧) = ⟦a⟧ := by
   dsimp [finChoice]
   obtain ⟨l, hl⟩ := (Finset.univ.val : Multiset ι).exists_rep
   simp_rw [← hl, Equiv.subtypeQuotientEquivQuotientSubtype, listChoice_mk]
@@ -125,8 +133,10 @@ lemma eval_finChoice (f : ∀ i, Quotient (S i)) :
   induction_on_fintype_pi f (fun a ↦ by rw [finChoice_eq]; rfl)
 
 /-- Lift a function on `∀ i, α i` to a function on `∀ i, Quotient (S i)`. -/
-def finLiftOn (q : ∀ i, Quotient (S i)) (f : (∀ i, α i) → β)
-    (h : ∀ (a b : ∀ i, α i), (∀ i, a i ≈ b i) → f a = f b) : β :=
+def finLiftOn
+    (q : ∀ i, Quotient (S i))
+    (f : (∀ i, α i) → β) (h : ∀ (a b : ∀ i, α i), (∀ i, a i ≈ b i) → f a = f b)
+    : β :=
   (finChoice q).liftOn f h
 
 @[simp]
@@ -147,8 +157,7 @@ lemma finLiftOn_mk (a : ∀ i, α i) :
 
 /-- `Quotient.finChoice` as an equivalence. -/
 @[simps]
-def finChoiceEquiv :
-    (∀ i, Quotient (S i)) ≃ @Quotient (∀ i, α i) piSetoid where
+def finChoiceEquiv : (∀ i, Quotient (S i)) ≃ @Quotient (∀ i, α i) piSetoid where
   toFun := finChoice
   invFun := eval
   left_inv q := by
@@ -161,21 +170,22 @@ def finChoiceEquiv :
 
 /-- Recursion principle for quotients indexed by a finite type. -/
 @[elab_as_elim]
-def finHRecOn {C : (∀ i, Quotient (S i)) → Sort*}
+def finHRecOn
+    {C : (∀ i, Quotient (S i)) → Sort*}
     (q : ∀ i, Quotient (S i))
-    (f : ∀ a : ∀ i, α i, C (⟦a ·⟧))
-    (h : ∀ (a b : ∀ i, α i), (∀ i, a i ≈ b i) → f a ≍ f b) :
-    C q :=
+    (f : ∀ a : ∀ i, α i, C (⟦a ·⟧)) (h : ∀ (a b : ∀ i, α i), (∀ i, a i ≈ b i) → f a ≍ f b)
+    : C q :=
   eval_finChoice q ▸ (finChoice q).hrecOn f h
 
 /-- Recursion principle for quotients indexed by a finite type. -/
 @[elab_as_elim]
-def finRecOn {C : (∀ i, Quotient (S i)) → Sort*}
+def finRecOn
+    {C : (∀ i, Quotient (S i)) → Sort*}
     (q : ∀ i, Quotient (S i))
     (f : ∀ a : ∀ i, α i, C (⟦a ·⟧))
     (h : ∀ (a b : ∀ i, α i) (h : ∀ i, a i ≈ b i),
-      Eq.ndrec (f a) (funext fun i ↦ Quotient.sound (h i)) = f b) :
-    C q :=
+      Eq.ndrec (f a) (funext fun i ↦ Quotient.sound (h i)) = f b)
+    : C q :=
   finHRecOn q f (eqRec_heq_iff.mp <| heq_of_eq <| h · · ·)
 
 @[simp]
@@ -201,8 +211,10 @@ end Quotient
 namespace Trunc
 variable {ι : Type*} [DecidableEq ι] [Fintype ι] {α : ι → Sort*} {β : Sort*}
 
-/-- Given a function that for each `i : ι` gives a term of the corresponding
-truncation type, then there is corresponding term in the truncation of the product. -/
+/--
+Given a function that for each `i : ι` gives a term of the corresponding
+truncation type, then there is corresponding term in the truncation of the product.
+-/
 def finChoice (q : ∀ i, Trunc (α i)) : Trunc (∀ i, α i) :=
   Quotient.map' id (fun _ _ _ => trivial) (Quotient.finChoice q)
 
@@ -233,11 +245,12 @@ def finChoiceEquiv : (∀ i, Trunc (α i)) ≃ Trunc (∀ i, α i) where
 
 /-- Recursion principle for `Trunc`s indexed by a finite type. -/
 @[elab_as_elim]
-def finRecOn {C : (∀ i, Trunc (α i)) → Sort*}
+def finRecOn
+    {C : (∀ i, Trunc (α i)) → Sort*}
     (q : ∀ i, Trunc (α i))
     (f : ∀ a : ∀ i, α i, C (mk <| a ·))
-    (h : ∀ (a b : ∀ i, α i), (Eq.ndrec (f a) (funext fun _ ↦ Trunc.eq _ _)) = f b) :
-    C q :=
+    (h : ∀ (a b : ∀ i, α i), (Eq.ndrec (f a) (funext fun _ ↦ Trunc.eq _ _)) = f b)
+    : C q :=
   Quotient.finRecOn q (f ·) (fun _ _ _ ↦ h _ _)
 
 set_option backward.isDefEq.respectTransparency false in

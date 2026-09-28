@@ -39,7 +39,8 @@ See https://ncatlab.org/nlab/show/compact+Hausdorff+rings+are+profinite
 
 public section
 
-attribute [local instance] Ideal.Quotient.field Fintype.ofFinite finite_of_compact_of_discrete
+attribute [local instance]
+  Ideal.Quotient.field Fintype.ofFinite finite_of_compact_of_discrete
   DivisionRing.finite_of_compactSpace_of_t2Space
 
 variable {R : Type*} [CommRing R] [TopologicalSpace R]
@@ -47,19 +48,22 @@ variable [IsTopologicalRing R] [CompactSpace R] [T2Space R]
 
 namespace IsArtinianRing
 
-/-- Compact Hausdorff Artinian (commutative) rings are finite. This is not an instance, as it would
-apply to every `Finite` goal, causing slowly failing typeclass search in some cases. -/
-theorem finite_of_compactSpace_of_t2Space [IsArtinianRing R] :
-    Finite R := by
+/--
+Compact Hausdorff Artinian (commutative) rings are finite. This is not an instance, as it would
+apply to every `Finite` goal, causing slowly failing typeclass search in some cases.
+-/
+theorem finite_of_compactSpace_of_t2Space [IsArtinianRing R] : Finite R := by
   obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R)
   have H : (∏ p : PrimeSpectrum R, p.asIdeal) ^ n = ⊥ := by
     rw [← le_bot_iff, ← Ideal.zero_eq_bot, ← hn]
     gcongr
     rw [Ideal.jacobson_bot, Ring.jacobson_eq_sInf_isMaximal, le_sInf_iff]
-    exact fun I hI ↦ Ideal.prod_le_inf.trans
-      (Finset.inf_le (b := PrimeSpectrum.mk I hI.isPrime) (by simp))
-  have := Ideal.finite_quotient_prod (R := R) PrimeSpectrum.asIdeal Finset.univ
-    (fun _ _ ↦ IsNoetherian.noetherian _) (fun _ _ ↦ inferInstance)
+    exact fun I hI ↦
+      Ideal.prod_le_inf.trans (Finset.inf_le (b := PrimeSpectrum.mk I hI.isPrime) (by simp))
+  have :=
+    Ideal.finite_quotient_prod (R := R) PrimeSpectrum.asIdeal Finset.univ
+      (fun _ _ ↦ IsNoetherian.noetherian _)
+      (fun _ _ ↦ inferInstance)
   have := Ideal.finite_quotient_pow (IsNoetherian.noetherian (∏ p : PrimeSpectrum R, p.asIdeal)) n
   rw [H] at this
   exact .of_equiv _ (RingEquiv.quotientBot R).toEquiv

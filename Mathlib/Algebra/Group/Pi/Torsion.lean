@@ -23,8 +23,8 @@ variable {ι : Type*} {M : ι → Type*}
 namespace Pi
 
 @[to_additive]
-instance instIsMulTorsionFree [∀ i, Monoid (M i)] [∀ i, IsMulTorsionFree (M i)] :
-    IsMulTorsionFree (∀ i, M i) where
+instance instIsMulTorsionFree [∀ i, Monoid (M i)] [∀ i, IsMulTorsionFree (M i)]
+    : IsMulTorsionFree (∀ i, M i) where
   pow_left_injective n hn a b hab := by ext i; exact pow_left_injective hn <| congr_fun hab i
 
 end Pi

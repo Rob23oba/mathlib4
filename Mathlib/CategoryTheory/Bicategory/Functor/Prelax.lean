@@ -51,7 +51,8 @@ variable (B : Type u₁) [Quiver.{v₁} B] [∀ a b : B, Quiver.{w₁} (a ⟶ b)
 variable (C : Type u₂) [Quiver.{v₂} C] [∀ a b : C, Quiver.{w₂} (a ⟶ b)]
 variable {D : Type u₃} [Quiver.{v₃} D] [∀ a b : D, Quiver.{w₃} (a ⟶ b)]
 
-/-- A `PrelaxFunctorStruct` between bicategories consists of functions between objects,
+/--
+A `PrelaxFunctorStruct` between bicategories consists of functions between objects,
 1-morphisms, and 2-morphisms. This structure will be extended to define `PrelaxFunctor`.
 -/
 structure PrelaxFunctorStruct extends Prefunctor B C where
@@ -67,23 +68,25 @@ variable {B} {C}
 
 namespace PrelaxFunctorStruct
 
-/-- Construct a lax prefunctor from a map on objects, and prefunctors between the corresponding
-hom types. -/
+/--
+Construct a lax prefunctor from a map on objects, and prefunctors between the corresponding
+hom types.
+-/
 @[simps]
-def mkOfHomPrefunctors (F : B → C) (F' : (a : B) → (b : B) → Prefunctor (a ⟶ b) (F a ⟶ F b)) :
-    PrelaxFunctorStruct B C where
+def mkOfHomPrefunctors (F : B → C) (F' : (a : B) → (b : B) → Prefunctor (a ⟶ b) (F a ⟶ F b))
+    : PrelaxFunctorStruct B C where
   obj := F
   map {a b} := (F' a b).obj
   map₂ {a b} := (F' a b).map
 
 /-- The identity lax prefunctor. -/
 @[simps]
-def id (B : Type u₁) [Quiver.{v₁} B] [∀ a b : B, Quiver.{w₁} (a ⟶ b)] :
-    PrelaxFunctorStruct B B :=
-  { Prefunctor.id B with map₂ := fun η => η }
+def id (B : Type u₁) [Quiver.{v₁} B] [∀ a b : B, Quiver.{w₁} (a ⟶ b)] : PrelaxFunctorStruct B B := {
+  Prefunctor.id B with
+  map₂ := fun η => η
+}
 
-instance : Inhabited (PrelaxFunctorStruct B B) :=
-  ⟨PrelaxFunctorStruct.id B⟩
+instance : Inhabited (PrelaxFunctorStruct B B) := ⟨PrelaxFunctorStruct.id B⟩
 
 /-- Composition of lax prefunctors. -/
 @[simps]
@@ -95,7 +98,8 @@ end PrelaxFunctorStruct
 
 end
 
-/-- A prelax functor between bicategories is a lax prefunctor such that `map₂` is a functor.
+/--
+A prelax functor between bicategories is a lax prefunctor such that `map₂` is a functor.
 This structure will be extended to define `LaxFunctor` and `OplaxFunctor`.
 -/
 structure PrelaxFunctor (B : Type u₁) [Bicategory.{w₁, v₁} B] (C : Type u₂) [Bicategory.{w₂, v₂} C]
@@ -103,8 +107,9 @@ structure PrelaxFunctor (B : Type u₁) [Bicategory.{w₁, v₁} B] (C : Type u�
   /-- Prelax functors preserve identity 2-morphisms. -/
   map₂_id : ∀ {a b : B} (f : a ⟶ b), map₂ (𝟙 f) = 𝟙 (map f) := by aesop -- TODO: why not cat_disch?
   /-- Prelax functors preserve compositions of 2-morphisms. -/
-  map₂_comp : ∀ {a b : B} {f g h : a ⟶ b} (η : f ⟶ g) (θ : g ⟶ h),
-      map₂ (η ≫ θ) = map₂ η ≫ map₂ θ := by cat_disch
+  map₂_comp
+      : ∀ {a b : B} {f g h : a ⟶ b} (η : f ⟶ g) (θ : g ⟶ h), map₂ (η ≫ θ) = map₂ η ≫ map₂ θ := by
+    cat_disch
 
 namespace PrelaxFunctor
 
@@ -120,11 +125,13 @@ add_decl_doc PrelaxFunctor.toPrelaxFunctorStruct
 variable {B : Type u₁} [Bicategory.{w₁, v₁} B] {C : Type u₂} [Bicategory.{w₂, v₂} C]
 variable {D : Type u₃} [Bicategory.{w₃, v₃} D]
 
-/-- Construct a prelax functor from a map on objects, and functors between the corresponding
-hom types. -/
+/--
+Construct a prelax functor from a map on objects, and functors between the corresponding
+hom types.
+-/
 @[simps]
-def mkOfHomFunctors (F : B → C) (F' : (a : B) → (b : B) → (a ⟶ b) ⥤ (F a ⟶ F b)) :
-    PrelaxFunctor B C where
+def mkOfHomFunctors (F : B → C) (F' : (a : B) → (b : B) → (a ⟶ b) ⥤ (F a ⟶ F b))
+    : PrelaxFunctor B C where
   toPrelaxFunctorStruct := PrelaxFunctorStruct.mkOfHomPrefunctors F fun a b => (F' a b).toPrefunctor
   map₂_id {a b} := (F' a b).map_id
   map₂_comp {a b} := (F' a b).map_comp
@@ -134,8 +141,7 @@ def mkOfHomFunctors (F : B → C) (F' : (a : B) → (b : B) → (a ⟶ b) ⥤ (F
 def id (B : Type u₁) [Bicategory.{w₁, v₁} B] : PrelaxFunctor B B where
   toPrelaxFunctorStruct := PrelaxFunctorStruct.id B
 
-instance : Inhabited (PrelaxFunctor B B) :=
-  ⟨PrelaxFunctor.id B⟩
+instance : Inhabited (PrelaxFunctor B B) := ⟨PrelaxFunctor.id B⟩
 
 variable (F : PrelaxFunctor B C)
 
@@ -159,11 +165,12 @@ section
 
 variable {a b : B}
 
-/-- A prelax functor `F` sends 2-isomorphisms `η : f ≅ g` to 2-isomorphisms
-`F.map f ≅ F.map g`. -/
+/--
+A prelax functor `F` sends 2-isomorphisms `η : f ≅ g` to 2-isomorphisms
+`F.map f ≅ F.map g`.
+-/
 @[simps! -isSimp]
-abbrev map₂Iso {f g : a ⟶ b} (η : f ≅ g) : F.map f ≅ F.map g :=
-  (F.mapFunctor a b).mapIso η
+abbrev map₂Iso {f g : a ⟶ b} (η : f ≅ g) : F.map f ≅ F.map g := (F.mapFunctor a b).mapIso η
 
 instance map₂_isIso {f g : a ⟶ b} (η : f ⟶ g) [IsIso η] : IsIso (F.map₂ η) :=
   (F.map₂Iso (asIso η)).isIso_hom

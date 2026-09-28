@@ -41,13 +41,16 @@ public noncomputable section
 open Function Matrix Module Prod Set
 open Submodule (span subset_span)
 
-variable (n R M N : Type*) [Fintype n] [DecidableEq n] [CommRing R]
-  [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+variable
+  (n R M N : Type*) [Fintype n] [DecidableEq n] [CommRing R] [AddCommGroup M] [Module R M]
+  [AddCommGroup N] [Module R N]
 
 namespace CartanMatrix
 
-/-- A realisation of a Cartan matrix indexed by `n` is a family of vectors `v` and covectors `f`,
-both indexed by `n`, such that `⟨fⱼ, vᵢ⟩ = Aᵢⱼ` for all `i j`. -/
+/--
+A realisation of a Cartan matrix indexed by `n` is a family of vectors `v` and covectors `f`,
+both indexed by `n`, such that `⟨fⱼ, vᵢ⟩ = Aᵢⱼ` for all `i j`.
+-/
 structure Realisation where
   /-- The simple roots. -/
   sRoot : n → M
@@ -134,8 +137,7 @@ def reflection (i : n) : M ≃ₗ[R] M :=
     simp [rl.isCartan.diag]
 
 /-- The reflection associated to a simple coroot. -/
-def coreflection (i : n) : N ≃ₗ[R] N :=
-  rl.flip.reflection i
+def coreflection (i : n) : N ≃ₗ[R] N := rl.flip.reflection i
 
 lemma reflection_apply (i : n) (x : M) :
     rl.reflection i x = x - rl.pairing x (rl.sCoroot i) • rl.sRoot i := by
@@ -191,15 +193,15 @@ lemma pairing_reflection_coreflection (i : n) (x : M) (y : N) :
   rw [rl.pairing_reflection_left, coreflection_same]
 
 /-- The Weyl group of a realisation. -/
-def weylGroup :
-    Subgroup ((M ≃ₗ[R] M) × (N ≃ₗ[R] N)) :=
+def weylGroup : Subgroup ((M ≃ₗ[R] M) × (N ≃ₗ[R] N)) :=
   .closure (range <| Function.prod rl.reflection rl.coreflection)
 
 lemma mem_weyl (i : n) :
     (rl.reflection i, rl.coreflection i) ∈ rl.weylGroup :=
   Subgroup.subset_closure <| mem_range_self i
 
-instance : SMul rl.weylGroup (M × N) where smul w p := (w.1.1 p.1, w.1.2 p.2)
+instance : SMul rl.weylGroup (M × N) where
+  smul w p := (w.1.1 p.1, w.1.2 p.2)
 
 lemma weylGroup_smul_def (w : rl.weylGroup) (p : M × N) : w • p = (w.1.1 p.1, w.1.2 p.2) := rfl
 
@@ -339,8 +341,10 @@ instance [CharZero R] [IsDomain R] : Finite rl.weylGroup := by
   refine .of_finite_image ?_ hinj.injOn
   exact (Finite.pi fun _ ↦ rl.finite_setOf_mem_weylGroup_apply_sRoot).subset <| by grind
 
-/-- Taking the Weyl-group orbits of all `(simple root, simple coroot)` pairs, yields a natural
-indexing set for the roots and coroots for the root pairing corresponding to a realisation. -/
+/--
+Taking the Weyl-group orbits of all `(simple root, simple coroot)` pairs, yields a natural
+indexing set for the roots and coroots for the root pairing corresponding to a realisation.
+-/
 def idx : Set (M × N) := {(w.1 (rl.sRoot i), w.2 (rl.sCoroot i)) | (w ∈ rl.weylGroup) (i)}
 
 open scoped Pointwise in
@@ -384,14 +388,16 @@ lemma idx_subset_span_int_sprod_span_int :
 
 instance : Finite rl.idx := by
   refine ((rl.finite_setOf_mem_weylGroup_apply_sRoot.prod
-    rl.flip.finite_setOf_mem_weylGroup_apply_sRoot).subset ?_).to_subtype
+      rl.flip.finite_setOf_mem_weylGroup_apply_sRoot).subset
+    ?_).to_subtype
   rintro - ⟨w, hw, i, rfl⟩
   exact ⟨⟨w, hw, i, rfl⟩, ⟨(w.2, w.1), rl.mem_flip_weyl.mpr hw, i, rfl⟩⟩
 
 /-- The (co)reflection determined by a root / coroot pair. -/
-def reflectionPair {p : M × N} (hp : p ∈ rl.idx) : (M ≃ₗ[R] M) × (N ≃ₗ[R] N) :=
-  ⟨Module.reflection (x := p.1) (f := rl.pairing.flip p.2) (by simpa using rl.pairing_fst_snd hp),
-   Module.reflection (rl.pairing_fst_snd hp)⟩
+def reflectionPair {p : M × N} (hp : p ∈ rl.idx) : (M ≃ₗ[R] M) × (N ≃ₗ[R] N) := ⟨
+  Module.reflection (x := p.1) (f := rl.pairing.flip p.2) (by simpa using rl.pairing_fst_snd hp),
+  Module.reflection (rl.pairing_fst_snd hp)
+⟩
 
 lemma reflectionPair_mem {p : M × N} (hp : p ∈ rl.idx) :
     rl.reflectionPair hp ∈ rl.weylGroup := by
@@ -436,10 +442,8 @@ lemma injOn_snd : InjOn snd rl.idx := by
   simpa using rl.flip.injOn_fst hp hq h
 
 /-- The root pairing associated to a realisation of a Cartan matrix. -/
-def toRootPairing :
-    RootPairing rl.idx R M N :=
-  .mk' rl.pairing
-    ⟨fun p ↦ (p : M × N).1, fun i j h ↦ Subtype.ext <| rl.injOn_fst i.2 j.2 h⟩
+def toRootPairing : RootPairing rl.idx R M N :=
+  .mk' rl.pairing ⟨fun p ↦ (p : M × N).1, fun i j h ↦ Subtype.ext <| rl.injOn_fst i.2 j.2 h⟩
     ⟨fun p ↦ (p : M × N).2, fun i j h ↦ Subtype.ext <| rl.injOn_snd i.2 j.2 h⟩
     (fun i ↦ rl.pairing_fst_snd i.property)
     (by
@@ -491,8 +495,9 @@ instance : rl.toRootPairing.IsReduced where
     obtain ⟨s, t, hst, hst0⟩ : ∃ s t : R, s • x₁ + t • x₂ = 0 ∧ (s = 0 → t ≠ 0) := by
       aesop (add simp LinearIndependent.pair_iff)
     have hs : s ≠ 0 := by have : x₂ ≠ 0 := rl.toRootPairing.ne_zero ⟨_, hxy₂⟩; aesop
-    obtain ⟨c, hc⟩ := (Submodule.mem_span_range_iff_exists_fun ℤ).mp
-      (rl.idx_subset_span_int_sprod_span_int (rl.apply_mem_idx (inv_mem hw) hxy₁)).1
+    obtain ⟨c, hc⟩ :=
+      (Submodule.mem_span_range_iff_exists_fun ℤ).mp
+        (rl.idx_subset_span_int_sprod_span_int (rl.apply_mem_idx (inv_mem hw) hxy₁)).1
     replace hc : w.1.symm x₁ = ∑ k, (c k : R) • rl.sRoot k := by
       simpa [Int.cast_smul_eq_zsmul] using hc.symm
     have hsum : ∑ k, (s * (c k : R) + if k = i then t else 0) • rl.sRoot k = 0 := by
@@ -575,8 +580,8 @@ namespace Matrix.IsFiniteCartan
 variable {n R M N} {A : Matrix n n ℤ} (hA : A.IsFiniteCartan)
 
 /-- If a Cartan matrix is invertible in `R` then it has a canonical realisation. -/
-def toRealisation (hAI : Invertible <| A.map (Int.cast : ℤ → R)) :
-    CartanMatrix.Realisation n R (n → R) (n → R) where
+def toRealisation (hAI : Invertible <| A.map (Int.cast : ℤ → R))
+    : CartanMatrix.Realisation n R (n → R) (n → R) where
   matrix := A
   isCartan := hA
   pairing := ((toLinearEquiv' _ hAI).trans (dotProductEquiv R n)).flip
@@ -592,8 +597,10 @@ private lemma span_range_sRoot_eq_top :
   suffices (hA.toRealisation (hA.isUnit_map k).invertible).sRoot = Pi.basisFun k n by simp [this]
   ext; simp [toRealisation]
 
-/-- Given a field `k` of chacteristic zero and Cartan matrix `A`, this is a reduced
-crystrallographic root system over `k`. It carries a natural base with Cartan matrix `A`. -/
+/--
+Given a field `k` of chacteristic zero and Cartan matrix `A`, this is a reduced
+crystrallographic root system over `k`. It carries a natural base with Cartan matrix `A`.
+-/
 def toRootPairing := (hA.toRealisation (hA.isUnit_map k).invertible).toRootPairing
 
 instance : (hA.toRootPairing k).IsReduced :=

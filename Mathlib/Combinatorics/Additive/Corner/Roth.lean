@@ -66,18 +66,23 @@ variable [Fintype G]
 
 open Corners
 
-
-/-- An explicit form for the constant in the corners theorem.
+/--
+An explicit form for the constant in the corners theorem.
 
 Note that this depends on `SzemerediRegularity.bound`, which is a tower-type exponential. This means
-`cornersTheoremBound` is in practice absolutely tiny. -/
+`cornersTheoremBound` is in practice absolutely tiny.
+-/
 noncomputable def cornersTheoremBound (ε : ℝ) : ℕ := ⌊(triangleRemovalBound (ε / 9) * 27)⁻¹⌋₊ + 1
 
-/-- The **corners theorem** for finite abelian groups.
+/--
+The **corners theorem** for finite abelian groups.
 
-The maximum density of a corner-free set in `G × G` goes to zero as `|G|` tends to infinity. -/
-theorem corners_theorem (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound ε ≤ card G)
-    (A : Finset (G × G)) (hAε : ε * card G ^ 2 ≤ #A) : ¬ IsCornerFree (A : Set (G × G)) := by
+The maximum density of a corner-free set in `G × G` goes to zero as `|G|` tends to infinity.
+-/
+theorem corners_theorem
+    (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound ε ≤ card G)
+    (A : Finset (G × G)) (hAε : ε * card G ^ 2 ≤ #A)
+    : ¬ IsCornerFree (A : Set (G × G)) := by
   rintro hA
   rw [cornersTheoremBound, Nat.add_one_le_iff] at hG
   have hε₁ : ε ≤ 1 := by
@@ -94,30 +99,37 @@ theorem corners_theorem (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound ε �
   convert! h₁.trans (Nat.cast_le.2 <| card_le_univ _) using 1 <;> simp <;> ring
 
 open Fin.NatCast in -- TODO: refactor to avoid needing the coercion
-/-- The **corners theorem** for `ℕ`.
+/--
+The **corners theorem** for `ℕ`.
 
 The maximum density of a corner-free set in `{1, ..., n} × {1, ..., n}` goes to zero as `n` tends to
-infinity. -/
-theorem corners_theorem_nat (hε : 0 < ε) (hn : cornersTheoremBound (ε / 9) ≤ n)
-    (A : Finset (ℕ × ℕ)) (hAn : A ⊆ range n ×ˢ range n) (hAε : ε * n ^ 2 ≤ #A) :
-    ¬ IsCornerFree (A : Set (ℕ × ℕ)) := by
+infinity.
+-/
+theorem corners_theorem_nat
+    (hε : 0 < ε) (hn : cornersTheoremBound (ε / 9) ≤ n)
+    (A : Finset (ℕ × ℕ)) (hAn : A ⊆ range n ×ˢ range n) (hAε : ε * n ^ 2 ≤ #A)
+    : ¬ IsCornerFree (A : Set (ℕ × ℕ)) := by
   rintro hA
   rw [← coe_subset, coe_product] at hAn
-  have : A = Prod.map Fin.val Fin.val ''
-      (Prod.map Nat.cast Nat.cast '' A : Set (Fin (2 * n).succ × Fin (2 * n).succ)) := by
+  have : A
+      = Prod.map Fin.val Fin.val
+        '' (Prod.map Nat.cast Nat.cast '' A : Set (Fin (2 * n).succ × Fin (2 * n).succ)) := by
     rw [Set.image_image, Set.image_congr, Set.image_id]
-    simp only [mem_coe, Nat.succ_eq_add_one, Prod.map_apply, Fin.val_natCast, id_eq, Prod.forall,
-      Prod.mk.injEq, Nat.mod_succ_eq_iff_lt]
+    simp only [
+      mem_coe, Nat.succ_eq_add_one, Prod.map_apply, Fin.val_natCast, id_eq, Prod.forall,
+      Prod.mk.injEq, Nat.mod_succ_eq_iff_lt
+    ]
     rintro a b hab
     have := hAn hab
     simp at this
     lia
   rw [this] at hA
   have := Fin.isAddFreimanIso_Iio two_ne_zero (le_refl (2 * n))
-  have := hA.of_image this.isAddFreimanHom Fin.val_injective.injOn <| by
-    refine Set.image_subset_iff.2 <| hAn.trans fun x hx ↦ ?_
-    simp only [coe_range, Set.mem_prod, Set.mem_Iio] at hx
-    exact ⟨Fin.natCast_strictMono (by lia) hx.1, Fin.natCast_strictMono (by lia) hx.2⟩
+  have :=
+    hA.of_image this.isAddFreimanHom Fin.val_injective.injOn <| by
+      refine Set.image_subset_iff.2 <| hAn.trans fun x hx ↦ ?_
+      simp only [coe_range, Set.mem_prod, Set.mem_Iio] at hx
+      exact ⟨Fin.natCast_strictMono (by lia) hx.1, Fin.natCast_strictMono (by lia) hx.2⟩
   rw [← coe_image] at this
   refine corners_theorem (ε / 9) (by positivity) (by simp; lia) _ ?_ this
   calc
@@ -131,11 +143,15 @@ theorem corners_theorem_nat (hε : 0 < ε) (hn : cornersTheoremBound (ε / 9) �
         (CharP.natCast_injOn_Iio (Fin (2 * n).succ) (2 * n).succ).mono (by simp; lia)
       exact (this.prodMap this).mono hAn
 
-/-- **Roth's theorem** for finite abelian groups.
+/--
+**Roth's theorem** for finite abelian groups.
 
-The maximum density of a 3AP-free set in `G` goes to zero as `|G|` tends to infinity. -/
-theorem roth_3ap_theorem (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound ε ≤ card G)
-    (A : Finset G) (hAε : ε * card G ≤ #A) : ¬ ThreeAPFree (A : Set G) := by
+The maximum density of a 3AP-free set in `G` goes to zero as `|G|` tends to infinity.
+-/
+theorem roth_3ap_theorem
+    (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound ε ≤ card G)
+    (A : Finset G) (hAε : ε * card G ≤ #A)
+    : ¬ ThreeAPFree (A : Set G) := by
   rintro hA
   classical
   let B : Finset (G × G) := univ.filter fun (x, y) ↦ y - x ∈ A
@@ -147,21 +163,28 @@ theorem roth_3ap_theorem (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound ε 
     norm_cast
     rw [← card_univ, ← card_product]
     exact card_equiv ((Equiv.refl _).prodShear fun a ↦ Equiv.addLeft a) (by simp [B])
-  obtain ⟨x₁, y₁, x₂, y₂, hx₁y₁, hx₁y₂, hx₂y₁, hxy, hx₁x₂⟩ :
-      ∃ x₁ y₁ x₂ y₂, y₁ - x₁ ∈ A ∧ y₂ - x₁ ∈ A ∧ y₁ - x₂ ∈ A ∧ x₁ + y₂ = x₂ + y₁ ∧ x₁ ≠ x₂ := by
-    simpa [IsCornerFree, isCorner_iff, B, -exists_and_left, -exists_and_right]
-      using corners_theorem ε hε hG B this
-  have := hA hx₂y₁ hx₁y₁ hx₁y₂ <| by -- TODO: This really ought to just be `by linear_combination h`
-    rw [sub_add_sub_comm, add_comm, add_sub_add_comm, add_right_cancel_iff,
-      sub_eq_sub_iff_add_eq_add, add_comm, hxy, add_comm]
+  obtain ⟨x₁, y₁, x₂, y₂, hx₁y₁, hx₁y₂, hx₂y₁, hxy, hx₁x₂⟩
+      : ∃ x₁ y₁ x₂ y₂, y₁ - x₁ ∈ A ∧ y₂ - x₁ ∈ A ∧ y₁ - x₂ ∈ A ∧ x₁ + y₂ = x₂ + y₁ ∧ x₁ ≠ x₂ := by
+    simpa [IsCornerFree, isCorner_iff, B, -exists_and_left, -exists_and_right] using
+      corners_theorem ε hε hG B this
+  have :=
+    hA hx₂y₁ hx₁y₁ hx₁y₂ <| by -- TODO: This really ought to just be `by linear_combination h`
+      rw [
+        sub_add_sub_comm, add_comm, add_sub_add_comm, add_right_cancel_iff,
+        sub_eq_sub_iff_add_eq_add, add_comm, hxy, add_comm
+      ]
   exact hx₁x₂ <| by simpa using this.symm
 
 open Fin.NatCast in -- TODO: refactor to avoid needing the coercion
-/-- **Roth's theorem** for `ℕ`.
+/--
+**Roth's theorem** for `ℕ`.
 
-The maximum density of a 3AP-free set in `{1, ..., n}` goes to zero as `n` tends to infinity. -/
-theorem roth_3ap_theorem_nat (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound (ε / 3) ≤ n)
-    (A : Finset ℕ) (hAn : A ⊆ range n) (hAε : ε * n ≤ #A) : ¬ ThreeAPFree (A : Set ℕ) := by
+The maximum density of a 3AP-free set in `{1, ..., n}` goes to zero as `n` tends to infinity.
+-/
+theorem roth_3ap_theorem_nat
+    (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound (ε / 3) ≤ n)
+    (A : Finset ℕ) (hAn : A ⊆ range n) (hAε : ε * n ≤ #A)
+    : ¬ ThreeAPFree (A : Set ℕ) := by
   rintro hA
   rw [← coe_subset, coe_range] at hAn
   have : A = Fin.val '' (Nat.cast '' A : Set (Fin (2 * n).succ)) := by
@@ -173,9 +196,9 @@ theorem roth_3ap_theorem_nat (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound
     lia
   rw [this] at hA
   have := Fin.isAddFreimanIso_Iio two_ne_zero (le_refl (2 * n))
-  have := hA.of_image this.isAddFreimanHom Fin.val_injective.injOn <| Set.image_subset_iff.2 <|
-      hAn.trans fun x hx ↦ Fin.natCast_strictMono (by lia) <| by
-        simpa only [coe_range, Set.mem_Iio] using hx
+  have :=
+    hA.of_image this.isAddFreimanHom Fin.val_injective.injOn <| Set.image_subset_iff.2 <| hAn.trans
+      fun x hx ↦ Fin.natCast_strictMono (by lia) <| by simpa only [coe_range, Set.mem_Iio] using hx
   rw [← coe_image] at this
   refine roth_3ap_theorem (ε / 3) (by positivity) (by simp; lia) _ ?_ this
   calc
@@ -190,11 +213,13 @@ theorem roth_3ap_theorem_nat (ε : ℝ) (hε : 0 < ε) (hG : cornersTheoremBound
 
 open Asymptotics Filter
 
-/-- **Roth's theorem** for `ℕ` as an asymptotic statement.
+/--
+**Roth's theorem** for `ℕ` as an asymptotic statement.
 
-The maximum density of a 3AP-free set in `{1, ..., n}` goes to zero as `n` tends to infinity. -/
-theorem rothNumberNat_isLittleO_id :
-    IsLittleO atTop (fun N ↦ (rothNumberNat N : ℝ)) (fun N ↦ (N : ℝ)) := by
+The maximum density of a 3AP-free set in `{1, ..., n}` goes to zero as `n` tends to infinity.
+-/
+theorem rothNumberNat_isLittleO_id
+    : IsLittleO atTop (fun N ↦ (rothNumberNat N : ℝ)) (fun N ↦ (N : ℝ)) := by
   simp only [isLittleO_iff, eventually_atTop, RCLike.norm_natCast]
   refine fun ε hε ↦ ⟨cornersTheoremBound (ε / 3), fun n hn ↦ ?_⟩
   obtain ⟨A, hs₁, hs₂, hs₃⟩ := rothNumberNat_spec n

@@ -21,24 +21,26 @@ open scoped Ring
 
 namespace ContinuousLinearMap
 
-variable {R : Type*} {M M₂ M₃ : Type*}
-  [TopologicalSpace M] [TopologicalSpace M₂] [TopologicalSpace M₃]
+variable
+  {R : Type*} {M M₂ M₃ : Type*} [TopologicalSpace M] [TopologicalSpace M₂] [TopologicalSpace M₃]
 
-variable [Semiring R]
-  [AddCommMonoid M] [Module R M]
-  [AddCommMonoid M₂] [Module R M₂]
-  [AddCommMonoid M₃] [Module R M₃]
+variable
+  [Semiring R] [AddCommMonoid M] [Module R M] [AddCommMonoid M₂] [Module R M₂] [AddCommMonoid M₃]
+  [Module R M₃]
 
-/-- A continuous linear map is invertible if it is the forward direction of a continuous linear
-equivalence. -/
-def IsInvertible (f : M →L[R] M₂) : Prop :=
-  ∃ (A : M ≃L[R] M₂), A = f
+/--
+A continuous linear map is invertible if it is the forward direction of a continuous linear
+equivalence.
+-/
+def IsInvertible (f : M →L[R] M₂) : Prop := ∃ (A : M ≃L[R] M₂), A = f
 
 open scoped Classical in
-/-- Introduce a function `inverse` from `M →L[R] M₂` to `M₂ →L[R] M`, which sends `f` to `f.symm` if
+/--
+Introduce a function `inverse` from `M →L[R] M₂` to `M₂ →L[R] M`, which sends `f` to `f.symm` if
 `f` is a continuous linear equivalence and to `0` otherwise.  This definition is somewhat ad hoc,
 but one needs a fully (rather than partially) defined inverse function for some purposes, including
-for calculus. -/
+for calculus.
+-/
 noncomputable def inverse : (M →L[R] M₂) → M₂ →L[R] M := fun f =>
   if h : f.IsInvertible then ((Classical.choose h).symm : M₂ →L[R] M) else 0
 
@@ -46,8 +48,7 @@ noncomputable def inverse : (M →L[R] M₂) → M₂ →L[R] M := fun f =>
 
 /-- By definition, if `f` is invertible then `inverse f = f.symm`. -/
 @[simp]
-theorem inverse_equiv (e : M ≃L[R] M₂) : inverse (e : M →L[R] M₂) = e.symm := by
-  simp [inverse]
+theorem inverse_equiv (e : M ≃L[R] M₂) : inverse (e : M →L[R] M₂) = e.symm := by simp [inverse]
 
 /-- By definition, if `f` is not invertible then `inverse f = 0`. -/
 @[simp] lemma inverse_of_not_isInvertible
@@ -66,8 +67,8 @@ lemma inverse_eq {f : M →L[R] M₂} {g : M₂ →L[R] M}
   simp
 
 @[simp]
-theorem isInvertible_zero_iff :
-    IsInvertible (0 : M →L[R] M₂) ↔ Subsingleton M ∧ Subsingleton M₂ := by
+theorem isInvertible_zero_iff
+    : IsInvertible (0 : M →L[R] M₂) ↔ Subsingleton M ∧ Subsingleton M₂ := by
   refine ⟨fun ⟨e, he⟩ ↦ ?_, ?_⟩
   · have A : Subsingleton M := by
       refine ⟨fun x y ↦ e.injective ?_⟩
@@ -76,7 +77,8 @@ theorem isInvertible_zero_iff :
   · rintro ⟨hM, hM₂⟩
     refine .of_inverse (g := 0) ?_ ?_ <;> exact Subsingleton.elim _ _
 
-@[simp] theorem inverse_zero : inverse (0 : M →L[R] M₂) = 0 := by
+@[simp]
+theorem inverse_zero : inverse (0 : M →L[R] M₂) = 0 := by
   by_cases h : IsInvertible (0 : M →L[R] M₂)
   · rcases isInvertible_zero_iff.1 h with ⟨hM, hM₂⟩
     exact Subsingleton.elim _ _
@@ -155,17 +157,19 @@ theorem ringInverse_equiv (e : M ≃L[R] M) : (↑e)⁻¹ʳ = inverse (e : M →
   simp
   rfl
 
-/-- The function `ContinuousLinearEquiv.inverse` can be written in terms of `Ring.inverse` for the
-ring of self-maps of the domain. -/
-theorem inverse_eq_ringInverse (e : M ≃L[R] M₂) (f : M →L[R] M₂) :
-    inverse f = ((e.symm : M₂ →L[R] M).comp f)⁻¹ʳ ∘L e.symm := by
+/--
+The function `ContinuousLinearEquiv.inverse` can be written in terms of `Ring.inverse` for the
+ring of self-maps of the domain.
+-/
+theorem inverse_eq_ringInverse (e : M ≃L[R] M₂) (f : M →L[R] M₂)
+    : inverse f = ((e.symm : M₂ →L[R] M).comp f)⁻¹ʳ ∘L e.symm := by
   by_cases h₁ : f.IsInvertible
   · obtain ⟨e', he'⟩ := h₁
     rw [← he']
     change _ = (e'.trans e.symm : M →L[R] M)⁻¹ʳ ∘L (e.symm : M₂ →L[R] M)
     ext
     simp
-  · suffices ¬IsUnit ((e.symm : M₂ →L[R] M).comp f) by simp [this, h₁]
+  · suffices ¬ IsUnit ((e.symm : M₂ →L[R] M).comp f) by simp [this, h₁]
     contrapose h₁
     rcases h₁ with ⟨F, hF⟩
     use (ContinuousLinearEquiv.unitsEquiv _ _ F).trans e
@@ -178,7 +182,8 @@ theorem ringInverse_eq_inverse : Ring.inverse = inverse (R := R) (M := M) := by
   ext
   simp [inverse_eq_ringInverse (ContinuousLinearEquiv.refl R M)]
 
-@[simp] theorem inverse_id : (ContinuousLinearMap.id R M).inverse = .id R M := by
+@[simp]
+theorem inverse_id : (ContinuousLinearMap.id R M).inverse = .id R M := by
   rw [← ringInverse_eq_inverse]
   exact Ring.inverse_one _
 
@@ -210,8 +215,7 @@ protected theorem bijective (hf : f.IsInvertible) : Function.Bijective f := by
   rcases hf with ⟨e, rfl⟩
   simp [ContinuousLinearEquiv.bijective]
 
-protected theorem injective (hf : f.IsInvertible) : Function.Injective f :=
-  hf.bijective.injective
+protected theorem injective (hf : f.IsInvertible) : Function.Injective f := hf.bijective.injective
 
 protected theorem surjective (hf : f.IsInvertible) : Function.Surjective f :=
   hf.bijective.surjective
@@ -233,14 +237,13 @@ protected theorem of_isInvertible_inverse (hf : f.inverse.IsInvertible) : f.IsIn
 end IsInvertible
 
 @[simp]
-theorem isInvertible_inverse_iff {f : M →L[R] M₂} :
-    f.inverse.IsInvertible ↔ f.IsInvertible :=
+theorem isInvertible_inverse_iff {f : M →L[R] M₂} : f.inverse.IsInvertible ↔ f.IsInvertible :=
   ⟨.of_isInvertible_inverse, .inverse⟩
 
-theorem isInvertible_iff_isHomeomorph {f : M →L[R] M₂} :
-    f.IsInvertible ↔ IsHomeomorph f :=
-  ⟨fun ⟨e, he⟩ ↦ he ▸ e.isHomeomorph,
-    fun hf ↦ ⟨.ofIsHomeomorph (.ofBijective f.toLinearMap hf.bijective) hf, rfl⟩⟩
+theorem isInvertible_iff_isHomeomorph {f : M →L[R] M₂} : f.IsInvertible ↔ IsHomeomorph f := ⟨
+  fun ⟨e, he⟩ ↦ he ▸ e.isHomeomorph,
+  fun hf ↦ ⟨.ofIsHomeomorph (.ofBijective f.toLinearMap hf.bijective) hf, rfl⟩
+⟩
 
 alias ⟨IsInvertible.isHomeomorph, IsInvertible.of_isHomeomorph⟩ := isInvertible_iff_isHomeomorph
 

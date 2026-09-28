@@ -47,30 +47,36 @@ variable
   {B : Type*} [TopologicalSpace B]
   {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
   {E : B → Type*} [TopologicalSpace (TotalSpace F E)] [∀ x, NormedAddCommGroup (E x)]
-  [∀ x, InnerProductSpace ℝ (E x)]
-  [FiberBundle F E] [VectorBundle ℝ F E]
+  [∀ x, InnerProductSpace ℝ (E x)] [FiberBundle F E] [VectorBundle ℝ F E]
 
 local notation "⟪" x ", " y "⟫" => inner ℝ x y
 
 variable (F E) in
-/-- Consider a real vector bundle in which each fiber is endowed with an inner product.
+/--
+Consider a real vector bundle in which each fiber is endowed with an inner product.
 We say that the bundle is *Riemannian* if the inner product depends continuously on the base point.
 This assumption is spelled `IsContinuousRiemannianBundle F E` where `F` is the model fiber,
-and `E : B → Type*` is the bundle. -/
+and `E : B → Type*` is the bundle.
+-/
 class IsContinuousRiemannianBundle : Prop where
-  /-- There exists a bilinear form, depending continuously on the basepoint and defining the
+  /--
+  There exists a bilinear form, depending continuously on the basepoint and defining the
   inner product in the fibers. This is expressed as an existence statement so that it is Prop-valued
-  in terms of existing data, the inner product on the fibers and the fiber bundle structure. -/
-  exists_continuous : ∃ g : (Π x, E x →L[ℝ] E x →L[ℝ] ℝ),
-    Continuous (fun (x : B) ↦ TotalSpace.mk' (F →L[ℝ] F →L[ℝ] ℝ) x (g x))
-    ∧ ∀ (x : B) (v w : E x), ⟪v, w⟫ = g x v w
+  in terms of existing data, the inner product on the fibers and the fiber bundle structure.
+  -/
+  exists_continuous
+    : ∃ g : (Π x, E x →L[ℝ] E x →L[ℝ] ℝ),
+      Continuous (fun (x : B) ↦ TotalSpace.mk' (F →L[ℝ] F →L[ℝ] ℝ) x (g x))
+        ∧ ∀ (x : B) (v w : E x), ⟪v, w⟫ = g x v w
 
 section Trivial
 
 variable {F₁ : Type*} [NormedAddCommGroup F₁] [InnerProductSpace ℝ F₁]
 
-/-- A trivial vector bundle, in which the model fiber has an inner product,
-is a Riemannian bundle. -/
+/--
+A trivial vector bundle, in which the model fiber has an inner product,
+is a Riemannian bundle.
+-/
 instance : IsContinuousRiemannianBundle F₁ (Bundle.Trivial B F₁) := by
   refine ⟨fun x ↦ innerSL ℝ, ?_, fun x v w ↦ rfl⟩
   rw [continuous_iff_continuousAt]
@@ -352,39 +358,45 @@ section Construction
 variable
   {B : Type*} [TopologicalSpace B]
   {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-  {E : B → Type*} [TopologicalSpace (TotalSpace F E)]
-  [∀ b, TopologicalSpace (E b)] [∀ b, AddCommGroup (E b)] [∀ b, Module ℝ (E b)]
-  [∀ b, IsTopologicalAddGroup (E b)] [∀ b, ContinuousConstSMul ℝ (E b)]
-  [FiberBundle F E] [VectorBundle ℝ F E]
+  {E : B → Type*} [TopologicalSpace (TotalSpace F E)] [∀ b, TopologicalSpace (E b)]
+  [∀ b, AddCommGroup (E b)] [∀ b, Module ℝ (E b)] [∀ b, IsTopologicalAddGroup (E b)]
+  [∀ b, ContinuousConstSMul ℝ (E b)] [FiberBundle F E] [VectorBundle ℝ F E]
 
 open Bornology
 
 variable (E) in
-/-- A family of inner product space structures on the fibers of a fiber bundle, defining the same
+/--
+A family of inner product space structures on the fibers of a fiber bundle, defining the same
 topology as the already existing one. This family is not assumed to be continuous or smooth: to
 guarantee continuity, resp. smoothness, of the inner product as a function of the base point,
 use `ContinuousRiemannianMetric` or `ContMDiffRiemannianMetric`.
 
 This structure is used through `RiemannianBundle` for typeclass inference, to register the inner
-product space structure on the fibers without creating diamonds. -/
+product space structure on the fibers without creating diamonds.
+-/
 structure RiemannianMetric where
   /-- The inner product along the fibers of the bundle. -/
   inner (b : B) : E b →L[ℝ] E b →L[ℝ] ℝ
   symm (b : B) (v w : E b) : inner b v w = inner b w v
   pos (b : B) (v : E b) (hv : v ≠ 0) : 0 < inner b v v
-  /-- The continuity at `0` is automatic when `E b` is isomorphic to a normed space, but since
-  we are not making this assumption here we have to include it. -/
+  /--
+  The continuity at `0` is automatic when `E b` is isomorphic to a normed space, but since
+  we are not making this assumption here we have to include it.
+  -/
   continuousAt (b : B) : ContinuousAt (fun (v : E b) ↦ inner b v v) 0
   isVonNBounded (b : B) : IsVonNBounded ℝ {v : E b | inner b v v < 1}
 
-/-- `Core` structure associated to a family of inner products on the fibers of a fiber bundle. This
+/--
+`Core` structure associated to a family of inner products on the fibers of a fiber bundle. This
 is an auxiliary construction to endow the fibers with an inner product space structure without
 creating diamonds.
 
 Warning: Do not use this `Core` structure if the space you are interested in already has a norm
-instance defined on it, otherwise this will create a second non-defeq norm instance! -/
-@[reducible] noncomputable def RiemannianMetric.toCore (g : RiemannianMetric E) (b : B) :
-    InnerProductSpace.Core ℝ (E b) where
+instance defined on it, otherwise this will create a second non-defeq norm instance!
+-/
+@[reducible]
+noncomputable def RiemannianMetric.toCore (g : RiemannianMetric E) (b : B)
+    : InnerProductSpace.Core ℝ (E b) where
   inner v w := g.inner b v w
   conj_inner_symm v w := g.symm b w v
   re_inner_nonneg v := by
@@ -396,7 +408,8 @@ instance defined on it, otherwise this will create a second non-defeq norm insta
   definite v h := by contrapose! h; exact (g.pos b v h).ne'
 
 variable (E) in
-/-- Class used to create an inner product structure space on the fibers of a fiber bundle, without
+/--
+Class used to create an inner product structure space on the fibers of a fiber bundle, without
 creating diamonds. Use as follows:
 * `instance : RiemannianBundle E := ⟨g⟩` where `g : RiemannianMetric E` registers the inner product
   space on the fibers;
@@ -421,50 +434,61 @@ class RiemannianBundle where
   /-- The family of inner products on the fibers -/
   g : RiemannianMetric E
 
-/-- A fiber in a bundle satisfying the `[RiemannianBundle E]` typeclass inherits
+/--
+A fiber in a bundle satisfying the `[RiemannianBundle E]` typeclass inherits
 a `NormedAddCommGroup` structure.
 
 The normal priority for an instance which always applies like this one should be 100.
 We use 80 as this is rather specialized, so we want other paths to be tried first typically.
 As this instance is quite specific and very costly because of higher-order unification, we
-also scope it to the `Bundle` namespace. -/
+also scope it to the `Bundle` namespace.
+-/
 noncomputable scoped instance (priority := 80)
-    {B : Type*} {E : B → Type*} [(b : B) → TopologicalSpace (E b)]
-    [(b : B) → AddCommGroup (E b)] [(b : B) → Module ℝ (E b)]
-    /- We are careful about the parameter order, putting `RiemannianBundle E`
+    {B : Type*} {E : B → Type*}
+    [(b : B) → TopologicalSpace (E b)] [(b : B) → AddCommGroup (E b)] [(b : B) → Module ℝ (E b)]
+    /-
+    We are careful about the parameter order, putting `RiemannianBundle E`
     before `IsTopologicalAddGroup` to avoid the following loop: to put a `IsTopologicalAddGroup`
     structure on `E b`, one tries to find a `NormedAddCommGroup`, then one tries to apply the
     current instance. If `IsTopologicalAddGroup (E b)` were before `RiemannianBundle`, then one
     would try to find a `IsTopologicalAddGroup` to apply the instance, and loop.
     Normally, loops are detected by typeclass inference but here it is not the case as the loop is
-    at different depth levels. See lean4#13063. -/
+    at different depth levels. See lean4#13063.
+    -/
     [h : RiemannianBundle E] [∀ (b : B), IsTopologicalAddGroup (E b)]
-    [∀ (b : B), ContinuousConstSMul ℝ (E b)] (b : B) :
-    NormedAddCommGroup (E b) := fast_instance%
-  (h.g.toCore b).toNormedAddCommGroupOfTopology (h.g.continuousAt b) (h.g.isVonNBounded b)
+    [∀ (b : B), ContinuousConstSMul ℝ (E b)]
+    (b : B)
+    : NormedAddCommGroup (E b) :=
+  fast_instance%
+    (h.g.toCore b).toNormedAddCommGroupOfTopology (h.g.continuousAt b) (h.g.isVonNBounded b)
 
-/-- A fiber in a bundle satisfying the `[RiemannianBundle E]` typeclass inherits
+/--
+A fiber in a bundle satisfying the `[RiemannianBundle E]` typeclass inherits
 an `InnerProductSpace ℝ` structure.
 
 The normal priority for an instance which always applies like this one should be 100.
 We use 80 as this is rather specialized, so we want other paths to be tried first typically.
 As this instance is quite specific and very costly because of higher-order unification, we
-also scope it to the `Bundle` namespace. -/
+also scope it to the `Bundle` namespace.
+-/
 noncomputable scoped instance (priority := 80)
-    {B : Type*} {E : B → Type*} [(b : B) → TopologicalSpace (E b)]
-    [(b : B) → AddCommGroup (E b)] [(b : B) → Module ℝ (E b)]
-    [h : RiemannianBundle E] [∀ (b : B), IsTopologicalAddGroup (E b)]
-    [∀ (b : B), ContinuousConstSMul ℝ (E b)] (b : B) :
-    InnerProductSpace ℝ (E b) := fast_instance%
-  .ofCoreOfTopology (h.g.toCore b) (h.g.continuousAt b) (h.g.isVonNBounded b)
+    {B : Type*} {E : B → Type*} [(b : B) → TopologicalSpace (E b)] [(b : B) → AddCommGroup (E b)]
+    [(b : B) → Module ℝ (E b)] [h : RiemannianBundle E] [∀ (b : B), IsTopologicalAddGroup (E b)]
+    [∀ (b : B), ContinuousConstSMul ℝ (E b)]
+    (b : B)
+    : InnerProductSpace ℝ (E b) :=
+  fast_instance%
+    .ofCoreOfTopology (h.g.toCore b) (h.g.continuousAt b) (h.g.isVonNBounded b)
 
 variable (F E) in
-/-- A family of inner product space structures on the fibers of a fiber bundle, defining the same
+/--
+A family of inner product space structures on the fibers of a fiber bundle, defining the same
 topology as the already existing one, and varying continuously with the base point. See also
 `ContMDiffRiemannianMetric` for a smooth version.
 
 This structure is used through `RiemannianBundle` for typeclass inference, to register the inner
-product space structure on the fibers without creating diamonds. -/
+product space structure on the fibers without creating diamonds.
+-/
 structure ContinuousRiemannianMetric where
   /-- The inner product along the fibers of the bundle. -/
   inner (b : B) : E b →L[ℝ] E b →L[ℝ] ℝ
@@ -474,8 +498,8 @@ structure ContinuousRiemannianMetric where
   continuous : Continuous (fun (b : B) ↦ TotalSpace.mk' (F →L[ℝ] F →L[ℝ] ℝ) b (inner b))
 
 /-- A continuous Riemannian metric is in particular a Riemannian metric. -/
-def ContinuousRiemannianMetric.toRiemannianMetric (g : ContinuousRiemannianMetric F E) :
-    RiemannianMetric E where
+def ContinuousRiemannianMetric.toRiemannianMetric (g : ContinuousRiemannianMetric F E)
+    : RiemannianMetric E where
   inner := g.inner
   symm := g.symm
   pos := g.pos
@@ -483,20 +507,23 @@ def ContinuousRiemannianMetric.toRiemannianMetric (g : ContinuousRiemannianMetri
   continuousAt b := by
     -- Continuity of bilinear maps is only true on normed spaces. As `F` is a normed space by
     -- assumption, we transfer everything to `F` and argue there.
-    let e : E b ≃L[ℝ] F := Trivialization.continuousLinearEquivAt ℝ (trivializationAt F E b) _
-      (FiberBundle.mem_baseSet_trivializationAt' b)
+    let e : E b ≃L[ℝ] F :=
+      Trivialization.continuousLinearEquivAt ℝ (trivializationAt F E b) _
+        (FiberBundle.mem_baseSet_trivializationAt' b)
     let m : (E b →L[ℝ] E b →L[ℝ] ℝ) ≃L[ℝ] (F →L[ℝ] F →L[ℝ] ℝ) :=
       e.arrowCongr (e.arrowCongr (ContinuousLinearEquiv.refl ℝ ℝ))
     have A (v : E b) : g.inner b v v = ((fun w ↦ m (g.inner b) w w) ∘ e) v := by simp [m]
     simp only [A]
     fun_prop
 
-/-- If a Riemannian bundle structure is defined using `g.toRiemannianMetric` where `g` is
+/--
+If a Riemannian bundle structure is defined using `g.toRiemannianMetric` where `g` is
 a `ContinuousRiemannianMetric`, then we make sure typeclass inference can infer automatically
-that the bundle is a continuous Riemannian bundle. -/
-instance (g : ContinuousRiemannianMetric F E) :
-    letI : RiemannianBundle E := ⟨g.toRiemannianMetric⟩;
-    IsContinuousRiemannianBundle F E := by
+that the bundle is a continuous Riemannian bundle.
+-/
+instance (g : ContinuousRiemannianMetric F E)
+    : letI : RiemannianBundle E := ⟨g.toRiemannianMetric⟩
+      IsContinuousRiemannianBundle F E := by
   let : RiemannianBundle E := ⟨g.toRiemannianMetric⟩
   exact ⟨⟨g.inner, g.continuous, fun b v w ↦ rfl⟩⟩
 

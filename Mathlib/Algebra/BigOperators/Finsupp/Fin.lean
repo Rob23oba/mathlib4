@@ -33,8 +33,8 @@ lemma sum_cons' [Zero M] [AddCommMonoid N] (n : ℕ) (σ : Fin n →₀ M) (i : 
   simp_rw [Fin.sum_univ_succ, cons_zero, cons_succ]
   congr
 
-theorem ofSupportFinite_fin_two_eq (n : Fin 2 →₀ ℕ) :
-    ofSupportFinite ![n 0, n 1] (Set.toFinite _) = n := by
+theorem ofSupportFinite_fin_two_eq (n : Fin 2 →₀ ℕ)
+    : ofSupportFinite (![n 0, n 1]) (Set.toFinite _) = n := by
   rw [Finsupp.ext_iff, Fin.forall_fin_two]
   exact ⟨rfl, rfl⟩
 
@@ -43,14 +43,16 @@ end Finsupp
 section Fin2
 
 variable (M) in
-/-- The space of finitely supported functions `Fin 2 →₀ α` is equivalent to `α × α`.
-See also `finTwoArrowEquiv`. -/
+/--
+The space of finitely supported functions `Fin 2 →₀ α` is equivalent to `α × α`.
+See also `finTwoArrowEquiv`.
+-/
 @[simps! apply symm_apply]
 noncomputable def finTwoArrowEquiv' [Zero M] : (Fin 2 →₀ M) ≃ M × M :=
   Finsupp.equivFunOnFinite.trans (finTwoArrowEquiv M)
 
-theorem finTwoArrowEquiv'_sum_eq {d : M × M} [AddCommMonoid M] :
-    (((finTwoArrowEquiv' M).symm d).sum fun _ n ↦ n) = d.1 + d.2 := by
+theorem finTwoArrowEquiv'_sum_eq {d : M × M} [AddCommMonoid M]
+    : (((finTwoArrowEquiv' M).symm d).sum fun _ n ↦ n) = d.1 + d.2 := by
   apply (Finsupp.equivFunOnFinite_symm_sum _).trans
   simp
 

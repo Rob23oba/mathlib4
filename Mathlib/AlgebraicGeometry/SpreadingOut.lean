@@ -55,8 +55,10 @@ namespace AlgebraicGeometry
 
 variable {X Y S : Scheme.{u}} (f : X ⟶ Y) (sX : X ⟶ S) (sY : Y ⟶ S) {R A : CommRingCat.{u}}
 
-/-- The germ map at `x` is injective if there exists some affine `U ∋ x`
-  such that the map `Γ(X, U) ⟶ X_x` is injective -/
+/--
+The germ map at `x` is injective if there exists some affine `U ∋ x`
+such that the map `Γ(X, U) ⟶ X_x` is injective
+-/
 class Scheme.IsGermInjectiveAt (X : Scheme.{u}) (x : X) : Prop where
   cond : ∃ (U : X.Opens) (hx : x ∈ U), IsAffineOpen U ∧ Function.Injective (X.presheaf.germ U x hx)
 
@@ -88,14 +90,13 @@ lemma Scheme.exists_le_and_germ_injective (X : Scheme.{u}) (x : X) [X.IsGermInje
   exact ⟨X.basicOpen f, hxf, hU.basicOpen f, hf, injective_germ_basicOpen U hU x hx f hxf H⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-instance (x : X) [X.IsGermInjectiveAt x] [IsOpenImmersion f] :
-    Y.IsGermInjectiveAt (f x) := by
+instance (x : X) [X.IsGermInjectiveAt x] [IsOpenImmersion f] : Y.IsGermInjectiveAt (f x) := by
   obtain ⟨U, hxU, hU, H⟩ := X.exists_germ_injective x
   refine ⟨⟨f ''ᵁ U, ⟨x, hxU, rfl⟩, hU.image_of_isOpenImmersion f, ?_⟩⟩
-  refine ((MorphismProperty.injective CommRingCat).cancel_right_of_respectsIso _
-    (f.stalkMap x)).mp ?_
-  refine ((MorphismProperty.injective CommRingCat).cancel_left_of_respectsIso
-    (f.appIso U).inv _).mp ?_
+  refine ((MorphismProperty.injective CommRingCat).cancel_right_of_respectsIso _ (f.stalkMap x)).mp
+    ?_
+  refine ((MorphismProperty.injective CommRingCat).cancel_left_of_respectsIso (f.appIso U).inv _).mp
+    ?_
   simpa
 
 set_option backward.isDefEq.respectTransparency.types false in
@@ -158,11 +159,15 @@ lemma Scheme.IsGermInjective.Spec
   exact ⟨⟨_, n, rfl⟩, hn⟩
 
 instance (priority := 100) [IsIntegral X] : X.IsGermInjective := by
-  refine fun x ↦ ⟨⟨(X.affineCover.f _).opensRange, X.affineCover.covers x,
-    (isAffineOpen_opensRange (X.affineCover.f _)), ?_⟩⟩
+  refine fun x ↦ ⟨⟨
+    (X.affineCover.f _).opensRange,
+    X.affineCover.covers x,
+    (isAffineOpen_opensRange (X.affineCover.f _)),
+    ?_
+  ⟩⟩
   have : Nonempty (X.affineCover.f _).opensRange := ⟨⟨_, X.affineCover.covers x⟩⟩
-  have := (isAffineOpen_opensRange (X.affineCover.f _)).isLocalization_stalk
-    ⟨_, X.affineCover.covers x⟩
+  have :=
+    (isAffineOpen_opensRange (X.affineCover.f _)).isLocalization_stalk ⟨_, X.affineCover.covers x⟩
   exact @IsLocalization.injective _ _ _ _ _ (show _ from _) this
     (Ideal.primeCompl_le_nonZeroDivisors _)
 
@@ -170,8 +175,8 @@ set_option backward.isDefEq.respectTransparency.types false in
 instance (priority := 100) [IsLocallyNoetherian X] : X.IsGermInjective := by
   suffices ∀ (R : CommRingCat.{u}) (_ : IsNoetherianRing R), (Spec R).IsGermInjective by
     refine @Scheme.IsGermInjective.of_openCover _ (X.affineOpenCover.openCover) (fun i ↦ this _ ?_)
-    exact isLocallyNoetherian_Spec.mp
-      (isLocallyNoetherian_of_isOpenImmersion (X.affineOpenCover.f i))
+    exact isLocallyNoetherian_Spec.mp (isLocallyNoetherian_of_isOpenImmersion (X.affineOpenCover.f
+      i))
   refine fun R hR ↦ Scheme.IsGermInjective.Spec fun I hI ↦ ?_
   let J := RingHom.ker <| algebraMap R (Localization.AtPrime I)
   have hJ (x) : x ∈ J ↔ ∃ y : I.primeCompl, y * x = 0 :=
@@ -184,8 +189,10 @@ instance (priority := 100) [IsLocallyNoetherian X] : X.IsGermInjective := by
   refine mem_of_le_of_mem ?_ ((hJ x).mpr ⟨⟨y, hy⟩, e⟩)
   rw [← hs, Ideal.span_le]
   intro i hi
-  rw [SetLike.mem_coe, Submodule.mem_annihilator_span_singleton, smul_eq_mul,
-    mul_comm, ← smul_eq_mul, ← Submodule.mem_annihilator_span_singleton, Submonoid.coe_finsetProd]
+  rw [
+    SetLike.mem_coe, Submodule.mem_annihilator_span_singleton, smul_eq_mul, mul_comm, ← smul_eq_mul,
+    ← Submodule.mem_annihilator_span_singleton, Submonoid.coe_finsetProd
+  ]
   refine Ideal.mem_of_dvd _ (Finset.dvd_prod_of_mem _ (s.mem_attach ⟨i, hi⟩)) ?_
   rw [Submodule.mem_annihilator_span_singleton, smul_eq_mul]
   exact hf i _

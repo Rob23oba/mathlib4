@@ -98,8 +98,7 @@ namespace ProbabilityTheory
 variable {E : Type*} [SeminormedAddCommGroup E] [NormedSpace ℝ E]
 
 /-- The rotation in `E × E` with angle `θ`, as a continuous linear map. -/
-noncomputable
-def _root_.ContinuousLinearMap.rotation (θ : ℝ) : E × E →L[ℝ] E × E where
+noncomputable def _root_.ContinuousLinearMap.rotation (θ : ℝ) : E × E →L[ℝ] E × E where
   toFun := fun x ↦ (Real.cos θ • x.1 + Real.sin θ • x.2, - Real.sin θ • x.1 + Real.cos θ • x.2)
   map_add' x y := by
     simp only [Prod.fst_add, smul_add, Prod.snd_add, neg_smul, Prod.mk_add_mk]
@@ -166,10 +165,12 @@ lemma measure_le_mul_measure_gt_le_of_map_rotation_eq_self [SFinite μ]
 
 namespace Fernique
 
-/-- A sequence of real thresholds that will be used to cut the space into annuli.
+/--
+A sequence of real thresholds that will be used to cut the space into annuli.
 Chosen such that for a rotation invariant measure, an application of lemma
 `measure_le_mul_measure_gt_le_of_map_rotation_eq_self` gives
-`μ {x | ‖x‖ ≤ a} * μ {x | normThreshold a (n + 1) < ‖x‖} ≤ μ {x | normThreshold a n < ‖x‖} ^ 2`. -/
+`μ {x | ‖x‖ ≤ a} * μ {x | normThreshold a (n + 1) < ‖x‖} ≤ μ {x | normThreshold a n < ‖x‖} ^ 2`.
+-/
 noncomputable def normThreshold (a : ℝ) : ℕ → ℝ := arithGeom √2 a a
 
 lemma normThreshold_zero : normThreshold a 0 = a := rfl
@@ -481,13 +482,16 @@ end Fernique
 
 open Fernique
 
-/-- For `μ` a probability measure whose product with itself is invariant by rotation and for `a, c`
+/--
+For `μ` a probability measure whose product with itself is invariant by rotation and for `a, c`
 with `2⁻¹ < c ≤ μ {x | ‖x‖ ≤ a}`, the integral `∫⁻ x, exp (logRatio c * a⁻¹ ^ 2 * ‖x‖ ^ 2) ∂μ`
-is bounded by a quantity that does not depend on `a`. -/
-theorem lintegral_exp_mul_sq_norm_le_of_map_rotation_eq_self [IsProbabilityMeasure μ]
+is bounded by a quantity that does not depend on `a`.
+-/
+theorem lintegral_exp_mul_sq_norm_le_of_map_rotation_eq_self
+    [IsProbabilityMeasure μ]
     (h_rot : (μ.prod μ).map (ContinuousLinearMap.rotation (-(π / 4))) = μ.prod μ)
-    {c : ℝ≥0∞} (hc : c ≤ μ {x | ‖x‖ ≤ a}) (hc_gt : 2⁻¹ < c) :
-    ∫⁻ x, .ofReal (rexp (logRatio c * a⁻¹ ^ 2 * ‖x‖ ^ 2)) ∂μ
+    {c : ℝ≥0∞} (hc : c ≤ μ {x | ‖x‖ ≤ a}) (hc_gt : 2⁻¹ < c)
+    : ∫⁻ x, .ofReal (rexp (logRatio c * a⁻¹ ^ 2 * ‖x‖ ^ 2)) ∂μ
       ≤ .ofReal (rexp (logRatio c))
         + ∑' n, .ofReal (rexp (-2⁻¹ * Real.log (c / (1 - c)).toReal * 2 ^ n)) := by
   have ha : 0 ≤ a := by
@@ -500,19 +504,21 @@ theorem lintegral_exp_mul_sq_norm_le_of_map_rotation_eq_self [IsProbabilityMeasu
     simp [hc] at hc_gt
   cases ha.eq_or_lt' with
   | inl ha =>
-    simp only [ha, inv_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, mul_zero,
-      zero_mul, Real.exp_zero, ENNReal.ofReal_one, lintegral_const, measure_univ, mul_one,
-      ENNReal.toReal_div, neg_mul]
+    simp only [
+      ha, inv_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, mul_zero, zero_mul,
+      Real.exp_zero, ENNReal.ofReal_one, lintegral_const, measure_univ, mul_one, ENNReal.toReal_div,
+      neg_mul
+    ]
     refine le_add_right ?_
     rw [← ENNReal.ofReal_one]
     gcongr
     simp only [Real.one_le_exp_iff]
     exact logRatio_nonneg hc_gt.le (hc.trans prob_le_one)
   | inr ha_pos =>
-  refine (lintegral_exp_mul_sq_norm_le_mul h_rot ha_pos hc hc_gt).trans ?_
-  conv_rhs => rw [← one_mul (ENNReal.ofReal _ + _)]
-  gcongr
-  exact prob_le_one
+    refine (lintegral_exp_mul_sq_norm_le_mul h_rot ha_pos hc hc_gt).trans ?_
+    conv_rhs => rw [← one_mul (ENNReal.ofReal _ + _)]
+    gcongr
+    exact prob_le_one
 
 /-- Auxiliary lemma for `exists_integrable_exp_sq_of_map_rotation_eq_self`.
 The assumptions on `a` and `μ {x | ‖x‖ ≤ a}` are not needed and will be removed in that more
@@ -593,25 +599,30 @@ lemma exists_integrable_exp_sq_of_map_rotation_eq_self_of_isProbabilityMeasure
     simp only [one_mul]
     gcongr
 
-/-- **Fernique's theorem** for finite measures whose product is invariant by rotation: there exists
-`C > 0` such that the function `x ↦ exp (C * ‖x‖ ^ 2)` is integrable. -/
-theorem exists_integrable_exp_sq_of_map_rotation_eq_self [IsFiniteMeasure μ]
-    (h_rot : (μ.prod μ).map (ContinuousLinearMap.rotation (-(π / 4))) = μ.prod μ) :
-    ∃ C, 0 < C ∧ Integrable (fun x ↦ rexp (C * ‖x‖ ^ 2)) μ := by
+/--
+**Fernique's theorem** for finite measures whose product is invariant by rotation: there exists
+`C > 0` such that the function `x ↦ exp (C * ‖x‖ ^ 2)` is integrable.
+-/
+theorem exists_integrable_exp_sq_of_map_rotation_eq_self
+    [IsFiniteMeasure μ]
+    (h_rot : (μ.prod μ).map (ContinuousLinearMap.rotation (-(π / 4))) = μ.prod μ)
+    : ∃ C, 0 < C ∧ Integrable (fun x ↦ rexp (C * ‖x‖ ^ 2)) μ := by
   by_cases hμ_zero : μ = 0
   · exact ⟨1, by positivity, by simp [hμ_zero]⟩
   let μ' := cond μ .univ
   have hμ'_eq : μ' = (μ .univ)⁻¹ • μ := by simp [μ', cond]
   have hμ' : IsProbabilityMeasure μ' := cond_isProbabilityMeasure <| by simp [hμ_zero]
   have h_rot : (μ'.prod μ').map (ContinuousLinearMap.rotation (-(π / 4))) = μ'.prod μ' := by
-    calc (μ'.prod μ').map (ContinuousLinearMap.rotation (-(π / 4)))
-    _ = ((μ Set.univ)⁻¹ * (μ Set.univ)⁻¹)
-        • (μ.prod μ).map (ContinuousLinearMap.rotation (-(π / 4))) := by
-      simp [hμ'_eq, Measure.prod_smul_left, Measure.prod_smul_right, smul_smul,
-        (ContinuousLinearMap.rotation (-(π / 4))).continuous.aemeasurable]
-    _ = ((μ Set.univ)⁻¹ * (μ Set.univ)⁻¹) • (μ.prod μ) := by rw [h_rot]
-    _ = μ'.prod μ' := by
-      simp [hμ'_eq, Measure.prod_smul_left, Measure.prod_smul_right, smul_smul]
+    calc
+      (μ'.prod μ').map (ContinuousLinearMap.rotation (-(π / 4)))
+      _ = ((μ Set.univ)⁻¹ * (μ Set.univ)⁻¹)
+          • (μ.prod μ).map (ContinuousLinearMap.rotation (-(π / 4))) := by
+        simp [
+          hμ'_eq, Measure.prod_smul_left, Measure.prod_smul_right, smul_smul,
+          (ContinuousLinearMap.rotation (-(π / 4))).continuous.aemeasurable
+        ]
+      _ = ((μ Set.univ)⁻¹ * (μ Set.univ)⁻¹) • (μ.prod μ) := by rw [h_rot]
+      _ = μ'.prod μ' := by simp [hμ'_eq, Measure.prod_smul_left, Measure.prod_smul_right, smul_smul]
   obtain ⟨C, hC_pos, hC⟩ :=
     exists_integrable_exp_sq_of_map_rotation_eq_self_of_isProbabilityMeasure (μ := μ') h_rot
   refine ⟨C, hC_pos, ?_⟩

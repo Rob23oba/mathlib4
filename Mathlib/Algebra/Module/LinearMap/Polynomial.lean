@@ -74,13 +74,14 @@ namespace Matrix
 variable {m n o R S : Type*}
 variable [Fintype n] [Fintype o] [CommSemiring R] [CommSemiring S]
 
-/-- Let `M` be an `(m × n)`-matrix over `R`.
+/--
+Let `M` be an `(m × n)`-matrix over `R`.
 Then `Matrix.toMvPolynomial M` is the family (indexed by `i : m`)
 of multivariate polynomials in `n` variables over `R` that evaluates on `c : n → R`
 to the dot product of the `i`-th row of `M` with `c`:
-`Matrix.toMvPolynomial M i` is the sum of the monomials `C (M i j) * X j`. -/
-noncomputable
-def toMvPolynomial (M : Matrix m n R) (i : m) : MvPolynomial n R :=
+`Matrix.toMvPolynomial M i` is the sum of the monomials `C (M i j) * X j`.
+-/
+noncomputable def toMvPolynomial (M : Matrix m n R) (i : m) : MvPolynomial n R :=
   ∑ j, monomial (.single j 1) (M i j)
 
 lemma toMvPolynomial_eval_eq_apply (M : Matrix m n R) (i : m) (c : n → R) :
@@ -150,14 +151,14 @@ variable [Fintype ι₁] [Finite ι₂]
 variable [DecidableEq ι₁]
 variable (b₁ : Basis ι₁ R M₁) (b₂ : Basis ι₂ R M₂)
 
-/-- Let `f : M₁ →ₗ[R] M₂` be an `R`-linear map
+/--
+Let `f : M₁ →ₗ[R] M₂` be an `R`-linear map
 between modules `M₁` and `M₂` with bases `b₁` and `b₂` respectively.
 Then `LinearMap.toMvPolynomial b₁ b₂ f` is the family of multivariate polynomials over `R`
 that evaluates on an element `x` of `M₁` (represented on the basis `b₁`)
-to the element `f x` of `M₂` (represented on the basis `b₂`). -/
-noncomputable
-def toMvPolynomial (f : M₁ →ₗ[R] M₂) (i : ι₂) :
-    MvPolynomial ι₁ R :=
+to the element `f x` of `M₂` (represented on the basis `b₂`).
+-/
+noncomputable def toMvPolynomial (f : M₁ →ₗ[R] M₂) (i : ι₂) : MvPolynomial ι₁ R :=
   (toMatrix b₁ b₂ f).toMvPolynomial i
 
 lemma toMvPolynomial_eval_eq_apply (f : M₁ →ₗ[R] M₂) (i : ι₂) (c : ι₁ →₀ R) :
@@ -226,7 +227,8 @@ variable [DecidableEq ιM] (b : Basis ι R L) (bₘ : Basis ιM R M)
 
 open Matrix
 
-/-- (Implementation detail, see `LinearMap.polyCharpoly`.)
+/--
+(Implementation detail, see `LinearMap.polyCharpoly`.)
 
 Let `L` and `M` be finite free modules over `R`,
 and let `φ : L →ₗ[R] Module.End R M` be a linear map.
@@ -235,9 +237,9 @@ Then `LinearMap.polyCharpolyAux φ b bₘ` is the polynomial that evaluates on e
 to the characteristic polynomial of `φ x` acting on `M`.
 
 This definition does not depend on the choice of `bₘ`
-(see `LinearMap.polyCharpolyAux_basisIndep`). -/
-noncomputable
-def polyCharpolyAux : Polynomial (MvPolynomial ι R) :=
+(see `LinearMap.polyCharpolyAux_basisIndep`).
+-/
+noncomputable def polyCharpolyAux : Polynomial (MvPolynomial ι R) :=
   (charpoly.univ R ιM).map <| MvPolynomial.bind₁ (φ.toMvPolynomial b bₘ.end)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -354,13 +356,14 @@ open Module Matrix
 
 variable [Module.Free R M] [Module.Finite R M] (b : Basis ι R L)
 
-/-- Let `L` and `M` be finite free modules over `R`,
+/--
+Let `L` and `M` be finite free modules over `R`,
 and let `φ : L →ₗ[R] Module.End R M` be a linear family of endomorphisms.
 Let `b` be a basis of `L` and `bₘ` a basis of `M`.
 Then `LinearMap.polyCharpoly φ b` is the polynomial that evaluates on elements `x` of `L`
-to the characteristic polynomial of `φ x` acting on `M`. -/
-noncomputable
-def polyCharpoly : Polynomial (MvPolynomial ι R) :=
+to the characteristic polynomial of `φ x` acting on `M`.
+-/
+noncomputable def polyCharpoly : Polynomial (MvPolynomial ι R) :=
   φ.polyCharpolyAux b (Module.Free.chooseBasis R M)
 
 lemma polyCharpoly_eq_of_basis [DecidableEq ιM] (bₘ : Basis ιM R M) :
@@ -424,16 +427,17 @@ lemma polyCharpoly_coeff_eq_zero_iff_of_basis (b : Basis ι R L) (b' : Basis ι'
 
 section aux
 
-/-- (Implementation detail, see `LinearMap.nilRank`.)
+/--
+(Implementation detail, see `LinearMap.nilRank`.)
 
 Let `L` and `M` be finite free modules over `R`,
 and let `φ : L →ₗ[R] Module.End R M` be a linear family of endomorphisms.
 Then `LinearMap.nilRankAux φ b` is the smallest index
 at which `LinearMap.polyCharpoly φ b` has a non-zero coefficient.
 
-This number does not depend on the choice of `b`, see `nilRankAux_basis_indep`. -/
-noncomputable
-def nilRankAux (φ : L →ₗ[R] Module.End R M) (b : Basis ι R L) : ℕ :=
+This number does not depend on the choice of `b`, see `nilRankAux_basis_indep`.
+-/
+noncomputable def nilRankAux (φ : L →ₗ[R] Module.End R M) (b : Basis ι R L) : ℕ :=
   (polyCharpoly φ b).natTrailingDegree
 
 lemma polyCharpoly_coeff_nilRankAux_ne_zero [Nontrivial R] :
@@ -455,15 +459,16 @@ end aux
 
 variable [Module.Finite R L] [Module.Free R L]
 
-/-- Let `L` and `M` be finite free modules over `R`,
+/--
+Let `L` and `M` be finite free modules over `R`,
 and let `φ : L →ₗ[R] Module.End R M` be a linear family of endomorphisms.
 Then `LinearMap.nilRank φ b` is the smallest index
 at which `LinearMap.polyCharpoly φ b` has a non-zero coefficient.
 
 This number does not depend on the choice of `b`,
-see `LinearMap.nilRank_eq_polyCharpoly_natTrailingDegree`. -/
-noncomputable
-def nilRank (φ : L →ₗ[R] Module.End R M) : ℕ :=
+see `LinearMap.nilRank_eq_polyCharpoly_natTrailingDegree`.
+-/
+noncomputable def nilRank (φ : L →ₗ[R] Module.End R M) : ℕ :=
   nilRankAux φ (Module.Free.chooseBasis R L)
 
 section
@@ -500,14 +505,15 @@ lemma nilRank_le_natTrailingDegree_charpoly (x : L) :
 
 end
 
-/-- Let `L` and `M` be finite free modules over `R`,
+/--
+Let `L` and `M` be finite free modules over `R`,
 and let `φ : L →ₗ[R] Module.End R M` be a linear family of endomorphisms,
 and denote `n := nilRank φ`.
 
 An element `x : L` is *nil-regular* with respect to `φ`
-if the `n`-th coefficient of the characteristic polynomial of `φ x` is non-zero. -/
-def IsNilRegular (x : L) : Prop :=
-  Polynomial.coeff (φ x).charpoly (nilRank φ) ≠ 0
+if the `n`-th coefficient of the characteristic polynomial of `φ x` is non-zero.
+-/
+def IsNilRegular (x : L) : Prop := Polynomial.coeff (φ x).charpoly (nilRank φ) ≠ 0
 
 variable (x : L)
 

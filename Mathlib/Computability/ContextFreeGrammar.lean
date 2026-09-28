@@ -55,15 +55,16 @@ variable {T : Type*}
 namespace ContextFreeRule
 variable {N : Type*} {r : ContextFreeRule T N} {u v : List (Symbol T N)}
 
-/-- Inductive definition of a single application of a given context-free rule `r` to a string `u`;
-`r.Rewrites u v` means that the `r` sends `u` to `v` (there may be multiple such strings `v`). -/
+/--
+Inductive definition of a single application of a given context-free rule `r` to a string `u`;
+`r.Rewrites u v` means that the `r` sends `u` to `v` (there may be multiple such strings `v`).
+-/
 inductive Rewrites (r : ContextFreeRule T N) : List (Symbol T N) → List (Symbol T N) → Prop
   /-- The replacement is at the start of the remaining string. -/
-  | head (s : List (Symbol T N)) :
-      r.Rewrites (Symbol.nonterminal r.input :: s) (r.output ++ s)
+  | head (s : List (Symbol T N)) : r.Rewrites (Symbol.nonterminal r.input :: s) (r.output ++ s)
   /-- There is a replacement later in the string. -/
-  | cons (x : Symbol T N) {s₁ s₂ : List (Symbol T N)} (hrs : Rewrites r s₁ s₂) :
-      r.Rewrites (x :: s₁) (x :: s₂)
+  | cons (x : Symbol T N) {s₁ s₂ : List (Symbol T N)} (hrs : Rewrites r s₁ s₂)
+    : r.Rewrites (x :: s₁) (x :: s₂)
 
 lemma Rewrites.exists_parts (hr : r.Rewrites u v) :
     ∃ p q : List (Symbol T N),
@@ -86,12 +87,15 @@ lemma rewrites_of_exists_parts (r : ContextFreeRule T N) (p q : List (Symbol T N
   | nil => exact Rewrites.head q
   | cons d l ih => exact Rewrites.cons d ih
 
-/-- Rule `r` rewrites string `u` is to string `v` iff they share both a prefix `p` and postfix `q`
+/--
+Rule `r` rewrites string `u` is to string `v` iff they share both a prefix `p` and postfix `q`
 such that the remaining middle part of `u` is the input of `r` and the remaining middle part
-of `u` is the output of `r`. -/
-theorem rewrites_iff :
-    r.Rewrites u v ↔ ∃ p q : List (Symbol T N),
-      u = p ++ [Symbol.nonterminal r.input] ++ q ∧ v = p ++ r.output ++ q :=
+of `u` is the output of `r`.
+-/
+theorem rewrites_iff
+    : r.Rewrites u v
+      ↔ ∃ p q : List (Symbol T N),
+        u = p ++ [Symbol.nonterminal r.input] ++ q ∧ v = p ++ r.output ++ q :=
   ⟨Rewrites.exists_parts, by rintro ⟨p, q, rfl, rfl⟩; apply rewrites_of_exists_parts⟩
 
 lemma Rewrites.nonterminal_input_mem : r.Rewrites u v → .nonterminal r.input ∈ u := by
@@ -117,21 +121,26 @@ end ContextFreeRule
 
 namespace ContextFreeGrammar
 
-/-- Given a context-free grammar `g` and strings `u` and `v`
+/--
+Given a context-free grammar `g` and strings `u` and `v`
 `g.Produces u v` means that one step of a context-free transformation by a rule from `g` sends
-`u` to `v`. -/
+`u` to `v`.
+-/
 def Produces (g : ContextFreeGrammar T) (u v : List (Symbol T g.NT)) : Prop :=
   ∃ r ∈ g.rules, r.Rewrites u v
 
-/-- Given a context-free grammar `g` and strings `u` and `v`
-`g.Derives u v` means that `g` can transform `u` to `v` in some number of rewriting steps. -/
-abbrev Derives (g : ContextFreeGrammar T) :
-    List (Symbol T g.NT) → List (Symbol T g.NT) → Prop :=
+/--
+Given a context-free grammar `g` and strings `u` and `v`
+`g.Derives u v` means that `g` can transform `u` to `v` in some number of rewriting steps.
+-/
+abbrev Derives (g : ContextFreeGrammar T) : List (Symbol T g.NT) → List (Symbol T g.NT) → Prop :=
   Relation.ReflTransGen g.Produces
 
-/-- Given a context-free grammar `g` and a string `s`
+/--
+Given a context-free grammar `g` and a string `s`
 `g.Generates s` means that `g` can transform its initial nonterminal to `s` in some number of
-rewriting steps. -/
+rewriting steps.
+-/
 def Generates (g : ContextFreeGrammar T) (s : List (Symbol T g.NT)) : Prop :=
   g.Derives [Symbol.nonterminal g.initial] s
 
@@ -236,8 +245,7 @@ lemma language_eq_zero_of_forall_input_ne_initial (hg : ∀ r ∈ g.rules, r.inp
 end ContextFreeGrammar
 
 /-- Context-free languages are defined by context-free grammars. -/
-def Language.IsContextFree (L : Language T) : Prop :=
-  ∃ g : ContextFreeGrammar T, g.language = L
+def Language.IsContextFree (L : Language T) : Prop := ∃ g : ContextFreeGrammar T, g.language = L
 
 section closure_reversal
 
@@ -280,7 +288,8 @@ namespace ContextFreeGrammar
 variable {g : ContextFreeGrammar T} {u v : List (Symbol T g.NT)}
 
 /-- Grammar for a reversed language. -/
-@[simps] def reverse (g : ContextFreeGrammar T) : ContextFreeGrammar T :=
+@[simps]
+def reverse (g : ContextFreeGrammar T) : ContextFreeGrammar T :=
   ⟨g.NT, g.initial, g.rules.map (⟨ContextFreeRule.reverse, ContextFreeRule.reverse_injective⟩)⟩
 
 @[simp] lemma reverse_reverse (g : ContextFreeGrammar T) : g.reverse.reverse = g := by
@@ -340,18 +349,18 @@ set_option backward.defeqAttrib.useBackward true in
 end ContextFreeGrammar
 
 /-- The class of context-free languages is closed under reversal. -/
-protected theorem Language.IsContextFree.reverse {L : Language T} (h : L.IsContextFree) :
-    L.reverse.IsContextFree := by
+protected theorem Language.IsContextFree.reverse {L : Language T} (h : L.IsContextFree)
+    : L.reverse.IsContextFree := by
   rcases h with ⟨g, rfl⟩
   exact ⟨g.reverse, by simp⟩
 
-protected theorem Language.IsContextFree.of_reverse {L : Language T} (h : L.reverse.IsContextFree) :
-    L.IsContextFree := by
+protected theorem Language.IsContextFree.of_reverse {L : Language T} (h : L.reverse.IsContextFree)
+    : L.IsContextFree := by
   simpa using h.reverse
 
 @[simp]
-theorem Language.isContextFree_reverse {L : Language T} :
-    L.reverse.IsContextFree ↔ L.IsContextFree :=
+theorem Language.isContextFree_reverse {L : Language T}
+    : L.reverse.IsContextFree ↔ L.IsContextFree :=
   ⟨.of_reverse, .reverse⟩
 
 end closure_reversal

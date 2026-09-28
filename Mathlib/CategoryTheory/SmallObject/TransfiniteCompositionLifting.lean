@@ -68,10 +68,12 @@ variable {J : Type w} [LinearOrder J] [OrderBot J]
 
 namespace transfiniteComposition
 
-variable {F : J ⥤ C} (c : Cocone F) (hc : IsColimit c)
+variable
+  {F : J ⥤ C} (c : Cocone F) (hc : IsColimit c)
   {X Y : C} (p : X ⟶ Y) (f : F.obj ⊥ ⟶ X) (g : c.pt ⟶ Y)
 
-/-- Given a cocone `c` for a functor `F : J ⥤ C` from a well-ordered type,
+/--
+Given a cocone `c` for a functor `F : J ⥤ C` from a well-ordered type,
 and maps `p : X ⟶ Y`, `f : F.obj ⊥ ⟶ X`, `g : c.pt ⟶ Y`, this structure
 contains the data of a map `F.obj j ⟶ X` such that `F.map (homOfLE bot_le) ≫ f' = f`
 and `f' ≫ p = c.ι.app j ≫ g`. (This implies that the outer square below
@@ -148,7 +150,8 @@ variable [F.IsWellOrderContinuous]
 
 namespace wellOrderInductionData
 
-variable {p c f g} {j : J} (hj : Order.IsSuccLimit j)
+variable
+  {p c f g} {j : J} (hj : Order.IsSuccLimit j)
   (s : ((OrderHom.Subtype.val (· ∈ Set.Iio j)).monotone.functor.op ⋙ sqFunctor c p f g).sections)
 
 set_option backward.defeqAttrib.useBackward true in
@@ -156,12 +159,13 @@ set_option backward.isDefEq.respectTransparency false in
 /-- Auxiliary definition for `transfiniteComposition.wellOrderInductionData`. -/
 noncomputable def liftHom : F.obj j ⟶ X :=
   (F.isColimitOfIsWellOrderContinuous j hj).desc
-    (Cocone.mk _
-      { app := fun i ↦ (s.1 ⟨i⟩).f'
-        naturality i i' g := by
-          have := congr(SqStruct.f' $(s.2 g.op))
-          dsimp at this ⊢
-          rw [this, comp_id] })
+    (Cocone.mk _ {
+      app := fun i ↦ (s.1 ⟨i⟩).f'
+      naturality i i' g := by
+        have := congr(SqStruct.f' $(s.2 g.op))
+        dsimp at this ⊢
+        rw [this, comp_id]
+    })
 
 @[reassoc]
 lemma liftHom_fac (i : J) (hi : i < j) :
@@ -175,15 +179,17 @@ set_option backward.defeqAttrib.useBackward true in
 noncomputable def lift : (sqFunctor c p f g).obj (Opposite.op j) where
   f' := liftHom hj s
   w₁ := by
-    have h : ⊥ < j := Ne.bot_lt' (by
-      rintro rfl
-      exact Order.not_isSuccLimit_bot hj)
+    have h : ⊥ < j :=
+      Ne.bot_lt' (by
+        rintro rfl
+        exact Order.not_isSuccLimit_bot hj)
     rw [liftHom_fac hj s ⊥ h]
     simpa using (s.1 ⟨⊥, h⟩).w₁
-  w₂ := (F.isColimitOfIsWellOrderContinuous j hj).hom_ext (fun ⟨i, hij⟩ ↦ by
-    have := (s.1 ⟨i, hij⟩).w₂
-    dsimp at this ⊢
-    rw [liftHom_fac_assoc _ _ _ hij, this, Cocone.w_assoc])
+  w₂ :=
+    (F.isColimitOfIsWellOrderContinuous j hj).hom_ext (fun ⟨i, hij⟩ ↦ by
+      have := (s.1 ⟨i, hij⟩).w₂
+      dsimp at this ⊢
+      rw [liftHom_fac_assoc _ _ _ hij, this, Cocone.w_assoc])
 
 lemma map_lift {i : J} (hij : i < j) :
     (lift hj s).map (homOfLE hij.le) = s.1 ⟨⟨i, hij⟩⟩ := by
@@ -196,24 +202,26 @@ variable {p} [SuccOrder J] [WellFoundedLT J]
 
 section
 
-variable (hF : ∀ (j : J) (_ : ¬IsMax j),
-  HasLiftingPropertyFixedBot (F.map (homOfLE (Order.le_succ j))) p (c.ι.app _ ≫ g))
+variable
+  (hF : ∀ (j : J) (_ : ¬ IsMax j),
+    HasLiftingPropertyFixedBot (F.map (homOfLE (Order.le_succ j))) p (c.ι.app _ ≫ g))
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 open wellOrderInductionData in
 /-- The projective system `sqFunctor c p f g` has a `WellOrderInductionData` structure. -/
-noncomputable def wellOrderInductionData :
-    (sqFunctor c p f g).WellOrderInductionData where
+noncomputable def wellOrderInductionData : (sqFunctor c p f g).WellOrderInductionData where
   succ j hj sq' :=
     have := hF j hj sq'.f'
     have := hF j hj
-    { f' := sq'.sq.lift
+    {
+      f' := sq'.sq.lift
       w₁ := by
         dsimp
         simp only [← sq'.w₁]
         conv_rhs => rw [← sq'.sq.fac_left, ← F.map_comp_assoc]
-        rfl }
+        rfl
+    }
   map_succ j hj sq' := by cat_disch
   lift j hj s := lift hj s
   map_lift j hj s i hij := map_lift hj s hij
@@ -243,8 +251,8 @@ lemma hasLiftingPropertyFixedBot_ι_app_bot : HasLiftingPropertyFixedBot (c.ι.a
 
 end
 
-variable {c} (hF : ∀ (j : J) (_ : ¬IsMax j),
-  HasLiftingProperty (F.map (homOfLE (Order.le_succ j))) p)
+variable
+  {c} (hF : ∀ (j : J) (_ : ¬ IsMax j), HasLiftingProperty (F.map (homOfLE (Order.le_succ j))) p)
 
 include hc hF
 lemma hasLiftingProperty_ι_app_bot : HasLiftingProperty (c.ι.app ⊥) p where
@@ -256,18 +264,17 @@ end HasLiftingProperty
 
 namespace MorphismProperty
 
-variable (W : MorphismProperty C)
-  (J : Type w) [LinearOrder J] [SuccOrder J] [OrderBot J] [WellFoundedLT J]
+variable
+  (W : MorphismProperty C) (J : Type w) [LinearOrder J] [SuccOrder J] [OrderBot J] [WellFoundedLT J]
 
-instance isStableUnderTransfiniteCompositionOfShape_llp :
-    W.llp.IsStableUnderTransfiniteCompositionOfShape J := by
+instance isStableUnderTransfiniteCompositionOfShape_llp
+    : W.llp.IsStableUnderTransfiniteCompositionOfShape J := by
   rw [isStableUnderTransfiniteCompositionOfShape_iff]
   rintro X Y f ⟨h⟩
   have : W.llp (h.incl.app ⊥) := fun _ _ p hp ↦
-    HasLiftingProperty.transfiniteComposition.hasLiftingProperty_ι_app_bot
-      (hc := h.isColimit) (fun j hj ↦ h.map_mem j hj _ hp)
-  exact (MorphismProperty.arrow_mk_iso_iff _
-    (Arrow.isoMk h.isoBot.symm (Iso.refl _))).2 this
+    HasLiftingProperty.transfiniteComposition.hasLiftingProperty_ι_app_bot (hc := h.isColimit)
+      (fun j hj ↦ h.map_mem j hj _ hp)
+  exact (MorphismProperty.arrow_mk_iso_iff _ (Arrow.isoMk h.isoBot.symm (Iso.refl _))).2 this
 
 instance : MorphismProperty.IsStableUnderTransfiniteComposition.{w} W.llp where
 

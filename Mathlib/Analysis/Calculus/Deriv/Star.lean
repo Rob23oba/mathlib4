@@ -24,9 +24,11 @@ public section
 
 universe u v w
 
-variable {𝕜 : Type u} [NontriviallyNormedField 𝕜] [StarRing 𝕜]
-  {F : Type v} [NormedAddCommGroup F] [NormedSpace 𝕜 F] [StarAddMonoid F] [StarModule 𝕜 F]
-  [ContinuousStar F] {f : 𝕜 → F} {f' : F} {x : 𝕜}
+variable
+  {𝕜 : Type u} [NontriviallyNormedField 𝕜] [StarRing 𝕜]
+  {F : Type v}
+  [NormedAddCommGroup F] [NormedSpace 𝕜 F] [StarAddMonoid F] [StarModule 𝕜 F] [ContinuousStar F]
+  {f : 𝕜 → F} {f' : F} {x : 𝕜}
 
 /-! ### Derivative of `x ↦ star x` -/
 
@@ -34,24 +36,24 @@ section TrivialStar
 
 variable [TrivialStar 𝕜] {s : Set 𝕜} {L : Filter (𝕜 × 𝕜)}
 
-protected theorem HasDerivAtFilter.star (h : HasDerivAtFilter f f' L) :
-    HasDerivAtFilter (fun x => star (f x)) (star f') L := by
+protected theorem HasDerivAtFilter.star (h : HasDerivAtFilter f f' L)
+    : HasDerivAtFilter (fun x => star (f x)) (star f') L := by
   simpa using h.hasFDerivAtFilter.star.hasDerivAtFilter
 
-protected theorem HasDerivWithinAt.star (h : HasDerivWithinAt f f' s x) :
-    HasDerivWithinAt (fun x => star (f x)) (star f') s x :=
+protected theorem HasDerivWithinAt.star (h : HasDerivWithinAt f f' s x)
+    : HasDerivWithinAt (fun x => star (f x)) (star f') s x :=
   HasDerivAtFilter.star h
 
-protected theorem HasDerivAt.star (h : HasDerivAt f f' x) :
-    HasDerivAt (fun x => star (f x)) (star f') x :=
+protected theorem HasDerivAt.star (h : HasDerivAt f f' x)
+    : HasDerivAt (fun x => star (f x)) (star f') x :=
   HasDerivAtFilter.star h
 
-protected nonrec theorem HasStrictDerivAt.star (h : HasStrictDerivAt f f' x) :
-    HasStrictDerivAt (fun x => star (f x)) (star f') x :=
+protected nonrec theorem HasStrictDerivAt.star (h : HasStrictDerivAt f f' x)
+    : HasStrictDerivAt (fun x => star (f x)) (star f') x :=
   HasDerivAtFilter.star h
 
-protected theorem derivWithin.star :
-    derivWithin (fun y => star (f y)) s x = star (derivWithin f s x) := by
+protected theorem derivWithin.star
+    : derivWithin (fun y => star (f y)) s x = star (derivWithin f s x) := by
   by_cases hxs : UniqueDiffWithinAt 𝕜 s x
   · congrm $(fderivWithin_star hxs) _
   · simp [derivWithin_zero_of_not_uniqueDiffWithinAt hxs]

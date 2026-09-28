@@ -36,8 +36,7 @@ open scoped ENNReal
 section Definition
 
 /-- Exponential as a function from `EReal` to `ℝ≥0∞`. -/
-noncomputable
-def exp (x : EReal) : ℝ≥0∞ := EReal.rec 0 (fun x => ENNReal.ofReal (Real.exp x)) ∞ x
+noncomputable def exp (x : EReal) : ℝ≥0∞ := EReal.rec 0 (fun x => ENNReal.ofReal (Real.exp x)) ∞ x
 
 @[simp] lemma exp_bot : exp ⊥ = 0 := rfl
 @[simp] lemma exp_zero : exp 0 = 1 := by simp [exp, ← coe_zero]

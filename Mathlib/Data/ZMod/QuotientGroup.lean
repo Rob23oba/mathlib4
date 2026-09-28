@@ -59,7 +59,6 @@ lemma relIndex_zmultiples_mul (a b : ℕ) :
 
 end Int
 
-
 namespace AddAction
 
 open AddSubgroup AddMonoidHom AddEquiv Function
@@ -67,26 +66,26 @@ open AddSubgroup AddMonoidHom AddEquiv Function
 variable {α β : Type*} [AddGroup α] (a : α) [AddAction α β] (b : β)
 
 /-- The quotient `(ℤ ∙ a) ⧸ (stabilizer b)` is cyclic of order `minimalPeriod (a +ᵥ ·) b`. -/
-noncomputable def zmultiplesQuotientStabilizerEquiv :
-    zmultiples a ⧸ stabilizer (zmultiples a) b ≃+ ZMod (minimalPeriod (a +ᵥ ·) b) :=
+noncomputable def zmultiplesQuotientStabilizerEquiv
+    : zmultiples a ⧸ stabilizer (zmultiples a) b ≃+ ZMod (minimalPeriod (a +ᵥ ·) b) :=
   (ofBijective
-          (map _ (stabilizer (zmultiples a) b) (zmultiplesHom (zmultiples a) ⟨a, mem_zmultiples a⟩)
-            (by
-              rw [zmultiples_le, mem_comap, mem_stabilizer_iff, zmultiplesHom_apply, natCast_zsmul]
-              simp_rw [← vadd_iterate]
-              exact isPeriodicPt_minimalPeriod (a +ᵥ ·) b))
-          ⟨by
-            rw [← ker_eq_bot_iff, eq_bot_iff]
-            refine fun q => induction_on q fun n hn => ?_
-            rw [mem_bot, eq_zero_iff, Int.mem_zmultiples_iff, ←
-              zsmul_vadd_eq_iff_minimalPeriod_dvd]
-            exact (eq_zero_iff _).mp hn, fun q =>
-            induction_on q fun ⟨_, n, rfl⟩ => ⟨n, rfl⟩⟩).symm.trans
+      (map _ (stabilizer (zmultiples a) b) (zmultiplesHom (zmultiples a) ⟨a, mem_zmultiples a⟩) (by
+        rw [zmultiples_le, mem_comap, mem_stabilizer_iff, zmultiplesHom_apply, natCast_zsmul]
+        simp_rw [← vadd_iterate]
+        exact isPeriodicPt_minimalPeriod (a +ᵥ ·) b))
+      ⟨
+        by
+          rw [← ker_eq_bot_iff, eq_bot_iff]
+          refine fun q => induction_on q fun n hn => ?_
+          rw [mem_bot, eq_zero_iff, Int.mem_zmultiples_iff, ← zsmul_vadd_eq_iff_minimalPeriod_dvd]
+          exact (eq_zero_iff _).mp hn,
+        fun q => induction_on q fun ⟨_, n, rfl⟩ => ⟨n, rfl⟩
+      ⟩).symm.trans
     (Int.quotientZMultiplesNatEquivZMod (minimalPeriod (a +ᵥ ·) b))
 
-theorem zmultiplesQuotientStabilizerEquiv_symm_apply (n : ZMod (minimalPeriod (a +ᵥ ·) b)) :
-    (zmultiplesQuotientStabilizerEquiv a b).symm n =
-      (cast n : ℤ) • (⟨a, mem_zmultiples a⟩ : zmultiples a) :=
+theorem zmultiplesQuotientStabilizerEquiv_symm_apply (n : ZMod (minimalPeriod (a +ᵥ ·) b))
+    : (zmultiplesQuotientStabilizerEquiv a b).symm n
+      = (cast n : ℤ) • (⟨a, mem_zmultiples a⟩ : zmultiples a) :=
   rfl
 
 end AddAction
@@ -98,13 +97,14 @@ open AddAction Subgroup AddSubgroup Function
 variable {α β : Type*} [Group α] (a : α) [MulAction α β] (b : β)
 
 /-- The quotient `(a ^ ℤ) ⧸ (stabilizer b)` is cyclic of order `minimalPeriod ((•) a) b`. -/
-noncomputable def zpowersQuotientStabilizerEquiv :
-    zpowers a ⧸ stabilizer (zpowers a) b ≃* Multiplicative (ZMod (minimalPeriod (a • ·) b)) :=
+noncomputable def zpowersQuotientStabilizerEquiv
+    : zpowers a ⧸ stabilizer (zpowers a) b ≃* Multiplicative (ZMod (minimalPeriod (a • ·) b)) :=
   letI f := zmultiplesQuotientStabilizerEquiv (Additive.ofMul a) b
   AddEquiv.toMultiplicative f
 
-theorem zpowersQuotientStabilizerEquiv_symm_apply (n : ZMod (minimalPeriod (a • ·) b)) :
-    (zpowersQuotientStabilizerEquiv a b).symm n = (⟨a, mem_zpowers a⟩ : zpowers a) ^ (cast n : ℤ) :=
+theorem zpowersQuotientStabilizerEquiv_symm_apply (n : ZMod (minimalPeriod (a • ·) b))
+    : (zpowersQuotientStabilizerEquiv a b).symm n
+      = (⟨a, mem_zpowers a⟩ : zpowers a) ^ (cast n : ℤ) :=
   rfl
 
 /-- The orbit `(a ^ ℤ) • b` is a cycle of order `minimalPeriod ((•) a) b`. -/
@@ -112,35 +112,34 @@ noncomputable def orbitZPowersEquiv : orbit (zpowers a) b ≃ ZMod (minimalPerio
   (orbitEquivQuotientStabilizer _ b).trans (zpowersQuotientStabilizerEquiv a b).toEquiv
 
 /-- The orbit `(ℤ • a) +ᵥ b` is a cycle of order `minimalPeriod (a +ᵥ ·) b`. -/
-noncomputable def _root_.AddAction.orbitZMultiplesEquiv {α β : Type*} [AddGroup α] (a : α)
-    [AddAction α β] (b : β) :
-    AddAction.orbit (zmultiples a) b ≃ ZMod (minimalPeriod (a +ᵥ ·) b) :=
+noncomputable def _root_.AddAction.orbitZMultiplesEquiv
+    {α β : Type*} [AddGroup α] (a : α) [AddAction α β] (b : β)
+    : AddAction.orbit (zmultiples a) b ≃ ZMod (minimalPeriod (a +ᵥ ·) b) :=
   (AddAction.orbitEquivQuotientStabilizer (zmultiples a) b).trans
     (zmultiplesQuotientStabilizerEquiv a b).toEquiv
 
 attribute [to_additive existing] orbitZPowersEquiv
 
 @[to_additive]
-theorem orbitZPowersEquiv_symm_apply (k : ZMod (minimalPeriod (a • ·) b)) :
-    (orbitZPowersEquiv a b).symm k =
-      (⟨a, mem_zpowers a⟩ : zpowers a) ^ (cast k : ℤ) • ⟨b, mem_orbit_self b⟩ :=
+theorem orbitZPowersEquiv_symm_apply (k : ZMod (minimalPeriod (a • ·) b))
+    : (orbitZPowersEquiv a b).symm k
+      = (⟨a, mem_zpowers a⟩ : zpowers a) ^ (cast k : ℤ) • ⟨b, mem_orbit_self b⟩ :=
   rfl
 
 @[to_additive]
-theorem orbitZPowersEquiv_symm_apply' (k : ℤ) :
-    (orbitZPowersEquiv a b).symm k =
-      (⟨a, mem_zpowers a⟩ : zpowers a) ^ k • ⟨b, mem_orbit_self b⟩ := by
+theorem orbitZPowersEquiv_symm_apply' (k : ℤ)
+    : (orbitZPowersEquiv a b).symm k
+      = (⟨a, mem_zpowers a⟩ : zpowers a) ^ k • ⟨b, mem_orbit_self b⟩ := by
   rw [orbitZPowersEquiv_symm_apply, ZMod.coe_intCast]
   exact Subtype.ext (zpow_smul_mod_minimalPeriod _ _ k)
 
 @[to_additive]
-theorem minimalPeriod_eq_card [Fintype (orbit (zpowers a) b)] :
-    minimalPeriod (a • ·) b = Fintype.card (orbit (zpowers a) b) := by
+theorem minimalPeriod_eq_card [Fintype (orbit (zpowers a) b)]
+    : minimalPeriod (a • ·) b = Fintype.card (orbit (zpowers a) b) := by
   rw [← Fintype.ofEquiv_card (orbitZPowersEquiv a b), ZMod.card]
 
 @[to_additive]
-instance minimalPeriod_pos [Finite <| orbit (zpowers a) b] :
-    NeZero <| minimalPeriod (a • ·) b :=
+instance minimalPeriod_pos [Finite <| orbit (zpowers a) b] : NeZero <| minimalPeriod (a • ·) b :=
   ⟨by
     cases nonempty_fintype (orbit (zpowers a) b)
     have : Nonempty (orbit (zpowers a) b) := (nonempty_orbit b).to_subtype
@@ -183,8 +182,8 @@ variable {G : Type*} [Group G] (H : Subgroup G) (g : G)
 open Equiv Function MulAction
 
 /-- Partition `G ⧸ H` into orbits of the action of `g : G`. -/
-noncomputable def quotientEquivSigmaZMod :
-    G ⧸ H ≃ Σ q : orbitRel.Quotient (zpowers g) (G ⧸ H), ZMod (minimalPeriod (g • ·) q.out) :=
+noncomputable def quotientEquivSigmaZMod
+    : G ⧸ H ≃ Σ q : orbitRel.Quotient (zpowers g) (G ⧸ H), ZMod (minimalPeriod (g • ·) q.out) :=
   (selfEquivSigmaOrbits (zpowers g) (G ⧸ H)).trans
     (sigmaCongrRight fun q => orbitZPowersEquiv g q.out)
 

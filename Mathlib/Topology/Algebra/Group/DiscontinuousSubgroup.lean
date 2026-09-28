@@ -40,8 +40,8 @@ lemma Subgroup.properlyDiscontinuousSMul_of_le
 
 /-- If `Γ` acts properly discontinuously, so does every subgroup of `Γ`. -/
 @[to_additive /-- If `Γ` acts properly discontinuously, so does every additive subgroup of `Γ`. -/]
-instance [SMul Γ α] [ProperlyDiscontinuousSMul Γ α] (G : Subgroup Γ) :
-    ProperlyDiscontinuousSMul G α := by
+instance [SMul Γ α] [ProperlyDiscontinuousSMul Γ α] (G : Subgroup Γ)
+    : ProperlyDiscontinuousSMul G α := by
   refine Subgroup.properlyDiscontinuousSMul_of_le ?_ le_top
   simp only [Subgroup.properlyDiscontinuousSMul_iff, Subgroup.mem_top, true_and]
   exact finite_disjoint_inter_image

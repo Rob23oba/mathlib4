@@ -24,7 +24,8 @@ namespace CategoryTheory
 open Limits MonoidalCategory Category CartesianMonoidalCategory
 
 universe v
-variable {J C D E : Type*} [Category* J] [Category* C] [Category* D] [Category* E]
+variable
+  {J C D E : Type*} [Category* J] [Category* C] [Category* D] [Category* E]
   [CartesianMonoidalCategory C] [CartesianMonoidalCategory E]
 
 namespace Functor
@@ -36,26 +37,26 @@ instance cartesianMonoidalCategory : CartesianMonoidalCategory (J ⥤ C) where
   snd X Y := { app _ := CartesianMonoidalCategory.snd _ _ }
   tensorProductIsBinaryProduct X Y :=
     evaluationJointlyReflectsLimits _ (fun j =>
-      (IsLimit.postcomposeHomEquiv
-        (mapPairIso (by exact Iso.refl _) (by exact Iso.refl _)) _).1
-        (IsLimit.ofIsoLimit
-          (tensorProductIsBinaryProduct (X := X.obj j) (Y := Y.obj j))
+      (IsLimit.postcomposeHomEquiv (mapPairIso (by exact Iso.refl _) (by exact Iso.refl _)) _).1
+        (IsLimit.ofIsoLimit (tensorProductIsBinaryProduct (X := X.obj j) (Y := Y.obj j))
           (Cone.ext (Iso.refl _) (by rintro ⟨_ | _⟩; all_goals cat_disch))))
   isTerminalTensorUnit :=
-    evaluationJointlyReflectsLimits _
-      fun _ ↦ isLimitChangeEmptyCone _ isTerminalTensorUnit _ (.refl _)
+    evaluationJointlyReflectsLimits _ fun _ ↦
+      isLimitChangeEmptyCone _ isTerminalTensorUnit _ (.refl _)
   fst_def X Y := by
     ext
-    simp only [Monoidal.tensorObj_obj, fst_def, asEmptyCone_pt, NatTrans.comp_app,
-      Monoidal.tensorUnit_obj, Monoidal.whiskerLeft_app, Monoidal.rightUnitor_hom_app,
-      Iso.cancel_iso_hom_right]
+    simp only [
+      Monoidal.tensorObj_obj, fst_def, asEmptyCone_pt, NatTrans.comp_app, Monoidal.tensorUnit_obj,
+      Monoidal.whiskerLeft_app, Monoidal.rightUnitor_hom_app, Iso.cancel_iso_hom_right
+    ]
     congr
     subsingleton
   snd_def X Y := by
     ext
-    simp only [Monoidal.tensorObj_obj, snd_def, asEmptyCone_pt, NatTrans.comp_app,
-      Monoidal.tensorUnit_obj, Monoidal.whiskerRight_app, Monoidal.leftUnitor_hom_app,
-      Iso.cancel_iso_hom_right]
+    simp only [
+      Monoidal.tensorObj_obj, snd_def, asEmptyCone_pt, NatTrans.comp_app, Monoidal.tensorUnit_obj,
+      Monoidal.whiskerRight_app, Monoidal.leftUnitor_hom_app, Iso.cancel_iso_hom_right
+    ]
     congr
     subsingleton
 
@@ -144,9 +145,11 @@ lemma associator_inv_app (F₁ F₂ F₃ : J ⥤ C) (j : J) :
   rw [← cancel_mono ((α_ _ _ _).hom), Iso.inv_hom_id, ← associator_hom_app, Iso.inv_hom_id_app]
 
 set_option backward.defeqAttrib.useBackward true in
-instance {K : Type*} [Category* K] [HasColimitsOfShape K C]
-    [∀ X : C, PreservesColimitsOfShape K (tensorLeft X)] {F : J ⥤ C} :
-    PreservesColimitsOfShape K (tensorLeft F) := by
+instance
+    {K : Type*}
+    [Category* K] [HasColimitsOfShape K C] [∀ X : C, PreservesColimitsOfShape K (tensorLeft X)]
+    {F : J ⥤ C}
+    : PreservesColimitsOfShape K (tensorLeft F) := by
   apply preservesColimitsOfShape_of_evaluation
   intro k
   have : tensorLeft F ⋙ (evaluation J C).obj k ≅ (evaluation J C).obj k ⋙ tensorLeft (F.obj k) :=
@@ -156,15 +159,18 @@ instance {K : Type*} [Category* K] [HasColimitsOfShape K C]
 set_option backward.defeqAttrib.useBackward true in
 /-- A finite-products-preserving functor distributes over the tensor product of functors. -/
 @[simps!]
-noncomputable def tensorObjComp (F G : D ⥤ C) (H : C ⥤ E) [PreservesFiniteProducts H] :
-    (F ⊗ G) ⋙ H ≅ (F ⋙ H) ⊗ (G ⋙ H) :=
-  NatIso.ofComponents (fun X ↦ prodComparisonIso H (F.obj X) (G.obj X)) fun {X Y} f ↦ by
-    dsimp; ext <;> simp [← Functor.map_comp]
+noncomputable def tensorObjComp (F G : D ⥤ C) (H : C ⥤ E) [PreservesFiniteProducts H]
+    : (F ⊗ G) ⋙ H ≅ (F ⋙ H) ⊗ (G ⋙ H) :=
+  NatIso.ofComponents
+    (fun X ↦ prodComparisonIso H (F.obj X) (G.obj X))
+    fun {X Y} f ↦ by dsimp; ext <;> simp [← Functor.map_comp]
 
 /-- A tensor product of representable functors is representable. -/
 @[simps]
-protected def RepresentableBy.tensorObj {F : Cᵒᵖ ⥤ Type v} {G : Cᵒᵖ ⥤ Type v} {X Y : C}
-    (h₁ : F.RepresentableBy X) (h₂ : G.RepresentableBy Y) : (F ⊗ G).RepresentableBy (X ⊗ Y) where
+protected def RepresentableBy.tensorObj
+    {F : Cᵒᵖ ⥤ Type v} {G : Cᵒᵖ ⥤ Type v} {X Y : C}
+    (h₁ : F.RepresentableBy X) (h₂ : G.RepresentableBy Y)
+    : (F ⊗ G).RepresentableBy (X ⊗ Y) where
   homEquiv {I} := homEquivToProd.trans (h₁.homEquiv.prodCongr h₂.homEquiv)
   homEquiv_comp {I W} f g := by
     refine Prod.ext ?_ ?_

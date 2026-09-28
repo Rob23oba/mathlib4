@@ -29,8 +29,7 @@ variable {R : Type*} (S : Type*) [CommRing R] [CommRing S] [Algebra R S]
 section Module
 
 variable (M : Type*) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower R S M]
-variable {N P : Type*} [AddCommGroup N] [AddCommGroup P] [Module R N] [Module R P]
-  (f g : N →ₗ[R] P)
+variable {N P : Type*} [AddCommGroup N] [AddCommGroup P] [Module R N] [Module R P] (f g : N →ₗ[R] P)
 
 lemma Module.Flat.ker_lTensor_eq [Module.Flat R M] :
     LinearMap.ker (AlgebraTensorModule.lTensor S M f) =
@@ -46,14 +45,15 @@ lemma Module.Flat.eqLocus_lTensor_eq [Module.Flat R M] :
   rw [← map_sub, ker_lTensor_eq]
 
 /-- The bilinear map corresponding to `LinearMap.tensorEqLocus`. -/
-def LinearMap.tensorEqLocusBil :
-    M →ₗ[S] LinearMap.eqLocus f g →ₗ[R]
-      LinearMap.eqLocus (AlgebraTensorModule.lTensor S M f)
-        (AlgebraTensorModule.lTensor S M g) where
-  toFun m :=
-    { toFun := fun a ↦ ⟨m ⊗ₜ a, by simp [show f a = g a from a.property]⟩
-      map_add' := fun x y ↦ by simp [tmul_add]
-      map_smul' := fun r x ↦ by simp }
+def LinearMap.tensorEqLocusBil
+    : M →ₗ[S] LinearMap.eqLocus f g →ₗ[R]
+        LinearMap.eqLocus (AlgebraTensorModule.lTensor S M f)
+          (AlgebraTensorModule.lTensor S M g) where
+  toFun m := {
+    toFun := fun a ↦ ⟨m ⊗ₜ a, by simp [show f a = g a from a.property]⟩
+    map_add' := fun x y ↦ by simp [tmul_add]
+    map_smul' := fun r x ↦ by simp
+  }
   map_add' x y := by
     ext
     simp [add_tmul]
@@ -62,23 +62,26 @@ def LinearMap.tensorEqLocusBil :
     simp [smul_tmul']
 
 /-- The bilinear map corresponding to `LinearMap.tensorKer`. -/
-def LinearMap.tensorKerBil :
-    M →ₗ[S] LinearMap.ker f →ₗ[R] LinearMap.ker (AlgebraTensorModule.lTensor S M f) where
-  toFun m :=
-    { toFun := fun a ↦ ⟨m ⊗ₜ a, by simp⟩
-      map_add' := fun x y ↦ by simp [tmul_add]
-      map_smul' := fun r x ↦ by simp }
+def LinearMap.tensorKerBil
+    : M →ₗ[S] LinearMap.ker f →ₗ[R] LinearMap.ker (AlgebraTensorModule.lTensor S M f) where
+  toFun m := {
+    toFun := fun a ↦ ⟨m ⊗ₜ a, by simp⟩
+    map_add' := fun x y ↦ by simp [tmul_add]
+    map_smul' := fun r x ↦ by simp
+  }
   map_add' x y := by ext; simp [add_tmul]
   map_smul' r x := by ext y; simp [smul_tmul']
 
 /-- The canonical map `M ⊗[R] eq(f, g) →ₗ[R] eq(𝟙 ⊗ f, 𝟙 ⊗ g)`. -/
-def LinearMap.tensorEqLocus : M ⊗[R] (LinearMap.eqLocus f g) →ₗ[S]
-    LinearMap.eqLocus (AlgebraTensorModule.lTensor S M f) (AlgebraTensorModule.lTensor S M g) :=
+def LinearMap.tensorEqLocus
+    : M ⊗[R] (LinearMap.eqLocus f g) →ₗ[S]
+      LinearMap.eqLocus (AlgebraTensorModule.lTensor S M f) (AlgebraTensorModule.lTensor S M g) :=
   AlgebraTensorModule.lift (tensorEqLocusBil S M f g)
 
 /-- The canonical map `M ⊗[R] ker f →ₗ[R] ker (𝟙 ⊗ f)`. -/
-def LinearMap.tensorKer : M ⊗[R] (LinearMap.ker f) →ₗ[S]
-    LinearMap.ker (AlgebraTensorModule.lTensor S M f) :=
+def LinearMap.tensorKer
+    : M ⊗[R] (LinearMap.ker f) →ₗ[S]
+      LinearMap.ker (AlgebraTensorModule.lTensor S M f) :=
   AlgebraTensorModule.lift (f.tensorKerBil S M)
 
 @[simp]
@@ -102,12 +105,12 @@ lemma LinearMap.tensorEqLocus_coe (x : M ⊗[R] (LinearMap.eqLocus f g)) :
   induction x <;> simp_all
 
 /-- (Implementation): Inverse for `LinearMap.tensorKerEquiv`. -/
-def LinearMap.tensorKerInv [Module.Flat R M] :
-    ker (AlgebraTensorModule.lTensor S M f) →ₗ[S] M ⊗[R] (ker f) :=
+def LinearMap.tensorKerInv [Module.Flat R M]
+    : ker (AlgebraTensorModule.lTensor S M f) →ₗ[S] M ⊗[R] (ker f) :=
   LinearMap.codRestrictOfInjective (LinearMap.ker (AlgebraTensorModule.lTensor S M f)).subtype
     (AlgebraTensorModule.lTensor S M (ker f).subtype)
-    (Module.Flat.lTensor_preserves_injective_linearMap (ker f).subtype
-      (ker f).injective_subtype) (by simp [Module.Flat.ker_lTensor_eq])
+    (Module.Flat.lTensor_preserves_injective_linearMap (ker f).subtype (ker f).injective_subtype)
+    (by simp [Module.Flat.ker_lTensor_eq])
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -118,15 +121,16 @@ private lemma LinearMap.lTensor_ker_subtype_tensorKerInv [Module.Flat R M]
   simp [LinearMap.tensorKerInv]
 
 /-- (Implementation): Inverse for `LinearMap.tensorEqLocusEquiv`. -/
-def LinearMap.tensorEqLocusInv [Module.Flat R M] :
-    eqLocus (AlgebraTensorModule.lTensor S M f) (AlgebraTensorModule.lTensor S M g) →ₗ[S]
-      M ⊗[R] (eqLocus f g) :=
+def LinearMap.tensorEqLocusInv [Module.Flat R M]
+    : eqLocus (AlgebraTensorModule.lTensor S M f) (AlgebraTensorModule.lTensor S M g) →ₗ[S]
+        M ⊗[R] (eqLocus f g) :=
   LinearMap.codRestrictOfInjective
     (LinearMap.eqLocus (AlgebraTensorModule.lTensor S M f)
       (AlgebraTensorModule.lTensor S M g)).subtype
     (AlgebraTensorModule.lTensor S M (eqLocus f g).subtype)
     (Module.Flat.lTensor_preserves_injective_linearMap (eqLocus f g).subtype
-      (eqLocus f g).injective_subtype) (by simp [Module.Flat.eqLocus_lTensor_eq])
+      (eqLocus f g).injective_subtype)
+    (by simp [Module.Flat.eqLocus_lTensor_eq])
 
 set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
@@ -137,8 +141,8 @@ private lemma LinearMap.lTensor_eqLocus_subtype_tensorEqLocusInv [Module.Flat R 
   simp [LinearMap.tensorEqLocusInv]
 
 /-- If `M` is `R`-flat, the canonical map `M ⊗[R] ker f →ₗ[R] ker (𝟙 ⊗ f)` is an isomorphism. -/
-def LinearMap.tensorKerEquiv [Module.Flat R M] :
-    M ⊗[R] LinearMap.ker f ≃ₗ[S] LinearMap.ker (AlgebraTensorModule.lTensor S M f) :=
+def LinearMap.tensorKerEquiv [Module.Flat R M]
+    : M ⊗[R] LinearMap.ker f ≃ₗ[S] LinearMap.ker (AlgebraTensorModule.lTensor S M f) :=
   LinearEquiv.ofLinearMap (LinearMap.tensorKer S M f) (LinearMap.tensorKerInv S M f)
     (by ext x; simp)
     (by
@@ -158,12 +162,14 @@ lemma LinearMap.lTensor_ker_subtype_tensorKerEquiv_symm [Module.Flat R M]
     (lTensor M (ker f).subtype) ((tensorKerEquiv S M f).symm x) = x :=
   lTensor_ker_subtype_tensorKerInv S M f x
 
-/-- If `M` is `R`-flat, the canonical map `M ⊗[R] eq(f, g) →ₗ[S] eq (𝟙 ⊗ f, 𝟙 ⊗ g)` is an
-isomorphism. -/
-def LinearMap.tensorEqLocusEquiv [Module.Flat R M] :
-    M ⊗[R] eqLocus f g ≃ₗ[S]
-      eqLocus (AlgebraTensorModule.lTensor S M f)
-        (AlgebraTensorModule.lTensor S M g) :=
+/--
+If `M` is `R`-flat, the canonical map `M ⊗[R] eq(f, g) →ₗ[S] eq (𝟙 ⊗ f, 𝟙 ⊗ g)` is an
+isomorphism.
+-/
+def LinearMap.tensorEqLocusEquiv [Module.Flat R M]
+    : M ⊗[R] eqLocus f g ≃ₗ[S]
+        eqLocus (AlgebraTensorModule.lTensor S M f)
+          (AlgebraTensorModule.lTensor S M g) :=
   LinearEquiv.ofLinearMap (LinearMap.tensorEqLocus S M f g) (LinearMap.tensorEqLocusInv S M f g)
     (by ext; simp)
     (by
@@ -228,13 +234,18 @@ to get `0 → A ⊗ K → A ⊗ M` exact.
   rw [Subsingleton.elim (SnakeLemma.δ' ..) 0] at this
   simpa using this
 
-/-- Given surjection `f : N → P` with `P` flat, then `A ⊗ ker f ≃ ker (A ⊗ f)`.
-Also see `LinearMap.tensorKerEquiv` for the version with `A` flat instead. -/
-def LinearMap.kerLTensorEquivOfSurjective [Module.Flat R P]
-    (f : N →ₗ[R] P) (hf : Function.Surjective f) (A : Type*) [AddCommGroup A] [Module R A] :
-    LinearMap.ker (f.lTensor A) ≃ₗ[R] A ⊗[R] LinearMap.ker f := by
-  refine .ofEq _ _ ?_ ≪≫ₗ (LinearEquiv.ofInjective _ (LinearMap.lTensor_injective_of_exact_of_flat
-    f hf _ (LinearMap.ker f).subtype_injective (LinearMap.exact_subtype_ker_map _) _)).symm
+/--
+Given surjection `f : N → P` with `P` flat, then `A ⊗ ker f ≃ ker (A ⊗ f)`.
+Also see `LinearMap.tensorKerEquiv` for the version with `A` flat instead.
+-/
+def LinearMap.kerLTensorEquivOfSurjective
+    [Module.Flat R P]
+    (f : N →ₗ[R] P) (hf : Function.Surjective f)
+    (A : Type*) [AddCommGroup A] [Module R A]
+    : LinearMap.ker (f.lTensor A) ≃ₗ[R] A ⊗[R] LinearMap.ker f := by
+  refine .ofEq _ _ ?_ ≪≫ₗ (LinearEquiv.ofInjective _
+    (LinearMap.lTensor_injective_of_exact_of_flat f hf _ (LinearMap.ker f).subtype_injective
+      (LinearMap.exact_subtype_ker_map _) _)).symm
   rw [LinearMap.exact_iff.mp (lTensor_exact _ (LinearMap.exact_subtype_ker_map _) hf)]
 
 @[simp]
@@ -247,14 +258,13 @@ end Module
 section Algebra
 
 variable (T : Type*) [CommRing T] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
-variable {A B : Type*} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B]
-  (f g : A →ₐ[R] B)
+variable {A B : Type*} [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] (f g : A →ₐ[R] B)
 
 /-- (Implementation): Use `AlgHom.tensorEqualizer` instead. -/
-def AlgHom.tensorEqualizerAux :
-    T ⊗[R] AlgHom.equalizer f g →ₗ[S]
-      AlgHom.equalizer (Algebra.TensorProduct.map (AlgHom.id S T) f)
-        (Algebra.TensorProduct.map (AlgHom.id S T) g) :=
+def AlgHom.tensorEqualizerAux
+    : T ⊗[R] AlgHom.equalizer f g →ₗ[S]
+        AlgHom.equalizer (Algebra.TensorProduct.map (AlgHom.id S T) f)
+          (Algebra.TensorProduct.map (AlgHom.id S T) g) :=
   LinearMap.tensorEqLocus S T (f : A →ₗ[R] B) (g : A →ₗ[R] B)
 
 private local instance : AddHomClass (A →ₐ[R] B) A B := inferInstance
@@ -276,12 +286,11 @@ lemma AlgHom.tensorEqualizerAux_mul (x y : T ⊗[R] AlgHom.equalizer f g) :
   simp
 
 /-- The canonical map `T ⊗[R] eq(f, g) →ₐ[S] eq (𝟙 ⊗ f, 𝟙 ⊗ g)`. -/
-def AlgHom.tensorEqualizer :
-    T ⊗[R] AlgHom.equalizer f g →ₐ[S]
-      AlgHom.equalizer (Algebra.TensorProduct.map (AlgHom.id S T) f)
-        (Algebra.TensorProduct.map (AlgHom.id S T) g) :=
-  AlgHom.ofLinearMap (AlgHom.tensorEqualizerAux S T f g)
-    rfl (AlgHom.tensorEqualizerAux_mul S T f g)
+def AlgHom.tensorEqualizer
+    : T ⊗[R] AlgHom.equalizer f g →ₐ[S]
+        AlgHom.equalizer (Algebra.TensorProduct.map (AlgHom.id S T) f)
+          (Algebra.TensorProduct.map (AlgHom.id S T) g) :=
+  AlgHom.ofLinearMap (AlgHom.tensorEqualizerAux S T f g) rfl (AlgHom.tensorEqualizerAux_mul S T f g)
 
 @[simp]
 lemma AlgHom.coe_tensorEqualizer (x : T ⊗[R] AlgHom.equalizer f g) :
@@ -289,14 +298,16 @@ lemma AlgHom.coe_tensorEqualizer (x : T ⊗[R] AlgHom.equalizer f g) :
       Algebra.TensorProduct.map (AlgHom.id S T) (AlgHom.equalizer f g).val x :=
   AlgHom.coe_tensorEqualizerAux S T f g x
 
-/-- If `T` is `R`-flat, the canonical map
-`T ⊗[R] eq(f, g) →ₐ[S] eq (𝟙 ⊗ f, 𝟙 ⊗ g)` is an isomorphism. -/
-def AlgHom.tensorEqualizerEquiv [Module.Flat R T] :
-    T ⊗[R] AlgHom.equalizer f g ≃ₐ[S]
-      AlgHom.equalizer (Algebra.TensorProduct.map (AlgHom.id S T) f)
-        (Algebra.TensorProduct.map (AlgHom.id S T) g) :=
-  AlgEquiv.ofLinearEquiv (LinearMap.tensorEqLocusEquiv S T f.toLinearMap g.toLinearMap)
-    rfl (AlgHom.tensorEqualizerAux_mul S T f g)
+/--
+If `T` is `R`-flat, the canonical map
+`T ⊗[R] eq(f, g) →ₐ[S] eq (𝟙 ⊗ f, 𝟙 ⊗ g)` is an isomorphism.
+-/
+def AlgHom.tensorEqualizerEquiv [Module.Flat R T]
+    : T ⊗[R] AlgHom.equalizer f g ≃ₐ[S]
+        AlgHom.equalizer (Algebra.TensorProduct.map (AlgHom.id S T) f)
+          (Algebra.TensorProduct.map (AlgHom.id S T) g) :=
+  AlgEquiv.ofLinearEquiv (LinearMap.tensorEqLocusEquiv S T f.toLinearMap g.toLinearMap) rfl
+    (AlgHom.tensorEqualizerAux_mul S T f g)
 
 @[simp]
 lemma AlgHom.tensorEqualizerEquiv_apply [Module.Flat R T]
@@ -311,38 +322,46 @@ Given a surjection of `R`-algebras `S → T` with kernel `I`, such that `T` is f
 the kernel of the map `A ⊗ S → A ⊗ T` is the base change of `I` along `S → A ⊗ S`.
 -/
 def Algebra.kerTensorProductMapIdToAlgHomEquiv
-    [Module.Flat R T] (h₁ : Function.Surjective (algebraMap S T)) :
-    RingHom.ker (Algebra.TensorProduct.map (.id A A) (IsScalarTower.toAlgHom R S T)) ≃ₗ[A ⊗[R] S]
-      (A ⊗[R] S) ⊗[S] (RingHom.ker (algebraMap S T)) := by
+    [Module.Flat R T] (h₁ : Function.Surjective (algebraMap S T))
+    : RingHom.ker (Algebra.TensorProduct.map (.id A A) (IsScalarTower.toAlgHom R S T)) ≃ₗ[A ⊗[R] S]
+        (A ⊗[R] S) ⊗[S] (RingHom.ker (algebraMap S T)) := by
   let φ : A ⊗[R] S →ₐ[A] A ⊗[R] T :=
     Algebra.TensorProduct.map (.id _ _) (IsScalarTower.toAlgHom _ _ _)
-  let ePp : A ⊗[R] S ≃ₐ[S] S ⊗[R] A :=
-    { __ := Algebra.TensorProduct.comm _ _ _, commutes' _ := rfl }
+  let ePp : A ⊗[R] S ≃ₐ[S] S ⊗[R] A := {
+    __ := Algebra.TensorProduct.comm _ _ _
+    commutes' _ := rfl
+  }
   let e₃ : (RingHom.ker φ) ≃ₗ[R] A ⊗[R] (RingHom.ker (algebraMap S T)) :=
-    (LinearMap.kerLTensorEquivOfSurjective (IsScalarTower.toAlgHom R S T).toLinearMap
-      h₁ A).restrictScalars R
+    (LinearMap.kerLTensorEquivOfSurjective (IsScalarTower.toAlgHom R S T).toLinearMap h₁
+        A).restrictScalars
+      R
   let e₄' : (RingHom.ker φ) ≃ₗ[R] (A ⊗[R] S) ⊗[S] (RingHom.ker (algebraMap S T)) :=
-    e₃ ≪≫ₗ _root_.TensorProduct.comm _ _ _ ≪≫ₗ
-      (AlgebraTensorModule.cancelBaseChange _ _ S _ _).symm.restrictScalars R ≪≫ₗ
-      (AlgebraTensorModule.congr (.refl S _) ePp.symm.toLinearEquiv).restrictScalars R ≪≫ₗ
-      (_root_.TensorProduct.comm _ _ _).restrictScalars R
-  let e₄ : (A ⊗[R] S) ⊗[S] (RingHom.ker (algebraMap S T)) ≃ₗ[A ⊗[R] S] (RingHom.ker φ) :=
-    { __ := e₄'.symm, map_smul' r' x := by
-        dsimp
+    e₃ ≪≫ₗ _root_.TensorProduct.comm _ _ _
+      ≪≫ₗ (AlgebraTensorModule.cancelBaseChange _ _ S _ _).symm.restrictScalars R
+      ≪≫ₗ (AlgebraTensorModule.congr (.refl S _) ePp.symm.toLinearEquiv).restrictScalars R
+      ≪≫ₗ (_root_.TensorProduct.comm _ _ _).restrictScalars R
+  let e₄ : (A ⊗[R] S) ⊗[S] (RingHom.ker (algebraMap S T)) ≃ₗ[A ⊗[R] S] (RingHom.ker φ) := {
+    __ := e₄'.symm
+    map_smul' r' x := by
+      dsimp
+      induction x with
+      | add x y _ _ =>
+        simp only [smul_add, LinearEquiv.map_add, *]
+      | tmul x y =>
         induction x with
-        | add x y _ _ => simp only [smul_add, LinearEquiv.map_add, *]
-        | tmul x y =>
-        induction x with
-        | add x y _ _ => simp only [smul_add, add_tmul, LinearEquiv.map_add, *]
+        | add x y _ _ =>
+          simp only [smul_add, add_tmul, LinearEquiv.map_add, *]
         | tmul x z =>
-        induction r' with
-        | add x y _ _ => simp only [add_smul, LinearEquiv.map_add, *]
-        | tmul r s =>
-        rw [smul_tmul']
-        ext1
-        dsimp [e₄', ePp, φ]
-        change ((r * x) ⊗ₜ[R] ((s * z) * y.1)) = (r ⊗ₜ[R] s) * (x ⊗ₜ[R] (z * y.1))
-        rw [Algebra.TensorProduct.tmul_mul_tmul, mul_assoc] }
+          induction r' with
+          | add x y _ _ =>
+            simp only [add_smul, LinearEquiv.map_add, *]
+          | tmul r s =>
+            rw [smul_tmul']
+            ext1
+            dsimp [e₄', ePp, φ]
+            change ((r * x) ⊗ₜ[R] ((s * z) * y.1)) = (r ⊗ₜ[R] s) * (x ⊗ₜ[R] (z * y.1))
+            rw [Algebra.TensorProduct.tmul_mul_tmul, mul_assoc]
+  }
   exact e₄.symm
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
@@ -362,9 +381,8 @@ of algebra maps between algebras with structure morphisms satisfying `P`, is pre
 arbitrary base change.
 -/
 def HasStableEqualizers (P : ∀ {R S : Type u} [CommRing R] [CommRing S], (R →+* S) → Prop) : Prop :=
-  ∀ {R S A B : Type u} [CommRing R] [CommRing S] [CommRing A] [CommRing B]
-    [Algebra R A] [Algebra R S] [Algebra R B]
-    (f g : A →ₐ[R] B), P (algebraMap R A) → P (algebraMap R B) →
-    Function.Bijective (f.tensorEqualizer R S g)
+  ∀ {R S A B : Type u} [CommRing R] [CommRing S] [CommRing A] [CommRing B] [Algebra R A]
+      [Algebra R S] [Algebra R B] (f g : A →ₐ[R] B),
+    P (algebraMap R A) → P (algebraMap R B) → Function.Bijective (f.tensorEqualizer R S g)
 
 end RingHom

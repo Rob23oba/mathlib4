@@ -47,35 +47,31 @@ open Equiv
 
 variable (s) in
 /- Note : Under the hypothesis, multiple transitivity would also hold. -/
-/-- In the permutation group, the stabilizer of any set
-acts primitively on that set. -/
+/--
+In the permutation group, the stabilizer of any set
+acts primitively on that set.
+-/
 theorem isPreprimitive_stabilizer_of_surjective
-    (hs : Function.Surjective (toPerm : stabilizer M s → Perm s)) :
-    IsPreprimitive (stabilizer M s) s := by
+    (hs : Function.Surjective (toPerm : stabilizer M s → Perm s))
+    : IsPreprimitive (stabilizer M s) s := by
   let φ : stabilizer M s → Perm s := toPerm
-  let f : s →ₑ[φ] s := {
-    toFun := id
-    map_smul' _ _ := rfl }
+  let f : s →ₑ[φ] s := { toFun := id, map_smul' _ _ := rfl }
   have hf : Function.Bijective f := Function.bijective_id
   rw [isPreprimitive_congr hs hf]
   infer_instance
 
 /-- A (mostly trivial) primitivity criterion for stabilizers. -/
-theorem isPreprimitive_stabilizer_subgroup [IsPreprimitive (stabilizer M s) s]
-    {G : Subgroup M} (hG : stabilizer M s ≤ G) :
-    IsPreprimitive (stabilizer G s) s :=
-  let φ (g : stabilizer M s) : stabilizer G s :=
-    ⟨⟨g, hG g.prop⟩, g.prop⟩
-  let f : s →ₑ[φ] s := {
-      toFun := id
-      map_smul' _ _ := rfl }
+theorem isPreprimitive_stabilizer_subgroup
+    [IsPreprimitive (stabilizer M s) s] {G : Subgroup M} (hG : stabilizer M s ≤ G)
+    : IsPreprimitive (stabilizer G s) s :=
+  let φ (g : stabilizer M s) : stabilizer G s := ⟨⟨g, hG g.prop⟩, g.prop⟩
+  let f : s →ₑ[φ] s := { toFun := id, map_smul' _ _ := rfl }
   IsPreprimitive.of_surjective (f := f) Function.surjective_id
 
 theorem IsPretransitive.of_partition
-    (hs : ∀ a ∈ s, ∀ b ∈ s, ∃ g : M, g • a = b)
-    (hs' : ∀ a ∈ sᶜ, ∀ b ∈ sᶜ, ∃ g : M, g • a = b)
-    (hM : stabilizer M s ≠ ⊤) :
-    IsPretransitive M α := by
+    (hs : ∀ a ∈ s, ∀ b ∈ s, ∃ g : M, g • a = b) (hs' : ∀ a ∈ sᶜ, ∀ b ∈ sᶜ, ∃ g : M, g • a = b)
+    (hM : stabilizer M s ≠ ⊤)
+    : IsPretransitive M α := by
   suffices ∃ (a b : α) (g : M), a ∈ s ∧ b ∈ sᶜ ∧ g • a = b by
     obtain ⟨a, b, g, ha, hb, hgab⟩ := this
     rw [isPretransitive_iff_base a]
@@ -98,8 +94,8 @@ namespace Equiv.Perm
 
 open MulAction
 
-theorem ofSubtype_mem_stabilizer [DecidablePred fun x ↦ x ∈ s] (g : Perm s) :
-    g.ofSubtype ∈ stabilizer (Perm α) s := by
+theorem ofSubtype_mem_stabilizer [DecidablePred fun x ↦ x ∈ s] (g : Perm s)
+    : g.ofSubtype ∈ stabilizer (Perm α) s := by
   rw [mem_stabilizer_iff]
   ext g'
   simp_rw [mem_smul_set, Perm.smul_def]
@@ -109,9 +105,8 @@ theorem ofSubtype_mem_stabilizer [DecidablePred fun x ↦ x ∈ s] (g : Perm s) 
   · use (g⁻¹ ⟨g', a⟩)
     simp
 
-theorem swap_mem_stabilizer [DecidableEq α]
-    {a b : α} {s : Set α} (ha : a ∈ s) (hb : b ∈ s) :
-    swap a b ∈ stabilizer (Perm α) s := by
+theorem swap_mem_stabilizer [DecidableEq α] {a b : α} {s : Set α} (ha : a ∈ s) (hb : b ∈ s)
+    : swap a b ∈ stabilizer (Perm α) s := by
   suffices swap a b • s ⊆ s by
     rw [mem_stabilizer_iff]
     apply Set.Subset.antisymm this
@@ -122,41 +117,40 @@ theorem swap_mem_stabilizer [DecidableEq α]
   · have := swap_apply_of_ne_of_ne (a := a) (b := b) (x := x)
     aesop
 
-theorem exists_mem_stabilizer_smul_eq :
-    ∀ a ∈ s, ∀ b ∈ s, ∃ g ∈ stabilizer (Perm α) s, g • a = b := by
+theorem exists_mem_stabilizer_smul_eq
+    : ∀ a ∈ s, ∀ b ∈ s, ∃ g ∈ stabilizer (Perm α) s, g • a = b := by
   intro a ha b hb
   classical
   exact ⟨swap a b, swap_mem_stabilizer ha hb, swap_apply_left a b⟩
 
-theorem stabilizer.surjective_toPerm (s : Set α) :
-    Function.Surjective (toPerm : stabilizer (Perm α) s → Perm s) := fun g ↦ by
+theorem stabilizer.surjective_toPerm (s : Set α)
+    : Function.Surjective (toPerm : stabilizer (Perm α) s → Perm s) := fun g ↦ by
   classical
   use! Perm.ofSubtype g
   · apply ofSubtype_mem_stabilizer
   · aesop
 
 /-- In the permutation group, the stabilizer of a set acts primitively on that set. -/
-instance stabilizer_isPreprimitive (s : Set α) :
-    IsPreprimitive (stabilizer (Perm α) s) s :=
+instance stabilizer_isPreprimitive (s : Set α) : IsPreprimitive (stabilizer (Perm α) s) s :=
   isPreprimitive_stabilizer_of_surjective s (stabilizer.surjective_toPerm s)
 
 theorem stabilizer_ne_top_of_nonempty_of_nonempty_compl
-    {s : Set α} (hs : s.Nonempty) (hsc : sᶜ.Nonempty) :
-    stabilizer (Perm α) s ≠ ⊤ := by
+    {s : Set α} (hs : s.Nonempty) (hsc : sᶜ.Nonempty)
+    : stabilizer (Perm α) s ≠ ⊤ := by
   classical
   obtain ⟨a, ha⟩ := hs
   obtain ⟨b, hb⟩ := hsc
   intro h
-  rw [Set.mem_compl_iff] at hb; apply hb
+  rw [Set.mem_compl_iff] at hb
+  apply hb
   have hg : swap a b ∈ stabilizer (Perm α) s := by simp_all
   rw [mem_stabilizer_iff] at hg
   rw [← hg, Set.mem_smul_set]
   aesop
 
-theorem has_swap_mem_of_lt_stabilizer [DecidableEq α]
-    (s : Set α) (G : Subgroup (Perm α))
-    (hG : stabilizer (Perm α) s < G) :
-    ∃ g : Perm α, g.IsSwap ∧ g ∈ G := by
+theorem has_swap_mem_of_lt_stabilizer
+    [DecidableEq α] (s : Set α) (G : Subgroup (Perm α)) (hG : stabilizer (Perm α) s < G)
+    : ∃ g : Perm α, g.IsSwap ∧ g ∈ G := by
   have : ∀ (t : Set α) (_ : 1 < t.encard), ∃ (g : Perm α),
       g.IsSwap ∧ g ∈ stabilizer (Perm α) t := by
     intro t ht
@@ -174,11 +168,11 @@ theorem has_swap_mem_of_lt_stabilizer [DecidableEq α]
   have hα : Set.encard (_root_.Set.univ : Set α) = 2 := by
     rw [← Set.encard_add_encard_compl s]
     have : (1 + 1 : ENat) = 2 := by norm_num
-    convert! this <;>
-    · apply le_antisymm
-      · assumption
-      rw [one_le_encard_iff_nonempty, Set.nonempty_iff_ne_empty]
-      aesop
+    convert! this
+      <;> · apply le_antisymm
+            · assumption
+            rw [one_le_encard_iff_nonempty, Set.nonempty_iff_ne_empty]
+            aesop
   have _ : Finite α := by
     rw [finite_iff_nonempty_fintype]
     refine univ_finite_iff_nonempty_fintype.mp ?_
@@ -329,8 +323,8 @@ open MulAction Equiv
 variable [Finite α]
 
 theorem isCoatom_stabilizer_of_ncard_lt_ncard_compl
-    {s : Set α} (h0 : s.Nonempty) (hα : s.ncard < sᶜ.ncard) :
-    IsCoatom (stabilizer (Perm α) s) := by
+    {s : Set α} (h0 : s.Nonempty) (hα : s.ncard < sᶜ.ncard)
+    : IsCoatom (stabilizer (Perm α) s) := by
   classical
   have h1 : sᶜ.Nonempty := nonempty_iff_ne_empty.mpr (by aesop)
   have : Fintype α := Fintype.ofFinite α
@@ -359,13 +353,15 @@ theorem isCoatom_stabilizer_of_ncard_lt_ncard_compl
     rw [← Set.ncard_add_ncard_compl s]
     lia
   -- The proof needs 4 steps
-  /- Step 1 : `sᶜ` is not a block.
-       This uses that `Nat.card s < Nat.card sᶜ`.
-       In the equality case, `Nat.card s` = Nat.card sᶜ`,
-       it would be possible that `sᶜ` is a block,
-       and then `G` would be a wreath product,
-       — this is case (b) of the O'Nan-Scott classification
-       of maximal subgroups of the symmetric group -/
+  /-
+  Step 1 : `sᶜ` is not a block.
+    This uses that `Nat.card s < Nat.card sᶜ`.
+    In the equality case, `Nat.card s` = Nat.card sᶜ`,
+    it would be possible that `sᶜ` is a block,
+    and then `G` would be a wreath product,
+    — this is case (b) of the O'Nan-Scott classification
+    of maximal subgroups of the symmetric group
+  -/
   have not_isBlock_sc : ¬ IsBlock G sᶜ := fun hsc ↦ by
     rcases lt_or_ge (Nat.card α) (sᶜ.ncard * 2) with hB' | hB'
     · apply h0.ne_empty
@@ -375,8 +371,7 @@ theorem isCoatom_stabilizer_of_ncard_lt_ncard_compl
       apply hB'
       rwa [← Set.ncard_add_ncard_compl sᶜ, mul_two, add_lt_add_iff_left, compl_compl]
   -- Step 2 : A block contained in sᶜ is a subsingleton
-  have hB_not_le_sc (B : Set α) (hB : IsBlock G B) (hBsc : B ⊆ sᶜ) :
-      B.Subsingleton :=
+  have hB_not_le_sc (B : Set α) (hB : IsBlock G B) (hBsc : B ⊆ sᶜ) : B.Subsingleton :=
     -- uses Step 1
     hB.subsingleton_of_ssubset_of_stabilizer_Perm_le (hBsc.ssubset_of_ne (by lia)) hG'.le
   -- Step 3 : A block contained in `s` is a subsingleton
@@ -385,17 +380,19 @@ theorem isCoatom_stabilizer_of_ncard_lt_ncard_compl
     hB.subsingleton_of_stabilizer_lt_of_subset hB_not_le_sc hG hBs
   -- Step 4 : `sᶜ ⊆ B`
   have _ := isMultiplyPretransitive α (s.ncard + 1)
-  apply MulAction.IsBlock.compl_subset_of_stabilizer_le_of_not_subset_of_not_subset_compl hG.le <;>
-    grind
+  apply MulAction.IsBlock.compl_subset_of_stabilizer_le_of_not_subset_of_not_subset_compl hG.le
+    <;> grind
 
-/-- `MulAction.stabilizer (Perm α) s` is a maximal subgroup of `Perm α`,
+/--
+`MulAction.stabilizer (Perm α) s` is a maximal subgroup of `Perm α`,
 provided `s` and `sᶜ` are nonempty, and `Nat.card α ≠ 2 * Nat.card s`.
 
-This is the intransitive case of the O'Nan–Scott classification. -/
-theorem isCoatom_stabilizer {s : Set α}
-    (hs_nonempty : s.Nonempty) (hsc_nonempty : sᶜ.Nonempty)
-    (hα : Nat.card α ≠ 2 * s.ncard) :
-    IsCoatom (stabilizer (Perm α) s) := by
+This is the intransitive case of the O'Nan–Scott classification.
+-/
+theorem isCoatom_stabilizer
+    {s : Set α}
+    (hs_nonempty : s.Nonempty) (hsc_nonempty : sᶜ.Nonempty) (hα : Nat.card α ≠ 2 * s.ncard)
+    : IsCoatom (stabilizer (Perm α) s) := by
   obtain h | h | h := Nat.lt_trichotomy s.ncard sᶜ.ncard
   · exact isCoatom_stabilizer_of_ncard_lt_ncard_compl hs_nonempty h
   · contrapose hα

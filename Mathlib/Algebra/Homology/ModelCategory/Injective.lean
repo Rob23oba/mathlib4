@@ -39,19 +39,25 @@ namespace CochainComplex.Plus.modelCategoryQuillen
 
 variable {C : Type*} [Category C] [Abelian C]
 
-/-- The weak equivalences in the category `CochainComplex.Plus C` of bounded
-below cochain complexes are quasi-isomorphisms. -/
+/--
+The weak equivalences in the category `CochainComplex.Plus C` of bounded
+below cochain complexes are quasi-isomorphisms.
+-/
 scoped instance : CategoryWithWeakEquivalences (CochainComplex.Plus C) where
   weakEquivalences := quasiIso C
 
-/-- The cofibrations in the category `CochainComplex.Plus C` of bounded
-below cochain complexes are monomorphisms. -/
+/--
+The cofibrations in the category `CochainComplex.Plus C` of bounded
+below cochain complexes are monomorphisms.
+-/
 scoped instance : CategoryWithCofibrations (CochainComplex.Plus C) where
   cofibrations := .monomorphisms _
 
-/-- The fibrations in the category `CochainComplex.Plus C` of bounded
+/--
+The fibrations in the category `CochainComplex.Plus C` of bounded
 below cochain complexes are the morphisms that are degreewise epi with
-an injective kernel. -/
+an injective kernel.
+-/
 scoped instance : CategoryWithFibrations (CochainComplex.Plus C) where
   fibrations := degreewiseEpiWithInjectiveKernel.inverseImage (ι C)
 
@@ -85,8 +91,7 @@ lemma weakEquivalence_iff {X Y : Plus C} (f : X ⟶ Y) :
     WeakEquivalence f ↔ QuasiIso f.hom :=
   HomotopicalAlgebra.weakEquivalence_iff _
 
-instance {A B : CochainComplex.Plus C} (i : A ⟶ B) [Cofibration i] :
-    Mono i := by
+instance {A B : CochainComplex.Plus C} (i : A ⟶ B) [Cofibration i] : Mono i := by
   rwa [← cofibration_iff]
 
 set_option backward.defeqAttrib.useBackward true in
@@ -158,14 +163,16 @@ private lemma lifting {A B X Y : CochainComplex.Plus C} (i : A ⟶ B) (p : X ⟶
         exact this.acyclic_X₁ (by dsimp; infer_instance)
     exact Lifting.hasLift sq _ (cokernelIsCokernel _) (kernelIsKernel _) α hα
 
-instance {A B X Y : CochainComplex.Plus C} (i : A ⟶ B) (p : X ⟶ Y)
-    [Mono i] [WeakEquivalence i] [Fibration p] :
-    HasLiftingProperty i p :=
+instance
+    {A B X Y : CochainComplex.Plus C} (i : A ⟶ B) (p : X ⟶ Y)
+    [Mono i] [WeakEquivalence i] [Fibration p]
+    : HasLiftingProperty i p :=
   lifting _ _ (Or.inl inferInstance)
 
-instance {A B X Y : CochainComplex.Plus C} (i : A ⟶ B) (p : X ⟶ Y)
-    [Mono i] [Fibration p] [WeakEquivalence p] :
-    HasLiftingProperty i p :=
+instance
+    {A B X Y : CochainComplex.Plus C} (i : A ⟶ B) (p : X ⟶ Y)
+    [Mono i] [Fibration p] [WeakEquivalence p]
+    : HasLiftingProperty i p :=
   lifting _ _ (Or.inr inferInstance)
 
 variable [EnoughInjectives C]
@@ -174,34 +181,37 @@ instance : (trivialCofibrations (Plus C)).HasFactorization (fibrations (Plus C))
   nonempty_mapFactorizationData := by
     intro ⟨K, n, hn⟩ ⟨L, m, hm⟩ ⟨f⟩
     obtain ⟨d, _, _⟩ : ∃ (d : ℤ), K.IsStrictlyGE (d + 1) ∧ L.IsStrictlyGE d :=
-      ⟨min (n - 1) m, K.isStrictlyGE_of_ge _ n (by grind),
-        L.isStrictlyGE_of_ge _ m (by simp)⟩
+      ⟨min (n - 1) m, K.isStrictlyGE_of_ge _ n (by grind), L.isStrictlyGE_of_ge _ m (by simp)⟩
     obtain ⟨K', _, i, p, _, _, hp, fac⟩ := cm5a f d
     exact ⟨{
       Z := ⟨K', d, inferInstance⟩
       i := ObjectProperty.homMk i
       p := ObjectProperty.homMk p
-      hi :=
-        ⟨by rwa [← HomotopicalAlgebra.cofibration_iff, cofibration_iff, Plus.mono_iff],
-          by assumption⟩
-      hp := hp }⟩
+      hi := ⟨
+        by rwa [← HomotopicalAlgebra.cofibration_iff, cofibration_iff, Plus.mono_iff],
+        by assumption
+      ⟩
+      hp := hp
+    }⟩
 
 instance : (cofibrations (Plus C)).HasFactorization (trivialFibrations (Plus C)) where
   nonempty_mapFactorizationData := by
     intro ⟨K, n, hn⟩ ⟨L, m, hm⟩ ⟨f⟩
     obtain ⟨d, _, _⟩ : ∃ (d : ℤ), K.IsStrictlyGE (d + 1) ∧ L.IsStrictlyGE d :=
-      ⟨min (n - 1) m, K.isStrictlyGE_of_ge _ n (by grind),
-        L.isStrictlyGE_of_ge _ m (by simp)⟩
+      ⟨min (n - 1) m, K.isStrictlyGE_of_ge _ n (by grind), L.isStrictlyGE_of_ge _ m (by simp)⟩
     obtain ⟨K', _, i, p, _, hp, _, fac⟩ := cm5b f d
     exact ⟨{
       Z := ⟨K', d, inferInstance⟩
       i := ObjectProperty.homMk i
       p := ObjectProperty.homMk p
       hi := by rwa [← HomotopicalAlgebra.cofibration_iff, cofibration_iff, Plus.mono_iff]
-      hp := ⟨hp, by assumption⟩ }⟩
+      hp := ⟨hp, by assumption⟩
+    }⟩
 
-/-- The Quillen model category structure on the category `CochainComplex.Plus C`
-of bounded below cochain complexes in an abelian category `C` with enough injectives. -/
+/--
+The Quillen model category structure on the category `CochainComplex.Plus C`
+of bounded below cochain complexes in an abelian category `C` with enough injectives.
+-/
 scoped instance : ModelCategory (CochainComplex.Plus C) where
 
 end CochainComplex.Plus.modelCategoryQuillen

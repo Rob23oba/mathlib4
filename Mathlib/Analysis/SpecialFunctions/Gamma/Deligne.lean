@@ -38,18 +38,22 @@ open scoped Topology
 
 namespace Complex
 
-/-- Deligne's archimedean Gamma factor for a real infinite place.
+/--
+Deligne's archimedean Gamma factor for a real infinite place.
 
 See "Valeurs de fonctions L et périodes d'intégrales" § 5.3. Note that this is not the same as
-`Real.Gamma`; in particular it is a function `ℂ → ℂ`. -/
+`Real.Gamma`; in particular it is a function `ℂ → ℂ`.
+-/
 noncomputable def Gammaℝ (s : ℂ) := π ^ (-s / 2) * Gamma (s / 2)
 
 lemma Gammaℝ_def (s : ℂ) : Gammaℝ s = π ^ (-s / 2) * Gamma (s / 2) := rfl
 
-/-- Deligne's archimedean Gamma factor for a complex infinite place.
+/--
+Deligne's archimedean Gamma factor for a complex infinite place.
 
 See "Valeurs de fonctions L et périodes d'intégrales" § 5.3. (Some authors omit the factor of 2).
-Note that this is not the same as `Complex.Gamma`. -/
+Note that this is not the same as `Complex.Gamma`.
+-/
 noncomputable def Gammaℂ (s : ℂ) := 2 * (2 * π) ^ (-s) * Gamma s
 
 lemma Gammaℂ_def (s : ℂ) : Gammaℂ s = 2 * (2 * π) ^ (-s) * Gamma s := rfl

@@ -27,14 +27,17 @@ open scoped ENNReal
 
 namespace ProbabilityTheory
 
-variable {Ω 𝓧 : Type*} {mΩ : MeasurableSpace Ω} {m𝓧 : MeasurableSpace 𝓧} {X Y : Ω → 𝓧}
-  {μ : Measure 𝓧} {P : Measure Ω}
+variable
+  {Ω 𝓧 : Type*}
+  {mΩ : MeasurableSpace Ω} {m𝓧 : MeasurableSpace 𝓧} {X Y : Ω → 𝓧} {μ : Measure 𝓧} {P : Measure Ω}
 
 variable (X μ) in
-/-- The predicate `HasLaw X μ P` registers the fact that the random variable `X` has law `μ` under
+/--
+The predicate `HasLaw X μ P` registers the fact that the random variable `X` has law `μ` under
 the measure `P`, in other words that `P.map X = μ`. We also require `X` to be `AEMeasurable`,
 to allow for nice interactions with operations on the codomain of `X`. See for instance
-`HasLaw.comp`, `IndepFun.hasLaw_mul` and `IndepFun.hasLaw_add`. -/
+`HasLaw.comp`, `IndepFun.hasLaw_mul` and `IndepFun.hasLaw_add`.
+-/
 @[fun_prop]
 structure HasLaw (P : Measure Ω := by volume_tac) : Prop where
   protected aemeasurable : AEMeasurable X P := by fun_prop
@@ -94,12 +97,12 @@ protected lemma HasLaw.ae_iff (hX : HasLaw X μ P) {p : 𝓧 → Prop} (hp : Mea
     (∀ᵐ ω ∂P, p (X ω)) ↔ ∀ᵐ x ∂μ, p x := by
   rw [← hX.map_eq, ae_map_iff hX.aemeasurable (measurableSet_setOfPred.2 hp)]
 
-protected theorem HasLaw.isFiniteMeasure_iff (hX : HasLaw X μ P) :
-    IsFiniteMeasure P ↔ IsFiniteMeasure μ := by
+protected theorem HasLaw.isFiniteMeasure_iff (hX : HasLaw X μ P)
+    : IsFiniteMeasure P ↔ IsFiniteMeasure μ := by
   rw [← hX.map_eq, isFiniteMeasure_map_iff hX.aemeasurable]
 
-protected theorem HasLaw.isProbabilityMeasure_iff (hX : HasLaw X μ P) :
-    IsProbabilityMeasure P ↔ IsProbabilityMeasure μ := by
+protected theorem HasLaw.isProbabilityMeasure_iff (hX : HasLaw X μ P)
+    : IsProbabilityMeasure P ↔ IsProbabilityMeasure μ := by
   rw [← hX.map_eq, isProbabilityMeasure_map_iff hX.aemeasurable]
 
 lemma HasLaw.isFiniteMeasure [IsFiniteMeasure μ] (hX : HasLaw X μ P) : IsFiniteMeasure P :=

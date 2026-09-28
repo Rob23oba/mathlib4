@@ -38,10 +38,13 @@ variable (z : ℍ)
 
 namespace EisensteinSeries
 
-/-- The sum defining the Eisenstein series (of weight `k` and level `Γ(N)` with congruence
-condition `a : Fin 2 → ZMod N`) converges locally uniformly on `ℍ`. -/
-theorem eisensteinSeries_tendstoLocallyUniformly {k : ℤ} (hk : 3 ≤ k) {N : ℕ} (a : Fin 2 → ZMod N) :
-    TendstoLocallyUniformly (fun (s : Finset (gammaSet N 1 a)) ↦ (∑ x ∈ s, eisSummand k x ·))
+/--
+The sum defining the Eisenstein series (of weight `k` and level `Γ(N)` with congruence
+condition `a : Fin 2 → ZMod N`) converges locally uniformly on `ℍ`.
+-/
+theorem eisensteinSeries_tendstoLocallyUniformly {k : ℤ} (hk : 3 ≤ k) {N : ℕ} (a : Fin 2 → ZMod N)
+    : TendstoLocallyUniformly
+      (fun (s : Finset (gammaSet N 1 a)) ↦ (∑ x ∈ s, eisSummand k x ·))
       (eisensteinSeries a k ·) Filter.atTop := by
   have hk' : (2 : ℝ) < k := by norm_cast
   have p_sum : Summable fun x : gammaSet N 1 a ↦ ‖x.val‖ ^ (-k) :=
@@ -50,9 +53,10 @@ theorem eisensteinSeries_tendstoLocallyUniformly {k : ℤ} (hk : 3 ≤ k) {N : �
   intro K hK
   obtain ⟨A, B, hB, HABK⟩ := subset_verticalStrip_of_isCompact hK
   refine (tendstoUniformlyOn_tsum (hu := p_sum.mul_left <| r ⟨⟨A, B⟩, hB⟩ ^ (-k : ℝ))
-    (fun p z hz ↦ ?_)).mono HABK
-  simpa only [eisSummand, one_div, ← zpow_neg, norm_zpow, ← Real.rpow_intCast,
-    Int.cast_neg] using summand_bound_of_mem_verticalStrip (by positivity) p hB hz
+      (fun p z hz ↦ ?_)).mono
+    HABK
+  simpa only [eisSummand, one_div, ← zpow_neg, norm_zpow, ← Real.rpow_intCast, Int.cast_neg] using
+    summand_bound_of_mem_verticalStrip (by positivity) p hB hz
 
 /-- Variant of `eisensteinSeries_tendstoLocallyUniformly` formulated with maps `ℂ → ℂ`, which is
 nice to have for holomorphicity later. -/

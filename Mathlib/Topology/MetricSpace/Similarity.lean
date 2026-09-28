@@ -37,8 +37,10 @@ section PseudoEMetricSpace
 
 variable [PseudoEMetricSpace P₁] [PseudoEMetricSpace P₂] [PseudoEMetricSpace P₃]
 
-/-- Similarity between indexed sets of vertices v₁ and v₂.
-Use `open scoped Similar` to access the `v₁ ∼ v₂` notation. -/
+/--
+Similarity between indexed sets of vertices v₁ and v₂.
+Use `open scoped Similar` to access the `v₁ ∼ v₂` notation.
+-/
 def Similar (v₁ : ι → P₁) (v₂ : ι → P₂) : Prop :=
   ∃ r : ℝ≥0, r ≠ 0 ∧ ∀ (i₁ i₂ : ι), (edist (v₁ i₁) (v₁ i₂) = r * edist (v₂ i₁) (v₂ i₂))
 
@@ -171,8 +173,7 @@ section Triangle
 variable {a b c : P₁} {a' b' c' : P₂}
 
 /-- Swapping the first two vertices preserves similarity. -/
-theorem comm_left (h : ![a, b, c] ∼ ![a', b', c']) :
-    ![b, a, c] ∼ ![b', a', c'] := by
+theorem comm_left (h : ![a, b, c] ∼ ![a', b', c']) : ![b, a, c] ∼ ![b', a', c'] := by
   have hl : ![b, a, c] = ![a, b, c] ∘ Equiv.swap 0 1 := by
     ext i
     fin_cases i <;> simp [Equiv.swap_apply_of_ne_of_ne]
@@ -182,8 +183,7 @@ theorem comm_left (h : ![a, b, c] ∼ ![a', b', c']) :
   grind [index_equiv]
 
 /-- Swapping the last two vertices preserves similarity. -/
-theorem comm_right (h : ![a, b, c] ∼ ![a', b', c']) :
-    ![a, c, b] ∼ ![a', c', b'] := by
+theorem comm_right (h : ![a, b, c] ∼ ![a', b', c']) : ![a, c, b] ∼ ![a', c', b'] := by
   have hl : ![a, c, b] = ![a, b, c] ∘ Equiv.swap 1 2 := by
     ext i
     fin_cases i <;> simp [Equiv.swap_apply_of_ne_of_ne]
@@ -193,8 +193,7 @@ theorem comm_right (h : ![a, b, c] ∼ ![a', b', c']) :
   grind [index_equiv]
 
 /-- Reversing the order of vertices preserves similarity. -/
-theorem reverse_of_three (h : ![a, b, c] ∼ ![a', b', c']) :
-    ![c, b, a] ∼ ![c', b', a'] :=
+theorem reverse_of_three (h : ![a, b, c] ∼ ![a', b', c']) : ![c, b, a] ∼ ![c', b', a'] :=
   h.comm_left.comm_right.comm_left
 
 end Triangle
@@ -308,19 +307,24 @@ section Triangle
 
 variable {a b c : P₁} {a' b' c' : P₂}
 
-/-- If two triangles have two pairs of proportional adjacent sides, then the triangles are similar.
+/--
+If two triangles have two pairs of proportional adjacent sides, then the triangles are similar.
 -/
-theorem similar_of_dist_mul_eq_dist_mul_eq (h_ne : dist a b ≠ 0) (h_ne' : dist a' b' ≠ 0)
+theorem similar_of_dist_mul_eq_dist_mul_eq
+    (h_ne : dist a b ≠ 0) (h_ne' : dist a' b' ≠ 0)
     (heq1 : dist a b * dist b' c' = dist b c * dist a' b')
-    (heq2 : dist a b * dist c' a' = dist c a * dist a' b') :
-    Similar ![a, b, c] ![a', b', c'] := by
+    (heq2 : dist a b * dist c' a' = dist c a * dist a' b')
+    : Similar (![a, b, c]) ![a', b', c'] := by
   set r : ℝ := (dist a b / dist a' b') with hr
   have hr_pos : 0 < r := by positivity
   apply Similar.of_exists_pos_pairwise_dist_eq
   use r
   refine ⟨hr_pos, ?_⟩
   intro i j hij
-  fin_cases i <;> fin_cases j <;> try {rw [dist_self, dist_self, mul_zero]}
+  fin_cases i <;> fin_cases j
+    <;> try {
+      rw [dist_self, dist_self, mul_zero]
+    }
   all_goals simp; grind [dist_comm]
 
 alias similar_of_side_side := similar_of_dist_mul_eq_dist_mul_eq

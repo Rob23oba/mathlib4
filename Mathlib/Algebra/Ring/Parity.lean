@@ -89,7 +89,6 @@ lemma Dvd.dvd.even (hab : a ∣ b) (ha : Even a) : Even b := ha.trans_dvd hab
   ext x
   simp [eq_comm, two_mul, Even]
 
-
 lemma even_two_mul (a : α) : Even (2 * a) := ⟨a, two_mul _⟩
 
 lemma Even.pow_of_ne_zero (ha : Even a) : ∀ {n : ℕ}, n ≠ 0 → Even (a ^ n)
@@ -346,10 +345,9 @@ lemma eight_dvd_sq_sub_one_of_odd {k : ℕ} (hk : Odd k) : 8 ∣ k ^ 2 - 1 := by
   exact ⟨c, by grind⟩
 
 -- Here are examples of how `parity_simps` can be used with `Nat`.
-example (m n : ℕ) (h : Even m) : ¬Even (n + 3) ↔ Even (m ^ 2 + m + n) := by
-  simp [*, parity_simps]
+example (m n : ℕ) (h : Even m) : ¬ Even (n + 3) ↔ Even (m ^ 2 + m + n) := by simp [*, parity_simps]
 
-example : ¬Even 25394535 := by decide
+example : ¬ Even 25394535 := by decide
 
 end Nat
 
@@ -425,23 +423,22 @@ section CharTwo
 
 variable {R : Type*} [AddMonoidWithOne R]
 
-private theorem natCast_eq_zero_or_one_of_two_eq_zero' (n : ℕ) (h : (2 : R) = 0) :
-    (Even n → (n : R) = 0) ∧ (Odd n → (n : R) = 1) := by
+private theorem natCast_eq_zero_or_one_of_two_eq_zero' (n : ℕ) (h : (2 : R) = 0)
+    : (Even n → (n : R) = 0) ∧ (Odd n → (n : R) = 1) := by
   induction n using Nat.twoStepInduction with
   | zero => simp
   | one => simp
   | more n _ _ => simpa [add_assoc, Nat.even_add_one, Nat.odd_add_one, h]
 
-theorem natCast_eq_zero_of_even_of_two_eq_zero {n : ℕ} (hn : Even n) (h : (2 : R) = 0) :
-    (n : R) = 0 :=
+theorem natCast_eq_zero_of_even_of_two_eq_zero {n : ℕ} (hn : Even n) (h : (2 : R) = 0)
+    : (n : R) = 0 :=
   (natCast_eq_zero_or_one_of_two_eq_zero' n h).1 hn
 
-theorem natCast_eq_one_of_odd_of_two_eq_zero {n : ℕ} (hn : Odd n) (h : (2 : R) = 0) :
-    (n : R) = 1 :=
+theorem natCast_eq_one_of_odd_of_two_eq_zero {n : ℕ} (hn : Odd n) (h : (2 : R) = 0) : (n : R) = 1 :=
   (natCast_eq_zero_or_one_of_two_eq_zero' n h).2 hn
 
-theorem natCast_eq_zero_or_one_of_two_eq_zero (n : ℕ) (h : (2 : R) = 0) :
-    (n : R) = 0 ∨ (n : R) = 1 := by
+theorem natCast_eq_zero_or_one_of_two_eq_zero (n : ℕ) (h : (2 : R) = 0)
+    : (n : R) = 0 ∨ (n : R) = 1 := by
   obtain hn | hn := Nat.even_or_odd n
   · exact Or.inl <| natCast_eq_zero_of_even_of_two_eq_zero hn h
   · exact Or.inr <| natCast_eq_one_of_odd_of_two_eq_zero hn h

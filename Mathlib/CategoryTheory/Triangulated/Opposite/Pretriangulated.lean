@@ -44,7 +44,8 @@ namespace CategoryTheory
 
 open Category Limits Preadditive ZeroObject
 
-variable (C : Type*) [Category* C] [HasShift C ℤ] [HasZeroObject C] [Preadditive C]
+variable
+  (C : Type*) [Category* C] [HasShift C ℤ] [HasZeroObject C] [Preadditive C]
   [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
 namespace Pretriangulated
@@ -53,8 +54,10 @@ open Pretriangulated.Opposite
 
 namespace Opposite
 
-/-- A triangle in `Cᵒᵖ` shall be distinguished iff it corresponds to a distinguished
-triangle in `C` via the equivalence `triangleOpEquivalence C : (Triangle C)ᵒᵖ ≌ Triangle Cᵒᵖ`. -/
+/--
+A triangle in `Cᵒᵖ` shall be distinguished iff it corresponds to a distinguished
+triangle in `C` via the equivalence `triangleOpEquivalence C : (Triangle C)ᵒᵖ ≌ Triangle Cᵒᵖ`.
+-/
 def distinguishedTriangles : Set (Triangle Cᵒᵖ) :=
   {T | ((triangleOpEquivalence C).inverse.obj T).unop ∈ distTriang C}
 
@@ -87,11 +90,13 @@ lemma isomorphic_distinguished (T₁ : Triangle Cᵒᵖ)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Up to rotation, the contractible triangle `X ⟶ X ⟶ 0 ⟶ X⟦1⟧` for `X : Cᵒᵖ` corresponds
-to the contractible triangle for `X.unop` in `C`. -/
+/--
+Up to rotation, the contractible triangle `X ⟶ X ⟶ 0 ⟶ X⟦1⟧` for `X : Cᵒᵖ` corresponds
+to the contractible triangle for `X.unop` in `C`.
+-/
 @[simps!]
-noncomputable def contractibleTriangleIso (X : Cᵒᵖ) :
-    contractibleTriangle X ≅ (triangleOpEquivalence C).functor.obj
+noncomputable def contractibleTriangleIso (X : Cᵒᵖ)
+    : contractibleTriangle X ≅ (triangleOpEquivalence C).functor.obj
       (Opposite.op (contractibleTriangle X.unop).invRotate) :=
   Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _)
     (IsZero.iso (isZero_zero _) (by
@@ -108,14 +113,16 @@ lemma contractible_distinguished (X : Cᵒᵖ) :
     ⟨contractibleTriangleIso X⟩⟩
 
 set_option backward.defeqAttrib.useBackward true in
-/-- Isomorphism expressing a compatibility of the equivalence `triangleOpEquivalence C`
-with the rotation of triangles. -/
-noncomputable def rotateTriangleOpEquivalenceInverseObjRotateUnopIso (T : Triangle Cᵒᵖ) :
-    ((triangleOpEquivalence C).inverse.obj T.rotate).unop.rotate ≅
-      ((triangleOpEquivalence C).inverse.obj T).unop :=
+/--
+Isomorphism expressing a compatibility of the equivalence `triangleOpEquivalence C`
+with the rotation of triangles.
+-/
+noncomputable def rotateTriangleOpEquivalenceInverseObjRotateUnopIso (T : Triangle Cᵒᵖ)
+    : ((triangleOpEquivalence C).inverse.obj T.rotate).unop.rotate
+      ≅ ((triangleOpEquivalence C).inverse.obj T).unop :=
   Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _)
-      (-((opShiftFunctorEquivalence C 1).unitIso.app T.obj₁).unop) (by simp)
-        (Quiver.Hom.op_inj (by simp)) (by simp)
+    (-((opShiftFunctorEquivalence C 1).unitIso.app T.obj₁).unop) (by simp)
+    (Quiver.Hom.op_inj (by simp)) (by simp)
 
 lemma rotate_distinguished_triangle (T : Triangle Cᵒᵖ) :
     T ∈ distinguishedTriangles C ↔ T.rotate ∈ distinguishedTriangles C := by
@@ -156,12 +163,14 @@ lemma complete_distinguished_triangle_morphism (T₁ T₂ : Triangle Cᵒᵖ)
     ← opShiftFunctorEquivalence_unitIso_inv_naturality]
   simp
 
-/-- The pretriangulated structure on the opposite category of
+/--
+The pretriangulated structure on the opposite category of
 a pretriangulated category. It is a scoped instance, so that we need to
 `open CategoryTheory.Pretriangulated.Opposite` in order to be able
 to use it: the reason is that it relies on the definition of the shift
 on the opposite category `Cᵒᵖ`, for which it is unclear whether it should
-be a global instance or not. -/
+be a global instance or not.
+-/
 noncomputable scoped instance : Pretriangulated Cᵒᵖ where
   distinguishedTriangles := distinguishedTriangles C
   isomorphic_distinguished := isomorphic_distinguished

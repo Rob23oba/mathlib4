@@ -23,7 +23,6 @@ Show the analogous results for functors which reflect or create (co)limits.
 
 @[expose] public section
 
-
 universe v v' u u'
 
 noncomputable section
@@ -44,23 +43,26 @@ In `extendFanIsLimit` we show that if the two given fans are limits, then this f
 limit.
 -/
 @[simps!]
-def extendFan {n : ℕ} {f : Fin (n + 1) → C} (c₁ : Fan fun i : Fin n => f i.succ)
-    (c₂ : BinaryFan (f 0) c₁.pt) : Fan f :=
-  Fan.mk c₂.pt
-    (by
-      refine Fin.cases ?_ ?_
-      · apply c₂.fst
-      · intro i
-        apply c₂.snd ≫ c₁.π.app ⟨i⟩)
+def extendFan
+    {n : ℕ} {f : Fin (n + 1) → C} (c₁ : Fan fun i : Fin n => f i.succ) (c₂ : BinaryFan (f 0) c₁.pt)
+    : Fan f :=
+  Fan.mk c₂.pt (by
+    refine Fin.cases ?_ ?_
+    · apply c₂.fst
+    · intro i
+      apply c₂.snd ≫ c₁.π.app ⟨i⟩)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Show that if the two given fans in `extendFan` are limits, then the constructed fan is also a
+/--
+Show that if the two given fans in `extendFan` are limits, then the constructed fan is also a
 limit.
 -/
-def extendFanIsLimit {n : ℕ} (f : Fin (n + 1) → C) {c₁ : Fan fun i : Fin n => f i.succ}
-    {c₂ : BinaryFan (f 0) c₁.pt} (t₁ : IsLimit c₁) (t₂ : IsLimit c₂) :
-    IsLimit (extendFan c₁ c₂) where
+def extendFanIsLimit
+    {n : ℕ} (f : Fin (n + 1) → C)
+    {c₁ : Fan fun i : Fin n => f i.succ} {c₂ : BinaryFan (f 0) c₁.pt}
+    (t₁ : IsLimit c₁) (t₂ : IsLimit c₂)
+    : IsLimit (extendFan c₁ c₂) where
   lift s := by
     apply (BinaryFan.IsLimit.lift' t₂ (s.π.app ⟨0⟩) _).1
     apply t₁.lift ⟨_, Discrete.natTrans fun ⟨i⟩ => s.π.app ⟨i.succ⟩⟩
@@ -88,7 +90,8 @@ section
 
 variable [HasBinaryProducts C] [HasTerminal C]
 
-/-- If `C` has a terminal object and binary products, then it has a product for objects indexed by
+/--
+If `C` has a terminal object and binary products, then it has a product for objects indexed by
 `Fin n`.
 This is a helper lemma for `hasFiniteProducts_of_has_binary_and_terminal`, which is more general
 than this.
@@ -103,12 +106,10 @@ private theorem hasProduct_fin : ∀ (n : ℕ) (f : Fin n → C), HasProduct f
     HasLimit.mk ⟨_, extendFanIsLimit f (limit.isLimit _) (limit.isLimit _)⟩
 
 /-- If `C` has a terminal object and binary products, then it has finite products. -/
-theorem hasFiniteProducts_of_has_binary_and_terminal : HasFiniteProducts C :=
-  ⟨fun n => ⟨fun K => by
-    let that : (Discrete.functor fun n => K.obj ⟨n⟩) ≅ K := Discrete.natIso fun ⟨_⟩ => Iso.refl _
-    rw [← hasLimit_iff_of_iso that]
-    apply hasProduct_fin⟩⟩
-
+theorem hasFiniteProducts_of_has_binary_and_terminal : HasFiniteProducts C := ⟨fun n => ⟨fun K => by
+  let that : (Discrete.functor fun n => K.obj ⟨n⟩) ≅ K := Discrete.natIso fun ⟨_⟩ => Iso.refl _
+  rw [← hasLimit_iff_of_iso that]
+  apply hasProduct_fin⟩⟩
 
 end
 
@@ -162,30 +163,35 @@ lemma Limits.PreservesFiniteProducts.of_preserves_binary_and_terminal :
 
 end Preserves
 
-/-- Given `n+1` objects of `C`, a cofan for the last `n` with point `c₁.pt`
+/--
+Given `n+1` objects of `C`, a cofan for the last `n` with point `c₁.pt`
 and a binary cofan on `c₁.X` and `f 0`, we can build a cofan for all `n+1`.
 
 In `extendCofanIsColimit` we show that if the two given cofans are colimits,
 then this cofan is also a colimit.
 -/
 @[simps!]
-def extendCofan {n : ℕ} {f : Fin (n + 1) → C} (c₁ : Cofan fun i : Fin n => f i.succ)
-    (c₂ : BinaryCofan (f 0) c₁.pt) : Cofan f :=
-  Cofan.mk c₂.pt
-    (by
-      refine Fin.cases ?_ ?_
-      · apply c₂.inl
-      · intro i
-        apply c₁.ι.app ⟨i⟩ ≫ c₂.inr)
+def extendCofan
+    {n : ℕ} {f : Fin (n + 1) → C}
+    (c₁ : Cofan fun i : Fin n => f i.succ) (c₂ : BinaryCofan (f 0) c₁.pt)
+    : Cofan f :=
+  Cofan.mk c₂.pt (by
+    refine Fin.cases ?_ ?_
+    · apply c₂.inl
+    · intro i
+      apply c₁.ι.app ⟨i⟩ ≫ c₂.inr)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-/-- Show that if the two given cofans in `extendCofan` are colimits,
+/--
+Show that if the two given cofans in `extendCofan` are colimits,
 then the constructed cofan is also a colimit.
 -/
-def extendCofanIsColimit {n : ℕ} (f : Fin (n + 1) → C) {c₁ : Cofan fun i : Fin n => f i.succ}
-    {c₂ : BinaryCofan (f 0) c₁.pt} (t₁ : IsColimit c₁) (t₂ : IsColimit c₂) :
-    IsColimit (extendCofan c₁ c₂) where
+def extendCofanIsColimit
+    {n : ℕ} (f : Fin (n + 1) → C)
+    {c₁ : Cofan fun i : Fin n => f i.succ} {c₂ : BinaryCofan (f 0) c₁.pt}
+    (t₁ : IsColimit c₁) (t₂ : IsColimit c₂)
+    : IsColimit (extendCofan c₁ c₂) where
   desc s := by
     apply (BinaryCofan.IsColimit.desc' t₂ (s.ι.app ⟨0⟩) _).1
     apply t₁.desc ⟨_, Discrete.natTrans fun i => s.ι.app ⟨i.as.succ⟩⟩

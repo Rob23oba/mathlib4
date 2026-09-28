@@ -32,8 +32,10 @@ public section
 
 open TensorProduct
 
-/-- `S` is a finite, totally split `R`-algebra if `S` is isomorphic to `Fin n → R` for some `n`.
-Geometrically, this is a trivial cover of degree `n`. -/
+/--
+`S` is a finite, totally split `R`-algebra if `S` is isomorphic to `Fin n → R` for some `n`.
+Geometrically, this is a trivial cover of degree `n`.
+-/
 class Algebra.IsFiniteSplit (R S : Type*) [CommRing R] [CommRing S] [Algebra R S] : Prop where
   nonempty_algEquiv_fun (R S) : ∃ n : ℕ, Nonempty (S ≃ₐ[R] Fin n → R)
 
@@ -41,8 +43,8 @@ namespace Algebra.IsFiniteSplit
 
 variable {k R S : Type*} [Field k] [CommRing R] [CommRing S] [Algebra k R] [Algebra R S]
 
-instance {T : Type*} [CommRing T] [Algebra R T] [IsFiniteSplit R S] :
-    IsFiniteSplit T (T ⊗[R] S) := by
+instance {T : Type*} [CommRing T] [Algebra R T] [IsFiniteSplit R S]
+    : IsFiniteSplit T (T ⊗[R] S) := by
   obtain ⟨n, ⟨e⟩⟩ := Algebra.IsFiniteSplit.nonempty_algEquiv_fun R S
   refine ⟨n, ⟨?_⟩⟩
   exact (TensorProduct.congr AlgEquiv.refl e).trans
@@ -59,8 +61,7 @@ lemma of_algEquiv {S' : Type*} [CommRing S'] [Algebra R S'] (e : S ≃ₐ[R] S')
   obtain ⟨n, ⟨f⟩⟩ := nonempty_algEquiv_fun R S
   exact ⟨n, ⟨e.symm.trans f⟩⟩
 
-instance : IsFiniteSplit R R :=
-  .of_algEquiv (AlgEquiv.funUnique (ι := Fin 1) _ _)
+instance : IsFiniteSplit R R := .of_algEquiv (AlgEquiv.funUnique (ι := Fin 1) _ _)
 
 lemma of_subsingleton_top [Subsingleton S] : IsFiniteSplit R S :=
   ⟨0, ⟨default⟩⟩
@@ -98,30 +99,36 @@ lemma bijective_algebraMap_quotient [IsFiniteSplit k R] (p : Ideal R) [p.IsPrime
 
 set_option backward.isDefEq.respectTransparency.types false in
 variable (k R) in
-/-- If `R` is finite split over a field `k`, the `k`-rational points of `R`
-are in one-to-one correspondence with its prime spectrum. -/
+/--
+If `R` is finite split over a field `k`, the `k`-rational points of `R`
+are in one-to-one correspondence with its prime spectrum.
+-/
 @[expose]
-noncomputable
-def algHomEquivPrimeSpectrum [IsFiniteSplit k R] : (R →ₐ[k] k) ≃ PrimeSpectrum R where
+noncomputable def algHomEquivPrimeSpectrum [IsFiniteSplit k R] : (R →ₐ[k] k) ≃ PrimeSpectrum R where
   toFun f := ⟨RingHom.ker f, RingHom.ker_isPrime f⟩
-  invFun p := AlgHom.comp
-    (AlgEquiv.ofBijective (Algebra.ofId _ _) (bijective_algebraMap_quotient _ _)).symm.toAlgHom
-    (Ideal.Quotient.mkₐ _ p.asIdeal)
+  invFun p :=
+    AlgHom.comp
+      (AlgEquiv.ofBijective (Algebra.ofId _ _) (bijective_algebraMap_quotient _ _)).symm.toAlgHom
+      (Ideal.Quotient.mkₐ _ p.asIdeal)
   left_inv f := by
     ext
     dsimp
     have : (RingHom.ker f).IsPrime := RingHom.ker_isPrime f
     apply (AlgEquiv.ofBijective (ofId k (R ⧸ RingHom.ker f))
       (bijective_algebraMap_quotient _ _)).injective
-    rw [AlgEquiv.apply_symm_apply, AlgEquiv.coe_ofBijective, ofId_apply,
-      IsScalarTower.algebraMap_apply k R]
+    rw [
+      AlgEquiv.apply_symm_apply, AlgEquiv.coe_ofBijective, ofId_apply,
+      IsScalarTower.algebraMap_apply k R
+    ]
     simp [-Ideal.Quotient.mk_algebraMap, Ideal.Quotient.mk_eq_mk_iff_sub_mem]
   right_inv p := by
     ext : 1
     dsimp
-    rw [← AlgHom.comap_ker, ← RingHom.ker_coe_toRingHom, AlgEquiv.toAlgHom_toRingHom,
+    rw [
+      ← AlgHom.comap_ker, ← RingHom.ker_coe_toRingHom, AlgEquiv.toAlgHom_toRingHom,
       AlgHom.ker_coe_equiv, ← RingHom.ker_eq_comap_bot, ← RingHom.ker_coe_toRingHom,
-      Ideal.Quotient.mkₐ_ker]
+      Ideal.Quotient.mkₐ_ker
+    ]
 
 @[simp]
 lemma coe_algHomEquivPrimeSpectrum [IsFiniteSplit k R] (f : R →ₐ[k] k) :

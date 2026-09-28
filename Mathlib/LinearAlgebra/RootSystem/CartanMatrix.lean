@@ -47,15 +47,15 @@ variable {ι R M N : Type*} [CommRing R] [AddCommGroup M] [Module R M] [AddCommG
 
 namespace RootPairing.Base
 
-variable (S : Type*) [CommRing S] [Algebra S R]
-  {P : RootPairing ι R M N} [P.IsValuedIn S] (b : P.Base)
+variable
+  (S : Type*) [CommRing S] [Algebra S R] {P : RootPairing ι R M N} [P.IsValuedIn S] (b : P.Base)
 
-/-- The Cartan matrix of a root pairing, taking values in `S`, with respect to a base `b`.
+/--
+The Cartan matrix of a root pairing, taking values in `S`, with respect to a base `b`.
 
-See also `RootPairing.Base.cartanMatrix`. -/
-def cartanMatrixIn :
-    Matrix b.support b.support S :=
-  .of fun i j ↦ P.pairingIn S i j
+See also `RootPairing.Base.cartanMatrix`.
+-/
+def cartanMatrixIn : Matrix b.support b.support S := .of fun i j ↦ P.pairingIn S i j
 
 lemma cartanMatrixIn_def (i j : b.support) :
     b.cartanMatrixIn S i j = P.pairingIn S i j :=
@@ -71,12 +71,14 @@ lemma cartanMatrixIn_apply_same [FaithfulSMul S R] (i : b.support) :
     b.cartanMatrixIn S i i = 2 :=
   FaithfulSMul.algebraMap_injective S R <| by simp [cartanMatrixIn_def, map_ofNat]
 
-/- See `RootPairing.Base.cartanMatrix_mul_diagonal_eq` below for a version of this lemma in the case
+/-
+See `RootPairing.Base.cartanMatrix_mul_diagonal_eq` below for a version of this lemma in the case
 `S = ℤ`, which does not need to use `Matrix.map`.
 
 If we generalised the notion of `RootPairing.Base` to work relative to an assumption
 `[P.IsValuedIn S]` then such a base would provide basis of `P.rootSpan S` and we could avoid
-using `Matrix.map` here too but this does not seem to be worth it. -/
+using `Matrix.map` here too but this does not seem to be worth it.
+-/
 lemma cartanMatrixIn_mul_diagonal_eq {P : RootPairing ι R M N} [P.IsRootSystem] [P.IsValuedIn S]
     (B : P.InvariantForm) (b : P.Base) [DecidableEq ι] :
     (b.cartanMatrixIn S).map (algebraMap S R) *
@@ -107,9 +109,7 @@ section IsCrystallographic
 variable [P.IsCrystallographic]
 
 /-- The Cartan matrix of a crystallographic root pairing, with respect to a base `b`. -/
-abbrev cartanMatrix :
-    Matrix b.support b.support ℤ :=
-  b.cartanMatrixIn ℤ
+abbrev cartanMatrix : Matrix b.support b.support ℤ := b.cartanMatrixIn ℤ
 
 variable [CharZero R]
 
@@ -327,10 +327,12 @@ lemma exists_mem_span_pairingIn_ne_zero_and_pairwise_ne
 
 section Uniqueness
 
-variable {ι₂ M₂ N₂ : Type*} [AddCommGroup M₂] [Module R M₂] [AddCommGroup N₂] [Module R N₂]
-  {P : RootPairing ι R M N} [P.IsRootSystem] [P.IsCrystallographic] [P.IsReduced] (b : P.Base)
-  {P₂ : RootPairing ι₂ R M₂ N₂} [P₂.IsCrystallographic] (b₂ : P₂.Base)
-  (e : b.support ≃ b₂.support)
+variable
+  {ι₂ M₂ N₂ : Type*} [AddCommGroup M₂] [Module R M₂] [AddCommGroup N₂] [Module R N₂]
+  {P : RootPairing ι R M N} [P.IsRootSystem] [P.IsCrystallographic] [P.IsReduced]
+  (b : P.Base)
+  {P₂ : RootPairing ι₂ R M₂ N₂} [P₂.IsCrystallographic]
+  (b₂ : P₂.Base) (e : b.support ≃ b₂.support)
 
 lemma apply_mem_range_root_of_cartanMatrixEq
     (f : M ≃ₗ[R] M₂) (hf : ∀ i : b.support, f (P.root i) = P₂.root (e i))
@@ -356,14 +358,16 @@ lemma apply_mem_range_root_of_cartanMatrixEq
     exact mem_range_self _
 
 /-- A root system is determined by its Cartan matrix. -/
-def equivOfCartanMatrixEq [Finite ι₂] [P₂.IsRootSystem] [P₂.IsReduced]
-    (he : ∀ i j, b₂.cartanMatrix (e i) (e j) = b.cartanMatrix i j) :
-    P.Equiv P₂ :=
+def equivOfCartanMatrixEq
+    [Finite ι₂] [P₂.IsRootSystem] [P₂.IsReduced]
+    (he : ∀ i j, b₂.cartanMatrix (e i) (e j) = b.cartanMatrix i j)
+    : P.Equiv P₂ :=
   let f : M ≃ₗ[R] M₂ := b.toWeightBasis.equiv b₂.toWeightBasis e
   have hf : ∀ m, f m ∈ range P₂.root ↔ m ∈ range P.root := by
     refine fun m ↦ ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-    · simpa using apply_mem_range_root_of_cartanMatrixEq _ b e.symm f.symm
-        (by simp [f, Module.Basis.equiv]) (f m) h (by simp [(he _ _).symm])
+    · simpa using
+        apply_mem_range_root_of_cartanMatrixEq _ b e.symm f.symm (by simp [f, Module.Basis.equiv])
+          (f m) h (by simp [(he _ _).symm])
     · exact apply_mem_range_root_of_cartanMatrixEq b b₂ e f (by simp [f, Module.Basis.equiv]) m h he
   let : Fintype ι := Fintype.ofFinite _
   let : Fintype ι₂ := Fintype.ofFinite _

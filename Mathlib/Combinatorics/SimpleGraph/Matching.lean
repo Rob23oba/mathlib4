@@ -71,8 +71,8 @@ noncomputable def IsMatching.toEdge (h : M.IsMatching) (v : M.verts) : M.edgeSet
   ⟨s(v, (h v.property).choose), (h v.property).choose_spec.1⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem IsMatching.toEdge_eq_of_adj (h : M.IsMatching) (hvw : M.Adj v w) :
-    h.toEdge ⟨v, hvw.fst_mem⟩ = ⟨s(v, w), hvw⟩ := by
+theorem IsMatching.toEdge_eq_of_adj (h : M.IsMatching) (hvw : M.Adj v w)
+    : h.toEdge ⟨v, hvw.fst_mem⟩ = ⟨s(v, w), hvw⟩ := by
   rw [IsMatching.toEdge, Subtype.mk_eq_mk, ← h hvw.fst_mem |>.choose_spec.right w hvw]
 
 theorem IsMatching.toEdge.surjective (h : M.IsMatching) : Surjective h.toEdge := by
@@ -80,17 +80,17 @@ theorem IsMatching.toEdge.surjective (h : M.IsMatching) : Surjective h.toEdge :=
   exact ⟨⟨x, M.edge_vert he⟩, h.toEdge_eq_of_adj he⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem IsMatching.toEdge_eq_toEdge_of_adj (h : M.IsMatching) (ha : M.Adj v w) :
-    h.toEdge ⟨v, ha.fst_mem⟩ = h.toEdge ⟨w, ha.snd_mem⟩ := by
+theorem IsMatching.toEdge_eq_toEdge_of_adj (h : M.IsMatching) (ha : M.Adj v w)
+    : h.toEdge ⟨v, ha.fst_mem⟩ = h.toEdge ⟨w, ha.snd_mem⟩ := by
   rw [h.toEdge_eq_of_adj ha, h.toEdge_eq_of_adj ha.symm, Subtype.mk_eq_mk, Sym2.eq_swap]
 
-theorem IsMatching.mem_coe_toEdge (h : M.IsMatching) {v : V} (hv : v ∈ M.verts) :
-    v ∈ (h.toEdge ⟨v, hv⟩ : Sym2 V) :=
+theorem IsMatching.mem_coe_toEdge (h : M.IsMatching) {v : V} (hv : v ∈ M.verts)
+    : v ∈ (h.toEdge ⟨v, hv⟩ : Sym2 V) :=
   ⟨h hv |>.choose, rfl⟩
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem IsMatching.toEdge_preimage_singleton (h : M.IsMatching) (huv : M.Adj u v) :
-    h.toEdge ⁻¹' {⟨s(u, v), huv⟩} = {⟨u, huv.fst_mem⟩, ⟨v, huv.snd_mem⟩} := by
+theorem IsMatching.toEdge_preimage_singleton (h : M.IsMatching) (huv : M.Adj u v)
+    : h.toEdge ⁻¹' {⟨s(u, v), huv⟩} = {⟨u, huv.fst_mem⟩, ⟨v, huv.snd_mem⟩} := by
   refine Set.ext fun w ↦ ⟨fun hw ↦ ?_, fun hw ↦ ?_⟩
   · grind [h.mem_coe_toEdge w.property]
   · rcases hw with rfl | rfl
@@ -215,8 +215,8 @@ lemma Iso.isMatching_map {G' : SimpleGraph W} {M : Subgraph G} (f : G ≃g G') :
   mp h := by simpa [← map_comp] using h.map f.symm.toHom f.symm.injective
   mpr := .map f.toHom f.injective
 
-theorem IsMatching.verts_eq_biUnion_edgeSet {M : G.Subgraph} (h : M.IsMatching) :
-    M.verts = ⋃ e ∈ M.edgeSet, (e : Set V) := by
+theorem IsMatching.verts_eq_biUnion_edgeSet {M : G.Subgraph} (h : M.IsMatching)
+    : M.verts = ⋃ e ∈ M.edgeSet, (e : Set V) := by
   refine Set.ext fun v ↦ .trans ⟨fun hv ↦ ?_, fun ⟨e, he, hv⟩ ↦ ?_⟩ Set.mem_iUnion₂.symm
   · have ⟨u, he, _⟩ := h hv
     exact ⟨s(v, u), he, Sym2.mem_mk_left ..⟩
@@ -240,8 +240,8 @@ theorem IsMatching.support_eq_verts (h : M.IsMatching) : M.support = M.verts := 
   obtain ⟨w, hvw, -⟩ := h hv
   exact ⟨_, hvw⟩
 
-theorem isMatching_iff_forall_degree [∀ v, Fintype (M.neighborSet v)] :
-    M.IsMatching ↔ ∀ v : V, v ∈ M.verts → M.degree v = 1 := by
+theorem isMatching_iff_forall_degree [∀ v, Fintype (M.neighborSet v)]
+    : M.IsMatching ↔ ∀ v : V, v ∈ M.verts → M.degree v = 1 := by
   simp only [degree_eq_one_iff_existsUnique_adj, IsMatching]
 
 theorem IsMatching.even_card [Fintype M.verts] (h : M.IsMatching) : Even M.verts.toFinset.card := by
@@ -258,12 +258,12 @@ theorem isPerfectMatching_iff : M.IsPerfectMatching ↔ ∀ v, ∃! w, M.Adj v w
   · obtain ⟨w, hw, -⟩ := hm v
     exact M.edge_vert hw
 
-theorem isPerfectMatching_iff_forall_degree [∀ v, Fintype (M.neighborSet v)] :
-    M.IsPerfectMatching ↔ ∀ v, M.degree v = 1 := by
+theorem isPerfectMatching_iff_forall_degree [∀ v, Fintype (M.neighborSet v)]
+    : M.IsPerfectMatching ↔ ∀ v, M.degree v = 1 := by
   simp [degree_eq_one_iff_existsUnique_adj, isPerfectMatching_iff]
 
-theorem IsPerfectMatching.even_card [Fintype V] (h : M.IsPerfectMatching) :
-    Even (Fintype.card V) := by
+theorem IsPerfectMatching.even_card [Fintype V] (h : M.IsPerfectMatching)
+    : Even (Fintype.card V) := by
   classical
   simpa only [h.2.card_verts] using IsMatching.even_card h.1
 
@@ -346,7 +346,7 @@ end ConnectedComponent
 A graph is matching free if it has no perfect matching. It does not make much sense to
 consider a graph being free of just matchings, because any non-trivial graph has those.
 -/
-def IsMatchingFree (G : SimpleGraph V) := ∀ M : Subgraph G, ¬ M.IsPerfectMatching
+def IsMatchingFree (G : SimpleGraph V) := ∀ M : Subgraph G, ¬M.IsPerfectMatching
 
 lemma IsMatchingFree.mono {G G' : SimpleGraph V} (h : G ≤ G') (hmf : G'.IsMatchingFree) :
     G.IsMatchingFree := by
@@ -365,7 +365,8 @@ lemma exists_maximal_isMatchingFree [Finite V] (h : G.IsMatchingFree) :
   obtain ⟨Gmax, hGmax⟩ := Finite.exists_le_maximal h
   exact ⟨Gmax, ⟨hGmax.1, ⟨hGmax.2.prop, fun _ h' ↦ hGmax.2.not_prop_of_gt h'⟩⟩⟩
 
-/-- A graph `G` consists of a set of cycles, if each vertex is either isolated or connected to
+/--
+A graph `G` consists of a set of cycles, if each vertex is either isolated or connected to
 exactly two vertices. This is used to create new matchings by taking the `symmDiff` with cycles.
 The definition of `symmDiff` that makes sense is the one for `SimpleGraph`. The `symmDiff`
 for `SimpleGraph.Subgraph` deriving from the lattice structure also affects the vertices included,

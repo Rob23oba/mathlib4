@@ -38,11 +38,13 @@ namespace BasicConstructibleSetData
 
 noncomputable instance : DecidableEq (BasicConstructibleSetData R) := Classical.decEq _
 
-/-- Given the data of the constructible set `s`, build the data of the constructible set
-`{I | {x | φ x ∈ I} ∈ s}`. -/
+/--
+Given the data of the constructible set `s`, build the data of the constructible set
+`{I | {x | φ x ∈ I} ∈ s}`.
+-/
 @[simps]
-noncomputable def map (φ : R →+* S) (C : BasicConstructibleSetData R) :
-    BasicConstructibleSetData S where
+noncomputable def map (φ : R →+* S) (C : BasicConstructibleSetData R)
+    : BasicConstructibleSetData S where
   f := φ C.f
   n := C.n
   g := φ ∘ C.g
@@ -57,8 +59,10 @@ lemma map_comp (φ : S →+* T) (ψ : R →+* S) (C : BasicConstructibleSetData 
 lemma map_comp' (φ : S →+* T) (ψ : R →+* S) : map (φ.comp ψ) = map φ ∘ map ψ := by
   ext : 1; simp [map_comp]
 
-/-- Given the data of a basic constructible set `s`, namely a tuple `(f, g₁, ..., gₙ)` such that
-`s = V(g₁, ..., gₙ) \ V(f)`, return `s`. -/
+/--
+Given the data of a basic constructible set `s`, namely a tuple `(f, g₁, ..., gₙ)` such that
+`s = V(g₁, ..., gₙ) \ V(f)`, return `s`.
+-/
 def toSet (C : BasicConstructibleSetData R) : Set (PrimeSpectrum R) :=
   zeroLocus (Set.range C.g) \ zeroLocus {C.f}
 
@@ -69,16 +73,20 @@ lemma toSet_map (φ : R →+* S) (C : BasicConstructibleSetData R) :
 end BasicConstructibleSetData
 
 variable (R) in
-/-- The data of a constructible set `s` in the prime spectrum of a ring is finitely many tuples
+/--
+The data of a constructible set `s` in the prime spectrum of a ring is finitely many tuples
 `(f, g₁, ..., gₙ)` such that `s = ⋃ (f, g₁, ..., gₙ), V(g₁, ..., gₙ) \ V(f)`.
 
-To obtain `s` from its data, use `PrimeSpectrum.ConstructibleSetData.toSet`. -/
+To obtain `s` from its data, use `PrimeSpectrum.ConstructibleSetData.toSet`.
+-/
 abbrev ConstructibleSetData := Finset (BasicConstructibleSetData R)
 
 namespace ConstructibleSetData
 
-/-- Given the data of the constructible set `s`, build the data of the constructible set
-`{I | {x | f x ∈ I} ∈ s}`. -/
+/--
+Given the data of the constructible set `s`, build the data of the constructible set
+`{I | {x | f x ∈ I} ∈ s}`.
+-/
 noncomputable def map (φ : R →+* S) (s : ConstructibleSetData R) : ConstructibleSetData S :=
   s.image (.map φ)
 
@@ -89,8 +97,10 @@ lemma map_comp (f : S →+* T) (g : R →+* S) (s : ConstructibleSetData R) :
     s.map (f.comp g) = (s.map g).map f := by
   simp [map, image_image, Function.comp_def, BasicConstructibleSetData.map_comp']
 
-/-- Given the data of a constructible set `s`, namely finitely many tuples `(f, g₁, ..., gₙ)` such
-that `s = ⋃ (f, g₁, ..., gₙ), V(g₁, ..., gₙ) \ V(f)`, return `s`. -/
+/--
+Given the data of a constructible set `s`, namely finitely many tuples `(f, g₁, ..., gₙ)` such
+that `s = ⋃ (f, g₁, ..., gₙ), V(g₁, ..., gₙ) \ V(f)`, return `s`.
+-/
 def toSet (S : ConstructibleSetData R) : Set (PrimeSpectrum R) := ⋃ C ∈ S, C.toSet
 
 @[simp]

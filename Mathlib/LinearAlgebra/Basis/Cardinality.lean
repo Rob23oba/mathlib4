@@ -64,17 +64,22 @@ section Ring
 variable [Semiring R] [AddCommMonoid M] [Nontrivial R] [Module R M]
 
 -- From [Les familles libres maximales d'un module ont-elles le meme cardinal?][lazarus1973]
-/-- Over any ring `R`, if `b` is a basis for a module `M`,
+/--
+Over any ring `R`, if `b` is a basis for a module `M`,
 and `s` is a maximal linearly independent set,
 then the union of the supports of `x ∈ s` (when written out in the basis `b`) is all of `b`.
 -/
-theorem union_support_maximal_linearIndependent_eq_range_basis {ι : Type w} (b : Basis ι R M)
-    {κ : Type w'} (v : κ → M) (ind : LinearIndependent R v) (m : ind.Maximal) :
-    ⋃ k, ((b.repr (v k)).support : Set ι) = Set.univ := by
+theorem union_support_maximal_linearIndependent_eq_range_basis
+    {ι : Type w} (b : Basis ι R M)
+    {κ : Type w'} (v : κ → M) (ind : LinearIndependent R v) (m : ind.Maximal)
+    : ⋃ k, ((b.repr (v k)).support : Set ι) = Set.univ := by
   -- If that's not the case,
   by_contra h
-  simp only [← Ne.eq_def, ne_univ_iff_exists_notMem, mem_iUnion, not_exists_not,
-    Finsupp.mem_support_iff, Finset.mem_coe] at h
+  simp only [
+      ← Ne.eq_def, ne_univ_iff_exists_notMem, mem_iUnion, not_exists_not, Finsupp.mem_support_iff,
+      Finset.mem_coe
+    ]
+    at h
   -- We have some basis element `b i` which is not in the support of any of the `v k`.
   obtain ⟨i, w⟩ := h
   have repr_eq_zero (l) : b.repr (linearCombination R v l) i = 0 := by
@@ -100,20 +105,23 @@ theorem union_support_maximal_linearIndependent_eq_range_basis {ι : Type w} (b 
     · simpa [repr_eq_zero] using congr(b.repr $z i)
     -- All the other coefficients are also equal, because `v` is linear independent,
     -- by comparing the coefficients in the basis `b`.
-    have l₁ : l.some = l'.some := ind <| b.repr.injective <| ext fun j ↦ by
-      obtain rfl | ne := eq_or_ne i j
-      · simp_rw [repr_eq_zero]
-      simpa [single_apply, ne] using congr(b.repr $z j)
+    have l₁ : l.some = l'.some :=
+      ind <| b.repr.injective <| ext fun j ↦ by
+        obtain rfl | ne := eq_or_ne i j
+        · simp_rw [repr_eq_zero]
+        simpa [single_apply, ne] using congr(b.repr $z j)
     congrm $l₁ a
   exact r'' (m (range v') i' r)
 
-/-- Over any ring `R`, if `b` is an infinite basis for a module `M`,
+/--
+Over any ring `R`, if `b` is an infinite basis for a module `M`,
 and `s` is a maximal linearly independent set,
 then the cardinality of `b` is bounded by the cardinality of `s`.
 -/
-theorem infinite_basis_le_maximal_linearIndependent' {ι : Type w} (b : Basis ι R M) [Infinite ι]
-    {κ : Type w'} (v : κ → M) (i : LinearIndependent R v) (m : i.Maximal) :
-    Cardinal.lift.{w'} #ι ≤ Cardinal.lift.{w} #κ := by
+theorem infinite_basis_le_maximal_linearIndependent'
+    {ι : Type w} (b : Basis ι R M) [Infinite ι]
+    {κ : Type w'} (v : κ → M) (i : LinearIndependent R v) (m : i.Maximal)
+    : Cardinal.lift.{w'} #ι ≤ Cardinal.lift.{w} #κ := by
   let Φ := fun k : κ => (b.repr (v k)).support
   have w₁ : #ι ≤ #(Set.range Φ) := by
     apply Cardinal.le_range_of_union_finset_eq_univ
@@ -123,12 +131,15 @@ theorem infinite_basis_le_maximal_linearIndependent' {ι : Type w} (b : Basis ι
 
 -- (See `infinite_basis_le_maximal_linearIndependent'` for the more general version
 -- where the index types can live in different universes.)
-/-- Over any ring `R`, if `b` is an infinite basis for a module `M`,
+/--
+Over any ring `R`, if `b` is an infinite basis for a module `M`,
 and `s` is a maximal linearly independent set,
 then the cardinality of `b` is bounded by the cardinality of `s`.
 -/
-theorem infinite_basis_le_maximal_linearIndependent {ι : Type w} (b : Basis ι R M) [Infinite ι]
-    {κ : Type w} (v : κ → M) (i : LinearIndependent R v) (m : i.Maximal) : #ι ≤ #κ :=
+theorem infinite_basis_le_maximal_linearIndependent
+    {ι : Type w} (b : Basis ι R M) [Infinite ι]
+    {κ : Type w} (v : κ → M) (i : LinearIndependent R v) (m : i.Maximal)
+    : #ι ≤ #κ :=
   Cardinal.lift_le.mp (infinite_basis_le_maximal_linearIndependent' b v i m)
 
 end Ring

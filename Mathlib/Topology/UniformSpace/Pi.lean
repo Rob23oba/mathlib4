@@ -13,7 +13,6 @@ public import Mathlib.Topology.UniformSpace.UniformEmbedding
 
 public section
 
-
 noncomputable section
 
 open scoped Uniformity Topology
@@ -24,27 +23,25 @@ universe u
 variable {ι ι' β : Type*} (α : ι → Type u) [U : ∀ i, UniformSpace (α i)] [UniformSpace β]
 
 instance Pi.uniformSpace : UniformSpace (∀ i, α i) :=
-  UniformSpace.ofCoreEq (⨅ i, UniformSpace.comap (eval i) (U i)).toCore
-      Pi.topologicalSpace <|
+  UniformSpace.ofCoreEq (⨅ i, UniformSpace.comap (eval i) (U i)).toCore Pi.topologicalSpace <|
     Eq.symm toTopologicalSpace_iInf
 
 lemma Pi.uniformSpace_eq :
     Pi.uniformSpace α = ⨅ i, UniformSpace.comap (eval i) (U i) := by
   ext : 1; rfl
 
-theorem Pi.uniformity :
-    𝓤 (∀ i, α i) = ⨅ i : ι, (Filter.comap fun a => (a.1 i, a.2 i)) (𝓤 (α i)) :=
+theorem Pi.uniformity : 𝓤 (∀ i, α i) = ⨅ i : ι, (Filter.comap fun a => (a.1 i, a.2 i)) (𝓤 (α i)) :=
   iInf_uniformity
 
 variable {α}
 
-instance [Countable ι] [∀ i, IsCountablyGenerated (𝓤 (α i))] :
-    IsCountablyGenerated (𝓤 (∀ i, α i)) := by
+instance [Countable ι] [∀ i, IsCountablyGenerated (𝓤 (α i))]
+    : IsCountablyGenerated (𝓤 (∀ i, α i)) := by
   rw [Pi.uniformity]
   infer_instance
 
-theorem uniformContinuous_pi {β : Type*} [UniformSpace β] {f : β → ∀ i, α i} :
-    UniformContinuous f ↔ ∀ i, UniformContinuous fun x => f x i := by
+theorem uniformContinuous_pi {β : Type*} [UniformSpace β] {f : β → ∀ i, α i}
+    : UniformContinuous f ↔ ∀ i, UniformContinuous fun x => f x i := by
   simp only [UniformContinuous, Pi.uniformity, tendsto_iInf, tendsto_comap_iff, Function.comp_def]
 
 variable (α)
@@ -52,21 +49,23 @@ variable (α)
 theorem Pi.uniformContinuous_proj (i : ι) : UniformContinuous fun a : ∀ i : ι, α i => a i :=
   uniformContinuous_pi.1 uniformContinuous_id i
 
-theorem Pi.uniformContinuous_precomp' (φ : ι' → ι) :
-    UniformContinuous (fun (f : (∀ i, α i)) (j : ι') ↦ f (φ j)) :=
+theorem Pi.uniformContinuous_precomp' (φ : ι' → ι)
+    : UniformContinuous (fun (f : (∀ i, α i)) (j : ι') ↦ f (φ j)) :=
   uniformContinuous_pi.mpr fun j ↦ uniformContinuous_proj α (φ j)
 
-theorem Pi.uniformContinuous_precomp (φ : ι' → ι) :
-    UniformContinuous (· ∘ φ : (ι → β) → (ι' → β)) :=
+theorem Pi.uniformContinuous_precomp (φ : ι' → ι)
+    : UniformContinuous (· ∘ φ : (ι → β) → (ι' → β)) :=
   Pi.uniformContinuous_precomp' _ φ
 
-theorem Pi.uniformContinuous_postcomp' {β : ι → Type*} [∀ i, UniformSpace (β i)]
-    {g : ∀ i, α i → β i} (hg : ∀ i, UniformContinuous (g i)) :
-    UniformContinuous (fun (f : (∀ i, α i)) (i : ι) ↦ g i (f i)) :=
+theorem Pi.uniformContinuous_postcomp'
+    {β : ι → Type*} [∀ i, UniformSpace (β i)]
+    {g : ∀ i, α i → β i} (hg : ∀ i, UniformContinuous (g i))
+    : UniformContinuous (fun (f : (∀ i, α i)) (i : ι) ↦ g i (f i)) :=
   uniformContinuous_pi.mpr fun i ↦ (hg i).comp <| uniformContinuous_proj α i
 
-theorem Pi.uniformContinuous_postcomp {α : Type*} [UniformSpace α] {g : α → β}
-    (hg : UniformContinuous g) : UniformContinuous (g ∘ · : (ι → α) → (ι → β)) :=
+theorem Pi.uniformContinuous_postcomp
+    {α : Type*} [UniformSpace α] {g : α → β} (hg : UniformContinuous g)
+    : UniformContinuous (g ∘ · : (ι → α) → (ι → β)) :=
   Pi.uniformContinuous_postcomp' _ fun _ ↦ hg
 
 lemma Pi.uniformSpace_comap_precomp' (φ : ι' → ι) :
@@ -115,12 +114,14 @@ lemma Pi.uniformSpace_comap_restrict_sUnion (𝔖 : Set (Set ι)) :
     ⨅ S ∈ 𝔖, UniformSpace.comap S.domRestrict (Pi.uniformSpace (fun i : S ↦ α i)) := by
   simp_rw [Pi.uniformSpace_comap_restrict α, iInf_sUnion]
 
-/-- An infimum of complete uniformities is complete,
-as long as the whole family is bounded by some common T2 topology. -/
-protected theorem CompleteSpace.iInf {ι X : Type*} {u : ι → UniformSpace X}
-    (hu : ∀ i, @CompleteSpace X (u i))
-    (ht : ∃ t, @T2Space X t ∧ ∀ i, (u i).toTopologicalSpace ≤ t) :
-    @CompleteSpace X (⨅ i, u i) := by
+/--
+An infimum of complete uniformities is complete,
+as long as the whole family is bounded by some common T2 topology.
+-/
+protected theorem CompleteSpace.iInf
+    {ι X : Type*} {u : ι → UniformSpace X}
+    (hu : ∀ i, @CompleteSpace X (u i)) (ht : ∃ t, @T2Space X t ∧ ∀ i, (u i).toTopologicalSpace ≤ t)
+    : @CompleteSpace X (⨅ i, u i) := by
   -- We can assume `X` is nonempty.
   nontriviality X
   rcases ht with ⟨t, ht, hut⟩
@@ -133,9 +134,9 @@ protected theorem CompleteSpace.iInf {ι X : Type*} {u : ι → UniformSpace X}
     ofPred_forall]
   -- The separation of `t` ensures that this is the case in `Π i, (X, t)`, hence the result
   -- since the topology associated to each `u i` is finer than `t`.
-  have : Pi.topologicalSpace (t₂ := fun i ↦ (u i).toTopologicalSpace) ≤
-         Pi.topologicalSpace (t₂ := fun _ ↦ t) :=
+  have : Pi.topologicalSpace (t₂ := fun i ↦ (u i).toTopologicalSpace)
+      ≤ Pi.topologicalSpace (t₂ := fun _ ↦ t) :=
     iInf_mono fun i ↦ induced_mono <| hut i
   refine IsClosed.isComplete <| .mono ?_ this
-  exact isClosed_iInter fun i ↦ isClosed_iInter fun j ↦
-    isClosed_eq (continuous_apply _) (continuous_apply _)
+  exact isClosed_iInter fun i ↦
+    isClosed_iInter fun j ↦ isClosed_eq (continuous_apply _) (continuous_apply _)
