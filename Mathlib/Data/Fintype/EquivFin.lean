@@ -242,14 +242,14 @@ theorem card_le_one_iff : card α ≤ 1 ↔ ∀ a b : α, a = b :=
       rw [hx a, hx b],
     fun _ => ha ▸ le_rfl
   ⟩
-  | n + 2, ha => ⟨
-    fun h =>
-      False.elim <| by
-        rw [← ha] at h
-        cases h with
-        | step h => cases h,
-    fun h => card_unit ▸ card_le_of_injective (fun _ => ()) fun _ _ _ => h _ _
-  ⟩
+  | n + 2, ha => by
+    refine ⟨
+      fun h => False.elim <| ?_,
+      fun h => card_unit ▸ card_le_of_injective (fun _ => ()) fun _ _ _ => h _ _
+    ⟩
+    rw [← ha] at h
+    cases h with
+    | step h => cases h
 
 theorem card_le_one_iff_subsingleton : card α ≤ 1 ↔ Subsingleton α :=
   card_le_one_iff.trans subsingleton_iff.symm
